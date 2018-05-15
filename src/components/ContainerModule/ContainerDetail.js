@@ -83,7 +83,7 @@ class ContainerDetail extends Component {
         return new Promise((resolve) => {
           let notification = new NotificationHandler()
           notification.spin(`容器 ${containerName} 重新分配中...`)
-          deleteContainers(cluster, [containerName], {
+          deleteContainers(cluster, [containerName], {}, {
             success: {
               func: () => {
                 notification.close()

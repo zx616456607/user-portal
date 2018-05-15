@@ -13,6 +13,7 @@
 import * as ActionTypes from '../actions/role'
 import * as ActionTypesPermission from '../actions/permission'
 import merge from 'lodash/merge'
+import isEmpty from 'lodash/isEmpty'
 
 function roleList(state = {}, action){
   switch(action.type){
@@ -81,10 +82,78 @@ function permissionList(state = {}, action) {
   }
 }
 
+function permissionResource(state = {}, action) {
+  switch(action.type) {
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...action.response.result.data
+      })
+    case ActionTypesPermission.PERMISSION_RESOURCE_LIST_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function formatOverview(result) {
+  for(let [key, value] of Object.entries(result)) {
+    const resourceList = []
+    for(let [innerKey, innerValue] of Object.entries(value.acls.fixed)) {
+      resourceList.push({
+        name: innerKey,
+        permissionList: innerValue
+      })
+    }
+    const regexList = []
+    value.acls.regex.forEach(item => {
+      const repeatArr = value.acls.regex.filter(res => res.filter === item.filter)
+      const flag = regexList.some(res => res.name === item.filter)
+      if (!flag) {
+        regexList.push({
+          name: item.filter,
+          isReg: true,
+          permissionList: repeatArr.map(item => item)
+        })
+      }
+    })
+    value.acls.resourceList = resourceList.concat(regexList)
+  }
+  return result
+}
+
+function permissionOverview(state = {}, action) {
+  switch(action.type) {
+    case ActionTypesPermission.PERMISSION_OVERVIEW_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypesPermission.PERMISSION_OVERVIEW_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ...formatOverview(action.response.result)
+      })
+    case ActionTypesPermission.PERMISSION_OVERVIEW_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function role(state = { roleList: {} }, action) {
   return {
     roleList: roleList(state.roleList, action),
     roleDetail: roleDetail(state.roleDetail, action),
-    permissionList: permissionList(state.permissionList, action)
+    permissionList: permissionList(state.permissionList, action),
+    permissionResource: permissionResource(state.permissionResource, action),
+    permissionOverview: permissionOverview(state.permissionOverview, action)
   }
 }

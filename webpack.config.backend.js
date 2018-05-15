@@ -53,7 +53,7 @@ module.exports = {
     './app.js'
   ],
   output: {
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, './backend'),
     filename: 'app.js',
     libraryTarget: 'commonjs2',
   },

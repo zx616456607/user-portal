@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
+import { browserHistory } from 'react-router'
 import './style/CICD.less'
 import { NEED_BUILD_IMAGE } from '../../constants'
 
@@ -29,8 +30,20 @@ if (NEED_BUILD_IMAGE) {
 }
 
 menuList = menuList.concat({
-  url: '/ci_cd/tenx_flow',
-  name: 'TenxFlow'
+  // url: '/ci_cd/tenx_flow',
+  // name: 'TenxFlow'
+  url: '/ci_cd/pipelines',
+  name: '流水线',
+  onClick: () => {
+    try {
+      browserHistory.push('/ci_cd/pipelines')
+      if (window.devFlowPortalHistory) {
+        window.devFlowPortalHistory.push('/devops/pipelines')
+      }
+    } catch (error) {
+      //
+    }
+  }
 }, {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'

@@ -27,6 +27,16 @@ exports.getTemplateList = function* () {
   const query = this.query;
   const api = apiFactory.getApi(loginUser);
   const result = yield api.templates.getBy(['helm'], query);
+  const data = []
+  if (result.data && result.data.data) {
+    for (let [key, value] of Object.entries(result.data.data)) {
+      data.push({
+        name: key,
+        versions: value,
+      })
+    }
+    result.data.data = data
+  }
   this.body = result;
 }
 

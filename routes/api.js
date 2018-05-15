@@ -526,6 +526,7 @@ module.exports = function (Router) {
   // Cluster pod
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
   router.get('/cluster-nodes/:cluster/metrics', clusternodesController.getClusterNodesMetric)
+  router.get('/cluster-nodes/:cluster/nodes/resource-consumption', clusternodesController.getResourceConsumption)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
@@ -641,6 +642,7 @@ module.exports = function (Router) {
   router.get('/permission/access-controls', permissionController.getAccessControlsOfRole)
   router.post('/permission/access-controls', permissionController.setAccessControlsForRole)
   router.delete('/permission/access-controls/:ruleIds', permissionController.removeAccessControlsFromRole)
+  router.get('/permission/access-controls/overview', permissionController.overview)
 
   //role
   router.post('/role', roleController.create)

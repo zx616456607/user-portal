@@ -113,7 +113,7 @@ class LogCollection extends Component {
             className='standard'
             {...pathProps}
           />
-          <Tooltip title='输入要采集日志的目录，请避免特殊无效字符'>
+          <Tooltip title='输入要采集日志的目录'>
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
@@ -130,7 +130,7 @@ class LogCollection extends Component {
             className='standard'
             {...inregexProps}
           />
-          <Tooltip title="匹配正则表达式的文件将会被监控，请避免正在写入的文件被匹配到">
+          <Tooltip title="匹配正则表达式的文件将会被监控">
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
@@ -147,7 +147,7 @@ class LogCollection extends Component {
             className='standard'
             {...exregexProps}
           />
-          <Tooltip title="匹配正则表达式的文件将不会被监控，请排除正在写入的文件（如还未保存为 log 的 temp 文件）">
+          <Tooltip title="匹配正则表达式的文件将不会被监控">
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>

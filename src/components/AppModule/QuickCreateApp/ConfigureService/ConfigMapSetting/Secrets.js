@@ -16,6 +16,7 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button,
   Checkbox,
 } from 'antd'
+import classNames from 'classnames'
 import includes from 'lodash/includes'
 import { getSecrets } from '../../../../../actions/secrets'
 
@@ -84,8 +85,9 @@ const SecretsConfigMap = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, secretsList, defaultSelectValue } = this.props
+    const { form, secretsList, defaultSelectValue, location, isTemplate } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
     const secretConfigMapSubPathValuesKey = `secretConfigMapSubPathValues${keyValue}`
     if (key.deleted) {
@@ -101,6 +103,11 @@ const SecretsConfigMap = React.createClass({
     const secretConfigMapIsWholeDir = getFieldValue(secretConfigMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(secretsList, secretConfigGroupName)
     let configMapSubPathOptions = []
+    let subPathValue
+    if (templateDeploy) {
+      subPathValue = getFieldValue(secretConfigMapSubPathValuesKey)
+      configMapSubPathOptions = subPathValue
+    }
     if (currentConfigGroup) {
       configMapSubPathOptions = Object.keys(currentConfigGroup.data || {}).map(key => {
         return {
@@ -176,7 +183,7 @@ const SecretsConfigMap = React.createClass({
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup
+            !currentConfigGroup && !templateDeploy
             ? <FormItem>请选择配置组</FormItem>
             : (
               <div>
@@ -287,8 +294,16 @@ const SecretsConfigMap = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form } = this.props
+    const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
+    const templateDeploy = location.query.template && !isTemplate
+
+    if (templateDeploy) {
+      return true
+    }
+    if (!currentConfigGroup) {
+      return false
+    }
     const allConfigMapSubPathValues = Object.keys(currentConfigGroup.data || {})
     const secretConfigMapSubPathValues = getFieldValue(`secretConfigMapSubPathValues${keyValue}`) || []
     if (allConfigMapSubPathValues.length === secretConfigMapSubPathValues.length) {
@@ -297,9 +312,10 @@ const SecretsConfigMap = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
+    const templateDeploy = location.query.template && !isTemplate
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">

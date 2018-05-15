@@ -1,5 +1,5 @@
-FROM 192.168.1.113/zhangpc/user-portal:base-6-alpine
-MAINTAINER zhangpc<zhangpc@tenxcloud.com>
+FROM 192.168.1.52/front-end/node:base-6-alpine
+LABEL maintainer="zhangpc<zhangpc@tenxcloud.com>"
 
 ENV NODE_ENV production
 ENV RUNNING_MODE enterprise

@@ -37,7 +37,8 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       });
       Object.assign(serviceOption, {
         chart: {
-          name: count === fieldsLength ? value.templateName.value : value.serviceName.value,
+          name: isDeploy ? value.chartName.value :
+            count === fieldsLength ? value.templateName.value : value.serviceName.value,
           // version: value.templateVersion.value,
           version: 'v1',
           description: value.templateDesc ? value.templateDesc.value : '',
@@ -87,6 +88,19 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
         Object.assign(serviceOption, {
           originalName: getFieldsValues(value).originalName,
         });
+        const configMapKeys = getFieldsValues(value).configMapKeys;
+        const configMaps = {};
+        if (configMapKeys) {
+          configMapKeys.map(_key => {
+            const originalName = value[`configGroupOriginalName${_key.value}`].value[1];
+            Object.assign(configMaps, {
+              [originalName]: value[`configGroupName${_key.value}`].value,
+            });
+          });
+        }
+        if (!isEmpty(configMaps)) {
+          Object.assign(serviceOption, { configMaps });
+        }
       }
       if (!chart.name) {
         chart.name = getFieldsValues(value).templateName;

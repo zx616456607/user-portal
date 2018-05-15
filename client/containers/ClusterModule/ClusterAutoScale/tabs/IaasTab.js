@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import Tab1Modal from './IaasTabModal';
 import Tab2Modal from './StrategyTabModal';
+import { LOAD_INSTANT_INTERVAL } from '../../../../../src/constants/index';
 import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();
@@ -104,9 +105,9 @@ class Tab1 extends React.Component {
         this.props.deleteApp({ cluster: this.state.currentData.cluster }, {
           success: {
             func: () => {
-              notify.success(`策略 ${this.state.currentData.name} 删除成功`);
-                //刷新列表
+              //刷新列表
               this.loadData();
+              notify.success(`策略 ${this.state.currentData.name} 删除成功`);
               common();
             },
             isAsync: true,
@@ -114,9 +115,10 @@ class Tab1 extends React.Component {
           failed: {
             func: err => {
               const { statusCode, message } = err;
-              notify.warn(`删除策略 ${this.state.currentData.name} 失败，错误代码: ${statusCode}， ${message.message}`);
+              notify.warn(`删除策略 ${this.state.currentData.name} 失败， ${message}`);
               common();
             },
+            isAsync: true,
           }
         });
     })
@@ -138,7 +140,7 @@ class Tab1 extends React.Component {
       failed: {
         func: err => {
           const { statusCode, message } = err
-          notify.warn(`删除策略 ${rowData.name} 失败，错误代码: ${statusCode}， ${message}`)
+          notify.warn(`${rowData.status === "on" ? "停用" : "启用"} 失败， ${message.message || message}`)
         },
       }
     });
@@ -228,7 +230,7 @@ class Tab1 extends React.Component {
           failed: {
             func: err => {
               const { statusCode, message } = err
-              notify.warn(`更新策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
+              notify.warn(`更新策略 ${params.name} 失败，${message.message}`)
             },
           }
         })
@@ -291,11 +293,19 @@ class Tab1 extends React.Component {
     });
   }
   loadData() {
-    getAppList({});
+    this.props.getAppList({});
+  }
+  loadDataDidMount() {
+    this.props.getAppList({});
+    // console.log(LOAD_INSTANT_INTERVAL)
+    // this.props.getAppList({}).then((res) => {
+    //   setInterval(() => {
+    //     this.props.getAppList({});
+    //   }, LOAD_INSTANT_INTERVAL)
+    // });
   }
   render() {
     const { appList, isTab1Fetching, logList, isLogFetching } = this.props;
-    getAppList = this.props.getAppList;
     const searchCls = classNames({
       'ant-search-input': true,
       'ant-search-input-focus': this.state.isSearchFocus,
@@ -343,11 +353,11 @@ class Tab1 extends React.Component {
         width: 100,
       },
       {
-        title: '最小节点数',
+        title: '最少保留',
         dataIndex: 'min',
         width: 100,
       }, {
-        title: '最大节点数',
+        title: '最大扩展',
         dataIndex: 'max',
         width: 100,
       },
@@ -362,7 +372,7 @@ class Tab1 extends React.Component {
         width: 100,
         render: function(text, rowData){
           const menu = (
-            <Menu onClick={(e) => {_that.dropDown(e.key, rowData)}}>
+            <Menu className='tab1DropdownMenu' onClick={(e) => {_that.dropDown(e.key, rowData)}}>
               <Menu.Item key="changeStatus">{ rowData.status === "on" ? "停用" : "启用"}</Menu.Item>
               {/*<Menu.Item key="clone">克隆</Menu.Item>*/}
               <Menu.Item key="del">删除</Menu.Item>
@@ -388,12 +398,15 @@ class Tab1 extends React.Component {
       'sliderIn': !this.state.isShowTab1List,
       'hidden': this.state.isShowTab1List,
     });
-    let total = tableData.length;
     const currentData = this.state.currentData;
     const isbtnDisabled = !!!this.state.selectedRowKeys.length;
+    let total = tableData.length;
     if(!!appList){
       tableData = appList;
       total = appList.length;
+    }else{
+      tableData = [];
+      total = 0;
     }
     let loglen = 0,linelist = <div style={{ textAlign: 'center' }}>暂无数据</div>;
     if(!!logList && logList.log){
@@ -453,16 +466,16 @@ class Tab1 extends React.Component {
               </div>
               <div className="tablePanel">
                 <Card>
-                {
+                {/*{
                     !!isTab1Fetching ?
                     <div className="loadingBox">
                       <Spin size="large"/>
                     </div>
-                    :
+                :*/}
                     <div className='reset_antd_table_header'>
-                      <Table columns={columns} dataSource={tableData} pagination={this.state.pagination} />
+                      <Table columns={columns} loading={isTab1Fetching} dataSource={tableData} pagination={this.state.pagination} />
                     </div>
-                }
+                {/*}*/}
                 </Card>
               </div>
             </div>
@@ -494,8 +507,8 @@ class Tab1 extends React.Component {
                     <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.datastorePath}</span></p>
                   </div>
                   <div className="cardPart">
-                    <p><span className="leftTitle">最小节点数</span><span className="rightContent">{currentData.min + " 个"}</span></p>
-                    <p><span className="leftTitle">最大节点数</span><span className="rightContent">{currentData.max + " 个"}</span></p>
+                    <p><span className="leftTitle">最少保留</span><span className="rightContent">{currentData.min + " 个"}</span></p>
+                    <p><span className="leftTitle">最大扩展</span><span className="rightContent">{currentData.max + " 个"}</span></p>
                     {/* <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p> */}
                     {/* <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p> */}
                   </div>
@@ -538,6 +551,7 @@ class Tab1 extends React.Component {
           </QueueAnim>
           <Tab1Modal
             isEdit={this.state.isEdit}
+            allData={this.props.appList}
             currentData={this.state.currentData}
             confirmLoading={this.state.submitTab1Loading}
             func={func}
@@ -569,8 +583,13 @@ class Tab1 extends React.Component {
       </div>
     )
   }
+  componentWillReceiveProps(next) {
+    if(next.isTab2Deleted){
+      this.loadData();
+    }
+  }
   componentDidMount() {
-    this.loadData();
+    this.loadDataDidMount();
   }
 };
 const mapStateToProps = state => {

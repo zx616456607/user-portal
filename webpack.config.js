@@ -14,7 +14,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const env = process.env
 const plugin = new webpack.DefinePlugin({
   'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
-  'process.env.RUNNING_MODE': JSON.stringify(env.RUNNING_MODE)
+  'process.env.RUNNING_MODE': JSON.stringify(env.RUNNING_MODE),
+  'process.env.DEVOPS_PORTAL_HASH': Date.now(),
 })
 let config
 

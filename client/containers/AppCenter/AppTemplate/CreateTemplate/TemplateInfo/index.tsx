@@ -14,7 +14,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { browserHistory, Link } from 'react-router';
 import yaml from 'js-yaml';
-import { Button, Input, Icon, Form, Row, Col } from 'antd';
+import { Button, Input, Icon, Form, Row, Col, Tooltip } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
@@ -241,9 +241,17 @@ class TemplateInfo extends React.Component<any> {
         <Row className="tempInfoFooter" type="flex" align="middle" justify="center">
           <Col>{this.renderCancelBtn()}</Col>
           <Col>
-            <Button type="primary" loading={confirmLoading} size="large" onClick={this.confirmTemplate}>
-              {configureMode === 'edit' ? '保存' : '创建'}
-            </Button>
+            <Tooltip title={!showAddBtn ? '至少添加一个服务' : ''}>
+              <Button
+                type="primary"
+                loading={confirmLoading}
+                size="large"
+                disabled={!showAddBtn}
+                onClick={this.confirmTemplate}
+              >
+                {configureMode === 'edit' ? '保存' : '创建'}
+              </Button>
+            </Tooltip>
           </Col>
         </Row>
       </div>

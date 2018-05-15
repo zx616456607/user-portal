@@ -23,8 +23,13 @@ exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const query = this.query
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield volumeApi.getBy([cluster, 'volumes'], query)
+  const response = yield volumeApi.getBy([cluster, 'volumes'], query, { headers })
   this.status = response.code
   this.body = response
 }
@@ -130,7 +135,7 @@ exports.getVolumeDetail = function* () {
   const cluster = this.params.cluster
   const volumeName = this.params.name
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield volumeApi.getBy([cluster, 'volumes', volumeName, 'consumption'])
+  const response = yield volumeApi.getBy([cluster, 'volumes', volumeName, 'consumption'], this.request.query)
   this.status = response.code
   this.body = {
     body: response.data

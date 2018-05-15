@@ -21,10 +21,10 @@ let isGetParams = true; //是否获取接口数据
 let disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
 let isEdit = false;
 let datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-let currentData = "";
 let cluster = "", iaas = "";
 let updateTimer, addTimer;
 let form1Fun;
+let firstAdd = 1;//第一次新增
 let isCreated = {};//是否创建过策略的集群汇总
 const formItemLargeLayout = {
   labelCol: { span: 6},
@@ -45,6 +45,18 @@ class Form1 extends React.Component {
   roleNameChange = (e) => {
     e.target.value = e.target.value.substr(0, 100);
   }
+  checkName = (rule, value, callback) => {
+    if(!isEdit){
+      !!_.filter(this.props.allData, {name: value})[0] ? callback(new Error('策略名称重复')) : callback();
+      return;
+    }else{
+      if(value !== this.props.currentData.name){//修改时改了名字
+        !!_.filter(this.props.allData, {name: value})[0] ? callback(new Error('策略名称重复')) : callback();
+        return;
+      }
+      callback();
+    }
+  }
   render () {
     const { getFieldProps } = this.props.form;
     const { datacenter, datastorePath, resourcePoolPath, templatePath, targetPath, name, template, datastore, resourcePool } = this.props;
@@ -60,6 +72,7 @@ class Form1 extends React.Component {
               validate: [{
                 rules: [
                   { required: true, message: '策略名称' },
+                  { validator: this.checkName }
                 ],
                 trigger: ['onBlur', 'onChange'] ,
               }],
@@ -153,7 +166,7 @@ class Form1 extends React.Component {
               {
                 resourcePool.map((item, i) =>
                   {
-                    return (<Select.Option key={i}>{item}</Select.Option>)
+                    return (<Select.Option key={i} value={item}>{item}</Select.Option>)
                   })
               }
             </Select>
@@ -175,7 +188,7 @@ class Form1 extends React.Component {
               {
                 datastore.map((item, i) =>
                   {
-                    return (<Select.Option key={i}>{item}</Select.Option>)
+                    return (<Select.Option key={i} value={item}>{item}</Select.Option>)
                   })
               }
             </Select>
@@ -192,8 +205,8 @@ class Tab1Modal extends React.Component {
     super()
     this.state = {
       currentIcon: "",
-      checkExistProvider: false, //查看已有模块 false没配过, true 配过
-      checkExistStrategy: false, //查看是否已经配过当前这个集群下的策略了 false没配过, true 配过
+      checkExistProvider: false, //查看已有[资源池配置状态] false没配过, true 配过
+      checkExistStrategy: false, //查看是否已经配过当前这个集群下的[策略配置状态]了 false没配过, true 配过
       beforecheckExist: true, //是否在 check 之前
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
@@ -231,7 +244,7 @@ class Tab1Modal extends React.Component {
   }
   checkCluster = () => {
     let b = true;
-    if(!!!this.state.selectValue){
+    if(!isEdit && !!!this.state.selectValue){
       notify.warn('请选择容器集群');
       b = false;
     }
@@ -266,22 +279,29 @@ class Tab1Modal extends React.Component {
   formSubmit = () => {
     const form1Data = this.state.form1Data;
     this.props.form.validateFields((errors, values) => {
+      let b = true;
       if (!!errors) {
         console.log('Errors in form!!!');
         // this.setState({
         //   currentStep: 0,
         // })
+        b = false;
+      }
+      if(!b){
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      //console.log('Submit!!!');
+      //console.log(values);
       const temp1 = JSON.parse(JSON.stringify(values));
       const temp2 = JSON.parse(JSON.stringify(form1Data));
       let temp = Object.assign({}, temp1, temp2);
       temp["cluster"] = !!cluster ? cluster : this.state.selectValue;
       temp["iaas"] = !!iaas ? iaas : this.state.currentIcon;
       this.props.onOk(temp, () => {
-        this.resetState();
+        this.resetState(() => {
+          updateTimer = null;
+          addTimer = null;
+        });
       });
     });
   }
@@ -293,16 +313,14 @@ class Tab1Modal extends React.Component {
   onInputNumChange = (value) => {
     //console.log(e.target.value);
   }
-  resetState = () => {
-  isGetParams = true; //是否获取接口数据
-  disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
-  isEdit = false;
-  datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
-  currentData = "";
-  cluster = "", iaas = "";
-  updateTimer, addTimer;
-  form1Fun;
-  isCreated = {};//是否创建过策略的集群汇总
+  resetState = (_cb) => {
+    isGetParams = true; //是否获取接口数据
+    disabledIconCon = ["aws", "azure", "ali"]; //禁用的图标按钮集合
+    isEdit = false;
+    datacenterList = [], templatePathList = {}, datastorePathList = {}, resourcePoolPathList = {};
+    cluster = "", iaas = "";
+    form1Fun;
+    isCreated = {};//是否创建过策略的集群汇总
     this.setState({
       currentIcon: "",
       checkExistProvider: false, //查看已有模块 false没配过, true 配过
@@ -311,13 +329,30 @@ class Tab1Modal extends React.Component {
       currentStep: 0,//0 第一步 1 第二步（保存）
       selDisabled: false,
       selectValue: "",
+    }, () => {
+      setTimeout(() => {
+        !!_cb && _cb();
+      }, 2000);
     });
   }
   modalCancel = () => {
     this.props.onCancel();
-    this.resetState();
-    updateTimer = null;
-    addTimer = null;
+    this.resetState(() => {
+      updateTimer = null;
+      addTimer = null;
+    });
+  }
+  minBlur = (e) => {
+    //console.log("minBlur", e.target.value)
+  }
+  minChange = (value) => {
+    //console.log("minChange", value)
+  }
+  maxBlur = (e) => {
+    //console.log("maxBlur", e.target.value)
+  }
+  maxChange = (e) => {
+    //console.log("maxChange", value)
   }
   render(){
     const { clusterList, isModalFetching,
@@ -332,7 +367,7 @@ class Tab1Modal extends React.Component {
     max= "",
     min= "",
     name= "",
-    removeAndDelete= "",
+    removeAndDelete= "0",
     resourcePoolPath= "",
     templatePath= "";//默认值 edit时存放行数据
     if(this.props.visible && isGetParams){
@@ -346,26 +381,22 @@ class Tab1Modal extends React.Component {
       isEdit = true, { datacenter, datastorePath, duration, email, max, min, name, removeAndDelete, resourcePoolPath, templatePath, targetPath,
         cluster, iaas
       } = this.props.currentData;//cluster, iaas 编辑时使用的 clusterId 和 Iaas
-      if(JSON.stringify(currentData) !== JSON.stringify(this.props.currentData)){
-        updateTimer = null;
-        currentData = this.props.currentData;
-      }
       if(!!!updateTimer && isModalFetching === false){
         updateTimer = setTimeout(() => {
           this.getDataCenter(iaas);
         }, 200);
       }
-      addTimer = null;
     }else{
       isEdit = false;
       if(!!!addTimer && isModalFetching===false){
         addTimer = setTimeout(() => {
           this.resetState();
-        }, 200);
+          firstAdd = null;
+        }, firstAdd || 200);
       }
-      updateTimer = null;
       datacenterList = []; templatePathList = {}; datastorePathList = {}; resourcePoolPathList = {};
       cluster = ""; iaas = "";
+      max = 10;//新增时 max 默认值
     }
     const options = !!clusterList ?
     clusterList.map((o,i,objs) => {
@@ -444,6 +475,7 @@ class Tab1Modal extends React.Component {
     return (
       <div>
         <Modal
+          className="aotuScalerModal"
           visible={this.props.visible}
           title="弹性伸缩策略"
           width="550"
@@ -554,6 +586,8 @@ class Tab1Modal extends React.Component {
                       </div>
                       <div className="formContainer">
                         <Form1
+                          allData={this.props.allData}
+                          currentData={this.props.currentData}
                           datacenter={datacenter}
                           datastorePath={datastorePath}
                           resourcePoolPath={resourcePoolPath}
@@ -570,44 +604,49 @@ class Tab1Modal extends React.Component {
                             <div>
                               <div className="panel">
                                 <Row className="jiedianContainer" key="row7">
-                                  <div className="ant-col-6 ant-form-item-label"><label>节点数量</label></div>
+                                  <div className="ant-col-6 ant-form-item-label"><label>伸缩节点数量</label></div>
                                   <div className="ant-col-14">
-                                    <FormItem labelCol={{ span: 24}} wrapperCol={{ span: 14 }}
-                                      label="最小节点数"
-                                    >
-                                      <div className="min">
-                                        {/*<div className="name">
+                                      {/*<div className="min">
+                                        <div className="name">
                                           <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
                                             <Icon style={{marginLeft: "5px", cursor: "pointer"}} type="info-circle-o" />
                                           </Tooltip>
-                                        </div>*/}
-                                        <div className="formItem">
-                                          <Input {...getFieldProps('min', { initialValue: min,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '最小节点数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
                                         </div>
-                                      </div>
+                                        <div className="mmItem">*/}
+                                      <FormItem className="unitWapper" labelCol={{ span: 24}} wrapperCol={{ span: 18 }}
+                                        label="最少保留"
+                                      >
+                                        <InputNumber min={0} max={parseInt(this.props.form.getFieldValue("max"))} {...getFieldProps('min', { initialValue: min,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最少保留数' },
+                                            ],
+                                          }],
+                                          onChange: this.minChange,
+                                          onBlur: this.minBlur,
+                                          })} className="item" placeholder="1" />
                                     </FormItem>
-                                    <FormItem labelCol={{ span: 24 }} wrapperCol={{ span: 14 }}
-                                      label="最大节点数"
+                                        {/*</div>
+                                      </div>*/}
+                                    <span className="unit count">个</span>
+                                    <FormItem className="unitWapper" labelCol={{ span: 24 }} wrapperCol={{ span: 18 }}
+                                      label="最大扩展"
                                     >
-                                      <div className="max">
-                                        {/*<div className="name">最大节点数</div>*/}
-                                        <div className="formItem">
-                                          <Input {...getFieldProps('max', { initialValue: max,
-                                            validate: [{
-                                              rules: [
-                                                { required: true, message: '最大节点数' },
-                                              ],
-                                              trigger: ['onBlur', 'onChange'] ,
-                                            }], })} className="item" placeholder="1" /><span className="unit">个</span>
-                                        </div>
-                                      </div>
+                                      {/*<div className="max">
+                                        <div className="name">最大节点数</div>
+                                        <div className="mmItem">*/}
+                                        <InputNumber min={parseInt(this.props.form.getFieldValue("min"))} {...getFieldProps('max', { initialValue: max,
+                                          validate: [{
+                                            rules: [
+                                              { required: true, message: '请输入最大扩展数' },
+                                            ],
+                                          }],
+                                          onChange: this.maxChange,
+                                          onBlur: this.maxBlur,})} className="item" placeholder="1" />
+                                        {/*</div>
+                                      </div>*/}
                                     </FormItem>
+                                    <span className="unit count countright">个</span>
                                   </div>
                                   <Row className="rowtext" key="rowtext">
                                     <Col span={6}>
@@ -711,10 +750,13 @@ class Tab1Modal extends React.Component {
                         </Form>
                       </div>
                     </div>
-              :
-              <div className="btnConatainer">
-                <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
-              </div>
+                :
+                isEdit ?
+                <div className="descContainer">资源池已删除，当前策略依然可用<br />若需编辑，请重新配置对应资源池，或重新创建策略</div>
+                :
+                <div className="btnConatainer">
+                  <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
+                </div>
             }
             </div>
           }
@@ -736,9 +778,20 @@ class Tab1Modal extends React.Component {
           this.props.getResList({
             cluster: !!cluster ? cluster : this.state.selectValue,
             type: !!iaas ? iaas : this.state.currentIcon,
-          }).then(() => {
-            if(isEdit) this.setState({currDataCenter: this.props.currentData.datacenter});
-          });
+          }, {
+            success: {
+              func: res => {
+                if(isEdit) this.setState({currDataCenter: this.props.currentData.datacenter});
+              },
+              isAsync: true
+            },
+            failed: {
+              func: res => {
+                notify.warn(res.message.message || res.message)
+              },
+              isAsync: true
+            },
+          })
         }
       });
     });

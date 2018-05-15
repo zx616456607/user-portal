@@ -202,8 +202,8 @@ class Editor extends Component {
         return (
               <QueueAnim key={'codeMirrorErrorDetailAnimate' + index} className='codeMirrorErrorDetailAnimate'>
                 <div className='codeMirrorErrorDetail' key={'codeMirrorErrorDetail' + index}>
-                  <span>[{currentErrorIndex + 1}]</span>
-                  <span><FormattedMessage {...menusText.num} />{item.index}<FormattedMessage {...menusText.yamlIndex} /></span>&nbsp;
+                  <span key={currentErrorIndex + 1}>[{currentErrorIndex + 1}]</span>
+                  <span key={currentErrorIndex + 2}><FormattedMessage {...menusText.num} />{item.index}<FormattedMessage {...menusText.yamlIndex} /></span>&nbsp;
                   {
                     Boolean(item.line) ? [
                       <span key='codeMirrorErrorDetailspan'>
@@ -212,7 +212,7 @@ class Editor extends Component {
                       </span>
                     ] : null
                   }
-                  <span><FormattedMessage {...menusText.yamlErrorReason} />{item.reason}</span>
+                  <span key={currentErrorIndex + 3}><FormattedMessage {...menusText.yamlErrorReason} />{item.reason}</span>
                 </div>
               </QueueAnim>
         )

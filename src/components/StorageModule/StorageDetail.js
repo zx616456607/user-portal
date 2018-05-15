@@ -131,8 +131,8 @@ class StorageDetail extends Component {
                       <div className="use">
                         <FormattedMessage {...messages.useLevel} />
                         ：&nbsp;&nbsp;
-                        <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
-                        &nbsp;&nbsp;{ StorageInfo.consumption * parseInt(StorageInfo.size) } / { parseInt(StorageInfo.size) }M
+                        <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption / parseInt(StorageInfo.size) } />
+                        &nbsp;&nbsp;{ StorageInfo.consumption } / { parseInt(StorageInfo.size) }M
                       </div>
                     </Col>
                   </Row>

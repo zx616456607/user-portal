@@ -133,7 +133,7 @@
   }
   .dataBox {
     clear: both;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     text-align: left;
     .datalist{
       .namecursor{
@@ -141,6 +141,12 @@
         color: #00a1e9;
       }
       .imageList{
+        .ant-spin-nested-loading {
+          position: initial;
+          & > .ant-spin-container {
+            position: initial;
+          }
+        }
         .ant-table-thead{
           >tr{
             >th{
@@ -160,10 +166,16 @@
             cursor: pointer;
             color: #00a1e9;
           }
+          .justify {
+            display: inline-block;
+            width: 36px;
+            text-align: justify;
+            text-align-last: justify;
+          }
         }
         .ant-pagination-simple{
           position: absolute;
-          top:28px;
+          top:13px;
           right:12px;
         }
       }
@@ -357,14 +369,14 @@
     padding-top: 20px;
     .errorInfo {
       font-size: @font-size-medium;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       i {
         color: @warning-color;
         font-size: @font-size-large;
       }
     }
     .container {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       .titleLabel {
         height: 14px;
         line-height: 14px;

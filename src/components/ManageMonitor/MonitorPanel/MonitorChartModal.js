@@ -32,7 +32,7 @@ import {
   loadHostCpu, loadHostMemory, loadHostRxrate, loadHostTxrate,
   loadHostDiskReadIo, loadHostDiskWriteIo
 } from '../../../actions/cluster'
-import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT, DEFAULT_REGISTRY } from '../../../constants'
 import { METRICS_DEFAULT_SOURCE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import ChartComponent from './ChartComponent'
@@ -48,14 +48,20 @@ const defaultTypeArr = [{
   text: '网络出口'
 }]
 
-function formatMetric(result) {
+function formatMetric(result, currentName) {
   let data = []
   for (let i in result) {
     if (i === 'statusCode') {
       break
     }
+    if (!i.includes(currentName)) {
+      break
+    }
+    let copyKey = i.replace(`-${currentName}`, '')
+    const lastIndex = copyKey.lastIndexOf('-')
+    copyKey = copyKey.slice(0, lastIndex)
     let obj = {
-      name: i,
+      name: copyKey,
       ...result[i]
     }
     data.push(obj)
@@ -110,7 +116,7 @@ class MonitorChartModal extends React.Component {
     })
   }
   getMonitorMetric() {
-    const { getMonitorMetrics, getServicesMetrics, getClustersMetrics, clusterID, panel_id, form } = this.props
+    const { getMonitorMetrics, getServicesMetrics, getClustersMetrics, clusterID, panel_id, form, currentName } = this.props
     const { nexport, target, metricsName } = this.state
     const metricsType = form.getFieldValue('metrics_type')
     const defaultQuery = {
@@ -131,7 +137,7 @@ class MonitorChartModal extends React.Component {
             this.setState({
               previewMetrics:{
                 isFetching: false,
-                data: formatMetric(res)
+                data: formatMetric(res, currentName)
               }
             })
           }
@@ -168,7 +174,7 @@ class MonitorChartModal extends React.Component {
         this.setState({
           previewMetrics: {
             isFetching: false,
-            data: formatMetric(res.response.result)
+            data: formatMetric(res.response.result, currentName)
           }
         })
       })
@@ -243,12 +249,14 @@ class MonitorChartModal extends React.Component {
 
   changeExport(proxyID) {
     const { getProxiesService, clusterID, form } = this.props
-    const { getFieldValue, resetFields } = form
+    const { getFieldValue, resetFields, setFieldsValue } = form
     const { currentChart } = this.state
     getProxiesService(clusterID, proxyID)
     const preID = getFieldValue('nexport')
-    if (preID && preID !== proxyID) {
-      resetFields(['target'])
+    if (preID && (preID !== proxyID)) {
+      setFieldsValue({
+        target: []
+      })
       if (currentChart && currentChart.content) {
         currentChart.content = null
       }
@@ -720,6 +728,7 @@ class MonitorChartModal extends React.Component {
                   <ChartComponent
                     unit={unit}
                     metrics={currentChart ? currentChart.metrics : metricsName}
+                    type={currentChart ? currentChart.type : getFieldValue('metrics_type')}
                     updateUnit={this.updateUnit}
                     sourceData={chartDate}
                   />
@@ -737,7 +746,7 @@ MonitorChartModal = Form.create()(MonitorChartModal)
 function mapStateToProps(state, props) {
   const { entities, cluster_nodes, services, cluster, manageMonitor } = state
   const { panel_id, currentChart } = props
-  const { current } = entities
+  const { current, loginUser } = entities
   const { cluster: currentCluster } = current
   const { clusterID } = currentCluster
   const { getAllClusterNodes } = cluster_nodes
@@ -756,6 +765,15 @@ function mapStateToProps(state, props) {
   const { metricType } = metrics || { metricType: '' }
   const { proxyID } = proxiesServices || { proxyID: '' }
 
+  const { projectName, userName: spaceUserName } = current.space
+  const { userName } = loginUser.info
+  let currentName = userName
+  if (projectName !== DEFAULT_REGISTRY) {
+    currentName = projectName
+  } else if (spaceUserName && (spaceUserName !== userName)) {
+    currentName = spaceUserName
+  }
+
   let monitorID =  ''
   let finallyData
   if (currentChart) {
@@ -763,6 +781,14 @@ function mapStateToProps(state, props) {
     const { type } = currentChart
     if (type === 'nexport') {
       finallyData = monitorMetrics[monitorID] || { data: [], isFetching: true }
+      !isEmpty(finallyData.data) && finallyData.data.forEach(item => {
+        if (!item.name.includes(currentName)) {
+          return
+        }
+        item.name = item.name.replace(`-${currentName}`, '')
+        const lastIndex = item.name.lastIndexOf('-')
+        item.name = item.name.slice(0, lastIndex)
+      })
     } else if (type === 'service') {
       finallyData = serviceMetrics[monitorID] || { data: [], isFetching: true }
     } else {
@@ -777,6 +803,7 @@ function mapStateToProps(state, props) {
     metricList: metricType ? metrics[metricType].metrics : [],
     proxiesServices: proxyID ? proxiesServices[proxyID].data : [],
     monitorMetrics: finallyData,
+    currentName
   }
 }
 export default connect(mapStateToProps, {

@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Table, Modal, Form, Select, Icon, Tooltip } from 'antd'
+import { Button, Input, Table, Modal, Form, Select, Icon, Tooltip, Col, InputNumber, Slider } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -28,7 +28,7 @@ const FormItem = Form.Item
 const Option = Select.Option
 
 const DEFAULT_QUERY = {
-  storagetype: 'nfs',
+  storagetype: 'nfs,glusterfs',
   srtype: 'share',
 }
 
@@ -46,6 +46,9 @@ class ShareMemory extends Component {
       confirmLoading: false,
       deleteModalVisible: false,
       searchInput: '',
+      modalStorageType: 'nfs',
+      sliderValue: 1,
+      filteredValue: [],
     }
   }
 
@@ -60,7 +63,7 @@ class ShareMemory extends Component {
           if (searchInput) {
             return this.searchStorage(query)
           }
-          adjustBrowserUrl(location, query, isFirstLoad)
+          //adjustBrowserUrl(location, query, isFirstLoad)
         },
         isAsync: true,
       }
@@ -152,8 +155,11 @@ class ShareMemory extends Component {
     const viladateArray = [
       'storageType',
       'storageClassName',
-      'name'
+      'name',
     ]
+    if(this.state.modalStorageType === 'glusterfs'){
+      viladateArray.push('storage');
+    }
     this.setState({ confirmLoading: true })
     form.validateFields(viladateArray, (errors, values) => {
       if(!!errors){
@@ -163,12 +169,16 @@ class ShareMemory extends Component {
         return
       }
       const { name, storageType, storageClassName } = values
-      const persistentVolumeClaim = new PersistentVolumeClaim({
+      const config = {
         name,
         storageType,
         storageClassName,
         reclaimPolicy: 'retain',
-      })
+      }
+      if(storageType === 'glusterfs'){
+        config.storage = values.storage
+      }
+      const persistentVolumeClaim = new PersistentVolumeClaim(config)
       const body = {
         cluster: clusterID,
         template: yaml.dump(persistentVolumeClaim),
@@ -194,6 +204,7 @@ class ShareMemory extends Component {
           func: () => {
             this.setState({
               confirmLoading: false,
+              modalStorageType: 'nfs'
             })
           }
         }
@@ -261,11 +272,48 @@ class ShareMemory extends Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
+  onModalStorageTypeChange = (value) => {
+    this.setState({
+      modalStorageType: value
+    })
+  }
+  onSliderChange = (num) => {
+    this.props.form.setFieldsValue({
+      storage: num
+    })
+    this.setState({
+      sliderValue: num
+    })
+  }
 
+  onTableChange = (pagination, filters, sorter) => {
+    if(!!filters && !!filters.format){
+      if(filters.format.length === 0){
+        this.setState({
+          filteredValue: [],
+        }, () => {
+          this.loadData();
+        })
+      }else{
+        this.setState({
+          filteredValue: filters.format,
+        }, () => {
+          this.loadData({storagetype: this.state.filteredValue.join(",")});
+        })
+      }
+    }
+  }
+  reflesh(query, searchInput) {
+    this.setState({
+      filteredValue: []
+    }, () => {
+      this.loadData({ page: parseInt(query.page) || 1, search: searchInput })
+    })
+  }
   render() {
     const {
       form, nfsList, storageList, storageListIsFetching, clusterID,
-      storageClassType, location
+      storageClassType, location, gfsList
     } = this.props
     const {
       selectedRowKeys,
@@ -282,11 +330,13 @@ class ShareMemory extends Component {
         title: '存储名称',
         dataIndex: 'name',
         width: '15%',
-        render: (text, record, index) => (
-          <Link to={`/app_manage/storage/shared/${clusterID}/${text}`}>
-            {text}
-          </Link>
-        )
+        render: (text, record, index) => {
+          return (
+            <Link to={`/app_manage/storage/shared/${clusterID}/${text}?diskType=${record.diskType}`}>
+              {text}
+            </Link>
+          )
+        }
       },
       {
         key: 'status',
@@ -299,6 +349,11 @@ class ShareMemory extends Component {
         key: 'format',
         title: '类型',
         dataIndex: 'diskType',
+        filteredValue: this.state.filteredValue,
+        filters:[
+          { text: 'GlusterFS', value: 'glusterfs' },
+          { text: 'NFS', value: 'nfs' }
+        ],
         width: '15%',
       },
       {
@@ -346,7 +401,9 @@ class ShareMemory extends Component {
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
-      onChange: page => adjustBrowserUrl(location, mergedQuery),
+      onChange: (page) => {
+        adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
+      },
     }
     return(
       <QueueAnim className='share_memory'>
@@ -371,10 +428,10 @@ class ShareMemory extends Component {
               <Button
                 size="large"
                 className='button_refresh'
-                onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                onClick={this.reflesh.bind(this, query, searchInput)}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"
-                  onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                  onClick={this.reflesh.bind(this, query, searchInput)}
                 />
                 刷新
               </Button>
@@ -412,6 +469,7 @@ class ShareMemory extends Component {
               	loading={storageListIsFetching}
                 onRowClick={this.tableRowClick}
                 rowKey={row => row.name}
+                onChange={this.onTableChange}
               />
             </div>
           </div>
@@ -432,11 +490,12 @@ class ShareMemory extends Component {
             </div>
           </Modal>
           <Modal
+            className="createShareMemoryModal"
             title="创建共享存储目录"
             visible={createShareMemoryVisible}
             closable={true}
             onOk={() => this.confirmCreateShareMemory()}
-            onCancel={() => this.setState({createShareMemoryVisible:false})}
+            onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
             width="570px"
             maskClosable={false}
             confirmLoading={confirmLoading}
@@ -449,16 +508,17 @@ class ShareMemory extends Component {
               >
                 <Select
                   placeholder='请选择类型'
-                  disabled={true}
                   {...getFieldProps('storageType', {
                     initialValue:'nfs',
+                    onChange: this.onModalStorageTypeChange
                   })}
-                  style={{width:160, marginRight:20}}
+                  className="left"
                 >
                   <Option key="nfs" value="nfs">NFS</Option>
+                  <Option key="glusterfs" value="glusterfs">GlusterFS</Option>
                 </Select>
                 <FormItem
-                  style={{width:160, float:'right'}}
+                  className="right"
                 >
                   <Select
                     placeholder='请选择一个server'
@@ -470,14 +530,22 @@ class ShareMemory extends Component {
                     })}
                   >
                   {
+                    this.state.modalStorageType === 'nfs' ?
                     nfsList.map(nfs =>
                       <Option key={nfs.metadata.name}>
                         {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
                       </Option>
                     )
+                    :
+                    gfsList.map(gfs =>
+                      <Option key={gfs.metadata.name}>
+                        {(!!gfs.metadata.annotations && gfs.metadata.annotations['tenxcloud.com/scName']) || gfs.metadata.name}
+                      </Option>
+                    )
                   }
                   </Select>
                 </FormItem>
+
               </FormItem>
               <FormItem
                 label="存储名称"
@@ -492,6 +560,36 @@ class ShareMemory extends Component {
                   })}
                 />
               </FormItem>
+              {
+                this.state.modalStorageType === 'nfs' ?
+                null
+                :
+                <FormItem
+                  label="存储大小"
+                  {...formItemLayout}
+                >
+                  <Col
+                    className="left">
+                    <Slider min={1} max={20} onChange={this.onSliderChange} value={this.state.sliderValue} />
+                  </Col>
+                  <Col
+                    className="right">
+                    <InputNumber
+                      className="inputNumWid"
+                      placeholder="请输入存储大小" min={1} max={20}
+                      {...getFieldProps('storage', {
+                        initialValue: 1,
+                        onChange: this.onSliderChange,
+                        rules:[{
+                          type: "number"
+                          //validator: this.checkVolumeNameExist
+                        }],
+                      })}
+                    />
+                  </Col>
+                  <div className='unit'>GB</div>
+                </FormItem>
+              }
             </Form>
           </Modal>
         </div>
@@ -506,7 +604,8 @@ function mapStateToProp(state, props) {
   const { entities, cluster, storage } = state
   const { current } = entities
   const clusterID = current.cluster.clusterID
-  const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || []
+  const nfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].nfsList || [];
+  const gfsList = cluster.clusterStorage && cluster.clusterStorage[clusterID] && cluster.clusterStorage[clusterID].glusterfsList || [];
   const storageList = storage.storageList[DEFAULT_IMAGE_POOL] || {}
   let defaultStorageClassType = {
     private: false,
@@ -519,6 +618,7 @@ function mapStateToProp(state, props) {
   return {
     clusterID,
     nfsList,
+    gfsList,
     storageList: storageList && storageList.storageList || [],
     storageListIsFetching: storageList.isFetching,
     storageClassType: defaultStorageClassType,

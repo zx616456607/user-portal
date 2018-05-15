@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Card, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
@@ -259,7 +259,7 @@ class Sider extends Component {
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser } = this.props
     const { currentKey } = this.state
-    const { billingConfig } = loginUser
+    const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
@@ -621,9 +621,25 @@ class Sider extends Component {
                       </Link>
                     </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
                   }
-                  <Menu.Item key='tenx_flow'>
+                  {/* <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>
+                    </Link>
+                  </Menu.Item> */}
+                  <Menu.Item key='pipelines'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/pipelines')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/pipelines')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span><div className='sideCircle'></div> 流水线</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='docker_file'>
@@ -806,11 +822,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 项目管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='rolemanagement'>
+                  {/*<Menu.Item key='rolemanagement'>
                     <Link to='/tenant_manage/rolemanagement'>
                       <span><div className='sideCircle'></div> 项目角色</span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item>*/}
                   <Menu.Item key='allpermissions'>
                     <Link to='/tenant_manage/allpermissions'>
                       <span><div className='sideCircle'></div> 项目权限</span>

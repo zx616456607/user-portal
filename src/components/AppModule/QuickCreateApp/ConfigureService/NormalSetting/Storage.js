@@ -13,6 +13,7 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import {
   Form, Tooltip, Icon,
   Switch, Radio, Input,
@@ -54,13 +55,15 @@ const Storage = React.createClass({
     loadFreeVolume(currentCluster.clusterID)
   },
   componentWillMount() {
-    const { fields } = this.props
+    const { fields, form } = this.props
     if (!fields || !fields.storageType) {
       // this.setStorageTypeToDefault()
     }
     if (!fields || !fields.serviceType) {
       this.setServiceTypeToDefault()
     }
+    let storageList = form.getFieldValue('storageList') || []
+    this.setReplicasStatus(storageList)
     this.getVolumes()
   },
   /* setStorageTypeToDefault() {
@@ -162,17 +165,19 @@ const Storage = React.createClass({
     this.setState({ volumeSize: value })
   },
   renderStorageList() {
-    const { form, isTemplate } = this.props
+    const { form, isTemplate, location } = this.props
     const { getFieldValue, getFieldProps } = form
+    const { template } = location.query
     const storageListProps = getFieldProps('storageList')
     const serviceType = getFieldValue('serviceType')
     const storageList = getFieldValue('storageList') || []
+    const templateStorage = getFieldValue('templateStorage') || []
     if (serviceType && storageList.length > 0) {
       return storageList.map((item, index) => {
         let {
           type, mountPath, strategy,
           readOnly, volume, name,
-          size, fsType
+          size, fsType, type_1
         } = item
         let volumeName = volume
         if (volume === 'create') {
@@ -218,12 +223,21 @@ const Storage = React.createClass({
           'storage_row_style': true,
           'first_row': index == 0,
         })
+        let finallyName = volumeName || '-'
+        if (templateStorage.includes(name)) {
+          if (type !== 'host') {
+            finallyName = '动态生成'
+          } else {
+            finallyName = '-'
+          }
+        }
+        //this.formatType(type, type_1)
         return <Row key={`storagelist${index}`} className={rowClassName}>
           <Col span="4" className='text'>
-            {this.formatType(type)}
+            {this.formatType(type, type_1)}
           </Col>
           <Col span="4" className='text'>
-            {volumeName || '-'}
+            {finallyName}
           </Col>
           <Col span="8" className='text mountPath_style'>
             <Input value={mountPath} disabled />
@@ -263,6 +277,23 @@ const Storage = React.createClass({
       storageKeys: storageKeys.filter(_key => _key !== key)
     })
   },
+  renderStorageErrors(){
+    const { form } = this.props
+    const { getFieldError } = form
+    const storageErrors = form.getFieldError('storageList')
+    if (isEmpty(storageErrors)) {
+      return
+    }
+    return (
+      <div className="ant-form-explain">
+        {
+          storageErrors.map((error, index, arr) => {
+            return <span>{error}{index !== arr.length -1 ? '，' : ''}</span>
+          })
+        }
+      </div>
+    )
+  },
   renderConfigure() {
     const { avaliableVolume, form } = this.props
     const { isFetching } = avaliableVolume
@@ -276,6 +307,9 @@ const Storage = React.createClass({
       <div>
         <div>
           {this.renderStorageList()}
+          <div className="has-error storageErrorBox">
+            {this.renderStorageErrors()}
+          </div>
         </div>
         <div className={bindVolumesClass} key="storageKeys">
           <span className="addMountPath"
@@ -332,13 +366,16 @@ const Storage = React.createClass({
       })
     }
   },
-  formatType(type) {
+  formatType(type, type_1) {
     switch (type) {
       case 'host':
         return <span>本地存储</span>
       case 'private':
         return <span>独享型（rbd）</span>
       case 'share':
+        if(!!type_1 && type_1 === "glusterfs"){
+          return <span>共享型（GlusterFS）</span>
+        }
         return <span>共享型（NFS）</span>
       default:
         return <span>未知</span>
@@ -367,14 +404,52 @@ const Storage = React.createClass({
       setReplicasToDefault(incloudPrivate)
     }
   },
+  getCurrentErrors(list){
+    const storageTypeArray = ['nfs', 'ceph', 'host', 'glusterfs']
+    const { form } = this.props
+    const { getFieldError } = form
+    const storageErrors = getFieldError('storageList')
+    if (isEmpty(storageErrors)) {
+      return
+    }
+    return storageErrors.filter(error => {
+      let flag = false
+      let currentType = ''
+      storageTypeArray.forEach(type => {
+        if (error.includes(type)) {
+          currentType = type
+        }
+      })
+      list.forEach(record => {
+        if (record.name.includes(currentType)) {
+          flag = true
+        }
+      })
+      return flag
+    })
+  },
   deleteStorage(index) {
     const { form } = this.props
     const storageList = form.getFieldValue('storageList')
     const list = cloneDeep(storageList)
     list.splice(index, 1)
     this.setReplicasStatus(list)
-    form.setFieldsValue({
-      storageList: list,
+    let errorMessage = this.getCurrentErrors(list)
+    let storageObject = {
+      value: list
+    }
+    if (errorMessage) {
+      storageObject = Object.assign({}, storageObject, {
+        errors: this.getCurrentErrors(list).map(error => {
+          return {
+            message: error,
+            filed: 'storageList'
+          }
+        })
+      })
+    }
+    form.setFields({
+      storageList: storageObject
     })
   },
   getServiceIsBindNode(){

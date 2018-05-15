@@ -19,6 +19,11 @@ exports.getContainers = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const query = this.query || {}
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let name = query.name
@@ -38,7 +43,7 @@ exports.getContainers = function* () {
     queryObj.filter = `name ${name}`
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances'], queryObj)
+  const result = yield api.getBy([cluster, 'instances'], queryObj, { headers })
   const pods = result.data.instances || []
   pods.map((pod) => {
     pod.images = []

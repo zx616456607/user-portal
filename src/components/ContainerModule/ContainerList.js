@@ -400,7 +400,7 @@ let MyComponent = React.createClass({
         </Menu>
       );
       const images = this.getImages(item)
-      const status = item.status || {}
+      const status = item.status || {};
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -733,20 +733,27 @@ class ContainerList extends Component {
       forceDeleteVisble: false,
     })
     return new Promise((resolve) => {
-      resolve()
-      allContainers.map(container => {
-        if (containerNames.indexOf(container.metadata.name) > -1) {
-          container.status.phase = 'Rebuilding'
-          container.status.progress = {
-            percent: 25
-          }
-        }
-      })
-      updateContainerList(cluster, allContainers)
       deleteContainers(cluster, containerNames, query, {
         success: {
           func: () => {
             // loadData(self.props)
+            resolve()
+            allContainers.map(container => {
+              if (containerNames.indexOf(container.metadata.name) > -1) {
+                container.status.phase = 'Rebuilding'
+                container.status.progress = {
+                  percent: 25
+                }
+              }
+            })
+            updateContainerList(cluster, allContainers)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            console.log(res);
+            //this.loadData();
           },
           isAsync: true
         }
@@ -904,7 +911,7 @@ class ContainerList extends Component {
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total}条</span>
+              <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple

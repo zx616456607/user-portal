@@ -35,7 +35,7 @@ let MyComponent = React.createClass({
     const { cluster, loadConfigGroup } = this.props;
     let volumes = service.spec.template.spec.volumes
     const container = service.spec.template.spec.containers[0]
-    loadConfigGroup(cluster,{
+    loadConfigGroup(cluster, null,{
       success: {
         func: res => {
           let groupWithLabels = res.data

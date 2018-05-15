@@ -149,8 +149,10 @@ class LoadBalance extends React.Component {
   }
   render() {
     const { ingressVisible, currentIngress, lbLoading } = this.state
-    const { form, loadBalanceList, checkIngressNameAndHost, clusterID } = this.props
+    const { form, loadBalanceList, checkIngressNameAndHost, clusterID, location, isTemplate } = this.props
     const { getFieldProps, getFieldValue } = form
+
+    const templateDeploy = location.query.template && !isTemplate
 
     getFieldProps('lbKeys', {
       initialValue: [],
@@ -205,7 +207,7 @@ class LoadBalance extends React.Component {
                 </Input>
               </FormItem>
             </Col>
-            <Col span={4}>
+            <Col span={4} className={templateDeploy ? 'hidden' : ''}>
               <Button type="dashed" key={`edit${item}`}
                       className="editServiceBtn" onClick={() => this.openIngressModal(item)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>
@@ -251,21 +253,24 @@ class LoadBalance extends React.Component {
             <Col span={3}><Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>创建负载均衡</Button></Col>
           </Row>
           {
-            getFieldValue('loadBalance') &&
+            !templateDeploy && getFieldValue('loadBalance') &&
             <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(0)}>添加监听器配置</Button>
           }
           {
-            getFieldValue('loadBalance') &&
+            (getFieldValue('loadBalance') || templateDeploy) &&
             <Row className="monitorConfigHeader">
               <Col span={4}>名称</Col>
               <Col span={4}>调度算法</Col>
               <Col span={4}>会话保持</Col>
               <Col span={4}>转发规则</Col>
               <Col span={4}>服务端口</Col>
-              <Col span={4}>操作</Col>
+              {
+                !templateDeploy &&
+                <Col span={4}>操作</Col>
+              }
             </Row>
           }
-          {getFieldValue('loadBalance') && serviceList}
+          {(getFieldValue('loadBalance') || templateDeploy) && serviceList}
         </Col>
       </Row>
     )

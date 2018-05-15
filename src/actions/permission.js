@@ -110,3 +110,110 @@ export function AllowUpdateRole(body, callback) {
 		return dispatch(fetchDependent(body, callback))
 	}
 }
+
+export const PERMISSION_RESOURCE_LIST_REQUEST = 'PERMISSION_RESOURCE_LIST_REQUEST'
+export const PERMISSION_RESOURCE_LIST_SUCCESS = 'PERMISSION_RESOURCE_LIST_SUCCESS'
+export const PERMISSION_RESOURCE_LIST_FAILURE = 'PERMISSION_RESOURCE_LIST_FAILURE'
+
+function fetchPermissionResource(headers ,callback) {
+  return {
+    [FETCH_API]: {
+      types: [PERMISSION_RESOURCE_LIST_REQUEST, PERMISSION_RESOURCE_LIST_SUCCESS, PERMISSION_RESOURCE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/permission/resource-operations`,
+      schema: {},
+      options: {
+        headers
+      }
+    },
+    callback
+  }
+}
+
+export function PermissionResource(headers, callback) {
+	return (dispatch) => {
+		return dispatch(fetchPermissionResource(headers, callback))
+	}
+}
+
+export const DELETE_PERMISSION_CONTROL_REQUEST = 'DELETE_PERMISSION_CONTROL_REQUEST'
+export const DELETE_PERMISSION_CONTROL_SUCCESS = 'DELETE_PERMISSION_CONTROL_SUCCESS'
+export const DELETE_PERMISSION_CONTROL_FAILURE = 'DELETE_PERMISSION_CONTROL_FAILURE'
+
+function fetchDeletePermissionControl(ruleIds, project, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_PERMISSION_CONTROL_REQUEST,
+        DELETE_PERMISSION_CONTROL_SUCCESS,
+        DELETE_PERMISSION_CONTROL_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/${ruleIds}`,
+      schema: {},
+      options: {
+        method: "DELETE",
+        headers: { project: project }
+      },
+    },
+    callback
+  }
+}
+
+export function deletePermissionControl(ruleIds, project, callback) {
+  return dispatch => {
+    return dispatch(fetchDeletePermissionControl(ruleIds, project, callback))
+  }
+}
+
+export const PERMISSION_OVERVIEW_REQUEST = 'PERMISSION_OVERVIEW_REQUEST'
+export const PERMISSION_OVERVIEW_SUCCESS = 'PERMISSION_OVERVIEW_SUCCESS'
+export const PERMISSION_OVERVIEW_FAILURE = 'PERMISSION_OVERVIEW_FAILURE'
+
+const fetchPermissionOverview = (query, callback) => {
+  const newQuery = Object.assign({}, query)
+  delete newQuery.headers
+  return {
+    [FETCH_API]: {
+      types: [
+        PERMISSION_OVERVIEW_REQUEST,
+        PERMISSION_OVERVIEW_SUCCESS,
+        PERMISSION_OVERVIEW_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls/overview?${toQuerystring(newQuery)}`,
+      schema: {},
+      options: {
+        headers: query.headers
+      }
+    },
+    callback
+  }
+}
+
+export const permissionOverview = (query, callback) =>
+  dispatch => dispatch(fetchPermissionOverview(query, callback))
+
+const SET_PERMISSION_REQUEST = 'SET_PERMISSION_REQUEST'
+const SET_PERMISSION_SUCCESS = 'SET_PERMISSION_SUCCESS'
+const SET_PERMISSION_FAILURE = 'SET_PERMISSION_FAILURE'
+
+const fetchSetPermission = (body, callback, project) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        SET_PERMISSION_REQUEST,
+        SET_PERMISSION_SUCCESS,
+        SET_PERMISSION_FAILURE
+      ],
+      endpoint: `${API_URL_PREFIX}/permission/access-controls`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+        headers: { project: project }
+      }
+    },
+    callback
+  }
+}
+
+export const setPermission = (body, callback, project) =>
+  dispatch => dispatch(fetchSetPermission(body, callback, project))

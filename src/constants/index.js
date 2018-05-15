@@ -154,3 +154,5 @@ export const DEACTIVE = 0
 export const ACTIVE = 1
 export const DEFAULT_ALGORITHM = 'X86'
 export const GPU_ALGORITHM = 'GPU'
+export const NO_CLASSIFY = 'noclassify'; // 未分类配置组
+export const CONFIGMAP_CLASSIFY_CONNECTION = '-configmap-classify-'

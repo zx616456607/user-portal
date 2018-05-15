@@ -47,7 +47,7 @@ const timeFrequency = {
     'second': 1000 * 60 * 60 * 2,
     'timeDes': '2小时'
   },
-  '672': {
+  '720': {
     'second': 1000 * 60 * 60 * 6,
     'timeDes': '6小时'
   }

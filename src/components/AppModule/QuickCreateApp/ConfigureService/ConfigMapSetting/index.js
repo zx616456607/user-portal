@@ -16,9 +16,13 @@ import {
   Form, Collapse, Row, Col, Icon, Input, Select, Radio, Tooltip, Button, Checkbox, Cascader
 } from 'antd'
 import includes from 'lodash/includes'
+import isEmpty from 'lodash/isEmpty'
+import classNames from 'classnames'
 import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
+import { getSecrets } from '../../../../../actions/secrets'
 import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
+import {validateK8sResource} from "../../../../../common/naming_validation";
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -74,12 +78,41 @@ const ConfigMapSetting = React.createClass({
     e.target.checked = value
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
+  configGroupNameCheck(rule, value, callback) {
+    if (Array.isArray(value)) {
+      return callback()
+    }
+    if (!value) {
+      callback([new Error('请输入配置组名称')])
+      return
+    }
+    if(value.length < 3 || value.length > 63) {
+      callback('名称长度为 3-63 个字符')
+      return
+    }
+    if(!/^[a-z]/.test(value)){
+      callback('名称须以小写字母开头')
+      return
+    }
+    if (!/[a-z0-9]$/.test(value)) {
+      callback('名称须以小写字母或数字结尾')
+      return
+    }
+    if (!validateK8sResource(value)) {
+      callback('由小写字母、数字和连字符（-）组成')
+      return
+    }
+    callback()
+  },
   onConfigGroupChange(keyValue, value) {
     const { form, configGroupList } = this.props
     const { getFieldValue } = form
     const configMapIsWholeDir = getFieldValue(`configMapIsWholeDir${keyValue}`)
     if (configMapIsWholeDir) {
       const currentConfigGroup = this.getConfigGroupByName(configGroupList, value [1])
+      if (!currentConfigGroup) {
+        return
+      }
       this.handleSelectAll(keyValue, currentConfigGroup, { target: { checked: true } })
     }
   },
@@ -119,8 +152,9 @@ const ConfigMapSetting = React.createClass({
     callback(error)
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList, selectOptions, defaultSelectValue } = this.props
+    const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
     if (key.deleted) {
@@ -133,16 +167,23 @@ const ConfigMapSetting = React.createClass({
     const configMapIsWholeDirKey = `configMapIsWholeDir${keyValue}`
     const configGroupNameKey = `configGroupName${keyValue}`
     const configGroupName = getFieldValue(configGroupNameKey)
+    const configMapErrorFields = getFieldValue('configMapErrorFields')
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName && configGroupName[1])
     let configMapSubPathOptions = []
-    if (currentConfigGroup) {
-      configMapSubPathOptions = currentConfigGroup.configs.map(config => {
-        return {
-          label: config.name,
-          value: config.name,
-        }
-      })
+    let subPathValue
+    if (templateDeploy) {
+      subPathValue = getFieldValue(configMapSubPathValuesKey)
+      configMapSubPathOptions = subPathValue
+    } else {
+      if (currentConfigGroup) {
+        configMapSubPathOptions = currentConfigGroup.configs.map(config => {
+          return {
+            label: config.name,
+            value: config.name,
+          }
+        })
+      }
     }
     const configMapMountPathProps = getFieldProps(configMapMountPathKey, {
       rules: [
@@ -158,7 +199,8 @@ const ConfigMapSetting = React.createClass({
     })
     const configGroupNameProps = getFieldProps(configGroupNameKey, {
       rules: [
-        { required: true, message: '请选择配置组' }
+        { required: true, message: '请选择配置组' },
+        { validator: this.configGroupNameCheck }
       ],
       onChange: this.onConfigGroupChange.bind(this, keyValue),
       initialValue: defaultSelectValue
@@ -195,13 +237,18 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}
-            />
+            {
+              !isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)
+                ?
+                <Input placeholder="请输入配置组" {...configGroupNameProps}/>
+                :
+                <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}/>
+            }
           </FormItem>
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup
+            !currentConfigGroup && !templateDeploy
             ? <FormItem>请选择配置组</FormItem>
             : (
               <div>
@@ -209,7 +256,7 @@ const ConfigMapSetting = React.createClass({
                   <Checkbox
                     onChange={this.handleSelectAll.bind(this, keyValue, currentConfigGroup)}
                     checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
-                    disabled={configMapIsWholeDir}
+                    disabled={templateDeploy || configMapIsWholeDir}
                   >
                     全选
                   </Checkbox>
@@ -218,7 +265,7 @@ const ConfigMapSetting = React.createClass({
                   <CheckboxGroup
                     {...configMapSubPathValuesProps}
                     options={configMapSubPathOptions}
-                    disabled={configMapIsWholeDir}
+                    disabled={templateDeploy || configMapIsWholeDir}
                   />
                   <div className="clearBoth"></div>
                 </FormItem>
@@ -229,7 +276,7 @@ const ConfigMapSetting = React.createClass({
         <Col span={3}>
           <Tooltip title="删除">
             <Button
-              className="deleteBtn"
+              className={classNames("deleteBtn", {'hidden': templateDeploy})}
               type="dashed"
               size="small"
               onClick={this.removeConfigMapKey.bind(this, keyValue)}
@@ -312,8 +359,15 @@ const ConfigMapSetting = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form } = this.props
+    const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
+    const templateDeploy = location.query.template && !isTemplate
+    if (templateDeploy) {
+      return true
+    }
+    if (!currentConfigGroup) {
+      return false
+    }
     const allConfigMapSubPathValues = currentConfigGroup.configs.map(config => config.name)
     const configMapSubPathValues = getFieldValue(`configMapSubPathValues${keyValue}`) || []
     if (allConfigMapSubPathValues.length === configMapSubPathValues.length) {
@@ -322,9 +376,12 @@ const ConfigMapSetting = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const configMapKeys = getFieldValue('configMapKeys') || []
+
+    const templateDeploy = location.query.template && !isTemplate
+
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
@@ -361,13 +418,13 @@ const ConfigMapSetting = React.createClass({
                     <Col span={5}>
                       配置文件
                     </Col>
-                    <Col span={3}>
+                    <Col span={3} className={classNames({'hidden': templateDeploy})}>
                       操作
                     </Col>
                   </Row>
                   <div className="configMapBody">
                     {configMapKeys.map(this.renderConfigMapItem)}
-                    <span className="addConfigMap" onClick={this.addConfigMapKey}>
+                    <span className={classNames("addConfigMap", {'hidden': templateDeploy})} onClick={this.addConfigMapKey}>
                       <Icon type="plus-circle-o" />
                       <span>添加配置目录</span>
                     </span>
@@ -378,6 +435,7 @@ const ConfigMapSetting = React.createClass({
             <SecretsConfigMap
               form={form}
               formItemLayout={formItemLayout}
+              {...{location, isTemplate}}
             />
           </Panel>
         </Collapse>
@@ -466,4 +524,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadConfigGroup,
   configGroupName,
+  getSecrets
 })(ConfigMapSetting)

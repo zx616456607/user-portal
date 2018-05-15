@@ -12,7 +12,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes, getClusterNodesMetrics, getKubectlsPods,
   deleteClusterNode, getClusterLabel, changeClusterNodeSchedule,
-  getNodeDetail, maintainNode, exitMaintainNode, getNotMigratedPodCount
+  getNodeDetail, maintainNode, exitMaintainNode, getNotMigratedPodCount,
+  getClusterResourceConsumption,
 } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
@@ -53,23 +54,83 @@ function getContainerNum(name, podList) {
   return num;
 }
 
+function getRS(resourceConsumption, record) {
+  if (!resourceConsumption || !record || !resourceConsumption[record.objectMeta.name]) {
+    return {
+      cpu: {
+        number: NOT_AVAILABLE,
+        unit: '',
+        class: '',
+      },
+      memory: {
+        number: NOT_AVAILABLE,
+        unit: '',
+        class: '',
+      },
+    }
+  }
+  const name = record.objectMeta.name
+  const { cpu, memory } = resourceConsumption[name].requests || {}
+  const data = {
+    cpu: {
+      number: cpu,
+      unit: 'm',
+    },
+    memory: {
+      number: Math.round(memory / 1024 / 1024 * 100) / 100,
+      unit: 'GB',
+    },
+  }
+  const cpuTotal = record[camelize('cpu_total')]
+  data.cpu.class = getRSClass(data.cpu.number / cpuTotal)
+  const memoryTotal = record[camelize('memory_total_kb')]
+  data.memory.class = getRSClass(memory / memoryTotal)
+  return data
+}
+
+function getRSClass(percent) {
+  if (percent < 0.8) {
+    return ''
+  }
+  if (percent < 0.9) {
+    return 'warnColor'
+  }
+  return 'failedColor'
+}
+
 function cpuUsed(cpuTotal, cpuMetric, name) {
   name = camelize(name)
   if (!cpuMetric || !cpuMetric[name]) {
-    return NOT_AVAILABLE
+    return {
+      number: NOT_AVAILABLE,
+      class: '',
+      unit: '',
+    }
   }
-  return `${cpuMetric[name].toFixed(2)}%`
+  return {
+    number: Math.round(cpuMetric[name] * 100) / 100,
+    class: getRSClass(cpuMetric[name] / 100),
+    unit: '%',
+  }
 }
 
 function memoryUsed(memoryTotal, memoryMetric, name) {
   name = camelize(name)
   if (!memoryMetric || !memoryMetric[name]) {
-    return NOT_AVAILABLE
+    return {
+      number: NOT_AVAILABLE,
+      class: '',
+      unit: '',
+    }
   }
   let metric = memoryMetric[name]
-  metric = metric / 1024 / memoryTotal * 100
-  metric = `${metric.toFixed(2)}%`
-  return metric
+  metric = Math.round(metric / 1024 / memoryTotal * 100 * 100) / 100
+  // metric = `${metric.toFixed(2)}%`
+  return {
+    number: metric,
+    class: getRSClass(metric / 100),
+    unit: '%',
+  }
 }
 
 
@@ -189,7 +250,7 @@ const MyComponent = React.createClass({
       });
     }
   },
-  getDiskStage(node) {
+  getDiskStatus(node) {
     const conditions = node.conditions || []
     let color = 'green'
     let text = '健康'
@@ -197,13 +258,13 @@ const MyComponent = React.createClass({
       const { type, status } = condition
       switch (type) {
         case 'DiskPressure':
-          if (status !== 'False') {
+          if (status !== 'False' && status !== 'Unknown') {
             color = 'yellow'
             text = '不足'
           }
           break
         case 'OutOfDisk':
-          if (status !== 'False') {
+          if (status !== 'False' && status !== 'Unknown') {
             color = 'red'
             text = '告警'
           }
@@ -255,7 +316,10 @@ const MyComponent = React.createClass({
     )
   },
   render: function () {
-    const { isFetching, nodeList, cpuMetric, memoryMetric, clusterID, license, podCount } = this.props
+    const {
+      isFetching, nodeList, cpuMetric, memoryMetric, clusterID,
+      resourceConsumption, license, podCount ,
+    } = this.props
     const root = this
     let dropdown
     let maxNodes
@@ -269,11 +333,11 @@ const MyComponent = React.createClass({
       },{
         title: '监控告警'
       },{
-        title: '容器数'
+        title: '容器'
       },{
-        title: 'CPU使用'
+        title: 'CPU'
       },{
-        title: '内存占用'
+        title: '内存'
       },{
         title: '调度状态'
       },{
@@ -349,24 +413,58 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
         },{
-          title: '容器数',
+          title: '容器',
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
             <span>{getContainerNum(objectMeta.name, podCount)}</span>
           </div>,
           sorter: (a, b) => getContainerNum(a.objectMeta.name, podCount) - getContainerNum(b.objectMeta.name, podCount)
         },{
-          title: 'CPU使用',
-          render: (text, record, index) => <div>
-            <div className='topSpan'>{record[camelize('cpu_total')] / 1000}核</div>
-            <div className='bottomSpan'>{cpuUsed(record[camelize('cpu_total')], cpuMetric, record.objectMeta.name)}</div>
-          </div>
+          title: 'CPU',
+          render: (text, record, index) => {
+            const { cpu: cpuRS } = getRS(resourceConsumption, record)
+            const cpuUsedObj = cpuUsed(record[camelize('cpu_total')], cpuMetric, record.objectMeta.name)
+            return <div>
+              <div>
+                <span className="justify">总量</span>：
+                <code>{record[camelize('cpu_total')]}m</code>
+              </div>
+              <div className={cpuRS.class}>
+                <span className="justify">已分配</span>：
+                <code>{cpuRS.number}{cpuRS.unit}</code>
+              </div>
+              <div className={cpuUsedObj.class}>
+                <span className="justify">使用</span>：
+                <code>
+                  {cpuUsedObj.number}{cpuUsedObj.unit}
+                </code>
+              </div>
+            </div>
+          }
         },{
-          title: '内存占用',
-          render: (text, item, index) => <div>
-            <div className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</div>
-            <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
-          </div>
+          title: '内存',
+          render: (text, item, index) => {
+            const { memory: memoryRS } = getRS(resourceConsumption, item)
+            const memoryUsedObj = memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)
+            return <div>
+            <div>
+              <span className="justify">总量</span>：
+              <code>{diskFormat(item[camelize('memory_total_kb')])}</code>
+              </div>
+              <div className={memoryRS.class}>
+                <span className="justify">已分配</span>：
+                <code>{memoryRS.number}{memoryRS.unit}</code>
+              </div>
+              <div className={memoryUsedObj.class}>
+                <span className="justify">使用</span>：
+                <code>
+                  {memoryUsedObj.number}{memoryUsedObj.unit}
+                </code>
+              </div>
+              {/* <div className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</div>
+              <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div> */}
+            </div>
+          }
         },{
           title: '调度状态',
           dataIndex: 'schedulable',
@@ -413,7 +511,7 @@ const MyComponent = React.createClass({
         },{
           title: '磁盘情况',
           dataIndex: 'conditions',
-          render: (text, item, index) => <div>{this.getDiskStage(item)}</div>,
+          render: (text, item, index) => <div>{this.getDiskStatus(item)}</div>,
           sorter: (a, b) => diskSorter(a.conditions) - diskSorter(b.conditions)
         },{
           title: '加入集群时间',
@@ -483,11 +581,10 @@ const MyComponent = React.createClass({
 
     return (
       <div className='imageList'>
-        <Pagination simple defaultCurrent={1} total={nodeList && nodeList.length}/>
         <Table
           columns={column}
           dataSource={nodeList}
-          pagination={false}
+          pagination={{simple: true}}
           loading={isFetching}
         />
       </div>
@@ -519,7 +616,10 @@ class hostList extends Component {
   }
 
   loadData(e) {
-    const { clusterID, getClusterNodesMetrics, getAllClusterNodes, getKubectlsPods, summary } = this.props
+    const {
+      clusterID, getClusterNodesMetrics, getAllClusterNodes,
+      getKubectlsPods, summary, getClusterResourceConsumption,
+    } = this.props
     const notification = new NotificationHandler()
     getAllClusterNodes(clusterID, {
       success: {
@@ -559,6 +659,13 @@ class hostList extends Component {
               failed: {
                 func: err => {
                   notification.error('获取节点监控数据失败')
+                }
+              }
+            })
+            getClusterResourceConsumption(clusterID, null, {
+              failed: {
+                func: err => {
+                  notification.error('获取节点资源数据失败')
                 }
               }
             })
@@ -719,7 +826,10 @@ class hostList extends Component {
   deleteClusterNode(){
     //this function for delete cluster node
     let notification = new NotificationHandler()
-    const { clusterID, deleteClusterNode, getAllClusterNodes, getClusterNodesMetrics } = this.props;
+    const {
+      clusterID, deleteClusterNode, getAllClusterNodes,
+      getClusterNodesMetrics, getClusterResourceConsumption,
+    } = this.props;
     const {deleteNode} = this.state;
     const _this = this;
     if(deleteNode.isMaster){
@@ -750,6 +860,13 @@ class hostList extends Component {
                     failed: {
                       func: err => {
                         notification.error('获取节点监控数据失败')
+                      }
+                    }
+                  })
+                  getClusterResourceConsumption(clusterID, null, {
+                    failed: {
+                      func: err => {
+                        notification.error('获取节点资源数据失败')
                       }
                     }
                   })
@@ -1117,7 +1234,7 @@ function mapStateToProps(state, props) {
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
   const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
-  const { cpuMetric, memoryMetric, license } = data
+  const { cpuMetric, memoryMetric, resourceConsumption, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
 
   const cluster = props.clusterID
@@ -1135,6 +1252,7 @@ function mapStateToProps(state, props) {
     nodes,
     cpuMetric,
     memoryMetric,
+    resourceConsumption,
     license,
     isFetching,
     kubectlsPods,
@@ -1145,6 +1263,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAllClusterNodes,
   getClusterNodesMetrics,
+  getClusterResourceConsumption,
   addTerminal,
   getKubectlsPods,
   deleteClusterNode,

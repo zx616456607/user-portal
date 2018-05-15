@@ -30,6 +30,7 @@ import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from '../../../common/tools'
 import Title from '../../Title'
+import CreateModal from './CreateModal'
 
 let ProjectManage = React.createClass({
 
@@ -68,18 +69,19 @@ let ProjectManage = React.createClass({
       searchName: '',
       filteredInfo: {},
       currentPage: 1,
+      isShowCreateModal: false,
     }
   },
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadProjectList()
-    const step = this.props.location.query.step;
-    const {projectName, authorizedCluster} = this.state;
-    if (step) {
-      if ((!projectName || authorizedCluster.length === 0) && step !== 'first') {
-        browserHistory.replace('/tenant_manage/project_manage?step=first')
-      }
-    }
+    //const step = this.props.location.query.step;
+    //const {projectName, authorizedCluster} = this.state;
+    // if (step) {
+    //   if ((!projectName || authorizedCluster.length === 0) && step !== 'first') {
+    //     browserHistory.replace('/tenant_manage/project_manage?step=first')
+    //   }
+    // }
   },
 
   componentWillReceiveProps(nextProps) {
@@ -367,7 +369,7 @@ let ProjectManage = React.createClass({
             tableLoading: false
           })
           let notify = new Notification()
-          notify.error("读取项目列表失败：" + res.message.message)
+          notify.warn("读取项目列表失败：" + res.message.message)
         },
       }
     })
@@ -487,7 +489,12 @@ let ProjectManage = React.createClass({
       failed: {
         func: () => {
           if (flag) {
-            notify.error('操作失败')
+            if(err.statusCode === 403){
+              notify.warn(`操作失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`操作失败`)
+            }
             this.setState({
               rightModal: false
             })
@@ -523,7 +530,12 @@ let ProjectManage = React.createClass({
       failed: {
         func: () => {
           if (flag) {
-            notify.error('操作失败')
+            if(err.statusCode === 403){
+              notify.warn(`操作失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`操作失败`)
+            }
             this.setState({
               rightModal: false
             })
@@ -589,7 +601,12 @@ let ProjectManage = React.createClass({
       },
       failed: {
         func: res => {
-          notify.error('创建项目失败')
+          if(err.statusCode === 403){
+            notify.warn(`创建项目失败, 用户没有权限`)
+          }
+          else{
+            notify.warn(`创建项目失败`)
+          }
         },
         isAsync: true
       }
@@ -605,10 +622,13 @@ let ProjectManage = React.createClass({
   },
 
   startCreateProject() {
+    // this.setState({
+    //   closeCreateProject: false
+    // }, () => {
+    //   browserHistory.replace('/tenant_manage/project_manage?step=first')
+    // })
     this.setState({
-      closeCreateProject: false
-    }, () => {
-      browserHistory.replace('/tenant_manage/project_manage?step=first')
+      isShowCreateModal: true,
     })
   },
 
@@ -675,7 +695,50 @@ let ProjectManage = React.createClass({
       this.loadProjectList()
     })
   },
-
+  createModalCancel(){
+    this.setState({
+      isShowCreateModal: false,
+    })
+  },
+  createModalOk(values, _cb){
+    const {CreateProjects} = this.props;
+    let notify = new Notification();
+    console.log(values);
+    CreateProjects({
+      body: {
+        projectName: values.projectName,
+        description: values.projectDesc,
+        authorizedCluster: values.authorizedCluster,
+        roleBinds: values.roleBinds
+      }
+    }, {
+      success: {
+        func: res => {
+          notify.success('创建项目成功');
+          this.setState({
+            isShowCreateModal: false,
+          }, () => {
+            this.loadProjectList();
+            !!_cb && _cb();
+            browserHistory.replace('/tenant_manage/project_manage/project_detail?name=' + values.projectName);
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: res => {
+          if(err.statusCode === 403){
+            notify.warn(`创建项目失败, 用户没有权限`)
+          }
+          else{
+            notify.warn(`创建项目失败`)
+          }
+          !!_cb && _cb();
+        },
+        isAsync: true
+      }
+    })
+  },
   render() {
     const step = this.props.location.query.step || '';
     const {roleNum, billingEnabled} = this.props;
@@ -970,55 +1033,61 @@ let ProjectManage = React.createClass({
               />
             </Card>
           </Row>
-          <div className={classNames("goBackBox", {'hidden': step === ''})}>
-            <span className="goBackBtn pointer" onClick={() => browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
-            <i/>
-            创建项目
-          </div>
-          <div className={classNames('createBox', {'hidden': step === ''})}>
-            <ul className="stepBox">
-              <li className={classNames({'active': step === 'first'})}><span>1</span>项目基础信息</li>
-              <li className={classNames({'active': step === 'second'})}><span>2</span>为项目添加角色</li>
-              <li className={classNames({'active': step === 'third'})}><span>3</span>为角色关联对象</li>
-            </ul>
-            <div className="alertRow createTip">
-              {
-                step === 'first' ? '请填写项目名称、描述，并为该项目授权集群' : ''
-              }
-              {
-                step === 'second' ? '为该项目添加需要的角色，角色是提前创建好的，也可在此创建新角色后继续添加' : ''
-              }
-              {
-                step === 'third' ? '为添加的角色关联对象，即可为关联的对象授予相应角色应有的权限；关联的对象可为（成员/团队/成员&团队组合）。' : ''
-              }
+          {/*
+            <div className={classNames("goBackBox", {'hidden': step === ''})}>
+              <span className="goBackBtn pointer" onClick={() => browserHistory.replace('/tenant_manage/project_manage')}>返回</span>
+              <i/>
+              创建项目
             </div>
-            <Form>
-              <div className={classNames({'hidden': step !== 'first'})}>
-                <CreateStepFirst scope={this} step={step} updateProjectName={this.updateProjectName}
-                                 updateProjectDesc={this.updateProjectDesc}
-                                 updateCluster={this.updateCluster} form={this.props.form}/>
+            <div className={classNames('createBox', {'hidden': step === ''})}>
+              <ul className="stepBox">
+                <li className={classNames({'active': step === 'first'})}><span>1</span>项目基础信息</li>
+                <li className={classNames({'active': step === 'second'})}><span>2</span>为项目添加角色</li>
+                <li className={classNames({'active': step === 'third'})}><span>3</span>为角色关联对象</li>
+              </ul>
+              <div className="alertRow createTip">
+                {
+                  step === 'first' ? '请填写项目名称、描述，并为该项目授权集群' : ''
+                }
+                {
+                  step === 'second' ? '为该项目添加需要的角色，角色是提前创建好的，也可在此创建新角色后继续添加' : ''
+                }
+                {
+                  step === 'third' ? '为添加的角色关联对象，即可为关联的对象授予相应角色应有的权限；关联的对象可为（成员/团队/成员&团队组合）。' : ''
+                }
               </div>
-              <div className={classNames({'hidden': step !== 'second'})}>
-                <CreateStepSecond scope={this} step={step} updateRole={this.updateRole} form={this.props.form}/>
-              </div>
-              <div className={classNames({'hidden': step !== 'third'})}>
-                <CreateStepThird scope={this} step={step} updateRole={this.updateRole}
-                                 updateRoleWithMember={this.updateRoleWithMember} form={this.props.form}/>
-              </div>
-            </Form>
-
-          </div>
-
-          <div className={classNames('createBtnBox', {'hidden': step === ''})}>
-            <Button size="large" onClick={this.closeProjectCreate}>取消</Button>
-            <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})}
-                    onClick={() => this.goBack()}>上一步</Button>
-            <Button size="large" className={classNames({'hidden': step === 'third'})}
-                    onClick={() => this.next()}>下一步</Button>
-            <Button type="primary" size="large" onClick={this.createProject}
-                    style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
-          </div>
+              <Form>
+                <div className={classNames({'hidden': step !== 'first'})}>
+                  <CreateStepFirst scope={this} step={step} updateProjectName={this.updateProjectName}
+                                  updateProjectDesc={this.updateProjectDesc}
+                                  updateCluster={this.updateCluster} form={this.props.form}/>
+                </div>
+                <div className={classNames({'hidden': step !== 'second'})}>
+                  <CreateStepSecond scope={this} step={step} updateRole={this.updateRole} form={this.props.form}/>
+                </div>
+                <div className={classNames({'hidden': step !== 'third'})}>
+                  <CreateStepThird scope={this} step={step} updateRole={this.updateRole}
+                                  updateRoleWithMember={this.updateRoleWithMember} form={this.props.form}/>
+                </div>
+              </Form>
+            </div>
+            <div className={classNames('createBtnBox', {'hidden': step === ''})}>
+              <Button size="large" onClick={this.closeProjectCreate}>取消</Button>
+              <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})}
+                      onClick={() => this.goBack()}>上一步</Button>
+              <Button size="large" className={classNames({'hidden': step === 'third'})}
+                      onClick={() => this.next()}>下一步</Button>
+              <Button type="primary" size="large" onClick={this.createProject}
+                      style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
+            </div>
+          */}
         </div>
+        <CreateModal
+          visible={this.state.isShowCreateModal}
+          onOk={this.createModalOk}
+          onCancel={this.createModalCancel}
+          onClose={this.createModalCancel}
+        />
       </QueueAnim>
     )
   }

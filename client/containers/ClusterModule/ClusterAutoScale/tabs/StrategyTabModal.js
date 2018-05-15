@@ -41,41 +41,20 @@ class Tab2Modal extends React.Component {
   }
   componentDidMount() {
     //接收参数
-    //this.getQueryData();
+    isEdit = this.props.isEdit;
+    this.getQueryData();
   }
-  componentWillReceiveProps(next) {
-    const _that = this, currData = next.currData;
-    setTimeout(() => {
+  getQueryData(){
+    const { getAutoScalerClusterList, currData } = this.props;
+    getAutoScalerClusterList().then(() => {
       if(isEdit && !!currData){
-        _that.setState({
+        this.setState({
           disabled: true,
           currentIcon: currData.iaas,
           selectValue: currData.cluster,
         });
       }
-      if(!next.visible){
-        _that.setState({
-          disabled: false,
-          currentIcon: "",
-          selectValue: "",
-        })
-      }
-    }, 200);
-    if(isGetParams && next.visible){
-      isGetParams = false;
-      this.getQueryData();
-      return;
-    }
-    // if(!this.props.visible){
-    //   isGetParams = true;
-    // }
-    if( next.isEdit && !!next.currData){
-      isEdit = true;
-    }else{ isEdit = false }
-  }
-  getQueryData(){
-    const { getAutoScalerClusterList } = this.props;
-    getAutoScalerClusterList();
+    });
   }
   onChange = (value) => {
     this.setState({
@@ -146,7 +125,7 @@ class Tab2Modal extends React.Component {
           updateServer(params,{
             success: {
               func: () => {
-                notify.success(`配置 ${params.name} 更新成功`);
+                notify.success(`资源池配置更新成功`);
                 if(!!funcTab2){
                   funcTab2.loadData();
                   funcTab2.scope.setState({
@@ -165,7 +144,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err
-                notify.warn(`更新配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                notify.warn(`更新资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -177,7 +156,7 @@ class Tab2Modal extends React.Component {
           {
             success: {
               func: () => {
-                notify.success(`配置 ${params.name} 新建成功`)
+                notify.success(`资源池配置新建成功`)
                 if(!!funcTab2){
                   funcTab2.loadData();
                   funcTab2.scope.setState({ isTab2ModalShow:false,
@@ -196,7 +175,7 @@ class Tab2Modal extends React.Component {
             failed: {
               func: err => {
                 const { statusCode, message } = err;
-                notify.warn(`新建配置 ${params.name} 失败，错误代码: ${statusCode}，${message.message}`);
+                notify.warn(`新建资源池配置失败，${typeof message === "object" ? message.message : message}`);
                 this.setState({
                   submitLoading: false,
                 });
@@ -265,11 +244,12 @@ class Tab2Modal extends React.Component {
     const password = !!this.props.currData ? this.props.currData["password"] : ''
     return (
       <Modal
+        className="aotuScalerModal"
         visible={this.props.visible}
         onOk={this.onTab2ModalOk}
         onCancel={this.onCancel}
         onClose={this.props.onClose}
-        title="新建资源池配置"
+        title={ isEdit ? "编辑资源池配置" : "新建资源池配置"}
         okText="保存"
         width="550"
         maskClosable={false}

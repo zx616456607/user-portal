@@ -38,7 +38,7 @@ class TreeComponent extends Component {
       rightValue: ''
     }
   }
-  
+
   componentDidMount() {
     const { outPermissionInfo, existMember } = this.props
     this.setState({
@@ -93,7 +93,7 @@ class TreeComponent extends Component {
     }
     let rightInfo = []
     let checkedKeys = []
-    
+
     for (let i = 0; i < existMember.length; i++) {
       for (let j = 0; j < sourceData.length; j++) {
         if (sourceData[j].id === existMember[i]) {
@@ -139,10 +139,23 @@ class TreeComponent extends Component {
       autoExpandParent: false,
     });
   }
-  
+  onSelect = (keys) => {
+    this.setState({
+      checkedKeys:keys,
+      autoExpandParent: false,
+    });
+  }
+
   onAlreadyCheck = (checkedKeys) => {
     this.setState({
       alreadyCheckedKeys: checkedKeys,
+    },()=>{
+      this.isReadyCheck()
+    });
+  }
+  onAlreadySelect = (selectedKeys) => {
+    this.setState({
+      alreadyCheckedKeys: selectedKeys,
     },()=>{
       this.isReadyCheck()
     });
@@ -159,7 +172,7 @@ class TreeComponent extends Component {
     }
     return LinearArray
   }
-  
+
   getAllid = data => {
     let arr = []
     let eachFunc = data => data.forEach(item => {
@@ -173,7 +186,7 @@ class TreeComponent extends Component {
     }
     return arr
   }
-  
+
   selectAll = e => {
     const { outPermissionInfo } = this.state
     let arr = this.getAllid(outPermissionInfo)
@@ -188,7 +201,7 @@ class TreeComponent extends Component {
       })
     }
   }
-  
+
   alreadySelectAll = e => {
     const { permissionInfo } = this.state
     let removeSame = this.deleteRepeatPermission(permissionInfo.slice(0))
@@ -208,7 +221,7 @@ class TreeComponent extends Component {
       })
     }
   }
-  
+
   getAllBranchPermisson = (item, arr, permissionList) => {
     let permissionListLinear = this.transformMultiArrayToLinearArray(permissionList)
     let arrItem = arr
@@ -225,7 +238,7 @@ class TreeComponent extends Component {
       }
     }
   }
-  
+
   deleteRepeatPermission = data => {
     let arr = []
     for(let i = 0; i < data.length; i++){
@@ -242,7 +255,7 @@ class TreeComponent extends Component {
     }
     return arr
   }
-  
+
   findParentNode(permissList,checkedKeys) {
     let parentKey = []
     let addKey = []
@@ -339,9 +352,9 @@ class TreeComponent extends Component {
     },()=>{
       this.isReadyCheck()
     })
-    
+
   }
-  
+
   removePerssion = () => {
     const { alreadyCheckedKeys, permissionInfo, outPermissionInfo,filterOutPermissionInfo,filterPermissionInfo, disableCheckArr, checkedKeys } = this.state
     const { getTreeRightData } = this.props
@@ -478,12 +491,14 @@ class TreeComponent extends Component {
                     filterLoading ? <span className='noPermission'><Spin/></span> :
                     filterOutPermissionInfo.length
                       ? <Tree
-                      checkable
+                      checkable multiple
                       // checkStrictly={true}
                       onExpand={this.onExpand}
                       onCheck={this.onCheck}
+                      onSelect={this.onSelect}
                       expandedKeys={this.state.expandedKeys}
                       checkedKeys={this.state.checkedKeys}
+                      selectedKeys={this.state.checkedKeys}
                       autoExpandParent={this.state.autoExpandParent}
                       key="tree"
                     >
@@ -528,7 +543,9 @@ class TreeComponent extends Component {
                       ? <Tree
                       checkable multiple
                       onCheck={this.onAlreadyCheck}
+                      onSelect={this.onAlreadySelect}
                       checkedKeys={this.state.alreadyCheckedKeys}
+                      selectedKeys={this.state.alreadyCheckedKeys}
                       key={this.state.rightTreeKey}
                     >
                       {loop(filterPermissionInfo)}

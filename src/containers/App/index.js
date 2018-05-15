@@ -61,6 +61,7 @@ class App extends Component {
       switchSpaceOrCluster: false,
       resourcequotaModal: false,
       resourcequotaMessage: {},
+      message403: "",
     }
   }
 
@@ -198,9 +199,15 @@ class App extends Component {
     }
     // 没有权限
     if (isResourcePermissionError(errorMessage.error)) {
-      this.setState({
+      let state = {
         resourcePermissionModal: true,
-      })
+      };
+      if(!!errorMessage.error.message.data && !!errorMessage.error.message.data.desc){
+        state.message403 = errorMessage.error.message.data.desc;
+      }else{
+        state.message403 = "";
+      }
+      this.setState(state);
       return
     }
     if (pathname !== this.props.pathname) {
@@ -448,6 +455,8 @@ class App extends Component {
         return '编排文件'
       case 'applicationPackage':
         return '应用包'
+      case 'loadbalance':
+        return '应用负载均衡'
       default:
         return type
     }
@@ -538,6 +547,7 @@ class App extends Component {
         }
         <Xterm />
         <Modal
+          width="550px"
           title="当前操作未被授权"
           visible={resourcePermissionModal}
           maskClosable={false}
@@ -557,7 +567,7 @@ class App extends Component {
           <div>
             <Icon type="cross-circle" />
             <span>
-              当前操作未被授权，请联系管理员进行授权后，再进行操作
+              当前操作未被授权{!!this.state.message403 ? ('"' + this.state.message403 + '"') : "" }，请联系管理员进行授权后，再进行操作
             </span>
           </div>
         </Modal>

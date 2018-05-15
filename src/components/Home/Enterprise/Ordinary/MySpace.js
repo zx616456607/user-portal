@@ -1366,6 +1366,26 @@ const menusText = defineMessages({
   ManageClassify: {
     id: 'ManageMonitor.operationalAudit.ManageClassify',
     defaultMessage: '分类管理'
+  },
+  Loadbalance: {
+    id: 'ManageMonitor.operationalAudit.Loadbalance',
+    defaultMessage: '负载均衡'
+  },
+  Ingress: {
+    id: 'ManageMonitor.operationalAudit.Ingress',
+    defaultMessage: '监听器'
+  },
+  Unbind: {
+    id: 'ManageMonitor.operationalAudit.Unbind',
+    defaultMessage: '解绑'
+  },
+  Drain: {
+    id: 'ManageMonitor.operationalAudit.Drain',
+    defaultMessage: '维护'
+  },
+  UnCordon: {
+    id: 'ManageMonitor.operationalAudit.UnCordon',
+    defaultMessage: '退出维护'
   }
 });
 
@@ -1600,6 +1620,10 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.SecretConfig)
     case '71':
       return formatMessage(menusText.ManageClassify)
+    case '72':
+      return formatMessage(menusText.Loadbalance)
+    case '73':
+      return formatMessage(menusText.Ingress)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1723,6 +1747,12 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.DeleteDocs)
     case '41':
       return formatMessage(menusText.DownloadDocs)
+    case '42':
+      return formatMessage(menusText.Unbind)
+    case '43':
+      return formatMessage(menusText.Drain)
+    case '44':
+      return formatMessage(menusText.UnCordon)
     case '0':
       return formatMessage(menusText.Unknown)
       break;

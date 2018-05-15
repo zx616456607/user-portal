@@ -12,6 +12,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const CREATE_SECRETS_REQUEST = 'CREATE_SECRETS_REQUEST'
 export const CREATE_SECRETS_SUCCESS = 'CREATE_SECRETS_SUCCESS'
@@ -43,9 +44,11 @@ export const GET_SECRETS_REQUEST = 'GET_SECRETS_REQUEST'
 export const GET_SECRETS_SUCCESS = 'GET_SECRETS_SUCCESS'
 export const GET_SECRETS_FAILURE = 'GET_SECRETS_FAILURE'
 
-function fetchGetSecrets(clusterID, query) {
+function fetchGetSecrets(clusterID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${clusterID}/secrets`
+  const newQuery = Object.assign({}, query)
   if (query) {
+    delete query.headers
     endpoint += `?${toQuerystring(query)}`
   }
   return {
@@ -53,14 +56,18 @@ function fetchGetSecrets(clusterID, query) {
     [FETCH_API]: {
       types: [ GET_SECRETS_REQUEST, GET_SECRETS_SUCCESS, GET_SECRETS_FAILURE ],
       endpoint,
-      schema: {}
-    }
+      schema: {},
+      options: {
+        headers: newQuery.headers
+      }
+    },
+    callback
   }
 }
 
-export function getSecrets(clusterID, query) {
+export function getSecrets(clusterID, query, callback) {
   return (dispatch) => {
-    return dispatch(fetchGetSecrets(clusterID, query))
+    return dispatch(fetchGetSecrets(clusterID, query, callback))
   }
 }
 

@@ -8,7 +8,7 @@
  * @author zhangxuan
  */
 
-import React from 'react'
+import React, { PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import { decamelize } from 'humps'
 import isEqual from 'lodash/isEqual'
@@ -38,12 +38,12 @@ export default class ChartComponent extends React.Component {
     if (isEmpty(data)) {
       return
     }
-    if (reg.test(metrics) || reg.test(unit)) {
+    if (reg.test(metrics) || reg.test(unit) || /B/.test(unit)) {
       let maxValue = 0
       data.forEach(item => {
         !isEmpty(item.metrics) && item.metrics.forEach(metric => {
-          if (metric.floatValue > maxValue) {
-            maxValue = metric.floatValue
+          if (metric.floatValue > maxValue || metric.value > maxValue) {
+            maxValue = metric.floatValue || metric.value
           }
         })
       })
@@ -55,13 +55,14 @@ export default class ChartComponent extends React.Component {
   }
 
   render() {
-    const { sourceData, className, unit  } = this.props
+    const { sourceData, className, unit, type  } = this.props
     const { isFetching, data } = sourceData
     const option = new EchartsOption('')
     option.addYAxis('value', {
       formatter: '{value}'
     })
     option.setToolTipUnit(` ${unit}`)
+    option.setNexportFlag(type === 'nexport')
     option.setTooltip('position', function (pos, params, dom, rect, size) {
       // 鼠标在左侧时 tooltip 显示到右侧，鼠标在右侧时 tooltip 显示到左侧。
       let obj = {top: 60};
@@ -89,7 +90,7 @@ export default class ChartComponent extends React.Component {
           defaultValue
         ])
       })
-      option.addSeries(dataArr, decamelize(item.name, { separator: '-' }))
+      option.addSeries(dataArr, item.name)
       option.setXAxis('axisLabel', {
         formatter: value => formatDate(value, 'HH:mm')
       })
@@ -104,4 +105,12 @@ export default class ChartComponent extends React.Component {
       />
     )
   }
+}
+
+ChartComponent.propTypes = {
+  unit: PropTypes.string.isRequired, // 单位
+  metrics: PropTypes.string.isRequired, // 监控指标
+  type: PropTypes.oneOf(['service', 'nexport']).isRequired, // 服务或者网络出口
+  updateUnit: PropTypes.func, // 单位转换函数
+  sourceData: PropTypes.object.isRequired, // 监控数据
 }

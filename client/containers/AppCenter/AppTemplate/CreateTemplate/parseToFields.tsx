@@ -14,7 +14,7 @@ import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
 const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY;
 import { parseCpuToNumber } from '../../../../../src/common/tools';
-import { RESOURCES_DIY } from '../../../../../src/constants';
+import { RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION } from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
 
@@ -25,7 +25,6 @@ const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
-const NO_CLASSIFY = 'noClassify'; // 未分类配置组
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -256,7 +255,9 @@ const parseStorage = annotations => {
   storageOpts = JSON.parse(storageOpts);
   let storageParent = {};
   const storageList: object[] = [];
+  const templateStorage: string[] = [];
   storageOpts.forEach(item => {
+    templateStorage.push(item.name);
     const sourceType = item.name.split('-')[0];
     let type: string = formatStorageType(sourceType);
 
@@ -270,6 +271,7 @@ const parseStorage = annotations => {
   return {
     serviceType, // 服务状态
     storageList, // 存储的配置列表
+    templateStorage, // 模板中的存储
   };
 };
 
@@ -330,7 +332,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
       configMapIsWholeDir = parseIsWholeDir[name];
     }
     if (item.name.includes('configmap')) {
-      let classifyName = item.name.split('/')[0];
+      let classifyName = item.name.split(CONFIGMAP_CLASSIFY_CONNECTION)[0];
       let configMountPath: string = mountPath;
       const configMapSubPathValues: string[] = [];
       items.forEach(sub => {
@@ -352,6 +354,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
         [`configMapMountPath${configId}`]: configMountPath,
         [`configMapIsWholeDir${configId}`]: configMapIsWholeDir,
         [`configGroupName${configId}`]: configGroupName,
+        [`configGroupOriginalName${configId}`]: configGroupName,
         [`configMapSubPathValues${configId}`]: configMapSubPathValues,
       });
     } else if (item.name.includes('secret')) {
@@ -421,7 +424,8 @@ const parseAdvancedEnv = containers => {
  * @return {object}
  */
 
-const parseDeployment = deployment => {
+const parseDeployment = (deployment, chart, isLast) => {
+  const { name } = chart;
   const { metadata: outerMetadata, spec: outerSpec } = deployment;
   const { template, replicas } = outerSpec;
   const { spec: innerSpec, metadata: innerMetadata } = template;
@@ -436,6 +440,7 @@ const parseDeployment = deployment => {
   }
   const values = {
     serviceName: outerMetadata.name, // 服务名称
+    chartName: isLast ? name : outerMetadata.name, // 默认服务名称
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
     ...parseAppPkgID(annotations), // 应用包
@@ -571,14 +576,14 @@ const parseIngress = ingress => {
  * @return {object} 格式为form表单
  */
 
-export const parseToFields = (templateDetail, chart) => {
+export const parseToFields = (templateDetail, chart, isLast) => {
   const { deployment, service, ingress } = templateDetail;
   const { name, version, description } = chart;
   const values = {
     templateName: name, // 模板名称
     templateVersion: version, // 模板版本
     templateDesc: description, // 模板描述
-    ...parseDeployment(deployment),
+    ...parseDeployment(deployment, chart, isLast),
     ...parseService(service),
     ...parseIngress(ingress),
   };

@@ -14,7 +14,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
-import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover } from 'antd';
+import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover, Tooltip } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import SearchInput from '../../../components/SearchInput';
@@ -26,7 +26,7 @@ import {
 import ReleaseModal from './ReleaseModal';
 import * as TemplateActions from '../../../actions/template';
 import * as QuickCreateAppActions from '../../../../src/actions/quick_create_app';
-import defaultApp from '../../../../static/img/appstore/defaultapp.png';
+import defaultApp from '../../../assets/img/AppCenter/app_template.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
@@ -133,9 +133,10 @@ class TemplateList extends React.Component<any> {
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
     const setArray = [];
-    templateArray.forEach(temp => {
+    templateArray.forEach((temp, index, _array) => {
+      const isLast = index === _array.length - 1;
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart);
+      const values = parseToFields(temp, chart, isLast);
       setArray.push(setFormFields(id, values));
     });
     await Promise.all(setArray);
@@ -200,7 +201,9 @@ class TemplateList extends React.Component<any> {
               <Icon className="operation" type="setting" />
             </Popover>
             <img className="tempLogo" src={defaultApp}/>
-            <div className="templateDesc">{temp.versions[0].description}</div>
+            <Tooltip title={temp.versions[0].description} placement="top">
+              <div className="templateDesc textoverflow">{temp.versions[0].description}</div>
+            </Tooltip>
           </div>
           <div className="templateFooter">
             <div className="templateName">{temp.name}</div>
@@ -267,7 +270,7 @@ const mapStateToProps = state => {
   const { appTemplates, quickCreateApp } = state;
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
-  const { data: templateList, total } = templateData || { data: [], total: 1 };
+  const { data: templateList, total } = templateData || { data: [], total: 0 };
   return {
     templateList,
     total,

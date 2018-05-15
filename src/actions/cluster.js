@@ -95,21 +95,21 @@ export const GET_CLUSTER_SUMMARY_REQUEST = 'GET_CLUSTER_SUMMARY_REQUEST'
 export const GET_CLUSTER_SUMMARY_SUCCESS = 'GET_CLUSTER_SUMMARY_SUCCESS'
 export const GET_CLUSTER_SUMMARY_FAILURE = 'GET_CLUSTER_SUMMARY_FAILURE'
 
-function fetchClusterSummary(cluster, callback) {
+function fetchClusterSummary(cluster, query, callback) {
   return {
     cluster,
     [FETCH_API]: {
       types: [GET_CLUSTER_SUMMARY_REQUEST, GET_CLUSTER_SUMMARY_SUCCESS, GET_CLUSTER_SUMMARY_FAILURE],
-      endpoint:`${API_URL_PREFIX}/clusters/${cluster}/summary`,
+      endpoint:`${API_URL_PREFIX}/clusters/${cluster}/summary?${toQuerystring(query)}`,
       schema: {}
     },
     callback
   }
 }
 
-export function getClusterSummary(cluster, callback) {
+export function getClusterSummary(cluster, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchClusterSummary(cluster, callback))
+    return dispatch(fetchClusterSummary(cluster, query, callback))
   }
 }
 

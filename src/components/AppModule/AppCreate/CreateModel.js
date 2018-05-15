@@ -200,17 +200,20 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-              <div className={createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "template")}>
-                <img src={createModel == "template" ? appTemplateHover : appTemplate} />
-                <div className="infoBox">
-                  <p>应用模板</p>
-                  <span>通过应用模板创建应用</span>
+              <Tooltip title={moreService ? '添加服务暂不支持应用模板' : ''}>
+                <div className={moreService ? "fastCreate disabled" : createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"}
+                  onClick={moreService ? () => false : this.selectCreateModel.bind(this, "template")}>
+                  <img src={createModel == "template" ? appTemplateHover : appTemplate} />
+                  <div className="infoBox">
+                    <p>应用模板</p>
+                    <span>通过应用模板创建应用</span>
+                  </div>
+                  <svg className="commonSelectedImg">
+                    <use xlinkHref="#appcreatemodelselect" />
+                  </svg>
+                  <i className="fa fa-check"></i>
                 </div>
-                <svg className="commonSelectedImg">
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
-              </div>
+              </Tooltip>
             </div>
 
             {moreService ?

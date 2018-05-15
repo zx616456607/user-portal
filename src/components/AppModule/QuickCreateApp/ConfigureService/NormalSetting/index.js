@@ -606,6 +606,7 @@ const Normal = React.createClass({
             key="storage"
             id={id}
             isTemplate={isTemplate}
+            {...{location}}
           />
           <FormItem
             {...formItemLayout}

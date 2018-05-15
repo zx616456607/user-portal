@@ -1,4 +1,13 @@
 .projectDetailBox{
+  .zanwu{
+    font-size: 12px;
+    color: #999;
+  }
+  .zanwuDiv{
+    text-align: center;
+    color: #ccc !important;
+    font-size: 14px !important;
+  }
   padding: 0 20px;
   .ant-card{
     overflow: visible;
@@ -187,12 +196,12 @@
         margin: 30px;
       }
     }
+    .title{
+      margin-bottom: 10px;
+      /*display: inline-block;*/
+      font-size: 14px;
+    }
     .connectLeft{
-      .leftTitle{
-        margin-bottom: 20px;
-        display: inline-block;
-        font-size: 14px;
-      }
       .ant-btn{
         width: 130px;
         font-size: 12px;
@@ -244,6 +253,30 @@
       font-size: 14px;
       margin-left: 20px;
       padding-bottom: 40px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      padding: 20px;
+      width: ~"calc(100% - 150px)";
+      position: relative;
+      .bottom-line{
+        width: ~"calc(100% - 40px)";
+        margin-left: 20px;
+        height: 1px;
+        background-image: linear-gradient(to right, #ccc 0%, #ccc 50%, transparent 50%);
+        background-size: 10px 1px;
+        background-repeat: repeat-x;
+        position: absolute;
+        left: 0;
+      }
+      .title{
+        .manageMembers{
+          margin-left: 20px;
+          font-size: 13px;
+          i{
+            margin-right: 5px;
+          }
+        }
+      }
       .rightTitle{
         margin-bottom: 20px;
         display: inline-block;
@@ -297,6 +330,152 @@
             align-items: center;
             .connectMemberCount{
               margin: 0 28px;
+            }
+          }
+        }
+      }
+    }
+    .memberContainer{
+      padding: 20px;
+      .item{
+        border-radius: 5px;
+        background-color: #edf0f5;
+        color: #7b7f82;
+        display: inline-block;
+        padding: 3px 15px;
+        margin-right: 10px;
+      }
+      .nodata{
+        text-align: center;
+        color: #ccc;
+      }
+    }
+    .permissionContainer{
+      .titleContainer{
+        width: 100%;
+        margin-bottom: 10px;
+        .title {
+          margin-right: 20px;
+        }
+        .clusterTitle{
+          font-size: 12px;
+          color: #999;
+          padding-right: 10px;
+          border-right: 1px solid #d9d9d9;
+          margin-right: 10px;
+        }
+        .clusterSvg{
+          width: 14px;
+          height: 14px;
+          margin: 0px 5px -3px 0px !important;
+        }
+        .permissionIcon {
+          width: 16px;
+          height: 16px;
+          margin-right: 5px;
+        }
+        .desc{
+          font-size: 12px;
+          color: #999;
+          float: right;
+          display: inline-flex;
+          align-items: center;
+        }
+      }
+      .type1{
+        .btnContainer{
+          padding: 20px 10px 20px 20px;
+          .hint{
+            margin-left: 15px;
+            color: #999;
+            font-size: 12px;
+          }
+          .ant-btn{
+            font-size: 12px;
+          }
+        }
+        .permissionType1Container{
+          margin: 0px 20px 15px 20px;
+          border: 1px solid #d8d8d8;
+          border-radius: 5px;
+          height: 330px;
+          width: 400px;
+          .authBox{
+            height: 328px;
+            width: 100%;
+            vertical-align: top;
+            .authTitle{
+              line-height: 40px;
+              text-indent: 15px;
+            }
+            .treeBox{
+              height: 288px;
+              overflow-y: scroll;
+              border-top: 1px solid #d8d8d8;
+            }
+          }
+        }
+      }
+      .type2{
+        padding: 20px;
+        .hint{
+          width: 100%;
+          color: #999;
+        }
+        .panelStyle {
+          .tips {
+            color: #ccc;
+            font-size: 12px;
+          }
+          .args {
+            // padding-bottom: 5px;
+            &>div {
+              margin-bottom: 5px;
+            }
+            .argsList {
+              .ant-form-item {
+                margin-bottom: 10px;
+              }
+              .addArgs {
+                margin-bottom: 10px;
+                span {
+                  cursor: pointer;
+                  i {
+                    margin-right: 5px;
+                  }
+                }
+              }
+              .deleteArgs {
+                padding-left: 10px;
+                height: 30px;
+                line-height: 30px;
+              }
+            }
+          }
+          .configBoxHeader {
+            background-color: #F5F5F5;
+            height: 40px;
+            line-height: 37px;
+            .headerLeft {
+              position: relative;
+              clear: both;
+              .line {
+                margin-top: 10px;
+                float: left;
+                width: 5px;
+                height: 16px;
+                border-left: 5px solid #00a1ea;
+                margin-left: 10px;
+              }
+              .title {
+                padding-left: 10px;
+                width: 100px;
+                font-size: 16px;
+              }
+            }
+            .desc {
+              padding-top: 2px;
+              font-size: 12px;
             }
           }
         }
@@ -379,4 +558,117 @@
 }
 .projectDetailClusterStatus3{
   color: #f1633b;
+}
+.projectDetailBox{
+  .ant-collapse {
+    background-color: inherit !important;
+    border: 0 !important;
+    margin-top: 20px;
+    .ant-collapse-item {
+      border: 0 !important;
+    }
+    .ant-collapse-header {
+      position: relative;
+      padding: 0 !important;
+      i {
+        position: absolute !important;
+        margin-left: 96% !important;
+        margin-left: calc(~"98% - 30px") !important;
+        font-size: 20px !important;
+        z-index: 100;
+      }
+      i:before {
+        content: "\e601" !important;
+      }
+    }
+    .ant-collapse-header[aria-expanded="true"] .arrow {
+      transform: scale(0.58333333) rotate(90deg) !important;
+    }
+    .ant-collapse-content {
+      clear: both;
+      padding: 0;
+      padding-left: 40px;
+    }
+    .rightA{
+      margin-left: 5px;
+    }
+  }
+}
+.stepBox{
+  margin: 0;
+  display: flex;
+  justify-content:space-around;
+  li:not(:last-of-type) {
+    margin-right: 30px;
+  }
+  li{
+    flex: auto;
+    font-size: 14px;
+    text-align: center;
+    padding: 0 20px;
+    line-height: 40px;
+    background: #ebeff2;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: #717274;
+    position: relative;
+    span{
+      border: 1px solid #d0d1d3;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      line-height: 16px;
+      margin-right: 10px;
+    }
+    &:after{
+      content: '';
+      display: block;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-left: 20px solid #ebeff2;
+      position: absolute;
+      right: -20px;
+      top: 0;
+      z-index: 10;
+    }
+    &:before{
+      content: '';
+      display: block;
+      border-top: 20px solid #ebeff2;
+      border-bottom: 20px solid #ebeff2;
+      border-left: 20px solid transparent;
+      position: absolute;
+      left: -20px;
+      top: 0;
+    }
+    &:first-child{
+      border-radius: 4px 0 0 4px;
+      padding-left: 25px;
+    }
+    &:last-child{
+      border-radius: 0px 4px 4px 0px;
+      padding-right: 25px;
+    }
+    &:first-of-type:before{
+      display: none;
+    }
+    &:last-of-type:after{
+      display: none;
+    }
+  }
+  .active{
+    color: #ffffff;
+    background-color: #2db7f5;
+    span{
+      border-color: #ffffff;
+    }
+    &:after{
+      border-left-color: #2db7f5;
+    }
+    &:before{
+      border-top-color: #2db7f5;
+      border-bottom-color: #2db7f5;
+    }
+  }
 }

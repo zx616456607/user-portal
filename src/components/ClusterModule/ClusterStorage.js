@@ -13,14 +13,18 @@ import { Switch, Icon, Form, Select, Input, Button, Modal, Spin } from 'antd'
 import { connect } from 'react-redux'
 import './style/ClusterStorage.less'
 import cloneDeep from 'lodash/cloneDeep'
-import { IP_REGEX } from '../../../constants/index'
+import isEmpty from 'lodash/isEmpty'
+import { IP_REGEX, IP_PATH_REGEX } from '../../../constants/index'
 import CephImg from '../../assets/img/setting/globalconfigceph.png'
 import HostImg from '../../assets/img/integration/host.png'
 import NfsImg from '../../assets/img/cluster/nfs.png'
+import GlusterImg from '../../assets/img/cluster/glusterfs.png'
 import yaml from 'js-yaml'
 import StorageClass from '../../../kubernetes/objects/storageClass'
 import Secret from '../../../kubernetes/objects/secret'
 import NfsStorage from '../../../kubernetes/objects/nfsStorage'
+import GfsSecret from '../../../kubernetes/objects/gfsSecret'
+import GfsStorage from '../../../kubernetes/objects/gfsStorage'
 import NfsDeplyment from '../../../kubernetes/objects/nfsDeplyment'
 import HostTemplate from '../../../kubernetes/objects/hostTemplate'
 import { createCephStorage, getClusterStorageList, deleteStorageClass, updateStorageClass } from '../../actions/cluster'
@@ -66,7 +70,12 @@ class ClusterStorage extends Component {
         key: 0,
         listArray: [],
       },
+      gfsArray: {
+        key: 0,
+        listArray: [],
+      },
       currentItem: {},
+      gfsLoading: false,
     }
   }
 
@@ -100,8 +109,10 @@ class ClusterStorage extends Component {
         func: (res) => {
           const cephlist = res.data.cephlist
           const nfslist = res.data.nfslist
+          const gfslist = res.data.glusterfsList
           let cephArray = []
           let nfsArray = []
+          let gfsArray = []
           cephlist.forEach((cephItem, index) => {
             let item = {
               index,
@@ -118,6 +129,14 @@ class ClusterStorage extends Component {
             }
             nfsArray.push(item)
           })
+          gfslist.forEach((gfstem, index) => {
+            let item = {
+              index,
+              disabled: true,
+              newAdd: false,
+            }
+            gfsArray.push(item)
+          })
           this.setState({
             cephArray: {
               key: cephArray.length ? cephArray.length : -1,
@@ -126,6 +145,10 @@ class ClusterStorage extends Component {
             nfsArray: {
               key: nfsArray.length ? nfsArray.length : -1,
               listArray: nfsArray,
+            },
+            gfsArray: {
+              key: gfsArray.length ? gfsArray.length : -1,
+              listArray: gfsArray,
             }
           })
         }
@@ -173,7 +196,7 @@ class ClusterStorage extends Component {
             if(res.message){
               message = res.message
             }
-            Notification.error(message)
+            Notification.warn(message)
           }
         },
         finally: {
@@ -206,7 +229,7 @@ class ClusterStorage extends Component {
           if(res.message){
             message = res.message
           }
-          Notification.error(message)
+          Notification.warn(message)
         }
       },
       finally: {
@@ -312,7 +335,7 @@ class ClusterStorage extends Component {
             func: (res) => {
               let message = '添加 Ceph 存储配置失败，请重试'
               message = this.formatMessage(message, res)
-              Notification.error(message)
+              Notification.warn(message)
             }
           }
         })
@@ -330,7 +353,7 @@ class ClusterStorage extends Component {
           func: (res) =>  {
             let message = '修改 Ceph 存储配置失败，请重试'
             message = this.formatMessage(message, res)
-            Notification.error(message)
+            Notification.warn(message)
           }
         }
       })
@@ -395,6 +418,27 @@ class ClusterStorage extends Component {
     return callback()
   }
 
+  addGlusterFSItem(){
+    const { gfsArray } = this.state
+    const newGfsArray = cloneDeep(gfsArray)
+    const listArray = newGfsArray.listArray
+    const index = newGfsArray.key
+    newGfsArray.key = index + 1
+    listArray.push({
+      index: index + 1,
+      disabled: false,
+      newAdd: true,
+    })
+    setTimeout(() => {
+      const id = `gfs_name${index + 1}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
+    this.setState({
+      gfsArray: newGfsArray,
+    })
+
+  }
   addNfsItem(){
     const { nfsArray } = this.state
     const newNfsArray = cloneDeep(nfsArray)
@@ -659,16 +703,17 @@ class ClusterStorage extends Component {
     const { nfsArray } = this.state
     const validateArray = [
       `nfs_service_name${item.index}`,
-      `nfs_service_adderss${item.index}`,
-      `nfs_service_path${item.index}`
+      `nfs_service_adderss${item.index}`
     ]
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
         return
       }
       const name = values[`nfs_service_name${item.index}`]
-      const ip = values[`nfs_service_adderss${item.index}`]
-      const path = values[`nfs_service_path${item.index}`]
+      const ipWithPath = values[`nfs_service_adderss${item.index}`]
+      let [ip, ...path] = ipWithPath.split('/')
+      path = '/' + path.join('/')
+
       const server = registryConfig.server
       const serverArray = server.split('//')
       const image = `${serverArray[1]}/tenx_containers/nfs-client-provisioner:latest`
@@ -703,7 +748,7 @@ class ClusterStorage extends Component {
             func: (res) => {
               let message = '添加 NFS 存储配置失败，请重试'
               message = this.formatMessage(message, res)
-              Notification.error(message)
+              Notification.warn(message)
             }
           }
         })
@@ -720,13 +765,116 @@ class ClusterStorage extends Component {
           func: (res) => {
             let message = '修改 NFS 存储配置失败，请重试'
             message = this.formatMessage(message, res)
-            Notification.error(message)
+            Notification.warn(message)
           }
         }
       })
     })
   }
+  saveGfs(item){
+    this.setState({
+      gfsLoading: true,
+    }, () => {
+      const { form, createCephStorage, cluster, updateStorageClass, registryConfig, clusterStorage } = this.props
+      const { gfsArray } = this.state
+      const validateArray = [
+        `gfs_name${item.index}`,
+        `gfs_agent${item.index}`,
+        `gfs_path${item.index}`,
+        `gfs_adminId${item.index}`,
+        `gfs_password${item.index}`
+      ];
+      form.validateFields(validateArray, (errors, values) => {
+        if(!!errors){
+          this.resetLoading();
+          return
+        }
+        const name = values[`gfs_name${item.index}`] //集群名称
+        const agent = values[`gfs_agent${item.index}`] //集群地址
+        const path = values[`gfs_path${item.index}`] //集群id
+        const adminId = values[`gfs_adminId${item.index}`] //认证用户 用户认证密钥
+        const password = values[`gfs_password${item.index}`] //用户认证密钥
 
+        const gfsList = clusterStorage.glusterfsList || []
+        let gname = ''
+        if(item.newAdd){
+          let len = gfsList.length
+          gname = `tenx-glusterfs${len}`
+        } else {
+          gname = gfsList[item.index].metadata.name
+        }
+        const gfsStorage = new GfsStorage(gname, name, agent, path, adminId);
+        const gfsSecret = new GfsSecret(btoa(password));//btoa base 64 加密
+
+        const clusterID = cluster.clusterID
+        const template = []
+        template.push(yaml.dump(gfsStorage))
+        template.push(yaml.dump(gfsSecret))
+        const body = {
+          template: template.join('---\n')
+        }
+        if(item.newAdd){
+          return createCephStorage(clusterID, {type: 'glusterfs'}, body, {
+            success: {
+              func: () => {
+                Notification.success('添加 GFS 存储配置成功')
+                this.loadClusterStorageList()
+                this.resetLoading();
+              },
+              isAsync: true,
+            },
+            failed: {
+              func: (res) => {
+                //let message = this.formatMessage(message, res)
+                let message = this.getErrorMessage(res) || '添加 GFS 存储配置失败，请重试';
+                Notification.warn(message)
+                this.resetLoading();
+              }
+            }
+          })
+        }
+        return updateStorageClass(clusterID, {type: 'glusterfs'}, body, {
+          success: {
+            func: () => {
+              Notification.success('修改 GFS 存储配置成功')
+              this.loadClusterStorageList()
+              this.resetLoading();
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: (res) => {
+              //let message = this.formatMessage(message, res)
+              let message = this.getErrorMessage(res) || '修改 GFS 存储配置失败，请重试';
+              Notification.warn(message)
+              this.resetLoading();
+            }
+          }
+        })
+      })
+    })
+  }
+
+  resetLoading = () => {
+    this.setState({
+      gfsLoading: false,
+    })
+  };
+  getErrorMessage = (res) => {
+    let message = "";
+    if(typeof res.message === "object"){
+      if(res.statusCode === 401 && res.message.reason === "GLUSTERFS_AUTH_FAILURE"){
+        message = "由于用户名/密码不正确，连接失败";
+      }
+      if(res.statusCode === 500 && res.message.reason === "GLUSTERFS_AGENT_ADDRESS_ERROR"){
+        message = "由于 agent 地址不正确，连接失败";
+      }
+      if(res.statusCode === 404 && res.message.reason === "GLUSTERFS_CLUSTER_NOT_FOUND"){
+        message = "由于集群id不正确，连接失败";
+      }
+    }
+    return message;
+  }
   cancelNfs(item){
     const { nfsArray } = this.state
     const { form } = this.props
@@ -749,6 +897,51 @@ class ClusterStorage extends Component {
     }
     this.setState({
       nfsArray: newNfsArray
+    })
+  }
+  cancelGfs(item){
+    const { gfsArray } = this.state
+    const { form } = this.props
+    const newGfsArray = cloneDeep(gfsArray)
+    const listArray = newGfsArray.listArray
+    for(let i = 0; i < listArray.length; i++){
+      if(listArray[i].index == item.index){
+        if(listArray[i].newAdd){
+          listArray.splice(i, 1)
+          break
+        }
+        form.resetFields([
+          `gfs_name${item.index}`,
+          `gfs_agent${item.index}`,
+          `gfs_path${item.index}`,
+          `gfs_adminId${item.index}`,
+          `gfs_password${item.index}`,
+        ])
+        listArray[i].disabled = true
+        break
+      }
+    }
+    this.setState({
+      gfsArray: newGfsArray
+    })
+  }
+  editGfs(item){
+    const { gfsArray } = this.state
+    const newGfsArray = cloneDeep(gfsArray)
+    const listArray = newGfsArray.listArray
+    for(let i = 0; i < listArray.length; i++){
+      if(listArray[i].index == item.index){
+        listArray[i].disabled = false
+        break
+      }
+    }
+    setTimeout(() => {
+      const id = `gfs_name${item.index}`
+      const node = document.getElementById(id)
+      inputFocusMethod(node)
+    }, 100)
+    this.setState({
+      gfsArray: newGfsArray
     })
   }
 
@@ -780,7 +973,6 @@ class ClusterStorage extends Component {
       })
       const nfsNameValues = getFieldsValue(nfsNameArray)
       const currentValue = getFieldValue(`nfs_service_name${config.index}`)
-      console.log('currentValue=',currentValue)
       nfsArray.listArray.forEach(item => {
         if(nfsNameValues[`nfs_service_name${item.index}`] == currentValue && item.index !== config.index){
           nfsIsExit = true
@@ -788,9 +980,26 @@ class ClusterStorage extends Component {
       })
       return { nfsIsExit }
     }
+    if(type == 'glusterfs'){
+      let gfsIsExit = false
+      const { gfsArray } = this.state
+      const gfsNameArray = []
+      gfsArray.listArray.forEach(item => {
+        gfsNameArray.push(`gfs_name${item.index}`)
+      })
+      const gfsNameValues = getFieldsValue(gfsNameArray)
+      const currentValue = getFieldValue(`gfs_name${config.index}`)
+      gfsArray.listArray.forEach(item => {
+        if(gfsNameValues[`gfs_name${item.index}`] == currentValue && item.index !== config.index){
+          gfsIsExit = true
+        }
+      })
+      return { gfsIsExit }
+    }
     return {
       cephIsExit: false,
       nfsIsExit: false,
+      gfsIsExit: false,
     }
   }
 
@@ -810,6 +1019,10 @@ class ClusterStorage extends Component {
       nfsArray.listArray.forEach(item => {
         validateArray.push(`nfs_service_name${item.index}`)
       })
+    } else if(type == 'gfs'){
+      nfsArray.listArray.forEach(item => {
+        validateArray.push(`gfs_name${item.index}`)
+      })
     } else {
       validateArray = []
     }
@@ -819,6 +1032,208 @@ class ClusterStorage extends Component {
     })
   }
 
+  renderGlusterFSList(){
+    const { gfsArray } = this.state
+    const { clusterStorage } = this.props
+    let isFetching = clusterStorage.isFetching
+    if(isFetching){
+      return <div className='wating_style'><Spin /></div>
+    }
+    const listArray = gfsArray.listArray
+    if(!listArray || !listArray.length){
+      return <div className='no_list'>该集群目前还没有添加 gfs 类型的存储</div>
+    }
+    const { form } = this.props
+    const { getFieldProps } = form
+    const formItemLayout = {
+      labelCol: {span: 6},
+      wrapperCol: {span: 18}
+    }
+    const gfsListData = clusterStorage.glusterfsList || []
+
+    let gfsList = listArray.map(item => {
+      const metadata = gfsListData[item.index] ? gfsListData[item.index].metadata : {}
+      const parameters = gfsListData[item.index] ? gfsListData[item.index].parameters : {}
+      return <div className='list_container' key={`list_container${item.index}`}>
+        <div className='list' key={ `ceph_list_${item.index}` }>
+          <FormItem
+            label="集群名称"
+            key="cluster_name"
+            { ...formItemLayout }
+          >
+            <Input
+              placeholder='请输入 GlusterFS 集群名称'
+              disabled={ item.disabled || !item.newAdd }
+              size="large"
+              className='formItem_child_style'
+              {...getFieldProps(`gfs_name${item.index}`, {
+                initialValue: metadata && metadata.annotations ? metadata.annotations[`tenxcloud.com/scName`] : undefined,
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback('集群名称不能为空')
+                    }
+                    if(!/^[\u4e00-\u9fa5|a-zA-Z_\-0-9]{3,36}$/.test(value)){
+                      return callback('集群名称由数字、字母、下划线、汉字组成，长度为3到36位')
+                    }
+                    {/* this.validateAllName('glusterfs') */}
+                    if(this.isExitName('glusterfs', item).gfsIsExit){
+                      return callback('集群名称已存在！')
+                    }
+                    return callback()
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+          <FormItem
+            label="agent 地址"
+            key="agent_address"
+            {...formItemLayout}
+          >
+            <Input
+              placeholder='如：http://192.168.1.123:8001'
+              disabled={item.disabled}
+              size="large"
+              {...getFieldProps(`gfs_agent${item.index}`, {
+                initialValue: parameters && parameters.resturl ? parameters.resturl : '',
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback('请输入集群地址')
+                    }
+                    if(!/^(http|https):\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}$/.test(value)){
+                      return callback('请输入正确的集群地址')
+                    }
+                    return callback()
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+
+          <FormItem
+            label="集群 ID"
+            key="service_path"
+            {...formItemLayout}
+          >
+            <Input
+              placeholder='请输入集群 ID'
+              disabled={item.disabled}
+              size="large"
+              {...getFieldProps(`gfs_path${item.index}`, {
+                initialValue: parameters ? parameters.clusterid : '',
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback('集群 ID 不能为空')
+                    }
+                    return callback()
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+          <FormItem
+            label="认证用户"
+            key="username"
+            {...formItemLayout}
+          >
+            <Input
+              placeholder='如： admin'
+              disabled={item.disabled}
+              size="large"
+              {...getFieldProps(`gfs_adminId${item.index}`, {
+                initialValue: parameters ? parameters.restuser : '',
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback('认证用户不能为空')
+                    }
+                    this.checkValue(value, callback)
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+          <FormItem
+            label="用户认证密钥"
+            key="password"
+            {...formItemLayout}
+          >
+            <Input
+              placeholder='请输入用户认证密钥'
+              disabled={item.disabled}
+              size="large"
+              type="password"
+              autoComplete="new-password"
+              {...getFieldProps(`gfs_password${item.index}`, {
+                initialValue: parameters ? parameters.key : undefined,
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback('用户认证密钥不能为空')
+                    }
+                    if(value.length < 4 || value.length > 64){
+                      return callback('长度为4～64个字符')
+                    }
+                    return callback()
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+        </div>
+        <div className='handle_box'>
+          {
+            item.disabled
+              ? <span>
+                <Button
+                  icon="edit"
+                  size="large"
+                  type="dashed"
+                  className='left_button'
+                  onClick={this.editGfs.bind(this, item)}
+                />
+                <Button
+                  icon="delete"
+                  className='right_button'
+                  size="large"
+                  type="dashed"
+                  onClick={() => this.setState({
+                    deleteModalVisible: true,
+                    currentItem: {
+                      type: 'gfs',
+                      item: gfsListData[item.index]
+                    }
+                  })}
+                />
+              </span>
+              : <span className="btnContainer">
+                  <Spin spinning={this.state.gfsLoading}>
+                    <Button
+                      icon="check"
+                      size="large"
+                      className='left_button'
+                      type="primary"
+                      onClick={this.saveGfs.bind(this, item)}
+                    >
+                    </Button>
+                  </Spin>
+                  <Button
+                    icon="cross"
+                    className='right_button'
+                    size="large"
+                    onClick={this.cancelGfs.bind(this, item)}
+                  />
+              </span>
+          }
+        </div>
+        <div className="check_box"></div>
+      </div>
+    })
+    return gfsList
+  }
   renderNfsList(){
     const { nfsArray } = this.state
     const { clusterStorage } = this.props
@@ -878,40 +1293,18 @@ class ClusterStorage extends Component {
             {...formItemLayout}
           >
             <Input
-              placeholder='如：192.168.1.1'
+              placeholder='如：192.168.1.1/var/nfs'
               disabled={item.disabled}
               size="large"
               {...getFieldProps(`nfs_service_adderss${item.index}`, {
-                initialValue: parameters ? parameters.ip : undefined,
+                initialValue: !isEmpty(parameters) ? parameters.ip + parameters.path : undefined,
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
                       return callback('服务地址不能为空')
                     }
-                    if(!IP_REGEX.test(value)){
+                    if(!IP_PATH_REGEX.test(value)){
                       return callback('请输入正确的服务地址')
-                    }
-                    return callback()
-                  }
-                }]
-              })}
-            />
-          </FormItem>
-          <FormItem
-            label="服务挂载路径"
-            key="service_path"
-            {...formItemLayout}
-          >
-            <Input
-              placeholder='如：/var/nfs'
-              disabled={item.disabled}
-              size="large"
-              {...getFieldProps(`nfs_service_path${item.index}`, {
-                initialValue: parameters ? parameters.path : undefined,
-                rules: [{
-                  validator: (rule, value, callback) => {
-                    if(!value){
-                      return callback('服务挂载路径不能为空')
                     }
                     return callback()
                   }
@@ -977,6 +1370,9 @@ class ClusterStorage extends Component {
     if(currentItem.type == 'nfs'){
       type = 'nfs'
     }
+    if(currentItem.type == 'gfs'){
+      type = 'glusterfs'
+    }
     deleteStorageClass(clusterID, name, {
       success: {
         func: () => {
@@ -992,7 +1388,7 @@ class ClusterStorage extends Component {
         func: (res) => {
           let message = `删除 ${type} 存储设置失败，请重试`
           message = this.formatMessage(message, res)
-          Notification.error(message)
+          Notification.warn(message)
         }
       }
     })
@@ -1041,7 +1437,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='ceph'>
           <div className="header">
-            块存储集群（rbd）
+            块存储集群（rbd）- 独享型
           </div>
           <div className="body">
             <div className="img_box ceph_img">
@@ -1058,7 +1454,7 @@ class ClusterStorage extends Component {
         </div>
         <div className='nfs'>
           <div className="header">
-            网络文件系统（NFS）
+            网络文件系统（NFS）- 共享型
           </div>
           <div className="body">
             <div className="img_box nfs_img">
@@ -1072,6 +1468,23 @@ class ClusterStorage extends Component {
             </div>
             <div className="check_box"></div>
           </div>
+        </div>
+        <div className='ceph'>
+          <div className="header">
+            分布式文件系统（GlusterFS）- 共享型
+          </div>
+          <div className="body">
+            <div className="img_box nfs_img">
+              <img src={GlusterImg} alt=""/>
+            </div>
+            <div className="container">
+              { this.renderGlusterFSList() }
+              <div className='add_button' onClick={() => this.addGlusterFSItem()}>
+                <Icon type="plus-circle-o" className='add_icon'/>添加存储
+              </div>
+            </div>
+          </div>
+          <div className="check_box"></div>
         </div>
 
         <Modal
@@ -1125,6 +1538,7 @@ function mapStateToProp(state, props) {
     isFetching: false,
     cephList: [],
     nfsList: [],
+    glusterfsList: [],
   }
   if(state.cluster.clusterStorage && state.cluster.clusterStorage[clusterID]){
     clusterStorage = state.cluster.clusterStorage[clusterID]

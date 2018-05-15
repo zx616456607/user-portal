@@ -21,9 +21,11 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 function fetchAppList(cluster, query, callback) {
   // Front-end customization requirements
   let { customizeOpts } = query || {}
+  let newQuery = Object.assign({}, query )
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
   if (query) {
     delete query.customizeOpts
+    delete query.headers
     endpoint += `?${toQuerystring(query)}`
   }
   return {
@@ -32,7 +34,10 @@ function fetchAppList(cluster, query, callback) {
     [FETCH_API]: {
       types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
       endpoint,
-      schema: Schemas.APPS
+      schema: Schemas.APPS,
+      options: {
+        headers: newQuery.headers
+      }
     },
     callback: callback
   }
@@ -329,8 +334,10 @@ export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
 function fetchContainerList(cluster, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers`
   let { customizeOpts } = query || {}
+  let newQuery = Object.assign({}, query)
   if (query) {
     delete query.customizeOpts
+    delete query.headers
     endpoint += `?${toQuerystring(query)}`
   }
   return {
@@ -339,7 +346,10 @@ function fetchContainerList(cluster, query, callback) {
     [FETCH_API]: {
       types: [CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE],
       endpoint,
-      schema: Schemas.CONTAINERS
+      schema: Schemas.CONTAINERS,
+      options: {
+        headers: newQuery.headers
+      }
     },
     callback
   }
@@ -463,8 +473,6 @@ function fetchDeleteContainers(cluster, body, query, callback) {
   let endpoint =`${API_URL_PREFIX}/clusters/${cluster}/containers/batch-delete`
   if (callback && Object.keys(query).length) {
     endpoint += `?${toQuerystring(query)}`
-  } else {
-    callback = query
   }
   return {
     cluster,

@@ -69,9 +69,15 @@ export default class ConfigPart extends React.Component<any, IState> {
   }
 
   selectPacket = (image: object, registryServer: string, isWrap?: boolean) => {
-    const { stepChange, getImageTemplate, template, getNewImageName } = this.props;
+    const { stepChange, getImageTemplate, template, getNewImageName, location } = this.props;
+    let finallyName = image.fileName;
+    if (image.repositoryName) {
+      finallyName = encodeImageFullname(image.repositoryName);
+    } else if (image.resourceName) {
+      finallyName = encodeImageFullname(image.resourceName);
+    }
     this.setState({
-      imageName: image.fileName || encodeImageFullname(image.repositoryName),
+      imageName: finallyName,
       registryServer,
     });
     if (isWrap) {
@@ -83,6 +89,9 @@ export default class ConfigPart extends React.Component<any, IState> {
         isWrap,
         template: true,
       };
+      if (location.query.action) {
+        Object.assign(pkgQuery, { action: location.query.action });
+      }
       let newTemplateList = template;
       let currentTemplate: string;
       let newImageName: string;
@@ -105,10 +114,13 @@ export default class ConfigPart extends React.Component<any, IState> {
       return;
     }
     const imageQuery = {
-      imageName: encodeImageFullname(image.repositoryName),
+      imageName: finallyName,
       registryServer,
       template: true,
     };
+    if (location.query.action) {
+      Object.assign(imageQuery, { action: location.query.action });
+    }
     browserHistory.push(`/app_center/template/create?${toQuerystring(imageQuery)}`);
     setTimeout(() => {
       stepChange(1);
@@ -139,7 +151,6 @@ export default class ConfigPart extends React.Component<any, IState> {
         {...{ imageName, registryServer }}
         callback={getFormAndConfig}
         isTemplate
-        action={'createTemplate'}
         {...this.props}
       />
     );

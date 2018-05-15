@@ -262,8 +262,8 @@ class TenxStatus extends Component {
       return
     }
     let replicasText
-    const { availableReplicas, readyReplicas, replicas, text } = status
-    let newReplicas = readyReplicas || availableReplicas || 0
+    const { availableReplicas, replicas, text } = status
+    let newReplicas = availableReplicas || 0
     if (text) {
       replicasText = text
       if (newReplicas < replicas) {
@@ -446,7 +446,6 @@ TenxStatus.propTypes = {
   status: PropTypes.shape({
     replicas: PropTypes.number,
     availableReplicas: PropTypes.number,
-    readyReplicas: PropTypes.number,
     text: PropTypes.string,
   }),
   creationTimestamp: PropTypes.string,

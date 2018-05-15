@@ -11,7 +11,10 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectDetail.less'
-import { Row, Col, Button, Input, Card, Icon, Modal, Checkbox, Tooltip, Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover } from 'antd'
+import {
+  Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin
+ } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -19,6 +22,7 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
+import { permissionOverview, PermissionResource } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
 import TreeComponent from '../../../TreeForMembers'
@@ -27,14 +31,21 @@ import xor from 'lodash/xor'
 import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from '../CreateRole'
+import RoleEditModal from './RoleEdit'
 import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
 import { formatDate } from '../../../../common/tools'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota } from '../../../../actions/quota'
+import { loadClusterList } from '../../../../actions/cluster'
 import { REG } from '../../../../constants'
+import ResourceModal from './ResourceModal'
+import PermissionOverview from './PermissionOverview'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
+const Panel = Collapse.Panel;
+const Option = Select.Option;
+
 class ProjectDetail extends Component {
   constructor(props) {
     super(props)
@@ -76,10 +87,19 @@ class ProjectDetail extends Component {
       filterLoading: false,
       popoverVisible: false,
       tabsKey: '',
+      currpermissionPolicyType: 1,
+      isShowperallEditModal: false,
+      currPRO: [],//permission/resource-operations
+      currResourceType: "",
+      isShowResourceModal: false,
+      selectedCluster: "",
+      isChangeCluster: false,
+      projectLoading: true,
     }
   }
-  componentWillMount() {
-    this.getProjectDetail();
+  componentDidMount() {
+    const { loadClusterList } = this.props
+    this.getProjectDetail()
     this.getClustersWithStatus();
     // this.getProjectMember();
     // this.loadRoleList()
@@ -87,15 +107,25 @@ class ProjectDetail extends Component {
     this.setState({
       tabsKey: key.tabs,
     })
+    loadClusterList()
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
     const { GetProjectsAllClusters } = this.props;
     GetProjectsAllClusters({
       projectsName: name
+    },{
+      success: {
+        func: (res) => {
+          const cluster0 = !!_.filter(res.data.clusters, {status: 2}) && _.filter(res.data.clusters, {status: 2})[0] || {};
+          this.setState({
+            selectedCluster: cluster0.clusterID
+          })
+        }
+      }
     })
   }
-  loadRoleList() {
+  loadRoleList(roleId) {
     const { ListRole } = this.props;
     const { projectDetail } = this.state;
     const targetKeys = [];
@@ -129,10 +159,16 @@ class ProjectDetail extends Component {
                 }
                 roleList.push(newData)
               }
-              this.setState({
+              //currentRoleInfo
+              let tempState = {
                 choosableList: roleList,
                 targetKeys
-              })
+              };
+              if(!!roleId){
+                const currRoleInfo = _.filter(roleList, {id: roleId})[0];
+                tempState.currentRoleInfo = currRoleInfo;
+              }
+              this.setState(tempState);
             }
           },
           isAsync: true
@@ -159,7 +195,8 @@ class ProjectDetail extends Component {
               }
               this.setState({
                 projectDetail: res.data,
-                comment: res.data.description
+                comment: res.data.description,
+                projectLoading: false,
               }, () => {
                 const { projectDetail } = this.state;
                 this.loadRoleList()
@@ -308,7 +345,7 @@ class ProjectDetail extends Component {
   onSelect = (selectedKeys, info) => {
     this.setState({ selectedKeys });
   }
-  addCharacterOk() {
+  addCharacterOk(roleid) {
     const { UpdateProjectsRelatedRoles } = this.props;
     const { projectDetail, targetKeys } = this.state;
     let notify = new Notification()
@@ -317,6 +354,8 @@ class ProjectDetail extends Component {
       let key = targetKeys[i].split(',')[0]
       updateRoles.push(key)
     }
+    //roleid 添加角色时 返回role id 直接关联到已添加角色
+    !!roleid && updateRoles.push(roleid);
     UpdateProjectsRelatedRoles({
       projectsName: projectDetail.projectName,
       body: {
@@ -387,32 +426,74 @@ class ProjectDetail extends Component {
       }
     });
   };
-  getCurrentRole(id) {
+
+  getPermissionOverview = () => {
+    const { permissionOverview, location } = this.props
+    const { currentRoleInfo, selectedCluster } = this.state
+    permissionOverview({
+
+      roleId: currentRoleInfo.id,
+      clusterId: selectedCluster,
+      headers: {
+        project: location.query.name
+      }
+    })
+  }
+
+  getPermissionResource = () => {
+    const { PermissionResource, currentRoleInfo, location } = this.props
+    const headers = { project: location.query.name }
+    PermissionResource(headers, {
+      success: {
+        func: res => {
+          this.setState({
+            currPRO: res.data
+          })
+        },
+      },
+      failed: {
+        func: res => {
+          this.setState({
+            currPRO: []
+          })
+        },
+      },
+    })
+  }
+  getCurrentRole(id, type) {
     if (!id) return
-    const { GetRole, roleWithMembers } = this.props;
-    const { projectDetail } = this.state;
-    checkedKeysDetail.length = 0
+    const { GetRole, roleWithMembers, PermissionResource } = this.props;
+    const { projectDetail, selectedCluster, currentRoleInfo } = this.state;
+    checkedKeysDetail.length = 0;
+    let permissionPolicyType = 1;
     this.setState({
       checkedKeys: [],
       expandedKeys: [],
-      currentRoleInfo: {},
+      //currentRoleInfo: {},
       currentRolePermission: [],
       currentMembers: [],
       getRoleLoading: true
     }, () => {
       GetRole({
-        roleId: id
+        roleId: type === "click" ? id : !!currentRoleInfo && JSON.stringify(currentRoleInfo) !== "{}" ? currentRoleInfo.id : id
       }, {
           success: {
             func: (res) => {
               if (res.data.statusCode === 200) {
                 let result = res.data.data;
                 this.generateDatas(result.permissions)
+                permissionPolicyType = result.permissionPolicyType
                 this.setState({
                   currentRoleInfo: result,
                   currentRolePermission: result.permissions,
                   expandedKeys: checkedKeysDetail,
                   checkedKeys: checkedKeysDetail,
+                  currpermissionPolicyType: permissionPolicyType,
+                }, () => {
+                  if(permissionPolicyType === 2){
+                    this.getPermissionResource()
+                    this.getPermissionOverview()
+                  }
                 })
               }
             },
@@ -420,7 +501,7 @@ class ProjectDetail extends Component {
           }
         })
       roleWithMembers({
-        roleID: id,
+        roleID: type === "click" ? id : !!currentRoleInfo && JSON.stringify(currentRoleInfo) !== "{}" ? currentRoleInfo.id : id,
         scope: 'project',
         scopeID: `${projectDetail.pid}`
       }, {
@@ -455,8 +536,8 @@ class ProjectDetail extends Component {
             },
             isAsync: true
           }
-        })
-    })
+        });
+      })
   }
   getProjectMember(type, name, flag) {
     const { GetProjectsMembers } = this.props;
@@ -556,7 +637,12 @@ class ProjectDetail extends Component {
         },
         failed: {
           func: () => {
-            notify.error('删除角色失败')
+            if(err.statusCode === 403){
+              notify.warn(`删除角色失败, 用户没有权限`)
+            }
+            else{
+              notify.warn(`删除角色失败`)
+            }
             this.setState({
               deleteRoleModal: false
             })
@@ -623,7 +709,12 @@ class ProjectDetail extends Component {
         failed: {
           func: () => {
             if (flag) {
-              notify.error('关联成员操作失败')
+              if(err.statusCode === 403){
+                notify.warn(`关联成员操作失败, 用户没有权限`)
+              }
+              else{
+                notify.warn(`关联成员操作失败`)
+              }
               this.setState({
                 connectModal: false,
                 memberType: 'user'
@@ -707,10 +798,101 @@ class ProjectDetail extends Component {
       popoverVisible: visible
     })
   }
+  perallEditModalOpen = () => {
+    this.setState({
+      isShowperallEditModal: true,
+    })
+  }
+  perallEditModalOk = () => {
+
+  }
+  perallEditModalCancel = () => {
+    this.setState({
+      isShowperallEditModal: false,
+    })
+  }
+  getPanelHeader = (title) => {
+    let titleCn = "xx";
+    switch(title){
+      case "application":
+        titleCn = "应用";
+        break;
+      case "configuration":
+        titleCn = "配置";
+        break;
+      case "container":
+        titleCn = "容器";
+        break;
+      case "service":
+        titleCn = "服务";
+        break;
+      case "volume":
+        titleCn = "存储";
+        break;
+    }
+    return (
+      <div className="headerBox">
+        <Row className="configBoxHeader" key="header">
+          <Col span={4} className="headerLeft" key="left">
+            <div className="line"></div>
+            <span className="title">{titleCn}</span>
+          </Col>
+          <Col span={20} key="right">
+            <div className="desc"></div>
+          </Col>
+        </Row>
+      </div>
+    )
+  }
+  editPermission = (currResourceType) => {
+    this.setState({
+      currResourceType: currResourceType,
+      isShowResourceModal: true,
+    })
+  }
+  closeResourceModal = () => {
+    this.setState({
+      isShowResourceModal: false,
+    })
+  }
+
+  changeCluster = e => {
+    if(e.key === this.state.selectedCluster) return;
+    this.setState({
+      selectedCluster: e.key,
+      isChangeCluster: true,
+    }, () => {
+      this.getPermissionOverview();
+      this.setState({
+        isChangeCluster: false,
+      })
+    })
+  }
+  getPermission = (tempPermission, type) => {
+    let permission = _.cloneDeep(tempPermission);
+    switch (type) {
+      case "application":
+        permission = _.without(permission, _.filter(permission, {name: "创建应用"})[0])
+        break;
+      case "volume":
+        permission = _.without(permission, _.filter(permission, {name: "创建存储"})[0])
+        break;
+      case "configuration":
+        permission = _.without(permission, _.filter(permission, {name: "创建配置组"})[0])
+        break;
+      case "secret":
+        permission = _.without(permission, _.filter(permission, {name: "创建加密配置"})[0])
+        break;
+      case "applicationPackage":
+        permission = _.without(permission, _.filter(permission, {name: "上传包文件"})[0])
+        break;
+    }
+    return permission;
+  }
   render() {
     const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
@@ -852,9 +1034,9 @@ class ProjectDetail extends Component {
 
     const roleList = projectDetail.relatedRoles && projectDetail.relatedRoles.map((item, index) => {
       return (
-        <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId)}>{item.roleName}
+        <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
-            (roleNum !== 3 || isManager) && !includes(disabledArr, item.roleId) &&
+            (roleNum === 1 || isManager) && !includes(disabledArr, item.roleId) &&
             <Tooltip placement="top" title="移除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
@@ -884,6 +1066,28 @@ class ProjectDetail extends Component {
           }
         </dl>
       </div>
+    );
+    let items;
+    this.state.currentMembers.length ?
+    items = this.state.currentMembers.map(item => <div className="item">{item.userName}</div>)
+    :
+    items = (
+      <div className="nodata">暂无成员</div>
+    )
+
+    const clusters = _.filter(projectClusters, {status: 2});
+    const clusterMenu = (
+      <Menu onClick={this.changeCluster}>
+        {
+          !!clusters && clusters.length > 0 && clusters.map(item => {
+            return (
+              <Menu.Item key={item.clusterID}>
+                {item.clusterName}
+              </Menu.Item>
+            )
+          })
+        }
+      </Menu>
     )
     return (
       <QueueAnim>
@@ -1195,7 +1399,7 @@ class ProjectDetail extends Component {
             characterModal={characterModal}
             loadData={this.loadRoleList.bind(this)}
           />
-          <Modal title="关联成员" width={765} visible={connectModal}
+          <Modal title="角色成员管理" width={765} visible={connectModal}
             onCancel={() => this.closeMemberModal()}
             onOk={() => this.submitMemberModal()}
           >
@@ -1218,71 +1422,206 @@ class ProjectDetail extends Component {
               />
             }
           </Modal>
+          {
+            this.state.isShowResourceModal ?
+            <ResourceModal
+              getPermission={this.getPermission}
+              visible={this.state.isShowResourceModal}
+              onCancel={this.closeResourceModal}
+              currResourceType={this.state.currResourceType}
+              scope={this}
+              onOk={this.getPermissionOverview}
+            />
+            : null
+          }
+
           <div className="projectMember">
             <Tabs className="clearfix connectCard" defaultActiveKey={this.state.tabsKey}>
               <TabPane tab="项目角色及关联成员" key="project">
-                {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
-                <div className="project">
-                  <div className="connectLeft pull-left">
-                    <span className="leftTitle">已添加角色</span>
-                    <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
-                      {roleList}
-                    </ul>
-                    {
-                      (roleNum === 1 || isManager) &&
-                      [
-                        <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
-                        <br />,
-                        <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
-                      ]
-                    }
-                  </div>
-                  <div className="connectRight pull-left">
-                    <p className="rightTitle">角色关联成员</p>
-                    <div className="rightContainer">
-                      <div className="authBox inlineBlock">
-                        <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
-                        <div className="treeBox">
+                <Spin spinning={this.state.projectLoading}>
+                  {/* <Card title="项目中角色关联的对象" className="clearfix connectCard"> */}
+                  <div className="project">
+                    <div className="title">项目角色</div>
+                    <div className="connectLeft pull-left">
+                      <ul className={classNames("characterListBox", { 'borderHide': projectDetail.relatedRoles === null })}>
+                        {roleList}
+                      </ul>
+                      {
+                        (() => {
+                          //console.log("b",roleNum === 1 || isManager);
+                          return (roleNum === 1 || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                        })()
+                      }
+                      {/*
+                        [
+                          <Button key="addRoles" type="primary" size="large" icon="plus" onClick={() => this.setState({ addCharacterModal: true })}> 添加已有角色</Button>,
+                          <br />,
+                          <Button key="createRole" type="ghost" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                        ]
+                      */}
+                    </div>
+                    <div className="connectRight pull-left">
+                      <div className="title">
+                        <span>该角色成员</span>
+                        {
+                          (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
+                          : null
+                        }
+                      </div>
+                      <div className="bottom-line"></div>
+                      <div className="memberContainer">
+                        {
+                          items
+                        }
+                      </div>
+                      <div className="permissionContainer">
+                        <div className="titleContainer">
+                          <span className="title">该角色权限</span>
+                          <span className="clusterTitle">
+                            <svg className="clusterSvg" fill="#999">
+                              <use xlinkHref="#headercluster" />
+                            </svg>
+                            集群
+                          </span>
                           {
-                            currentRolePermission &&
-                            <Tree
-                              checkable
-                              onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                              autoExpandParent={this.state.autoExpandParent}
-                              onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                              onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                            this.state.currpermissionPolicyType === 1 ? <span className="zanwu">所有已授权集群</span> :
+                            !selectedCluster ?
+                            <span className="zanwu">暂无集群</span>
+                            :
+                            <Dropdown overlay={clusterMenu} trigger={['click']}>
+                              <a className="ant-dropdown-link" href="#">
+                                {
+                                  (() => {
+                                    return !!clusters && clusters.length > 0 && !!_.filter(clusters, {clusterID: selectedCluster})[0] && [_.filter(clusters, {clusterID: selectedCluster})[0].clusterName , <Icon type="down" />]
+                                  })()
+                                }
+                              </a>
+                            </Dropdown>
+                          }
+                          <span className="desc">
+                            <svg className="permissionIcon">
+                              <use xlinkHref="#permission" />
+                            </svg>
+                            授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
+                          </span>
+                        </div>
+
+                        <div className="bottom-line"></div>
+                        {
+                          this.state.currpermissionPolicyType === 1?
+                          <div className="type1">
+                            <div className="btnContainer">
+                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                            </div>
+                            <div className="permissionType1Container">
+                              <div className="authBox inlineBlock">
+                                <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                                <div className="treeBox">
+                                  {
+                                    currentRolePermission &&
+                                    <Tree
+                                      checkable
+                                      onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                                      autoExpandParent={this.state.autoExpandParent}
+                                      onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                                      onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                                    >
+                                      {loop(currentRolePermission)}
+                                    </Tree>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                            {/* <Modal
+                              visible={this.state.isShowperallEditModal}
+                              onOk={this.perallEditModalOk}
+                              onCancel={this.perallEditModalCancel}
                             >
-                              {loop(currentRolePermission)}
-                            </Tree>
-                          }
-                        </div>
+                                  todo
+                            </Modal>*/}
+                            {
+                              this.state.isShowperallEditModal ?
+                              <RoleEditModal
+                                form={form}
+                                scope={this}
+                                isAdd={false}
+                                isTotal={true}
+                                totalSelected={currentRoleInfo.total}
+                                roleId={currentRoleInfo.id}
+                                visible={this.state.isShowperallEditModal}
+                                isDetail={true}
+                              /> : null
+                            }
+                          </div>
+                          :
+                          <div className="type2">
+                            <div className="hint">该角色成员可操作的资源</div>
+                            <div className="panelStyle">
+                              {/* {perPanels} */}
+                              {
+                                this.state.isChangeCluster || !selectedCluster ?
+                                  <div className="zanwuDiv"><span className="">暂无可操作资源</span></div>
+                                  :
+                                  <PermissionOverview
+                                    project={location.query.name}
+                                    clusterID={selectedCluster}
+                                    roleId={currentRoleInfo.id}
+                                    openPermissionModal={this.editPermission}
+                                    callback={this.getPermissionOverview}
+                                    isDisabled={!(roleNum === 1 || isManager)}
+                                    getPermission={this.getPermission}
+                                  />
+                              }
+                            </div>
+                          </div>
+                        }
                       </div>
-                      <div className="memberBox inlineBlock">
-                        <div className="memberTitle">
-                          <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
-                          {
-                            (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联成员</Button>
-                          }
-                        </div>
-                        <div className="memberTableBox">
-                          {
-                            !getRoleLoading ? currentMembers.length > 0 ?
+                      {/*<div className="rightContainer">
+                        <div className="authBox inlineBlock">
+                          <p className="authTitle">该角色共 <span style={{ color: '#59c3f5' }}>{currentRoleInfo && currentRoleInfo.total || 0}</span> 个权限</p>
+                          <div className="treeBox">
+                            {
+                              currentRolePermission &&
                               <Tree
-                                checkable multiple
-                                checkedKeys={currentMembers.map(item => `${item.key}`)}
+                                checkable
+                                onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                                autoExpandParent={this.state.autoExpandParent}
+                                onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                                onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
                               >
-                                {loopFunc(currentMembers)}
+                                {loop(currentRolePermission)}
                               </Tree>
-                              :
-                              (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联成员</Button>
-                              : null
-                          }
+                            }
+                          </div>
+                        </div>
+                        <div className="memberBox inlineBlock">
+                          <div className="memberTitle">
+                            <span className="connectMemberCount">该角色已关联 <span className="themeColor">{memberCount}</span> 个对象</span>
+                            {
+                              (roleNum === 1 || isManager) && !getRoleLoading && currentMembers.length > 0 && <Button type="primary" size="large" onClick={() => this.getProjectMember('user')}>继续关联成员</Button>
+                            }
+                          </div>
+                          <div className="memberTableBox">
+                            {
+                              !getRoleLoading ? currentMembers.length > 0 ?
+                                <Tree
+                                  checkable multiple
+                                  checkedKeys={currentMembers.map(item => `${item.key}`)}
+                                >
+                                  {loopFunc(currentMembers)}
+                                </Tree>
+                                :
+                                (roleNum === 1 || isManager) && <Button type="primary" size="large" className="addMemberBtn" onClick={() => this.getProjectMember('user')}>关联成员</Button>
+                                : null
+                            }
+                          </div>
                         </div>
                       </div>
+                      */}
                     </div>
                   </div>
-                </div>
-                {/* </Card> */}
+                  {/* </Card> */}
+                </Spin>
               </TabPane>
               <TabPane tab="资源配额管理" key="quota">
                 <ResourceQuota isProject={true} projectName={projectDetail.projectName} />
@@ -1300,7 +1639,7 @@ ProjectDetail = Form.create()(ProjectDetail)
 function mapStateToThirdProp(state, props) {
   const { query } = props.location
   const { name } = query
-  const { loginUser } = state.entities
+  const { loginUser, current } = state.entities
   const { globalRoles, role, billingConfig } = loginUser.info || { globalRoles: [], role: 0 }
   const { enabled: billingEnabled } = billingConfig
   let roleNum = 0
@@ -1319,11 +1658,16 @@ function mapStateToThirdProp(state, props) {
   const { projectClusterList } = state.projectAuthority
   const currentProjectClusterList = projectClusterList[name] || {}
   const projectClusters = currentProjectClusterList.data || []
+
+  const { clusters } = state.cluster
+
+  const { clusterID } = current.cluster
   return {
     name,
     roleNum,
     projectClusters,
-    billingEnabled
+    billingEnabled,
+    clusterID
   }
 }
 
@@ -1345,4 +1689,7 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   usersLoseRoles,
   getGlobaleQuota,
   getGlobaleQuotaList,
+  permissionOverview,
+  loadClusterList,
+  PermissionResource
 })(ProjectDetail)

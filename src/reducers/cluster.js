@@ -157,6 +157,7 @@ function clusterStorage(state = {}, action){
           isFetching: state[cluster] && state[cluster] ? false : true,
           cephList: state[cluster] && state[cluster].cephList ? state[cluster].cephList : [],
           nfsList: state[cluster] && state[cluster].nfsList ? state[cluster].nfsList : [],
+          glusterfsList: state[cluster] && state[cluster].glusterfsList ? state[cluster].glusterfsList : [],
         }
       })
     case ActionTypes.GET_CLUSTER_STORAGE_LIST_SUCCESS:
@@ -165,6 +166,7 @@ function clusterStorage(state = {}, action){
           isFetching: false,
           cephList: action.response.result.data.cephlist || [],
           nfsList: action.response.result.data.nfslist || [],
+          glusterfsList: action.response.result.data.glusterfsList || [],
         }
       })
     case ActionTypes.GET_CLUSTER_STORAGE_LIST_FAILURE:
@@ -173,6 +175,7 @@ function clusterStorage(state = {}, action){
           isFetching: false,
           cephList: [],
           nfsList: [],
+          glusterfsList: [],
         }
       })
     default:

@@ -581,7 +581,12 @@ exports.getAllService = function*() {
   const cluster = this.params.cluster
 	let pageIndex = parseInt(this.query.pageIndex)
 	let pageSize = parseInt(this.query.pageSize)
-	const query = this.query || {}
+  const query = this.query || {}
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
 	if(isNaN(pageIndex)) {
     pageIndex = DEFAULT_PAGE
 	}
@@ -601,7 +606,7 @@ exports.getAllService = function*() {
     queryObj.filter = `label ${label}`
   }
   const api = apiFactory.getK8sApi(this.session.loginUser)
-	const response = yield api.getBy([cluster, 'services'], queryObj, null)
+	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
 	this.status = response.code
   response.data.services.map((item) => {

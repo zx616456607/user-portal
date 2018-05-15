@@ -19,6 +19,8 @@ import {
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
   GPU_ALGORITHM,
+  NO_CLASSIFY,
+  CONFIGMAP_CLASSIFY_CONNECTION
  } from '../../../constants'
 
 export function getFieldsValues(fields) {
@@ -164,7 +166,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         if (isTemplate) {
           let volumeObj = {
             name: `${type}-${volume.name}`,
-            storageClassName: `${type}-volume`,
+            storageClassName: `${type}-storage`,
             mountPath,
             hostPath,
             readOnly
@@ -408,14 +410,18 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
         const configMapIsWholeDir = fieldsValues[`configMapIsWholeDir${keyValue}`]
         const configGroupName = fieldsValues[`configGroupName${keyValue}`]
         const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
-        let volumeName = `noClassify/configmap-volume-${keyValue}`
-        if (configGroupName && configGroupName[0] !== '未分类配置组') {
-          volumeName = `${configGroupName[0]}/configmap-volume-${keyValue}`
+        let volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+        if (Array.isArray(configGroupName)) {
+          if (configGroupName[0] !== '未分类配置组') {
+            volumeName = `${configGroupName[0]}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+          }
+        } else {
+          volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
         }
         const volume = {
           name: volumeName,
           configMap: {
-            name: configGroupName && configGroupName[1],
+            name: Array.isArray(configGroupName) ? configGroupName[1] : configGroupName,
             items: configMapSubPathValues.map(value => {
               return {
                 key: value,

@@ -31,7 +31,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
-import { createAppIngress } from '../../../actions/load_balance'
+import { createAppIngress, getLBList } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
 import { getImageTemplate } from '../../../actions/app_center'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
@@ -273,16 +273,18 @@ class QuickCreateApp extends Component {
     const { data } = templateDeployCheck
     const configMapErrors = {}
     const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+    const configMapErrorFields = []
     currentErrors.content.forEach(item => {
 
       keys.value.forEach(key => {
         const nameString = isSecret ? 'secretConfigGroupName' : 'configGroupName'
         const field = `${nameString}${key.value}`
         const configGroupName =
-          isSecret ?
-            currentFields[`${nameString}${key.value}`].value
-            :
-            currentFields[`${nameString}${key.value}`].value[1]
+                isSecret
+                ?
+                currentFields[`${nameString}${key.value}`].value
+                :
+                currentFields[`${nameString}${key.value}`].value[1]
         if (item.resourceName === configGroupName) {
           Object.assign(configMapErrors, {
             [field]: {
@@ -292,14 +294,53 @@ class QuickCreateApp extends Component {
                 message: isSecret ? `加密配置 ${configGroupName} 不存在` : `配置组 ${configGroupName} 名称重复`,
                 field
               }]
+            }
+          })
+          if (!isSecret) {
+            configMapErrorFields.push(field)
+          }
+          return
+        }
+      })
+    })
+    Object.assign(configMapErrors, {
+      configMapErrorFields: {
+        name: 'configMapErrorFields',
+        value: configMapErrorFields,
+      }
+    })
+    return configMapErrors
   }
+
+  formatSecretEnvErrors = currentFields => {
+    const { templateDeployCheck } = this.props
+    const { envKeys, serviceName } = currentFields
+    const { data } = templateDeployCheck
+    const secretEnvErrors = {}
+    const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+
+    currentErrors.content.forEach(item => {
+
+      envKeys.value.forEach(key => {
+        const field = `envValue${key.value}`
+        const fieldValue = currentFields[field].value[0]
+        if (item.resourceName === fieldValue) {
+          Object.assign(secretEnvErrors, {
+            [field]: {
+              name: field,
+              value: '',
+              errors: [{
+                message: `加密变量 ${fieldValue} 不存在`,
+                field
+              }]
+            }
           })
           return
         }
       })
     })
 
-    return configMapErrors
+    return secretEnvErrors
   }
 
   deployCheck = async (props) => {
@@ -318,11 +359,34 @@ class QuickCreateApp extends Component {
       const currentError = result.response.result.data[value.serviceName.value]
       if (!isEmpty(currentError)) {
         flag = true
+        const storageErrors = []
         currentError.forEach(item => {
           switch(item.type) {
             case 0:
+              storageErrors.push({
+                message: `nfs集群 ${item.resourceName} 不存在`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
               break
             case 1:
+              storageErrors.push({
+                message: `ceph集群 ${item.resourceName} 不存在`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
               break
             case 2:
               Object.assign(errorFields, {
@@ -367,6 +431,23 @@ class QuickCreateApp extends Component {
             case 6:
               const secretErrors = this.formatConfigMapErrors(value, true)
               Object.assign(errorFields, secretErrors)
+              break
+            case 7:
+              storageErrors.push({
+                message: `集群禁用本地（host）存储`,
+                filed: 'storageList'
+              })
+              Object.assign(errorFields, {
+                storageList: {
+                  name: 'storageList',
+                  value: value.storageList.value,
+                  errors: storageErrors
+                }
+              })
+              break
+            case 9:
+              const secretEnvErrors = this.formatSecretEnvErrors(value)
+              Object.assign(errorFields, secretEnvErrors)
               break
             default:
               break
@@ -584,8 +665,11 @@ class QuickCreateApp extends Component {
   }
 
   createAppByTemplate = async () => {
-    const { appTemplateDeploy, fields, current } = this.props;
+    const { appTemplateDeploy, fields, current, getLBList, loadBalanceList } = this.props;
     const { clusterID } = current.cluster
+    if (isEmpty(loadBalanceList)) {
+      await getLBList(clusterID)
+    }
     const body = formatTemplateBody(this.props, this.imageConfigs, true);
     const firstField = Object.values(fields)[0];
     const appName = getFieldsValues(firstField).appName;
@@ -593,11 +677,11 @@ class QuickCreateApp extends Component {
     const { name, version } = body.chart;
     const result = await appTemplateDeploy(clusterID, name, version, body);
     if (result.error) {
-      return
       this.setState({
         stepStatus: 'error',
         isCreatingApp: false,
       })
+      return
     }
     this.setState({
       stepStatus: 'finish',
@@ -1176,9 +1260,11 @@ class QuickCreateApp extends Component {
       case 6:
         return <span>加密配置 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
       case 7:
-        return <span>集群禁用本地存储</span>
+        return <span>集群禁用本地（host）存储</span>
       case 8:
         return <span>没有安装amp</span>
+      case 9:
+        return <span>加密变量 <span className="themeColor">{record.resourceName}</span> 不存在</span>
       default:
         return
     }
@@ -1402,5 +1488,6 @@ export default connect(mapStateToProps, {
   appTemplateDeploy,
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
-  getImageTemplate
+  getImageTemplate,
+  getLBList
 })(QuickCreateApp)

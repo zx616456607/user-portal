@@ -96,6 +96,11 @@ exports.getApps = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const query = this.query || {}
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project })
+  }
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let name = query.name
@@ -117,7 +122,7 @@ exports.getApps = function* () {
     queryObj.sort_by = query.sortBy
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], queryObj)
+  const result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const apps = result.data.apps
   apps.map((app) => {
@@ -155,34 +160,34 @@ exports.deleteApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   //获取app下的service，　并删除其对应的cd规则
-  const appResult = yield api.getBy([cluster, 'apps', apps.join(',')])
-  const appsData = appResult.data
-  const deleteCDRuleServiceName = []
-  if(appsData) {
-    apps.forEach(key => {
-      const app = appsData[key]
-      if(app.services && app.services.length > 0) {
-        app.services.forEach(service => {
-          deleteCDRuleServiceName.push(service.metadata.name)
-        })
-      }
-    })
-    const devOpsApi = apiFactory.getDevOpsApi(loginUser)
-    if (deleteCDRuleServiceName.length > 0) {
-      try {
-        yield devOpsApi.deleteBy(['cd-rules'], {
-          cluster,
-          name: deleteCDRuleServiceName.join(',')
-        })
-      } catch (err) {
-        if (err.statusCode === 403) {
-          logger.warn("Failed to delete cd rules as it's not permitted")
-        } else {
-          throw err
-        }
-      }
-    }
-  }
+  // const appResult = yield api.getBy([cluster, 'apps', apps.join(',')])
+  // const appsData = appResult.data
+  // const deleteCDRuleServiceName = []
+  // if(appsData) {
+  //   apps.forEach(key => {
+  //     const app = appsData[key]
+  //     if(app.services && app.services.length > 0) {
+  //       app.services.forEach(service => {
+  //         deleteCDRuleServiceName.push(service.metadata.name)
+  //       })
+  //     }
+  //   })
+  //   const devOpsApi = apiFactory.getDevOpsApi(loginUser)
+  //   if (deleteCDRuleServiceName.length > 0) {
+  //     try {
+  //       yield devOpsApi.deleteBy(['cd-rules'], {
+  //         cluster,
+  //         name: deleteCDRuleServiceName.join(',')
+  //       })
+  //     } catch (err) {
+  //       if (err.statusCode === 403) {
+  //         logger.warn("Failed to delete cd rules as it's not permitted")
+  //       } else {
+  //         throw err
+  //       }
+  //     }
+  //   }
+  // }
   const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, body)
   this.body = {
     cluster,
