@@ -31,12 +31,12 @@ class Monitor extends React.Component {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
-          break;
+          break
         case 'monitorPortalHistory':
           window.monitorPortalHistory = data
-          break;
+          break
         default:
-          break;
+          break
       }
     }
   }
@@ -57,7 +57,7 @@ class Monitor extends React.Component {
     })
   }
 
-  render(){
+  render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
       username, location,
@@ -81,7 +81,7 @@ class Monitor extends React.Component {
     }
     return <div className="monitor" style={style}>
       <Title title="系统服务监控" />
-      <iframe id="monitor" src={`/monitor?${toQuerystring(query)}`}  />
+      <iframe title="流水线" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
     </div>
   }
 }

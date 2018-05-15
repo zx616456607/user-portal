@@ -5,15 +5,15 @@
  * v0.1 - 2018-04-08
  * @author rensiwei
  */
- .aotuScalerModal{
+ .aotuScalerModa {
   .ant-modal-header {
-    background-color: #333333 !important;
+    background-color: #333 !important;
     color: #fff !important;
   }
-  .topIconContainer{
-    padding:30px 20px;
+  .topIconContainer {
+    padding: 30px 20px;
     // border-bottom: 1px dashed #ccc;
-    .iconCon{
+    .iconCon {
       box-sizing: border-box;
       width: 90px;
       float: left;
@@ -23,7 +23,7 @@
       border-radius: 5px;
       margin: 0 10px;
       cursor: pointer;
-      .icon{
+      .icon {
         position: absolute;
         top: 0;
         height: ~"calc(100% - 28px)";
@@ -32,7 +32,7 @@
         background-size: auto auto;
         background-repeat: no-repeat;
       }
-      .name{
+      .name {
         position: absolute;
         bottom: 0;
         padding: 5px 0;
@@ -41,70 +41,70 @@
         width: 90px;
       }
     }
-    .iconvmware .icon{
+    .iconvmware .icon {
       background-image: url('../../../../assets/img/clusterAutoScaler/vmware.png');
     }
-    .iconazure .icon{
+    .iconazure .icon {
       background-image: url('../../../../assets/img/clusterAutoScaler/azure.png');
     }
-    .iconaws .icon{
+    .iconaws .icon {
       background-image: url('../../../../assets/img/clusterAutoScaler/aws.png');
     }
-    .iconali .icon{
+    .iconali .icon {
       background-image: url('../../../../assets/img/clusterAutoScaler/ali.png');
     }
-    .iconConDis{
+    .iconConDis {
       opacity: 0.5;
       background-color: #d9d9d9;
     }
     .iconCon:hover {
       cursor: pointer;
       border: 2px solid #00a1ea;
-      color:#00a1ea;
-      use{
+      color: #00a1ea;
+      use {
         fill: #00a1ea !important;
       }
-      .name{
+      .name {
         bottom: -1px;
         width: 88px;
-        color:#00a1ea;
+        color: #00a1ea;
         /*解决box-sizing hover 出现border时错位问题*/
       }
     }
-    .selectedBox{
+    .selectedBox {
       border: 2px solid #00a1ea;
-      color:#00a1ea;
-      use{
+      color: #00a1ea;
+      use {
         fill: #00a1ea !important;
       }
-      .commonSelectedImg{
+      .commonSelectedImg {
         display: block;
         position: absolute;
-        bottom: 0px;
-        right: 0px;
+        bottom: 0;
+        right: 0;
         width: 30px;
         height: 30px;
       }
-      .fa-check{
+      .fa-check {
         display: block;
         position: absolute;
         bottom: 3px;
         right: 3px;
-        color: #FFFFFF;
+        color: #fff;
       }
-      .name{
+      .name {
         bottom: -1px;
         width: 88px;
-        color:#00a1ea;
+        color: #00a1ea;
         /*解决box-sizing hover 出现border时错位问题*/
       }
     }
     .commonSelectedImg,
-    .fa-check{
+    .fa-check {
       display: none;
     }
   }
-  .bottom-line{
+  .bottom-line {
     width: 100%;
     height: 1px;
     background-image: linear-gradient(to right, #ccc 0%, #ccc 50%, transparent 50%);
@@ -113,26 +113,26 @@
     position: absolute;
     left: 0;
   }
-  .descContainer{
+  .descContainer {
     text-align: center;
     color: #999;
     padding: 16px 0 24px 0;
   }
-  .btnConatainer{
+  .btnConatainer {
     text-align: center;
-    padding:40px 0 24px 0;
+    padding: 40px 0 24px 0;
   }
-  .stepContainer{
+  .stepContainer {
     padding: 10px 100px;
     // border-bottom: 1px dashed #ccc;
     margin-top: 5px;
     position: relative;
-    .bottom-line{
+    .bottom-line {
       transform: translateY(-15px);
     }
   }
   .vmTemplateDetail {
-    .path{
+    .path {
       padding-right: 10px;
       width: 100%;
       /* font-size: 14px; */
@@ -143,124 +143,124 @@
       white-space: nowrap;
     }
     .lowcase {
-      color: #999999;
+      color: #999;
     }
   }
 
-  .formContainer{
+  .formContainer {
     // padding-top: 30px;
-    .panel{
-      .unitWapper{
+    .panel {
+      .unitWapper {
         position: relative;
-        label::after{
+        label::after {
           content: "" !important;
         }
       }
       // border-bottom: 1px dashed #ccc;
       margin-bottom: 10px;
-      .rowtext{
+      .rowtext {
         color: #f5cc4e;
       }
-      .ant-row{
-        .unit{
+      .ant-row {
+        .unit {
           display: inline-block;
           position: absolute;
           margin-left: 5px;
         }
-        .unit.count{
+        .unit.count {
           top: 87px;
           top: 40px;
           left: 110px;
         }
-        .unit.count.countright{
+        .unit.count.countright {
           left: 255px;
         }
-        .hint{
+        .hint {
           display: inline-block;
           float: right;
           height: 32px;
           line-height: 32px;
         }
-        .min, .max{
-          .name{
+        .min, .max {
+          .name {
             width: 100%;
           }
-          .mmItem .item{
+          .mmItem .item {
             width: 100px;
           }
           float: left;
         }
-        .ant-form-item{
+        .ant-form-item {
           margin-bottom: 15px;
         }
       }
-      .row{
+      .row {
         margin: 15px 0;
-        .right, .left{
+        .right, .left {
           float: left;
         }
-        .left{
-          width:100px;
+        .left {
+          width: 100px;
           text-align: right;
           height: 30px;
           line-height: 30px;
-          padding-right:10px;
+          padding-right: 10px;
         }
-        .right{
+        .right {
           width: ~"calc(100% - 100px)";
           padding-right: 20px;
           line-height: 30px;
-          .unit{
+          .unit {
             display: inline-block;
             margin-left: 10px;
           }
-          .hint{
+          .hint {
             display: inline-block;
             float: right;
             height: 28px;
             line-height: 28px;
           }
-          .min, .max{
+          .min, .max {
             width: 50%;
-            .name{
+            .name {
               width: 100%;
             }
-            .mmItem .item{
+            .mmItem .item {
               width: 150px;
             }
             float: left;
           }
         }
-        .clearBoth{
+        .clearBoth {
           clear: both;
         }
       }
-      .noMB{
-        margin-bottom: 0px !important;
+      .noMB {
+        margin-bottom: 0 !important;
       }
     }
-    .panel.noBottom{
+    .panel.noBottom {
       border-bottom: none !important;
-      margin-bottom: 0px !important;
+      margin-bottom: 0 !important;
     }
   }
-  .panel{
+  .panel {
     padding-top: 20px;
   }
-  .step1.hide, step2.hide{
+  .step1.hide, .step2.hide {
     display: none;
   }
-  .iconEye{
+  .iconEye {
     position: absolute;
     right: -20px;
     top: 10px;
     text-align: center;
     cursor: pointer;
   }
-  .optionValueNull{
+  .optionValueNull {
     color: #e8e9e8 !important;
   }
-  .jiedianContainer{
+  .jiedianContainer {
     .ant-input-number {
       width: 100% !important;
     }
@@ -268,11 +268,11 @@
       width: 100%;
       text-align: left;
     }
-    .ant-row{
+    .ant-row {
       width: 50%;
       float: left;
     }
-    .rowtext{
+    .rowtext {
       margin-bottom: 15px;
       width: 100%;
     }
