@@ -9,11 +9,12 @@
  */
 import React from 'react'
 import {
-  Spin, Button, Input, Table, Menu, Dropdown,
-  Card, Pagination, Timeline,
+  Spin, Button, Table, Menu, Dropdown,
+  Card, Pagination,
   Modal,
 } from 'antd'
 import classNames from 'classnames'
+import _ from 'lodash'
 import '../style/IaasTab.less'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
@@ -112,7 +113,7 @@ class Tab1 extends React.Component {
         },
         failed: {
           func: err => {
-            const { statusCode, message } = err
+            const { message } = err
             notify.warn(`删除策略 ${this.state.currentData.name} 失败， ${message}`)
             common()
           },
@@ -137,7 +138,7 @@ class Tab1 extends React.Component {
       },
       failed: {
         func: err => {
-          const { statusCode, message } = err
+          const { message } = err
           notify.warn(`${rowData.status === 'on' ? '停用' : '启用'} 失败， ${message.message || message}`)
         },
       },
@@ -161,7 +162,7 @@ class Tab1 extends React.Component {
     console.log('delItems', selectedRowKeys)
   }
 
-  onRowChange = (selectedRowKeys, selectedRowsData) => {
+  onRowChange = selectedRowKeys => {
     this.setState({ selectedRowKeys })
   }
   // search focus事件
@@ -227,7 +228,7 @@ class Tab1 extends React.Component {
           },
           failed: {
             func: err => {
-              const { statusCode, message } = err
+              const { message } = err
               notify.warn(`更新策略 ${params.name} 失败，${message.message}`)
             },
           },
@@ -258,10 +259,10 @@ class Tab1 extends React.Component {
   }
 
   renderLineItem = (item, i, isLast) => {
-    let color = '#2fba67'
-    if (item.diff) {
-      color = '#2cb8f6'
-    }
+    // let color = '#2fba67'
+    // if (item.diff) {
+    //   color = '#2cb8f6'
+    // }
     const className = 'ant-timeline-item ' + (isLast ? 'ant-timeline-item-last' : '')
     return <li className={className} key={i}>
       <div className="ant-timeline-item-tail"></div>
@@ -304,23 +305,23 @@ class Tab1 extends React.Component {
   }
   render() {
     const { appList, isTab1Fetching, logList, isLogFetching } = this.props
-    const searchCls = classNames({
-      'ant-search-input': true,
-      'ant-search-input-focus': this.state.isSearchFocus,
-    })
-    const btnCls = classNames({
-      'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.searchValue,
-    })
-    const rowSelection = {
-      onChange: this.onRowChange,
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows)
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows)
-      },
-    }
+    // const searchCls = classNames({
+    //   'ant-search-input': true,
+    //   'ant-search-input-focus': this.state.isSearchFocus,
+    // })
+    // const btnCls = classNames({
+    //   'ant-search-btn': true,
+    //   'ant-search-btn-noempty': !!this.state.searchValue,
+    // })
+    // const rowSelection = {
+    //   onChange: this.onRowChange,
+    //   onSelect(record, selected, selectedRows) {
+    //     console.log(record, selected, selectedRows)
+    //   },
+    //   onSelectAll(selected, selectedRows, changeRows) {
+    //     console.log(selected, selectedRows, changeRows)
+    //   },
+    // }
     const _that = this
     const columns = (() => {
       const clickTableRowName = this.clickTableRowName.bind(this)
@@ -330,7 +331,7 @@ class Tab1 extends React.Component {
         width: 100,
         render: (text, rowData) => {
           return (
-            <a href="#" onClick={() => { clickTableRowName(rowData) }} data-row={rowData}>{text}</a>
+            <a href="##" onClick={() => { clickTableRowName(rowData) }} data-row={rowData}>{text}</a>
           )
         },
       },
@@ -397,7 +398,7 @@ class Tab1 extends React.Component {
       hidden: this.state.isShowTab1List,
     })
     const currentData = this.state.currentData
-    const isbtnDisabled = !this.state.selectedRowKeys.length
+    // const isbtnDisabled = !this.state.selectedRowKeys.length
     let total = tableData.length
     if (appList) {
       tableData = appList
@@ -435,10 +436,14 @@ class Tab1 extends React.Component {
                 <i className="fa fa-refresh" />刷新
               </Button>
               {/* <Button className="btnItem" onClick={this.openModalByAdd} type="primary" ><Icon type="plus" />新建策略</Button>
-                <Button className="btnItem" onClick={this.reflesh} type="ghost" ><Icon type="retweet" />刷新</Button>*/}
-              {/* <Button className="btnItem" onClick={this.on} type="ghost" disabled={isbtnDisabled} ><Icon type="caret-right" />启用</Button>
-                <Button className="btnItem" onClick={this.off} type="ghost" disabled={isbtnDisabled} ><Icon type="pause" />停用</Button>
-                <Button className="btnItem" onClick={this.delItems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>*/}
+                <Button className="btnItem" onClick={this.reflesh} type="ghost" >
+                <Icon type="retweet" />刷新</Button>*/}
+              {/* <Button className="btnItem" onClick={this.on} type="ghost" disabled={isbtnDisabled} >
+              <Icon type="caret-right" />启用</Button>
+                <Button className="btnItem" onClick={this.off} type="ghost" disabled={isbtnDisabled} >
+                <Icon type="pause" />停用</Button>
+                <Button className="btnItem" onClick={this.delItems} type="ghost" disabled={isbtnDisabled} >
+                <Icon type="delete" />删除</Button>*/}
               {/* <Input.Group className={searchCls}>
                   <Input size='large' placeholder='请输入策略名称搜索' value={this.state.searchValue} onChange={this.handleInputChange}
                     onFocus={this.handleFocusBlur} onBlur={this.handleFocusBlur} onPressEnter={this.handleSearch}
@@ -471,7 +476,11 @@ class Tab1 extends React.Component {
                     </div>
                 :*/}
                 <div className="reset_antd_table_header">
-                  <Table columns={columns} loading={isTab1Fetching} dataSource={tableData} pagination={this.state.pagination} />
+                  <Table
+                    columns={columns}
+                    loading={isTab1Fetching}
+                    dataSource={tableData}
+                    pagination={this.state.pagination} />
                 </div>
                 {/* }*/}
               </Card>
@@ -507,8 +516,10 @@ class Tab1 extends React.Component {
                 <div className="cardPart">
                   <p><span className="leftTitle">最少保留</span><span className="rightContent">{currentData.min + ' 个'}</span></p>
                   <p><span className="leftTitle">最大扩展</span><span className="rightContent">{currentData.max + ' 个'}</span></p>
-                  {/* <p><span className="leftTitle">阈值</span><span className="rightContent">{currentData.xxx1}</span></p> */}
-                  {/* <p><span className="leftTitle">伸缩活动</span><span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p> */}
+                  {/* <p><span className="leftTitle">阈值</span>
+                    <span className="rightContent">{currentData.xxx1}</span></p> */}
+                  {/* <p><span className="leftTitle">伸缩活动</span>
+                    <span className="rightContent">{"增加 " + currentData.max + " 台"}</span></p> */}
                 </div>
                 <div className="cardPart">
                   <p><span className="leftTitle">Email</span><span className="rightContent">{currentData.email ? currentData.email : '-'}</span></p>
@@ -527,16 +538,23 @@ class Tab1 extends React.Component {
               })()} bordered={false}>
                 <div className="appAutoScaleLogs">
                   {
-                    isLogFetching ?
-                      <div className="loadingBox">
-                        <Spin size="large"/>
-                      </div>
-                      :
-                      logList ?
-                        <ul className="ant-timeline">
-                          {linelist}
-                        </ul>
-                        : <div style={{ textAlign: 'center' }}>暂无数据</div>
+                    (() => {
+                      let rele
+                      if (isLogFetching) {
+                        rele = <div className="loadingBox">
+                          <Spin size="large"/>
+                        </div>
+                      } else {
+                        if (logList) {
+                          rele = <ul className="ant-timeline">
+                            {linelist}
+                          </ul>
+                        } else {
+                          rele = <div style={{ textAlign: 'center' }}>暂无数据</div>
+                        }
+                      }
+                      return rele
+                    })()
                   }
 
                   {/* <Timeline>

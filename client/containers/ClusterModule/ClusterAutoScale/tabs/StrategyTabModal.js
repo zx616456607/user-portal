@@ -6,7 +6,7 @@
  * @author rensiwei
  */
 import React from 'react'
-import { Modal, Button, Input, Select, Row, Col, Form, Spin, Icon } from 'antd'
+import { Modal, Input, Select, Row, Form, Spin, Icon } from 'antd'
 import '../style/tabModal.less'
 import classNames from 'classnames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
@@ -15,13 +15,26 @@ import _ from 'lodash'
 import NotificationHandler from '../../../../../src/components/Notification'
 
 const notify = new NotificationHandler()
-const Option = Select.Option
 const FormItem = Form.Item
-const isGetParams = true // 是否获取接口数据
 let isEdit = false
 const disabledIcons = [ 'aws', 'azure', 'ali' ] // 不支持的资源池
 
-class Tab2Modal extends React.Component {
+const mapStateToProps = state => {
+  const { appAutoScaler } = state
+  const { getAutoScalerClusterList } = appAutoScaler
+  const { clusterList, isModalFetching } =
+    getAutoScalerClusterList || { clusterList: [], isModalFetching: false }
+  return {
+    clusterList,
+    isModalFetching,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getAutoScalerClusterList: autoScalerActions.getAutoScalerClusterList,
+  addServer: autoScalerActions.createServer,
+  updateServer: autoScalerActions.updateServer,
+})(Form.create()(class Tab2Modal extends React.Component {
   clickIcon = e => {
     const obj = e.target.parentElement.attributes['data-name'] || e.target.attributes['data-name']
     if (!!e.target.className && e.target.className.indexOf('selectedBox') > -1) { return }
@@ -96,6 +109,23 @@ class Tab2Modal extends React.Component {
       submitLoading: false,
     })
   }
+  formatDate = (date, fmt) => {
+    const o = {
+      'M+': date.getMonth() + 1, // 月份
+      'd+': date.getDate(), // 日
+      'H+': date.getHours(), // 小时
+      'm+': date.getMinutes(), // 分
+      's+': date.getSeconds(), // 秒
+    }
+    if (/(y+)/.test(fmt)) { fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length)) }
+    for (const k in o) {
+      if (new RegExp('(' + k + ')').test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
+      }
+    }
+    return fmt
+  }
+
   onTab2ModalOk = () => {
     if (!this.checkParams()) return
     this.props.form.validateFields((errors, values) => {
@@ -109,7 +139,7 @@ class Tab2Modal extends React.Component {
         // 新增、修改接口
         const { addServer, updateServer, funcTab1, funcTab2 } = this.props
         const date = new Date()
-        const dateString = date.Format('yyyy-MM-dd HH:mm:ss')
+        const dateString = this.formatDate(date, 'yyyy-MM-dd HH:mm:ss')
         const params = Object.assign({}, {
           iaas: this.state.currentIcon,
           // name: this.state.name,
@@ -143,7 +173,7 @@ class Tab2Modal extends React.Component {
             },
             failed: {
               func: err => {
-                const { statusCode, message } = err
+                const { message } = err
                 notify.warn(`更新资源池配置失败，${typeof message === 'object' ? message.message : message}`)
                 this.setState({
                   submitLoading: false,
@@ -174,7 +204,7 @@ class Tab2Modal extends React.Component {
               },
               failed: {
                 func: err => {
-                  const { statusCode, message } = err
+                  const { message } = err
                   notify.warn(`新建资源池配置失败，${typeof message === 'object' ? message.message : message}`)
                   this.setState({
                     submitLoading: false,
@@ -192,10 +222,14 @@ class Tab2Modal extends React.Component {
     })
   }
   render() {
-    const { clusterList, isModalFetching, getData, isGetFormData } = this.props
+    const { clusterList, isModalFetching } = this.props
     const { getFieldProps } = this.props.form
     const options = clusterList ?
-      clusterList.map((o, i, objs) => <Select.Option disabled={!!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1} key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null
+      clusterList.map((o, i) =>
+        <Select.Option
+          disabled={
+            !!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1}
+          key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null
     !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     const objCluster = _.filter(clusterList, { clusterid: this.state.selectValue })[0]
     let objProvider
@@ -216,25 +250,25 @@ class Tab2Modal extends React.Component {
     const iconClass1 = classNames({
       iconCon: true,
       iconvmware: true,
-      selectedBox: this.state.currentIcon == 'vmware',
+      selectedBox: this.state.currentIcon === 'vmware',
       iconConDis: disabledIcons.indexOf('vmware') > -1 || !!objProvider && objProvider.vmware, // true 为已配置 false为未配置
     })
     const iconClass2 = classNames({
       iconCon: true,
       iconaws: true,
-      selectedBox: this.state.currentIcon == 'aws',
+      selectedBox: this.state.currentIcon === 'aws',
       iconConDis: disabledIcons.indexOf('aws') > -1 || !!objProvider && objProvider.aws,
     })
     const iconClass3 = classNames({
       iconCon: true,
       iconazure: true,
-      selectedBox: this.state.currentIcon == 'azure',
+      selectedBox: this.state.currentIcon === 'azure',
       iconConDis: disabledIcons.indexOf('azure') > -1 || !!objProvider && objProvider.azure,
     })
     const iconClass4 = classNames({
       iconCon: true,
       iconali: true,
-      selectedBox: this.state.currentIcon == 'ali',
+      selectedBox: this.state.currentIcon === 'ali',
       iconConDis: disabledIcons.indexOf('ali') > -1 || !!objProvider && objProvider.ali,
     })
     const formItemLargeLayout = {
@@ -376,43 +410,4 @@ class Tab2Modal extends React.Component {
       </Modal>
     )
   }
-}
-/**
- * 日期转字符串
- * @param fmt
- * @returns
- */
-Date.prototype.Format = function(fmt) {
-  const o = {
-    'M+': this.getMonth() + 1, // 月份
-    'd+': this.getDate(), // 日
-    'H+': this.getHours(), // 小时
-    'm+': this.getMinutes(), // 分
-    's+': this.getSeconds(), // 秒
-  }
-  if (/(y+)/.test(fmt)) { fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length)) }
-  for (const k in o) {
-    if (new RegExp('(' + k + ')').test(fmt)) {
-      fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-    }
-  }
-  return fmt
-}
-
-Tab2Modal = Form.create()(Tab2Modal)
-
-const mapStateToProps = state => {
-  const { appAutoScaler } = state
-  const { getAutoScalerClusterList } = appAutoScaler
-  const { clusterList, isModalFetching } = getAutoScalerClusterList || { clusterList: [], isModalFetching: false }
-  return {
-    clusterList,
-    isModalFetching,
-  }
-}
-
-export default connect(mapStateToProps, {
-  getAutoScalerClusterList: autoScalerActions.getAutoScalerClusterList,
-  addServer: autoScalerActions.createServer,
-  updateServer: autoScalerActions.updateServer,
-})(Tab2Modal)
+}))
