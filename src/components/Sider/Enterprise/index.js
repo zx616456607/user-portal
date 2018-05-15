@@ -990,6 +990,31 @@ class Sider extends Component {
                     </Link>
                   </div>
                 </Menu.Item>
+                <Menu.Item key='monitor'>
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
+                      </svg>
+                    </Tooltip>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/cluster/monitor')
+                          if (window.monitorPortalHistory) {
+                            window.monitorPortalHistory.push('/cluster/monitor')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                      系统服务监控
+                      </span>
+                    </Link>
+                  </div>
+                </Menu.Item>
                 </SubMenu>
                    : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
