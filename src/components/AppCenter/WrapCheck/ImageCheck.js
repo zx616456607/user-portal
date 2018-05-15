@@ -803,15 +803,14 @@ function mapStateToProps(state) {
   let storeList = []
   if (apps && apps.length && apps.length>0) {
     storeList = apps.filter((item) => {
-        return item.targetProject.length > 0
+        return item.targetProject && item.targetProject.length > 0
     })
     marketList = apps.filter((item) => {
-        return item.targetProject.length == 0
+        return item.targetProject && item.targetProject.length == 0
     })
   }
   let marketTotal = total - storeList.length
   let storageTotal = storeList.length
-  console.log( apps, marketList , storeList )
   return {
     loginUser: entities.loginUser.info,
     imageCheckList: apps,
