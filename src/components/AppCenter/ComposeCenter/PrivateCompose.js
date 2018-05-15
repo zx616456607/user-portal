@@ -104,11 +104,15 @@ class PrivateCompose extends Component {
     super(props);
     this.actionStack = this.actionStack.bind(this)
     this.deleteAction = this.deleteAction.bind(this)
+    this.changePage = this.changePage.bind(this)
     this.state = {
       createModalShow: false,
       stackItem: '',
       delModal: false,
       stackItemName: '',
+      pagination:{},
+      currentPage:1,
+      pageSize:20
     }
   }
 
@@ -129,9 +133,9 @@ class PrivateCompose extends Component {
       createModalShow: modal
     });
     if (modal) {
-      this.state = {
+      this.setState({
         stackItem: ''
-      }
+      })
     }
     setTimeout(()=> {
       document.getElementById('name').focus()
@@ -156,7 +160,7 @@ class PrivateCompose extends Component {
       })
       this.setState({
         createModalShow: true,
-        stackItem:myStackList[Index]
+        stackItem:myStackList.templates[Index]
       });
       return
     }
@@ -179,6 +183,14 @@ class PrivateCompose extends Component {
         func: () => {
           notification.close()
           notification.success(`删除编排 ${stack} 成功`)
+          this.props.loadMyStack(//删除后刷新数据
+            DEFAULT_REGISTRY,
+            {
+              from:(this.state.currentPage - 1)* this.state.pageSize,
+              size:this.state.pageSize,
+              filter:'owned'
+            }
+          );
         },
         isAsync: true
       },
@@ -192,15 +204,31 @@ class PrivateCompose extends Component {
     })
   }
 
+  changePage(page,count){
+    this.props.loadMyStack(
+      DEFAULT_REGISTRY,
+      {
+        from:(page - 1) * count,
+        size:count,
+        filter:'owned'
+      }
+    );
+    this.setState({
+      currentPage:page
+    })
+
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
-    const { myStackList } = this.props
-    if(!myStackList){
+    const { myStackList } = this.props;
+    const { count, templates, total} = myStackList;
+    if(!templates){
       return <div className='loadingBox'><Spin></Spin></div>
     }
     const rootScope = this.props.scope;
     const scope = this;
-    const menu = myStackList.map((item, index) => {
+    const menu = templates.map((item, index) => {
       return <Menu onClick={this.actionStack} style={{ width: '100px' }} >
         <Menu.Item key={`edit&${item.id}?@${index}`}>编辑编排</Menu.Item>
         <Menu.Item key={`delete&${item.id}?@${item.name}`}>删除编排</Menu.Item>
@@ -272,8 +300,14 @@ class PrivateCompose extends Component {
           <div className='composeListContainer'>
           <Table
             columns={columns}
-            dataSource={myStackList}
+            dataSource={templates}
             simple={true}
+            pagination={{
+              total:total,
+              pageSize:this.state.pageSize,
+              current:this.state.currentPage,
+              onChange:(page)=>{ this.changePage(page,count) }
+            }}
           >
           </Table>
           </div>

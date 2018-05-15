@@ -98,6 +98,8 @@ class PublicCompose extends Component {
       stackItemContent: '',
       createModalShow: false,
       stackItem: '',
+      pageSize:20,
+      currentPage:1
     }
   }
 
@@ -111,7 +113,19 @@ class PublicCompose extends Component {
       this.props.loadStack(DEFAULT_REGISTRY)
     }
   }
+  changePage(page){
+    this.props.loadStack(
+      DEFAULT_REGISTRY,
+      {
+        from:(page - 1) * this.state.pageSize,
+        size:this.state.pageSize
+      }
+    );
+    this.setState({
+      currentPage:page
+    })
 
+  }
   actionStack(itemId, itemIndex) {
     const { loadStackDetail, stackList } = this.props
     loadStackDetail(itemId, {
@@ -125,17 +139,19 @@ class PublicCompose extends Component {
     })
     this.setState({
       createModalShow: true,
-      stackItem: stackList[itemIndex]
+      stackItem: stackList.templates[itemIndex]
     });
   }
 
   render() {
     const { formatMessage } = this.props.intl;
     const { stackList } = this.props
-    if(!stackList){
+    const { count, templates, total} = stackList;
+    console.log(stackList);
+    if(!templates){
       return <div className='loadingBox'><Spin></Spin></div>
     }
-    const menu = stackList.map((item, index) => {
+    const menu = templates.map((item, index) => {
       return <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)}
         style={{ width: '100px' }}>
         <Menu.Item key={`&${item.id}`}>
@@ -191,7 +207,13 @@ class PublicCompose extends Component {
           <div className='PublicComposeList'>
             <Table
               columns={columns}
-              dataSource={stackList}
+              dataSource={templates}
+              pagination={{
+                total:total,
+                pageSize:this.state.pageSize,
+                current:this.state.currentPage,
+                onChange:(page)=>{ this.changePage(page,count) }
+              }}
             ></Table>
           </div>
         </div>

@@ -493,12 +493,16 @@ export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
 //filter=owned private templates  filter=dbservice is database cluster
 function fetchLoadTemplates(registry, query, callback) {
   let filter = 'owned'
-  if (query) filter = query
+  let url = `${API_URL_PREFIX}/templates?filter=${filter}`
+  if (query && query.from!==0) {
+    filter = query.filter
+    url = `${API_URL_PREFIX}/templates?filter=${filter}&from=${query.from}&size=${query.size}`
+  }
   return {
     registry,
     [FETCH_API]: {
       types: [GET_PRIVATE_STACK_REQUEST, GET_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_FAILURE],
-      endpoint: `${API_URL_PREFIX}/templates?filter=${filter}`,
+      endpoint: url,
       schema: Schemas.REGISTRYS,
     },
     callback
@@ -515,20 +519,24 @@ export const GET_PUBLIC_STACK_REQUEST = 'GET_PUBLIC_STACK_REQUEST'
 export const GET_PUBLIC_STACK_SUCCESS = 'GET_PUBLIC_STACK_SUCCESS'
 export const GET_PUBLIC_STACK_FAILURE = 'GET_PUBLIC_STACK_FAILURE'
 
-function fetchLoadStack(registry) {
+function fetchLoadStack(registry,query) {
+  let url = `${API_URL_PREFIX}/templates`;
+  if( query && query.from !== 0 ){
+    url = `${API_URL_PREFIX}/templates?from=${query.from}&size=${query.size}`
+  }
   return {
     registry,
     [FETCH_API]: {
       types: [GET_PUBLIC_STACK_REQUEST, GET_PUBLIC_STACK_SUCCESS, GET_PUBLIC_STACK_FAILURE],
-      endpoint: `${API_URL_PREFIX}/templates`,
+      endpoint: url,
       schema: Schemas.REGISTRYS,
     }
   }
 }
 
-export function loadStack(registry) {
+export function loadStack(registry,query) {
   return (dispatch, getState) => {
-    return dispatch(fetchLoadStack(registry))
+    return dispatch(fetchLoadStack(registry,query))
   }
 }
 
