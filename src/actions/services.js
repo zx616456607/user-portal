@@ -786,12 +786,12 @@ export const SERVICE_GET_ALL_LIST_REQUEST = 'SERVICE_GET_ALL_LIST_REQUEST'
 export const SERVICE_GET_ALL_LIST_SUCCESS = 'SERVICE_GET_ALL_LIST_SUCCESS'
 export const SERVICE_GET_ALL_LIST_FAILURE = 'SERVICE_GET_ALL_LIST_FAILURE'
 
-export function fetchAllServices(cluster, {pageIndex, pageSize, name, customizeOpts}, callback) {
+export function fetchAllServices(cluster, {pageIndex, pageSize, name, label, customizeOpts}, callback) {
   return {
     customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_GET_ALL_LIST_REQUEST, SERVICE_GET_ALL_LIST_SUCCESS, SERVICE_GET_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${name}` : ''}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${name}` : ''}${label ? `&label=${label}` : ''}`,
       schema: {}
     },
     callback
