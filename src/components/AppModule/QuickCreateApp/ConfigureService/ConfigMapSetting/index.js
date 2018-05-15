@@ -22,6 +22,7 @@ import { loadConfigGroup, configGroupName } from '../../../../../actions/configs
 import { getSecrets } from '../../../../../actions/secrets'
 import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
+import {validateK8sResource} from "../../../../../common/naming_validation";
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -76,6 +77,32 @@ const ConfigMapSetting = React.createClass({
     const value = e.target.value
     e.target.checked = value
     this.handleSelectAll(keyValue, currentConfigGroup, e)
+  },
+  configGroupNameCheck(rule, value, callback) {
+    if (Array.isArray(value)) {
+      return callback()
+    }
+    if (!value) {
+      callback([new Error('请输入配置组名称')])
+      return
+    }
+    if(value.length < 3 || value.length > 63) {
+      callback('名称长度为 3-63 个字符')
+      return
+    }
+    if(!/^[a-z]/.test(value)){
+      callback('名称须以小写字母开头')
+      return
+    }
+    if (!/[a-z0-9]$/.test(value)) {
+      callback('名称须以小写字母或数字结尾')
+      return
+    }
+    if (!validateK8sResource(value)) {
+      callback('由小写字母、数字和连字符（-）组成')
+      return
+    }
+    callback()
   },
   onConfigGroupChange(keyValue, value) {
     const { form, configGroupList } = this.props
@@ -172,7 +199,8 @@ const ConfigMapSetting = React.createClass({
     })
     const configGroupNameProps = getFieldProps(configGroupNameKey, {
       rules: [
-        { required: true, message: '请选择配置组' }
+        { required: true, message: '请选择配置组' },
+        { validator: this.configGroupNameCheck }
       ],
       onChange: this.onConfigGroupChange.bind(this, keyValue),
       initialValue: defaultSelectValue
