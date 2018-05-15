@@ -27,11 +27,25 @@ function getProjectsApprovalClusters(state = {}, action) {
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_REQUEST:
       return merge({}, defaultState, state, {
         isFetching: true,
+        approvalData: [],
         approvalPendingData: [],
         approvedReadyData: [],
         searchList: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS:
+      if(!filter){
+        return Object.assign({}, defaultState, state, {
+          isFetching: false,
+          approvalData: action.response.result.data || [],
+          searchList: []
+        })
+      }else{
+        return Object.assign({}, defaultState, state, {
+          isFetching: false,
+          approvalData: action.response.result.data || [],
+          searchList: []
+        })
+      }
       if(filter == 1){
         return Object.assign({}, defaultState, state, {
           isFetching: false,

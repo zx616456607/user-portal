@@ -976,6 +976,20 @@ class Sider extends Component {
                     </Link>
                   </div>
                 </Menu.Item>
+                <Menu.Item key='cluster_authorization'>
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
+                      </svg>
+                    </Tooltip>
+                    <Link to='/cluster/cluster_authorization'>
+                      <span>
+                        授权审批
+                      </span>
+                    </Link>
+                  </div>
+                </Menu.Item>
                 <Menu.Item key='cluster_autoscale'>
                   <div className="adminBox">
                     <Tooltip title="仅系统管理员可见" placement="right">
