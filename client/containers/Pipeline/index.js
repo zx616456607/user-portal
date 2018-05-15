@@ -14,6 +14,7 @@ import { Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import { toQuerystring } from '../../../src/common/tools'
 import { loadApiInfo } from '../../../src/actions/open_api'
+import Title from '../../../src/components/Title'
 import './style/index.less'
 
 const HEADER_HEIGHT = 60
@@ -57,11 +58,16 @@ class Pipeline extends React.Component {
   }
 
   render(){
-    const { project, onbehalfuser, token, username, location } = this.props
+    const {
+      project, onbehalfuser, onbehalfuserid, token,
+      username, location,
+    } = this.props
     const query = Object.assign(
       {},
       location.query,
-      { token, username, project, onbehalfuser, hash }
+      {
+        token, username, project, onbehalfuser, onbehalfuserid, hash,
+      }
     )
     const { windowHeight } = this.state
     const style = {
@@ -69,10 +75,12 @@ class Pipeline extends React.Component {
     }
     if (!token) {
       return <div className="loading">
+        <Title title="流水线" />
         <Spin size="large" />
       </div>
     }
     return <div className="pipeline" style={style}>
+      <Title title="流水线" />
       <iframe id="pipeline" src={`/devops?${toQuerystring(query)}`}  />
     </div>
   }
@@ -81,9 +89,11 @@ class Pipeline extends React.Component {
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
   let onbehalfuser
+  let onbehalfuserid
   // sys admin check user personal space
   if (space.userName) {
     onbehalfuser = space.userName
+    onbehalfuserid = space.userID
     space.namespace = 'default'
   }
   let project
@@ -95,6 +105,7 @@ const mapStateToProps = state => {
 
   return {
     onbehalfuser,
+    onbehalfuserid,
     project,
     username,
     token,
