@@ -29,6 +29,7 @@ import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import { isResourceQuotaError } from '../../common/tools'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
+import { isResourcePermissionError } from '../../common/tools'
 
 const notification = new NotificationHandler()
 
@@ -82,6 +83,10 @@ class ServiceSecretsConfig extends React.Component {
       failed: {
         func: err => {
           let errorText
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            return;
+          }
           switch (err.message.code) {
             case 403: errorText = '添加的配置过多'; break
             case 409: errorText = `配置组 ${name} 已存在`; break
