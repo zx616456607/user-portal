@@ -21,6 +21,20 @@ let menuList = [
   {
     url: '/cluster/cluster_autoscale',
     name: '集群伸缩策略'
+  },
+  {
+    url: '/cluster/monitor',
+    name: '系统服务监控',
+    onClick: () => {
+      try {
+        browserHistory.push('/cluster/monitor')
+        if (window.monitorPortalHistory) {
+          window.monitorPortalHistory.push('/cluster/monitor')
+        }
+      } catch (error) {
+        //
+      }
+    }
   }
 ]
 export default class Cluster extends Component {
