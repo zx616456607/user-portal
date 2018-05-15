@@ -14,6 +14,7 @@ import { Select, Radio, Form,
   Button, Input, Row, Col, Icon
 } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 
 import './style/LoadBalance.less'
 import IngressModal from './IngressModal'
@@ -97,6 +98,10 @@ class LoadBalance extends React.Component {
       setFieldsValue({
         lbKeys: currentKeys.concat(uidd ++)
       })
+    } else {
+      setFieldsValue({
+        lbKeys: currentKeys.concat(editKey)
+      })
     }
     this.setState({
       editKey: 0
@@ -114,11 +119,27 @@ class LoadBalance extends React.Component {
     })
   }
   openIngressModal = key => {
-    this.setState({
-      editKey: key,
-      currentIngress: this.state[`config-${key}`],
-      ingressVisible: true
-    })
+    const { getFieldValue } = this.props.form
+    const lbKeys = getFieldValue('lbKeys')
+    if (key || key === 0) {
+      this.setState({
+        editKey: key,
+        currentIngress: this.state[`config-${key}`],
+        ingressVisible: true
+      })
+    } else {
+      let editKey = 0
+      if (!isEmpty(lbKeys)) {
+        let lbKeysLength = lbKeys.length
+        let lastKey = lbKeys[lbKeysLength - 1]
+        editKey = ++ lastKey
+      }
+      this.setState({
+        editKey,
+        currentIngress: null,
+        ingressVisible: true
+      })
+    }
   }
 
   closeIngressModal = () => {
@@ -254,7 +275,7 @@ class LoadBalance extends React.Component {
           </Row>
           {
             !templateDeploy && getFieldValue('loadBalance') &&
-            <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal(0)}>添加监听器配置</Button>
+            <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal()}>添加监听器配置</Button>
           }
           {
             (getFieldValue('loadBalance') || templateDeploy) &&
