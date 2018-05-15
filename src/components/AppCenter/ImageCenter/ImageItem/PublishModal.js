@@ -287,7 +287,7 @@ class PublishModal extends React.Component {
         const { select_version, target_store, commit_msg } = values
         body = {
           origin_id: `${server}/${currentImage.name}:${select_version}`,
-          warehouseGroup: target_store,
+          targetProject: target_store,
           request_message: commit_msg,
           type: 2,
           resource: imageID

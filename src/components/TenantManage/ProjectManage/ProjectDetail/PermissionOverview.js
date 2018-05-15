@@ -34,7 +34,7 @@ const PRIVATE_QUERY = {
 }
 
 const SHARE_QUERY = {
-  storagetype: 'nfs',
+  storagetype: 'nfs,glusterfs',
   srtype: 'share',
 }
 

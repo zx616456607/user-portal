@@ -16,6 +16,9 @@ const clusterRoutes = [{
 }, {
   path: '/cluster/cluster_autoscale',
   component: require('../../client/containers/ClusterModule/ClusterAutoScale').default,
+},{
+  path: '/cluster/monitor',
+  component: require('../../client/containers/Monitor').default,
 }]
 
 export default clusterRoutes

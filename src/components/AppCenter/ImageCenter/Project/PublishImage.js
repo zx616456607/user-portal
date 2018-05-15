@@ -291,10 +291,10 @@ function mapStateToProps(state) {
   let storeList = []
   if (apps && apps.length && apps.length>0) {
     storeList = apps.filter((item) => {
-        return item.warehouseGroup.length > 0
+        return item.targetProject.length > 0
     })
     marketList = apps.filter((item) => {
-        return item.warehouseGroup.length == 0
+        return item.targetProject.length == 0
     })
   }
   let marketTotal = total - storeList.length

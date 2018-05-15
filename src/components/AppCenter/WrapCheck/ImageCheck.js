@@ -428,8 +428,8 @@ class ImageCheckTable extends React.Component {
           render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
         }, {
           title: '目标仓库组',
-          dataIndex: 'warehouseGroup',
-          key: 'warehouseGroup',
+          dataIndex: 'targetProject',
+          key: 'targetProject',
           width: '12%',
         }, {
           title: '原镜像名称',
@@ -660,10 +660,10 @@ class ImageCheck extends React.Component {
     let storeList = []
     if (imageCheckList && imageCheckList.length &&imageCheckList.length>0) {
       storeList = imageCheckList.filter((item) => {
-          return item.warehouseGroup.length>0
+          return item.targetProject.length>0
       })
       marketList = imageCheckList.filter((item) => {
-          return item.warehouseGroup.length == 0
+          return item.targetProject.length == 0
       })
       this.setState({
         marketList: marketList,
@@ -803,14 +803,15 @@ function mapStateToProps(state) {
   let storeList = []
   if (apps && apps.length && apps.length>0) {
     storeList = apps.filter((item) => {
-        return item.warehouseGroup.length > 0
+        return item.targetProject.length > 0
     })
     marketList = apps.filter((item) => {
-        return item.warehouseGroup.length == 0
+        return item.targetProject.length == 0
     })
   }
   let marketTotal = total - storeList.length
   let storageTotal = storeList.length
+  console.log( apps, marketList , storeList )
   return {
     loginUser: entities.loginUser.info,
     imageCheckList: apps,

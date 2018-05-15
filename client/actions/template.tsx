@@ -126,7 +126,7 @@ const fetchAppTemplateDeployCheck = (cluster, name, version, callback) => {
   };
 };
 
-export const appTemplateDeployCheck = (cluster: string, name: string, version, callback?: function) =>
+export const appTemplateDeployCheck = (cluster: string, name: string, version, callback?) =>
   dispatch => dispatch(fetchAppTemplateDeployCheck(cluster, name, version, callback));
 
 const APP_TEMPLATE_DEPLOY_REQUEST = 'APP_TEMPLATE_DEPLOY_REQUEST';
@@ -148,6 +148,7 @@ const fetchAppTemplateDeploy = (cluster, name, version, body, callback) => {
         body,
       },
     },
+    callback,
   };
 };
 
