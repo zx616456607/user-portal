@@ -11,9 +11,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button } from 'antd'
+import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
+import { loadProjectList } from '../../../../actions/harbor'
 import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
@@ -22,6 +23,7 @@ import defaultImage from '../../../../../static/img/appstore/defaultimage.png'
 import isEmpty from 'lodash/isEmpty'
 const FormItem = Form.Item;
 const Option = Select.Option;
+const RadioGroup = Radio.Group;
 
 const wrapTypelist = ['png','jpg','jpeg']
 
@@ -33,10 +35,28 @@ class PublishModal extends React.Component {
     this.fileNickProps = this.fileNickProps.bind(this)
     this.closeSuccessModal = this.closeSuccessModal.bind(this)
     this.checkImageName = this.checkImageName.bind(this)
+    this.checkSelectName = this.checkSelectName.bind(this)
+    // this.handleChangePublishRadio = this.handleChangePublishRadio.bind(this)
+    this.handleSelectVersionContent = this.handleSelectVersionContent.bind(this)
+    this.handleSelectcheckTargetStore = this.handleSelectcheckTargetStore.bind(this)
     this.state = {
       visible: false,
       pkgIcon: '',
+      radioVal: 'market',
+      privateData: []
     }
+  }
+  componentWillMount() {
+    const { loadProjectList } = this.props
+    loadProjectList().then( res=>{
+      const listData = res.response.result.data
+      const privateData = listData.filter( item=>{
+        return item.public === 1
+      })
+      this.setState({
+        privateData: privateData
+      })
+    })
   }
   componentWillReceiveProps(nextProps) {
     const { visible: oldVisible } = this.props
@@ -117,6 +137,40 @@ class PublishModal extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
+  checkSelectName(rule, value, callback) {
+    const { imageNameExists, form } = this.props
+    const name = form.getFieldValue('select_version')
+    if (!name) return callback()
+    clearTimeout(this.selectNameTimeout)
+    this.selectNameTimeout = setTimeout(()=>{
+      const body = {
+        image: `${value}:${name}`
+      }
+      imageNameExists(body, {
+        success: {
+          func: res => {
+            if (res.data) {
+              return callback('该镜像名称已存在')
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        },
+        finally: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
+  }
   fileNickProps(rule, value, callback) {
     const { checkAppNameExists } = this.props
     let newValue = value && value.trim()
@@ -153,6 +207,18 @@ class PublishModal extends React.Component {
     }
     callback()
   }
+  checkSelectVersion(rule, value, callback) {
+    if (!value) {
+      return callback('请选择版本')
+    }
+    callback()
+  }
+  checkTargetStore(rule, value, callback) {
+    if (!value) {
+      return callback('请选择目标仓库组')
+    }
+    callback()
+  }
   checkClassify(rule, value, callback) {
     if(!value) {
       return callback('请选择或输入分类')
@@ -184,9 +250,15 @@ class PublishModal extends React.Component {
     const { callback, form, imagePublish, currentImage, server, publishName } = this.props
     const { pkgIcon, imageID } = this.state
     let notify = new NotificationHandler()
-    let validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
-    if (!publishName) {
-      validateArr.push('fileNickName')
+    let validateArr = []
+    const selectType = form.getFieldValue('publishRadio') === 'market'
+    if (selectType) {
+      validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
+      if (!publishName) {
+        validateArr.push('fileNickName')
+      }
+    } else {
+      validateArr = ['select_name', 'select_version', 'target_store', 'commit_msg']
     }
     form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
@@ -195,19 +267,31 @@ class PublishModal extends React.Component {
       this.setState({
         loading: true
       })
-      const { tagsName, description, classifyName, request_message } = values
-      const fileNickName = form.getFieldValue('fileNickName')
-      const body = {
-        origin_id: `${server}/${currentImage.name}:${tagsName}`,
-        fileNickName,
-        description,
-        classifyName: classifyName[0],
-        request_message,
-        type: 2,
-        resource: imageID
-      }
-      if (pkgIcon) {
-        Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
+      let body = {}
+      if (selectType) {
+        const { tagsName, description, classifyName, request_message } = values
+        const fileNickName = form.getFieldValue('fileNickName')
+        body = {
+          origin_id: `${server}/${currentImage.name}:${tagsName}`,
+          fileNickName,
+          description,
+          classifyName: classifyName[0],
+          request_message,
+          type: 2,
+          resource: imageID
+        }
+        if (pkgIcon) {
+          Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
+        }
+      } else {
+        const { select_version, target_store, commit_msg } = values
+        body = {
+          origin_id: `${server}/${currentImage.name}:${select_version}`,
+          warehouseGroup: target_store,
+          request_message: commit_msg,
+          type: 2,
+          resource: imageID
+        }
       }
       notify.close()
       notify.spin('提交审核中')
@@ -281,10 +365,27 @@ class PublishModal extends React.Component {
       }
     })
   }
+  // handleChangePublishRadio(e) {
+  // }
+  handleSelectVersionContent(val) {
+    const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
+      success: {
+        func: res => {
+          this.setState({
+            imageID: res.data.imageID
+          })
+        }
+      }
+    })
+  }
+  handleSelectcheckTargetStore(val) {
+    // this.props.form.setFieldsValue({target_store: val})
+  }
   render() {
-    const { visible, pkgIcon, successModal } = this.state
+    const { visible, pkgIcon, successModal, privateData } = this.state
     const { space, form, currentImage, imgTag, wrapGroupList, publishName, description, classify_name } = this.props
-    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
+    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue  } = form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
@@ -335,6 +436,46 @@ class PublishModal extends React.Component {
           validator: this.checkInfo
         }
       ]
+    })
+    // const selectVersion = getFieldProps('select_version', {
+    //   rules: [
+    //     {
+    //       validator: this.checkSelectVersion
+    //     }
+    //   ],
+    //   onChange: (val) => this.handleSelectVersionContent(val)
+    // })
+    const selectName = getFieldProps('select_name', {
+      rules: [
+        {
+          // validator: this.checkSelectName
+        }
+      ],
+      initialValue: currentImage && currentImage.name && currentImage.name.split('/')[1]
+    })
+    const selectVersion = getFieldProps('select_version', {
+      rules: [
+        {
+          validator: this.checkSelectVersion,
+        }
+      ],
+      onChange: val => this.handleSelectVersionContent(val)
+    })
+    const targetStore = getFieldProps('target_store', {
+      rules: [
+        {
+          validator: this.checkTargetStore
+        }
+      ],
+      onChange: (val) => this.handleSelectcheckTargetStore(val)
+    })
+    const commitMsg = getFieldProps('commit_msg', {
+      rules: [
+        {
+          validator: this.checkInfo
+        }
+      ],
+
     })
     let headers = {}
     if (space && space.userName) {
@@ -398,6 +539,10 @@ class PublishModal extends React.Component {
     wrapGroupList.classifies.forEach(item => {
       children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
     })
+    const targetStoreChildren = []
+    privateData && privateData.length && privateData.length >0 && privateData.map( (item,index)=>{
+      targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
+    })
     return(
       <div>
         <Modal
@@ -414,94 +559,171 @@ class PublishModal extends React.Component {
             visible={successModal}
             callback={this.closeSuccessModal}
           />
-          <Form
-            horizontal
-            form={form}
+
+          <FormItem
+            {...formItemLayout}
+            label="发布类型"
+            // onChange={this.handleChangePublishRadio}
           >
-            <FormItem
-              {...formItemLayout}
-              hasFeedback
-              label="镜像名称"
-            >
-              <Input {...nameProps} disabled/>
-            </FormItem>
-            <Form.Item
-              {...formItemLayout}
-              hasFeedback={!!getFieldValue('fileNickName')}
-              label="发布名称"
-              help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
-            >
-              <Input
-                disabled={publishName && publishName ? true : false}
-                {...releaseNameProps}
-                placeholder="请输入发布名称"
-              />
-            </Form.Item>
-            <FormItem
-              {...formItemLayout}
-              label="镜像版本"
-            >
-              <Select
-                showSearch
-                {...tagsProps}
+            <RadioGroup
+
+              {...getFieldProps('publishRadio', { initialValue: 'market' })}>
+              <Radio value="market">发布到商店</Radio>
+              <Radio value="storage">发布到仓库组</Radio>
+            </RadioGroup>
+          </FormItem>
+          {
+            getFieldValue('publishRadio') ==='market' ?
+            <Form>
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                label="镜像名称"
               >
-                {tagsChildren}
-              </Select>
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="分类名称"
-            >
-              <Select
-                disabled={classify_name && classify_name ? true : false}
-                showSearch
-                {...classifyProps}
-                tags
+                <Input {...nameProps} disabled/>
+              </FormItem>
+              <Form.Item
+                {...formItemLayout}
+                hasFeedback={!!getFieldValue('fileNickName')}
+                label="发布名称"
+                help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
               >
-                {children}
-              </Select>
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="描述"
-            >
-              <Input type="textarea" {...descProps} placeholder="描述" />
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="上传icon"
-            >
-              <Upload
-                {...uploadOpt}
+                <Input
+                  disabled={publishName && publishName ? true : false}
+                  {...releaseNameProps}
+                  placeholder="请输入发布名称"
+                />
+              </Form.Item>
+              <FormItem
+                {...formItemLayout}
+                label="镜像版本"
+              >
+                <Select
+                  showSearch
+                  {...tagsProps}
+                >
+                  {tagsChildren}
+                </Select>
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="分类名称"
+              >
+                <Select
+                  disabled={classify_name && classify_name ? true : false}
+                  showSearch
+                  {...classifyProps}
+                  tags
+                >
+                  {children}
+                </Select>
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="描述"
+              >
+                <Input type="textarea" {...descProps} placeholder="描述" />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="上传icon"
+              >
+                <Upload
+                  {...uploadOpt}
+
+                >
+                <span className="wrap-image">
+                <img
+                  className="wrapLogo"
+                  src={
+                    pkgIcon ?
+                      `${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`
+                      :
+                      defaultImage
+                  }
+                />
+                </span>
+                </Upload>
+              </FormItem>
+              <Row style={{ marginTop: -20, marginBottom: 10 }}>
+                <Col span={4}>
+                </Col>
+                <Col className="hintColor">
+                  上传icon支持（jpg/jpeg/png图片格式，建议尺寸100px*100px）
+                </Col>
+              </Row>
+              <FormItem
+                {...formItemLayout}
+                label="提交信息"
+              >
+                <Input type="textarea" {...infoProps} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
+              </FormItem>
+            </Form> :
+            <Form>
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                help={isFieldValidating('select_name') ? '校验中...' : (getFieldError('select_name') || []).join(', ')}
+                label="镜像名称"
+              >
+                <Input {...selectName} disabled/>
+              </FormItem>
+
+              {/* <Form.Item
+                {...formItemLayout}
+                hasFeedback={!!getFieldValue('fileNickName')}  //fileNickName?
+                label="选择版本"
+                //help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
 
               >
-              <span className="wrap-image">
-              <img
-                className="wrapLogo"
-                src={
-                  pkgIcon ?
-                    `${API_URL_PREFIX}/app-store/apps/icon/${pkgIcon}`
-                    :
-                    defaultImage
-                }
-              />
-              </span>
-              </Upload>
-            </FormItem>
-            <Row style={{ marginTop: -20, marginBottom: 10 }}>
-              <Col span={4}>
-              </Col>
-              <Col className="hintColor">
-                上传icon支持（jpg/jpeg/png图片格式，建议尺寸100px*100px）
-              </Col>
-            </Row>
-            <FormItem
-              {...formItemLayout}
-              label="提交信息"
-            >
-              <Input type="textarea" {...infoProps} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
-            </FormItem>
-          </Form>
+                // <Input
+                //   //disabled={publishName && publishName ? true : false}
+                //   {...selectVersion}
+                //   placeholder="请选择版本"
+                // />
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {selectVersionChildren}
+                </Select>
+              </Form.Item> */}
+
+              <FormItem
+                {...formItemLayout}
+                label="选择版本"
+              >
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {tagsChildren}
+                </Select>
+              </FormItem>
+
+              <FormItem
+                {...formItemLayout}
+                label="目标仓库组"
+              >
+                <Select
+                  showSearch
+                  {...targetStore}
+                  placeholder="请选择目标仓库组"
+                >
+                  {targetStoreChildren}
+                </Select>
+              </FormItem>
+
+              <FormItem
+                {...formItemLayout}
+                label="提交信息"
+              >
+                <Input type="textarea" {...commitMsg} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
+              </FormItem>
+            </Form>
+          }
         </Modal>
       </div>
     )
@@ -597,5 +819,6 @@ export default connect(mapStateToProps, {
   checkAppNameExists,
   getImageStatus,
   imageNameExists,
-  loadRepositoriesTagConfigInfo
+  loadRepositoriesTagConfigInfo,
+  loadProjectList
 })(PublishModal)
