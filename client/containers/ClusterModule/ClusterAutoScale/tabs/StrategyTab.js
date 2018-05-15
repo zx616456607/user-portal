@@ -7,23 +7,19 @@
  * v0.1 - 2018-04-08
  * @author rensiwei
  */
-import React, { Component } from 'react'
-import { Button, Icon, Input, Table, Menu, Dropdown, Card, Select, Pagination, Timeline, Row, Col, Spin, Modal } from 'antd'
-import moment from 'moment'
-import classNames from 'classnames'
+import React from 'react'
+import { Button, Table, Card, Pagination, Modal } from 'antd'
+// import classNames from 'classnames'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
 import '../style/IaasTab.less'
 import '../style/StrategyTab.less'
-import { LOAD_INSTANT_INTERVAL } from '../../../../../src/constants/index'
 import Tab2Modal from './StrategyTabModal.js'
 import NotificationHandler from '../../../../../src/components/Notification'
 
 const notify = new NotificationHandler()
 
-const formData = {}
 let allClusterIds = ''// 所有行元素的id集合
-let getServerList
 let tableData = []
 class Tab2 extends React.Component {
   state = {
@@ -105,13 +101,13 @@ class Tab2 extends React.Component {
     })
   }
   // search
-  handleSearch = e => {
-    getServerList({ keyword: this.state.searchValue })
-  }
+  // handleSearch = e => {
+  //   getServerList({ keyword: this.state.searchValue })
+  // }
   handleInputChange = e => {
     this.setState({ searchValue: e.target.value })
   }
-  onRowChange = (selectedRowKeys, selectedRowsData) => {
+  onRowChange = selectedRowKeys => {
     this.setState({ selectedRowKeys })
   }
   // 行操作列点击事件
@@ -147,13 +143,12 @@ class Tab2 extends React.Component {
     // });;
   }
   render() {
-    const { serverList, isFetching } = this.props
-    const searchCls = classNames({
-      'ant-search-input': true,
-      'ant-search-input-focus': this.state.isSearchFocus,
-    })
+    const { isFetching } = this.props
+    // const searchCls = classNames({
+    //   'ant-search-input': true,
+    //   'ant-search-input-focus': this.state.isSearchFocus,
+    // })
     const columns = (() => {
-      const clickTableRowName = this.clickTableRowName.bind(this)
       const _that = this
       const renderOperation = (text, rowData) => {
         return (
@@ -168,7 +163,7 @@ class Tab2 extends React.Component {
         dataIndex: 'iaas',
         width: 100,
         // render: text => <a href="#">{text}</a>,
-        render: (text, rowData) => {
+        render: text => {
           return text
         },
       }, {
@@ -188,7 +183,7 @@ class Tab2 extends React.Component {
         dataIndex: 'date',
         width: 100,
         sorter: (a, b) => {
-          let da = new Date(a.createdTime),
+          const da = new Date(a.createdTime),
             db = new Date(b.createdTime); return da.getTime() - db.getTime()
         },
       }, {
@@ -198,22 +193,22 @@ class Tab2 extends React.Component {
         render: renderOperation,
       }]
     })()
-    const isbtnDisabled = !this.state.selectedRowKeys.length
-    const btnCls = classNames({
-      'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.searchValue.trim(),
-    })
+    // const isbtnDisabled = !this.state.selectedRowKeys.length
+    // const btnCls = classNames({
+    //   'ant-search-btn': true,
+    //   'ant-search-btn-noempty': !!this.state.searchValue.trim(),
+    // })
     let total = tableData.length
 
-    const rowSelection = {
-      onChange: this.onRowChange,
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows)
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows)
-      },
-    }
+    // const rowSelection = {
+    //   onChange: this.onRowChange,
+    //   onSelect(record, selected, selectedRows) {
+    //     console.log(record, selected, selectedRows)
+    //   },
+    //   onSelectAll(selected, selectedRows, changeRows) {
+    //     console.log(selected, selectedRows, changeRows)
+    //   },
+    // }
     if (this.props.serverList) {
       // tableData = [].concat(this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList);
       // total = this.props.serverList.length*5;
@@ -238,8 +233,10 @@ class Tab2 extends React.Component {
           <Button className="refreshBtn" size="large" onClick={this.reflesh}>
             <i className="fa fa-refresh" />刷新
           </Button>
-          {/* <Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />新建资源池配置</Button>*/}
-          {/* <Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} ><Icon type="delete" />删除</Button>*/}
+          {/* <Button className="btnItem" onClick={this.openModal} type="primary" ><Icon type="plus" />
+            新建资源池配置</Button>*/}
+          {/* <Button className="btnItem" onClick={this.delitems} type="ghost" disabled={isbtnDisabled} >
+            <Icon type="delete" />删除</Button>*/}
           {/* <Input.Group className={searchCls}>
             <Input size='large' placeholder='请输入配置名称搜索' value={this.state.searchValue} onChange={this.handleInputChange}
               onFocus={this.handleFocusBlur} onBlur={this.handleFocusBlur} onPressEnter={this.handleSearch}
@@ -273,7 +270,11 @@ class Tab2 extends React.Component {
         <div className="tablePanel">
           <Card>
             <div className="reset_antd_table_header">
-              <Table columns={columns} loading={isFetching} dataSource={tableData} pagination={this.state.pagination} />
+              <Table
+                columns={columns}
+                loading={isFetching}
+                dataSource={tableData}
+                pagination={this.state.pagination} />
             </div>
           </Card>
         </div>

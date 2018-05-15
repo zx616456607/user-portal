@@ -154,7 +154,8 @@ class PermissionOverview extends React.Component{
   }
 
   handleConfirm = async (currentPermission, record, oldChecked, type) => {
-    const { deletePermissionControl, setPermission, roleId, clusterID, callback, project } = this.props
+    const { deletePermissionControl, setPermission, roleId, callback, project } = this.props
+    let clusterID = this.props.clusterID
     const { checked } = this.state
 
     const filterName = record.name
@@ -173,9 +174,13 @@ class PermissionOverview extends React.Component{
     })
 
     notify.spin('操作中')
-
+    debugger
     if (!isEmpty(add)) {
       addBody = add.map(item => {
+        if(!!this.props.permissionOverview.applicationPackage.operations[Number(item)]){
+          // 如果是应用包管理等 不需要集群 传入clusterId: 'global'
+          clusterID = "global"
+        }
         return {
           permissionId: Number(item),
           roleId,
