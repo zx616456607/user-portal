@@ -58,11 +58,16 @@ class Pipeline extends React.Component {
   }
 
   render(){
-    const { project, onbehalfuser, token, username, location } = this.props
+    const {
+      project, onbehalfuser, onbehalfuserid, token,
+      username, location,
+    } = this.props
     const query = Object.assign(
       {},
       location.query,
-      { token, username, project, onbehalfuser, hash }
+      {
+        token, username, project, onbehalfuser, onbehalfuserid, hash,
+      }
     )
     const { windowHeight } = this.state
     const style = {
@@ -84,9 +89,11 @@ class Pipeline extends React.Component {
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
   let onbehalfuser
+  let onbehalfuserid
   // sys admin check user personal space
   if (space.userName) {
     onbehalfuser = space.userName
+    onbehalfuserid = space.userID
     space.namespace = 'default'
   }
   let project
@@ -98,6 +105,7 @@ const mapStateToProps = state => {
 
   return {
     onbehalfuser,
+    onbehalfuserid,
     project,
     username,
     token,
