@@ -31,12 +31,12 @@ class Pipeline extends React.Component {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
-          break;
+          break
         case 'devFlowPortalHistory':
           window.devFlowPortalHistory = data
-          break;
+          break
         default:
-          break;
+          break
       }
     }
   }
@@ -57,7 +57,7 @@ class Pipeline extends React.Component {
     })
   }
 
-  render(){
+  render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
       username, location,
@@ -81,7 +81,7 @@ class Pipeline extends React.Component {
     }
     return <div className="pipeline" style={style}>
       <Title title="流水线" />
-      <iframe id="pipeline" src={`/devops?${toQuerystring(query)}`}  />
+      <iframe title="流水线" id="pipeline" src={`/devops?${toQuerystring(query)}`} />
     </div>
   }
 }
