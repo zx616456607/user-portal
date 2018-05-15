@@ -130,7 +130,6 @@ export default connect(mapStateToProps, {
     if (!this.checkParams()) return
     this.props.form.validateFields((errors, values) => {
       if (!!errors || (errors === null && JSON.stringify(values) === '{}')) {
-        console.log('Errors in form!!!')
         return
       }
       this.setState({
