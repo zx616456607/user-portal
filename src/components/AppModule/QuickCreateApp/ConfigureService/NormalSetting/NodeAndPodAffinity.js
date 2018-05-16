@@ -635,7 +635,7 @@ class PodAffinity extends Component {
         </div>
         <FormItem>
         <Checkbox {...getFieldProps('agreement', { initialValue: false, valuePropName: 'checked' })}>
-          高级设置：【当前服务】中的容器实例最好『分散』再不同的节点上
+          高级设置：『当前服务』中的容器实例必须『分散』在不同的节点上
         </Checkbox>
       </FormItem>
       </div>

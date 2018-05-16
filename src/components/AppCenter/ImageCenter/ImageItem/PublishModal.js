@@ -51,7 +51,8 @@ class PublishModal extends React.Component {
     loadProjectList().then( res=>{
       const listData = res.response.result.data
       const privateData = listData.filter( item=>{
-        return item.public === 1
+        return item
+        // return item.public === 0   过滤显示 公开=1  私有=0
       })
       this.setState({
         privateData: privateData
@@ -379,7 +380,17 @@ class PublishModal extends React.Component {
     })
   }
   handleSelectcheckTargetStore(val) {
-    // this.props.form.setFieldsValue({target_store: val})
+    const { getImageStatus, currentImage, imgTag, server } = this.props
+    const tagArr = []
+    imgTag && imgTag.map( item=>{
+      tagArr.push(item.name)
+    })
+    const body = {
+      image: `${server}/${currentImage.name}`,
+      targetProject: val,
+      tags: tagArr
+    }
+    getImageStatus(body)
   }
   handleChangePublishRadio(e) {
     this.setState({
@@ -665,18 +676,6 @@ class PublishModal extends React.Component {
                 <Input {...selectName} disabled/>
               </FormItem>
 
-              <FormItem
-                {...formItemLayout}
-                label="选择版本"
-              >
-                <Select
-                  showSearch
-                  {...selectVersion}
-                  placeholder="请选择版本"
-                >
-                  {tagsChildren}
-                </Select>
-              </FormItem>
 
               <FormItem
                 {...formItemLayout}
@@ -688,6 +687,19 @@ class PublishModal extends React.Component {
                   placeholder="请选择目标仓库组"
                 >
                   {targetStoreChildren}
+                </Select>
+              </FormItem>
+
+              <FormItem
+                {...formItemLayout}
+                label="选择版本"
+              >
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {tagsChildren}
                 </Select>
               </FormItem>
 
@@ -744,7 +756,7 @@ class SuccessModal extends React.Component {
     ]
   }
   render() {
-    const { visible } = this.state
+    const { visible, radioVal } = this.state
     return(
       <Modal
         className="publishSuccessModal"
@@ -759,7 +771,7 @@ class SuccessModal extends React.Component {
         <div className="successColor waitText">等待系统管理员审核...</div>
         <div className="stepHint">
           1.提交审核后可以到
-          <span onClick={() => browserHistory.push('/app_center/projects/publish')} className="themeColor pointer">发布记录</span>
+          <span onClick={() => browserHistory.push(`/app_center/projects/publish?radioVal=${radioVal}`)} className="themeColor pointer">发布记录</span>
           查看审核状态
         </div>
         <div className="stepHint">2.审核通过系统将会复制一个新的镜像，与原镜像无关</div>
