@@ -30,6 +30,7 @@ const Option = Select.Option
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group
 const PATH_REG = /^\//
+const TEMPLATE_EDIT_HASH = '#edit-template';
 
 const ConfigMapSetting = React.createClass({
   componentDidMount() {
@@ -170,9 +171,14 @@ const ConfigMapSetting = React.createClass({
     const configMapErrorFields = getFieldValue('configMapErrorFields')
     const configMapIsWholeDir = getFieldValue(configMapIsWholeDirKey)
     const currentConfigGroup = this.getConfigGroupByName(configGroupList, configGroupName && configGroupName[1])
+    const existentConfigMap = getFieldValue('existentConfigMap')
+    let isExisted = false
+    if (!isEmpty(existentConfigMap) && existentConfigMap.includes(configGroupName.toString())) {
+      isExisted = true
+    }
     let configMapSubPathOptions = []
     let subPathValue
-    if (templateDeploy) {
+    if (templateDeploy || isExisted) {
       subPathValue = getFieldValue(configMapSubPathValuesKey)
       configMapSubPathOptions = subPathValue
     } else {
@@ -214,12 +220,12 @@ const ConfigMapSetting = React.createClass({
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
           <FormItem>
-            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} />
+            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} disabled={isExisted}/>
           </FormItem>
         </Col>
         <Col span={6}>
           <FormItem>
-            <RadioGroup {...configMapIsWholeDirProps}>
+            <RadioGroup {...configMapIsWholeDirProps} disabled={isExisted}>
               <Radio key="severalFiles" value={false}>
                 挂载若干配置文件&nbsp;
                 <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
@@ -238,9 +244,9 @@ const ConfigMapSetting = React.createClass({
         <Col span={5}>
           <FormItem>
             {
-              !isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)
+              (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
                 ?
-                <Input placeholder="请输入配置组" {...configGroupNameProps}/>
+                <Input placeholder="请输入配置组" {...configGroupNameProps} disabled={isExisted}/>
                 :
                 <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}/>
             }
@@ -248,15 +254,15 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup && !templateDeploy
+            !currentConfigGroup && !templateDeploy && !isExisted
             ? <FormItem>请选择配置组</FormItem>
             : (
               <div>
                 <FormItem>
                   <Checkbox
                     onChange={this.handleSelectAll.bind(this, keyValue, currentConfigGroup)}
-                    checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
-                    disabled={templateDeploy || configMapIsWholeDir}
+                    checked={this.getSelectAllChecked(keyValue, currentConfigGroup, isExisted)}
+                    disabled={templateDeploy || configMapIsWholeDir || isExisted}
                   >
                     全选
                   </Checkbox>
@@ -265,7 +271,7 @@ const ConfigMapSetting = React.createClass({
                   <CheckboxGroup
                     {...configMapSubPathValuesProps}
                     options={configMapSubPathOptions}
-                    disabled={templateDeploy || configMapIsWholeDir}
+                    disabled={templateDeploy || configMapIsWholeDir || isExisted}
                   />
                   <div className="clearBoth"></div>
                 </FormItem>
@@ -358,11 +364,11 @@ const ConfigMapSetting = React.createClass({
       [`configMapSubPathValues${keyValue}`]: configMapSubPathValues,
     })
   },
-  getSelectAllChecked(keyValue, currentConfigGroup) {
+  getSelectAllChecked(keyValue, currentConfigGroup, isExisted) {
     const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const templateDeploy = location.query.template && !isTemplate
-    if (templateDeploy) {
+    if (templateDeploy || isExisted) {
       return true
     }
     if (!currentConfigGroup) {
