@@ -323,7 +323,7 @@ class Sider extends Component {
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_center/projects'>
+                  <Link to='/app_center/template'>
                     <svg className='center commonImg'>
                       <use xlinkHref='#center' />
                     </svg>
