@@ -28,31 +28,61 @@ class PublishImage extends React.Component {
     this.searchData = this.searchData.bind(this)
     this.refreshData = this.refreshData.bind(this)
 
+    this.handleChangeTabs = this.handleChangeTabs.bind(this)
+    this.searchStorageData = this.searchStorageData.bind(this)
     this.onStorageTableChange = this.onStorageTableChange.bind(this)
     this.refreshStorageData = this.refreshStorageData.bind(this)
     this.state = {
       filterName: '',
+      targetProject: '',
       current: 1,
-
-      storageCurrent: 1
+      filter: 'target_project__eq,',
+      storageCurrent: 1,
+      radioVal: 'market'
     }
   }
   componentWillMount() {
     this.loadData()
   }
+  componentDidMount() {
+    const rad = this.props.location.query.radioVal || ''
+    if (rad) {
+      this.setState({
+        radioVal: rad
+      })
+    }
+  }
   componentDidUpdate() {
     let input = document.getElementById('publishRecordInput')
     input && input.focus()
   }
+  handleChangeTabs(key) {
+    switch (key) {
+      case 'market':
+        return this.setState({
+          filter: 'target_project__eq,',
+          targetProject: '',
+          ccurrent: 1,
+        },this.loadData)
+      case 'store':
+        return this.setState({
+          filter: 'target_project__neq,',
+          filterName: '',
+          current: 1,
+        },this.loadData)
+    }
+  }
   loadData() {
-    const { getImagesList } = this.props     //
-    const { filterName, current } = this.state
+    const { getImagesList } = this.props
+    const { filterName, targetProject, current, filter } = this.state
     const query = {
       from: (current - 1) * 10,
       size: 10,
+      filter,
       sort: 'd,publish_time'
     }
-    filterName && Object.assign(query, { filter: `file_nick_name,${filterName}` })
+    filterName && Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
+    targetProject && Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
     this.setState({
       tableLoading: true
     })
@@ -77,7 +107,6 @@ class PublishImage extends React.Component {
       current: pagination.current,
       tableLoading: true
     }, this.loadData)
-    // console.log( 'table_onChange' )
   }
   searchData(value) {
     this.setState({
@@ -86,7 +115,10 @@ class PublishImage extends React.Component {
     }, this.loadData)
   }
   searchStorageData(value) {
-    searchData(value)
+    this.setState({
+      targetProject: value,
+      tableLoading: true
+    }, this.loadData)
   }
   refreshData() {
     this.setState({
@@ -102,7 +134,17 @@ class PublishImage extends React.Component {
     })
   }
   refreshStorageData() {
-    this.refreshData()
+    this.setState({
+      targetProject: '',
+      current: 1,
+      btnLoading: true
+    }, () => {
+      this.loadData().then(() => {
+        this.setState({
+          btnLoading: false
+        })
+      })
+    })
   }
   getAppStatus(status, record){
     let phase
@@ -137,13 +179,13 @@ class PublishImage extends React.Component {
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
   render() {
-    const { apps, listData, total, storeList, marketList, marketTotal, storageTotal } = this.props
-    const { current, filterName, tableLoading, btnLoading } = this.state
+    const { apps, listData, total, } = this.props
+    const { current, filterName, targetProject, tableLoading, btnLoading } = this.state
     const pagination = {
       simple: true,
       current,
       defaultPageSize: 10,
-      total: marketTotal
+      total: total
     }
     const columns = [{
       title: '镜像名称',
@@ -174,7 +216,7 @@ class PublishImage extends React.Component {
       width: '20%',
       render: text => formatDate(text)
     }]
-    const storageColumns = [{       //================ 更换 dataindex、key、...
+    const storageColumns = [{
       title: '镜像名称',
       dataIndex: 'image',
       key: 'image',
@@ -187,8 +229,8 @@ class PublishImage extends React.Component {
       width: '20%'
     }, {
       title: '目标仓库组',
-      dataIndex: 'fileNickName',
-      key: 'fileNickName',
+      dataIndex: 'targetProject',
+      key: 'targetProject',
       width: '20%'
     }, {
       title: '发布状态',
@@ -205,14 +247,14 @@ class PublishImage extends React.Component {
     }]
     return(
       <QueueAnim className="publishImage">
-        <Tabs defaultActiveKey="market">
+        <Tabs    defaultActiveKey={this.state.radioVal} onChange={this.handleChangeTabs}>
           <TabPane tab="发布到商店" key="market">
             <div className="headerBox" key="headerBox">
               <Button
                 type="primary"
                 size="large"
                 className="refreshBtn"
-                onClick={this.searchData}
+                onClick={this.refreshData}
               >
                 <i className="fa fa-refresh"/> 刷新
               </Button>
@@ -222,17 +264,17 @@ class PublishImage extends React.Component {
                 placeholder="请输入发布名称搜索"
                 value={filterName}
                 style={{ width: 200 }}
-                onSearch={this.refreshData}
+                onSearch={this.searchData}
               />
               {
-                marketTotal ? <div className="total">共计 {marketTotal} 条</div> : null
+                total ? <div className="total">共计 {total} 条</div> : null
               }
             </div>
             <Table
               className="reset_antd_table_header publishImageTable"
-              dataSource={marketList}
+              dataSource={apps}
               columns={columns}
-              pagination={marketTotal ? pagination : false}
+              pagination={total ? pagination : false}
               onChange={this.onTableChange}
               loading={tableLoading}
               key="body"
@@ -251,30 +293,26 @@ class PublishImage extends React.Component {
               <CommonSearchInput
                 size="large"
                 id="publishRecordInput"
-                placeholder="请输入发布名称搜索"
-                value={filterName}
+                placeholder="请输入目标仓库组搜索"
+                value={targetProject}
                 style={{ width: 200 }}
                 onSearch={this.searchStorageData}
               />
-              {/*
-              Imput 修改   search something
-              */}
               {
-                storageTotal ? <div className="total">共计 {storageTotal} 条</div> : null
+                total ? <div className="total">共计 {total} 条</div> : null
               }
             </div>
             <Table
               className="reset_antd_table_header publishImageTable"
-              dataSource={storeList}               //获取listData
+              dataSource={apps}
               columns={storageColumns}
-              pagination={storageTotal ? pagination : false}
+              pagination={total ? pagination : false}
               onChange={this.onStorageTableChange}
-              //loading={tableLoading}
+              loading={tableLoading}
               key="storageBody"
             />
           </TabPane>
         </Tabs>
-
       </QueueAnim>
     )
   }
@@ -285,31 +323,9 @@ function mapStateToProps(state) {
   const { imageCheckList } = appStore
   const { data: publishRecord } = imageCheckList || { data: {} }
   const { apps, total } = publishRecord || { apps: [], total: 0 }
-  // const { listData, storageTotal } = state
-
-  let marketList = []
-  let storeList = []
-  if (apps && apps.length && apps.length>0) {
-    storeList = apps.filter((item) => {
-        return item.targetProject.length > 0
-    })
-    marketList = apps.filter((item) => {
-        return item.targetProject.length == 0
-    })
-  }
-  let marketTotal = total - storeList.length
-  let storageTotal = storeList.length
-
   return {
     apps,
     total,
-
-    storeList,
-    marketList,
-
-    // listData,
-    marketTotal,
-    storageTotal,
   }
 }
 

@@ -15,7 +15,7 @@ import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Ra
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { imageApprovalList, appStoreApprove, getMarketAndStorageList } from '../../../actions/app_store'
+import { imageApprovalList, appStoreApprove, getMarketAndStorageList, }  from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
@@ -329,11 +329,11 @@ class ImageCheckTable extends React.Component {
             );
             return(
               <Row style={{ maxWidth: 120 }}>
-                <Tooltip title={text}>
+                {/* <Tooltip title={text}> */}
                   <Col className="textoverflow" span={20}>
                     {text}
                   </Col>
-                </Tooltip>
+                {/* </Tooltip> */}
                 <Col span={4}>
                   <Popover content={content} trigger="click">
                     <Icon type="plus-square" />
@@ -484,11 +484,11 @@ class ImageCheckTable extends React.Component {
             );
             return(
               <Row style={{ maxWidth: 120 }}>
-                <Tooltip title={text}>
+                {/* <Tooltip title={text}> */}
                   <Col className="textoverflow" span={20}>
                     {text}
                   </Col>
-                </Tooltip>
+                {/* </Tooltip> */}
                 <Col span={4}>
                   <Popover content={content} trigger="click">
                     <Icon type="plus-square" />
@@ -636,13 +636,14 @@ class ImageCheck extends React.Component {
     super(props)
     this.getImagePublishList = this.getImagePublishList.bind(this)
     this.updateParentState = this.updateParentState.bind(this)
-    this.filterListData = this.filterListData.bind(this)
+    this.handleChangeTabs = this.handleChangeTabs.bind(this)
     this.state = {
       current: 1,
-      filter: 'type,2',
       filterName: undefined,
+      targetProject: '',
       sort: 'd,publish_time',
       publish_time: false,
+      filter: 'type,2,target_project__eq,'
     }
   }
   componentWillMount() {
@@ -651,29 +652,28 @@ class ImageCheck extends React.Component {
       this.getImagePublishList()
     }
   }
-  componentDidMount() {
-    // this.filterListData()
-  }
-  filterListData() {
-    const { imageCheckList } = this.props
-    let marketList = []
-    let storeList = []
-    if (imageCheckList && imageCheckList.length &&imageCheckList.length>0) {
-      storeList = imageCheckList.filter((item) => {
-          return item.targetProject.length>0
-      })
-      marketList = imageCheckList.filter((item) => {
-          return item.targetProject.length == 0
-      })
-      this.setState({
-        marketList: marketList,
-        storeList: storeList
-      })
+  handleChangeTabs(key) {
+    switch (key) {
+      case 'market':
+        this.setState({
+          filter: 'type,2,target_project__eq,',
+          targetProject: '',
+          current: 1,
+        },this.getImagePublishList)
+        break
+      case 'store':
+        this.setState({
+          filter: 'type,2,target_project__neq,',
+          filterName: '',
+          current: 1,
+        },this.getImagePublishList)
+        break
+      default:
+        break
     }
   }
-
   getImagePublishList() {
-    const { current, filterName, sort, filter } = this.state
+    const { current, filterName, targetProject, sort, filter } = this.state
     const { imageApprovalList } = this.props
     let query = {
       from: (current - 1) * 10,
@@ -681,16 +681,19 @@ class ImageCheck extends React.Component {
       filter
     }
     if (filterName) {
-      Object.assign(query, { filter: `type,2,file_nick_name,${filterName}` })
+      Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
+    }
+    if (targetProject) {
+      Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
     }
     if (sort) {
       Object.assign(query, { sort })
     }
     imageApprovalList(query)
   }
-  refreshData() {
+  refreshData(type) {
     this.setState({
-      filterName: '',
+      [type]: '',
       sort: 'd,publish_time',
       current: 1,
       publish_time: false
@@ -703,7 +706,7 @@ class ImageCheck extends React.Component {
   }
   render() {
     const { imageCheckList, total, marketTotal, storageTotal, appStoreApprove, loginUser, location, form, marketList, storeList } = this.props
-    const { filterName, current, publish_time } = this.state
+    const { filterName, targetProject, current, publish_time } = this.state
     const { getFieldProps } = this.props.form
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -711,23 +714,11 @@ class ImageCheck extends React.Component {
     };
     return(
       <QueueAnim className="imageCheck">
-        {/* <FormItem
-          {...formItemLayout}
-          label="发布类型"
-        >
-          <RadioGroup
-            {...getFieldProps('publishRadio', { initialValue: 'market' })}>
-            <Radio value="market">发布到商店</Radio>
-            <Radio value="storage">发布到仓库组</Radio>
-          </RadioGroup>
-        </FormItem>
-        {
-          form.getFieldValue('publishRadio') === 'market' ? */}
-        <Tabs defaultActiveKey="market" className='imageCheckActive'>
+        <Tabs defaultActiveKey="market" className='imageCheckActive' onChange={this.handleChangeTabs}>
           <TabPane tab="发布到商店" key="market">
             <div>
               <div className="wrapCheckHead" key="wrapCheckHead">
-                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
+                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('filterName')}>
                   <i className='fa fa-refresh'/> 刷新
                 </Button>
                 <CommonSearchInput
@@ -738,16 +729,16 @@ class ImageCheck extends React.Component {
                   value={filterName}
                   onSearch={value => this.updateParentState('filterName', value, true)}
                 />
-                <span className="total verticalCenter">共 {marketTotal && marketTotal} 条</span>
+                <span className="total verticalCenter">共 {total && total} 条</span>
               </div>
               <ImageCheckTable
                 key="wrapCheckTable"
                 location={location}
-                imageCheckList={marketList}
+                imageCheckList={imageCheckList}
                 current={current}
                 publish_time={publish_time}
                 loginUser={loginUser}
-                total={marketTotal}
+                total={total}
                 updateParentState={this.updateParentState}
                 appStoreApprove={appStoreApprove}
                 getImagePublishList={this.getImagePublishList}
@@ -759,27 +750,27 @@ class ImageCheck extends React.Component {
           <TabPane tab="发布到仓库" key="store">
             <div>
               <div className="wrapCheckHead" key="wrapCheckHead">
-                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
+                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.AAArefreshData('targetProject')}>
                   <i className='fa fa-refresh'/> 刷新
                 </Button>
                 <CommonSearchInput
                   ref="tableChild"
                   size="large"
-                  placeholder="按发布名称搜索"
+                  placeholder="按目标仓库组搜索"
                   style={{ width: 200 }}
-                  value={filterName}
-                  onSearch={value => this.updateParentState('filterName', value, true)}
+                  value={targetProject}
+                  onSearch={value => this.updateParentState('targetProject', value, true)}
                 />
-                <span className="total verticalCenter">共 {storageTotal && storageTotal} 条</span>
+                <span className="total verticalCenter">共 {total && total} 条</span>
               </div>
               <ImageCheckTable
                 key="wrapCheckTable"
                 location={location}
-                imageCheckList={storeList}
+                imageCheckList={imageCheckList}
                 current={current}
                 publish_time={publish_time}
                 loginUser={loginUser}
-                total={storageTotal}
+                total={total}
                 updateParentState={this.updateParentState}
                 appStoreApprove={appStoreApprove}
                 getImagePublishList={this.getImagePublishList}
@@ -799,26 +790,10 @@ function mapStateToProps(state) {
   const { imageApprovalList } = appStore || { imageApprovalList: {} }
   const { data } = imageApprovalList || { data: {} }
   const { apps, total } = data || { apps: [], total: 0 }
-  let marketList = []
-  let storeList = []
-  if (apps && apps.length && apps.length>0) {
-    storeList = apps.filter((item) => {
-        return item.targetProject && item.targetProject.length > 0
-    })
-    marketList = apps.filter((item) => {
-        return item.targetProject && item.targetProject.length == 0
-    })
-  }
-  let marketTotal = total - storeList.length
-  let storageTotal = storeList.length
   return {
     loginUser: entities.loginUser.info,
     imageCheckList: apps,
-    total,
-    marketTotal,
-    storageTotal,
-    marketList,
-    storeList,
+    total
   }
 }
 
