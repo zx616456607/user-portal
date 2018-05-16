@@ -40,16 +40,12 @@ class Tab2 extends React.Component {
     isShowDelModal: false,
   }
   reflesh = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('reflesh', selectedRowKeys)
     this.loadData()
   }
   edit = rowData => {
-    console.log('edit', rowData)
     this.setState({ isTab2ModalShow: true, isEdit: true, currData: rowData })
   }
   showDelModal = rowData => {
-    console.log('showDelModal', arguments)
     this.setState({
       currData: rowData,
       isShowDelModal: true,
@@ -85,12 +81,10 @@ class Tab2 extends React.Component {
   openModal = () => {
     this.setState({ isTab2ModalShow: true, isEdit: false, currData: '' })
   }
-  delitems = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('delItems', selectedRowKeys)
-  }
+  // delitems = () => {
+  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
+  // }
   clickTableRowName = rowData => {
-    // console.log(rowData);
     const temp = JSON.parse(JSON.stringify(rowData))
     this.setState({ currentData: temp, isShowTab1: false })
   }
@@ -112,10 +106,8 @@ class Tab2 extends React.Component {
   }
   // 行操作列点击事件
   // tableExdClick = () => {
-  //   console.log(arguments);
   // }
   // cloneClick = () => {
-  //   console.log("clone", arguments);
   // }
   onPageChange = page => {
     const pagination = JSON.parse(JSON.stringify(this.state.pagination))
@@ -135,7 +127,6 @@ class Tab2 extends React.Component {
   }
   loadDataDidMount = () => {
     this.props.getServerList({})
-    // console.log(LOAD_INSTANT_INTERVAL)
     // this.props.getServerList({}).then((res) => {
     //   setInterval(() => {
     //     this.props.getServerList({});
@@ -203,10 +194,8 @@ class Tab2 extends React.Component {
     // const rowSelection = {
     //   onChange: this.onRowChange,
     //   onSelect(record, selected, selectedRows) {
-    //     console.log(record, selected, selectedRows)
     //   },
     //   onSelectAll(selected, selectedRows, changeRows) {
-    //     console.log(selected, selectedRows, changeRows)
     //   },
     // }
     if (this.props.serverList) {

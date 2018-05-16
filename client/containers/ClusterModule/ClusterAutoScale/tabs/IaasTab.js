@@ -123,11 +123,9 @@ class Tab1 extends React.Component {
     })
   }
   clone = () => {
-    console.log('clone', arguments)
   }
 
   onOffItem = rowData => {
-    console.log('changeAppStatus', arguments)
     this.props.changeAppStatus({ cluster: rowData.cluster }, {
       success: {
         func: () => {
@@ -145,22 +143,17 @@ class Tab1 extends React.Component {
     })
   }
   reflesh = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('reflesh', selectedRowKeys)
     this.loadData()
   }
-  on = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('on', selectedRowKeys)
-  }
-  off = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('off', selectedRowKeys)
-  }
-  delItems = () => {
-    const selectedRowKeys = this.state.selectedRowKeys.join(',')
-    console.log('delItems', selectedRowKeys)
-  }
+  // on = () => {
+  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
+  // }
+  // off = () => {
+  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
+  // }
+  // delItems = () => {
+  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
+  // }
 
   onRowChange = selectedRowKeys => {
     this.setState({ selectedRowKeys })
@@ -177,7 +170,6 @@ class Tab1 extends React.Component {
   }
   // search onchange
   handleInputChange = () => {
-    console.log(arguments[0].target.value)
   }
   onPageChange = page => {
     const pagination = JSON.parse(JSON.stringify(this.state.pagination))
@@ -254,7 +246,6 @@ class Tab1 extends React.Component {
             },
           })
       }
-      console.log('sendParams', params)
     })
   }
 
@@ -296,7 +287,6 @@ class Tab1 extends React.Component {
   }
   loadDataDidMount() {
     this.props.getAppList({})
-    // console.log(LOAD_INSTANT_INTERVAL)
     // this.props.getAppList({}).then((res) => {
     //   setInterval(() => {
     //     this.props.getAppList({});
@@ -316,10 +306,8 @@ class Tab1 extends React.Component {
     // const rowSelection = {
     //   onChange: this.onRowChange,
     //   onSelect(record, selected, selectedRows) {
-    //     console.log(record, selected, selectedRows)
     //   },
     //   onSelectAll(selected, selectedRows, changeRows) {
-    //     console.log(selected, selectedRows, changeRows)
     //   },
     // }
     const _that = this
