@@ -10,12 +10,15 @@
 'use strict'
 
 class GfsSecret {
-  constructor(password){
+  constructor(password, secretName, secretNamespace){
     this.apiVersion = 'v1'
     this.kind = 'Secret'
     this.metadata = {
-      name: 'tenx-glusterfs',
+      name: secretName || 'tenx-glusterfs',
       //namespace: 'kube-system',
+    }
+    if(!!secretNamespace) {
+      this.metadata.namespace = secretNamespace
     }
     this.data = {
       key: password,
