@@ -17,7 +17,6 @@ import { setCurrent } from '../../../actions/entities'
 import { getProjectVisibleClusters } from '../../../actions/project'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
-import Title from '../../Title'
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
@@ -38,7 +37,6 @@ class Scheduler extends Component {
     this.hanldeSetScheduler = this.hanldeSetScheduler.bind(this)
     this.state = {
       startEdition: true,
-      currentScheduler: {},   //setfeilds 使用
       singleCheckBox: true,
       classCheckBox: true,
       topCheckBox: true,

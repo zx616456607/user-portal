@@ -14,7 +14,7 @@ import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
 const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY;
 import { parseCpuToNumber } from '../../../../../src/common/tools';
-import { RESOURCES_DIY } from '../../../../../src/constants';
+import { RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION } from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
 
@@ -25,7 +25,6 @@ const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
-const NO_CLASSIFY = 'noClassify'; // 未分类配置组
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -325,6 +324,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
     return;
   }
   const configParent: object = {};
+  const existentConfigMap = [];
   mergeVolumes.forEach((item) => {
     const { name, mountPath, subPath, configMap } = item;
     const { name: innerName, items } = configMap || { name: '', items: [] };
@@ -333,7 +333,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
       configMapIsWholeDir = parseIsWholeDir[name];
     }
     if (item.name.includes('configmap')) {
-      let classifyName = item.name.split('/')[0];
+      let classifyName = item.name.split(CONFIGMAP_CLASSIFY_CONNECTION)[0];
       let configMountPath: string = mountPath;
       const configMapSubPathValues: string[] = [];
       items.forEach(sub => {
@@ -343,6 +343,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
         classifyName = '未分类配置组';
       }
       let configGroupName: string[] = [classifyName, innerName];
+      existentConfigMap.push(configGroupName.toString());
       configMapKeys.push({
         value: ++ configId,
       });
@@ -378,6 +379,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
     configMapKeys,
     secretConfigMapKeys,
     ...configParent,
+    existentConfigMap,
   };
 };
 

@@ -58,6 +58,9 @@ class ServerError extends ClientError {
       default:
         this.message = data.message || 'Internal server error'
     }
+    if (data.reason) {
+      this.message = data
+    }
     this.statusCode = 500
   }
 }

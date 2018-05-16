@@ -31,7 +31,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
-import { createAppIngress } from '../../../actions/load_balance'
+import { createAppIngress, getLBList } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
 import { getImageTemplate } from '../../../actions/app_center'
 import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
@@ -48,6 +48,7 @@ const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
 const notification = new NotificationHandler()
 // let serviceNameList = []
+const HOST_ERROR = 'do not support host storage'
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -665,10 +666,14 @@ class QuickCreateApp extends Component {
   }
 
   createAppByTemplate = async () => {
-    const { appTemplateDeploy, fields, current } = this.props;
+    const { appTemplateDeploy, fields, current, getLBList, loadBalanceList } = this.props;
     const { clusterID } = current.cluster
+    if (isEmpty(loadBalanceList)) {
+      await getLBList(clusterID)
+    }
     const body = formatTemplateBody(this.props, this.imageConfigs, true);
-    const firstField = Object.values(fields)[0];
+    const fieldsArray = Object.values(fields);
+    const firstField = fieldsArray[0];
     const appName = getFieldsValues(firstField).appName;
     body.name = appName;
     const { name, version } = body.chart;
@@ -848,11 +853,32 @@ class QuickCreateApp extends Component {
     createApp(appConfig, callback)
   }
 
+  getFormError = fieldsArray => {
+    let flag = true
+    flag = fieldsArray.every(field => {
+      for (let value of Object.values(field)) {
+        if (!isEmpty(value.errors)) {
+          flag = false
+          break
+        }
+      }
+      return flag
+    })
+    return flag
+  }
+
   onCreateAppOrAddServiceClick(isValidateFields) {
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }
     const { validateFieldsAndScroll } = this.form
+    const { fields } = this.props
+    const fieldsArray = Object.values(fields)
+    const flag = this.getFormError(fieldsArray)
+    if (!flag) {
+      notification.warn('请修改错误表单')
+      return
+    }
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         if(errors.appName){
@@ -1485,5 +1511,6 @@ export default connect(mapStateToProps, {
   appTemplateDeploy,
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
-  getImageTemplate
+  getImageTemplate,
+  getLBList
 })(QuickCreateApp)

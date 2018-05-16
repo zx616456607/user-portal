@@ -680,11 +680,12 @@ class ServiceList extends Component {
   }
   loadServices(nextProps, options, openModal) {
     const self = this
-    const { cluster, loadAllServices, page, size, name } = nextProps || this.props
+    const { cluster, loadAllServices, page, size, name, label } = nextProps || this.props
     const query = {
       pageIndex: page,
       pageSize: size,
-      name
+      name,
+      label
     }
     if(name) {
       this.setState({
@@ -777,11 +778,11 @@ class ServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, serviceList } = nextProps
+    let { page, size, name, label, serviceList } = nextProps
     this.setState({
       serviceList: serviceList,
     })
-    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+    if (page === this.props.page && size === this.props.size && name === this.props.name && label === this.props.label) {
       return
     }
     this.setState({
@@ -991,19 +992,19 @@ class ServiceList extends Component {
     const serviceNames = runningServices.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
 
-    allServices.map((service) => {
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
 
+    allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         if (service.status) {
           service.status.phase = 'Redeploying'
         }
       }
     })
-    if (serviceNames.length <= 0) {
-      const noti = new NotificationHandler()
-      noti.error('没有可以操作的服务')
-      return
-    }
     self.setState({
       serviceList: allServices,
       RestarServiceModal: false,
@@ -1264,30 +1265,15 @@ class ServiceList extends Component {
       })
     }
   }
-  searchServiceKey(cloneList) {
+  searchServiceKey() {
     const {searchInputValue} = this.state
-    const serviceArg = []
-    let list = []
-    const nowData = []
-    cloneList.map( item=>{
-      const name = item.metadata.name
-      const temp = item.spec.template
-      const lab = temp.metadata.labels
-      lab.map( eve=>{
-        if (eve==searchInputValue) {
-          list.push(name)
-        }
-      })
-    })
-    list = Array.from(new Set(list))
-    const { page, size, name, pathname } = this.props
-    if (this.state.searchInputValue != name) {
-      const query = { page, size, name: list  }
+    const { page, size, pathname } = this.props
+      let label = searchInputValue
+      const query = { page, size, label }
       browserHistory.push({
         pathname,
         query
       })
-    }
   }
   onShowSizeChange(page, size) {
     if (size === this.props.size) {
@@ -1363,15 +1349,12 @@ class ServiceList extends Component {
     }
   }
   selectSearchType() {
-    const { serviceList } = this.props
-    //( 'serviceList',serviceList )
-    const cloneList = cloneDeep(serviceList)
     const {showPlaceholder} = this.state
     switch (showPlaceholder) {
       case '按服务名称搜索':
         return this.searchServices()
       case '按服务标签键搜索':
-        return  //this.searchServiceKey(cloneList)  需要修改
+        return  this.searchServiceKey()
       default:
         return this.searchServices()
     }
@@ -1570,7 +1553,7 @@ class ServiceList extends Component {
                 <i className='fa fa-search'></i>
               </div>
               <div className='littleRight'>
-                <Input
+                {/* <Input
                   size='large'
                   onChange={(e) => {
                     this.setState({
@@ -1580,7 +1563,21 @@ class ServiceList extends Component {
                   value={this.state.searchInputValue}
                   placeholder='按服务名称搜索'
                   style={{paddingRight: '28px'}}
-                  onPressEnter={() => this.searchServices()} />
+                  onPressEnter={() => this.searchServices()} /> */}
+                  <Input
+                    size='large'
+                    className='selectInp'
+                    addonBefore={selectBefore}
+                    onChange={(e) => {
+                      this.setState({
+                        searchInputValue: e.target.value,
+                      })
+                    }}
+                    value={this.state.searchInputValue}
+                    placeholder={showPlaceholder}
+                    style={{paddingRight: '28px'}}
+                    onPressEnter={() => this.selectSearchType()}
+                    />
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
@@ -1828,7 +1825,7 @@ function handleStateOfServiceList (scope, serviceList) {
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size, name,serName } = query
+  let { page, size, name,serName, label } = query
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -1859,6 +1856,7 @@ function mapStateToProps(state, props) {
     bindingIPs: state.entities.current.cluster.bindingIPs,
     currentCluster: cluster,
     name,
+    label,
     pathname,
     page,
     size,

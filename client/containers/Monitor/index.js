@@ -5,7 +5,7 @@
 /**
  * pipeline
  *
- * v0.1 - 2018-03-28
+ * v0.1 - 2018-05-15
  * @author zhangpc
  */
 import React from 'react'
@@ -21,19 +21,19 @@ const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
 const hash = process.env.DEVOPS_PORTAL_HASH
 
-class Pipeline extends React.Component {
+class Monitor extends React.Component {
   state = {
     windowHeight: window.innerHeight,
   }
 
   componentWillMount() {
-    window.pipelineIframeCallBack = (action, data) => {
+    window.monitorIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
           break
-        case 'devFlowPortalHistory':
-          window.devFlowPortalHistory = data
+        case 'monitorPortalHistory':
+          window.monitorPortalHistory = data
           break
         default:
           break
@@ -75,13 +75,13 @@ class Pipeline extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title="流水线" />
+        <Title title="系统服务监控" />
         <Spin size="large" />
       </div>
     }
-    return <div className="pipeline" style={style}>
-      <Title title="流水线" />
-      <iframe title="流水线" id="pipeline" src={`/devops?${toQuerystring(query)}`} />
+    return <div className="monitor" style={style}>
+      <Title title="系统服务监控" />
+      <iframe title="流水线" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
     </div>
   }
 }
@@ -114,4 +114,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   loadApiInfo,
-})(Pipeline)
+})(Monitor)

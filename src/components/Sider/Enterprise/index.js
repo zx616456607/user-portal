@@ -259,7 +259,7 @@ class Sider extends Component {
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser } = this.props
     const { currentKey } = this.state
-    const { billingConfig } = loginUser
+    const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
@@ -323,7 +323,7 @@ class Sider extends Component {
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_center/projects'>
+                  <Link to='/app_center/template'>
                     <svg className='center commonImg'>
                       <use xlinkHref='#center' />
                     </svg>
@@ -1000,6 +1000,31 @@ class Sider extends Component {
                     <Link to='/cluster/cluster_autoscale'>
                       <span>
                       集群伸缩策略
+                      </span>
+                    </Link>
+                  </div>
+                </Menu.Item>
+                <Menu.Item key='monitor'>
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
+                      </svg>
+                    </Tooltip>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/cluster/monitor')
+                          if (window.monitorPortalHistory) {
+                            window.monitorPortalHistory.push('/cluster/monitor')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                      系统服务监控
                       </span>
                     </Link>
                   </div>

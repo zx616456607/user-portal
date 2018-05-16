@@ -30,7 +30,7 @@ class IngressModal extends React.Component {
     const { currentIngress } = this.props
     if (currentIngress) {
       const { healthOptions } = currentIngress
-      const { interval, fall, rise } = healthOptions
+      const { interval, fall, rise } = healthOptions || { interval: '', fall: '', rise: '' }
       this.setState({
         healthOptions
       })

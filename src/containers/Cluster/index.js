@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import SecondSider from '../../components/SecondSider'
+import { browserHistory } from 'react-router'
 // import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/cluster.less'
@@ -25,6 +26,20 @@ let menuList = [
   {
     url: '/cluster/cluster_autoscale',
     name: '集群伸缩策略'
+  },
+  {
+    url: '/cluster/monitor',
+    name: '系统服务监控',
+    onClick: () => {
+      try {
+        browserHistory.push('/cluster/monitor')
+        if (window.monitorPortalHistory) {
+          window.monitorPortalHistory.push('/cluster/monitor')
+        }
+      } catch (error) {
+        //
+      }
+    }
   }
 ]
 export default class Cluster extends Component {

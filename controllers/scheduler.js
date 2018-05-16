@@ -6,8 +6,8 @@
 /**
  * scheduler controller
  *
- * v0.1 -
- * @author
+ * v0.1 - 2018-5-2
+ * @author lvjunfeng
  */
 'use strict'
 

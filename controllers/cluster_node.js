@@ -86,6 +86,14 @@ exports.getClusterNodesMetric = function* () {
   }
 }
 
+exports.getResourceConsumption = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const query = this.query
+  const api = apiFactory.getApi(loginUser)
+  this.body = yield api.clusters.getBy([cluster, 'nodes', 'resource-consumption'], query)
+}
+
 exports.changeNodeSchedule = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster

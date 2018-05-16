@@ -45,6 +45,7 @@ import NotificationHandler from '../../components/Notification'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
+import { isResourcePermissionError } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -885,16 +886,17 @@ class AppServiceList extends Component {
     const serviceNames = runningServices.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
 
-    allServices.map((service) => {
-      if (serviceNames.indexOf(service.metadata.name) > -1) {
-        service.status.phase = 'Redeploying'
-      }
-    })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
       noti.error('没有可以操作的服务')
       return
     }
+
+    allServices.map((service) => {
+      if (serviceNames.indexOf(service.metadata.name) > -1) {
+        service.status.phase = 'Redeploying'
+      }
+    })
     self.setState({
       serviceList: allServices,
       RestarServiceModal: false,
@@ -978,7 +980,12 @@ class AppServiceList extends Component {
       },
       failed: {
         func: (err) => {
-          errorHandler(err, intl)
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            //return;
+          }else{
+            errorHandler(err, intl)
+          }
           self.setState({
             QuickRestarServiceModal: false,
             runBtn: false,

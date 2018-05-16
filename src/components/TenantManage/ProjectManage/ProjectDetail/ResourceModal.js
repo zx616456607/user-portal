@@ -172,6 +172,10 @@ class ResourceModal extends Component {
     let res = [], _that = this;
     this.state.permissionKeys.map((item) => {
       let temp = _.cloneDeep(obj);
+      if(!!_.filter(_that.state.currPRO.applicationPackage, {permissionId: Number(item)})[0]){
+        // 如果是应用包管理等 不需要集群 传入clusterId: 'global'
+        temp.clusterId = 'global'
+      }
       temp.permissionId = Number(item);
       temp.filterType = _that.state.RadioValue;
       temp.filter = _that.state.RadioValue === "regex" ? _that.state.regex : "";
@@ -681,7 +685,7 @@ class ResourceModal extends Component {
       srtype: 'private',
     };
     const SHARE_QUERY = {
-      storagetype: 'nfs',
+      storagetype: 'nfs,glusterfs',
       srtype: 'share',
     };
     const HOST_QUERY = {

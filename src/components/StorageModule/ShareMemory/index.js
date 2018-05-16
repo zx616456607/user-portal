@@ -48,6 +48,7 @@ class ShareMemory extends Component {
       searchInput: '',
       modalStorageType: 'nfs',
       sliderValue: 1,
+      filteredValue: [],
     }
   }
 
@@ -62,7 +63,7 @@ class ShareMemory extends Component {
           if (searchInput) {
             return this.searchStorage(query)
           }
-          adjustBrowserUrl(location, query, isFirstLoad)
+          //adjustBrowserUrl(location, query, isFirstLoad)
         },
         isAsync: true,
       }
@@ -203,6 +204,7 @@ class ShareMemory extends Component {
           func: () => {
             this.setState({
               confirmLoading: false,
+              modalStorageType: 'nfs'
             })
           }
         }
@@ -284,14 +286,29 @@ class ShareMemory extends Component {
     })
   }
 
-  onTableChange = (x, filter) => {
-    if(!!filter && !!filter.format){
-      if(filter.format.length === 0){
-        this.loadData({storagetype: 'nfs,glusterfs'});
+  onTableChange = (pagination, filters, sorter) => {
+    if(!!filters && !!filters.format){
+      if(filters.format.length === 0){
+        this.setState({
+          filteredValue: [],
+        }, () => {
+          this.loadData();
+        })
       }else{
-        this.loadData({storagetype: filter.format.join(",")});
+        this.setState({
+          filteredValue: filters.format,
+        }, () => {
+          this.loadData({storagetype: this.state.filteredValue.join(",")});
+        })
       }
     }
+  }
+  reflesh(query, searchInput) {
+    this.setState({
+      filteredValue: []
+    }, () => {
+      this.loadData({ page: parseInt(query.page) || 1, search: searchInput })
+    })
   }
   render() {
     const {
@@ -332,6 +349,7 @@ class ShareMemory extends Component {
         key: 'format',
         title: '类型',
         dataIndex: 'diskType',
+        filteredValue: this.state.filteredValue,
         filters:[
           { text: 'GlusterFS', value: 'glusterfs' },
           { text: 'NFS', value: 'nfs' }
@@ -383,7 +401,9 @@ class ShareMemory extends Component {
     const paginationProps = {
       simple: true,
       current: parseInt(query.page) || 1,
-      onChange: page => adjustBrowserUrl(location, mergedQuery),
+      onChange: (page) => {
+        adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
+      },
     }
     return(
       <QueueAnim className='share_memory'>
@@ -408,10 +428,10 @@ class ShareMemory extends Component {
               <Button
                 size="large"
                 className='button_refresh'
-                onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                onClick={this.reflesh.bind(this, query, searchInput)}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"
-                  onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
+                  onClick={this.reflesh.bind(this, query, searchInput)}
                 />
                 刷新
               </Button>
@@ -475,7 +495,7 @@ class ShareMemory extends Component {
             visible={createShareMemoryVisible}
             closable={true}
             onOk={() => this.confirmCreateShareMemory()}
-            onCancel={() => this.setState({createShareMemoryVisible:false})}
+            onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
             width="570px"
             maskClosable={false}
             confirmLoading={confirmLoading}

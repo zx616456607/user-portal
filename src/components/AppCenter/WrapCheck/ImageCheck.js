@@ -11,11 +11,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip } from 'antd'
+import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Radio, Tabs} from 'antd'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { imageApprovalList, appStoreApprove } from '../../../actions/app_store'
+import { imageApprovalList, appStoreApprove, getMarketAndStorageList, }  from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
@@ -23,6 +23,8 @@ import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 const FormItem = Form.Item
+const RadioGroup = Radio.Group;
+const TabPane = Tabs.TabPane
 
 class ImageCheckTable extends React.Component {
   constructor(props) {
@@ -38,7 +40,7 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-      
+
     }
   }
   getImageStatus(status){
@@ -193,7 +195,7 @@ class ImageCheckTable extends React.Component {
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
-  
+
   getServeAndName(origin) {
     const arr = origin && origin.split('/')
     const [server, ...nameArr] = arr
@@ -210,21 +212,21 @@ class ImageCheckTable extends React.Component {
     }
     return { server, name }
   }
-  
+
   openDelModal(record) {
     this.setState({
       currentImage: record,
       delModal: true
     })
   }
-  
+
   closeDelModal() {
     this.setState({
       currentImage: null,
       delModal: false
     })
   }
-  
+
   confirmDelModal() {
     const { currentImage } = this.state
     this.checkImageStatus(currentImage, 7).then(() => {
@@ -240,7 +242,7 @@ class ImageCheckTable extends React.Component {
     })
   }
   render() {
-    const { imageCheckList, total, form, publish_time, loginUser, location } = this.props
+    const { imageCheckList, total, form, publish_time, loginUser, location, publishType,  } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage, delModal } = this.state
     const isAdmin = loginUser.role === ROLE_SYS_ADMIN
@@ -250,165 +252,323 @@ class ImageCheckTable extends React.Component {
       defaultPageSize: 10,
       total,
     }
-    const columns = [{
-      title: '状态',
-      dataIndex: 'publishStatus',
-      key: 'publishStatus',
-      width: '9%',
-      render: this.getImageStatus
-    }, {
-      title: '提交信息',
-      dataIndex: 'requestMessage',
-      key: 'requestMessage',
-      width: '8%',
-      render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
-    }, {
-      title: '分类名称',
-      dataIndex: 'classifyName',
-      key: 'classifyName',
-      width: '8%',
-    }, {
-      title: '发布名称',
-      dataIndex: 'fileNickName',
-      key: 'fileNickName',
-      width: '8%',
-    }, {
-      title: '原镜像名称',
-      dataIndex: 'originID',
-      key: 'originID',
-      width: '15%',
-      render: (text, record) => {
-        return (
-          <Tooltip title={text}>
-            <div
-              onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
-              style={{ maxWidth: 150 }} 
-              className="textoverflow themeColor pointer"
-            >
-              {text}
-              </div>
-          </Tooltip>
-        )
-      }
-    }, {
-      title: '镜像地址',
-      dataIndex: 'resource',
-      key: 'resource',
-      width: '10%',
-      render: (text, record) => {
-        const content = (
-          <div className="imageIDBox">
-            <div>原地址</div>
-            <input type="text" className="imageIDCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
-            <p className="address">{record.originID}
-              <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon 
-                  type="copy"
-                  onMouseEnter={() => this.startCopy(record.originID)}
-                  onClick={this.copyOperate}
-                  onMouseLeave={this.copyEnd}
-                />
-              </Tooltip>
-            </p>
-            <div>发布地址</div>
-            <p className="address">{record.resource}:{record.tag}
-              <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon 
-                  type="copy"
-                  onMouseEnter={() => this.startCopy(`${record.resource}:${record.tag}`)}
-                  onClick={this.copyOperate}
-                  onMouseLeave={this.copyEnd}
-                />
-              </Tooltip>
-            </p>
-          </div>
-        );
-        return(
-          <Row style={{ maxWidth: 120 }}>
-            <Tooltip title={text}>
-              <Col className="textoverflow" span={20}>
-                {text}
-              </Col>
-            </Tooltip>
-            <Col span={4}>
-              <Popover content={content} trigger="click">
-                <Icon type="plus-square" />
-              </Popover>
-            </Col>
-          </Row>
-        )
-      }
-    }, {
-      title: '发布者',
-      dataIndex: 'userName',
-      key: 'userName',
-      width: '8%',
-    }, {
-      title: (
-        <div onClick={() => this.handleSort('publish_time')}>
-          提交时间
-          <div className="ant-table-column-sorter">
-            <span
-              className={publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
-              title="↑">
-              <i className="anticon anticon-caret-up"/>
-            </span>
-            <span
-              className={publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-              title="↓">
-              <i className="anticon anticon-caret-down"/>
-            </span>
-          </div>
-        </div>
-      ),
-      dataIndex: 'publishTime',
-      key: 'publishTime',
-      width: '17%',
-      render: text => formatDate(text)
-    }, {
-      title: '操作',
-      key: 'operation',
-      width: '17%',
-      render: (text, record, index) => {
-        return(
-          <div className="operateBtn">
-            {
-              [1, 6].includes(record.publishStatus) &&
-                [
-                  <Button 
-                    key="pass" 
-                    type="primary" 
-                    className="passBtn"
-                    onClick={() => this.checkImageStatus(record, 2)}
-                    disabled={!isAdmin}
-                  >
-                    {record.publishStatus === 1 ? '通过' : '重试'}
-                  </Button>,
-                  <Button
-                    disabled={!isAdmin}
-                    key="reject" 
-                    onClick={() => this.openRejectModal(record)}
-                  >
-                    拒绝
-                  </Button>
-                ]
-            }
-            {
-              [3, 4].includes(record.publishStatus) &&
-                <Button
-                  disabled={!isAdmin}
-                  onClick={() => this.openDelModal(record)} 
+    let columns = []
+    if (publishType==='market') {
+      columns = [{
+        title: '状态',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
+        width: '9%',
+        render: this.getImageStatus
+        }, {
+          title: '提交信息',
+          dataIndex: 'requestMessage',
+          key: 'requestMessage',
+          width: '8%',
+          render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
+        }, {
+          title: '分类名称',
+          dataIndex: 'classifyName',
+          key: 'classifyName',
+          width: '8%',
+        }, {
+          title: '发布名称',
+          dataIndex: 'fileNickName',
+          key: 'fileNickName',
+          width: '8%',
+        }, {
+          title: '原镜像名称',
+          dataIndex: 'originID',
+          key: 'originID',
+          width: '15%',
+          render: (text, record) => {
+            return (
+              <Tooltip title={text}>
+                <div
+                  onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+                  style={{ maxWidth: 150 }}
+                  className="textoverflow themeColor pointer"
                 >
-                  删除记录
-                </Button>
-            }
-            {
-              ![1, 3, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
-            }
-          </div>
-        )
-      }
-    }]
+                  {text}
+                  </div>
+              </Tooltip>
+            )
+          }
+        }, {
+          title: '镜像地址',
+          dataIndex: 'resource',
+          key: 'resource',
+          width: '10%',
+          render: (text, record) => {
+            const content = (
+              <div className="imageIDBox">
+                <div>原地址</div>
+                <input type="text" className="imageIDCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
+                <p className="address">{record.originID}
+                  <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon
+                      type="copy"
+                      onMouseEnter={() => this.startCopy(record.originID)}
+                      onClick={this.copyOperate}
+                      onMouseLeave={this.copyEnd}
+                    />
+                  </Tooltip>
+                </p>
+                <div>发布地址</div>
+                <p className="address">{record.resource}:{record.tag}
+                  <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon
+                      type="copy"
+                      onMouseEnter={() => this.startCopy(`${record.resource}:${record.tag}`)}
+                      onClick={this.copyOperate}
+                      onMouseLeave={this.copyEnd}
+                    />
+                  </Tooltip>
+                </p>
+              </div>
+            );
+            return(
+              <Row style={{ maxWidth: 120 }}>
+                {/* <Tooltip title={text}> */}
+                  <Col className="textoverflow" span={20}>
+                    {text}
+                  </Col>
+                {/* </Tooltip> */}
+                <Col span={4}>
+                  <Popover content={content} trigger="click">
+                    <Icon type="plus-square" />
+                  </Popover>
+                </Col>
+              </Row>
+            )
+          }
+        }, {
+          title: '发布者',
+          dataIndex: 'userName',
+          key: 'userName',
+          width: '8%',
+        }, {
+          title: (
+            <div onClick={() => this.handleSort('publish_time')}>
+              提交时间
+              <div className="ant-table-column-sorter">
+                <span
+                  className={publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+                  title="↑">
+                  <i className="anticon anticon-caret-up"/>
+                </span>
+                <span
+                  className={publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                  title="↓">
+                  <i className="anticon anticon-caret-down"/>
+                </span>
+              </div>
+            </div>
+          ),
+          dataIndex: 'publishTime',
+          key: 'publishTime',
+          width: '17%',
+          render: text => formatDate(text)
+        }, {
+          title: '操作',
+          key: 'operation',
+          width: '17%',
+          render: (text, record, index) => {
+            return(
+              <div className="operateBtn">
+                {
+                  [1, 6].includes(record.publishStatus) &&
+                    [
+                      <Button
+                        key="pass"
+                        type="primary"
+                        className="passBtn"
+                        onClick={() => this.checkImageStatus(record, 2)}
+                        disabled={!isAdmin}
+                      >
+                        {record.publishStatus === 1 ? '通过' : '重试'}
+                      </Button>,
+                      <Button
+                        disabled={!isAdmin}
+                        key="reject"
+                        onClick={() => this.openRejectModal(record)}
+                      >
+                        拒绝
+                      </Button>
+                    ]
+                }
+                {
+                  [3, 4].includes(record.publishStatus) &&
+                    <Button
+                      disabled={!isAdmin}
+                      onClick={() => this.openDelModal(record)}
+                    >
+                      删除记录
+                    </Button>
+                }
+                {
+                  ![1, 3, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
+                }
+              </div>
+            )
+          }
+        }]
+    }else {
+      columns = [{
+        title: '状态',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
+        width: '9%',
+        render: this.getImageStatus
+        }, {
+          title: '提交信息',
+          dataIndex: 'requestMessage',
+          key: 'requestMessage',
+          width: '8%',
+          render: text => <Tooltip title={text}><div style={{ maxWidth: 90 }} className="textoverflow">{text}</div></Tooltip>
+        }, {
+          title: '目标仓库组',
+          dataIndex: 'targetProject',
+          key: 'targetProject',
+          width: '12%',
+        }, {
+          title: '原镜像名称',
+          dataIndex: 'originID',
+          key: 'originID',
+          width: '15%',
+          render: (text, record) => {
+            return (
+              <Tooltip title={text}>
+                <div
+                  onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+                  style={{ maxWidth: 150 }}
+                  className="textoverflow themeColor pointer"
+                >
+                  {text}
+                  </div>
+              </Tooltip>
+            )
+          }
+        }, {
+          title: '镜像地址',
+          dataIndex: 'resource',
+          key: 'resource',
+          width: '10%',
+          render: (text, record) => {
+            const content = (
+              <div className="imageIDBox">
+                <div>原地址</div>
+                <input type="text" className="imageIDCopyInput" style={{ position: "absolute", opacity: "0", top:'0'}}/>
+                <p className="address">{record.originID}
+                  <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon
+                      type="copy"
+                      onMouseEnter={() => this.startCopy(record.originID)}
+                      onClick={this.copyOperate}
+                      onMouseLeave={this.copyEnd}
+                    />
+                  </Tooltip>
+                </p>
+                <div>发布地址</div>
+                <p className="address">{record.resource}:{record.tag}
+                  <Tooltip title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon
+                      type="copy"
+                      onMouseEnter={() => this.startCopy(`${record.resource}:${record.tag}`)}
+                      onClick={this.copyOperate}
+                      onMouseLeave={this.copyEnd}
+                    />
+                  </Tooltip>
+                </p>
+              </div>
+            );
+            return(
+              <Row style={{ maxWidth: 120 }}>
+                {/* <Tooltip title={text}> */}
+                  <Col className="textoverflow" span={20}>
+                    {text}
+                  </Col>
+                {/* </Tooltip> */}
+                <Col span={4}>
+                  <Popover content={content} trigger="click">
+                    <Icon type="plus-square" />
+                  </Popover>
+                </Col>
+              </Row>
+            )
+          }
+        }, {
+          title: '发布者',
+          dataIndex: 'userName',
+          key: 'userName',
+          width: '8%',
+        }, {
+          title: (
+            <div onClick={() => this.handleSort('publish_time')}>
+              提交时间
+              <div className="ant-table-column-sorter">
+                <span
+                  className={publish_time === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
+                  title="↑">
+                  <i className="anticon anticon-caret-up"/>
+                </span>
+                <span
+                  className={publish_time === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+                  title="↓">
+                  <i className="anticon anticon-caret-down"/>
+                </span>
+              </div>
+            </div>
+          ),
+          dataIndex: 'publishTime',
+          key: 'publishTime',
+          width: '17%',
+          render: text => formatDate(text)
+        }, {
+          title: '操作',
+          key: 'operation',
+          width: '17%',
+          render: (text, record, index) => {
+            return(
+              <div className="operateBtn">
+                {
+                  [1, 6].includes(record.publishStatus) &&
+                    [
+                      <Button
+                        key="pass"
+                        type="primary"
+                        className="passBtn"
+                        onClick={() => this.checkImageStatus(record, 2)}
+                        disabled={!isAdmin}
+                      >
+                        {record.publishStatus === 1 ? '通过' : '重试'}
+                      </Button>,
+                      <Button
+                        disabled={!isAdmin}
+                        key="reject"
+                        onClick={() => this.openRejectModal(record)}
+                      >
+                        拒绝
+                      </Button>
+                    ]
+                }
+                {
+                  [3, 4].includes(record.publishStatus) &&
+                    <Button
+                      disabled={!isAdmin}
+                      onClick={() => this.openDelModal(record)}
+                    >
+                      删除记录
+                    </Button>
+                }
+                {
+                  ![1, 3, 4, 6].includes(record.publishStatus) && <span style={{ marginLeft: 28 }}>-</span>
+                }
+              </div>
+            )
+          }
+        }]
+    }
     let serverName
     if (currentImage) {
       const { server, name } = this.getServeAndName(currentImage.originID)
@@ -424,7 +584,7 @@ class ImageCheckTable extends React.Component {
           onChange={this.onTableChange}
           pagination={pagination}
         />
-        <Modal 
+        <Modal
           title="删除审核记录" visible={delModal}
           onCancel={()=> this.closeDelModal()}
           onOk={() => this.confirmDelModal()}
@@ -476,12 +636,14 @@ class ImageCheck extends React.Component {
     super(props)
     this.getImagePublishList = this.getImagePublishList.bind(this)
     this.updateParentState = this.updateParentState.bind(this)
+    this.handleChangeTabs = this.handleChangeTabs.bind(this)
     this.state = {
       current: 1,
-      filter: 'type,2',
       filterName: undefined,
+      targetProject: '',
       sort: 'd,publish_time',
-      publish_time: false
+      publish_time: false,
+      filter: 'type,2,target_project__eq,'
     }
   }
   componentWillMount() {
@@ -490,8 +652,28 @@ class ImageCheck extends React.Component {
       this.getImagePublishList()
     }
   }
+  handleChangeTabs(key) {
+    switch (key) {
+      case 'market':
+        this.setState({
+          filter: 'type,2,target_project__eq,',
+          targetProject: '',
+          current: 1,
+        },this.getImagePublishList)
+        break
+      case 'store':
+        this.setState({
+          filter: 'type,2,target_project__neq,',
+          filterName: '',
+          current: 1,
+        },this.getImagePublishList)
+        break
+      default:
+        break
+    }
+  }
   getImagePublishList() {
-    const { current, filterName, sort, filter } = this.state
+    const { current, filterName, targetProject, sort, filter } = this.state
     const { imageApprovalList } = this.props
     let query = {
       from: (current - 1) * 10,
@@ -499,16 +681,19 @@ class ImageCheck extends React.Component {
       filter
     }
     if (filterName) {
-      Object.assign(query, { filter: `type,2,file_nick_name,${filterName}` })
+      Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
+    }
+    if (targetProject) {
+      Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
     }
     if (sort) {
       Object.assign(query, { sort })
     }
     imageApprovalList(query)
   }
-  refreshData() {
+  refreshData(type) {
     this.setState({
-      filterName: '',
+      [type]: '',
       sort: 'd,publish_time',
       current: 1,
       publish_time: false
@@ -520,40 +705,85 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, appStoreApprove, loginUser, location } = this.props
-    const { filterName, current, publish_time } = this.state
+    const { imageCheckList, total, marketTotal, storageTotal, appStoreApprove, loginUser, location, form, marketList, storeList } = this.props
+    const { filterName, targetProject, current, publish_time } = this.state
+    const { getFieldProps } = this.props.form
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 18 },
+    };
     return(
       <QueueAnim className="imageCheck">
-        <div className="wrapCheckHead" key="wrapCheckHead">
-          <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData()}>
-            <i className='fa fa-refresh'/> 刷新
-          </Button>
-          <CommonSearchInput
-            ref="tableChild"
-            size="large"
-            placeholder="按发布名称搜索"
-            style={{ width: 200 }}
-            value={filterName}
-            onSearch={value => this.updateParentState('filterName', value, true)}
-          />
-          <span className="total verticalCenter">共 {total && total} 条</span>
-        </div>
-        <ImageCheckTable
-          key="wrapCheckTable"
-          location={location}
-          imageCheckList={imageCheckList}
-          current={current}
-          publish_time={publish_time}
-          loginUser={loginUser}
-          total={total}
-          updateParentState={this.updateParentState}
-          appStoreApprove={appStoreApprove}
-          getImagePublishList={this.getImagePublishList}
-        />
+        <Tabs defaultActiveKey="market" className='imageCheckActive' onChange={this.handleChangeTabs}>
+          <TabPane tab="发布到商店" key="market">
+            <div>
+              <div className="wrapCheckHead" key="wrapCheckHead">
+                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('filterName')}>
+                  <i className='fa fa-refresh'/> 刷新
+                </Button>
+                <CommonSearchInput
+                  ref="tableChild"
+                  size="large"
+                  placeholder="按发布名称搜索"
+                  style={{ width: 200 }}
+                  value={filterName}
+                  onSearch={value => this.updateParentState('filterName', value, true)}
+                />
+                <span className="total verticalCenter">共 {total && total} 条</span>
+              </div>
+              <ImageCheckTable
+                key="wrapCheckTable"
+                location={location}
+                imageCheckList={imageCheckList}
+                current={current}
+                publish_time={publish_time}
+                loginUser={loginUser}
+                total={total}
+                updateParentState={this.updateParentState}
+                appStoreApprove={appStoreApprove}
+                getImagePublishList={this.getImagePublishList}
+                publishType='market'
+              />
+            </div>
+          {/* : */}
+          </TabPane>
+          <TabPane tab="发布到仓库" key="store">
+            <div>
+              <div className="wrapCheckHead" key="wrapCheckHead">
+                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.AAArefreshData('targetProject')}>
+                  <i className='fa fa-refresh'/> 刷新
+                </Button>
+                <CommonSearchInput
+                  ref="tableChild"
+                  size="large"
+                  placeholder="按目标仓库组搜索"
+                  style={{ width: 200 }}
+                  value={targetProject}
+                  onSearch={value => this.updateParentState('targetProject', value, true)}
+                />
+                <span className="total verticalCenter">共 {total && total} 条</span>
+              </div>
+              <ImageCheckTable
+                key="wrapCheckTable"
+                location={location}
+                imageCheckList={imageCheckList}
+                current={current}
+                publish_time={publish_time}
+                loginUser={loginUser}
+                total={total}
+                updateParentState={this.updateParentState}
+                appStoreApprove={appStoreApprove}
+                getImagePublishList={this.getImagePublishList}
+                publishType='storage'
+              />
+            </div>
+          </TabPane>
+        </Tabs>
       </QueueAnim>
     )
   }
 }
+ImageCheck = Form.create()(ImageCheck)
 
 function mapStateToProps(state) {
   const { appStore, entities } = state

@@ -139,7 +139,7 @@ class Project extends Component {
     this.deleteItemOk = this.deleteItemOk.bind(this)
   }
 
-  loadData(query) {
+  loadData(query ) {
     const { loadProjectList } = this.props
     let notify = new NotificationHandler()
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query), {
@@ -225,7 +225,6 @@ class Project extends Component {
         <br />
         <QueueAnim>
           <div key="projects">
-
             <Card className="project">
               <div className="topRow">
                 {

@@ -43,6 +43,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'vm') {
     this.body = yield vmConfigFunc.apply(this, [entity])
   }
+  if (type == 'chart_repo') {
+    this.body = yield chartRepoConfig.apply(this, [entity])
+  }
   if (type == 'msa') {
     this.body = yield msaConfigFunc.apply(this, [entity])
   }
@@ -135,6 +138,20 @@ function* vmConfigFunc(entity) {
   const type = 'vm'
   entity.detail = Object.assign({}, global.globalConfig.vmWrapConfig, entity.detail)
   delete entity.detail.configID
+  let response
+  entity.configDetail = JSON.stringify(entity.detail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
+
+function* chartRepoConfig(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'chart_repo'
+  entity.detail = Object.assign({}, global.globalConfig.chartRepoConfig, entity.detail)
   let response
   entity.configDetail = JSON.stringify(entity.detail)
   if (entity.configID) {
