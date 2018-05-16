@@ -10,13 +10,15 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Table, Button, Icon } from 'antd'
+import { Table, Button, Icon, Tabs } from 'antd'
 import { getImagesList } from '../../../../actions/app_store'
 import CommonSearchInput from '../../../CommonSearchInput'
 import '../style/PublishImage.less'
 import TenxStatus from '../../../TenxStatus/index'
 import { formatDate } from "../../../../common/tools"
 import QueueAnim from 'rc-queue-anim'
+
+const TabPane = Tabs.TabPane
 
 class PublishImage extends React.Component {
   constructor(props) {
@@ -25,9 +27,14 @@ class PublishImage extends React.Component {
     this.onTableChange = this.onTableChange.bind(this)
     this.searchData = this.searchData.bind(this)
     this.refreshData = this.refreshData.bind(this)
+
+    this.onStorageTableChange = this.onStorageTableChange.bind(this)
+    this.refreshStorageData = this.refreshStorageData.bind(this)
     this.state = {
       filterName: '',
-      current: 1
+      current: 1,
+
+      storageCurrent: 1
     }
   }
   componentWillMount() {
@@ -38,7 +45,7 @@ class PublishImage extends React.Component {
     input && input.focus()
   }
   loadData() {
-    const { getImagesList } = this.props
+    const { getImagesList } = this.props     //
     const { filterName, current } = this.state
     const query = {
       from: (current - 1) * 10,
@@ -65,11 +72,21 @@ class PublishImage extends React.Component {
       tableLoading: true
     }, this.loadData)
   }
+  onStorageTableChange(pagination) {
+    this.setState({
+      current: pagination.current,
+      tableLoading: true
+    }, this.loadData)
+    // console.log( 'table_onChange' )
+  }
   searchData(value) {
     this.setState({
       filterName: value,
       tableLoading: true
     }, this.loadData)
+  }
+  searchStorageData(value) {
+    searchData(value)
   }
   refreshData() {
     this.setState({
@@ -83,6 +100,9 @@ class PublishImage extends React.Component {
         })
       })
     })
+  }
+  refreshStorageData() {
+    this.refreshData()
   }
   getAppStatus(status, record){
     let phase
@@ -117,13 +137,13 @@ class PublishImage extends React.Component {
     return <TenxStatus phase={phase} progress={progress} showDesc={status === 3} description={status === 3 && record.approveMessage}/>
   }
   render() {
-    const { apps, total } = this.props
+    const { apps, listData, total, storeList, marketList, marketTotal, storageTotal } = this.props
     const { current, filterName, tableLoading, btnLoading } = this.state
     const pagination = {
       simple: true,
       current,
       defaultPageSize: 10,
-      total: total
+      total: marketTotal
     }
     const columns = [{
       title: '镜像名称',
@@ -154,38 +174,107 @@ class PublishImage extends React.Component {
       width: '20%',
       render: text => formatDate(text)
     }]
+    const storageColumns = [{       //================ 更换 dataindex、key、...
+      title: '镜像名称',
+      dataIndex: 'image',
+      key: 'image',
+      width: '20%',
+      render: text => text && text.split('/')[1]
+    }, {
+      title: '发布版本',
+      dataIndex: 'tag',
+      key: 'tag',
+      width: '20%'
+    }, {
+      title: '目标仓库组',
+      dataIndex: 'fileNickName',
+      key: 'fileNickName',
+      width: '20%'
+    }, {
+      title: '发布状态',
+      dataIndex: 'publishStatus',
+      key: 'publishStatus',
+      width: '20%',
+      render: this.getAppStatus
+    }, {
+      title: '发布时间',
+      dataIndex: 'publishTime',
+      key: 'publishTime',
+      width: '20%',
+      render: text => formatDate(text)
+    }]
     return(
       <QueueAnim className="publishImage">
-        <div className="headerBox" key="headerBox">
-          <Button
-            type="primary"
-            size="large"
-            className="refreshBtn"
-            onClick={this.refreshData}
-          >
-            <i className="fa fa-refresh"/> 刷新
-          </Button>
-          <CommonSearchInput
-            size="large"
-            id="publishRecordInput"
-            placeholder="请输入发布名称搜索"
-            value={filterName}
-            style={{ width: 200 }}
-            onSearch={this.searchData}
-          />
-          {
-            total ? <div className="total">共计 {total} 条</div> : null
-          }
-        </div>
-        <Table
-          className="reset_antd_table_header publishImageTable"
-          dataSource={apps}
-          columns={columns}
-          pagination={total ? pagination : false}
-          onChange={this.onTableChange}
-          loading={tableLoading}
-          key="body"
-        />
+        <Tabs defaultActiveKey="market">
+          <TabPane tab="发布到商店" key="market">
+            <div className="headerBox" key="headerBox">
+              <Button
+                type="primary"
+                size="large"
+                className="refreshBtn"
+                onClick={this.searchData}
+              >
+                <i className="fa fa-refresh"/> 刷新
+              </Button>
+              <CommonSearchInput
+                size="large"
+                id="publishRecordInput"
+                placeholder="请输入发布名称搜索"
+                value={filterName}
+                style={{ width: 200 }}
+                onSearch={this.refreshData}
+              />
+              {
+                marketTotal ? <div className="total">共计 {marketTotal} 条</div> : null
+              }
+            </div>
+            <Table
+              className="reset_antd_table_header publishImageTable"
+              dataSource={marketList}
+              columns={columns}
+              pagination={marketTotal ? pagination : false}
+              onChange={this.onTableChange}
+              loading={tableLoading}
+              key="body"
+            />
+          </TabPane>
+          <TabPane tab="发布到仓库" key="store">
+            <div className="headerBox" key="headerBox">
+              <Button
+                type="primary"
+                size="large"
+                className="refreshBtn"
+                onClick={this.refreshStorageData}
+              >
+                <i className="fa fa-refresh"/> 刷新
+              </Button>
+              <CommonSearchInput
+                size="large"
+                id="publishRecordInput"
+                placeholder="请输入发布名称搜索"
+                value={filterName}
+                style={{ width: 200 }}
+                onSearch={this.searchStorageData}
+              />
+              {/*
+              Imput 修改   search something
+              */}
+              {
+                storageTotal ? <div className="total">共计 {storageTotal} 条</div> : null
+              }
+            </div>
+            <Table
+              className="reset_antd_table_header publishImageTable"
+              dataSource={storeList}               //获取listData
+              columns={storageColumns}
+              pagination={storageTotal ? pagination : false}
+              onChange={this.onStorageTableChange}
+              //loading={tableLoading}
+              key="storageBody"
+            />
+          </TabPane>
+        </Tabs>
+
       </QueueAnim>
     )
   }
@@ -196,9 +285,31 @@ function mapStateToProps(state) {
   const { imageCheckList } = appStore
   const { data: publishRecord } = imageCheckList || { data: {} }
   const { apps, total } = publishRecord || { apps: [], total: 0 }
+  // const { listData, storageTotal } = state
+
+  let marketList = []
+  let storeList = []
+  if (apps && apps.length && apps.length>0) {
+    storeList = apps.filter((item) => {
+        return item.targetProject.length > 0
+    })
+    marketList = apps.filter((item) => {
+        return item.targetProject.length == 0
+    })
+  }
+  let marketTotal = total - storeList.length
+  let storageTotal = storeList.length
+
   return {
     apps,
-    total
+    total,
+
+    storeList,
+    marketList,
+
+    // listData,
+    marketTotal,
+    storageTotal,
   }
 }
 

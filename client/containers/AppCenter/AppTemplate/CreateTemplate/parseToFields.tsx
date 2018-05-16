@@ -324,6 +324,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
     return;
   }
   const configParent: object = {};
+  const existentConfigMap = [];
   mergeVolumes.forEach((item) => {
     const { name, mountPath, subPath, configMap } = item;
     const { name: innerName, items } = configMap || { name: '', items: [] };
@@ -342,6 +343,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
         classifyName = '未分类配置组';
       }
       let configGroupName: string[] = [classifyName, innerName];
+      existentConfigMap.push(configGroupName.toString());
       configMapKeys.push({
         value: ++ configId,
       });
@@ -377,6 +379,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
     configMapKeys,
     secretConfigMapKeys,
     ...configParent,
+    existentConfigMap,
   };
 };
 

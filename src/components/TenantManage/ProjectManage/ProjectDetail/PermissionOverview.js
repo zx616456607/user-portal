@@ -174,7 +174,6 @@ class PermissionOverview extends React.Component{
     })
 
     notify.spin('操作中')
-    debugger
     if (!isEmpty(add)) {
       addBody = add.map(item => {
         if(!!this.props.permissionOverview.applicationPackage.operations[Number(item)]){
