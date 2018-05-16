@@ -796,15 +796,19 @@ class ClusterStorage extends Component {
         const password = values[`gfs_password${item.index}`] //用户认证密钥
 
         const gfsList = clusterStorage.glusterfsList || []
-        let gname = ''
+        let gname = '', secretName, secretNamespace
         if(item.newAdd){
           let len = gfsList.length
           gname = `tenx-glusterfs${len}`
         } else {
           gname = gfsList[item.index].metadata.name
+          secretName = gfsList[item.index].parameters.secretName
+          secretNamespace = gfsList[item.index].parameters.secretNamespace
         }
         const gfsStorage = new GfsStorage(gname, name, agent, path, adminId);
-        const gfsSecret = new GfsSecret(btoa(password));//btoa base 64 加密
+        //btoa base 64 加密
+        //修改时传入secretName secretNamespace
+        const gfsSecret = new GfsSecret(btoa(password), secretName, secretNamespace);
 
         const clusterID = cluster.clusterID
         const template = []
