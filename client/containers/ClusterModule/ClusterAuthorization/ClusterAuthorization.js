@@ -8,9 +8,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button,Icon,Table,Input,Pagination,Row,Col,Modal,Select } from 'antd';
-import {GetProjectsApprovalClusters, searchProjectsClusterApproval,UpdateProjectsApprovalCluster} from '../../actions/project';
-import { calcuDate } from '../../common/tools';
-import NotificationHandler from '../../components/Notification'
+import {GetProjectsApprovalClusters, searchProjectsClusterApproval,UpdateProjectsApprovalCluster} from '../../../../src/actions/project';
+import { calcuDate } from '../../../../src/common/tools';
+import NotificationHandler from '../../../../src/components/Notification/index'
 import moment from 'moment';
 import './style/ClusterAuthorization.less';
 import {browserHistory} from "react-router";
@@ -184,7 +184,6 @@ class ClusterAuthorization extends Component{
   }
   //表格数据变化时候触发，触发分页，筛选状态，排序；pagination(分页)；status(状态)，sorter(排序)
   tableChange(pagination, status, sorter){
-    console.log(status.status, sorter);
     //过滤状态
     let filter = '';
     let timeOrder = sorter.columnKey === 'requestTime'?'tenx_project_resource_ref.request_time':'tenx_project_resource_ref.accept_time';
@@ -214,12 +213,8 @@ class ClusterAuthorization extends Component{
         from:(this.state.current-1) * this.state.size,
         sort:''
       };
-      console.log(999);
       this.props.GetProjectsApprovalClusters(query)
-
     }
-
-
   }
 
   //处理操作，row(点击所在的行数据) e(事件对象)

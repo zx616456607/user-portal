@@ -259,7 +259,6 @@ function fetchGetProjectsApprovalClusters(query,callback) {
   if(query){
     endpoint += `?${toQuerystring(query)}`
   }
-  console.log(endpoint);
   return {
     [FETCH_API]: {
       types: [PROJECTS_CLUSTER_APPROVAL_GET_REQUEST,PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS,PROJECTS_CLUSTER_APPROVAL_GET_FAILURE],

@@ -15,7 +15,7 @@ const clusterRoutes = [{
   component: require('../components/ClusterModule/ClusterDetail').default,
 }, {
   path: '/cluster/cluster_authorization',
-  component: require('../components/ClusterModule/ClusterAuthorization').default,
+  component: require('../../client/containers/ClusterModule/ClusterAuthorization/ClusterAuthorization').default,
 }, {
   path: '/cluster/cluster_autoscale',
   component: require('../../client/containers/ClusterModule/ClusterAutoScale').default,
