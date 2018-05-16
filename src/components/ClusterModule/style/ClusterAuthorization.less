@@ -14,13 +14,20 @@
   .search-box{
     width: 200px;
     position: relative;
+    .ant-input-wrapper{
+      z-index: 1;
+      .ant-input-group-addon{
+        background: #ffffff;
+      }
+    }
     .search-btn{
       position: absolute;
+      z-index: 2;
       display: block;
       width: 20px;
       height: 20px;
       line-height: 20px;
-      right:0;
+      right:-60px;
       top:50%;
       margin-top: -10px;
       cursor: pointer;
@@ -76,10 +83,39 @@
     }
   }
 }
-.confirm-icon{
-  display: flex;
-  justify-content: center;
-  font-size: 80px;
-  color: #6fbb3d;
-
+.confirm-pass-box{
+  .confirm-icon{
+    display: flex;
+    justify-content: center;
+    font-size: 80px;
+    color: #6fbb3d;
+  }
+  .confirm-text{
+    text-align: center;
+    margin-top: 10px;
+    div{
+      &:first-child{
+        font-size: 14px;
+        line-height: 30px;
+      }
+      &:last-child{
+        font-size: 12px;
+      }
+    }
+  }
+  table{
+    width: 100%;
+    margin: 25px 0 10px 0;
+    border-collapse: collapse;
+    border:1px solid #e7ecf2;
+    color: #747474;
+    td{
+      height: 38px;
+      line-height: 38px;
+      padding-left: 23px;
+    }
+    thead{
+      border-bottom: 1px solid #e7ecf2;
+    }
+  }
 }

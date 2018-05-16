@@ -27,28 +27,21 @@ function getProjectsApprovalClusters(state = {}, action) {
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_REQUEST:
       return merge({}, defaultState, state, {
         isFetching: true,
-        approvalData: [],
         approvalPendingData: [],
         approvedReadyData: [],
         searchList: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS:
-      if(!filter){
-        return Object.assign({}, defaultState, state, {
-          isFetching: false,
-          approvalData: action.response.result.data || [],
-          searchList: []
-        })
-      }else{
-        return Object.assign({}, defaultState, state, {
-          isFetching: false,
-          approvalData: action.response.result.data || [],
-          searchList: []
-        })
-      }
+
       if(filter == 1){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
+          approvalData: action.response.result.data || {
+            projects:[],
+            listMeta:{
+              total:0
+            }
+          },
           approvalPendingData: action.response.result.data || [],
           searchList: []
         })
@@ -56,6 +49,12 @@ function getProjectsApprovalClusters(state = {}, action) {
       if(filter == 5){
         return Object.assign({}, defaultState, state, {
           isFetching: false,
+          approvalData: action.response.result.data || {
+            projects:[],
+            listMeta:{
+              total:0
+            }
+          },
           approvedReadyData: action.response.result.data || [],
           searchList:  action.response.result.data || [],
         })
@@ -64,12 +63,19 @@ function getProjectsApprovalClusters(state = {}, action) {
         isFetching: false,
         approvalPendingData: [],
         approvedReadyData: [],
+        approvalData: action.response.result.data,
         searchList: [],
       })
     case ActionTypes.PROJECTS_CLUSTER_APPROVAL_GET_FAILURE:
       return Object.assign({}, defaultState, state, {
         isFetching: false,
         approvalPendingData: [],
+        approvalData:{
+          projects:[],
+          listMeta:{
+            total:0
+          }
+        },
         approvedReadyData: [],
         searchList: []
       })
@@ -89,6 +95,12 @@ function getProjectsApprovalClusters(state = {}, action) {
       return Object.assign({}, defaultState, state, {
         isFetching: false,
         approvalPendingData: state.approvalPendingData || [],
+        approvalData: action.response.result.data || {
+          projects:[],
+          listMeta:{
+            total:0
+          }
+        },
         approvedReadyData: searchResult,
         searchList: state.searchList,
       })
