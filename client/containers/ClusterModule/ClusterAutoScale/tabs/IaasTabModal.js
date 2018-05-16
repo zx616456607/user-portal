@@ -622,6 +622,7 @@ export default connect(mapStateToProps, {
                                             </Tooltip>,
                                           ]
                                         )
+                                        return rele
                                       })()
                                     } description="" />
                                   </Steps>
@@ -694,7 +695,7 @@ export default connect(mapStateToProps, {
                                             <Col span={16}>
                                               <span>
                                                 <i className="tips_icon anticon anticon-exclamation-circle-o"></i>
-                                            注：这里的数量仅计算自动伸缩的节点，手动添加节点除外
+                                                注：这里的数量仅计算自动伸缩的节点，手动添加节点除外
                                               </span>
                                             </Col>
                                           </Row>
