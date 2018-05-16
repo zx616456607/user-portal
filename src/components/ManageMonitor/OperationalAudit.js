@@ -1220,6 +1220,15 @@ function formatResourceName(resourceName, resourceId) {
       newName = newName.join(',');
       return newName;
     }
+    //check projects
+    if (!!newBody.projects) {
+      let newName = newBody.projects;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
     //check volumes
     if (!!newBody.volumes) {
       let newName = newBody.volumes;
