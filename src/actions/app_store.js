@@ -123,29 +123,7 @@ export function imageApprovalList(query, callback) {
   return dispatch => dispatch(fetImageApprovalList(query, callback))
 }
 
-export const APPSTORE_APPROVAL_LIST_REQUEST = 'APPSTORE_APPROVAL_LIST_REQUEST'
-export const APPSTORE_APPROVAL_LIST_SUCCESS = 'APPSTORE_APPROVAL_LIST_SUCCESS'
-export const APPSTORE_APPROVAL_LIST_FAILURE = 'APPSTORE_APPROVAL_LIST_FAILURE'
 
-// publish store or storage
-function fetAppStoreAndStorageList(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/app-store/apps/approval`
-  if (query) {
-    endpoint += `?${toQuerystring(query)}`
-  }
-  return {
-    [FETCH_API]: {
-      types: [APPSTORE_APPROVAL_LIST_REQUEST,APPSTORE_APPROVAL_LIST_SUCCESS,APPSTORE_APPROVAL_LIST_FAILURE],
-      endpoint,
-      schema: {}
-    },
-    callback
-  }
-}
-
-export function getMarketAndStorageList(query, callback) {
-  return dispatch => dispatch(fetAppStoreAndStorageList(query, callback))
-}
 
 
 export const CHECK_APP_NAME_EXIST_REQUEST = 'CHECK_APP_NAME_EXIST_REQUEST'

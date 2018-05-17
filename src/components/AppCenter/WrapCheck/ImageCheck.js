@@ -15,7 +15,7 @@ import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Ra
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
-import { imageApprovalList, appStoreApprove, getMarketAndStorageList, }  from '../../../actions/app_store'
+import { imageApprovalList, appStoreApprove, }  from '../../../actions/app_store'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'

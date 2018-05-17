@@ -24,6 +24,7 @@ class DataTable extends Component {
     super()
     this.handleChange = this.handleChange.bind(this)
     this.setProjectPublic = this.setProjectPublic.bind(this)
+    this.handleListDataItem = this.handleListDataItem.bind(this)
     this.state = {
       sortedInfo: null,
       filteredInfo: null,
@@ -71,6 +72,15 @@ class DataTable extends Component {
     loadData({ page: current })
   }
 
+  handleListDataItem(text,record) {
+    if (this.props.from==='public') {
+      return <Link to={{
+          pathname:`/app_center/projects/detail/${record[camelize('project_id')]}`,
+          query: { type: 'public' }
+        }}>{text}</Link>
+    }
+    return <Link to={`/app_center/projects/detail/${record[camelize('project_id')]}`}>{text}</Link>
+  }
   render() {
     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
@@ -83,7 +93,7 @@ class DataTable extends Component {
         title: '仓库组名称',
         dataIndex: 'name',
         key: 'name',
-        render: (text, record) => <Link to={`/app_center/projects/detail/${record[camelize('project_id')]}`}>{text}</Link>
+        render: (text, record) => this.handleListDataItem(text, record)
       },
       {
         title: '访问级别',
