@@ -1882,8 +1882,9 @@ class OperationalAudit extends Component {
 
   onChangeObject(e) {
     //this function for user change operational
+    const operationType = parseInt(e)
     this.setState({
-      operation: parseInt(e)
+      operation: isNaN(operationType) ? undefined : operationType,
     });
   }
 
@@ -2225,7 +2226,7 @@ class OperationalAudit extends Component {
       )
     });
     let { operation, status, start_time, end_time } = this.state
-    if (operation !== undefined) {
+    if (operation) {
       operation += ''
     }
     return (
