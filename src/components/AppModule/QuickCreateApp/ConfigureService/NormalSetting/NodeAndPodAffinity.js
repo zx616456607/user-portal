@@ -65,7 +65,7 @@ class NodeAffinity extends Component {
           showService: 'single'
         })
       case 'Exists':
-      case 'DoesNotExists':
+      case 'DoesNotExist':
         return this.setState({
           showService: 'no'
         })
@@ -164,7 +164,7 @@ class NodeAffinity extends Component {
     let fieldsArr = []
     let resetArr = []
     const mark = getFieldsValue(['serverMark'])
-    if (mark.serverMark=='Exists' || mark.serverMark=='DoesNotExists') {
+    if (mark.serverMark=='Exists' || mark.serverMark=='DoesNotExist') {
       fieldsArr = ['serverKey','serverPoint','serverMark']
     }else {
       fieldsArr = ['serverKey','serverPoint','serverTagKey','serverMark']
@@ -174,7 +174,7 @@ class NodeAffinity extends Component {
         return
       }
       let newlabel = {}
-      if ( values.serverMark == 'Exists' ||  values.serverMark=='DoesNotExists'  ) {
+      if ( values.serverMark == 'Exists' ||  values.serverMark=='DoesNotExist'  ) {
         newlabel = {
           key: values.serverKey,
           mark: values.serverMark,
@@ -350,7 +350,7 @@ class NodeAffinity extends Component {
               <Select.Option value="Gt" key="big"> > </Select.Option>
               <Select.Option value="Lt" key="small">	&lt;</Select.Option>
               <Select.Option value="Exists" key="exists">	Exists </Select.Option>
-              <Select.Option value="DoesNotExists" key="does">	DoesNotExists </Select.Option>
+              <Select.Option value="DoesNotExist" key="does">	DoesNotExist </Select.Option>
             </Select>
           </FormItem>
           {
@@ -398,7 +398,7 @@ class PodAffinity extends Component {
           showServiceBetween: 'single'
         })
       case 'Exists':
-      case 'DoesNotExists':
+      case 'DoesNotExist':
         return this.setState({
           showServiceBetween: 'no'
         })
@@ -444,7 +444,7 @@ class PodAffinity extends Component {
     let fieldsArr = []
     let resetArr = []
     const mark = getFieldsValue(['serverBottomMark'])
-    if (mark.serverBottomMark=='Exists' || mark.serverBottomMark=='DoesNotExists') {
+    if (mark.serverBottomMark=='Exists' || mark.serverBottomMark=='DoesNotExist') {
       fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
     }else {
       fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
@@ -454,7 +454,7 @@ class PodAffinity extends Component {
         return
       }
       let newlabel = {}
-      if (values.serverBottomMark == 'Exists' ||  values.serverBottomMark== 'DoesNotExists') {
+      if (values.serverBottomMark == 'Exists' ||  values.serverBottomMark== 'DoesNotExist') {
         newlabel = {
           key: values.serverBottomKey,
           mark: values.serverBottomMark,
@@ -614,7 +614,7 @@ class PodAffinity extends Component {
             <Select.Option value="In" key="in">In</Select.Option>
             <Select.Option value="NotIn" key="not">notin</Select.Option>
             <Select.Option value="Exists" key="exists">	exists </Select.Option>
-            <Select.Option value="DoesNotExists" key="does">	DoesNotExists </Select.Option>
+            <Select.Option value="DoesNotExist" key="does">	DoesNotExist </Select.Option>
           </Select>
         </FormItem>
         {
