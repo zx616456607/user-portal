@@ -312,13 +312,13 @@ class AppServerTag extends Component{
         title:'值',
         key:'value',
         dataIndex:'value',
-        width:'30%',
+        width:'20%',
         sorter: (a, b) => a.value.localeCompare(b.value)
       },{
         title:'操作',
         key:'actions',
         dataIndex:'handle',
-        width:'20%',
+        width:'30%',
         className:'handle',
         render : (text,row) => {
           const reg = new RegExp(/^tenxcloud.com(.*)/g)

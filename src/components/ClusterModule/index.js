@@ -972,7 +972,7 @@ class ClusterList extends Component {
                 type="card"
                 style={{position:'relative'}}
                 tabBarExtraContent={
-                  [<Button
+                  [/*<Button
                     className='authorityBtn'
                     type="ghost"
                     onClick={() => this.getProjectApprovalClustersList('modal')}
@@ -984,7 +984,7 @@ class ClusterList extends Component {
                       ? <div className='wait_number'>{waitingRequestNumbers}</div>
                       : <span></span>
                     }
-                  </Button>,
+                  </Button>,*/
                     <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"

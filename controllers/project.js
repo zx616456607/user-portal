@@ -177,14 +177,14 @@ exports.getProjectVisibleClusters = function* () {
 
 exports.getProjectApprovalClusters = function* () {
   const query = this.query || {}
-  const filter = query.filter
-  const queryObj = {}
-  if (filter) {
-    queryObj.filter = filter
-  }
+  // const filter = query.filter
+  // const queryObj = {}
+  // if (filter) {
+  //   queryObj.filter = filter
+  // }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['approval-clusters'], queryObj)
+  const response = yield projectApi.projects.getBy(['approval-clusters'], query)
   this.status = response.statusCode
   this.body = response
 }

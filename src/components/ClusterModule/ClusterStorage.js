@@ -530,7 +530,7 @@ class ClusterStorage extends Component {
                     if(!value){
                       return callback('请输入agent地址')
                     }
-                    if(!/^(http|https):\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}$/.test(value)){
+                    if(!this.testAgent(value)){
                       return callback('请输入正确的agent地址')
                     }
                     return callback()
@@ -796,15 +796,19 @@ class ClusterStorage extends Component {
         const password = values[`gfs_password${item.index}`] //用户认证密钥
 
         const gfsList = clusterStorage.glusterfsList || []
-        let gname = ''
+        let gname = '', secretName, secretNamespace
         if(item.newAdd){
           let len = gfsList.length
           gname = `tenx-glusterfs${len}`
         } else {
           gname = gfsList[item.index].metadata.name
+          secretName = gfsList[item.index].parameters.secretName
+          secretNamespace = gfsList[item.index].parameters.secretNamespace
         }
         const gfsStorage = new GfsStorage(gname, name, agent, path, adminId);
-        const gfsSecret = new GfsSecret(btoa(password));//btoa base 64 加密
+        //btoa base 64 加密
+        //修改时传入secretName secretNamespace
+        const gfsSecret = new GfsSecret(btoa(password), secretName, secretNamespace);
 
         const clusterID = cluster.clusterID
         const template = []
@@ -1031,7 +1035,13 @@ class ClusterStorage extends Component {
       validating = false
     })
   }
-
+  testAgent(value) {
+    return (
+      /^(http|https):\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}$/.test(value)
+      ||
+      /^(http|https):\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(value)
+    )
+  }
   renderGlusterFSList(){
     const { gfsArray } = this.state
     const { clusterStorage } = this.props
@@ -1100,10 +1110,10 @@ class ClusterStorage extends Component {
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value){
-                      return callback('请输入集群地址')
+                      return callback('请输入 agent 地址')
                     }
-                    if(!/^(http|https):\/\/(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}$/.test(value)){
-                      return callback('请输入正确的集群地址')
+                    if(!this.testAgent(value)){
+                      return callback('请输入正确的 agent 地址')
                     }
                     return callback()
                   }
