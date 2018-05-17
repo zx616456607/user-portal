@@ -24,17 +24,13 @@ class Index extends React.Component {
     this.state = {
       confirmPassModal: false, // 控制点击通过时候对话框的显示隐藏
       current: 1, // 当前页
-      size: 10, // 每页多少条
+      size: 5, // 每页多少条
       sort: 'd,tenx_project_resource_ref.request_time', // 排序参数
       columns: [
         {
           title: '状态',
           dataIndex: 'status',
           filters: [
-            {
-              text: '未申请',
-              value: 0,
-            },
             {
               text: '待审批',
               value: 1,
@@ -48,7 +44,6 @@ class Index extends React.Component {
               value: 3,
             },
           ],
-          filterMultiple: false,
           render: status => this.statusTag(status),
         },
         {
@@ -58,6 +53,7 @@ class Index extends React.Component {
         {
           title: '申请项目',
           dataIndex: 'projectName',
+          render: val => <div style={{ color: '#59c2f9' }}>{val}</div>,
         },
         {
           title: '申请集群',
@@ -72,6 +68,12 @@ class Index extends React.Component {
         {
           title: '审批人',
           dataIndex: 'approver',
+          render: val => {
+            if (val) {
+              return val
+            }
+            return '-'
+          },
         },
         {
           title: '审批时间',
@@ -81,7 +83,7 @@ class Index extends React.Component {
             if (row.status !== (0 || 1)) {
               return <div>{ moment(time).format('YYYY-MM-DD HH:mm:ss') }</div>
             }
-            return null
+            return '-'
 
           },
         },
@@ -122,8 +124,6 @@ class Index extends React.Component {
   statusTag(status) {
     const statusDom = (className, statusType) => <span className={`status-tag ${className}`}>{ statusType }</span>
     switch (status) {
-      case 0:
-        return statusDom('not-yet', '未申请')
       case 1:
         return statusDom('pending', '待审批')
       case 2:
@@ -152,57 +152,84 @@ class Index extends React.Component {
   }
 
   // 刷新
-  reload(current) {
-
-    this.setState({
-      current: current ? current : 1,
-      size: 10,
-      sort: 'd,tenx_project_resource_ref.request_time',
-      filter: '',
-    })
+  refrash() {
     const query = {
       size: this.state.size,
-      from: current ? (current - 1) * this.state.size : 0,
+      from: 0,
       sort: this.state.sort,
     }
     this.props.GetProjectsApprovalClusters(query)
 
   }
+  // 做完一些操作，刷新数据
+  reload(current) {
+    this.setState({
+      current: current ? current : 1,
+      sort: 'd,tenx_project_resource_ref.request_time',
+    }, () => {
+      const query = {
+        size: this.state.size,
+        from: current ? (current - 1) * this.state.size : 0,
+        sort: this.state.sort,
+        filter: this.state.filter,
+      }
+      this.props.GetProjectsApprovalClusters(query)
+    })
+
+  }
   // 根据状态渲染哪一组操作按钮 status(状态)
   buttonGroup(row) {
-    const btns = (leftType, rightType, leftText, rightText) => {
+    const btns = (leftType, rightType, leftText, rightText, leftClass, rightClass) => {
       return <div className="authorization-operation">
         <Button type={leftType} style={{ marginRight: 10 }}
+          className={`${leftClass}`}
           onClick={e => { this.handleOption(row, e) }}
         >
           { leftText }
         </Button>
-        <Button type={rightType} onClick={e => { this.handleOption(row, e) }}>
+        <Button type={rightType}
+          className={`${rightClass}`}
+          onClick={e => { this.handleOption(row, e) }}>
           { rightText }
         </Button>
       </div>
     }
     switch (row.status) {
       case 1:
-        return btns('primary', 'danger', '通过', '拒绝')
+        return btns('primary', 'default', '通过', '拒绝', 'pass-btn', 'reject-btn')
       case 2:
-        return btns('primary', 'danger', '撤销', '清除')
+        return btns('default', 'danger', '撤销', '清除', 'undo-btn', 'clear-btn')
       case 3:
-        return btns('primary', 'danger', '撤销', '清除')
+        return btns('default', 'danger', '撤销', '清除', 'undo-btn', 'clear-btn')
       default:
         return null
     }
   }
   // 表格数据变化时候触发，触发分页，筛选状态，排序；pagination(分页)；status(状态)，sorter(排序)
   tableChange(pagination, status, sorter) {
-    // 过滤状态
+    // 过滤状态 1为申请中，2为已授权，3为已拒绝
+    const filterArr = [ '1', '2', '3' ]
     let filter = ''
     const timeOrder = sorter.columnKey === 'requestTime' ? 'tenx_project_resource_ref.request_time' : 'tenx_project_resource_ref.accept_time'
     if (status.status !== undefined) {
       if (status.status.length !== 0) {
-        filter = 'status,' + status.status[0]
+        const tempFilterArr = []
+        filterArr.forEach(v => {
+          if (status.status.indexOf(v) < 0) {
+            tempFilterArr.push(v)
+          }
+        })
+
+        tempFilterArr.forEach(k => {
+          filter = filter + `status__neq,${k},`
+          if (k === tempFilterArr[tempFilterArr.length - 1]) {
+            filter = filter.substring(0, filter.length - 1)
+          }
+        })
+
       }
     }
+
     if (status.status.length !== 0 && this.state.current !== 1) {
       const query = {
         filter,
@@ -289,15 +316,15 @@ class Index extends React.Component {
     this.props.UpdateProjectsApprovalCluster(updateClusterData, {
       success: {
         func: () => {
-          notification.success(text + '成功')
+          notification.success(text.replace(/\s/g, '') + '成功')
+          this.reload(this.state.current)
           if (text === '通 过') {
             this.setState({
               confirmPassModal: true,
               passContent: Object.assign({}, row),
             })
-          } else {
-            this.reload(this.state.current)
           }
+
 
         },
         isAsync: true,
@@ -320,6 +347,9 @@ class Index extends React.Component {
     })
   }
   searchItem() {
+    this.setState({
+      filter: `${this.state.searchField}${this.state.searchContent}`,
+    })
     const query = {
       size: this.state.size,
       from: 0,
@@ -362,7 +392,10 @@ class Index extends React.Component {
         <Row className="authorization-option" type="flex" justify="space-between">
           <Row>
             <Col span={6}>
-              <Button type="primary" icon="reload" onClick={() => this.reload()}>刷新</Button>
+              <Button type="primary" onClick={() => this.refrash()}>
+                <i className="fa fa-refresh"/>
+                <span> 刷新</span>
+              </Button>
             </Col>
             {/*            <Col span={6}>
               <Button type="default" icon="minus-circle-o">清除审批记录</Button>
@@ -378,7 +411,7 @@ class Index extends React.Component {
                     })
                   }}
                   value={this.state.searchContent}
-                  placeholder="申请人或申请项目名称"
+                  placeholder={this.state.searchField === 'tenx_users.user_name,' ? '按申请人搜索' : '按项目名搜索'}
                   style={{ paddingRight: '28px', width: 170 }}
                   onPressEnter={ () => this.searchItem() } />
                 <div className="search-btn" onClick={this.searchItem}>

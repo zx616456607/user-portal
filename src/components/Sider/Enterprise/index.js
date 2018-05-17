@@ -985,7 +985,7 @@ class Sider extends Component {
                     </Tooltip>
                     <Link to='/cluster/cluster_authorization'>
                       <span>
-                        授权审批
+                        集群授权审批
                       </span>
                     </Link>
                   </div>

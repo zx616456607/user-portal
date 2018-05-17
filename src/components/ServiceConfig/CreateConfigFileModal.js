@@ -24,7 +24,7 @@ const createForm = Form.create
 let CreateConfigFileModal = React.createClass({
   getInitialState() {
     return {
-      filePath: '请上传文件或直接输入内容'
+      filePath: '请上传文件或直接输入内容\n目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式'
     }
   },
   componentDidMount() {
@@ -228,8 +228,9 @@ let CreateConfigFileModal = React.createClass({
                 <Button type="ghost" style={{marginLeft: '5px'}} disabled={this.state.disableUpload}>
                   <Icon type="upload" /> 读取文件内容
                 </Button>
-                <span style={{width: '325px', display:'inline-block', textAlign: 'right'}}>{this.state.filePath}</span>
               </Upload>
+              <span style={{width: '325px', display:'block', textAlign: 'left', lineHeight:'35px'}} >{this.state.filePath}</span>
+
             </FormItem>
             <FormItem  {...formItemLayout} label="名称">
               <Input
