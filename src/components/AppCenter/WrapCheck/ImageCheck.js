@@ -750,7 +750,7 @@ class ImageCheck extends React.Component {
           <TabPane tab="发布到仓库" key="store">
             <div>
               <div className="wrapCheckHead" key="wrapCheckHead">
-                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.AAArefreshData('targetProject')}>
+                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('targetProject')}>
                   <i className='fa fa-refresh'/> 刷新
                 </Button>
                 <CommonSearchInput

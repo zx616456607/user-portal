@@ -34,7 +34,7 @@ class Scheduler extends Component {
     this.handleTopCheckBox = this.handleTopCheckBox.bind(this)
     this.schedulerClassify = this.schedulerClassify.bind(this)
     this.setInititalStatus = this.setInititalStatus.bind(this)
-    this.hanldeSetScheduler = this.hanldeSetScheduler.bind(this)
+    // this.hanldeSetScheduler = this.hanldeSetScheduler.bind(this)
     this.state = {
       startEdition: true,
       singleCheckBox: true,
@@ -43,7 +43,7 @@ class Scheduler extends Component {
       resourceCheckBox: true,
       utilizationRate: 'least',
       listNodes: 0,
-      setScheduler: false,
+      // setScheduler: false,
     }
   }
   componentDidMount() {
@@ -55,7 +55,7 @@ class Scheduler extends Component {
       clusters.map( item => {
         if (item.clusterID === clusterID) {
           const { listNodes,  schedulerPlicy } = item
-          const { request, balanced } = schedulerPlicy
+          const { request, balanced } = schedulerPlicy || { request: 'least', balanced: 'false' }
           this.setInititalStatus(listNodes)
           this.setInititalUtilRate(request, balanced)
           return
@@ -134,9 +134,9 @@ class Scheduler extends Component {
           break;
       }
     }
-    this.setState({
-      setScheduler: false
-    })
+    // this.setState({
+    //   setScheduler: false
+    // })
   }
 
   handleUtilizationRate(e) {
@@ -311,14 +311,14 @@ class Scheduler extends Component {
     })
   }
 
-  hanldeSetScheduler() {
-    const { startEdition } = this.state
-    if ( !startEdition ){
-      this.setState({
-        setScheduler: !this.state.setScheduler
-      })
-    }
-  }
+  // hanldeSetScheduler() {
+  //   const { startEdition } = this.state
+  //   if ( !startEdition ){
+  //     this.setState({
+  //       setScheduler: !this.state.setScheduler
+  //     })
+  //   }
+  // }
   render() {
     const { startEdition, singleCheckBox, classCheckBox, topCheckBox, utilizationRate, resourceCheckBox } = this.state
     const { form } = this.props
@@ -360,16 +360,16 @@ class Scheduler extends Component {
               >允许用户通过『服务标签』定义服务实例可以和哪些服务实例部署在同一主机上 (具有相同的主机标签键)</Checkbox>
           </FormItem>
 
-          <div className='advanceSet' onClick={this.hanldeSetScheduler}>
+          {/* <div className='advanceSet' onClick={this.hanldeSetScheduler}>
             {
               this.state.setScheduler?
               <Icon type="minus-square" /> :
               <Icon type="plus-square" />
             }
             高级设置
-          </div>
-          {
-            this.state.setScheduler ?
+          </div> */}
+          {/* { */}
+            {/* // this.state.setScheduler ? */}
             <FormItem
               label="默认调度策略"
               labelCol={{ span: 6 }}
@@ -381,6 +381,7 @@ class Scheduler extends Component {
                 onChange = { this.handleUtilizationRate }
                 value = { utilizationRate }
               >
+                <p className='schedulerTit'>初始为每个容器服务添加下边选择的调度策略，最终通过容器服务所有策略的综合条件优选一个调度的节点。</p>
                 <Radio value="least" key="low" >优先调度到使用率<span className="useText">低</span>的节点</Radio>
                 <Radio value="most" key="high" >优先调度到使用率<span className="useText">高</span>的节点</Radio>
               </RadioGroup>
@@ -393,8 +394,8 @@ class Scheduler extends Component {
               : null
               }
             </FormItem>
-            : null
-          }
+          {/* //   : null
+          // } */}
           {
             startEdition ? <div className="formAdvance formBtnAdvance">
                 <Button type="primary" onClick={ this.handleChangeEditionScheduler }>编辑</Button>
