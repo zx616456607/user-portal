@@ -13,7 +13,10 @@
 import React from 'react'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import { validateServiceConfigFile } from '../../common/naming_validation'
+import { connect } from 'react-redux'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
+import {CheckProjects} from "../../actions/project";
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -29,6 +32,7 @@ let CreateConfigFileModal = React.createClass({
     configName && configName.focus()
   },
   configNameExists(rule, value, callback) {
+    const { CheckProjects } = this.props;
     const form = this.props.form;
     if (!value) {
       callback([new Error('请输入配置文件名称')])
@@ -46,7 +50,32 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
       return
     }
-    callback()
+    clearTimeout(this.checkNameTimer)
+    this.checkNameTimer = setTimeout(()=>{
+      CheckProjects({
+        projectsName: value
+      },{
+        success: {
+          func: res => {
+            if (res.data === false) {
+              console.log('可以使用')
+              callback()
+            } else if (res.data === true) {
+              console.log('已存在')
+              callback([new Error('该名称已存在')])
+              return
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
   },
   configDescExists(rule, value, callback) {
     const form = this.props.form;
@@ -158,9 +187,10 @@ let CreateConfigFileModal = React.createClass({
     this.props.form.resetFields()
     parentScope.createConfigModal(e, false)
   },
+
   render() {
     const { type, form } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps,isFieldValidating,getFieldError } = form
     const parentScope = this.props.scope
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     const nameProps = getFieldProps('configName', {
@@ -211,6 +241,7 @@ let CreateConfigFileModal = React.createClass({
                   ? '如 My-PassWord'
                   : '如 My-Config'
                 }
+
               />
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
@@ -224,5 +255,9 @@ let CreateConfigFileModal = React.createClass({
 })
 
 CreateConfigFileModal = createForm()(CreateConfigFileModal)
-
-export default CreateConfigFileModal
+function mapStateToProps(state) {
+  return state
+}
+export default connect(mapStateToProps,{
+  CheckProjects
+})(CreateConfigFileModal)
