@@ -114,6 +114,9 @@ function fetchUpdateRole(query,callback){
         body
       },
       schema: {},
+      // options: {
+      //   headers: body.headers
+      // }
     },
     callback
 	}
@@ -143,6 +146,9 @@ function fetchDeleteRole(body,callback){
         method: 'DELETE'
       },
       schema: {},
+      // options: {
+      //   headers: body.headers
+      // }
     },
     callback
 	}
@@ -173,6 +179,9 @@ function fetchAddPermissionRole(body,callback){
         body: body.bodys
       },
       schema: {},
+      options: {
+        headers: body.headers
+      }
     },
     callback
 	}
@@ -204,6 +213,9 @@ function fetchRemovePermissionRole(body,callback){
         body: body.bodys
       },
       schema: {},
+      options: {
+        headers: body.headers
+      }
     },
     callback
 	}
@@ -255,6 +267,9 @@ function fetchAllowUpdateRole(body,callback){
       types: [ROLE_ALLOWUPDATE_REQUEST, ROLE_ALLOWUPDATE_SUCCESS, ROLE_ALLOWUPDATE_FAILURE],
       endpoint,
       schema: {},
+      // options: {
+      //   headers: body.headers
+      // }
     },
     callback
 	}

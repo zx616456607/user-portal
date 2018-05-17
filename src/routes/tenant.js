@@ -19,10 +19,10 @@ const tenantRoutes = [{
     path: 'project_manage',
     component: require('../components/TenantManage/ProjectManage').default,
 },
-  {
-    path: 'rolemanagement',
-    component: require('../components/TenantManage/RoleManagement').default,
-  },
+  // {
+  //   path: 'rolemanagement',
+  //   component: require('../components/TenantManage/RoleManagement').default,
+  // },
   {
     path: 'allpermissions',
     component: require('../components/TenantManage/AllPermissions').default,
@@ -35,10 +35,10 @@ const tenantRoutes = [{
     path: 'project_manage/project_detail',
     component: require('../components/TenantManage/ProjectManage/ProjectDetail').default
   },
-  {
-    path: 'rolemanagement/rolename/:id',
-    component: require('../components/TenantManage/TenantDetail').default,
-  },
+  // {
+  //   path: 'rolemanagement/rolename/:id',
+  //   component: require('../components/TenantManage/TenantDetail').default,
+  // },
   {
     path: 'team',
     component: require('../components/TenantManage/_Enterprise/TeamManage').default,
