@@ -206,6 +206,10 @@ class AppServerTag extends Component{
         if (errors) {
           return
         }
+        if (!values.keys.length) {
+          notificat.close()
+          return notificat.error('请添加正确标签')
+        }
         let labels = {}
         this.handleEditCancelModal()
         values.keys.map((item)=> {
