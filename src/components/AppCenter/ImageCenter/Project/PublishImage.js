@@ -38,7 +38,7 @@ class PublishImage extends React.Component {
       current: 1,
       filter: 'target_project__eq,',
       storageCurrent: 1,
-      radioVal: 'market'
+      radioVal: 'market',
     }
   }
   componentWillMount() {
@@ -63,12 +63,14 @@ class PublishImage extends React.Component {
           filter: 'target_project__eq,',
           targetProject: '',
           ccurrent: 1,
+          radioVal: 'market'
         },this.loadData)
       case 'store':
         return this.setState({
           filter: 'target_project__neq,',
           filterName: '',
           current: 1,
+          radioVal: 'store'
         },this.loadData)
     }
   }
@@ -188,66 +190,66 @@ class PublishImage extends React.Component {
       total: total
     }
     const columns = [{
-      title: '镜像名称',
-      dataIndex: 'image',
-      key: 'image',
-      width: '20%',
-      render: text => text && text.split('/')[1]
-    }, {
-      title: '发布名称',
-      dataIndex: 'fileNickName',
-      key: 'fileNickName',
-      width: '20%'
-    }, {
-      title: '发布版本',
-      dataIndex: 'tag',
-      key: 'tag',
-      width: '20%'
-    }, {
-      title: '发布状态',
-      dataIndex: 'publishStatus',
-      key: 'publishStatus',
-      width: '20%',
-      render: this.getAppStatus
-    }, {
-      title: '发布时间',
-      dataIndex: 'publishTime',
-      key: 'publishTime',
-      width: '20%',
-      render: text => formatDate(text)
-    }]
+        title: '镜像名称',
+        dataIndex: 'image',
+        key: 'image',
+        width: '20%',
+        render: text => text && text.split('/')[1]
+      }, {
+        title: '发布名称',
+        dataIndex: 'fileNickName',
+        key: 'fileNickName',
+        width: '20%'
+      }, {
+        title: '发布版本',
+        dataIndex: 'tag',
+        key: 'tag',
+        width: '20%'
+      }, {
+        title: '发布状态',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
+        width: '20%',
+        render: this.getAppStatus
+      }, {
+        title: '发布时间',
+        dataIndex: 'publishTime',
+        key: 'publishTime',
+        width: '20%',
+        render: text => formatDate(text)
+      }]
     const storageColumns = [{
-      title: '镜像名称',
-      dataIndex: 'image',
-      key: 'image',
-      width: '20%',
-      render: text => text && text.split('/')[1]
-    }, {
-      title: '发布版本',
-      dataIndex: 'tag',
-      key: 'tag',
-      width: '20%'
-    }, {
-      title: '目标仓库组',
-      dataIndex: 'targetProject',
-      key: 'targetProject',
-      width: '20%'
-    }, {
-      title: '发布状态',
-      dataIndex: 'publishStatus',
-      key: 'publishStatus',
-      width: '20%',
-      render: this.getAppStatus
-    }, {
-      title: '发布时间',
-      dataIndex: 'publishTime',
-      key: 'publishTime',
-      width: '20%',
-      render: text => formatDate(text)
-    }]
+        title: '镜像名称',
+        dataIndex: 'image',
+        key: 'image',
+        width: '20%',
+        render: text => text && text.split('/')[1]
+      }, {
+        title: '发布版本',
+        dataIndex: 'tag',
+        key: 'tag',
+        width: '20%'
+      }, {
+        title: '目标仓库组',
+        dataIndex: 'targetProject',
+        key: 'targetProject',
+        width: '20%'
+      }, {
+        title: '发布状态',
+        dataIndex: 'publishStatus',
+        key: 'publishStatus',
+        width: '20%',
+        render: this.getAppStatus
+      }, {
+        title: '发布时间',
+        dataIndex: 'publishTime',
+        key: 'publishTime',
+        width: '20%',
+        render: text => formatDate(text)
+      }]
     return(
       <QueueAnim className="publishImage">
-        <Tabs    defaultActiveKey={this.state.radioVal} onChange={this.handleChangeTabs}>
+        <Tabs    defaultActiveKey='market' activeKey={this.state.radioVal} onChange={this.handleChangeTabs}>
           <TabPane tab="发布到商店" key="market">
             <div className="headerBox" key="headerBox">
               <Button

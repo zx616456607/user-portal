@@ -798,7 +798,7 @@ class BindNodes extends Component {
       case 'pod':
         return <span>
           <div className="pointManage">
-            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonTitle">服务与服务标签</div>
             <div className="commonCont">
               {
                 this.showServicePodAffinityLabel( bindNodesData.data )

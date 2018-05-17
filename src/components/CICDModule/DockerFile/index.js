@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, message, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, message, Input, Tooltip, Dropdown, Modal, Spin, Col, Row } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -191,7 +191,11 @@ const MyComponent = React.createClass({
             {item.stageName}
           </div>
           <div className='type'>
-            {item.name}
+              <Tooltip title={item.name}>
+                <Col className="textoverflow" span={20}>
+                  {item.name}
+                </Col>
+              </Tooltip>
           </div>
 
           <div className='editTime'>
