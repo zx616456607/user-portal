@@ -275,7 +275,6 @@ export default connect(mapStateToProps, {
       // 切换逻辑
       form1Fun.props.form.validateFields((errors, values) => {
         if (errors) {
-          console.log('Errors in form1!!!')
           return
         }
         this.setState({ currentStep: 1, form1Data: values })
@@ -302,7 +301,6 @@ export default connect(mapStateToProps, {
       this.props.form.validateFields((errors, values) => {
         let b = true
         if (errors) {
-          console.log('Errors in form!!!')
           // this.setState({
           //   currentStep: 0,
           // })
@@ -311,8 +309,6 @@ export default connect(mapStateToProps, {
         if (!b) {
           return
         }
-        // console.log('Submit!!!');
-        // console.log(values);
         const temp1 = JSON.parse(JSON.stringify(values))
         const temp2 = JSON.parse(JSON.stringify(form1Data))
         const temp = Object.assign({}, temp1, temp2)

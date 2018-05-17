@@ -323,7 +323,7 @@ class Sider extends Component {
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_center/projects'>
+                  <Link to='/app_center/template'>
                     <svg className='center commonImg'>
                       <use xlinkHref='#center' />
                     </svg>
@@ -972,6 +972,20 @@ class Sider extends Component {
                     <Link to='/cluster'>
                       <span>
                         集群管理
+                      </span>
+                    </Link>
+                  </div>
+                </Menu.Item>
+                <Menu.Item key='cluster_authorization'>
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
+                      </svg>
+                    </Tooltip>
+                    <Link to='/cluster/cluster_authorization'>
+                      <span>
+                        授权审批
                       </span>
                     </Link>
                   </div>

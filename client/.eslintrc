@@ -56,6 +56,15 @@
     "no-nested-ternary": [
       "error"
     ],
+    "no-debugger": [
+      "error"
+    ],
+    "no-console": [
+      "error",
+      {
+        "allow": [ "warn" ]
+      }
+    ],
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error"
   },
