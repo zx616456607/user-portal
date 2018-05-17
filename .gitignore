@@ -19,9 +19,9 @@ Thumbs.db
 node_modules
 dist
 logs
-configs/
 .vscode/
 *.log
+configs/index.js
 static/js/common.js
 static/js/main.js
 static/js/*.chunk.js
