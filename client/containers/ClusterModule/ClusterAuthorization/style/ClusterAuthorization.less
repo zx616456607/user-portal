@@ -1,7 +1,5 @@
 #clusterAuthorization {
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 25px;
   min-width: 950px;
   .authorization-pagination {
     position: relative;
@@ -36,10 +34,17 @@
   .authorization-table {
     margin-top: 15px;
     background: #fff;
-    padding: 20px;
+    padding: 0 20px 40px;
     border-radius: 5px;
     th {
       background: #fff;
+      color: #7f7f7f;
+      font-weight: normal;
+      border-bottom: 1px solid #e3e7ea;
+    }
+    td {
+      border-bottom: 1px solid #e3e7ea;
+      color: #7f7f7f;
     }
     .status-tag {
       position: relative;
@@ -64,9 +69,9 @@
       }
     }
     .pending {
-      color: #e58e24;
+      color: #ea8f26;
       &:before {
-        background: #e58e24;
+        background: #ea8f26;
       }
     }
     .authorized {
@@ -79,6 +84,26 @@
       color: #e84a4b;
       &:before {
         background: #e84a4b;
+      }
+    }
+    .reject-btn {
+      &:hover {
+        border-color: red;
+        color: red;
+      }
+    }
+    .undo-btn {
+      border-color: #2db7f5;
+      color: #2db7f5;
+      &:hover {
+        color: #fff;
+        background: #2db7f5;
+      }
+    }
+    .clear-btn {
+      color: #7f7f7f;
+      &:hover {
+        color: #2db7f5;
       }
     }
   }

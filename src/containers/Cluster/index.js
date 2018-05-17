@@ -21,7 +21,7 @@ let menuList = [
   },
   {
     url: '/cluster/cluster_authorization',
-    name: '授权审批'
+    name: '集群授权审批'
   },
   {
     url: '/cluster/cluster_autoscale',

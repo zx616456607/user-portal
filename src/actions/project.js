@@ -45,7 +45,7 @@ export const PROJECTS_CHECK_FAILURE = 'PROJECTS_CHECK_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCheckProjectsExists(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/check-exists`
-	return {
+  return {
 		[FETCH_API]: {
 			types: [PROJECTS_CHECK_REQUEST, PROJECTS_CHECK_SUCCESS, PROJECTS_CHECK_FAILURE],
 			endpoint,
