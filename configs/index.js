@@ -19,7 +19,7 @@ const config = {
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
   port: env.DASHBOARD_PORT || 8003,
-  url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in producti on environments
+  url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],

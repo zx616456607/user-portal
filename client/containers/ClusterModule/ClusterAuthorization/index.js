@@ -11,7 +11,6 @@ import { Button, Icon, Table, Input, Pagination, Row, Col, Modal, Select } from 
 import { GetProjectsApprovalClusters, searchProjectsClusterApproval, UpdateProjectsApprovalCluster } from '../../../../src/actions/project'
 import { calcuDate } from '../../../../src/common/tools'
 import NotificationHandler from '../../../../src/components/Notification/index'
-import moment from 'moment'
 import './style/ClusterAuthorization.less'
 import { browserHistory } from 'react-router'
 
@@ -24,7 +23,7 @@ class Index extends React.Component {
     this.state = {
       confirmPassModal: false, // 控制点击通过时候对话框的显示隐藏
       current: 1, // 当前页
-      size: 5, // 每页多少条
+      size: 10, // 每页多少条
       sort: 'd,tenx_project_resource_ref.request_time', // 排序参数
       columns: [
         {
@@ -53,7 +52,10 @@ class Index extends React.Component {
         {
           title: '申请项目',
           dataIndex: 'projectName',
-          render: val => <div style={{ color: '#59c2f9' }}>{val}</div>,
+          render: val => <div
+            style={{ color: '#59c2f9', cursor: 'pointer' }}
+            onClick={() => { browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${val}`) } }
+          >{val}</div>,
         },
         {
           title: '申请集群',
@@ -81,7 +83,7 @@ class Index extends React.Component {
           sorter: true,
           render: (time, row) => {
             if (row.status !== (0 || 1)) {
-              return <div>{ moment(time).format('YYYY-MM-DD HH:mm:ss') }</div>
+              return <div>{ calcuDate(time) }</div>
             }
             return '-'
 

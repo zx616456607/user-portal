@@ -24,7 +24,10 @@ const createForm = Form.create
 let CreateConfigFileModal = React.createClass({
   getInitialState() {
     return {
-      filePath: '请上传文件或直接输入内容\n目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式'
+      filePath: (<span style={{width:'100%'}}>
+                  <div>请上传文件或直接输入内容</div>
+                  <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
+                </span>)
     }
   },
   componentDidMount() {
@@ -192,6 +195,16 @@ let CreateConfigFileModal = React.createClass({
     const { type, form } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
     const parentScope = this.props.scope
+    const configFileTipStyle = {
+      color: "#16a3ea",
+      height: '35px',
+      lineHeight:'35px',
+      border:'1px dashed #85d7fd',
+      backgroundColor:'#d9edf6',
+      borderRadius:'6px',
+      textAlign:'center',
+      paddingRight:'10px'
+    }
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     const nameProps = getFieldProps('configName', {
       rules: [
@@ -214,8 +227,8 @@ let CreateConfigFileModal = React.createClass({
         width="600px"
         >
         <div className="configFile-inf" style={{ padding: '0 10px' }}>
-          <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px' }}>
-            &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
+          <div className="configFile-tip" style={configFileTipStyle}>
+            &nbsp;&nbsp;&nbsp;<Icon type="info-circle" style={{ marginRight: "10px" }} />
             {
               type === 'secrets'
               ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
@@ -229,7 +242,7 @@ let CreateConfigFileModal = React.createClass({
                   <Icon type="upload" /> 读取文件内容
                 </Button>
               </Upload>
-              <span style={{width: '325px', display:'block', textAlign: 'left', lineHeight:'35px'}} >{this.state.filePath}</span>
+              <span style={{width: '100%', display:'block', textAlign: 'left', lineHeight:'20px', color:'#c1c1c1',marginLeft:40, marginTop:10}} >{this.state.filePath}</span>
 
             </FormItem>
             <FormItem  {...formItemLayout} label="名称">
