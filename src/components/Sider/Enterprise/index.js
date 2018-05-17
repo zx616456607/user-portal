@@ -48,6 +48,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[2].indexOf('CID')>=0) {
+      return [pathList[1], pathList[1] + '_default']
+    }
     return [pathList[1], pathList[2]]
   }
 }
@@ -123,6 +126,7 @@ class Sider extends Component {
         currentOpenMenu = ['app_center', 'app_template']
         currentSelectedMenu = currentOpenMenu
       }
+
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
@@ -262,6 +266,7 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
+
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
