@@ -74,7 +74,10 @@ class DataTable extends Component {
 
   handleListDataItem(text,record) {
     if (this.props.from==='public') {
-      return <Link to={`/app_center/projects/public/detail/${record[camelize('project_id')]}`}>{text}</Link>
+      return <Link to={{
+          pathname:`/app_center/projects/detail/${record[camelize('project_id')]}`,
+          query: { type: 'public' }
+        }}>{text}</Link>
     }
     return <Link to={`/app_center/projects/detail/${record[camelize('project_id')]}`}>{text}</Link>
   }

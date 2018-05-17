@@ -361,12 +361,15 @@ class ImageCenter extends Component {
         return
       }
       let type='private'
-      if (newLocation.pathname.indexOf('/app_center/projects/public')>-1) {
+      if (newLocation.pathname === '/app_center/projects/public') {
         type = 'public'
-      } else if (newLocation.pathname.indexOf('/app_center/projects/publish')>-1) {
+      } else if (newLocation.pathname === '/app_center/projects/publish') {
         type = 'publish'
-      } else if (newLocation.pathname.indexOf('/app_center/projects/replications')>-1) {
+      } else if (newLocation.pathname === '/app_center/projects/replications') {
         type = 'replications'
+      }
+      if (newLocation.query.type) {
+        type = newLocation.query.type
       }
       this.setState({ itemType: type })
     }

@@ -40,15 +40,7 @@ const appCenterRoutes = [
     childRoutes: [
       {
         path: 'public',
-        indexRoute: {
-          component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
-        },
-        childRoutes: [
-          {
-            path: 'detail/:id',
-            component: require('../components/AppCenter/ImageCenter/ItemDetail').default,
-          }
-        ]
+        component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
       },
       {
         path: 'publish',
