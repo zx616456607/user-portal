@@ -1220,6 +1220,15 @@ function formatResourceName(resourceName, resourceId) {
       newName = newName.join(',');
       return newName;
     }
+    //check projects
+    if (!!newBody.projects) {
+      let newName = newBody.projects;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
     //check volumes
     if (!!newBody.volumes) {
       let newName = newBody.volumes;
@@ -1873,8 +1882,9 @@ class OperationalAudit extends Component {
 
   onChangeObject(e) {
     //this function for user change operational
+    const operationType = parseInt(e)
     this.setState({
-      operation: parseInt(e)
+      operation: isNaN(operationType) ? undefined : operationType,
     });
   }
 
@@ -2216,7 +2226,7 @@ class OperationalAudit extends Component {
       )
     });
     let { operation, status, start_time, end_time } = this.state
-    if (operation !== undefined) {
+    if (operation) {
       operation += ''
     }
     return (
