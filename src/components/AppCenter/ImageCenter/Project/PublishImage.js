@@ -49,7 +49,7 @@ class PublishImage extends React.Component {
     if (rad) {
       this.setState({
         radioVal: rad
-      })
+      },() => this.handleChangeTabs(rad))
     }
   }
   componentDidUpdate() {
