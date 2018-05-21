@@ -128,7 +128,7 @@ let Activation = React.createClass({
                   <Icon type="qrcode" onClick={() => this.setState({ qrCodeModalVisible: true })} />
                 </a>
               </Tooltip>
-              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={platform.platformid} />
+              <input className="CodeInput" style={{ position: "fixed", opacity: "0", top:'0'}} value={platform.platformid} />
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem>
