@@ -585,7 +585,7 @@ exports.getAllService = function*() {
   const { project } = this.request.headers || { project: null }
   const headers = {}
   if (project) {
-    Object.assign(headers, { project })
+    Object.assign(headers, { project, teamspace: project })
   }
 	if(isNaN(pageIndex)) {
     pageIndex = DEFAULT_PAGE
