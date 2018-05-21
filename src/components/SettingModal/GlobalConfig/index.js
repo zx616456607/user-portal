@@ -855,6 +855,183 @@ let Vm = React.createClass({
     )
   }
 })
+let ChartServer = React.createClass({
+  getInitialState() {
+    return {
+      isEve: false,
+      canClick: true,
+      aleardySave: false
+    }
+  },
+  handleReset(e) {
+    e.preventDefault();
+    const { setFieldsValue } = this.props.form
+    const { onChange, config } = this.props
+    let chartRepoDetail = {
+      url: ''
+    }
+    if (config) {
+      chartRepoDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      url: `${chartRepoDetail.protocol}://${chartRepoDetail.host}`,
+    })
+    // resetFields(['service', 'email', 'password', 'emailID'])
+    onChange();
+  },
+  handEve() {
+    this.setState({ isEve: !this.state.isEve })
+  },
+  handleChartRepo() {
+    setTimeout(() => {
+      const node = document.getElementById('chartRepoAgent')
+      inputFocusMethod(node)
+    },100)
+    this.props.onChange()
+  },
+  saveChartRepo() {
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      if (!this.state.canClick) {
+        return
+      }
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false,
+        aleardySave: true
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { getFieldValue } = form
+      const [ protocol, url ] = getFieldValue('url').split('://')
+      const chartRepoID = getFieldValue('chartRepoID')
+      const self = this
+      const body = {
+        configID: chartRepoID,
+        detail: {
+          protocol,
+          url: url || ''
+        }
+      }
+      saveGlobalConfig(cluster.clusterID, 'chart_repo', body , {
+        success: {
+          func: (result) => {
+            notification.close()
+            notification.success('chart repo 配置保存成功')
+            const { form } = self.props
+            const { getFieldProps, getFieldValue, setFieldsValue } = form
+            self.handleChartRepo()
+            if (result.data.toLowerCase() != 'success') {
+              setFieldsValue({
+                msaID: result.data
+              })
+              body.configID = result.data
+            }
+            this.setState({
+              canClick: true,
+              aleardySave: true
+            })
+            body.configDetail = JSON.stringify(body.detail)
+            setGlobalConfig('chart_repo', body)
+            loadGlobalConfig(cluster.clusterID)
+            loadLoginUserDetail()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('chart repo 配置保存失败 => ' + msg)
+            this.setState({
+              canClick: true
+            })
+          }
+        }
+      })
+    })
+  },
+  checkUrl(rule, value, callback) {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback()
+      return
+    }
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填入合法的 chart repo 地址')])
+      return
+    }
+    callback()
+  },
+  render() {
+    const { disable, emailChange, config } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
+    let vmDetail = {
+      protocol: '',
+      host: ''
+    }
+    if (config) {
+      vmDetail = JSON.parse(config.configDetail)
+    }
+    const { protocol, url } = vmDetail
+    // chart repo 地址
+    const urlProps = getFieldProps('url', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+      initialValue: !!(protocol && url) ? `${protocol}://${url}` : ''
+    });
+
+    const chartRepoID = getFieldProps('chartRepoID', {
+      initialValue: config ? config.configID : ''
+    });
+
+    return (
+      <div className="GlobalConfigVm">
+        <div className="title">应用模版</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <img src={VmImg} alt="传统应用" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">Chart Repo 地址</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem
+                  className={classNames({'has-error': getFieldError('url')})}
+                  hasFeedback
+                  help={isFieldValidating('url') ? '校验中...' : (getFieldError('url') || []).join(', ')}
+                >
+                  <Input {...urlProps} placeholder="如：https://192.168.1.113:19005" disabled={disable} id='chartRepoAgent'/>
+                </FormItem>
+                <FormItem>
+                  {
+                    disable
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleChartRepo}>编辑</Button>
+                      : ([
+                        <Button onClick={this.handleReset} className="itemInputLeft" disabled={disable}>取消</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveChartRepo}>保存</Button>
+                      ])
+                  }
+                </FormItem>
+                <input type="hidden" {...chartRepoID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+})
 //开放API地址
 let ConInter = React.createClass({
   getInitialState() {
@@ -1527,6 +1704,7 @@ Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
 Vm = Form.create()(Vm)
+ChartServer = Form.create()(ChartServer)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
@@ -1540,6 +1718,7 @@ class GlobalConfig extends Component {
       msaDisable: true,
       ftpDisable: true,
       vmDisable: true,
+      chartServerDisable: true,
       cicdeditDisable: true,
       mirrorDisable: true,
       cephDisable: true,
@@ -1581,6 +1760,10 @@ class GlobalConfig extends Component {
     this.setState({ vmDisable: !this.state.vmDisable })
   }
 
+  chartServerChange() {
+    this.setState({ chartServerDisable: !this.state.chartServerDisable })
+  }
+
   cicdeditChange() {
     this.setState({ cicdeditDisable: !this.state.cicdeditDisable })
   }
@@ -1601,7 +1784,11 @@ class GlobalConfig extends Component {
   }
 
   render() {
-    const { emailDisable, msaDisable, ftpDisable, vmDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
+    const {
+      emailDisable, msaDisable, ftpDisable, vmDisable, emailChange,
+      cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange,
+      cephDisable, cephChange, globalConfig, chartServerDisable,
+    } = this.state
     const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -1651,6 +1838,17 @@ class GlobalConfig extends Component {
           loadLoginUserDetail={loadLoginUserDetail}
           cluster={cluster}
           config={globalConfig.vm}
+        />
+        <ChartServer
+          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+          disable={chartServerDisable}
+          onChange={this.chartServerChange.bind(this)}
+          saveGlobalConfig={saveGlobalConfig}
+          updateGlobalConfig={saveGlobalConfig}
+          loadGlobalConfig={loadGlobalConfig}
+          loadLoginUserDetail={loadLoginUserDetail}
+          cluster={cluster}
+          config={globalConfig.chart_repo}
         />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}

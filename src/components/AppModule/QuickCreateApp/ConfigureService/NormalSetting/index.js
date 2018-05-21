@@ -167,7 +167,7 @@ const Normal = React.createClass({
       <Title title="应用列表" />
       <div className="title">
         服务与服务亲和
-        <Tooltip placement="top" title='决定服务实例可以和那些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
+        <Tooltip placement="top" title='决定服务实例可以和哪些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
           <Icon type="question-circle-o" />
         </Tooltip>
       </div>
@@ -330,15 +330,15 @@ const Normal = React.createClass({
         </Radio.Group>
       case 2:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">服务实例与服务实例的亲和性</Radio>
+          <Radio value="hostlabel">服务与服务的亲和性</Radio>
         </Radio.Group>
       case 3:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">定义服务实例与节点亲和性</Radio>
+          <Radio value="hostlabel">定义服务与节点亲和性</Radio>
         </Radio.Group>
       case 4:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
+          <Radio value="hostlabel">定义服务与节点亲和性 & 服务与服务的亲和性</Radio>
         </Radio.Group>
       case 6:
         return <Radio.Group {...bindNodeTypeProps}>
@@ -348,12 +348,12 @@ const Normal = React.createClass({
       case 7:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">定义服务实例与节点亲和性</Radio>
+          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性</Radio>
         </Radio.Group>
       case 8:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">定义服务实例与节点亲和性 & 服务实例与服务实例的亲和性</Radio>
+          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性 & 服务实例与服务的亲和性</Radio>
         </Radio.Group>
       default:
         return <span></span>
@@ -548,7 +548,7 @@ const Normal = React.createClass({
             <span className="title">节点调度</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">容器调度策略支持：指定主机名及IP上运行、服务实例与节点亲和性、服务实例与服务实例的亲和性
+            <div className="desc">容器调度策略支持：指定主机名及IP上运行、服务与节点亲和性、服务与服务的亲和性
               </div>
           </Col>
         </Row>

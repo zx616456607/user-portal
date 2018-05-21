@@ -700,7 +700,7 @@ class BindNodes extends Component {
         cloneItem.operator = '<'
       }
       return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
-    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExists') {
+    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExist') {
       return cloneItem.key + ' ' + cloneItem.operator
     }
   }
@@ -798,7 +798,7 @@ class BindNodes extends Component {
       case 'pod':
         return <span>
           <div className="pointManage">
-            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonTitle">服务与服务标签</div>
             <div className="commonCont">
               {
                 this.showServicePodAffinityLabel( bindNodesData.data )

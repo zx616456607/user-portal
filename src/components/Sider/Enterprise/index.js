@@ -48,6 +48,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[2].indexOf('CID')>=0) {
+      return [pathList[1], pathList[1] + '_default']
+    }
     return [pathList[1], pathList[2]]
   }
 }
@@ -123,6 +126,7 @@ class Sider extends Component {
         currentOpenMenu = ['app_center', 'app_template']
         currentSelectedMenu = currentOpenMenu
       }
+
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
@@ -262,6 +266,7 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
+
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
@@ -323,7 +328,7 @@ class Sider extends Component {
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_center/projects'>
+                  <Link to='/app_center/template'>
                     <svg className='center commonImg'>
                       <use xlinkHref='#center' />
                     </svg>
@@ -972,6 +977,20 @@ class Sider extends Component {
                     <Link to='/cluster'>
                       <span>
                         集群管理
+                      </span>
+                    </Link>
+                  </div>
+                </Menu.Item>
+                <Menu.Item key='cluster_authorization'>
+                  <div className="adminBox">
+                    <Tooltip title="仅系统管理员可见" placement="right">
+                      <svg className="start forAdmin">
+                        <use xlinkHref='#start' />
+                      </svg>
+                    </Tooltip>
+                    <Link to='/cluster/cluster_authorization'>
+                      <span>
+                        集群授权审批
                       </span>
                     </Link>
                   </div>

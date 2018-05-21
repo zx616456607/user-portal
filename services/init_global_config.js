@@ -42,7 +42,8 @@ global.globalConfig = {
   },
   msaConfig: {},
   ftpConfig: {},
-  billingConfig: {}
+  billingConfig: {},
+  chartRepoConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -138,6 +139,10 @@ exports.initGlobalConfig = function* () {
       }
       globalConfig.vmWrapConfig.protocol = protocol
       globalConfig.vmWrapConfig.host = host
+      return
+    }
+    if (configType === 'chart_repo') {
+      globalConfig.chartRepoConfig.url = configDetail.url
       return
     }
     if (configType === 'msa') {

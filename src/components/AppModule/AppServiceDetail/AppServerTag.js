@@ -36,6 +36,7 @@ class AppServerTag extends Component{
     this.handleDeleteButton = this.handleDeleteButton.bind(this)
     this.handleDelteOkModal = this.handleDelteOkModal.bind(this)
     this.handleDelteCancelModal = this.handleDelteCancelModal.bind(this)
+    this.checkKey = this.checkKey.bind(this)
     this.checkValue = this.checkValue.bind(this)
     this.state = {
       editVisible : false,
@@ -161,6 +162,12 @@ class AppServerTag extends Component{
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
+    const { form, result } = this.props
+    const key = form.getFieldValue(`key${uuid}`)
+    if (result.filter(label =>  label.key === key).length > 0) {
+      callback(new Error('标签键已经存在'))
+      return
+    }
     callback()
   }
   checkValue(rule, value, callback) {
@@ -199,12 +206,15 @@ class AppServerTag extends Component{
         if (errors) {
           return
         }
+        if (!values.keys.length) {
+          notificat.close()
+          return notificat.error('请添加正确标签')
+        }
         let labels = {}
         this.handleEditCancelModal()
         values.keys.map((item)=> {
           labels[values[`key${item}`]] = values[`value${item}`]
         })
-        //多个 key 同有问题。('if', '多个key同 err' , '发送=> labels', labels  ,"val",values )
         addServiceTag(labels,clusterID,serviceName,{
           success: {
             func:(ret)=>{
@@ -306,13 +316,13 @@ class AppServerTag extends Component{
         title:'值',
         key:'value',
         dataIndex:'value',
-        width:'30%',
+        width:'20%',
         sorter: (a, b) => a.value.localeCompare(b.value)
       },{
         title:'操作',
         key:'actions',
         dataIndex:'handle',
-        width:'20%',
+        width:'30%',
         className:'handle',
         render : (text,row) => {
           const reg = new RegExp(/^tenxcloud.com(.*)/g)
@@ -342,7 +352,9 @@ class AppServerTag extends Component{
           <div className="formRow" key={`create-${k}`}>
             <div className="formlabelkey">
               <FormItem key={k}>
-                <Input {...getFieldProps(`key${k}`, {
+                <Input
+                  disabled={ targets.key ? true: false}
+                 {...getFieldProps(`key${k}`, {
                   rules: [{
                     whitespace: true,
                   },{

@@ -123,6 +123,9 @@ export function imageApprovalList(query, callback) {
   return dispatch => dispatch(fetImageApprovalList(query, callback))
 }
 
+
+
+
 export const CHECK_APP_NAME_EXIST_REQUEST = 'CHECK_APP_NAME_EXIST_REQUEST'
 export const CHECK_APP_NAME_EXIST_SUCCESS = 'CHECK_APP_NAME_EXIST_SUCCESS'
 export const CHECK_APP_NAME_EXIST_FAILURE = 'CHECK_APP_NAME_EXIST_FAILURE'

@@ -600,7 +600,11 @@ exports.getAllService = function*() {
 	}
 	if (name) {
     queryObj.filter = `name ${name}`
-	}
+  }
+  let label = query.label
+  if (label) {
+    queryObj.filter = `label ${label}`
+  }
   const api = apiFactory.getK8sApi(this.session.loginUser)
 	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
