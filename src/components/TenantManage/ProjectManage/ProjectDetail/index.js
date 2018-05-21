@@ -1037,7 +1037,7 @@ class ProjectDetail extends Component {
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
             (roleNum === 1 || isManager) && !includes(disabledArr, item.roleId) &&
-            <Tooltip placement="top" title="移除角色">
+            <Tooltip placement="top" title="删除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
           }
