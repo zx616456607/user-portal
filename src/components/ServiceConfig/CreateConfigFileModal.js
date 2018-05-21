@@ -14,6 +14,7 @@ import React from 'react'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import { validateServiceConfigFile } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
+import { isResourcePermissionError } from '../../common/tools'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -94,6 +95,10 @@ let CreateConfigFileModal = React.createClass({
         failed: {
           func: (res) => {
             let errorText
+            if(isResourcePermissionError(res)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              return;
+            }
             switch (res.message.code) {
               case 403: errorText = '添加配置文件过多'; break
               case 409: errorText = '配置已存在'; break
