@@ -705,13 +705,8 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total, marketTotal, storageTotal, appStoreApprove, loginUser, location, form, marketList, storeList } = this.props
+    const { imageCheckList, total,  appStoreApprove, loginUser, location, form, } = this.props
     const { filterName, targetProject, current, publish_time } = this.state
-    const { getFieldProps } = this.props.form
-    const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 },
-    };
     return(
       <QueueAnim className="imageCheck">
         <Tabs defaultActiveKey="market" className='imageCheckActive' onChange={this.handleChangeTabs}>
@@ -745,7 +740,6 @@ class ImageCheck extends React.Component {
                 publishType='market'
               />
             </div>
-          {/* : */}
           </TabPane>
           <TabPane tab="发布到仓库" key="store">
             <div>
