@@ -539,6 +539,10 @@ class PublishModal extends React.Component {
     imgTag && imgTag.length && imgTag.forEach(item => {
       tagsChildren.push(<Option key={item.name} disabled={[1, 2].includes(item.status)}>{item.name}</Option>)
     })
+    const selectVsionChildren = []
+    imgTag && imgTag.length && imgTag.forEach(item => {
+      selectVsionChildren.push(<Option key={item.name}>{item.name}</Option>)
+    })
     const children = [];
     wrapGroupList &&
     wrapGroupList.classifies &&
@@ -676,6 +680,18 @@ class PublishModal extends React.Component {
                 <Input {...selectName} disabled/>
               </FormItem>
 
+              <FormItem
+                {...formItemLayout}
+                label="选择版本"
+              >
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {selectVsionChildren}
+                </Select>
+              </FormItem>
 
               <FormItem
                 {...formItemLayout}
@@ -687,19 +703,6 @@ class PublishModal extends React.Component {
                   placeholder="请选择目标仓库组"
                 >
                   {targetStoreChildren}
-                </Select>
-              </FormItem>
-
-              <FormItem
-                {...formItemLayout}
-                label="选择版本"
-              >
-                <Select
-                  showSearch
-                  {...selectVersion}
-                  placeholder="请选择版本"
-                >
-                  {tagsChildren}
                 </Select>
               </FormItem>
 
