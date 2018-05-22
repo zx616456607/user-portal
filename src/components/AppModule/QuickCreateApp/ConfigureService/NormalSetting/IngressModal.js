@@ -107,7 +107,10 @@ class IngressModal extends React.Component {
   }
 
   monitorNameCheck = (rules, value, callback) => {
-    const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
+    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress } = this.props
+    if (currentIngress && (currentIngress.monitorName === value)) {
+      return callback()
+    }
     let message = ingressNameCheck(value)
     if (message !== 'success') {
       return callback(message)
@@ -136,7 +139,10 @@ class IngressModal extends React.Component {
   }
 
   hostCheck = (rules, value, callback) => {
-    const { checkIngressNameAndHost, clusterID, lbname, form } = this.props
+    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress } = this.props
+    if (currentIngress && (currentIngress.host === value)) {
+      return callback()
+    }
     let message = ingressRelayRuleCheck(value)
     if (message !== 'success') {
       return callback(message)
