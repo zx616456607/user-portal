@@ -531,7 +531,7 @@ class BindNodes extends Component {
     const policy = {
       type: scheduleBySystem,
     }
-    if (haveLabel.labelType) {
+    if (haveLabel && haveLabel.labelType) {
       policy.type = haveLabel.labelType
       policy.data = haveLabel.data
     }
