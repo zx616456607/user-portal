@@ -166,7 +166,7 @@ class StatefulCluster extends Component {
       success: {
         func: (res) => {
           _this.setState({
-            dbservice: res.data.data
+            dbservice: res.data.data.templates
           })
         }
       }
@@ -199,7 +199,7 @@ class StatefulCluster extends Component {
       success: {
         func: (res) => {
           this.setState({
-            dbservice: res.data.data
+            dbservice: res.data.data.templates
           })
         }
       }
