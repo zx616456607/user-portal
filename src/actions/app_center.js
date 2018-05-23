@@ -492,11 +492,13 @@ export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
 export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
 //filter=owned private templates  filter=dbservice is database cluster
 function fetchLoadTemplates(registry, query, callback) {
+
   let filter = 'owned'
-  let url = `${API_URL_PREFIX}/templates?filter=${filter}`
-  if (query && query.from!==0) {
-    filter = query.filter
-    url = `${API_URL_PREFIX}/templates?filter=${filter}&from=${query.from}&size=${query.size}`
+  let url = `${API_URL_PREFIX}/templates?filter=${filter}`;
+  if (typeof query !== 'string') {
+    url = `${API_URL_PREFIX}/templates?${toQuerystring(query)}`
+  }else if(typeof query === 'string'){
+    url = `${API_URL_PREFIX}/templates?filter=${query}`
   }
   return {
     registry,
@@ -522,7 +524,7 @@ export const GET_PUBLIC_STACK_FAILURE = 'GET_PUBLIC_STACK_FAILURE'
 function fetchLoadStack(registry,query) {
   let url = `${API_URL_PREFIX}/templates`;
   if( query && query.from !== 0 ){
-    url = `${API_URL_PREFIX}/templates?from=${query.from}&size=${query.size}`
+    url = `${API_URL_PREFIX}/templates?${toQuerystring(query)}`
   }
   return {
     registry,
