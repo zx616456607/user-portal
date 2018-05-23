@@ -39,6 +39,7 @@ import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { parseToFields } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/parseToFields'
 import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
+import Title from '../../Title'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -1365,6 +1366,7 @@ class QuickCreateApp extends Component {
         {
           isCreatingApp && <Spin />
         }
+        <Title title="应用列表" />
         <div className={quickCreateAppContentClass}>
           <Row gutter={16}>
             <Col span={showprice}>
