@@ -94,7 +94,7 @@ class LoadBalance extends React.Component {
       [`host-${copyKey}`]: configs.host || '未启用',
       [`port-${copyKey}`]: configs.port
     })
-    if (!editKey) {
+    if (!editKey && (editKey !== 0)) {
       setFieldsValue({
         lbKeys: currentKeys.concat(uidd ++)
       })
