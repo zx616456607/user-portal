@@ -19,7 +19,7 @@ import { Link, browserHistory } from 'react-router'
 import { parseAmount } from '../../../common/tools'
 import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_PLATFORM_ADMIN, ROLE_SYS_ADMIN, ROLE_USER, ROLE_BASE_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { MAX_CHARGE, ACTIVE } from '../../../constants'
 import Title from '../../Title'
@@ -297,6 +297,7 @@ let MemberTable = React.createClass({
     })
   },
   render() {
+
     let {
       selectedRowKeys,
       sortedInfo,
@@ -353,6 +354,7 @@ let MemberTable = React.createClass({
       },
     }
     const { userDetail } = this.props.scope.props
+    const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     let filterKey = [
       { text: '普通成员', value: 0 },
       { text: '系统管理员', value: 2 }
@@ -375,7 +377,7 @@ let MemberTable = React.createClass({
         title: (
           <div onClick={this.handleSortName}><span>成员名
             {
-              userDetail.role === ROLE_SYS_ADMIN && (
+              checkAuth && (
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
               )
             }</span>
@@ -394,7 +396,7 @@ let MemberTable = React.createClass({
         className: 'memberName',
         width: '20%',
         render: (text, record, index) => {
-          if (userDetail.role === ROLE_SYS_ADMIN) {
+          if (checkAuth) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
                 {
@@ -493,7 +495,7 @@ let MemberTable = React.createClass({
         }
       },
     ]
-    if (userDetail.role === ROLE_SYS_ADMIN) {
+    if (checkAuth) {
       columns.push({
         title: '操作',
         dataIndex: 'operation',
@@ -545,7 +547,6 @@ let MemberTable = React.createClass({
         </div>
       )
     }
-    console.log(data);
     return (
       <div>
         <Table columns={columns}
@@ -667,8 +668,8 @@ class Membermanagement extends Component {
   }
   showModal() {
     const { userDetail } = this.props
-    if (userDetail.role !== ROLE_SYS_ADMIN) {
-      return this.showInfo('普通成员没有权限创建新成员')
+    if (userDetail.role === ROLE_USER || userDetail.role === ROLE_BASE_ADMIN) {
+      return this.showInfo('普通成员或基础设施管理员没有权限创建新成员')
     }
     this.setState({
       visible: true,
@@ -844,6 +845,7 @@ class Membermanagement extends Component {
     const funcs = {
       checkUserName
     }
+    const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     return (
       <QueueAnim>
       <div id="Membermanagement" key='Membermanagement'>
@@ -852,13 +854,15 @@ class Membermanagement extends Component {
         <Title title="成员管理"/>
         <Row>
           {
-            userDetail.role === ROLE_SYS_ADMIN &&
+            checkAuth ?
             <Button type="primary" size="large" onClick={this.showModal} className="Btn">
               <i className='fa fa-plus' /> 创建新成员
             </Button>
+              :
+              ""
           }
           {
-            billingEnabled && userDetail.role === ROLE_SYS_ADMIN && (
+            billingEnabled && (checkAuth) && (
               <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
                 <Icon type="pay-circle-o" />批量充值
               </Button>
@@ -868,7 +872,7 @@ class Membermanagement extends Component {
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
           {
-            userDetail.role === ROLE_SYS_ADMIN &&
+            checkAuth &&
             <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
               <Icon type="solution" />已删除成员
             </Button>

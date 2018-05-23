@@ -807,17 +807,21 @@ class Sider extends Component {
                   }
                 >
 
-                      <Menu.Item key='tenant_manage_default'>
-                        <Link to='/tenant_manage'>
-                          <span><div className='sideCircle'></div> 概览</span>
-                        </Link>
-                      </Menu.Item>
-
-                  <Menu.Item key="user">
-                    <Link to='/tenant_manage/user'>
-                      <span><div className='sideCircle'></div> 成员管理</span>
+                  <Menu.Item key='tenant_manage_default'>
+                    <Link to='/tenant_manage'>
+                      <span><div className='sideCircle'></div> 概览</span>
                     </Link>
                   </Menu.Item>
+                  {
+                    role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN?
+                      <Menu.Item key="user">
+                        <Link to='/tenant_manage/user'>
+                          <span><div className='sideCircle'></div> 成员管理</span>
+                        </Link>
+                      </Menu.Item>
+                      :
+                      <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <Menu.Item key="team">
                     <Link to='/tenant_manage/team'>
                       <span><div className='sideCircle'></div> 团队管理</span>
@@ -839,22 +843,38 @@ class Sider extends Component {
                           <span><div className='sideCircle'></div> 项目权限</span>
                         </Link>
                       </Menu.Item>
-
-                  {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='ldap'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/tenant_manage/ldap'>
+                  {role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN?
+                    [
+                      <Menu.Item key='cluster_authorization'>
+                        <div className="adminBox">
+                          <Tooltip title="仅系统管理员可见" placement="right">
+                            <svg className="start forAdmin">
+                              <use xlinkHref='#start' />
+                            </svg>
+                          </Tooltip>
+                          <Link to='/tenant_manage/cluster_authorization'>
+                        <span>
+                          集群授权审批
+                        </span>
+                          </Link>
+                        </div>
+                      </Menu.Item>,
+                      <Menu.Item key='ldap'>
+                        <div className="adminBox">
+                          <Tooltip title="仅系统管理员可见" placement="right">
+                            <svg className="start forAdmin">
+                              <use xlinkHref='#start' />
+                            </svg>
+                          </Tooltip>
+                          <Link to='/tenant_manage/ldap'>
                           <span>
                             集成企业目录
                           </span>
-                        </Link>
-                      </div>
-                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                          </Link>
+                        </div>
+                      </Menu.Item>
+                    ]
+                     : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
                   }
                   <div className='sline'></div>
                 </SubMenu>
@@ -880,11 +900,6 @@ class Sider extends Component {
                             <span><div className='sideCircle'></div> 平台版本</span>
                           </Link>
                         </Menu.Item>,
-                        <Menu.Item key='API'>
-                          <Link to='/setting/API'>
-                            <span><div className='sideCircle'></div> 开放 API</span>
-                          </Link>
-                        </Menu.Item>,
                         <Menu.Item key='license'>
                           <div className="adminBox">
                             <Tooltip title="仅系统管理员可见" placement="right">
@@ -898,6 +913,11 @@ class Sider extends Component {
                             </span>
                             </Link>
                           </div>
+                        </Menu.Item>,
+                        <Menu.Item key='API'>
+                          <Link to='/setting/API'>
+                            <span><div className='sideCircle'></div> 开放 API</span>
+                          </Link>
                         </Menu.Item>,
                         <Menu.Item key='advancedSetting'>
                           <div className="adminBox">
@@ -971,7 +991,18 @@ class Sider extends Component {
                         </Menu.Item>
                       ]
                     :
-                    <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
+                   [
+                     <Menu.Item key='version'>
+                       <Link to='/setting/version'>
+                         <span><div className='sideCircle'></div> 平台版本</span>
+                       </Link>
+                     </Menu.Item>,
+                     <Menu.Item key='API'>
+                       <Link to='/setting/API'>
+                         <span><div className='sideCircle'></div> 开放 API</span>
+                       </Link>
+                     </Menu.Item>,
+                   ]
                   }
                   <div className='sline'></div>
                 </SubMenu>
@@ -1001,20 +1032,7 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
-                  <Menu.Item key='cluster_authorization'>
-                    <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          <use xlinkHref='#start' />
-                        </svg>
-                      </Tooltip>
-                      <Link to='/cluster/cluster_authorization'>
-                        <span>
-                          集群授权审批
-                        </span>
-                      </Link>
-                    </div>
-                  </Menu.Item>
+
                   <Menu.Item key='cluster_autoscale'>
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">

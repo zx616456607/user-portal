@@ -104,7 +104,9 @@ class PopSelect extends Component {
   }
 
   render() {
-    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers } = this.props
+    console.log(321)
+    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers,loginUser } = this.props
+
     const { list, userSearchList } = this.state
     let searchList = (
       list.length === 0 ?

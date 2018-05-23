@@ -32,6 +32,10 @@ const tenantRoutes = [{
     component: require('../components/TenantManage/Membermanagement').default,
   },
   {
+    path: '/tenant_manage/cluster_authorization',
+    component: require('../../client/containers/TenantManage/ClusterAuthorization').default,
+  },
+  {
     path: 'project_manage/project_detail',
     component: require('../components/TenantManage/ProjectManage/ProjectDetail').default
   },

@@ -24,7 +24,7 @@ import {
 } from '../../../../actions/team'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
-import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
+import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_USER } from '../../../../../constants'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
@@ -333,6 +333,7 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
     const { data, scope, roleNum } = this.props
+    const isAble = roleNum !== (ROLE_USER || ROLE_BASE_ADMIN)
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -425,17 +426,17 @@ let TeamTable = React.createClass({
         render: (text, record) =>{
           const menu = (
             <Menu onClick={(e) => this.handleMenuClick(e, record)}>
-              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
+              <Menu.Item disabled={!isAble && record.role === 'participator'} key="delete">
                 删除团队
               </Menu.Item>
-              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="manage">
+              <Menu.Item disabled={!isAble && record.role === 'participator'} key="manage">
                 管理团队成员
               </Menu.Item>
             </Menu>
           );
           return (
             <Dropdown.Button
-              disabled={roleNum !== 1 && record.role === 'participator'}
+              disabled={!isAble && record.role === 'participator'}
               onClick={() => {browserHistory.push(`/tenant_manage/team/${record.key}?teamPage=${scope.state.page}`)}} overlay={menu} type="ghost">
               查看详情
             </Dropdown.Button>
@@ -747,6 +748,7 @@ class TeamManage extends Component {
     const funcs = {
       checkTeamName
     }
+    const isAble = roleNum !== (ROLE_USER || ROLE_BASE_ADMIN)
     return (
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
@@ -755,13 +757,13 @@ class TeamManage extends Component {
             type="info" />
           <Row className="teamOption">
             {
-              roleNum !== 3 &&
+              isAble &&
                 <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
                   <i className='fa fa-plus' /> 创建团队
                 </Button>
             }
             {
-              roleNum === 1 &&
+              isAble &&
                 <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
                   <svg id="chosenCreator">
                     <use xlinkHref='#chosencreator' />

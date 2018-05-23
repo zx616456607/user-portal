@@ -14,10 +14,26 @@ import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import classNames from 'classnames'
 import cloneDeep from 'lodash/cloneDeep'
-import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../constants'
 import './style/index.less'
 
-const menuList = [
+const menuList_normal = [
+  {
+    url: '/tenant_manage',
+    name: '概览'
+  },{
+    url: '/tenant_manage/team',
+    name: '团队管理'
+  },{
+    url: '/tenant_manage/project_manage',
+    name: '项目管理'
+  },
+  {
+    url: '/tenant_manage/allpermissions',
+    name: '项目权限'
+  },
+]
+const menuList_sys = [
   {
     url: '/tenant_manage',
     name: '概览'
@@ -38,7 +54,15 @@ const menuList = [
   {
     url: '/tenant_manage/allpermissions',
     name: '项目权限'
-  }
+  },
+  {
+    url: '/tenant_manage/cluster_authorization',
+    name: '集群授权审批'
+  },
+  {
+    url: '/tenant_manage/ldap',
+    name: '集成企业目录'
+  },
 ]
 
 class Tenant extends Component {
@@ -51,6 +75,18 @@ class Tenant extends Component {
   render() {
     const { children, role } = this.props
     const scope = this
+    const renderMenuList = () => {
+      switch (role){
+        case ROLE_USER:
+          return menuList_normal
+        case  ROLE_BASE_ADMIN:
+          return menuList_normal
+        case ROLE_SYS_ADMIN:
+          return menuList_sys
+        case ROLE_PLATFORM_ADMIN || ROLE_SYS_ADMIN:
+          return menuList_sys
+      }
+    }
     const { containerSiderStyle } = this.state
     const tenantMenuClass = classNames({
       'tenantMenu': true,
@@ -62,13 +98,7 @@ class Tenant extends Component {
       'CommonSecondContent': true,
       'hiddenContent': !(containerSiderStyle === 'normal'),
     })
-    let menuListToShow = cloneDeep(menuList)
-    if (role === ROLE_SYS_ADMIN) {
-      menuListToShow.push({
-        url: '/tenant_manage/ldap',
-        name: '集成企业目录'
-      })
-    }
+
     return (
       <div id="TenantManage">
         <QueueAnim
@@ -77,7 +107,7 @@ class Tenant extends Component {
           type="left"
           >
           <div className={ tenantMenuClass } key="TenantSider">
-            <SecondSider menuList={menuListToShow} scope={scope} />
+            <SecondSider menuList={renderMenuList()} scope={scope} />
           </div>
         </QueueAnim>
         <div className={ tenantContentClass } >

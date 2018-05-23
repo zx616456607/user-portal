@@ -23,10 +23,7 @@ import {chargeProject} from '../../../actions/charge'
 import {parseAmount} from '../../../common/tools'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
-import CreateStepFirst from './CreateStepFirst'
-import CreateStepSecond from './CreateStepSecond'
-import CreateStepThird from './CreateStepThird'
-import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN} from '../../../../constants'
+import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN, ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from '../../../common/tools'
 import Title from '../../Title'
@@ -745,6 +742,7 @@ let ProjectManage = React.createClass({
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal,
       paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID, currentPage,
     } = this.state;
+    const isAble = roleNum=== ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
     const pageOption = {
       simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
@@ -877,7 +875,7 @@ let ProjectManage = React.createClass({
           return(
             <span>
               {
-                roleNum === 1 ?
+                isAble ?
                 <Dropdown.Button
                   overlay={menu} type="ghost"
                   onClick={(e) => {
@@ -890,14 +888,15 @@ let ProjectManage = React.createClass({
                   { billingEnabled ? '充值' : '查看' }
                 </Dropdown.Button> :
                   <Button disabled={record.role === '参与者'}
-                          type='ghost' style={{marginLeft: '10px'}}
-                          onClick={(e) => this.delSingle(e, record)}>删除</Button>
+                    type='ghost' style={{marginLeft: '10px'}}
+                    onClick={(e) => this.delSingle(e, record)}
+                  >删除</Button>
               }
           </span>
           )
         }
       }]
-    if (roleNum === 1) {
+    if (isAble) {
       columns.splice(1, 0, roleCol)
       columns.splice(5, 1)
     } else {
@@ -999,13 +998,13 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              (roleNum === 1 || roleNum === 2) &&
+              isAble &&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>
             }
             {
-              roleNum === 1 &&
+              isAble &&
               <Button type="ghost" size="large" className="manageBtn" onClick={() => this.openRightModal()}>
                 <svg id="chosenCreator">
                   <use xlinkHref='#chosencreator' />

@@ -14,9 +14,6 @@ const clusterRoutes = [{
   path: ':clusterID/:cluster_name',
   component: require('../components/ClusterModule/ClusterDetail').default,
 }, {
-  path: '/cluster/cluster_authorization',
-  component: require('../../client/containers/ClusterModule/ClusterAuthorization').default,
-},   {
   path: '/cluster/globalConfig',
   component: require('../components/SettingModal/GlobalConfig').default,
 },{
