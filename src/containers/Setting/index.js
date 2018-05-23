@@ -40,7 +40,7 @@ const menuList_sysAdmin = [
     name: '开放 API'
   },
   {
-    url: '/setting/globalConfig',
+    url: '/cluster/globalConfig',
     name: '全局配置'
   },{
     url: '/setting/advancedSetting',
