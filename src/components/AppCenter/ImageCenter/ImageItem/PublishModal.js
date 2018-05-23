@@ -314,10 +314,10 @@ class PublishModal extends React.Component {
           func: res => {
             if (res.statusCode === 409) {
               notify.close()
-              notify.error('提交审核失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
+              notify.warn('提交审核失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
             } else {
               notify.close()
-              notify.error('提交审核失败\n', res.message)
+              notify.warn('提交审核失败\n', res.message.message || res.message)
             }
             this.setState({
               loading: false
