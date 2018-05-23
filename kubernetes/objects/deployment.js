@@ -701,7 +701,7 @@ class Deployment {
           operator: item.mark,
           values: [item.value]
         })
-      }else if (item.mark == 'Exists' || item.mark == 'DoesNotExists') {
+      }else if (item.mark == 'Exists' || item.mark == 'DoesNotExist') {
         arg.push({
           key: item.key,
           operator: item.mark,

@@ -1386,7 +1386,11 @@ const menusText = defineMessages({
   UnCordon: {
     id: 'ManageMonitor.operationalAudit.UnCordon',
     defaultMessage: '退出维护'
-  }
+  },
+  Permission: {
+    id: 'ManageMonitor.operationalAudit.Permission',
+    defaultMessage: '权限控制',
+  },
 });
 
 function duringTimeFormat(time, scope) {
@@ -1624,6 +1628,8 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Loadbalance)
     case '73':
       return formatMessage(menusText.Ingress)
+    case '74':
+      return formatMessage(menusText.Permission)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)

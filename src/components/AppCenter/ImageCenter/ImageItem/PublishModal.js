@@ -356,6 +356,7 @@ class PublishModal extends React.Component {
   }
   getConfigInfo(tag) {
     const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    let notify = new NotificationHandler()
     loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
       success: {
         func: res => {
@@ -363,12 +364,21 @@ class PublishModal extends React.Component {
             imageID: res.data.imageID
           })
         }
+      },
+      failed: {
+        func: res => {
+          if (res.statusCode === 404) {
+            notify.close()
+            notify.error('镜像错误', res.message)
+          }
+        }
       }
     })
   }
 
   handleSelectVersionContent(val) {
     const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    let notify = new NotificationHandler()
     loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
       success: {
         func: res => {
@@ -376,7 +386,15 @@ class PublishModal extends React.Component {
             imageID: res.data.imageID
           })
         }
-      }
+      },
+      failed: {
+        func: res => {
+          if (res.statusCode === 404) {
+            notify.close()
+            notify.error('镜像错误', res.message)
+          }
+        }
+      },
     })
   }
   handleSelectcheckTargetStore(val) {
@@ -539,6 +557,10 @@ class PublishModal extends React.Component {
     imgTag && imgTag.length && imgTag.forEach(item => {
       tagsChildren.push(<Option key={item.name} disabled={[1, 2].includes(item.status)}>{item.name}</Option>)
     })
+    const selectVsionChildren = []
+    imgTag && imgTag.length && imgTag.forEach(item => {
+      selectVsionChildren.push(<Option key={item.name}>{item.name}</Option>)
+    })
     const children = [];
     wrapGroupList &&
     wrapGroupList.classifies &&
@@ -676,6 +698,18 @@ class PublishModal extends React.Component {
                 <Input {...selectName} disabled/>
               </FormItem>
 
+              <FormItem
+                {...formItemLayout}
+                label="选择版本"
+              >
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {selectVsionChildren}
+                </Select>
+              </FormItem>
 
               <FormItem
                 {...formItemLayout}
@@ -687,19 +721,6 @@ class PublishModal extends React.Component {
                   placeholder="请选择目标仓库组"
                 >
                   {targetStoreChildren}
-                </Select>
-              </FormItem>
-
-              <FormItem
-                {...formItemLayout}
-                label="选择版本"
-              >
-                <Select
-                  showSearch
-                  {...selectVersion}
-                  placeholder="请选择版本"
-                >
-                  {tagsChildren}
                 </Select>
               </FormItem>
 
@@ -771,7 +792,7 @@ class SuccessModal extends React.Component {
         <div className="successColor waitText">等待系统管理员审核...</div>
         <div className="stepHint">
           1.提交审核后可以到
-          <span onClick={() => browserHistory.push(`/app_center/projects/publish?radioVal=${radioVal}`)} className="themeColor pointer">发布记录</span>
+          <span onClick={this.confirmModal} className="themeColor pointer">发布记录</span>
           查看审核状态
         </div>
         <div className="stepHint">2.审核通过系统将会复制一个新的镜像，与原镜像无关</div>

@@ -1095,7 +1095,7 @@ class QuickCreateApp extends Component {
           this.setState({
             appName: values.appName
           })
-          this.action = 'addService'
+          // this.action = 'addService'
         }
         this.setState({ editServiceLoading: true }, () => {
           this.saveService({ noJumpPage: true })

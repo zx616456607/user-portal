@@ -235,6 +235,7 @@ class PrivateCompose extends Component {
       margin:'auto',
       textAlign: 'center'
     }
+
     if(!templates){
       return <div className='loadingBox'  style = {loadingStyle}><Spin></Spin></div>
     }
@@ -310,19 +311,20 @@ class PrivateCompose extends Component {
             </Button>
           </div>
           <div className='composeListContainer'>
-            <Table
-              columns={columns}
-              dataSource={templates}
-              simple={true}
-              loading={isFetching}
-              pagination={{
-                total:total,
-                pageSize:this.state.pageSize,
-                current:this.state.currentPage,
-                onChange:(page)=>{ this.changePage(page,count) }
-              }}
-            >
-            </Table>
+
+          <Table
+            columns={columns}
+            dataSource={templates}
+            simple={true}
+            loading={isFetching}
+            pagination={{
+              total:total,
+              pageSize:this.state.pageSize,
+              current:this.state.currentPage,
+              onChange:(page)=>{ this.changePage(page,count) }
+            }}
+          >
+          </Table>
           </div>
         </div>
         <Modal

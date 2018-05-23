@@ -368,6 +368,9 @@ class ImageCenter extends Component {
       } else if (newLocation.pathname === '/app_center/projects/replications') {
         type = 'replications'
       }
+      if (newLocation.query.type) {
+        type = newLocation.query.type
+      }
       this.setState({ itemType: type })
     }
   }

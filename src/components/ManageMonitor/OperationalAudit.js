@@ -614,7 +614,11 @@ const menusText = defineMessages({
   UnCordon: {
     id: 'ManageMonitor.operationalAudit.UnCordon',
     defaultMessage: '退出维护'
-  }
+  },
+  Permission: {
+    id: 'ManageMonitor.operationalAudit.Permission',
+    defaultMessage: '权限控制'
+  },
 });
 
 function returnOperationList(scope) {
@@ -1033,6 +1037,8 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Loadbalance)
     case '73':
       return formatMessage(menusText.Ingress)
+    case '74':
+      return formatMessage(menusText.Permission)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1214,6 +1220,15 @@ function formatResourceName(resourceName, resourceId) {
     //check apps
     if (!!newBody.apps) {
       let newName = newBody.apps;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    //check projects
+    if (!!newBody.projects) {
+      let newName = newBody.projects;
       if (!Array.isArray(newName) || newName.length == 0) {
         return '-';
       }
@@ -1848,6 +1863,10 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[1])
         showOperationalList.push(operationalList[2])
         break;
+      case '74':
+        showOperationalList.push(operationalList[0])
+        showOperationalList.push(operationalList[2])
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1873,8 +1892,9 @@ class OperationalAudit extends Component {
 
   onChangeObject(e) {
     //this function for user change operational
+    const operationType = parseInt(e)
     this.setState({
-      operation: parseInt(e)
+      operation: isNaN(operationType) ? undefined : operationType,
     });
   }
 
@@ -2207,6 +2227,10 @@ class OperationalAudit extends Component {
         label: formatMessage(menusText.Ingress)
       },
       {
+        value: '74',
+        label: formatMessage(menusText.Permission)
+      },
+      {
         value: null,
         label: formatMessage(menusText.allResource)
       }];
@@ -2216,7 +2240,7 @@ class OperationalAudit extends Component {
       )
     });
     let { operation, status, start_time, end_time } = this.state
-    if (operation !== undefined) {
+    if (operation) {
       operation += ''
     }
     return (

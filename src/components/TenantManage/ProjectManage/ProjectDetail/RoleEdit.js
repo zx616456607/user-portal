@@ -230,7 +230,10 @@ class RoleEditModal extends React.Component {
       this.screenInfo()
       if (idKey && idKey.length > 0) {
         let bodys = {
-          pids: idKey
+          pids: idKey,
+          headers: {
+            project: scope.props.location.query.name
+          }
         }
         AddPermissionRole({
           id: roleId,
@@ -312,7 +315,10 @@ class RoleEditModal extends React.Component {
       if (arys.length <= 0) return
       if (arys && arys.length > 0) {
         let bodys = {
-          pids: arys
+          pids: arys,
+          headers: {
+            project: scope.props.location.query.name
+          }
         }
         RemovePermissionRole({
           id: this.props.roleId,

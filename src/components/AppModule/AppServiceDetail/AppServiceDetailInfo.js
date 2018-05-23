@@ -531,7 +531,7 @@ class BindNodes extends Component {
     const policy = {
       type: scheduleBySystem,
     }
-    if (haveLabel.labelType) {
+    if (haveLabel && haveLabel.labelType) {
       policy.type = haveLabel.labelType
       policy.data = haveLabel.data
     }
@@ -700,7 +700,7 @@ class BindNodes extends Component {
         cloneItem.operator = '<'
       }
       return  cloneItem.key + ' ' + cloneItem.operator + ' ' + cloneItem.values[0]
-    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExists') {
+    }else if (cloneItem.operator=='Exists' || cloneItem.operator=='DoesNotExist') {
       return cloneItem.key + ' ' + cloneItem.operator
     }
   }
