@@ -16,7 +16,7 @@ import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
 import NotificationHandler from '../../components/Notification'
 import { browserHistory } from 'react-router'
-import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
+import { ROLE_SYS_ADMIN, URL_REGEX, ROLE_BASE_ADMIN, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
@@ -599,7 +599,10 @@ class ClusterList extends Component {
   checkIsAdmin() {
     const { loginUser } = this.props
     const { role } = loginUser
-    return role === ROLE_SYS_ADMIN
+    if(role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN){
+      return true
+    }
+
   }
 
   componentWillMount() {

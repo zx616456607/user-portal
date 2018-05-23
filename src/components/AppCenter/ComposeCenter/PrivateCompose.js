@@ -112,7 +112,7 @@ class PrivateCompose extends Component {
       stackItemName: '',
       pagination:{},
       currentPage:1,
-      pageSize:20
+      pageSize:10
     }
   }
 
@@ -221,10 +221,22 @@ class PrivateCompose extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const { myStackList } = this.props;
+    const { myStackList,isFetching } = this.props;
     const { count, templates, total} = myStackList;
+    const loadingStyle = {
+      width: 50,
+      height: 50,
+      lineHeight: 50,
+      position: 'fixed',
+      top:0,
+      left:0,
+      right:0,
+      bottom:0,
+      margin:'auto',
+      textAlign: 'center'
+    }
     if(!templates){
-      return <div className='loadingBox'><Spin></Spin></div>
+      return <div className='loadingBox'  style = {loadingStyle}><Spin></Spin></div>
     }
     const rootScope = this.props.scope;
     const scope = this;
@@ -282,8 +294,8 @@ class PrivateCompose extends Component {
     ]
     return (
       <QueueAnim className='PrivateCompose'
-        type='right'
-        >
+                 type='right'
+      >
         <div id='PrivateCompose' key='PrivateCompose'>
           <div className='alertRow'>
             <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
@@ -298,18 +310,19 @@ class PrivateCompose extends Component {
             </Button>
           </div>
           <div className='composeListContainer'>
-          <Table
-            columns={columns}
-            dataSource={templates}
-            simple={true}
-            pagination={{
-              total:total,
-              pageSize:this.state.pageSize,
-              current:this.state.currentPage,
-              onChange:(page)=>{ this.changePage(page,count) }
-            }}
-          >
-          </Table>
+            <Table
+              columns={columns}
+              dataSource={templates}
+              simple={true}
+              loading={isFetching}
+              pagination={{
+                total:total,
+                pageSize:this.state.pageSize,
+                current:this.state.currentPage,
+                onChange:(page)=>{ this.changePage(page,count) }
+              }}
+            >
+            </Table>
           </div>
         </div>
         <Modal
@@ -318,7 +331,7 @@ class PrivateCompose extends Component {
           transitionName='move-right'
           onCancel={() => this.detailModal(false)}
           maskClosable={false}
-          >
+        >
           <CreateCompose scope={scope} parentState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
         </Modal>
 
@@ -354,7 +367,7 @@ function mapStateToProps(state, props) {
   const { space } = state.entities.current
 
   return {
-    myStackList: myStackList.templates,
+    myStackList: myStackList,
     isFetching,
     registry,
     space,

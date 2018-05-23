@@ -17,7 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
+import { ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN  } from '../../../../constants'
 import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
@@ -266,7 +266,6 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
-
     // console.log('currentOpenMenu', this.state.currentOpenMenu)
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
@@ -357,7 +356,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              {role == ROLE_SYS_ADMIN ?
+              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
               <li onClick={()=> this.selectModel('integration')}
                 className={currentKey == 'integration' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心'
@@ -414,7 +413,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              {role == ROLE_SYS_ADMIN ?
+              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
                 [
                   <li onClick={() => this.selectModel('cluster')}// onClick={()=> this.selectModel('cluster')
                     className={currentKey == '.' ? 'selectedLi' : ''}>
@@ -587,7 +586,7 @@ class Sider extends Component {
                       <span><div className='sideCircle'/> 应用商店</span>
                     </Link>
                   </Menu.Item>
-                  {role === ROLE_SYS_ADMIN ?
+                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
@@ -702,7 +701,7 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
-                {(role == ROLE_SYS_ADMIN) ?
+                {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
                 <Menu.Item key='integration'>
                   <Link to='/integration'>
                     <span>
@@ -807,11 +806,13 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='tenant_manage_default'>
-                    <Link to='/tenant_manage'>
-                      <span><div className='sideCircle'></div> 概览</span>
-                    </Link>
-                  </Menu.Item>
+
+                      <Menu.Item key='tenant_manage_default'>
+                        <Link to='/tenant_manage'>
+                          <span><div className='sideCircle'></div> 概览</span>
+                        </Link>
+                      </Menu.Item>
+
                   <Menu.Item key="user">
                     <Link to='/tenant_manage/user'>
                       <span><div className='sideCircle'></div> 成员管理</span>
@@ -832,11 +833,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 项目角色</span>
                     </Link>
                   </Menu.Item>*/}
-                  <Menu.Item key='allpermissions'>
-                    <Link to='/tenant_manage/allpermissions'>
-                      <span><div className='sideCircle'></div> 项目权限</span>
-                    </Link>
-                  </Menu.Item>
+
+                      <Menu.Item key='allpermissions'>
+                        <Link to='/tenant_manage/allpermissions'>
+                          <span><div className='sideCircle'></div> 项目权限</span>
+                        </Link>
+                      </Menu.Item>
+
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='ldap'>
                       <div className="adminBox">
@@ -866,176 +869,208 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='version'>
-                    <Link to='/setting/version'>
-                      <span><div className='sideCircle'></div> 平台版本</span>
-                    </Link>
-                  </Menu.Item>
-                  {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='license'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/setting/license'>
-                          <span>
-                            授权管理
-                          </span>
-                        </Link>
-                      </div>
-                    </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}></Menu.Item>
-                  }
-                  <Menu.Item key='API'>
-                    <Link to='/setting/API'>
-                      <span><div className='sideCircle'></div> 开放 API</span>
-                    </Link>
-                  </Menu.Item>
-                  {role == ROLE_SYS_ADMIN ?
-                    [<Menu.Item key='globalConfig'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/setting/globalConfig'>
-                          <span>
-                            全局配置
-                          </span>
-                        </Link>
-                      </div>
-                    </Menu.Item>,
-                    <Menu.Item key='advancedSetting'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/setting/advancedSetting'>
+
+
+
+                  {role !== ROLE_USER ?
+                    role === ROLE_PLATFORM_ADMIN?
+                      [
+                        <Menu.Item key='version'>
+                          <Link to='/setting/version'>
+                            <span><div className='sideCircle'></div> 平台版本</span>
+                          </Link>
+                        </Menu.Item>,
+                        <Menu.Item key='API'>
+                          <Link to='/setting/API'>
+                            <span><div className='sideCircle'></div> 开放 API</span>
+                          </Link>
+                        </Menu.Item>,
+                        <Menu.Item key='license'>
+                          <div className="adminBox">
+                            <Tooltip title="仅系统管理员可见" placement="right">
+                              <svg className="start forAdmin">
+                                <use xlinkHref='#start' />
+                              </svg>
+                            </Tooltip>
+                            <Link to='/setting/license'>
+                            <span>
+                              授权管理
+                            </span>
+                            </Link>
+                          </div>
+                        </Menu.Item>,
+                        <Menu.Item key='advancedSetting'>
+                          <div className="adminBox">
+                            <Tooltip title="仅系统管理员可见" placement="right">
+                              <svg className="start forAdmin">
+                                <use xlinkHref='#start' />
+                              </svg>
+                            </Tooltip>
+                            <Link to='/setting/advancedSetting'>
+                              <span>
+                                高级设置
+                              </span>
+                            </Link>
+                          </div>
+                        </Menu.Item>,
+                        <Menu.Item key='personalized'>
+                          <div className="adminBox">
+                            <Tooltip title="仅系统管理员可见" placement="right">
+                              <svg className="start forAdmin">
+                                <use xlinkHref='#start' />
+                              </svg>
+                            </Tooltip>
+                            <Link to='/setting/personalized'>
+                              <span>
+                                个性外观
+                              </span>
+                            </Link>
+                          </div>
+                        </Menu.Item>,
+
+                      ]
+                      :
+                      [
+                        <Menu.Item key='version'>
+                          <Link to='/setting/version'>
+                            <span><div className='sideCircle'></div> 平台版本</span>
+                          </Link>
+                        </Menu.Item>,
+                        <Menu.Item key='API'>
+                          <Link to='/setting/API'>
+                            <span><div className='sideCircle'></div> 开放 API</span>
+                          </Link>
+                        </Menu.Item>,
+                        <Menu.Item key='advancedSetting'>
+                          <div className="adminBox">
+                            <Tooltip title="仅系统管理员可见" placement="right">
+                              <svg className="start forAdmin">
+                                <use xlinkHref='#start' />
+                              </svg>
+                            </Tooltip>
+                            <Link to='/setting/advancedSetting'>
                           <span>
                             高级设置
                           </span>
-                        </Link>
-                      </div>
-                    </Menu.Item>,
-                    <Menu.Item key='personalized'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/setting/personalized'>
-                          <span>
-                            个性外观
-                          </span>
-                        </Link>
-                      </div>
-                    </Menu.Item>,
-                    <Menu.Item key='cleaningTool'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/setting/cleaningTool'>
+                            </Link>
+                          </div>
+                        </Menu.Item>,
+                        <Menu.Item key='cleaningTool'>
+                          <div className="adminBox">
+                            <Tooltip title="仅系统管理员可见" placement="right">
+                              <svg className="start forAdmin">
+                                <use xlinkHref='#start' />
+                              </svg>
+                            </Tooltip>
+                            <Link to='/setting/cleaningTool'>
                           <span>
                             清理工具
                           </span>
-                        </Link>
-                      </div>
-                    </Menu.Item>
-                    ]
+                            </Link>
+                          </div>
+                        </Menu.Item>
+                      ]
                     :
                     <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
                   }
                   <div className='sline'></div>
                 </SubMenu>
-                {role == ROLE_SYS_ADMIN ?
-                <SubMenu key='cluster'
-                  title={
-                    <span>
-                      <svg className='clusterWrapper commonImg'>
-                        <use xlinkHref='#siderinfrastructure' />
-                      </svg>
-                      <span className='commonSiderSpan'>基础设施</span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  }
-                >
-                <Menu.Item key='cluster_default'>
-                  <div className="adminBox">
-                    <Tooltip title="仅系统管理员可见" placement="right">
-                      <svg className="start forAdmin">
-                        <use xlinkHref='#start' />
-                      </svg>
-                    </Tooltip>
-                    <Link to='/cluster'>
+                {role !== ROLE_USER?
+                  <SubMenu key='cluster'
+                    title={
                       <span>
-                        集群管理
+                        <svg className='clusterWrapper commonImg'>
+                          <use xlinkHref='#siderinfrastructure' />
+                        </svg>
+                        <span className='commonSiderSpan'>基础设施</span>
+                        <div style={{ clear: 'both' }}></div>
                       </span>
-                    </Link>
-                  </div>
-                </Menu.Item>
-                <Menu.Item key='cluster_authorization'>
-                  <div className="adminBox">
-                    <Tooltip title="仅系统管理员可见" placement="right">
-                      <svg className="start forAdmin">
-                        <use xlinkHref='#start' />
-                      </svg>
-                    </Tooltip>
-                    <Link to='/cluster/cluster_authorization'>
-                      <span>
-                        集群授权审批
-                      </span>
-                    </Link>
-                  </div>
-                </Menu.Item>
-                <Menu.Item key='cluster_autoscale'>
-                  <div className="adminBox">
-                    <Tooltip title="仅系统管理员可见" placement="right">
-                      <svg className="start forAdmin">
-                        <use xlinkHref='#start' />
-                      </svg>
-                    </Tooltip>
-                    <Link to='/cluster/cluster_autoscale'>
-                      <span>
-                      集群伸缩策略
-                      </span>
-                    </Link>
-                  </div>
-                </Menu.Item>
-                <Menu.Item key='monitor'>
-                  <div className="adminBox">
-                    <Tooltip title="仅系统管理员可见" placement="right">
-                      <svg className="start forAdmin">
-                        <use xlinkHref='#start' />
-                      </svg>
-                    </Tooltip>
-                    <Link
-                      onClick={() => {
-                        try {
-                          browserHistory.push('/cluster/monitor')
-                          if (window.monitorPortalHistory) {
-                            window.monitorPortalHistory.push('/cluster/monitor')
+                    }
+                  >
+                  <Menu.Item key='cluster_default'>
+                    <div className="adminBox">
+                      <Tooltip title="仅系统管理员可见" placement="right">
+                        <svg className="start forAdmin">
+                          <use xlinkHref='#start' />
+                        </svg>
+                      </Tooltip>
+                      <Link to='/cluster'>
+                        <span>
+                          集群管理
+                        </span>
+                      </Link>
+                    </div>
+                  </Menu.Item>
+                  <Menu.Item key='cluster_authorization'>
+                    <div className="adminBox">
+                      <Tooltip title="仅系统管理员可见" placement="right">
+                        <svg className="start forAdmin">
+                          <use xlinkHref='#start' />
+                        </svg>
+                      </Tooltip>
+                      <Link to='/cluster/cluster_authorization'>
+                        <span>
+                          集群授权审批
+                        </span>
+                      </Link>
+                    </div>
+                  </Menu.Item>
+                  <Menu.Item key='cluster_autoscale'>
+                    <div className="adminBox">
+                      <Tooltip title="仅系统管理员可见" placement="right">
+                        <svg className="start forAdmin">
+                          <use xlinkHref='#start' />
+                        </svg>
+                      </Tooltip>
+                      <Link to='/cluster/cluster_autoscale'>
+                        <span>
+                        集群伸缩策略
+                        </span>
+                      </Link>
+                    </div>
+                  </Menu.Item>
+                  <Menu.Item key='globalConfig'>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见" placement="right">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/cluster/globalConfig'>
+                            <span>
+                              全局配置
+                            </span>
+                        </Link>
+                      </div>
+                    </Menu.Item>
+                  <Menu.Item key='monitor'>
+                    <div className="adminBox">
+                      <Tooltip title="仅系统管理员可见" placement="right">
+                        <svg className="start forAdmin">
+                          <use xlinkHref='#start' />
+                        </svg>
+                      </Tooltip>
+                      <Link
+                        onClick={() => {
+                          try {
+                            browserHistory.push('/cluster/monitor')
+                            if (window.monitorPortalHistory) {
+                              window.monitorPortalHistory.push('/cluster/monitor')
+                            }
+                          } catch (error) {
+                            //
                           }
-                        } catch (error) {
-                          //
-                        }
-                      }}
-                    >
-                      <span>
-                      系统服务监控
-                      </span>
-                    </Link>
-                  </div>
-                </Menu.Item>
-                </SubMenu>
-                   : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                        }}
+                      >
+                        <span>
+                        系统服务监控
+                        </span>
+                      </Link>
+                    </div>
+                  </Menu.Item>
+                  </SubMenu>
+                   :
+                  <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
               </Menu>
             </div>

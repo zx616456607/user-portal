@@ -131,6 +131,7 @@ let CreateUserModal = React.createClass({
         authority,
         resetPassword,
       }
+      console.log(newUser);
       onSubmit(newUser)
     })
   },
@@ -199,7 +200,7 @@ let CreateUserModal = React.createClass({
       onChange: e => {
         const value = e.target.value
         let authority = []
-        if (value === '2') {
+        if (value === '2' || value === '1') {
           authority = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
         }
         setFieldsValue({
@@ -257,7 +258,8 @@ let CreateUserModal = React.createClass({
             >
             <Radio.Group  {...roleProps} defaultValue="0">
               <Radio key="a" value="0">普通成员</Radio>
-              <Radio key="c" value="2">系统管理员</Radio>
+              <Radio key="c" value="2">平台管理员</Radio>
+              <Radio key="b" value="1">基础设施管理员</Radio>
             </Radio.Group>
           </FormItem>
 
@@ -267,7 +269,7 @@ let CreateUserModal = React.createClass({
           >
             <CheckboxGroup
               {...authorityProps}
-              disabled={getFieldValue('role') === '2'}
+              disabled={getFieldValue('role') === '2' || getFieldValue('role') === '1'}
               options={[
                 { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
                 { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },

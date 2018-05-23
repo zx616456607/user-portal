@@ -545,6 +545,7 @@ let MemberTable = React.createClass({
         </div>
       )
     }
+    console.log(data);
     return (
       <div>
         <Table columns={columns}
