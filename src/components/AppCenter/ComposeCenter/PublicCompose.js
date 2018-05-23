@@ -98,7 +98,7 @@ class PublicCompose extends Component {
       stackItemContent: '',
       createModalShow: false,
       stackItem: '',
-      pageSize:20,
+      pageSize:10,
       currentPage:1
     }
   }
@@ -145,11 +145,23 @@ class PublicCompose extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const { stackList } = this.props
+    const { stackList,isFetching } = this.props
     const { count, templates, total} = stackList;
-    console.log(stackList);
+    const loadingStyle = {
+        width: 50,
+        height: 50,
+        lineHeight: 50,
+        position: 'fixed',
+        top:0,
+        left:0,
+        right:0,
+        bottom:0,
+        margin:'auto',
+        textAlign: 'center'
+    }
+
     if(!templates){
-      return <div className='loadingBox'><Spin></Spin></div>
+      return <div className='loadingBox'  style = {loadingStyle}><Spin></Spin></div>
     }
     const menu = templates.map((item, index) => {
       return <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)}
@@ -208,6 +220,7 @@ class PublicCompose extends Component {
             <Table
               columns={columns}
               dataSource={templates}
+              loading={isFetching}
               pagination={{
                 total:total,
                 pageSize:this.state.pageSize,
@@ -247,7 +260,7 @@ function mapStateToProps(state, props) {
   const { space } = state.entities.current
 
   return {
-    stackList,
+    stackList: stackList,
     isFetching,
     registry,
     space,
