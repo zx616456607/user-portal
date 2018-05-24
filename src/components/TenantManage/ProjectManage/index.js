@@ -999,8 +999,7 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              // (roleNum === 1 || roleNum === 2) &&
-              true &&
+              (roleNum === 1 || roleNum === 2) &&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>
