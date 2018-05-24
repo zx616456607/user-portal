@@ -20,6 +20,7 @@ import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
+import { isResourcePermissionError } from '../../../common/tools'
 
 let uuid=0
 let ob = {}
@@ -401,6 +402,10 @@ let MyComponent = React.createClass({
           },
           failed: {
             func: (result) => {
+              if(isResourcePermissionError(res)){
+                //403 没权限判断 在App/index中统一处理 这里直接返回
+                return;
+              }
               notification.close()
               notification.error(result.message.message)
             }
