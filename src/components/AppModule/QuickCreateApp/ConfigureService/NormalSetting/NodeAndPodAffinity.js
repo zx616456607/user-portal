@@ -16,7 +16,7 @@ import Notification from '../../../../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
-
+import { KubernetesValidator } from '../../../../../common/naming_validation'
 const FormItem = Form.Item
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
@@ -334,7 +334,7 @@ class NodeAffinity extends Component {
             id="select"
             wrapperCol={{ span: 2 }}
           >
-            <Select id="select" size="large" placeholder="操作符" style={{ width: 100 }}
+            <Select id="select" size="large" placeholder="操作符" style={{ width: 120 }}
               {...getFieldProps('serverMark',{
                 rules: [
                   {
@@ -404,7 +404,28 @@ class PodAffinity extends Component {
         })
     }
   }
-
+  checkServiceValue(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入服务标签值'))
+      return
+    }
+    const last = value.substr(value.length-1)
+    if ( last === ',' ) {
+      value = value.substr(0,value.length-1)
+    }
+    const Kubernetes = new KubernetesValidator()
+    everyVal.map( item=>{
+      if (item.length < 3 || item.length > 64) {
+        callback(new Error('每个标签值长度为3~64位'))
+        return
+      }
+      if (Kubernetes.IsQualifiedName(item).length >0) {
+        callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+        return
+      }
+    })
+    callback()
+  }
   changeServiceBetweenSelectShow() {
     const { showServiceBetween } = this.state
     const { form } = this.props
@@ -421,6 +442,8 @@ class PodAffinity extends Component {
                 {
                   required: true,
                   message: "“必填信息"
+                },{
+                  validator: this.checkServiceValue
                 }
               ]
             })}
@@ -548,7 +571,22 @@ class PodAffinity extends Component {
       }
     })
   }
-
+  checkServiceKey(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入服务标签键'))
+      return
+    }
+    const Kubernetes = new KubernetesValidator()
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      return
+    }
+    callback()
+  }
   render() {
     const { form, serviceBottomTag } = this.props
     const { getFieldProps } = form
@@ -584,12 +622,14 @@ class PodAffinity extends Component {
               id="control-input"
               wrapperCol={{ span: 14 }}
             >
-              <Input id="control-input" placeholder="服务标签键" style={{ width: 80 }}
+              <Input id="control-input" placeholder="服务标签键" style={{ width: 120 }}
                 {...getFieldProps('serverBottomKey',{
                   rules: [
                     {
                       required: true,
                       message: "“必填信息"
+                    },{
+                      validator: this.checkServiceKey
                     }
                   ]
                 })}
@@ -599,7 +639,7 @@ class PodAffinity extends Component {
           id="select"
           wrapperCol={{ span: 2 }}
         >
-          <Select id="select" size="large" style={{ width: 100 }}
+          <Select id="select" size="large" style={{ width: 120 }}
               placeholder = '操作符'
             {...getFieldProps('serverBottomMark',{
               rules: [

@@ -59,7 +59,7 @@ const ApmSetting = React.createClass({
           当前平台未配置微服务治理套件，
           {
             loginUser.role === ROLE_SYS_ADMIN
-            ? <span>前往设置<Link to="/setting/globalConfig">全局配置</Link></span>
+            ? <span>前往设置<Link to="/cluster/globalConfig">全局配置</Link></span>
             : '请联系管理员进行配置'
           }
         </span>

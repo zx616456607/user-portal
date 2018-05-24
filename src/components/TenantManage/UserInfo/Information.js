@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import { updateUser, bindRolesForUser } from '../../../actions/user'
 import { parseAmount, formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
+import { ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
@@ -275,14 +275,17 @@ class Information extends Component {
       userDetail, changeUserRole, loadLoginUserDetail,
     } = this.props
     const { selectUserRole } = this.state
+    console.log(selectUserRole);
     const notify = new NotificationHandler()
-    if(loginUser.role != 2) { return notify.error('只有系统管理员用户有此权限')}
-    if(userDetail.role + 1 == selectUserRole ) {
+    if(loginUser.role === 1) { return notify.error('只有系统管理员或平台管理员有此权限')}
+    if(userDetail.role === selectUserRole ) {
       notify.error('用户角色没有发生变化')
       return
     }
+
     notify.spin('更新用户角色中')
     const self = this
+
     updateUser(userID, { role: selectUserRole }, {
       success: {
         func: () => {
@@ -427,12 +430,19 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
+    console.log(userDetail);
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
     switch (userDetail.role) {
       case ROLE_SYS_ADMIN:
         roleName = "系统管理员"
+        break
+      case ROLE_PLATFORM_ADMIN:
+        roleName = "平台管理员"
+        break
+      case ROLE_BASE_ADMIN:
+        roleName = "基础设施管理员"
         break
       default:
         roleName = "普通成员"
@@ -614,12 +624,13 @@ class Information extends Component {
         </Modal>
         <Modal title="修改账号类型"
           visible={this.state.changeUserRoleModal}
-          onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })}
+          onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role })}
           onOk={() => this.changeUserRoleRequest()}
         >
-          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
-            <Radio key="a" value={3}>系统管理员</Radio>
-            <Radio key="c" value={1}>普通成员</Radio>
+          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value },()=>console.log(this.state.selectUserRole))}}  value={this.state.selectUserRole}>
+            <Radio key="a" value={2}>平台管理员</Radio>
+            <Radio key="b" value={1}>基础设施管理员</Radio>
+            <Radio key="c" value={0}>普通成员</Radio>
           </RadioGroup>
         </Modal>
         <Modal title="修改用户权限"

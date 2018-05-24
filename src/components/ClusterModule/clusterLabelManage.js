@@ -406,7 +406,12 @@ class ClusterLabelManage extends Component{
                 />
               </FormItem>
             </div>
-            <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+            {
+              this.state.create?
+              <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+              : null
+            }
+
           </div>
         );
     });

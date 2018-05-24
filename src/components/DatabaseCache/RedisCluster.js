@@ -130,7 +130,7 @@ class RedisDatabase extends Component {
       success: {
         func: (res) => {
           _this.setState({
-            dbservice: res.data.data
+            dbservice: res.data.data.templates
           })
         }
       }
@@ -163,7 +163,7 @@ class RedisDatabase extends Component {
       success: {
         func: (res) => {
           _this.setState({
-            dbservice: res.data.data
+            dbservice: res.data.data.templates
           })
         }
       }

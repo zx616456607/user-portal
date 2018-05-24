@@ -22,7 +22,14 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN, ADMIN_ROLE } from '../../../constants'
+import {
+  ROLE_USER,
+  ROLE_TEAM_ADMIN,
+  ROLE_SYS_ADMIN,
+  ADMIN_ROLE,
+  ROLE_BASE_ADMIN,
+  ROLE_PLATFORM_ADMIN
+} from '../../../constants'
 import { SHOW_BILLING }  from '../../constants'
 
 /**
@@ -238,6 +245,23 @@ class UserPanel extends Component {
     const { loginUser, role } = this.props
     const { visible } = this.state
     const rotate = visible ? 'rotate180' : 'rotate0'
+    //console.log(this.props)
+    const roleName = (role) => {
+      switch (role){
+        case ROLE_SYS_ADMIN:
+          return "系统管理员"
+          break
+        case ROLE_PLATFORM_ADMIN:
+          return "平台管理员"
+          break
+        case ROLE_BASE_ADMIN:
+          return "基础设施管理员"
+          break
+        default:
+          return "用户"
+
+      }
+    }
     return (
       <Popover
         title={this.getTitle()}
@@ -254,7 +278,9 @@ class UserPanel extends Component {
             <div>{loginUser.userName}</div>
             <div>
               <Tag>
-                {role === ROLE_SYS_ADMIN ? '系统管理员' : '普通成员'}
+                {
+                  roleName(role)
+                }
               </Tag>
             </div>
           </div>

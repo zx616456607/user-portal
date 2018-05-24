@@ -16,7 +16,10 @@ const clusterRoutes = [{
 }, {
   path: '/cluster/cluster_authorization',
   component: require('../../client/containers/ClusterModule/ClusterAuthorization').default,
-}, {
+},   {
+  path: '/cluster/globalConfig',
+  component: require('../components/SettingModal/GlobalConfig').default,
+},{
   path: '/cluster/cluster_autoscale',
   component: require('../../client/containers/ClusterModule/ClusterAutoScale').default,
 },{

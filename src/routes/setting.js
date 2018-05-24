@@ -29,10 +29,6 @@ const settingRoutes = [
     component: require('../components/SettingModal/Personalized').default,
   },
   {
-    path: 'globalConfig',
-    component: require('../components/SettingModal/GlobalConfig').default,
-  },
-  {
     path: 'advancedSetting',
     component: require('../components/SettingModal/AdvancedSetting').default,
   },
