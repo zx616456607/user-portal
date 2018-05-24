@@ -148,7 +148,7 @@ function projectList(state = {}, action) {
     case ActionTypes.PROJECTS_LIST_SUCCESS:
       const result = action.response.result.data || {}
       const projects = result.projects || []
-      projects.forEach(project => project.name = `${project.projectName} ( ${project.namespace} )`)
+      projects.forEach(project => project.name = project.displayName ? `${project.displayName} ( ${project.projectName} )`  : project.projectName)
       return Object.assign({}, state, {
         isFetching: false,
         data: projects,

@@ -103,6 +103,22 @@ exports.checkProjectNameExists = function* () {
   this.body = response
 }
 
+exports.checkDisplayNameExists = function* () {
+  const projectName = this.params.name
+  if (!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'display name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'name-exists'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+
 exports.checkProjectManager = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)

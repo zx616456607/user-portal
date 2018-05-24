@@ -1169,7 +1169,19 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.projectName}
+                        {projectDetail && (projectDetail.displayName || '暂无' )}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        namespace
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.namespace}
                       </div>
                     </Col>
                   </Row>

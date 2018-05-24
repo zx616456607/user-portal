@@ -66,6 +66,30 @@ export function CheckProjects(body, callback) {
 }
 
 
+export const DISPLAY_NAME_CHECK_REQUEST = 'DISPLAY_NAME_CHECK_REQUEST'
+export const DISPLAY_NAME_CHECK_SUCCESS = 'DISPLAY_NAME_CHECK_SUCCESS'
+export const DISPLAY_NAME_CHECK_FAILURE = 'DISPLAY_NAME_CHECK_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCheckDisplayNameExists(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/${body.displayName}/name-exists`
+  return {
+    [FETCH_API]: {
+      types: [DISPLAY_NAME_CHECK_REQUEST, DISPLAY_NAME_CHECK_FAILURE, DISPLAY_NAME_CHECK_SUCCESS],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function CheckDisplayName(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCheckDisplayNameExists(body, callback))
+  }
+}
+
 
 
 export const PROJECTS_CHECK_MANAGER_REQUEST = 'PROJECTS_CHECK_MANAGER_REQUEST'
