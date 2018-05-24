@@ -54,14 +54,14 @@ function loginUser(state, action) {
         isFetching: true
       })
     case ActionTypes.LOGIN_SUCCESS://登陆
-     action.response.result.user.role = 3;
+     //action.response.result.user.role = 0;
       console.log(action.response.result.user.role);
       return Object.assign({}, state, {
         isFetching: false,
         info: action.response.result.user
       })
     case ActionTypes.LOGIN_USER_DETAIL_SUCCESS://刷新
-      action.response.result.data.role = 3;
+      //action.response.result.data.role = 0;
       return Object.assign({}, state, {
         isFetching: false,
         info: action.response.result.data

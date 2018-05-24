@@ -115,19 +115,32 @@ let MemberTable = React.createClass({
   filtertypes(filters) {
     // member select filter type (0=>普通成员，3=> 系统管理员)
     // return number
+    console.log(filters);
     let filter = ''
     let isSetFilter = false
     let protoDate = ['0', '1', '2']
     let typeData = ['1', '2']
     if (filters.style) {
-      if (filters.style.length === 1) {
+      if (filters.style.length) {
         isSetFilter = true
-        if (filters.style[0] === '0') {
-          // Show normal user only
-          filter = `role__neq,2`
-        } else {
-          filter = `role__eq,${filters.style[0]}`
-        }
+        let filterTypeArr = [ROLE_USER,ROLE_PLATFORM_ADMIN,ROLE_BASE_ADMIN];
+
+        let except =[];
+        filterTypeArr.forEach(v => {
+          console.log(filters.style.indexOf(parseInt(v)))
+          if (filters.style.indexOf(`${v}`) < 0) {
+            except.push(v)
+          }
+        })
+        console.log(except);
+        except.forEach(item => {
+          filter += `role__neq,${item},`
+          if (item === except[except.length - 1]) {
+            filter = filter.substring(0, filter.length - 1)
+          }
+        });
+        console.log(filter);
+
       }
       /*if (filters.style.length == 2) {
         for (let i = 0; i < protoDate.length; i++) {
@@ -168,6 +181,7 @@ let MemberTable = React.createClass({
     return ''
   },
   onTableChange(pagination, filters, sorter) {
+
     // 点击分页、筛选、排序时触发
     if (!filters.style && !filters.type && !filters.active) {
       return
@@ -187,6 +201,7 @@ let MemberTable = React.createClass({
       sort,
     }
     let filter = this.filtertypes(filters)
+
     if (searchFilter) {
       if (filter) {
         filter = `${searchFilter},${filter}`
@@ -199,10 +214,12 @@ let MemberTable = React.createClass({
       filter,
       tableFilter: this.filtertypes(filters),
     })
+
     loadUserList(query)
     this.styleFilter = styleFilterStr
     this.typeFilterStr = typeFilterStr
     this.activeFilterStr = activeFilterStr
+
   },
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
@@ -356,9 +373,11 @@ let MemberTable = React.createClass({
     const { userDetail } = this.props.scope.props
     const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     let filterKey = [
-      { text: '普通成员', value: 0 },
-      { text: '系统管理员', value: 2 }
+      { text: '普通成员', value: ROLE_USER },
+      { text: '基础设施管理员', value: ROLE_BASE_ADMIN },
+      { text: '平台管理员', value: ROLE_PLATFORM_ADMIN }
     ]
+
     let userStatusfilterKey = [
       { text: '不可用', value: 0 },
       { text: '可用', value: 1 },
@@ -375,7 +394,8 @@ let MemberTable = React.createClass({
     let columns = [
       {
         title: (
-          <div onClick={this.handleSortName}><span>成员名
+          <div onClick={this.handleSortName} style={{display:'inline'}}>
+            <span>成员名
             {
               checkAuth && (
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
@@ -547,6 +567,7 @@ let MemberTable = React.createClass({
         </div>
       )
     }
+
     return (
       <div>
         <Table columns={columns}
@@ -977,7 +998,11 @@ function mapStateToProp(state) {
         let role = ""
         if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
-        } else {
+        } else if(item.role === ROLE_PLATFORM_ADMIN){
+          role = "平台管理员"
+        }else if(item.role === ROLE_BASE_ADMIN){
+          role = "基础设施管理员"
+        }else {
           role = "普通成员"
         }
         data.push(

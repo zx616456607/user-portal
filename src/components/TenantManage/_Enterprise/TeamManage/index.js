@@ -332,8 +332,8 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
-    const { data, scope, roleNum } = this.props
-    const isAble = roleNum !== (ROLE_USER || ROLE_BASE_ADMIN)
+    const { data, scope, roleNum, roleCode } = this.props
+
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -426,17 +426,17 @@ let TeamTable = React.createClass({
         render: (text, record) =>{
           const menu = (
             <Menu onClick={(e) => this.handleMenuClick(e, record)}>
-              <Menu.Item disabled={!isAble && record.role === 'participator'} key="delete">
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
                 删除团队
               </Menu.Item>
-              <Menu.Item disabled={!isAble && record.role === 'participator'} key="manage">
+              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="manage">
                 管理团队成员
               </Menu.Item>
             </Menu>
           );
           return (
             <Dropdown.Button
-              disabled={!isAble && record.role === 'participator'}
+              disabled={roleNum !== 1 && record.role === 'participator'}
               onClick={() => {browserHistory.push(`/tenant_manage/team/${record.key}?teamPage=${scope.state.page}`)}} overlay={menu} type="ghost">
               查看详情
             </Dropdown.Button>
@@ -444,6 +444,7 @@ let TeamTable = React.createClass({
         }
       },
     ]
+
     return (
       <div>
         <Modal title='管理团队成员'
@@ -739,36 +740,41 @@ class TeamManage extends Component {
     const { visible, userList, targetKeys, filter } = this.state
     const {
       teams, addTeamusers, loadUserTeamList, roleNum, removeTeamusers,
-      teamUserIDList, loadTeamUserList, checkTeamName
+      teamUserIDList, loadTeamUserList, checkTeamName,roleCode
     } = this.props
+    const isAble = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN || roleCode === ROLE_BASE_ADMIN;
+    const canCreateTeam = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN
+    console.log(canCreateTeam);
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
     }
+
     const funcs = {
       checkTeamName
     }
-    const isAble = roleNum !== (ROLE_USER || ROLE_BASE_ADMIN)
     return (
       <QueueAnim>
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
           <Alert message={`团队由若干个成员组成的一个集体。系统管理员可将普通成员设置为『可以创建团队』的人，团队创建者为该团队的管理者，团队能移交给团队内成员作为新的团队管理者。`}
-            type="info" />
+                 type="info" />
           <Row className="teamOption">
             {
               isAble &&
-                <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-                  <i className='fa fa-plus' /> 创建团队
-                </Button>
+              <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+                <i className='fa fa-plus' /> 创建团队
+              </Button>
             }
             {
-              isAble &&
-                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
-                  <svg id="chosenCreator">
-                    <use xlinkHref='#chosencreator' />
-                  </svg> 哪些人可以创建团队
-                </Button>
+              canCreateTeam ?
+              <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
+                <svg id="chosenCreator">
+                  <use xlinkHref='#chosencreator' />
+                </svg> 哪些人可以创建团队
+              </Button>
+                :
+                ""
             }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             <CreateTeamModal
@@ -839,6 +845,7 @@ function mapStateToProp(state, props) {
   const { query } = locationBeforeTransitions
   const { teamPage } = query
   const { globalRoles, userID, role } = loginUser.info || { globalRoles: [], userID: '', role: 0 }
+  const roleCode = userDetail.role
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -906,7 +913,8 @@ function mapStateToProp(state, props) {
     userDetail,
     roleNum,
     userID,
-    teamPage
+    teamPage,
+    roleCode
   }
 }
 

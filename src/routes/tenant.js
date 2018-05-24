@@ -13,6 +13,10 @@ const tenantRoutes = [{
   path: 'integration',
   component: require('../components/IntegrationModule').default,
 },{
+  path: '/tenant_manage/beginner_guidance',
+  component: require('../../client/containers/TenantManage/BeginnerGuidance').default,
+},
+  {
     path: 'user/:user_id',
     component: require('../components/TenantManage/UserInfo').default,
   },{

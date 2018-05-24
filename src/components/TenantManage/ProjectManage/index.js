@@ -23,7 +23,10 @@ import {chargeProject} from '../../../actions/charge'
 import {parseAmount} from '../../../common/tools'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
-import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN, ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN} from '../../../../constants'
+import CreateStepFirst from './CreateStepFirst'
+import CreateStepSecond from './CreateStepSecond'
+import CreateStepThird from './CreateStepThird'
+import {CREATE_PROJECTS_ROLE_ID, ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN} from '../../../../constants'
 import isEmpty from 'lodash/isEmpty'
 import { formatDate } from '../../../common/tools'
 import Title from '../../Title'
@@ -726,8 +729,10 @@ let ProjectManage = React.createClass({
         func: res => {
           if(err.statusCode === 403){
             notify.warn(`创建项目失败, 用户没有权限`)
-          }
-          else{
+          }else{
+            this.setState({
+              isShowCreateModal:false
+            })
             notify.warn(`创建项目失败`)
           }
           !!_cb && _cb();
@@ -738,11 +743,12 @@ let ProjectManage = React.createClass({
   },
   render() {
     const step = this.props.location.query.step || '';
-    const {roleNum, billingEnabled} = this.props;
+    const {roleNum, roleCode, billingEnabled} = this.props;
     const {payNumber, projectList, delModal, deleteSinglePro, delSingle, tableLoading, payModal,
       paySinglePro, userList, deleteSingleChecked, filteredInfo, systemRoleID, currentPage,
     } = this.state;
-    const isAble = roleNum=== ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
+    const isAble = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN;
+    const couleCreateProject = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN || roleCode === ROLE_BASE_ADMIN;
     const pageOption = {
       simple: true,
       total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
@@ -773,130 +779,129 @@ let ProjectManage = React.createClass({
       width: '15%',
       render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
-        title: (
-          <div onClick={() => this.handleSort('clusterCountSort')}>
-            授权集群
-            <div className="ant-table-column-sorter">
+      title: (
+        <div onClick={() => this.handleSort('clusterCountSort')}>
+          授权集群
+          <div className="ant-table-column-sorter">
             <span
               className={this.state.clusterCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
               title="↑">
               <i className="anticon anticon-caret-up"/>
             </span>
-              <span
-                className={this.state.clusterCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-                title="↓">
+            <span
+              className={this.state.clusterCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
               <i className="anticon anticon-caret-down"/>
             </span>
-            </div>
           </div>
-        ),
-        dataIndex: 'clusterCount',
-        key: 'clusterCount',
-        width: '10%',
-        render: text => text ? text : 0
-      }, {
-        title: (
-          <div onClick={() => this.handleSort('userCountSort')}>
-            成员
-            <div className="ant-table-column-sorter">
+        </div>
+      ),
+      dataIndex: 'clusterCount',
+      key: 'clusterCount',
+      width: '10%',
+      render: text => text ? text : 0
+    }, {
+      title: (
+        <div onClick={() => this.handleSort('userCountSort')}>
+          成员
+          <div className="ant-table-column-sorter">
           <span
             className={this.state.userCountSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
             title="↑">
             <i className="anticon anticon-caret-up"/>
           </span>
-              <span
-                className={this.state.userCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-                title="↓">
+            <span
+              className={this.state.userCountSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
             <i className="anticon anticon-caret-down"/>
           </span>
-            </div>
           </div>
-        ),
-        dataIndex: 'userCount',
-        key: 'userCount',
-        width: '10%',
-        render: text => text ? text : 0
-      }, {
-        title: (
-          <div onClick={() => this.handleSort('creation_timeSort')}>
-            创建时间
-            <div className="ant-table-column-sorter">
+        </div>
+      ),
+      dataIndex: 'userCount',
+      key: 'userCount',
+      width: '10%',
+      render: text => text ? text : 0
+    }, {
+      title: (
+        <div onClick={() => this.handleSort('creation_timeSort')}>
+          创建时间
+          <div className="ant-table-column-sorter">
             <span
               className={this.state.creation_timeSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
               title="↑">
               <i className="anticon anticon-caret-up"/>
             </span>
-              <span
-                className={this.state.creation_timeSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-                title="↓">
+            <span
+              className={this.state.creation_timeSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
               <i className="anticon anticon-caret-down"/>
             </span>
-            </div>
           </div>
-        ),
-        dataIndex: 'creationTime',
-        key: 'creationTime',
-        width: '15%',
-        render: text => formatDate(text)
-      }, {
-        title: (
-          <div onClick={() => this.handleSort('balanceSort')}>
-            余额
-            <div className="ant-table-column-sorter">
+        </div>
+      ),
+      dataIndex: 'creationTime',
+      key: 'creationTime',
+      width: '15%',
+      render: text => formatDate(text)
+    }, {
+      title: (
+        <div onClick={() => this.handleSort('balanceSort')}>
+          余额
+          <div className="ant-table-column-sorter">
           <span
             className={this.state.balanceSort === true ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'}
             title="↑">
             <i className="anticon anticon-caret-up"/>
           </span>
-              <span
-                className={this.state.balanceSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
-                title="↓">
+            <span
+              className={this.state.balanceSort === false ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'}
+              title="↓">
             <i className="anticon anticon-caret-down"/>
           </span>
-            </div>
           </div>
-        ),
-        dataIndex: 'balance',
-        key: 'balance',
-        width: '10%',
-        render: (text) => <span className="balanceColor">{parseAmount(text, 4).fullAmount}</span>
-      }, {
-        title: '操作',
-        key: 'operation',
-        width: '15%',
-        render: (text, record) => {
-          const menu = (
-            <Menu onClick={(e) => this.delSingle(e, record)} style={{ width: 80 }}>
-              <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
-                删除
-              </Menu.Item>
-            </Menu>
-          );
-          return(
-            <span>
+        </div>
+      ),
+      dataIndex: 'balance',
+      key: 'balance',
+      width: '10%',
+      render: (text) => <span className="balanceColor">{parseAmount(text, 4).fullAmount}</span>
+    }, {
+      title: '操作',
+      key: 'operation',
+      width: '15%',
+      render: (text, record) => {
+        const menu = (
+          <Menu onClick={(e) => this.delSingle(e, record)} style={{ width: 80 }}>
+            <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
+              删除
+            </Menu.Item>
+          </Menu>
+        );
+        return(
+          <span>
               {
-                isAble ?
-                <Dropdown.Button
-                  overlay={menu} type="ghost"
-                  onClick={(e) => {
-                    if (!billingEnabled) {
-                      browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
-                      return
-                    }
-                    this.paySingle(e, record)
-                  }} >
-                  { billingEnabled ? '充值' : '查看' }
-                </Dropdown.Button> :
+                roleNum === 1 ?
+                  <Dropdown.Button
+                    overlay={menu} type="ghost"
+                    onClick={(e) => {
+                      if (!billingEnabled) {
+                        browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
+                        return
+                      }
+                      this.paySingle(e, record)
+                    }} >
+                    { billingEnabled ? '充值' : '查看' }
+                  </Dropdown.Button> :
                   <Button disabled={record.role === '参与者'}
-                    type='ghost' style={{marginLeft: '10px'}}
-                    onClick={(e) => this.delSingle(e, record)}
-                  >删除</Button>
+                          type='ghost' style={{marginLeft: '10px'}}
+                          onClick={(e) => this.delSingle(e, record)}>删除</Button>
               }
           </span>
-          )
-        }
-      }]
-    if (isAble) {
+        )
+      }
+    }]
+    if (roleNum === 1) {
       columns.splice(1, 0, roleCol)
       columns.splice(5, 1)
     } else {
@@ -907,7 +912,7 @@ let ProjectManage = React.createClass({
         <div key='account_projectManage' id="account_projectManage">
           <Title title="项目管理"/>
           <div className='alertRow' style={{ fontSize: 14 }}>
-          项目之间是相互隔离的，通过创建项目实现一些人在项目中有一些权限。创建项目时应为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用。系统管理员可将普通成员设置为『可以创建项目』的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
+            项目之间是相互隔离的，通过创建项目实现一些人在项目中有一些权限。创建项目时应为项目申请授权集群，系统管理员在『基础设施』中审批通过后为已授权状态即可使用。系统管理员可将普通成员设置为『可以创建项目』的人，项目创建者为项目管理者，项目中也可添加其他的项目管理者。
           </div>
           <Modal title="删除项目" visible={delModal} width={610} height={570}
                  onCancel={() => this.setState({delModal: false})}
@@ -998,7 +1003,7 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              isAble &&
+              couleCreateProject &&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>
@@ -1011,7 +1016,7 @@ let ProjectManage = React.createClass({
                 </svg> 哪些人可以创建项目</Button>
             }
             {
-              billingEnabled && roleNum === 1 &&
+              billingEnabled && isAble&&
               <Button type="ghost" icon="pay-circle-o" size="large" className="manageBtn" onClick={() => this.pay()}>批量充值</Button>
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
@@ -1096,6 +1101,7 @@ function mapStateToProps(state, props) {
   const {loginUser} = state.entities
   const {globalRoles, role, billingConfig} = loginUser.info || {globalRoles: [], role: 0}
   const { enabled: billingEnabled } = billingConfig
+  let roleCode = role
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
     roleNum = 1
@@ -1111,7 +1117,8 @@ function mapStateToProps(state, props) {
   }
   return {
     roleNum,
-    billingEnabled
+    billingEnabled,
+    roleCode
   }
 }
 

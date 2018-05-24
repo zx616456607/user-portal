@@ -127,11 +127,11 @@ let CreateUserModal = React.createClass({
         email: email,
         phone: tel,
         sendEmail: check,
-        role: parseInt(role),
-        //role: parseInt(role)+1,
+        role: parseInt(role)+1,
         authority,
         resetPassword,
       }
+      console.log(newUser);
       onSubmit(newUser)
     })
   },

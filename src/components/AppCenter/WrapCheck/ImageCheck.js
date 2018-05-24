@@ -20,7 +20,7 @@ import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import { camelize } from 'humps'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -245,7 +245,7 @@ class ImageCheckTable extends React.Component {
     const { imageCheckList, total, form, publish_time, loginUser, location, publishType,  } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage, delModal } = this.state
-    const isAdmin = loginUser.role === ROLE_SYS_ADMIN
+    const isAdmin = loginUser.role === ROLE_SYS_ADMIN || loginUser.role === ROLE_BASE_ADMIN
     const pagination = {
       simple: true,
       defaultCurrent: 1,

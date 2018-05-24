@@ -48,6 +48,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[2] == 'beginner_guidance') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     if (pathList[2].indexOf('CID')>=0) {
       return [pathList[1], pathList[1] + '_default']
     }
@@ -265,8 +268,8 @@ class Sider extends Component {
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
+    console.log(role);
     const scope = this
-    // console.log('currentOpenMenu', this.state.currentOpenMenu)
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
         <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
@@ -813,7 +816,7 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                   {
-                    role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN?
+                    role !== ROLE_BASE_ADMIN || role !== ROLE_USER ?
                       <Menu.Item key="user">
                         <Link to='/tenant_manage/user'>
                           <span><div className='sideCircle'></div> 成员管理</span>

@@ -468,10 +468,12 @@ class Header extends Component {
         <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
       </div>
     );
+    const shouldShowSpace = loginUser.role === (ROLE_SYS_ADMIN || ROLE_PLATFORM_ADMIN)
     return (
       <div id="header">
+
         {
-          showSpace && (
+          shouldShowSpace && (
             <div className="space">
               <div className="spaceTxt">
                 <svg className='headerteamspace'>

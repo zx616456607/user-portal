@@ -1,35 +1,7 @@
-#tenantManage {
-  color: #000;
-  margin: 30px;
-  .title {
-    height: 18px;
-    margin-bottom: 22px;
-    border-left: 8px solid #24a7eb;
-    font-size: 16px;
-    padding-left: 8px;
-  }
-  .bGuide{
-    float: left;
-    font-size: 14.8px;
-    border: none;
-    background-color: #ecf0f4;
-    color: #2db7f5;
-    z-index: 500;
-    Img{
-      padding-top: 2.5px;
-      margin-right: 10px;
-    }
-  }
-
-  .content {
-    color: #666;
-    margin-bottom: 20px;
-    .ico{
-      cursor: pointer;
-    }
-    .ant-card-body {
-      padding: 0;
-    }
+.content {
+  color: #666;
+  margin-bottom: 20px;
+  #beginer-guidance{
     .tagItems{
       width: 100%;
       padding: 10px;
@@ -108,56 +80,57 @@
         cursor: pointer;
       }
     }
-    .Items{
+  }
+
+  .Items{
+    width: 100%;
+    padding: 20px;
+    img{
+      width:100% ;
+    }
+    .Nav{
+      width: 4%;
+      position: absolute;
+      top: 41%;
+      left: 6%;
+    }
+    .addBtn {
+      //font-weight: normal;
+      background-color: #2db7f5;
+      padding: 8px 8px;
+      // float: left;
+      // margin-right: 10px;
+      // margin-bottom: 20px;
+      font-size: 13px;
+      position: absolute;
+      top:32%;
+      left: 4.2%;
+    }
+    .desc{
+      width: 600px;
+      height: 100px;
+      border-radius: 10px;
+      font-size: 16px;
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      .words{
+        padding: 25px;
+        text-align: left;
+      }
+    }
+    .active{
+      display: block;
+    }
+    div{
       width: 100%;
-      padding: 20px;
-      img{
-        width:100% ;
-      }
-      .Nav{
-        width: 4%;
-        position: absolute;
-        top: 41%;
-        left: 6%;
-      }
-      .addBtn {
-        //font-weight: normal;
-        background-color: #2db7f5;
-        padding: 8px 8px;
-        // float: left;
-        // margin-right: 10px;
-        // margin-bottom: 20px;
-        font-size: 13px;
-        position: absolute;
-        top:32%;
-        left: 4.2%;
-      }
-      .desc{
-        width: 600px;
-        height: 100px;
-        border-radius: 10px;
-        font-size: 16px;
-        position: absolute;
-        top: 50%;
-        left: 10%;
-        .words{
-          padding: 25px;
-          text-align: left;
-        }
-      }
-      .active{
-        display: block;
-      }
-      div{
-        width: 100%;
-        display: none
-      }
-    }
-    .infos{
-      display: block
-    }
-    .itmsInfo{
       display: none
     }
+  }
+  .infos{
+    display: block
+  }
+  .itmsInfo{
+    display: none
   }
 }

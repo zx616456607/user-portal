@@ -1647,7 +1647,7 @@ function mapStateToThirdProp(state, props) {
   const { loginUser, current } = state.entities
   const { globalRoles, role, billingConfig } = loginUser.info || { globalRoles: [], role: 0 }
   const { enabled: billingEnabled } = billingConfig
-  console.log(globalRoles);
+
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
     roleNum = 1
