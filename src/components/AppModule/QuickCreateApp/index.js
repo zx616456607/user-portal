@@ -514,9 +514,10 @@ class QuickCreateApp extends Component {
     const templateArray = [];
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
-    templateArray.forEach(temp => {
+    templateArray.forEach((temp, index, _array) => {
+      const isLast = index === _array.length - 1;
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart);
+      const values = parseToFields(temp, chart, isLast);
       setFormFields(id, values);
     });
     let url = '/app_manage/app_create/quick_create'
@@ -690,12 +691,7 @@ class QuickCreateApp extends Component {
       stepStatus: 'finish',
       isCreatingApp: false,
     })
-    let redirectUrl
-    if (this.action === 'addService') {
-      redirectUrl = `/app_manage/detail/${this.state.appName}`
-    } else {
-      redirectUrl = '/app_manage'
-    }
+    let redirectUrl = '/app_manage'
     browserHistory.push(redirectUrl)
   }
 
