@@ -123,32 +123,22 @@ let MemberTable = React.createClass({
     if (filters.style) {
       if (filters.style.length) {
         isSetFilter = true
-        let filterTypeArr = [ROLE_USER,ROLE_PLATFORM_ADMIN,ROLE_BASE_ADMIN];
-        let except =[];
+        let filterTypeArr = [ROLE_USER,ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN,ROLE_BASE_ADMIN];
+        let include =[];
         filterTypeArr.forEach(v => {
-          if (filters.style.indexOf(`${v}`) < 0) {
-            except.push(v)
+          if (filters.style.indexOf(`${v}`) >= 0) {
+            include.push(v)
           }
         })
-        except.forEach(item => {
-          filter += `role__neq,${item},`
-          if (item === except[except.length - 1]) {
+
+        include.forEach(item => {
+          filter += `role__eq,${item},`
+          if (item === include[include.length - 1]) {
             filter = filter.substring(0, filter.length - 1)
           }
         });
-
       }
 
-      /*if (filters.style.length == 2) {
-        for (let i = 0; i < protoDate.length; i++) {
-          let item = protoDate[i]
-          if (filters.style.indexOf(item) < 0) {
-            isSetFilter = true
-            filter = `role__neq,${item}`
-            break
-          }
-        }
-      }*/
     }
     if (filters.type) {
       if (filters.type.length == 1) {
@@ -371,6 +361,7 @@ let MemberTable = React.createClass({
     const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     let filterKey = [
       { text: '普通成员', value: ROLE_USER },
+      { text: '系统管理员', value: ROLE_SYS_ADMIN },
       { text: '基础设施管理员', value: ROLE_BASE_ADMIN },
       { text: '平台管理员', value: ROLE_PLATFORM_ADMIN }
     ]
@@ -379,12 +370,6 @@ let MemberTable = React.createClass({
       { text: '不可用', value: 0 },
       { text: '可用', value: 1 },
     ]
-    // if (userDetail.role === ROLE_SYS_ADMIN) {
-    //   filterKey = [
-    //     { text: '普通成员', value: 0 },
-    //     { text: '系统管理员', value: 2 }
-    //   ]
-    // }
 
     let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
 

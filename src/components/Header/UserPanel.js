@@ -257,7 +257,7 @@ class UserPanel extends Component {
           return "基础设施管理员"
           break
         case ROLE_USER:
-          return "普通用户"
+          return "普通成员"
           break
 
       }
