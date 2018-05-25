@@ -402,11 +402,11 @@ let MyComponent = React.createClass({
           },
           failed: {
             func: (result) => {
-              if(isResourcePermissionError(res)){
+              notification.close()
+              if(isResourcePermissionError(result)){
                 //403 没权限判断 在App/index中统一处理 这里直接返回
                 return;
               }
-              notification.close()
               notification.error(result.message.message)
             }
           }
