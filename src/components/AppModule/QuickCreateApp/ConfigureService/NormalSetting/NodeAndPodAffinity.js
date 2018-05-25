@@ -413,6 +413,7 @@ class PodAffinity extends Component {
     if ( last === ',' ) {
       value = value.substr(0,value.length-1)
     }
+    const everyVal = value.split(',')
     const Kubernetes = new KubernetesValidator()
     everyVal.map( item=>{
       if (item.length < 3 || item.length > 64) {
@@ -420,7 +421,7 @@ class PodAffinity extends Component {
         return
       }
       if (Kubernetes.IsQualifiedName(item).length >0) {
-        callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+        callback(new Error('每个标签值以字母或数字开头和结尾中间可(_-)'))
         return
       }
     })
