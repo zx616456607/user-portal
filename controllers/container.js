@@ -22,7 +22,7 @@ exports.getContainers = function* () {
   const { project } = this.request.headers || { project: null }
   const headers = {}
   if (project) {
-    Object.assign(headers, { project })
+    Object.assign(headers, { project, teamspace: project })
   }
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)

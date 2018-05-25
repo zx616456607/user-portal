@@ -43,7 +43,7 @@ exports.update = function* (){
 	const id = this.params.id
   // const { project } = this.request.headers
 	const api = apiFactory.getRoleApi(loginUser)
-  // const result = yield api.update(id, body, { headers: { project } })
+  // const result = yield api.update(id, body, { headers: { project, teamspace: project } })
   const result = yield api.update(id, body)
   this.body = {
   	data: result
@@ -56,7 +56,7 @@ exports.remove = function* (){
   const query = this.query || {}
   // const { project } = this.request.headers
   const api = apiFactory.getRoleApi(loginUser)
-  // const result = yield api.deleteBy([id],query, { headers: { project } })
+  // const result = yield api.deleteBy([id],query, { headers: { project, teamspace: project } })
   const result = yield api.deleteBy([id],query)
   this.body = {
     data: result
@@ -70,7 +70,7 @@ exports.addPermission = function* (){
   const body = this.request.body
   const { project } = this.request.headers
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.createBy([id,'addPermission'],null,body, { headers: { project } })
+  const result = yield api.createBy([id,'addPermission'],null,body, { headers: { project, teamspace: project } })
   this.body = {
     data: result
   }
@@ -82,7 +82,7 @@ exports.removePermission = function* (){
   const body = this.request.body
   const { project } = this.request.headers
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.createBy([id,'removePermission'],null,body, { headers: { project } })
+  const result = yield api.createBy([id,'removePermission'],null,body, { headers: { project, teamspace: project } })
   this.body = {
     data: result
   }
@@ -113,7 +113,7 @@ exports.allowUpdate = function* (){
   const id = this.params.id
   // const { project } = this.request.headers
   const api = apiFactory.getRoleApi(loginUser)
-  // const result = yield api.getBy([id,'allowUpdate'],null, { headers: { project } })
+  // const result = yield api.getBy([id,'allowUpdate'],null, { headers: { project, teamspace: project } })
   const result = yield api.getBy([id,'allowUpdate'],null)
   this.body = {
     data: result

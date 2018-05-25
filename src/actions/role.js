@@ -111,12 +111,10 @@ function fetchUpdateRole(query,callback){
       endpoint,
       options: {
         method: 'PUT',
-        body
+        body,
+        // headers: body.bodys.headers
       },
       schema: {},
-      // options: {
-      //   headers: body.headers
-      // }
     },
     callback
 	}
@@ -143,12 +141,10 @@ function fetchDeleteRole(body,callback){
       types: [ROLE_DELETE_REQUEST, ROLE_DELETE_SUCCESS, ROLE_DELETE_FAILURE],
       endpoint,
       options: {
-        method: 'DELETE'
+        method: 'DELETE',
+        // headers: body.bodys.headers
       },
       schema: {},
-      // options: {
-      //   headers: body.headers
-      // }
     },
     callback
 	}
@@ -176,12 +172,10 @@ function fetchAddPermissionRole(body,callback){
       endpoint,
       options: {
         method: 'POST',
-        body: body.bodys
+        body: body.bodys,
+        headers: body.bodys.headers
       },
       schema: {},
-      options: {
-        headers: body.headers
-      }
     },
     callback
 	}
@@ -210,12 +204,10 @@ function fetchRemovePermissionRole(body,callback){
       endpoint,
       options: {
         method: 'POST',
-        body: body.bodys
+        body: body.bodys,
+        headers: body.bodys.headers,
       },
       schema: {},
-      options: {
-        headers: body.headers
-      }
     },
     callback
 	}
@@ -268,7 +260,7 @@ function fetchAllowUpdateRole(body,callback){
       endpoint,
       schema: {},
       // options: {
-      //   headers: body.headers
+      //   headers: body.bodys.headers
       // }
     },
     callback

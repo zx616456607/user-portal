@@ -16,6 +16,7 @@ import { validateServiceConfigFile } from '../../common/naming_validation'
 import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
+import { isResourcePermissionError } from '../../common/tools'
 import {CheckProjects} from "../../actions/project";
 
 const FormItem = Form.Item
@@ -126,6 +127,10 @@ let CreateConfigFileModal = React.createClass({
         failed: {
           func: (res) => {
             let errorText
+            if(isResourcePermissionError(res)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              return;
+            }
             switch (res.message.code) {
               case 403: errorText = '添加配置文件过多'; break
               case 409: errorText = '配置已存在'; break
