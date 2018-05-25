@@ -115,7 +115,7 @@ let MemberTable = React.createClass({
   filtertypes(filters) {
     // member select filter type (0=>普通成员，3=> 系统管理员)
     // return number
-    console.log(filters);
+
     let filter = ''
     let isSetFilter = false
     let protoDate = ['0', '1', '2']
@@ -127,20 +127,17 @@ let MemberTable = React.createClass({
 
         let except =[];
         filterTypeArr.forEach(v => {
-          console.log(filters.style.indexOf(parseInt(v)))
           if (filters.style.indexOf(`${v}`) < 0) {
             except.push(v)
           }
         })
-        console.log(except);
+
         except.forEach(item => {
           filter += `role__neq,${item},`
           if (item === except[except.length - 1]) {
             filter = filter.substring(0, filter.length - 1)
           }
         });
-        console.log(filter);
-
       }
       /*if (filters.style.length == 2) {
         for (let i = 0; i < protoDate.length; i++) {

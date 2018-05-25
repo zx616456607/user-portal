@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 import { Row, Card, Col } from 'antd'
 import './style/BeginnerGuidance.less'
 const BeginnerGuidance = () => {
-  let images = [
+  const images = [
     { src: require('../../../assets/img/tenantManage/tenatDetail.png') },
     { src: require('../../../assets/img/tenantManage/guide.png') },
   ]
@@ -17,25 +17,25 @@ const BeginnerGuidance = () => {
             <Row>
               <Col span={12}>
                 <div className="tagImg">
-                  <img src={images[0].src} />
+                  <img src={images[0].src} alt="" />
                 </div>
               </Col>
               <Col span={12}>
                 <div className="tagDesc">
                   <div className="tagInfo">
-                    <svg className='member commonImg'>
+                    <svg className="member commonImg">
                       <use xlinkHref="#member"></use>
                     </svg> &nbsp;
                     <span>成员：平台上的成员</span>
                   </div>
                   <div className="tagInfo">
-                    <svg className='team commonImg'>
+                    <svg className="team commonImg">
                       <use xlinkHref="#team"></use>
                     </svg> &nbsp;
                     <span>团队：由n个成员组成</span>
                   </div>
                   <div className="tagInfo">
-                    <svg className='authority commonImg'>
+                    <svg className="authority commonImg">
                       <use xlinkHref="#authority"></use>
                     </svg> &nbsp;
                     <span>权限：平台上每个功能模块权限的细粒度划分</span>

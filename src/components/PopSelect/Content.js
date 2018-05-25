@@ -104,9 +104,7 @@ class PopSelect extends Component {
   }
 
   render() {
-    console.log(321)
-    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers,loginUser } = this.props
-
+    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers } = this.props
     const { list, userSearchList } = this.state
     let searchList = (
       list.length === 0 ?
@@ -156,13 +154,13 @@ class PopSelect extends Component {
           <ul className="searchList">
             {
               userSearchList.length === 0
-              ? <div className='loadingBox'>结果为空</div>
-              :
-              userSearchList.map((user, index) => (
-                <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
-                  {user.userName}
-                </li>
-              ))
+                ? <div className='loadingBox'>结果为空</div>
+                :
+                userSearchList.map((user, index) => (
+                  <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
+                    {user.userName}
+                  </li>
+                ))
             }
           </ul>
         </div>

@@ -297,7 +297,7 @@ class Index extends React.Component {
         wannaStatus = 3
         break
       case '清 除':
-        wannaStatus = 0
+        wannaStatus = 2
         break
       case '撤 销':
         wannaStatus = 1

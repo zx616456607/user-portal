@@ -74,19 +74,21 @@ class Tenant extends Component {
   }
   render() {
     const { children, role } = this.props
+
     const scope = this
-    const renderMenuList = () => {
-      switch (role){
+    const renderMenuList = (roleCode) => {
+      switch (roleCode){
         case ROLE_USER:
           return menuList_normal
         case  ROLE_BASE_ADMIN:
           return menuList_normal
         case ROLE_SYS_ADMIN:
           return menuList_sys
-        case ROLE_PLATFORM_ADMIN || ROLE_SYS_ADMIN:
+        case ROLE_PLATFORM_ADMIN:
           return menuList_sys
       }
     }
+
     const { containerSiderStyle } = this.state
     const tenantMenuClass = classNames({
       'tenantMenu': true,
@@ -107,7 +109,7 @@ class Tenant extends Component {
           type="left"
           >
           <div className={ tenantMenuClass } key="TenantSider">
-            <SecondSider menuList={renderMenuList()} scope={scope} />
+            <SecondSider menuList={renderMenuList(role)} scope={scope} />
           </div>
         </QueueAnim>
         <div className={ tenantContentClass } >
@@ -121,9 +123,10 @@ class Tenant extends Component {
 function mapStateToProp(state) {
   let role = ROLE_USER
   const {entities} = state
-  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
-    role = entities.loginUser.info.role
+  if (entities && entities.loginUser && entities.loginUser.info) {
+    role = entities.loginUser.info.harbor.roleId
   }
+
   return {
     role
   }

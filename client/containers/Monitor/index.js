@@ -27,6 +27,7 @@ class Monitor extends React.Component {
   }
 
   componentWillMount() {
+
     window.monitorIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
@@ -81,6 +82,7 @@ class Monitor extends React.Component {
     }
     return <div className="monitor" style={style}>
       <Title title="系统服务监控" />
+
       <iframe title="流水线" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
     </div>
   }

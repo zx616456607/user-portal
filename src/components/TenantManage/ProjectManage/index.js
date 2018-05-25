@@ -703,7 +703,6 @@ let ProjectManage = React.createClass({
   createModalOk(values, _cb){
     const {CreateProjects} = this.props;
     let notify = new Notification();
-    console.log(values);
     CreateProjects({
       body: {
         projectName: values.projectName,
@@ -1003,7 +1002,7 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              couleCreateProject &&
+              (roleNum == 1 || roleNum == 2)&&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>

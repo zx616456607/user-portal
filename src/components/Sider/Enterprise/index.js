@@ -268,7 +268,6 @@ class Sider extends Component {
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
-    console.log(role);
     const scope = this
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
@@ -360,17 +359,17 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-              <li onClick={()=> this.selectModel('integration')}
-                className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='集成中心'
-                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/integration'>
-                    <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
-                    </svg>
-                  </Link>
-                </Tooltip>
-              </li>:''
+                <li onClick={()=> this.selectModel('integration')}
+                  className={currentKey == 'integration' ? 'selectedLi' : ''}>
+                  <Tooltip placement='right' title='集成中心'
+                    getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                    <Link to='/integration'>
+                      <svg className='system commonImg'>
+                        <use xlinkHref='#system' />
+                      </svg>
+                    </Link>
+                  </Tooltip>
+                </li>:''
               }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
@@ -416,9 +415,8 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-                [
-                  <li onClick={() => this.selectModel('cluster')}// onClick={()=> this.selectModel('cluster')
+              { role !== ROLE_USER?
+                <li onClick={() => this.selectModel('cluster')}
                     className={currentKey == '.' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -429,9 +427,9 @@ class Sider extends Component {
                       </Link>
                     </Tooltip>
                   </li>
-                ] : null
+                 : null
               }
-              <div style={{ clear: 'both' }}></div>
+              <li style={{ clear: 'both' }}></li>
             </ul>
             {/*<ul className='siderBottom'>
              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
@@ -1009,7 +1007,8 @@ class Sider extends Component {
                   }
                   <div className='sline'></div>
                 </SubMenu>
-                {role !== ROLE_USER?
+
+                {role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
                   <SubMenu key='cluster'
                     title={
                       <span>
@@ -1110,7 +1109,9 @@ class Sider extends Component {
             </li>
           </Tooltip>
         </ul>
+
       </div>
+
     );
   }
 }
@@ -1126,11 +1127,12 @@ function checkCurrentPath(pathname) {
 }
 
 function mapStateToProp(state) {
-  let role = ROLE_USER
+  let role
   const { entities } = state
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
-    role = entities.loginUser.info.role
+    role = entities.loginUser.info.role ?entities.loginUser.info.role : 0
   }
+
   const oemInfo = entities.loginUser.info.oemInfo || {}
 
   let backColor = 1

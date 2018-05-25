@@ -119,7 +119,6 @@ class TenantManage extends React.Component {
    * 引导
    */
   handleIco() {
-    console.log(123)
     let is = this.state.iconState
     if (is) {
       this.setState({

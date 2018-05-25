@@ -258,7 +258,7 @@ class Information extends Component {
   }
   changeUserRoleModal() {
     const { userDetail } = this.props
-    console.log(userDetail);
+
     this.setState({
       changeUserRoleModal: true,
       selectUserRole: userDetail.role

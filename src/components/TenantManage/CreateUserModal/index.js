@@ -131,7 +131,6 @@ let CreateUserModal = React.createClass({
         authority,
         resetPassword,
       }
-      console.log(newUser);
       onSubmit(newUser)
     })
   },

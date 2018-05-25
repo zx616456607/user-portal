@@ -744,7 +744,7 @@ class TeamManage extends Component {
     } = this.props
     const isAble = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN || roleCode === ROLE_BASE_ADMIN;
     const canCreateTeam = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN
-    console.log(canCreateTeam);
+
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
@@ -761,7 +761,7 @@ class TeamManage extends Component {
                  type="info" />
           <Row className="teamOption">
             {
-              isAble &&
+              ( roleNum == 1 || roleNum == 2 ) &&
               <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
                 <i className='fa fa-plus' /> 创建团队
               </Button>
@@ -893,7 +893,7 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
-  if (role === ROLE_SYS_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN ) {
     roleNum = 1
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
