@@ -141,6 +141,12 @@ class WrapsPart extends React.Component<any, IState> {
         width: '20%',
       },
       {
+          title: '发布名称',
+          dataIndex: 'fileNickName',
+          width: '15%',
+          render: text => text || '-',
+      },
+      {
         title: '版本标签',
         dataIndex: 'fileTag',
         width: '20%',
@@ -202,7 +208,7 @@ class WrapsPart extends React.Component<any, IState> {
             <CommonSearchInput
               value={searchValue}
               onChange={value => this.setState({ searchValue: value })}
-              placeholder="请输入包名称搜索"
+              placeholder={currentType === STORE_TYPE ? '请输入包名称或发布名称搜索' : '请输入包名称搜索'}
               size="large"
               style={{ width: 200 }}
               onSearch={this.searchData}

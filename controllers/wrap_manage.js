@@ -26,7 +26,7 @@ exports.getPkgManageList = function*() {
   const { project } = this.request.headers || { project: null }
   const headers = {}
   if (project) {
-    Object.assign(headers, { project })
+    Object.assign(headers, { project, teamspace: project })
   }
   // let page = parseInt(query.page || DEFAULT_PAGE)
   // let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -204,7 +204,8 @@ exports.getPkgStoreList = function* () {
   const query = this.query
   const api = apiFactory.getApi(loginUser)
   const request = yield api.pkg.getBy(['store'], query)
-  request.data.registry = global.globalConfig.ftpConfig.addr
+  // request.data.registry = global.globalConfig.ftpConfig.addr
+  request.data.registry = global.globalConfig.registryConfig.url
   this.body = request
 }
 

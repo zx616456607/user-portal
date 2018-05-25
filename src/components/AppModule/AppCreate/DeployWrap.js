@@ -381,7 +381,7 @@ class WrapManage extends Component {
             <div className="list_row">
               <span className="wrap_key">选择应用包</span>
               <span className="searchInput">
-                <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder="请输入包名称搜索" />
+                <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder={currentType === 'trad' ? '请输入包名称搜索' : '请输入包名称或发布名称搜索'} />
                 <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
 
               </span>
@@ -429,7 +429,7 @@ class WrapManage extends Component {
               <div className="list_row">
                 <span className="wrap_key">选择应用包</span>
                 <span className="searchInput">
-                  <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder="请输入包名称搜索" />
+                  <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder={currentType === 'trad' ? '请输入包名称搜索' : '请输入包名称或发布名称搜索'} />
                   <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
 
                 </span>
