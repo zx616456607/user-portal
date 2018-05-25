@@ -18,10 +18,20 @@ import { ROLE_USER, ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from 
 import './style/index.less'
 
 const menuList_normal = [
-  {
-    url: '/tenant_manage',
-    name: '概览'
+{
+    url: '/tenant_manage/team',
+    name: '团队管理'
   },{
+    url: '/tenant_manage/project_manage',
+    name: '项目管理'
+  },
+  {
+    url: '/tenant_manage/allpermissions',
+    name: '项目权限'
+  },
+]
+const menuList_base = [
+{
     url: '/tenant_manage/team',
     name: '团队管理'
   },{
@@ -64,6 +74,7 @@ const menuList_sys = [
     name: '集成企业目录'
   },
 ]
+const menuList_platform = menuList_sys
 
 class Tenant extends Component {
   constructor(props) {
@@ -76,16 +87,18 @@ class Tenant extends Component {
     const { children, role } = this.props
 
     const scope = this
+
     const renderMenuList = (roleCode) => {
+      console.log(roleCode,ROLE_SYS_ADMIN);
       switch (roleCode){
         case ROLE_USER:
           return menuList_normal
         case  ROLE_BASE_ADMIN:
-          return menuList_normal
+          return menuList_base
         case ROLE_SYS_ADMIN:
           return menuList_sys
         case ROLE_PLATFORM_ADMIN:
-          return menuList_sys
+          return menuList_platform
       }
     }
 
@@ -124,7 +137,7 @@ function mapStateToProp(state) {
   let role = ROLE_USER
   const {entities} = state
   if (entities && entities.loginUser && entities.loginUser.info) {
-    role = entities.loginUser.info.harbor.roleId
+    role = entities.loginUser.info.role?entities.loginUser.info.role:0
   }
 
   return {

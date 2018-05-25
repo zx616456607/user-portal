@@ -124,21 +124,21 @@ let MemberTable = React.createClass({
       if (filters.style.length) {
         isSetFilter = true
         let filterTypeArr = [ROLE_USER,ROLE_PLATFORM_ADMIN,ROLE_BASE_ADMIN];
-
         let except =[];
         filterTypeArr.forEach(v => {
           if (filters.style.indexOf(`${v}`) < 0) {
             except.push(v)
           }
         })
-
         except.forEach(item => {
           filter += `role__neq,${item},`
           if (item === except[except.length - 1]) {
             filter = filter.substring(0, filter.length - 1)
           }
         });
+
       }
+
       /*if (filters.style.length == 2) {
         for (let i = 0; i < protoDate.length; i++) {
           let item = protoDate[i]

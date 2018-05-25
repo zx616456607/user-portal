@@ -314,8 +314,8 @@ class Index extends React.Component {
           },
         },
       ],
-    };
-    return
+    }
+
     this.props.UpdateProjectsApprovalCluster(updateClusterData, {
       success: {
         func: () => {
