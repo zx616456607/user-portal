@@ -54,12 +54,13 @@ function loginUser(state, action) {
         isFetching: true
       })
     case ActionTypes.LOGIN_SUCCESS:
-      console.log(action.response.result.user.role);
+      action.response.result.user.role = 2;//方便测试，暂时把所有角色设置为系统管理员
       return Object.assign({}, state, {
         isFetching: false,
         info: action.response.result.user
       })
     case ActionTypes.LOGIN_USER_DETAIL_SUCCESS:
+      action.response.result.data.role = 2;//方便测试，暂时把所有角色设置为系统管理员
       return Object.assign({}, state, {
         isFetching: false,
         info: action.response.result.data
