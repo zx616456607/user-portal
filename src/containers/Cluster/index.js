@@ -20,10 +20,6 @@ let menuList = [
     name: '集群管理'
   },
   {
-    url: '/cluster/cluster_authorization',
-    name: '集群授权审批'
-  },
-  {
     url: '/cluster/cluster_autoscale',
     name: '集群伸缩策略'
   },

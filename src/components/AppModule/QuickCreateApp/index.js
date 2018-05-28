@@ -25,7 +25,8 @@ import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import {
   genRandomString, toQuerystring, getResourceByMemory, parseAmount,
-  isResourcePermissionError, formatServiceToArrry, getWrapFileType
+  isResourcePermissionError, formatServiceToArrry, getWrapFileType,
+  sleep
 } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
@@ -864,7 +865,9 @@ class QuickCreateApp extends Component {
     return flag
   }
 
-  onCreateAppOrAddServiceClick(isValidateFields) {
+  async onCreateAppOrAddServiceClick(isValidateFields) {
+    // 解决 InputNumber 组件失去焦点新值才能生效问题
+    await sleep(200)
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }

@@ -24,7 +24,7 @@ import {
 } from '../../../../actions/team'
 import { usersAddRoles, roleWithMembers, usersLoseRoles } from '../../../../actions/role'
 import { chargeTeamspace } from '../../../../actions/charge'
-import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
+import { CREATE_TEAMS_ROLE_ID, ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_USER } from '../../../../../constants'
 import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
@@ -332,7 +332,8 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
-    const { data, scope, roleNum } = this.props
+    const { data, scope, roleNum, roleCode } = this.props
+
     filteredInfo = filteredInfo || {}
     sortedInfo = sortedInfo || {}
     const pagination = {
@@ -443,6 +444,7 @@ let TeamTable = React.createClass({
         }
       },
     ]
+
     return (
       <div>
         <Modal title='管理团队成员'
@@ -738,12 +740,16 @@ class TeamManage extends Component {
     const { visible, userList, targetKeys, filter } = this.state
     const {
       teams, addTeamusers, loadUserTeamList, roleNum, removeTeamusers,
-      teamUserIDList, loadTeamUserList, checkTeamName
+      teamUserIDList, loadTeamUserList, checkTeamName,roleCode
     } = this.props
+    const isAble = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN || roleCode === ROLE_BASE_ADMIN;
+    const canCreateTeam = roleCode === ROLE_SYS_ADMIN || roleCode === ROLE_PLATFORM_ADMIN
+
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
     }
+
     const funcs = {
       checkTeamName
     }
@@ -752,21 +758,23 @@ class TeamManage extends Component {
         <div key='TeamsManage' id="TeamsManage">
           <Title title="团队管理" />
           <Alert message={`团队由若干个成员组成的一个集体。系统管理员可将普通成员设置为『可以创建团队』的人，团队创建者为该团队的管理者，团队能移交给团队内成员作为新的团队管理者。`}
-            type="info" />
+                 type="info" />
           <Row className="teamOption">
             {
-              roleNum !== 3 &&
-                <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-                  <i className='fa fa-plus' /> 创建团队
-                </Button>
+              ( roleNum == 1 || roleNum == 2 ) &&
+              <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+                <i className='fa fa-plus' /> 创建团队
+              </Button>
             }
             {
-              roleNum === 1 &&
-                <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
-                  <svg id="chosenCreator">
-                    <use xlinkHref='#chosencreator' />
-                  </svg> 哪些人可以创建团队
-                </Button>
+              canCreateTeam ?
+              <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
+                <svg id="chosenCreator">
+                  <use xlinkHref='#chosencreator' />
+                </svg> 哪些人可以创建团队
+              </Button>
+                :
+                ""
             }
             <Button type="host" size="large" className="refreshBtn" onClick={this.refreshTeamTable.bind(this)}><i className="fa fa-refresh" aria-hidden="true" style={{marginRight:'5px'}}/>刷新</Button>
             <CreateTeamModal
@@ -837,6 +845,7 @@ function mapStateToProp(state, props) {
   const { query } = locationBeforeTransitions
   const { teamPage } = query
   const { globalRoles, userID, role } = loginUser.info || { globalRoles: [], userID: '', role: 0 }
+  const roleCode = userDetail.role
   let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
@@ -884,7 +893,7 @@ function mapStateToProp(state, props) {
   if (team.teamspaces.result) {
     teamSpacesList = team.teamspaces.result.data
   }
-  if (role === ROLE_SYS_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN ) {
     roleNum = 1
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
@@ -904,7 +913,8 @@ function mapStateToProp(state, props) {
     userDetail,
     roleNum,
     userID,
-    teamPage
+    teamPage,
+    roleCode
   }
 }
 

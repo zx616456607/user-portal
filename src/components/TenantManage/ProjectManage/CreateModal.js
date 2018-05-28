@@ -216,6 +216,7 @@ class CreateModal extends React.Component {
           }
         }
         let params = Object.assign({}, this.props.form.getFieldsValue(), {authorizedCluster: this.state.authorizedCluster,roleBinds :roleBinds});
+
         this.props.onOk(params, () => {
           this.setState({
             submitLoading: false,

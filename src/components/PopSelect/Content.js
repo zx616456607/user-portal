@@ -154,13 +154,13 @@ class PopSelect extends Component {
           <ul className="searchList">
             {
               userSearchList.length === 0
-              ? <div className='loadingBox'>结果为空</div>
-              :
-              userSearchList.map((user, index) => (
-                <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
-                  {user.userName}
-                </li>
-              ))
+                ? <div className='loadingBox'>结果为空</div>
+                :
+                userSearchList.map((user, index) => (
+                  <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
+                    {user.userName}
+                  </li>
+                ))
             }
           </ul>
         </div>

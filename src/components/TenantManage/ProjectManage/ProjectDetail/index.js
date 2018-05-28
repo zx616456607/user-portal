@@ -32,7 +32,12 @@ import isEmpty from 'lodash/isEmpty'
 import includes from 'lodash/includes'
 import CreateRoleModal from '../CreateRole'
 import RoleEditModal from './RoleEdit'
-import { PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
+import {
+  PROJECT_VISISTOR_ROLE_ID,
+  PROJECT_MANAGE_ROLE_ID,
+  ROLE_SYS_ADMIN,
+  ROLE_PLATFORM_ADMIN
+} from '../../../../../constants'
 import ResourceQuota from '../../../ResourceLimit'
 import { formatDate } from '../../../../common/tools'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota } from '../../../../actions/quota'
@@ -426,8 +431,7 @@ class ProjectDetail extends Component {
         return this.generateDatas(tns[index].children);
       }
     });
-  };
-
+  }
   getPermissionOverview = () => {
     const { permissionOverview, location } = this.props
     const { currentRoleInfo, selectedCluster } = this.state
@@ -440,7 +444,6 @@ class ProjectDetail extends Component {
       }
     })
   }
-
   getPermissionResource = () => {
     const { PermissionResource, currentRoleInfo, location } = this.props
     const headers = { project: location.query.name }
@@ -897,6 +900,7 @@ class ProjectDetail extends Component {
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
+    const isAble = roleNum=== ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -956,7 +960,7 @@ class ProjectDetail extends Component {
                   <span>{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
-                    (roleNum === 1 || isManager) &&
+                    (isAble || isManager) &&
                     <Tooltip title="移除集群">
                       <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true, currentCluster: item })} />
                     </Tooltip>
@@ -1037,8 +1041,8 @@ class ProjectDetail extends Component {
       return (
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
-            (roleNum === 1 || isManager) && !includes(disabledArr, item.roleId) &&
-            <Tooltip placement="top" title="删除角色">
+            (isAble || isManager) && !includes(disabledArr, item.roleId) &&
+            <Tooltip placement="top" title="移除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
           }
@@ -1197,7 +1201,7 @@ class ProjectDetail extends Component {
                         <div className="gutter-box">
                           <span style={{ marginRight: '30px' }}>{parseAmount(projectDetail && projectDetail.balance, 4).fullAmount}</span>
                           {
-                            roleNum === 1 && <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
+                            isAble && <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
                           }
                         </div>
                       </Col>
@@ -1343,7 +1347,7 @@ class ProjectDetail extends Component {
                                   <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
                                 </Tooltip>
                               ] :
-                              (roleNum === 1 || isManager) &&
+                              (isAble|| isManager) &&
                               <Tooltip title="编辑">
                                 <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
                               </Tooltip>
@@ -1462,7 +1466,7 @@ class ProjectDetail extends Component {
                       {
                         (() => {
                           //console.log("b",roleNum === 1 || isManager);
-                          return (roleNum === 1 || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
+                          return (isAble || isManager) && <Button key="createRole" type="primary" size="large" icon="plus" onClick={() => this.openCreateModal()}>创建新角色</Button>
                         })()
                       }
                       {/*
@@ -1477,7 +1481,7 @@ class ProjectDetail extends Component {
                       <div className="title">
                         <span>该角色成员</span>
                         {
-                          (roleNum === 1 || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
+                          (isAble || isManager) ? <span className="manageMembers" onClick={() => this.getProjectMember('user')}><a><Icon type="setting" />角色成员</a></span>
                           : null
                         }
                       </div>
@@ -1524,7 +1528,7 @@ class ProjectDetail extends Component {
                           this.state.currpermissionPolicyType === 1?
                           <div className="type1">
                             <div className="btnContainer">
-                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && roleNum !== 1)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && isAble)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                             </div>
                             <div className="permissionType1Container">
                               <div className="authBox inlineBlock">
@@ -1581,7 +1585,7 @@ class ProjectDetail extends Component {
                                     roleId={currentRoleInfo.id}
                                     openPermissionModal={this.editPermission}
                                     callback={this.getPermissionOverview}
-                                    isDisabled={!(roleNum === 1 || isManager)}
+                                    isDisabled={!(isAble || isManager)}
                                     getPermission={this.getPermission}
                                   />
                               }
@@ -1655,6 +1659,7 @@ function mapStateToThirdProp(state, props) {
   const { loginUser, current } = state.entities
   const { globalRoles, role, billingConfig } = loginUser.info || { globalRoles: [], role: 0 }
   const { enabled: billingEnabled } = billingConfig
+
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
     roleNum = 1

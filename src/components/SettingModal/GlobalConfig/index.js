@@ -87,6 +87,7 @@ let Emaill = React.createClass({
   },
   saveEmail() {
     this.props.form.validateFields((errors, values) => {
+
       if (errors) {
         return;
       }
