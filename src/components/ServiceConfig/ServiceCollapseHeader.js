@@ -39,13 +39,9 @@ class CollapseHeader extends Component {
   }
   // click config modal show
   createConfigModal(e, modal) {
+
     e.stopPropagation()
     this.setState({ modalConfigFile: modal })
-    if (modal) {
-      setTimeout(function(){
-        document.getElementsByClassName('nameInput')[0].focus()
-      },500)
-    }
   }
 
   handleDropdown(e) {
@@ -139,7 +135,7 @@ class CollapseHeader extends Component {
             </Dropdown.Button>
           </ButtonGroup>
           {/*添加配置文件-弹出层-start*/}
-          <CreateConfigFileModal scope={this} groupName={collapseHeader.name}/>
+          <CreateConfigFileModal scope={this} visible = {this.state.modalConfigFile} groupName={collapseHeader.name}/>
           {/*添加配置文件-弹出层-end*/}
 
           {/*删除配置文件-弹出层 */}

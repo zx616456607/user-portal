@@ -60,6 +60,7 @@ class CodeRepo extends Component {
         searchInput: q,
       })
     }
+    console.log(this.props)
     this.loadRepos({ q })
   }
   componentDidUpdate() {
