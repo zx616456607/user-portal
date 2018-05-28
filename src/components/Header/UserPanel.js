@@ -245,7 +245,6 @@ class UserPanel extends Component {
     const { loginUser, role } = this.props
     const { visible } = this.state
     const rotate = visible ? 'rotate180' : 'rotate0'
-    //console.log(this.props)
     const roleName = (role) => {
       switch (role){
         case ROLE_SYS_ADMIN:
@@ -257,8 +256,9 @@ class UserPanel extends Component {
         case ROLE_BASE_ADMIN:
           return "基础设施管理员"
           break
-        default:
-          return "用户"
+        case ROLE_USER:
+          return "普通成员"
+          break
 
       }
     }
@@ -303,7 +303,7 @@ function mapStateToProp(state, props) {
   const { loginUser } = props
   const { balance, billingConfig } = loginUser
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
-    role = entities.loginUser.info.role
+    role = entities.loginUser.info.role ? entities.loginUser.info.role : 0
   }
   const { enabled: billingEnabled } = billingConfig || { enabled: false }
   return {

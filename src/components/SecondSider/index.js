@@ -32,6 +32,7 @@ function currentPathNameCheck(scope, menuList) {
     })
     return
   }
+
   menuList.some((item, index) => {
     if(index != 0) {
       let checkPath = pathname.indexOf(item.url)
@@ -67,6 +68,7 @@ export default class SecondSider extends Component {
   }
 
   componentWillMount(){
+
     const { menuList } = this.props
     currentPathNameCheck(this, menuList)
   }
