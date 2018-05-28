@@ -533,7 +533,15 @@ const menusText = defineMessages({
   },
   Wrap: {
     id: 'ManageMonitor.operationalAudit.Wrap',
-    defaultMessage: '应用包'
+    defaultMessage: '应用包管理'
+  },
+  WrapCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapCheck',
+    defaultMessage: '应用包发布审核'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
   },
   UploadDocs: {
     id: 'ManageMonitor.operationalAudit.UploadDocs',
@@ -550,6 +558,14 @@ const menusText = defineMessages({
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
+  },
+  ImageCheck: {
+    id: 'ManageMonitor.operationalAudit.ImageCheck',
+    defaultMessage: '镜像发布审核',
+  },
+  ImageStore: {
+    id: 'ManageMonitor.operationalAudit.ImageStore',
+    defaultMessage: '镜像商店'
   },
   Upload: {
     id: 'ManageMonitor.operationalAudit.Upload',
@@ -1004,19 +1020,19 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Wrap)
       break;
     case '61':
-      return formatMessage(menusText.Wrap)
+      return formatMessage(menusText.WrapStore)
       break;
     case '62':
-      return formatMessage(menusText.Wrap)
+      return formatMessage(menusText.WrapCheck)
       break;
     case '63':
       return formatMessage(menusText.Image)
       break;
     case '64':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageStore)
       break;
     case '65':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageCheck)
       break;
     case '66':
       return formatMessage(menusText.MonitorPanel)
@@ -2184,11 +2200,11 @@ class OperationalAudit extends Component {
         children: [
           {
             value: '61',
-            label: formatMessage(menusText.Wrap),
+            label: formatMessage(menusText.WrapStore),
           },
           {
             value: '64',
-            label: formatMessage(menusText.Image),
+            label: formatMessage(menusText.ImageStore),
           },
           {
             value: '71',
@@ -2202,11 +2218,11 @@ class OperationalAudit extends Component {
         children: [
           {
             value: '62',
-            label: formatMessage(menusText.Wrap)
+            label: formatMessage(menusText.WrapCheck)
           },
           {
             value: '65',
-            label: formatMessage(menusText.Image)
+            label: formatMessage(menusText.ImageCheck)
           }
         ]
       },
