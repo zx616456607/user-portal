@@ -20,6 +20,7 @@ import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import MsaImg from '../../../assets/img/setting/globalconfigmsa.png'
 import FTPImg from '../../../assets/img/setting/globalconfigftp.png'
 import VmImg from '../../../assets/img/setting/globalconfigvm.png'
+import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
@@ -1000,7 +1001,7 @@ let ChartServer = React.createClass({
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
-              <img src={VmImg} alt="传统应用" />
+              <img src={ChartRepoImg} alt="应用模版" />
             </div>
             <div className="contentkeys">
               <div className="key">Chart Repo 地址</div>
