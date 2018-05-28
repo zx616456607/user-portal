@@ -29,28 +29,52 @@ if (NEED_BUILD_IMAGE) {
   })
 }
 
-menuList = menuList.concat({
-  // url: '/ci_cd/tenx_flow',
-  // name: 'TenxFlow'
-  url: '/ci_cd/pipelines',
-  name: '流水线',
-  onClick: () => {
-    try {
-      browserHistory.push('/ci_cd/pipelines')
-      if (window.devFlowPortalHistory) {
-        window.devFlowPortalHistory.push('/devops/pipelines')
+menuList = menuList.concat(
+  {
+    url: '/ci_cd/pipelines',
+    name: '流水线',
+    onClick: () => {
+      try {
+        browserHistory.push('/ci_cd/pipelines')
+        if (window.devFlowPortalHistory) {
+          window.devFlowPortalHistory.push('/devops/pipelines')
+        }
+      } catch (error) {
+        //
       }
-    } catch (error) {
-      //
     }
-  }
-}, {
+  },
+  {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'
   },
   {
     url: '/ci_cd/cached_volumes',
-    name: '缓存卷'
+    name: '缓存卷',
+    onClick: () => {
+      try {
+        browserHistory.push('/ci_cd/cached_volumes')
+        if (window.devFlowPortalHistory) {
+          window.devFlowPortalHistory.push('/devops/volumes/rbd')
+        }
+      } catch (error) {
+        //
+      }
+    }
+  },
+  {
+    url: '/ci_cd/thirdparty',
+    name: '第三方工具',
+    onClick: () => {
+      try {
+        browserHistory.push('/ci_cd/thirdparty')
+        if (window.devFlowPortalHistory) {
+          window.devFlowPortalHistory.push('/devops/thirdparty')
+        }
+      } catch (error) {
+        //
+      }
+    }
   }
 )
 
