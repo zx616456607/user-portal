@@ -75,7 +75,7 @@ function fetchCheckDisplayNameExists(body, callback) {
   let endpoint = `${API_URL_PREFIX}/projects/${body.displayName}/name-exists`
   return {
     [FETCH_API]: {
-      types: [DISPLAY_NAME_CHECK_REQUEST, DISPLAY_NAME_CHECK_FAILURE, DISPLAY_NAME_CHECK_SUCCESS],
+      types: [DISPLAY_NAME_CHECK_REQUEST, DISPLAY_NAME_CHECK_SUCCESS, DISPLAY_NAME_CHECK_FAILURE],
       endpoint,
       schema: {},
     },

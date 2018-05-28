@@ -150,7 +150,6 @@ class CreateModal extends React.Component {
       },{
         success: {
           func: res => {
-            console.log('成功了', value, res)
             if (res.data === false) {
               this.updateDisplayName(value)
               callback()
@@ -280,7 +279,7 @@ class CreateModal extends React.Component {
               <Form.Item label="项目名称"
                          {...formItemLayout}
                          hasFeedback
-                         help={isFieldValidating('projectName') ? '校验中...' : (getFieldError('projectName') || []).join(', ')}
+                         help={isFieldValidating('displayName') ? '校验中...' : (getFieldError('displayName') || []).join(', ')}
               >
                 <Input  autoComplete="off" placeholder="请输入中文名称" {...getFieldProps('displayName', {
                   rules: [
