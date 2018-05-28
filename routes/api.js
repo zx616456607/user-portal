@@ -94,6 +94,7 @@ module.exports = function (Router) {
   router.get('/projects/list-visible', projectController.listVisibleProjects)
   router.put('/projects/:name', projectController.updateProject)
   router.get('/projects/:name/check-exists', projectController.checkProjectNameExists)
+  router.get('/projects/:name/name-exists', projectController.checkDisplayNameExists)
   router.get('/projects/check-manager', projectController.checkProjectManager)
   router.get('/projects/:name/clusters', projectController.getProjectAllClusters)
   router.get('/projects/:name/visible-clusters', projectController.getProjectVsibleClusters)

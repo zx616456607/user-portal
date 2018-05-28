@@ -18,7 +18,8 @@ import {
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
-import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
+import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, CheckDisplayName,
+  UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
@@ -56,6 +57,7 @@ class ProjectDetail extends Component {
     super(props)
     this.state = {
       editComment: false,
+      editDisplayName: false,
       paySingle: false,
       switchState: false,
       balanceWarning: false,
@@ -67,6 +69,7 @@ class ProjectDetail extends Component {
       projectDetail: {},
       UnRequest: 0,
       comment: '',
+      displayName: '',
       currentRoleInfo: {},
       currentRolePermission: [],
       choosableList: [],
@@ -109,7 +112,6 @@ class ProjectDetail extends Component {
     // this.getProjectMember();
     // this.loadRoleList()
     const key = this.props.location.query
-    console.log(key);
     this.setState({
       tabsKey: key.tabs,
     })
@@ -226,6 +228,7 @@ class ProjectDetail extends Component {
               roleNameArr,
               projectDetail: res.data,
               comment: res.data.description,
+              displayName: res.data.displayName,
               isManager: res.data.outlineRoles.includes('manager')
             }, () => {
               const { projectDetail } = this.state;
@@ -253,12 +256,22 @@ class ProjectDetail extends Component {
   editComment() {
     this.setState({ editComment: true })
   }
+  editDisplayName() {
+    this.setState({ editDisplayName: true })
+  }
   cancelEdit() {
     const { setFieldsValue } = this.props.form
     const { projectDetail } = this.state;
     let oldComment = projectDetail.description;
     this.setState({ editComment: false }, () => {
       setFieldsValue({ 'comment': oldComment })
+    })
+  }
+  cancelDisplayNameEdit() {
+    const { setFieldsValue } = this.props.form
+    const { projectDetail } = this.state;
+    this.setState({ editDisplayName: false }, () => {
+      setFieldsValue({ displayName: projectDetail.displayName })
     })
   }
   saveComment() {
@@ -299,6 +312,69 @@ class ProjectDetail extends Component {
           isAsync: true
         }
       })
+  }
+  saveDisplayName() {
+    const { getFieldValue } = this.props.form;
+    const { name } = this.props.location.query;
+    const { UpdateProjects, GetProjectsDetail, CheckDisplayName } = this.props;
+    const { projectDetail } = this.state;
+    let comment = getFieldValue('displayName');
+    let oldComment = projectDetail.displayName;
+    if (!comment || (comment === oldComment)) { return this.setState({ editDisplayName: false }) }
+    console.log('mmmmm', comment)
+    CheckDisplayName({
+      displayName: comment
+    }, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200) {
+            this.updateProjects({
+              projectName: projectDetail.projectName,
+              body: {
+                displayName: comment
+              }
+            })
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          console.log('callback fail')
+        },
+        isAsync: true
+      }
+    })
+
+  }
+  updateProjects = (fetchBody) => {
+    const { GetProjectsDetail, UpdateProjects } = this.props
+    const { name } = this.props.location.query;
+    let notify = new Notification()
+    UpdateProjects(fetchBody, {
+      success: {
+        func: (res) => {
+          if (res.statusCode === 200) {
+            notify.success('修改项目名称成功')
+            GetProjectsDetail({
+              projectsName: name
+            }, {
+              success: {
+                func: res => {
+                  this.setState({
+                    projectDetail: res.data,
+                    displayName: res.data.displayName,
+                    editDisplayName: false
+                  })
+                },
+                isAsync: true
+              }
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   }
   paySingle() {
     this.setState({ paySingle: true })
@@ -894,7 +970,7 @@ class ProjectDetail extends Component {
     return permission;
   }
   render() {
-    const { payNumber, projectDetail, editComment, comment, currentRolePermission, choosableList, targetKeys, memberType,
+    const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
     } = this.state;
@@ -1173,7 +1249,42 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        {projectDetail && projectDetail.projectName}
+                        <div className="example-input commonBox">
+                          <Input
+                            size="large"
+                            style={{ width: '85%', marginRight: 16 }}
+                            disabled={!editDisplayName}
+                            placeholder="项目名称"
+                            {...getFieldProps('displayName', { initialValue: displayName }) }
+                          />
+                          {
+                            editDisplayName ?
+                              [
+                                <Tooltip title="取消">
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelDisplayNameEdit()} />
+                                </Tooltip>,
+                                <Tooltip title="保存">
+                                  <i className="anticon anticon-save pointer" onClick={() => this.saveDisplayName()} />
+                                </Tooltip>
+                              ] :
+                              (isAble|| isManager) &&
+                              <Tooltip title="编辑">
+                                <i className="anticon anticon-edit pointer" onClick={() => this.editDisplayName()} />
+                              </Tooltip>
+                          }
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        namespace
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.namespace}
                       </div>
                     </Col>
                   </Row>
@@ -1678,6 +1789,7 @@ function mapStateToThirdProp(state, props) {
 }
 
 export default ProjectDetail = connect(mapStateToThirdProp, {
+  CheckDisplayName,
   GetProjectsDetail,
   UpdateProjects,
   GetProjectsAllClusters,
