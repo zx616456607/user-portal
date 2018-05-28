@@ -89,7 +89,6 @@ class Tenant extends Component {
     const scope = this
 
     const renderMenuList = (roleCode) => {
-      console.log(roleCode,ROLE_SYS_ADMIN);
       switch (roleCode){
         case ROLE_USER:
           return menuList_normal
