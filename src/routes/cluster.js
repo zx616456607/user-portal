@@ -13,6 +13,7 @@
 const clusterRoutes = [{
   path: ':clusterID/:cluster_name',
   component: require('../components/ClusterModule/ClusterDetail').default,
+
 }, {
   path: '/cluster/globalConfig',
   component: require('../components/SettingModal/GlobalConfig').default,

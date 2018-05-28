@@ -294,10 +294,8 @@ class Information extends Component {
           })
           changeUserRole(userID, selectUserRole)
           if (loginUser.userID == userID) {
-            console.log(1);
             loadLoginUserDetail()
             if (selectUserRole !== ROLE_SYS_ADMIN) {
-              console.log(2);
               browserHistory.push('/tenant_manage/user')
             }
           }
@@ -434,7 +432,6 @@ class Information extends Component {
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
-    console.log(`所点击的用户${userDetail.displayName}-------角色是---------${userDetail.role}`);
     switch (userDetail.role) {
       case ROLE_SYS_ADMIN:
         roleName = "系统管理员"
