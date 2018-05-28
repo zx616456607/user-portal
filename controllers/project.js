@@ -114,7 +114,7 @@ exports.checkDisplayNameExists = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy([projectName, 'name-exists'], null)
+  const response = yield projectApi.projects.getBy([encodeURIComponent(projectName), 'name-exists'], null)
   this.status = response.statusCode
   this.body = response
 }
