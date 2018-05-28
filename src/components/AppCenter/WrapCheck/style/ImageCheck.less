@@ -1,11 +1,34 @@
 @import "../../../../assets/style/site/core";
 .imageCheck{
+  .titleContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 20px 0;
+    .group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      // background-color: #f8f8f8;
+      height: 30px;
+      border-radius: 15px;
+      margin: 5px;
+      padding: 0 15px;
+    }
+    .active {
+      background-color: #2db7f5;
+      color: #fff;
+    }
+  }
   .imageCheckActive {
     margin-top: 20px;
   }
   .wrapCheckHead{
     position: relative;
-    margin: 20px 0;
+    padding: 20px;
+    background-color: white;
     .refreshBtn{
       margin-right: 12px;
     }

@@ -643,7 +643,8 @@ class ImageCheck extends React.Component {
       targetProject: '',
       sort: 'd,publish_time',
       publish_time: false,
-      filter: 'type,2,target_project__eq,'
+      filter: 'type,2,target_project__eq,',
+      pushlishTarget: 'market'
     }
   }
   componentWillMount() {
@@ -659,6 +660,7 @@ class ImageCheck extends React.Component {
           filter: 'type,2,target_project__eq,',
           targetProject: '',
           current: 1,
+          pushlishTarget: 'market'
         },this.getImagePublishList)
         break
       case 'store':
@@ -666,6 +668,7 @@ class ImageCheck extends React.Component {
           filter: 'type,2,target_project__neq,',
           filterName: '',
           current: 1,
+          pushlishTarget: 'store'
         },this.getImagePublishList)
         break
       default:
@@ -696,7 +699,8 @@ class ImageCheck extends React.Component {
       [type]: '',
       sort: 'd,publish_time',
       current: 1,
-      publish_time: false
+      publish_time: false,
+      pushlishTarget: 'market'
     }, this.getImagePublishList)
   }
   updateParentState(type, value, callback) {
@@ -709,70 +713,84 @@ class ImageCheck extends React.Component {
     const { filterName, targetProject, current, publish_time } = this.state
     return(
       <QueueAnim className="imageCheck">
-        <Tabs defaultActiveKey="market" className='imageCheckActive' onChange={this.handleChangeTabs}>
-          <TabPane tab="发布到商店" key="market">
-            <div>
-              <div className="wrapCheckHead" key="wrapCheckHead">
-                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('filterName')}>
-                  <i className='fa fa-refresh'/> 刷新
-                </Button>
-                <CommonSearchInput
-                  ref="tableChild"
-                  size="large"
-                  placeholder="按发布名称搜索"
-                  style={{ width: 200 }}
-                  value={filterName}
-                  onSearch={value => this.updateParentState('filterName', value, true)}
-                />
-                <span className="total verticalCenter">共 {total && total} 条</span>
-              </div>
-              <ImageCheckTable
-                key="wrapCheckTable"
-                location={location}
-                imageCheckList={imageCheckList}
-                current={current}
-                publish_time={publish_time}
-                loginUser={loginUser}
-                total={total}
-                updateParentState={this.updateParentState}
-                appStoreApprove={appStoreApprove}
-                getImagePublishList={this.getImagePublishList}
-                publishType='market'
+        <div className='titleContainer'>
+          <div>分类:</div>
+          {
+            [ {groupId: 'market', groupName: '发布到商店'} , { groupId: 'store', groupName: '发布到仓库' } ].map( item=>{
+              return (
+                <div
+                  key={item.groupId}
+                  className={ this.state.pushlishTarget === item.groupId ? 'group active' : 'group' }
+                  onClick={() => this.handleChangeTabs(item.groupId)}
+                  >
+                  {item.groupName}
+                </div>
+              )
+            })
+          }
+        </div>
+        {
+          this.state.pushlishTarget==='market'?
+          <div>
+            <div className="wrapCheckHead" key="wrapCheckHead">
+              <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('filterName')}>
+                <i className='fa fa-refresh'/> 刷新
+              </Button>
+              <CommonSearchInput
+                ref="tableChild"
+                size="large"
+                placeholder="按发布名称搜索"
+                style={{ width: 200 }}
+                value={filterName}
+                onSearch={value => this.updateParentState('filterName', value, true)}
               />
+              <span className="total verticalCenter">共 {total && total} 条</span>
             </div>
-          </TabPane>
-          <TabPane tab="发布到仓库" key="store">
-            <div>
-              <div className="wrapCheckHead" key="wrapCheckHead">
-                <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('targetProject')}>
-                  <i className='fa fa-refresh'/> 刷新
-                </Button>
-                <CommonSearchInput
-                  ref="tableChild"
-                  size="large"
-                  placeholder="按目标仓库组搜索"
-                  style={{ width: 200 }}
-                  value={targetProject}
-                  onSearch={value => this.updateParentState('targetProject', value, true)}
-                />
-                <span className="total verticalCenter">共 {total && total} 条</span>
-              </div>
-              <ImageCheckTable
-                key="wrapCheckTable"
-                location={location}
-                imageCheckList={imageCheckList}
-                current={current}
-                publish_time={publish_time}
-                loginUser={loginUser}
-                total={total}
-                updateParentState={this.updateParentState}
-                appStoreApprove={appStoreApprove}
-                getImagePublishList={this.getImagePublishList}
-                publishType='storage'
+            <ImageCheckTable
+              key="wrapCheckTable"
+              location={location}
+              imageCheckList={imageCheckList}
+              current={current}
+              publish_time={publish_time}
+              loginUser={loginUser}
+              total={total}
+              updateParentState={this.updateParentState}
+              appStoreApprove={appStoreApprove}
+              getImagePublishList={this.getImagePublishList}
+              publishType='market'
+            />
+          </div>
+          :
+          <div>
+            <div className="wrapCheckHead" key="wrapCheckHead">
+              <Button className="refreshBtn" type="primary" size="large" onClick={() => this.refreshData('targetProject')}>
+                <i className='fa fa-refresh'/> 刷新
+              </Button>
+              <CommonSearchInput
+                ref="tableChild"
+                size="large"
+                placeholder="按目标仓库组搜索"
+                style={{ width: 200 }}
+                value={targetProject}
+                onSearch={value => this.updateParentState('targetProject', value, true)}
               />
+              <span className="total verticalCenter">共 {total && total} 条</span>
             </div>
-          </TabPane>
-        </Tabs>
+            <ImageCheckTable
+              key="wrapCheckTable"
+              location={location}
+              imageCheckList={imageCheckList}
+              current={current}
+              publish_time={publish_time}
+              loginUser={loginUser}
+              total={total}
+              updateParentState={this.updateParentState}
+              appStoreApprove={appStoreApprove}
+              getImagePublishList={this.getImagePublishList}
+              publishType='storage'
+            />
+          </div>
+        }
       </QueueAnim>
     )
   }
