@@ -48,6 +48,9 @@ function checkUrlSelectedKey(pathname) {
     if (pathList[2] == 'coderepo') {
       return [pathList[1], pathList[1] + '_default']
     }
+    if (pathList[2] == 'beginner_guidance') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     if (pathList[2].indexOf('CID')>=0) {
       return [pathList[1], pathList[1] + '_default']
     }
@@ -265,8 +268,295 @@ class Sider extends Component {
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
-    const scope = this
-    // console.log('currentOpenMenu', this.state.currentOpenMenu)
+    const scope = this;
+    const tenantMenu_admin = [
+      <Menu.Item key='tenant_manage_default'>
+        <Link to='/tenant_manage'>
+          <span><div className='sideCircle'></div> 概览</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key="user">
+        <Link to='/tenant_manage/user'>
+          <span><div className='sideCircle'></div> 成员管理</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key="team">
+        <Link to='/tenant_manage/team'>
+          <span><div className='sideCircle'></div> 团队管理</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='project_manage'>
+        <Link to='/tenant_manage/project_manage'>
+          <span><div className='sideCircle'></div> 项目管理</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='allpermissions'>
+        <Link to='/tenant_manage/allpermissions'>
+          <span><div className='sideCircle'></div> 项目权限</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='cluster_authorization'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/tenant_manage/cluster_authorization'>
+                        <span>
+                          集群授权审批
+                        </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='ldap'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/tenant_manage/ldap'>
+                          <span>
+                            集成企业目录
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>
+    ]
+    const tenantMenu_platform = tenantMenu_admin;
+    const tenantMenu_base = [
+      <Menu.Item key="team">
+        <Link to='/tenant_manage/team'>
+          <span><div className='sideCircle'></div> 团队管理</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='project_manage'>
+        <Link to='/tenant_manage/project_manage'>
+          <span><div className='sideCircle'></div> 项目管理</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='allpermissions'>
+        <Link to='/tenant_manage/allpermissions'>
+          <span><div className='sideCircle'></div> 项目权限</span>
+        </Link>
+      </Menu.Item>,
+    ]
+    const tenantMenu_user = tenantMenu_base;
+    const tenantMenu = (roleCode)=>{
+      switch (roleCode) {
+        case ROLE_SYS_ADMIN:
+          return tenantMenu_admin
+        case ROLE_PLATFORM_ADMIN:
+          return tenantMenu_platform
+        case ROLE_BASE_ADMIN:
+          return tenantMenu_base
+        case ROLE_USER:
+          return tenantMenu_user
+      }
+    };
+
+    const settingMenu_admin = [
+      <Menu.Item key='version'>
+        <Link to='/setting/version'>
+          <span><div className='sideCircle'></div> 平台版本</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='license'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/license'>
+                          <span>
+                            授权管理
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='API'>
+        <Link to='/setting/API'>
+          <span><div className='sideCircle'></div> 开放 API</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='advancedSetting'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/advancedSetting'>
+                          <span>
+                            高级设置
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='personalized'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/personalized'>
+                          <span>
+                            个性外观
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+
+      <Menu.Item key='cleaningTool'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/cleaningTool'>
+                          <span>
+                            清理工具
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>
+    ]
+    const settingMenu_platform = [
+      <Menu.Item key='version'>
+        <Link to='/setting/version'>
+          <span><div className='sideCircle'></div> 平台版本</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='license'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/license'>
+                            <span>
+                              授权管理
+                            </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='API'>
+        <Link to='/setting/API'>
+          <span><div className='sideCircle'></div> 开放 API</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='advancedSetting'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/advancedSetting'>
+                              <span>
+                                高级设置
+                              </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='personalized'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/personalized'>
+                              <span>
+                                个性外观
+                              </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+
+    ]
+    const settingMenu_base = [
+      <Menu.Item key='version'>
+        <Link to='/setting/version'>
+          <span><div className='sideCircle'></div> 平台版本</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='API'>
+        <Link to='/setting/API'>
+          <span><div className='sideCircle'></div> 开放 API</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='advancedSetting'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/advancedSetting'>
+                          <span>
+                            高级设置
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>,
+      <Menu.Item key='cleaningTool'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/setting/cleaningTool'>
+                          <span>
+                            清理工具
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>
+    ]
+    const settingMenu_user = [
+      <Menu.Item key='version'>
+        <Link to='/setting/version'>
+          <span><div className='sideCircle'></div> 平台版本</span>
+        </Link>
+      </Menu.Item>,
+      <Menu.Item key='API'>
+        <Link to='/setting/API'>
+          <span><div className='sideCircle'></div> 开放 API</span>
+        </Link>
+      </Menu.Item>,
+    ]
+    const settingMenu = (roleCode)=>{
+      switch (roleCode) {
+        case ROLE_SYS_ADMIN:
+          return settingMenu_admin
+        case ROLE_PLATFORM_ADMIN:
+          return settingMenu_platform
+        case ROLE_BASE_ADMIN:
+          return settingMenu_base
+        case ROLE_USER:
+          return settingMenu_user
+      }
+    }
+
+    const tenantIndexPage = (roleCode)=>{
+      switch (roleCode) {
+        case ROLE_SYS_ADMIN:
+          return '/tenant_manage'
+        case ROLE_PLATFORM_ADMIN:
+          return '/tenant_manage'
+        case ROLE_BASE_ADMIN:
+          return '/tenant_manage/team'
+        case ROLE_USER:
+          return '/tenant_manage/team'
+      }
+    }
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
         <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
@@ -357,17 +647,17 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-              <li onClick={()=> this.selectModel('integration')}
-                className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='集成中心'
-                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/integration'>
-                    <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
-                    </svg>
-                  </Link>
-                </Tooltip>
-              </li>:''
+                <li onClick={()=> this.selectModel('integration')}
+                  className={currentKey == 'integration' ? 'selectedLi' : ''}>
+                  <Tooltip placement='right' title='集成中心'
+                    getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                    <Link to='/integration'>
+                      <svg className='system commonImg'>
+                        <use xlinkHref='#system' />
+                      </svg>
+                    </Link>
+                  </Tooltip>
+                </li>:''
               }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
@@ -395,7 +685,7 @@ class Sider extends Component {
                 className={currentKey == 'tenant_manage' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='租户管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/tenant_manage'>
+                  <Link to={tenantIndexPage(role)}>
                     <svg className='commonImg'>
                      <use xlinkHref='#tenantmanagement' />
                     </svg>
@@ -413,9 +703,8 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-                [
-                  <li onClick={() => this.selectModel('cluster')}// onClick={()=> this.selectModel('cluster')
+              { role !== ROLE_USER?
+                <li onClick={() => this.selectModel('cluster')}
                     className={currentKey == '.' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -426,9 +715,9 @@ class Sider extends Component {
                       </Link>
                     </Tooltip>
                   </li>
-                ] : null
+                 : null
               }
-              <div style={{ clear: 'both' }}></div>
+              <li style={{ clear: 'both' }}></li>
             </ul>
             {/*<ul className='siderBottom'>
              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
@@ -806,56 +1095,7 @@ class Sider extends Component {
                     </span>
                   }
                 >
-
-                      <Menu.Item key='tenant_manage_default'>
-                        <Link to='/tenant_manage'>
-                          <span><div className='sideCircle'></div> 概览</span>
-                        </Link>
-                      </Menu.Item>
-
-                  <Menu.Item key="user">
-                    <Link to='/tenant_manage/user'>
-                      <span><div className='sideCircle'></div> 成员管理</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key="team">
-                    <Link to='/tenant_manage/team'>
-                      <span><div className='sideCircle'></div> 团队管理</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='project_manage'>
-                    <Link to='/tenant_manage/project_manage'>
-                      <span><div className='sideCircle'></div> 项目管理</span>
-                    </Link>
-                  </Menu.Item>
-                  {/*<Menu.Item key='rolemanagement'>
-                    <Link to='/tenant_manage/rolemanagement'>
-                      <span><div className='sideCircle'></div> 项目角色</span>
-                    </Link>
-                  </Menu.Item>*/}
-
-                      <Menu.Item key='allpermissions'>
-                        <Link to='/tenant_manage/allpermissions'>
-                          <span><div className='sideCircle'></div> 项目权限</span>
-                        </Link>
-                      </Menu.Item>
-
-                  {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='ldap'>
-                      <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
-                        <Link to='/tenant_manage/ldap'>
-                          <span>
-                            集成企业目录
-                          </span>
-                        </Link>
-                      </div>
-                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
-                  }
+                  {tenantMenu(role)}
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='setting'
@@ -869,113 +1109,13 @@ class Sider extends Component {
                     </span>
                   }
                 >
-
-
-
-                  {role !== ROLE_USER ?
-                    role === ROLE_PLATFORM_ADMIN?
-                      [
-                        <Menu.Item key='version'>
-                          <Link to='/setting/version'>
-                            <span><div className='sideCircle'></div> 平台版本</span>
-                          </Link>
-                        </Menu.Item>,
-                        <Menu.Item key='API'>
-                          <Link to='/setting/API'>
-                            <span><div className='sideCircle'></div> 开放 API</span>
-                          </Link>
-                        </Menu.Item>,
-                        <Menu.Item key='license'>
-                          <div className="adminBox">
-                            <Tooltip title="仅系统管理员可见" placement="right">
-                              <svg className="start forAdmin">
-                                <use xlinkHref='#start' />
-                              </svg>
-                            </Tooltip>
-                            <Link to='/setting/license'>
-                            <span>
-                              授权管理
-                            </span>
-                            </Link>
-                          </div>
-                        </Menu.Item>,
-                        <Menu.Item key='advancedSetting'>
-                          <div className="adminBox">
-                            <Tooltip title="仅系统管理员可见" placement="right">
-                              <svg className="start forAdmin">
-                                <use xlinkHref='#start' />
-                              </svg>
-                            </Tooltip>
-                            <Link to='/setting/advancedSetting'>
-                              <span>
-                                高级设置
-                              </span>
-                            </Link>
-                          </div>
-                        </Menu.Item>,
-                        <Menu.Item key='personalized'>
-                          <div className="adminBox">
-                            <Tooltip title="仅系统管理员可见" placement="right">
-                              <svg className="start forAdmin">
-                                <use xlinkHref='#start' />
-                              </svg>
-                            </Tooltip>
-                            <Link to='/setting/personalized'>
-                              <span>
-                                个性外观
-                              </span>
-                            </Link>
-                          </div>
-                        </Menu.Item>,
-
-                      ]
-                      :
-                      [
-                        <Menu.Item key='version'>
-                          <Link to='/setting/version'>
-                            <span><div className='sideCircle'></div> 平台版本</span>
-                          </Link>
-                        </Menu.Item>,
-                        <Menu.Item key='API'>
-                          <Link to='/setting/API'>
-                            <span><div className='sideCircle'></div> 开放 API</span>
-                          </Link>
-                        </Menu.Item>,
-                        <Menu.Item key='advancedSetting'>
-                          <div className="adminBox">
-                            <Tooltip title="仅系统管理员可见" placement="right">
-                              <svg className="start forAdmin">
-                                <use xlinkHref='#start' />
-                              </svg>
-                            </Tooltip>
-                            <Link to='/setting/advancedSetting'>
-                          <span>
-                            高级设置
-                          </span>
-                            </Link>
-                          </div>
-                        </Menu.Item>,
-                        <Menu.Item key='cleaningTool'>
-                          <div className="adminBox">
-                            <Tooltip title="仅系统管理员可见" placement="right">
-                              <svg className="start forAdmin">
-                                <use xlinkHref='#start' />
-                              </svg>
-                            </Tooltip>
-                            <Link to='/setting/cleaningTool'>
-                          <span>
-                            清理工具
-                          </span>
-                            </Link>
-                          </div>
-                        </Menu.Item>
-                      ]
-                    :
-                    <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
+                  {
+                    settingMenu(role)
                   }
                   <div className='sline'></div>
                 </SubMenu>
-                {role !== ROLE_USER?
+
+                {role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
                   <SubMenu key='cluster'
                     title={
                       <span>
@@ -1001,20 +1141,7 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
-                  <Menu.Item key='cluster_authorization'>
-                    <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          <use xlinkHref='#start' />
-                        </svg>
-                      </Tooltip>
-                      <Link to='/cluster/cluster_authorization'>
-                        <span>
-                          集群授权审批
-                        </span>
-                      </Link>
-                    </div>
-                  </Menu.Item>
+
                   <Menu.Item key='cluster_autoscale'>
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
@@ -1089,7 +1216,9 @@ class Sider extends Component {
             </li>
           </Tooltip>
         </ul>
+
       </div>
+
     );
   }
 }
@@ -1105,11 +1234,12 @@ function checkCurrentPath(pathname) {
 }
 
 function mapStateToProp(state) {
-  let role = ROLE_USER
+  let role
   const { entities } = state
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
-    role = entities.loginUser.info.role
+    role = entities.loginUser.info.role ?entities.loginUser.info.role : 0
   }
+
   const oemInfo = entities.loginUser.info.oemInfo || {}
 
   let backColor = 1

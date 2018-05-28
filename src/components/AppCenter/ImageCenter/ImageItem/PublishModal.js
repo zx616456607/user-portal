@@ -221,7 +221,7 @@ class PublishModal extends React.Component {
     callback()
   }
   checkClassify(rule, value, callback) {
-    if(!value) {
+    if(!value || value.length===0) {
       return callback('请选择或输入分类')
     }
     if(value.length > 1) {

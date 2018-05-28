@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import { updateUser, bindRolesForUser } from '../../../actions/user'
 import { parseAmount, formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
+import { ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN, ROLE_USER, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID, PHONE_REGEX } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
@@ -258,9 +258,10 @@ class Information extends Component {
   }
   changeUserRoleModal() {
     const { userDetail } = this.props
+
     this.setState({
       changeUserRoleModal: true,
-      selectUserRole: userDetail ? userDetail.role + 1 : 3
+      selectUserRole: userDetail.role
     })
   }
   changeUserAuthModal() {
@@ -275,18 +276,15 @@ class Information extends Component {
       userDetail, changeUserRole, loadLoginUserDetail,
     } = this.props
     const { selectUserRole } = this.state
-    console.log(selectUserRole);
     const notify = new NotificationHandler()
-    if(loginUser.role === 1) { return notify.error('只有系统管理员或平台管理员有此权限')}
+    if(loginUser.role === ROLE_USER || loginUser.role === ROLE_BASE_ADMIN) { return notify.error('只有系统管理员或平台管理员有此权限')}
     if(userDetail.role === selectUserRole ) {
       notify.error('用户角色没有发生变化')
       return
     }
-
     notify.spin('更新用户角色中')
-    const self = this
-
-    updateUser(userID, { role: selectUserRole }, {
+    const self = this;
+    updateUser(userID, { role: selectUserRole+1 }, {
       success: {
         func: () => {
           notify.close()
@@ -294,7 +292,7 @@ class Information extends Component {
           self.setState({
             changeUserRoleModal: false
           })
-          changeUserRole(userID, selectUserRole - 1)
+          changeUserRole(userID, selectUserRole)
           if (loginUser.userID == userID) {
             loadLoginUserDetail()
             if (selectUserRole !== ROLE_SYS_ADMIN) {
@@ -430,7 +428,7 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
-    console.log(userDetail);
+    const notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) || (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
@@ -498,7 +496,7 @@ class Information extends Component {
             <Col span={4}>类型</Col>
             <Col span={13}>{roleName}</Col>
             <Col span={7}>
-              <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserRoleModal()}>
+              <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserRoleModal()}>
                 修 改
               </Button>
             </Col>
@@ -518,7 +516,7 @@ class Information extends Component {
             {
               userID && userDetail.role != ROLE_SYS_ADMIN &&
               <Col span={7}>
-                <Button style={{width: '80px'}} type="primary" onClick={() => this.changeUserAuthModal()}>
+                <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
               </Col>
@@ -527,12 +525,12 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>手机</Col>
             <Col span={13}>{userDetail.phone || '-'}</Col>
-            <Col span={7}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })}>修改手机</Button></Col>
+            <Col span={7}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })} disabled={notAllowChange}>修改手机</Button></Col>
           </Row>
           <Row className="Item">
             <Col span={4}>邮箱</Col>
             <Col span={13}>{userDetail.email}</Col>
-            <Col span={7}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })}>修改邮箱</Button></Col>
+            <Col span={7}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })} disabled={notAllowChange}>修改邮箱</Button></Col>
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
@@ -544,7 +542,7 @@ class Information extends Component {
                 revisePass ?
                   <ResetPassWord updateUser={updateUser} userID={userID} userDetail={userDetail} onChange={this.resetPsw} />
                   :
-                  <Button type="primary" onClick={this.handleRevise}>修改密码</Button>
+                  <Button type="primary" onClick={this.handleRevise} disabled={notAllowChange}>修改密码</Button>
               }
             </Col>
           </Row> : ''}
@@ -606,7 +604,7 @@ class Information extends Component {
             <Col span={7}>
               {
                 !this.state.commentEditVisible && (
-                  <Button className="comment-edit-btn" icon="edit" onClick={() => this.setState({ commentEditVisible: true })}>
+                  <Button className="comment-edit-btn" icon="edit"  disabled={notAllowChange} onClick={() => this.setState({ commentEditVisible: true })}>
                     修改
                   </Button>
                 )
@@ -627,10 +625,15 @@ class Information extends Component {
           onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role })}
           onOk={() => this.changeUserRoleRequest()}
         >
-          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value },()=>console.log(this.state.selectUserRole))}}  value={this.state.selectUserRole}>
-            <Radio key="a" value={2}>平台管理员</Radio>
-            <Radio key="b" value={1}>基础设施管理员</Radio>
-            <Radio key="c" value={0}>普通成员</Radio>
+          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
+            {
+              loginUser.role === ROLE_PLATFORM_ADMIN?
+                ''
+                :
+                <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员</Radio>
+            }
+            <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
+            <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
           </RadioGroup>
         </Modal>
         <Modal title="修改用户权限"
