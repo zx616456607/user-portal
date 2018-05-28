@@ -112,7 +112,6 @@ class ProjectDetail extends Component {
     // this.getProjectMember();
     // this.loadRoleList()
     const key = this.props.location.query
-    console.log(key);
     this.setState({
       tabsKey: key.tabs,
     })
