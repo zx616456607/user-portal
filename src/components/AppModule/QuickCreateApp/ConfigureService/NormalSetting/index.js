@@ -353,7 +353,7 @@ const Normal = React.createClass({
       case 8:
         return <Radio.Group {...bindNodeTypeProps}>
           <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性 & 服务实例与服务的亲和性</Radio>
+          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性 & 服务与服务的亲和性</Radio>
         </Radio.Group>
       default:
         return <span></span>
