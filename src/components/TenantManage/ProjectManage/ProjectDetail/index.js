@@ -976,7 +976,7 @@ class ProjectDetail extends Component {
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
-    const isAble = roleNum=== ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
+    const isAble = roleNum === ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -1118,7 +1118,7 @@ class ProjectDetail extends Component {
         <li key={item.roleId} className={classNames({ 'active': currentRoleInfo && currentRoleInfo.id === item.roleId })} onClick={() => this.getCurrentRole(item.roleId, "click")}>{item.roleName}
           {
             (isAble || isManager) && !includes(disabledArr, item.roleId) &&
-            <Tooltip placement="top" title="移除角色">
+            <Tooltip placement="top" title="删除角色">
               <Icon type="delete" className="pointer" onClick={(e) => this.deleteRole(e, item)} />
             </Tooltip>
           }
@@ -1627,7 +1627,7 @@ class ProjectDetail extends Component {
                           this.state.currpermissionPolicyType === 1?
                           <div className="type1">
                             <div className="btnContainer">
-                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && isAble)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && !isAble)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                             </div>
                             <div className="permissionType1Container">
                               <div className="authBox inlineBlock">
@@ -1761,11 +1761,11 @@ function mapStateToThirdProp(state, props) {
 
   let roleNum = 0
   if (role === ROLE_SYS_ADMIN) {
-    roleNum = 1
+    roleNum = 2
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
       if (globalRoles[i] === 'project-creator') {
-        roleNum = 2;
+        roleNum = 4;
         break
       } else {
         roleNum = 3
