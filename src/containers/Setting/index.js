@@ -140,7 +140,8 @@ Setting.propTypes = {
 function mapStateToProp(state) {
   let role = ROLE_USER
   const { entities } = state
-  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+  console.log(entities.loginUser);
+  if (entities && entities.loginUser && entities.loginUser.info.role) {
     role = entities.loginUser.info.role
   }
   return {
