@@ -41,7 +41,13 @@ class CollapseHeader extends Component {
   createConfigModal(e, modal) {
 
     e.stopPropagation()
-    this.setState({ modalConfigFile: modal })
+    this.setState({ modalConfigFile: modal },()=> {
+      if (modal) {
+        setTimeout(function () {
+          document.getElementsByClassName('nameInput')[0].focus()
+        }, 500)
+      }
+    })
   }
 
   handleDropdown(e) {
