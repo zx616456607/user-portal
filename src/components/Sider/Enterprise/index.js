@@ -941,8 +941,35 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='cached_volumes'>
-                    <Link to='/ci_cd/cached_volumes'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/cached_volumes')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/volumes/rbd')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span><div className='sideCircle'></div> 缓存卷</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='thirdparty'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/thirdparty')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/thirdparty')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span><div className='sideCircle'></div> 第三方工具</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>

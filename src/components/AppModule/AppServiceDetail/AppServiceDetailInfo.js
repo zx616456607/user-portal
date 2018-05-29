@@ -535,11 +535,12 @@ class BindNodes extends Component {
       policy.type = haveLabel.labelType
       policy.data = haveLabel.data
     }
-    // if (node) {
-    //   // Check node policy first
-    //   policy.type = scheduleByHostNameOrIP
-    //   policy.node = node
-    // } else if (labels) {
+    if (node) {
+      // Check node policy first
+      policy.type = scheduleByHostNameOrIP
+      policy.node = node
+    }
+    // else if (labels) {
     //   // Then check label policy
     //   policy.type = scheduleByLabels
     //   policy.labels = labels
@@ -808,7 +809,7 @@ class BindNodes extends Component {
       </span>
       case "ScheduleByHostNameOrIP":
         return <span>
-          <div className="commonTitle">指定主机名及 IP 上运行</div>
+          <div className="commonTitle">主机名及 IP </div>
           <div>{bindNodesData.node}</div>
         </span>
       case "ScheduleByLabels":
