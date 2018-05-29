@@ -49,10 +49,7 @@ class AllPermissions extends React.Component{
           }
         }
       })
-      this.setState({
-        data: children,
-        loading: false
-      })
+      return children
     }
   }
 
@@ -97,7 +94,10 @@ class AllPermissions extends React.Component{
               return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
             });
             temp.push(allp)
-            this.RowData(temp)
+            this.setState({
+              data: this.RowData(temp),
+              loading: false
+            })
           }
         },
         isAsync: true,
