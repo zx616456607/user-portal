@@ -104,9 +104,17 @@ class CreateRoleModal extends Component{
         func: (res)=>{
           if (res.data.statusCode === 200) {
             let result = res.data.data.permissions;
-            this.generateDatas(result)
+
+            let tempres = _.cloneDeep(result);
+            let allPermission = [];
+            allPermission.push(_.filter(tempres, {id:10000, code: "SYSTEM_ALL_PRIVILEGES"})[0])
+            allPermission[0].children = _.filter(tempres, (item) => {
+              return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
+            });
+
+            this.generateDatas(allPermission)
             this.setState({
-              allPermission:result,
+              allPermission: allPermission,
               permissionCount:res.data.data.total
             })
           }
@@ -271,15 +279,16 @@ class CreateRoleModal extends Component{
       wrapperCol: { span: 15 },
     };
     const loop = data => data.map((item) => {
-      if (item['children'] !== undefined) {
+      if (item["children"] !== undefined) {
         return (
-          <TreeNode key={item.key} title={item.title}>
+          <TreeNode key={item.id} code={item.code} title={item.name} category={item.category} >
             {loop(item.children)}
           </TreeNode>
-        );
+        )
       }
-      return <TreeNode key={item.key} title={item.title} />;
-    });
+      if(item.name === "所有资源权限" && item.desc === "所有资源权限" && item.code === "SYSTEM_ALL_PRIVILEGES") return <span></span>;
+      return <TreeNode key={item.id} code={item.code} title={item.name} category={item.category} />;
+    })
     return (
       <Modal title="创建角色" wrapClassName="createCharacterModal" visible={characterModal} width={570}
              onCancel={()=> this.cancelModal()}
