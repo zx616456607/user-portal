@@ -62,10 +62,8 @@ let CreateConfigFileModal = React.createClass({
         success: {
           func: res => {
             if (res.data === false) {
-              console.log('可以使用')
               callback()
             } else if (res.data === true) {
-              console.log('已存在')
               callback([new Error('该名称已存在')])
               return
             }
@@ -221,12 +219,13 @@ let CreateConfigFileModal = React.createClass({
         { validator: this.configDescExists },
       ]
     });
+
     return(
       <Modal
         title={`添加${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
-        visible={parentScope.state.modalConfigFile}
+        visible={this.props.visible}
         onOk={() => this.createConfigFile(this.props.groupName)}
         onCancel={(e) => this.cancelModal(e)}
         width="600px"
