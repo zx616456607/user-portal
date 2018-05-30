@@ -61,7 +61,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting\/?$/,
     /\/manange_monitor\/panel/,
-    /\/app_center\/template/,
+    /\/app_center\/template\/create/,
   ],
 }
 
