@@ -14,6 +14,8 @@ import './style/AllPermissions.less'
 import {Permission, RetrievePermission} from  '../../../actions/permission'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
+import cloneDeep from 'lodash/cloneDeep'
+import filter from 'lodash/filter'
 
 class AllPermissions extends React.Component{
   constructor(props){
@@ -47,10 +49,7 @@ class AllPermissions extends React.Component{
           }
         }
       })
-      this.setState({
-        data: children,
-        loading: false
-      })
+      return children
     }
   }
 
@@ -88,7 +87,17 @@ class AllPermissions extends React.Component{
       success: {
         func: res => {
           if(res.data.code === 200){
-            this.RowData(res.data.data.permissions)
+            const data = res.data.data.permissions
+            const temp = [], tempData = cloneDeep(data)
+            const allp = filter(data, {desc: "所有资源权限", id: 10000, name: "所有资源权限", code: "SYSTEM_ALL_PRIVILEGES"})[0]
+            allp.children = filter(tempData, (item) => {
+              return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
+            });
+            temp.push(allp)
+            this.setState({
+              data: this.RowData(temp),
+              loading: false
+            })
           }
         },
         isAsync: true,
@@ -107,6 +116,7 @@ class AllPermissions extends React.Component{
     const { data, loading } = this.state
     let { sortedInfo } = this.state;
     sortedInfo = sortedInfo || {};
+    const defaultExpandedRowKeys = [10000]
     const columns = [{
       title: '权限名称',
       dataIndex: 'name',
@@ -150,7 +160,7 @@ class AllPermissions extends React.Component{
                   <CommonSearchInput placeholder="请输入关键词搜索" size="large" onSearch={this.handleSearch.bind(this)}/>
               </div>
             </div>*/}
-          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} loading={loading}/>
+          <Table pagination={false} rowKey={row => row.id} columns={columns} dataSource={data} onChange={this.handleChange} loading={loading} defaultExpandedRowKeys={defaultExpandedRowKeys}/>
         </div>
       </div>
       </QueueAnim>

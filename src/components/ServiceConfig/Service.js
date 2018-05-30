@@ -21,7 +21,11 @@ import NotificationHandler from '../../components/Notification'
 import CommonSearchInput from '../../components/CommonSearchInput'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
-import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup, updateConfigAnnotations } from '../../actions/configs'
+import {
+  loadConfigGroup, configGroupName, createConfigGroup,
+  deleteConfigGroup, updateConfigAnnotations,
+  checkConfigNameExistence
+} from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
 import includes from 'lodash/includes'
@@ -453,7 +457,9 @@ function mapDispatchToProps(dispatch) {
       dispatch(deleteConfigGroup(obj, callback))
     },
     configGroupName: (obj) => dispatch(configGroupName(obj)),
-    updateConfigAnnotations: (body,callback) => dispatch(updateConfigAnnotations(body,callback))
+    updateConfigAnnotations: (body,callback) => dispatch(updateConfigAnnotations(body,callback)),
+    checkConfigNameExistence: (clusterId, nama, callback) =>
+      dispatch(checkConfigNameExistence(clusterId, name, callback))
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Service, {
