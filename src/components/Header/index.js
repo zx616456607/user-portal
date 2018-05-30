@@ -473,7 +473,7 @@ class Header extends Component {
       <div id="header">
 
         {
-          (showSpace && roleShowSpace) && (
+          showSpace && (
             <div className="space">
               <div className="spaceTxt">
                 <svg className='headerteamspace'>
