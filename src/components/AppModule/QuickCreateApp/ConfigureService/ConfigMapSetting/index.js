@@ -18,11 +18,12 @@ import {
 import includes from 'lodash/includes'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
-import { loadConfigGroup, configGroupName } from '../../../../../actions/configs'
+import { loadConfigGroup, configGroupName, checkConfigNameExistence } from '../../../../../actions/configs'
 import { getSecrets } from '../../../../../actions/secrets'
 import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
 import {validateK8sResource} from "../../../../../common/naming_validation";
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -80,6 +81,8 @@ const ConfigMapSetting = React.createClass({
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
   configGroupNameCheck(rule, value, callback) {
+    const { currentCluster, checkConfigNameExistence } = this.props
+    const { clusterID } = currentCluster
     if (Array.isArray(value)) {
       return callback()
     }
@@ -103,7 +106,27 @@ const ConfigMapSetting = React.createClass({
       callback('由小写字母、数字和连字符（-）组成')
       return
     }
-    callback()
+    clearTimeout(this.configGroupNameTimeout)
+    this.configGroupNameTimeout = setTimeout(() => {
+      checkConfigNameExistence(clusterID, value, {
+        success: {
+          func: res => {
+            if (res.data.existence) {
+              callback('配置组名称重复')
+            } else {
+              callback()
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            callback(res.message.message || res.message)
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
   onConfigGroupChange(keyValue, value) {
     const { form, configGroupList } = this.props
@@ -154,7 +177,7 @@ const ConfigMapSetting = React.createClass({
   },
   renderConfigMapItem(key) {
     const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    const { getFieldProps, getFieldValue, setFieldsValue, isFieldValidating, getFieldError } = form
     const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
     const configMapSubPathValuesKey = `configMapSubPathValues${keyValue}`
@@ -216,6 +239,7 @@ const ConfigMapSetting = React.createClass({
         { required: true, message: '请选择配置组文件' }
       ],
     })
+    const isInput = (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
     return (
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
@@ -242,9 +266,12 @@ const ConfigMapSetting = React.createClass({
           </FormItem>
         </Col>
         <Col span={5}>
-          <FormItem>
+          <FormItem
+            hasFeedback={isInput && !!getFieldValue(configGroupNameKey)}
+            help={isInput ? isFieldValidating(configGroupNameKey) ? '校验中...' : (getFieldError(configGroupNameKey) || []).join(', ') : ''}
+          >
             {
-              (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
+              isInput
                 ?
                 <Input placeholder="请输入配置组" {...configGroupNameProps} disabled={isExisted}/>
                 :
@@ -530,5 +557,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadConfigGroup,
   configGroupName,
-  getSecrets
+  getSecrets,
+  checkConfigNameExistence
 })(ConfigMapSetting)
