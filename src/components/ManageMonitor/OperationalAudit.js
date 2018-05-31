@@ -635,6 +635,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Permission',
     defaultMessage: '权限控制'
   },
+  InstallHelmTemplate: {
+    id: 'ManageMonitor.operationalAudit.InstallHelmTemplate',
+    defaultMessage: '部署模板'
+  },
+  HelmTemplate: {
+    id: 'ManageMonitor.operationalAudit.HelmTemplate',
+    defaultMessage: '应用模板'
+  },
 });
 
 function returnOperationList(scope) {
@@ -810,6 +818,10 @@ function returnOperationList(scope) {
     {
       value: '44',
       label: (<FormattedMessage {...menusText.UnCordon}/>)
+    },
+    {
+      value: '45',
+      label: (<FormattedMessage {...menusText.InstallHelmTemplate}/>)
     }
   ];
   return operationalList;
@@ -1055,6 +1067,8 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Ingress)
     case '74':
       return formatMessage(menusText.Permission)
+    case '75':
+      return formatMessage(menusText.HelmTemplate)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1180,6 +1194,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.Drain)
     case '44':
       return formatMessage(menusText.UnCordon)
+    case '45':
+      return formatMessage(menusText.InstallHelmTemplate)
   }
 }
 
@@ -1883,6 +1899,11 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[0])
         showOperationalList.push(operationalList[2])
         break;
+      case '75':
+        showOperationalList.push(operationalList[19])
+        showOperationalList.push(operationalList[2])
+        showOperationalList.push(operationalList[42])
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -2245,6 +2266,10 @@ class OperationalAudit extends Component {
       {
         value: '74',
         label: formatMessage(menusText.Permission)
+      },
+      {
+        value: '75',
+        label: formatMessage(menusText.HelmTemplate)
       },
       {
         value: null,
