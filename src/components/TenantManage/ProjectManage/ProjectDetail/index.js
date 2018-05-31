@@ -1252,7 +1252,7 @@ class ProjectDetail extends Component {
                         <div className="example-input commonBox">
                           <Input
                             size="large"
-                            style={{ width: '85%', marginRight: 16 }}
+                            className={'project-detail-input-displayName'}
                             disabled={!editDisplayName}
                             placeholder="项目名称"
                             {...getFieldProps('displayName', { initialValue: displayName }) }
@@ -1261,7 +1261,7 @@ class ProjectDetail extends Component {
                             editDisplayName ?
                               [
                                 <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelDisplayNameEdit()} />
+                                  <i className="anticon anticon-minus-circle-o pointer project-detail-edit-cancel" onClick={() => this.cancelDisplayNameEdit()} />
                                 </Tooltip>,
                                 <Tooltip title="保存">
                                   <i className="anticon anticon-save pointer" onClick={() => this.saveDisplayName()} />
@@ -1279,7 +1279,7 @@ class ProjectDetail extends Component {
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
-                        namespace
+                        命名空间
                       </div>
                     </Col>
                     <Col className='gutter-row' span={20}>
