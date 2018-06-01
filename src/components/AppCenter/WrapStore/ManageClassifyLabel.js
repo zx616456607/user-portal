@@ -123,7 +123,7 @@ class ManageClassifyLabel extends Component {
     const { getFieldProps } = form
     return [
       {
-        title: '分类', key: 'classifyName', dataIndex: 'classifyName', width: '25%',
+        title: '分类', key: 'classifyName', dataIndex: 'classifyName', width: '16%',
         render: (text, record, index) => {
           if (record.isEdit) {
             return <FormItem>
@@ -145,7 +145,7 @@ class ManageClassifyLabel extends Component {
         },
       },
       {
-        title: '镜像', key: 'images', dataIndex: 'images', width: '25%',
+        title: '已发布镜像', key: 'images', dataIndex: 'images', width: '16%',
         render: (text, record) => {
           if (record.isEdit) {
             return <div className="editing-style">{text}</div>
@@ -154,7 +154,7 @@ class ManageClassifyLabel extends Component {
         }
       },
       {
-        title: '应用包', key: 'apppkgs', dataIndex: 'apppkgs', width: '25%',
+        title: '已发布应用包', key: 'apppkgs', dataIndex: 'apppkgs', width: '16%',
         render: (text, record) => {
           if (record.isEdit) {
             return <div className="editing-style">{text}</div>
@@ -163,7 +163,25 @@ class ManageClassifyLabel extends Component {
         }
       },
       {
-        title: '操作', key: 'handler', dataIndex: 'handler', width: '25%',
+        title: '待审核镜像', key: 'pendingApprovalImage', dataIndex: 'pendingApprovalImage', width: '16%',
+        render: (text, record) => {
+          if (record.isEdit) {
+            return <div className="editing-style">{text}</div>
+          }
+          return text
+        }
+      },
+      {
+        title: '待审核应用包', key: 'pendingApprovalPkg', dataIndex: 'pendingApprovalPkg', width: '16%',
+        render: (text, record) => {
+          if (record.isEdit) {
+            return <div className="editing-style">{text}</div>
+          }
+          return text
+        }
+      },
+      {
+        title: '操作', key: 'handler', dataIndex: 'handler', width: '16%',
         render: (text, record, index) => {
           if (record.isEdit) {
             return (
@@ -182,7 +200,7 @@ class ManageClassifyLabel extends Component {
                 className="button-margin-style"
               />
               <Button icon="delete" key="delete" type="dashed" onClick={this.deleteLabel.bind(this, index)}
-                disabled={record.images || record.apppkgs}
+                disabled={record.images || record.apppkgs || record.pendingApprovalImage || record.pendingApprovalPkg}
               />
             </span>
           )
@@ -201,7 +219,7 @@ class ManageClassifyLabel extends Component {
         closable={true}
         onOk={() => this.handleOk()}
         onCancel={() => closeModalMethod()}
-        width="570px"
+        width="600px"
         maskClosable={false}
         confirmLoading={loading}
         wrapClassName="manage-classify-label"
