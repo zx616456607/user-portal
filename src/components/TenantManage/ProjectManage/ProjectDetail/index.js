@@ -43,7 +43,7 @@ import ResourceQuota from '../../../ResourceLimit'
 import { formatDate } from '../../../../common/tools'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota } from '../../../../actions/quota'
 import { loadClusterList } from '../../../../actions/cluster'
-import { REG } from '../../../../constants'
+import {ASYNC_VALIDATOR_TIMEOUT, REG} from '../../../../constants'
 import ResourceModal from './ResourceModal'
 import PermissionOverview from './PermissionOverview'
 
@@ -314,20 +314,18 @@ class ProjectDetail extends Component {
       })
   }
   saveDisplayName() {
-    const { getFieldValue } = this.props.form;
-    const { name } = this.props.location.query;
-    const { UpdateProjects, GetProjectsDetail, CheckDisplayName } = this.props;
+    const { getFieldValue, getFieldError } = this.props.form;
     const { projectDetail } = this.state;
     let comment = getFieldValue('displayName');
     let oldComment = projectDetail.displayName;
-    if (!comment || (comment === oldComment)) { return this.setState({ editDisplayName: false }) }
-    console.log('mmmmm', comment)
-    CheckDisplayName({
+    if (!comment) { return this.setState({ editDisplayName: false }) }
+    if (getFieldError('displayName') || (comment === oldComment)) return
+    this.props.CheckDisplayName({
       displayName: comment
-    }, {
+    },{
       success: {
         func: res => {
-          if (res.statusCode === 200) {
+          if (res.data === false) {
             this.updateProjects({
               projectName: projectDetail.projectName,
               body: {
@@ -339,9 +337,7 @@ class ProjectDetail extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
-          console.log('callback fail')
-        },
+        func: () => {},
         isAsync: true
       }
     })
@@ -924,6 +920,37 @@ class ProjectDetail extends Component {
       </div>
     )
   }
+  checkDisplayName = (rule, value, callback) => {
+    const { CheckDisplayName } = this.props;
+    let newValue = value && value.trim()
+    if (newValue === '') {
+      return callback('项目名称不能为空')
+    }
+    clearTimeout(this.displayNameTimeout)
+    this.displayNameTimeout = setTimeout(()=>{
+      CheckDisplayName({
+        displayName: value
+      },{
+        success: {
+          func: res => {
+            if (res.data === false) {
+              // this.updateDisplayName(value)
+              callback()
+            } else if (res.data === true) {
+              callback(new Error('该项目名称已存在'))
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
+  }
   editPermission = (currResourceType) => {
     this.setState({
       currResourceType: currResourceType,
@@ -1249,14 +1276,20 @@ class ProjectDetail extends Component {
                     </Col>
                     <Col className='gutter-row' span={20}>
                       <div className="gutter-box">
-                        <div className="example-input commonBox">
-                          <Input
-                            size="large"
-                            className={'project-detail-input-displayName'}
-                            disabled={!editDisplayName}
-                            placeholder="项目名称"
-                            {...getFieldProps('displayName', { initialValue: displayName }) }
-                          />
+                        <div className="example-input commonBox project-detail-displayName">
+                          <Form.Item className={'project-detail-input-displayName'}>
+                            <Input
+                              size="large"
+                              disabled={!editDisplayName}
+                              placeholder="请输入项目名称"
+                              {...getFieldProps('displayName', {
+                                initialValue: displayName,
+                                rules: [{
+                                  validator: this.checkDisplayName,
+                                }]
+                              }) }
+                            />
+                          </Form.Item>
                           {
                             editDisplayName ?
                               [
