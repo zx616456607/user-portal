@@ -458,7 +458,8 @@ class QuickCreateApp extends Component {
         })
       }
       if (!isEmpty(errorFields)) {
-        setFormFields(key, Object.assign(value, errorFields))
+        // setFormFields(key, Object.assign(value, errorFields))
+        this.form.setFields(Object.assign(value, errorFields))
       }
     }
 
@@ -851,20 +852,6 @@ class QuickCreateApp extends Component {
     createApp(appConfig, callback)
   }
 
-  getFormError = fieldsArray => {
-    let flag = true
-    flag = fieldsArray.every(field => {
-      for (let value of Object.values(field)) {
-        if (!isEmpty(value.errors)) {
-          flag = false
-          break
-        }
-      }
-      return flag
-    })
-    return flag
-  }
-
   async onCreateAppOrAddServiceClick(isValidateFields) {
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
@@ -872,21 +859,8 @@ class QuickCreateApp extends Component {
       return this.createAppOrAddService()
     }
     const { validateFieldsAndScroll } = this.form
-    const { fields } = this.props
-    const fieldsArray = Object.values(fields)
-    const flag = this.getFormError(fieldsArray)
-    if (!flag) {
-      notification.warn('请修改错误表单')
-      return
-    }
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        if(errors.appName){
-          notification.error('应用名称不正确')
-        }
-        if(errors.serviceName){
-          notification.error('服务名称不正确')
-        }
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
           const envName = new RegExp('envName')
@@ -902,11 +876,17 @@ class QuickCreateApp extends Component {
           }
           return false
         })
-        if(envNameErrors.length || envValueErrors.length){
+        if (errors.appName){
+          notification.error('应用名称不正确')
+        } else if (errors.serviceName) {
+          notification.error('服务名称不正确')
+        } else if (envNameErrors.length || envValueErrors.length) {
           notification.error('环境变量不正确')
           this.setState({
             AdvancedSettingKey: 1
           })
+        } else {
+          notification.error('请修改错误表单')
         }
         return
       }
@@ -1461,6 +1441,7 @@ class QuickCreateApp extends Component {
             onOk={() => this.setState({ resourceError: false })}
             okText="继续"
             cancelText="放弃"
+            maskClosable={false}
           >
             {this.renderResourceError()}
           </Modal>
