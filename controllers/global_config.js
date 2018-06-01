@@ -19,12 +19,6 @@ const initGlobalConfig = require('../services/init_global_config')
 const email = require('../utils/email')
 
 exports.changeGlobalConfig = function* () {
-  const role = this.session.loginUser.role
-  if(role !== constant.ADMIN_ROLE && role !== constant.BASE_ADMIN_ROLE) {
-    const err = new Error('Not admin user')
-    err.status = 403
-    throw err
-  }
   const cluster = this.params.cluster
   const type = this.params.type
   const entity = this.request.body
@@ -269,7 +263,7 @@ function* storageConfigFunc(entity) {
 }
 
 exports.getGlobalConfig = function* () {
-  let permission = [constant.ADMIN_ROLE,constant.BASE_ADMIN_ROLE]
+  let permission = [constant.ADMIN_ROLE,constant.ROLE_BASE_ADMIN]
   if (permission.indexOf(this.session.loginUser.role)<0) {
     const err = new Error('Not admin user')
     err.status = 400
