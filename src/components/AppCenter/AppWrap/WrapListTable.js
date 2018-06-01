@@ -382,7 +382,7 @@ class WrapListTable extends Component {
       title: '发布名称',
       dataIndex: 'fileNickName',
       key: 'fileNickName',
-      width: '10%',
+      width: currentType === 'store' ? '20%' : '10%',
       render: text => text ? text : '-'
     }
     const publishStatus = {
@@ -432,7 +432,9 @@ class WrapListTable extends Component {
     if (isWrapManage) {
       columns.splice(2, 0, classifyName, fileNickName, publishStatus)
     }
-
+    if (currentType === 'store') {
+      columns.splice(1, 0, fileNickName)
+    }
     const paginationOpts = {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,

@@ -200,8 +200,21 @@ export function updateConfigAnnotations(body,callback) {
   }
 }
 
-// export function updateConfigAnnotations(body,callback) {
-//   return (dispatch,getState) => {
-//     dispatch(fetchUpdateConfigAnnotations(body,callback))
-//   }
-// }
+const CHECK_CONFIG_GROUP_NAME_REQUEST = 'CHECK_CONFIG_GROUP_NAME_REQUEST'
+const CHECK_CONFIG_GROUP_NAME_SUCCESS = 'CHECK_CONFIG_GROUP_NAME_SUCCESS'
+const CHECK_CONFIG_GROUP_NAME_FAILURE = 'CHECK_CONFIG_GROUP_NAME_FAILURE'
+
+export function checkConfigNameExistence(clusterId, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        CHECK_CONFIG_GROUP_NAME_REQUEST,
+        CHECK_CONFIG_GROUP_NAME_SUCCESS,
+        CHECK_CONFIG_GROUP_NAME_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/configgroups/${name}/verify`,
+      schema: {},
+    },
+    callback,
+  }
+}

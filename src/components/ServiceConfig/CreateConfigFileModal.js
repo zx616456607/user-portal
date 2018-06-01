@@ -16,6 +16,7 @@ import { validateServiceConfigFile } from '../../common/naming_validation'
 import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
+import { isResourcePermissionError } from '../../common/tools'
 import {CheckProjects} from "../../actions/project";
 
 const FormItem = Form.Item
@@ -61,10 +62,8 @@ let CreateConfigFileModal = React.createClass({
         success: {
           func: res => {
             if (res.data === false) {
-              console.log('可以使用')
               callback()
             } else if (res.data === true) {
-              console.log('已存在')
               callback([new Error('该名称已存在')])
               return
             }
@@ -126,6 +125,10 @@ let CreateConfigFileModal = React.createClass({
         failed: {
           func: (res) => {
             let errorText
+            if(isResourcePermissionError(res)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              return;
+            }
             switch (res.message.code) {
               case 403: errorText = '添加配置文件过多'; break
               case 409: errorText = '配置已存在'; break
@@ -216,12 +219,13 @@ let CreateConfigFileModal = React.createClass({
         { validator: this.configDescExists },
       ]
     });
+
     return(
       <Modal
         title={`添加${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
-        visible={parentScope.state.modalConfigFile}
+        visible={this.props.visible}
         onOk={() => this.createConfigFile(this.props.groupName)}
         onCancel={(e) => this.cancelModal(e)}
         width="600px"

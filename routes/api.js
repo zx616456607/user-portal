@@ -94,6 +94,7 @@ module.exports = function (Router) {
   router.get('/projects/list-visible', projectController.listVisibleProjects)
   router.put('/projects/:name', projectController.updateProject)
   router.get('/projects/:name/check-exists', projectController.checkProjectNameExists)
+  router.get('/projects/:name/name-exists', projectController.checkDisplayNameExists)
   router.get('/projects/check-manager', projectController.checkProjectManager)
   router.get('/projects/:name/clusters', projectController.getProjectAllClusters)
   router.get('/projects/:name/visible-clusters', projectController.getProjectVsibleClusters)
@@ -297,6 +298,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
   router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
+  router.get('/clusters/:cluster/configgroups/:name/verify', configController.checkConfigGroupName)
   // Secrets config
   router.post('/clusters/:clusterID/secrets/:groupName', secretsController.createGroup)
   router.del('/clusters/:clusterID/secrets/:groupName', secretsController.removeGroup)

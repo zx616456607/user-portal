@@ -25,7 +25,8 @@ import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
 import {
   genRandomString, toQuerystring, getResourceByMemory, parseAmount,
-  isResourcePermissionError, formatServiceToArrry, getWrapFileType
+  isResourcePermissionError, formatServiceToArrry, getWrapFileType,
+  sleep
 } from '../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
@@ -39,6 +40,7 @@ import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { parseToFields } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/parseToFields'
 import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
+import Title from '../../Title'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -513,9 +515,10 @@ class QuickCreateApp extends Component {
     const templateArray = [];
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
-    templateArray.forEach(temp => {
+    templateArray.forEach((temp, index, _array) => {
+      const isLast = index === _array.length - 1;
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart);
+      const values = parseToFields(temp, chart, isLast);
       setFormFields(id, values);
     });
     let url = '/app_manage/app_create/quick_create'
@@ -689,12 +692,7 @@ class QuickCreateApp extends Component {
       stepStatus: 'finish',
       isCreatingApp: false,
     })
-    let redirectUrl
-    if (this.action === 'addService') {
-      redirectUrl = `/app_manage/detail/${this.state.appName}`
-    } else {
-      redirectUrl = '/app_manage'
-    }
+    let redirectUrl = '/app_manage'
     browserHistory.push(redirectUrl)
   }
 
@@ -867,7 +865,9 @@ class QuickCreateApp extends Component {
     return flag
   }
 
-  onCreateAppOrAddServiceClick(isValidateFields) {
+  async onCreateAppOrAddServiceClick(isValidateFields) {
+    // 解决 InputNumber 组件失去焦点新值才能生效问题
+    await sleep(200)
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }
@@ -1095,7 +1095,7 @@ class QuickCreateApp extends Component {
           this.setState({
             appName: values.appName
           })
-          this.action = 'addService'
+          // this.action = 'addService'
         }
         this.setState({ editServiceLoading: true }, () => {
           this.saveService({ noJumpPage: true })
@@ -1365,6 +1365,7 @@ class QuickCreateApp extends Component {
         {
           isCreatingApp && <Spin />
         }
+        <Title title="应用列表" />
         <div className={quickCreateAppContentClass}>
           <Row gutter={16}>
             <Col span={showprice}>

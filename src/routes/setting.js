@@ -31,6 +31,7 @@ const settingRoutes = [
   {
     path: 'globalConfig',
     component: require('../components/SettingModal/GlobalConfig').default,
+    onEnter:(nextState, replace) => replace('/cluster/globalConfig')
   },
   {
     path: 'advancedSetting',

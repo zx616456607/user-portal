@@ -13,6 +13,10 @@ const tenantRoutes = [{
   path: 'integration',
   component: require('../components/IntegrationModule').default,
 },{
+  path: '/tenant_manage/beginner_guidance',
+  component: require('../../client/containers/TenantManage/BeginnerGuidance').default,
+},
+  {
     path: 'user/:user_id',
     component: require('../components/TenantManage/UserInfo').default,
   },{
@@ -30,6 +34,10 @@ const tenantRoutes = [{
   {
     path: 'user',
     component: require('../components/TenantManage/Membermanagement').default,
+  },
+  {
+    path: '/tenant_manage/cluster_authorization',
+    component: require('../../client/containers/TenantManage/ClusterAuthorization').default,
   },
   {
     path: 'project_manage/project_detail',

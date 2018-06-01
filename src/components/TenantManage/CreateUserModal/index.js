@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { Input, Modal, Form, Radio, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import {
-  PHONE_REGEX, ROLE_SYS_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID,
+  PHONE_REGEX, ROLE_SYS_ADMIN, ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID,
 } from '../../../../constants'
 import { serviceNameCheck } from '../../../common/naming_validation'
 const Option = Select.Option
@@ -127,7 +127,7 @@ let CreateUserModal = React.createClass({
         email: email,
         phone: tel,
         sendEmail: check,
-        role: parseInt(role),
+        role: parseInt(role)+1,
         authority,
         resetPassword,
       }
@@ -195,11 +195,11 @@ let CreateUserModal = React.createClass({
       valuePropName: 'checked',
     })
     const roleProps = getFieldProps('role', {
-      initialValue: '0',
+      initialValue: ROLE_USER,
       onChange: e => {
         const value = e.target.value
         let authority = []
-        if (value === '2') {
+        if (value === ROLE_PLATFORM_ADMIN || value === ROLE_BASE_ADMIN) {
           authority = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
         }
         setFieldsValue({
@@ -256,8 +256,15 @@ let CreateUserModal = React.createClass({
             label="类型"
             >
             <Radio.Group  {...roleProps} defaultValue="0">
-              <Radio key="a" value="0">普通成员</Radio>
-              <Radio key="c" value="2">系统管理员</Radio>
+              <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
+              {
+                loginUser.role === ROLE_PLATFORM_ADMIN?
+                  ""
+                  :
+                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员</Radio>
+
+              }
+              <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
             </Radio.Group>
           </FormItem>
 
@@ -267,7 +274,7 @@ let CreateUserModal = React.createClass({
           >
             <CheckboxGroup
               {...authorityProps}
-              disabled={getFieldValue('role') === '2'}
+              disabled={getFieldValue('role') === ROLE_PLATFORM_ADMIN || getFieldValue('role') === ROLE_BASE_ADMIN}
               options={[
                 { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
                 { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },

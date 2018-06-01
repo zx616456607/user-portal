@@ -26,10 +26,9 @@ import CreateConfigFileModal from './CreateConfigFileModal'
 import UpdateConfigFileModal from './UpdateConfigFileModal'
 import CreateServiceGroupModal from './ConfigGroup/CreateModal'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
-import { isResourceQuotaError } from '../../common/tools'
+import { isResourceQuotaError, isResourcePermissionError } from '../../common/tools'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
-import { isResourcePermissionError } from '../../common/tools'
 
 const notification = new NotificationHandler()
 
@@ -206,6 +205,10 @@ class ServiceSecretsConfig extends React.Component {
       },
       failed: {
         func: error => {
+          if(isResourcePermissionError(err)){
+            //403 没权限判断 在App/index中统一处理 这里直接返回
+            return;
+          }
           if (isResourceQuotaError(error)) {
             this.setState({
               modalConfigFile: false,

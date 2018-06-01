@@ -793,3 +793,15 @@ export function getWrapFileType(type) {
       return 'jar';
   }
 }
+
+/**
+ * 延迟
+ *
+ * @param time
+ * @returns {Promise<any>}
+ */
+export const sleep = (time = 50) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, time)
+  })
+}

@@ -149,6 +149,9 @@ class AppServerTag extends Component{
     });
   }
   checkKey(rule, value, callback) {
+    if (!this.state.create) {
+      callback()
+    }
     if (!Boolean(value)){
       callback(new Error('请输入标签键'))
       return
@@ -378,7 +381,11 @@ class AppServerTag extends Component{
                 />
               </FormItem>
             </div>
-            <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+            {
+               this.state.create ?
+               <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+               : null
+            }
           </div>
         );
     });

@@ -1301,7 +1301,15 @@ const menusText = defineMessages({
   },
   Wrap: {
     id: 'ManageMonitor.operationalAudit.Wrap',
-    defaultMessage: '应用包'
+    defaultMessage: '应用包管理'
+  },
+  WrapCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapCheck',
+    defaultMessage: '应用包发布审核'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
   },
   UploadDocs: {
     id: 'ManageMonitor.operationalAudit.UploadDocs',
@@ -1319,6 +1327,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
   },
+  ImageCheck: {
+    id: 'ManageMonitor.operationalAudit.ImageCheck',
+    defaultMessage: '镜像发布审核',
+  },
+  ImageStore: {
+    id: 'ManageMonitor.operationalAudit.ImageStore',
+    defaultMessage: '镜像商店'
+  },
   Upload: {
     id: 'ManageMonitor.operationalAudit.Upload',
     defaultMessage: '上传'
@@ -1334,10 +1350,6 @@ const menusText = defineMessages({
   OffShelf: {
     id: 'ManageMonitor.operationalAudit.OffShelf',
     defaultMessage: '下架'
-  },
-  PublishCheck: {
-    id: 'ManageMonitor.operationalAudit.PublishCheck',
-    defaultMessage: '发布审核'
   },
   PublishPass: {
     id: 'ManageMonitor.operationalAudit.PublishPass',
@@ -1597,19 +1609,19 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Wrap)
       break;
     case '61':
-      return formatMessage(menusText.Wrap)
+      return formatMessage(menusText.WrapStore)
       break;
     case '62':
-      return formatMessage(menusText.PublishCheck)
+      return formatMessage(menusText.WrapCheck)
       break;
     case '63':
       return formatMessage(menusText.Image)
       break;
     case '64':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageStore)
       break;
     case '65':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageCheck)
       break;
     case '66':
       return formatMessage(menusText.MonitorPanel)
@@ -1768,6 +1780,24 @@ function formatResourceName(resourceName) {
   //this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
+    // check project
+    if (!!newBody.projects) {
+      let newName = newBody.projects;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    // check displayName
+    if (!!newBody.displayName) {
+      let newName = newBody.displayName;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
     //check services
     if (!!newBody.services) {
       let newName = newBody.services;

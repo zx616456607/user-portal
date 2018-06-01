@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppCenter.less'
-import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../constants'
 
 const menuList = [
   {
@@ -58,7 +58,7 @@ class ImageCenter extends Component {
     const { children, role } = this.props
     const scope = this
     let routerList = menuList
-    if (role === ROLE_SYS_ADMIN) {
+    if (role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN) {
       routerList = admin_menuList
     }
     return (

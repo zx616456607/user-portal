@@ -21,7 +21,7 @@ import { getStorageClassType } from '../../actions/storage'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
-import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN } from '../../../constants'
+import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE, API_URL_PREFIX } from '../../constants'
 import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
@@ -61,7 +61,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting\/?$/,
     /\/manange_monitor\/panel/,
-    /\/app_center\/template/,
+    /\/app_center\/template\/create/,
   ],
 }
 
@@ -468,8 +468,10 @@ class Header extends Component {
         <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
       </div>
     );
+    const roleShowSpace = loginUser.role == ROLE_SYS_ADMIN || loginUser.role == ROLE_PLATFORM_ADMIN
     return (
       <div id="header">
+
         {
           showSpace && (
             <div className="space">

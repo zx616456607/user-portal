@@ -12,21 +12,10 @@ import { Breadcrumb } from 'antd'
 import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/setting.less'
-import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { connect } from 'react-redux'
 
-const menuList_normal = [
-  {
-    url: '/setting/version',
-    name: '平台版本'
-  },
-  {
-    url: '/setting/API',
-    name: '开放 API'
-  },
-]
-
-const menuList_sysAdmin = [
+const menuList_platform = [
   {
     url: '/setting/version',
     name: '平台版本'
@@ -40,8 +29,44 @@ const menuList_sysAdmin = [
     name: '开放 API'
   },
   {
-    url: '/setting/globalConfig',
-    name: '全局配置'
+    url: '/setting/advancedSetting',
+    name: '高级设置'
+  },{
+    url:'/setting/personalized',
+    name:'个性外观'
+  }
+]
+const menuList_base = [
+  {
+    url: '/setting/version',
+    name: '平台版本'
+  },
+
+  {
+    url: '/setting/API',
+    name: '开放 API'
+  },
+  {
+    url: '/setting/advancedSetting',
+    name: '高级设置'
+  },
+  {
+    url:'/setting/cleaningTool',
+    name:'清理工具'
+  }
+]
+const menuList_sysAdmin = [
+  {
+    url: '/setting/version',
+    name: '平台版本'
+  },
+  {
+    url: '/setting/license',
+    name: '授权管理'
+  },
+  {
+    url: '/setting/API',
+    name: '开放 API'
   },{
     url: '/setting/advancedSetting',
     name: '高级设置'
@@ -51,6 +76,16 @@ const menuList_sysAdmin = [
   },{
     url:'/setting/cleaningTool',
     name:'清理工具'
+  }
+]
+const menuList_normal = [
+  {
+    url: '/setting/version',
+    name: '平台版本'
+  },
+  {
+    url: '/setting/API',
+    name: '开放 API'
   }
 ]
 
@@ -65,7 +100,19 @@ class Setting extends Component {
   render() {
     const { children, role } = this.props
     const scope = this
-    const menuList = (role == ROLE_SYS_ADMIN ? menuList_sysAdmin : menuList_normal)
+    const menuList = () => {
+      switch (role) {
+        case ROLE_USER:
+          return menuList_normal
+        case ROLE_BASE_ADMIN:
+          return menuList_base
+        case ROLE_PLATFORM_ADMIN:
+          return menuList_platform
+        case ROLE_SYS_ADMIN:
+          return menuList_sysAdmin
+      }
+    }
+
     return (
       <div id="Setting">
         <QueueAnim
@@ -74,7 +121,7 @@ class Setting extends Component {
           type="left"
         >
           <div className={this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
-            <SecondSider menuList={menuList} scope={scope} />
+            <SecondSider menuList={menuList()} scope={scope} />
           </div>
         </QueueAnim>
         <div className={this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent'} >
@@ -93,7 +140,7 @@ Setting.propTypes = {
 function mapStateToProp(state) {
   let role = ROLE_USER
   const { entities } = state
-  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+  if (entities && entities.loginUser && entities.loginUser.info.role) {
     role = entities.loginUser.info.role
   }
   return {

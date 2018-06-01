@@ -22,7 +22,6 @@ export default class PopSelect extends Component {
       visible: props.visible,
     }
   }
-
   setValue(item) {
     const { onChange } = this.props
     if (onChange) {
@@ -64,7 +63,7 @@ export default class PopSelect extends Component {
               popTeamSelect={popTeamSelect}
               isSysAdmin={isSysAdmin}
               allUsers={allUsers}
-              />
+            />
           }
           trigger="click"
           visible={this.state.visible}

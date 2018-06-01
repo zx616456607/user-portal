@@ -533,7 +533,15 @@ const menusText = defineMessages({
   },
   Wrap: {
     id: 'ManageMonitor.operationalAudit.Wrap',
-    defaultMessage: '应用包'
+    defaultMessage: '应用包管理'
+  },
+  WrapCheck: {
+    id: 'ManageMonitor.operationalAudit.WrapCheck',
+    defaultMessage: '应用包发布审核'
+  },
+  WrapStore: {
+    id: 'ManageMonitor.operationalAudit.WrapStore',
+    defaultMessage: '应用包商店'
   },
   UploadDocs: {
     id: 'ManageMonitor.operationalAudit.UploadDocs',
@@ -550,6 +558,14 @@ const menusText = defineMessages({
   Image: {
     id: 'ManageMonitor.operationalAudit.Image',
     defaultMessage: '镜像'
+  },
+  ImageCheck: {
+    id: 'ManageMonitor.operationalAudit.ImageCheck',
+    defaultMessage: '镜像发布审核',
+  },
+  ImageStore: {
+    id: 'ManageMonitor.operationalAudit.ImageStore',
+    defaultMessage: '镜像商店'
   },
   Upload: {
     id: 'ManageMonitor.operationalAudit.Upload',
@@ -618,6 +634,14 @@ const menusText = defineMessages({
   Permission: {
     id: 'ManageMonitor.operationalAudit.Permission',
     defaultMessage: '权限控制'
+  },
+  InstallHelmTemplate: {
+    id: 'ManageMonitor.operationalAudit.InstallHelmTemplate',
+    defaultMessage: '部署模板'
+  },
+  HelmTemplate: {
+    id: 'ManageMonitor.operationalAudit.HelmTemplate',
+    defaultMessage: '应用模板'
   },
 });
 
@@ -794,6 +818,10 @@ function returnOperationList(scope) {
     {
       value: '44',
       label: (<FormattedMessage {...menusText.UnCordon}/>)
+    },
+    {
+      value: '45',
+      label: (<FormattedMessage {...menusText.InstallHelmTemplate}/>)
     }
   ];
   return operationalList;
@@ -1004,19 +1032,19 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Wrap)
       break;
     case '61':
-      return formatMessage(menusText.Wrap)
+      return formatMessage(menusText.WrapStore)
       break;
     case '62':
-      return formatMessage(menusText.Wrap)
+      return formatMessage(menusText.WrapCheck)
       break;
     case '63':
       return formatMessage(menusText.Image)
       break;
     case '64':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageStore)
       break;
     case '65':
-      return formatMessage(menusText.Image)
+      return formatMessage(menusText.ImageCheck)
       break;
     case '66':
       return formatMessage(menusText.MonitorPanel)
@@ -1039,6 +1067,8 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.Ingress)
     case '74':
       return formatMessage(menusText.Permission)
+    case '75':
+      return formatMessage(menusText.HelmTemplate)
     // For CI related
     case '1000':
       return formatMessage(menusText.baseImage)
@@ -1164,6 +1194,8 @@ function operationalFormat(operationalType, scope) {
       return formatMessage(menusText.Drain)
     case '44':
       return formatMessage(menusText.UnCordon)
+    case '45':
+      return formatMessage(menusText.InstallHelmTemplate)
   }
 }
 
@@ -1867,6 +1899,11 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[0])
         showOperationalList.push(operationalList[2])
         break;
+      case '75':
+        showOperationalList.push(operationalList[19])
+        showOperationalList.push(operationalList[2])
+        showOperationalList.push(operationalList[42])
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -2184,11 +2221,11 @@ class OperationalAudit extends Component {
         children: [
           {
             value: '61',
-            label: formatMessage(menusText.Wrap),
+            label: formatMessage(menusText.WrapStore),
           },
           {
             value: '64',
-            label: formatMessage(menusText.Image),
+            label: formatMessage(menusText.ImageStore),
           },
           {
             value: '71',
@@ -2202,11 +2239,11 @@ class OperationalAudit extends Component {
         children: [
           {
             value: '62',
-            label: formatMessage(menusText.Wrap)
+            label: formatMessage(menusText.WrapCheck)
           },
           {
             value: '65',
-            label: formatMessage(menusText.Image)
+            label: formatMessage(menusText.ImageCheck)
           }
         ]
       },
@@ -2229,6 +2266,10 @@ class OperationalAudit extends Component {
       {
         value: '74',
         label: formatMessage(menusText.Permission)
+      },
+      {
+        value: '75',
+        label: formatMessage(menusText.HelmTemplate)
       },
       {
         value: null,

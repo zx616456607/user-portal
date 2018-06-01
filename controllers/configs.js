@@ -17,7 +17,7 @@ exports.listConfigGroups = function* () {
   const { project } = this.request.headers || { project: null }
   const headers = {}
   if (project) {
-    Object.assign(headers, { project })
+    Object.assign(headers, { project, teamspace: project })
   }
   const api = apiFactory.getK8sApi(loginUser)
   let response = yield api.getBy([cluster, 'configgroups'], null, { headers })
@@ -194,4 +194,13 @@ exports.updateConfigAnnotations = function* () {
   this.body = {
     data: response.data
   }
+}
+
+exports.checkConfigGroupName = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const response = yield api.getBy([cluster, 'configgroups', name, 'verify'])
+  this.body = response
 }

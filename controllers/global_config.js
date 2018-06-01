@@ -269,7 +269,8 @@ function* storageConfigFunc(entity) {
 }
 
 exports.getGlobalConfig = function* () {
-  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
+  let permission = [constant.ADMIN_ROLE,constant.BASE_ADMIN_ROLE]
+  if (permission.indexOf(this.session.loginUser.role)<0) {
     const err = new Error('Not admin user')
     err.status = 400
     throw err

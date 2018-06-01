@@ -60,11 +60,17 @@ class Pipeline extends React.Component {
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
-      username, location,
+      username, location: { pathname, query: locationQuery },
     } = this.props
+    let redirect
+    if (pathname === '/ci_cd/thirdparty') {
+      redirect = '/devops/thirdparty'
+    } else if (pathname === '/ci_cd/cached_volumes') {
+      redirect = '/devops/volumes/rbd'
+    }
     const query = Object.assign(
-      {},
-      location.query,
+      { redirect },
+      locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, hash,
       }

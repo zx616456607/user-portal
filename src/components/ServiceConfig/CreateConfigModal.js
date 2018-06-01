@@ -1,6 +1,6 @@
 import { Button, Form, Input, Row, Col, Modal, Select } from 'antd';
 import React from 'react'
-import { USERNAME_REG_EXP_NEW } from '../../constants'
+import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import { isResourcePermissionError } from '../../common/tools'
 import { validateK8sResource } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
@@ -95,7 +95,12 @@ let CreateConfigModal = React.createClass({
   },
 
   configNameExists(rule, value, callback) {
-    const form = this.props.form;
+    const parentScope = this.props.scope
+    const { checkConfigNameExistence, cluster } = parentScope.props
+    const { groupEdit } = parentScope.state;
+    if (groupEdit) {
+      return callback()
+    }
     if (!value) {
       callback([new Error('请输入配置组名称')])
       return
@@ -116,7 +121,27 @@ let CreateConfigModal = React.createClass({
       callback('由小写字母、数字和连字符（-）组成')
       return
     }
-    callback()
+    clearTimeout(this.configNameTimeout)
+    this.configNameTimeout = setTimeout(() => {
+      checkConfigNameExistence(cluster, value, {
+        success: {
+          func: res => {
+            if (res.data.existence) {
+              callback('配置组名称重复')
+            } else {
+              callback()
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: res => {
+            callback(res.message.message || res.message)
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
   configSortExists(rules, value, callback) {
     callback()
@@ -126,7 +151,7 @@ let CreateConfigModal = React.createClass({
      this.props.form.resetFields()
   },
   render() {
-    const { getFieldProps } = this.props.form
+    const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = this.props.form
     const parentScope = this.props.scope
     const { configGroup, labelWithCount } = this.props
     const { currentGroup, groupEdit } = parentScope.state;
@@ -180,6 +205,8 @@ let CreateConfigModal = React.createClass({
               <FormItem
                 {...formItemLayout}
                 label="配置组名称"
+                hasFeedback={!!getFieldValue('newConfigName')}
+                help={isFieldValidating('newConfigName') ? '校验中...' : (getFieldError('newConfigName') || []).join(', ')}
                 >
                 <Input {...nameProps} disabled={groupEdit} type="text" id="newConfigName" onPressEnter={()=> this.btnCreateConfigGroup()} />
               </FormItem>

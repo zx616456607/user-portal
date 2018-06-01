@@ -19,7 +19,7 @@ import { Link, browserHistory } from 'react-router'
 import { parseAmount } from '../../../common/tools'
 import CreateUserModal from '../CreateUserModal'
 import NotificationHandler from '../../../components/Notification'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_PLATFORM_ADMIN, ROLE_SYS_ADMIN, ROLE_USER, ROLE_BASE_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { MAX_CHARGE, ACTIVE } from '../../../constants'
 import Title from '../../Title'
@@ -115,30 +115,30 @@ let MemberTable = React.createClass({
   filtertypes(filters) {
     // member select filter type (0=>普通成员，3=> 系统管理员)
     // return number
+
     let filter = ''
     let isSetFilter = false
     let protoDate = ['0', '1', '2']
     let typeData = ['1', '2']
     if (filters.style) {
-      if (filters.style.length === 1) {
+      if (filters.style.length) {
         isSetFilter = true
-        if (filters.style[0] === '0') {
-          // Show normal user only
-          filter = `role__neq,2`
-        } else {
-          filter = `role__eq,${filters.style[0]}`
-        }
-      }
-      /*if (filters.style.length == 2) {
-        for (let i = 0; i < protoDate.length; i++) {
-          let item = protoDate[i]
-          if (filters.style.indexOf(item) < 0) {
-            isSetFilter = true
-            filter = `role__neq,${item}`
-            break
+        let filterTypeArr = [ROLE_USER,ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN,ROLE_BASE_ADMIN];
+        let include =[];
+        filterTypeArr.forEach(v => {
+          if (filters.style.indexOf(`${v}`) >= 0) {
+            include.push(v)
           }
-        }
-      }*/
+        })
+
+        include.forEach(item => {
+          filter += `role__eq,${item},`
+          if (item === include[include.length - 1]) {
+            filter = filter.substring(0, filter.length - 1)
+          }
+        });
+      }
+
     }
     if (filters.type) {
       if (filters.type.length == 1) {
@@ -168,6 +168,7 @@ let MemberTable = React.createClass({
     return ''
   },
   onTableChange(pagination, filters, sorter) {
+
     // 点击分页、筛选、排序时触发
     if (!filters.style && !filters.type && !filters.active) {
       return
@@ -187,6 +188,7 @@ let MemberTable = React.createClass({
       sort,
     }
     let filter = this.filtertypes(filters)
+
     if (searchFilter) {
       if (filter) {
         filter = `${searchFilter},${filter}`
@@ -199,10 +201,12 @@ let MemberTable = React.createClass({
       filter,
       tableFilter: this.filtertypes(filters),
     })
+
     loadUserList(query)
     this.styleFilter = styleFilterStr
     this.typeFilterStr = typeFilterStr
     this.activeFilterStr = activeFilterStr
+
   },
   onSelectChange(selectedRowKeys) {
     const { scope } = this.props
@@ -297,6 +301,7 @@ let MemberTable = React.createClass({
     })
   },
   render() {
+
     let {
       selectedRowKeys,
       sortedInfo,
@@ -353,29 +358,28 @@ let MemberTable = React.createClass({
       },
     }
     const { userDetail } = this.props.scope.props
+    const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     let filterKey = [
-      { text: '普通成员', value: 0 },
-      { text: '系统管理员', value: 2 }
+      { text: '普通成员', value: ROLE_USER },
+      { text: '系统管理员', value: ROLE_SYS_ADMIN },
+      { text: '基础设施管理员', value: ROLE_BASE_ADMIN },
+      { text: '平台管理员', value: ROLE_PLATFORM_ADMIN }
     ]
+
     let userStatusfilterKey = [
       { text: '不可用', value: 0 },
       { text: '可用', value: 1 },
     ]
-    // if (userDetail.role === ROLE_SYS_ADMIN) {
-    //   filterKey = [
-    //     { text: '普通成员', value: 0 },
-    //     { text: '系统管理员', value: 2 }
-    //   ]
-    // }
 
     let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
 
     let columns = [
       {
         title: (
-          <div onClick={this.handleSortName}><span>成员名
+          <div onClick={this.handleSortName} style={{display:'inline'}}>
+            <span>成员名
             {
-              userDetail.role === ROLE_SYS_ADMIN && (
+              checkAuth && (
                   <a href="javascript:void(0)">（{this.props.onlineTotal} 人在线）</a>
               )
             }</span>
@@ -394,7 +398,7 @@ let MemberTable = React.createClass({
         className: 'memberName',
         width: '20%',
         render: (text, record, index) => {
-          if (userDetail.role === ROLE_SYS_ADMIN) {
+          if (checkAuth) {
             return (
               <Link to={`/tenant_manage/user/${record.key}`}>
                 {
@@ -493,7 +497,7 @@ let MemberTable = React.createClass({
         }
       },
     ]
-    if (userDetail.role === ROLE_SYS_ADMIN) {
+    if (checkAuth) {
       columns.push({
         title: '操作',
         dataIndex: 'operation',
@@ -545,6 +549,7 @@ let MemberTable = React.createClass({
         </div>
       )
     }
+
     return (
       <div>
         <Table columns={columns}
@@ -666,8 +671,8 @@ class Membermanagement extends Component {
   }
   showModal() {
     const { userDetail } = this.props
-    if (userDetail.role !== ROLE_SYS_ADMIN) {
-      return this.showInfo('普通成员没有权限创建新成员')
+    if (userDetail.role === ROLE_USER || userDetail.role === ROLE_BASE_ADMIN) {
+      return this.showInfo('普通成员或基础设施管理员没有权限创建新成员')
     }
     this.setState({
       visible: true,
@@ -843,6 +848,7 @@ class Membermanagement extends Component {
     const funcs = {
       checkUserName
     }
+    const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     return (
       <QueueAnim>
       <div id="Membermanagement" key='Membermanagement'>
@@ -851,13 +857,15 @@ class Membermanagement extends Component {
         <Title title="成员管理"/>
         <Row>
           {
-            userDetail.role === ROLE_SYS_ADMIN &&
+            checkAuth ?
             <Button type="primary" size="large" onClick={this.showModal} className="Btn">
               <i className='fa fa-plus' /> 创建新成员
             </Button>
+              :
+              ""
           }
           {
-            billingEnabled && userDetail.role === ROLE_SYS_ADMIN && (
+            billingEnabled && (checkAuth) && (
               <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
                 <Icon type="pay-circle-o" />批量充值
               </Button>
@@ -867,7 +875,7 @@ class Membermanagement extends Component {
             <i className='fa fa-refresh' /> &nbsp;刷 新
           </Button>
           {
-            userDetail.role === ROLE_SYS_ADMIN &&
+            checkAuth &&
             <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
               <Icon type="solution" />已删除成员
             </Button>
@@ -972,7 +980,11 @@ function mapStateToProp(state) {
         let role = ""
         if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
-        } else {
+        } else if(item.role === ROLE_PLATFORM_ADMIN){
+          role = "平台管理员"
+        }else if(item.role === ROLE_BASE_ADMIN){
+          role = "基础设施管理员"
+        }else {
           role = "普通成员"
         }
         data.push(

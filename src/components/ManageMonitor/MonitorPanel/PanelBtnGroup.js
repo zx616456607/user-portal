@@ -15,6 +15,9 @@ import { Button, DatePicker, Radio } from 'antd'
 import './style/PanelBtnGroup.less'
 import { UPDATE_INTERVAL } from '../../../constants'
 import { formatDate } from "../../../common/tools"
+import NotificationHandler from '../../../components/Notification'
+
+let notify = new NotificationHandler()
 
 const { RangePicker } = DatePicker
 const RadioGroup = Radio.Group
@@ -96,6 +99,14 @@ export default class PanelBtnGroup extends React.Component {
     return [ formatDate(startTime), formatDate(now) ]
   }
   rangePickerChange(value) {
+    const [ startTime, endTime ] = value
+    if (new Date(startTime).getTime() > new Date(endTime).getTime()) {
+      notify.warn('开始时间不能超过结束时间')
+    }
+    if (new Date(endTime).getTime() > new Date().getTime()) {
+      notify.warn('结束时间不能超过当前时间')
+      return
+    }
     const { onChange } = this.props
     this.setState({ value })
     /**

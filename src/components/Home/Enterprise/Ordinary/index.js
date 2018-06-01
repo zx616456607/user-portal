@@ -416,9 +416,9 @@ class Ordinary extends Component {
       overUesd = true
     }
     return (
-      <Row className="number-row">
-        <Col span={left}></Col>
-        <Col span={right} className="number">
+      <Row className="number-row" >
+        <Col span={7}></Col>
+        <Col span={17} className="number" >
           <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
           /
           <p>{maxCount === -1 ? '无限制' : maxCount}</p>
@@ -1423,7 +1423,7 @@ class Ordinary extends Component {
         text: 'Zookeeper集群 (个)'
       }, {
         key: 'elasticsearch',
-        text: 'ElasticSearch集群 (个)'
+        text: 'ES集群 (个)'
       },
       // {
       //   key: 'etcd',
@@ -1539,7 +1539,9 @@ class Ordinary extends Component {
                     <div className="info" key={`calculation-${index}`}>
                       <Row>
                         <Col span={6}>
-                          <span>{item.text}</span>
+                          <Tooltip title={item.text}>
+                            <span className="item">{item.text}</span>
+                          </Tooltip>
                         </Col>
                         <Col span={18}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
@@ -1555,10 +1557,12 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info" key={`application-${index}`}>
                       <Row>
-                        <Col span={9}>
-                          <span>{item.text}</span>
+                        <Col span={6}>
+                          <Tooltip title={item.text}>
+                            <span className="item">{item.text}</span>
+                          </Tooltip>
                         </Col>
-                        <Col span={15}>
+                        <Col span={18}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>
@@ -1572,10 +1576,12 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={14}>
-                          <span>{item.text}</span>
+                        <Col span={6}>
+                          <Tooltip title={item.text}>
+                            <span className="item">{item.text}</span>
+                          </Tooltip>
                         </Col>
-                        <Col span={10}>
+                        <Col span={18}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
                       </Row>

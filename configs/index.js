@@ -22,7 +22,7 @@ const config = {
   url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
-  session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
+  session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
     external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
