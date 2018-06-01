@@ -96,6 +96,7 @@ class TemplateList extends React.Component<any> {
       this.setState({
         deleteLoading: false,
       });
+      return;
     }
     this.loadTemplateList();
     notify.close();

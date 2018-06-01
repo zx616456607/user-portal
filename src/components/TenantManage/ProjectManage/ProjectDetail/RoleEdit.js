@@ -11,13 +11,14 @@
 import React, { Component } from 'react'
 
 import { UpdateRole, CreateRole, ExistenceRole, RemovePermissionRole, AddPermissionRole } from '../../../../actions/role'
-import { Row, Col, Button, Input, Modal, Transfer, Tree, Form, Icon } from 'antd'
+import { Row, Col, Button, Input, Modal, Transfer, Tree, Form, Icon, Radio } from 'antd'
 import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { Permission } from '../../../../actions/permission'
 import NotificationHandler from '../../../../components/Notification'
 import './style/roleEdit.less'
 import { REG } from '../../../../constants'
+import cloneDeep from 'lodash/cloneDeep'
 
 class RoleEditModal extends React.Component {
   constructor(props) {
@@ -39,6 +40,7 @@ class RoleEditModal extends React.Component {
       isCheck: false,
       codeKey: [],
       categoryKey: [],
+      permissionType: 1,
     }
   }
   componentWillMount() {
@@ -66,11 +68,17 @@ class RoleEditModal extends React.Component {
             let childrenKeys = []
             let codeKey = []
             this.RowData(result, childrenKeys, codeKey)
-            this.setState({
+            const state = {
               count: res.data.data.total,
               rowDate: res.data.data,
               rowPermissionID: pids,
-            })
+            }
+
+            if(res.data.data.pids.indexOf(10000) > -1){
+              state.permissionType = 2
+            }
+
+            this.setState(state)
           }
         }
       }
@@ -119,16 +127,18 @@ class RoleEditModal extends React.Component {
         func: (res) => {
           if (REG.test(res.data.code)) {
             let result = res.data.data.permissions;
-            let tempres = _.cloneDeep(result);
-            let allPermission = [];
-            allPermission.push(_.filter(tempres, {id:10000, code: "SYSTEM_ALL_PRIVILEGES"})[0])
-            allPermission[0].children = _.filter(tempres, (item) => {
-              return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
-            });
-            this.setState({
-              allPermission: allPermission,
+            let tempres = cloneDeep(result);
+            // let allPermission = [];
+            // allPermission.push(_.filter(tempres, {id:10000, code: "SYSTEM_ALL_PRIVILEGES"})[0])
+            // allPermission[0].children = _.filter(tempres, (item) => {
+            //   return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
+            // });
+            // 包括所有权限项
+            const state = {
+              allPermission: tempres,
               total: res.data.data.total
-            })
+            }
+            this.setState(state)
           }
         },
         isAsync: true
@@ -203,30 +213,33 @@ class RoleEditModal extends React.Component {
   }
   editInfo() {
     const { UpdateRole, AddPermissionRole, loadData, scope, form, roleId, isDetail } = this.props
-    const { rowPermissionID, checkedKeys, isChecked } = this.state
+    const { rowPermissionID, checkedKeys, isChecked, permissionType } = this.state
     let notification = new NotificationHandler()
     let idKey = []
     let checkedID = []
-
-    if (rowPermissionID && rowPermissionID.length > 0) {
-      rowPermissionID.sort()
-      if (rowPermissionID[0] === 0) {
-        rowPermissionID.splice(0, 1)
-      }
-      checkedID = checkedKeys.map((item) => {
-        return Number(item)
-      })
-      checkedID.map((item) => {
-        if (rowPermissionID.indexOf(item) === -1) {
-          idKey.push(item)
+    if(permissionType === 1){
+      if (rowPermissionID && rowPermissionID.length > 0) {
+        rowPermissionID.sort()
+        if (rowPermissionID[0] === 0) {
+          rowPermissionID.splice(0, 1)
         }
-      })
-    } else {
-      idKey = checkedKeys.map((item) => {
-        return Number(item)
-      })
+        checkedID = checkedKeys.map((item) => {
+          return Number(item)
+        })
+        checkedID.map((item) => {
+          if (rowPermissionID.indexOf(item) === -1) {
+            idKey.push(item)
+          }
+        })
+      } else {
+        idKey = checkedKeys.map((item) => {
+          return Number(item)
+        })
+      }
+    }else if(permissionType === 2){
+      idKey = [10000] // 所有资源权限
     }
-    if (isChecked) {
+    if (isChecked || permissionType === 2) {
       this.screenInfo()
       if (idKey && idKey.length > 0) {
         let bodys = {
@@ -282,10 +295,15 @@ class RoleEditModal extends React.Component {
   screenInfo() {
     let notification = new NotificationHandler()
     const { RemovePermissionRole, scope } = this.props
-    const { rowPermissionID, checkedKeys, isChecked, codeKey } = this.state
+    const { rowPermissionID, isChecked, codeKey, permissionType } = this.state
+    let checkedKeys = cloneDeep(this.state.checkedKeys)
     let checkedId = []
     let ary = []
     let arys = []
+
+    if(permissionType === 2){
+      checkedKeys = []
+    }
     checkedId = checkedKeys.map((item, index) => {
       return Number(item)
     })
@@ -311,7 +329,7 @@ class RoleEditModal extends React.Component {
       })
     })
     if (arys.length <= 0) return
-    if (isChecked) {
+    if (isChecked || permissionType === 2) {
       if (arys.length <= 0) return
       if (arys && arys.length > 0) {
         let bodys = {
@@ -379,9 +397,15 @@ class RoleEditModal extends React.Component {
     })
   }
 
+  permissionTypeChange = (e) => {
+    const value = e.target.value;
+    if(this.state.permissionType === value) return;
+    let tempState = {permissionType: e.target.value}
+    this.setState(tempState);
+  }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, checkedKeys } = this.state
+    const { allPermission, permissionCount, rowDate, rowPermission, total, isChecked, checkedKeys, permissionType } = this.state
     const { visible, form, isAdd, isTotal } = this.props
     const { getFieldProps, isFieldValidating, getFieldError } = form
     const formItemLayout = {
@@ -432,29 +456,65 @@ class RoleEditModal extends React.Component {
           </Form.Item>
         </Form>
         */}
-        <div className="authChoose">
-          <span className="desc">权限选择 :</span>
-          <div className="authBox">
-            <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
-              {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.totalSelected : isAdd : this.state.checkedCount.length}
-            </span> 个</div>
-            </div>
-            <div className="treeBox">
-              {
-                (allPermission.length > 0) &&
-                <Tree
-                  checkable
-                  onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheck.bind(this)} checkedKeys={checkedKey}
-                  onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                >
-                  {loop(allPermission)}
-                </Tree>
-              }
-            </div>
+        <div>
+        <Form.Item label="权限选择" {...formItemLayout}>
+          <Radio.Group
+            onChange={this.permissionTypeChange}
+            value={permissionType}
+          >
+            <Radio key="b" value={1}>选择权限</Radio>
+            <Radio key="a" value={2}>所有权限</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <div>
+          {
+            permissionType === 1 ?
+              <Row>
+                <Col span={4}></Col>
+                <Col span={20}>
+                  <div className="authChoose">
+                    <div className="authBox">
+                      <div className="authTitle">共<span style={{ color: '#59c3f5' }}>{total}</span>个<div className="pull-right">已选<span style={{ color: '#59c3f5' }}>
+                        {this.state.checkedCount.length <= 0 ? isChecked ? 0 : isTotal ? this.props.totalSelected : isAdd : this.state.checkedCount.length}
+                      </span> 个</div>
+                      </div>
+                      <div className="treeBox">
+                        {
+                          (allPermission.length > 0) &&
+                          <Tree
+                            checkable
+                            onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                            autoExpandParent={this.state.autoExpandParent}
+                            onCheck={this.onCheck.bind(this)} checkedKeys={checkedKey}
+                            onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                          >
+                            {loop(allPermission)}
+                          </Tree>
+                        }
+                      </div>
+                    </div>
+                    <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon' />  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
+                  </div>
+                </Col>
+              </Row>
+              :
+              <Row>
+                <Col span={4}></Col>
+                <Col span={20} className="bottomDesc">
+                  <Row>
+                    <Col className="gutter-row" span={24}>包含权限: </Col>
+                  </Row>
+                  <Row>
+                    <Col className="gutter-row" span={24}>1. 所有已知功能权限</Col>
+                  </Row>
+                  <Row>
+                    <Col className="gutter-row" span={24}>2. 所有后续添加功能权限</Col>
+                  </Row>
+                  <div style={{clear: "both"}}></div>
+                </Col>
+              </Row>
+            }
           </div>
-          <span className="notes"><Icon type="exclamation-circle-o" className='tips_icon' />  注：查看作为基本操作权限，无查看权限时其他相关操作权限不生效</span>
         </div>
       </Modal>
     )

@@ -460,54 +460,106 @@ class TenantManage extends React.Component {
     }
     return (
       <QueueAnim>
-      <div id="tenantManage" key='tenantManage'>
-        <Title title="概览" />
-        <Row className="title">
-          控制权限概览
-        </Row>
-        <div className="alertRow">
-          <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
+        <div id="tenantManage" key='tenantManage'>
+          <Title title="概览" />
+          <Row className="title">
+            控制权限概览
+          </Row>
+          <div className="alertRow">
+            <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
+          </div>
+          <Row className="content" gutter={16} style={{ marginTop: 16 }}>
+            <Col span={6}>
+              <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={memberOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={teamOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={projectOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                <ReactEcharts
+                  notMerge={true}
+                  option={roleOption}
+                  style={{ height: '180px' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+          <Button style={btmStyle} className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[1].src} />操作引导</Button>
+
+          <Row className="content" gutter={30}>
+            <Col span={30}>
+              <Card
+                title="操作引导"
+                style={itemStyle}
+                extra={<div style={{ width: 20, height: 20 }}><Icon className="ico" style={{ fontSize: 23 }} type={this.state.iconState ? "circle-o-down" : "circle-o-up"} onClick={this.handleIco.bind(this)} /></div>}
+              >
+                <div className={this.state.iconState ? "itmsInfo" : "infos"}>
+                  <div className="tagItems" id="tagItems">
+                    <Row>
+                      <Col span={12}>
+                        <div className="tagImg">
+                          <img src={images[0].src} />
+                        </div>
+                      </Col>
+                      <Col span={12}>
+                        <div className="tagDesc">
+                          <div className="tagInfo">
+                            <svg className='member commonImg'>
+                              <use xlinkHref="#member"></use>
+                            </svg> &nbsp;
+                            <span>成员：平台上的成员</span>
+                          </div>
+                          <div className="tagInfo">
+                            <svg className='team commonImg'>
+                              <use xlinkHref="#team"></use>
+                            </svg> &nbsp;
+                            <span>团队：由n个成员组成</span>
+                          </div>
+                          <div className="tagInfo">
+                            <svg className='authority commonImg'>
+                              <use xlinkHref="#authority"></use>
+                            </svg> &nbsp;
+                            <span>权限：平台上每个功能模块权限的细粒度划分</span>
+                          </div>
+                          <div className="tagInfo">
+                            <div className="role"></div>
+                            <span>角色：在项目中添加，由n个权限组成</span>
+                          </div>
+                          <div className="tagInfo">
+                            <div className="project"></div>
+                            <span>项目：实现哪些人在项目中可以使用哪些资源的权限</span>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          </Row>
         </div>
-        <Row className="content" gutter={16} style={{ marginTop: 16 }}>
-          <Col span={6}>
-            <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={memberOption}
-                style={{ height: '180px' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={teamOption}
-                style={{ height: '180px' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={projectOption}
-                style={{ height: '180px' }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={roleOption}
-                style={{ height: '180px' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-        <Button className="bGuide" onClick={() => {browserHistory.push('/tenant_manage/beginner_guidance')}}><img src={images[1].src} />操作引导</Button>
-      </div>
       </QueueAnim>
     )
   }

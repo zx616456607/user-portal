@@ -22,9 +22,6 @@ export default class PopSelect extends Component {
       visible: props.visible,
     }
   }
-  componentDidMount(){
-    console.log(this.props)
-  }
   setValue(item) {
     const { onChange } = this.props
     if (onChange) {

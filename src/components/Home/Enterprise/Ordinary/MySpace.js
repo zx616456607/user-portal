@@ -1780,6 +1780,24 @@ function formatResourceName(resourceName) {
   //this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
+    // check project
+    if (!!newBody.projects) {
+      let newName = newBody.projects;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    // check displayName
+    if (!!newBody.displayName) {
+      let newName = newBody.displayName;
+      if (!Array.isArray(newName) || newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
     //check services
     if (!!newBody.services) {
       let newName = newBody.services;
@@ -1844,8 +1862,8 @@ function formatResourceName(resourceName) {
     if (newBody.imageTagName) {
       return newBody.imageTagName
     }
-    if (newBody.filePkgName) {
-      return newBody.filePkgName
+    if (newBody.filePkgNames) {
+      return newBody.filePkgNames.toString()
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()

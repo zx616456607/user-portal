@@ -9,7 +9,7 @@ import React from 'react'
 import { Modal, Button, Input, Row, Popover, Col, Form, Spin, Icon } from 'antd'
 import classNames from 'classnames'
 import './style/ProjectManage.less'
-import { CheckProjects } from '../../../actions/project'
+import { CheckProjects, CheckDisplayName } from '../../../actions/project'
 import { loadClusterList } from '../../../actions/cluster'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { serviceNameCheck } from '../../../common/naming_validation'
@@ -108,7 +108,7 @@ class CreateModal extends React.Component {
   projectName = (rule, value, callback) => {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
-    const msg = serviceNameCheck(newValue, '项目名称')
+    const msg = serviceNameCheck(newValue, 'namesapce')
     if (msg !== 'success') {
       return callback(msg)
     }
@@ -137,7 +137,44 @@ class CreateModal extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
+  displayName = (rule, value, callback) => {
+    const { CheckDisplayName } = this.props;
+    let newValue = value && value.trim()
+    if (newValue === '') {
+      return callback('中文名称不能为空')
+    }
+    clearTimeout(this.displayNameTimeout)
+    this.displayNameTimeout = setTimeout(()=>{
+      CheckDisplayName({
+        displayName: value
+      },{
+        success: {
+          func: res => {
+            if (res.data === false) {
+              this.updateDisplayName(value)
+              callback()
+            } else if (res.data === true) {
+              callback(new Error('该名称已在项目或成员列表中存在'))
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    },ASYNC_VALIDATOR_TIMEOUT)
+  }
   updateProjectName = () => {
+    const { updateProjectName } = this.props;
+    const { getFieldValue } = this.props.form;
+    let projectName = getFieldValue('projectName')
+    //updateProjectName(projectName)
+  }
+  updateDisplayName = () => {
     const { updateProjectName } = this.props;
     const { getFieldValue } = this.props.form;
     let projectName = getFieldValue('projectName')
@@ -239,14 +276,26 @@ class CreateModal extends React.Component {
           <div id="projectCreateStepOne">
             <div className="alertRow createTip">请填写项目名称、描述，并为该项目授权集群</div>
             <div className="projectCreateFirstForm">
-              <Form.Item label="名称"
+              <Form.Item label="项目名称"
+                         {...formItemLayout}
+                         hasFeedback
+                         help={isFieldValidating('displayName') ? '校验中...' : (getFieldError('displayName') || []).join(', ')}
+              >
+                <Input  autoComplete="off" placeholder="请输入项目名称" {...getFieldProps('displayName', {
+                  rules: [
+                    { validator: this.displayName}, { required: true }
+                  ]
+                }) }
+                />
+              </Form.Item>
+              <Form.Item label="命名空间"
                   {...formItemLayout}
                   hasFeedback
                   help={isFieldValidating('projectName') ? '校验中...' : (getFieldError('projectName') || []).join(', ')}
               >
-                <Input  autoComplete="off" placeholder="请输入名称" {...getFieldProps('projectName', {
+                <Input  autoComplete="off" placeholder="请输入命名空间" {...getFieldProps('projectName', {
                   rules: [
-                    { validator: this.projectName}
+                    { validator: this.projectName}, { required: true }
                   ]
                 }) }
                 />
@@ -304,6 +353,7 @@ const mapStateToProps = state => {
 }
 
 export default CreateModal = connect(mapStateToProps, {
+  CheckDisplayName,
   CheckProjects,
   loadClusterList,
   ListRole,

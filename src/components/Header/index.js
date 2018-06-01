@@ -61,7 +61,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting\/?$/,
     /\/manange_monitor\/panel/,
-    /\/app_center\/template/,
+    /\/app_center\/template\/create/,
   ],
 }
 
@@ -468,12 +468,12 @@ class Header extends Component {
         <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
       </div>
     );
-    const shouldShowSpace = loginUser.role == ROLE_SYS_ADMIN || loginUser.role == ROLE_PLATFORM_ADMIN
+    const roleShowSpace = loginUser.role == ROLE_SYS_ADMIN || loginUser.role == ROLE_PLATFORM_ADMIN
     return (
       <div id="header">
 
         {
-          shouldShowSpace && (
+          showSpace && (
             <div className="space">
               <div className="spaceTxt">
                 <svg className='headerteamspace'>

@@ -20,6 +20,10 @@ const CICDRoutes = [
     path: 'pipelines',
     component: require('../../client/containers/Pipeline').default,
   },
+  {
+    path: 'thirdparty',
+    component: require('../../client/containers/Pipeline').default,
+  },
   /* {
     path: 'tenx_flow',
     indexRoute: {
@@ -35,7 +39,7 @@ const CICDRoutes = [
   component: require('../components/CICDModule/DockerFile').default,
 },{
   path: 'cached_volumes',
-  component: require('../components/CICDModule/TenxFlow/CachedVolumes').default,
+  component: require('../../client/containers/Pipeline').default,
 },{
   path: 'build_image',
   indexRoute: {

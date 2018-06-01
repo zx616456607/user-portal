@@ -273,9 +273,10 @@ class Information extends Component {
   changeUserRoleRequest() {
     const {
       updateUser, loginUser, userID,
-      userDetail, changeUserRole, loadLoginUserDetail,
+      userDetail, changeUserRole, loadLoginUserDetail,form,bindRolesForUser,loadUserDetail
     } = this.props
     const { selectUserRole } = this.state
+    const { validateFields } = form
     const notify = new NotificationHandler()
     if(loginUser.role === ROLE_USER || loginUser.role === ROLE_BASE_ADMIN) { return notify.error('只有系统管理员或平台管理员有此权限')}
     if(userDetail.role === selectUserRole ) {
@@ -284,6 +285,7 @@ class Information extends Component {
     }
     notify.spin('更新用户角色中')
     const self = this;
+
     updateUser(userID, { role: selectUserRole+1 }, {
       success: {
         func: () => {
@@ -291,6 +293,46 @@ class Information extends Component {
           notify.success('用户角色更新成功')
           self.setState({
             changeUserRoleModal: false
+          },()=>{
+            if(this.state.selectUserRole === ROLE_PLATFORM_ADMIN || this.state.selectUserRole  === ROLE_BASE_ADMIN){
+              validateFields([ 'roles' ], (errors, values) => {
+                const { roles } = values
+                const auth = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID]
+                function arrayDiff(a, b) {
+                  for(var i=0;i<b.length;i++)
+                  {
+                    for(var j=0;j<a.length;j++)
+                    {
+                      if(a[j]==b[i]){
+                        a.splice(j,1);
+                        j=j-1;
+                      }
+                    }
+                  }
+                  return a;
+                }
+                const bindUserRoles = {
+                  roles: arrayDiff(auth, roles),
+                }
+                const unbindUserRoles = {
+                  roles: [],
+                }
+                bindRolesForUser(userID, 'global', 'global', { bindUserRoles, unbindUserRoles }, {
+                  success: {
+                    func: res => {
+                      notify.success('更新用户权限成功')
+                      loadUserDetail(userID)
+                    },
+                    isAsync: true,
+                  },
+                  failed: {
+                    func: () => {
+                      notify.error('更新用户权限失败')
+                    }
+                  }
+                })
+              })
+            }
           })
           changeUserRole(userID, selectUserRole)
           if (loginUser.userID == userID) {
@@ -323,6 +365,7 @@ class Information extends Component {
       const bindUserRoles = {
         roles: roles.filter(role => this.userAuth.indexOf(role) < 0),
       }
+
       const unbindUserRoles = {
         roles: this.userAuth.filter(role => roles.indexOf(role) < 0),
       }
@@ -425,6 +468,12 @@ class Information extends Component {
       })
     })
   }
+  changeRole = (e)=>{
+    this.setState({ selectUserRole: e.target.value })
+  }
+  checkAuth = (val) =>{
+    this.userAuth = val
+  }
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
@@ -468,7 +517,15 @@ class Information extends Component {
       initialValue: userDetail.comment,
     })
     const { globalRoles, role } = userDetail
-    if (role === ROLE_SYS_ADMIN) {
+    let checkedAuth = (auth) => {
+      switch(auth){
+        case 'project-creator':
+          return CREATE_PROJECTS_ROLE_ID
+        case 'team-creator':
+          return CREATE_TEAMS_ROLE_ID
+      }
+    }
+/*    if (role === ROLE_SYS_ADMIN) {
       this.userAuth = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
     } else {
       this.userAuth = []
@@ -479,11 +536,19 @@ class Information extends Component {
           this.userAuth.push(CREATE_TEAMS_ROLE_ID)
         }
       })
-    }
+    }*/
+    let newAuth = []
+    globalRoles.map(v => {
+      newAuth.push(checkedAuth(v))
+    });
+    this.userAuth = newAuth
+
     // 权限
-    const rolesProps = getFieldProps('roles', {
-      initialValue: this.userAuth,
-    })
+    let checked = this.userAuth
+    let rolesProps = getFieldProps('roles', {
+      initialValue: this.userAuth
+    });
+
     return (
       <div id='Informations'>
         <div className="Essentialinformation">基本信息</div>
@@ -625,7 +690,7 @@ class Information extends Component {
           onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role })}
           onOk={() => this.changeUserRoleRequest()}
         >
-          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
+          <RadioGroup onChange={(e) => { this.changeRole(e)}}  value={this.state.selectUserRole}>
             {
               loginUser.role === ROLE_PLATFORM_ADMIN?
                 ''

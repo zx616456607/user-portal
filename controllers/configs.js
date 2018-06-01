@@ -195,3 +195,12 @@ exports.updateConfigAnnotations = function* () {
     data: response.data
   }
 }
+
+exports.checkConfigGroupName = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const response = yield api.getBy([cluster, 'configgroups', name, 'verify'])
+  this.body = response
+}

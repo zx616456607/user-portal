@@ -335,7 +335,7 @@ let TenantDetail = React.createClass({
           {
             <Row>
               <Button style={{ marginRight: '10px' }} type="primary" onClick={() => this.handleProject(record)}>进入项目</Button>
-              <Button onClick={() => this.setState({ Removerol: true, record: record })} type="ghost">移除角色</Button>
+              <Button onClick={() => this.setState({ Removerol: true, record: record })} type="ghost">删除角色</Button>
             </Row>
           }
         </span>
@@ -490,7 +490,7 @@ let TenantDetail = React.createClass({
               </div>
             </div>
           </div>
-          <Modal title="移除角色" visible={this.state.Removerol} onOk={() => this.handleOk()} onCancel={() => this.handleCloseRole()} >
+          <Modal title="删除角色" visible={this.state.Removerol} onOk={() => this.handleOk()} onCancel={() => this.handleCloseRole()} >
             <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true">
             </i>从项目{this.state.record.projectName}中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目{this.state.record.projectName}中移除该角色？</div></p>
           </Modal>
