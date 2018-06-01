@@ -88,14 +88,14 @@ class AllPermissions extends React.Component{
         func: res => {
           if(res.data.code === 200){
             const data = res.data.data.permissions
-            const temp = [], tempData = cloneDeep(data)
-            const allp = filter(data, {desc: "所有资源权限", id: 10000, name: "所有资源权限", code: "SYSTEM_ALL_PRIVILEGES"})[0]
-            allp.children = filter(tempData, (item) => {
-              return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
-            });
-            temp.push(allp)
+            // const temp = [], tempData = cloneDeep(data)
+            // const allp = filter(data, {desc: "所有资源权限", id: 10000, name: "所有资源权限", code: "SYSTEM_ALL_PRIVILEGES"})[0]
+            // allp.children = filter(tempData, (item) => {
+            //   return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
+            // });
+            // temp.push(allp)
             this.setState({
-              data: this.RowData(temp),
+              data: this.RowData(data),
               loading: false
             })
           }

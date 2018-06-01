@@ -108,7 +108,8 @@ class CreateModal extends React.Component {
   projectName = (rule, value, callback) => {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
-    const msg = serviceNameCheck(newValue, '项目名称')
+    if (!newValue) callback('命名空间不能为空')
+    const msg = serviceNameCheck(newValue, 'namesapce')
     if (msg !== 'success') {
       return callback(msg)
     }
@@ -141,7 +142,7 @@ class CreateModal extends React.Component {
     const { CheckDisplayName } = this.props;
     let newValue = value && value.trim()
     if (newValue === '') {
-      return callback('中文名称不能为空')
+      return callback('项目名称不能为空')
     }
     clearTimeout(this.displayNameTimeout)
     this.displayNameTimeout = setTimeout(()=>{
@@ -281,21 +282,21 @@ class CreateModal extends React.Component {
                          hasFeedback
                          help={isFieldValidating('displayName') ? '校验中...' : (getFieldError('displayName') || []).join(', ')}
               >
-                <Input  autoComplete="off" placeholder="请输入中文名称" {...getFieldProps('displayName', {
+                <Input  autoComplete="off" placeholder="请输入项目名称" {...getFieldProps('displayName', {
                   rules: [
-                    { validator: this.displayName}, { required: true }
+                    { validator: this.displayName}
                   ]
                 }) }
                 />
               </Form.Item>
-              <Form.Item label="namespace"
+              <Form.Item label="命名空间"
                   {...formItemLayout}
                   hasFeedback
                   help={isFieldValidating('projectName') ? '校验中...' : (getFieldError('projectName') || []).join(', ')}
               >
-                <Input  autoComplete="off" placeholder="请输入英文名称" {...getFieldProps('projectName', {
+                <Input  autoComplete="off" placeholder="请输入命名空间" {...getFieldProps('projectName', {
                   rules: [
-                    { validator: this.projectName}, { required: true }
+                    { validator: this.projectName}
                   ]
                 }) }
                 />

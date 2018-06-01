@@ -706,6 +706,7 @@ let ProjectManage = React.createClass({
     CreateProjects({
       body: {
         projectName: values.projectName,
+        displayName: values.displayName,
         description: values.projectDesc,
         authorizedCluster: values.authorizedCluster,
         roleBinds: values.roleBinds
@@ -773,10 +774,12 @@ let ProjectManage = React.createClass({
     }
     let columns = [{
       title: '项目名',
-      dataIndex: 'projectName',
+      // dataIndex: 'projectName',
       key: 'projectName',
       width: '15%',
-      render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
+      render: (data) => <Link to={`/tenant_manage/project_manage/project_detail?name=${data.projectName}`}>{
+        data.displayName ? `${data.displayName}( ${data.projectName} )` : data.projectName
+      }</Link>,
     }, {
       title: (
         <div onClick={() => this.handleSort('clusterCountSort')}>
