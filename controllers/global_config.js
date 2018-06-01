@@ -20,7 +20,7 @@ const email = require('../utils/email')
 
 exports.changeGlobalConfig = function* () {
   const role = this.session.loginUser.role
-  if(role !== constant.ADMIN_ROLE && role !== constant.INFRASTRUCTURE_ADMIN) {
+  if(role !== constant.ADMIN_ROLE && role !== constant.BASE_ADMIN_ROLE) {
     const err = new Error('Not admin user')
     err.status = 403
     throw err
