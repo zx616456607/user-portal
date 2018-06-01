@@ -70,6 +70,10 @@ const menuList_sys = [
     name: '集群授权审批'
   },
   {
+    url: '/tenant_manage/cluster_autoscale',
+    name: '集群伸缩策略'
+  },
+  {
     url: '/tenant_manage/ldap',
     name: '集成企业目录'
   },

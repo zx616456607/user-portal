@@ -12,6 +12,7 @@ import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button, Card, Tooltip
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import Scheduler from './Scheduler.js'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { updateClusterConfig } from '../../../actions/cluster'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
@@ -94,6 +95,196 @@ class AdvancedSetting extends Component {
     this.setState({
       billingChecked: enabled
     })
+  }
+  // 不同角色成员应该显示哪些内容
+  renderContent = () => {
+    const { imageProjectRightIsEdit, traditionChecked, billingChecked   } = this.state;
+    const { cluster, configurations, harbor } = this.props
+    const { listNodes } = cluster
+    const { getFieldProps  } = this.props.form
+    let projectCreationRestriction
+    if(harbor.hasAdminRole && configurations[DEFAULT_REGISTRY].data) {
+      projectCreationRestriction  = configurations[DEFAULT_REGISTRY].data.projectCreationRestriction
+    }
+    if(!projectCreationRestriction) {
+      projectCreationRestriction = {
+        editable: false,
+        value: 'adminonly'
+      }
+    }
+
+    const imageProjectRightProps = getFieldProps('imageProjectRightProps',{
+      initialValue: projectCreationRestriction.value
+    })
+
+
+
+    const adminContent = () => (
+        <div className="content">
+          <Scheduler />
+          <div className='imageprojectright'>
+            <div className="contentheader imageproject">仓库组创建权限</div>
+            <div className="contentbody">
+              <div className="alertRow">用来确定哪些用户有权限创建『仓库组』，默认为『所有人』，设置为『仅管理员』则只有系统管理员有权限</div>
+            </div>
+            <div className='radiobox'>
+              <Form>
+                <Form.Item>
+                  <Radio.Group disabled={!imageProjectRightIsEdit} {...imageProjectRightProps}>
+                    <Radio value="everyone" key="alluser">所有人均可创建</Radio>
+                    <Radio value="adminonly" key="admin">仅管理员可创建</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              </Form>
+            </div>
+            <div className='buttonbox'>
+              {
+                imageProjectRightIsEdit
+                  ? <span>
+                  <Button onClick={this.handleCancelImageProjectRight}>取消</Button>
+                  <Button onClick={this.handleSaveImageProjectRight} type="primary" className='saveButton' >保存</Button>
+                </span>
+                  : <Button type="primary" onClick={this.handleImageProjectRight} disabled={!projectCreationRestriction.editable}>编辑</Button>
+              }
+            </div>
+          </div>
+          <div className='Tradition'>
+            <div className='contentheader'>传统应用管理</div>
+            <div className='contentbody'>
+              <div className='contentbodytitle alertRow'>
+                传统应用，这些指非容器化部署（即基于虚拟机物理部署）的应用，平台可以支持开启关闭部署此类应用的能力
+              </div>
+              <div>
+                <div className='contentbodycontainers'>
+                  <span className="switchLabel">
+                   {/* {
+                      traditionChecked
+                        ? <span>开启</span>
+                        : <span>关闭</span>
+                    }*/}
+                    传统应用管理
+                    </span>
+                  <Switch checkedChildren="开" unCheckedChildren="关" checked={traditionChecked} onChange={this.handleTradition} className='traditionStyle' />
+                  <span className="describe">传统应用管理、部署环境管理</span>
+                </div>
+                {
+                  /*traditionChecked
+                    ? <div className='contentfooter'>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleName}
+                                checked="true" disabled="false">开启传统应用管理</Checkbox>
+                    </div>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleTag}
+                                checked="true" disabled="false">开启传统应用部署环境管理</Checkbox>
+                    </div>
+                  </div>
+                    : <div></div>*/
+                }
+              </div>
+            </div>
+          </div>
+          <Card title="计费功能开关" className="billingCard">
+            <div className='alertRow'>
+              通过计费功能开关，切换平台上应用、存储、数据库与缓存等资源的计费功能。重新开启后，项目的余额将保持在上一次关闭前的状态
+            </div>
+            <span className="switchLabel">
+              计费功能
+            </span>
+            <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
+          </Card>
+        </div>
+    );
+    const platformAdminContent = () => (
+        <div className="content">
+          <Card title="计费功能开关" className="billingCard">
+            <div className='alertRow'>
+              通过计费功能开关，切换平台上应用、存储、数据库与缓存等资源的计费功能。重新开启后，项目的余额将保持在上一次关闭前的状态
+            </div>
+            <span className="switchLabel">
+              计费功能
+            </span>
+            <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
+          </Card>
+        </div>
+    );
+
+    const InfrastructureAdminContent = () => (
+        <div className="content">
+          <Scheduler />
+          <div className='imageprojectright'>
+            <div className="contentheader imageproject">仓库组创建权限</div>
+            <div className="contentbody">
+              <div className="alertRow">用来确定哪些用户有权限创建『仓库组』，默认为『所有人』，设置为『仅管理员』则只有系统管理员有权限</div>
+            </div>
+            <div className='radiobox'>
+              <Form>
+                <Form.Item>
+                  <Radio.Group disabled={!imageProjectRightIsEdit} {...imageProjectRightProps}>
+                    <Radio value="everyone" key="alluser">所有人均可创建</Radio>
+                    <Radio value="adminonly" key="admin">仅管理员可创建</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              </Form>
+            </div>
+            <div className='buttonbox'>
+              {
+                imageProjectRightIsEdit
+                  ? <span>
+                  <Button onClick={this.handleCancelImageProjectRight}>取消</Button>
+                  <Button onClick={this.handleSaveImageProjectRight} type="primary" className='saveButton' >保存</Button>
+                </span>
+                  : <Button type="primary" onClick={this.handleImageProjectRight} disabled={!projectCreationRestriction.editable}>编辑</Button>
+              }
+            </div>
+          </div>
+          <div className='Tradition'>
+            <div className='contentheader'>传统应用管理</div>
+            <div className='contentbody'>
+              <div className='contentbodytitle alertRow'>
+                传统应用，这些指非容器化部署（即基于虚拟机物理部署）的应用，平台可以支持开启关闭部署此类应用的能力
+              </div>
+              <div>
+                <div className='contentbodycontainers'>
+                  <span className="switchLabel">
+                   {/* {
+                      traditionChecked
+                        ? <span>开启</span>
+                        : <span>关闭</span>
+                    }*/}
+                    传统应用管理
+                    </span>
+                  <Switch checkedChildren="开" unCheckedChildren="关" checked={traditionChecked} onChange={this.handleTradition} className='traditionStyle' />
+                  <span className="describe">传统应用管理、部署环境管理</span>
+                </div>
+                {
+                  /*traditionChecked
+                    ? <div className='contentfooter'>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleName}
+                                checked="true" disabled="false">开启传统应用管理</Checkbox>
+                    </div>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleTag}
+                                checked="true" disabled="false">开启传统应用部署环境管理</Checkbox>
+                    </div>
+                  </div>
+                    : <div></div>*/
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+    switch (this.props.role) {
+      case ROLE_SYS_ADMIN:
+        return adminContent()
+      case ROLE_PLATFORM_ADMIN:
+        return platformAdminContent()
+      case ROLE_BASE_ADMIN:
+        return InfrastructureAdminContent()
+    }
   }
 
   // handleUpdataConfigMessage(status,num){
@@ -554,25 +745,14 @@ class AdvancedSetting extends Component {
     } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
-    const { getFieldProps  } = form
+
 
 // listNodes
 if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
   return <div className='nodata'><Spin></Spin></div>
 }
-    let projectCreationRestriction
-    if(harbor.hasAdminRole && configurations[DEFAULT_REGISTRY].data) {
-      projectCreationRestriction  = configurations[DEFAULT_REGISTRY].data.projectCreationRestriction
-    }
-    if(!projectCreationRestriction) {
-      projectCreationRestriction = {
-        editable: false,
-        value: 'adminonly'
-      }
-    }
-    const imageProjectRightProps = getFieldProps('imageProjectRightProps',{
-      initialValue: projectCreationRestriction.value
-    })
+
+
     let style = {
 
     }
@@ -581,107 +761,9 @@ if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_RE
       <div id="AdvancedSetting" key='AdvancedSetting'>
         <Title title="高级设置" />
         <div className='title'>高级设置</div>
-          <div className='content'>
-          <Scheduler />
-          {/* <div>
-                <div className='contentbodycontainers'>
-                  <span className="switchLabel">
-                {
-                  swicthChecked
-                    ? <span>开启</span>
-                    : <span>关闭</span>
-                }
-                    </span>
-                                  <Switch checkedChildren="开" unCheckedChildren="关" checked={swicthChecked}
-                                    onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable} />
-              </div>
-              {
-                swicthChecked
-                  ? <div className='contentfooter'>
-                      <div className='item'>
-                                  <Checkbox onChange={this.handleName}
-                                    checked={Ipcheckbox} disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
-                      </div>
-                      <div className='item'>
-                                  <Checkbox onChange={this.handleTag}
-                                    checked={TagCheckbox} disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                      </div>
-                    </div>
-                  : <div></div>
-              }
-          </div> */}
-        {harbor.hasAdminRole ? <div className='imageprojectright'>
-          <div className="contentheader imageproject">仓库组创建权限</div>
-          <div className="contentbody">
-            <div className="alertRow">用来确定哪些用户有权限创建『仓库组』，默认为『所有人』，设置为『仅管理员』则只有系统管理员有权限</div>
-          </div>
-          <div className='radiobox'>
-            <Form>
-              <Form.Item>
-                <Radio.Group disabled={!imageProjectRightIsEdit} {...imageProjectRightProps}>
-                  <Radio value="everyone" key="alluser">所有人均可创建</Radio>
-                  <Radio value="adminonly" key="admin">仅管理员可创建</Radio>
-                </Radio.Group>
-              </Form.Item>
-            </Form>
-          </div>
-          <div className='buttonbox'>
-            {
-              imageProjectRightIsEdit
-                ? <span>
-                  <Button onClick={this.handleCancelImageProjectRight}>取消</Button>
-                  <Button onClick={this.handleSaveImageProjectRight} type="primary" className='saveButton' >保存</Button>
-                </span>
-                : <Button type="primary" onClick={this.handleImageProjectRight} disabled={!projectCreationRestriction.editable}>编辑</Button>
-            }
-          </div>
-        </div> : ''}
-        <div className='Tradition'>
-          <div className='contentheader'>传统应用管理</div>
-          <div className='contentbody'>
-            <div className='contentbodytitle alertRow'>
-              传统应用，这些指非容器化部署（即基于虚拟机物理部署）的应用，平台可以支持开启关闭部署此类应用的能力
-            </div>
-            <div>
-              <div className='contentbodycontainers'>
-                <span className="switchLabel">
-                 {/* {
-                    traditionChecked
-                      ? <span>开启</span>
-                      : <span>关闭</span>
-                  }*/}
-                  传统应用管理
-                  </span>
-                <Switch checkedChildren="开" unCheckedChildren="关" checked={traditionChecked} onChange={this.handleTradition} className='traditionStyle' />
-                <span className="describe">传统应用管理、部署环境管理</span>
-              </div>
-              {
-                /*traditionChecked
-                  ? <div className='contentfooter'>
-                  <div className='item'>
-                    <Checkbox onChange={this.handleName}
-                              checked="true" disabled="false">开启传统应用管理</Checkbox>
-                  </div>
-                  <div className='item'>
-                    <Checkbox onChange={this.handleTag}
-                              checked="true" disabled="false">开启传统应用部署环境管理</Checkbox>
-                  </div>
-                </div>
-                  : <div></div>*/
-              }
-            </div>
-          </div>
-        </div>
-        <Card title="计费功能开关" className="billingCard">
-          <div className='alertRow'>
-            通过计费功能开关，切换平台上应用、存储、数据库与缓存等资源的计费功能。重新开启后，项目的余额将保持在上一次关闭前的状态
-          </div>
-          <span className="switchLabel">
-            计费功能
-          </span>
-          <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
-        </Card>
-      </div>
+        {
+          this.renderContent()
+        }
 
       {/* <Modal
         title={swicthChecked ? '关闭绑定节点' : '开启绑定节点'}
@@ -780,12 +862,13 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster } = state.entities.current
-  const { harbor, vmWrapConfig, billingConfig } = state.entities.loginUser.info
+  const { harbor, vmWrapConfig, billingConfig,role } = state.entities.loginUser.info
   const { configurations } = state.harbor
   return {
     cluster,
     configurations,
     harbor,
+    role,
     vmWrapConfig,
     billingConfig
   }
