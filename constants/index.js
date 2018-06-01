@@ -68,6 +68,7 @@ exports.PROXY_TYPE = process.env.PROXY_TYPE || 'tenx-proxy'
 
 exports.K8S_NODE_SELECTOR_KEY = 'kubernetes.io/hostname'
 exports.ADMIN_ROLE = 2
+exports.INFRASTRUCTURE_ADMIN = 4
 exports.NO_CLUSTER_FLAG = 'no_cluster_flag'
 exports.CLUSTER_PAGE = '/cluster'
 exports.DEFAULT_CLUSTER_MARK = 1
