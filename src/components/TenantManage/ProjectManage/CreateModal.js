@@ -108,6 +108,7 @@ class CreateModal extends React.Component {
   projectName = (rule, value, callback) => {
     const { CheckProjects } = this.props;
     let newValue = value && value.trim()
+    if (!newValue) callback('命名空间不能为空')
     const msg = serviceNameCheck(newValue, 'namesapce')
     if (msg !== 'success') {
       return callback(msg)
@@ -141,7 +142,7 @@ class CreateModal extends React.Component {
     const { CheckDisplayName } = this.props;
     let newValue = value && value.trim()
     if (newValue === '') {
-      return callback('中文名称不能为空')
+      return callback('项目名称不能为空')
     }
     clearTimeout(this.displayNameTimeout)
     this.displayNameTimeout = setTimeout(()=>{
@@ -283,7 +284,7 @@ class CreateModal extends React.Component {
               >
                 <Input  autoComplete="off" placeholder="请输入项目名称" {...getFieldProps('displayName', {
                   rules: [
-                    { validator: this.displayName}, { required: true }
+                    { validator: this.displayName}
                   ]
                 }) }
                 />
@@ -295,7 +296,7 @@ class CreateModal extends React.Component {
               >
                 <Input  autoComplete="off" placeholder="请输入命名空间" {...getFieldProps('projectName', {
                   rules: [
-                    { validator: this.projectName}, { required: true }
+                    { validator: this.projectName}
                   ]
                 }) }
                 />
