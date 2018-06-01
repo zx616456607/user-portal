@@ -19,9 +19,10 @@ const initGlobalConfig = require('../services/init_global_config')
 const email = require('../utils/email')
 
 exports.changeGlobalConfig = function* () {
-  if(this.session.loginUser.role != constant.ADMIN_ROLE) {
+  const role = this.session.loginUser.role
+  if(role !== constant.ADMIN_ROLE && role !== constant.BASE_ADMIN_ROLE) {
     const err = new Error('Not admin user')
-    err.status = 400
+    err.status = 403
     throw err
   }
   const cluster = this.params.cluster
