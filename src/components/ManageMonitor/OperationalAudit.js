@@ -1337,8 +1337,8 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.names) {
       return newBody.names[0]
     }
-    if (newBody.filePkgName) {
-      return newBody.filePkgName
+    if (newBody.filePkgNames) {
+      return newBody.filePkgNames.toString()
     }
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")

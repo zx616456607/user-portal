@@ -1862,8 +1862,8 @@ function formatResourceName(resourceName) {
     if (newBody.imageTagName) {
       return newBody.imageTagName
     }
-    if (newBody.filePkgName) {
-      return newBody.filePkgName
+    if (newBody.filePkgNames) {
+      return newBody.filePkgNames.toString()
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()

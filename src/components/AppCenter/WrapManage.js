@@ -511,8 +511,14 @@ class WrapManage extends Component {
     // const notificat = new NotificationHandler()
     const { id, page } = this.state
     const { wrapList } = this.props
+    const filePkgNames = []
+    wrapList.pkgs.forEach(item => {
+      if (id.includes(item.id)) {
+        filePkgNames.push(item.fileName)
+      }
+    })
     this.setState({ selectedRowKeys: [] })
-    this.props.deleteWrapManage({ ids: id }, {
+    this.props.deleteWrapManage({ ids: id, filePkgNames }, {
       success: {
         func: () => {
           notificat.success('删除成功')

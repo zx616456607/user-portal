@@ -106,7 +106,7 @@ class WrapListTable extends Component {
     let id = [currentApp.id]
     let body = {
       ids: id,
-      filePkgName: currentApp.fileName
+      filePkgNames: [currentApp.fileName]
     }
     this.props.deleteWrapManage(body, {
       success: {
