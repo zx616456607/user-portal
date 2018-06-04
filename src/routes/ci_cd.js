@@ -10,8 +10,11 @@
  * @author Zhangpc
 */
 
-
 const CICDRoutes = [
+  {
+    path: 'overview',
+    component: require('../../client/containers/Pipeline').default,
+  },
   {
     path: 'coderepo',
     component: require('../components/CICDModule/CodeStore/CodeRepo').default,
