@@ -458,7 +458,7 @@ function mapDispatchToProps(dispatch) {
     },
     configGroupName: (obj) => dispatch(configGroupName(obj)),
     updateConfigAnnotations: (body,callback) => dispatch(updateConfigAnnotations(body,callback)),
-    checkConfigNameExistence: (clusterId, nama, callback) =>
+    checkConfigNameExistence: (clusterId, name, callback) =>
       dispatch(checkConfigNameExistence(clusterId, name, callback))
   }
 }

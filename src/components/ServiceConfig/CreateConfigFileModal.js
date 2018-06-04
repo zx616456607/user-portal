@@ -219,7 +219,6 @@ let CreateConfigFileModal = React.createClass({
         { validator: this.configDescExists },
       ]
     });
-
     return(
       <Modal
         title={`添加${type === 'secrets' ? '加密对象': '配置文件'}`}

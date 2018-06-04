@@ -309,6 +309,20 @@ class Sider extends Component {
           </Link>
         </div>
       </Menu.Item>,
+      <Menu.Item key='cluster_autoscale'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/tenant_manage/cluster_autoscale'>
+                        <span>
+                        集群伸缩策略
+                        </span>
+          </Link>
+        </div>
+      </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
@@ -628,7 +642,7 @@ class Sider extends Component {
                 className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/ci_cd'>
+                  <Link to='/ci_cd/overview'>
                     <svg className='cicd commonImg'>
                       <use xlinkHref='#cicd' />
                     </svg>
@@ -902,6 +916,22 @@ class Sider extends Component {
                     </span>
                   }
                 >
+                  <Menu.Item key='overview'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/overview')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/pandect')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span><div className='sideCircle'></div> 总览</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
                       <span><div className='sideCircle'></div> 代码仓库</span>
@@ -1169,20 +1199,6 @@ class Sider extends Component {
                     </div>
                   </Menu.Item>
 
-                  <Menu.Item key='cluster_autoscale'>
-                    <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          <use xlinkHref='#start' />
-                        </svg>
-                      </Tooltip>
-                      <Link to='/cluster/cluster_autoscale'>
-                        <span>
-                        集群伸缩策略
-                        </span>
-                      </Link>
-                    </div>
-                  </Menu.Item>
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
