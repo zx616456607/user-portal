@@ -785,11 +785,26 @@ function mapStateToProp(state, props) {
     }
   }
   if (spaceCICDStats.result && spaceCICDStats.result.data &&
-    spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {
-    let data = spaceCICDStats.result.data.results.flowBuild
-    spaceCICDStatsData.succeedNumber = data.succeedNumber
-    spaceCICDStatsData.runningNumber = data.runningNumber
-    spaceCICDStatsData.failedNumber = data.failedNumber
+  spaceCICDStats.result.data.result) {
+    spaceCICDStatsData.succeedNumber = 0
+    spaceCICDStatsData.runningNumber = 0
+    spaceCICDStatsData.failedNumber = 0
+    let data = spaceCICDStats.result.data.result || []
+    data.forEach(({ status, count }) => {
+      switch (status) {
+        case 0:
+          spaceCICDStatsData.succeedNumber = count
+          break
+        case 1:
+          spaceCICDStatsData.failedNumber = count
+          break
+        case 2:
+          spaceCICDStatsData.runningNumber = count
+          break
+        default:
+          break
+      }
+    })
   }
   if (spaceImageStats.result && spaceImageStats.result.data) {
     spaceImageStatsData = spaceImageStats.result.data
