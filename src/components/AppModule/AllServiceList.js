@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * AllServiceList.js page
+ *
+ * @author zhangtao
+ * @date Friday June 1st 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
@@ -175,7 +184,8 @@ const MyComponent = React.createClass({
     scope.setState({
       selectTab: null,
       modalShow: true,
-      currentShowInstance: item
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false, //fix LOT-275
     });
   },
   onShowSizeChange: function (page, size) {
