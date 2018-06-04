@@ -606,9 +606,12 @@ class ClusterList extends Component {
   }
 
   componentWillMount() {
-    const { loadClusterList, noCluster, loadGlobalConfig } = this.props
+    const { loadClusterList, noCluster, loadGlobalConfig, loginUser } = this.props
+    const { role } = loginUser
+    if(role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN){
+      this.loadProjectsApprovalClusters(1)
+    }
     loadClusterList({size: 100})
-    this.loadProjectsApprovalClusters(1)
     if (noCluster) {
       loadGlobalConfig()
     }

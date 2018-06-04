@@ -64,6 +64,7 @@ class Scheduler extends Component {
     })
   }
 
+
   handleChangeEditionScheduler() {
     const { resetFields } = this.props.form
     this.setState({
