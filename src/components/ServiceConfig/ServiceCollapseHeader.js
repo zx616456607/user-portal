@@ -39,15 +39,8 @@ class CollapseHeader extends Component {
   }
   // click config modal show
   createConfigModal(e, modal) {
-
     e.stopPropagation()
-    this.setState({ modalConfigFile: modal },()=> {
-      if (modal) {
-        setTimeout(function () {
-          document.getElementsByClassName('nameInput')[0].focus()
-        }, 500)
-      }
-    })
+    this.setState({ modalConfigFile: modal })
   }
 
   handleDropdown(e) {
@@ -110,7 +103,7 @@ class CollapseHeader extends Component {
   }
   render() {
     const {collapseHeader } = this.props
-    const {sizeNumber} = this.state
+    const {sizeNumber, modalConfigFile} = this.state
     const menu = (
       <Menu onClick={this.menuClick.bind(this)} mode="vertical">
         <Menu.Item key="1"><Icon type="delete"/> 删除配置组</Menu.Item>
@@ -141,7 +134,10 @@ class CollapseHeader extends Component {
             </Dropdown.Button>
           </ButtonGroup>
           {/*添加配置文件-弹出层-start*/}
-          <CreateConfigFileModal scope={this} visible = {this.state.modalConfigFile} groupName={collapseHeader.name}/>
+          {
+            modalConfigFile &&
+            <CreateConfigFileModal scope={this} visible = {modalConfigFile} groupName={collapseHeader.name}/>
+          }
           {/*添加配置文件-弹出层-end*/}
 
           {/*删除配置文件-弹出层 */}
