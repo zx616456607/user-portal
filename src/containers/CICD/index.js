@@ -17,6 +17,20 @@ import { NEED_BUILD_IMAGE } from '../../constants'
 
 let menuList = [
   {
+    url: '/ci_cd/overview',
+    name: '总览',
+    onClick: () => {
+      try {
+        browserHistory.push('/ci_cd/overview')
+        if (window.devFlowPortalHistory) {
+          window.devFlowPortalHistory.push('/devops/pandect')
+        }
+      } catch (error) {
+        //
+      }
+    }
+  },
+  {
     url: '/ci_cd',
     name: '代码仓库'
   }
