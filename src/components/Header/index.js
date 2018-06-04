@@ -145,7 +145,7 @@ class Header extends Component {
       visible: false,
       allUsers: [],
     }
-    this.isSysAdmin = props.loginUser.role == ROLE_SYS_ADMIN
+    this.isSysAdmin = props.loginUser.role === ROLE_SYS_ADMIN || props.loginUser.role === ROLE_PLATFORM_ADMIN
   }
 
   handleDocVisible(){
