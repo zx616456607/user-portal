@@ -1011,7 +1011,7 @@ exports.getStats = function* () {
   const loginUser = this.session.loginUser
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(["stats"], null)
+  const result = yield api.getBy(['ci-pipelines', 'current-status', 'statistics'])
 
   this.body = {
     data: result
