@@ -36,9 +36,18 @@ function currentPathNameCheck(scope, menuList) {
   menuList.some((item, index) => {
     if(index != 0) {
       let checkPath = pathname.indexOf(item.url)
-      if(checkPath > -1) {
+      if (checkPath > -1) {
         flag = false
         let temp = 'secondSider' + index
+        if (item.url === '/ci_cd') {
+          if (pathname === '/ci_cd' || pathname === '/ci_cd/') {
+            scope.setState({
+              current: temp
+            })
+            return true
+          }
+          return false
+        }
         scope.setState({
           current: temp
         })
