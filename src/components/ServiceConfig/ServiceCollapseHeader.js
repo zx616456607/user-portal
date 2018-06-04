@@ -39,13 +39,12 @@ class CollapseHeader extends Component {
   }
   // click config modal show
   createConfigModal(e, modal) {
-
     e.stopPropagation()
     this.setState({ modalConfigFile: modal },()=> {
       if (modal) {
         setTimeout(function () {
           document.getElementsByClassName('nameInput')[0].focus()
-        }, 500)
+        }, 300)
       }
     })
   }
