@@ -53,7 +53,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let nameInfo = item.metadata.name
   if (portsForExternal) {
     portsForExternal.map((port) => {
-      let portInfo = ":" + port.proxyPort
+      let portInfo = ":" + port.port
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
         portInfo = ''
         nameInfo = port.name
