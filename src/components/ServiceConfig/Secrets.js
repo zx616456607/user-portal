@@ -421,7 +421,7 @@ class ServiceSecretsConfig extends React.Component {
         {
           createConfigFileModalVisible && modalConfigFile &&
           <CreateConfigFileModal
-            scope={this}
+           scope={this}
             visible={modalConfigFile}
             addKeyIntoSecret={this.handleAddKeyIntoSecret}
             type="secrets"
