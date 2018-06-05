@@ -18,7 +18,7 @@ import { NEED_BUILD_IMAGE } from '../../constants'
 let menuList = [
   {
     url: '/ci_cd/overview',
-    name: '总览',
+    name: '概览',
     onClick: () => {
       try {
         browserHistory.push('/ci_cd/overview')

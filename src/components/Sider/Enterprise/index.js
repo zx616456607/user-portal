@@ -929,7 +929,7 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 总览</span>
+                      <span><div className='sideCircle'></div> 概览</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
