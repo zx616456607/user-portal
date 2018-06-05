@@ -38,6 +38,8 @@ export default class PermissionTree extends React.Component {
         return "应用包管理";
       case "secret":
         return "加密配置";
+      case "snapshot":
+        return "独享存储快照";
       default:
         return '未知';
     }
