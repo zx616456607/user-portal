@@ -642,7 +642,7 @@ class Sider extends Component {
                 className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/ci_cd'>
+                  <Link to='/ci_cd/overview'>
                     <svg className='cicd commonImg'>
                       <use xlinkHref='#cicd' />
                     </svg>
@@ -916,6 +916,22 @@ class Sider extends Component {
                     </span>
                   }
                 >
+                  <Menu.Item key='overview'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ci_cd/overview')
+                          if (window.devFlowPortalHistory) {
+                            window.devFlowPortalHistory.push('/devops/pandect')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span><div className='sideCircle'></div> 概览</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
                       <span><div className='sideCircle'></div> 代码仓库</span>

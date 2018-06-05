@@ -67,6 +67,10 @@ class Pipeline extends React.Component {
       redirect = '/devops/thirdparty'
     } else if (pathname === '/ci_cd/cached_volumes') {
       redirect = '/devops/volumes/rbd'
+    } else if (pathname === '/ci_cd/overview') {
+      redirect = '/devops/pandect'
+    } else {
+      redirect = '/devops/pipelines'
     }
     const query = Object.assign(
       { redirect },
