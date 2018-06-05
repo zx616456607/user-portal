@@ -1,0 +1,57 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2018-04-08
+ * @author rensiwei
+ */
+.tab2Content {
+  .btnPanel {
+    margin-bottom: 16px;//同Tabs margin-bottom
+    position: relative;
+    .btnItem {
+      margin-right: 15px;
+      padding: 6px 20px;
+      // padding-left: 20px;
+    }
+    .ant-input-group {
+      display: inline-block;
+      width: 150px !important;
+      /* margin-top: 20px; */
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      .ant-search-btn {
+        float: right;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+    }
+
+    .pageBox {
+      float: right;
+      height: 32px;
+      margin-right: 8px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 32px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 2px;
+      }
+    }
+    .ant-search-input .ant-search-btn {
+      border: none !important;
+      background: none !important;
+    }
+  }
+  .tablePanel {
+    .ant-pagination {
+      height: 0 !important;
+      visibility: hidden;
+    }
+  }
+}
