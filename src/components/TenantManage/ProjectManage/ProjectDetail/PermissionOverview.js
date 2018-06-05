@@ -18,7 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import { loadAppList, loadContainerList } from '../../../../actions/app_manage'
 import { loadAllServices } from '../../../../actions/services'
-import { loadStorageList } from '../../../../actions/storage'
+import { loadStorageList, SnapshotList } from '../../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { loadConfigGroup } from '../../../../actions/configs'
 import { getSecrets } from '../../../../actions/secrets'
@@ -54,7 +54,8 @@ class PermissionOverview extends React.Component{
   componentDidMount() {
     const {
       clusterID, loadAppList, loadAllServices, loadContainerList,
-      loadStorageList, loadConfigGroup, getSecrets, project, wrapManageList
+      loadStorageList, loadConfigGroup, getSecrets, project, wrapManageList,
+      SnapshotList
     } = this.props
     let storageList = []
     const headers = { project }
@@ -81,6 +82,8 @@ class PermissionOverview extends React.Component{
     })
 
     wrapManageList({ from: 0, size: 100, headers })
+
+    SnapshotList({clusterID, headers})
   }
   getColumnsTitle = (title) => {
     let titleCn;
@@ -106,6 +109,9 @@ class PermissionOverview extends React.Component{
       case "applicationPackage":
         titleCn = "应用包管理";
         break;
+      case "snapshot":
+        titleCn = "独享存储快照";
+        break
     }
     return titleCn;
   }
@@ -133,6 +139,9 @@ class PermissionOverview extends React.Component{
       case "applicationPackage":
         titleCn = "应用包管理";
         break;
+      case "snapshot":
+        titleCn = "独享存储快照";
+        break
     }
     return titleCn;
   }
@@ -356,11 +365,11 @@ class PermissionOverview extends React.Component{
 
   renderOverview = () => {
     const { storageList } = this.state
-    let { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList } = this.props
+    let { permissionOverview, openPermissionModal, appList, allServices, containerList, allConfig, pkgs, secretList, snapshot } = this.props
     if(!!!pkgs){pkgs = []}
     const { application, service, container, volume, configuration, applicationPackage, secret } = permissionOverview
     const overviewList = []
-    const sortArr = ["application", "service", "container", "volume", "configuration", "secret", "applicationPackage"];
+    const sortArr = ["application", "service", "container", "volume", "snapshot", "configuration", "secret", "applicationPackage"];
     let overviewArr = [];
     let tempOverview = Object.entries(permissionOverview);
     loop:for(let i = 0; i < sortArr.length; i++){
@@ -404,6 +413,9 @@ class PermissionOverview extends React.Component{
               break;
             case 'secret':
               existed = secretList.some(item => item.name === record.name)
+              break;
+            case 'snapshot':
+              existed = snapshot.some(item => item.name === record.name)
               break;
             default:
               break;
@@ -484,7 +496,7 @@ class PermissionOverview extends React.Component{
 }
 
 const mapStateToProps = (state, props) => {
-  const { entities, apps, role, services, containers, configReducers, secrets, images } = state
+  const { entities, apps, role, services, containers, configReducers, secrets, images, storage } = state
   const { clusterID } = props
   const { appItems } = apps
   const { appList } = appItems[clusterID] || { appList: []}
@@ -503,6 +515,8 @@ const mapStateToProps = (state, props) => {
   const { data: pkgData } = result || { data: [] }
   const { pkgs } = pkgData || { pkgs: [] }
 
+  const { snapshotList } = storage
+  const { result: snapshot } = snapshotList || { result: [] }
   return {
     appList,
     permissionOverview,
@@ -510,7 +524,8 @@ const mapStateToProps = (state, props) => {
     containerList,
     allConfig: configGroup,
     secretList,
-    pkgs
+    pkgs,
+    snapshot
   }
 }
 
@@ -523,5 +538,6 @@ export default connect(mapStateToProps,{
   loadStorageList,
   loadConfigGroup,
   getSecrets,
-  wrapManageList
+  wrapManageList,
+  SnapshotList
 })(PermissionOverview)

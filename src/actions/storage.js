@@ -490,6 +490,8 @@ export const SNAPSHOT_LIST_FAILURE = 'SNAPSHOT_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchSnapshotList(body, callback) {
+  const copyBody = Object.assign({}, body)
+  delete body.headers
   let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshots`
   return {
     [FETCH_API]: {
@@ -497,7 +499,8 @@ function fetchSnapshotList(body, callback) {
       endpoint,
       schema: {},
       options: {
-        method: 'GET'
+        method: 'GET',
+        headers: copyBody.headers
       },
     },
     callback
