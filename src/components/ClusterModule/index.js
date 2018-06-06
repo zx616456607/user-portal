@@ -56,33 +56,12 @@ let NoClusterStepOne = React.createClass({
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    // if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+    if (!(/^http:|^https:/).test(url)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
   },
-  // 认证服务地址校验规则
-  /*checkApprove(rule, value, callback) {
-    if (!value) {
-      callback([new Error('请填写认证服务地址')])
-      return
-    }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的认证服务地址')
-    }
-    callback()
-  },*/
-  // 扩展服务地址校验规则
-  /*checkExtend(rule, value, callback) {
-    if (!value) {
-      callback([new Error('请填写扩展服务地址')])
-      return
-    }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的扩展服务地址')
-    }
-    callback()
-  },*/
   addRegistry() {
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {

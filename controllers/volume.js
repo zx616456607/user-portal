@@ -257,8 +257,13 @@ exports.deleteSnapshot=function* () {
 }
 exports.listSnapshots=function* () {
   const cluster = this.params.cluster
+  const { project } = this.request.headers || { project: null }
+  const headers = {}
+  if (project) {
+    Object.assign(headers, { project, teamspace: project })
+  }
   const snapApi=apiFactory.getK8sApi(this.session.loginUser)
-  const response=yield snapApi.getBy([cluster,'volumes','snapshots'],null)
+  const response=yield snapApi.getBy([cluster,'volumes','snapshots'],null, { headers })
   this.status = response.code
   this.body = response
 }

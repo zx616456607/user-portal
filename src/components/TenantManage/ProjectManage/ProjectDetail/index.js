@@ -993,6 +993,8 @@ class ProjectDetail extends Component {
       case "applicationPackage":
         permission = _.without(permission, _.filter(permission, {name: "上传包文件"})[0])
         break;
+      case "snapshot":
+        break;
     }
     return permission;
   }

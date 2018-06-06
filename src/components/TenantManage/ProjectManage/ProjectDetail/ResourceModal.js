@@ -16,7 +16,7 @@ import { loadAppList } from '../../../../actions/app_manage'
 import { loadAllServices } from '../../../../actions/services'
 import { loadContainerList } from '../../../../actions/app_manage'
 import { DEFAULT_IMAGE_POOL } from '../../../../constants'
-import { loadStorageList } from '../../../../actions/storage'
+import { loadStorageList, SnapshotList } from '../../../../actions/storage'
 import { loadConfigGroup } from '../../../../actions/configs'
 import { wrapManageList } from '../../../../actions/app_center'
 import { getSecrets } from '../../../../actions/secrets'
@@ -712,6 +712,33 @@ class ResourceModal extends Component {
       this.setleftTree(arr);
     })
   }
+
+  getSnapshot() {
+    const scope = this.props.scope;
+    const { name } = scope.props.location.query
+    const headers = { project: name };
+    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers, clusterID: this.props.scope.state.selectedCluster};
+    //scope.state.selectedCluster,
+    this.props.SnapshotList(query, {
+      success: {
+        func: (res) => {
+          let arr = [];
+          res.data.map( (item) => {
+            let fixed = this.props.permissionOverview[this.props.currResourceType].acls.fixed;
+            if(fixed[item.name]) return;
+            arr.push(item.name)
+          });
+          this.setleftTree(arr);
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          this.setleftTree([]);
+        }
+      }
+    })
+  }
   getSecrets() {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
@@ -847,8 +874,10 @@ class ResourceModal extends Component {
         this.getSecrets();
         //console.log("secret");
         break;
-
-
+      case "snapshot":
+        this.getSnapshot();
+        //console.log("secret");
+        break;
     }
   }
 }
@@ -870,4 +899,5 @@ export default ResourceModal = connect(mapStateToSecondProp, {
   loadConfigGroup,
   wrapManageList,
   getSecrets,
+  SnapshotList
 })(ResourceModal)
