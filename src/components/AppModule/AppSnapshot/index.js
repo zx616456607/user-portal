@@ -170,7 +170,9 @@ class Snapshot extends Component {
         }
       })
     }
-    if(this.props.snapshotDataList !== nextProps.snapshotDataList){
+    if(this.props.snapshotDataList !== nextProps.snapshotDataList &&
+      JSON.stringify(this.props.snapshotDataList) !== JSON.stringify(nextProps.snapshotDataList)
+    ){
       this.setState({
         SnapshotList: nextProps.snapshotDataList
       })
