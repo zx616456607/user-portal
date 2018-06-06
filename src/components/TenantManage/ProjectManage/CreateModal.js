@@ -141,7 +141,7 @@ class CreateModal extends React.Component {
   displayName = (rule, value, callback) => {
     const { CheckDisplayName } = this.props;
     let newValue = value && value.trim()
-    if (newValue === '') {
+    if (!newValue) {
       return callback('项目名称不能为空')
     }
     clearTimeout(this.displayNameTimeout)
@@ -198,7 +198,7 @@ class CreateModal extends React.Component {
       notify.warn("请选择集群");
       return;
     }
-    this.props.form.validateFields(['projectName'], (error, values) => {
+    this.props.form.validateFields(['projectName', 'displayName'], (error, values) => {
       if(!!error){
         console.log(error);
         return;
