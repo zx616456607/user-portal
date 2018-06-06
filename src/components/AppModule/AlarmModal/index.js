@@ -332,9 +332,10 @@ let FistStop = React.createClass({
         <Row>
           <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
-          <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
-            { this.getTargetType()}
-
+          <Select placeholder="请选择类型" disabled={currentApp || currentService}
+            defaultValue="service">
+            {/* { this.getTargetType()} */}
+            <Option value="service">服务</Option>
           </Select>
         </Form.Item>
         </Col>
@@ -349,7 +350,12 @@ let FistStop = React.createClass({
         </Col>
         </Row>
          <Form.Item label="监控对象" {...ItemLayout}>
-          <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
+          <Select placeholder={isNode ? '请选择应用' : '请选择应用'} {...applyProps} >
+            {this.getAppOrNodeList()}
+          </Select>
+        </Form.Item>
+        <Form.Item label="监控对象" {...ItemLayout}>
+          <Select placeholder={isNode ? '请选择服务' : '请选择服务'} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
@@ -933,6 +939,40 @@ let TwoStop = React.createClass({
           </div>
         );
       });
+      cpuItems = getFieldValue('cpu').map((key)=>(
+        <div>
+        <div>
+          <Row>
+            <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={7}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现多少次"/></Col>
+            <Col span={1}><span className="spanMiddle">次</span></Col>
+            <Col span={6}><Button>+</Button><Button>*</Button></Col>
+          </Row>
+        </div>
+        <div>
+        <Row>
+          <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
+          <Col span={7}><Input/></Col>
+          <Col span={1}></Col>
+          <Col span={5}><Input placeholder="出现多少次"/></Col>
+          <Col span={1}><span className="spanMiddle">次</span></Col>
+          <Col span={6}><Button>+</Button><Button>*</Button></Col>
+        </Row>
+      </div>
+      <div>
+      <Row>
+        <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
+        <Col span={7}><Input/></Col>
+        <Col span={1}></Col>
+        <Col span={5}><Input placeholder="出现多少次"/></Col>
+        <Col span={1}><span className="spanMiddle">次</span></Col>
+        <Col span={6}><Button>+</Button><Button>*</Button></Col>
+      </Row>
+    </div>
+    </div>
+      ))
     }
 
 
@@ -942,10 +982,10 @@ let TwoStop = React.createClass({
 
         {cpuItems}
 
-        <div className="alertRule">
+        {/* <div className="alertRule">
           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
-        </div>
+        </div> */}
         {/*  footer btn */}
         <div className="wrapFooter">
           <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">上一步</Button>
@@ -1005,7 +1045,7 @@ class AlarmModal extends Component {
       clusterID = activeCluster
     }
     if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
-      
+
       loadNotifyGroups('', clusterID)
     }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
