@@ -309,20 +309,7 @@ class Sider extends Component {
           </Link>
         </div>
       </Menu.Item>,
-      <Menu.Item key='cluster_autoscale'>
-        <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              <use xlinkHref='#start' />
-            </svg>
-          </Tooltip>
-          <Link to='/tenant_manage/cluster_autoscale'>
-                        <span>
-                        集群伸缩策略
-                        </span>
-          </Link>
-        </div>
-      </Menu.Item>,
+
       <Menu.Item key='ldap'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
@@ -929,7 +916,7 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 总览</span>
+                      <span><div className='sideCircle'></div> 概览</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
@@ -1198,7 +1185,6 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
-
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
@@ -1210,6 +1196,20 @@ class Sider extends Component {
                             <span>
                               全局配置
                             </span>
+                        </Link>
+                      </div>
+                    </Menu.Item>
+                  <Menu.Item key='cluster_autoscale'>
+                      <div className="adminBox">
+                        <Tooltip title="仅系统管理员可见" placement="right">
+                          <svg className="start forAdmin">
+                            <use xlinkHref='#start' />
+                          </svg>
+                        </Tooltip>
+                        <Link to='/cluster/cluster_autoscale'>
+                        <span>
+                        集群伸缩策略
+                        </span>
                         </Link>
                       </div>
                     </Menu.Item>

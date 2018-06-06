@@ -54,9 +54,6 @@ const tenantRoutes = [{
   {
     path: 'team/:team_id',
     component: require('../components/TenantManage/_Enterprise/TeamDetail').default,
-  },{
-    path: '/tenant_manage/cluster_autoscale',
-    component: require('../../client/containers/TenantManage/ClusterAutoScale').default,
   },
   {
     path: 'ldap',
