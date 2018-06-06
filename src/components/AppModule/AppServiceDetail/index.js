@@ -239,9 +239,8 @@ class AppServiceDetail extends Component {
   okDeleteModal() {
     const { deleteServices, scope, serviceDetail, loadServices } = this.props
     const service = scope.state.currentShowInstance || serviceDetail
-    console.log(service, 'service')
-    return
-    deleteServices(service.cluster,[service.metadata.name],{
+     // fix LOT-275 此bug是在测试LOT-275时发现的,实际上与LOT-275无关 是个老bug
+    deleteServices(service.cluster,{ services: [service.metadata.name]},{
       success:{
         func: (res) => {
           loadServices()
