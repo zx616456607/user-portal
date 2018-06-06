@@ -92,6 +92,12 @@ class Snapshot extends Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode === 403) this.setState({ SnapshotList: [] })
+        },
+        isAsync: true,
       }
     })
   }
