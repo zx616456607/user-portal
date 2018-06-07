@@ -382,6 +382,7 @@ class PodAffinity extends Component {
     this.handleAddBottomLabel = this.handleAddBottomLabel.bind(this)
     this.formTagBottomContainer = this.formTagBottomContainer.bind(this)
     this.handleBottomClose = this.handleBottomClose.bind(this)
+    this.handleAdvance = this.handleAdvance.bind(this)
     this.state = {
       showServiceBetween: 'single',
     }
@@ -457,7 +458,7 @@ class PodAffinity extends Component {
 
   handleAddBottomLabel() {
     const { fields, form } = this.props
-    const { validateFields, setFieldsValue, resetFields, getFieldsValue } = form
+    const { validateFields, setFieldsValue, resetFields, getFieldsValue, } = form
     const  notificat = new Notification()
     let serviceBottomTag = []
     if (fields.serviceBottomTag && fields.serviceBottomTag.value && fields.serviceBottomTag.value.length>0) {
@@ -471,7 +472,7 @@ class PodAffinity extends Component {
     if (mark.serverBottomMark=='Exists' || mark.serverBottomMark=='DoesNotExist') {
       fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
     }else {
-      fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
+      fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint' , 'agreement']
     }
     validateFields( fieldsArr ,(errors,values)=>{
       if (errors) {
@@ -588,6 +589,13 @@ class PodAffinity extends Component {
     }
     callback()
   }
+  handleAdvance(e) {
+    const { setFieldsValue } = this.props.parentsForm
+    setFieldsValue({
+      advanceSet: e.target.checked
+    })
+    return e
+  }
   render() {
     const { form, serviceBottomTag } = this.props
     const { getFieldProps } = form
@@ -675,7 +683,13 @@ class PodAffinity extends Component {
           }
         </div>
         <FormItem>
-        <Checkbox {...getFieldProps('agreement', { initialValue: false, valuePropName: 'checked' })}>
+        <Checkbox
+          {...getFieldProps('agreement', {
+            initialValue: false,
+            valuePropName: 'checked',
+            onChange: this.handleAdvance
+          })}
+          >
           高级设置：『当前服务』中的容器实例必须『分散』在不同的节点上
         </Checkbox>
       </FormItem>
