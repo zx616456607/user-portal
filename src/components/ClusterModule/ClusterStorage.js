@@ -954,6 +954,7 @@ class ClusterStorage extends Component {
           `gfs_password${item.index}`,
         ])
         listArray[i].disabled = true
+        listArray[i].seePwd = false
         break
       }
     }
