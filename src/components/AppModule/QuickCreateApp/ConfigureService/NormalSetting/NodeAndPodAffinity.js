@@ -472,7 +472,7 @@ class PodAffinity extends Component {
     if (mark.serverBottomMark=='Exists' || mark.serverBottomMark=='DoesNotExist') {
       fieldsArr = ['serverBottomKey','serverBottomMark','serverBottomPoint']
     }else {
-      fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint' , 'agreement']
+      fieldsArr = ['serverBottomKey','serverBottomValue','serverBottomMark','serverBottomPoint']
     }
     validateFields( fieldsArr ,(errors,values)=>{
       if (errors) {
