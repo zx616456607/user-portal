@@ -375,6 +375,46 @@ export function getSettingList(cluster, body, needFetching, callback) {
   }
 }
 
+// 增加日志告警api
+// 获取所有告警规则
+
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST = 'ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST'
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS= 'ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS'
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE = 'ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE'
+
+
+function fetchGetAlertRegularList(cluster, body, needFetching, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/alerts/setting/logsalert`
+  if(typeof body == 'function') {
+    callback = body
+    body = null
+  }
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST, ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS, ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+    needFetching
+  }
+}
+
+export function getSettingRegularList(cluster, body, needFetching, callback) {
+  if(typeof needFetching == 'object') {
+    callback = needFetching
+    needFetching = true
+  }
+  return (dispath, getState) => {
+    return dispath(fetchGetAlertRegularList(cluster, body, needFetching, callback))
+  }
+}
+
+
+
 
 export const ALERT_DELETE_SETTING_REQUEST = 'ALERT_DELETE_SETTING_REQUEST'
 export const ALERT_DELETE_SETTING_SUCCESS = 'ALERT_DELETE_SETTING_SUCCESS'

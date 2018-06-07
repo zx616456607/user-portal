@@ -603,6 +603,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/setting', alertController.addAlertSetting)
   router.put('/cluster/:cluster/alerts/setting/:strategyID', alertController.modifyAlertSetting)
   router.get('/cluster/:cluster/alerts/setting/list', alertController.getSettingList)
+  router.get('/clusters/:cluster/alerts/setting/logsalert', alertController.getSettingLogList) // 增加告警正则
   router.get('/cluster/:cluster/alerts/group-strategies', alertController.getSettingListfromserviceorapp)
   router.delete('/cluster/:cluster/alerts/setting', alertController.deleteSetting)
   router.post('/cluster/:cluster/alerts/setting/batch-enable', alertController.batchEnable)

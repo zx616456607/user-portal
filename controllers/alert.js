@@ -248,6 +248,14 @@ exports.getSettingList = function* () {
   const response = yield api.getBy([cluster, 'alerts/strategies'], queryBody)
   this.body = response
 }
+exports.getSettingLogList = function* () {
+  const cluster = this.params.cluster
+  const queryBody = this.query || {}
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.getBy([cluster, 'alerts/logsalert'], queryBody)
+  this.body = response
+}
 
 exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
@@ -391,7 +399,7 @@ exports.getTargetInstant = function* () {
       type: 'disk/usage',
       source: 'prometheus'
     }
-  
+
     let tcp_listen = {
       targetType: type,
       type: 'tcp/listen_state',

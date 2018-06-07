@@ -29,7 +29,26 @@ const option = {
     default:
       return state
   }
-} 
+}
+
+// 日志告警相关
+// 获取所有告警规则
+function getSettingRegularList(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST:
+      return Object.assign({}, defaultState, state, { isFetching: action.needFetching})
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS:
+      return Object.assign({}, defaultState, state, { isFetching: false, result: action.response.result})
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE:
+      return Object.assign({}, defaultState, state, { isFetching: false})
+    default:
+      return state
+  }
+}
+
 
 function getSettingListfromserviceorapp(state = {}, action) {
   const defaultState = {
@@ -79,6 +98,7 @@ export default function alert(state = {
       FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
     settingList: getSettingList(state.settingList, action),
+    settingRegularList: getSettingRegularList(state.settingRegularList, action),
     SettingListfromserviceorapp: getSettingListfromserviceorapp(state.SettingListfromserviceorapp, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,

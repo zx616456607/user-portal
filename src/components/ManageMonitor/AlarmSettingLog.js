@@ -21,8 +21,8 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
-import CreateAlarm from '../AppModule/AlarmModal'
-import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
+import CreateAlarm from '../AppModule/AlarmModalLog'
+import CreateGroup from '../AppModule/AlarmModalLog/CreateGroup'
 //import no_alarm from '../../assets/img/no_data/no_alarm.png'
 import { formatDate } from '../../common/tools.js'
 import './style/AlarmRecord.less'
@@ -30,6 +30,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
+import { getSettingRegularList } from '../../actions/alert'
 
 const Option = Select.Option
 
@@ -499,6 +500,7 @@ let MyComponent = React.createClass({
   render() {
     const { data } = this.state
     let lists
+    console.log("data",lists)
     if(!data || data.length <= 0){
       lists = <tr className='nodata'>
         <td colSpan={9}>
@@ -690,11 +692,8 @@ class AlarmSetting extends Component {
     }
   }
   componentWillMount() {
-    const { getSettingList, clusterID } = this.props
-    getSettingList(clusterID, {
-      from: DEFAULT_PAGE - 1,
-      size: DEFAULT_PAGE_SIZE
-    })
+    const { getSettingRegularList, clusterID } = this.props
+    getSettingRegularList(clusterID)
   }
   componentWillReceiveProps(nextProps) {
     const { getSettingList } = this.props
@@ -1209,13 +1208,15 @@ function mapStateToProps(state, props) {
   const cluster = entities.current.cluster
   const team = entities.current.team
   const space = entities.current.space
-  let setting = state.alert.settingList || defaultSettingList
+  // let setting = state.alert.settingRegularList || defaultSettingList // 告警日志正则
+  let setting = state.alert.settingList || defaultSettingList // 告警日志正则
   if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
   }
 
   let total = setting.result.data.total || 0
   setting = setting.result.data.strategys || []
+  // setting = setting.result.data || []
   return {
     recordsData,
     clusterID: cluster.clusterID,
@@ -1233,5 +1234,6 @@ export default connect(mapStateToProps, {
   deleteSetting,
   batchEnable,
   batchDisable,
-  ignoreSetting
+  ignoreSetting,
+  getSettingRegularList
 })(AlarmSetting)

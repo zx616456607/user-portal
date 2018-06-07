@@ -330,7 +330,7 @@ class AlarmRecord extends Component {
     }
     return (
       <QueueAnim type="right">
-        <div id="AlarmRecord" key="AlarmRecord">
+        <div id="AlarmRecord" key="AlarmRecord" >
           <Title title="告警记录" />
           <div className="topRow">
             <Select style={{ width: 150 }} getPopupContainer={() => document.getElementById('AlarmRecord')}

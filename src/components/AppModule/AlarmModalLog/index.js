@@ -206,7 +206,8 @@ let FistStop = React.createClass({
   getTargetType() {
     const { loginUser } = this.props
     if (loginUser.info.role == ADMIN_ROLE) {
-      return [<Option value="node" key="node">节点</Option>,
+      return [
+      // <Option value="node" key="node">节点</Option>,
       <Option value="service" key="service">服务</Option>]
     }
     return <Option value="service" key="service">服务</Option>
@@ -284,7 +285,8 @@ let FistStop = React.createClass({
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+        // initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+        initialValue: 'service'
       });
       let initAppName
       let initService
@@ -932,6 +934,40 @@ let TwoStop = React.createClass({
           </div>
         );
       });
+      cpuItems = getFieldValue('cpu').map((key)=>(
+        <div>
+        <div className="regularWrap">
+          <Row>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
+          </Row>
+        </div>
+        <div className="regularWrap">
+          <Row>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
+          </Row>
+        </div>
+        <div className="regularWrap">
+          <Row>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
+          </Row>
+        </div>
+    </div>
+      ))
     }
 
 
@@ -941,10 +977,10 @@ let TwoStop = React.createClass({
 
         {cpuItems}
 
-        <div className="alertRule">
-           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
-           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
-        </div>
+        {/* <div className="alertRule">
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
+        </div> */}
         {/*  footer btn */}
         <div className="wrapFooter">
           <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">上一步</Button>
@@ -1025,8 +1061,7 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
-    const { scope } = funcs
+    const { form, getSettingList, pathname, activeCluster } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
         return
