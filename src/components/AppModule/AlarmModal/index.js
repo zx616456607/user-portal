@@ -941,36 +941,36 @@ let TwoStop = React.createClass({
       });
       cpuItems = getFieldValue('cpu').map((key)=>(
         <div>
-        <div>
+        <div className="regularWrap">
           <Row>
-            <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
-            <Col span={7}><Input/></Col>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
             <Col span={1}></Col>
-            <Col span={5}><Input placeholder="出现多少次"/></Col>
-            <Col span={1}><span className="spanMiddle">次</span></Col>
-            <Col span={6}><Button>+</Button><Button>*</Button></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
           </Row>
         </div>
-        <div>
-        <Row>
-          <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
-          <Col span={7}><Input/></Col>
-          <Col span={1}></Col>
-          <Col span={5}><Input placeholder="出现多少次"/></Col>
-          <Col span={1}><span className="spanMiddle">次</span></Col>
-          <Col span={6}><Button>+</Button><Button>*</Button></Col>
-        </Row>
-      </div>
-      <div>
-      <Row>
-        <Col span={4}><span  className="spanMiddle">正则日志</span></Col>
-        <Col span={7}><Input/></Col>
-        <Col span={1}></Col>
-        <Col span={5}><Input placeholder="出现多少次"/></Col>
-        <Col span={1}><span className="spanMiddle">次</span></Col>
-        <Col span={6}><Button>+</Button><Button>*</Button></Col>
-      </Row>
-    </div>
+        <div className="regularWrap">
+          <Row>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
+          </Row>
+        </div>
+        <div className="regularWrap">
+          <Row>
+            <Col span={3}><span  className="spanMiddle">正则日志</span></Col>
+            <Col span={9}><Input/></Col>
+            <Col span={1}></Col>
+            <Col span={5}><Input placeholder="出现次数"/></Col>
+            <Col span={2}><span className="spanMiddle" style={{ marginLeft: '8px' }}>次</span></Col>
+            <Col span={4}><Button type="primary" icon="plus"/><Button style={{ marginLeft: '16px' }} icon="minus"/></Col>
+          </Row>
+        </div>
     </div>
       ))
     }

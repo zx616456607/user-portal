@@ -1112,7 +1112,7 @@ class AlarmSetting extends Component {
     }
     return (
       <QueueAnim type="right" >
-        <div id="AlarmRecord" key="AlarmRecord" style={{ border: '1px solid red' }}>
+        <div id="AlarmRecord" key="AlarmRecord" >
           <Title title="告警设置" />
           <div className="topRow" style={{marginBottom: '20px'}}>
             <Button size="large" type="primary" onClick={()=> this.createStrategy()}>
