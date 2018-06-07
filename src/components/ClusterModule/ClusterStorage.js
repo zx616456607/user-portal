@@ -483,7 +483,7 @@ class ClusterStorage extends Component {
     gfsArray.listArray.map(local => list.push(local.index !== index ? local : { ...local, seePwd: !seePwd }))
     this.setState({
       gfsArray: {
-        ...this.state.cephArray,
+        ...this.state.gfsArray,
         listArray: list,
       },
     })
