@@ -1,0 +1,90 @@
+
+.rightbox{
+  margin-right: 37px;
+  .charts{
+    position: relative;
+    .imgcontainer{
+      text-align: center;
+
+      @media(max-width:1250px){
+        padding-top: 35px;
+      }
+      @media(max-width:1160px){
+        padding-top: 35px;
+      }
+
+      @media(max-width: 1120px){
+        padding-top: 65px;
+      }
+
+      .img{
+        @media(max-width:1870px){
+          width: 69%;
+        }
+        @media(max-width:1800px){
+          width: 74%;
+        }
+        @media(max-width:1700px){
+          width: 80%;
+        }
+        @media(max-width:1500px){
+          width: 90%;
+        }
+        @media(max-width: 1355px){
+          width: 90%;
+        }
+      }
+    }
+  }
+  .legend{
+    position: absolute;
+    top:460px;
+    left:30px;
+    clear: both;
+    @media(max-width:1120px){
+      top:400px;
+    }
+    .container{
+      .item{
+        float: left;
+        width: 150px;
+        height:24px;
+        line-height: 24px;
+        cursor: pointer;
+        .margin{
+          font-size: 15px;
+        }
+        .item_container{
+          padding:0 2px 0 1px;
+        }
+        .container{
+          margin-right: 6px;
+          font-size: 16px;
+        }
+        .icon{
+          display: inline-block;
+          width: 19px;
+          height:19px;
+          border-radius: 4px;
+          vertical-align: middle;
+        }
+        .node{
+          background: #f4f5f7;
+          border:1px dashed #cacccb;
+        }
+        .cluster{
+          border:1px dashed #cacccb;
+        }
+        .app{
+          background: #f4f5f7;
+          border:1px solid #cacccb;
+        }
+      }
+      .item:hover{
+        .text{
+          color: #00a0ea;
+        }
+      }
+    }
+  }
+}

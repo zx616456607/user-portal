@@ -489,11 +489,11 @@ const Storage = React.createClass({
         <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
           <div>
             服务类型&nbsp;
-            <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank">
+            {/* <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"> */}
               <Tooltip title="若需数据持久化，请使用有状态服务">
                 <Icon type="question-circle-o" />
               </Tooltip>
-            </a>
+            {/* </a> */}
           </div>
         </Col>
         <Col span={formItemLayout.wrapperCol.span}>
