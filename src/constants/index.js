@@ -129,7 +129,7 @@ export const BASE_IMAGE_TYPE = [
     text: '人工审批'
   },
 ]
-export const NEED_BUILD_IMAGE = true
+export const NEED_BUILD_IMAGE = false
 export const PLUGIN_DEFAULT_CONFIG = {
   ['elasticsearch-logging']:{
     cpu: 0.5,
