@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { getAlertSetting, getAlertRegularSetting, deleteRecords, getSettingList, deleteRegularSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import CreateAlarm from '../AppModule/AlarmModalLog'
@@ -170,36 +170,32 @@ let MyComponent = React.createClass({
       <Menu.Item key="delete">
         <span>删除</span>
       </Menu.Item>
-      <Menu.Item key="edit">
+      {/* <Menu.Item key="edit">
         <span>修改</span>
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Item key="stop" disabled={(record.enable==0)}>
         <span>停用</span>
       </Menu.Item>
       <Menu.Item key="start" disabled={(record.enable==1)}>
         <span>启用</span>
       </Menu.Item>
-      <Menu.Item key="list">
+      {/* <Menu.Item key="list">
         <span>查看记录</span>
       </Menu.Item>
       <Menu.Item key="clear">
         <span>清除记录</span>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
 
     )
   },
   formatStatus(text){
-    if (text ==1) {
+    if (text == true) {
       return <span className="running"><i className="fa fa-circle" /> 启用</span>
     }
-    if (text == 0) {
+    if (text == false) {
       return <span className="stop"><i className="fa fa-circle" /> 停用</span>
     }
-    if (text ==3) {
-      return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
-    }
-    return <span className="padding"><i className="fa fa-circle" /> 告警</span>
   },
   handOverlook() {
     const { currentStrategy, ignoreTime, ignoreSymbol } = this.state
@@ -500,7 +496,6 @@ let MyComponent = React.createClass({
   render() {
     const { data } = this.state
     let lists
-    console.log("data",lists)
     if(!data || data.length <= 0){
       lists = <tr className='nodata'>
         <td colSpan={9}>
@@ -514,15 +509,18 @@ let MyComponent = React.createClass({
           return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}&clusterID=${list.clusterID}`}>{list.strategyName}</Link></td>
-              <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
-              <td >
-                <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.targetName}</span>
+              <td onClick={(e)=> this.tableListMore(index, e)}> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.name}&clusterID=${list.clusterID}`}>{list.name}</Link></td>
+              <td onClick={()=> this.tableListMore(index)}>
+                {/* {this.switchType(list.targetType)} */}
+                服务日志
               </td>
-              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
+              <td >
+                <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.filter[0].query.queryString.query.split(':').pop()}</span>
+              </td>
+              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.isEnabled)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{`${list.timeframe.minutes} 分钟`}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.description}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.owner}</td>
              <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
@@ -537,15 +535,22 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td ><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}&clusterID=${list.clusterID}`}>{`log-${list.strategyName}`}</Link></td>
-            <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td >
-              <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.targetName}</span>
+              {/* <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.name)}?name=${list.name}&clusterID=${list.clusterID}`}> */}
+              {`log-${list.name}`}
+              {/* </Link> */}
+              </td>
+            <td onClick={()=> this.tableListMore(index)}>
+              {/* {this.switchType(list.targetType)} */}
+              服务日志
             </td>
-            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
+            <td >
+              <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.filter[0].query.queryString.query.split(':').pop()}</span>
+            </td>
+            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.isEnabled)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{`${list.timeframe.minutes} 分钟`}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.description}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.owner}</td>
             <td className='dropdownTd'>
               <Dropdown.Button
                 type="ghost"
@@ -784,6 +789,7 @@ class AlarmSetting extends Component {
     const strategyID = []
     const strategyName =[]
     const selectStrategy = this.state.selectStrategy
+    console.log('selectStrategy', selectStrategy)
     if(selectStrategy) {
       strategyID.push(selectStrategy.strategyID)
       strategyName.push(selectStrategy.strategyName)
@@ -797,8 +803,9 @@ class AlarmSetting extends Component {
     }
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
+    console.log('strategyName', strategyName)
     notify.spin('删除中')
-    strategyID.length > 0 && deleteSetting(clusterID, strategyID,strategyName, {
+    strategyID.length > 0 && deleteSetting(clusterID, strategyID,selectStrategy.name, {
       success: {
         func: () => {
           this.setState({
@@ -1199,24 +1206,32 @@ function mapStateToProps(state, props) {
   }
   const defaultSettingList = {
     result: {
-      data: {
-        strategys: []
-      }
+      data: {}
     }
   }
   const { entities } = state
   const cluster = entities.current.cluster
   const team = entities.current.team
   const space = entities.current.space
-  // let setting = state.alert.settingRegularList || defaultSettingList // 告警日志正则
-  let setting = state.alert.settingList || defaultSettingList // 告警日志正则
+  let setting = state.alert.settingRegularList || defaultSettingList // 告警日志正则
+  // let setting = state.alert.settingList || defaultSettingList // 告警日志正则
   if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
   }
 
   let total = setting.result.data.total || 0
-  setting = setting.result.data.strategys || []
-  // setting = setting.result.data || []
+  // setting = setting.result.data.strategys || []
+  setting = setting.result.data || []
+  if ( JSON.stringify(setting) === '[]' ) {
+    setting.filter = [ {
+      query: {
+        queryString:{
+          query: ''
+        }
+      }
+    } ]
+  }
+  console.log('data', setting)
   return {
     recordsData,
     clusterID: cluster.clusterID,
@@ -1228,10 +1243,10 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  getAlertSetting,
+  getAlertSetting: getAlertRegularSetting,
   deleteRecords,
-  getSettingList,
-  deleteSetting,
+  getSettingList: getSettingRegularList,
+  deleteSetting: deleteRegularSetting,
   batchEnable,
   batchDisable,
   ignoreSetting,

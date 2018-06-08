@@ -319,6 +319,33 @@ export function addAlertSetting(cluster, body, callback) {
   }
 }
 
+// 增加日志告警相关
+export const ALERT_REGULAR_SETTING_ADD_REQUEST = 'ALERT_REGULAR_SETTING_ADD_REQUEST'
+export const ALERT_REGULAR_SETTING_ADD_SUCCESS = 'ALERT_REGULAR_SETTING_ADD_SUCCESS'
+export const ALERT_REGULAR_SETTING_ADD_FAILURE = 'ALERT_REGULAR_SETTING_ADD_FAILURE'
+
+
+function fetchAddRegularAlertSetting(cluster, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_REGULAR_SETTING_ADD_REQUEST, ALERT_REGULAR_SETTING_ADD_SUCCESS, ALERT_REGULAR_SETTING_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'POST'
+      },
+    },
+    callback
+  }
+}
+
+export function addAlertRegularSetting(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAddRegularAlertSetting(cluster, body, callback))
+  }
+}
+
 function fetchUpdateAlertSetting(cluster, strategyID, body, callback){
   return {
     [FETCH_API]: {
@@ -441,6 +468,32 @@ export function deleteSetting(cluster, id, name, callback) {
   }
 }
 
+// 告警日志相关
+// 删除告警规则
+export const ALERT_DELETE_REGULAR_SETTING_REQUEST = 'ALERT_DELETE_REGULAR_SETTING_REQUEST'
+export const ALERT_DELETE_REGULAR_SETTING_SUCCESS = 'ALERT_DELETE_REGULAR_SETTING_SUCCESS'
+export const ALERT_DELETE_REGULAR_SETTING_FAILURE = 'ALERT_DELETE_REGULAR_SETTING_FAILURE'
+
+
+function fetchRegularDeleteSetting(cluster, id, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_DELETE_REGULAR_SETTING_REQUEST, ALERT_DELETE_REGULAR_SETTING_SUCCESS, ALERT_DELETE_REGULAR_SETTING_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/${name}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback
+  }
+}
+
+export function deleteRegularSetting(cluster, id, name, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchRegularDeleteSetting(cluster, id, name, callback))
+  }
+}
 
 export const ALERT_UPDATE_SETTING_ENABLE_REQUEST = 'ALERT_UPDATE_SETTING_ENABLE_REQUEST'
 export const ALERT_UPDATE_SETTING_ENABLE_SUCCESS = 'ALERT_UPDATE_SETTING_ENABLE_SUCCESS'

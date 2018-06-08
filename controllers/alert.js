@@ -230,6 +230,15 @@ exports.addAlertSetting = function* () {
   this.body = response
 }
 
+exports.addAlertRegularSetting = function* () { // 增加告警规则
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/logsalert'], null, body)
+  this.body = response
+}
+
 exports.modifyAlertSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.params.strategyID
@@ -280,6 +289,23 @@ exports.deleteSetting = function* () {
     strategyIDs: strategyID,
     strategyName: strategyName
   })
+  this.body = response
+}
+
+// 删除告警规则
+exports.deleteRegularSetting = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  // const strategyID = this.query.strategyID
+  // const strategyName = this.query.strategyName
+  // if (!strategyID) {
+  //   const err = new Error('strategyID is require')
+  //   err.status = 400
+  //   throw err
+  // }
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.deleteBy([cluster, 'alerts/logsalert', name])
   this.body = response
 }
 
