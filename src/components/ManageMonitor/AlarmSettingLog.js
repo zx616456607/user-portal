@@ -246,7 +246,6 @@ let MyComponent = React.createClass({
   },
   changeChecked(e, ins) {
     const oldData = cloneDeep(this.state.data)
-    console.log('data', oldData)
     let isDelete = true
     const newData = oldData.map((item, index)=> {
       if (index == ins) {
@@ -262,10 +261,10 @@ let MyComponent = React.createClass({
     })
     if(checkedData.length > 0) {
       canStart = checkedData.every(item => {
-        return item.statusCode == 0
+        return item.isEnabled === false
       })
       canStop = checkedData.every(item => {
-        return item.statusCode != 0
+        return item.isEnabled === true
       })
     }
     if(!e.target.checked) {
@@ -292,6 +291,7 @@ let MyComponent = React.createClass({
       canStop,
       canStart
     }), 0)
+    console.log('newData', newData)
     this.setState({
       data: newData
     })
@@ -506,31 +506,8 @@ let MyComponent = React.createClass({
       </tr>
     } else {
       lists = data.map((list, index) => {
-        if (list.active) {
-          return (
-            [<tr key={`list${index}`}>
-             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td >{list.name}</td>
-              <td >服务日志</td>
-              <td ><span className="targetName" >{list.filter[0].query.queryString.query.split(':').pop()}</span></td>
-              <td >{this.formatStatus(list.isEnabled)}</td>
-              <td >{`${list.timeframe.minutes} 分钟`}</td>
-              <td >{list.description}</td>
-              <td >{list.owner}</td>
-             <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
-            </tr>,
-            <tr key={`list-${index}`} className="ant-table-expanded">
-              <td style={{width:'5%',textAlign:'center'}}></td>
-              <td colSpan="9">
-                {this.childerList(list)}
-              </td>
-            </tr>]
-        )
-      }
-      const listLabel = list.labels
       return (
         <tr key={`list${index}`}>
-            <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
             <td> {`log-${list.name}`}</td>
             <td >服务日志</td>
             <td ><span className="targetName">{list.filter[0].query.queryString.query.split(':').pop()}</span></td>
@@ -562,7 +539,6 @@ let MyComponent = React.createClass({
         <table className={strategyTablePadding}>
           <thead className="ant-table-thead">
             <tr>
-              <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} checked={this.state.checkAll}/></th>
               <th style={{width:'15%'}}>策略名称</th>
               <th style={{width:'5%'}}>类型</th>
               <th style={{width:'10%'}}>告警对象</th>
@@ -1112,11 +1088,7 @@ class AlarmSetting extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-
-            <Button size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}><i className='fa fa-play' />  启 用</Button>
-            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" />  停 用</Button>
             <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />  刷 新</Button>
-            <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' /> 删 除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button>*/}
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="按策略名称搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
