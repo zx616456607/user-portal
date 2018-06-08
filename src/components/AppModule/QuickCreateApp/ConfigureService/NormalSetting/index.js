@@ -162,6 +162,7 @@ const Normal = React.createClass({
     const { form, fields } = this.props
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     getFieldProps('serviceBottomTag')
+    getFieldProps('advanceSet')
     const serviceBottomTag = getFieldValue('serviceBottomTag')
     return <div>
       <Title title="应用列表" />

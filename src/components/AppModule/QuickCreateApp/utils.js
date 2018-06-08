@@ -43,6 +43,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
+    appName, // 应用名称
     serviceName, // 服务名称
     systemRegistry, // 镜像服务类型
     imageUrl, // 镜像地址
@@ -91,6 +92,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     secretConfigMapKeys, // 加密配置目录的 keys(数组)
     serviceTag,         // 服务与节点 标签
     serviceBottomTag,  // 服务与服务 标签
+    advanceSet, // 服务与服务 高级设置
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -129,8 +131,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
 
     //设置服务 标签
     deployment.setServicePointSelector(serviceTag)
-    deployment.setServicePodSelector(serviceBottomTag)
-
+    deployment.setServicePodSelector(serviceBottomTag, advanceSet, appName)
   }
   // 设置资源
   const { cpu, memory, limitCpu, limitMemory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
