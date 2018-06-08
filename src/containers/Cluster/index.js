@@ -24,6 +24,10 @@ let menuList = [
     name: '全局配置'
   },
   {
+    url: '/cluster/cluster_autoscale',
+    name: '集群伸缩策略'
+  },
+  {
     url: '/cluster/monitor',
     name: '系统服务监控',
     onClick: () => {

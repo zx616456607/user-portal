@@ -691,6 +691,7 @@ class Information extends Component {
           onOk={() => this.changeUserRoleRequest()}
         >
           <RadioGroup onChange={(e) => { this.changeRole(e)}}  value={this.state.selectUserRole}>
+            <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
             {
               loginUser.role === ROLE_PLATFORM_ADMIN?
                 ''
@@ -698,7 +699,6 @@ class Information extends Component {
                 <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员</Radio>
             }
             <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
-            <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
           </RadioGroup>
         </Modal>
         <Modal title="修改用户权限"

@@ -730,7 +730,6 @@ class ServiceList extends Component {
       })
     })
   }
-
   onAllChange(e) {
     const { checked } = e.target
     const { serviceList } = this.state
@@ -754,7 +753,6 @@ class ServiceList extends Component {
     }
     handleStateOfServiceList(this, serviceList)
   }
-
   componentDidMount() {
     const { serName } = this.props
     this.loadServices().then(() => {
@@ -776,7 +774,6 @@ class ServiceList extends Component {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
   }
-
   componentWillUnmount() {
     const {
       cluster,
@@ -786,7 +783,6 @@ class ServiceList extends Component {
     clearTimeout(this.loadStatusTimeout)
     clearInterval(this.upStatusInterval)
   }
-
   componentWillReceiveProps(nextProps) {
     let { page, size, name, label, serviceList } = nextProps
     this.setState({
@@ -1205,7 +1201,6 @@ class ServiceList extends Component {
       DeleteServiceModal: false,
     })
   }
-
   /*batchDeleteServices(e) {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -1613,7 +1608,7 @@ class ServiceList extends Component {
               </div>
               <div className='name commonTitle'>
                 服务名称
-            </div>
+              </div>
               <div className='status commonTitle'>
                 状态
               </div>

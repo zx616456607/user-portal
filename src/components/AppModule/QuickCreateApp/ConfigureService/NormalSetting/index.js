@@ -38,6 +38,7 @@ import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 const FormItem = Form.Item
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
+let notify = new Notification()
 
 const Normal = React.createClass({
   getInitialState() {
@@ -471,6 +472,10 @@ const Normal = React.createClass({
   },
   memoryChange(value) {
     const { getFieldsValue, setFieldsValue } = this.props.form
+    if (!value) {
+      notify.warn('请输入最小内存')
+      return
+    }
     this.setResourceTypeToDIY()
     const { DIYMaxMemory } = getFieldsValue()
     this.setInputMin('memoryMin', value)
@@ -480,8 +485,19 @@ const Normal = React.createClass({
       })
     }
   },
+  maxMemoryChange(value) {
+    if (!value) {
+      notify.warn('请输入最大内存')
+      return
+    }
+    this.setResourceTypeToDIY()
+  },
   cpuChange(value) {
     const { getFieldsValue, setFieldsValue } = this.props.form
+    if (!value) {
+      notify.warn('请输入最小 CPU 的值')
+      return
+    }
     this.setResourceTypeToDIY()
     const { DIYMaxCPU } = getFieldsValue()
     this.setInputMin('cpuMin', value)
@@ -489,6 +505,19 @@ const Normal = React.createClass({
       setFieldsValue({
         DIYMaxCPU: value
       })
+    }
+  },
+  maxCpuChange(value) {
+    if (!value) {
+      notify.warn('请输入最大 CPU 的值')
+      return
+    }
+    this.setResourceTypeToDIY()
+  },
+  maxGpuChange(value) {
+    if (!value) {
+      notify.warn('请输入最大 GPU 的值')
+      return
     }
   },
   algorithmChange(e) {
@@ -526,20 +555,21 @@ const Normal = React.createClass({
       onChange: this.memoryChange,
     })
     const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
-      onChange: this.setResourceTypeToDIY,
+      onChange: this.maxMemoryChange,
     })
     const DIYCPUProps = getFieldProps('DIYCPU', {
       onChange: this.cpuChange,
     })
     const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
-      onChange: this.setResourceTypeToDIY,
+      onChange: this.maxCpuChange,
     })
     const algorithmProps = getFieldProps('resourceAlgorithm', {
       initialValue: DEFAULT_ALGORITHM,
       onChange: this.algorithmChange
     })
     const GPULimitsProps = getFieldProps('GPULimits', {
-      initialValue: RESOURCES_GPU_MIN
+      initialValue: RESOURCES_GPU_MIN,
+      onChange: this.maxGpuChange
     })
     const schedulerHeader = (
       <Row className="configBoxHeader" key="header">
@@ -658,7 +688,7 @@ const Normal = React.createClass({
             <Collapse>
               <Panel header={schedulerHeader}>
                 <div className='bindNodes'>
-                  { !isTemplate && this.handleBindNodeTempalte() }
+                  { this.handleBindNodeTempalte() }
                 </div>
               </Panel>
             </Collapse>

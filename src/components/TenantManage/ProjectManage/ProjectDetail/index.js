@@ -993,6 +993,8 @@ class ProjectDetail extends Component {
       case "applicationPackage":
         permission = _.without(permission, _.filter(permission, {name: "上传包文件"})[0])
         break;
+      case "snapshot":
+        break;
     }
     return permission;
   }
@@ -1003,7 +1005,7 @@ class ProjectDetail extends Component {
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
-    const isAble = roleNum === ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
+    const isAble = roleNum === 2
     const { getFieldProps } = form;
     const quota = location.query.tabs
     const url = quota ? '/' : '/tenant_manage/project_manage'
@@ -1793,7 +1795,7 @@ function mapStateToThirdProp(state, props) {
   const { enabled: billingEnabled } = billingConfig
 
   let roleNum = 0
-  if (role === ROLE_SYS_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) {
     roleNum = 2
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {
