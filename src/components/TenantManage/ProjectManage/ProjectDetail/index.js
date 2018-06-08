@@ -864,7 +864,7 @@ class ProjectDetail extends Component {
   popoverChange(visible) {
     const { roleNum } = this.props
     const { isManager } = this.state
-    if ((roleNum !== 1) && (!isManager)) {
+    if ((roleNum !== 2) && (!isManager)) {
       this.setState({
         popoverVisible: false
       })
