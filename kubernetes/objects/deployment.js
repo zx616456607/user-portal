@@ -571,7 +571,7 @@ class Deployment {
       tag.push({
         key: "name",
         mark: "NotIn",
-        point: "最好不",
+        point: "必须",
         value: appName,
       })
     }
