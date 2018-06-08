@@ -658,7 +658,7 @@ const Normal = React.createClass({
             <Collapse>
               <Panel header={schedulerHeader}>
                 <div className='bindNodes'>
-                  { !isTemplate && this.handleBindNodeTempalte() }
+                  { this.handleBindNodeTempalte() }
                 </div>
               </Panel>
             </Collapse>
