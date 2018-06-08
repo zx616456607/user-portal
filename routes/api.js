@@ -597,6 +597,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/groups/batch-delete', alertController.batchDeleteNotifyGroups)
   router.post('/email/invitations', alertController.sendInvitation)
   router.get('/email/invitations/status', alertController.checkEmailAcceptInvitation)
+  router.post('/cluster/:cluster/alerts/service-records', alertController.getRecordLogFilters)
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)

@@ -44,7 +44,21 @@ function fetchRecords(query, clusterID) {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_REQUEST, ALERT_GET_RECORDS_SUCCESS, ALERT_GET_RECORDS_FAILURE],
       endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records?${queryStr}`,
-      schema: {}
+      schema: {},
+
+    }
+  }
+}
+function fetchLogRecords(body, clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_GET_RECORDS_REQUEST, ALERT_GET_RECORDS_SUCCESS, ALERT_GET_RECORDS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/service-records`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
     }
   }
 }
@@ -52,6 +66,11 @@ function fetchRecords(query, clusterID) {
 export function loadRecords(query, clusterID) {
   return (dispatch, getState) => {
     return dispatch(fetchRecords(query, clusterID))
+  }
+}
+export function loadLogRecords(body, clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLogRecords(body, clusterID))
   }
 }
 
