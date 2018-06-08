@@ -246,6 +246,7 @@ let MyComponent = React.createClass({
   },
   changeChecked(e, ins) {
     const oldData = cloneDeep(this.state.data)
+    console.log('data', oldData)
     let isDelete = true
     const newData = oldData.map((item, index)=> {
       if (index == ins) {
@@ -509,18 +510,13 @@ let MyComponent = React.createClass({
           return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}> <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.name}&clusterID=${list.clusterID}`}>{list.name}</Link></td>
-              <td onClick={()=> this.tableListMore(index)}>
-                {/* {this.switchType(list.targetType)} */}
-                服务日志
-              </td>
-              <td >
-                <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.filter[0].query.queryString.query.split(':').pop()}</span>
-              </td>
-              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.isEnabled)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{`${list.timeframe.minutes} 分钟`}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.description}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.owner}</td>
+              <td >{list.name}</td>
+              <td >服务日志</td>
+              <td ><span className="targetName" >{list.filter[0].query.queryString.query.split(':').pop()}</span></td>
+              <td >{this.formatStatus(list.isEnabled)}</td>
+              <td >{`${list.timeframe.minutes} 分钟`}</td>
+              <td >{list.description}</td>
+              <td >{list.owner}</td>
              <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
@@ -535,22 +531,13 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td >
-              {/* <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.name)}?name=${list.name}&clusterID=${list.clusterID}`}> */}
-              {`log-${list.name}`}
-              {/* </Link> */}
-              </td>
-            <td onClick={()=> this.tableListMore(index)}>
-              {/* {this.switchType(list.targetType)} */}
-              服务日志
-            </td>
-            <td >
-              <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.filter[0].query.queryString.query.split(':').pop()}</span>
-            </td>
-            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.isEnabled)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{`${list.timeframe.minutes} 分钟`}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.description}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.owner}</td>
+            <td> {`log-${list.name}`}</td>
+            <td >服务日志</td>
+            <td ><span className="targetName">{list.filter[0].query.queryString.query.split(':').pop()}</span></td>
+            <td >{this.formatStatus(list.isEnabled)}</td>
+            <td >{`${list.timeframe.minutes} 分钟`}</td>
+            <td >{list.description}</td>
+            <td >{list.owner}</td>
             <td className='dropdownTd'>
               <Dropdown.Button
                 type="ghost"
