@@ -141,6 +141,11 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
     }, state.batchDisable, action, option),
+    batchToggleRegular: reducerFactory({ // 关闭/打开告警规则
+      REQUEST: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST,
+      SUCCESS: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS,
+      FAILURE: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE
+    }, state.batchToggleRegular, action, option),
     deleteRule: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,

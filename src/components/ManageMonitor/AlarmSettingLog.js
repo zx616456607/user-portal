@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * AlarmSettingLog.js page
+ *
+ * @author zhangtao
+ * @date Friday June 8th 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
@@ -18,7 +27,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, getAlertRegularSetting, deleteRecords, getSettingList, deleteRegularSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { getAlertSetting, getAlertRegularSetting, deleteRecords, getSettingList, deleteRegularSetting, batchEnable, batchDisable, batchToggleRegular, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import CreateAlarm from '../AppModule/AlarmModalLog'
@@ -167,24 +176,15 @@ let MyComponent = React.createClass({
       <Menu onClick={(e)=> this.handDelete(e.key, record)}
           style={{ width: '80px' }}
       >
-      <Menu.Item key="delete">
+      {/* <Menu.Item key="delete">
         <span>删除</span>
-      </Menu.Item>
-      {/* <Menu.Item key="edit">
-        <span>修改</span>
       </Menu.Item> */}
-      <Menu.Item key="stop" disabled={(record.enable==0)}>
+      <Menu.Item key="stop" disabled={(record.isEnabled === false)}>
         <span>停用</span>
       </Menu.Item>
-      <Menu.Item key="start" disabled={(record.enable==1)}>
+      <Menu.Item key="start" disabled={(record.isEnabled === true)}>
         <span>启用</span>
       </Menu.Item>
-      {/* <Menu.Item key="list">
-        <span>查看记录</span>
-      </Menu.Item>
-      <Menu.Item key="clear">
-        <span>清除记录</span>
-      </Menu.Item> */}
     </Menu>
 
     )
@@ -519,9 +519,9 @@ let MyComponent = React.createClass({
               <Dropdown.Button
                 type="ghost"
                 overlay={ this.dropdowns(list) }
-                onClick={ this.setIgnore(list)}
+                onClick={ this.handDelete.bind(null, 'delete', list)}
               >
-              忽略
+              删 除
               </Dropdown.Button>
             </td>
           </tr>
@@ -923,6 +923,7 @@ class AlarmSetting extends Component {
   startSetting() {
     const data = this.state.data
     const selectStrategy = this.state.selectStrategy
+    const ruleName = this.state.selectStrategy.name;
     const strategy = []
     const notifi = new NotificationHandler()
     if(selectStrategy) {
@@ -947,9 +948,7 @@ class AlarmSetting extends Component {
       showStart: false,
     })
     const { clusterID, batchEnable, getSettingList } = this.props
-    batchEnable(clusterID, {
-      strategies: strategy
-    }, {
+    batchEnable(clusterID, ruleName, {
       success: {
         func: () => {
           notifi.close()
@@ -970,7 +969,9 @@ class AlarmSetting extends Component {
   }
 
   stopSetting() {
+    console.log('state',this.state)
     const data = this.state.data
+    const ruleName = this.state.selectStrategy.name;
     const strategy = []
     const notifi = new NotificationHandler()
     const selectStrategy = this.state.selectStrategy
@@ -997,9 +998,7 @@ class AlarmSetting extends Component {
       showStop: false,
     })
     const { clusterID, batchDisable, getSettingList } = this.props
-    batchDisable(clusterID, {
-      strategies: strategy
-    }, {
+    batchDisable(clusterID, ruleName, {
       success: {
         func: () => {
           notifi.close()
@@ -1206,8 +1205,8 @@ export default connect(mapStateToProps, {
   deleteRecords,
   getSettingList: getSettingRegularList,
   deleteSetting: deleteRegularSetting,
-  batchEnable,
-  batchDisable,
+  batchEnable: batchToggleRegular,
+  batchDisable: batchToggleRegular,
   ignoreSetting,
   getSettingRegularList
 })(AlarmSetting)

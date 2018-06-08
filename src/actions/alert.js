@@ -542,6 +542,30 @@ export function batchDisable(cluster, body, callback) {
   }
 }
 
+// 增加告警规则
+// 开启关闭告警规则
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST'
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS'
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE'
+
+function fetchBatchToggleRegular(cluster, rulename, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST, ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS, ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/${rulename}/status`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function batchToggleRegular(cluster, rulename, callback) {
+  console.log('停用')
+  return (dispath, getState)  => {
+    dispath(fetchBatchToggleRegular(cluster, rulename, callback))
+  }
+}
+
 export const ALERT_UPDATE_SETTING_SENDMAIL_REQUEST = 'ALERT_UPDATE_SETTING_SENDMAIL_REQUEST'
 export const ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS = 'ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS'
 export const ALERT_UPDATE_SETTING_SENDMAIL_FAILURE = 'ALERT_UPDATE_SETTING_SENDMAIL_FAILURE'

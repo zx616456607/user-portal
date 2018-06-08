@@ -337,6 +337,14 @@ exports.batchDisable = function* () {
   this.body = response
 }
 
+exports.batchToggleRegular = function* () { // 开启/关闭告警规则
+  const ruleName = this.params.rulename
+  const cluster = this.params.cluster
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.getBy([cluster, `alerts/logsalert/${ruleName}/status`], null)
+  this.body = response
+}
 exports.batchEnableEmail = function* () {
   const cluster = this.params.cluster
   const body = this.request.body

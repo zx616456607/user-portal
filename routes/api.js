@@ -610,6 +610,7 @@ module.exports = function (Router) {
   router.delete('/clusters/:cluster/alerts/logsalert/:name', alertController.deleteRegularSetting) // 删除告警规则
   router.post('/cluster/:cluster/alerts/setting/batch-enable', alertController.batchEnable)
   router.post('/cluster/:cluster/alerts/setting/batch-disable', alertController.batchDisable)
+  router.get('/clusters/:cluster/alerts/logsalert/:rulename/status', alertController.batchToggleRegular) // 开启/关闭告警规则
   router.post('/cluster/:cluster/alerts/setting/batch-enable-email', alertController.batchEnableEmail)
   router.post('/cluster/:cluster/alerts/setting/batch-disable-email', alertController.batchDisableEmail)
   router.post('/cluster/:cluster/alerts/setting/batch-ignore', alertController.setIgnore)
