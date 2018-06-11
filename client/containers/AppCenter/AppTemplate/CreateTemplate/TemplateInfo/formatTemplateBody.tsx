@@ -47,6 +47,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       if (value.accessType && value.accessType.value === 'loadBalance') {
         accessType = value.accessType.value;
         let lbKeys = value.lbKeys.value;
+        let ingresses: Array = [];
         lbKeys.forEach(item => {
           const items = [];
           const { host } = value[`ingress-${item}`].value;
@@ -61,7 +62,6 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
             path: path ? '/' + path.join('/') : '',
             items,
           };
-          let ingresses: Array = [];
           if (!loadBalanceName) {
             loadBalanceName = getFieldsValues(value).loadBalance;
           }
@@ -76,10 +76,10 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
             Object.assign(serviceOption, { loadbalance: lbObj });
           }
           ingresses.push(Object.assign(value[`ingress-${item}`].value, body));
-          if (!isEmpty(ingresses)) {
-            Object.assign(serviceOption, { ingresses });
-          }
         });
+        if (!isEmpty(ingresses)) {
+            Object.assign(serviceOption, { ingresses });
+        }
       }
       content = content.join('---\n');
       Object.assign(serviceOption, { content });

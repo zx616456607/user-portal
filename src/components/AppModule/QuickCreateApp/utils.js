@@ -498,3 +498,231 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
 
   return { deployment, service, storage }
 }
+
+function formatConfigMapErrors(templateDeployCheckDetail, currentFields, isSecret) {
+  const { configMapKeys, secretConfigMapKeys, serviceName } = currentFields
+  const keys = isSecret ? secretConfigMapKeys : configMapKeys
+  const { data } = templateDeployCheckDetail
+  if (isEmpty(templateDeployCheckDetail) || isEmpty(data)) {
+    return
+  }
+  const configMapErrors = {}
+  const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+  const configMapErrorFields = []
+  currentErrors.content.forEach(item => {
+
+    keys.value.forEach(key => {
+      const nameString = isSecret ? 'secretConfigGroupName' : 'configGroupName'
+      const field = `${nameString}${key.value}`
+      const configGroupName =
+        isSecret
+          ?
+          currentFields[`${nameString}${key.value}`].value
+          :
+          currentFields[`${nameString}${key.value}`].value[1]
+      if (item.resourceName === configGroupName) {
+        Object.assign(configMapErrors, {
+          [field]: {
+            name: field,
+            value: '',
+            errors: [{
+              message: isSecret ? `加密配置 ${configGroupName} 不存在` : `配置组 ${configGroupName} 名称重复`,
+              field
+            }]
+          }
+        })
+        if (!isSecret) {
+          configMapErrorFields.push(field)
+        }
+        return
+      }
+    })
+  })
+  Object.assign(configMapErrors, {
+    configMapErrorFields: {
+      name: 'configMapErrorFields',
+      value: configMapErrorFields,
+    }
+  })
+  return configMapErrors
+}
+
+function formatSecretEnvErrors(templateDeployCheckDetail, currentFields) {
+  const { envKeys, serviceName } = currentFields
+  const { data } = templateDeployCheckDetail
+  if (isEmpty(templateDeployCheckDetail) || isEmpty(data)) {
+    return
+  }
+  const secretEnvErrors = {}
+  const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+
+  currentErrors.content.forEach(item => {
+
+    envKeys.value.forEach(key => {
+      const field = `envValue${key.value}`
+      const fieldValue = currentFields[field].value[0]
+      if (item.resourceName === fieldValue) {
+        Object.assign(secretEnvErrors, {
+          [field]: {
+            name: field,
+            value: '',
+            errors: [{
+              message: `加密变量 ${fieldValue} 不存在`,
+              field
+            }]
+          }
+        })
+        return
+      }
+    })
+  })
+
+  return secretEnvErrors
+}
+
+function formatIngressErrors(templateDeployCheckDetail, currentFields) {
+  const { lbKeys, serviceName } = currentFields
+  const { data } = templateDeployCheckDetail
+  if (isEmpty(templateDeployCheckDetail) || isEmpty(data)) {
+    return
+  }
+  const ingressErrors = {}
+  const currentErrors = data.filter(err => err.name === serviceName.value)[0]
+
+  currentErrors.content.forEach(item => {
+    lbKeys.value.forEach(key => {
+      const ingressNameField = `displayName-${key}`
+      const ingressName = currentFields[ingressNameField].value
+      const hostField = `host-${key}`
+      const host = currentFields[hostField].value
+      if (item.resourceName === ingressName) {
+        Object.assign(ingressErrors, {
+          [ingressNameField]: {
+            name: ingressNameField,
+            value: ingressName,
+            errors: [{
+              message: `监听器 ${ingressName} 名称重复，请选择其他应用负载均衡`,
+              field: ingressNameField
+            }]
+          }
+        })
+      }
+      if (item.subResourceName === host) {
+        Object.assign(ingressErrors, {
+          [hostField]: {
+            name: hostField,
+            value: host,
+            errors: [{
+              message: `转发规则 ${host} 重复，请选择其他应用负载均衡`,
+              field: hostField
+            }]
+          }
+        })
+      }
+      return
+    })
+  })
+  return ingressErrors
+}
+
+export function formatTemplateDeployErrors(value, currentError, errorFields, templateDeployCheck) {
+  const storageErrors = []
+  currentError.forEach(item => {
+    switch(item.type) {
+      case 0:
+        storageErrors.push({
+          message: `nfs集群 ${item.resourceName} 不存在`,
+          filed: 'storageList'
+        })
+        Object.assign(errorFields, {
+          storageList: {
+            name: 'storageList',
+            value: value.storageList.value,
+            errors: storageErrors
+          }
+        })
+        break
+      case 1:
+        storageErrors.push({
+          message: `ceph集群 ${item.resourceName} 不存在`,
+          filed: 'storageList'
+        })
+        Object.assign(errorFields, {
+          storageList: {
+            name: 'storageList',
+            value: value.storageList.value,
+            errors: storageErrors
+          }
+        })
+        break
+      case 2:
+        Object.assign(errorFields, {
+          loadBalance: {
+            name: 'loadBalance',
+            value: '',
+            errors: [{
+              message: `应用负载均衡器 ${item.resourceName} 不存在`,
+              filed: 'loadBalance'
+            }]
+          }
+        })
+        break
+      case 3:
+        Object.assign(errorFields, {
+          accessMethod: {
+            name: 'accessMethod',
+            value: value.accessMethod.value,
+            errors: [{
+              message: '集群未添加公网出口',
+              filed: 'accessMethod'
+            }]
+          }
+        })
+        break
+      case 4:
+        Object.assign(errorFields, {
+          accessMethod: {
+            name: 'accessMethod',
+            value: value.accessMethod.value,
+            errors: [{
+              message: '集群未添加内网出口',
+              filed: 'accessMethod'
+            }]
+          }
+        })
+        break
+      case 5:
+        const configMapErrors = formatConfigMapErrors(templateDeployCheck, value, false)
+        Object.assign(errorFields, configMapErrors)
+        break
+      case 6:
+        const secretErrors = formatConfigMapErrors(templateDeployCheck, value, true)
+        Object.assign(errorFields, secretErrors)
+        break
+      case 7:
+        storageErrors.push({
+          message: `集群禁用本地（host）存储`,
+          filed: 'storageList'
+        })
+        Object.assign(errorFields, {
+          storageList: {
+            name: 'storageList',
+            value: value.storageList.value,
+            errors: storageErrors
+          }
+        })
+        break
+      case 9:
+        const secretEnvErrors = formatSecretEnvErrors(templateDeployCheck, value)
+        Object.assign(errorFields, secretEnvErrors)
+        break
+      case 10:
+      case 11:
+        const ingressErrors = formatIngressErrors(templateDeployCheck, value)
+        Object.assign(errorFields, ingressErrors)
+        break
+      default:
+        break
+    }
+  })
+}
