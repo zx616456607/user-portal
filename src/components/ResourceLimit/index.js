@@ -18,6 +18,7 @@ import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Drop
 import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -617,7 +618,7 @@ class ResourceQuota extends React.Component {
               <Button size="large" className="save" type="primary" onClick={(e) => this.handleGlobaleSave(e)}>保存</Button>
               {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handleGlobalePlus()}</p> 个资源配额</span> */}
             </div> :
-            this.props.role === 2 ?
+            this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
               <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button> : ''
         }
         <div className="connent">
@@ -843,7 +844,7 @@ class ResourceQuota extends React.Component {
                   <Button size="large" className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
                   {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handaleClusterPlus()}</p> 个资源配额</span> */}
                 </div> :
-                this.props.role === 2 ?
+                this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
                   <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button> : ''
             }
           </div>

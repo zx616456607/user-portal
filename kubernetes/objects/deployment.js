@@ -566,7 +566,15 @@ class Deployment {
   }
 
   //服务与服务的亲和性
-  setServicePodSelector(tag) {
+  setServicePodSelector(tag=[], advanceSet, appName) {
+    if (advanceSet) {
+      tag.push({
+        key: "name",
+        mark: "NotIn",
+        point: "必须",
+        value: appName,
+      })
+    }
     if (tag && tag.length && tag.length > 0) {
       const requiredTag = []
       const preferredTag = []
