@@ -1005,6 +1005,7 @@ class ProjectDetail extends Component {
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
+    const projectId = location.query.projectId || ""
     const isAble = roleNum === ROLE_PLATFORM_ADMIN || roleNum === ROLE_SYS_ADMIN
     const { getFieldProps } = form;
     const quota = location.query.tabs
@@ -1013,6 +1014,7 @@ class ProjectDetail extends Component {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
     const disabledArr = [PROJECT_VISISTOR_ROLE_ID, PROJECT_MANAGE_ROLE_ID]
+
     const loop = data => data.map((item) => {
       if (item['children'] !== undefined) {
         return (
@@ -1549,6 +1551,7 @@ class ProjectDetail extends Component {
             scope={this}
             characterModal={characterModal}
             loadData={this.loadRoleList.bind(this)}
+            projectId={projectId}
           />
           <Modal title="角色成员管理" width={765} visible={connectModal}
             onCancel={() => this.closeMemberModal()}
