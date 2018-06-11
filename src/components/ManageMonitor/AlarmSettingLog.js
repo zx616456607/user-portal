@@ -27,7 +27,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, getAlertRegularSetting, deleteRecords, getSettingList, deleteRegularSetting, batchEnable, batchDisable, batchToggleRegular, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteRegularSetting, batchEnable, batchDisable, batchToggleRegular, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import CreateAlarm from '../AppModule/AlarmModalLog'
@@ -291,7 +291,6 @@ let MyComponent = React.createClass({
       canStop,
       canStart
     }), 0)
-    console.log('newData', newData)
     this.setState({
       data: newData
     })
@@ -496,6 +495,7 @@ let MyComponent = React.createClass({
   },
   render() {
     const { data } = this.state
+    // console.log('map',data)
     let lists
     if(!data || data.length <= 0){
       lists = <tr className='nodata'>
@@ -752,7 +752,6 @@ class AlarmSetting extends Component {
     const strategyID = []
     const strategyName =[]
     const selectStrategy = this.state.selectStrategy
-    console.log('selectStrategy', selectStrategy)
     if(selectStrategy) {
       strategyID.push(selectStrategy.strategyID)
       strategyName.push(selectStrategy.strategyName)
@@ -766,7 +765,6 @@ class AlarmSetting extends Component {
     }
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
-    console.log('strategyName', strategyName)
     notify.spin('删除中')
     strategyID.length > 0 && deleteSetting(clusterID, strategyID,selectStrategy.name, {
       success: {
@@ -969,7 +967,6 @@ class AlarmSetting extends Component {
   }
 
   stopSetting() {
-    console.log('state',this.state)
     const data = this.state.data
     const ruleName = this.state.selectStrategy.name;
     const strategy = []
@@ -1093,7 +1090,7 @@ class AlarmSetting extends Component {
               <Input size="large" id="alarmSearch" placeholder="按策略名称搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
             </div>
-            {this.props.setting.length > 0 ?
+            {/* {this.props.setting.length > 0 ? // 目前不支持分页查找
             <div className="rightPage pageBox">
               <span className='totalPage'>共计 {this.props.total} 条</span>
               <Pagination
@@ -1105,7 +1102,7 @@ class AlarmSetting extends Component {
                 total={ this.props.total } />
             </div>
             :null
-          }
+          } */}
           </div>
           <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
           <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
@@ -1139,18 +1136,6 @@ class AlarmSetting extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定要{this.state.showStop ? '停用':'启用'}策略 {this.getCheckecSettingName()} ？</div>
           </Modal>
-
-
-          {/*<Card>
-            <Table className="strategyTable"
-              onRowClick={(record, index)=>console.log('click', record, index)}
-              rowSelection={rowSelection}
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              expandedRowRender={ record =>_this.description(record) }
-            />
-          </Card>*/}
         </div>
       </QueueAnim>
     )
@@ -1164,7 +1149,7 @@ function mapStateToProps(state, props) {
   }
   const defaultSettingList = {
     result: {
-      data: {}
+      data: []
     }
   }
   const { entities } = state
@@ -1189,7 +1174,6 @@ function mapStateToProps(state, props) {
       }
     } ]
   }
-  console.log('data', setting)
   return {
     recordsData,
     clusterID: cluster.clusterID,
@@ -1201,7 +1185,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  getAlertSetting: getAlertRegularSetting,
+  getAlertSetting,
   deleteRecords,
   getSettingList: getSettingRegularList,
   deleteSetting: deleteRegularSetting,

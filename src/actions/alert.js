@@ -560,7 +560,6 @@ function fetchBatchToggleRegular(cluster, rulename, callback) {
 }
 
 export function batchToggleRegular(cluster, rulename, callback) {
-  console.log('停用')
   return (dispath, getState)  => {
     dispath(fetchBatchToggleRegular(cluster, rulename, callback))
   }

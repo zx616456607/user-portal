@@ -586,9 +586,11 @@ let TwoStop = React.createClass({
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请填写日志正则')
+    setTimeout(() => this.clearError(key), 0)
+    return callback()
     this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback('日志正则填写重复')
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
@@ -631,14 +633,15 @@ let TwoStop = React.createClass({
     const { form } = this.props;
     const { getFieldValue } = form
     const keyCount = getFieldValue('cpu')
+
     let keyArr = []
     let obj = {}
     keyCount.forEach(item => {
        if(item == key) return
-       keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+       keyArr = keyArr.concat([`used_data@${item}`, `used_name@${item}`])
     })
     if (name) {
-      keyArr = keyArr.concat([`used_rule@${key}`, `used_data@${key}`, `used_name@${key}`].filter(item => {
+      keyArr = keyArr.concat([`used_data@${key}`, `used_name@${key}`].filter(item => {
         return item !== `${name}@${key}`
       }))
     }
@@ -785,8 +788,9 @@ let TwoStop = React.createClass({
   },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs, data, isEdit, alarmType } = this.props
+    const { funcs, data, alarmType } = this.props
     let cpuItems
+    const isEdit = false
     if (isEdit) {
       const cloneData = cloneDeep(data)
       // 当告警类型有'节点'型修改为'服务'型时，移除原有告警规则中的'磁盘利用率'
@@ -880,14 +884,14 @@ let TwoStop = React.createClass({
           <div className="ruleItem" key={`create-${key}`}>
             <Form.Item
               label="日志正则"
-              >
+            >
               <Input {...getFieldProps(`used_name@${key}`, {
                 rules: [{
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
                 }],
                 onChange: (type) => this.changeType(key, type)
-              }) } style={{ width: 250 }} ></Input>
+              }) } style={{ width: 330 }} ></Input>
             </Form.Item>
             <Form.Item>
               <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
@@ -898,10 +902,10 @@ let TwoStop = React.createClass({
                 initialValue: '80'
               }) } style={{ width: 80 }} />次
             </Form.Item>
-            <span className="rightBtns">
+            {/* <span className="rightBtns">
               <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
               <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
-            </span>
+            </span> */}
           </div>
         );
       });
@@ -1054,14 +1058,12 @@ class AlarmModal extends Component {
       const service = this.state.server
       const num_events = parseInt(specs[0].value)
       const datas = notifyGroup.result.data
-      const email = []
+      let sendEmail = []
       datas.forEach((data)=>{
-        console.log('receiversGroup', receiversGroup)
-        console.log('data.groupID', data.groupID)
-        console.log('data', data)
         if (data.groupID === receiversGroup) {
-          console.log('daole')
-          email.push(data.receivers.email[0].addr)
+          sendEmail = data.receivers.email.map(( email ) => {
+            return email.addr
+          })
         }
       })
       const requestBody = {
@@ -1070,14 +1072,11 @@ class AlarmModal extends Component {
         Minutes: repeatInterval,
         Service: service,
         regex: specs[0].metricType,
-        email,
       }
-
+      if (this.state.isSendEmail) {
+        requestBody.email = sendEmail
+      }
       if (isEdit) {
-        // update
-        // requestBody.strategyID = strategy.strategyID
-        // requestBody.enable = strategy.enable
-
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
@@ -1141,15 +1140,15 @@ class AlarmModal extends Component {
               if (getSettingList) {
                 getSettingList()
               }
-              scope && scope.setState({
-                currentPage: 1,
-                search: '',
-              }, () => {
-                loadData && loadData({
-                  from: 0,
-                  page: 1,
-                })
-              })
+              // scope && scope.setState({
+              //   currentPage: 1,
+              //   search: '',
+              // }, () => {
+              //   loadData && loadData({
+              //     from: 0,
+              //     page: 1,
+              //   })
+              // })
             },
             isAsync: true
           },
