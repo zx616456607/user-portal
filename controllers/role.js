@@ -102,7 +102,8 @@ exports.existence = function* () {
   const loginUser = this.session.loginUser
   const name = this.params.name
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.getBy([name,'existence'],null)
+  const { projectName } = this.request.query
+  const result = yield api.getBy([name,'existence'], null, { headers: { project: projectName } })
   this.body = {
     data: result
   }
