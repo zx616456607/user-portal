@@ -64,12 +64,12 @@ class API extends Component{
                         className={hidToken === 'text'? 'hidToken' : ''}/>
                 </td>
               </tr>
-              <tr>
+              {/* <tr>
                 <td className="tableTitle">API 文档</td>
                 <td>
                   <a href="http://docs.tenxcloud.com/api" target="_blank">打开帮助文档</a>
                 </td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </Card>
