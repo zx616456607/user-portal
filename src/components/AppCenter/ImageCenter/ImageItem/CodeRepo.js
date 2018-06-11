@@ -157,12 +157,14 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail, isAdminAndHarbor, location } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location, role, members } = this.props
     const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
     server = server.replace('http://', '').replace('https://', '')
+    console.log(role);
+    console.log(members);
     const columns = [
       {
         title: '镜像名',
@@ -349,9 +351,11 @@ function mapStateToProps(state, props) {
   const { harbor, entities } = state
   const { loginUser } = entities
   const role = loginUser.info.role
-  console.log(harbor.members);
+
   return {
     repos: harbor.repos || {},
+    role,
+    members:harbor.members
   }
 }
 
