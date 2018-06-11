@@ -346,7 +346,10 @@ class CodeRepo extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, entities } = state
+  const { loginUser } = entities
+  const role = loginUser.info.role
+  console.log(harbor.members);
   return {
     repos: harbor.repos || {},
   }
