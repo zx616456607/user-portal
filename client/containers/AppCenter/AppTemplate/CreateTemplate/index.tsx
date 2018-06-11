@@ -253,7 +253,7 @@ class AppTemplate extends React.Component<IProps, IState> {
         return;
       }
       const fieldsKeys = Object.keys(fields) || [];
-      if (fieldsKeys.length === 1) {
+      if (fieldsKeys.length >= 1) {
         this.setState({
           templateName: values.templateName,
           templateDesc: values.templateDesc,

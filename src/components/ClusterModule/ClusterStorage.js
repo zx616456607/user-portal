@@ -118,6 +118,7 @@ class ClusterStorage extends Component {
               index,
               disabled: true,
               newAdd: false,
+              seePwd: false,
             }
             cephArray.push(item)
           })
@@ -379,6 +380,7 @@ class ClusterStorage extends Component {
           `RBD_key${item.index}`
         ])
         listArray[i].disabled = true
+        listArray[i].seePwd = false
         break
       }
     }
@@ -460,7 +462,32 @@ class ClusterStorage extends Component {
     })
 
   }
-
+  cephSeePwdType = (data) => {
+    let { index, seePwd, disabled } = data
+    if (disabled) return
+    const { cephArray } = this.state
+    const list = []
+    cephArray.listArray.map(local => list.push(local.index !== index ? local : { ...local, seePwd: !seePwd }))
+    this.setState({
+      cephArray: {
+        ...this.state.cephArray,
+        listArray: list,
+      },
+    })
+  }
+  gfsSeePwdType = (data) => {
+    let { index, seePwd, disabled } = data
+    if (disabled) return
+    const { gfsArray } = this.state
+    const list = []
+    gfsArray.listArray.map(local => list.push(local.index !== index ? local : { ...local, seePwd: !seePwd }))
+    this.setState({
+      gfsArray: {
+        ...this.state.gfsArray,
+        listArray: list,
+      },
+    })
+  }
   renderCephList(){
     const { cephArray } = this.state
     const { clusterStorage } = this.props
@@ -595,7 +622,7 @@ class ClusterStorage extends Component {
               placeholder='请输入用户认证密钥'
               disabled={item.disabled}
               size="large"
-              type="password"
+              type={!item.disabled && item.seePwd ? 'text' : 'password' }
               {...getFieldProps(`RBD_key${item.index}`, {
                 initialValue: parameters ? parameters.key : undefined,
                 rules: [{
@@ -610,6 +637,11 @@ class ClusterStorage extends Component {
                   }
                 }]
               })}
+            />
+            <Icon
+              className={item.disabled? "clusterStorageIconEyeDisabled" : "clusterStorageIconEye"}
+              type={item.seePwd ? 'eye-o' : 'eye'}
+              onClick={() => this.cephSeePwdType(item)}
             />
           </FormItem>
         </div>
@@ -922,6 +954,7 @@ class ClusterStorage extends Component {
           `gfs_password${item.index}`,
         ])
         listArray[i].disabled = true
+        listArray[i].seePwd = false
         break
       }
     }
@@ -1175,7 +1208,7 @@ class ClusterStorage extends Component {
               placeholder='请输入用户认证密钥'
               disabled={item.disabled}
               size="large"
-              type="password"
+              type={!item.disabled && item.seePwd ? 'text' : 'password' }
               autoComplete="new-password"
               {...getFieldProps(`gfs_password${item.index}`, {
                 initialValue: parameters ? parameters.key : undefined,
@@ -1191,6 +1224,11 @@ class ClusterStorage extends Component {
                   }
                 }]
               })}
+            />
+            <Icon
+              className={item.disabled? "clusterStorageIconEyeDisabled" : "clusterStorageIconEye"}
+              type={item.seePwd ? 'eye-o' : 'eye'}
+              onClick={() => this.gfsSeePwdType(item)}
             />
           </FormItem>
         </div>

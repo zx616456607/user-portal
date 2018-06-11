@@ -1105,7 +1105,7 @@ function mapStateToProps(state, props) {
   const { enabled: billingEnabled } = billingConfig
   let roleCode = role
   let roleNum = 0
-  if (role === ROLE_SYS_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || ROLE_PLATFORM_ADMIN) {
     roleNum = 1
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {

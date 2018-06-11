@@ -54,8 +54,8 @@ class Scheduler extends Component {
       const { clusters } = result.data
       clusters.map( item => {
         if (item.clusterID === clusterID) {
-          const { listNodes,  schedulerPlicy } = item
-          const { request, balanced } = schedulerPlicy || { request: 'least', balanced: 'false' }
+          const { listNodes,  schedulerPolicy } = item
+          const { request, balanced } = schedulerPolicy || { request: 'least', balanced: false }
           this.setInititalStatus(listNodes)
           this.setInititalUtilRate(request, balanced)
           return
@@ -74,8 +74,8 @@ class Scheduler extends Component {
 
   handleCandleEditionScheduler() {
     const { cluster } = this.props
-    const { listNodes, schedulerPlicy  } = cluster
-    const { request, balanced } = schedulerPlicy
+    const { listNodes, schedulerPolicy  } = cluster
+    const { request, balanced } = schedulerPolicy
     this.setInititalStatus(listNodes)
     this.setInititalUtilRate(request, balanced)
     this.setState({
@@ -218,7 +218,7 @@ class Scheduler extends Component {
     }
     const body = {
       listNodes: num,
-      schedulerPlicy: {
+      schedulerPolicy: {
         request: utilizationRate,
         balanced: resourceCheckBox
       }
