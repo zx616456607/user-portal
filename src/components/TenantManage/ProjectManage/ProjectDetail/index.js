@@ -1005,7 +1005,6 @@ class ProjectDetail extends Component {
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
-    const projectId = location.query.projectId || ''
     const isAble = roleNum === 2
     const { getFieldProps } = form;
     const quota = location.query.tabs
@@ -1550,7 +1549,6 @@ class ProjectDetail extends Component {
             scope={this}
             characterModal={characterModal}
             loadData={this.loadRoleList.bind(this)}
-            projectId={projectId}
           />
           <Modal title="角色成员管理" width={765} visible={connectModal}
             onCancel={() => this.closeMemberModal()}

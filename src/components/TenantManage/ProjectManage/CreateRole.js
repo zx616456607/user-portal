@@ -126,7 +126,8 @@ class CreateRoleModal extends Component{
     })
   }
   roleName(rule, value, callback) {
-    const { ExistenceRole, projectId } = this.props;
+    const { ExistenceRole, scope } = this.props;
+    const projectName = scope.props.location.query.name
     if (!value) {
       callback(new Error('请输入名称'))
       return
@@ -134,7 +135,7 @@ class CreateRoleModal extends Component{
     this.roleNameTime = setTimeout(()=>{
       ExistenceRole({
         name:encodeURIComponent(value),
-        projectId: projectId || "",
+        projectName: projectName || "",
       },{
         success: {
           func: res => {

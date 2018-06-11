@@ -777,7 +777,7 @@ let ProjectManage = React.createClass({
       // dataIndex: 'projectName',
       key: 'projectName',
       width: '15%',
-      render: (data) => <Link to={`/tenant_manage/project_manage/project_detail?name=${data.projectName}&projectId=${data.projectID}`}>{
+      render: (data) => <Link to={`/tenant_manage/project_manage/project_detail?name=${data.projectName}`}>{
         data.displayName ? `${data.displayName}( ${data.projectName} )` : data.projectName
       }</Link>,
     }, {
