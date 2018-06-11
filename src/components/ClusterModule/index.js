@@ -509,12 +509,11 @@ let CreateClusterModal = React.createClass({
   },
   render () {
     const {
-      parentScope, updateGlobalConfig,
+      noCluster, parentScope, updateGlobalConfig,
       isValidConfig, saveGlobalConfig, globalConfig,
       loadGlobalConfig, getAddClusterCMD,
     } = this.props
     const { noClusterStep } = this.state
-    const noCluster = true
     return (
       <Modal
         title={
@@ -522,8 +521,7 @@ let CreateClusterModal = React.createClass({
           ? "初始化配置"
           : "添加集群"
         }
-        // visible={noCluster || parentScope.state.createModal}
-        visible={true}
+        visible={noCluster || parentScope.state.createModal}
         closable={!noCluster}
         wrapClassName="createClusterModal"
         width={600}
