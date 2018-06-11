@@ -58,7 +58,7 @@ let NoClusterStepOne = React.createClass({
       return
     }
     // if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
-    if (!(/^http:|^https:/).test(url)) {
+    if (!(/^http:|^https:/).test(value)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
