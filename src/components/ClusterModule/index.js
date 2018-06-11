@@ -58,7 +58,7 @@ let NoClusterStepOne = React.createClass({
       return
     }
     // if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
-    if (!(/^http:|^https:/).test(url)) {
+    if (!(/^http:|^https:/).test(value)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
@@ -509,11 +509,12 @@ let CreateClusterModal = React.createClass({
   },
   render () {
     const {
-      noCluster, parentScope, updateGlobalConfig,
+      parentScope, updateGlobalConfig,
       isValidConfig, saveGlobalConfig, globalConfig,
       loadGlobalConfig, getAddClusterCMD,
     } = this.props
     const { noClusterStep } = this.state
+    const noCluster = true
     return (
       <Modal
         title={
@@ -521,7 +522,8 @@ let CreateClusterModal = React.createClass({
           ? "初始化配置"
           : "添加集群"
         }
-        visible={noCluster || parentScope.state.createModal}
+        // visible={noCluster || parentScope.state.createModal}
+        visible={true}
         closable={!noCluster}
         wrapClassName="createClusterModal"
         width={600}
