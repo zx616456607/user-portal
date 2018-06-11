@@ -318,7 +318,7 @@ class IngressModal extends React.Component {
             label="端口"
             {...formItemLayout}
           >
-            <Input placeholder="输入端口" {...portProps}/>
+            <Input placeholder="输入容器端口" {...portProps}/>
           </FormItem>
         </Form>
       </Modal>
