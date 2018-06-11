@@ -35,12 +35,16 @@ import { addService, loadServiceList } from '../../../actions/services'
 import { createAppIngress, getLBList } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
 import { getImageTemplate } from '../../../actions/app_center'
-import { buildJson, getFieldsValues, formatValuesToFields } from './utils'
+import {
+  buildJson, getFieldsValues, formatValuesToFields,
+  formatTemplateDeployErrors
+} from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { parseToFields } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/parseToFields'
 import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
 import Title from '../../Title'
+import ResourceErrorsModal from './ResourceErrorsModal'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -269,85 +273,9 @@ class QuickCreateApp extends Component {
       this.deployCheck(nextProps)
     }
   }
-  formatConfigMapErrors = (currentFields, isSecret) => {
-    const { templateDeployCheck } = this.props
-    const { configMapKeys, secretConfigMapKeys, serviceName } = currentFields
-    const keys = isSecret ? secretConfigMapKeys : configMapKeys
-    const { data } = templateDeployCheck
-    const configMapErrors = {}
-    const currentErrors = data.filter(err => err.name === serviceName.value)[0]
-    const configMapErrorFields = []
-    currentErrors.content.forEach(item => {
-
-      keys.value.forEach(key => {
-        const nameString = isSecret ? 'secretConfigGroupName' : 'configGroupName'
-        const field = `${nameString}${key.value}`
-        const configGroupName =
-                isSecret
-                ?
-                currentFields[`${nameString}${key.value}`].value
-                :
-                currentFields[`${nameString}${key.value}`].value[1]
-        if (item.resourceName === configGroupName) {
-          Object.assign(configMapErrors, {
-            [field]: {
-              name: field,
-              value: '',
-              errors: [{
-                message: isSecret ? `加密配置 ${configGroupName} 不存在` : `配置组 ${configGroupName} 名称重复`,
-                field
-              }]
-            }
-          })
-          if (!isSecret) {
-            configMapErrorFields.push(field)
-          }
-          return
-        }
-      })
-    })
-    Object.assign(configMapErrors, {
-      configMapErrorFields: {
-        name: 'configMapErrorFields',
-        value: configMapErrorFields,
-      }
-    })
-    return configMapErrors
-  }
-
-  formatSecretEnvErrors = currentFields => {
-    const { templateDeployCheck } = this.props
-    const { envKeys, serviceName } = currentFields
-    const { data } = templateDeployCheck
-    const secretEnvErrors = {}
-    const currentErrors = data.filter(err => err.name === serviceName.value)[0]
-
-    currentErrors.content.forEach(item => {
-
-      envKeys.value.forEach(key => {
-        const field = `envValue${key.value}`
-        const fieldValue = currentFields[field].value[0]
-        if (item.resourceName === fieldValue) {
-          Object.assign(secretEnvErrors, {
-            [field]: {
-              name: field,
-              value: '',
-              errors: [{
-                message: `加密变量 ${fieldValue} 不存在`,
-                field
-              }]
-            }
-          })
-          return
-        }
-      })
-    })
-
-    return secretEnvErrors
-  }
 
   deployCheck = async (props) => {
-    const { appTemplateDeployCheck, current, templateDetail, fields, setFormFields } = props;
+    const { appTemplateDeployCheck, current, templateDetail, fields } = props;
     const { clusterID } = current.cluster;
     const { data } = templateDetail;
     const { chart } = data;
@@ -356,106 +284,14 @@ class QuickCreateApp extends Component {
     if (result.error) {
       return
     }
+    const { templateDeployCheck } = this.props
     let flag = false;
-    for (let [key, value] of Object.entries(fields)) {
+    for (let value of Object.values(fields)) {
       const errorFields = {};
       const currentError = result.response.result.data[value.serviceName.value]
       if (!isEmpty(currentError)) {
         flag = true
-        const storageErrors = []
-        currentError.forEach(item => {
-          switch(item.type) {
-            case 0:
-              storageErrors.push({
-                message: `nfs集群 ${item.resourceName} 不存在`,
-                filed: 'storageList'
-              })
-              Object.assign(errorFields, {
-                storageList: {
-                  name: 'storageList',
-                  value: value.storageList.value,
-                  errors: storageErrors
-                }
-              })
-              break
-            case 1:
-              storageErrors.push({
-                message: `ceph集群 ${item.resourceName} 不存在`,
-                filed: 'storageList'
-              })
-              Object.assign(errorFields, {
-                storageList: {
-                  name: 'storageList',
-                  value: value.storageList.value,
-                  errors: storageErrors
-                }
-              })
-              break
-            case 2:
-              Object.assign(errorFields, {
-                loadBalance: {
-                  name: 'loadBalance',
-                  value: '',
-                  errors: [{
-                    message: `应用负载均衡器 ${item.resourceName} 不存在`,
-                    filed: 'loadBalance'
-                  }]
-                }
-              })
-              break
-            case 3:
-              Object.assign(errorFields, {
-                accessMethod: {
-                  name: 'accessMethod',
-                  value: value.accessMethod.value,
-                  errors: [{
-                    message: '集群未添加公网出口',
-                    filed: 'accessMethod'
-                  }]
-                }
-              })
-              break
-            case 4:
-              Object.assign(errorFields, {
-                accessMethod: {
-                  name: 'accessMethod',
-                  value: value.accessMethod.value,
-                  errors: [{
-                    message: '集群未添加内网出口',
-                    filed: 'accessMethod'
-                  }]
-                }
-              })
-              break
-            case 5:
-              const configMapErrors = this.formatConfigMapErrors(value, false)
-              Object.assign(errorFields, configMapErrors)
-              break
-            case 6:
-              const secretErrors = this.formatConfigMapErrors(value, true)
-              Object.assign(errorFields, secretErrors)
-              break
-            case 7:
-              storageErrors.push({
-                message: `集群禁用本地（host）存储`,
-                filed: 'storageList'
-              })
-              Object.assign(errorFields, {
-                storageList: {
-                  name: 'storageList',
-                  value: value.storageList.value,
-                  errors: storageErrors
-                }
-              })
-              break
-            case 9:
-              const secretEnvErrors = this.formatSecretEnvErrors(value)
-              Object.assign(errorFields, secretEnvErrors)
-              break
-            default:
-              break
-          }
-        })
+        formatTemplateDeployErrors(value, currentError, errorFields, templateDeployCheck)
       }
       if (!isEmpty(errorFields)) {
         // setFormFields(key, Object.assign(value, errorFields))
@@ -860,6 +696,7 @@ class QuickCreateApp extends Component {
     }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
+      console.log(errors, values)
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
@@ -1245,65 +1082,6 @@ class QuickCreateApp extends Component {
     }
   }
 
-  formatErrorType = record => {
-    const { setFields, getFieldsValue } = this.form;
-    switch (record.type) {
-      case 0:
-        return <span>nfs集群 <span className="themeColor">{record.resourceName}</span> 不存在</span>
-      case 1:
-        return <span>ceph集群 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
-      case 2:
-        return <span>应用负载均衡器 <span className="themeColor">{record.resourceName}</span> 不存在</span>
-      case 3:
-        return <span>集群未添加公网出口</span>
-      case 4:
-        return <span>集群未添加内网出口</span>
-      case 5:
-        return <span>配置组 <span  className="themeColor">{record.resourceName}</span> 名称重复</span>
-      case 6:
-        return <span>加密配置 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
-      case 7:
-        return <span>集群禁用本地（host）存储</span>
-      case 8:
-        return <span>没有安装amp</span>
-      case 9:
-        return <span>加密变量 <span className="themeColor">{record.resourceName}</span> 不存在</span>
-      default:
-        return
-    }
-  }
-
-  renderResourceError = () => {
-    const { templateDeployCheck } = this.props;
-    if (isEmpty(templateDeployCheck) || !templateDeployCheck.data) {
-      return
-    }
-    const { data } = templateDeployCheck
-    const children = data.map(item => {
-      if (isEmpty(item.content)) {
-        return
-      }
-      return (
-        <div className="resourceList" key={item.name}>
-          <div className="themeColor serviceName">{item.name}</div>
-          <Timeline className="resourceTimeline">
-            {
-              item.content.map(record => {
-                return <Timeline.Item key={record.resourceName}>{this.formatErrorType(record)}</Timeline.Item>
-              })
-            }
-          </Timeline>
-        </div>
-      )
-    })
-    return (
-      <div>
-        <div className="resourceHint">以下模板引用资源不存在或不可用，您可以点击放弃，待解决资源故障后再行创建应用；或点击继续，手动修改服务配置，然后创建应用</div>
-        {children}
-      </div>
-    )
-  }
-
   cancelResourceModal = () => {
     const { removeAllFormFields } = this.props;
     this.setState({
@@ -1433,18 +1211,15 @@ class QuickCreateApp extends Component {
             closeModal={() => this.setState({resourceQuotaModal: false})}
             {...this.state.resourceQuota}
           />
-          <Modal
-            className="resourceErrorModal"
-            title="资源故障"
-            visible={resourceError}
-            onCancel={this.cancelResourceModal}
-            onOk={() => this.setState({ resourceError: false })}
-            okText="继续"
-            cancelText="放弃"
-            maskClosable={false}
-          >
-            {this.renderResourceError()}
-          </Modal>
+          {
+            resourceError &&
+            <ResourceErrorsModal
+              visible={resourceError}
+              closeModal={this.cancelResourceModal}
+              confirmModal={() => this.setState({ resourceError: false })}
+              templateDeployCheck={this.props.templateDeployCheck}
+            />
+          }
         </div>
       </div>
     )
