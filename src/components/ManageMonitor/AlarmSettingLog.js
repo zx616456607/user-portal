@@ -1086,10 +1086,10 @@ class AlarmSetting extends Component {
             </Button>
             <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />  刷 新</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button>*/}
-            <div className="inputGrop">
+            {/* <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="按策略名称搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
-            </div>
+            </div> */}
             {/* {this.props.setting.length > 0 ? // 目前不支持分页查找
             <div className="rightPage pageBox">
               <span className='totalPage'>共计 {this.props.total} 条</span>
