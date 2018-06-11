@@ -54,10 +54,13 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   if (portsForExternal) {
     portsForExternal.map((port) => {
       let finalPort = ''
-      if (item.lbgroup.type === 'public') {
-        finalPort = ':' + port.proxyPort
-      } else if (item.lbgroup.type === 'private') {
-        finalPort = ':' + port.port
+      if (item.lbgroup) {
+        const { type } = item.lbgroup
+        if (type === 'public') {
+          finalPort = ':' + port.proxyPort
+        } else if (type === 'private') {
+          finalPort = ':' + port.port
+        }
       }
       let portInfo = finalPort
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
