@@ -100,7 +100,7 @@ class CreateRoleModal extends Component{
     });
   };
   getPermission() {
-    const { Permission } = this.props;
+    const { Permission, projectId } = this.props;
     Permission({},{
       success:{
         func: (res)=>{
@@ -126,14 +126,16 @@ class CreateRoleModal extends Component{
     })
   }
   roleName(rule, value, callback) {
-    const { ExistenceRole } = this.props;
+    const { ExistenceRole, scope } = this.props;
+    const projectName = scope.props.location.query.name
     if (!value) {
       callback(new Error('请输入名称'))
       return
     }
     this.roleNameTime = setTimeout(()=>{
       ExistenceRole({
-        name:encodeURIComponent(value)
+        name:encodeURIComponent(value),
+        projectName: projectName || "",
       },{
         success: {
           func: res => {
