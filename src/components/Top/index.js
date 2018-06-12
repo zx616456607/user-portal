@@ -74,14 +74,14 @@ export default class Top extends Component {
           {
             this.state.type === LITE && (
               <div className='topNav'>
-                <div className='log'>
+                {/* <div className='log'>
                   <div className='navItem' style={{marginLeft: 0}}>
                     <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
                   </div>
                   <div className='navItem' style={{marginLeft: 0}}>
                     <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
                   </div>
-                </div>
+                </div> */}
               </div>
             )
           }

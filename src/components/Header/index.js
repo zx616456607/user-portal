@@ -446,16 +446,15 @@ class Header extends Component {
         {
           type === LITE &&
           <div>
-            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
-            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
+            {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
+            {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
           </div>
         }
         {
           standardFlag &&
           <div>
-            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
-            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
-
+            {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
+            {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
           </div>
         }
         {
@@ -545,15 +544,15 @@ class Header extends Component {
               </div>
             )
           }
-          <div className="docBtn quickentry">
+          {/* <div className="docBtn quickentry border">
             <Link to={`/quickentry`}>
               <svg className='rocket'>
                 <use xlinkHref='#rocket' />
               </svg>
               <span className='text'>快速入口</span>
             </Link>
-          </div>
-          <div className="docBtn border">
+          </div> */}
+          {/* <div className="docBtn border">
             <Popover
               content={content}
               trigger="click"
@@ -563,7 +562,7 @@ class Header extends Component {
             >
               <div className='doc'><Icon type="file-text" className='docicon'/>帮助文档<Icon type="down" className={rotate} style={{marginLeft:'4px'}}/></div>
             </Popover>
-          </div>
+          </div> */}
         {
           type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>

@@ -374,16 +374,16 @@ class Deployment {
         //     name: volume.configMap.name
         //   }
         // } else {
-          configMap = {
-            name: volume.configMap.name,
-            items: volume.configMap.items.map((item) => {
-              return {
-                // TODO: fix this later, be compatible with previous version
-                key: item.key, // .toLowerCase(),
-                path: item.path
-              }
-            })
-          }
+        configMap = {
+          name: volume.configMap.name,
+          items: volume.configMap.items.map((item) => {
+            return {
+              // TODO: fix this later, be compatible with previous version
+              key: item.key, // .toLowerCase(),
+              path: item.path
+            }
+          })
+        }
         // }
         this.spec.template.spec.volumes.push({
           name: volume.name,
@@ -566,7 +566,6 @@ class Deployment {
   }
 
   //服务与服务的亲和性
-
   setServicePodSelector(tag=[], advanceSet, appName) {
     if (advanceSet) {
       tag.push({
@@ -690,14 +689,14 @@ class Deployment {
 
   podPreferredAffinity(tags) {
     return {
-        weight: 1,
-        podAffinityTerm: {
-          labelSelector: {
-            matchExpressions: this.setItemIntoArr(tags)
-          },
-          topologyKey: 'beta.kubernetes.io/os'
-        }
+      weight: 1,
+      podAffinityTerm: {
+        labelSelector: {
+          matchExpressions: this.setItemIntoArr(tags)
+        },
+        topologyKey: 'beta.kubernetes.io/os'
       }
+    }
 
   }
 
