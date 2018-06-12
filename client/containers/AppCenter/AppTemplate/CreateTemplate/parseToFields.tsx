@@ -12,15 +12,16 @@
 
 import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
-const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY;
 import { parseCpuToNumber } from '../../../../../src/common/tools';
-import { RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION } from '../../../../../src/constants';
+import {
+  RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
+  DEFAULT_ALGORITHM,
+} from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
 
 const APM_SERVICE_LABEL_KEY = 'system/apmService';
 const TENX_SCHEMA_LBGROUP = 'system/lbgroup';
-const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname';
 const PORT = 'port'; // 端口
 const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
@@ -142,12 +143,20 @@ const parseResource = containers => {
   if (result) {
     resourceType = RESOURCES_DIY;
   }
+  let GPULimits: number;
+  let resourceAlgorithm: string = DEFAULT_ALGORITHM;
+  if (limits[GPU_KEY]) {
+    GPULimits = parseInt(limits[GPU_KEY], 10);
+    resourceAlgorithm = GPU_ALGORITHM;
+  }
   return {
     resourceType, // 容器配置
     DIYCPU, // 自定义配置-CPU
     DIYMaxCPU, // 自定义配置-最大CPU
     DIYMemory, // 自定义配置-内存
     DIYMaxMemory, // 自定义配置-最大内存
+    GPULimits, // GPU
+    resourceAlgorithm, // one of [X86, GPU]
   };
 };
 
