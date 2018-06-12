@@ -75,7 +75,7 @@ let ClusterInfo = React.createClass ({
       failed: {
         func: err => {
           if(!!err && !!err.message && !! err.message.message && err.message.message === 'the cluster is the only cluster which exists in our env'){
-            notification.error(`当前集群为个人项目使用集群，请保证至少有一个集群，可被平台成员的个人项目使用`)
+            notification.error(`当前集群为个人项目使用集群\n请保证至少有一个集群，可被平台成员的个人项目使用`)
             form.resetFields(['isDefault'])
           } else {
             notification.error(`更新集群信息失败`)
