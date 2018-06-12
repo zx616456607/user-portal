@@ -615,7 +615,7 @@ const Normal = React.createClass({
                 form={form}
                 {...{
                   DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps,
-                  GPULimitsProps, algorithmProps, memoryMin, cpuMin
+                  GPULimitsProps, algorithmProps, memoryMin, cpuMin, location,
                 }}
                 standardFlag={standardFlag}
                 onChange={this.onResourceChange}

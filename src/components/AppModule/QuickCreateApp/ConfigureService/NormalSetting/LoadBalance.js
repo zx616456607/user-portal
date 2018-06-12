@@ -52,6 +52,12 @@ class LoadBalance extends React.Component {
   }
 
   checkLoadBalance = (rule, value, callback) => {
+    const { getFieldValue, setFieldsValue } = this.props.form
+    if (getFieldValue('loadBalance') !== value) {
+      setFieldsValue({
+        lbKeys: []
+      })
+    }
     if (!value) {
       return callback('请选择负载均衡')
     }
@@ -98,13 +104,13 @@ class LoadBalance extends React.Component {
       setFieldsValue({
         lbKeys: currentKeys.concat(uidd ++)
       })
-    } else {
+    } else if (!currentKeys.includes(editKey)){
       setFieldsValue({
         lbKeys: currentKeys.concat(editKey)
       })
     }
     this.setState({
-      editKey: 0
+      editKey: ''
     })
   }
 
@@ -185,7 +191,7 @@ class LoadBalance extends React.Component {
         }
       ]
     })
-    const serviceList = getFieldValue('lbKeys').length ? getFieldValue('lbKeys').map((item, index, array) => {
+    const serviceList = getFieldValue('lbKeys').length ? getFieldValue('lbKeys').map((item) => {
         return (
           <Row className="serviceList" type="flex" align="middle" key={`service${item}`}>
             <Col span={4}>

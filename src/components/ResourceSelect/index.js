@@ -29,6 +29,7 @@ import {
 } from '../../constants'
 import './style/index.less'
 
+const EDIT_TEMPLATE_HASH = "#edit-template"
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
@@ -53,7 +54,10 @@ export default class ResourceSelect extends Component {
   }
 
   componentWillMount() {
-    const { onChange } = this.props
+    const { onChange, location } = this.props
+    if (location.hash === EDIT_TEMPLATE_HASH) {
+      return
+    }
     onChange(this.state)
   }
 
