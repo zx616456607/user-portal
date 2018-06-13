@@ -19,6 +19,7 @@ import AppLog from './AppLog'
 import './style/AppDetail.less'
 import { formatDate } from '../../common/tools'
 import { updateAppDesc, loadAppDetail } from '../../actions/app_manage'
+import { loadAllServices } from '../../actions/services'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
@@ -55,8 +56,16 @@ class AppDetail extends Component {
   }
 
   componentWillMount() {
-    const { cluster, appName, loadAppDetail } = this.props
+    const { cluster, appName, loadAppDetail, loadAllServices } = this.props
     loadAppDetail(cluster, appName)
+    loadAllServices(cluster, {
+      pageIndex: 1,
+      pageSize: 100,
+    }).then(res => {
+      this.setState({
+        k8sServiceList: res.response.result.data.services.map(service => service.service)
+      })
+    })
     if (location.hash.length >1) {
       const _this = this
       const query = {
@@ -153,7 +162,7 @@ class AppDetail extends Component {
 
   render() {
     const { children, appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled } = this.props
-    const { activeTabKey, serviceList, availableReplicas, total } = this.state
+    const { activeTabKey, serviceList, availableReplicas, total, k8sServiceList } = this.state
     if (isFetching || !app) {
       return (
         <div className='loadingBox'>
@@ -261,6 +270,7 @@ class AppDetail extends Component {
                 <TabPane tab='服务实例' key={DEFAULT_TAB} >
                   <AppServiceList
                     location={location}
+                    k8sServiceList={k8sServiceList}
                     key='AppServiceList'
                     onServicesChange={this.onServicesChange}
                     appName={appName} />
@@ -350,5 +360,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadAppDetail,
   updateAppDesc,
-  loadServiceList
+  loadServiceList,
+  loadAllServices
 })(AppDetail)

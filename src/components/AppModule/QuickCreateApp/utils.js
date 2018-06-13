@@ -274,6 +274,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, null, port, port)
     })
+    // 默认访问方式 集群内
+    service.addLBGroupAnnotation('none')
   } else {
     if (isTemplate) {
       service.addLBGroupAnnotation(templateGroup)
