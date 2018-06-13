@@ -15,7 +15,7 @@ import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, addAlertRegularSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
@@ -206,7 +206,8 @@ let FistStop = React.createClass({
   getTargetType() {
     const { loginUser } = this.props
     if (loginUser.info.role == ADMIN_ROLE) {
-      return [<Option value="node" key="node">节点</Option>,
+      return [
+      // <Option value="node" key="node">节点</Option>,
       <Option value="service" key="service">服务</Option>]
     }
     return <Option value="service" key="service">服务</Option>
@@ -284,7 +285,8 @@ let FistStop = React.createClass({
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+        // initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+        initialValue: 'service'
       });
       let initAppName
       let initService
@@ -583,10 +585,12 @@ let TwoStop = React.createClass({
     }
   },
   usedName(rule, value, callback, key) {
-    if (!value) return callback('请选择类型')
+    if (!value) return callback('请填写日志正则')
+    setTimeout(() => this.clearError(key), 0)
+    return callback()
     this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback('日志正则填写重复')
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
@@ -629,14 +633,15 @@ let TwoStop = React.createClass({
     const { form } = this.props;
     const { getFieldValue } = form
     const keyCount = getFieldValue('cpu')
+
     let keyArr = []
     let obj = {}
     keyCount.forEach(item => {
        if(item == key) return
-       keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+       keyArr = keyArr.concat([`used_data@${item}`, `used_name@${item}`])
     })
     if (name) {
-      keyArr = keyArr.concat([`used_rule@${key}`, `used_data@${key}`, `used_name@${key}`].filter(item => {
+      keyArr = keyArr.concat([`used_data@${key}`, `used_name@${key}`].filter(item => {
         return item !== `${name}@${key}`
       }))
     }
@@ -783,8 +788,9 @@ let TwoStop = React.createClass({
   },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs, data, isEdit, alarmType } = this.props
+    const { funcs, data, alarmType } = this.props
     let cpuItems
+    const isEdit = false
     if (isEdit) {
       const cloneData = cloneDeep(data)
       // 当告警类型有'节点'型修改为'服务'型时，移除原有告警规则中的'磁盘利用率'
@@ -876,32 +882,17 @@ let TwoStop = React.createClass({
       cpuItems = getFieldValue('cpu').map((key) => {
         return (
           <div className="ruleItem" key={`create-${key}`}>
-            <Form.Item>
-              <Select {...getFieldProps(`used_name@${key}`, {
+            <Form.Item
+              label="日志正则"
+            >
+              <Input {...getFieldProps(`used_name@${key}`, {
                 rules: [{
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
                 }],
-                initialValue: 'cpu/usage_rate',
                 onChange: (type) => this.changeType(key, type)
-              }) } style={{ width: 135 }} >
-                { this.renderAlarmRulesOption() }
-              </Select>
+              }) } style={{ width: 330 }} ></Input>
             </Form.Item>
-            <span className='secondItem'>
-              <Form.Item>
-                <Select {...getFieldProps(`used_rule@${key}`, {
-                  rules: [{
-                    whitespace: true,
-                    validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
-                  }],
-                  initialValue: '>'
-                }) } style={{ width: 80 }} >
-                  <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                  <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                </Select>
-              </Form.Item>
-            </span>
             <Form.Item>
               <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
                 rules: [{
@@ -909,26 +900,12 @@ let TwoStop = React.createClass({
                   validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
                 }],
                 initialValue: '80'
-              }) } style={{ width: 80 }} />
+              }) } style={{ width: 80 }} />次
             </Form.Item>
-            <Form.Item>
-              {/*<Select {...getFieldProps(`used_symbol@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择单位',
-              }],
-              initialValue: '%'
-            }) } style={{ width: 80 }} >
-              <Option value="%">%</Option>
-              <Option value="KB/s">KB/s</Option>
-            </Select>*/}
-              <Input style={{ width: 80 }} disabled={true} value={this.state[`typeProps_${key}`]} />
-            </Form.Item>
-            <span className="rightBtns">
+            {/* <span className="rightBtns">
               <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
               <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
-            </span>
+            </span> */}
           </div>
         );
       });
@@ -941,10 +918,10 @@ let TwoStop = React.createClass({
 
         {cpuItems}
 
-        <div className="alertRule">
-           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
-           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
-        </div>
+        {/* <div className="alertRule">
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
+        </div> */}
         {/*  footer btn */}
         <div className="wrapFooter">
           <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">上一步</Button>
@@ -1025,8 +1002,7 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
-    const { scope } = funcs
+    const { form, getSettingList, pathname, activeCluster,notifyGroup } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -1063,28 +1039,44 @@ class AlarmModal extends Component {
       }
       const receiversGroup = form.getFieldValue('notify')
       const strategyName = this.state.name
-      const repeatInterval = parseInt(this.state.interval)
+      const repeatInterval = parseInt(this.state.interval) / 60
       const cluster = this.props.cluster
       const notification = new NotificationHandler()
       const { isEdit, strategy, setting } = this.props
-      let requestBody = {
-        targetType,
-        targetName,
-        specs,
-        receiversGroup,
-        strategyName,
-        repeatInterval,
-        appName,
-        sendEmail: this.state.isSendEmail,
-        enable:1,
-        disableNotifyEndTime: '0s'
+      // let requestBody = {
+      //   targetType,
+      //   targetName,
+      //   specs,
+      //   receiversGroup,
+      //   strategyName,
+      //   repeatInterval,
+      //   appName,
+      //   sendEmail: this.state.isSendEmail,
+      //   enable:1,
+      //   disableNotifyEndTime: '0s'
+      // }
+      const service = this.state.server
+      const num_events = parseInt(specs[0].value)
+      const datas = notifyGroup.result.data
+      let sendEmail = []
+      datas.forEach((data)=>{
+        if (data.groupID === receiversGroup) {
+          sendEmail = data.receivers.email.map(( email ) => {
+            return email.addr
+          })
+        }
+      })
+      const requestBody = {
+        name: strategyName,
+        num_events,
+        Minutes: repeatInterval,
+        Service: service,
+        regex: specs[0].metricType,
       }
-
+      if (this.state.isSendEmail) {
+        requestBody.email = sendEmail
+      }
       if (isEdit) {
-        // update
-        // requestBody.strategyID = strategy.strategyID
-        requestBody.enable = strategy.enable
-
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
@@ -1148,15 +1140,15 @@ class AlarmModal extends Component {
               if (getSettingList) {
                 getSettingList()
               }
-              scope && scope.setState({
-                currentPage: 1,
-                search: '',
-              }, () => {
-                loadData && loadData({
-                  from: 0,
-                  page: 1,
-                })
-              })
+              // scope && scope.setState({
+              //   currentPage: 1,
+              //   search: '',
+              // }, () => {
+              //   loadData && loadData({
+              //     from: 0,
+              //     page: 1,
+              //   })
+              // })
             },
             isAsync: true
           },
@@ -1356,9 +1348,9 @@ function alarmModalMapStateToProp(state, porp) {
 }
 AlarmModal = connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
-  addAlertSetting,
+  addAlertSetting: addAlertRegularSetting,
   updateAlertSetting,
-  getAlertSetting
+  getAlertSetting,
 })(Form.create()(AlarmModal))
 
 

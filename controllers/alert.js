@@ -230,6 +230,15 @@ exports.addAlertSetting = function* () {
   this.body = response
 }
 
+exports.addAlertRegularSetting = function* () { // 增加告警规则
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/logsalert'], null, body)
+  this.body = response
+}
+
 exports.modifyAlertSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.params.strategyID
@@ -246,6 +255,14 @@ exports.getSettingList = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const response = yield api.getBy([cluster, 'alerts/strategies'], queryBody)
+  this.body = response
+}
+exports.getSettingLogList = function* () {
+  const cluster = this.params.cluster
+  const queryBody = this.query || {}
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.getBy([cluster, 'alerts/logsalert'], queryBody)
   this.body = response
 }
 
@@ -272,6 +289,23 @@ exports.deleteSetting = function* () {
     strategyIDs: strategyID,
     strategyName: strategyName
   })
+  this.body = response
+}
+
+// 删除告警规则
+exports.deleteRegularSetting = function* () {
+  const cluster = this.params.cluster
+  const name = this.params.name
+  // const strategyID = this.query.strategyID
+  // const strategyName = this.query.strategyName
+  // if (!strategyID) {
+  //   const err = new Error('strategyID is require')
+  //   err.status = 400
+  //   throw err
+  // }
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.deleteBy([cluster, 'alerts/logsalert', name])
   this.body = response
 }
 
@@ -303,6 +337,14 @@ exports.batchDisable = function* () {
   this.body = response
 }
 
+exports.batchToggleRegular = function* () { // 开启/关闭告警规则
+  const ruleName = this.params.rulename
+  const cluster = this.params.cluster
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.getBy([cluster, `alerts/logsalert/${ruleName}/status`], null)
+  this.body = response
+}
 exports.batchEnableEmail = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
@@ -391,7 +433,7 @@ exports.getTargetInstant = function* () {
       type: 'disk/usage',
       source: 'prometheus'
     }
-  
+
     let tcp_listen = {
       targetType: type,
       type: 'tcp/listen_state',

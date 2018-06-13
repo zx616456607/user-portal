@@ -171,13 +171,13 @@ class IngressModal extends React.Component {
   }
   portCheck = (rules, value, callback) => {
     if (!value) {
-      return callback('请输入监听端口')
+      return callback('请输入服务端口')
     }
     if (!/^[0-9]*$/.test(value)) {
-      return callback('监听端口必须为数字')
+      return callback('服务端口必须为数字')
     }
     if (+value < 1 || +value > 65535) {
-      return callback('监听端口必须在1-65535之间')
+      return callback('服务端口必须在1-65535之间')
     }
     callback()
   }
@@ -315,10 +315,10 @@ class IngressModal extends React.Component {
             <Input placeholder="输入域名 URL " {...relayRuleProps}/>
           </FormItem>
           <FormItem
-            label="端口"
+            label="服务端口"
             {...formItemLayout}
           >
-            <Input placeholder="输入容器端口" {...portProps}/>
+            <Input placeholder="输入服务端口" {...portProps}/>
           </FormItem>
         </Form>
       </Modal>

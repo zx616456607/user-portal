@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * alert.js page
+ *
+ * @author zhangtao
+ * @date Friday June 8th 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
@@ -29,7 +38,26 @@ const option = {
     default:
       return state
   }
-} 
+}
+
+// 日志告警相关
+// 获取所有告警规则
+function getSettingRegularList(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST:
+      return Object.assign({}, defaultState, state, { isFetching: action.needFetching})
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS:
+      return Object.assign({}, defaultState, state, { isFetching: false, result: action.response.result})
+    case ActionTypes.ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE:
+      return Object.assign({}, defaultState, state, { isFetching: false})
+    default:
+      return state
+  }
+}
+
 
 function getSettingListfromserviceorapp(state = {}, action) {
   const defaultState = {
@@ -78,13 +106,24 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_SETTING_ADD_SUCCESS,
       FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
+    addSettingRegular: reducerFactory({ // 创建告警规则
+      REQUEST: ActionTypes.ALERT_REGULAR_SETTING_ADD_REQUEST,
+      SUCCESS: ActionTypes.ALERT_REGULAR_SETTING_ADD_SUCCESS,
+      FAILURE: ActionTypes.ALERT_REGULAR_SETTING_ADD_FAILURE
+    }, state.addSettingRegular, action, option),
     settingList: getSettingList(state.settingList, action),
+    settingRegularList: getSettingRegularList(state.settingRegularList, action),
     SettingListfromserviceorapp: getSettingListfromserviceorapp(state.SettingListfromserviceorapp, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_SETTING_SUCCESS,
       FAILURE: ActionTypes.ALERT_DELETE_SETTING_FAILURE
     }, state.deleteSetting, action, option),
+    deleteRegularSetting: reducerFactory({ // 删除告警规则
+      REQUEST: ActionTypes.ALERT_DELETE_REGULAR_SETTING_REQUEST,
+      SUCCESS: ActionTypes.ALERT_DELETE_REGULAR_SETTING_SUCCESS,
+      FAILURE: ActionTypes.ALERT_DELETE_REGULAR_SETTING_FAILURE
+    }, state.deleteRegularSetting, action, option),
     settingInstant: reducerFactory({
       REQUEST: ActionTypes.ALERT_SETTING_INSTANT_REQUEST,
       SUCCESS: ActionTypes.ALERT_SETTING_INSTANT_SUCCESS,
@@ -102,6 +141,11 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
     }, state.batchDisable, action, option),
+    batchToggleRegular: reducerFactory({ // 关闭/打开告警规则
+      REQUEST: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST,
+      SUCCESS: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS,
+      FAILURE: ActionTypes.ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE
+    }, state.batchToggleRegular, action, option),
     deleteRule: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,
