@@ -16,7 +16,13 @@ import { Link, browserHistory } from 'react-router'
 // import { calcuDate } from '../../../common/tools.js'
 import moment from 'moment'
 import './style/AlarmRecord.less'
-import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting } from '../../actions/alert'
+import {
+  loadLogRecords,
+  loadRecordsFilters,
+  deleteRecords,
+  getAlertSetting,
+  getSettingList
+} from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
@@ -33,11 +39,12 @@ class AlarmRecord extends Component {
     super(props);
     this.state = {
       strategyFilter: '',
-      targetTypeFilter: '',
-      targetFilter: '',
-      beginTimeFilter: '',
-      endTimeFilter: '',
-      page: DEFAULT_PAGE,
+      targetTypeFilter: '0',
+      serviceName: '',
+      ruleName: '',
+      dateStartFilter: '',
+      dateEndFilter: '',
+      from: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
       deleteModal: false
     }
@@ -47,35 +54,47 @@ class AlarmRecord extends Component {
     const {
       strategyFilter,
       targetTypeFilter,
-      targetFilter,
-      beginTimeFilter,
-      endTimeFilter
+      serviceName,
+      dateStartFilter,
+      dateEndFilter,
+      ruleName,
+      from,
+      size,
     } = this.state
     let query = {
-      beginTime: beginTimeFilter,
-      endTime: endTimeFilter,
-      cluster: props.clusterID
+      date_start: dateStartFilter,
+      date_end: dateEndFilter,
+      service_name: '',
+      rule_name: '',
+      from:this.state.from-1,
+      size,
     }
+
     if (condition) {
-      query.strategyName = condition.strategyName
+      query.service_name = condition.serviceName || ''
+      query.rule_name = condition.ruleName || ''
       query.targetType = condition.targetType
       query.targetNamy = condition.targetName
     } else {
-      query.strategyName = strategyFilter
+      query.service_name = serviceName
       query.targetType = targetTypeFilter
-      query.targetName = targetFilter
     }
-    this.props.loadRecords(query, props.clusterID)
+
+    this.props.loadLogRecords(query, props.clusterID)
   }
   componentWillMount() {
-    const { loadRecordsFilters, clusterID, location } = this.props
-    const { targetType, targetName, strategyName } = location.query
+    const { loadRecordsFilters, clusterID, location, getSettingList, strategy } = this.props
+    const { targetType, targetName, service_name } = location.query
     this.setState({
-      strategyFilter: strategyName,
-      targetTypeFilter: targetType,
+      strategyFilter: service_name,
       targetFilter: targetName
     })
+
     loadRecordsFilters(clusterID)
+    getSettingList(clusterID,{
+      from: 0,
+      size: 1000
+    })
     this.loadData(this.props, location.query)
   }
   componentWillReceiveProps(nextProps) {
@@ -86,17 +105,22 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters
+      recordFilters,
+      strategy
     } = this.props
 
-    let strategies = [<Option value="">全部</Option>]
-    for (let strategy of recordFilters.strategies) {
-      strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
-    }
+    let strategies = [<Option value="" key={'all'}>全部</Option>]
+    let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
+    if(strategy) {
+      for (let v of strategy) {
+        strategies.push(<Option value={v.strategyName} key={v.strategyID}>{v.strategyName}</Option>)
+      }
 
-    let targets = [<Option value="">全部</Option>]
-    for (let target of recordFilters.targets) {
-      targets.push(<Option value={target.name}>{target.name}</Option>)
+
+      for (let v of strategy) {
+        targets.push(<Option value={v.strategyID} key={v.strategyID}>{v.targetName}</Option>)
+      }
+
     }
 
     return {
@@ -105,13 +129,14 @@ class AlarmRecord extends Component {
     }
   }
   getRecords() {
-    this.loadData(this.props)
+
+    this.loadData(this.props,this.state)
   }
   deleteRecords() {
     const {
       deleteRecords,
-      loadRecords,
-     } = this.props
+      loadLogRecords,
+    } = this.props
     const _this = this
     const clusterID = this.props.clusterID
     let notification = new NotificationHandler()
@@ -119,7 +144,7 @@ class AlarmRecord extends Component {
     deleteRecords(clusterID, null, {
       success: {
         func: () => {
-          loadRecords()
+          loadLogRecords()
           notification.success('清空记录成功')
         },
         isAsync: true
@@ -133,25 +158,32 @@ class AlarmRecord extends Component {
   }
   onBeginTimeFilterChange(time) {
     // covert to utc to avoid '+'
-    const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().format()
+    // const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().format()
+
+    const t = time? moment(time).format('YYYY-MM-DD') : ''
     this.setState({
-      beginTimeFilter: t,
+      dateStartFilter: t,
     })
   }
   onEndTimeFilterChange(time) {
     // covert to utc to avoid '+'
-    const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().add(1, 'day').format()
+    // const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().add(1, 'day').format()
+    const t = time? moment(time).format('YYYY-MM-DD') : ''
     this.setState({
-      endTimeFilter: t,
+      dateEndFilter: t,
     })
   }
   getRecordData() {
     let records = []
-    if (this.props.records.records) {
-      this.props.records.records.map(function (r) {
+    if (this.props.records.result) {
+      this.props.records.result.map(function (r) {
         records.push({
-          createTime: r.createTime,
-          strategyName: r.strategyName,
+          createTime: r.alertTime,
+          ruleName: r.ruleName,
+          serviceName: r.serviceName,
+          numHits: r.numHits,
+          numMatches: r.numMatches,
+          alertInfo: r.alertInfo,
           targetType: r.targetType,
           targetName: r.targetName,
           triggerValue: r.triggerValue,
@@ -164,26 +196,28 @@ class AlarmRecord extends Component {
     return records
   }
   onPageChange(current) {
-    this.setState({ page: current })
+    this.setState({ from: current })
     const {
       strategyFilter,
       targetTypeFilter,
-      targetFilter,
-      beginTimeFilter,
-      endTimeFilter,
+      serviceName,
+      ruleName,
+      dateStartFilter,
+      dateEndFilter,
     } = this.state
     const { size, sortOrder, sortBy, clusterID } = this.props
     const query = {
       from: (current - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE,
-      strategyName: strategyFilter,
+      service_name: serviceName,
+      rule_name: ruleName,
       targetType: targetTypeFilter,
-      targetName: targetFilter,
-      beginTime: beginTimeFilter,
-      endTime: endTimeFilter,
+      date_start: dateStartFilter,
+      date_end: dateEndFilter,
       cluster: clusterID
     }
-    this.props.loadRecords(query, clusterID)
+
+    this.props.loadLogRecords(query, clusterID)
   }
   toProjectDetail(list) {
     const { clusterID, loadServiceDetail, getHostInfo } = this.props;
@@ -233,23 +267,23 @@ class AlarmRecord extends Component {
     getAlertSetting(clusterID, {
       strategy: record.strategyID
     }, {
-        success: {
-          func: (result) => {
-            if (isEmpty(result.data)) {
-              notify.error('此策略不存在或者已被删除')
-            } else {
-              browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.strategyName}&clusterID=${clusterID}`)
-            }
-          },
-          isAsync: true
-        },
-        failed: {
-          func: (err) => {
+      success: {
+        func: (result) => {
+          if (isEmpty(result.data)) {
             notify.error('此策略不存在或者已被删除')
-          },
-          isAsync: true
-        }
-      })
+          } else {
+            browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.service_name}&clusterID=${clusterID}`)
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          notify.error('此策略不存在或者已被删除')
+        },
+        isAsync: true
+      }
+    })
   }
   render() {
     const { clusterID } = this.props;
@@ -263,7 +297,7 @@ class AlarmRecord extends Component {
       },
       {
         title: '策略名称',
-        dataIndex: 'strategyName',
+        dataIndex: 'ruleName',
         render: (text, record) => {
           return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
         }
@@ -271,61 +305,39 @@ class AlarmRecord extends Component {
       {
         title: '类型',
         dataIndex: 'targetType',
-        render: (text) => {
-          switch (text) {
-            case 0:
-              return <div>服务</div>
-            case 1:
-              return <div>节点</div>
-            default:
-              return <div>未知</div>
-          }
-        }
+        render: () => <div>服务</div>
       },
       {
         title: '告警对象',
-        dataIndex: 'targetName',
+        dataIndex: 'serviceName',
         render: (text, record) => {
           return <span className="targetName" onClick={() => this.toProjectDetail(record)}>{text}</span>
         }
       },
       {
         title: '告警当前值',
-        dataIndex: 'triggerValue',
+        dataIndex: 'numHits',
       },
-      {
-        title: '告警规则',
-        dataIndex: 'triggerRule',
-
-      },
+      // {
+      //   title: '告警规则',
+      //   dataIndex: 'numMatches',
+      // },
       {
         title: '是否发送邮件',
-        dataIndex: 'status',
-        render: (text) => {
-          switch (text) {
-            case 0:
-              return <div>未发送</div>
-            case 1:
-              return <div style={{ color: '#33b867' }}>已发送</div>
-            case 2:
-              return <div style={{ color: '#f23e3f' }}>发送失败</div>
-            default:
-              return <div>未知</div>
-          }
-        }
+        dataIndex: 'alertSent',
+        render: (val) =><div>{ val? '是': '否'}</div>
       }
     ];
-
     const filters = this.getFilters()
     const data = this.getRecordData()
     const { total } = this.props.records
-    const { page, size } = this.state
+    const { from, size } = this.state
     const getTypeOptions = function () {
-      let options = [<Option value="">全部</Option>]
-      options.push(<Option value="0">服务</Option>)
-      if (!standardFlag) {
-        options.push(<Option value="1">节点</Option>)
-      }
+      let options = [<Option value="0">服务</Option>]
+      // options.push(<Option value="0">服务</Option>)
+      // if (!standardFlag) {
+      //   options.push(<Option value="1">节点</Option>)
+      // }
       return options
     }
     return (
@@ -334,32 +346,36 @@ class AlarmRecord extends Component {
           <Title title="告警记录" />
           <div className="topRow">
             <Select style={{ width: 150 }} getPopupContainer={() => document.getElementById('AlarmRecord')}
-              size="large"
-              showSearch
-              defaultValue={this.state.strategyFilter}
-              placeholder="选择告警策略"
-              optionFilterProp="children"
-              notFoundContent="无法找到" onChange={(value) => this.setState({ strategyFilter: value })}
+                    size="large"
+                    showSearch
+                    defaultValue={this.state.strategyFilter}
+                    placeholder="选择告警策略"
+                    optionFilterProp="children"
+                    notFoundContent="无法找到" onChange={(value) => this.setState({ ruleName: value })}
             >
               {filters.strategies}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({ targetTypeFilter: value })}>
+
+            <Select style={{ width: 120 }} size="large" placeholder="选择类型" disabled value={this.state.targetTypeFilter} onChange={(value) => this.setState({ targetTypeFilter: value })}>
               {getTypeOptions()}
             </Select>
-            <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({ targetFilter: value })}>
+            <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
+              this.setState({ ruleName: value? this.props.strategy.filter(v=>v.strategyID === value)[0].strategyName : ''})}
+
+            }>
               {filters.targets}
             </Select>
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
             <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
-            <Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>
+            {/*<Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>*/}
             { total !== 0 && <div className='pageBox'>
               <span className='totalPage'>共计 {total} 条</span>
               <Pagination
                 simple
                 className='inlineBlock'
                 onChange={(page) => this.onPageChange(page)}
-                current={page}
+                current={from}
                 pageSize={size}
                 total={total} />
             </div>}
@@ -370,15 +386,14 @@ class AlarmRecord extends Component {
           </Card>
         </div>
         <Modal title="清除所有告警记录" visible={this.state.deleteModal}
-          onCancel={() => this.setState({ deleteModal: false })}
-          onOk={() => this.deleteRecords()}
+               onCancel={() => this.setState({ deleteModal: false })}
+               onOk={() => this.deleteRecords()}
         >
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>您的操作将会清空所有告警记录，并且无法恢复，是否清空？</div>
         </Modal>
       </QueueAnim>
     )
   }
-
 }
 
 function mapStateToProps(state, props) {
@@ -391,8 +406,10 @@ function mapStateToProps(state, props) {
     strategies: [],
     targets: [],
   }
+
   const { current } = state.entities
   const { clusterID } = current.cluster
+  const strategy = state.alert.settingList && state.alert.settingList.result && state.alert.settingList.result.data.strategys || []
   if (recordFilters && recordFilters.result) {
     recordFiltersData = recordFilters.result.data
   }
@@ -408,15 +425,17 @@ function mapStateToProps(state, props) {
     recordFilters: recordFiltersData,
     records: recordsData,
     isFetching: records.isFetching,
-    clusterID
+    clusterID,
+    strategy
   }
 }
 
 export default connect(mapStateToProps, {
-  loadRecords,
+  loadLogRecords,
   loadRecordsFilters,
   deleteRecords,
   loadServiceDetail,
   getHostInfo,
-  getAlertSetting
+  getAlertSetting,
+  getSettingList,
 })(AlarmRecord)
