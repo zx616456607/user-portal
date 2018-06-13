@@ -16,6 +16,10 @@ const manangeMonitorRoutes = [
     component: require('../components/ManageMonitor/OperationalAudit').default,
   },
   {
+    path: 'audit_bkt',
+    component: require('../../client/containers/ManageMonitor').default,
+  },
+  {
     path: 'query_log',
     component: require('../components/ManageMonitor/QueryLog').default,
   },
