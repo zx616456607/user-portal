@@ -49,7 +49,7 @@ class SvcTip extends Component {
     let item = svcDomain.map((element, index) => {
       let linkURL = 'http://' + element.domain
       return (
-        <li key={element.domain}>
+        <li key={element.domain + element.interPort}>
           <a href="javascript:void(0)" > 容器端口:{element.interPort}</a>
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
@@ -187,8 +187,8 @@ class AppTip extends Component {
 }
 
 function lbgroup2Text(item) {
-  const { isInternal, lbgroup } = item
-  let before = '内网'
+  const { isInternal, lbgroup, isLb } = item
+  let before = '集群内'
   let after = '外网'
   if (lbgroup) {
     before = '集群内'
@@ -199,6 +199,9 @@ function lbgroup2Text(item) {
     if (type === 'private') {
       after = '内网'
     }
+  }
+  if (isLb) {
+    return '应用负载均衡'
   }
   return isInternal ? before : after
 }
