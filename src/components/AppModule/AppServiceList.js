@@ -28,7 +28,7 @@ import {
 import { removeTerminal } from '../../actions/terminal'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import {ANNOTATION_HTTPS, DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE} from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import GrayscaleUpgradeModal from './AppServiceDetail/GrayscaleUpgradeModal'
@@ -46,6 +46,8 @@ import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
+import isEmpty from "lodash/isEmpty";
+import {camelize} from "humps";
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -326,6 +328,13 @@ const MyComponent = React.createClass({
         return <span></span>
     }
   },
+  renderLBIcon() {
+    return (
+      <Tooltip title='该服务可被访问（通过应用负载均衡 LB ）'>
+        <span className='standrand privateColor'>lb</span>
+      </Tooltip>
+  )
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
     if (loading) {
@@ -470,7 +479,27 @@ const MyComponent = React.createClass({
         </Menu>
 
       );
-      const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs)
+      let lb = false
+      let k8sSer = ''
+      for (let k8sService of k8sServiceList) {
+        if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
+
+          const key = camelize('ingress-lb')
+          if (
+            k8sService.metadata.annotations &&
+            k8sService.metadata.annotations[key] &&
+            !isEmpty(k8sService.metadata.annotations[key])
+          ) {
+            let lbArr = JSON.parse(k8sService.metadata.annotations[key])
+            if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
+              lb = true
+              k8sSer = k8sService
+            }
+          }
+          break
+        }
+      }
+      const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs, k8sSer)
       let volume = false
       if(
         item.spec
@@ -523,6 +552,9 @@ const MyComponent = React.createClass({
                 }
                 {
                   group && this.renderGroupIcon(item.lbgroup)
+                }
+                {
+                  lb && this.renderLBIcon()
                 }
               </div>
             }
