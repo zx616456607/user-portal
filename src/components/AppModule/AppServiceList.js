@@ -527,7 +527,7 @@ const MyComponent = React.createClass({
       }
       let heightSize = '60px'
       let lineHeightSize = '60px'
-      if(volume || group){
+      if(volume || group || lb){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -544,7 +544,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group) && <div className='icon_container'>
+              (volume || group || lb) && <div className='icon_container'>
                 {
                   volume && <Tooltip title="该服务已添加存储" placement="top">
                     <span className='standrand volumeColor'>存</span>
