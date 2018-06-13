@@ -56,10 +56,8 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
       let finalPort = ':' + port.port
       if (item.lbgroup) {
         const { type } = item.lbgroup
-        if (type === 'public') {
+        if (type === 'public' || type === 'private') {
           finalPort = ':' + port.proxyPort
-        } else if (type === 'private') {
-          finalPort = ':' + port.port
         }
       }
       let portInfo = finalPort
