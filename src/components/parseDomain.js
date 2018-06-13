@@ -8,7 +8,7 @@
 import { isDomain } from '../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 
-export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
+export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer) {
   let bindingDomain = []
   let bindingIP = []
   try {
@@ -53,7 +53,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let nameInfo = item.metadata.name
   if (portsForExternal) {
     portsForExternal.map((port) => {
-      let finalPort = ''
+      let finalPort = ':' + port.port
       if (item.lbgroup) {
         const { type } = item.lbgroup
         if (type === 'public') {
@@ -117,16 +117,28 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
       })
     })
   }
-
+  // parse lb domain k8sSer.proxy
+  if (k8sSer && k8sSer.proxy) {
+    k8sSer.proxy.map(port => {
+      let ip = port.host ? port.host : port.loadbalanceIP
+      ip = port.path ? ip + port.path : ip
+      domains.push({
+        domain: `${ip}:80`,
+        isLb: true,
+        interPort: port.port
+      })
+    })
+  }
   return domains
 }
 
 export function parseAppDomain(app, bindingDomainStr, bindingIPStr) {
   let domains = []
   app.services.map((item) => {
+    const k8sSer = app.k8sServices.filter(record => record.metadata.name === item.metadata.name)[0]
     domains.push({
       name: item.metadata.name,
-      data: parseServiceDomain(item, bindingDomainStr, bindingIPStr)
+      data: parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
     })
   })
   return domains

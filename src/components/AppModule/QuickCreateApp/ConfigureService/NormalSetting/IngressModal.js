@@ -184,7 +184,7 @@ class IngressModal extends React.Component {
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
     const { visible, form, currentIngress } = this.props
-    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError } = form
+    const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
 
     const formItemLayout = {
       labelCol: { span: 5 },
