@@ -216,7 +216,6 @@ class AlarmRecord extends Component {
       date_end: dateEndFilter,
       cluster: clusterID
     }
-
     this.props.loadLogRecords(query, clusterID)
   }
   toProjectDetail(list) {

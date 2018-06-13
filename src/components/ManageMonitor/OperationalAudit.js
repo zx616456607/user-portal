@@ -1960,6 +1960,8 @@ class OperationalAudit extends Component {
     //this function for user change status
     this.setState({
       namespace: e.target.value
+    },() => {
+      console.log(this.state.namespace)
     });
   }
 
@@ -1997,6 +1999,7 @@ class OperationalAudit extends Component {
       end_time: this.state.end_time,
       status: this.state.status
     }
+    console.log(body)
     getOperationLogList(body, {
       success: {
         func: (res) => {
