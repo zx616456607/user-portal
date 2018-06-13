@@ -611,7 +611,8 @@ class hostList extends Component {
       manageLabelModal : false,
       deleteNodeModal : false,
       deleteNode : null,
-      summary: props.summary || []
+      summary: props.summary || [],
+      search: '',
     }
   }
 
@@ -670,6 +671,7 @@ class hostList extends Component {
               }
             })
           }
+          this.searchNodes()
         },
         isAsync: true
       }
@@ -700,14 +702,9 @@ class hostList extends Component {
       })
     }
   }
-  searchNodes(e) {
+  searchNodes() {
     //this function for search nodes
-    let search =''
-    if(e){
-      search = e.target.value.trim()
-    } else {
-      search = document.getElementsByClassName('searchInput')[0].value.trim()
-    }
+    const { search } = this.state
 
     const { nodes } = this.props;
     if (search.length == 0) {
@@ -1105,7 +1102,7 @@ class hostList extends Component {
             <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
-            <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={(e) => this.searchNodes(e)} />
+            <Input className='searchInput' onChange={e => this.setState({search: e.target.value})} size='large' placeholder='搜索' type='text' onPressEnter={(e) => this.searchNodes()} />
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
