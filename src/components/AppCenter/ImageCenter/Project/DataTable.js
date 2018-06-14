@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Modal, Icon } from 'antd'
+import { Table, Button, Modal, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
@@ -180,6 +180,13 @@ class DataTable extends Component {
                 }}>
                   删除
                 </Button>
+                {
+                  row.name === 'tenx_store' && (
+                    <Tooltip placement="top" title="应用商店对应仓库组，系统创建不可删除">
+                      <Icon type="info-circle-o" />
+                    </Tooltip>
+                  )
+                }
               </div>
             )
           }
