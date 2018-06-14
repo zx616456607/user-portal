@@ -214,7 +214,7 @@ class TemplateList extends React.Component<any> {
             <div className="templateCreated">
               <Icon type="clock-circle-o" />
               <Tooltip title={`更新于${calcuDate(temp.versions[0].created)}`}>
-                {calcuDate(temp.versions[0].created)}
+                <span>{calcuDate(temp.versions[0].created)}</span>
               </Tooltip>
             </div>
             <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>部署</Button>
