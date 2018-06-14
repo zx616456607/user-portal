@@ -153,7 +153,7 @@ let MyComponent = React.createClass({
     const { form, loginUser } = this.props
     const { getFieldValue } = form
     if(index != undefined) {
-      if(getFieldValue(`ssl{index}`) == 'HTTP') {
+      if(getFieldValue(`ssl${index}`) == 'HTTP') {
         return callback()
       }
     }
