@@ -1,0 +1,56 @@
+@import "../../../../../../src/assets/style/site/core.less";
+.ApplyForm {
+  .ant-card-head {
+    background-color: @backgroud-color;
+    .cardItem {
+      color: #888;
+      font-weight: 100;
+      font-size: 12px;
+    }
+   }
+
+  .addBtn {
+    margin: @padding-medium 0;
+    font-size: 16px;
+    color: #888;
+    font-weight: 100;
+    &:hover {
+      color: @primary-color;
+      cursor: pointer;
+    }
+    span {
+      padding: 0 8px;
+      font-size: 14px;
+    }
+  }
+  .ant-alert-error {
+    border: 2px dashed #fdc;
+    height: 50px;
+    line-height: 30px;
+  }
+  .resource-wrap {
+    padding: @padding-base @padding-medium @padding-base @padding-base;
+    .ant-form-item {
+      margin: 0;
+    }
+  }
+  .ant-card-body {
+    padding: 0;
+    .ant-row-flex {
+      border-bottom: 1px solid  @border-color-base;
+      .ant-col-6, .ant-col-4, .ant-col-2 {
+        height: 48px;
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+  .useNum {
+    height: 48px;
+    line-height: 30px;
+  }
+  .applyNum {
+    padding-left: @padding-large;
+  }
+}

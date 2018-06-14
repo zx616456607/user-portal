@@ -323,7 +323,21 @@ class Sider extends Component {
                           </span>
           </Link>
         </div>
-      </Menu.Item>
+      </Menu.Item>,
+      <Menu.Item key='approvalLimit'>
+        <div className="adminBox">
+          <Tooltip title="仅系统管理员可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/tenant_manage/approvalLimit'>
+                          <span>
+                            配额审批
+                          </span>
+          </Link>
+        </div>
+      </Menu.Item>,
     ]
     const tenantMenu_platform = tenantMenu_admin;
     const tenantMenu_base = [
@@ -342,6 +356,21 @@ class Sider extends Component {
           <span><div className='sideCircle'></div> 项目权限</span>
         </Link>
       </Menu.Item>,
+      // applyLimit
+      <Menu.Item key='applyLimit'>
+        <div className="usrBox">
+          <Tooltip title="仅普通用户可见" placement="right">
+            <svg className="start forAdmin">
+              <use xlinkHref='#start' />
+            </svg>
+          </Tooltip>
+          <Link to='/tenant_manage/applyLimit'>
+                          <span>
+                            配额申请
+                          </span>
+          </Link>
+        </div>
+    </Menu.Item>,
     ]
     const tenantMenu_user = tenantMenu_base;
     const tenantMenu = (roleCode)=>{
@@ -704,7 +733,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { role !== ROLE_USER?
+              { role !== ROLE_USER && role !==  ROLE_PLATFORM_ADMIN?
                 <li onClick={() => this.selectModel('cluster')}
                     className={currentKey == '.' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'

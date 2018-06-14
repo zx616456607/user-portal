@@ -17,7 +17,7 @@ import { getOperationLogList } from '../../actions/manage_monitor'
 import { formatDate } from '../../common/tools.js'
 import './style/OperationalAudit.less'
 import Title from '../Title'
-
+import { browserHistory } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -1960,6 +1960,8 @@ class OperationalAudit extends Component {
     //this function for user change status
     this.setState({
       namespace: e.target.value
+    },() => {
+      console.log(this.state.namespace)
     });
   }
 
@@ -1997,6 +1999,7 @@ class OperationalAudit extends Component {
       end_time: this.state.end_time,
       status: this.state.status
     }
+    console.log(body)
     getOperationLogList(body, {
       success: {
         func: (res) => {
@@ -2288,6 +2291,7 @@ class OperationalAudit extends Component {
       <QueueAnim className='operationalAuditBox' type='right'>
         <div id='operationalAudit' key='operationalAudit'>
           <Title title="操作审计" />
+          {/*<Button type="primary" onClick={() => {browserHistory.push('/manange_monitor/audit_bkt')}}>跳转</Button>*/}
           <div className='operaBox'>
             <Cascader
               options={resourceOption}

@@ -12,16 +12,21 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input } from 'antd'
 import { Link } from 'react-router'
 import classNames from 'classnames'
+import isEmpty from 'lodash/isEmpty'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import "./style/VisitType.less"
-import { setServiceProxyGroup, loadAllServices, loadServiceDetail } from '../../../actions/services'
+import { setServiceProxyGroup, loadAllServices, loadServiceDetail, updateServicePort, loadK8sService } from '../../../actions/services'
 import { getServiceLBList, unbindIngressService } from '../../../actions/load_balance'
 import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
+import Ports from '../QuickCreateApp/ConfigureService/NormalSetting/Ports'
+import {isResourcePermissionError} from "../../../common/tools";
+import findIndex from "lodash/findIndex";
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
+const notification = new NotificationHandler()
 class VisitType extends Component{
   constructor(props) {
     super(props)
@@ -44,9 +49,11 @@ class VisitType extends Component{
       activeKey: 'netExport'
     }
   }
-  componentWillMount() {
-    const { service, bindingDomains, bindingIPs, getProxy, cluster, getServiceLBList } = this.props;
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+  async componentWillMount() {
+    const {
+      service, bindingDomains, bindingIPs, getProxy, cluster,
+      getServiceLBList, form
+    } = this.props;
     if (service.lbgroup && service.lbgroup.id === 'mismatch') {
       this.setState({
         isLbgroupNull: true
@@ -57,8 +64,13 @@ class VisitType extends Component{
       })
     }
     getServiceLBList(cluster, service.metadata.name)
+    form.setFieldsValue({
+      portsKeys: [{value: 0}]
+    })
+    await this.setPortsToForm(this.props)
+    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
-  componentWillReceiveProps(nextProps) {
+  async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
     let preName = this.props.service.metadata && this.props.service.metadata.name
     let preTab = this.props.isCurrentTab
@@ -76,7 +88,7 @@ class VisitType extends Component{
         isLbgroupNull: false
       });
       form.setFieldsValue({
-        groupID:undefined
+        groupID:undefined,
       })
     }
     if (((preTab !== isCurrentTab) || (!preShow && serviceDetailmodalShow))) {
@@ -89,12 +101,56 @@ class VisitType extends Component{
           isLbgroupNull: false
         })
       }
+      await this.setPortsToForm(nextProps)
       this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
   }
+  setPortsToForm = async (props) => {
+    const { loadK8sService, cluster, service, k8sService, form } = props
+    await loadK8sService(cluster, service.metadata.name)
+    if (isEmpty(k8sService) || isEmpty(k8sService.data)) {
+      return
+    }
+    const { spec, metadata } =  k8sService.data[camelize(service.metadata.name)]
+    const { ports } = spec
+    if (isEmpty(ports)) {
+      return
+    }
+    const portsKeys = []
+    const annotations = metadata.annotations
+    let userPort = annotations['tenxcloud.com/schemaPortname']
+    if (!userPort) {
+      return
+    }
+    if(userPort) {
+      userPort = userPort.split(',')
+      userPort = userPort.map(item => {
+        return item.split('/')
+      })
+    }
+    ports.forEach((item, index) => {
+      const portKey = `port${index}`
+      const portProtocolKey = `portProtocol${index}`
+      const mappingPportTypeKey = `mappingPortType${index}`
+      portsKeys.push({
+        value: index
+      })
+      form.setFieldsValue({
+        [portKey]: item.targetPort,
+        [portProtocolKey]: item.protocol,
+        [mappingPportTypeKey]: userPort[index][2]
+      })
+    })
+    form.setFieldsValue({
+      portsKeys
+    })
+  }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
+    const { form, k8sService } = this.props
+    const { setFieldsValue } = form
+    const k8sSer = k8sService.data[camelize(service.metadata.name)]
     this.setState({
-      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs, k8sSer)
     })
     getProxy(cluster,true,{
       success: {
@@ -122,6 +178,10 @@ class VisitType extends Component{
                 addrHide:false
               },()=>{
                 this.selectProxyArr('public', true)
+              })
+            } else {
+              setFieldsValue({
+                accessMethod: 'Cluster'
               })
             }
           })
@@ -153,6 +213,15 @@ class VisitType extends Component{
     })
     data = data.filter((item)=>{
       return !type || item.type === type
+    })
+    let accessMethod = 'Cluster'
+    if (type === 'public') {
+      accessMethod = 'PublicNetwork'
+    } else if (type === 'private') {
+      accessMethod = 'InternalNetwork'
+    }
+    form.setFieldsValue({
+      accessMethod,
     })
     this.setState({
       currentProxy: data,
@@ -214,7 +283,7 @@ class VisitType extends Component{
   saveEdit() {
     const { value } = this.state;
     const { service, setServiceProxyGroup, cluster, form, loadAllServices, loadServiceDetail } = this.props;
-    const notification = new NotificationHandler()
+
     let val = value
     form.validateFields((errors,values)=>{
       if (!!errors) {
@@ -243,6 +312,7 @@ class VisitType extends Component{
               pageSize: 10,
             })
             loadServiceDetail(cluster, service.metadata.name)
+            this.updatePorts()
             notification.close()
             notification.success('出口方式更改成功')
             this.setState({
@@ -271,6 +341,38 @@ class VisitType extends Component{
       })
     })
 
+  }
+  updatePorts = async () => {
+    const {form, updateServicePort, cluster, service} = this.props
+    const {getFieldValue} = form
+    const portsKeys = getFieldValue('portsKeys')
+    const body = []
+    portsKeys.forEach(item => {
+      let protocol = getFieldValue(`portProtocol${item.value}`)
+      let port = getFieldValue(`mappingPort${item.value}`)
+      if(port) {
+        port = parseInt(port)
+      }
+      body.push({
+        ['container_port']: parseInt(getFieldValue(`port${item.value}`)),
+        protocol,
+        ['service_port']: port
+      })
+    })
+    const serviceName = service.metadata.name
+    const result = await updateServicePort(cluster, serviceName, body)
+    if (result.error) {
+      notification.close()
+      const { statusCode, message } = result.error
+      if (statusCode === 403) {
+        isResourcePermissionError(result.error)
+        return
+      }
+      notification.warn(message.message || message)
+      return
+    }
+    notification.close()
+    notification.success('端口更新成功')
   }
   cancelEdit() {
     const { initValue, initSelect } = this.state;
@@ -306,19 +408,26 @@ class VisitType extends Component{
       onOk() {},
     });
   }
-  domainList(flag) {
-    const { svcDomain, copyStatus } = this.state;
+  domainComponent = (index, item, isLb) => {
+    const { copyStatus } = this.state;
+    return (
+      <dd key={index} className="addrList">
+        容器端口：{item.interPort}
+        <span className="domain">{item.domain}</span>
+        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
+        </Tooltip>
+      </dd>
+    )
+  }
+  domainList(isInterPort, isLb) {
+    const { svcDomain } = this.state;
     return svcDomain && svcDomain.map((item,index)=>{
-      if (item.isInternal === flag) {
-        return (
-          <dd key={index} className="addrList">
-            容器端口：{item.interPort}
-            <span className="domain">{item.domain}</span>
-            <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-              <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
-            </Tooltip>
-          </dd>
-        )
+      if (isLb && item.isLb) {
+        return this.domainComponent(index, item, true)
+      }
+      if (item.isInternal === isInterPort) {
+        return this.domainComponent(index, item)
       }
     })
   }
@@ -329,7 +438,7 @@ class VisitType extends Component{
       disabled: true
     })
   }
-  
+
   renderIngresses = () => {
     const { LBList } = this.props
     if (!LBList || !LBList.length) {
@@ -349,21 +458,21 @@ class VisitType extends Component{
       )
     })
   }
-  
+
   openModal = ingress => {
     this.setState({
       currentLB: ingress,
       unbindVisible: true
     })
   }
-  
+
   cancelModal = () => {
     this.setState({
       unbindVisible: false,
       confirmLoading: false
     })
   }
-  
+
   confirmModal = () => {
     const { unbindIngressService, getServiceLBList, cluster, service } = this.props
     const { currentLB } = this.state
@@ -397,13 +506,19 @@ class VisitType extends Component{
     })
   }
   render() {
-    const { form, service, LBList } = this.props;
+    const { form, service, currentCluster } = this.props;
     const { getFieldProps } = form;
-    const { 
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    }
+    const {
       value, disabled, forEdit, selectDis, deleteHint,privateNet,
-      addrHide, currentProxy, initGroupID, initValue, initSelectDics, 
-      isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB
+      addrHide, currentProxy, initGroupID, initValue, initSelectDics,
+      isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB,
+      svcDomain
     } = this.state;
+    console.log(svcDomain,'svcDomain')
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
       'tabs_item_selected_bg_white_style': activeKey === "netExport"
@@ -488,6 +603,11 @@ class VisitType extends Component{
                 </Form.Item>
               </div>
               <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+              <Ports
+                {...{form, formItemLayout, currentCluster}}
+                isTemplate={false}
+                forDetail={true}
+              />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
               {this.renderIngresses()}
@@ -514,13 +634,17 @@ class VisitType extends Component{
 }
 
 function mapSateToProp(state) {
-  const { loadBalance } = state
+  const { loadBalance, entities, services } = state
+  const { current } = entities
   const { serviceLoadBalances } = loadBalance
   const { data: LBList } = serviceLoadBalances || { data: [] }
+  const { k8sService } = services
   return {
-    bindingDomains: state.entities.current.cluster.bindingDomains,
-    bindingIPs: state.entities.current.cluster.bindingIPs,
-    LBList
+    bindingDomains: current.cluster.bindingDomains,
+    bindingIPs: current.cluster.bindingIPs,
+    LBList,
+    currentCluster: current.cluster,
+    k8sService,
   }
 }
 
@@ -530,6 +654,8 @@ VisitType = connect(mapSateToProp, {
   loadAllServices,
   loadServiceDetail,
   getServiceLBList,
-  unbindIngressService
+  unbindIngressService,
+  updateServicePort,
+  loadK8sService
 })(Form.create()(VisitType))
 export default VisitType;

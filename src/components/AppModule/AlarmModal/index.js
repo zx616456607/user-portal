@@ -332,9 +332,8 @@ let FistStop = React.createClass({
         <Row>
           <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
-          <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
-            { this.getTargetType()}
-
+        <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
+             { this.getTargetType()}
           </Select>
         </Form.Item>
         </Col>
@@ -349,7 +348,7 @@ let FistStop = React.createClass({
         </Col>
         </Row>
          <Form.Item label="监控对象" {...ItemLayout}>
-          <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
+         <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
@@ -943,8 +942,8 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
-          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
+           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
@@ -1005,7 +1004,7 @@ class AlarmModal extends Component {
       clusterID = activeCluster
     }
     if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
-      
+
       loadNotifyGroups('', clusterID)
     }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {

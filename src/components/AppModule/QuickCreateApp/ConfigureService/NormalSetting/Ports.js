@@ -261,16 +261,16 @@ const Ports = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, forDetail } = this.props
     const { getFieldValue } = form
     // must set a port
     const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
-        <Col offset={formItemLayout.labelCol.span} className="formItemLabel">
+        <Col offset={forDetail ? 0 : formItemLayout.labelCol.span} className="formItemLabel">
           映射端口
         </Col>
-        <Col offset={formItemLayout.labelCol.span}>
+        <Col offset={forDetail ? 0 : formItemLayout.labelCol.span}>
           <div className="portList">
             <Row className="portsHeader">
               <Col span={5}>

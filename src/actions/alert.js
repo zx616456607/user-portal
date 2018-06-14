@@ -319,6 +319,33 @@ export function addAlertSetting(cluster, body, callback) {
   }
 }
 
+// 增加日志告警相关
+export const ALERT_REGULAR_SETTING_ADD_REQUEST = 'ALERT_REGULAR_SETTING_ADD_REQUEST'
+export const ALERT_REGULAR_SETTING_ADD_SUCCESS = 'ALERT_REGULAR_SETTING_ADD_SUCCESS'
+export const ALERT_REGULAR_SETTING_ADD_FAILURE = 'ALERT_REGULAR_SETTING_ADD_FAILURE'
+
+
+function fetchAddRegularAlertSetting(cluster, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_REGULAR_SETTING_ADD_REQUEST, ALERT_REGULAR_SETTING_ADD_SUCCESS, ALERT_REGULAR_SETTING_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'POST'
+      },
+    },
+    callback
+  }
+}
+
+export function addAlertRegularSetting(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAddRegularAlertSetting(cluster, body, callback))
+  }
+}
+
 function fetchUpdateAlertSetting(cluster, strategyID, body, callback){
   return {
     [FETCH_API]: {
@@ -375,6 +402,46 @@ export function getSettingList(cluster, body, needFetching, callback) {
   }
 }
 
+// 增加日志告警api
+// 获取所有告警规则
+
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST = 'ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST'
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS= 'ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS'
+export const ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE = 'ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE'
+
+
+function fetchGetAlertRegularList(cluster, body, needFetching, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/alerts/setting/logsalert`
+  if(typeof body == 'function') {
+    callback = body
+    body = null
+  }
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_REGULARLIST_LIST_QUERY_REQUEST, ALERT_SETTING_REGULARLIST_LIST_QUERY_SUCCESS, ALERT_SETTING_REGULARLIST_LIST_QUERY_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+    needFetching
+  }
+}
+
+export function getSettingRegularList(cluster, body, needFetching, callback) {
+  if(typeof needFetching == 'object') {
+    callback = needFetching
+    needFetching = true
+  }
+  return (dispath, getState) => {
+    return dispath(fetchGetAlertRegularList(cluster, body, needFetching, callback))
+  }
+}
+
+
+
 
 export const ALERT_DELETE_SETTING_REQUEST = 'ALERT_DELETE_SETTING_REQUEST'
 export const ALERT_DELETE_SETTING_SUCCESS = 'ALERT_DELETE_SETTING_SUCCESS'
@@ -401,6 +468,32 @@ export function deleteSetting(cluster, id, name, callback) {
   }
 }
 
+// 告警日志相关
+// 删除告警规则
+export const ALERT_DELETE_REGULAR_SETTING_REQUEST = 'ALERT_DELETE_REGULAR_SETTING_REQUEST'
+export const ALERT_DELETE_REGULAR_SETTING_SUCCESS = 'ALERT_DELETE_REGULAR_SETTING_SUCCESS'
+export const ALERT_DELETE_REGULAR_SETTING_FAILURE = 'ALERT_DELETE_REGULAR_SETTING_FAILURE'
+
+
+function fetchRegularDeleteSetting(cluster, id, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_DELETE_REGULAR_SETTING_REQUEST, ALERT_DELETE_REGULAR_SETTING_SUCCESS, ALERT_DELETE_REGULAR_SETTING_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/${name}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback
+  }
+}
+
+export function deleteRegularSetting(cluster, id, name, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchRegularDeleteSetting(cluster, id, name, callback))
+  }
+}
 
 export const ALERT_UPDATE_SETTING_ENABLE_REQUEST = 'ALERT_UPDATE_SETTING_ENABLE_REQUEST'
 export const ALERT_UPDATE_SETTING_ENABLE_SUCCESS = 'ALERT_UPDATE_SETTING_ENABLE_SUCCESS'
@@ -446,6 +539,29 @@ function fetchBatchDisable(cluster, body, callback) {
 export function batchDisable(cluster, body, callback) {
   return (dispath, getState)  => {
     dispath(fetchBatchDisable(cluster, body, callback))
+  }
+}
+
+// 增加告警规则
+// 开启关闭告警规则
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST'
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS'
+export const ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE = 'ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE'
+
+function fetchBatchToggleRegular(cluster, rulename, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_REGULAR_SETTING_TOGGLE_REQUEST, ALERT_UPDATE_REGULAR_SETTING_TOGGLE_SUCCESS, ALERT_UPDATE_REGULAR_SETTING_TOGGLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/${rulename}/status`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function batchToggleRegular(cluster, rulename, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchToggleRegular(cluster, rulename, callback))
   }
 }
 

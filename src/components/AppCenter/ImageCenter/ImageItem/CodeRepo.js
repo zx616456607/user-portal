@@ -157,12 +157,22 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail, isAdminAndHarbor, location } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location, user, members } = this.props
     const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
     server = server.replace('http://', '').replace('https://', '')
+    let currentMember = {}
+    members.every(member => {
+      if (member.username === user.userName) {
+        currentMember = member
+        return false
+      }
+      return true
+    })
+    const isAbleToDel = members.roleId === 1
+
     const columns = [
       {
         title: '镜像名',
@@ -240,7 +250,7 @@ class CodeRepo extends Component {
               <Menu.Item key="publish">
                 发布
               </Menu.Item>
-              <Menu.Item key="delete">
+              <Menu.Item key="delete" disabled={!isAbleToDel && !user.role}>
                 删除
               </Menu.Item>
             </Menu>
@@ -346,9 +356,13 @@ class CodeRepo extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, entities } = state
+  const { loginUser } = entities
+  const user = loginUser.info
   return {
     repos: harbor.repos || {},
+    user,
+    members:harbor.members.list
   }
 }
 
