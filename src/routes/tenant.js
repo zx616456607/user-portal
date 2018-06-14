@@ -59,6 +59,13 @@ const tenantRoutes = [{
     path: 'ldap',
     component: require('../components/TenantManage/LDAP').default,
   },
+  {
+    path: '/tenant_manage/applyLimit', // 配额申请
+    component: require('../../client/containers/TenantManage/ApplyLimit').default,
+  },{
+    path: '/tenant_manage/approvalLimit', // 配额审批
+    component: require('../../client/containers/TenantManage/ApprovalLimit').default,
+  }
 ]
 
 export default tenantRoutes
