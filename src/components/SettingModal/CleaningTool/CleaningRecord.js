@@ -310,16 +310,20 @@ class CleaningRecord extends Component {
     this.selectFilter('target', value)
   }
   searchLogs() {
-    const { getFieldValue } = this.props.form
-    const logType = getFieldValue('target')
     this.setState({
-      searchBtnLoading: true
+      currentPage: 1
+    }, () => {
+      const { getFieldValue } = this.props.form
+      const logType = getFieldValue('target')
+      this.setState({
+        searchBtnLoading: true
+      })
+      if (logType === 'cicd_clean') {
+        this.getCleanLogs('searchBtnLoading')
+        return
+      }
+      this.getSystemLogs('searchBtnLoading')
     })
-    if (logType === 'cicd_clean') {
-      this.getCleanLogs('searchBtnLoading')
-      return
-    }
-    this.getSystemLogs('searchBtnLoading')
   }
   renderExpand(record) {
     const { getFieldValue } = this.props.form

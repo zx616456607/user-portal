@@ -111,7 +111,7 @@ let SvnComponent = React.createClass({
       const config = {
         "name": values.name,
         "repo_type": parentScope.repokey,
-        "address": values.address,
+        "address": values.address.trim(),
         "is_private": self.state.privateType ? 0 : 1
       }
       if (!self.state.privateType) {

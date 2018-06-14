@@ -408,8 +408,8 @@ class AlarmGroup extends Component {
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}
-              afterCreateFunc={() => this.props.loadNotifyGroups("", clusterID)}
-              afterModifyFunc={() => this.props.loadNotifyGroups("", clusterID)}
+              afterCreateFunc={() => this.props.loadNotifyGroups(search, clusterID)}
+              afterModifyFunc={() => this.props.loadNotifyGroups(search, clusterID)}
               isModify={!!this.state.modifyGroup}
               data={this.state.modifyingGroupInfo}
               createGroup={this.state.createGroup}
