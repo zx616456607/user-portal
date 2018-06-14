@@ -173,7 +173,11 @@ class DataTable extends Component {
                 >
                   {row.public == 1 ? '设为私有' : '设为公开'}
                 </Button>
-                <Button type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>
+                <Button disabled={row.name === 'tenx_store'} type="ghost" onClick={()=>{
+                  if(row.name !== 'tenx_store'){
+                    scope.setState({deleteItem:true,selectedRows:[row]})
+                  }
+                }}>
                   删除
                 </Button>
               </div>
