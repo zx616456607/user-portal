@@ -44,6 +44,7 @@ class VMList extends React.Component {
       total: 0,
       host: '',
       isLoading: true,
+      searchValue: '',
     }
   }
 
@@ -101,7 +102,8 @@ class VMList extends React.Component {
   }
 
   componentWillMount() {
-    this.getInfo(1, null)
+    const { searchValue } = this.state
+    this.getInfo(1, searchValue)
   }
 
   /**
@@ -110,6 +112,7 @@ class VMList extends React.Component {
    */
   vmAddList(state) {
     const { postVMinfoList, putVMinfoList } = this.props
+    const { searchValue } = this.state
     let notification = new NotificationHandler()
     let res = {
       /*vmInfoName: 'root',*/
@@ -125,7 +128,7 @@ class VMList extends React.Component {
             if (res.statusCode === 201) {
               notification.success(`添加成功`)
               notification.close()
-              this.getInfo()
+              this.getInfo(null, searchValue)
             }
           },
           isAsync: true,
@@ -147,7 +150,7 @@ class VMList extends React.Component {
             if (res.statusCode === 200) {
               notification.success(`修改成功`)
               notification.close()
-              this.getInfo()
+              this.getInfo(null, searchValue)
             }
           },
           isAsync: true,
@@ -200,6 +203,7 @@ class VMList extends React.Component {
    */
   handleDel() {
     const { delVMinfoList } = this.props
+    const { searchValue } = this.state
     let notification = new NotificationHandler()
     notification.spin(`删除 ${this.state.host} 中...`)
     this.state.isDelete ?
@@ -215,7 +219,7 @@ class VMList extends React.Component {
                   isDelVisible: false,
                   isDelete: false
                 })
-                this.getInfo()
+                this.getInfo(null, searchValue)
               }
             },
             isAsync: true
@@ -300,8 +304,8 @@ class VMList extends React.Component {
   }
 
   handleSort() {
-    const { createTime } = this.state
-    this.getInfo(null);
+    const { createTime, searchValue } = this.state
+    this.getInfo(null, searchValue);
     if (createTime) {
       this.setState({
         createTime: false
@@ -378,13 +382,13 @@ class VMList extends React.Component {
 
   render() {
     const { data } = this.props
-    const { list, total } = this.state
+    const { list, total, searchValue } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
       defaultPageSize: 10,
       total: total,
-      onChange: (n) => this.getInfo(n, null)
+      onChange: (n) => this.getInfo(n, searchValue)
     }
     const columns = [
       {
@@ -471,10 +475,10 @@ class VMList extends React.Component {
             <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
               <i className='fa fa-plus' /> 添加传统环境
             </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, null)} ><i className='fa fa-refresh' /> 刷 新</Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, searchValue)} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
-            <CommonSearchInput onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
+            <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
             { total !== 0 && <Pagination className="pag" {...pagination} />}
             { total !== 0 && <span className="total">共 {total} 个</span>}
           </Row>

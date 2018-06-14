@@ -226,7 +226,7 @@ export const ROLE_EXISTENCE_SUCCESS = 'ROLE_EXISTENCE_SUCCESS'
 export const ROLE_EXISTENCE_FAILURE = 'ROLE_EXISTENCE_FAILURE'
 // Fetches exist role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchExistenceRole(body,callback){debugger
+function fetchExistenceRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role/${body.name}/existence?projectName=${body.projectName}`
 	return {
 		[FETCH_API]: {
