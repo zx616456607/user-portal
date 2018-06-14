@@ -64,7 +64,7 @@ class Operation extends React.Component {
     const { condition, record } = this.props
     const { relealVisable, relealLoading, detailVisable, clearLoading, clearVisable } = this.state
     return (
-      <div className="content-btns">
+      <div className="content-btns Operation">
         {
           condition !== 'notCondition' ?
             [

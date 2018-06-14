@@ -86,7 +86,7 @@ class ApplayDetail extends React.Component {
         title="资源配额审批详情"
         onCancel={ toggleVisable }
         footer={[
-          <span className="result-wrap">
+          <span className="ApplyDetail result-wrap">
             <span>审批结果:</span><span className="result">部分同意</span>
           </span>,
           <Button key="makeSure" type="primary" size="large" onClick={toggleVisable}>
@@ -94,22 +94,24 @@ class ApplayDetail extends React.Component {
           </Button>,
         ]}
       >
-        <FormItem
-          label="申请项目" {...formItemLayout}
-        >
-          <Input value={record.item}/>
-        </FormItem>
-        <FormItem
-          label="申请人" {...formItemLayout}
-        >
-          <Input value={'申请人'}/>
-        </FormItem>
-        <FormItem
-          label="申请原因" {...formItemLayoutLarge}
-        >
-          <Input value={'babab'} type="textarea" rows={4}/>
-        </FormItem>
-        <Table columns={getcolums()} dataSource={data} pagination={false} size="small"/>
+        <div className="ApplyDetail">
+          <FormItem
+            label="申请项目" {...formItemLayout}
+          >
+            <Input value={record.item}/>
+          </FormItem>
+          <FormItem
+            label="申请人" {...formItemLayout}
+          >
+            <Input value={'申请人'}/>
+          </FormItem>
+          <FormItem
+            label="申请原因" {...formItemLayoutLarge}
+          >
+            <Input value={'babab'} type="textarea" rows={4}/>
+          </FormItem>
+          <Table columns={getcolums()} dataSource={data} pagination={false} size="small"/>
+        </div>
       </Modal>
     )
   }

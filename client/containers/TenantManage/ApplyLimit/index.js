@@ -9,7 +9,7 @@
  */
 import * as React from 'react'
 // import { connect } from 'react-redux'
-import { Button, Icon, Pagination, Card, Table, Progress, Modal } from 'antd'
+import { Button, Icon, Pagination, Card, Table, Progress } from 'antd'
 // import { Link } from 'react-router'
 import './style/ApplyLimit.less'
 // import Notification from '../../../../src/components/Notification'
@@ -113,7 +113,7 @@ class ApplyLimit extends React.Component {
     let { filteredInfo, applayVisable } = this.state
     filteredInfo = filteredInfo || {}
     return (
-      <TenxPage inner className="page">
+      <TenxPage inner className="ApplyLimitPage">
         <QueueAnim>
           <Title title="配额申请" />
           <div className="layout-content-btns" key="top">

@@ -1,19 +1,21 @@
 @import '../../../../../../../src/assets/style/site/core.less';
-.result-wrap {
-  float: left;
-  padding-left: 4px;
-  display: inline-block;
-  height: 32px;
-  span {
+.ApplyDetail {
+  &.result-wrap {
+    float: left;
+    padding-left: 4px;
     display: inline-block;
     height: 32px;
-    line-height: 32px;
+    span {
+      display: inline-block;
+      height: 32px;
+      line-height: 32px;
+    }
+    .result {
+      padding-left: @padding-base;
+      color: @primary-color;
+    }
   }
-  .result {
-    padding-left: @padding-base;
-    color: @primary-color;
+  .ant-table {
+    border: none;
   }
-}
-.ant-table {
-  border: none;
 }

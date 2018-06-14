@@ -10,7 +10,7 @@
 import * as React from 'react'
 // import { connect } from 'react-redux'
 import { Button } from 'antd'
-import './style/ApprovalLimit.less'
+// import './style/ApprovalLimit.less'
 // import Notification from '../../../../src/components/Notification'
 
 class ApprovalLimit extends React.Component {

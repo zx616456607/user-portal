@@ -149,43 +149,45 @@ class ApplyForm extends React.Component {
         ]}
         width="700"
       >
-        <Form horizontal form={this.props.form}>
-          <FormItem
-            {...formItemLayout}
-            label="项目"
-          >
-            <Select {...getFieldProps('item', { rules: rulesFormat('请选择要申请配额的项目') })}
-              placeholder="选择申请配额的项目">
-              <Option value="项目1">项目1</Option>
-              <Option value="项目2">项目2</Option>
-              <Option value="项目3">项目3</Option>
-              <Option value="项目4">项目4</Option>
-            </Select>
-          </FormItem>
-          <FormItem
-            {...formItemLayoutLarge}
-            label="申请原因"
-          >
-            <Input {...getFieldProps('applyReason', { rules: rulesFormat('请填写申请原因') })}
-              placeholder="必填" type="textarea" rows={4} />
-          </FormItem>
-          <Card
-            title={
-              <Row type="flex">
-                <Col span={6}><span className="cardItem">资源</span></Col>
-                <Col span={6}><span className="cardItem">选择集群</span></Col>
-                <Col span={6}><span className="cardItem">已使用</span></Col>
-                <Col span={6}><span className="cardItem">配额</span></Col>
-              </Row>
-            }
-          >
-            {setFormItem({ getFieldProps, getFieldValue, removeFunction })}
-          </Card>
-          <div className="addBtn" onClick={this.add}>
-            <Icon type="plus-circle-o"/><span>添加申请</span>
-          </div>
-          <Alert message="配额数量不得小于已使用配额数量" type="error" showIcon />
-        </Form>
+        <div className="ApplyForm">
+          <Form horizontal form={this.props.form}>
+            <FormItem
+              {...formItemLayout}
+              label="项目"
+            >
+              <Select {...getFieldProps('item', { rules: rulesFormat('请选择要申请配额的项目') })}
+                placeholder="选择申请配额的项目">
+                <Option value="项目1">项目1</Option>
+                <Option value="项目2">项目2</Option>
+                <Option value="项目3">项目3</Option>
+                <Option value="项目4">项目4</Option>
+              </Select>
+            </FormItem>
+            <FormItem
+              {...formItemLayoutLarge}
+              label="申请原因"
+            >
+              <Input {...getFieldProps('applyReason', { rules: rulesFormat('请填写申请原因') })}
+                placeholder="必填" type="textarea" rows={4} />
+            </FormItem>
+            <Card
+              title={
+                <Row type="flex">
+                  <Col span={6}><span className="cardItem">资源</span></Col>
+                  <Col span={6}><span className="cardItem">选择集群</span></Col>
+                  <Col span={6}><span className="cardItem">已使用</span></Col>
+                  <Col span={6}><span className="cardItem">配额</span></Col>
+                </Row>
+              }
+            >
+              {setFormItem({ getFieldProps, getFieldValue, removeFunction })}
+            </Card>
+            <div className="addBtn" onClick={this.add}>
+              <Icon type="plus-circle-o"/><span>添加申请</span>
+            </div>
+            <Alert message="配额数量不得小于已使用配额数量" type="error" showIcon />
+          </Form>
+        </div>
       </Modal>
     )
   }
