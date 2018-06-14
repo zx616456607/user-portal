@@ -368,7 +368,7 @@ class OperationalAuditBkt extends React.Component {
       operationType: [
         {
           value: 0,
-          label: '删除',
+          label: '全部',
         },
         {
           value: 1,

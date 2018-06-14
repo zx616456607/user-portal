@@ -133,6 +133,7 @@ class MySpace extends Component {
       index++
     })
     if (ele.length == 0) ele.push(<div>暂无审计日志</div>)
+    console.log(logs.logs.records);
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
         <Timeline style={{ height: 374, padding: '24px', overflowY: 'hidden' }}>
