@@ -76,7 +76,10 @@ const data = [
   }]
 
 class ApplayDetail extends React.Component {
-
+  static propTypes = {
+    visible: PropTypes.bool.isRequired,
+    toggleVisable: PropTypes.func.isRequired,
+  }
   render() {
     const { visible, toggleVisable, record } = this.props
     // console.log('record', record)
@@ -117,9 +120,5 @@ class ApplayDetail extends React.Component {
   }
 }
 
-ApplayDetail.propTypes = {
-  visible: PropTypes.bool.isRequired,
-  toggleVisable: PropTypes.func.isRequired,
-}
 export default ApplayDetail
 

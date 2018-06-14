@@ -14,6 +14,9 @@ import ApplayDetail from './ApplayDetail'
 import PropTypes from 'prop-types'
 import './style/index.less'
 class Operation extends React.Component {
+  static propTypes = {
+    condition: PropTypes.string,
+  }
   state = {
     relealVisable: false, // 撤销申请弹出框标志位
     relealLoading: false, // 撤销申请过程中的loading
@@ -113,10 +116,6 @@ class Operation extends React.Component {
       </div>
     )
   }
-}
-
-Operation.propTypes = {
-  condition: PropTypes.string,
 }
 
 export default Operation
