@@ -31,11 +31,13 @@ class VMServiceList extends React.Component {
       service: [],
       current: 1,
       name: '',
-      loading: false
+      loading: false,
+      searchValue: "",
     }
   }
   componentWillMount() {
-    this.pageAndSerch(null,1,true)
+    const { searchValue } = this.state
+    this.pageAndSerch(searchValue,1,true)
   }
   componentDidMount() {
     this.updateServiceStatus = setInterval(()=>{
@@ -52,11 +54,12 @@ class VMServiceList extends React.Component {
   }
   handleButtonClick(record) {
     const { serviceDeploy } = this.props;
+    const { searchValue } = this.state;
     let notify = new NotificationHandler()
     serviceDeploy(record.serviceId,{
       success: {
         func: res => {
-          this.pageAndSerch(null,1,true)
+          this.pageAndSerch(searchValue,1,true)
           notify.success('重新部署成功')
         },
         isAsync: true
@@ -64,11 +67,11 @@ class VMServiceList extends React.Component {
       failed:{
         func: res => {
           if (res.statusCode === 400){
-            this.pageAndSerch(null,1,true)
+            this.pageAndSerch(searchValue,1,true)
             notify.warn('传统应用环境已被删除（或无法连接），请重新添加部署环境\n')
             return
           }
-          this.pageAndSerch(null,1,true)
+          this.pageAndSerch(searchValue,1,true)
           notify.error('重新部署失败')
         },
         isAsync: true
@@ -84,16 +87,16 @@ class VMServiceList extends React.Component {
       })
     }
   }
-  
+
   cancelModal = () => {
     this.setState({
       deleteVisible: false
     })
   }
-  
+
   confirmModal = () => {
     const { vmServiceDelete } = this.props;
-    const { currentVM } = this.state
+    const { currentVM, searchValue } = this.state
     let notify = new NotificationHandler()
     notify.spin('删除中')
     this.setState({
@@ -105,7 +108,7 @@ class VMServiceList extends React.Component {
       success: {
         func: () => {
           notify.close()
-          this.pageAndSerch(null,1,true)
+          this.pageAndSerch(searchValue,1,true)
           notify.success('删除应用成功')
           this.setState({
             deleteVisible: false,
@@ -138,7 +141,7 @@ class VMServiceList extends React.Component {
       selectedRowKeys:newKeys
     })
   }
-  
+
   pageAndSerch(name,n,flag) {
     const { getVMserviceList } = this.props;
     let notify = new NotificationHandler()
@@ -196,7 +199,7 @@ class VMServiceList extends React.Component {
     return <TenxStatus phase={phase} progress={progress}/>
   }
   render() {
-    const { service, loading, deleteVisible, confirmLoading } = this.state;
+    const { service, loading, deleteVisible, confirmLoading, searchValue } = this.state;
 
     const columns = [{
       title: '应用名',
@@ -242,7 +245,7 @@ class VMServiceList extends React.Component {
         )
       }
     }];
-    
+
     const pageOption = {
       simple: true,
       defaultCurrent: 1,
@@ -268,9 +271,9 @@ class VMServiceList extends React.Component {
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
-            <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(null,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
+            <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(searchValue,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
-            <CommonSearchInput onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
+            <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>
             { service.total >0 &&
               <div style={{position:'absolute',right:'20px',top:'30px'}}>
               <Pagination {...pageOption}/>

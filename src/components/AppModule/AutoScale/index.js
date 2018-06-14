@@ -38,7 +38,8 @@ class AutoScale extends React.Component {
   }
   componentWillMount() {
     const { clusterID } = this.props
-    this.loadData(clusterID, 1)
+    const { searchValue } = this.state
+    this.loadData(clusterID, 1, searchValue)
     this.loadExistServices()
   }
   componentWillReceiveProps(nextProps) {
@@ -155,6 +156,7 @@ class AutoScale extends React.Component {
   }
   handleMenuClick = (e, record) => {
     const { clusterID, updateAutoScaleStatus } = this.props
+    const { searchValue } = this.state
     const { strategyName } = record.metadata.labels
     const notify = new Notification()
     const { metadata, spec } = record
@@ -200,7 +202,7 @@ class AutoScale extends React.Component {
             const mesSuc = e.key === 'start' ? '启用成功' : '停用成功'
             notify.close()
             notify.success(mesSuc)
-            this.loadData(clusterID, 1)
+            this.loadData(clusterID, 1, searchValue)
           },
           isAsync: true
         },
@@ -271,10 +273,11 @@ class AutoScale extends React.Component {
   }
   tableFilter = (pagination, filters, sorter) => {
     const { clusterID } = this.props
+    const { searchValue } = this.state
     this.setState({
       currentPage: pagination.current
     })
-    this.loadData(clusterID, pagination.current)
+    this.loadData(clusterID, pagination.current, searchValue)
   }
   onRowClick = record => {
     const { selectedRowKeys } = this.state
@@ -313,7 +316,7 @@ class AutoScale extends React.Component {
   }
   confirmDelete = () => {
     const { deleteAutoScale, clusterID } = this.props
-    const { selectedRowKeys } = this.state
+    const { selectedRowKeys, searchValue } = this.state
     if (!selectedRowKeys.length) {
       return
     }
@@ -332,7 +335,7 @@ class AutoScale extends React.Component {
             deleteModal: false,
             deleteBtnLoading: false
           })
-          this.loadData(clusterID, 1)
+          this.loadData(clusterID, 1, searchValue)
         },
         isAsync:true
       },
@@ -357,7 +360,7 @@ class AutoScale extends React.Component {
     })
   }
   batchUpdateStatus = type => {
-    const { selectedRowKeys } = this.state
+    const { selectedRowKeys, searchValue } = this.state
     const { updateAutoScaleStatus, clusterID } = this.props
     if (!selectedRowKeys.length) {
       return
@@ -377,7 +380,7 @@ class AutoScale extends React.Component {
           this.setState({
             selectedRowKeys: []
           })
-          this.loadData(clusterID, 1)
+          this.loadData(clusterID, 1, searchValue)
         },
         isAsync: true
       },
@@ -493,7 +496,7 @@ class AutoScale extends React.Component {
     const btnsMin = (
       <Menu className="autoScaleBtnMenu">
         <Menu.Item key="refresh">
-          <span onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷新</span>
+          <span onClick={() => this.loadData(clusterID, 1, searchValue)}><i className='fa fa-refresh' /> 刷新</span>
         </Menu.Item>
         <Menu.Item key="start" disabled={allStatus !== 'STOP' || !selectedRowKeys.length}>
           <span onClick={() => this.batchUpdateStatus('start')}><i className='fa fa-play' /> 启用</span>
@@ -531,7 +534,7 @@ class AutoScale extends React.Component {
           </div>
           <div className="btnGroup">
             <Button type="primary" size="large" onClick={() => this.setState({scaleModal: true, create: true})}><i className="fa fa-plus" /> 创建自动伸缩策略</Button>
-            <Button size="large" className="refreshBtn" onClick={() => this.loadData(clusterID, 1)}><i className='fa fa-refresh' /> 刷 新</Button>
+            <Button size="large" className="refreshBtn" onClick={() => this.loadData(clusterID, 1, searchValue)}><i className='fa fa-refresh' /> 刷 新</Button>
             <Dropdown
               overlay={btnsMin} trigger={['click']}>
               <Button className="autoScaleDropMin" size="large" >
@@ -552,6 +555,7 @@ class AutoScale extends React.Component {
               size="large"
               style={{width: '200px'}}
               value={searchValue}
+              onChange={searchValue => this.setState({searchValue})}
               onSearch={(value) => this.loadData(clusterID, 1,value)}/>
             <Button size="large" className="demoBtn" onClick={this.demo}><Icon type="question-circle-o" />Demo</Button>
             { typeof totalCount !== undefined && totalCount !== 0

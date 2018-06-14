@@ -1,0 +1,62 @@
+@import '../../../../src/assets/style/site/core.less';
+
+.audit {
+  padding: @padding-medium;
+  .time {
+    color: @success-color;
+  }
+  .optionBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: @padding-medium;
+    .options {
+      display: flex;
+      align-items: center;
+      .ant-calendar-picker {
+        margin-top: 0 !important;
+      }
+      .selectionBox {
+        width: 130px;
+        margin-right: @padding-medium;
+      }
+      .btn {
+        margin-right: @padding-medium;
+        .fa {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+  .dataTable {
+    background: #fff;
+    padding: 20px;
+    border-radius: @border-radius-base;
+    .ant-table-thead > tr > th {
+      background: #fff;
+      border-bottom: @border-width-base solid @border-color-base;
+    }
+  }
+  .status {
+    .fa {
+      margin-right: 5px;
+    }
+    .success {
+      color: @success-color;
+    }
+    .fail {
+      color: @error-color;
+    }
+    .running {
+      color: @primary-color;
+      .fa {
+        font-size: 12px !important;
+      }
+    }
+  }
+  .user {
+    .fa {
+      margin-right: 5px;
+    }
+  }
+}

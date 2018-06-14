@@ -44,7 +44,15 @@ class ClusterLabelManage extends Component{
   }
   loadData(that) {
     const { clusterID } = that.props
-    that.props.getClusterLabel(clusterID)
+    that.props.getClusterLabel(clusterID, {
+      success: {
+        func: () => {
+          const searchItem = that.refs.titleInput.refs.input.value.trim()
+          that.props.searchLabels(searchItem,clusterID)
+        },
+        isAsync: true,
+      },
+    });
   }
   // componentWillMount(){
   //   this.loadData(this)
