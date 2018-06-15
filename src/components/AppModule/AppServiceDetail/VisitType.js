@@ -408,7 +408,7 @@ class VisitType extends Component{
       onOk() {},
     });
   }
-  domainComponent = (index, item, isLb) => {
+  domainComponent = (index, item) => {
     const { copyStatus } = this.state;
     return (
       <dd key={index} className="addrList">
@@ -424,7 +424,7 @@ class VisitType extends Component{
     const { svcDomain } = this.state;
     return svcDomain && svcDomain.map((item,index)=>{
       if (isLb && item.isLb) {
-        return this.domainComponent(index, item, true)
+        return this.domainComponent(index, item)
       }
       if (item.isInternal === isInterPort) {
         return this.domainComponent(index, item)
@@ -518,7 +518,6 @@ class VisitType extends Component{
       isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB,
       svcDomain
     } = this.state;
-    console.log(svcDomain,'svcDomain')
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
       'tabs_item_selected_bg_white_style': activeKey === "netExport"
@@ -607,6 +606,7 @@ class VisitType extends Component{
                 {...{form, formItemLayout, currentCluster}}
                 isTemplate={false}
                 forDetail={true}
+                disabled={!forEdit}
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
@@ -625,6 +625,10 @@ class VisitType extends Component{
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
               {this.domainList(true)}
+            </dl>
+            <dl className="addrListBox">
+              <dt className="addrListTitle"><Icon type="link"/>负载均衡器访问地址</dt>
+              {this.domainList(false, true)}
             </dl>
           </div>
         </div>
