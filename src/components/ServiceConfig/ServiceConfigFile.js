@@ -123,7 +123,7 @@ class ConfigFile extends Component {
                   <div className="configFile-inf">
                     <p className="configFile-tip" style={{ color: "#16a3ea" }}>
                       <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
-                      即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
+                      即将保存一个配置文件，您可以在创建应用 → 添加服务时，关联使用该配置
                   </p>
                     <span style={{ float: "left", marginRight: "16px" }}>名称 : </span>
                     <Input type="text" className="configName" defaultValue={this.state.configName} />

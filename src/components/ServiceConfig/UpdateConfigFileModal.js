@@ -136,7 +136,7 @@ let UpdateConfigFileModal = React.createClass({
         <div className="configFile-inf" style={{ padding: '0 10px' }}>
           <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px' }}>
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
-            即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
+            即将保存一个配置文件，您可以在创建应用 → 添加服务时，关联使用该配置
             {
               type === 'secrets'
               ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
