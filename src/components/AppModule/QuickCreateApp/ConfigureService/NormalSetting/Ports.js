@@ -102,7 +102,7 @@ const Ports = React.createClass({
       return
     }
     const keyValue = key.value
-    const { form, currentCluster, isTemplate } = this.props
+    const { form, currentCluster, isTemplate, disabled } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
     const accessMethod = getFieldValue('accessMethod')
@@ -151,12 +151,13 @@ const Ports = React.createClass({
               size="default"
               min={MIN}
               max={MAX}
+              disabled={disabled}
               {...portProps} />
           </FormItem>
         </Col>
         <Col span={5}>
           <FormItem>
-            <Select size="default" {...portProtocolProps}>
+            <Select disabled={disabled} size="default" {...portProtocolProps}>
               {
                 accessMethod == 'Cluster'
                 ? <Option key="TCP" value="TCP">TCP</Option>
@@ -261,16 +262,16 @@ const Ports = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, forDetail, disabled } = this.props
     const { getFieldValue } = form
     // must set a port
     const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
-        <Col offset={formItemLayout.labelCol.span} className="formItemLabel">
+        <Col offset={forDetail ? 0 : formItemLayout.labelCol.span} className="formItemLabel">
           映射端口
         </Col>
-        <Col offset={formItemLayout.labelCol.span}>
+        <Col offset={forDetail ? 0 : formItemLayout.labelCol.span}>
           <div className="portList">
             <Row className="portsHeader">
               <Col span={5}>
@@ -289,10 +290,13 @@ const Ports = React.createClass({
             <div className="portsBody">
               {portsKeys.map(this.renderPortItem)}
             </div>
-            <span className="addPort" onClick={this.addPortsKey}>
-              <Icon type="plus-circle-o" />
-              <span>添加映射端口</span>
-            </span>
+            {
+              !disabled &&
+              <span className="addPort" onClick={this.addPortsKey}>
+                <Icon type="plus-circle-o" />
+                <span>添加映射端口</span>
+              </span>
+            }
           </div>
         </Col>
       </Row>
