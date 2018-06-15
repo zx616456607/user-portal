@@ -288,7 +288,7 @@ let CreateUserModal = React.createClass({
                 label=""
                 >
                 <Checkbox className="ant-checkbox-vertical" {...checkProps}>
-                  创建完成后, 密码帐户名发送至该邮箱
+                  创建完成后，密码帐户名发送至该邮箱
                 </Checkbox>
               </FormItem>
             )

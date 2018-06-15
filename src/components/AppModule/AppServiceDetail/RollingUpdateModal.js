@@ -293,7 +293,7 @@ class RollingUpdateModal extends Component {
             )
           }
           {
-            incloudPrivate && <div className='alertRow'>Tips: 挂载独享型存储的服务不支持滚动发布</div>
+            incloudPrivate && <div className='alertRow'>Tips：挂载独享型存储的服务不支持滚动发布</div>
           }
           <div className="alertRow">
           滚动发布是指将应用完全更新为下面所选的目标版本，可升级也可回滚版本

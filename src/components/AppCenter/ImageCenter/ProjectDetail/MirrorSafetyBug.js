@@ -961,7 +961,7 @@ class MirrorSafetyBug extends Component {
       case 'different':
         return <span>镜像扫描结果与上次扫描结果不同</span>
       case 'failed':
-        return <span>扫描失败,请重新扫描</span>
+        return <span>扫描失败，请重新扫描</span>
       default:
         return <span></span>
     }

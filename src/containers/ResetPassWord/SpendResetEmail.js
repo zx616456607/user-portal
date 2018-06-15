@@ -172,9 +172,9 @@ let SpendResetEmail = React.createClass({
                 }
 	              
 	            </li>
-	            <li>重置密码 , 该邮件的有效期为24小时</li>
+	            <li>重置密码，该邮件的有效期为24小时</li>
 	            <li className='rePass'>
-	              没有收到邮件 ? 点此 
+	              没有收到邮件？点此
 	              <Button className='passBtn' onClick={this.handleSpendEmail}>
 	                重新发送
 	              </Button>

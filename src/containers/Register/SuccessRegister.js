@@ -96,14 +96,14 @@ let SuccessRegister = React.createClass({
             </div>
             <ul className='successInf'>
               <li>您注册的邮箱是&nbsp;:&nbsp;{email}</li>
-              <li>我们已经给您的邮箱发送了一封验证邮件 ,
+              <li>我们已经给您的邮箱发送了一封验证邮件，
               请登录您的邮箱完成用户验证</li>
             </ul>
             {
               this.renderGetEmail()
             }
             <div className='successTip'>
-              <span>没有收到邮件?</span>
+              <span>没有收到邮件？</span>
               <span style={{color:'#2db7f5',cursor:'pointer'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
             </div>
           </Card>
