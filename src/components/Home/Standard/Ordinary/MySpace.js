@@ -206,7 +206,7 @@ class MySpace extends Component{
                 <Col span={12}>私有 {spaceImageStats.myRepoCount} 个</Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
-                服务状态:
+                服务状态
                 {
                   this.state.ImageStates ?
                     <div style={{float:'right'}}>
@@ -264,7 +264,7 @@ class MySpace extends Component{
                 </Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
-                服务状态:
+                服务状态
                 {
                   this.state.cicdStates ?
                     <div style={{float:'right'}}>

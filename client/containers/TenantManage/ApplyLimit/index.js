@@ -9,7 +9,7 @@
  */
 import * as React from 'react'
 // import { connect } from 'react-redux'
-import { Button, Icon, Pagination, Card, Table, Progress } from 'antd'
+import { Button, Icon, Pagination, Card, Table } from 'antd'
 // import { Link } from 'react-router'
 import './style/ApplyLimit.less'
 // import Notification from '../../../../src/components/Notification'
@@ -52,10 +52,17 @@ const columns = () => {
     onFilter: (value, record) => record.title.indexOf(value) === 0, // 针对哪个字段进行筛选
     render: () =>
       <div>
-        全部同意
-        <span className="ProgressWrap">
-          <Progress type="circle" strokeWidth={20} percent={30} width={20} format={() => ' '}
-            status="exception"/>
+        <span className="iconallAgree">
+          <span className="iconText"></span>
+          <span className="icon" ></span>
+        </span>
+        <span className="iconPartAgree">
+          <span className="iconText"></span>
+          <span className="icon" ></span>
+        </span>
+        <span className="iconWaitApproval">
+          <span className="iconText"></span>
+          <span className="icon" ></span>
         </span>
       </div>,
   }, {

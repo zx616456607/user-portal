@@ -18,6 +18,7 @@ import { AppContainer } from 'react-hot-loader'
 import Root from '../containers/Root'
 import configureStore from '../store/configureStore'
 import Notification from '../components/Notification'
+import '@tenx-ui/icon/assets/index.less'
 
 const notification  = new Notification()
 const store = configureStore()

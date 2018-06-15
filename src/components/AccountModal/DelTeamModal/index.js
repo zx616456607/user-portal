@@ -25,7 +25,7 @@ let balanceMessage = (
       <Icon type="exclamation-circle" />
     </Col>
     <Col className="tipText" span={22}>
-      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队帐户后再尝试解散团队!
+      Tip：请注意，当前团队仍有欠款未结清，请充值当前团队帐户后再尝试解散团队！
     </Col>
   </Row>
 )
