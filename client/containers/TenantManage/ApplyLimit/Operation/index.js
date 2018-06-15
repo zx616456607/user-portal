@@ -94,7 +94,7 @@ class Operation extends React.Component {
           <Alert message="撤销该申请后, 该申请将不会发送给系统管理员, 确定撤销此次申请?"
             type="warning" showIcon />
         </Modal>
-        <ApplayDetail visible={detailVisable} toggleVisable={this.toggleDetailVisable}
+        <ApplayDetail title="资源配额申请详情" visible={detailVisable} toggleVisable={this.toggleDetailVisable}
           record={record}/>
         <Modal
           visible = {clearVisable}

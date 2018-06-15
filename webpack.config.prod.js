@@ -130,7 +130,8 @@ module.exports = {
                   // "@error-color": "#f85a5a",
                   // "@a-hover-color": "#57cfff",
                   // "@font-size-base": "12px",
-                  "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'"
+                  "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
+                  '@tenx-icon-url': '/font/tenx-icon/iconfont',
                 }
               }
             },

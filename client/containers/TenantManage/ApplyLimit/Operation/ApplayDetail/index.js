@@ -33,25 +33,26 @@ const getcolums = () => {
     dataIndex: 'aggregate',
     key: 'aggregate',
   }, {
-    title: '已用/原有配额',
+    title: '已用',
     dataIndex: 'use',
     key: 'use',
   }, {
     title: '申请配额',
     dataIndex: 'applyLimit',
     key: 'applyLimit',
+    render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
   }, {
     title: '审批',
     dataIndex: 'status',
     key: 'status',
     render: (text, record) => {
-      let type = 'cross'
+      let type = 'cross-circle'
       if (record.resource === 'pass') {
-        type = 'check'
+        type = 'check-circle'
       }
       return (
         <div>
-          <span className="crossIcon"><Icon type={type} /></span>
+          <span className="crossIcon"><Icon type={type} style={{ color: 'red' }}/></span>
           {/* TODOS 要icon */}
         </div>
       )
@@ -79,14 +80,15 @@ class ApplayDetail extends React.Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     toggleVisable: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
   }
   render() {
-    const { visible, toggleVisable, record } = this.props
+    const { visible, toggleVisable, record, title } = this.props
     // console.log('record', record)
     return (
       <Modal
         visible = {visible}
-        title="资源配额审批详情"
+        title = {title}
         onCancel={ toggleVisable }
         footer={[
           <span className="ApplyDetail result-wrap">
