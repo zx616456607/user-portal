@@ -89,10 +89,10 @@ export default function handler(error, intl) {
     if (message === undefined) {
       message = error.message
     }
-    const { title, duration } = _translateMessageByCode(errorMessage)
+    const { title, duration, tempDes } = _translateMessageByCode(errorMessage)
     return {
       message: title,
-      description: message,
+      description: tempDes || message,
       duration,
     }
   }
@@ -117,6 +117,10 @@ export default function handler(error, intl) {
     if (code == 404) {
       data.title = formatMessage(messages.error404, { resource })
       data.duration = 8
+      if (message.message === "cluster undefined not found") {
+        data.title = "当前项目的集群列表为空"
+        data.tempDes = "请重新选择项目"
+      }
       return data
     }
     if (code == 409) {
