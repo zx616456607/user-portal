@@ -22,6 +22,15 @@ exports.getRecordFilters = function* () {
   this.body = result
 }
 
+exports.getRecordLogFilters = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, "alerts/service-records"], null, body)
+  this.body = result
+}
+
 exports.getRecords = function* () {
   const cluster = this.params.cluster
   let query = {}

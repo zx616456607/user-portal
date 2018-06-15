@@ -484,7 +484,7 @@ class BaseInfo extends Component {
             <img src={`${AVATAR_HOST}${userDetail.avatar}`} />
           </div>
           <div className="topbar userBtn">
-            <p>Hi, 换个自己喜欢的头像吧！</p>
+            <p>Hi，换个自己喜欢的头像吧！</p>
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">

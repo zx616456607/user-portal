@@ -161,7 +161,7 @@ const ApmSetting = React.createClass({
               支持通过 JAVA_OPTS 传递 JVM 参数
             </li>
             <li>
-              设置 Pinpoint agent id, 需要提前在镜像中添加 JVM 参数：-Dpinpoint.agentId=${POD_IP}
+              设置 Pinpoint agent id，需要提前在镜像中添加 JVM 参数：-Dpinpoint.agentId=${POD_IP}
             </li>
             <li>
               Dockerfile CMD 示例：

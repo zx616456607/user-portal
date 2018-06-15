@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Modal, Icon } from 'antd'
+import { Table, Button, Modal, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
@@ -173,9 +173,20 @@ class DataTable extends Component {
                 >
                   {row.public == 1 ? '设为私有' : '设为公开'}
                 </Button>
-                <Button type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>
+                <Button disabled={row.name === 'tenx_store'} type="ghost" onClick={()=>{
+                  if(row.name !== 'tenx_store'){
+                    scope.setState({deleteItem:true,selectedRows:[row]})
+                  }
+                }}>
                   删除
                 </Button>
+                {
+                  row.name === 'tenx_store' && (
+                    <Tooltip placement="top" title="应用商店对应仓库组，系统创建不可删除">
+                      <Icon type="info-circle-o" />
+                    </Tooltip>
+                  )
+                }
               </div>
             )
           }

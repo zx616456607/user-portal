@@ -153,7 +153,7 @@ let MyComponent = React.createClass({
     const { form, loginUser } = this.props
     const { getFieldValue } = form
     if(index != undefined) {
-      if(getFieldValue(`ssl{index}`) == 'HTTP') {
+      if(getFieldValue(`ssl${index}`) == 'HTTP') {
         return callback()
       }
     }
@@ -749,7 +749,7 @@ class PortDetail extends Component {
     const { containerList, loading, currentCluster, bindHttpsStatus } = this.props
     return (
       <div id="PortDetail">
-        <Alert message='Tips:若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用' type="info" />
+        <Alert message='Tips：若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用' type="info" />
         <div className="titleBox">
           <div className="commonTitle">
             容器端口
