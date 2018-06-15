@@ -2,33 +2,47 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  * ----
- * ApplyLimit.less page
+ * index.less page
  *
  * @author zhangtao
- * @date Thursday June 14th 2018
+ * @date Friday June 15th 2018
  */
 @import "../../../../../src/assets/style/site/core.less";
-.ApplyLimitPage {
+
+.ApprovalLimit {
   background-color: transparent !important;
-  .applyLimitWrap {
-    margin: @padding-medium @padding-medium 0 @padding-medium;
-  }
-  .ant-table {
-    &-thead {
-      tr {
-        th {
-          background-color: white;
-          border-bottom: 1px solid @border-color-base;
-        }
-      }
+  .header {
+    font-size: 0;
+    padding-bottom: @padding-base;
+    & > * {
+      margin: 0 @padding-base @padding-base 0;
     }
   }
-  .ProgressWrap {
-    padding: 10px;
+  .ApprovalMessage {
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    font-size: @font-size-base;
+    color: @primary-color;
+    margin-left: @padding-base;
+    span:last-child {
+      margin-left: @padding-base;
+    }
   }
-  .content-btns {
-    button:nth-child(1) {
-      margin-right: @padding-small;
+  .livingIcon {
+    &:hover {
+      cursor: pointer;
+      color: @primary-color;
+    }
+  }
+  .cancelApprovalIcon {
+    padding: @padding-base;
+  }
+  .ant-table-thead {
+    tr {
+      th {
+        background-color: white;
+      }
     }
   }
   @iconHeight: 18px;
@@ -72,4 +86,3 @@
     }
   }
 }
-
