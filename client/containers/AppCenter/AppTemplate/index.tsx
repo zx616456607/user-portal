@@ -14,13 +14,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import QueueAnim from 'rc-queue-anim';
 import { browserHistory } from 'react-router';
-import { Button, Icon, Pagination, Dropdown, Menu, Modal, Spin, Popover, Tooltip } from 'antd';
+import { Button, Icon, Pagination, Modal, Spin, Popover, Tooltip } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import SearchInput from '../../../components/SearchInput';
 import Title from '../../../../src/components/Title';
 import {
-  formatDate, genRandomString, toQuerystring, formatServiceToArrry,
+  calcuDate, genRandomString, toQuerystring, formatServiceToArrry,
   getWrapFileType,
 } from '../../../../src/common/tools';
 import ReleaseModal from './ReleaseModal';
@@ -195,6 +195,7 @@ class TemplateList extends React.Component<any> {
             {/* <span className="version">{temp.versions[0].apiVersion}</span> */}
             <Popover
               placement="bottomLeft"
+              arrowPointAtCenter
               content={content}
               overlayClassName="templatePopover"
               overlayStyle={{ width: 100 }}
@@ -202,12 +203,20 @@ class TemplateList extends React.Component<any> {
               <Icon className="operation" type="setting" />
             </Popover>
             <img className="tempLogo" src={defaultApp}/>
+            <Tooltip title={temp.name}>
+              <div className="templateName">{temp.name}</div>
+            </Tooltip>
             <Tooltip title={temp.versions[0].description} placement="top">
-              <div className="templateDesc textoverflow">{temp.versions[0].description}</div>
+              <div className="templateDesc textoverflow hintColor">{temp.versions[0].description}</div>
             </Tooltip>
           </div>
           <div className="templateFooter">
-            <div className="templateName">{temp.name}</div>
+            <div className="templateCreated">
+              <Icon type="clock-circle-o" />
+              <Tooltip title={`更新于${calcuDate(temp.versions[0].created)}`}>
+                <span>{calcuDate(temp.versions[0].created)}</span>
+              </Tooltip>
+            </div>
             <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>部署</Button>
           </div>
         </div>

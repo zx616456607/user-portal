@@ -28,7 +28,10 @@ const menuList_normal = [
   {
     url: '/tenant_manage/allpermissions',
     name: '项目权限'
-  },
+  },{
+    url: '/tenant_manage/applyLimit',
+    name: '配额申请'
+  }
 ]
 const menuList_base = [
 {
@@ -41,7 +44,10 @@ const menuList_base = [
   {
     url: '/tenant_manage/allpermissions',
     name: '项目权限'
-  },
+  },{
+    url: '/tenant_manage/applyLimit',
+    name: '配额申请'
+  }
 ]
 const menuList_sys = [
   {
@@ -72,7 +78,10 @@ const menuList_sys = [
   {
     url: '/tenant_manage/ldap',
     name: '集成企业目录'
-  },
+  },{
+    url:'/tenant_manage/approvalLimit',
+    name: '配额审批'
+  }
 ]
 const menuList_platform = menuList_sys
 

@@ -49,13 +49,11 @@ class VisitType extends Component{
       activeKey: 'netExport'
     }
   }
-  componentWillMount() {
+  async componentWillMount() {
     const {
       service, bindingDomains, bindingIPs, getProxy, cluster,
       getServiceLBList, form
     } = this.props;
-    this.setPortsToForm(this.props)
-    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     if (service.lbgroup && service.lbgroup.id === 'mismatch') {
       this.setState({
         isLbgroupNull: true
@@ -69,8 +67,10 @@ class VisitType extends Component{
     form.setFieldsValue({
       portsKeys: [{value: 0}]
     })
+    await this.setPortsToForm(this.props)
+    this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
   }
-  componentWillReceiveProps(nextProps) {
+  async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
     let preName = this.props.service.metadata && this.props.service.metadata.name
     let preTab = this.props.isCurrentTab
@@ -101,8 +101,8 @@ class VisitType extends Component{
           isLbgroupNull: false
         })
       }
+      await this.setPortsToForm(nextProps)
       this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
-      this.setPortsToForm(nextProps)
     }
   }
   setPortsToForm = async (props) => {
@@ -119,6 +119,9 @@ class VisitType extends Component{
     const portsKeys = []
     const annotations = metadata.annotations
     let userPort = annotations['tenxcloud.com/schemaPortname']
+    if (!userPort) {
+      return
+    }
     if(userPort) {
       userPort = userPort.split(',')
       userPort = userPort.map(item => {
@@ -143,9 +146,11 @@ class VisitType extends Component{
     })
   }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
-    const { setFieldsValue } = this.props.form
+    const { form, k8sService } = this.props
+    const { setFieldsValue } = form
+    const k8sSer = k8sService.data[camelize(service.metadata.name)]
     this.setState({
-      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+      svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs, k8sSer)
     })
     getProxy(cluster,true,{
       success: {
@@ -403,19 +408,26 @@ class VisitType extends Component{
       onOk() {},
     });
   }
-  domainList(flag) {
-    const { svcDomain, copyStatus } = this.state;
+  domainComponent = (index, item) => {
+    const { copyStatus } = this.state;
+    return (
+      <dd key={index} className="addrList">
+        容器端口：{item.interPort}
+        <span className="domain">{item.domain}</span>
+        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
+        </Tooltip>
+      </dd>
+    )
+  }
+  domainList(isInterPort, isLb) {
+    const { svcDomain } = this.state;
     return svcDomain && svcDomain.map((item,index)=>{
-      if (item.isInternal === flag) {
-        return (
-          <dd key={index} className="addrList">
-            容器端口：{item.interPort}
-            <span className="domain">{item.domain}</span>
-            <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-              <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
-            </Tooltip>
-          </dd>
-        )
+      if (isLb && item.isLb) {
+        return this.domainComponent(index, item)
+      }
+      if (item.isInternal === isInterPort) {
+        return this.domainComponent(index, item)
       }
     })
   }
@@ -503,7 +515,8 @@ class VisitType extends Component{
     const {
       value, disabled, forEdit, selectDis, deleteHint,privateNet,
       addrHide, currentProxy, initGroupID, initValue, initSelectDics,
-      isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB
+      isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB,
+      svcDomain
     } = this.state;
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -593,6 +606,7 @@ class VisitType extends Component{
                 {...{form, formItemLayout, currentCluster}}
                 isTemplate={false}
                 forDetail={true}
+                disabled={!forEdit}
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
@@ -611,6 +625,10 @@ class VisitType extends Component{
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
               {this.domainList(true)}
+            </dl>
+            <dl className="addrListBox">
+              <dt className="addrListTitle"><Icon type="link"/>负载均衡器访问地址</dt>
+              {this.domainList(false, true)}
             </dl>
           </div>
         </div>
