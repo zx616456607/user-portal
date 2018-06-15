@@ -115,7 +115,7 @@ let Invite = React.createClass({
         >
           <div>
             <div className='cancelInviteText'>
-              无法加入团队 , xxx已取消邀请
+              无法加入团队，xxx已取消邀请
             </div>
             <Button className='cancelInviteBtn' type='primary'>知道了</Button>
           </div>

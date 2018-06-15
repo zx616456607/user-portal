@@ -101,7 +101,7 @@ class ConfigModal extends Component {
       DIYMaxCPU: limitsCPU
     })
   }
-  
+
   formatMemory(memory) {
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
@@ -110,7 +110,7 @@ class ConfigModal extends Component {
     }
     return memory
   }
-  
+
   formatCPU(cpu) {
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
@@ -177,7 +177,7 @@ class ConfigModal extends Component {
       configModal: false
     })
   }
-  
+
   changeDIYMemory = value => {
     const { DIYMaxMemory } = this.state
     this.setState({
@@ -189,9 +189,9 @@ class ConfigModal extends Component {
       })
     }
   }
-  
+
   changeDIYCPU = value => {
-    const { DIYMaxCPU }  = this.state  
+    const { DIYMaxCPU }  = this.state
     this.setState({
       DIYCPU: value
     })
@@ -201,7 +201,7 @@ class ConfigModal extends Component {
       })
     }
   }
-  
+
   render() {
     const { service, visible } = this.props
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, composeType } = this.state
@@ -393,7 +393,7 @@ class ConfigModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              Tips: 重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持滚动更新，服务会有短暂不可用时间！' : ' 将进行滚动升级。'}
+              Tips：重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持滚动更新，服务会有短暂不可用时间！' : ' 将进行滚动升级。'}
             </Col>
           </Row>
         </div>
