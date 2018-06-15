@@ -26,6 +26,17 @@ exports.getOperationAuditLog = function* () {
   }
 }
 
+// 获取操作对象筛选条件api
+exports.getOperationalTargetFilters = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.audits.getBy(["menus"], null, null)
+  this.body = result
+}
+
+
+
+
 exports.getSearchLog = function* () {
   const cluster = this.params.cluster
   const instances = this.params.instances
