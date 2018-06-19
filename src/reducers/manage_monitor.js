@@ -405,6 +405,32 @@ function nodeMetrics(state = {}, action) {
   }
 }
 
+function operationalTarget(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    data: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_OPERATIONAL_TARGET_REQUEST:
+      return Object.assign({}, state, defaultState, {
+        isFetching: true
+      })
+
+    case ActionTypes.GET_OPERATIONAL_TARGET_SUCCESS:
+      return Object.assign({}, state, defaultState, {
+        data: action.response.result.data,
+        isFetching: false
+      })
+    case ActionTypes.GET_OPERATIONAL_TARGET_FAILURE:
+      return Object.assign({}, state, defaultState, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),
@@ -418,6 +444,8 @@ export function manageMonitor(state = { manageMonitor: {} }, action) {
     proxiesServices: proxiesServices(state.proxiesServices, action),
     monitorMetrics: monitorMetrics(state.monitorMetrics, action),
     serviceMetrics: serviceMetrics(state.serviceMetrics, action),
-    nodeMetrics: nodeMetrics(state.nodeMetrics, action)
+    nodeMetrics: nodeMetrics(state.nodeMetrics, action),
+    operationalTarget: operationalTarget(state.operationalTarget, action),
+
   }
 }

@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import './style/Membermanagement.less'
-import { Tag, Row, Col, Alert, Button, Input, Select, Menu, Card, Spin, Icon, Table, Modal, Checkbox, Tooltip, Dropdown } from 'antd'
+import { Tag, Row, Col, Button, Menu, Card, Icon, Table, Modal, Tooltip, Dropdown } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
@@ -660,6 +660,8 @@ class Membermanagement extends Component {
       searchFilter: '',
       tableFilter: '',
       confirmLoading: false,
+      manageRange: false,
+      currentRole: ROLE_PLATFORM_ADMIN
     }
   }
   showInfo = (title, content) => {
@@ -822,7 +824,86 @@ class Membermanagement extends Component {
       }
     })
   }
+  showManageRange = role => {
+    this.setState({
+      manageRange: true,
+      currentRole: role,
+    })
 
+  }
+  closeManageRange = () => {
+    this.setState({
+      manageRange: false
+    })
+  }
+  manageRange = () => {
+    const infrastructure = <div className="infrastructureManageRange">
+      <div className="name">
+        基础设施管理员
+      </div>
+      <div className="bracket1">
+        <div className="rangeNames">
+          <div className="names name-item">基础设施资源</div>
+          <div className="names name-item">集成中心</div>
+          <div className="names">
+            <div className="name-item">发布审核</div>
+            <span>镜像和应用包</span>
+          </div>
+          <div className="names name-item">系统设置</div>
+          <div className="names name-item">租户管理</div>
+        </div>
+      </div>
+      <div className="bracket2">
+        <div className="subRangeNames">
+          <div className="subNames">平台版本</div>
+          <div className="subNames">开放API</div>
+          <div className="subNames">高级设置 ( 容器调度策略设置、仓库组创建权限、传统应用管理 )</div>
+          <div className="subNames">清理工具</div>
+        </div>
+      </div>
+      <div className="bracket3">
+        <div className="subRangeNames">
+          <div className="subNames">团队管理 ( 仅见自己所在团队 )</div>
+          <div className="subNames">项目管理 ( 仅见自己所在项目 )</div>
+        </div>
+      </div>
+    </div>
+    const platform = <div className="platformManageRange">
+      <div className="name">
+        平台管理员
+      </div>
+      <div className="bracket1">
+        <div className="rangeNames">
+          <div className="names name-item">系统设置</div>
+          <div className="names name-item">租户管理</div>
+        </div>
+      </div>
+      <div className="bracket2">
+        <div className="subRangeNames">
+          <div className="subNames">平台版本</div>
+          <div className="subNames">开放API</div>
+          <div className="subNames">高级设置 ( 计费功能开关 )</div>
+          <div className="subNames">个性外观</div>
+        </div>
+      </div>
+      <div className="bracket3">
+        <div className="subRangeNames">
+          <div className="subNames">成员管理 ( 管理所有成员 )</div>
+          <div className="subNames">团队管理 ( 管理所有团队 )</div>
+          <div className="subNames">项目管理 ( 管理所有项目 )</div>
+          <div className="subNames">集群授权审批</div>
+          <div className="subNames">集成企业目录</div>
+        </div>
+      </div>
+    </div>
+    if (this.state.currentRole === ROLE_PLATFORM_ADMIN) {
+      return platform
+    }else {
+      return infrastructure
+    }
+
+
+  }
   /* handleDeleteOk = (namespaces, amount) => {
     //
   } */
@@ -851,116 +932,141 @@ class Membermanagement extends Component {
     const checkAuth = userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN
     return (
       <QueueAnim>
-      <div id="Membermanagement" key='Membermanagement'>
-        <Alert message={`成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源。系统管理员有创建并管理所有成员（其他系统管理员、普通成员）的权限。`}
-          type="info" />
-        <Title title="成员管理"/>
-        <Row>
-          {
-            checkAuth ?
-            <Button type="primary" size="large" onClick={this.showModal} className="Btn">
-              <i className='fa fa-plus' /> 创建新成员
-            </Button>
-              :
-              ""
-          }
-          {
-            billingEnabled && (checkAuth) && (
-              <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
-                <Icon type="pay-circle-o" />批量充值
+        <div id="Membermanagement" key='Membermanagement'>
+          <div className='alertTip'>
+            成员是指公司内外共同协作使用平台的人，创建成员成功后该成员将有一个默认的个人的项目，可在项目中创建个人的资源。系统管理员有全平台最高权限；平台管理员
+            <Tooltip title="点击查看平台管理员权限">
+              <Icon type="question-circle-o" className='lbgroup_icon' onClick={() => this.showManageRange(ROLE_PLATFORM_ADMIN)}/>
+            </Tooltip>
+            有管理所有租户的权限，基础设施管理员
+            <Tooltip title="点击查看基础设施管理员权限">
+              <Icon type="question-circle-o" className='lbgroup_icon' onClick={() => this.showManageRange(ROLE_BASE_ADMIN)}/>
+            </Tooltip>
+            有管理所有资源相关的权限。
+          </div>
+          <Title title="成员管理"/>
+          <Row>
+            {
+              checkAuth ?
+              <Button type="primary" size="large" onClick={this.showModal} className="Btn">
+                <i className='fa fa-plus' /> 创建新成员
               </Button>
-            )
-          }
-          <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
-            <i className='fa fa-refresh' /> &nbsp;刷 新
-          </Button>
-          {
-            checkAuth &&
-            <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
-              <Icon type="solution" />已删除成员
+                :
+                ""
+            }
+            {
+              billingEnabled && (checkAuth) && (
+                <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ chargeModalVisible: true })}>
+                  <Icon type="pay-circle-o" />批量充值
+                </Button>
+              )
+            }
+            <Button type="ghost" size="large" className="Btn btn" onClick={this.loadData}>
+              <i className='fa fa-refresh' /> &nbsp;刷 新
             </Button>
-          }
-          {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
-            <Icon type="delete" />批量删除
-          </Button> */}
-          <SearchInput scope={scope} searchIntOption={searchIntOption} />
-          { visible && <CreateUserModal
-            visible={visible}
-            scope={scope}
-            onSubmit={this.userOnSubmit}
-            funcs={funcs}
-            confirmLoading={confirmLoading}
-          /> }
-          <Modal
-            title="创建成员成功"
-            visible={this.state.createUserSuccessModalVisible}
-            wrapClassName="createUserSuccessModal"
-            okText="继续创建"
-            cancelText="关闭"
-            onOk={() => this.setState({createUserSuccessModalVisible: false, visible: true})}
-            onCancel={() => this.setState({createUserSuccessModalVisible: false})}
-          >
-            <div className="textAlignCenter">
-              <img src={successPic} alt="成功"/>
-            </div>
-            <div className="textAlignCenter successTitle">
-              创建成功
-              {
-                createUserErrorMsg && <span className="createUserErrorMsg">({createUserErrorMsg})</span>
-              }
-              {
-                sendEmailSuccess && <span className="createUserSucessMsg">(发送邮件成功)</span>
-              }
-            </div>
-            <div className="alertRow">
-              可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
-            </div>
-          </Modal>
-          { this.props.total !== 0 && <div className="total">共计 {this.props.total} 条&nbsp; </div>}
-        </Row>
-        <Row className="memberList">
-          <Card className="memberlist">
-            <MemberTable
+            {
+              checkAuth &&
+              <Button type="dashed" size="large" className="Btn btn" onClick={() => this.setState({ deletedUserModalVisible: true })}>
+                <Icon type="solution" />已删除成员
+              </Button>
+            }
+            {/* <Button type="ghost" size="large" className="Btn btn" onClick={() => this.setState({ deleteModalVisible: true })}>
+              <Icon type="delete" />批量删除
+            </Button> */}
+            <SearchInput scope={scope} searchIntOption={searchIntOption} />
+            { visible && <CreateUserModal
+              visible={visible}
               scope={scope}
-              data={users}
-              loginUser={userDetail}
-              teams={teams}
-              onlineTotal={onlineTotal}
-              usersIsFetching={usersIsFetching}
-            />
-          </Card>
-        </Row>
-        {/* 充值modal */}
-        <Modal title="成员充值" visible={this.state.visibleMember}
-          onCancel={() => this.setState({ visibleMember: false, number: 10 })}
-          onOk={() => this.btnCharge()}
-          width={600}
-        >
-          <MemberRecharge parentScope={this} />
-        </Modal>
-        <ChargeModal
-          visible={this.state.chargeModalVisible}
-          data={users}
-          onCancel={() => this.setState({ chargeModalVisible: false })}
-          onOk={this.handleChargeOk}
-          loadAllUserList={loadAllUserList}
-        />
-        <DeletedUsersModal
-          title="已删除成员"
-          visible={this.state.deletedUserModalVisible}
-          wrapClassName="deletedUserModal"
-          footer={null}
-          onCancel={() => this.setState({deletedUserModalVisible: false})}
-        />
-        {/* <DeleteModal
-          visible={this.state.deleteModalVisible}
-          data={users}
-          onCancel={() => this.setState({ deleteModalVisible: false })}
-          onOk={this.handleDeleteOk}
-          loadUserList={loadUserList}
-          loginUser={userDetail}
-        /> */}
-      </div>
+              onSubmit={this.userOnSubmit}
+              funcs={funcs}
+              confirmLoading={confirmLoading}
+            /> }
+            <Modal
+              title="创建成员成功"
+              visible={this.state.createUserSuccessModalVisible}
+              wrapClassName="createUserSuccessModal"
+              okText="继续创建"
+              cancelText="关闭"
+              onOk={() => this.setState({createUserSuccessModalVisible: false, visible: true})}
+              onCancel={() => this.setState({createUserSuccessModalVisible: false})}
+            >
+              <div className="textAlignCenter">
+                <img src={successPic} alt="成功"/>
+              </div>
+              <div className="textAlignCenter successTitle">
+                创建成功
+                {
+                  createUserErrorMsg && <span className="createUserErrorMsg">({createUserErrorMsg})</span>
+                }
+                {
+                  sendEmailSuccess && <span className="createUserSucessMsg">(发送邮件成功)</span>
+                }
+              </div>
+              <div className="alertRow">
+                可将该成员添加到某团队；或将该成员添加到某项目中，并授予角色。
+              </div>
+            </Modal>
+            { this.props.total !== 0 && <div className="total">共计 {this.props.total} 条&nbsp; </div>}
+          </Row>
+          <Row className="memberList">
+            <Card className="memberlist">
+              <MemberTable
+                scope={scope}
+                data={users}
+                loginUser={userDetail}
+                teams={teams}
+                onlineTotal={onlineTotal}
+                usersIsFetching={usersIsFetching}
+              />
+            </Card>
+          </Row>
+          {/* 充值modal */}
+          <Modal title="成员充值" visible={this.state.visibleMember}
+            onCancel={() => this.setState({ visibleMember: false, number: 10 })}
+            onOk={() => this.btnCharge()}
+            width={600}
+          >
+            <MemberRecharge parentScope={this} />
+          </Modal>
+          <ChargeModal
+            visible={this.state.chargeModalVisible}
+            data={users}
+            onCancel={() => this.setState({ chargeModalVisible: false })}
+            onOk={this.handleChargeOk}
+            loadAllUserList={loadAllUserList}
+          />
+          <DeletedUsersModal
+            title="已删除成员"
+            visible={this.state.deletedUserModalVisible}
+            wrapClassName="deletedUserModal"
+            footer={null}
+            onCancel={() => this.setState({deletedUserModalVisible: false})}
+          />
+          {/* <DeleteModal
+            visible={this.state.deleteModalVisible}
+            data={users}
+            onCancel={() => this.setState({ deleteModalVisible: false })}
+            onOk={this.handleDeleteOk}
+            loadUserList={loadUserList}
+            loginUser={userDetail}
+          /> */}
+          <Modal
+            title='管理范围'
+            visible = { this.state.manageRange }
+            wrapClassName= "manageRangeWrapper"
+            onOk = { this.closeManageRange }
+            onCancel = { this.closeManageRange }
+            footer={[
+              <Button key="submit" type="primary" onClick={this.closeManageRange}>
+                知道了
+              </Button>,
+            ]}
+          >
+            {
+              this.manageRange()
+            }
+          </Modal>
+        </div>
       </QueueAnim>
     )
   }

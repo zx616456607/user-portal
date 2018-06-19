@@ -3,10 +3,10 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Select, Button, Table, DatePicker, Cascader, Pagination } from 'antd'
 import { injectIntl } from 'react-intl'
-import { getOperationLogList } from '../../../src/actions/manage_monitor'
-import { formatDate } from '../../../src/common/tools.js'
-import './style/manageMonitor.less'
-import NotificationHandler from '../../../src/components/Notification'
+import { getOperationLogList, getOperationalTarget } from '../../../../src/actions/manage_monitor'
+import { formatDate } from '../../../../src/common/tools.js'
+import '../style/manageMonitor.less'
+import NotificationHandler from '../../../../src/components/Notification'
 
 const Option = Select.Option
 const notification = new NotificationHandler()
@@ -340,57 +340,6 @@ class OperationalAuditBkt extends React.Component {
           </span>,
         },
       ],
-      optionTarget: [
-        {
-          value: '17',
-          label: '应用',
-          children: [
-            {
-              value: '17',
-              label: '应用',
-            },
-            {
-              value: '18',
-              label: '应用服务',
-            },
-          ],
-        }, {
-          value: '23',
-          label: '服务配置',
-          children: [{
-            value: '22',
-            label: '配置组',
-          }, {
-            value: '23',
-            label: '服务配置',
-          }],
-        }],
-      operationType: [
-        {
-          value: 0,
-          label: '全部',
-        },
-        {
-          value: 1,
-          label: '创建',
-        },
-        {
-          value: 2,
-          label: '请求',
-        },
-        {
-          value: 3,
-          label: '获取',
-        },
-        {
-          value: 4,
-          label: '更新',
-        },
-        {
-          value: 5,
-          label: '删除',
-        },
-      ],
       statusList: [
         {
           value: '',
@@ -423,11 +372,13 @@ class OperationalAuditBkt extends React.Component {
   }
   componentDidMount() {
     this.getData()
+    this.props.getOperationalTarget()
   }
+
   // 选择操作对象
   selectOptionTarget = value => {
     this.setState({
-      resource: parseInt(value[value.length - 1]),
+      resource: value,
     })
   }
   // 选择操作类型
@@ -474,7 +425,15 @@ class OperationalAuditBkt extends React.Component {
   getData = () => {
     const { getOperationLogList } = this.props
     const { from, size, resource, namespace, operation, start_time, end_time, status } = this.state
-    const body = { from, size, resource, namespace, operation, start_time, end_time, status }
+    const body = {
+      from,
+      size,
+      resource: resource ? resource[resource.length - 1] : undefined,
+      namespace,
+      operation,
+      start_time,
+      end_time,
+      status }
     const _this = this
     getOperationLogList(body, {
       success: {
@@ -501,18 +460,58 @@ class OperationalAuditBkt extends React.Component {
       this.getData(this.state.from)
     })
   }
+  parseData = arr => {
+    let operationType = []
+    const operationObjects = []
+    const mapData = arr => {
+      for (const v of arr) {
+        const item = {
+          label: v.name,
+          value: v.id,
+        }
+        if (v.children) {
+          const children = []
+          for (const k of v.children) {
+            const childItem = {
+              label: k.name,
+              value: k.id,
+            }
+            children.push(childItem)
+          }
+          item.children = children
+        }
+
+        if (v.opetation) {
+          operationType = [ ...operationType, ...v.opetation ]
+        }
+        operationObjects.push(item)
+      }
+      const hash = {}
+      operationType = operationType.reduce(function(item, next) {
+        hash[next.id] ? '' : hash[next.id] = true && item.push(next)
+        return item
+      }, [])
+    }
+    mapData(arr)
+    return {
+      operationType,
+      operationObjects,
+    }
+  }
   render() {
-    const { isFetching } = this.props
+    const { isFetching, filterData } = this.props
+
+    const { operationType, operationObjects } = this.parseData(filterData)
     return (
       <QueueAnim type="right">
         <div className="audit" key="auditWrapper">
           <div className="optionBox">
             <div className="options">
               <Cascader
-                options = {this.state.optionTarget}
+                options = {operationObjects}
                 className="selectionBox"
                 onChange={this.selectOptionTarget}
-                value={this.state.resource ? [ `${this.state.resource}` ] : ''}
+                value={this.state.resource ? this.state.resource : ''}
                 placeholder="选择操作对象"
                 size="large"
               />
@@ -524,7 +523,7 @@ class OperationalAuditBkt extends React.Component {
                 size="large"
               >
                 {
-                  this.state.operationType.map(v => <Option value={v.value}>{v.label}</Option>)
+                  operationType.map(v => <Option value={v.id} key={v.id}>{v.resourceName}</Option>)
                 }
               </Select>
               <Select
@@ -535,7 +534,9 @@ class OperationalAuditBkt extends React.Component {
                 onChange={this.selectStatus}
               >
                 {
-                  this.state.statusList.map(v => <Option value={v.value}>{v.label}</Option>)
+                  this.state.statusList.map(v => (
+                    <Option value={v.value} key={v.value}>{v.label}</Option>
+                  ))
                 }
               </Select>
               <DatePicker
@@ -590,19 +591,24 @@ function mapStateToProps(state) {
     isFetching: true,
     logs: [],
   }
-  const { operationAuditLog } = state.manageMonitor
+  const { operationAuditLog, operationalTarget } = state.manageMonitor
+
   const { current } = state.entities
   const { namespace } = current.space || { namespace: '' }
   let { logs, isFetching } = defaultLogs
+
   if (operationAuditLog.logs && operationAuditLog.logs.logs) {
     logs = operationAuditLog.logs.logs
     isFetching = operationAuditLog.logs.isFetching
   }
 
+  const filterData = operationalTarget.data || []
+
   return {
     isFetching,
     logs,
     namespace,
+    filterData,
   }
 }
 
@@ -618,4 +624,6 @@ const OperationalAuditBktCom = injectIntl(OperationalAuditBkt, {
 
 export default connect(mapStateToProps, {
   getOperationLogList,
+  getOperationalTarget,
+
 })(OperationalAuditBktCom)

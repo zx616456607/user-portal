@@ -39,11 +39,48 @@ function fetchOperationLogList(body, callback) {
     callback
   }
 }
-
 export function getOperationLogList(body, callback) {
   return (dispatch) => {
     return dispatch(fetchOperationLogList(body, callback))
   }
+}
+
+// 获取操作对象
+export const GET_OPERATIONAL_TARGET_REQUEST = 'GET_OPERATIONAL_TARGET_REQUEST'
+export const GET_OPERATIONAL_TARGET_SUCCESS = 'GET_OPERATIONAL_TARGET_SUCCESS'
+export const GET_OPERATIONAL_TARGET_FAILURE = 'GET_OPERATIONAL_TARGET_FAILURE'
+
+function fetchOperationalTarget() {
+  return {
+    [FETCH_API]: {
+      types: [ GET_OPERATIONAL_TARGET_REQUEST, GET_OPERATIONAL_TARGET_SUCCESS, GET_OPERATIONAL_TARGET_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/audits/menus`,
+      schema: {}
+    }
+  }
+}
+
+export function getOperationalTarget() {
+  return dispatch => dispatch(fetchOperationalTarget())
+}
+
+// 获取操作类型
+export const GET_OPERATIONAL_TYPE_REQUEST = 'GET_OPERATIONAL_TYPE_REQUEST'
+export const GET_OPERATIONAL_TYPE_SUCCESS = 'GET_OPERATIONAL_TYPE_SUCCESS'
+export const GET_OPERATIONAL_TYPE_FAILURE = 'GET_OPERATIONAL_TYPE_FAILURE'
+
+function fetchOperationalType() {
+  return {
+    [FETCH_API]: {
+      types: [ GET_OPERATIONAL_TYPE_REQUEST, GET_OPERATIONAL_TYPE_SUCCESS, GET_OPERATIONAL_TYPE_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/manage-monitor/getOperationTargetLog`,
+      schema: {}
+    }
+  }
+}
+
+export function getOperationalType() {
+  return dispatch => dispatch(fetchOperationalType())
 }
 
 export const GET_QUERY_LOG_REQUEST = 'GET_QUERY_LOG_REQUEST'

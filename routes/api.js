@@ -399,6 +399,7 @@ module.exports = function (Router) {
   // router.get('/clusters/:cluster/apps/:app_name/getAllMetrics', metricsController.getAppAllMetrics)
 
   // Manage Monitor
+  router.get('/audits/menus', manageMonitorController.getOperationalTargetFilters)
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   router.get('/manage-monitor/:project_name/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
