@@ -2291,7 +2291,7 @@ class OperationalAudit extends Component {
       <QueueAnim className='operationalAuditBox' type='right'>
         <div id='operationalAudit' key='operationalAudit'>
           <Title title="操作审计" />
-          <Button type="primary" onClick={() => {browserHistory.push('/manange_monitor/audit_bkt')}}>跳转</Button>
+          {/*<Button type="primary" onClick={() => {browserHistory.push('/manange_monitor/audit_bkt')}}>跳转</Button>*/}
           <div className='operaBox'>
             <Cascader
               options={resourceOption}

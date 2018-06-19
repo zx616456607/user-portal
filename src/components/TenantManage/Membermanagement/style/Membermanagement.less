@@ -3,6 +3,22 @@
   padding-left: 20px;
   padding-right: 20px;
   margin-bottom: 20px;
+  .alertTip {
+    height: 47px;
+    line-height: 49px;
+    border: 1px dashed #85d7fd;
+    border-radius: 6px;
+    background: #d9edf6;
+    color: #1a7db6;
+    font-size: 14px;
+    padding: 0 13px;
+    margin-bottom: 20px;
+    .lbgroup_icon{
+      cursor: pointer;
+      color: #2db7f5;
+      margin-right: 5px;
+    }
+  }
   .ant-alert-message {
     font-size: 14px;
   }
@@ -186,4 +202,292 @@
       line-height: 40px;
     }
   }
+}
+
+.manageRangeWrapper {
+  .ant-modal {
+    width: 840px !important;
+  }
+
+  .infrastructureManageRange {
+    background: #f5f6f8;
+    height: 410px;
+    padding: 20px;
+    position: relative;
+    .name {
+      background: #2db7f5;
+      position: absolute;
+      top: 50%;
+      margin-top: -15px;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px;
+      &:after {
+        content: "";
+        display: block;
+        width: 76px;
+        height: 1px;
+        background: #ccccce;
+        position: absolute;
+        top: 50%;
+        margin-top: -0.5px;
+        right: -76px;
+      }
+    }
+    .bracket1 {
+      position: absolute;
+      left: 191px;
+      top: 50%;
+      margin-top: -151px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 300px;
+      z-index: 1010;
+      .rangeNames {
+        position: absolute;
+        height: 400px;
+        width: 100px;
+        background: #f5f6f8;
+        left: 20px;
+        top: -50px;
+        padding-left: 10px;
+        .name-item {
+          height: 28px;
+          border-radius: 6px;
+          border: 1px solid #cccccc;
+          padding: 6px;
+          line-height: 15px;
+        }
+        .names{
+          position: absolute;
+          &:nth-child(1) {
+            top:35px
+          }
+          &:nth-child(2) {
+            top:75px
+          }
+          &:nth-child(3) {
+            top:115px;
+            width: 200px;
+            display: flex;
+            align-items: center;
+            span {
+              margin-left: 5px;
+            }
+          }
+          &:nth-child(4) {
+            top:205px;
+            &:after {
+              content: "";
+              display: block;
+              width: 80px;
+              height: 1px;
+              background: #ccccce;
+              position: absolute;
+              top: 50%;
+              margin-top: -0.5px;
+              right: -80px;
+            }
+          }
+          &:nth-child(5) {
+            top:335px;
+            &:after {
+              content: "";
+              display: block;
+              width: 80px;
+              height: 1px;
+              background: #ccccce;
+              position: absolute;
+              top: 50%;
+              margin-top: -0.5px;
+              right: -80px;
+            }
+
+          }
+        }
+      }
+    }
+    .bracket2 {
+      position: absolute;
+      left: 362px;
+      top: 50%;
+      margin-top: -37px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 120px;
+      z-index: 1010;
+      .subRangeNames {
+        width: 355px;
+        height: 150px;
+        padding-left: 10px;
+        background: #f5f6f8;
+        position: absolute;
+        top:-15px;
+        left: 20px;
+        .subNames {
+          height: 30px;
+          line-height: 30px;
+          margin-bottom: 9px;
+        }
+      }
+    }
+    .bracket3 {
+      position: absolute;
+      left: 362px;
+      top: 350px;
+      margin-top: -25px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 50px;
+      z-index: 1010;
+      .subRangeNames {
+        width: 355px;
+        height: 70px;
+        padding-left: 10px;
+        background: #f5f6f8;
+        position: absolute;
+        top:-10px;
+        left: 20px;
+        .subNames {
+          margin-bottom: 32px;
+        }
+      }
+    }
+  }
+  .platformManageRange {
+    background: #f5f6f8;
+    height: 400px;
+    padding: 20px;
+    position: relative;
+    .name {
+      background: #2db7f5;
+      position: absolute;
+      top: 50%;
+      margin-top: -15px;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px;
+      &:after {
+        content: "";
+        display: block;
+        width: 100px;
+        height: 1px;
+        background: #ccccce;
+        position: absolute;
+        top: 50%;
+        margin-top: -0.5px;
+        right: -100px;
+      }
+    }
+    .bracket1 {
+      position: absolute;
+      left: 191px;
+      top: 50%;
+      margin-top: -101px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 200px;
+      z-index: 1010;
+      .rangeNames {
+        position: absolute;
+        height: 300px;
+        width: 100px;
+        background: #f5f6f8;
+        left: 20px;
+        top: -50px;
+        padding-left: 10px;
+        .name-item {
+          height: 28px;
+          border-radius: 6px;
+          border: 1px solid #cccccc;
+          padding: 6px;
+          line-height: 15px;
+        }
+        .names{
+          position: absolute;
+          &:nth-child(1) {
+            top:35px;
+            &:after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 1px;
+            background: #ccccce;
+            position: absolute;
+            top: 50%;
+            margin-top: -0.5px;
+            right: -80px;
+          }
+
+          }
+          &:nth-child(2) {
+            top:235px;
+            &:after {
+              content: "";
+              display: block;
+              width: 80px;
+              height: 1px;
+              background: #ccccce;
+              position: absolute;
+              top: 50%;
+              margin-top: -0.5px;
+              right: -80px;
+            }
+          }
+        }
+      }
+    }
+    .bracket2 {
+      position: absolute;
+      left: 362px;
+      top: 77px;
+      margin-top: -37px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 120px;
+      z-index: 1010;
+      .subRangeNames {
+        width: 355px;
+        height: 150px;
+        padding-left: 10px;
+        background: #f5f6f8;
+        position: absolute;
+        top:-15px;
+        left: 20px;
+        .subNames {
+          height: 30px;
+          line-height: 30px;
+          margin-bottom: 9px;
+        }
+      }
+    }
+    .bracket3 {
+      position: absolute;
+      left: 362px;
+      top: 225px;
+      border: 1px solid #ccccce;
+      border-radius: 20px;
+      width: 100px;
+      height: 150px;
+      z-index: 1010;
+      .subRangeNames {
+        width: 355px;
+        height: 160px;
+        padding-left: 10px;
+        background: #f5f6f8;
+        position: absolute;
+        top:-10px;
+        left: 20px;
+        .subNames {
+          margin-bottom: 19px;
+        }
+      }
+    }
+  }
+
 }
