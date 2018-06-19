@@ -44,6 +44,11 @@ global.globalConfig = {
   ftpConfig: {},
   billingConfig: {},
   chartRepoConfig: {},
+  aiopsConfig: {
+    protocol: 'http',
+    host: '192.168.1.59:61088',
+    version: 'v3',
+  },
 }
 
 const apiFactory = require('./api_factory.js')
