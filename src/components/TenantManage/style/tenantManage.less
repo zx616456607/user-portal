@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #tenantManage {
   color: #000;
   margin: 30px;
@@ -157,6 +158,53 @@
     }
     .itmsInfo{
       display: none
+    }
+  }
+  .ant-table {
+    &:first-child {
+      border-radius: 0;
+      border-right: 1px solid @border-color-base;
+    }
+    border: none;
+    height: 425px;
+    td {
+      border: none;
+    }
+  }
+  .personalItem {
+    color: @primary-color;
+  }
+  .approvalrecord {
+    color:  @primary-color;
+    cursor: pointer;
+  }
+  .personalProject {
+    .ant-table-header {
+      // margin-right: -2px;
+    }
+    table {
+      border: none;
+      padding-right: 0;
+      border-radius: 0;
+    }
+    tr {
+      th {
+        background-color: @success-color;
+        color: white;
+        font-weight: normal;
+      }
+    }
+  }
+  .shareProject {
+    table {
+      border: none;
+    }
+    tr {
+      th {
+        background-color: @primary-color;
+        color: white;
+        font-weight: normal;
+      }
     }
   }
 }
