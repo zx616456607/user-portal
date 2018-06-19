@@ -179,7 +179,7 @@ let CreateConfigFileModal = React.createClass({
       notify.success('文件内容读取完成')
       self.props.form.setFieldsValue({
         configDesc: fileReader.result.replace(/\r\n/g, '\n'),
-        configName: fileName.split('.')[0]
+        configName: fileName,// .split('.')[0]
       })
     }
     fileReader.readAsText(file)
