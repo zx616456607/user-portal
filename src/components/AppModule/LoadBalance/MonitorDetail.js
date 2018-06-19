@@ -10,8 +10,8 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { 
-  Card, Form, Select, Row, Col, Radio, 
+import {
+  Card, Form, Select, Row, Col, Radio,
   Checkbox, Slider, InputNumber, Input,
   Icon, Button, Tooltip
 } from 'antd'
@@ -59,7 +59,7 @@ class MonitorDetail extends React.Component {
   componentWillUnmount() {
     uidd = 0
   }
-  
+
   initialForm = () => {
     const { currentIngress, form } = this.props
     if (currentIngress) {
@@ -103,7 +103,7 @@ class MonitorDetail extends React.Component {
         })
       }
     }
-    
+
   }
   validateNewItem = key => {
     const { form } = this.props
@@ -118,7 +118,7 @@ class MonitorDetail extends React.Component {
     let weight = getFieldValue(`weight-${endIndexValue}`)
     let errorObj = {}
     if (!service) {
-      Object.assign(errorObj, { 
+      Object.assign(errorObj, {
         [`service-${endIndexValue}`]: {
           errors: ['请选择服务'],
           value: ''
@@ -146,13 +146,13 @@ class MonitorDetail extends React.Component {
     setFields(errorObj)
     return errorObj
   }
-  
+
   addItem = () => {
     const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
-    
+
     const currentKeys = getFieldValue('keys')
-    
+
     if (currentKeys.length) {
       const result = this.validateNewItem()
       if (!isEmpty(result)) {
@@ -170,12 +170,12 @@ class MonitorDetail extends React.Component {
       keys: currentKeys.concat(uidd)
     })
   }
-  
+
   filterServices = () => {
     const { defaultAllServices } = this.state
     const { form } = this.props
     const { getFieldValue } = form
-  
+
     const currentKeys = getFieldValue('keys')
     let filterServices
     filterServices = defaultAllServices.filter(item => {
@@ -195,7 +195,7 @@ class MonitorDetail extends React.Component {
     this.filterServices()
     this.setState({[`service${item}`]: true})
   }
-  
+
   removeKey = key => {
     const { allServices, defaultAllServices } = this.state
     const { form } = this.props
@@ -209,7 +209,7 @@ class MonitorDetail extends React.Component {
       keys: getFieldValue('keys').filter(item => item !== key)
     })
   }
-  
+
   cancelEdit = key => {
     const { form, currentIngress } = this.props
     const { setFieldsValue } = form
@@ -226,7 +226,7 @@ class MonitorDetail extends React.Component {
       [`weight-${key}`]: items[key - 1].weight
     })
   }
-  
+
   confirmEdit = key => {
     const result = this.validateNewItem(key)
     if (!isEmpty(result)) {
@@ -236,45 +236,45 @@ class MonitorDetail extends React.Component {
       [`service${key}`]: false
     })
   }
-  
+
   checkService = (rules, value, callback) => {
     if (!value) {
       return callback('请选择服务')
     }
     callback()
   }
-  
+
   checkPort = (rules, value, callback) => {
     if (!value) {
       return callback('请选择端口')
     }
     callback()
   }
-  
+
   checkWeight = (rules, value, callback) => {
     if (!value) {
       return callback('请输入权重')
     }
     callback()
   }
-  
+
   openCheckModal = () => {
     this.setState({
       checkVisible: true
     })
   }
-  
+
   closeCheckModal = () => {
     this.setState({
       checkVisible: false
     })
   }
-  
+
   goBack = () => {
     const { togglePart } = this.props
     togglePart(true, null)
   }
-  
+
   monitorNameCheck = (rules, value, callback) => {
     const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
     const { name: lbname } = location.query
@@ -311,7 +311,7 @@ class MonitorDetail extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   hostCheck = (rules, value, callback) => {
     const { checkIngressNameAndHost, clusterID, location, form, currentIngress } = this.props
     const { name: lbname } = location.query
@@ -348,34 +348,34 @@ class MonitorDetail extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
-  
+
   agreementCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请选择监听协议')
     }
     callback()
   }
-  
+
   portCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请选择监听端口')
     }
     callback()
   }
-  
+
   algorithmCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请选择调度算法')
     }
     callback()
   }
-  
+
   handleAlgorithm = e => {
     const { sessionSticky,  sessionPersistent } = this.state
     const { getFieldValue, setFieldsValue } = this.props.form
     const keys = getFieldValue('keys')
     if (!isEmpty(keys)) {
-      
+
       keys.forEach(item => {
         if (e.target.value === 'ip_hash') {
           this.setState({
@@ -390,7 +390,7 @@ class MonitorDetail extends React.Component {
           })
         }
       })
-    } 
+    }
     if (e.target.value === 'round-robin') {
       setFieldsValue({
         sessionSticky,
@@ -398,9 +398,9 @@ class MonitorDetail extends React.Component {
       })
     }
   }
-  
+
   getHealthData = values => {
-    const { 
+    const {
       isCheck, httpSend, interval, fall, rise,
       http_1xx, http_2xx, http_3xx, http_4xx, http_5xx
     } = values
@@ -421,7 +421,7 @@ class MonitorDetail extends React.Component {
       }
     })
   }
-  
+
   getServiceList = () => {
     const { form } = this.props
     const { getFieldValue } = form
@@ -436,7 +436,7 @@ class MonitorDetail extends React.Component {
     })
     return service
   }
-  
+
   handleConfirm = () => {
     const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress } = this.props
     const { validateFields, getFieldValue } = form
@@ -470,7 +470,7 @@ class MonitorDetail extends React.Component {
         notify.warn('请添加监听服务')
         return
       }
-      
+
       const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host } = values
       const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
@@ -502,7 +502,7 @@ class MonitorDetail extends React.Component {
           }
         })
       }
-      
+
       if (sessionSticky) {
         Object.assign(body, {
           sessionSticky,
@@ -575,7 +575,7 @@ class MonitorDetail extends React.Component {
       createIngress(clusterID, name, body, callback)
     })
   }
-  
+
   selectService = (name, key) => {
     const { allServices } = this.state
     const currentService = allServices.filter(item => item.metadata.name === name)[0]
@@ -597,7 +597,7 @@ class MonitorDetail extends React.Component {
     getFieldProps('keys', {
       initialValue: [],
     });
-    
+
     const monitorNameProps = getFieldProps('monitorName', {
       rules: [
         {
@@ -606,7 +606,7 @@ class MonitorDetail extends React.Component {
       ],
       initialValue: currentIngress && currentIngress.displayName
     })
-    
+
     const agreementProps = getFieldProps('agreement', {
       rules: [
         {
@@ -615,7 +615,7 @@ class MonitorDetail extends React.Component {
       ],
       initialValue: 'HTTP'
     })
-    
+
     const portProps = getFieldProps('port', {
       rules: [
         {
@@ -624,7 +624,7 @@ class MonitorDetail extends React.Component {
       ],
       initialValue: 80
     })
-    
+
     const lbAlgorithmProps = getFieldProps('lbAlgorithm', {
       rules: [
         {
@@ -634,12 +634,12 @@ class MonitorDetail extends React.Component {
       initialValue: currentIngress && currentIngress.lbAlgorithm || 'round-robin',
       onChange: this.handleAlgorithm
     })
-    
+
     const sessionProps = getFieldProps('sessionSticky', {
       valuePropName: 'checked',
       initialValue: currentIngress ? currentIngress.sessionSticky : false
     })
-    
+
     const relayRuleProps = getFieldProps('host', {
       initialValue: currentIngress && (currentIngress.host + currentIngress.path),
       rules: [
@@ -648,7 +648,7 @@ class MonitorDetail extends React.Component {
         }
       ]
     })
-    
+
     const serviceChild = (allServices || []).map(item =>{
       return <Option key={item.metadata.name}>{item.metadata.name}</Option>
     })
@@ -657,7 +657,7 @@ class MonitorDetail extends React.Component {
         <Row className="serviceList" type="flex" align="middle" key={`service${item}`}>
           <Col span={6}>
             <FormItem>
-              <Select 
+              <Select
                 placeholder="请选择服务"
                 disabled={!this.state[`service${item}`] && currentIngress}
                 {...getFieldProps(`service-${item}`, {
@@ -696,9 +696,9 @@ class MonitorDetail extends React.Component {
             showWeight &&
             <Col span={4} offset={1}>
               <FormItem>
-                <InputNumber 
+                <InputNumber
                   style={{ width: '100%' }}
-                  min={0} max={100} placeholder="请输入权重" 
+                  min={0} max={100} placeholder="请输入权重"
                   disabled={!this.state[`service${item}`] && currentIngress}
                   {...getFieldProps(`weight-${item}`, {
                     rules: [
@@ -717,8 +717,8 @@ class MonitorDetail extends React.Component {
             {
               !this.state[`service${item}`] ?
                 [
-                  currentIngress && 
-                  <Button type="dashed" key={`edit${item}`} 
+                  currentIngress &&
+                  <Button type="dashed" key={`edit${item}`}
                           className="editServiceBtn" onClick={() => this.editItem(item)}>
                     <i className="fa fa-pencil-square-o" aria-hidden="true"/></Button>,
                   <Button type="dashed" icon="delete" key={`delete${item}`} onClick={() => this.removeKey(item)}/>
@@ -810,9 +810,9 @@ class MonitorDetail extends React.Component {
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
                 >
-                  <Slider max={3600} {...getFieldProps('sessionPersistent', 
-                    { 
-                      initialValue: (currentIngress && currentIngress.sessionPersistent) ? parseInt(currentIngress.sessionPersistent) : 100 
+                  <Slider max={3600} {...getFieldProps('sessionPersistent',
+                    {
+                      initialValue: (currentIngress && currentIngress.sessionPersistent) ? parseInt(currentIngress.sessionPersistent) : 100
                     })}/>
                 </FormItem>
               </Col>
@@ -845,7 +845,7 @@ class MonitorDetail extends React.Component {
             hasFeedback={!!getFieldValue('host')}
             help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="输入域名 URL " {...relayRuleProps}/>
+            <Input placeholder="输入域名URL，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
           </FormItem>
           <Row>
             <Col span={20} offset={3}>

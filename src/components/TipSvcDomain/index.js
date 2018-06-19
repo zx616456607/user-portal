@@ -238,15 +238,8 @@ export default class TipSvcDomain extends Component {
         return (
           <span>-</span>
         )
-      } else if (svcDomain.length == 1) {
-        let linkURL = 'http://' + svcDomain[0].domain
-        return (
-          <div id='TipSvcDomain'>
-            <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
-          </div>
-        )
       }
-      if (svcDomain.length > 1) {
+      if (svcDomain.length === 1 || svcDomain.length > 1) {
         let linkURL = 'http://' + svcDomain[0].domain
         return (
           <div className='TipSvcDomain'>
@@ -277,13 +270,7 @@ export default class TipSvcDomain extends Component {
           </div>
         )
       } else if (appDomain.length === 1) {
-        if (appDomain[0].data.length == 1) {
-          let linkURL = 'http://' + appDomain[0].data[0].domain
-          return (
-            <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-          )
-        }
-        if (appDomain[0].data.length > 1) {
+        if (appDomain[0].data.length === 1 || appDomain[0].data.length > 1) {
           let linkURL = 'http://' + appDomain[0].data[0].domain
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
