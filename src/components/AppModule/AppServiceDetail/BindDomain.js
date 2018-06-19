@@ -290,7 +290,7 @@ class BindDomain extends Component {
     const parentScope = this;
     return (
       <div id="bindDomain">
-        <Alert message='Tips:添加域名绑定后，需要在域名服务器上，将指定域名的CNAME指向下面表格中系统生成的"CNAME地址"' type="info" />
+        <Alert message='Tips：添加域名绑定后，需要在域名服务器上，将指定域名的CNAME指向下面表格中系统生成的"CNAME地址"' type="info" />
         <div className="titleBox">
           <div className="protocol commonTitle">
             <span>服务端口</span>

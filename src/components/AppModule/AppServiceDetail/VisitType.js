@@ -145,13 +145,24 @@ class VisitType extends Component{
       portsKeys
     })
   }
+  isHasLbDomain = () => {
+    const { svcDomain } = this.state
+    let hasLbDomain = false
+    if (isEmpty(svcDomain)) {
+      return this.setState({ hasLbDomain })
+    }
+    hasLbDomain = svcDomain.some(item => item.isLb)
+    this.setState({
+      hasLbDomain
+    })
+  }
   getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs) {
     const { form, k8sService } = this.props
     const { setFieldsValue } = form
     const k8sSer = k8sService.data[camelize(service.metadata.name)]
     this.setState({
       svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs, k8sSer)
-    })
+    }, this.isHasLbDomain)
     getProxy(cluster,true,{
       success: {
         func: (res) => {
@@ -245,7 +256,6 @@ class VisitType extends Component{
     })
   }
   onChange(e) {
-    const { form } = this.props;
     let value = e.target.value;
     let flag;
     if (value === 1) {
@@ -274,7 +284,6 @@ class VisitType extends Component{
     }
   }
   toggleDisabled() {
-    const { activeKey } = this.state
     this.setState({
       disabled: false,
       forEdit:true
@@ -299,7 +308,7 @@ class VisitType extends Component{
           return notification.info('请选择网络出口')
         }
       }
-      notification.spin('保存中更改中')
+      notification.spin('保存更改中')
       setServiceProxyGroup({
         cluster,
         service: service.metadata.name,
@@ -516,7 +525,7 @@ class VisitType extends Component{
       value, disabled, forEdit, selectDis, deleteHint,privateNet,
       addrHide, currentProxy, initGroupID, initValue, initSelectDics,
       isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB,
-      svcDomain
+      hasLbDomain
     } = this.state;
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -626,7 +635,7 @@ class VisitType extends Component{
               <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
               {this.domainList(true)}
             </dl>
-            <dl className="addrListBox">
+            <dl className={classNames("addrListBox", { hide: !hasLbDomain })}>
               <dt className="addrListTitle"><Icon type="link"/>负载均衡器访问地址</dt>
               {this.domainList(false, true)}
             </dl>
