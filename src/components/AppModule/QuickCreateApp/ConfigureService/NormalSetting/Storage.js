@@ -177,7 +177,8 @@ const Storage = React.createClass({
         let {
           type, mountPath, strategy,
           readOnly, volume, name,
-          size, fsType, type_1
+          size, fsType, type_1,
+          disableEdit,
         } = item
         let volumeName = volume
         if (volume === 'create') {
@@ -257,6 +258,7 @@ const Storage = React.createClass({
               icon="edit"
               style={{ marginRight: 8 }}
               type='dashed'
+              disabled={disableEdit}
               onClick={() => this.editStorage(index)}
             />
             <Button

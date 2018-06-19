@@ -91,6 +91,17 @@ let ConfigureService = React.createClass({
       if (templateDesc) {
         values.templateDesc = templateDesc
       }
+      if (location.query.addAI === 'true') {
+        values.serviceType = true
+        const { mountPath, readOnly, type, type_1, volume } = location.query
+        values.storageList = [
+          {
+            mountPath, type, type_1, volume,
+            readOnly: readOnly === 'true',
+            disableEdit: true,
+          },
+        ]
+      }
       setFieldsValue(values)
     }
     this.loadImageTags(this.props, newImageName)

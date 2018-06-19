@@ -154,4 +154,7 @@ module.exports = function (config) {
 
   // ~ auth
   this.auth = collections.create('auth')
+
+  // ~ ai
+  this.ai = collections.create('ai')
 }
