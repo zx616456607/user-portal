@@ -287,6 +287,137 @@ function statusFormat(status, createTime) {
       )
   }
 }
+function formatResourceName(resourceName, resourceId) {
+  // this function for format the resourceName
+  if (resourceName.indexOf('{') > -1) {
+    const newBody = JSON.parse(resourceName)
+    // check services
+    if (newBody.services) {
+      let newName = newBody.services
+      if (!Array.isArray(newName) || newName.length === 0) {
+        return '-'
+      }
+      newName = newName.join(',')
+      return newName
+    }
+    // check apps
+    if (newBody.apps) {
+      let newName = newBody.apps
+      if (!Array.isArray(newName) || newName.length === 0) {
+        return '-'
+      }
+      newName = newName.join(',')
+      return newName
+    }
+    // check projects
+    if (newBody.projects) {
+      let newName = newBody.projects
+      if (!Array.isArray(newName) || newName.length === 0) {
+        return '-'
+      }
+      newName = newName.join(',')
+      return newName
+    }
+    // check volumes
+    if (newBody.volumes) {
+      let newName = newBody.volumes
+      if (newName.length === 0) {
+        return '-'
+      }
+      newName = newName.join(',')
+      return newName
+    }
+    // check cloneName
+    if (newBody.cloneName) {
+      return newBody.cloneName
+    }
+    // check classifyName
+    if (newBody.classifies) {
+      const classifyNameArray = newBody.classifies.map(item => {
+        return item.classifyName
+      })
+      return classifyNameArray.join(',')
+    }
+    // check snapshotName
+    if (!!newBody.snapshotName && !newBody.cloneName) {
+      const snapshotName = newBody.snapshotName
+      const snaps = []
+      for (const snap in snapshotName) {
+        snapshotName[snap].forEach(item => {
+          snaps.push(item)
+        })
+      }
+      return snaps.join(',')
+    }
+    if (newBody.users) {
+      const newName = newBody.users
+      if (newName.length === 0) {
+        return '-'
+      }
+      const userNames = newName.forEach(item => {
+        return item.userName
+      })
+      return userNames.join(',')
+    }
+    if (newBody.name) {
+      return newBody.name
+    }
+    if (newBody.strategyName) {
+      return newBody.strategyName
+    }
+    if (newBody.imagename) {
+      return newBody.imagename
+    }
+    if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) &&
+      newBody.strategyIDs.length > 0) {
+      return newBody.strategyIDs.join(',')
+    }
+    if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
+      const ids = []
+      for (let i = 0; i < newBody.strategies.length; i++) {
+        const item = newBody.strategies[i]
+        if (item && item.strategyName) {
+          ids.push(item.strategyName)
+          break
+        }
+        if (item && item.strategyID) {
+          ids.push(item.strategyID)
+        }
+      }
+      return ids.join(',')
+    }
+    if (newBody.names) {
+      return newBody.names[0]
+    }
+    if (newBody.filePkgNames) {
+      return newBody.filePkgNames.toString()
+    }
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
+      return newBody.ids.join(',')
+    }
+    if (newBody.fileName) {
+      return newBody.fileName
+    }
+    if (newBody.fileNickName) {
+      return newBody.fileNickName
+    }
+    if (newBody.imageTagName) {
+      return newBody.imageTagName
+    }
+    // secret config
+    if (newBody.key && newBody.value) {
+      return newBody.key
+    }
+  } else {
+    if (resourceName.length === 0) {
+      if (resourceId.length === 0) {
+        return '-'
+      }
+      return resourceId
+    }
+    return resourceName
+  }
+}
 class OperationalAuditBkt extends React.Component {
   constructor(props) {
     super(props)
@@ -311,9 +442,14 @@ class OperationalAuditBkt extends React.Component {
           dataIndex: 'targetAndType',
           title: '对象及类型',
           render: (val, row) => {
+            try {
+              row.resourceName = formatResourceName(row.resourceName, row.resourceId)
+            } catch (e) {
+              // do nothing
+            }
             return <div>
               <div>类型：{transformResourceType(row.resourceType)}</div>
-              <div>类型：{row.resourceName}</div>
+              <div>对象：{row.resourceName}</div>
             </div>
           },
           width: 600,
