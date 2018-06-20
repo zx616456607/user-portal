@@ -63,11 +63,14 @@ exports.getClusters = function* () {
   if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
     license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
+  if (!results[0].listMeta) {
+    results[0].listMeta = {}
+  }
   this.body = {
     license,
     data: clusters,
-    total: results[0].listMeta.total,
-    count: results[0].listMeta.size
+    total: results[0].listMeta.total || 0,
+    count: results[0].listMeta.size || 0
   }
 }
 
