@@ -83,7 +83,7 @@ class DeployAI extends React.Component {
             size="large"
             optionFilterProp="children"
             placeholder="输入名称选择模型集"
-            style={{ width: 150 }}
+            style={{ width: 200 }}
             value={modelSet}
             onChange={value => {
               const targetModelsets = (modelsets.data

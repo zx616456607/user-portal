@@ -35,35 +35,41 @@ const rootRoutes = {
         cb(null, require('../containers/Login/Enterprise').default)
       })
     },
-  },{
+  },
+  {
     path: '/signup',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
         cb(null, require('../containers/Register').default)
       })
     },
-  },{
+  },
+  {
     path: '/rpw',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
         cb(null, require('../containers/ResetPassWord').default)
       })
     },
-  },{
+  },
+  {
     path: '/teams/invite',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
         cb(null, require('../containers/Invite').default)
       })
     },
-  },{
+  },
+  {
     path: '/notfound',
     component: require('../containers/ErrorPage').default,
-  },{
+  },
+  {
       path:'/email/invitations/join',
       // path:'/alerts/invitations/join',
       component: require('../containers/Template').default
-  },{
+  },
+  {
     path: '/',
     component: require('../containers/App/Enterprise').default,
     indexRoute: {
@@ -78,116 +84,155 @@ const rootRoutes = {
     //   path: 'quickentry',
     //   component: require('../components/QuickEntry').default,
     // },
-    {
-      path: 'app_manage',
-      component: require('../containers/Application').default,
-      indexRoute: {
-        component: require('../components/AppModule/AppList').default,
+      {
+        path: 'app_manage',
+        component: require('../containers/Application').default,
+        indexRoute: {
+          component: require('../components/AppModule/AppList').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./app_manage').default)
+          })
+        },
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./app_manage').default)
-        })
+      {
+        path: 'app_center',
+        component: require('../containers/AppCenter').default,
+        indexRoute: {
+          component: require('../components/AppCenter/AppTemplate').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./app_center').default)
+          })
+        },
       },
-    }, {
-      path: 'app_center',
-      component: require('../containers/AppCenter').default,
-      indexRoute: {
-        component: require('../components/AppCenter/AppTemplate').default,
+      {
+        path: 'database_cache',
+        component: require('../containers/Database').default,
+        indexRoute: {
+          component: require('../components/DatabaseCache/MysqlCluster').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./database_cache').default)
+          })
+        },
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./app_center').default)
-        })
+      {
+        path: 'ci_cd',
+        component: require('../containers/CICD').default,
+        indexRoute: {
+          component: require('../components/CICDModule/CodeStore').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./ci_cd').default)
+          })
+        },
       },
-    }, {
-      path: 'database_cache',
-      component: require('../containers/Database').default,
-      indexRoute: {
-        component: require('../components/DatabaseCache/MysqlCluster').default,
+      {
+        path: 'account',
+        component: require('../containers/Account').default,
+        indexRoute: {
+          // component: require('../components/AccountModal/UserInfo').default,
+          component: require('../components/TenantManage/UserInfo').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./account').default)
+          })
+        },
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./database_cache').default)
-        })
+      {
+        path: 'setting',
+        component: require('../containers/Setting').default,
+        indexRoute: {
+          component: require('../components/SettingModal/Version').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./setting').default)
+          })
+        },
       },
-    }, {
-      path: 'ci_cd',
-      component: require('../containers/CICD').default,
-      indexRoute: {
-        component: require('../components/CICDModule/CodeStore').default,
+      {
+        path: 'manange_monitor',
+        component: require('../containers/ManageMonitor').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/manange_monitor/audit'),
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./manange_monitor').default)
+          })
+        },
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./ci_cd').default)
-        })
+      {
+        path: 'integration',
+        component: require('../containers/Integration').default,
+        indexRoute: {
+          component: require('../components/IntegrationModule').default,
+        }
       },
-    }, {
-      path: 'account',
-      component: require('../containers/Account').default,
-      indexRoute: {
-        // component: require('../components/AccountModal/UserInfo').default,
-        component: require('../components/TenantManage/UserInfo').default,
+      {
+        path: 'cluster',
+        component: require('../containers/Cluster').default,
+        indexRoute: {
+          component: require('../components/ClusterModule').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./cluster').default)
+          })
+        },
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./account').default)
-        })
+      {
+        path: 'tenant_manage',
+        component: require('../containers/Tenant').default,
+        indexRoute: {
+          component: require('../components/TenantManage').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./tenant').default)
+          })
+        },
       },
-    }, {
-      path: 'setting',
-      component: require('../containers/Setting').default,
-      indexRoute: {
-        component: require('../components/SettingModal/Version').default,
+      {
+        path: 'ai-deep-learning',
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
+        },
+        childRoutes: [
+          {
+            path: 'notebook',
+            component: require('../../client/containers/AIDeepLearning').default,
+          },
+          {
+            path: 'large-scale-train',
+            component: require('../../client/containers/AIDeepLearning').default,
+          },
+          {
+            path: 'data-set',
+            component: require('../../client/containers/AIDeepLearning').default,
+          },
+          {
+            path: 'model-set',
+            component: require('../../client/containers/AIDeepLearning').default,
+          },
+          {
+            path: 'ai-model-service',
+            component: require('../components/AppModule/AppList').default,
+          },
+        ],
       },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./setting').default)
-        })
-      },
-    }, {
-      path: 'manange_monitor',
-      component: require('../containers/ManageMonitor').default,
-      indexRoute: {
-        onEnter: (nextState, replace) => replace('/manange_monitor/audit'),
-      },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./manange_monitor').default)
-        })
-      },
-    }, {
-      path: 'integration',
-      component: require('../containers/Integration').default,
-      indexRoute: {
-        component: require('../components/IntegrationModule').default,
+      {
+        path: '*',
+        component: require('../containers/ErrorPage').default,
       }
-    }, {
-      path: 'cluster',
-      component: require('../containers/Cluster').default,
-      indexRoute: {
-        component: require('../components/ClusterModule').default,
-      },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./cluster').default)
-        })
-      },
-    }, {
-      path: 'tenant_manage',
-      component: require('../containers/Tenant').default,
-      indexRoute: {
-        component: require('../components/TenantManage').default,
-      },
-      getChildRoutes: (location, cb) => {
-        require.ensure([], function (require) {
-          cb(null, require('./tenant').default)
-        })
-      },
-    }, {
-      path: '*',
-      component: require('../containers/ErrorPage').default,
-    }],
+    ],
   }]
 }
 
