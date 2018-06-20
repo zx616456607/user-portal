@@ -204,8 +204,10 @@ class App extends Component {
       };
       if(!!errorMessage.error.message.data && !!errorMessage.error.message.data.desc){
         state.message403 = errorMessage.error.message.data.desc;
+      }else if(!!errorMessage.error.data && !!errorMessage.error.data.description){
+        state.message403 = errorMessage.error.data.description;
       }else{
-        state.message403 = "";
+        state.message403 = ""
       }
       this.setState(state);
       return
