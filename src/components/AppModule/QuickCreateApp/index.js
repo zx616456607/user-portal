@@ -19,7 +19,8 @@ import yaml from 'js-yaml'
 import isEmpty from 'lodash/isEmpty'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
-import DepolyWrap from '../AppCreate/DeployWrap'
+import DeployWrap from '../AppCreate/DeployWrap'
+import DeployAI from '../../../../client/containers/AppModule/QuickCreateApp/DeployAI'
 import TemplateTable from '../../../../client/containers/AppModule/QuickCreateApp/SelectTemplate'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../components/Notification'
@@ -98,7 +99,10 @@ class QuickCreateApp extends Component {
       AdvancedSettingKey: null,
       cpuTotal: 0,
       memoryTotal: 0,
-      priceHour: 0
+      priceHour: 0,
+      runAIImage: undefined,
+      modelSet: undefined,
+      modelSetVolumeConfig: undefined,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -737,10 +741,16 @@ class QuickCreateApp extends Component {
     })
   }
 
+  onDeployAIChange = ({ runAIImage, modelSet, modelSetVolumeConfig }) => this.setState({
+    runAIImage: runAIImage || this.state.runAIImage,
+    modelSet: modelSet || this.state.modelSet,
+    modelSetVolumeConfig: modelSetVolumeConfig || this.state.modelSetVolumeConfig,
+  })
+
   renderBody() {
     const { location } = this.props
     const { hash, query } = location
-    const { key, addWrap, template } = query
+    const { key, addWrap, template, addAI } = query
     const { imageName, registryServer, appName, editServiceLoading, AdvancedSettingKey, newImageName } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
@@ -764,9 +774,15 @@ class QuickCreateApp extends Component {
       )
     }
     if (addWrap) {
-      return <DepolyWrap goBack={this.goSelectCreateAppMode}  location={location} quick_create={'quick_create'}/>
+      return <DeployWrap goBack={this.goSelectCreateAppMode}  location={location} quick_create={'quick_create'}/>
     } else if (template) {
       return <TemplateTable location={location} onChange={this.onSelectTemplate}/>
+    } else if (addAI) {
+      return <DeployAI
+        runAIImage={this.state.runAIImage}
+        modelSet={this.state.modelSet}
+        onChange={this.onDeployAIChange}
+      />
     }
     return <SelectImage location={location} onChange={this.onSelectImage} />
   }
@@ -777,7 +793,8 @@ class QuickCreateApp extends Component {
     }
     return <span>&nbsp;创建&nbsp;</span>
   }
-  nextStep() {
+
+  /* nextStep() {
     const { wrapList, location } = this.props
     if (!window.WrapListTable) {
       notification.info('请先选择应用包')
@@ -818,6 +835,27 @@ class QuickCreateApp extends Component {
       imageName += `&appName=${appName}&action=${action}`
     }
     browserHistory.push('/app_manage/app_create/quick_create'+ imageName + SERVICE_CONFIG_HASH)
+  } */
+
+  deployAINextStep = () => {
+    const { runAIImage, modelSet, modelSetVolumeConfig } = this.state
+    if (!runAIImage) {
+      notification.warn('请选择运行环境')
+      return
+    }
+    if (!modelSet) {
+      notification.warn('请绑定模型集')
+      return
+    }
+    const { loginUser } = this.props
+    const registryServer = loginUser.registryConfig.server.replace(/https?:\/\//, '')
+    const query = Object.assign({}, modelSetVolumeConfig, {
+      addAI: true,
+      imageName: runAIImage,
+      registryServer,
+      modelSet,
+    })
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
   }
 
   renderFooterSteps() {
@@ -860,7 +898,12 @@ class QuickCreateApp extends Component {
           >
             上一步
           </Button>
-          {/*<Button size="large" style={{marginLeft:10}} onClick={()=> this.nextStep()}>下一步</Button>*/}
+          {
+            query.addAI && query.addAI === 'true' &&
+            <Button size="large" style={{marginLeft:10}} onClick={()=> this.deployAINextStep()}>
+            下一步
+            </Button>
+          }
         </div>
     )
   }

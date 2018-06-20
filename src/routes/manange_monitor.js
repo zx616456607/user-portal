@@ -15,10 +15,10 @@ const manangeMonitorRoutes = [
     path: 'audit',
     component: require('../components/ManageMonitor/OperationalAudit').default,
   },
-  // {
-  //   path: 'audit_bkt',
-  //   component: require('../../client/containers/ManageMonitor').default,
-  // },
+  {
+    path: 'audit_bkt',
+    component: require('../../client/containers/ManageMonitor/OperationAudit').default,
+  },
   {
     path: 'query_log',
     component: require('../components/ManageMonitor/QueryLog').default,

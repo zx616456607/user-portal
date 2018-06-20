@@ -19,14 +19,18 @@ export const ROLE_CREATE_FAILURE = 'ROLE_CREATE_FAILURE'
 // Fetches create role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCreateRole(body,callback){
-	let endpoint = `${API_URL_PREFIX}/role`
+  let endpoint = `${API_URL_PREFIX}/role`
+  const headers = {
+    project: body.project
+  }
 	return {
 		[FETCH_API]: {
       types: [ROLE_CREATE_REQUEST, ROLE_CREATE_SUCCESS, ROLE_CREATE_FAILURE],
       endpoint,
       options: {
         method: 'POST',
-        body
+        body,
+        headers,
       },
       schema: {},
     },
@@ -49,7 +53,7 @@ export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 // Fetches list role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchListRole(query,callback){
-	let endpoint = `${API_URL_PREFIX}/role`
+	let endpoint = `${API_URL_PREFIX}/allRoles`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }

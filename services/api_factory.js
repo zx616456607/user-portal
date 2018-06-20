@@ -15,6 +15,7 @@ const devopsConfig = global.globalConfig.cicdConfig
 const vmWrapConfig = global.globalConfig.vmWrapConfig
 const imageScanConfig = require('../configs/image_scan')
 const registriyApi = require('../registry')
+const aiopsConfig = global.globalConfig.aiopsConfig
 
 exports.getApi = function (loginUser, timeout) {
   const apiConfig = {
@@ -74,6 +75,20 @@ exports.getDevOpsApi = function (loginUser) {
   }
   const api = new tenxApi(apiConfig)
   return api.devops
+}
+
+/**
+ * API factory to handle AIOps service
+ */
+exports.getAIOpsApi = function (loginUser) {
+  const apiConfig = {
+    protocol: aiopsConfig.protocol,
+    host: aiopsConfig.host,
+    version: aiopsConfig.version,
+    auth: loginUser,
+  }
+  const api = new tenxApi(apiConfig)
+  return api.ai
 }
 
 exports.getRegistryApi = function (registryConfig) {
