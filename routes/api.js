@@ -57,6 +57,7 @@ const loadBalanceController = require('../controllers/load_balance')
 const helmTemplateController = require('../controllers/template')
 const autoScalerController = require('../controllers/autoscaler')
 const schedulerController = require('../controllers/scheduler')
+const aiopsController = require('../controllers/aiops')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -660,6 +661,7 @@ module.exports = function (Router) {
   router.post('/role/:id/removePermission', roleController.removePermission)
   router.get('/role/:id', roleController.get)
   router.get('/role', roleController.list)
+  router.get('/allRoles', roleController.allRoles)
   router.get('/role/:name/existence', roleController.existence)
   router.get('/role/:id/allowUpdate', roleController.allowUpdate)
   router.post('/role/:roleID/:scope/:scopeID', roleController.usersAddRoles)
@@ -792,6 +794,9 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/:service/labels', schedulerController.addServiceTag)
   router.put('/clusters/:cluster/services/:service/labels', schedulerController.updataServiceTag)
   router.del('/clusters/:cluster/services/:service/labels/:labels', schedulerController.delateServiceTag)
+
+  // aiops
+  router.get('/ai/clusters/:cluster/modelsets', aiopsController.getModelsets)
 
   return router.routes()
 }

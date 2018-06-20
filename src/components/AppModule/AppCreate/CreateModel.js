@@ -86,6 +86,10 @@ class CreateModel extends Component {
         linkUrl = "app_store"
         break
       }
+      case 'AI': {
+        linkUrl = "AI"
+        break
+      }
       case 'layout': {
         linkUrl = "compose_file"
         break
@@ -133,6 +137,10 @@ class CreateModel extends Component {
         case 'deploy_wrap':
           next = 'quick_create'
           query.addWrap = true
+          break
+        case 'AI':
+          next = 'quick_create'
+          query.addAI = true
           break
         case 'wrap_store':
           next = 'quick_create'
@@ -215,7 +223,10 @@ class CreateModel extends Component {
                 </div>
               </Tooltip>
             </div>
-
+            <Button type={createModel=='AI' ? 'primary':'ghost'} className='AI' onClick={()=> this.selectCreateModel('AI')}>
+              <img src={createModel == 'AI' ? stackIconHover : stackIcon} className="stackIcon" />
+              AI 模型服务
+            </Button>
             {moreService ?
               <Tooltip title='添加服务暂不支持编排文件方式'>
                 <div className='otherStack'>

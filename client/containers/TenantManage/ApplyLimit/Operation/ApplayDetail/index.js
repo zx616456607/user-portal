@@ -74,6 +74,18 @@ const data = [
     aggregate: '集群2',
     use: 1,
     applyLimit: -2,
+  }, {
+    key: '3',
+    resource: 'notpass',
+    aggregate: '集群2',
+    use: 1,
+    applyLimit: -2,
+  }, {
+    key: '4',
+    resource: 'notpass',
+    aggregate: '集群2',
+    use: 1,
+    applyLimit: -2,
   }]
 
 class ApplayDetail extends React.Component {
@@ -115,7 +127,8 @@ class ApplayDetail extends React.Component {
           >
             <Input value={'babab'} type="textarea" rows={4}/>
           </FormItem>
-          <Table columns={getcolums()} dataSource={data} pagination={false} size="small"/>
+          <Table columns={getcolums()} dataSource={data} pagination={false} size="small"
+            scroll={{ y: 120 }}/>
         </div>
       </Modal>
     )

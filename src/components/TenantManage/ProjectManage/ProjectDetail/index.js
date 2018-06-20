@@ -144,7 +144,7 @@ class ProjectDetail extends Component {
         success: {
           func: (res) => {
             if (res.data.statusCode === 200) {
-              let result = res.data.data.items;
+              let result = res.data.data;
               let relatedRoles = projectDetail.relatedRoles;
               for (let i = 0; i < result.length; i++) {
                 let flag = false;
@@ -1662,7 +1662,7 @@ class ProjectDetail extends Component {
                           this.state.currpermissionPolicyType === 1?
                           <div className="type1">
                             <div className="btnContainer">
-                              <Button disabled={currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客" || (!isManager && !isAble)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
+                              <Button disabled={currentRoleInfo && (currentRoleInfo.name === "项目管理员" || currentRoleInfo.name === "项目访客") || (!isManager && !isAble)} type="primary" size="large" icon="plus" onClick={this.perallEditModalOpen}>授权资源</Button><span className="hint">以下权限对项目内所有资源生效</span>
                             </div>
                             <div className="permissionType1Container">
                               <div className="authBox inlineBlock">
@@ -1697,8 +1697,8 @@ class ProjectDetail extends Component {
                                 scope={this}
                                 isAdd={false}
                                 isTotal={true}
-                                totalSelected={currentRoleInfo.total}
-                                roleId={currentRoleInfo.id}
+                                totalSelected={currentRoleInfo && currentRoleInfo.total}
+                                roleId={currentRoleInfo && currentRoleInfo.id}
                                 visible={this.state.isShowperallEditModal}
                                 isDetail={true}
                               /> : null
@@ -1716,7 +1716,7 @@ class ProjectDetail extends Component {
                                   <PermissionOverview
                                     project={location.query.name}
                                     clusterID={selectedCluster}
-                                    roleId={currentRoleInfo.id}
+                                    roleId={currentRoleInfo && currentRoleInfo.id}
                                     openPermissionModal={this.editPermission}
                                     callback={this.getPermissionOverview}
                                     isDisabled={!(isAble || isManager)}

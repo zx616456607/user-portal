@@ -35,6 +35,7 @@ import DeployEnvModal from '../DeployEnvModal'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -1041,6 +1042,7 @@ class AppList extends Component {
         >
         <Title title="应用列表"/>
         <div id='AppList' key='AppList'>
+          <ResourceBanner />
           <div className='operationBox operationBoxa'>
             <div className='leftBox'>
              { createButton }
