@@ -1023,7 +1023,7 @@ let ProjectManage = React.createClass({
             }
             <Button type="ghost" size="large" className="manageBtn" onClick={() => this.refreshTeamList()}><i
               className="fa fa-refresh" aria-hidden="true" style={{marginRight: '5px'}}/>刷新</Button>
-            <CommonSearchInput clearInput={this.state.clearInput} placeholder="按项目名称搜索" size="large"
+            <CommonSearchInput clearInput={this.state.clearInput} placeholder="按命名空间搜索" size="large"
                                onSearch={(value) => this.projectNameSearch(value)}/>
             { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <Pagination {...pageOption}/>}
             { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <div className="total">共计 {!isEmpty(projectList) && projectList.listMeta.total || 0} 个</div>}
