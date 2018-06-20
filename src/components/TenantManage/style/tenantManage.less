@@ -161,6 +161,9 @@
     }
   }
   .ant-table {
+    padding-top: 10px;
+    padding-left: 2px;
+    padding-right: 0;
     &:first-child {
       border-radius: 0;
       border-right: 1px solid @border-color-base;
@@ -180,11 +183,10 @@
   }
   .personalProject {
     .ant-table-header {
-      // margin-right: -2px;
     }
     table {
       border: none;
-      padding-right: 0;
+      padding-right: 0px;
       border-radius: 0;
     }
     tr {
@@ -196,6 +198,9 @@
     }
   }
   .shareProject {
+    .ant-table {
+      padding-right: 2px;
+    }
     table {
       border: none;
     }
@@ -205,6 +210,12 @@
         color: white;
         font-weight: normal;
       }
+    }
+  }
+  .checkDetail {
+    &:hover {
+      color:  @primary-color;
+      cursor: pointer;
     }
   }
 }
