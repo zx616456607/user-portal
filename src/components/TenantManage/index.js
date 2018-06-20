@@ -13,13 +13,45 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Row, Card, Col, Alert, Button, Icon } from 'antd'
+import { Row, Card, Col, Alert, Button, Icon, Table } from 'antd'
 import './style/tenantManage.less'
 import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
 import ReactEcharts from 'echarts-for-react'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
+import ApprovalOperation from './ApprovalOperation'
 
+
+const data = [{
+  key: '1',
+  personal: '胡彦斌',
+  approvalTime: 32,
+}, {
+  key: '2',
+  personal: '胡彦祖',
+  approvalTime: 42,
+}, {
+  key: '3',
+  personal: '李大嘴',
+  approvalTime: 32,
+}];
+
+const getColumns = ({ toggleApprovalModal }) => {
+  return [{
+    title: '个人项目',
+    dataIndex: 'personal',
+    render: (text, record) => <span className="personalItem">{record.personal}</span>
+  }, {
+    title: '申请事件',
+    dataIndex: 'approvalTime',
+  }, {
+    title: '操作',
+    dataIndex: 'detail',
+    render: () => <TenxIcon type="circle-arrow-right-o" className="checkDetail"
+     onClick={toggleApprovalModal}/>
+  }];
+}
 class TenantManage extends React.Component {
   constructor(props) {
     super(props)
@@ -38,6 +70,7 @@ class TenantManage extends React.Component {
       dataRow: '',
       iconState: true,
       classindex: 0,
+      showApprovalModal: false, // 显示审批弹出框
     }
   }
 
@@ -132,7 +165,11 @@ class TenantManage extends React.Component {
       localStorage.setItem('state', true)
     }
   }
-
+  toggleApprovalModal = () => {
+    const { showApprovalModal } = this.state
+    console.log('showApprovalModal', showApprovalModal)
+    this.setState({ showApprovalModal: !showApprovalModal })
+  }
   render() {
     const ListLi = [{
       id: 1,
@@ -156,11 +193,13 @@ class TenantManage extends React.Component {
       item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
     }]
     const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
-      role_defaultSet, team_createdByUser } = this.state
+      role_defaultSet, team_createdByUser, showApprovalModal } = this.state
     let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
     let t_createdByUser = team_createdByUser
+    const toggleApprovalModal = this.toggleApprovalModal
+
     let memberOption = {
       tooltip: {
         trigger: 'item',
@@ -468,26 +507,32 @@ class TenantManage extends React.Component {
           <div className="alertRow">
             <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
           </div>
-          <Row className="content" gutter={16} style={{ marginTop: 16 }}>
-            <Col span={6}>
-              <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                <ReactEcharts
-                  notMerge={true}
-                  option={memberOption}
-                  style={{ height: '180px' }}
-                />
-              </Card>
+          <Row gutter={30}>
+            <Col span={12}>
+            <Row className="content" gutter={16} >
+            <Col span={12}>
+              <div style={{ marginBottom: '16px'}}>
+                <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={memberOption}
+                    style={{ height: '180px' }}
+                  />
+                </Card>
+              </div>
             </Col>
-            <Col span={6}>
-              <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                <ReactEcharts
-                  notMerge={true}
-                  option={teamOption}
-                  style={{ height: '180px' }}
-                />
-              </Card>
+            <Col span={12}>
+              <div style={{ marginBottom: '16px'}}>
+                <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={teamOption}
+                    style={{ height: '180px' }}
+                  />
+                </Card>
+              </div>
             </Col>
-            <Col span={6}>
+            <Col span={12}>
               <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
                 <ReactEcharts
                   notMerge={true}
@@ -496,7 +541,7 @@ class TenantManage extends React.Component {
                 />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col span={12}>
               <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
                 <ReactEcharts
                   notMerge={true}
@@ -507,7 +552,26 @@ class TenantManage extends React.Component {
             </Col>
           </Row>
           <Button style={btmStyle} className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[1].src} />操作引导</Button>
-
+            </Col>
+            <Col span={12}>
+            <Card title={<span>资源配额申请概览 (待处理) <span>共{}个</span></span>}
+              extra={<div className="approvalrecord">审批记录>></div>}
+               bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
+            >
+              <Row>
+                <Col span={12} className="personalProject">
+                  <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}
+                    scroll={{ y: 400 }} />
+                </Col>
+                <Col span={12} className="shareProject">
+                  <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}/>
+                </Col>
+                <ApprovalOperation title="资源配额申请详情" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
+                  record={null}/>
+              </Row>
+            </Card>
+            </Col>
+          </Row>
           <Row className="content" gutter={30}>
             <Col span={30}>
               <Card

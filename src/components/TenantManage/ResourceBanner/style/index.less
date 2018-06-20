@@ -1,0 +1,23 @@
+@import '../../../../assets/style/site/core.less';
+.ResourceBanner {
+  display: flex;
+  overflow: hidden;
+  border: 1px dashed @primary-color ;
+  height: 40px;
+  border-radius: 4px;
+  line-height: 40px;
+  background-color: #e5f2fa;
+  margin-bottom: @padding-medium;
+  padding: 0px @padding-small;
+  > div {
+    padding-right: @padding-base;
+  }
+  > div:last-child {
+    flex: 1;
+    text-align: right;
+    padding-right: 0;
+  }
+  .progress {
+    width: 200px;
+  }
+}

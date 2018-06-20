@@ -267,7 +267,7 @@ class ApprovalLimit extends React.Component {
               <Table
                 columns={getColums({ sortedInfo, toggleDetailForm,
                   toggleCancelApproval, getDetailRecord })}
-                dataSource={data} pagination={false}/>
+                dataSource={data} pagination={false} />
             </Card>
           </div>
         </QueueAnim>
