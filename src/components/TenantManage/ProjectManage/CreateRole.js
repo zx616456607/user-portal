@@ -166,18 +166,23 @@ class CreateRoleModal extends Component{
   cancelModal() {
     const { scope } = this.props;
     let tempState = {permissionPolicyType: 1, permissionType: 1}
+    this.setState(tempState);
 
     if(scope.state.characterModal === true)tempState.characterModal = false
     else tempState.isShowperallEditModal = false
+    scope.setState(tempState)
 
-    scope.setState(tempState);
     this.props.form.resetFields();
+    setTimeout(() => {
+      this.props.form.setFieldsValue({permissionType: 1});
+    }, 2000)
   }
   okCreateModal() {
     const { CreateRole, loadData, scope, form } = this.props;
     const { checkedKeys, permissionPolicyType, permissionType } = this.state;
     const { validateFields } = form;
     let notify = new Notification()
+    const project = this.props.scope.props.location.query.name
     validateFields([ 'roleName' ], (errors,values)=>{
     // validateFields([ 'roleName', 'roleDesc' ], (errors,values)=>{
       if (!!errors) {
@@ -188,7 +193,8 @@ class CreateRoleModal extends Component{
       let params = {
         name: roleName,
         //comment: roleDesc,
-        permissionPolicyType: permissionPolicyType,
+        permissionPolicyType,
+        project,
       };
       if(permissionPolicyType === 1 && permissionType === 1) {
         if(checkedKeys.length === 0){
@@ -209,7 +215,6 @@ class CreateRoleModal extends Component{
               // targetKeys.push(res.data.data.roleID);
               scope.setState({characterModal:false}, () => {
                 scope.addCharacterOk(res.data.data.roleID);
-              }, () => {
                 this.cancelModal()
               })
             }
@@ -217,12 +222,12 @@ class CreateRoleModal extends Component{
           isAsync: true
         },
         failed:{
-          func: (res) => {
+          func: (err) => {
             if(err.statusCode === 403){
-              notification.warn(`创建角色失败, 用户没有权限修改角色`)
+              notify.warn(`创建角色失败, 用户没有权限修改角色`)
             }
             else{
-              notification.warn(`创建角色失败`)
+              notify.warn(`创建角色失败`)
             }
             scope.setState({characterModal:false}, () => {
               this.cancelModal()

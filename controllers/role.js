@@ -19,7 +19,9 @@ exports.create = function* () {
   const loginUser = this.session.loginUser
   const body = this.request.body
   const api = apiFactory.getRoleApi(loginUser)
-  const result = yield api.createBy([],null,body)
+  const { project } = this.request.headers
+  const result = yield api.createBy([], null, body, { headers: { project, teamspace: project } })
+  // const result = yield api.createBy([],null,body)
   this.body = {
   	data: result
   }
@@ -93,6 +95,15 @@ exports.list = function* (){
   const query = this.query || {}
   const api = apiFactory.getRoleApi(loginUser)
   const result = yield api.get(query)
+  this.body = {
+    data: result
+  }
+}
+exports.allRoles = function* (){
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const api = apiFactory.getRoleApi(loginUser)
+  const result = yield api.getBy(['all'],null)
   this.body = {
     data: result
   }

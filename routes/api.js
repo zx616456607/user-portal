@@ -661,6 +661,7 @@ module.exports = function (Router) {
   router.post('/role/:id/removePermission', roleController.removePermission)
   router.get('/role/:id', roleController.get)
   router.get('/role', roleController.list)
+  router.get('/allRoles', roleController.allRoles)
   router.get('/role/:name/existence', roleController.existence)
   router.get('/role/:id/allowUpdate', roleController.allowUpdate)
   router.post('/role/:roleID/:scope/:scopeID', roleController.usersAddRoles)
