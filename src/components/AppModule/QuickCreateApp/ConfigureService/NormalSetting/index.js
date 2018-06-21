@@ -62,6 +62,7 @@ const Normal = React.createClass({
       this.setBindNodeToDefault()
     }
     switch(listNodes){
+      case 0:
       case 1:
         return
       case 2:
@@ -386,6 +387,7 @@ const Normal = React.createClass({
     const { currentCluster,formItemLayout } = this.props
     const { listNodes } = currentCluster
     switch(listNodes){
+      case 0:
       case 1:
       default:
         return <span></span>
@@ -537,6 +539,7 @@ const Normal = React.createClass({
       isCanCreateVolume, imageConfigs,
       id, isTemplate, location
     } = this.props
+    const { listNodes } = currentCluster
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps, setFieldsValue } = form
     const { mountPath, containerPorts } = imageConfigs
@@ -685,15 +688,20 @@ const Normal = React.createClass({
                   6           1               0    1
                   7           1               1    0
                   8           1               1    1   */}
-          <div id='nodeScheduler'>
-            <Collapse>
-              <Panel header={schedulerHeader}>
-                <div className='bindNodes'>
-                  { this.handleBindNodeTempalte() }
-                </div>
-              </Panel>
-            </Collapse>
-          </div>
+          {/* listnodes  为0是老的数据 */}
+          {
+            listNodes === 0 || listNodes === 1 ?
+              null:
+              <div id='nodeScheduler'>
+                <Collapse>
+                  <Panel header={schedulerHeader}>
+                    <div className='bindNodes'>
+                      { this.handleBindNodeTempalte() }
+                    </div>
+                  </Panel>
+                </Collapse>
+              </div>
+          }
         </div>
       </div>
     )
