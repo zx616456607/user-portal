@@ -8,7 +8,6 @@ import { formatDate } from '../../../../src/common/tools.js'
 import '../style/manageMonitor.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
-const Option = Select.Option
 const notification = new NotificationHandler()
 
 // this function for format duringtime
@@ -36,220 +35,6 @@ function duringTimeFormat(time) {
   }
   // ms
   return (time + ' 毫秒')
-}
-function transformOperationType(type) {
-  switch (type) {
-    case 0:
-      return '未知'
-    case 1:
-      return '创建'
-    case 2:
-      return '请求'
-    case 3:
-      return '获取'
-    case 4:
-      return '更新'
-    case 5:
-      return '删除'
-    case 6:
-      return '开始'
-    case 7:
-      return '结束'
-    case 8:
-      return '重启'
-    case 9:
-      return '停止'
-    case 10:
-      return '继续'
-    case 11:
-      return '批量删除'
-    case 12:
-      return '批量启动'
-    case 13:
-      return '批量停止'
-    case 14:
-      return '批量重启'
-    case 15:
-      return '快速重启'
-    case 16:
-      return '检测存在'
-    case 17:
-      return '格式化'
-    case 18:
-      return '扩张'
-    case 19:
-      return '批量忽略'
-    case 20:
-      return '允许发邮件'
-    case 21:
-      return '禁止发邮件'
-    case 22:
-      return '创建或更新'
-    case 23:
-      return '切换'
-    case 24:
-      return '忽略'
-    case 25:
-      return '回滚'
-    case 26:
-      return '克隆'
-    default:
-      return '未知'
-  }
-}
-function transformResourceType(type) {
-  switch (type) {
-    case 0:
-      return '未知'
-    case 1:
-      return '实例'
-    case 2:
-      return '实例事件'
-    case 3:
-      return '实例日志'
-    case 4:
-      return '实例指标'
-    case 5:
-      return '实例容器指标'
-    case 6:
-      return '服务'
-    case 7:
-      return '服务实例'
-    case 8:
-      return '服务事件'
-    case 9:
-      return '服务日志'
-    case 10:
-      return 'k8s服务'
-    case 11:
-      return '服务滚动发布'
-    case 12:
-      return '服务手动伸缩'
-    case 13:
-      return '服务自动伸缩'
-    case 14:
-      return '更改服务配置'
-    case 15:
-      return '高可用设置'
-    case 16:
-      return '服务域名'
-    case 17:
-      return '应用'
-    case 18:
-      return '应用服务'
-    case 19:
-      return '应用操作日志'
-    case 20:
-      return '应用外部信息'
-    case 21:
-      return '应用拓扑'
-    case 22:
-      return '配置组'
-    case 23:
-      return '服务配置'
-    case 24:
-      return '主机'
-    case 25:
-      return '主机指标'
-    case 26:
-      return '第三方镜像仓库'
-    case 27:
-      return '存储'
-    case 28:
-      return '存储使用'
-    case 29:
-      return '成员'
-    case 30:
-      return '用户团队'
-    case 31:
-      return '用户空间'
-    case 32:
-      return '团队'
-    case 33:
-      return '团队成员'
-    case 34:
-      return '团队空间'
-    case 35:
-      return '集群'
-    case 36:
-      return '代码仓库'
-    case 37:
-      return '已激活代码库'
-    case 38:
-      return 'TenxFlow'
-    case 39:
-      return 'TenxFlow执行过程'
-    case 40:
-      return 'TenxFlow共享目录'
-    case 41:
-      return 'TenxFlow构建'
-    case 42:
-      return 'CI规则'
-    case 43:
-      return 'CD规则'
-    case 44:
-      return '云端Dockerfile'
-    case 45:
-      return 'CI构建'
-    case 46:
-      return 'CD部署镜像'
-    case 47:
-      return '镜像导出'
-    case 48:
-      return '告警通知组'
-    case 49:
-      return '告警记录'
-    case 50:
-      return '告警策略'
-    case 51:
-      return '告警规则'
-    case 52:
-      return '快照'
-    case 53:
-      return '标签'
-    case 54:
-      return '数据库缓存'
-    case 55:
-      return '项目'
-    case 59:
-      return '项目角色'
-    case 60:
-      return '应用包管理'
-    case 61:
-      return '应用商店'
-    case 62:
-      return '应用包发布审核'
-    case 63:
-      return '镜像'
-    case 64:
-      return '镜像商店'
-    case 65:
-      return '镜像发布审核'
-    case 66:
-      return '监控面板'
-    case 67:
-      return '监控图表'
-    case 68:
-      return '服务灰度发布'
-    case 69:
-      return '加密配置组'
-    case 70:
-      return '加密服务配置'
-    case 71:
-      return '分类管理'
-    case 72:
-      return '负载均衡'
-    case 73:
-      return '监听器'
-    case 74:
-      return '权限控制'
-    case 75:
-      return '应用模板'
-    case 1000:
-      return '基础镜像'
-    default:
-      return '未知'
-  }
 }
 function statusFormat(status, createTime) {
   // this function for format status to show user
@@ -422,60 +207,7 @@ class OperationalAuditBkt extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      columns: [
-        {
-          dataIndex: 'time',
-          title: '时间',
-          render: val => <span className="time">{formatDate(val)}</span>,
-        },
-        {
-          dataIndex: 'duration',
-          title: '持续时间',
-          render: val => <span>{duringTimeFormat(val)}</span>,
-        },
-        {
-          dataIndex: 'operationType',
-          title: '操作类型',
-          render: val => <span>{transformOperationType(val)}</span>,
-        },
-        {
-          dataIndex: 'targetAndType',
-          title: '对象及类型',
-          render: (val, row) => {
-            try {
-              row.resourceName = formatResourceName(row.resourceName, row.resourceId)
-            } catch (e) {
-              // do nothing
-            }
-            return <div>
-              <div>类型：{transformResourceType(row.resourceType)}</div>
-              <div>对象：{row.resourceName}</div>
-            </div>
-          },
-          width: 600,
-        },
-        {
-          dataIndex: 'namespace',
-          title: '项目',
-        },
-        {
-          dataIndex: 'clusterName',
-          title: '集群名',
-        },
-        {
-          dataIndex: 'status',
-          title: '状态',
-          render: (val, row) => <span className="status">{statusFormat(val, row.createTime)}</span>,
-        },
-        {
-          dataIndex: 'operator',
-          title: '发起者',
-          render: val => <span className="user">
-            <i className="fa fa-user-o" />
-            <span className="commonSpan">{val}</span>
-          </span>,
-        },
-      ],
+
       statusList: [
         {
           value: '',
@@ -504,6 +236,8 @@ class OperationalAuditBkt extends React.Component {
       from: 0,
       count: 0,
       records: [],
+      operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
+      operationTypeArr: [],
     }
   }
   componentDidMount() {
@@ -515,12 +249,33 @@ class OperationalAuditBkt extends React.Component {
   selectOptionTarget = value => {
     this.setState({
       resource: value,
+    }, () => {
+      const { filterData } = this.props
+      if (value.length !== 0) {
+        for (const v of filterData) {
+          if (v.children) {
+            for (const k of v.children) {
+              if (value[value.length - 1] === k.id) {
+                this.setState({
+                  operationType: k.opetation,
+                })
+              }
+            }
+          }
+        }
+      } else {
+        this.setState({
+          operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
+          operation: undefined,
+        })
+      }
+
     })
   }
   // 选择操作类型
   selectOptionType = value => {
     this.setState({
-      operation: parseInt(value),
+      operation: value ? parseInt(value) : undefined,
     })
   }
   // 选择状态
@@ -622,11 +377,6 @@ class OperationalAuditBkt extends React.Component {
         }
         operationObjects.push(item)
       }
-      const hash = {}
-      operationType = operationType.reduce(function(item, next) {
-        hash[next.id] ? '' : hash[next.id] = true && item.push(next)
-        return item
-      }, [])
     }
     mapData(arr)
     return {
@@ -634,10 +384,108 @@ class OperationalAuditBkt extends React.Component {
       operationObjects,
     }
   }
+  filterOperationType = () => {
+    const { filterData } = this.props
+    let tempArr = []
+    for (const v of filterData) {
+      if (v.children) {
+        for (const k of v.children) {
+          if (k.opetation) {
+            tempArr = tempArr.concat(k.opetation)
+          }
+        }
+      }
+    }
+    const hash = {}
+    tempArr = tempArr.reduce(function(item, next) {
+      hash[next.id] ? '' : hash[next.id] = true && item.push(next)
+      return item
+    }, [])
+    return tempArr
+  }
+  filterResourceName = code => {
+    const { filterData } = this.props
+    for (const v of filterData) {
+      if (code === v.id) {
+        return v.name
+      }
+      if (v.children) {
+        for (const k of v.children) {
+          if (code === k.id) {
+            return v.name
+          }
+        }
+      }
+    }
+  }
   render() {
-    const { isFetching, filterData } = this.props
 
-    const { operationType, operationObjects } = this.parseData(filterData)
+    const { isFetching, filterData } = this.props
+    const formatOperationType = code => {
+      const types = this.filterOperationType()
+      for (const v of types) {
+        if (code === v.id) {
+          return v.resourceName
+        }
+      }
+    }
+
+    const tableColumns = [
+      {
+        dataIndex: 'time',
+        title: '时间',
+        render: val => <span className="time">{formatDate(val)}</span>,
+      },
+      {
+        dataIndex: 'duration',
+        title: '持续时间',
+        render: val => <span>{duringTimeFormat(val)}</span>,
+      },
+      {
+        dataIndex: 'operationType',
+        title: '操作类型',
+        render: val => <span>{val === 0 ? '未知' : formatOperationType(val)}</span>,
+      },
+      {
+        dataIndex: 'targetAndType',
+        title: '对象及类型',
+        render: (val, row) => {
+          try {
+            row.resourceName = formatResourceName(row.resourceName, row.resourceId)
+          } catch (e) {
+            // do nothing
+          }
+          return <div>
+            <div>类型：{this.filterResourceName(row.resourceType)}</div>
+            <div>对象：{row.resourceName}</div>
+          </div>
+        },
+        width: 600,
+      },
+      {
+        dataIndex: 'namespace',
+        title: '项目',
+      },
+      {
+        dataIndex: 'clusterName',
+        title: '集群名',
+        render: val => <span>{ val ? val : '-' }</span>,
+      },
+      {
+        dataIndex: 'status',
+        title: '状态',
+        render: (val, row) => <span className="status">{statusFormat(val, row.createTime)}</span>,
+      },
+      {
+        dataIndex: 'operator',
+        title: '发起者',
+        render: val => <span className="user">
+          <i className="fa fa-user-o" />
+          <span className="commonSpan">{val}</span>
+        </span>,
+      },
+    ]
+    const { operationObjects } = this.parseData(filterData)
     return (
       <QueueAnim type="right">
         <div className="audit" key="auditWrapper">
@@ -659,7 +507,8 @@ class OperationalAuditBkt extends React.Component {
                 size="large"
               >
                 {
-                  operationType.map(v => <Option value={v.id} key={v.id}>{v.resourceName}</Option>)
+                  this.state.operationType.map(v =>
+                    <Select.Option value={v.id} key={v.id}>{v.resourceName}</Select.Option>)
                 }
               </Select>
               <Select
@@ -671,7 +520,7 @@ class OperationalAuditBkt extends React.Component {
               >
                 {
                   this.state.statusList.map(v => (
-                    <Option value={v.value} key={v.value}>{v.label}</Option>
+                    <Select.Option value={v.value} key={v.value}>{v.label}</Select.Option>
                   ))
                 }
               </Select>
@@ -710,7 +559,7 @@ class OperationalAuditBkt extends React.Component {
           </div>
           <div className="dataTable">
             <Table
-              columns={this.state.columns}
+              columns={tableColumns}
               loading={isFetching}
               dataSource={this.state.records}
               pagination={false}
@@ -732,7 +581,6 @@ function mapStateToProps(state) {
   const { current } = state.entities
   const { namespace } = current.space || { namespace: '' }
   let { logs, isFetching } = defaultLogs
-
   if (operationAuditLog.logs && operationAuditLog.logs.logs) {
     logs = operationAuditLog.logs.logs
     isFetching = operationAuditLog.logs.isFetching
