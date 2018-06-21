@@ -176,7 +176,7 @@ class Header extends Component {
     if(!cluster){
       return
     }
-    const { getStorageClassType, setCurrent } = this.props
+    const { getStorageClassType, setCurrent, current: { space } } = this.props
     const defalutStorageCLassType = {
       private: false,
       share: false,
@@ -198,6 +198,7 @@ class Header extends Component {
         func: () => {
           setCurrent({
             cluster,
+            space,
           })
         },
         isAsync: true,
