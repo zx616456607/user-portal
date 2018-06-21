@@ -296,14 +296,14 @@ class AppDetail extends Component {
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab="拓扑图" key="#topology">
-                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
+                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
                   </TabPane>]
                 :
                   [<TabPane tab="告警策略" key="#strategy">
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab="拓扑图" key="#topology">
-                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
+                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
                   </TabPane>]
                 }
               </Tabs>
@@ -351,7 +351,8 @@ function mapStateToProps(state, props) {
     isFetching,
     hash,
     pathname,
-    teamspace: space.userName || space.namespace,
+    teamspace: space.namespace,
+    userName: space.userName,
     location: props.location,
     billingEnabled
   }
