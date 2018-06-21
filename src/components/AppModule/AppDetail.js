@@ -351,7 +351,7 @@ function mapStateToProps(state, props) {
     isFetching,
     hash,
     pathname,
-    teamspace: space.namespace,
+    teamspace: space.userName ? space.userName : space.namespace,
     location: props.location,
     billingEnabled
   }
