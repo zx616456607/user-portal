@@ -203,7 +203,7 @@ function formatResourceName(resourceName, resourceId) {
     return resourceName
   }
 }
-class OperationalAuditBkt extends React.Component {
+class OperationalAudit extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -251,13 +251,22 @@ class OperationalAuditBkt extends React.Component {
       resource: value,
     }, () => {
       const { filterData } = this.props
+      this.setState({
+        operation: undefined,
+      })
+
       if (value.length !== 0) {
+        if (value.length === 1) {
+          this.setState({
+            operationType: [{ id: undefined, resourceName: '暂无可选' }],
+          })
+        }
         for (const v of filterData) {
           if (v.children) {
             for (const k of v.children) {
               if (value[value.length - 1] === k.id) {
                 this.setState({
-                  operationType: k.opetation,
+                  operationType: k.opetation ? k.opetation : [{ id: undefined, resourceName: '暂无可选' }],
                 })
               }
             }
@@ -508,7 +517,7 @@ class OperationalAuditBkt extends React.Component {
               >
                 {
                   this.state.operationType.map(v =>
-                    <Select.Option value={v.id} key={v.id}>{v.resourceName}</Select.Option>)
+                    <Select.Option value={v.id} key={v.id ? v.id : 'key'}>{v.resourceName}</Select.Option>)
                 }
               </Select>
               <Select
@@ -596,13 +605,13 @@ function mapStateToProps(state) {
   }
 }
 
-OperationalAuditBkt.propTypes = {
+OperationalAudit.propTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   getOperationLogList: PropTypes.func.isRequired,
 }
 
-const OperationalAuditBktCom = injectIntl(OperationalAuditBkt, {
+const OperationalAuditCom = injectIntl(OperationalAudit, {
   withRef: true,
 })
 
@@ -610,4 +619,4 @@ export default connect(mapStateToProps, {
   getOperationLogList,
   getOperationalTarget,
 
-})(OperationalAuditBktCom)
+})(OperationalAuditCom)
