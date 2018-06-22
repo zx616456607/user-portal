@@ -128,9 +128,14 @@ class ContainerLogs extends Component {
     if (bottomBox) {
       bottomBox.style.height = null
     }
+    const loading = (() => {
+      return <div className='logDetail'>
+        <span>loading ...</span>
+      </div>
+    })()
     setTimeout(() => {
       this.logRef.clearLogs()
-      this.logRef.writeln(this.getLogs())
+      this.logRef.writeln(this.getLogs(loading))
     }, 500)
   }
 
@@ -309,7 +314,8 @@ class ContainerLogs extends Component {
         </div>
       )
     }
-    return loading ? [
+    console.log(logs)
+    return loading && logsLoading ? [
       logs.map(this.renderLog),
       loading
     ] : logs.map(this.renderLog)
@@ -347,18 +353,10 @@ class ContainerLogs extends Component {
         <TenxLogs
           header={header}
           ref={ref => (this.logRef = ref)}
-          logs={(() => {
-            let res = null
-            if(logsLoading){
-              res += (
-                <div className='logDetail'>
-                  <span>loading ...</span>
-                </div>
-              )
-            }
-            return res
-          })()}
-          isRowHeightAuto={true}
+          logs={[<div className='logDetail'>
+            <span>loading ...</span>
+          </div>]}
+          autoWidth={true}
         />
         {/*<div>
           <div className={logSize == 'big' ? 'bigBox bottomBox' : 'bottomBox'} >
