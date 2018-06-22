@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Form, Radio, Input, Collapse, Row, Col, Switch, Icon, Tooltip } from 'antd'
+import { Form, Radio, Input, Collapse, Row, Col, Switch, Icon, Tooltip, Checkbox } from 'antd'
 import { connect } from 'react-redux'
 import './style/LogCollection.less'
 
@@ -177,17 +177,28 @@ class LogCollection extends Component {
       'inregex': '.*.log'
     })
   }
-
+  sourceTypeCheckboxChange = v => {
+    const { form } = this.props
+    form.setFieldsValue({
+      sourceType: v.target.checked ? 'directory' : 'none'
+    })
+  }
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
-    const sourceTypeProps = getFieldProps('sourceType', {
+    getFieldProps('sourceType', {
       rules: [
         { required: true }
       ],
       initialValue: 'none',
       onChange: this.sourceTypeChange
     })
+    const sourceTypeCheckboxProps = getFieldProps('sourceTypeCheckbox', {
+      onChange: this.sourceTypeCheckboxChange,
+      initialValue: false,
+      valuePropName: 'checked',
+    })
+
     let sourceType = getFieldValue('sourceType')
 
     const header = (
@@ -209,14 +220,17 @@ class LogCollection extends Component {
           <Panel header={header}>
             <FormItem
               {...formItemLayout}
-              className="sourceType"
+              className="sourceTypeLabel"
               label="来源类型"
-              key="type"
             >
-              <RadioGroup {...sourceTypeProps}>
-                <Radio value="none" key="none">不采集</Radio>
-                <Radio value="directory" key="directory">目录</Radio>
-              </RadioGroup>
+              仅采集容器标准日志
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              className="sourceType"
+              label={' '}
+            >
+              <Checkbox {...sourceTypeCheckboxProps}>同时进行目录内日志采集</Checkbox>
             </FormItem>
             <div className='logCollectionConfig'>
               { this.directoryTemplate(sourceType) }
