@@ -202,6 +202,7 @@ const rootRoutes = {
       },
       {
         path: 'ai-deep-learning',
+        component: require('../../client/containers/AIDeepLearning').default,
         indexRoute: {
           onEnter: (nextState, replace) => replace('/ai-deep-learning/notebook')
         },
@@ -224,9 +225,13 @@ const rootRoutes = {
           },
           {
             path: 'ai-model-service',
-            component: require('../components/AppModule/AppList').default,
+            component: require('../../client/containers/AIDeepLearning/ModelService').default,
           },
         ],
+      },
+      {
+        path: '/backup',
+        component: require('../../client/containers/Monitor').default,
       },
       {
         path: '*',

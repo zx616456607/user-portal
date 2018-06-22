@@ -758,6 +758,29 @@ class Sider extends Component {
                   </li>
                  : null
               }
+              { role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
+                <li onClick={() => this.selectModel('backup')}
+                    className={currentKey == '.' ? 'selectedLi' : ''}>
+                    <Tooltip placement='right' title='平台数据备份'
+                      getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                      <Link
+                        onClick={() => {
+                          try {
+                            browserHistory.push('/backup')
+                            if (window.monitorPortalHistory) {
+                              window.monitorPortalHistory.push('/backup')
+                            }
+                          } catch (error) {
+                            //
+                          }
+                        }}
+                      >
+                        <TenxIcon type="backup" className="commonImg" />
+                      </Link>
+                    </Tooltip>
+                  </li>
+                 : null
+              }
               <li style={{ clear: 'both' }}></li>
             </ul>
             {/*<ul className='siderBottom'>
@@ -1322,6 +1345,29 @@ class Sider extends Component {
                   </SubMenu>
                    :
                   <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                }
+                {role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN
+                  ? <Menu.Item key="backup">
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/backup')
+                          if (window.monitorPortalHistory) {
+                            window.monitorPortalHistory.push('/backup')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <TenxIcon type="backup" className="menuIcon" style={{ marginLeft: 20 }} />
+                        <span className='commonSiderSpan'>平台数据备份</span>
+                        <div style={{ clear: 'both' }}></div>
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
               </Menu>
             </div>
