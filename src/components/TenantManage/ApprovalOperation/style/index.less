@@ -1,0 +1,59 @@
+@import '../../../../../src/assets/style/site/core.less';
+.ApprovalOperation {
+  &.result-wrap {
+    float: left;
+    padding-left: 4px;
+    display: inline-block;
+    height: 32px;
+    span {
+      display: inline-block;
+      height: 32px;
+      line-height: 32px;
+    }
+    .result {
+      padding-left: @padding-base;
+      color: @primary-color;
+    }
+  }
+  .ant-table-tbody {
+    tr {
+      td:nth-child(1) {
+        width: 90px;
+      }
+      td:nth-child(2) {
+        width: 140px;
+      }
+      td:nth-child(3) {
+        width: 86px;
+      }
+      td:nth-child(4) {
+        width: 159px;
+      }
+    }
+  }
+  .ant-table {
+    border: none;
+  }
+  .appiyLimitNum {
+    color: @primary-color;
+  }
+  .allApprovalIcon {
+    padding: 0 6px;
+  }
+  .allPassIcon {
+    color: green;
+  }
+  .notAllPassIcon {
+    &:hover {
+      color:green;
+    }
+  }
+  .allRefuseIcon {
+    color: red;
+  }
+  .notallRefuseIcon {
+    &:hover {
+      color: red;
+    }
+  }
+}
