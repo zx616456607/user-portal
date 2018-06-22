@@ -254,7 +254,7 @@ class ContainerLogs extends Component {
     }
     setTimeout(() => {
       loadContainerDetailEvents(cluster, containerName)
-    })
+    }, RETRY_TIMTEOUT)
   }
 
   renderLog(logObj, index) {
