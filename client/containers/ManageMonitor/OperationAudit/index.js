@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl'
 import { getOperationLogList, getOperationalTarget } from '../../../../src/actions/manage_monitor'
 import { formatDate } from '../../../../src/common/tools.js'
 import Title from '../../../../src/components/Title'
-import '../style/manageMonitor.less'
+import '../style/operationAudit.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
 const notification = new NotificationHandler()
@@ -510,6 +510,7 @@ class OperationalAudit extends React.Component {
                     onChange={this.selectOptionTarget}
                     value={this.state.resource ? this.state.resource : ''}
                     placeholder="选择操作对象"
+                    popupClassName= "resourceSelectPopup"
                     size="large"
                   />
                   <Select
