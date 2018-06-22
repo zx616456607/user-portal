@@ -1,4 +1,34 @@
 #ContainerLogs {
+  .leftHeader{
+    position: absolute;
+    right: 0;
+  }
+  .operaBox {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    span {
+      float: right;
+      margin-right: 20px;
+      .ant-input:hover {
+        border-color: inherit;
+      }
+      i {
+        font-size: 13px;
+      }
+    }
+    .fa {
+      float: right;
+      color: #5CB85C;
+      line-height: 40px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .ant-calendar-picker-clear {
+      margin-right: 20px !important;
+    }
+  }
   font-size: 14px;
   .bottomBox {
     top: 350px;
@@ -12,33 +42,6 @@
       overflow-y: auto;
       background-color: #353535;
       border-radius: 5px;
-      .operaBox {
-        position: relative;
-        width: 100%;
-        height: 40px;
-        line-height: 40px;
-        background-color: #3f3f40;
-        span {
-          float: right;
-          margin-right: 20px;
-          .ant-input:hover {
-            border-color: inherit;
-          }
-          i {
-            font-size: 13px;
-          }
-        }
-        .fa {
-          float: right;
-          color: #5CB85C;
-          line-height: 40px;
-          margin-right: 10px;
-          cursor: pointer;
-        }
-        .ant-calendar-picker-clear {
-          margin-right: 20px !important;
-        }
-      }
       .infoBox {
         padding-left: 0;
         width: 100%;
