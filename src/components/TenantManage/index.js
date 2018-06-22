@@ -13,7 +13,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Row, Card, Col, Alert, Button, Icon, Table } from 'antd'
+import { Row, Card, Col, Modal, Button, Icon, Table } from 'antd'
 import './style/tenantManage.less'
 import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
@@ -49,7 +49,7 @@ const getColumns = ({ toggleApprovalModal }) => {
     title: '操作',
     dataIndex: 'detail',
     render: () => <TenxIcon type="circle-arrow-right-o" className="checkDetail"
-     onClick={toggleApprovalModal}/>
+                            onClick={toggleApprovalModal}/>
   }];
 }
 class TenantManage extends React.Component {
@@ -71,6 +71,7 @@ class TenantManage extends React.Component {
       iconState: true,
       classindex: 0,
       showApprovalModal: false, // 显示审批弹出框
+      operationNav: false, //显示操作引导弹窗
     }
   }
 
@@ -170,6 +171,17 @@ class TenantManage extends React.Component {
     console.log('showApprovalModal', showApprovalModal)
     this.setState({ showApprovalModal: !showApprovalModal })
   }
+  showOperationNav = () => {
+    this.setState({
+      operationNav: true
+    })
+  }
+  closeOperationNav = () => {
+      this.setState({
+        operationNav: false
+      })
+  }
+  renderModalFooter = () => <Button type="primary" onClick={this.closeOperationNav}>知道了</Button>
   render() {
     const ListLi = [{
       id: 1,
@@ -482,147 +494,141 @@ class TenantManage extends React.Component {
         },
       },
     }
-    let btnStyle = {
-      position: 'absolute',
-      top: this.state.btnTop + 'px',
-      left: this.state.btnLeft + 'px'
-    }
     let images = [
       { src: require('../../assets/img/tenantManage/tenatDetail.png') },
       { src: require('../../assets/img/tenantManage/guide.png') },
     ]
-    const btmStyle = {
-      visibility: this.state.iconState ? 'inherit' : 'hidden'
+    const btnStyle = {
+      visibility: this.state.iconState ? 'inherit' : 'hidden',
+      marginTop: -5
     }
     const itemStyle = {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
+
     return (
       <QueueAnim>
         <div id="tenantManage" key='tenantManage'>
           <Title title="概览" />
           <Row className="title">
             控制权限概览
+            <Button style={btnStyle} className="bGuide" onClick={this.showOperationNav}><img src={images[1].src} />操作引导</Button>
           </Row>
           <div className="alertRow">
             <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
           </div>
           <Row gutter={30}>
             <Col span={12}>
-            <Row className="content" gutter={16} >
-            <Col span={12}>
-              <div style={{ marginBottom: '16px'}}>
-                <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={memberOption}
-                    style={{ height: '180px' }}
-                  />
-                </Card>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div style={{ marginBottom: '16px'}}>
-                <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={teamOption}
-                    style={{ height: '180px' }}
-                  />
-                </Card>
-              </div>
-            </Col>
-            <Col span={12}>
-              <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                <ReactEcharts
-                  notMerge={true}
-                  option={projectOption}
-                  style={{ height: '180px' }}
-                />
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
-                <ReactEcharts
-                  notMerge={true}
-                  option={roleOption}
-                  style={{ height: '180px' }}
-                />
-              </Card>
-            </Col>
-          </Row>
-          <Button style={btmStyle} className="bGuide" onClick={this.handleIco.bind(this)}><img src={images[1].src} />操作引导</Button>
-            </Col>
-            <Col span={12}>
-            <Card title={<span>资源配额申请概览 (待处理) <span>共{}个</span></span>}
-              extra={<div className="approvalrecord">审批记录>></div>}
-               bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
-            >
-              <Row>
-                <Col span={12} className="personalProject">
-                  <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}
-                    scroll={{ y: 400 }} />
+              <Row className="content" gutter={16} >
+                <Col span={12}>
+                  <div style={{ marginBottom: '16px'}}>
+                    <Card title="成员" extra={<div><span>共</span><span>{this.state.member}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                      <ReactEcharts
+                        notMerge={true}
+                        option={memberOption}
+                        style={{ height: '180px' }}
+                      />
+                    </Card>
+                  </div>
                 </Col>
-                <Col span={12} className="shareProject">
-                  <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}/>
+                <Col span={12}>
+                  <div style={{ marginBottom: '16px'}}>
+                    <Card title="团队" extra={<div><span>共</span><span>{this.state.team}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px', }}>
+                      <ReactEcharts
+                        notMerge={true}
+                        option={teamOption}
+                        style={{ height: '180px' }}
+                      />
+                    </Card>
+                  </div>
                 </Col>
-                <ApprovalOperation title="资源配额申请详情" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                  record={null}/>
+                <Col span={12}>
+                  <Card title="项目" extra={<div><span>共</span><span>{this.state.project}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                    <ReactEcharts
+                      notMerge={true}
+                      option={projectOption}
+                      style={{ height: '180px' }}
+                    />
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card title="角色" extra={<div><span>共</span><span>{this.state.role}</span><span>个</span></div>} bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+                    <ReactEcharts
+                      notMerge={true}
+                      option={roleOption}
+                      style={{ height: '180px' }}
+                    />
+                  </Card>
+                </Col>
               </Row>
-            </Card>
+
+            </Col>
+            <Col span={12}>
+              <Card title={<span>资源配额申请概览 (待处理) <span>共{}个</span></span>}
+                    extra={<div className="approvalrecord">审批记录>></div>}
+                    bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
+              >
+                <Row>
+                  <Col span={12} className="personalProject">
+                    <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}
+                           scroll={{ y: 400 }} />
+                  </Col>
+                  <Col span={12} className="shareProject">
+                    <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}/>
+                  </Col>
+                  <ApprovalOperation title="资源配额申请详情" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
+                                     record={null}/>
+                </Row>
+              </Card>
             </Col>
           </Row>
-          <Row className="content" gutter={30}>
-            <Col span={30}>
-              <Card
-                title="操作引导"
-                style={itemStyle}
-                extra={<div style={{ width: 20, height: 20 }}><Icon className="ico" style={{ fontSize: 23 }} type={this.state.iconState ? "circle-o-down" : "circle-o-up"} onClick={this.handleIco.bind(this)} /></div>}
-              >
-                <div className={this.state.iconState ? "itmsInfo" : "infos"}>
-                  <div className="tagItems" id="tagItems">
-                    <Row>
-                      <Col span={12}>
-                        <div className="tagImg">
-                          <img src={images[0].src} />
-                        </div>
-                      </Col>
-                      <Col span={12}>
-                        <div className="tagDesc">
-                          <div className="tagInfo">
-                            <svg className='member commonImg'>
-                              <use xlinkHref="#member"></use>
-                            </svg> &nbsp;
-                            <span>成员：平台上的成员</span>
-                          </div>
-                          <div className="tagInfo">
-                            <svg className='team commonImg'>
-                              <use xlinkHref="#team"></use>
-                            </svg> &nbsp;
-                            <span>团队：由n个成员组成</span>
-                          </div>
-                          <div className="tagInfo">
-                            <svg className='authority commonImg'>
-                              <use xlinkHref="#authority"></use>
-                            </svg> &nbsp;
-                            <span>权限：平台上每个功能模块权限的细粒度划分</span>
-                          </div>
-                          <div className="tagInfo">
-                            <div className="role"></div>
-                            <span>角色：在项目中添加，由n个权限组成</span>
-                          </div>
-                          <div className="tagInfo">
-                            <div className="project"></div>
-                            <span>项目：实现哪些人在项目中可以使用哪些资源的权限</span>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
+
+          <Modal
+            title="操作引导"
+            visible={this.state.operationNav}
+            onOk={this.closeOperationNav}
+            onCancel={this.closeOperationNav}
+            wrapClassName="operationModal"
+            footer={this.renderModalFooter()}
+          >
+            <div className="content">
+              <div className="infos">
+                <div className="tagItems" id="tagItems">
+                  <div className="tagImg">
+                    <img src={images[0].src} />
+                  </div>
+                  <div className="tagDesc">
+                    <div className="tagInfo">
+                      <svg className='member commonImg'>
+                        <use xlinkHref="#member"></use>
+                      </svg> &nbsp;
+                      <span>成员：平台上的成员</span>
+                    </div>
+                    <div className="tagInfo">
+                      <svg className='team commonImg'>
+                        <use xlinkHref="#team"></use>
+                      </svg> &nbsp;
+                      <span>团队：由n个成员组成</span>
+                    </div>
+                    <div className="tagInfo">
+                      <svg className='authority commonImg'>
+                        <use xlinkHref="#authority"></use>
+                      </svg> &nbsp;
+                      <span>权限：平台上每个功能模块权限的细粒度划分</span>
+                    </div>
+                    <div className="tagInfo">
+                      <div className="role"></div>
+                      <span>角色：在项目中添加，由n个权限组成</span>
+                    </div>
+                    <div className="tagInfo">
+                      <div className="project"></div>
+                      <span>项目：实现哪些人在项目中可以使用哪些资源的权限</span>
+                    </div>
                   </div>
                 </div>
-              </Card>
-            </Col>
-          </Row>
+              </div>
+            </div>
+          </Modal>
         </div>
       </QueueAnim>
     )
