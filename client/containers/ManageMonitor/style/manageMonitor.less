@@ -6,9 +6,6 @@
     color: @success-color;
   }
   .optionBox {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: @padding-medium;
     .options {
       display: flex;
@@ -26,6 +23,10 @@
           margin-right: 5px;
         }
       }
+    }
+    .ant-pagination-simple {
+      display: flex;
+      justify-content: flex-end;
     }
   }
   .dataTable {
@@ -57,6 +58,12 @@
   .user {
     .fa {
       margin-right: 5px;
+    }
+  }
+
+  @media screen and (min-width: 1280px) and (max-width: 1480px) {
+    .ant-col-16 {
+      width: 75%;
     }
   }
 }

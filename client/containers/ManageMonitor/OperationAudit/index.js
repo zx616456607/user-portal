@@ -1,10 +1,11 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Select, Button, Table, DatePicker, Cascader, Pagination } from 'antd'
+import { Select, Button, Table, DatePicker, Row, Col, Cascader, Pagination } from 'antd'
 import { injectIntl } from 'react-intl'
 import { getOperationLogList, getOperationalTarget } from '../../../../src/actions/manage_monitor'
 import { formatDate } from '../../../../src/common/tools.js'
+import Title from '../../../../src/components/Title'
 import '../style/manageMonitor.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
@@ -469,7 +470,7 @@ class OperationalAudit extends React.Component {
             <div>对象：{row.resourceName}</div>
           </div>
         },
-        width: 600,
+
       },
       {
         dataIndex: 'namespace',
@@ -498,73 +499,80 @@ class OperationalAudit extends React.Component {
     return (
       <QueueAnim type="right">
         <div className="audit" key="auditWrapper">
+          <Title title="操作审计" />
           <div className="optionBox">
-            <div className="options">
-              <Cascader
-                options = {operationObjects}
-                className="selectionBox"
-                onChange={this.selectOptionTarget}
-                value={this.state.resource ? this.state.resource : ''}
-                placeholder="选择操作对象"
-                size="large"
-              />
-              <Select
-                placeholder="选择操作类型"
-                className="selectionBox"
-                value={this.state.operation}
-                onChange={this.selectOptionType}
-                size="large"
-              >
-                {
-                  this.state.operationType.map(v =>
-                    <Select.Option value={v.id} key={v.id ? v.id : 'key'}>{v.resourceName}</Select.Option>)
-                }
-              </Select>
-              <Select
-                placeholder="选择状态"
-                className="selectionBox"
-                value={this.state.status}
-                size="large"
-                onChange={this.selectStatus}
-              >
-                {
-                  this.state.statusList.map(v => (
-                    <Select.Option value={v.value} key={v.value}>{v.label}</Select.Option>
-                  ))
-                }
-              </Select>
-              <DatePicker
-                onChange={this.onChangeStartTime}
-                style={{ marginRight: 20, marginTop: 10, float: 'left' }}
-                showTime
-                format="yyyy-MM-dd HH:mm:ss"
-                size="large"
-                value={this.state.start_time}
-              />
-              <DatePicker
-                onChange={this.onChangeEndTime}
-                style={{ marginRight: 20, marginTop: 10, float: 'left' }}
-                showTime
-                format="yyyy-MM-dd HH:mm:ss"
-                size="large"
-                value={this.state.end_time}
-              />
-              <Button className="btn" size="large" onClick={this.submitSearch} type="primary">
-                <i className="fa fa-wpforms"></i>
-                立即查询
-              </Button>
-              <Button type="ghost" size="large" className="btn" onClick={this.refresh}>
-                <i className="fa fa-refresh"/>刷 新
-              </Button>
-            </div>
-            <div className="pagination">
-              <Pagination
-                simple
-                current={this.state.from + 1}
-                total={this.state.count}
-                onChange={this.changePage}
-              />
-            </div>
+            <Row type="flex" justify="space-between" gutter={4}>
+              <Col span={16}>
+                <div className="options">
+                  <Cascader
+                    options = {operationObjects}
+                    className="selectionBox"
+                    onChange={this.selectOptionTarget}
+                    value={this.state.resource ? this.state.resource : ''}
+                    placeholder="选择操作对象"
+                    size="large"
+                  />
+                  <Select
+                    placeholder="选择操作类型"
+                    className="selectionBox"
+                    value={this.state.operation}
+                    onChange={this.selectOptionType}
+                    size="large"
+                  >
+                    {
+                      this.state.operationType.map(v =>
+                        <Select.Option value={v.id} key={v.id ? v.id : 'key'}>{v.resourceName}</Select.Option>)
+                    }
+                  </Select>
+                  <Select
+                    placeholder="选择状态"
+                    className="selectionBox"
+                    value={this.state.status}
+                    size="large"
+                    onChange={this.selectStatus}
+                  >
+                    {
+                      this.state.statusList.map(v => (
+                        <Select.Option value={v.value} key={v.value}>{v.label}</Select.Option>
+                      ))
+                    }
+                  </Select>
+                  <DatePicker
+                    onChange={this.onChangeStartTime}
+                    style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+                    showTime
+                    format="yyyy-MM-dd HH:mm:ss"
+                    size="large"
+                    value={this.state.start_time}
+                  />
+                  <DatePicker
+                    onChange={this.onChangeEndTime}
+                    style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+                    showTime
+                    format="yyyy-MM-dd HH:mm:ss"
+                    size="large"
+                    value={this.state.end_time}
+                  />
+                  <Button className="btn" size="large" onClick={this.submitSearch} type="primary">
+                    <i className="fa fa-wpforms"></i>
+                    立即查询
+                  </Button>
+                  <Button type="ghost" size="large" className="btn" onClick={this.refresh}>
+                    <i className="fa fa-refresh"/>刷 新
+                  </Button>
+                </div>
+              </Col>
+              <Col span={4}>
+                <div className="pagination">
+                  <Pagination
+                    simple
+                    current={this.state.from + 1}
+                    total={this.state.count}
+                    onChange={this.changePage}
+                  />
+                </div>
+              </Col>
+            </Row>
           </div>
           <div className="dataTable">
             <Table
