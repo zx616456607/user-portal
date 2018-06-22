@@ -61,11 +61,17 @@ class Monitor extends React.Component {
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
-      username, location,
+      username, location: { pathname, query: locationQuery },
     } = this.props
+    let redirect
+    let title = '系统服务监控'
+    if (pathname === '/backup') {
+      redirect = '/backup'
+      title = '平台数据备份'
+    }
     const query = Object.assign(
-      {},
-      location.query,
+      { redirect },
+      locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, hash,
       }
@@ -76,12 +82,12 @@ class Monitor extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title="系统服务监控" />
+        <Title title={title} />
         <Spin size="large" />
       </div>
     }
     return <div className="monitor" style={style}>
-      <Title title="系统服务监控" />
+      <Title title={title} />
 
       <iframe title="流水线" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
     </div>
