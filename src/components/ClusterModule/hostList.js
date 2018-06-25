@@ -1072,7 +1072,7 @@ class hostList extends Component {
     )
   }
   render() {
-    const { addNodeCMD, labels } = this.props
+    const { addNodeCMD, labels, license } = this.props
     const {
       deleteNode, podCount, summary, nodeList,
       maintainModal, confirmModal, doubleConfirmLoading,
@@ -1080,18 +1080,27 @@ class hostList extends Component {
       forceLoading
     } = this.state
     const scope = this;
+    const nodeSum = nodeList && nodeList.length
+    let addNodeBtnDisabled = true
+    const maxNodes = license[camelize('max_nodes')]
+    if (nodeSum < maxNodes) {
+      addNodeBtnDisabled = false
+    }
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
-          <Button
-            className='addPodBtn'
-            size='large'
-            type='primary'
-            onClick={()=> this.handleAddClusterNode()}
-          >
-            <i className="fa fa-plus" style={{marginRight:'5px'}}/>
-            <span>添加主机节点</span>
-          </Button>
+          <Tooltip title={`当前许可证单个集群最多支持 ${maxNodes || '-'} 个节点（目前已添加 ${nodeSum} 个）`}>
+            <Button
+              className='addPodBtn'
+              size='large'
+              type='primary'
+              onClick={()=> this.handleAddClusterNode()}
+              disabled={addNodeBtnDisabled}
+            >
+              <i className="fa fa-plus" style={{marginRight:'5px'}}/>
+              <span>添加主机节点</span>
+            </Button>
+          </Tooltip>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
             <svg>
               <use xlinkHref='#terminal' />
