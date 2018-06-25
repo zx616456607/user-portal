@@ -10,11 +10,11 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress } from 'antd'
 import './style/MySpace.less'
-import ReactEcharts from 'echarts-for-react'
+import { formatOperationType, formatTypeName, formatResourceName } from '../../../../../client/containers/ManageMonitor/OperationAudit'
 import { connect } from 'react-redux'
 import { getOperationLogList } from '../../../../actions/manage_monitor'
 import { calcuDate } from "../../../../common/tools"
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import { getOperationalTarget } from '../../../../actions/manage_monitor'
@@ -96,6 +96,7 @@ class MySpace extends Component {
     })
   }
   getOperationLog() {
+    const { filterData } = this.props
     const logs = this.props.auditLog
     const ele = []
     if (!logs.logs) {
@@ -121,7 +122,7 @@ class MySpace extends Component {
         return ele.push(
           <Timeline.Item>
             <div className="logItem">
-              <div className="logTitle">{`${this.formatOperationType(item.operationType)}${this.filterResourceName(item.resourceType) || ''} ${item.resourceName}`}</div>
+              <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
               <div className="logInf">
                 {calcuDate(item.time)}
                 <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -132,7 +133,7 @@ class MySpace extends Component {
       }
       ele.push(<Timeline.Item >
         <div className="logItem">
-          <div className="logTitle">{`${this.formatOperationType(item.operationType)}${this.filterResourceName(item.resourceType) || ''} ${formatResourceName(item.resourceName)}`}</div>
+          <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
           <div className="logInf">
             {calcuDate(item.time)}
             <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -257,48 +258,7 @@ class MySpace extends Component {
     result > max ? result = max : result
     return result
   }
-  filterOperationType = () => {
-    const { filterData } = this.props
-    let tempArr = []
-    for (const v of filterData) {
-      if (v.children) {
-        for (const k of v.children) {
-          if (k.opetation) {
-            tempArr = tempArr.concat(k.opetation)
-          }
-        }
-      }
-    }
-    const hash = {}
-    tempArr = tempArr.reduce(function(item, next) {
-      hash[next.id] ? '' : hash[next.id] = true && item.push(next)
-      return item
-    }, [])
-    return tempArr
-  } //将操作类型展开为一维数组
-  formatOperationType = code => {
-    const types = this.filterOperationType()
-    for (const v of types) {
-      if (code === v.id) {
-        return v.resourceName
-      }
-    }
-  } // 格式化操作类型
-  filterResourceName = code => {
-    const { filterData } = this.props
-    for (const v of filterData) {
-      if (code === v.id) {
-        return v.name
-      }
-      if (v.children) {
-        for (const k of v.children) {
-          if (code === k.id) {
-            return v.name
-          }
-        }
-      }
-    }
-  }
+
   render() {
     const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching, filterData } = this.props
     // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
@@ -1503,115 +1463,3 @@ function duringTimeFormat(time, scope) {
   }
 }
 
-
-function formatResourceName(resourceName) {
-  //this function for format the resourceName
-  if (resourceName.indexOf('{') > -1) {
-    let newBody = JSON.parse(resourceName);
-    // check project
-    if (!!newBody.projects) {
-      let newName = newBody.projects;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    // check displayName
-    if (!!newBody.displayName) {
-      let newName = newBody.displayName;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check services
-    if (!!newBody.services) {
-      let newName = newBody.services;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check apps
-    if (!!newBody.apps) {
-      let newName = newBody.apps;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check volumes
-    if (!!newBody.volumes) {
-      let newName = newBody.volumes;
-      if (newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    // check classifyName
-    if (newBody.classifies) {
-      const classifyNameArray = newBody.classifies.map(item => {
-        return item.classifyName
-      })
-      return classifyNameArray.join(',')
-    }
-    // check configs
-    if (!!newBody.configs) {
-      let newName = newBody.configs;
-      if (newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    if (newBody.names) {
-      return newBody.names[0]
-    }
-    if (newBody.name) {
-      return newBody.name
-    }
-    if (newBody.strategyName) {
-      return newBody.strategyName
-    }
-    if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
-      return newBody.strategyIDs.join(",")
-    }
-    if(newBody.fileName) {
-      return newBody.fileName
-    }
-    if (newBody.fileNickName) {
-      return newBody.fileNickName
-    }
-    if (newBody.imageTagName) {
-      return newBody.imageTagName
-    }
-    if (newBody.filePkgNames) {
-      return newBody.filePkgNames.toString()
-    }
-    if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
-      let ids = new Array()
-      for (let i = 0; i < newBody.strategies.length; i++) {
-        let item = newBody.strategies[i]
-        if (item && item.strategyID) {
-          ids.push(item.strategyID)
-        }
-      }
-      return ids.join(',')
-    }
-    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
-      return newBody.ids.join(",")
-    }
-    // secret config
-    if (newBody.key && newBody.value) {
-      return newBody.key
-    }
-    return resourceName;
-  } else {
-    return resourceName;
-  }
-}
