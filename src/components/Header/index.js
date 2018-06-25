@@ -48,9 +48,9 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/wrap_manage/,
     /\/ci_cd/,
     /\/manange_monitor\/audit/,
-    /\/manange_monitor\/alarm_record/,
-    /\/manange_monitor\/alarm_setting\/resource/,
-    /\/manange_monitor\/alarm_setting\/log/,
+    // /\/manange_monitor\/alarm_record/, //  告警记录去掉上方导航的"项目"
+    // /\/manange_monitor\/alarm_setting\/resource/, // 告警设置去掉上方导航的"项目"
+    // /\/manange_monitor\/alarm_setting\/log/,
     /\/manange_monitor\/alarm_group/,
     /\/manange_monitor\/panel/,
     /\/app_center\/template/,
