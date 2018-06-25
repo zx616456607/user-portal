@@ -9,6 +9,8 @@
  */
 import React, { Component } from 'react'
 import { Icon, Tooltip, Button } from 'antd'
+import '@tenx-ui/logs/assets/index.css'
+import TenxLogs from '@tenx-ui/logs'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -74,6 +76,16 @@ class ContainerLogs extends Component {
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
     const { logs } = this.state
+    // const loading = <div className='logDetail'>
+    //   <span>loading ...</span>
+    // </div>
+    // let res
+    // if(this.state.logsLoading){
+    //   res = this.getLogs(loading)
+    // }else{
+    //   this.getLogs()
+    // }
+
     if (nextProps.containerName !== this.props.containerName) {
       this.setState({
         logs: eventLogs,
@@ -116,7 +128,15 @@ class ContainerLogs extends Component {
     if (bottomBox) {
       bottomBox.style.height = null
     }
-
+    const loading = (() => {
+      return <div className='logDetail'>
+        <span>loading ...</span>
+      </div>
+    })()
+    setTimeout(() => {
+      this.logRef.clearLogs()
+      this.logRef.writeln(this.getLogs(loading))
+    }, 500)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -239,7 +259,7 @@ class ContainerLogs extends Component {
     }
     setTimeout(() => {
       loadContainerDetailEvents(cluster, containerName)
-    }, RETRY_TIMTEOUT);
+    }, RETRY_TIMTEOUT)
   }
 
   renderLog(logObj, index) {
@@ -285,7 +305,7 @@ class ContainerLogs extends Component {
     })
   }
 
-  getLogs() {
+  getLogs(loading) {
     const { logs, logsLoading } = this.state
     if (!logsLoading && logs.length < 1) {
       return (
@@ -294,7 +314,11 @@ class ContainerLogs extends Component {
         </div>
       )
     }
-    return logs.map(this.renderLog)
+    console.log(logs)
+    return loading && logsLoading ? [
+      logs.map(this.renderLog),
+      loading
+    ] : logs.map(this.renderLog)
   }
   closeModal = ()=> {
     this.props.func.closeModal()
@@ -304,57 +328,70 @@ class ContainerLogs extends Component {
     const { containerName, serviceName,func } = this.props
     const { logSize, watchStatus, logsLoading } = this.state
     const iconType = this.loopWatchStatus()
+    const header = (() => {
+      return <div className='operaBox'>
+        <span>
+          {this.state.logDetail?
+          <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
+            历史日志
+          </Link>
+          : <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
+          }
+        </span>
+        <span>
+          <Tooltip
+            placement='left'
+            getTooltipContainer={() => document.getElementById('ContainerLogs')}
+            title={`最多保留 ${MAX_LOGS_NUMBER} 条日志`}>
+            <Icon type='question-circle-o' />
+          </Tooltip>
+        </span>
+      </div>
+    })()
     return (
       <div id='ContainerLogs'>
-        <div className={logSize == 'big' ? 'bigBox bottomBox' : 'bottomBox'} >
-          <div className='introBox'>
-            <div className='operaBox'>
-              <span>
-                {this.state.logDetail?
-                <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
-                  历史日志
-                </Link>
-                : <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
-                }
-              </span>
-              <span>
-                <Tooltip
-                  placement='left'
-                  getTooltipContainer={() => document.getElementById('ContainerLogs')}
-                  title={`最多保留 ${MAX_LOGS_NUMBER} 条日志`}>
-                  <Icon type='question-circle-o' />
+        <TenxLogs
+          header={header}
+          ref={ref => (this.logRef = ref)}
+          logs={[<div className='logDetail'>
+            <span>loading ...</span>
+          </div>]}
+          autoWidth={true}
+        />
+        {/*<div>
+          <div className={logSize == 'big' ? 'bigBox bottomBox' : 'bottomBox'} >
+            <div className='introBox'>
+              {header}
+              <div className='infoBox' ref={(c) => this.infoBox = c}>
+                <pre>
+                  {this.getLogs()}
+                  {logsLoading && (
+                    <div className='logDetail'>
+                      <span>loading ...</span>
+                    </div>
+                  )}
+                </pre>
+                <pre id='logsBottom'></pre>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+              {this.state.logDetail?
+              <div className='operaBottomBox'>
+                <i className={logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize}></i>
+                <Tooltip placement='top' title={`click to ${iconType}`}>
+                  <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
                 </Tooltip>
-              </span>
-            </div>
-            <div className='infoBox' ref={(c) => this.infoBox = c}>
-              <pre>
-                {this.getLogs()}
-                {logsLoading && (
-                  <div className='logDetail'>
-                    <span>loading ...</span>
-                  </div>
-                )}
-              </pre>
-              <pre id='logsBottom'></pre>
+              </div>
+              :
+              <div className="operaBottomBox" style={{paddingRight: 20}}>
+                <Tooltip placement='top' title={`click to ${iconType}`}>
+                  <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
+                </Tooltip>
+              </div>
+              }
             </div>
             <div style={{ clear: 'both' }}></div>
-            {this.state.logDetail?
-            <div className='operaBottomBox'>
-              <i className={logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize}></i>
-              <Tooltip placement='top' title={`click to ${iconType}`}>
-                <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
-              </Tooltip>
-            </div>
-            :
-            <div className="operaBottomBox" style={{paddingRight: 20}}>
-              <Tooltip placement='top' title={`click to ${iconType}`}>
-                <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
-              </Tooltip>
-            </div>
-            }
           </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
+        </div>*/}
         {this.getLogsWatchWs()}
       </div>
     )

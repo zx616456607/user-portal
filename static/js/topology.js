@@ -1,8 +1,9 @@
-var search = window.location.search.slice(9)
-var cluster = search.split('&appname=')[0]
-var appname = search.split('&appname=')[1]
-appname = appname.split('&teamspace=')[0]
-var teamspace = search.split('&teamspace=')[1]
+var search = window.location.search.slice(1)
+var list = search.split('&')
+var cluster = list[0].split('=')[1]
+var appname = list[1].split('=')[1]
+var teamspace = list[2].split('=')[1]
+var userName = list[3].split('=')[1]
 var truncate = function(str, width, left) {
   if (!str) return "";
 
@@ -237,8 +238,13 @@ var loadData = function() {
 	var newDate = new Date().getTime()
 
 	// var req1 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate, function( data ) {
+  var header = {}
+  if (userName) {
+	  header.onbehalfuser = userName
+  }
+  header.teamspace = teamspace || ''
 	var req1 = $.ajax({
-		headers:{'teamspace': teamspace},
+		headers:header,
 		type: 'GET',
 		dataType:'JSON',
 		url: "/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate,
@@ -263,7 +269,7 @@ var loadData = function() {
 
 	// var req2 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate, function( data ) {
 	var req2 = $.ajax({
-		headers:{'teamspace': teamspace},
+		headers: header,
 		type: 'GET',
 		dataType: 'JSON',
 		url: "/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate,

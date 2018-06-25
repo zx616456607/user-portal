@@ -42,7 +42,7 @@ class Scheduler extends Component {
       topCheckBox: true,
       resourceCheckBox: true,
       utilizationRate: 'least',
-      listNodes: 0,
+      listNodes: 1, // get的数据 listnodes 是旧的数据， 处理此情况
       // setScheduler: false,
     }
   }
@@ -252,6 +252,7 @@ class Scheduler extends Component {
   setInititalStatus(status) {
     const { singleCheckBox, classCheckBox, topCheckBox } = this.state
     switch(status) {
+      case 0:
       case 1:
         return this.setState({
           singleCheckBox: false,

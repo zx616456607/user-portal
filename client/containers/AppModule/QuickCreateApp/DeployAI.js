@@ -83,12 +83,12 @@ class DeployAI extends React.Component {
             size="large"
             optionFilterProp="children"
             placeholder="输入名称选择模型集"
-            style={{ width: 150 }}
+            style={{ width: 200 }}
             value={modelSet}
             onChange={value => {
-              const targetModelsets = modelsets.data &&
-                modelsets.data.filter(({ metadata: { name } }) => name === value) ||
-                []
+              const targetModelsets = (modelsets.data
+                && modelsets.data.filter(({ metadata: { name } }) => name === value))
+                || []
               const targetModelset = targetModelsets[0] || {}
               let modelSetVolumeConfig = {
                 mountPath: '/models',
@@ -96,7 +96,7 @@ class DeployAI extends React.Component {
               }
               try {
                 const {
-                  metadata: { labels },
+                  metadata: { name, labels },
                   spec: { resources: { requests: { storage } } },
                 } = targetModelset
                 modelSetVolumeConfig = Object.assign(
@@ -105,7 +105,8 @@ class DeployAI extends React.Component {
                   {
                     type: labels['tenxcloud.com/shareType'],
                     type_1: labels['tenxcloud.com/pvType'],
-                    volume: `${labels['tenxcloud.com/volumeName']} ext4 ${storage}`,
+                    // volume: `${labels['tenxcloud.com/volumeName']} ext4 ${storage}`,
+                    volume: `${name} ext4 ${storage}`,
                   }
                 )
               } catch (error) {

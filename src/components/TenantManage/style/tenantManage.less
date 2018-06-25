@@ -21,9 +21,72 @@
     }
   }
 
+
+  .ant-table {
+    padding-top: 10px;
+    padding-left: 2px;
+    padding-right: 0;
+    &:first-child {
+      border-radius: 0;
+      border-right: 1px solid @border-color-base;
+    }
+    border: none;
+    height: 425px;
+    td {
+      border: none;
+    }
+  }
+  .personalItem {
+    color: @primary-color;
+  }
+  .approvalrecord {
+    color:  @primary-color;
+    cursor: pointer;
+  }
+  .personalProject {
+    .ant-table-header {
+    }
+    table {
+      border: none;
+      padding-right: 0px;
+      border-radius: 0;
+    }
+    tr {
+      th {
+        background-color: @success-color;
+        color: white;
+        font-weight: normal;
+      }
+    }
+  }
+  .shareProject {
+    .ant-table {
+      padding-right: 2px;
+    }
+    table {
+      border: none;
+    }
+    tr {
+      th {
+        background-color: @primary-color;
+        color: white;
+        font-weight: normal;
+      }
+    }
+  }
+  .checkDetail {
+    &:hover {
+      color:  @primary-color;
+      cursor: pointer;
+    }
+  }
+}
+.operationModal{
+  .ant-modal{
+    width: 950px!important;
+  }
   .content {
     color: #666;
-    margin-bottom: 20px;
     .ico{
       cursor: pointer;
     }
@@ -33,16 +96,19 @@
     .tagItems{
       width: 100%;
       padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       .tagImg {
-        float: left;
-        margin-left: 5%;
+        display: flex;
+        align-items: center;
+
         img {
-          width: 100%
+          width: 85%
         }
       }
       .tagDesc {
-        float: right;
-        margin: 8% 18% 30px 20px;
+        margin: 0 0 30px 0px;
         .tagInfo {
           margin-top: 10px;
           .role {
@@ -65,7 +131,7 @@
       }
       .active{
         background-color: #2db7f5;
-        color: '#fff';
+        color: #fff;
         span{
           color: white;
           font-size: 15px;
@@ -160,62 +226,5 @@
       display: none
     }
   }
-  .ant-table {
-    padding-top: 10px;
-    padding-left: 2px;
-    padding-right: 0;
-    &:first-child {
-      border-radius: 0;
-      border-right: 1px solid @border-color-base;
-    }
-    border: none;
-    height: 425px;
-    td {
-      border: none;
-    }
-  }
-  .personalItem {
-    color: @primary-color;
-  }
-  .approvalrecord {
-    color:  @primary-color;
-    cursor: pointer;
-  }
-  .personalProject {
-    .ant-table-header {
-    }
-    table {
-      border: none;
-      padding-right: 0px;
-      border-radius: 0;
-    }
-    tr {
-      th {
-        background-color: @success-color;
-        color: white;
-        font-weight: normal;
-      }
-    }
-  }
-  .shareProject {
-    .ant-table {
-      padding-right: 2px;
-    }
-    table {
-      border: none;
-    }
-    tr {
-      th {
-        background-color: @primary-color;
-        color: white;
-        font-weight: normal;
-      }
-    }
-  }
-  .checkDetail {
-    &:hover {
-      color:  @primary-color;
-      cursor: pointer;
-    }
-  }
 }
+

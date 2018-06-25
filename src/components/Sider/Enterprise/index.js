@@ -15,6 +15,7 @@ import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN  } from '../../../../constants'
@@ -676,6 +677,16 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={()=> this.selectModel('ai-deep-learning')}
+                className={currentKey == 'ai-deep-learning' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='AI 深度学习'
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/ai-deep-learning/notebook'>
+                    <TenxIcon className="commonImg" type="ai" />
+                  </Link>
+                </Tooltip>
+              </li>
+
               { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
                 <li onClick={()=> this.selectModel('integration')}
                   className={currentKey == 'integration' ? 'selectedLi' : ''}>
@@ -742,6 +753,29 @@ class Sider extends Component {
                         <svg className='cluster commonImg'>
                           <use xlinkHref='#siderinfrastructure' />
                         </svg>
+                      </Link>
+                    </Tooltip>
+                  </li>
+                 : null
+              }
+              { role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
+                <li onClick={() => this.selectModel('backup')}
+                    className={currentKey == '.' ? 'selectedLi' : ''}>
+                    <Tooltip placement='right' title='平台数据备份'
+                      getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                      <Link
+                        onClick={() => {
+                          try {
+                            browserHistory.push('/backup')
+                            if (window.monitorPortalHistory) {
+                              window.monitorPortalHistory.push('/backup')
+                            }
+                          } catch (error) {
+                            //
+                          }
+                        }}
+                      >
+                        <TenxIcon type="backup" className="commonImg" />
                       </Link>
                     </Tooltip>
                   </li>
@@ -1063,6 +1097,47 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
+                <SubMenu key="ai-deep-learning"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="ai" />
+                      <span className='commonSiderSpan'>AI 深度学习</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='notebook'>
+                    <Link to='/ai-deep-learning/notebook'>
+                      <span><div className='sideCircle'></div> Notebook</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='large-scale-train'>
+                    <Link to='/ai-deep-learning/large-scale-train'>
+                      <span><div className='sideCircle'></div> 大规模训练</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='data-set'>
+                    <Link to='/ai-deep-learning/data-set'>
+                      <span><div className='sideCircle'></div> 数据集</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='model-set'>
+                    <Link to='/ai-deep-learning/model-set'>
+                      <span><div className='sideCircle'></div> 模型集</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='ai-model-service'>
+                    <Link to='/ai-deep-learning/ai-model-service'>
+                      <span><div className='sideCircle'></div> AI 模型服务</span>
+                    </Link>
+                  </Menu.Item>
+
+                  <div className='sline'></div>
+                </SubMenu>
                 {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
                 <Menu.Item key='integration'>
                   <Link to='/integration'>
@@ -1270,6 +1345,29 @@ class Sider extends Component {
                   </SubMenu>
                    :
                   <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                }
+                {role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN
+                  ? <Menu.Item key="backup">
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/backup')
+                          if (window.monitorPortalHistory) {
+                            window.monitorPortalHistory.push('/backup')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <TenxIcon type="backup" className="menuIcon" style={{ marginLeft: 20 }} />
+                        <span className='commonSiderSpan'>平台数据备份</span>
+                        <div style={{ clear: 'both' }}></div>
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
               </Menu>
             </div>
