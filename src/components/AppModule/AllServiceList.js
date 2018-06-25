@@ -1404,13 +1404,6 @@ class ServiceList extends Component {
       // confirmStopServices: this.confirmStopServices,
       // confirmDeleteServices: this.confirmDeleteServices,
     }
-    const operaMenu = (
-      <Menu>
-        <Menu.Item key="0" disabled={!redeploybtn}>
-          <span className="Moreoperation" onClick={this.batchRestartService}><i className='fa fa-undo' /> 重新部署</span>
-        </Menu.Item>
-      </Menu>
-    );
     const operaMenua = (
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
@@ -1479,11 +1472,11 @@ class ServiceList extends Component {
                 >
                 <StateBtnModal serviceList={serviceList} state='QuickRestar' />
               </Modal>
-              <Dropdown overlay={operaMenu} trigger={['click']}>
-                <Button size="large" disabled={!isChecked}>
-                  更多操作<i className="fa fa-caret-down Arrow"></i>
-                </Button>
-              </Dropdown>
+
+              <Button type='ghost' size='large' onClick={this.batchRestartService} disabled={!redeploybtn}>
+                <i className='fa fa-undo' /> 重新部署
+              </Button>
+
             </div>
             <div className='rightBox'>
               <div className='littleLeft'>
