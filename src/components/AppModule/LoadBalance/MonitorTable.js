@@ -9,18 +9,21 @@
  */
 
 import React from 'react'
-import { Table, Button, Pagination, Row, Col, Tooltip, Modal } from 'antd'
+import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal } from 'antd'
 import isEqual from 'lodash/isEqual'
 import Notification from '../../Notification'
+import { connect } from 'react-redux'
+import { loadServiceDetail } from '../../../actions/services'
 import './style/MonitorTable.less'
-
-export default class MonitorTable extends React.Component {
+import AppServiceEvent from '../AppServiceDetail/AppServiceEvent'
+const TabPane = Tabs.TabPane
+class MonitorTable extends React.Component {
   state = {
     current: 1,
   }
   componentDidMount() {
     const { current } = this.state
-    const { lbDetail } = this.props
+    const { lbDetail, loadServiceDetail } = this.props
     const { ingress } = lbDetail || { ingress: [] }
     this.setState({
       copyIngress: ingress.slice((current - 1) * 5, current * 5)
@@ -44,13 +47,13 @@ export default class MonitorTable extends React.Component {
       deleteModal: true
     })
   }
-  
+
   cancelDelModal = () => {
     this.setState({
       deleteModal: false
     })
   }
-  
+
   confirmDelModal = () => {
     const { deleteIngress, clusterID, location, getLBDetail } = this.props
     const { name, displayName } = location.query
@@ -84,13 +87,13 @@ export default class MonitorTable extends React.Component {
       }
     })
   }
-  
+
   expandedRender = row => {
     if (!row.items || !row.items.length) {
       return
     }
     const isRoundRobin = row.lbAlgorithm !== 'ip_hash'
-    
+
     return (
       <div>
         <Row className="expandedRow">
@@ -102,7 +105,7 @@ export default class MonitorTable extends React.Component {
           }
         </Row>
         {
-          row.items.map(item => 
+          row.items.map(item =>
             <Row className="expandedRow" key={item.serviceName}>
               <Col span={5}>{item.serviceName}</Col>
               <Col span={5}>{item.servicePort}</Col>
@@ -116,7 +119,7 @@ export default class MonitorTable extends React.Component {
       </div>
     )
   }
-  
+
   handlePage = current => {
     const { lbDetail } = this.props
     const { ingress } = lbDetail
@@ -146,15 +149,15 @@ export default class MonitorTable extends React.Component {
         title: '协议',
         width: '20%',
         render: () => 'http'
-      }, 
+      },
       {
-        title: '监听端口', 
-        width: '20%', 
+        title: '监听端口',
+        width: '20%',
         render: () => 80
       },
       {
-        title: '域名', 
-        dataIndex: 'host', 
+        title: '域名',
+        dataIndex: 'host',
         width: '20%',
         render: (text, record) => record.host + record.path
       },
@@ -182,29 +185,52 @@ export default class MonitorTable extends React.Component {
             删除监听器会导致对应服务基于 QPS 的弹性伸缩策略失效，是否确定删除？
           </div>
         </Modal>
-        <div className="layout-content-btns">
-          <Tooltip
-            title="最多支持100条"
-          >
-            <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null)}>创建监听</Button>
-          </Tooltip>
-          {
-            ingress && ingress.length ?
-            <div className="page-box">
-              <span className="total">共计 {ingress && ingress.length} 条</span>
-              <Pagination {...pagination}/>
-            </div> : null
-          }
-        </div>
-        <Table
-          className="reset_antd_table_header"
-          columns={columns}
-          dataSource={copyIngress}
-          expandedRowRender={row => this.expandedRender(row)}
-          rowKey={row => row.name}
-          pagination={false}
-        />
+        <Tabs type="card">
+          <TabPane tab="监听" key="0">
+            <div className="layout-content-btns">
+              <Tooltip
+                title="最多支持100条"
+              >
+                <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null)}>创建监听</Button>
+              </Tooltip>
+              {
+                ingress && ingress.length ?
+                  <div className="page-box">
+                    <span className="total">共计 {ingress && ingress.length} 条</span>
+                    <Pagination {...pagination}/>
+                  </div> : null
+              }
+            </div>
+            <Table
+              className="reset_antd_table_header"
+              columns={columns}
+              dataSource={copyIngress}
+              expandedRowRender={row => this.expandedRender(row)}
+              rowKey={row => row.name}
+              pagination={false}
+            />
+
+          </TabPane>
+          <TabPane tab="事件" key="1">
+            <AppServiceEvent serviceName={this.props.name} cluster={this.props.clusterID} type={'replicaset'} serviceDetailmodalShow={true}/>
+          </TabPane>
+        </Tabs>
       </div>
     )
   }
 }
+function mapStateToProps(state, props) {
+  const { lbDetail, clusterID } = props
+  const name = lbDetail.deployment.metadata.name
+  console.log(name,clusterID)
+
+  return {
+    clusterID,
+    name
+  }
+
+  return state
+}
+export default connect(mapStateToProps, {
+  loadServiceDetail,
+})(MonitorTable)

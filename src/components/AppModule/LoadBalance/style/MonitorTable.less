@@ -17,4 +17,38 @@
   .editBtn {
     margin-right: 12px;
   }
+  .ant-tabs-bar {
+    width: calc(~"100% - 150px");
+  }
+  .ant-tabs-nav {
+    .ant-tabs-tab {
+      margin: 0!important;
+      border-radius: 4px 4px 0 0;
+      border-bottom: @border-width-base @border-style-base @border-color-base;
+      .ant-tabs-tab-inner {
+        transition: none;
+      }
+
+      &:hover {
+        background: #ffffff;
+        border-bottom: 1px solid #ffffff
+      }
+      .ant-tabs-tab-inner {
+        padding: 7px 30px 6px 30px;
+        .anticon-cross {
+          display: none;
+        }
+      }
+    }
+    .ant-tabs-tab-active {
+      background: none;
+      border-bottom: none;
+      .ant-tabs-tab-inner {
+        border-bottom: @border-width-base @border-style-base @backgroud-color-body !important;
+        &:hover{
+          border-bottom: 1px solid #ffffff !important;
+        }
+      }
+    }
+  }
 }
