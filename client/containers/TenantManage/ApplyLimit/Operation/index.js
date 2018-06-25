@@ -13,6 +13,9 @@ import { Button, Modal, Alert } from 'antd'
 import ApplayDetail from './ApplayDetail'
 import PropTypes from 'prop-types'
 import './style/index.less'
+import { connect } from 'react-redux'
+import { deleteResourcequota } from '../../../../actions/applyLimit'
+import { REG } from '../../../../../src/constants'
 class Operation extends React.Component {
   static propTypes = {
     condition: PropTypes.string,
@@ -31,13 +34,24 @@ class Operation extends React.Component {
   relealApply = () => {
     // 向后台发送撤销请求, 成功后
     this.setState({ relealLoading: true })
-    setTimeout(() => {
-      // 向后台验证
-      this.setState({
-        relealVisable: false,
-        relealLoading: false,
-      })
-    }, 2000)
+    const { reloadApplyRecord, deleteResourcequota } = this.props
+    // 向后台验证
+    const { record } = this.props
+    console.log('record', record)
+    deleteResourcequota(record.id, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              relealVisable: false,
+              relealLoading: false,
+            })
+            reloadApplyRecord()
+          }
+        },
+        isAsync: true,
+      },
+    })
   }
   toggleDetailVisable = () => {
     const { detailVisable } = this.state
@@ -118,4 +132,14 @@ class Operation extends React.Component {
   }
 }
 
-export default Operation
+const mapStateToProps = state => {
+  const resourcequoteRecord = state.applyLimit.resourcequoteRecord
+  // const namespace = state.entities.loginUser.info.namespace
+  return {
+    resourcequoteRecord,
+  }
+}
+
+export default connect(mapStateToProps, {
+  deleteResourcequota,
+})(Operation)
