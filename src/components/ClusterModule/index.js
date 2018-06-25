@@ -670,7 +670,7 @@ class ClusterList extends Component {
             tab={tabPaneTab}
             key={cluster.clusterID}
           >
-            <ClusterTabList cluster={cluster} location={location}/>
+            <ClusterTabList license={license} cluster={cluster} location={location}/>
           </TabPane>
         )
       }
@@ -724,7 +724,7 @@ class ClusterList extends Component {
                 tabBarExtraContent={
                   [
                     <Tooltip
-                    title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
+                    title={`当前许可证最多支持 ${maxClusters || '-'} 个集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"
                   >
                     <span className='addBtn'>

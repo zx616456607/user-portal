@@ -10,13 +10,14 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress } from 'antd'
 import './style/MySpace.less'
-import ReactEcharts from 'echarts-for-react'
+import { formatOperationType, formatTypeName, formatResourceName } from '../../../../../client/containers/ManageMonitor/OperationAudit'
 import { connect } from 'react-redux'
 import { getOperationLogList } from '../../../../actions/manage_monitor'
 import { calcuDate } from "../../../../common/tools"
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
+import { getOperationalTarget } from '../../../../actions/manage_monitor'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
@@ -37,7 +38,7 @@ class MySpace extends Component {
   }
 
   componentWillMount() {
-    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
+    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget } = this.props
     loadSpaceCICDStats({
       failed: {
         func: () => {
@@ -58,6 +59,7 @@ class MySpace extends Component {
       }
     })
     loadSpaceInfo()
+    getOperationalTarget() //审计日志中的操作类型
     let { } = this.props
     getOperationLogList({
       from: 0,
@@ -94,6 +96,7 @@ class MySpace extends Component {
     })
   }
   getOperationLog() {
+    const { filterData } = this.props
     const logs = this.props.auditLog
     const ele = []
     if (!logs.logs) {
@@ -105,14 +108,21 @@ class MySpace extends Component {
     }
     if (logs.logs.records.length <= 0) logs.logs.records = []
     let index = 0
+
     logs.logs.records.forEach(item => {
       if (!item.operationType) return
       if (index > 5) return
+      try {
+        item.resourceName = formatResourceName(item.resourceName, item.resourceId)
+      } catch (e) {
+        // do nothing
+      }
+
       if (index === 0) {
         return ele.push(
           <Timeline.Item>
             <div className="logItem">
-              <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
+              <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
               <div className="logInf">
                 {calcuDate(item.time)}
                 <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -123,7 +133,7 @@ class MySpace extends Component {
       }
       ele.push(<Timeline.Item >
         <div className="logItem">
-          <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
+          <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
           <div className="logInf">
             {calcuDate(item.time)}
             <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -250,7 +260,7 @@ class MySpace extends Component {
   }
 
   render() {
-    const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching } = this.props
+    const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching, filterData } = this.props
     // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
@@ -686,6 +696,7 @@ class MySpace extends Component {
 
 function mapStateToProp(state, props) {
   const { current, loginUser } = state.entities
+  const { operationalTarget } = state.manageMonitor // 拿到审计日志的操作类型
   const { clusterID } = current.cluster
   const { projectName } = current.space
   const { userID } = current.space
@@ -822,6 +833,7 @@ function mapStateToProp(state, props) {
     auditLog: state.manageMonitor.operationAuditLog.logs,
     spaceWarnings: spaceWarningsData,
     isFetching,
+    filterData: operationalTarget.data || []
   }
 }
 
@@ -835,6 +847,7 @@ export default connect(mapStateToProp, {
   loadSpaceInfo,
   getGlobaleQuota,
   getGlobaleQuotaList,
+  getOperationalTarget,
 })(MySpace)
 
 const menusText = defineMessages({
@@ -1450,455 +1463,3 @@ function duringTimeFormat(time, scope) {
   }
 }
 
-function resourceFormat(resourceType, scope) {
-  //this function for format resource type to show user
-  const { formatMessage } = scope.props.intl;
-  if (!resourceType) return ''
-  switch (resourceType + '') {
-    case '1':
-      return formatMessage(menusText.Instance)
-      break;
-    case '2':
-      return formatMessage(menusText.InstanceEvent)
-      break;
-    case '3':
-      return formatMessage(menusText.InstanceLog)
-      break;
-    case '4':
-      return formatMessage(menusText.InstanceMetrics)
-      break;
-    case '5':
-      return formatMessage(menusText.InstanceContainerMetrics)
-      break;
-    case '6':
-      return formatMessage(menusText.Service)
-      break;
-    case '7':
-      return formatMessage(menusText.ServiceInstance)
-      break;
-    case '8':
-      return formatMessage(menusText.ServiceEvent)
-      break;
-    case '9':
-      return formatMessage(menusText.ServiceLog)
-      break;
-    case '10':
-      return formatMessage(menusText.ServiceK8sService)
-      break;
-    case '11':
-      return formatMessage(menusText.ServiceRollingUpgrade)
-      break;
-    case '12':
-      return formatMessage(menusText.ServiceManualScale)
-      break;
-    case '13':
-      return formatMessage(menusText.ServiceAutoScale)
-      break;
-    case '14':
-      return formatMessage(menusText.ServiceQuota)
-      break;
-    case '15':
-      return formatMessage(menusText.ServiceHaOption)
-      break;
-    case '16':
-      return formatMessage(menusText.ServiceDomain)
-      break;
-    case '17':
-      return formatMessage(menusText.App)
-      break;
-    case '18':
-      return formatMessage(menusText.AppService)
-      break;
-    case '19':
-      return formatMessage(menusText.AppOperationLog)
-      break;
-    case '20':
-      return formatMessage(menusText.AppExtraInfo)
-      break;
-    case '21':
-      return formatMessage(menusText.AppTopology)
-      break;
-    case '22':
-      return formatMessage(menusText.ConfigGroup)
-      break;
-    case '23':
-      return formatMessage(menusText.Config)
-      break;
-    case '24':
-      return formatMessage(menusText.Node)
-      break;
-    case '25':
-      return formatMessage(menusText.NodeMetrics)
-      break;
-    case '26':
-      return formatMessage(menusText.ThirdPartyRegistry)
-      break;
-    case '27':
-      return formatMessage(menusText.Volume)
-      break;
-    case '28':
-      return formatMessage(menusText.VolumeConsumption)
-      break;
-    case '29':
-      return formatMessage(menusText.Member)
-      break;
-    case '30':
-      return formatMessage(menusText.UserTeams)
-      break;
-    case '31':
-      return formatMessage(menusText.UserSpaces)
-      break;
-    case '32':
-      return formatMessage(menusText.Team)
-      break;
-    case '33':
-      return formatMessage(menusText.TeamMembers)
-      break;
-    case '34':
-      return formatMessage(menusText.TeamSpaces)
-      break;
-    case '35':
-      return formatMessage(menusText.cluster)
-      break;
-    case '36':
-      return formatMessage(menusText.Repo)
-      break;
-    case '37':
-      return formatMessage(menusText.Project)
-      break;
-    case '38':
-      return formatMessage(menusText.Flow)
-      break;
-    case '39':
-      return formatMessage(menusText.Stage)
-      break;
-    case '40':
-      return formatMessage(menusText.Link)
-      break;
-    case '41':
-      return formatMessage(menusText.Build)
-      break;
-    case '42':
-      return formatMessage(menusText.CIRule)
-      break;
-    case '43':
-      return formatMessage(menusText.CDRule)
-      break;
-    case '44':
-      return formatMessage(menusText.Dockerfile)
-      break;
-    case '45':
-      return formatMessage(menusText.CINotification)
-      break;
-    case '46':
-      return formatMessage(menusText.CDNotification)
-      break;
-    case '47':
-      return formatMessage(menusText.InstanceExport)
-      break;
-    case '48':
-      return formatMessage(menusText.AlertEmailGroup)
-      break;
-    case '49':
-      return formatMessage(menusText.AlertRecord)
-      break;
-    case '50':
-      return formatMessage(menusText.AlertStrategy)
-      break;
-    case '51':
-      return formatMessage(menusText.AlertRule)
-      break;
-    case '52':
-      return formatMessage(menusText.Snapshot)
-      break;
-    case '53':
-      return formatMessage(menusText.Labels)
-      break;
-    case '55':
-      return formatMessage(menusText.env)
-      break;
-    case '59':
-      return formatMessage(menusText.ProjectRoles)
-      break;
-    case '60':
-      return formatMessage(menusText.Wrap)
-      break;
-    case '61':
-      return formatMessage(menusText.WrapStore)
-      break;
-    case '62':
-      return formatMessage(menusText.WrapCheck)
-      break;
-    case '63':
-      return formatMessage(menusText.Image)
-      break;
-    case '64':
-      return formatMessage(menusText.ImageStore)
-      break;
-    case '65':
-      return formatMessage(menusText.ImageCheck)
-      break;
-    case '66':
-      return formatMessage(menusText.MonitorPanel)
-      break;
-    case '67':
-      return formatMessage(menusText.MonitorChart)
-    case '68':
-      return formatMessage(menusText.ServiceGrayRelease)
-    case '69':
-      return formatMessage(menusText.SecretConfigGroup)
-    case '70':
-      return formatMessage(menusText.SecretConfig)
-    case '71':
-      return formatMessage(menusText.ManageClassify)
-    case '72':
-      return formatMessage(menusText.Loadbalance)
-    case '73':
-      return formatMessage(menusText.Ingress)
-    case '74':
-      return formatMessage(menusText.Permission)
-    // For CI related
-    case '1000':
-      return formatMessage(menusText.baseImage)
-      break;
-    case '0':
-      return formatMessage(menusText.Unknown)
-      break;
-  }
-}
-
-function operationalFormat(operationalType, scope) {
-  //this function for format operational type to show user
-  const { formatMessage } = scope.props.intl;
-  if (!operationalType) return ''
-  switch (operationalType + '') {
-    case '1':
-      return formatMessage(menusText.Create)
-      break;
-    case '2':
-      return formatMessage(menusText.Get)
-      break;
-    case '3':
-      return formatMessage(menusText.List)
-      break;
-    case '4':
-      return formatMessage(menusText.Update)
-      break;
-    case '5':
-      return formatMessage(menusText.Delete)
-      break;
-    case '6':
-      return formatMessage(menusText.Start)
-      break;
-    case '7':
-      return formatMessage(menusText.Stop)
-      break;
-    case '8':
-      return formatMessage(menusText.Restart)
-      break;
-    case '9':
-      return formatMessage(menusText.Pause)
-      break;
-    case '10':
-      return formatMessage(menusText.Resume)
-      break;
-    case '11':
-      return formatMessage(menusText.BatchDelete)
-      break;
-    case '12':
-      return formatMessage(menusText.BatchStart)
-      break;
-    case '13':
-      return formatMessage(menusText.BatchStop)
-      break;
-    case '14':
-      return formatMessage(menusText.BatchRestart)
-      break;
-    case '15':
-      return formatMessage(menusText.QuickRestart)
-      break;
-    case '16':
-      return formatMessage(menusText.CheckExist)
-      break;
-    case '17':
-      return formatMessage(menusText.Format)
-      break;
-    case '18':
-      return formatMessage(menusText.Expand)
-      break;
-    case '19':
-      return formatMessage(menusText.BatchIgnore)
-      break;
-    case '20':
-      return formatMessage(menusText.EnablEmail)
-      break;
-    case '21':
-      return formatMessage(menusText.DisablEmail)
-      break;
-    case '22':
-      return formatMessage(menusText.CreateOrUpdate)
-      break;
-    case '23':
-      return formatMessage(menusText.ToggleEnable)
-      break;
-    case '24':
-      return formatMessage(menusText.Ignore)
-      break;
-    case '25':
-      return formatMessage(menusText.RollBack)
-      break;
-    case '26':
-      return formatMessage(menusText.Clone)
-      break;
-    case '27':
-      return formatMessage(menusText.TransferTeam)
-    case '28':
-      return formatMessage(menusText.Enable)
-    case '29':
-      return formatMessage(menusText.Disable)
-    case '30':
-      return formatMessage(menusText.AddMember)
-    case '31':
-      return formatMessage(menusText.DeleteMember)
-    case '32':
-      return formatMessage(menusText.Upload)
-    case '33':
-      return formatMessage(menusText.Download)
-    case '34':
-      return formatMessage(menusText.Publish)
-    case '35':
-      return formatMessage(menusText.OffShelf)
-    case '36':
-      return formatMessage(menusText.PublishPass)
-    case '37':
-      return formatMessage(menusText.PublishReject)
-    case '38':
-      return formatMessage(menusText.SubmitAudit)
-    case '39':
-      return formatMessage(menusText.UploadDocs)
-    case '40':
-      return formatMessage(menusText.DeleteDocs)
-    case '41':
-      return formatMessage(menusText.DownloadDocs)
-    case '42':
-      return formatMessage(menusText.Unbind)
-    case '43':
-      return formatMessage(menusText.Drain)
-    case '44':
-      return formatMessage(menusText.UnCordon)
-    case '0':
-      return formatMessage(menusText.Unknown)
-      break;
-  }
-}
-function formatResourceName(resourceName) {
-  //this function for format the resourceName
-  if (resourceName.indexOf('{') > -1) {
-    let newBody = JSON.parse(resourceName);
-    // check project
-    if (!!newBody.projects) {
-      let newName = newBody.projects;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    // check displayName
-    if (!!newBody.displayName) {
-      let newName = newBody.displayName;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check services
-    if (!!newBody.services) {
-      let newName = newBody.services;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check apps
-    if (!!newBody.apps) {
-      let newName = newBody.apps;
-      if (!Array.isArray(newName) || newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    //check volumes
-    if (!!newBody.volumes) {
-      let newName = newBody.volumes;
-      if (newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    // check classifyName
-    if (newBody.classifies) {
-      const classifyNameArray = newBody.classifies.map(item => {
-        return item.classifyName
-      })
-      return classifyNameArray.join(',')
-    }
-    // check configs
-    if (!!newBody.configs) {
-      let newName = newBody.configs;
-      if (newName.length == 0) {
-        return '-';
-      }
-      newName = newName.join(',');
-      return newName;
-    }
-    if (newBody.names) {
-      return newBody.names[0]
-    }
-    if (newBody.name) {
-      return newBody.name
-    }
-    if (newBody.strategyName) {
-      return newBody.strategyName
-    }
-    if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
-      return newBody.strategyIDs.join(",")
-    }
-    if(newBody.fileName) {
-      return newBody.fileName
-    }
-    if (newBody.fileNickName) {
-      return newBody.fileNickName
-    }
-    if (newBody.imageTagName) {
-      return newBody.imageTagName
-    }
-    if (newBody.filePkgNames) {
-      return newBody.filePkgNames.toString()
-    }
-    if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
-      let ids = new Array()
-      for (let i = 0; i < newBody.strategies.length; i++) {
-        let item = newBody.strategies[i]
-        if (item && item.strategyID) {
-          ids.push(item.strategyID)
-        }
-      }
-      return ids.join(',')
-    }
-    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
-      return newBody.ids.join(",")
-    }
-    // secret config
-    if (newBody.key && newBody.value) {
-      return newBody.key
-    }
-    return resourceName;
-  } else {
-    return resourceName;
-  }
-}
