@@ -418,7 +418,7 @@ class AppList extends Component {
       deleteAppsModal: false,
       deployEnvModalVisible: false,
       step: 1, // first step create AlarmModal
-      alarmStrategy: true
+      alarmStrategy: true,
     }
   }
 
@@ -1116,7 +1116,7 @@ class AppList extends Component {
                   onChange={this.onPageChange}
                   onShowSizeChange={this.onShowSizeChange}
                   current={page}
-                  pageSize={2}
+                  pageSize={size}
                   total={total} />
               </div>
             </div>}
@@ -1175,7 +1175,7 @@ class AppList extends Component {
                   onChange={this.onPageChange}
                   onShowSizeChange={this.onShowSizeChange}
                   current={page}
-                  pageSize={2}
+                  pageSize={size}
                   total={total} />
               </div>
             </div>}

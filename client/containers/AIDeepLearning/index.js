@@ -82,7 +82,7 @@ const menus = [
   },
   {
     url: '/ai-deep-learning/ai-model-service',
-    name: 'AI 模型服务',
+    name: 'AI 模型应用',
   },
 ]
 

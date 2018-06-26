@@ -201,7 +201,7 @@ const formatResourceName = (resourceName, resourceId) => {
       if (resourceId.length === 0) {
         return '-'
       }
-      return resourceId
+      return '-'
     }
     return resourceName
   }
@@ -239,6 +239,7 @@ const formatOperationType = (code, data) => {
     hash[next.id] ? '' : hash[next.id] = true && item.push(next)
     return item
   }, [])
+
   for (const v of types) {
     if (code === v.id) {
       return v.resourceName

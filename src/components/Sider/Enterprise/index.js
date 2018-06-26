@@ -1132,7 +1132,7 @@ class Sider extends Component {
 
                   <Menu.Item key='ai-model-service'>
                     <Link to='/ai-deep-learning/ai-model-service'>
-                      <span><div className='sideCircle'></div> AI 模型服务</span>
+                      <span><div className='sideCircle'></div> AI 模型应用</span>
                     </Link>
                   </Menu.Item>
 

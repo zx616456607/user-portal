@@ -21,6 +21,7 @@ import './style/AppServiceEvent.less'
 function loadData(props) {
   const notification = new NotificationHandler()
   const { cluster, serviceName, type } = props;
+
   props.loadServiceDetailEvents(cluster, serviceName, type, {
     failed: {
       func: err => {

@@ -307,6 +307,7 @@ class AppServiceDetail extends Component {
       bindingPort,
       https,
     }
+
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
