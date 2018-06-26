@@ -33,9 +33,7 @@ let FistStop = React.createClass({
   },
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
-    if (!appList || appList.length == 0) {
-      loadAppList(cluster.clusterID)
-    }
+    loadAppList(cluster.clusterID, {size: 1000}) // 解决从应用列表跳转过来不请求的问题
     if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ADMIN_ROLE) {
       getAllClusterNodes(cluster.clusterID)
     }
