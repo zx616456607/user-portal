@@ -464,9 +464,18 @@ const MyComponent = React.createClass({
             </Menu.Item>
         </Menu>
       );
+
+
+      let mirror = ''
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
+      if (item.metadata.annotations['rollingupdate/target']) {
+        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+        mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
+      }else {
+        mirror = images.join(', ')? images.join(', ') : ''
+      }
       let appName = ""
       if(item.metadata){
         appName = item.metadata.labels[LABEL_APPNAME]
@@ -576,8 +585,9 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="image commonData">
-            <Tooltip title={images.join(', ') ? images.join(', ') : ""} placement="topLeft">
-              <span>{images.join(', ') || '-'}</span>
+
+            <Tooltip title={mirror} placement="topLeft">
+              <span>{mirror}</span>
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">

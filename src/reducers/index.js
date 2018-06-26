@@ -57,6 +57,7 @@ import appStore from './app_store'
 import loadBalance from './load_balance'
 import appTemplates from '../../client/reducers/template'
 import appAutoScaler from '../../client/reducers/clusterAutoScaler'
+import applyLimit from '../../client/reducers/applyLimit'
 import aiops from '../../client/reducers/aiops'
 
 import {
@@ -186,6 +187,7 @@ const rootReducer = combineReducers({
   appTemplates,
   appAutoScaler,
   aiops,
+  applyLimit,
 })
 
 export default rootReducer

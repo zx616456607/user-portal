@@ -295,7 +295,7 @@ class License extends Component {
                     <thead className="ant-table-thead">
                     <tr>
                       <th ><span>最大集群数</span></th>
-                      <th ><span>最大节点数</span></th>
+                      <th ><span>单集群最大节点数</span></th>
                       <th ><span>失效时间</span></th>
                     </tr>
                     </thead>
@@ -318,7 +318,7 @@ class License extends Component {
               <tr>
                 <th ><span>许可证 ID</span></th>
                 <th ><span>最大集群数</span></th>
-                <th ><span>最大节点数</span></th>
+                <th ><span>单集群最大节点数</span></th>
                 <th ><span>生效时间</span></th>
                 <th ><span>失效时间</span></th>
                 <th ><span>有效时长</span></th>

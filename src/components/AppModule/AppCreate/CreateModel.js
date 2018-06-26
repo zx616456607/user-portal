@@ -225,7 +225,7 @@ class CreateModel extends Component {
             </div>
             <Button type={createModel=='AI' ? 'primary':'ghost'} className='AI' onClick={()=> this.selectCreateModel('AI')}>
               <img src={createModel == 'AI' ? stackIconHover : stackIcon} className="stackIcon" />
-              AI 模型服务
+              AI 模型应用
             </Button>
             {moreService ?
               <Tooltip title='添加服务暂不支持编排文件方式'>

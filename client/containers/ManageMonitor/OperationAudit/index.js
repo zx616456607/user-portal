@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl'
 import { getOperationLogList, getOperationalTarget } from '../../../../src/actions/manage_monitor'
 import { formatDate } from '../../../../src/common/tools.js'
 import Title from '../../../../src/components/Title'
-import '../style/manageMonitor.less'
+import '../style/operationAudit.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
 const notification = new NotificationHandler()
@@ -73,7 +73,10 @@ function statusFormat(status, createTime) {
       )
   }
 }
-function formatResourceName(resourceName, resourceId) {
+
+// 转换对象及类型中的对象
+const formatResourceName = (resourceName, resourceId) => {
+
   // this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     const newBody = JSON.parse(resourceName)
@@ -199,9 +202,50 @@ function formatResourceName(resourceName, resourceId) {
       if (resourceId.length === 0) {
         return '-'
       }
-      return resourceId
+      return '-'
     }
     return resourceName
+  }
+}
+// 转换对象及类型中的类型
+const formatTypeName = (code, data) => {
+  for (const v of data) {
+    if (code === v.id) {
+      return v.name
+    }
+    if (v.children) {
+      for (const k of v.children) {
+        if (code === k.id) {
+          return k.name
+        }
+      }
+    }
+
+  }
+}
+// 转换操作类型
+const formatOperationType = (code, data) => {
+
+  let types = []
+  for (const v of data) {
+    if (v.children) {
+      for (const k of v.children) {
+        if (k.opetation) {
+          types = types.concat(k.opetation)
+        }
+      }
+    }
+  }
+  const hash = {}
+  types = types.reduce(function(item, next) {
+    hash[next.id] ? '' : hash[next.id] = true && item.push(next)
+    return item
+  }, [])
+
+  for (const v of types) {
+    if (code === v.id) {
+      return v.resourceName
+    }
   }
 }
 class OperationalAudit extends React.Component {
@@ -394,51 +438,9 @@ class OperationalAudit extends React.Component {
       operationObjects,
     }
   }
-  filterOperationType = () => {
-    const { filterData } = this.props
-    let tempArr = []
-    for (const v of filterData) {
-      if (v.children) {
-        for (const k of v.children) {
-          if (k.opetation) {
-            tempArr = tempArr.concat(k.opetation)
-          }
-        }
-      }
-    }
-    const hash = {}
-    tempArr = tempArr.reduce(function(item, next) {
-      hash[next.id] ? '' : hash[next.id] = true && item.push(next)
-      return item
-    }, [])
-    return tempArr
-  }
-  filterResourceName = code => {
-    const { filterData } = this.props
-    for (const v of filterData) {
-      if (code === v.id) {
-        return v.name
-      }
-      if (v.children) {
-        for (const k of v.children) {
-          if (code === k.id) {
-            return v.name
-          }
-        }
-      }
-    }
-  }
-  render() {
 
+  render() {
     const { isFetching, filterData } = this.props
-    const formatOperationType = code => {
-      const types = this.filterOperationType()
-      for (const v of types) {
-        if (code === v.id) {
-          return v.resourceName
-        }
-      }
-    }
 
     const tableColumns = [
       {
@@ -454,19 +456,21 @@ class OperationalAudit extends React.Component {
       {
         dataIndex: 'operationType',
         title: '操作类型',
-        render: val => <span>{val === 0 ? '未知' : formatOperationType(val)}</span>,
+        render: val => <span>{val === 0 ? '未知' : formatOperationType(val, filterData)}</span>,
       },
       {
         dataIndex: 'targetAndType',
         title: '对象及类型',
         render: (val, row) => {
           try {
+            JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.resourceId)
           } catch (e) {
+            row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }
           return <div>
-            <div>类型：{this.filterResourceName(row.resourceType)}</div>
+            <div>类型：{formatTypeName(row.resourceType, filterData)}</div>
             <div>对象：{row.resourceName}</div>
           </div>
         },
@@ -510,6 +514,7 @@ class OperationalAudit extends React.Component {
                     onChange={this.selectOptionTarget}
                     value={this.state.resource ? this.state.resource : ''}
                     placeholder="选择操作对象"
+                    popupClassName= "resourceSelectPopup"
                     size="large"
                   />
                   <Select
@@ -622,9 +627,13 @@ OperationalAudit.propTypes = {
 const OperationalAuditCom = injectIntl(OperationalAudit, {
   withRef: true,
 })
-
 export default connect(mapStateToProps, {
   getOperationLogList,
   getOperationalTarget,
 
 })(OperationalAuditCom)
+export {
+  formatResourceName,
+  formatTypeName,
+  formatOperationType,
+}

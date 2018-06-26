@@ -230,10 +230,6 @@ const rootRoutes = {
         ],
       },
       {
-        path: '/backup',
-        component: require('../../client/containers/Monitor').default,
-      },
-      {
         path: '*',
         component: require('../containers/ErrorPage').default,
       }
