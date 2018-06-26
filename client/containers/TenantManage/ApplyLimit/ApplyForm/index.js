@@ -206,7 +206,7 @@ const fromatChoiceClusters = choiceClusters => {
 const findChoiceClusersId = (name, choiceClusters) => {
   if (!_.isEmpty(choiceClusters) && !_.isEmpty(choiceClusters.data)) {
     for (const o of choiceClusters.data) {
-      console.log('o', o)
+
       if (o.clusterName === name) {
         return o.clusterID
       }
@@ -325,13 +325,13 @@ class ApplyForm extends React.Component {
   handleSubmit = () => {
     const { choiceClusters, applayResourcequota, setApplayVisable } = this.props
     this.props.form.validateFields((errors, value) => {
-      console.log('errors', errors)
+
       if (errors) {
         notification.warn({
           message: '表单验证错误',
         })
       }
-      console.log('value', value)
+
       const query = { header: { teamspace: value.item } }
       const formValue = {
         comment: value.applyReason,
@@ -353,7 +353,7 @@ class ApplyForm extends React.Component {
         }
         formValue.applyDetails[indexName][value[`resource${key}`]] = indexValue
       }
-      console.log('formValue', formValue)
+
       this.setState({ applayLoading: true })
       applayResourcequota(query, formValue, {
         success: {
