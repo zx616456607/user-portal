@@ -758,7 +758,7 @@ class Sider extends Component {
                   </li>
                  : null
               }
-              { role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
+              {/* role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN ?
                 <li onClick={() => this.selectModel('backup')}
                     className={currentKey == '.' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='平台数据备份'
@@ -779,7 +779,7 @@ class Sider extends Component {
                       </Link>
                     </Tooltip>
                   </li>
-                 : null
+                 : null */
               }
               <li style={{ clear: 'both' }}></li>
             </ul>
@@ -1132,7 +1132,7 @@ class Sider extends Component {
 
                   <Menu.Item key='ai-model-service'>
                     <Link to='/ai-deep-learning/ai-model-service'>
-                      <span><div className='sideCircle'></div> AI 模型服务</span>
+                      <span><div className='sideCircle'></div> AI 模型应用</span>
                     </Link>
                   </Menu.Item>
 
@@ -1342,11 +1342,36 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
+                  <Menu.Item key='backup'>
+                    <div className="adminBox">
+                      <Tooltip title="仅系统管理员可见" placement="right">
+                        <svg className="start forAdmin">
+                          <use xlinkHref='#start' />
+                        </svg>
+                      </Tooltip>
+                      <Link
+                        onClick={() => {
+                          try {
+                            browserHistory.push('/cluster/backup')
+                            if (window.monitorPortalHistory) {
+                              window.monitorPortalHistory.push('/cluster/backup')
+                            }
+                          } catch (error) {
+                            //
+                          }
+                        }}
+                      >
+                        <span>
+                        平台数据备份
+                        </span>
+                      </Link>
+                    </div>
+                  </Menu.Item>
                   </SubMenu>
                    :
                   <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
-                {role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN
+                {/* role !== ROLE_USER && role !== ROLE_PLATFORM_ADMIN
                   ? <Menu.Item key="backup">
                     <Link
                       onClick={() => {
@@ -1367,7 +1392,7 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
+                  : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item> */
                 }
               </Menu>
             </div>

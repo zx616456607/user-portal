@@ -54,6 +54,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_group/,
     /\/manange_monitor\/panel/,
     /\/app_center\/template/,
+    /\/ai\-deep\-learning\/?/,
   ],
   cluster: [
     /^\/$/,
@@ -64,6 +65,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_setting\/log\/?$/,
     /\/manange_monitor\/panel/,
     /\/app_center\/template\/create/,
+    /\/ai\-deep\-learning\/?/,
   ],
 }
 
