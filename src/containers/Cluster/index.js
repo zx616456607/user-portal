@@ -40,7 +40,21 @@ let menuList = [
         //
       }
     }
-  }
+  },
+  {
+    url: '/cluster/backup',
+    name: '平台数据备份',
+    onClick: () => {
+      try {
+        browserHistory.push('/cluster/backup')
+        if (window.monitorPortalHistory) {
+          window.monitorPortalHistory.push('/cluster/backup')
+        }
+      } catch (error) {
+        //
+      }
+    }
+  },
 ]
 export default class Cluster extends Component {
   constructor(props) {

@@ -65,7 +65,7 @@ class Monitor extends React.Component {
     } = this.props
     let redirect
     let title = '系统服务监控'
-    if (pathname === '/backup') {
+    if (pathname === '/cluster/backup') {
       redirect = '/backup'
       title = '平台数据备份'
     }
