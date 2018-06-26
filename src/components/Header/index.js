@@ -54,6 +54,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_group/,
     /\/manange_monitor\/panel/,
     /\/app_center\/template/,
+    /\/ai\-deep\-learning\/?/,
   ],
   cluster: [
     /^\/$/,
@@ -64,6 +65,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/alarm_setting\/log\/?$/,
     /\/manange_monitor\/panel/,
     /\/app_center\/template\/create/,
+    /\/ai\-deep\-learning\/?/,
   ],
 }
 
@@ -146,6 +148,7 @@ class Header extends Component {
       upgradeVersionModalVisible: false,
       visible: false,
       allUsers: [],
+      collapseDefaultActiveKey: null,
     }
     this.isSysAdmin = props.loginUser.role === ROLE_SYS_ADMIN || props.loginUser.role === ROLE_PLATFORM_ADMIN
   }
@@ -204,59 +207,6 @@ class Header extends Component {
         },
         isAsync: true,
       }
-    })
-  }
-
-  componentWillMount() {
-    const {
-      loadTeamClustersList,
-      setCurrent,
-      loadLoginUserDetail,
-      loginUser,
-      getProjectVisibleClusters,
-    } = this.props
-    const config = getCookie(USER_CURRENT_CONFIG)
-    const [teamID, namespace, clusterID] = config.split(',')
-    setCurrent({
-      team: { teamID },
-      space: { namespace },
-      cluster: { clusterID },
-    })
-    loadProjects(this.props, {
-      success: {
-        func: res => {
-          const projects = res.data && res.data.projects || []
-          let defaultSpace = projects[0] || {}
-          if (namespace === 'default' || projects.length === 0) {
-            defaultSpace = MY_SPACE
-          } else {
-            projects.map(project => {
-              if (project.namespace === namespace) {
-                defaultSpace = project
-              }
-            })
-          }
-          setCurrent({
-            space: defaultSpace
-          })
-          getProjectVisibleClusters(defaultSpace.projectName, {
-            success: {
-              func: clustersRes => {
-                const { clusters } = clustersRes.data
-                let defaultCluster = clusters[0] || {}
-                clusters.map(cluster => {
-                  if (cluster.clusterID === clusterID) {
-                    defaultCluster = cluster
-                  }
-                })
-                this.loadStorageClassType(defaultCluster)
-              },
-              isAsync: true
-            }
-          })
-        },
-        isAsync: true,
-      },
     })
   }
 
@@ -340,14 +290,79 @@ class Header extends Component {
     notification.success(msg)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this._checkLiteVersion()
-    this.isSysAdmin && this.props.loadUserList({ size: 0, sort: 'a,userName', }, {
+    if (this.isSysAdmin) {
+      await this.props.loadUserList({ size: 0, sort: 'a,userName' }, {
+        success: {
+          func: res => {
+            this.setState({ allUsers: cloneDeep(res.users || []) })
+          }
+        }
+      })
+    }
+    const {
+      loadTeamClustersList,
+      setCurrent,
+      loadLoginUserDetail,
+      loginUser,
+      getProjectVisibleClusters,
+    } = this.props
+    const config = getCookie(USER_CURRENT_CONFIG)
+    const [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
+    setCurrent({
+      team: { teamID },
+      space: { namespace },
+      cluster: { clusterID },
+    })
+    if (onbehalfuser === 'onbehalfuser' && this.isSysAdmin) {
+      this.setState({
+        collapseDefaultActiveKey: [ 'user' ],
+      })
+      this.state.allUsers.every(user => {
+        if (user.namespace === namespace) {
+          this.handleProjectChange(user)
+          return false
+        }
+        return true
+      })
+      return
+    }
+    loadProjects(this.props, {
       success: {
         func: res => {
-          this.setState({ allUsers: cloneDeep(res.users || []) })
-        }
-      }
+          const projects = res.data && res.data.projects || []
+          let defaultSpace = projects[0] || {}
+          if (namespace === 'default' || projects.length === 0) {
+            defaultSpace = MY_SPACE
+          } else {
+            projects.map(project => {
+              if (project.namespace === namespace) {
+                defaultSpace = project
+              }
+            })
+          }
+          setCurrent({
+            space: defaultSpace
+          })
+          getProjectVisibleClusters(defaultSpace.projectName, {
+            success: {
+              func: clustersRes => {
+                const { clusters } = clustersRes.data
+                let defaultCluster = clusters[0] || {}
+                clusters.map(cluster => {
+                  if (cluster.clusterID === clusterID) {
+                    defaultCluster = cluster
+                  }
+                })
+                this.loadStorageClassType(defaultCluster)
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true,
+      },
     })
   }
 
@@ -431,6 +446,7 @@ class Header extends Component {
       hideDot,
       visible,
       allUsers,
+      collapseDefaultActiveKey,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
     const { isLatest } = checkVersionContent
@@ -497,6 +513,7 @@ class Header extends Component {
                     selectValue={selectValue || '...'}
                     popTeamSelect={mode === standard}
                     onVisibleChange={this.handleSpaceVisibleChange}
+                    collapseDefaultActiveKey={collapseDefaultActiveKey}
                   />
                 </div>
             </div>

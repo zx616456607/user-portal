@@ -45,7 +45,7 @@ exports.setUserCurrentConfigCookie = function* (loginUser) {
       clusterID = clusters[0].clusterID
     }
   }
-  const config = `default,default,${clusterID}`
+  const config = `default,default,${clusterID},default`
   logger.info(method, `set current config cookie to: ${config}`)
   this.cookies.set(USER_CURRENT_CONFIG, config, {
     httpOnly: false

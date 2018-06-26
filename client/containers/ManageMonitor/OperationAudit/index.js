@@ -76,6 +76,7 @@ function statusFormat(status, createTime) {
 
 // 转换对象及类型中的对象
 const formatResourceName = (resourceName, resourceId) => {
+
   // this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     const newBody = JSON.parse(resourceName)
@@ -201,7 +202,7 @@ const formatResourceName = (resourceName, resourceId) => {
       if (resourceId.length === 0) {
         return '-'
       }
-      return resourceId
+      return '-'
     }
     return resourceName
   }
@@ -215,10 +216,11 @@ const formatTypeName = (code, data) => {
     if (v.children) {
       for (const k of v.children) {
         if (code === k.id) {
-          return v.name
+          return k.name
         }
       }
     }
+
   }
 }
 // 转换操作类型
@@ -239,6 +241,7 @@ const formatOperationType = (code, data) => {
     hash[next.id] ? '' : hash[next.id] = true && item.push(next)
     return item
   }, [])
+
   for (const v of types) {
     if (code === v.id) {
       return v.resourceName
@@ -460,8 +463,10 @@ class OperationalAudit extends React.Component {
         title: '对象及类型',
         render: (val, row) => {
           try {
+            JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.resourceId)
           } catch (e) {
+            row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }
           return <div>

@@ -58,6 +58,7 @@ const helmTemplateController = require('../controllers/template')
 const autoScalerController = require('../controllers/autoscaler')
 const schedulerController = require('../controllers/scheduler')
 const aiopsController = require('../controllers/aiops')
+const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 
 module.exports = function (Router) {
   const router = new Router({
@@ -798,5 +799,12 @@ module.exports = function (Router) {
   // aiops
   router.get('/ai/clusters/:cluster/modelsets', aiopsController.getModelsets)
 
+  // resourcequota 申请资源配额
+  router.post('/resourcequota/apply', resourcequota.applyResourcequota)
+  router.get('/resourcequota/apply', resourcequota.checkApplyRecord)
+  router.delete('/resourcequota/apply/:id', resourcequota.deleteResourcequota)
+  router.put('/resourcequota/apply/:id ', resourcequota.updateResourcequota)
+  router.get('/resourcequota/apply/:id/detail', resourcequota.checkResourcequotaDetail)
+  router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
   return router.routes()
 }
