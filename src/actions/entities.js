@@ -12,12 +12,15 @@ import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { getCookie, setCookie } from '../common/tools'
 import { USER_CURRENT_CONFIG } from '../../constants'
+import cloneDeep from 'lodash/cloneDeep'
+import merge from 'lodash/merge'
 
 export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
-export function setCurrent(current, callback) {
+function _setCurrent(current, callback, _current) {
+  current = Object.assign({}, cloneDeep(_current), current)
   const config = getCookie(USER_CURRENT_CONFIG)
-  let [teamID, namespace, clusterID] = config.split(',')
+  let [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
   if (current.team) {
     teamID = current.team.teamID
   }
@@ -27,14 +30,23 @@ export function setCurrent(current, callback) {
   if (current.cluster) {
     clusterID = current.cluster.clusterID
   }
-  // 管理员切换到个人项目不保存 cookie
-  if (!(current.space && current.space.userName)) {
-    setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
+  if (current.space && current.space.userName) {
+    namespace = current.space.userName
+    onbehalfuser = 'onbehalfuser'
   }
+  const currentConfig = `${teamID},${namespace},${clusterID},${onbehalfuser}`
+  setCookie(USER_CURRENT_CONFIG, currentConfig)
   return {
     current,
     type: SET_CURRENT,
     callback
+  }
+}
+
+export function setCurrent(current, callback) {
+  return (dispatch, getState) => {
+    const _current = getState().entities.current
+    return dispatch(_setCurrent(current, callback, _current))
   }
 }
 

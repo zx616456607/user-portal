@@ -104,7 +104,10 @@ class PopSelect extends Component {
   }
 
   render() {
-    const { onChange, loading, special, popTeamSelect, Search, isSysAdmin, allUsers } = this.props
+    const {
+      onChange, loading, special, popTeamSelect, Search,
+      isSysAdmin, allUsers, collapseDefaultActiveKey
+    } = this.props
     const { list, userSearchList } = this.state
     let searchList = (
       list.length === 0 ?
@@ -202,7 +205,7 @@ class PopSelect extends Component {
     return (
       <div className="PopSelectContent">
         {this.getSpecial()}
-        <Collapse accordion defaultActiveKey={['team']} >
+        <Collapse accordion defaultActiveKey={collapseDefaultActiveKey || ['team']} >
           {
             isSysAdmin && (
               <Panel header="个人项目" key="user">
