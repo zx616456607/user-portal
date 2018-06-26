@@ -50,10 +50,36 @@ export const ROLE_LIST_REQUEST = 'ROLE_LIST_REQUEST'
 export const ROLE_LIST_SUCCESS = 'ROLE_LIST_SUCCESS'
 export const ROLE_LIST_FAILURE = 'ROLE_LIST_FAILURE'
 
+// Fetches list role from API. without 项目访客 项目管理员
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAllRole(query,callback){
+	let endpoint = `${API_URL_PREFIX}/allRoles`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+	return {
+		[FETCH_API]: {
+      types: [ROLE_LIST_REQUEST, ROLE_LIST_SUCCESS, ROLE_LIST_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+	}
+}
+
+// Fetches list role from API
+// Relies on Redux Thunk middleware.
+export function ListAllRole(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchAllRole(query, callback))
+  }
+}
+
+
 // Fetches list role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchListRole(query,callback){
-	let endpoint = `${API_URL_PREFIX}/allRoles`
+	let endpoint = `${API_URL_PREFIX}/role`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -74,6 +100,7 @@ export function ListRole(query, callback) {
     return dispatch(fetchListRole(query, callback))
   }
 }
+
 export const ROLE_GET_REQUEST = 'ROLE_GET_REQUEST'
 export const ROLE_GET_SUCCESS = 'ROLE_GET_SUCCESS'
 export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'
