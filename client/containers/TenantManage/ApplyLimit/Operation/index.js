@@ -37,7 +37,7 @@ class Operation extends React.Component {
     const { reloadApplyRecord, deleteResourcequota } = this.props
     // 向后台验证
     const { record } = this.props
-    console.log('record', record)
+
     deleteResourcequota(record.id, {
       success: {
         func: res => {
