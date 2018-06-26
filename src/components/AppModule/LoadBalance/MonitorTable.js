@@ -185,8 +185,8 @@ class MonitorTable extends React.Component {
             删除监听器会导致对应服务基于 QPS 的弹性伸缩策略失效，是否确定删除？
           </div>
         </Modal>
-        <Tabs type="card">
-          <TabPane tab="监听" key="0">
+        <Tabs>
+          <TabPane tab="监听器" key="0">
             <div className="layout-content-btns">
               <Tooltip
                 title="最多支持100条"
@@ -222,8 +222,6 @@ class MonitorTable extends React.Component {
 function mapStateToProps(state, props) {
   const { lbDetail, clusterID } = props
   const name = lbDetail.deployment.metadata.name
-  console.log(name,clusterID)
-
   return {
     clusterID,
     name

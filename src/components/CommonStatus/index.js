@@ -145,6 +145,7 @@ class CommonStatus extends Component {
 
   render() {
     let { status, circle, content } = this.props;
+
     return (
       <span id="CommonStatus" key="commonStatus">
         <span className={ statusClass(status) }>

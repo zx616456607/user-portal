@@ -305,6 +305,7 @@ export const SERVICE_DETAIL_EVENTS_FAILURE = 'SERVICE_DETAIL_EVENTS_FAILURE'
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchServiceDetailEvents(cluster, serviceName, type, callback) {
+
   return {
     cluster,
     serviceName,
