@@ -269,7 +269,7 @@ class AppServiceDetail extends Component {
     //当状态为启动中的时候，只可进行删除操作
     const status = getServiceStatus(service)
     if (status) {
-      if (key === 'stop' && status.phase === 'Stopped') {
+      if (key === 'stop' && (status.phase === 'Stopped' || status.phase === 'RollingUpdate')) {
         return true
       } else if (key === 'restart' && status.phase === 'Stopped') {
         return true
