@@ -62,7 +62,15 @@ class TemplateList extends React.Component<any> {
     this.setState({
       current: newQuery.from / DEFAULT_SIZE + 1,
     });
-    getAppTemplateList(newQuery);
+    getAppTemplateList(newQuery, {
+      failed: {
+        func: res => {
+          if (res.statusCode === 500) {
+            notify.warn('chat repo连接失败');
+          }
+        },
+      },
+    });
   }
 
   createTemplate = () => {
