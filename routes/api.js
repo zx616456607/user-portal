@@ -803,8 +803,8 @@ module.exports = function (Router) {
   router.post('/resourcequota/apply', resourcequota.applyResourcequota)
   router.get('/resourcequota/apply', resourcequota.checkApplyRecord)
   router.delete('/resourcequota/apply/:id', resourcequota.deleteResourcequota)
-  router.put('/resourcequota/apply/:id ', resourcequota.updateResourcequota)
-  router.get('/resourcequota/apply/:id/detail', resourcequota.checkResourcequotaDetail)
+  router.put('/resourcequota/apply/:id', resourcequota.updateResourcequota)
+  router.get('/resourcequota/apply/:id', resourcequota.checkResourcequotaDetail)
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
   return router.routes()
 }
