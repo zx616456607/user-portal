@@ -75,6 +75,8 @@ class ClusterStorage extends Component {
         listArray: [],
       },
       currentItem: {},
+      cephLoading: false,
+      nfsLoading: false,
       gfsLoading: false,
     }
   }
@@ -117,7 +119,6 @@ class ClusterStorage extends Component {
             let item = {
               index,
               disabled: true,
-              newAdd: false,
               seePwd: false,
             }
             cephArray.push(item)
@@ -126,7 +127,6 @@ class ClusterStorage extends Component {
             let item = {
               index,
               disabled: true,
-              newAdd: false,
             }
             nfsArray.push(item)
           })
@@ -134,7 +134,6 @@ class ClusterStorage extends Component {
             let item = {
               index,
               disabled: true,
-              newAdd: false,
             }
             gfsArray.push(item)
           })
@@ -254,7 +253,7 @@ class ClusterStorage extends Component {
       }
     }
     setTimeout(() => {
-      const id = `RBD_agent${item.index}`
+      const id = `RBD_name${item.index}`
       const node = document.getElementById(id)
       inputFocusMethod(node)
     }, 100)
@@ -323,12 +322,14 @@ class ClusterStorage extends Component {
       const body = {
         template: template.join('---\n')
       }
+      this.setState({cephLoading: true})
       if(item.newAdd){
         createCephStorage(clusterID, {type: 'ceph'}, body, {
           success: {
             func: (res) => {
               Notification.success('添加 Ceph 存储配置成功')
               this.loadClusterStorageList()
+              this.resetLoading('cephLoading')
             },
             isAsync: true,
           },
@@ -337,6 +338,7 @@ class ClusterStorage extends Component {
               let message = '添加 Ceph 存储配置失败，请重试'
               message = this.formatMessage(message, res)
               Notification.warn(message)
+              this.resetLoading('cephLoading')
             }
           }
         })
@@ -347,6 +349,7 @@ class ClusterStorage extends Component {
           func: () => {
             Notification.success('修改 Ceph 存储配置成功')
             this.loadClusterStorageList()
+            this.resetLoading('cephLoading')
           },
           isAsync: true,
         },
@@ -355,6 +358,7 @@ class ClusterStorage extends Component {
             let message = '修改 Ceph 存储配置失败，请重试'
             message = this.formatMessage(message, res)
             Notification.warn(message)
+            this.resetLoading('cephLoading')
           }
         }
       })
@@ -518,7 +522,7 @@ class ClusterStorage extends Component {
           >
             <Input
               placeholder='请输入 Ceph 集群名称'
-              disabled={ item.disabled || !item.newAdd }
+              disabled={ item.disabled }
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`RBD_name${item.index}`, {
@@ -670,20 +674,22 @@ class ClusterStorage extends Component {
                   })}
                 />
               </span>
-            : <span>
+            : <span className="btnContainer">
+                <Spin spinning={this.state.cephLoading}>
+                  <Button
+                    icon="check"
+                    size="large"
+                    className='left_button'
+                    type="primary"
+                    onClick={this.saveCeph.bind(this, item)}
+                  />
+                </Spin>
                 <Button
-                  icon="check"
-                  size="large"
-                  className='left_button'
-                  type="primary"
-                  onClick={this.saveCeph.bind(this, item)}
-                />
-                 <Button
                    icon="cross"
                    className='right_button'
                    size="large"
                    onClick={this.calcelCeph.bind(this, item)}
-                 />
+                />
               </span>
           }
         </div>
@@ -705,7 +711,7 @@ class ClusterStorage extends Component {
       }
     }
     setTimeout(() => {
-      const id = `nfs_service_adderss${item.index}`
+      const id = `nfs_service_name${item.index}`
       const node = document.getElementById(id)
       inputFocusMethod(node)
     }, 100)
@@ -767,12 +773,14 @@ class ClusterStorage extends Component {
       const body = {
         template: template.join('---\n')
       }
+      this.setState({nfsLoading: true})
       if(item.newAdd){
         return createCephStorage(clusterID, {type: 'nfs'}, body, {
           success: {
             func: () => {
               Notification.success('添加 NFS 存储配置成功')
               this.loadClusterStorageList()
+              this.resetLoading('nfsLoading')
             },
             isAsync: true,
           },
@@ -781,6 +789,7 @@ class ClusterStorage extends Component {
               let message = '添加 NFS 存储配置失败，请重试'
               message = this.formatMessage(message, res)
               Notification.warn(message)
+              this.resetLoading('nfsLoading')
             }
           }
         })
@@ -790,6 +799,7 @@ class ClusterStorage extends Component {
           func: () => {
             Notification.success('修改 NFS 存储配置成功')
             this.loadClusterStorageList()
+            this.resetLoading('nfsLoading')
           },
           isAsync: true,
         },
@@ -798,6 +808,7 @@ class ClusterStorage extends Component {
             let message = '修改 NFS 存储配置失败，请重试'
             message = this.formatMessage(message, res)
             Notification.warn(message)
+            this.resetLoading('nfsLoading')
           }
         }
       })
@@ -891,9 +902,9 @@ class ClusterStorage extends Component {
     })
   }
 
-  resetLoading = () => {
+  resetLoading = (type ='gfsLoading') => {
     this.setState({
-      gfsLoading: false,
+      [type]: false,
     })
   };
   getErrorMessage = (res) => {
@@ -1063,7 +1074,6 @@ class ClusterStorage extends Component {
     } else {
       validateArray = []
     }
-    console.log('validateArray=',validateArray)
     form.validateFields(validateArray, (error, values) => {
       validating = false
     })
@@ -1106,7 +1116,7 @@ class ClusterStorage extends Component {
           >
             <Input
               placeholder='请输入 GlusterFS 集群名称'
-              disabled={ item.disabled || !item.newAdd }
+              disabled={ item.disabled }
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`gfs_name${item.index}`, {
@@ -1312,7 +1322,7 @@ class ClusterStorage extends Component {
           >
             <Input
               placeholder='请输入 nfs 服务名称'
-              disabled={ item.disabled || !item.newAdd }
+              disabled={ item.disabled }
               size="large"
               className='formItem_child_style'
               {...getFieldProps(`nfs_service_name${item.index}`, {
@@ -1386,20 +1396,23 @@ class ClusterStorage extends Component {
                   })}
                 />
               </span>
-              : <span>
+              : <span className="btnContainer">
+                <Spin spinning={this.state.nfsLoading}>
+                  <Button
+                    icon="check"
+                    size="large"
+                    className='left_button'
+                    type="primary"
+                    onClick={this.saveNfs.bind(this, item)}
+                  >
+                  </Button>
+                </Spin>
                 <Button
-                  icon="check"
-                  size="large"
-                  className='left_button'
-                  type="primary"
-                  onClick={this.saveNfs.bind(this, item)}
-                />
-                 <Button
                    icon="cross"
                    className='right_button'
                    size="large"
                    onClick={this.cancelNfs.bind(this, item)}
-                 />
+                />
               </span>
           }
         </div>
