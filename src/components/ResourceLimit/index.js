@@ -15,7 +15,7 @@ import { Link } from 'react-router'
 import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
-import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
+import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
@@ -40,13 +40,17 @@ class ResourceQuota extends React.Component {
       globaleSurplus: 0,
       globaleUseList: [],
       clusterUseList: [],
+      quotas: {
+        globalResource: [],
+        clusterResource: [],
+      },
     }
   }
   componentWillMount() {
     this.fetchQuota()
   }
   fetchQuota(key) {
-    const { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
+    const { getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
     let query
     if (isProject) {
       query = {
@@ -69,7 +73,62 @@ class ResourceQuota extends React.Component {
         }
       }
     }
+    /**
+     * 获取资源定义，目的为了让资源配额管理支持后台动态设置
+     */
+    getResourceDefinition({
+      success: {
+        func: res => {
+          if(res.code === 200) {
 
+            const cluster = res.data.clusterResource
+            const global = res.data.globalResource
+            const { definitions } = res.data
+            const classify = (all,accord) => {
+              const newArr = []
+              for (const v of all) {
+                for (const k in accord) {
+                  if( parseInt(k) == v.id) {
+                    newArr.push(v)
+                  }
+                }
+                if( v.children) {
+                  for(const item of v.children) {
+                    for (const k in accord) {
+                      if( parseInt(k) === item.id && newArr.indexOf(v)<0) {
+                        newArr.push(v)
+                      }
+                    }
+                  }
+                }
+
+              }
+              // 格式化数据
+              for(const v of newArr) {
+                v.name = v.resourceName
+                if(v.children) {
+                  for(const k of v.children) {
+                    k.name = k.resourceName
+                    k.id = k.resourceType
+                  }
+                }
+              }
+              return newArr
+            }
+            const quotas = {
+              globalResource: classify(definitions,global),
+              clusterResource: classify(definitions,cluster)
+            }
+            this.setState({
+              quotas
+            })
+
+          }
+
+        },
+        isAsync: true
+      }
+    })
     getGlobaleQuota(query, {
       success: {
         func: res => {
@@ -94,7 +153,6 @@ class ResourceQuota extends React.Component {
         isAsync: true
       }
     })
-
     getClusterQuota(query, {
       success: {
         func: res => {
@@ -173,27 +231,61 @@ class ResourceQuota extends React.Component {
           }
         }
       }
+
+      let body = {}
+      for(let k in value) {
+        if(typeof value[k] === 'string') {
+
+          body[k] = Number(value[k])
+          console.log(body);
+        }
+      }
       let query = {
         header,
-        body: {
-          subTask: Number(value.subTask),
-          registry: Number(value.registry),
-          tenxflow: Number(value.tenxflow),
-          dockerfile: Number(value.dockerfile),
-          registryProject: Number(value.registryProject),
-          applicationPackage: Number(value.applicationPackage),
-          orchestrationTemplate: Number(value.orchestrationTemplate),
-        }
+        body
       }
       putGlobaleQuota(query, {
         success: {
           func: res => {
-            if (res.code === 200) {
+            const { getGlobaleQuota,  clusterID, userName, projectName, isProject, namespace } = this.props
+            let query
+            if (isProject) {
+              query = {
+                id: clusterID,
+                header: {
+                  teamspace: projectName
+                }
+              }
+            } else {
+              if (userName !== namespace) {
+                query = {
+                  id: clusterID,
+                  header: {
+                    onbehalfuser: userName
+                  }
+                }
+              } else {
+                query = {
+                  id: clusterID,
+                }
+              }
+            }
+            if (res.statusCode === 200) {
               notify.success('设置成功')
-              this.setState({
-                globaleList: res.data,
-                gIsEdit: false
+              getGlobaleQuota(query, {
+                success: {
+                  func: res => {
+                    if (REG.test(res.code)) {
+                      this.setState({
+                        gIsEdit: false,
+                        globaleList: res.data
+                      })
+                    }
+                  },
+                  isAsync: true
+                }
               })
+
             }
           },
           isAsync: true
@@ -337,13 +429,20 @@ class ResourceQuota extends React.Component {
    */
   maxGlobaleCount(value) {
     const { globaleList } = this.state
-    let count = 0
+
+    let count = -1
     if (globaleList) {
-      Object.keys(globaleList).forEach((item, index) => {
-        if (item === value) {
-          count = Object.values(globaleList)[index] !== null ? Object.values(globaleList)[index] : -1
+      for( let k in globaleList) {
+        if(k === value) {
+          count = globaleList[k] !== null ? globaleList[k] : -1
         }
-      })
+      }
+      //
+      // Object.keys(globaleList).forEach((item, index) => {
+      //   if (item === value) {
+      //     count = Object.values(globaleList)[index] !== null ? Object.values(globaleList)[index] : -1
+      //   }
+      // })
     }
     return count
   }
@@ -366,7 +465,7 @@ class ResourceQuota extends React.Component {
 
   maxClusterCount(value) {
     const { clusterList } = this.state
-    let count = 0
+    let count = -1
     if (clusterList) {
       Object.keys(clusterList).forEach((item, index) => {
         if (item === value) {
@@ -537,95 +636,7 @@ class ResourceQuota extends React.Component {
         }
       </Menu>
     )
-    const ciList = [
-      {
-        key: 'tenxflow',
-        text: 'TenxFlow (个)',
-      },
-      {
-        key: 'subTask',
-        text: '子任务 (个)',
-      },
-      {
-        key: 'dockerfile',
-        text: 'Dockerfile (个)',
-      },
-    ]
-    const cdList = [
-      // {
-      //   key: 'registryProject',
-      //   text: '镜像仓库组 (个)',
-      // },
-      // {
-      //   key: 'registry',
-      //   text: '镜像仓库 (个)',
-      // },
-      {
-        key: 'orchestrationTemplate',
-        text: '编排文件 (个)',
-      },
-      {
-        key: 'applicationPackage',
-        text: '应用包 (个)',
-      }]
-    const computeList = [
-      {
-        key: 'cpu',
-        text: 'CPU (C)'
-      },
-      {
-        key: 'memory',
-        text: '内存 (GB)'
-      },
-      {
-        key: 'storage',
-        text: '磁盘 (GB)'
-      }]
-    const platformList = [
-      {
-        key: 'application',
-        text: '应用 (个)'
-      }, {
-        key: 'service',
-        text: '服务 (个)'
-      }, {
-        key: 'container',
-        text: '容器 (个)'
-      }, {
-        key: 'volume',
-        text: '存储 (个)'
-      }, {
-        key: 'snapshot',
-        text: '快照 (个)'
-      }, {
-        key: 'configuration',
-        text: '服务配置 (个)'
-      }, {
-        key: 'secret',
-        text: '加密服务配置 (个)'
-      }, {
-        key: 'loadbalance',
-        text: '应用负载均衡（个）'
-      }]
-    const serviceList = [
-      {
-        key: 'mysql',
-        text: 'MySQL集群 (个)'
-      }, {
-        key: 'redis',
-        text: 'Redis集群 (个)'
-      }, {
-        key: 'zookeeper',
-        text: 'Zookeeper集群 (个)'
-      }, {
-        key: 'elasticsearch',
-        text: 'ElasticSearch集群 (个)'
-      },
-      // {
-      //   key: 'etcd',
-      //   text: 'Etcd集群 (个)'
-      // }
-      ]
+    console.log(this.state.quotas)
     const globalQuota = [
       {
         id: 'CI/CD',
@@ -770,7 +781,7 @@ class ResourceQuota extends React.Component {
             gIsEdit ?
               <div className="overallEdit">
                 {
-                  globalQuota.map((v, i) => {
+                  this.state.quotas.globalResource.map((v, i) => {
                     return (
                       <div>
                         <div>
@@ -857,7 +868,7 @@ class ResourceQuota extends React.Component {
               </div> :
               <div className="overall">
                 {
-                  globalQuota.map((v, i) => {
+                  this.state.quotas.globalResource.map((v, i) => {
                     return (
                       <div key={v.id}>
                         <div>
@@ -924,7 +935,7 @@ class ResourceQuota extends React.Component {
               cIsEdit ?
                 <div className="edit">
                   {
-                    projectClusterQuota.map(v => {
+                    this.state.quotas.clusterResource.map(v => {
                       return (
                         <div key={v.id}>
                           <span>{v.name}</span>
@@ -961,7 +972,7 @@ class ResourceQuota extends React.Component {
                                               validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
                                             }
                                           ],
-                                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.key) : 0
+                                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.id) : 0
                                         })
                                         const surplus = inputProps.value !== undefined
                                           ? Math.round((inputProps.value - this.useClusterCount(item.id)) * 100) / 100
@@ -1085,7 +1096,7 @@ class ResourceQuota extends React.Component {
                 </div> :
                 <div className="lists">
                   {
-                    projectClusterQuota.map((v, i) => {
+                    this.state.quotas.clusterResource.map((v, i) => {
                       return (
                         <div className="quotaItem">
                           <span>{v.name}</span>
@@ -1113,6 +1124,7 @@ class ResourceQuota extends React.Component {
                                                   <span style={{ color: 'red' }}>{this.useClusterCount(item.id)}</span> :
                                                 <span>{this.useClusterCount(item.id)}</span>
                                             }/<p>{this.maxClusterCount(item.id) === -1 ? '无限制' : this.maxClusterCount(item.id)}</p>
+
                                           </Col>
                                         </Row>
                                       ))
@@ -1196,6 +1208,7 @@ export default connect(mapStateToProps, {
   getClusterQuota,
   getClusterQuotaList,
   getGlobaleQuotaList,
+  getResourceDefinition,
   putGlobaleQuota,
   putClusterQuota,
 })(ResourceQuota)
