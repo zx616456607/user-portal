@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Form, Icon, Button, Input, Tabs, Tooltip, Checkbox, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -23,7 +23,18 @@ import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 
 const TabPane = Tabs.TabPane
-
+const FormItem = Form.Item
+const createForm = Form.create
+const formItemLayout = {
+  labelCol: {
+    xs: {span: 24},
+    sm: {span: 6},
+  },
+  wrapperCol: {
+    xs: {span: 24},
+    sm: {span: 18},
+  }
+}
 const menusText = defineMessages({
   search: {
     id: 'CICD.TenxStorm.search',
@@ -398,9 +409,11 @@ class CodeRepo extends Component {
     const type = location.search ? location.search.split('?')[1] : 'gitlab'
     if (type) {
       this.state = {
-        repokey: type
+        repokey: type,
+        copySuccess:false,
       }
     }
+
   }
   componentWillMount () {
     const _this = this
@@ -456,6 +469,21 @@ class CodeRepo extends Component {
         return 'SVN'
     }
   }
+  copy = () => {
+    let code = document.getElementsByClassName("privateCodeInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    this.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    setTimeout(() => {
+      this.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -491,6 +519,7 @@ class CodeRepo extends Component {
         Gogs
       </span>
     )
+
     return (
       <QueueAnim id='codeRepo'
         type='right'
@@ -515,10 +544,49 @@ class CodeRepo extends Component {
           </div>
           <Modal title={'选择代码源'} visible={this.state.typeVisible}
             onCancel={()=> this.setState({typeVisible: false}) }
-            footer={[<Button type="primary" size="large" onClick={()=> this.setState({typeVisible: false})}>确定</Button>]} >
-            <p style={{color:'#00a0ea'}}>
-              <i className="anticon anticon-question-circle-o" style={{marginRight: '5px'}}></i>还没有正确配置 {this.formetRepoType(this.state.repokey)}，更正后可以正常使用集成功能！
-            </p>
+            footer={[
+              <Button type="default" size="large" key="cancel" onClick={()=> this.setState({typeVisible: false})}>取消</Button>,
+              <Button type="primary" size="large" key="ok" onClick={()=> this.setState({typeVisible: false})}>确定授权</Button>
+            ]} >
+            <div className="content-wrapper">
+              <h3 className="title">1、设置GitHub应用</h3>
+              <div className="content">
+                <p className="indent-content">
+                  <h4>① 标准GitHub，<a href="https://github.com/settings/developers" target="blank">点击此处</a> 在弹出的新窗口中进行应用设置。</h4>
+                  <div className="indent-content-inner">企业版GitHub，请登录你的账号，点击Settings，然后点击Applications进行设置。</div>
+                </p>
+                <p className="indent-content">
+                  <h4>② 点击 "Register new application" 并填写表单内容:</h4>
+                  <div className="indent-content-inner">
+                    <p>Application name: 任何您喜欢的应用名称, 例如 My app</p>
+                    <p>Homepage URL: http://192.168.0.53:8080
+                      <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
+                        <svg className='copy' onClick={this.copy} onMouseLeave={this.returnDefaultTooltip}>
+                          <use xlinkHref='#appcentercopy' />
+                        </svg>
+                      </Tooltip>
+                    </p>
+                    <p>Application description: 任何你喜欢的描述，可选</p>
+                    <p>Authorization callback URL:http://192.168.0.53:8080/api/auth-callback</p>
+                  </div>
+                </p>
+                <p className="indent-content">
+                  <h4>③ 点击 "Register Application"</h4>
+                </p>
+              </div>
+              <h3 className="secondTitle">2、 设置 CI/CD 使用上一步中的 GitHub 应用验证</h3>
+              <div className="tip">（将新创建 GitHub 应用的 Client ID 和 Secret 复制粘贴到下方的对应输入框中）</div>
+              <Form className="content">
+                <FormItem label="Client ID" {...formItemLayout}>
+                  <Input placeholder="请输入Client ID" size="default"/>
+                </FormItem>
+                <FormItem label="Client Secret" {...formItemLayout}>
+                  <Input placeholder="请输入Client Secret" size="default"/>
+                </FormItem>
+
+
+              </Form>
+            </div>
           </Modal>
 
         </div>
@@ -558,7 +626,7 @@ CodeRepo.propTypes = {
   addCodeRepo: PropTypes.func.isRequired,
   deleteRepo: PropTypes.func.isRequired
 }
-
+const FormCodeRepo = createForm()(CodeRepo)
 export default connect(mapStateToProps, {
   getRepoType,
   getRepoList,
@@ -569,7 +637,7 @@ export default connect(mapStateToProps, {
   searchCodeRepo,
   getUserInfo,
   notActiveProject
-})(injectIntl(CodeRepo, {
+})(injectIntl(FormCodeRepo, {
   withRef: true
 }));
 

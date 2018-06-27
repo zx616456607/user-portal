@@ -488,6 +488,37 @@ class ResourceQuota extends React.Component {
     }
     callback()
   }
+  icon = name => {
+    switch (name) {
+      case 'CI/CD':
+        return <span>
+          <svg className='cicd commonImg'>
+            <use xlinkHref="#cicd"></use>
+          </svg> &nbsp;
+        </span>
+
+      case '交付中心':
+        return <span>
+          <svg className='center commonImg'>
+            <use xlinkHref="#center"></use>
+          </svg> &nbsp;
+        </span>
+      case '应用管理':
+        return <span>
+          <svg className='app commonImg'>
+            <use xlinkHref="#app"></use>
+          </svg> &nbsp;
+        </span>
+      case '数据库与缓存':
+        return <span>
+          <svg className='database commonImg'>
+            <use xlinkHref="#database"></use>
+          </svg> &nbsp;
+        </span>
+      default:
+        return ''
+    }
+  }
 
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
@@ -595,6 +626,119 @@ class ResourceQuota extends React.Component {
       //   text: 'Etcd集群 (个)'
       // }
       ]
+    const globalQuota = [
+      {
+        id: 'CI/CD',
+        name: 'CI/CD',
+        children: [
+          {
+            id: 'tenxflow',
+            name: 'TenxFlow (个)',
+          },
+          {
+            id: 'subTask',
+            name: '子任务 (个)',
+          },
+          {
+            id: 'dockerfile',
+            name: 'Dockerfile (个)',
+          },
+        ]
+      },
+      {
+        id: 'appCenter',
+        name: '交付中心',
+        children: [
+          {
+            id: 'orchestrationTemplate',
+            name: '编排文件 (个)',
+          },
+          {
+            id: 'applicationPackage',
+            name: '应用包 (个)',
+          },
+        ]
+      },
+    ]
+    const projectClusterQuota = [
+      {
+        id: 'compute',
+        name: '计算资源',
+        children: [
+          {
+            id: 'cpu',
+            name: 'CPU (C)'
+          },
+          {
+            id: 'memory',
+            name: '内存 (GB)'
+          },
+          {
+            id: 'storage',
+            name: '磁盘 (GB)'
+          }]
+      },
+      {
+        id: 'platform',
+        name: '平台资源',
+        children: [
+          {
+            id: 'appManage',
+            name: '应用管理',
+            children: [
+              {
+                id: 'application',
+                name: '应用 (个)'
+              }, {
+                id: 'service',
+                name: '服务 (个)'
+              }, {
+                id: 'container',
+                name: '容器 (个)'
+              }, {
+                id: 'volume',
+                name: '存储 (个)'
+              }, {
+                id: 'snapshot',
+                name: '快照 (个)'
+              }, {
+                id: 'configuration',
+                name: '服务配置 (个)'
+              }, {
+                id: 'secret',
+                name: '加密服务配置 (个)'
+              }, {
+                id: 'loadbalance',
+                name: '应用负载均衡（个）'
+              }]
+          },
+          {
+            id: 'db',
+            name: '数据库与缓存',
+            children: [
+              {
+                id: 'mysql',
+                name: 'MySQL集群 (个)'
+              }, {
+                id: 'redis',
+                name: 'Redis集群 (个)'
+              }, {
+                id: 'zookeeper',
+                name: 'Zookeeper集群 (个)'
+              }, {
+                id: 'elasticsearch',
+                name: 'ElasticSearch集群 (个)'
+              },
+              // {
+              //   key: 'etcd',
+              //   text: 'Etcd集群 (个)'
+              // }
+            ]
+          }
+        ]
+      }
+
+    ]
     const { getFieldProps, getFieldValue, setFieldsValue, setFields, getFieldError } = this.props.form
     return (
       <Form form={this.props.form} className="quota">
@@ -625,206 +769,133 @@ class ResourceQuota extends React.Component {
           {
             gIsEdit ?
               <div className="overallEdit">
-                <svg className='cicd commonImg'>
-                  <use xlinkHref="#cicd"></use>
-                </svg> &nbsp;
-                <span>CI/CD</span>
                 {
-                  ciList.map((item, index) => {
-                    const inputValue = getFieldValue(item.key)
-                    const beforeValue = this.maxGlobaleCount(item.key)
-                    const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                    const checkKey = `${item.key}-check`
-                    const checkProps = getFieldProps(checkKey, {
-                      initialValue: beforeValue === -1 ? true : false,
-                      onChange: (e) => {
-                        e.target.checked ? setFieldsValue({
-                          [item.key]: undefined,
-                        }) : setFieldsValue({
-                          [item.key]: this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key)
-                        })
-                      },
-                      valuePropName: 'checked',
-                    })
-                    const checkValue = getFieldValue(checkKey)
-                    const inputProps = getFieldProps(item.key, {
-                      rules: [
-                        {
-                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text, item.key)
-                        },
-                      ],
-                      initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
-                    })
-                    const surplu = inputProps.value !== undefined
-                      ? Math.round((inputProps.value - this.useGlobaleCount(item.key)) * 100) / 100
-                      : '无限制'
+                  globalQuota.map((v, i) => {
                     return (
-                      <Row key={index} className="connents">
-                        <Col span={3} style={{ minWidth: '120px' }}>
-                          <span>{item.text}</span>
-                        </Col>
-                        <Col span={7} style={{ height: 'auto' }}>
-                          <FormItem
-                            className={classNames({'has-error': getFieldError(`${item.key}`)})}
-                            help={(getFieldError(`${item.key}`) || []).join(', ')}
-                          >
-                            <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" />
-                          </FormItem>
-                        </Col>
-                        <Col span={3}>
-                          <FormItem>
-                            <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                          </FormItem>
-                        </Col>
-                        <Col span={4}>
-                          <FormItem>
-                            <span className="surplus">配额剩余：{surplu}</span>
-                            {
-                              plusValue > 0 ?
-                                <div className="plus">
-                                  <p>+ {plusValue}</p>
-                                </div> :
-                                plusValue === 0 || isNaN(plusValue) ? '' :
-                                  <div className="minu">
-                                    <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                  </div>
-                            }
-                          </FormItem>
-                        </Col>
-                      </Row>
-                    )
-                  })
-                }
-                <p className="line"></p>
-                <svg className='cicd commonImg'>
-                  <use xlinkHref="#cicd"></use>
-                </svg> &nbsp;
-                <span>交付中心</span>
-                {
-                  cdList.map((item, index) => {
-                    const inputValue = getFieldValue(item.key)
-                    const beforeValue = this.maxGlobaleCount(item.key)
-                    let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                    plusValue = Math.floor(plusValue * 100) / 100
-                    const checkKey = `${item.key}-check`
-                    const checkProps = getFieldProps(checkKey, {
-                      initialValue: beforeValue === -1 ? true : false,
-                      onChange: (e) => {
-                        e.target.checked ? setFieldsValue({
-                          [item.key]: undefined,
-                        }) : setFieldsValue({
-                          [item.key]: this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key)
-                        })
-                      },
-                      valuePropName: 'checked',
-                    })
-                    const checkValue = getFieldValue(checkKey)
-                    const inputProps = getFieldProps(item.key, {
-                      rules: [
+                      <div>
+                        <div>
+                          {this.icon(v.name)}
+                          <span>{v.name}</span>
+                        </div>
                         {
-                          validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text, item.key)
-                        },
-                      ],
-                      initialValue: globaleList ? checkValue === true ? undefined : this.maxGlobaleCount(item.key) === -1 ? undefined : this.maxGlobaleCount(item.key) : 0
-                    })
-                    const surplu = inputProps.value !== undefined
-                      ? Math.round((inputProps.value - this.useGlobaleCount(item.key)) * 100) / 100
-                      : '无限制'
-                    return (
-                      <Row key={index} className="connents">
-                        <Col span={3} style={{ minWidth: '120px' }}>
-                          <span>{item.text}</span>
-                        </Col>
-                        <Col span={7} style={{ height: 'auto' }}>
-                          <FormItem
-                            className={classNames({'has-error': getFieldError(`${item.key}`)})}
-                            help={(getFieldError(`${item.key}`) || []).join(', ')}
-                          >
-                            <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" />
-                          </FormItem>
-                        </Col>
-                        <Col span={3}>
-                          <FormItem>
-                            <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                          </FormItem>
-                        </Col>
-                        <Col span={4}>
-                          <FormItem>
-                            <span className="surplus">配额剩余：{surplu}</span>
-                            {
-                              plusValue > 0 ?
-                                <div className="plus">
-                                  <p>+ {plusValue}</p>
-                                </div> :
-                                plusValue === 0 || isNaN(plusValue) ? '' :
-                                  <div className="minu">
-                                    <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                  </div>
-                            }
-                          </FormItem>
-                        </Col>
-                      </Row>
+                          v.children ?
+                            v.children.map((item, index) => {
+                              const inputValue = getFieldValue(item.id)
+                              const beforeValue = this.maxGlobaleCount(item.id)
+                              const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                              const checkKey = `${item.id}-check`
+                              const checkProps = getFieldProps(checkKey, {
+                                initialValue: beforeValue === -1 ? true : false,
+                                onChange: (e) => {
+                                  e.target.checked ? setFieldsValue({
+                                    [item.id]: undefined,
+                                  }) : setFieldsValue({
+                                    [item.id]: this.maxGlobaleCount(item.id) === -1 ? undefined : this.maxGlobaleCount(item.id)
+                                  })
+                                },
+                                valuePropName: 'checked',
+                              })
+                              const checkValue = getFieldValue(checkKey)
+                              const inputProps = getFieldProps(item.id, {
+                                rules: [
+                                  {
+                                    validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
+                                  },
+                                ],
+                                initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
+                              })
+                              const surplu = inputProps.value !== undefined
+                                ? Math.round((inputProps.value - this.useGlobaleCount(item.id)) * 100) / 100
+                                : '无限制'
+                              return (
+                                <Row key={item.id} className="connents">
+                                  <Col span={3} style={{ minWidth: '120px' }}>
+                                    <span>{item.name}</span>
+                                  </Col>
+                                  <Col span={7} style={{ height: 'auto' }}>
+                                    <FormItem
+                                      className={classNames({'has-error': getFieldError(`${item.id}`)})}
+                                      help={(getFieldError(`${item.id}`) || []).join(', ')}
+                                    >
+                                      <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} id="input" />
+                                    </FormItem>
+                                  </Col>
+                                  <Col span={3}>
+                                    <FormItem>
+                                      <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
+                                    </FormItem>
+                                  </Col>
+                                  <Col span={4}>
+                                    <FormItem>
+                                      <span className="surplus">配额剩余：{surplu}</span>
+                                      {
+                                        plusValue > 0 ?
+                                          <div className="plus">
+                                            <p>+ {plusValue}</p>
+                                          </div> :
+                                          plusValue === 0 || isNaN(plusValue) ? '' :
+                                            <div className="minu">
+                                              <p>{isNaN(plusValue) ? '' : plusValue}</p>
+                                            </div>
+                                      }
+                                    </FormItem>
+                                  </Col>
+                                </Row>
+                              )
+                            })
+                            :
+                            ''
+                        }
+                        { i !== globalQuota.length-1?
+                          <p className="line"></p> : ''
+                        }
+
+                      </div>
                     )
                   })
                 }
               </div> :
               <div className="overall">
-                <div>
-                  <svg className='cicd commonImg'>
-                    <use xlinkHref="#cicd"></use>
-                  </svg> &nbsp;
-                <span>CI/CD</span>
-                </div>
                 {
-                  ciList.map((item, index) => {
+                  globalQuota.map((v, i) => {
                     return (
-                      <Row className="list" key={index}>
-                        <Col span={3} style={{ minWidth: '120px' }}>
-                          <span>{item.text}</span>
-                        </Col>
-                        <Col span={10}>
-                          <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
-                        </Col>
-                        <Col span={4}>
-                          {
-                            this.useGlobaleCount(item.key) > this.maxGlobaleCount(item.key) ?
-                              this.maxGlobaleCount(item.key) === -1 ?
-                                <span>{this.useGlobaleCount(item.key)}</span> :
-                                <span style={{ color: 'red' }}>{this.useGlobaleCount(item.key)}</span> : <span>{this.useGlobaleCount(item.key)}</span>
-                          }/<p>{this.maxGlobaleCount(item.key) === -1 ? '无限制' : this.maxGlobaleCount(item.key)}</p>
-                        </Col>
-                      </Row>
+                      <div key={v.id}>
+                        <div>
+                          {this.icon(v.name)}
+                          <span>{v.name}</span>
+                        </div>
+                        {
+                          v.children ?
+                            v.children.map((item, index) => {
+                              return (
+                                <Row className="list" key={index}>
+                                  <Col span={3} style={{ minWidth: '120px' }}>
+                                    <span>{item.name}</span>
+                                  </Col>
+                                  <Col span={10}>
+                                    <Progress percent={this.filterPercent(this.maxGlobaleCount(item.id), this.useGlobaleCount(item.id))} showInfo={false} />
+                                  </Col>
+                                  <Col span={4}>
+                                    {
+                                      this.useGlobaleCount(item.id) > this.maxGlobaleCount(item.id) ?
+                                        this.maxGlobaleCount(item.id) === -1 ?
+                                          <span>{this.useGlobaleCount(item.id)}</span> :
+                                          <span style={{ color: 'red' }}>{this.useGlobaleCount(item.id)}</span> : <span>{this.useGlobaleCount(item.id)}</span>
+                                    }/<p>{this.maxGlobaleCount(item.id) === -1 ? '无限制' : this.maxGlobaleCount(item.id)}</p>
+                                  </Col>
+                                </Row>
+                              )
+                            })
+                            :
+                            ''
+                        }
+                        { i !== globalQuota.length-1?
+                          <p className="line"></p> : ''
+                        }
+
+                      </div>
                     )
                   })
-                }
-                <p className="line"></p>
-                <div>
-                  <svg className='center commonImg'>
-                    <use xlinkHref="#center"></use>
-                  </svg> &nbsp;
-                <span>交付中心</span>
-                </div>
-
-                {
-                  cdList.map((item, index) => (
-                    <Row className="list" key={index}>
-                      <Col span={3} style={{ minWidth: '120px' }}>
-                        <span>{item.text}</span>
-                      </Col>
-                      <Col span={10}>
-                        <Progress percent={this.filterPercent(this.maxGlobaleCount(item.key), this.useGlobaleCount(item.key))} showInfo={false} />
-                      </Col>
-                      <Col span={4}>
-                        {
-                          this.useGlobaleCount(item.key) > this.maxGlobaleCount(item.key) ?
-                            this.maxGlobaleCount(item.key) === -1 ?
-                              <span>{this.useGlobaleCount(item.key)}</span> :
-                              <span style={{ color: 'red' }}>{this.useGlobaleCount(item.key)}</span> :
-                            <span>{this.useGlobaleCount(item.key)}</span>
-                        }/<p>{this.maxGlobaleCount(item.key) === -1 ? '无限制' : this.maxGlobaleCount(item.key)}</p>
-                      </Col>
-                    </Row>
-                  ))
                 }
               </div>
           }
@@ -852,299 +923,232 @@ class ResourceQuota extends React.Component {
             {
               cIsEdit ?
                 <div className="edit">
-                  <div className="compute">
-                    <span>计算资源</span>
-                    {
-                      computeList.map((item, index) => {
-                        const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxClusterCount(item.key)
-                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                        plusValue = Math.floor(plusValue * 100) / 100
-                        const checkKey = `${item.key}-check`
-                        const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === -1 ? true : false,
-                          onChange: (e) => {
-                            this.setState({
-                              [`${item.key}-check`]: e.target.checked
-                            })
-                            e.target.checked ? setFieldsValue({
-                              [item.key]: undefined,
-                            }) : setFieldsValue({
-                              [item.key]: this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key)
-                            })
-                          },
-                          valuePropName: 'checked'
-                        })
-                        const checkValue = getFieldValue(checkKey)
-                        const inputProps = getFieldProps(item.key, {
-                          // rules: (!checkValue && !this.state[`${item.key}-check`]) ? [
-                          //   {
-                          //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, item.text)
-                          //   }
-                          // ] : [],
-                          rules:  [
-                            {
-                              validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, item.text, item.key)
-                            }
-                          ],
-                          initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0
-                        })
-                        const surplus = inputProps.value !== undefined
-                          ? Math.round((inputProps.value - this.useClusterCount(item.key)) * 100) / 100
-                          : '无限制'
-                        return (
-                          <Row key={index} className="connents">
-                            <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
-                              <span>{item.text}</span>
-                            </Col>
-                            <Col span={7} style={{ height: 'auto' }}>
-                              <FormItem>
-                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
-                              </FormItem>
-                            </Col>
-                            <Col span={3} style={{ height: 'auto' }}>
-                              <FormItem>
-                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                              </FormItem>
-                            </Col>
-                            <Col span={4}>
-                              <span className="surplus">配额剩余：{surplus}</span>
-                              {
-                                plusValue > 0 ?
-                                  <div className="plus">
-                                    <p>+ {plusValue}</p>
-                                  </div> :
-                                  plusValue === 0 || isNaN(plusValue) ? '' :
-                                    <div className="minu">
-                                      <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                    </div>
-                              }
-                            </Col>
-                          </Row>
-                        )
-                      })
-                    }
-                  </div>
-                  <span className="ptzy">平台资源</span>
-                  <div className="platform">
-                    <svg className='app commonImg'>
-                      <use xlinkHref="#app"></use>
-                    </svg> &nbsp;
-                    <span>应用管理</span>
-                    {
-                      platformList.map((item, index) => {
-                        const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxClusterCount(item.key)
-                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                        plusValue = Math.floor(plusValue * 100) / 100
-                        const isPlus = inputValue > beforeValue ? true : false
-                        const checkKey = `${item.key}-check`
-                        const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === -1 ? true : false,
-                          onChange: (e) => {
-                            e.target.checked ? setFieldsValue({
-                              [item.key]: undefined,
-                            }) : setFieldsValue({
-                              [item.key]: this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key)
-                            })
-                          },
-                          valuePropName: 'checked',
-                        })
-                        const checkValue = getFieldValue(checkKey)
-                        const inputProps = getFieldProps(item.key, {
-                          rules: [
-                            {
-                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text, item.key)
-                            }
-                          ],
-                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
-                        })
-                        const surplus = inputProps.value !== undefined
-                          ? Math.round((inputProps.value - this.useClusterCount(item.key)) * 100) / 100
-                          : '无限制'
-                        return (
-                          <Row key={index} className="connents">
-                            <Col span={3} style={{ minWidth: '120px' }}>
-                              <span>{item.text}</span>
-                            </Col>
-                            <Col span={7} style={{ height: 'auto' }}>
-                              <FormItem>
-                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
-                              </FormItem>
-                            </Col>
-                            <Col span={3}>
-                              <FormItem>
-                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                              </FormItem>
-                            </Col>
-                            <Col span={4}>
-                              <span className="surplus">配额剩余：{surplus}</span>
-                              {
-                                plusValue > 0 ?
-                                  <div className="plus">
-                                    <p>+ {plusValue}</p>
-                                  </div> :
-                                  plusValue === 0 || isNaN(plusValue) ? '' :
-                                    <div className="minu">
-                                      <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                    </div>
-                              }
-                            </Col>
-                          </Row>
-                        )
-                      })
-                    }
-                  </div>
-                  <p className="line"></p>
-                  <div className="service">
-                    <svg className='database commonImg'>
-                      <use xlinkHref="#database"></use>
-                    </svg> &nbsp;
-                    <span>数据库与缓存</span>
-                    {
-                      serviceList.map((item, index) => {
-                        const inputValue = getFieldValue(item.key)
-                        const beforeValue = this.maxClusterCount(item.key)
-                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                        plusValue = Math.floor(plusValue * 100) / 100
-                        const checkKey = `${item.key}-check`
-                        const checkProps = getFieldProps(checkKey, {
-                          initialValue: beforeValue === -1 ? true : false,
-                          onChange: (e) => {
-                            e.target.checked ? setFieldsValue({
-                              [item.key]: undefined,
-                            }) : setFieldsValue({
-                              [item.key]: this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key)
-                            })
-                          },
-                          valuePropName: 'checked',
-                        })
-                        const checkValue = getFieldValue(checkKey)
-                        const inputProps = getFieldProps(item.key, {
-                          rules: [
-                            {
-                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.text, item.key)
-                            }
-                          ],
-                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.key) === -1 ? undefined : this.maxClusterCount(item.key) : 0
-                        })
-                        const surplus = inputProps.value !== undefined ?
-                          inputProps.value - this.useClusterCount(item.key) : '无限制'
-                        return (
-                          <Row key={index} className="connents">
-                            <Col span={3} style={{ minWidth: '120px' }}>
-                              <span>{item.text}</span>
-                            </Col>
-                            <Col span={7} style={{ height: 'auto' }}>
-                              <FormItem>
-                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
-                              </FormItem>
-                            </Col>
-                            <Col span={3}>
-                              <FormItem>
-                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                              </FormItem>
-                            </Col>
-                            <Col span={4}>
-                              <span className="surplus">配额剩余：{surplus}</span>
-                              {
-                                plusValue > 0 ?
-                                  <div className="plus">
-                                    <p>+ {plusValue}</p>
-                                  </div> :
-                                  plusValue === 0 || isNaN(plusValue) ? '' :
-                                    <div className="minu">
-                                      <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                    </div>
-                              }
-                            </Col>
-                          </Row>
-                        )
-                      })
-                    }
-                  </div>
+                  {
+                    projectClusterQuota.map(v => {
+                      return (
+                        <div key={v.id}>
+                          <span>{v.name}</span>
+                          {
+                            v.children ?
+                              v.children.map((k, i) => {
+                                if (k.children) {
+                                  return <div className="platform" key={k.id}>
+                                    {this.icon(k.name)}
+                                    <span>{k.name}</span>
+                                    {
+                                      k.children.map(item => {
+                                        const inputValue = getFieldValue(item.id)
+                                        const beforeValue = this.maxClusterCount(item.id)
+                                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                                        plusValue = Math.floor(plusValue * 100) / 100
+                                        const isPlus = inputValue > beforeValue ? true : false
+                                        const checkKey = `${item.id}-check`
+                                        const checkProps = getFieldProps(checkKey, {
+                                          initialValue: beforeValue === -1 ? true : false,
+                                          onChange: (e) => {
+                                            e.target.checked ? setFieldsValue({
+                                              [item.id]: undefined,
+                                            }) : setFieldsValue({
+                                              [item.id]: this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.id)
+                                            })
+                                          },
+                                          valuePropName: 'checked',
+                                        })
+                                        const checkValue = getFieldValue(checkKey)
+                                        const inputProps = getFieldProps(item.id, {
+                                          rules: [
+                                            {
+                                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
+                                            }
+                                          ],
+                                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.key) : 0
+                                        })
+                                        const surplus = inputProps.value !== undefined
+                                          ? Math.round((inputProps.value - this.useClusterCount(item.id)) * 100) / 100
+                                          : '无限制'
+                                        return (
+                                          <Row key={item.id} className="connents">
+                                            <Col span={3} style={{ minWidth: '120px' }}>
+                                              <span>{item.name}</span>
+                                            </Col>
+                                            <Col span={7} style={{ height: 'auto' }}>
+                                              <FormItem>
+                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                              </FormItem>
+                                            </Col>
+                                            <Col span={3}>
+                                              <FormItem>
+                                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
+                                              </FormItem>
+                                            </Col>
+                                            <Col span={4}>
+                                              <span className="surplus">配额剩余：{surplus}</span>
+                                              {
+                                                plusValue > 0 ?
+                                                  <div className="plus">
+                                                    <p>+ {plusValue}</p>
+                                                  </div> :
+                                                  plusValue === 0 || isNaN(plusValue) ? '' :
+                                                    <div className="minu">
+                                                      <p>{isNaN(plusValue) ? '' : plusValue}</p>
+                                                    </div>
+                                              }
+                                            </Col>
+                                          </Row>
+                                        )
+                                      })
+                                    }
+                                    {
+                                      i !== v.children.length - 1?
+                                        <p className="line"></p>
+                                        :
+                                        ''
+                                    }
+
+                                  </div>
+                                }
+                                const inputValue = getFieldValue(k.id)
+                                const beforeValue = this.maxClusterCount(k.id)
+                                let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                                plusValue = Math.floor(plusValue * 100) / 100
+                                const checkKey = `${k.id}-check`
+                                const checkProps = getFieldProps(checkKey, {
+                                  initialValue: beforeValue === -1 ? true : false,
+                                  onChange: (e) => {
+                                    this.setState({
+                                      [`${k.id}-check`]: e.target.checked
+                                    })
+                                    e.target.checked ? setFieldsValue({
+                                      [k.id]: undefined,
+                                    }) : setFieldsValue({
+                                      [k.id]: this.maxClusterCount(k.id) === -1 ? undefined : this.maxClusterCount(k.id)
+                                    })
+                                  },
+                                  valuePropName: 'checked'
+                                })
+                                const checkValue = getFieldValue(checkKey)
+                                const inputProps = getFieldProps(k.id, {
+                                  // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
+                                  //   {
+                                  //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
+                                  //   }
+                                  // ] : [],
+                                  rules:  [
+                                    {
+                                      validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name, k.id)
+                                    }
+                                  ],
+                                  initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0
+                                })
+                                const surplus = inputProps.value !== undefined
+                                  ? Math.round((inputProps.value - this.useClusterCount(k.id)) * 100) / 100
+                                  : '无限制'
+                                return (
+                                  <Row key={k.id} className="connents">
+                                    <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
+                                      <span>{k.name}</span>
+                                    </Col>
+                                    <Col span={7} style={{ height: 'auto' }}>
+                                      <FormItem>
+                                        <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                      </FormItem>
+                                    </Col>
+                                    <Col span={3} style={{ height: 'auto' }}>
+                                      <FormItem>
+                                        <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
+                                      </FormItem>
+                                    </Col>
+                                    <Col span={4}>
+                                      <span className="surplus">配额剩余：{surplus}</span>
+                                      {
+                                        plusValue > 0 ?
+                                          <div className="plus">
+                                            <p>+ {plusValue}</p>
+                                          </div> :
+                                          plusValue === 0 || isNaN(plusValue) ? '' :
+                                            <div className="minu">
+                                              <p>{isNaN(plusValue) ? '' : plusValue}</p>
+                                            </div>
+                                      }
+                                    </Col>
+                                  </Row>
+                                )
+
+                              })
+                              :
+                              ''
+                          }
+                        </div>
+                      )
+                    })
+                  }
                 </div> :
                 <div className="lists">
-                  <div className="compute">
-                    <span>计算资源</span>
-                    {
-                      computeList.map((item, index) => (
-                        <Row className="list" key={index}>
-                          <Col span={3} style={{ minWidth: '120px' }}>
-                            <span>{item.text}</span>
-                          </Col>
-                          <Col span={10}>
-                            <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
-                          </Col>
-                          <Col span={4}>
-                            {
-                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                                this.maxClusterCount(item.key) === -1 ?
-                                  <span>{this.useClusterCount(item.key)}</span> :
-                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                                <span>{this.useClusterCount(item.key)}</span>
-                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
-                          </Col>
-                        </Row>
-                      ))
-                    }
-                  </div>
-                  <span>平台资源</span>
-                  <div className="platform">
-                    <svg className='app commonImg'>
-                      <use xlinkHref="#app"></use>
-                    </svg> &nbsp;
-                    <span>应用管理</span>
-                    {
-                      platformList.map((item, index) => (
-                        <Row className="list" key={index}>
-                          <Col span={3} style={{ minWidth: '120px' }}>
-                            <span>{item.text}</span>
-                          </Col>
-                          <Col span={10}>
-                            <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
-                          </Col>
-                          <Col span={4}>
-                            {
-                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                                this.maxClusterCount(item.key) === -1 ?
-                                  <span>{this.useClusterCount(item.key)}</span> :
-                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                                <span>{this.useClusterCount(item.key)}</span>
-                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
-                          </Col>
-                        </Row>
-                      ))
-                    }
-                  </div>
-                  <p className="line"></p>
-                  <div className="service">
-                    <svg className='database commonImg'>
-                      <use xlinkHref="#database"></use>
-                    </svg> &nbsp;
-                    <span >数据库与缓存</span>
-                    {
-                      serviceList.map((item, index) => (
-                        <Row className="list" key={index}>
-                          <Col span={3} style={{ minWidth: '120px' }}>
-                            <span>{item.text}</span>
-                          </Col>
-                          <Col span={10}>
-                            <Progress percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
-                          </Col>
-                          <Col span={4}>
-                            {
-                              this.useClusterCount(item.key) > this.maxClusterCount(item.key) ?
-                                this.maxClusterCount(item.key) === -1 ?
-                                  <span>{this.useClusterCount(item.key)}</span> :
-                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.key)}</span> :
-                                <span>{this.useClusterCount(item.key)}</span>
-                            }/<p>{this.maxClusterCount(item.key) === -1 ? '无限制' : this.maxClusterCount(item.key)}</p>
-                          </Col>
-                        </Row>
-                      ))
-                    }
-                  </div>
+                  {
+                    projectClusterQuota.map((v, i) => {
+                      return (
+                        <div className="quotaItem">
+                          <span>{v.name}</span>
+                          {
+                            v.children?
+                              v.children.map((k, current) => {
+                                return k.children ?
+                                  <div key={k.id} className="childrenItem">
+                                    {this.icon(k.name)}
+                                    <span>{k.name}</span>
+                                    {
+                                      k.children.map(item => (
+                                        <Row className="list" key={item.id}>
+                                          <Col span={3} style={{ minWidth: '120px' }}>
+                                            <span>{item.name}</span>
+                                          </Col>
+                                          <Col span={10}>
+                                            <Progress percent={this.filterPercent(this.maxClusterCount(item.id), this.useClusterCount(item.id))} showInfo={false} />
+                                          </Col>
+                                          <Col span={4}>
+                                            {
+                                              this.useClusterCount(item.id) > this.maxClusterCount(item.id) ?
+                                                this.maxClusterCount(item.id) === -1 ?
+                                                  <span>{this.useClusterCount(item.id)}</span> :
+                                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.id)}</span> :
+                                                <span>{this.useClusterCount(item.id)}</span>
+                                            }/<p>{this.maxClusterCount(item.id) === -1 ? '无限制' : this.maxClusterCount(item.id)}</p>
+                                          </Col>
+                                        </Row>
+                                      ))
+                                    }
+                                    { current !== v.children.length-1?
+                                      <p className="line"></p> : ''
+                                    }
+
+                                  </div>
+                                  :
+                                  <Row className="list" key={k.id}>
+                                    <Col span={3} style={{ minWidth: '120px' }}>
+                                      <span>{k.name}</span>
+                                    </Col>
+                                    <Col span={10}>
+                                      <Progress percent={this.filterPercent(this.maxClusterCount(k.id), this.useClusterCount(k.id))} showInfo={false} />
+                                    </Col>
+                                    <Col span={4}>
+                                      {
+                                        this.useClusterCount(k.id) > this.maxClusterCount(k.id) ?
+                                          this.maxClusterCount(k.id) === -1 ?
+                                            <span>{this.useClusterCount(k.id)}</span> :
+                                            <span style={{ color: 'red' }}>{this.useClusterCount(k.id)}</span> :
+                                          <span>{this.useClusterCount(k.id)}</span>
+                                      }/<p>{this.maxClusterCount(k.id) === -1 ? '无限制' : this.maxClusterCount(k.id)}</p>
+                                    </Col>
+                                  </Row>
+                              })
+                              :
+                              ''
+                          }
+                        </div>
+
+                      )
+                    })
+                  }
                 </div>
             }
           </div>
