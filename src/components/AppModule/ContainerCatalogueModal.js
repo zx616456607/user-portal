@@ -96,6 +96,7 @@ let ContainerCatalogueModal = React.createClass({
     resetFields([
       'mountPath',
       'readOnly',
+      'storageClassName',
     ])
     if (type == 'private') {
       loadFreeVolume(clusterID, { srtype: 'private' }, {
