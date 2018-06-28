@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Tabs } from 'antd'
+import { Button, Input, Tabs, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadMyStack, loadStack, searchStack, loadStackDetail } from '../../../actions/app_center'
@@ -36,7 +36,12 @@ class PrivateComponent extends Component {
     })
   }
   render() {
-    const { data, scope} = this.props
+    const { data, scope, isFetching } = this.props
+    if (isFetching) {
+      return <div className="loadingBox">
+        <Spin size="large"/>
+      </div>
+    }
     const itemList = data.map(list => {
       return (
         <div className="list" key={`private-`+list.name}>
@@ -88,9 +93,11 @@ class PublicComponent extends Component {
     })
   }
   render() {
-    const { stackList } = this.props.scope.props
-    if (stackList == undefined || stackList.length == 0) {
-      return (<div></div>)
+    const { stackList, isFetching } = this.props
+    if (isFetching) {
+      return <div className="loadingBox">
+        <Spin size="large"/>
+      </div>
     }
     const itemList = stackList.map(list => {
       return (
@@ -125,12 +132,24 @@ class AppAddStackModal extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentImageType: 'private-stack'
+      currentImageType: 'private-stack',
+      privateStack: []
     }
   }
 
   componentWillMount() {
-    this.props.loadMyStack(DEFAULT_REGISTRY)
+    this.props.loadMyStack(DEFAULT_REGISTRY,{ filter:'owned' },{
+      success:{
+        func: (res)=> {
+          let privateStack = []
+          try {
+            privateStack = res.data.data.templates
+          } catch (error) {
+          }
+          this.setState({privateStack})
+        }
+      }
+    })
   }
   changeType(type) {
     document.getElementById('stackName').focus()
@@ -140,10 +159,26 @@ class AppAddStackModal extends Component {
   }
   gosearchStack() {
     const stackType = this.state.currentImageType
+    const { myStackList } = this.props
     const config = {
       stackType,
       registry: DEFAULT_REGISTRY,
       imageName: document.getElementById('stackName').value
+    }
+    if (stackType === 'private-stack') {
+      if (config.imageName =='') {
+        this.setState({privateStack: myStackList.templates })
+        return
+      }
+      let privateStack = myStackList.templates.filter((list)=> {
+        const search = new RegExp(config.imageName)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      this.setState({privateStack})
+      return
     }
     this.props.searchStack(config)
   }
@@ -165,8 +200,20 @@ class AppAddStackModal extends Component {
           </div>
         </div>
         <Tabs defaultActiveKey="1" onChange={(e) => this.changeType(e)}>
-          <TabPane tab='私有' key="private-stack"><PrivateComponent scope={this} parentScope= { parentScope } data={this.props.myStackList} /></TabPane>
-          <TabPane tab="公有" key="public-stack"><PublicComponent scope={this} parentScope= { parentScope } /></TabPane>
+          <TabPane tab='私有' key="private-stack">
+            <PrivateComponent scope={this}
+              parentScope= { parentScope }
+              data={this.state.privateStack}
+              isFetching={this.props.isFetching}
+            />
+          </TabPane>
+          <TabPane tab="公有" key="public-stack">
+            <PublicComponent scope={this}
+              parentScope= { parentScope }
+              stackList={this.props.stackList.templates || []}
+              isFetching={this.props.isFetching}
+            />
+          </TabPane>
         </Tabs>
 
 
@@ -185,17 +232,17 @@ function mapStateToProps(state, props) {
   const defaultPrivateImages = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
-    myStackList: [],
-    stackList: []
+    myStackList: {templates:[]},
+    stackList: {templates:[]}
   }
   const { stackCenter } = state.images
   const { myStackList, isFetching, registry, stackList} = stackCenter[DEFAULT_REGISTRY] || defaultPrivateImages
 
   return {
-    myStackList,
+    myStackList: myStackList || {},
     isFetching,
     registry,
-    stackList
+    stackList: stackList || {}
   }
 }
 
