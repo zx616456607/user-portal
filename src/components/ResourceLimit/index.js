@@ -51,6 +51,23 @@ class ResourceQuota extends React.Component {
   componentWillMount() {
     this.fetchQuota()
   }
+
+  /**
+   *  资源的单位
+   */
+  quotaSuffix = type => {
+    switch (type) {
+      case 'cpu':
+        return 'C'
+      case 'memory':
+        return 'GB'
+      case 'storage':
+        return 'GB'
+      default:
+        return '个'
+    }
+  }
+
   fetchQuota(key) {
     const { getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
     let query
@@ -82,7 +99,6 @@ class ResourceQuota extends React.Component {
       success: {
         func: res => {
           if(res.code === 200) {
-
             const cluster = res.data.clusterResource
             const global = res.data.globalResource
             const { definitions } = res.data
@@ -693,7 +709,7 @@ class ResourceQuota extends React.Component {
                         </div>
                         {
                           v.children ?
-                            v.children.map((item, index) => {
+                            v.children.map(item => {
                               const inputValue = getFieldValue(item.id)
                               const beforeValue = this.maxGlobaleCount(item.id)
                               const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
@@ -737,7 +753,7 @@ class ResourceQuota extends React.Component {
                               return (
                                 <Row key={item.id} className="connents">
                                   <Col span={3} style={{ minWidth: '120px' }}>
-                                    <span>{item.name}</span>
+                                    <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
                                   </Col>
                                   <Col span={7} style={{ height: 'auto' }}>
                                     <FormItem
@@ -797,7 +813,7 @@ class ResourceQuota extends React.Component {
                               return (
                                 <Row className="list" key={index}>
                                   <Col span={3} style={{ minWidth: '120px' }}>
-                                    <span>{item.name}</span>
+                                    <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
                                   </Col>
                                   <Col span={10}>
                                     <Progress percent={this.filterPercent(this.maxGlobaleCount(item.id), this.useGlobaleCount(item.id))} showInfo={false} />
@@ -861,7 +877,7 @@ class ResourceQuota extends React.Component {
                                 if (k.children) {
                                   return <div className="platform" key={k.id}>
                                     {this.icon(k.name)}
-                                    <span>{k.name}</span>
+                                    <span>{k.name + ` (${this.quotaSuffix(item.resourceType)})`}}</span>
                                     {
                                       k.children.map(item => {
                                         const inputValue = getFieldValue(item.id)
@@ -915,7 +931,7 @@ class ResourceQuota extends React.Component {
                                         return (
                                           <Row key={item.id} className="connents">
                                             <Col span={3} style={{ minWidth: '120px' }}>
-                                              <span>{item.name}</span>
+                                              <span>{item.name + `(${this.quotaSuffix(item.resourceType)})`}}</span>
                                             </Col>
                                             <Col span={7} style={{ height: 'auto' }}>
                                               <FormItem>
@@ -1002,7 +1018,7 @@ class ResourceQuota extends React.Component {
                                 return (
                                   <Row key={k.id} className="connents">
                                     <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
-                                      <span>{k.name}</span>
+                                      <span>{k.name  + `(${this.quotaSuffix(k.resourceType)})`}</span>
                                     </Col>
                                     <Col span={7} style={{ height: 'auto' }}>
                                       <FormItem>
@@ -1082,7 +1098,7 @@ class ResourceQuota extends React.Component {
                                   :
                                   <Row className="list" key={k.id}>
                                     <Col span={3} style={{ minWidth: '120px' }}>
-                                      <span>{k.name}</span>
+                                      <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
                                     </Col>
                                     <Col span={10}>
                                       <Progress percent={this.filterPercent(this.maxClusterCount(k.id), this.useClusterCount(k.id))} showInfo={false} />
