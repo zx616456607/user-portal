@@ -102,10 +102,13 @@ class CreateCompose extends Component {
         return
       }
       notification.spin(`创建编排 ${values.name} 中...`)
+      let filters ={
+        filter: this.props.type
+      }
       this.props.createStack(config, {
         success: {
           func: () => {
-            parentScope.props.loadMyStack(registry)
+            parentScope.props.loadMyStack(registry,filters)
             parentScope.setState({
               createModalShow: false
             });
@@ -178,7 +181,7 @@ class CreateCompose extends Component {
               {
                 from:(parentScope.state.currentPage - 1)* parentScope.state.pageSize,
                 size:parentScope.state.pageSize,
-                filter:'owned'
+                filter: this.props.type
               }
             );
           },
