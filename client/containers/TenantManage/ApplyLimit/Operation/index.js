@@ -14,7 +14,7 @@ import ApplayDetail from './ApplayDetail'
 import PropTypes from 'prop-types'
 import './style/index.less'
 import { connect } from 'react-redux'
-import { deleteResourcequota } from '../../../../actions/applyLimit'
+import { deleteResourcequota, checkResourcequotaDetail } from '../../../../actions/applyLimit'
 import { REG } from '../../../../../src/constants'
 class Operation extends React.Component {
   static propTypes = {
@@ -37,7 +37,6 @@ class Operation extends React.Component {
     const { reloadApplyRecord, deleteResourcequota } = this.props
     // 向后台验证
     const { record } = this.props
-
     deleteResourcequota(record.id, {
       success: {
         func: res => {
@@ -55,9 +54,11 @@ class Operation extends React.Component {
   }
   toggleDetailVisable = () => {
     const { detailVisable } = this.state
+    const { record, checkResourcequotaDetail } = this.props
     this.setState({
       detailVisable: !detailVisable,
     })
+    checkResourcequotaDetail(record.id)
   }
   toggleClearVisable = () => {
     const { clearVisable } = this.state
@@ -70,16 +71,27 @@ class Operation extends React.Component {
     this.setState({
       clearLoading: true,
     })
-    setTimeout(() => {
-      this.setState({
-        clearLoading: false,
-        clearVisable: !clearVisable,
-      })
-    }, 2000)
+    const { record, reloadApplyRecord, deleteResourcequota } = this.props
+    deleteResourcequota(record.id, {
+      success: {
+        func: res => {
+          if (REG.test(res.code)) {
+            this.setState({
+              clearLoading: false,
+              clearVisable: !clearVisable,
+            })
+            reloadApplyRecord()
+          }
+        },
+        isAsync: true,
+      },
+    })
   }
   render() {
     const { condition, record } = this.props
     const { relealVisable, relealLoading, detailVisable, clearLoading, clearVisable } = this.state
+
+
     return (
       <div className="content-btns Operation">
         {
@@ -141,5 +153,5 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  deleteResourcequota,
+  deleteResourcequota, checkResourcequotaDetail,
 })(Operation)

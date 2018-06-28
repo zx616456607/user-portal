@@ -323,16 +323,18 @@ class ApplyForm extends React.Component {
     })
   }
   handleSubmit = () => {
-    const { choiceClusters, applayResourcequota, setApplayVisable } = this.props
+    const { choiceClusters, applayResourcequota, setApplayVisable, personNamespace } = this.props
     this.props.form.validateFields((errors, value) => {
-
       if (errors) {
         notification.warn({
           message: '表单验证错误',
         })
+        return
       }
-
-      const query = { header: { teamspace: value.item } }
+      let query
+      if (value.item !== personNamespace) {
+        query = { header: { teamspace: value.item } }
+      }
       const formValue = {
         comment: value.applyReason,
         applyDetails: {
@@ -353,7 +355,6 @@ class ApplyForm extends React.Component {
         }
         formValue.applyDetails[indexName][value[`resource${key}`]] = indexValue
       }
-
       this.setState({ applayLoading: true })
       applayResourcequota(query, formValue, {
         success: {
@@ -371,8 +372,12 @@ class ApplyForm extends React.Component {
     })
   }
   getClusterQuotaList = value => {
-    const { getClusterQuotaList, getGlobaleQuotaList, clusterID } = this.props
-    const query = { id: clusterID, header: { teamspace: value } }
+    const { getClusterQuotaList, getGlobaleQuotaList, clusterID, personNamespace } = this.props
+    const header = { header: { teamspace: value } }
+    const query = { id: clusterID }
+    if (personNamespace !== value) {
+      Object.assign(query, header)
+    }
     getClusterQuotaList(query, {
       success: {
         func: res => {
@@ -413,7 +418,8 @@ class ApplyForm extends React.Component {
   }
   render() {
     const { applayLoading, checkResourceKindState, clusterQuotaList, globaleQuotaList } = this.state
-    const { applayVisable, setApplayVisable, projectName, choiceClusters } = this.props
+    const { applayVisable, setApplayVisable, projectName, choiceClusters,
+      personNamespace } = this.props
     const { getFieldProps, getFieldValue } = this.props.form
     const removeFunction = this.remove
     const checkResourceKind = this.checkResourceKind
@@ -444,12 +450,15 @@ class ApplyForm extends React.Component {
                 placeholder="选择申请配额的项目"
                 onSelect={ value => this.getClusterQuotaList(value) }
               >
-                {
-                  projectName.map(o =>
-                    <Select.Option value={o} key="o">
-                      {o}
-                    </Select.Option>)
-                }
+                <Select.Option value={personNamespace}>我的个人项目</Select.Option>
+                <Select.OptGroup key="共享项目">
+                  {
+                    projectName.map(o =>
+                      <Select.Option value={o} key="o">
+                        {o}
+                      </Select.Option>)
+                  }
+                </Select.OptGroup>
               </Select>
             </FormItem>
             <FormItem
@@ -490,6 +499,7 @@ const mapStateToProps = state => {
   const { current } = state.entities
   const { clusterID } = current.cluster
   const projectName = []
+  const personNamespace = state.entities.loginUser.info.namespace
   if (_.isArray(data) && !_.isEmpty(data)) {
     data.forEach(o => {
       projectName.push(o.namespace)
@@ -497,7 +507,7 @@ const mapStateToProps = state => {
   }
   const choiceClusters = state.projectAuthority.projectVisibleClusters.default
   return {
-    projectName, clusterID, choiceClusters,
+    projectName, clusterID, choiceClusters, personNamespace,
   }
 }
 

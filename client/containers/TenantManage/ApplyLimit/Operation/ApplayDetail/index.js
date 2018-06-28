@@ -11,6 +11,8 @@ import * as React from 'react'
 import { Modal, Button, Form, Input, Table, Icon } from 'antd'
 import PropTypes from 'prop-types'
 import './style/index.less'
+import { connect } from 'react-redux'
+import { getDeepValue } from '../../../../../util/util'
 
 const FormItem = Form.Item
 // 表单布局
@@ -43,17 +45,18 @@ const getcolums = () => {
     render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
   }, {
     title: '审批',
-    dataIndex: 'status',
-    key: 'status',
+    dataIndex: 'approvalStatus',
+    key: 'approvalStatus',
     render: (text, record) => {
       let type = 'cross-circle'
-      if (record.resource === 'pass') {
+      let color = 'red'
+      if (record.approvalStatus === true) {
         type = 'check-circle'
+        color = 'green'
       }
       return (
         <div>
-          <span className="crossIcon"><Icon type={type} style={{ color: 'red' }}/></span>
-          {/* TODOS 要icon */}
+          <span className="crossIcon"><Icon type={type} style={{ color }}/></span>
         </div>
       )
     },
@@ -61,42 +64,58 @@ const getcolums = () => {
   return columns
 }
 
-const data = [
-  {
-    key: '1',
-    resource: 'pass',
-    aggregate: '集群1',
-    use: 1,
-    applyLimit: -2,
-  }, {
-    key: '2',
-    resource: 'notpass',
-    aggregate: '集群2',
-    use: 1,
-    applyLimit: -2,
-  }, {
-    key: '3',
-    resource: 'notpass',
-    aggregate: '集群2',
-    use: 1,
-    applyLimit: -2,
-  }, {
-    key: '4',
-    resource: 'notpass',
-    aggregate: '集群2',
-    use: 1,
-    applyLimit: -2,
-  }]
+const findClusersName = ({ id, choiceClusters }) => {
+  for (const o of choiceClusters.data) {
+    if (o.clusterID === id) {
+      return o.clusterName
+    }
+  }
+}
 
+// tabData
+const printApprovalResult = tabData => {
+  let approvalResult = '部分同意'
+  if (tabData.every(o => !o.approvalStatus)) {
+    approvalResult = '全部拒绝'
+  } else if (tabData.every(o => o.approvalStatus)) {
+    approvalResult = '全部同意'
+  }
+  return approvalResult
+}
+const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
+  const date = []
+  let indexKey = 1
+  if (applyDetails) {
+    for (const key in applyDetails) {
+      const clusterName = findClusersName({ id: key, choiceClusters })
+      for (const resourcekey in applyDetails[key]) {
+        date.push({
+          key: indexKey,
+          resource: resourcekey,
+          aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
+          use: '后台没有提供',
+          applyLimit: applyDetails[key][resourcekey] || '无限制',
+          approvalStatus: approveDetails[key] ?
+            approveDetails[key].indexOf(resourcekey) !== -1 : false,
+        })
+        indexKey++
+      }
+    }
+  }
+  return date
+}
 class ApplayDetail extends React.Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     toggleVisable: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
+    record: PropTypes.object.isRequired,
   }
   render() {
-    const { visible, toggleVisable, record, title } = this.props
-    // console.log('record', record)
+    const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters } = this.props
+    const { isFetching, data: recordData = {} } = resourcequoteRecord
+    const { applyDetails, approveDetails } = recordData
+    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters)
     return (
       <Modal
         visible = {visible}
@@ -104,36 +123,46 @@ class ApplayDetail extends React.Component {
         onCancel={ toggleVisable }
         footer={[
           <span className="ApplyDetail result-wrap">
-            <span>审批结果:</span><span className="result">部分同意</span>
+            <span>审批结果:</span><span className="result">{printApprovalResult(tabData)}</span>
           </span>,
           <Button key="makeSure" type="primary" size="large" onClick={toggleVisable}>
               知道了
           </Button>,
         ]}
+        width={600}
       >
         <div className="ApplyDetail">
           <FormItem
             label="申请项目" {...formItemLayout}
           >
-            <Input value={record.item}/>
+            <Input value={recordData.displayName}/>
           </FormItem>
           <FormItem
             label="申请人" {...formItemLayout}
           >
-            <Input value={'申请人'}/>
+            <Input value={recordData.applier}/>
           </FormItem>
           <FormItem
             label="申请原因" {...formItemLayoutLarge}
           >
-            <Input value={'babab'} type="textarea" rows={4}/>
+            <Input value={recordData.comment} type="textarea" rows={4}/>
           </FormItem>
-          <Table columns={getcolums()} dataSource={data} pagination={false} size="small"
-            scroll={{ y: 120 }}/>
+          <Table columns={getcolums()}
+            dataSource={tabData}
+            pagination={false} size="small"
+            scroll={{ y: 120 }} loading={isFetching}/>
         </div>
       </Modal>
     )
   }
 }
 
-export default ApplayDetail
-
+const mapStateToProps = state => {
+  const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
+  const choiceClusters = state.projectAuthority.projectVisibleClusters.default
+  return {
+    resourcequoteRecord: detailData, choiceClusters,
+  }
+}
+export default connect(mapStateToProps, {
+})(ApplayDetail)

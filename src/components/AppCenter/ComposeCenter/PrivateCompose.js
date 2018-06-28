@@ -117,13 +117,14 @@ class PrivateCompose extends Component {
   }
 
   componentWillMount() {
-    this.props.loadMyStack(DEFAULT_REGISTRY);
+    this.props.loadMyStack(DEFAULT_REGISTRY, { filter:'owned' }
+    );
   }
 
   componentWillReceiveProps(nextProps) {
     const { space } = nextProps
     if (space.namespace !== this.props.space.namespace) {
-      this.props.loadMyStack(DEFAULT_REGISTRY)
+      this.props.loadMyStack(DEFAULT_REGISTRY, { filter:'owned' })
     }
   }
 
@@ -209,7 +210,7 @@ class PrivateCompose extends Component {
       DEFAULT_REGISTRY,
       {
         from:(page - 1) * count,
-        size:count,
+        size: this.state.pageSize,
         filter:'owned'
       }
     );
@@ -222,7 +223,7 @@ class PrivateCompose extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const { myStackList,isFetching } = this.props;
-    const { count, templates, total} = myStackList;
+    const { count, templates } = myStackList;
     const loadingStyle = {
       width: 50,
       height: 50,
@@ -295,7 +296,7 @@ class PrivateCompose extends Component {
     ]
     return (
       <QueueAnim className='PrivateCompose'
-                 type='right'
+        type='right'
       >
         <div id='PrivateCompose' key='PrivateCompose'>
           <div className='alertRow'>
@@ -318,7 +319,7 @@ class PrivateCompose extends Component {
             simple={true}
             loading={isFetching}
             pagination={{
-              total:total,
+              total:count,
               pageSize:this.state.pageSize,
               current:this.state.currentPage,
               onChange:(page)=>{ this.changePage(page,count) }
