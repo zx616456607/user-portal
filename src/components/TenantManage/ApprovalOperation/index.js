@@ -192,8 +192,6 @@ class ApprovalOperation extends React.Component {
     const { approvalState } = this.state
     const body = formateUpdateResoure(tabData, approvalState)
     const id = record.id
-    console.log('body', body)
-    console.log('fucjid', id)
     updateResourcequota(record.id, body, {
         success: {
           func: res => {
