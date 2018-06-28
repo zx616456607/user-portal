@@ -1031,16 +1031,13 @@ class AppList extends Component {
       return prefix + toggle
     }
     let linkUrl = '/app_manage/app_create'
+    let createBtn = '创建应用'
     if (pathname === '/ai-deep-learning/ai-model-service') {
       linkUrl = '/app_manage/app_create/quick_create?addAI=true'
+      createBtn = 'AI 模型应用'
     }
     const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push(linkUrl)}>
-        <i className="fa fa-plus" />
-        {
-          linkUrl === '/app_manage/app_create/quick_create?addAI=true' ?
-            '创建模型应用' :
-            '创建应用'
-        }
+        <i className="fa fa-plus" /> { createBtn }
       </Button>)
 
     return (
