@@ -59,6 +59,7 @@ let Login = React.createClass({
       }
       this.setState({
         submitting: true,
+        loginResult: {},
         submitProps: {
           disabled: 'disabled'
         }
