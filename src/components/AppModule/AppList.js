@@ -1030,8 +1030,11 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-
-    const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
+    let linkUrl = '/app_manage/app_create'
+    if (pathname === '/ai-deep-learning/ai-model-service') {
+      linkUrl = '/app_manage/app_create/quick_create?addAI=true'
+    }
+    const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push(linkUrl)}>
         <i className="fa fa-plus" />创建应用
       </Button>)
 
