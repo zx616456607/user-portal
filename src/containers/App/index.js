@@ -16,7 +16,7 @@ import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
-import { isEmptyObject, getPortalRealMode, isResourcePermissionError } from '../../common/tools'
+import { isEmptyObject, getPortalRealMode, isResourcePermissionError, isResourceQuotaError } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
@@ -167,6 +167,16 @@ class App extends Component {
       notification.warn('操作失败', msg, null)
       return
     }
+
+    // 配额不足
+    if (isResourceQuotaError(errorMessage.error)) {
+      this.setState({
+        resourcequotaModal: true,
+        resourcequotaMessage: JSON.parse(message.message),
+      })
+      return
+    }
+
     // 升级版本
     if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
       if (!message.details) {
@@ -186,10 +196,6 @@ class App extends Component {
         })
         return
       }
-      this.setState({
-        resourcequotaModal: true,
-        resourcequotaMessage: JSON.parse(message.message),
-      })
     }
     // license 过期
     if (statusCode === LICENSE_EXPRIED_CODE) {
@@ -256,6 +262,12 @@ class App extends Component {
 
     // 余额不足
     if (statusCode === PAYMENT_REQUIRED_CODE) {
+      resetErrorMessage()
+      return
+    }
+
+    // 配额不足
+    if (isResourceQuotaError(error)) {
       resetErrorMessage()
       return
     }
