@@ -324,17 +324,29 @@ const parseConfigMap = (containers, volumes, annotations) => {
     parseIsWholeDir = wholeDir.replace(/&#34;/g, '\"');
     parseIsWholeDir = JSON.parse(parseIsWholeDir);
   }
-  const mergeVolumes = merge([], volumeMounts, volumes);
+  if (isEmpty(volumes) && isEmpty(volumeMounts)) {
+    return;
+  }
+  volumes.forEach(vol => {
+    volumeMounts.some(item => {
+      if (vol.name === item.name) {
+        vol.mountPath = item.mountPath;
+        if (vol.name.includes('secret')) {
+          vol.readOnly = item.readOnly;
+          return true;
+        }
+        return true;
+      }
+      return false;
+    });
+  });
   const configMapKeys: number[] = [];
   const secretConfigMapKeys: number[] = [];
   let configId = 0;
   let secretId = 0;
-  if (isEmpty(mergeVolumes)) {
-    return;
-  }
   const configParent: object = {};
   const existentConfigMap = [];
-  mergeVolumes.forEach((item) => {
+  volumes.forEach((item) => {
     const { name, mountPath, subPath, configMap } = item;
     const { name: innerName, items } = configMap || { name: '', items: [] };
     let configMapIsWholeDir: boolean = false;
