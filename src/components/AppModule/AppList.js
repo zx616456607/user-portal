@@ -1035,7 +1035,12 @@ class AppList extends Component {
       linkUrl = '/app_manage/app_create/quick_create?addAI=true'
     }
     const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push(linkUrl)}>
-        <i className="fa fa-plus" />创建应用
+        <i className="fa fa-plus" />
+        {
+          linkUrl === '/app_manage/app_create/quick_create?addAI=true' ?
+            '创建模型应用' :
+            '创建应用'
+        }
       </Button>)
 
     return (
