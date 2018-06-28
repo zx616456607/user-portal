@@ -51,10 +51,6 @@ class ResourceQuota extends React.Component {
   componentWillMount() {
     this.fetchQuota()
   }
-
-  /**
-   *  资源的单位
-   */
   quotaSuffix = type => {
     switch (type) {
       case 'cpu':
@@ -67,7 +63,6 @@ class ResourceQuota extends React.Component {
         return '个'
     }
   }
-
   fetchQuota(key) {
     const { getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
     let query
@@ -99,6 +94,7 @@ class ResourceQuota extends React.Component {
       success: {
         func: res => {
           if(res.code === 200) {
+
             const cluster = res.data.clusterResource
             const global = res.data.globalResource
             const { definitions } = res.data
@@ -122,15 +118,23 @@ class ResourceQuota extends React.Component {
 
               }
               // 格式化数据
-              for(const v of newArr) {
+              newArr.forEach((v, i) => {
                 v.name = v.resourceName
                 if(v.children) {
                   for(const k of v.children) {
                     k.name = k.resourceName
                     k.id = k.resourceType
                   }
+                }else if(v.resourceType && !v.children) {
+                  // 判断如果没有children但是有resourceType，那么也是资源
+                  const children = {
+                    id: v.resourceType,
+                    name: v.resourceName,
+                  }
+                  v.children = [children]
                 }
-              }
+              })
+
               return newArr
             }
             const quotas = {
@@ -675,12 +679,6 @@ class ResourceQuota extends React.Component {
                 进入项目详情查看</span>
             </div> : <div></div>
         }
-        <div style={{ marginBottom: '12px' }}>
-        {
-          this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ? '' :
-          <Link to="/tenant_manage/applyLimit"><Button size="large" className="btn" type="primary" >配额申请</Button></Link>
-        }
-        </div>
         <div className="topDesc">
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
@@ -693,7 +691,6 @@ class ResourceQuota extends React.Component {
             </div> :
             this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
               <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button> : ''
-
         }
         <div className="connent">
           {
@@ -709,7 +706,7 @@ class ResourceQuota extends React.Component {
                         </div>
                         {
                           v.children ?
-                            v.children.map(item => {
+                            v.children.map((item, index) => {
                               const inputValue = getFieldValue(item.id)
                               const beforeValue = this.maxGlobaleCount(item.id)
                               const plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
@@ -753,7 +750,7 @@ class ResourceQuota extends React.Component {
                               return (
                                 <Row key={item.id} className="connents">
                                   <Col span={3} style={{ minWidth: '120px' }}>
-                                    <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
+                                    <span>{item.name + `(${this.quotaSuffix(item.resourceType)})`}</span>
                                   </Col>
                                   <Col span={7} style={{ height: 'auto' }}>
                                     <FormItem
@@ -877,7 +874,7 @@ class ResourceQuota extends React.Component {
                                 if (k.children) {
                                   return <div className="platform" key={k.id}>
                                     {this.icon(k.name)}
-                                    <span>{k.name + ` (${this.quotaSuffix(item.resourceType)})`}}</span>
+                                    <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
                                     {
                                       k.children.map(item => {
                                         const inputValue = getFieldValue(item.id)
@@ -931,7 +928,7 @@ class ResourceQuota extends React.Component {
                                         return (
                                           <Row key={item.id} className="connents">
                                             <Col span={3} style={{ minWidth: '120px' }}>
-                                              <span>{item.name + `(${this.quotaSuffix(item.resourceType)})`}}</span>
+                                              <span>{item.name}</span>
                                             </Col>
                                             <Col span={7} style={{ height: 'auto' }}>
                                               <FormItem>
@@ -1018,7 +1015,7 @@ class ResourceQuota extends React.Component {
                                 return (
                                   <Row key={k.id} className="connents">
                                     <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
-                                      <span>{k.name  + `(${this.quotaSuffix(k.resourceType)})`}</span>
+                                      <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
                                     </Col>
                                     <Col span={7} style={{ height: 'auto' }}>
                                       <FormItem>
@@ -1061,9 +1058,12 @@ class ResourceQuota extends React.Component {
                       return (
                         <div className="quotaItem">
                           <span>{v.name}</span>
+
                           {
+
                             v.children?
                               v.children.map((k, current) => {
+
                                 return k.children ?
                                   <div key={k.id} className="childrenItem">
                                     {this.icon(k.name)}
@@ -1072,7 +1072,7 @@ class ResourceQuota extends React.Component {
                                       k.children.map(item => (
                                         <Row className="list" key={item.id}>
                                           <Col span={3} style={{ minWidth: '120px' }}>
-                                            <span>{item.name}</span>
+                                            <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
                                           </Col>
                                           <Col span={10}>
                                             <Progress percent={this.filterPercent(this.maxClusterCount(item.id), this.useClusterCount(item.id))} showInfo={false} />
@@ -1127,8 +1127,8 @@ class ResourceQuota extends React.Component {
           </div>
         </div>
         <Modal title="超限" visible={this.state.visible}
-          ok={() => this.handleOk()}
-          onCancel={() => this.handleClose()}
+               ok={() => this.handleOk()}
+               onCancel={() => this.handleClose()}
         >
           <div>
             <div className="top">
