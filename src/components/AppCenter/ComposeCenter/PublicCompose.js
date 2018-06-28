@@ -146,7 +146,7 @@ class PublicCompose extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const { stackList,isFetching } = this.props
-    const { count, templates, total} = stackList;
+    const { count, templates } = stackList;
     const loadingStyle = {
       width: 50,
       height: 50,
@@ -207,7 +207,7 @@ class PublicCompose extends Component {
     ]
     return (
       <QueueAnim className="PublicCompose"
-                 type="right"
+        type="right"
       >
         <div id="PublicCompose" key="PublicCompose">
           <div  className='alertRow'>
@@ -222,7 +222,7 @@ class PublicCompose extends Component {
               dataSource={templates}
               loading={isFetching}
               pagination={{
-                total:total,
+                total:count,
                 pageSize:this.state.pageSize,
                 current:this.state.currentPage,
                 onChange:(page)=>{ this.changePage(page,count) }

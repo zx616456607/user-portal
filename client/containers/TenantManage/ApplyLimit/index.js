@@ -48,8 +48,8 @@ const columns = ({ filteredInfo, reloadApplyRecord }) => {
     key: 'condition',
     filters: [
       { text: '全部同意', value: 1 }, // '全部同意'
-      { text: '部分同意', value: 2 }, // '全部拒绝'
-      { text: '部分拒绝', value: 3 }, // 部分同意
+      { text: '部分同意', value: 3 }, // '全部拒绝'
+      { text: '全部拒绝', value: 2 }, // 部分同意
       { text: '待审批', value: 0 }, // 审批中
     ],
     filteredValue: filteredInfo.condition,
@@ -134,7 +134,7 @@ class ApplyLimit extends React.Component {
       filteredInfo: filters,
     })
   }
-  componentDidMount() {
+  componentDidMount = () => {
     const { checkApplyRecord } = this.props
     const query = { from: 0, size: 10 } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)

@@ -16,8 +16,10 @@ exports.applyResourcequota = function* () {
   const loginUser = this.session.loginUser;
   const body = this.request.body;
   const { teamspace } = this.request.headers
-  const headers = {}
-  Object.assign(headers, { teamspace })
+  let headers
+  if ( teamspace ) {
+    let headers = { teamspace }
+  }
   const api = apiFactory.getApi(loginUser);
   const result = yield api.resourcequota.createBy(['apply'], null, body, { headers });
   this.body = result;
@@ -56,7 +58,7 @@ exports.checkResourcequotaDetail = function* () {
   const loginUser = this.session.loginUser;
   const api = apiFactory.getApi(loginUser);
   const id = this.params.id;
-  const result = yield api.resourcequota.getBy(['apply', id, 'detail']);
+  const result = yield api.resourcequota.getBy(['apply', id,]);
   this.body = result;
 }
 

@@ -71,27 +71,22 @@ class Snapshot extends Component {
       createFalse: false,
       rollbackSuccess: false,
       hasAlreadyGetStorageList: false,
-      isFirstLoad: true,
     }
   }
 
-  loadSnapshotList(from){
+  loadSnapshotList(){
     const { cluster, SnapshotList } = this.props
-    if (from === 'refresh') {
-      this.setState({ isFirstLoad: true })
-    }
+
     const body = {
       clusterID: cluster,
     }
     SnapshotList(body, {
       success: {
-        func: () => {
-          const { isFirstLoad } = this.state
-          if (isFirstLoad) {
-            this.setState({ isFirstLoad: false })
-          }
-        },
-        isAsync: true,
+        func: (res) => {
+          this.setState({
+            SnapshotList: res.data,
+          })
+        }
       },
       failed: {
         func: err => {
@@ -527,7 +522,7 @@ class Snapshot extends Component {
     const { snapshotDataList, currentCluster, storageList, currentImagePool, isFetching } = this.props
     const {
       selectedRowKeys, DeleteSnapshotButton, currentSnapshot,
-      delelteSnapshotNum, currentVolume, SnapshotList, isFirstLoad,
+      delelteSnapshotNum, currentVolume, SnapshotList,
     } = this.state
     let currentStorageList= []
     if(storageList[currentImagePool]){
@@ -598,9 +593,9 @@ class Snapshot extends Component {
     return (
       <QueueAnim className='appmanage_snapshot' type='right'>
       <div id="appmanage_snapshot" key='appmanage_snapshot'>
-        <Title title="快照" />
+        <Title title="独享存储快照" />
         <div className='appmanage_snapshot_header'>
-          <Button size="large" onClick={() => this.loadSnapshotList('refresh')} style={{ marginRight: 8 }}>
+          <Button size="large" onClick={() => this.loadSnapshotList()} style={{ marginRight: 8 }}>
             <i className="fa fa-refresh" aria-hidden="true" style={{ marginRight: 8 }}/>
             刷新
           </Button>
@@ -622,7 +617,7 @@ class Snapshot extends Component {
             rowSelection={rowSelection}
             onRowClick={this.handleTableRowClick}
             pagination={{ simple: true }}
-            loading={isFirstLoad && isFetching}
+            loading={ isFetching }
           >
           </Table>
         </div>

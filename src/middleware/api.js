@@ -22,6 +22,7 @@ const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/clusters\/[\-\w]+\/metric\/nexport/,
   /^\/cluster-nodes\/[\-\w]+\/nodes\/resource-consumption/,
   /^\/permission\/access\-controls\/overview/,
+  /^\/resourcequota\/apply/,
 ]
 
 // Fetches an API response

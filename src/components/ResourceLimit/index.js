@@ -659,6 +659,12 @@ class ResourceQuota extends React.Component {
                 进入项目详情查看</span>
             </div> : <div></div>
         }
+        <div style={{ marginBottom: '12px' }}>
+        {
+          this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ? '' :
+          <Link to="/tenant_manage/applyLimit"><Button size="large" className="btn" type="primary" >配额申请</Button></Link>
+        }
+        </div>
         <div className="topDesc">
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
@@ -671,6 +677,7 @@ class ResourceQuota extends React.Component {
             </div> :
             this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
               <Button size="large" className="btn" type="primary" onClick={() => this.handleGlobaleEdit()}>编辑</Button> : ''
+
         }
         <div className="connent">
           {

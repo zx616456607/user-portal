@@ -88,25 +88,29 @@ const Normal = React.createClass({
     const { currentCluster } = this.props
     const { listNodes, clusterID } = currentCluster
     let tagArg = {}
-    getNodes(clusterID).then( res=> {
-      const nodeList = res.response.result.data
-      nodeList.map( item=>{
-        getNodeLabels(clusterID, item.name).then( res => {
-          let resObj = res.response.result.raw
-          resObj = JSON.parse( resObj )
-          for (let key in resObj ) {
-            if (tagArg.hasOwnProperty(key)) {
-              tagArg[key].push(resObj[key])
-              tagArg[key] = Array.from(new Set(tagArg[key]))
-            }else if (!tagArg.hasOwnProperty(key)){
-              tagArg[key] = []
-              tagArg[key].push(resObj[key])
+    if (listNodes === 0 || listNodes === 1) {
+      return
+    } else {
+      getNodes(clusterID).then( res=> {
+        const nodeList = res.response.result.data
+        nodeList.map( item=>{
+          getNodeLabels(clusterID, item.name).then( res => {
+            let resObj = res.response.result.raw
+            resObj = JSON.parse( resObj )
+            for (let key in resObj ) {
+              if (tagArg.hasOwnProperty(key)) {
+                tagArg[key].push(resObj[key])
+                tagArg[key] = Array.from(new Set(tagArg[key]))
+              }else if (!tagArg.hasOwnProperty(key)){
+                tagArg[key] = []
+                tagArg[key].push(resObj[key])
+              }
             }
-          }
-          this.dealDataSelectData(tagArg)
+            this.dealDataSelectData(tagArg)
+          })
         })
       })
-    })
+    }
   },
   dealDataSelectData(tagArg){
     let tagArr = []

@@ -96,6 +96,7 @@ let ContainerCatalogueModal = React.createClass({
     resetFields([
       'mountPath',
       'readOnly',
+      'storageClassName',
     ])
     if (type == 'private') {
       loadFreeVolume(clusterID, { srtype: 'private' }, {
@@ -321,6 +322,9 @@ let ContainerCatalogueModal = React.createClass({
                 }
                 if (!PATH_REG.test(value)) {
                   return callback('请输入正确的路径')
+                }
+                if (value.lastIndexOf('/') > 0) {
+                  return callback('本地存储不支持挂载多级目录')
                 }
                 //const list = cloneDeep(fieldsList)
                 //list.splice(currentIndex, 1)

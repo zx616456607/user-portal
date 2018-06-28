@@ -26,7 +26,7 @@ const harbor = require('../controllers/registry_harbor')
 
 /**
  * Set user current config: teamspace, cluster
- * cookie[USER_CURRENT_CONFIG]=`${teamID},${space.namespace},${clusterID}`
+ * cookie[USER_CURRENT_CONFIG]=`${teamID},${space.namespace},${clusterID},${onbehalfuser}`
  */
 exports.setUserCurrentConfig = function* (next) {
   if (!this.session.loginUser) {
@@ -34,7 +34,7 @@ exports.setUserCurrentConfig = function* (next) {
   }
   const method = 'setCurrent'
   let config = this.cookies.get(USER_CURRENT_CONFIG)
-  if (config && config.split(',').length === 3) {
+  if (config && config.split(',').length === 4) {
     logger.debug(method, `skip set current config cookie`)
     return yield next
   }

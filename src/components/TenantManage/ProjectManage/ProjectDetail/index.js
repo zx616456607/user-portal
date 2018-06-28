@@ -22,7 +22,7 @@ import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjec
   UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
-import { ListRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
+import { ListAllRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
 import { permissionOverview, PermissionResource } from '../../../../actions/permission'
 import { parseAmount } from '../../../../common/tools'
 import Notification from '../../../../components/Notification'
@@ -134,11 +134,11 @@ class ProjectDetail extends Component {
     })
   }
   loadRoleList(roleId) {
-    const { ListRole } = this.props;
+    const { ListAllRole } = this.props;
     const { projectDetail } = this.state;
     const targetKeys = [];
     const roleList = [];
-    ListRole({
+    ListAllRole({
       size: -1
     }, {
         success: {
@@ -1830,7 +1830,7 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   GetProjectsAllClusters,
   UpdateProjectsCluster,
   chargeProject,
-  ListRole,
+  ListAllRole,
   CreateRole,
   ExistenceRole,
   UpdateProjectsRelatedRoles,
