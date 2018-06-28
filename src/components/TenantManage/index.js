@@ -21,35 +21,28 @@ import ReactEcharts from 'echarts-for-react'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon'
 import ApprovalOperation from './ApprovalOperation'
+import { calcuDate } from '../../common/tools'
+import { checkApplyRecord } from '../../../client/actions/applyLimit'
+import { getDeepValue } from '../../../client/util/util'
+import { checkResourcequotaDetail } from '../../../client/actions/applyLimit'
 
-
-const data = [{
-  key: '1',
-  personal: '胡彦斌',
-  approvalTime: 32,
-}, {
-  key: '2',
-  personal: '胡彦祖',
-  approvalTime: 42,
-}, {
-  key: '3',
-  personal: '李大嘴',
-  approvalTime: 32,
-}];
-
-const getColumns = ({ toggleApprovalModal }) => {
+const getColumns = ({ toggleApprovalModal, type }) => {
   return [{
-    title: '个人项目',
-    dataIndex: 'personal',
-    render: (text, record) => <span className="personalItem">{record.personal}</span>
+    title: type === 'person' ? '个人项目' : '共享项目',
+    dataIndex: 'item',
+    render: (text, record) => <span className="personalItem">{record.item}</span>
   }, {
-    title: '申请事件',
+    title: '申请时间',
     dataIndex: 'approvalTime',
   }, {
-    title: '操作',
+    title: '查看详情',
     dataIndex: 'detail',
-    render: () => <TenxIcon type="circle-arrow-right-o" className="checkDetail"
-                            onClick={toggleApprovalModal}/>
+    render: (text, record ) => {
+      return (
+    <TenxIcon type="circle-arrow-right-o" className="checkDetail"
+                            onClick={toggleApprovalModal.bind(null, record)}/>
+      )
+    }
   }];
 }
 class TenantManage extends React.Component {
@@ -74,16 +67,23 @@ class TenantManage extends React.Component {
       operationNav: false, //显示操作引导弹窗
     }
   }
-
-  componentWillMount() {
+  record = {}
+  componentWillMount = () => {
+    const { checkApplyRecord } = this.props
     this.loadInfosList()
     if (localStorage.getItem('state')) {
       this.setState({
         iconState: localStorage.getItem('state') == 'true' ? true : false
       })
     }
+    let query = { from: 0, size: 100, filter: 'status,0'  }
+    checkApplyRecord(query)
   }
-
+  reload = () => {
+    const { checkApplyRecord } = this.props
+    let query = { from: 0, size: 100, filter: 'status,0'  }
+    checkApplyRecord(query)
+  }
   loadInfosList() {
     const { fetchinfoList } = this.props
     fetchinfoList(null, {
@@ -166,10 +166,14 @@ class TenantManage extends React.Component {
       localStorage.setItem('state', true)
     }
   }
-  toggleApprovalModal = () => {
+  toggleApprovalModal = ( record, type, e ) => {
     const { showApprovalModal } = this.state
-    console.log('showApprovalModal', showApprovalModal)
+    const { checkResourcequotaDetail } = this.props
     this.setState({ showApprovalModal: !showApprovalModal })
+    if ( type !== 'success' ) {
+      this.getDetailRecord(record)
+      checkResourcequotaDetail(record.id)
+    }
   }
   showOperationNav = () => {
     this.setState({
@@ -182,6 +186,9 @@ class TenantManage extends React.Component {
       })
   }
   renderModalFooter = () => <Button type="primary" onClick={this.closeOperationNav}>知道了</Button>
+  getDetailRecord = record => {
+    this.record = record
+  }
   render() {
     const ListLi = [{
       id: 1,
@@ -212,6 +219,7 @@ class TenantManage extends React.Component {
     let t_createdByUser = team_createdByUser
     const toggleApprovalModal = this.toggleApprovalModal
 
+    const { tabisFetching, personTabData, shareTabDate, tabDataLength } = this.props
     let memberOption = {
       tooltip: {
         trigger: 'item',
@@ -505,7 +513,6 @@ class TenantManage extends React.Component {
     const itemStyle = {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
-
     return (
       <QueueAnim>
         <div id="tenantManage" key='tenantManage'>
@@ -564,20 +571,21 @@ class TenantManage extends React.Component {
 
             </Col>
             <Col span={12}>
-              <Card title={<span>资源配额申请概览 (待处理) <span>共{}个</span></span>}
-                    extra={<div className="approvalrecord">审批记录>></div>}
+              <Card title={<span>资源配额申请概览 (待处理) <span>共{tabDataLength}个</span></span>}
+                    extra={<Link to="/tenant_manage/approvalLimit">审批记录>></Link>}
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
                   <Col span={12} className="personalProject">
-                    <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}
-                           scroll={{ y: 400 }} />
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'person' })} dataSource={personTabData} size="small" pagination={false}
+                           scroll={{ y: 400 }} loading={tabisFetching}/>
                   </Col>
                   <Col span={12} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal })} dataSource={data} size="small" pagination={false}/>
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'share' })} dataSource={shareTabDate} size="small" pagination={false}
+                    loading={tabisFetching}/>
                   </Col>
-                  <ApprovalOperation title="资源配额申请详情" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                                     record={null}/>
+                  <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
+                                     record={this.record} reload={this.reload}/>
                 </Row>
               </Card>
             </Col>
@@ -634,11 +642,36 @@ class TenantManage extends React.Component {
     )
   }
 }
+// 整理返回的数据,将未审批的用户, 分为个人用户和共享项目
+const formateTabData = ({ tabData, UserNameSpace }) => {
+  const personTabData = []
+  const shareTabDate = []
+  let tabDataIndex = personTabData
+  for ( const o of tabData ) {
+    if ( o.applier === UserNameSpace ) {
+      tabDataIndex = personTabData
+    } else {
+      tabDataIndex = shareTabDate
+    }
+    tabDataIndex.push({
+      item: o.displayName,
+      approvalTime: calcuDate(o.createTime),
+      id: o.id,
+    })
+  }
+  const tabDataLength = tabData.length
+  return { tabDataLength, personTabData, shareTabDate }
+}
+
 
 function mapStateToProps(state, props) {
-  return {}
+  const tabData = getDeepValue(state, [ 'applyLimit', 'resourcequoteRecord', 'data' ]) || []
+  const isFetching = getDeepValue(state, [ 'applyLimit', 'resourcequoteRecord', 'isFetching' ])
+  const UserNameSpace = getDeepValue(state, [ 'entities', 'loginUser', 'info', 'namespace' ])
+  const {tabDataLength, personTabData, shareTabDate} = formateTabData({  tabData, UserNameSpace  })
+  return { tabisFetching: isFetching, personTabData, shareTabDate, tabDataLength }
 }
 
 export default connect(mapStateToProps, {
-  fetchinfoList
+  fetchinfoList, checkApplyRecord, checkResourcequotaDetail
 })(TenantManage)

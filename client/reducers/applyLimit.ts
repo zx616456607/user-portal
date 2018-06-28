@@ -33,11 +33,32 @@ function resourcequoteRecord(state = {}, action) {
   }
 }
 
+// 资源配额详情
+function resourcequotaDetail(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.CHECK_RESOURCEQUOTA_DETAIL_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      });
+    case ActionTypes.CHECK_RESOURCEQUOTA_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      });
+    case ActionTypes.CHECK_RESOURCEQUOTA_DETAIL_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    default:
+      return state;
+  }
+}
 
 
 
 export default function applyLimit(state = {}, action) {
   return {
     resourcequoteRecord: resourcequoteRecord(state.resourcequoteRecord, action),
+    resourcequotaDetail: resourcequotaDetail(state.resourcequotaDetail, action),
   };
 }
