@@ -167,7 +167,6 @@ class TenantManage extends React.Component {
     }
   }
   toggleApprovalModal = ( record, type, e ) => {
-    console.log('id', record)
     const { showApprovalModal } = this.state
     const { checkResourcequotaDetail } = this.props
     this.setState({ showApprovalModal: !showApprovalModal })
