@@ -69,4 +69,13 @@ exports.checkResourcequotaExist = function* () {
   const result = yield api.resourcequota.getBy(['apply', 'checkApplyExist']);
   this.body = result;
 }
+// 获取资源定义
+exports.resourceDefinite = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.resourcequota.getBy(['definitions'])
+  this.body = result
+
+}
+
 
