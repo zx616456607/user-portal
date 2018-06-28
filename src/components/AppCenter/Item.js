@@ -22,7 +22,7 @@ import './style/Item.less'
 import { LoadOtherImage, addOtherStore } from '../../actions/app_center'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
-import { ROLE_SYS_ADMIN } from '../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
 
@@ -308,6 +308,7 @@ class ImageCenter extends Component {
   }
   setItem(type,other) {
     other = other || {}
+
     this.setState({itemType:type, other})
     if (type=='private') {
       browserHistory.push('/app_center/projects')
@@ -407,7 +408,8 @@ class ImageCenter extends Component {
         </TabPane>
       )
     })
-    const isAdmin = loginUser.harbor[camelize('has_admin_role')] === 1
+
+    const isAuth = loginUser.role === ROLE_BASE_ADMIN || loginUser.role === ROLE_SYS_ADMIN // 只有平台管理员和系统管理员才可见“同步管理”
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
@@ -417,7 +419,7 @@ class ImageCenter extends Component {
             <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
             <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
             {
-              isAdmin &&
+              isAuth &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
               同步管理
               </span>
