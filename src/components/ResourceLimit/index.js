@@ -44,6 +44,8 @@ class ResourceQuota extends React.Component {
         globalResource: [],
         clusterResource: [],
       },
+      globalUnlimited: [], // 被设置成无限制的key
+      clusterUnlimited: [], // 被设置成无限制的key
     }
   }
   componentWillMount() {
@@ -233,11 +235,13 @@ class ResourceQuota extends React.Component {
       }
 
       let body = {}
+      // 将被设置成无限制的key放到参数里
+      for (const v of this.state.globalUnlimited) {
+        body[v] = null
+      }
       for(let k in value) {
         if(typeof value[k] === 'string') {
-
           body[k] = Number(value[k])
-          console.log(body);
         }
       }
       let query = {
@@ -307,7 +311,7 @@ class ResourceQuota extends React.Component {
   handleClusterOk() {
     let notify = new NotificationHandler()
     const { cluster } = this.state
-    const { putClusterQuota, clusterID, userName, projectName, isProject, namespace } = this.props
+    const { putClusterQuota, clusterID, getClusterQuota, userName, projectName, isProject, namespace } = this.props
     const { validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) return
@@ -323,35 +327,40 @@ class ResourceQuota extends React.Component {
           }
         }
       }
+      // 把编辑的字段过滤出来，发送给后台
+      let body = {}
+      for (const v of this.state.clusterUnlimited) {
+        body[v] = null
+      }
+
+      for(let k in value) {
+        if(typeof value[k] === 'string') {
+          body[k] = Number(parseFloat(value[k]).toFixed(2))
+        }
+      }
+
       let query = {
         id: cluster === '' ? clusterID : cluster,
         header,
-        body: {
-          cpu: value.cpu && Number(parseFloat(value.cpu).toFixed(2)),
-          memory: value.memory && Number(parseFloat(value.memory).toFixed(2)),
-          storage: value.storage && Number(parseFloat(value.storage).toFixed(2)),
-          application: Number(value.application),
-          service: Number(value.service),
-          container: Number(value.container),
-          volume: Number(value.volume),
-          snapshot: Number(value.snapshot),
-          configuration: Number(value.configuration),
-          secret: Number(value.secret),
-          loadbalance: Number(value.loadbalance),
-          mysql: Number(value.mysql),
-          redis: Number(value.redis),
-          zookeeper: Number(value.zookeeper),
-          elasticsearch: Number(value.elasticsearch),
-          etcd: Number(value.etcd),
-        }
+        body
       }
       putClusterQuota(query, {
         success: {
           func: res => {
-            if (REG.test(res.code)) {
-              this.setState({
-                clusterList: res.data,
-                cIsEdit: false
+            if (res.statusCode === 200) {
+              notify.success('设置成功')
+              getClusterQuota(query, {
+                success: {
+                  func: res => {
+                    if (REG.test(res.code)) {
+                      this.setState({
+                        clusterList: res.data,
+                        cIsEdit: false
+                      })
+                    }
+                  },
+                  isAsync: true
+                }
               })
             }
           },
@@ -636,120 +645,7 @@ class ResourceQuota extends React.Component {
         }
       </Menu>
     )
-    console.log(this.state.quotas)
-    const globalQuota = [
-      {
-        id: 'CI/CD',
-        name: 'CI/CD',
-        children: [
-          {
-            id: 'tenxflow',
-            name: 'TenxFlow (个)',
-          },
-          {
-            id: 'subTask',
-            name: '子任务 (个)',
-          },
-          {
-            id: 'dockerfile',
-            name: 'Dockerfile (个)',
-          },
-        ]
-      },
-      {
-        id: 'appCenter',
-        name: '交付中心',
-        children: [
-          {
-            id: 'orchestrationTemplate',
-            name: '编排文件 (个)',
-          },
-          {
-            id: 'applicationPackage',
-            name: '应用包 (个)',
-          },
-        ]
-      },
-    ]
-    const projectClusterQuota = [
-      {
-        id: 'compute',
-        name: '计算资源',
-        children: [
-          {
-            id: 'cpu',
-            name: 'CPU (C)'
-          },
-          {
-            id: 'memory',
-            name: '内存 (GB)'
-          },
-          {
-            id: 'storage',
-            name: '磁盘 (GB)'
-          }]
-      },
-      {
-        id: 'platform',
-        name: '平台资源',
-        children: [
-          {
-            id: 'appManage',
-            name: '应用管理',
-            children: [
-              {
-                id: 'application',
-                name: '应用 (个)'
-              }, {
-                id: 'service',
-                name: '服务 (个)'
-              }, {
-                id: 'container',
-                name: '容器 (个)'
-              }, {
-                id: 'volume',
-                name: '存储 (个)'
-              }, {
-                id: 'snapshot',
-                name: '快照 (个)'
-              }, {
-                id: 'configuration',
-                name: '服务配置 (个)'
-              }, {
-                id: 'secret',
-                name: '加密服务配置 (个)'
-              }, {
-                id: 'loadbalance',
-                name: '应用负载均衡（个）'
-              }]
-          },
-          {
-            id: 'db',
-            name: '数据库与缓存',
-            children: [
-              {
-                id: 'mysql',
-                name: 'MySQL集群 (个)'
-              }, {
-                id: 'redis',
-                name: 'Redis集群 (个)'
-              }, {
-                id: 'zookeeper',
-                name: 'Zookeeper集群 (个)'
-              }, {
-                id: 'elasticsearch',
-                name: 'ElasticSearch集群 (个)'
-              },
-              // {
-              //   key: 'etcd',
-              //   text: 'Etcd集群 (个)'
-              // }
-            ]
-          }
-        ]
-      }
 
-    ]
     const { getFieldProps, getFieldValue, setFieldsValue, setFields, getFieldError } = this.props.form
     return (
       <Form form={this.props.form} className="quota">
@@ -798,11 +694,24 @@ class ResourceQuota extends React.Component {
                               const checkProps = getFieldProps(checkKey, {
                                 initialValue: beforeValue === -1 ? true : false,
                                 onChange: (e) => {
-                                  e.target.checked ? setFieldsValue({
-                                    [item.id]: undefined,
-                                  }) : setFieldsValue({
-                                    [item.id]: this.maxGlobaleCount(item.id) === -1 ? undefined : this.maxGlobaleCount(item.id)
-                                  })
+                                  const unlimitedKeys=this.state.globalUnlimited
+                                  if(e.target.checked) {
+                                    setFieldsValue({
+                                      [item.id]: null,
+                                    })
+                                    unlimitedKeys.push(item.id)
+                                    this.setState({
+                                      globalUnlimited: unlimitedKeys,
+                                    })
+                                  }else {
+                                    unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
+                                    this.setState({
+                                      globalUnlimited: unlimitedKeys
+                                    })
+                                    setFieldsValue({
+                                      [item.id]: this.maxGlobaleCount(item.id) === -1 ? null : this.maxGlobaleCount(item.id)
+                                    })
+                                  }
                                 },
                                 valuePropName: 'checked',
                               })
@@ -857,7 +766,7 @@ class ResourceQuota extends React.Component {
                             :
                             ''
                         }
-                        { i !== globalQuota.length-1?
+                        { i !== this.state.quotas.globalResource.length-1?
                           <p className="line"></p> : ''
                         }
 
@@ -900,7 +809,7 @@ class ResourceQuota extends React.Component {
                             :
                             ''
                         }
-                        { i !== globalQuota.length-1?
+                        { i !== this.state.quotas.globalResource.length-1?
                           <p className="line"></p> : ''
                         }
 
@@ -957,11 +866,30 @@ class ResourceQuota extends React.Component {
                                         const checkProps = getFieldProps(checkKey, {
                                           initialValue: beforeValue === -1 ? true : false,
                                           onChange: (e) => {
-                                            e.target.checked ? setFieldsValue({
-                                              [item.id]: undefined,
-                                            }) : setFieldsValue({
-                                              [item.id]: this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.id)
-                                            })
+                                            const unlimitedKeys=this.state.clusterUnlimited
+                                            if(e.target.checked) {
+                                              setFieldsValue({
+                                                [item.id]: null,
+                                              })
+                                              unlimitedKeys.push(item.id)
+                                              this.setState({
+                                                clusterUnlimited: unlimitedKeys,
+                                              })
+                                            }else {
+                                              unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
+                                              this.setState({
+                                                clusterUnlimited: unlimitedKeys
+                                              })
+                                              setFieldsValue({
+                                                [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
+                                              })
+                                            }
+
+                                            // e.target.checked ? setFieldsValue({
+                                            //   [item.id]: null,
+                                            // }) : setFieldsValue({
+                                            //   [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
+                                            // })
                                           },
                                           valuePropName: 'checked',
                                         })
@@ -1026,14 +954,24 @@ class ResourceQuota extends React.Component {
                                 const checkProps = getFieldProps(checkKey, {
                                   initialValue: beforeValue === -1 ? true : false,
                                   onChange: (e) => {
-                                    this.setState({
-                                      [`${k.id}-check`]: e.target.checked
-                                    })
-                                    e.target.checked ? setFieldsValue({
-                                      [k.id]: undefined,
-                                    }) : setFieldsValue({
-                                      [k.id]: this.maxClusterCount(k.id) === -1 ? undefined : this.maxClusterCount(k.id)
-                                    })
+                                    const unlimitedKeys=this.state.clusterUnlimited
+                                    if(e.target.checked) {
+                                      setFieldsValue({
+                                        [k.id]: null,
+                                      })
+                                      unlimitedKeys.push(k.id)
+                                      this.setState({
+                                        clusterUnlimited: unlimitedKeys,
+                                      })
+                                    }else {
+                                      unlimitedKeys.splice(unlimitedKeys.indexOf(k.id), 1)
+                                      this.setState({
+                                        clusterUnlimited: unlimitedKeys
+                                      })
+                                      setFieldsValue({
+                                        [k.id]: this.maxClusterCount(k.id) === -1 ? null : this.maxClusterCount(k.id)
+                                      })
+                                    }
                                   },
                                   valuePropName: 'checked'
                                 })
