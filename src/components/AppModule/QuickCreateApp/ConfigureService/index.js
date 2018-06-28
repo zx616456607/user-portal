@@ -705,10 +705,8 @@ let ConfigureService = React.createClass({
                 <Input
                   size="large"
                   placeholder="请输入模型集名称"
-                  autoComplete="off"
                   readOnly
                   value={modelSet}
-                  ref="serviceNameInput"
                 />
               </FormItem>
             }
