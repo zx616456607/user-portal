@@ -861,18 +861,23 @@ class QuickCreateApp extends Component {
   renderFooterSteps() {
     const { location } = this.props
     const { hash, query } = location
+    const { addAI } = query
     const { template } = query;
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
       return (
         <div className="footerSteps">
           <div className="configureSteps">
-            <div className={classNames("left", {'hidden': template})}>
-              继续添加：
-              <Button.Group>
-                <Button size="large" onClick={this.saveService}>容器镜像</Button>
-                <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">应用包</Button>
-              </Button.Group>
-            </div>
+            {
+              !addAI ?
+                <div className={classNames("left", {'hidden': template})}>
+                  继续添加：
+                  <Button.Group>
+                    <Button size="large" onClick={this.saveService}>容器镜像</Button>
+                    <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">应用包</Button>
+                  </Button.Group>
+                </div>
+                : null
+            }
             <div className="right">
               <Button
                 size="large"

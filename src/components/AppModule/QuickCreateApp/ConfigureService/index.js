@@ -540,8 +540,6 @@ let ConfigureService = React.createClass({
     const { query } = location
     const { isWrap, fileType, registryServer, template: queryTemplate,
       addAI, imageName, modelSet } = query || { isWrap: 'false' }
-    console.log( '+++', query )
-    console.log( '===', addAI, imageName, modelSet )
     let appNameProps;
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
