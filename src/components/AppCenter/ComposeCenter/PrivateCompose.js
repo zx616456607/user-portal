@@ -223,7 +223,7 @@ class PrivateCompose extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const { myStackList,isFetching } = this.props;
-    const { count, templates } = myStackList;
+    const { count, templates,total } = myStackList;
     const loadingStyle = {
       width: 50,
       height: 50,
@@ -319,7 +319,7 @@ class PrivateCompose extends Component {
             simple={true}
             loading={isFetching}
             pagination={{
-              total:count,
+              total: total,
               pageSize:this.state.pageSize,
               current:this.state.currentPage,
               onChange:(page)=>{ this.changePage(page,count) }
@@ -335,7 +335,7 @@ class PrivateCompose extends Component {
           onCancel={() => this.detailModal(false)}
           maskClosable={false}
         >
-          <CreateCompose scope={scope} parentState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
+          <CreateCompose type="owned" scope={scope} parentState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
         </Modal>
 
         <Modal
