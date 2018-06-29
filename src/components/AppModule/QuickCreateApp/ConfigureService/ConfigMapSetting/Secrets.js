@@ -19,6 +19,7 @@ import {
 import classNames from 'classnames'
 import includes from 'lodash/includes'
 import { getSecrets } from '../../../../../actions/secrets'
+import { checkVolumeMountPath } from '../../utils'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -67,22 +68,7 @@ const SecretsConfigMap = React.createClass({
     if (!PATH_REG.test(value)) {
       return callback('请输入正确的路径')
     }
-    const { getFieldValue } = this.props.form
-    const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
-    let error
-    secretConfigMapKeys.every(_key => {
-      if (_key.deleted) {
-        return true
-      }
-      const _keyValue = _key.value
-      const secretConfigMapMountPath = getFieldValue(`secretConfigMapMountPath${_keyValue}`)
-      if (_keyValue !== keyValue && value === secretConfigMapMountPath) {
-        error = '已填写过该路径'
-        return false
-      }
-      return true
-    })
-    callback(error)
+    callback(checkVolumeMountPath(this.props.form, keyValue, value, 'secretConfigMap'))
   },
   renderConfigMapItem(key) {
     const { form, secretsList, defaultSelectValue, location, isTemplate } = this.props
@@ -313,7 +299,8 @@ const SecretsConfigMap = React.createClass({
   },
   render() {
     const { formItemLayout, form, location, isTemplate } = this.props
-    const { getFieldValue } = form
+    const { getFieldValue, getFieldProps } = form
+    getFieldProps('secretConfigMapKeys')
     const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
     const templateDeploy = location.query.template && !isTemplate
     const header = (
