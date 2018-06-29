@@ -17,7 +17,8 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import {CheckProjects} from "../../actions/project";
+import {CheckProjects} from "../../actions/project"
+import filter from 'lodash/filter'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -36,8 +37,9 @@ let CreateConfigFileModal = React.createClass({
     configName && configName.focus()
   },
   configNameExists(rule, value, callback) {
-    const { CheckProjects } = this.props;
+    const { CheckProjects, type, data, activeGroupName } = this.props;
     const form = this.props.form;
+    const _that = this
     if (!value) {
       callback([new Error('请输入配置文件名称')])
       return
@@ -56,27 +58,36 @@ let CreateConfigFileModal = React.createClass({
     }
     clearTimeout(this.checkNameTimer)
     this.checkNameTimer = setTimeout(()=>{
-      CheckProjects({
-        projectsName: value
-      },{
-        success: {
-          func: res => {
-            if (res.data === false) {
-              callback()
-            } else if (res.data === true) {
-              callback([new Error('该名称已存在')])
-              return
-            }
-          },
-          isAsync: true
-        },
-        failed: {
-          func: () => {
-            callback()
-          },
-          isAsync: true
+      if(type === 'secrets' && !!data && !!activeGroupName) {
+        const group = filter(data, { name: activeGroupName })[0]
+        if(!!group && !!group.data[value]){
+          callback([new Error('该名称已存在')])
+        }else{
+          callback()
         }
-      })
+      } else {
+        CheckProjects({
+          projectsName: value
+        },{
+          success: {
+            func: res => {
+              if (res.data === false) {
+                callback()
+              } else if (res.data === true) {
+                callback([new Error('该名称已存在')])
+                return
+              }
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              callback()
+            },
+            isAsync: true
+          }
+        })
+      }
     },ASYNC_VALIDATOR_TIMEOUT)
   },
   configDescExists(rule, value, callback) {

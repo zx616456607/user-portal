@@ -19,7 +19,14 @@ export const APPLAY_RESOURCEQUOTA_SUCCESS = 'APPLAY_RESOURCEQUOTA_SUCCESS';
 export const APPLAY_RESOURCEQUOTA_FAILURE = 'APPLAY_RESOURCEQUOTA_FAILURE';
 
 const fetchApplayResourcequota = (query, body, callback) => {
-  let headers = { teamspace: query.header.teamspace }
+  const teamspace = query && query.header && query.header.teamspace
+  let options = {
+    method: 'POST',
+    body,
+  }
+  if ( teamspace ) {
+    options.headers = { teamspace }
+  }
   return {
     [FETCH_API]: {
       types: [
@@ -29,11 +36,7 @@ const fetchApplayResourcequota = (query, body, callback) => {
       ],
       endpoint: `${API_URL_PREFIX}/resourcequota/apply`,
       schema: {},
-      options: {
-        method: 'POST',
-        body,
-        headers,
-      },
+      options,
     },
     callback,
   };
@@ -131,7 +134,7 @@ const fetchCheckResourcequotaDetail = (id: number, callback) => {
         CHECK_RESOURCEQUOTA_DETAIL_SUCCESS,
         CHECK_RESOURCEQUOTA_DETAIL_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/resourcequota/apply/${id}/detail`,
+      endpoint: `${API_URL_PREFIX}/resourcequota/apply/${id}`,
       schema: {},
       options: {
         method: 'GET',

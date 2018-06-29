@@ -13,9 +13,7 @@
 import React from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
 import { Card, Tabs, Table } from 'antd'
-import { ROLE_SYS_ADMIN } from '../../../../../../constants'
 import Endpoints from './Endpoints'
 import Rules from './Rules'
 import './style/index.less'
@@ -23,13 +21,6 @@ import './style/index.less'
 const TabPane = Tabs.TabPane
 
 class Replications extends React.Component {
-  componentWillMount() {
-    const { loginUser } = this.props
-    if (loginUser.role !== ROLE_SYS_ADMIN) {
-      browserHistory.replace('/app_center/projects')
-      return
-    }
-  }
 
   render() {
     const { location } = this.props

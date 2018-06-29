@@ -146,7 +146,7 @@ class PublicCompose extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const { stackList,isFetching } = this.props
-    const { count, templates } = stackList;
+    const { count, templates, total } = stackList;
     const loadingStyle = {
       width: 50,
       height: 50,
@@ -222,7 +222,7 @@ class PublicCompose extends Component {
               dataSource={templates}
               loading={isFetching}
               pagination={{
-                total:count,
+                total:total,
                 pageSize:this.state.pageSize,
                 current:this.state.currentPage,
                 onChange:(page)=>{ this.changePage(page,count) }
@@ -237,7 +237,7 @@ class PublicCompose extends Component {
           onCancel={() => this.detailModal(false)}
           maskClosable={false}
         >
-          <CreateCompose scope={this} parentState={this.state} loadMyStack={this.props.loadMyStack} readOnly={true} registry={this.props.registry} />
+          <CreateCompose type='public' scope={this} parentState={this.state} loadMyStack={this.props.loadMyStack} readOnly={true} registry={this.props.registry} />
         </Modal>
       </QueueAnim>
     )

@@ -16,9 +16,10 @@ import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
-import { isEmptyObject, getPortalRealMode, isResourcePermissionError } from '../../common/tools'
+import { isEmptyObject, getPortalRealMode, isResourcePermissionError, isResourceQuotaError } from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
+import { getResourceDefinition } from '../../actions/quota'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { loadLicensePlatform } from '../../actions/license'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
@@ -62,6 +63,7 @@ class App extends Component {
       resourcequotaModal: false,
       resourcequotaMessage: {},
       message403: "",
+      resource:[]
     }
   }
 
@@ -167,6 +169,16 @@ class App extends Component {
       notification.warn('操作失败', msg, null)
       return
     }
+
+    // 配额不足
+    if (isResourceQuotaError(errorMessage.error)) {
+      this.setState({
+        resourcequotaModal: true,
+        resourcequotaMessage: JSON.parse(message.message),
+      })
+      return
+    }
+
     // 升级版本
     if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
       if (!message.details) {
@@ -186,10 +198,6 @@ class App extends Component {
         })
         return
       }
-      this.setState({
-        resourcequotaModal: true,
-        resourcequotaMessage: JSON.parse(message.message),
-      })
     }
     // license 过期
     if (statusCode === LICENSE_EXPRIED_CODE) {
@@ -256,6 +264,12 @@ class App extends Component {
 
     // 余额不足
     if (statusCode === PAYMENT_REQUIRED_CODE) {
+      resetErrorMessage()
+      return
+    }
+
+    // 配额不足
+    if (isResourceQuotaError(error)) {
       resetErrorMessage()
       return
     }
@@ -391,10 +405,38 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { loadLicensePlatform } = this.props
+
+    const { loadLicensePlatform, getResourceDefinition } = this.props
     if (realMode === LITE) {
       loadLicensePlatform()
     }
+
+    getResourceDefinition({
+      success: {
+        func: res => {
+          if (res.code === 200) {
+            const tempData = res.data.definitions
+            const resolveData = arr => {
+              const tempArr = []
+              const arrData = arr
+              const func = data => {
+                for (const v of data) {
+                  tempArr.push(v)
+                  if(v.children) {
+                    func(v.children)
+                  }
+                }
+              }
+              func(arrData)
+              return tempArr
+            }
+            this.setState({
+              resource: resolveData(tempData)
+            })
+          }
+        }
+      }
+    })
   }
   quotaSuffix(type) {
     let suffix = ''
@@ -410,55 +452,10 @@ class App extends Component {
     }
   }
   quotaEn(type) {
-    switch (type) {
-      case 'cpu':
-        return 'CPU'
-      case 'memory':
-        return '内存'
-      case 'storage':
-        return '磁盘'
-      case 'application':
-        return '应用'
-      case 'service':
-        return '服务'
-      case 'container':
-        return '容器'
-      case 'volume':
-        return '存储'
-      case 'snapshot':
-        return '快照'
-      case 'configuration':
-        return '服务配置'
-      case 'secret':
-        return '加密服务配置'
-      case 'mysql':
-        return 'MySQL'
-      case 'redis':
-        return 'Redis'
-      case 'zookeeper':
-        return 'ZooKeeper'
-      case 'elasticsearch':
-        return 'ElasticSearch'
-      case 'etcd':
-        return 'Etcd'
-      case 'tenxflow':
-        return 'TenxFlow'
-      case 'subTask':
-        return '子任务'
-      case 'dockerfile':
-        return 'Dockerfile'
-      case 'registryProject':
-        return '镜像仓库组'
-      case 'registry':
-        return '镜像仓库'
-      case 'orchestrationTemplate':
-        return '编排文件'
-      case 'applicationPackage':
-        return '应用包'
-      case 'loadbalance':
-        return '应用负载均衡'
-      default:
-        return type
+    for (const v of this.state.resource) {
+      if(type === v.resourceType) {
+        return v.resourceName
+      }
     }
   }
 
@@ -670,6 +667,7 @@ App = connect(mapStateToProps, {
   updateServiceContainersList,
   updateServicesList,
   loadLicensePlatform,
+  getResourceDefinition, // 获取资源定义
 })(App)
 
 export default injectIntl(App, {

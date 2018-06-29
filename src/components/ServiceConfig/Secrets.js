@@ -312,6 +312,7 @@ class ServiceSecretsConfig extends React.Component {
       updateConfigFileModalVisible,
       removeKeyModalVisible,
       searchInput,
+      activeGroupName,
     } = this.state
     const { isFetching } = secretsList
     let data = secretsList.data || []
@@ -421,10 +422,12 @@ class ServiceSecretsConfig extends React.Component {
         {
           createConfigFileModalVisible && modalConfigFile &&
           <CreateConfigFileModal
-           scope={this}
+            scope={this}
             visible={modalConfigFile}
             addKeyIntoSecret={this.handleAddKeyIntoSecret}
             type="secrets"
+            data={data}
+            activeGroupName={activeGroupName}
           />
         }
         {/* 修改加密对象-弹出层-*/}

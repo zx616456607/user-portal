@@ -799,12 +799,15 @@ module.exports = function (Router) {
   // aiops
   router.get('/ai/clusters/:cluster/modelsets', aiopsController.getModelsets)
 
+  // 获取资源定义
+  router.get('/resourcequota/definitions', resourcequota.resourceDefinite)
+
   // resourcequota 申请资源配额
   router.post('/resourcequota/apply', resourcequota.applyResourcequota)
   router.get('/resourcequota/apply', resourcequota.checkApplyRecord)
   router.delete('/resourcequota/apply/:id', resourcequota.deleteResourcequota)
-  router.put('/resourcequota/apply/:id ', resourcequota.updateResourcequota)
-  router.get('/resourcequota/apply/:id/detail', resourcequota.checkResourcequotaDetail)
+  router.put('/resourcequota/apply/:id', resourcequota.updateResourcequota)
+  router.get('/resourcequota/apply/:id', resourcequota.checkResourcequotaDetail)
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
   return router.routes()
 }

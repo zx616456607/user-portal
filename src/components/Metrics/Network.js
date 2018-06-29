@@ -31,7 +31,7 @@ class Network extends Component {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn } = this.props
     const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
-    let timeText = switchNetwork ? '10秒钟' : freshTime
+    let timeText = switchNetwork ? '1分钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
