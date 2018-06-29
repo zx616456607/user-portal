@@ -194,13 +194,13 @@ class CreateModal extends React.Component {
     this.props.onCancel();
   }
   onOk = () => {
-    if(this.state.authorizedCluster.length < 1){
-      notify.warn("请选择集群");
-      return;
-    }
     this.props.form.validateFields(['projectName', 'displayName'], (error, values) => {
       if(!!error){
         console.log(error);
+        return;
+      }
+      if(this.state.authorizedCluster.length < 1){ // 将集群授权校验移到项目名称等的校验之后
+        notify.warn("请选择集群");
         return;
       }
       this.setState({

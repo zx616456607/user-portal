@@ -33,6 +33,8 @@ function _setCurrent(current, callback, _current) {
   if (current.space && current.space.userName) {
     namespace = current.space.userName
     onbehalfuser = 'onbehalfuser'
+  } else {
+    onbehalfuser = 'default'
   }
   const currentConfig = `${teamID},${namespace},${clusterID},${onbehalfuser}`
   setCookie(USER_CURRENT_CONFIG, currentConfig)

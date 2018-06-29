@@ -24,6 +24,7 @@ import SecretsConfigMap from './Secrets'
 import './style/ConfigMapSetting.less'
 import {validateK8sResource} from "../../../../../common/naming_validation";
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
+import { checkVolumeMountPath } from '../../utils'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -158,22 +159,7 @@ const ConfigMapSetting = React.createClass({
     if (!PATH_REG.test(value)) {
       return callback('请输入正确的路径')
     }
-    const { getFieldValue } = this.props.form
-    const configMapKeys = getFieldValue('configMapKeys') || []
-    let error
-    configMapKeys.every(_key => {
-      if (_key.deleted) {
-        return true
-      }
-      const _keyValue = _key.value
-      const configMapMountPath = getFieldValue(`configMapMountPath${_keyValue}`)
-      if (_keyValue !== keyValue && value === configMapMountPath) {
-        error = '已填写过该路径'
-        return false
-      }
-      return true
-    })
-    callback(error)
+    callback(checkVolumeMountPath(this.props.form, keyValue, value, 'configMap'))
   },
   renderConfigMapItem(key) {
     const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate } = this.props
@@ -410,7 +396,8 @@ const ConfigMapSetting = React.createClass({
   },
   render() {
     const { formItemLayout, form, location, isTemplate } = this.props
-    const { getFieldValue } = form
+    const { getFieldValue, getFieldProps } = form
+    getFieldProps('configMapKeys')
     const configMapKeys = getFieldValue('configMapKeys') || []
 
     const templateDeploy = location.query.template && !isTemplate
