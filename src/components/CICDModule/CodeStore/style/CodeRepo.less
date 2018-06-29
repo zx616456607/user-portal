@@ -1,3 +1,4 @@
+@import '../../../../assets/style/site/core.less';
 @border: #D9D9D9;
 #codeRepo{
   padding-top: 20px;
@@ -157,11 +158,36 @@
   .secondTitle {
       margin-top: 20px;
   }
+  .setCicd{
+
+  }
   .content {
-    padding-left: 15px;
+    padding: 15px;
+    margin-top: 10px;
+    background: #f7f7f7;
+    border: 1px dashed @border;
     .indent-content {
       .indent-content-inner {
-        padding-left: 20px;
+        padding-left: 10px;
+        .homePageUrl,.authorizationUrl {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          input {
+            border: none;
+            outline: none;
+            width: 30%;
+            margin-left: 5px;
+            color: @primary-color;
+            background: #f7f7f7;
+          }
+        }
+        .authorizationUrl {
+          input {
+            width: 59%;
+          }
+        }
+
       }
     }
     .ant-form-item-label {

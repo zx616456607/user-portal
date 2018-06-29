@@ -180,7 +180,7 @@ class ImageCheckTable extends React.Component {
     target.value = value
   }
   copyOperate() {
-    let target = document.getElementsByClassName('imageIDCopyInput')[0];
+    let target = document.getElementsByClassName('imageIDCopyInputimageIDCopyInput')[0];
     target.select()
     document.execCommand("Copy", false);
     this.setState({

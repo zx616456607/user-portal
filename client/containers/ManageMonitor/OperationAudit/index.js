@@ -318,6 +318,7 @@ class OperationalAudit extends React.Component {
       if (value.length !== 0) {
         const id = value[value.length - 1]
         const selectOperationList = this.selectOperation(filterData)
+
         // 将选出来的操作对象id和格式好的operation(操作类型数组循环比较，若比较出来，将操作类型的数组值赋为比较出来的值)
         for (const v of selectOperationList) {
           if (id === v.id) {
@@ -437,14 +438,12 @@ class OperationalAudit extends React.Component {
     //   return types
     // }
     return {
-
       operationObjects: arr,
     }
   }
 
   render() {
     const { isFetching, filterData } = this.props
-
     const tableColumns = [
       {
         dataIndex: 'time',
