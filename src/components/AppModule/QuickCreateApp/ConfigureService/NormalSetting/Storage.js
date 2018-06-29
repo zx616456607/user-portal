@@ -559,6 +559,7 @@ const Storage = React.createClass({
             from={'createApp'}
             isTemplate={isTemplate}
             isBindNode={this.getServiceIsBindNode()}
+            parentForm={form}
           />
         </Modal>
       </Row>
