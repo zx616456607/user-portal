@@ -189,7 +189,8 @@ class AlarmRecord extends Component {
           triggerValue: r.triggerValue,
           triggerRule: r.triggerRule,
           status: r.status,
-          strategyID: r.strategyID
+          strategyID: r.strategyID,
+          alertSent: r.alertSent
         })
       })
     }
@@ -325,7 +326,7 @@ class AlarmRecord extends Component {
       {
         title: '是否发送邮件',
         dataIndex: 'alertSent',
-        render: (val) =><div>{ val? '是': '否'}</div>
+        render: val => <div>{ val? '是': '否'}</div>
       }
     ];
     const filters = this.getFilters()
