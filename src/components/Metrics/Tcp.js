@@ -26,12 +26,12 @@ class Tcp extends Component {
   constructor(props) {
     super(props)
   }
-  
+
   render() {
     const option = new EchartsOption('TCP')
     const { tcpListen, tcpEst, tcpClose, tcpTime, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
-    let timeText = switchDisk ? '10秒钟' : freshTime
+    let timeText = switchDisk ? '1分钟' : freshTime
     option.setToolTipUnit(' 个')
     let minValue = 'dataMin'
     let isDataEmpty = false
@@ -104,7 +104,7 @@ class Tcp extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} 个'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} 个'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    
+
     option.setGirdForDataNetWork(tcpListen.data && tcpListen.data.length + tcpEst.data.length, events)
     return (
       <div className="chartBox">

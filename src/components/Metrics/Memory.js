@@ -32,7 +32,7 @@ class Memory extends Component {
     const { memory, scope, hideInstantBtn } = this.props
     const { isFetching, data } = memory
     const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
-    let timeText = switchMemory ? '10秒钟' : freshTime
+    let timeText = switchMemory ? '1分钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} M'
     })
