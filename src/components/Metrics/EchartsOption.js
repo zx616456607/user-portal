@@ -33,9 +33,6 @@ export default class EchartsOption {
         let res = `${formatDate(params[0]['data'][0], 'MM-DD HH:mm:ss')}<br/>`
         params.forEach(item => {
           let name = item.seriesName
-          name = name.split('-')
-          name.splice(1, 1)
-          name = name.join('-')
           res += `${name} : ${item.data[1]}${this.tooltipUnit}<br/>`
         })
         return res
@@ -46,8 +43,8 @@ export default class EchartsOption {
     }
     this.legend = {
       data: [],
-      right: 50,
-      left: 80,
+      left: '10%',
+      top: 'top',
       orient: 'horizontal'
     }
     this.grid = [{
@@ -152,6 +149,12 @@ export default class EchartsOption {
       seriesItem.data = data
     }
     if (name) {
+      if (!this.isNexport) {
+        // 统计类型为服务时，监控面板的图例显示容易重叠，先去掉名称中的数字串
+        name = name.split('-')
+        name.splice(-2, 1)
+        name = name.join('-')
+      }
       seriesItem.name = name
       let colorString = name.substr(name.lastIndexOf('-') + 1)
       if (this.isNexport) {
@@ -159,7 +162,6 @@ export default class EchartsOption {
       }
       seriesItem.itemStyle.normal.color = colorHash.hex(colorString)
       this.legend.data.push(name)
-
     }
     if (itemStyle) {
       seriesItem.itemStyle = itemStyle

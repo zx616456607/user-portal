@@ -126,6 +126,37 @@ export function putGlobaleQuota(query, callback) {
   }
 }
 
+/**
+* 获取资源定义
+*
+* */
+export const GET_RESOURCE_DEFINITION_REQUEST = 'GET_RESOURCE_DEFINITION_REQUEST'
+export const GET_RESOURCE_DEFINITION_SUCCESS = 'GET_RESOURCE_DEFINITION_SUCCESS'
+export const GET_RESOURCE_DEFINITION_FAILURE = 'GET_RESOURCE_DEFINITION_FAILURE'
+
+function fetchResourceDefination(callback) {
+  let endpoint = `${API_URL_PREFIX}/resourcequota/definitions`
+
+  return {
+    [FETCH_API]: {
+      types: [GET_RESOURCE_DEFINITION_REQUEST, GET_RESOURCE_DEFINITION_SUCCESS, GET_RESOURCE_DEFINITION_FAILURE],
+      endpoint,
+      options: {
+        method: 'GET',
+      },
+      schema: {},
+    },
+    callback
+  }
+
+}
+
+export function getResourceDefinition(callback) {
+  return (dispatch) => {
+    return dispatch(fetchResourceDefination(callback))
+  }
+}
+
 export const FETCH_CLUSTER_QUOTA_REQUEST = 'FETCH_CLUSTER_QUOTA_REQUEST'
 export const FETCH_CLUSTER_QUOTA_SUCCESS = 'FETCH_CLUSTER_QUOTA_SUCCESS'
 export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'

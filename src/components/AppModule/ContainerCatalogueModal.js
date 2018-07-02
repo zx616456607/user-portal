@@ -18,6 +18,7 @@ import { isStorageUsed } from '../../common/tools'
 import { serviceNameCheck } from '../../common/naming_validation'
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import './style/ContainerCatalogueModal.less'
+import { checkVolumeMountPath } from './QuickCreateApp/utils'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -96,6 +97,7 @@ let ContainerCatalogueModal = React.createClass({
     resetFields([
       'mountPath',
       'readOnly',
+      'storageClassName',
     ])
     if (type == 'private') {
       loadFreeVolume(clusterID, { srtype: 'private' }, {
@@ -322,6 +324,9 @@ let ContainerCatalogueModal = React.createClass({
                 if (!PATH_REG.test(value)) {
                   return callback('请输入正确的路径')
                 }
+                if (value.lastIndexOf('/') > 0) {
+                  return callback('本地存储不支持挂载多级目录')
+                }
                 //const list = cloneDeep(fieldsList)
                 //list.splice(currentIndex, 1)
                 //for (let i = 0; i < list.length; i++) {
@@ -547,7 +552,7 @@ let ContainerCatalogueModal = React.createClass({
       form, replicas, isAutoScale,
       volumes, from, storageList,
       nfsList, cephList, glusterfsList, fieldsList,
-      currentIndex, isTemplate
+      currentIndex, isTemplate, parentForm,
     } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -769,14 +774,7 @@ let ContainerCatalogueModal = React.createClass({
                       if (!PATH_REG.test(value)) {
                         return callback('请输入正确的路径')
                       }
-                      const list = cloneDeep(fieldsList)
-                      list.splice(currentIndex, 1)
-                      for (let i = 0; i < list.length; i++) {
-                        if (value === list[i].mountPath) {
-                          return callback('已填写过该路径')
-                        }
-                      }
-                      return callback()
+                      return callback(checkVolumeMountPath(parentForm, currentIndex, value, 'volume'))
                     }
                   }]
                 }) }

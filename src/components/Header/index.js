@@ -556,7 +556,7 @@ class Header extends Component {
         */}
           {
             msaUrl && (
-              <div className="docBtn quickentry">
+              <div className="docBtn quickentry border">
                 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: msaUrl })}`}>
                 微服务入口
                 </a>

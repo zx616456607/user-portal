@@ -31,7 +31,7 @@ class Disk extends Component {
     const option = new EchartsOption('磁盘')
     const { diskReadIo, diskWriteIo, events, scope } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
-    let timeText = switchDisk ? '10秒钟' : freshTime
+    let timeText = switchDisk ? '1分钟' : freshTime
     option.setToolTipUnit(' KB/s')
     let minValue = 'dataMin'
     let isDataEmpty = false
@@ -76,7 +76,7 @@ class Disk extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    
+
     option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
     return (
       <div className="chartBox">
