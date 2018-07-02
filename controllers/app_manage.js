@@ -129,7 +129,12 @@ exports.getApps = function* () {
     queryObj.sort_by = query.sortBy
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
+  let result
+  if (this.request.url.indexOf('ai') > -1) {
+    result = yield api.getBy([cluster, 'apps', 'ai'], queryObj, { headers })
+  } else {
+    result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
+  }
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const apps = result.data.apps
   apps.map((app) => {

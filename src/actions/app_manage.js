@@ -18,11 +18,14 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAppList(cluster, query, callback) {
+function fetchAppList(cluster, query, pathname, callback) {
   // Front-end customization requirements
   let { customizeOpts } = query || {}
   let newQuery = Object.assign({}, query )
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
+  if (pathname === '/ai-deep-learning/ai-model-service') {
+    endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/ai`
+  }
   if (query) {
     delete query.customizeOpts
     delete query.headers
@@ -45,9 +48,9 @@ function fetchAppList(cluster, query, callback) {
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadAppList(cluster, query, callback) {
+export function loadAppList(cluster, query, pathname, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppList(cluster, query, callback))
+    return dispatch(fetchAppList(cluster, query, pathname, callback))
   }
 }
 
