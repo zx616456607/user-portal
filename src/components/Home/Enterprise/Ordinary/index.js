@@ -1538,16 +1538,18 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info" key={`calculation-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 6, right: 18})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                     </div>
                   ))
                 }
@@ -1557,16 +1559,18 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info" key={`application-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 9, right: 15})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 9, right: 15})}
                     </div>
                   ))
                 }
@@ -1581,11 +1585,13 @@ class Ordinary extends Component {
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={2}>
+                          {this.renderProcessNumber(item.key, { left: 14, right: 10})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                     </div>
                   ))
                 }
