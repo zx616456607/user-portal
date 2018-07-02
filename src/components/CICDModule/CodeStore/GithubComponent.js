@@ -243,11 +243,12 @@ class GithubComponent extends Component {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            let user = ''
+
             if(Object.keys(res.data.results).length !== 0) {
-              user = res.data.results[Object.keys(res.data.results)[0]].user
+              const users = res.data.results[Object.keys(res.data.results)[0]].user
+              self.setState({ users })
             }
-            self.setState({ users })
+
           }
         }
       }
