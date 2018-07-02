@@ -23,18 +23,9 @@ import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 
 const TabPane = Tabs.TabPane
-const FormItem = Form.Item
-const createForm = Form.create
-const formItemLayout = {
-  labelCol: {
-    xs: {span: 24},
-    sm: {span: 6},
-  },
-  wrapperCol: {
-    xs: {span: 24},
-    sm: {span: 18},
-  }
-}
+
+
+
 const menusText = defineMessages({
   search: {
     id: 'CICD.TenxStorm.search',
@@ -109,7 +100,6 @@ const MyComponent = React.createClass({
     }
   },
   componentWillMount() {
-    console.log(window.location.host,window.location.protocol,)
     const {getRepoList, getUserInfo} = this.props.scope.props
     const self = this.props.scope
     getRepoList('gitlab', {
@@ -411,7 +401,6 @@ class CodeRepo extends Component {
     if (type) {
       this.state = {
         repokey: type,
-        copySuccess:false,
       }
     }
 
@@ -428,6 +417,15 @@ class CodeRepo extends Component {
         isAsync: true
       }
     })
+
+  }
+  componentDidMount() {
+    if(window.location.search) {
+      this.setState({
+        repokey: 'github'
+      })
+    }
+
   }
   loadData(repo) {
     const {getRepoList, getUserInfo} = this.props
@@ -470,48 +468,9 @@ class CodeRepo extends Component {
         return 'SVN'
     }
   }
-  returnDefaultTooltip() {
-    setTimeout(() => {
-      this.setState({
-        copySuccess: false
-      });
-    }, 500);
-  }
-  // 复制homepageUrl
-  copyHomepageUrl = className => {
-    let code = document.getElementsByClassName(`${className}`);
-    code[0].select();
-    document.execCommand("Copy", false);
-    this.setState({
-      copySuccess: true
-    });
-  }
-  testChinese = (rule, value, callback) => {
-    if(new RegExp("[\\u4E00-\\u9FFF]+","g").test(value)) {
-      return callback('不得包含汉字')
-    }else {
-      callback()
-    }
-  }
-  confirmAuth = () => {
-    this.props.form.validateFields((errors, values) => {
-      console.log(errors);
-      if (!!errors) {
-
-        return;
-      }else {
-        this.setState({typeVisible: false})
-      }
-      console.log('Submit!!!');
-
-      console.log(values);
-    });
-
-  }
   render() {
-    const { cicdApi } = this.props;
+
     const { formatMessage } = this.props.intl;
-    const { getFieldProps } = this.props.form
     const scope = this;
     const gitlabBud = (
       <span className="section">
@@ -545,39 +504,6 @@ class CodeRepo extends Component {
       </span>
     )
 
-    const clientIdProps = getFieldProps('clientId', {
-      validate: [
-        {
-          rules: [
-            { required: true, message: '请输入Client ID' },
-          ],
-          trigger: ['onBlur', 'onChange'],
-        },
-        {
-          rules: [
-            { validator: this.testChinese },
-          ],
-          trigger: ['onBlur', 'onChange'],
-        },
-      ],
-    })
-
-    const clientSecretProps = getFieldProps('clientSecret', {
-      validate: [
-        {
-          rules: [
-            { required: true, message: '请输入Client Secret' },
-          ],
-          trigger: ['onBlur', 'onChange'],
-        },
-        {
-          rules: [
-            { validator: this.testChinese },
-          ],
-          trigger: ['onBlur', 'onChange'],
-        },
-      ],
-    })
     return (
       <QueueAnim id='codeRepo'
         type='right'
@@ -601,62 +527,6 @@ class CodeRepo extends Component {
             </Tabs>
           </div>
 
-          <Modal title={'选择代码源'} visible={this.state.typeVisible}
-            onCancel={()=> this.setState({typeVisible: false}) }
-            footer={[
-              <Button type="default" size="large" key="cancel" onClick={()=> this.setState({typeVisible: false})}>取消</Button>,
-              <Button type="primary" size="large" key="ok" onClick={this.confirmAuth}>确定授权</Button>
-            ]} >
-            <div className="content-wrapper">
-              <h3 className="title">1、设置GitHub应用</h3>
-              <div className="content">
-                <p className="indent-content">
-                  <h4>① 标准GitHub，<a href="https://github.com/settings/developers" target="blank">点击此处</a> 在弹出的新窗口中进行应用设置。</h4>
-                  <div className="indent-content-inner">企业版GitHub，请登录你的账号，点击Settings，然后点击Applications进行设置。</div>
-                </p>
-                <p className="indent-content">
-                  <h4>② 点击 "Register new application" 并填写表单内容:</h4>
-                  <div className="indent-content-inner">
-                    <p>Application name: 任何您喜欢的应用名称, 例如 My app</p>
-                    <p className="homePageUrl">
-                      Homepage URL:
-                      <input className="homePage" value={`${window.location.protocol}//${window.location.host}`}/>
-
-                      <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
-                        <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
-                          <use xlinkHref='#appcentercopy' />
-                        </svg>
-                      </Tooltip>
-
-                    </p>
-                    <p>Application description: 任何你喜欢的描述，可选</p>
-                    <p className="authorizationUrl">Authorization callback URL:
-                      <input className="authorization" value={`${cicdApi.protocol}://${cicdApi.host}/api/auth-callback`}/>
-
-                      <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
-                        <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
-                          <use xlinkHref='#appcentercopy' />
-                        </svg>
-                      </Tooltip>
-                    </p>
-                  </div>
-                </p>
-                <p className="indent-content">
-                  <h4>③ 点击 "Register Application"</h4>
-                </p>
-              </div>
-              <h3 className="secondTitle">2、 设置 CI/CD 使用上一步中的 GitHub 应用验证</h3>
-              <div className="tip">（将新创建 GitHub 应用的 Client ID 和 Secret 复制粘贴到下方的对应输入框中）</div>
-              <Form className="content setCicd">
-                <FormItem label="Client ID" {...formItemLayout} hasFeedback>
-                  <Input placeholder="请输入Client ID" {...clientIdProps} id="clientId" size="default"/>
-                </FormItem>
-                <FormItem label="Client Secret" {...formItemLayout} hasFeedback>
-                  <Input placeholder="请输入Client Secret" {...clientSecretProps} size="default"/>
-                </FormItem>
-              </Form>
-            </div>
-          </Modal>
         </div>
       </QueueAnim>
     )
@@ -671,7 +541,7 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const { codeRepo, userInfo } = state.cicd_flow
-  const { cicdApi } = state.entities.loginUser.info
+
   const defaultUser = {
     repoUser: {
       username: '',
@@ -685,7 +555,7 @@ function mapStateToProps(state, props) {
     repoList,
     isFetching,
     repoUser,
-    cicdApi,
+
     currentSpace: state.entities.current.space.namespace
   }
 }
@@ -696,7 +566,7 @@ CodeRepo.propTypes = {
   addCodeRepo: PropTypes.func.isRequired,
   deleteRepo: PropTypes.func.isRequired
 }
-const FormCodeRepo = createForm()(CodeRepo)
+
 export default connect(mapStateToProps, {
   getRepoType,
   getRepoList,
@@ -706,8 +576,8 @@ export default connect(mapStateToProps, {
   syncRepoList,
   searchCodeRepo,
   getUserInfo,
-  notActiveProject
-})(injectIntl(FormCodeRepo, {
+  notActiveProject,
+})(injectIntl(CodeRepo, {
   withRef: true
 }));
 

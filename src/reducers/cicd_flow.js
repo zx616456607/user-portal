@@ -110,11 +110,13 @@ function githubRepo(state = {}, action) {
   let repoType = ''
   if (action.extraData) {
     repoType = action.extraData.type
+
   }
   switch (action.type) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_GITHUB_LIST_SUCCESS: {
+      console.log(action);
       if (!action.response.result.data.hasOwnProperty('results')) {
         return Object.assign({}, state, {
           isFetching: false,
