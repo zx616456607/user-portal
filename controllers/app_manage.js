@@ -21,6 +21,7 @@ const portHelper = require('./port_helper')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
+
   const app = this.request.body
   if (!app || !app.name) {
     const err = new Error('App name is required.')
@@ -40,7 +41,13 @@ exports.createApp = function* () {
   }else{
     api = apiFactory.getApi(loginUser).pkg
   }
-  const result = yield api.createBy([cluster, 'apps'], null, app)
+  let result
+  const reqUrl = this.request.url.split('?')[0]
+  if (reqUrl.indexOf('ai') > -1) {
+    result = yield api.createBy([cluster, 'apps','ai'], null, app)
+  } else {
+    result = yield api.createBy([cluster, 'apps' ], null, app)
+  }
   this.body = {
     cluster,
     data: result.data

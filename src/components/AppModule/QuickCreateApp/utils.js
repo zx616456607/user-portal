@@ -155,6 +155,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     serviceTag,         // 服务与节点 标签
     serviceBottomTag,  // 服务与服务 标签
     advanceSet, // 服务与服务 高级设置
+    modelSet,  // 模型集
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -175,6 +176,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     deployment.setAnnotations({
       appPkgID
     })
+  }
+  if (modelSet) {
+    deployment.metadata.labels["tensorflow/model-serving-app"] = ''
+    deployment.metadata.annotations = deployment.metadata.annotations || {}
+    const annotations = deployment.metadata.annotations
+    annotations["tensorflow/modelset-name"] = modelSet
   }
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)

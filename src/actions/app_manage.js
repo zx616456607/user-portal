@@ -92,11 +92,15 @@ export const APP_CREATE_SUCCESS = 'APP_CREATE_SUCCESS'
 export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 
 export function fetchCreateApp(appConfig, callback) {
+  let postUrl = `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`
+  if (appConfig.ai) {
+    postUrl = `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps/ai`
+  }
   return {
     cluster: appConfig.cluster,
     [FETCH_API]: {
       types: [APP_CREATE_REQUEST, APP_CREATE_SUCCESS, APP_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`,
+      endpoint: postUrl,
       options: {
         method: 'POST',
         body: {
