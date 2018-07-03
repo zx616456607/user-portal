@@ -169,6 +169,7 @@ class Ordinary extends Component {
       publicCount: 0,
       roleNameArr: '',
       minvisible: true,
+      isLoading: true,
       isNoPermission: false,
     }
   }
@@ -202,15 +203,19 @@ class Ordinary extends Component {
         }
       }
     })
-    if(b){
-      const { minvisible } = this.state
-      const { clusterID } = current.cluster
-      loadClusterInfo(clusterID, { minvisible })
-      this.loadClusterSummary(clusterID)
-      this.fetchQuotaList()
-      this.storageList()
-      this.fetchProjectName()
-    }
+    this.setState({
+      isLoading: false,
+    }, () => {
+      if(b){
+        const { minvisible } = this.state
+        const { clusterID } = current.cluster
+        loadClusterInfo(clusterID, { minvisible })
+        this.loadClusterSummary(clusterID)
+        this.fetchQuotaList()
+        this.storageList()
+        this.fetchProjectName()
+      }
+    })
   }
 
   handleMinVisible(e) {
@@ -480,7 +485,12 @@ class Ordinary extends Component {
   }
 
   render() {
-    if(this.state.isNoPermission){
+    const { isLoading, isNoPermission } = this.state
+    if(isLoading){
+      return <Spin spinning={isLoading} id='Ordinary'>
+      </Spin>
+    }
+    if(isNoPermission){
       return (
         <div id='Ordinary'>
           <div className="noPermission">
