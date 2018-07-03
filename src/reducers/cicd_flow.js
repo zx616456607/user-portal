@@ -146,7 +146,7 @@ function githubRepo(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: false,
+          [`${repoType}List`]: {},
         }
       })
     }

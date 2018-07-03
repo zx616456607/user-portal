@@ -21,7 +21,8 @@ import {
   registryGithub,
   syncRepoList,
   githubConfig,
-  githubList,
+  authGithubList,
+  getUserInfo,
 } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NotificationHandler from '../../../components/Notification'
@@ -190,6 +191,7 @@ class CodeList extends Component {
       )
     }
     let items = []
+
     if (data) {
       items = data.map((item, index) => {
         return (
@@ -242,14 +244,17 @@ class GithubComponent extends Component {
     this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
+          setTimeout(() =>{
+            this.props.getUserInfo('github') // 获取用户GitHub信息
+          })
           if (res.data.hasOwnProperty('results')) {
-
             if(Object.keys(res.data.results).length !== 0) {
               const users = res.data.results[Object.keys(res.data.results)[0]].user
               self.setState({ users })
             }
-
           }
+
+
         }
       }
     })
@@ -274,8 +279,9 @@ class GithubComponent extends Component {
         return args;
       }
       const { code } = getQueryString()
-      this.props.githubList('github', { code: code})
+      this.props.authGithubList('github', { code: code})
     }
+
 
   }
   componentWillReceiveProps(nextProps) {
@@ -345,7 +351,7 @@ class GithubComponent extends Component {
           address: "https://github.com",
           clientId: values.clientId.trim(),
           clientSecret: values.clientSecret.trim(),
-          redirectUrl: window.location.href,
+          redirectUrl: 'http://localhost:8003/ci_cd/coderepo',
         }
         githubConfig('github', body, {
           success:{
@@ -475,7 +481,6 @@ class GithubComponent extends Component {
             regToken: ''
           })
           self.props.scope.props.getRepoList(config.type)
-          self.props.scope.props.getUserInfo(config.type)
         },
         isAsync: true
       },
@@ -510,7 +515,6 @@ class GithubComponent extends Component {
   }
   render() {
     const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
-
     const { getFieldProps } = this.props.form
     const clientIdProps = getFieldProps('clientId', {
       validate: [
@@ -528,7 +532,6 @@ class GithubComponent extends Component {
         },
       ],
     })
-
     const clientSecretProps = getFieldProps('clientSecret', {
       validate: [
         {
@@ -545,12 +548,11 @@ class GithubComponent extends Component {
         },
       ],
     })
-
     const scope = this
     let typeNames = typeName == 'github' ? 'GitHub': 'Gogs'
     let codeList = []
     if (!githubList) {
-      if (typeName == 'github') {
+      if (typeName === 'github') {
         return (
           <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
             <Button type="primary" size="large" onClick={() => this.showGithubConfig()}>授权、同步 GitHub  代码源</Button>
@@ -615,7 +617,6 @@ class GithubComponent extends Component {
       }
 
     }
-
     if (Object.keys(githubList).length > 0) {
       for (let i in githubList) {
         codeList.push(
@@ -624,26 +625,27 @@ class GithubComponent extends Component {
           </TabPane>
         )
       }
-
     }
+
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
+          <Icon type="user" />
+          <span>{this.props.userInfo && this.props.userInfo.repoUser.username}</span>
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
-          <div className="right-search">
-            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search' onClick={this.searchClick}></i>
-          </div>
+          {/*<div className="right-search">*/}
+            {/*<Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />*/}
+            {/*<i className='fa fa-search' onClick={this.searchClick}></i>*/}
+          {/*</div>*/}
         </div>
-
-        <Tabs onChange={(e) => this.changeList(e)}>
-          {codeList}
-        </Tabs>
+        {/*<Tabs onChange={(e) => this.changeList(e)}>*/}
+          {/*{codeList}*/}
+        {/*</Tabs>*/}
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
           >
@@ -660,14 +662,15 @@ function mapStateToProps(state, props) {
     githubList: false,
     isFetching: false
   }
-  const { githubRepo} = state.cicd_flow
+  const { githubRepo, userInfo } = state.cicd_flow
   const { cicdApi } = state.entities.loginUser.info
-  const { githubList, isFetching, users} = githubRepo['github'] || defaultValue
+  const { githubList, isFetching } = githubRepo['github'] || defaultValue
+
   return {
     githubList,
     isFetching,
     cicdApi,
-    users,
+    userInfo: userInfo.github,
     currentSpace: state.entities.current.space.namespace
   }
 }
@@ -688,7 +691,8 @@ export default connect(mapStateToProps, {
   notGithubProject,
   syncRepoList,
   githubConfig,
-  githubList,
+  authGithubList,
+  getUserInfo
 })(injectIntl(FormGithubComponent, {
   withRef: true,
 }))

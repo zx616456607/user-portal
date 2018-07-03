@@ -124,7 +124,7 @@ function putGithubList(type, body, callback) {
   }
 }
 
-export function githubList(type, params, callback) {
+export function authGithubList(type, params, callback) {
   return dispatch => {
     dispatch(putGithubList(type, params, callback))
   }
@@ -175,6 +175,7 @@ export const GET_REPO_USER_INFO_SUCCESS = 'GET_REPO_USER_INFO_SUCCESS'
 export const GET_REPO_USER_INFO_FAILURE = 'GET_REPO_USER_INFO_FAILURE'
 
 function fetchGetUserInfo(types) {
+
   return {
     [FETCH_API]: {
       types: [GET_REPO_USER_INFO_REQUEST, GET_REPO_USER_INFO_SUCCESS, GET_REPO_USER_INFO_FAILURE],
