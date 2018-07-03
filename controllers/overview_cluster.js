@@ -35,6 +35,16 @@ function* getOverview(cluster, loginUser, queryObj) {
   return mapping
 }
 
+exports.getPrivilege = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["privilege "], null, { headers: this.query })
+  const data = result || {}
+  this.body = {
+    data
+  }
+}
+
 // TODO: should we break down these methods as it's bad proformance for overview
 exports.getClusterOverview = function* () {
   let cluster = this.params.cluster_id
