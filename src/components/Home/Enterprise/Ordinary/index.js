@@ -445,9 +445,9 @@ class Ordinary extends Component {
       <Row className="number-row" >
         <Col span={7}></Col>
         <Col span={17} className="number" >
-          <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
+          <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
-          <p>{maxCount === -1 ? '无限制' : maxCount}</p>
+          <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
         </Col>
       </Row>
     )
