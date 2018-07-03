@@ -64,6 +64,7 @@ let ConfigureService = React.createClass({
     const { callback, imageName, registryServer, form, mode, location, template, newImageName } = this.props
     let  { appName,templateName, templateVersion, templateDesc } = this.props
     const { setFieldsValue } = form
+    const { modelSet } = location.query
     callback && callback(form)
     if (location.query.template && appName) {
       setFieldsValue({
@@ -105,6 +106,11 @@ let ConfigureService = React.createClass({
       setFieldsValue(values)
     }
     this.loadImageTags(this.props, newImageName)
+    if (modelSet) {
+      setFieldsValue({
+        modelSet
+      })
+    }
   },
   focusInput(refId) {
     const ref = this.refs[refId]

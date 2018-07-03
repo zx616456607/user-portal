@@ -1306,6 +1306,7 @@ class AppServiceDetailInfo extends Component {
     } else {
       cpuFormatResult = '-'
     }
+    const annotations = serviceDetail.spec.template.metadata.annotations
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">
@@ -1335,6 +1336,23 @@ class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
+        {
+          annotations.hasOwnProperty('tensorflow/modelsetName') ?
+          <div className="compose commonBox">
+            <span className="titleSpan">模型信息</span>
+            <Row className="titleBox">
+              <Col span={6} >绑定模型集</Col>
+              <Col span={18}>
+              <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
+                <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
+              </Select>
+              <div style={{ color: '#999', fontSize: 12 }}>模型集将映射到 用户目录/model/[模型集名称] 目录</div>
+              </Col>
+            </Row>
+          </div>
+          : null
+        }
+
         <div className="compose commonBox">
           <span className="titleSpan">资源配置</span>
           <div className="titleBox">

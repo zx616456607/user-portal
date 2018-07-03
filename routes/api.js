@@ -147,9 +147,11 @@ module.exports = function (Router) {
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
+  router.post('/clusters/:cluster/apps/ai', appController.createApp)
   router.post('/clusters/:cluster/plugins', appController.createPlugin)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
   router.get('/clusters/:cluster/apps', appController.getApps)
+  router.get('/clusters/:cluster/apps/ai', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
   router.put('/clusters/:cluster/apps/batch-stop', appController.stopApps)
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
