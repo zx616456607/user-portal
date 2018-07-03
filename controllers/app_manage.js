@@ -42,8 +42,7 @@ exports.createApp = function* () {
     api = apiFactory.getApi(loginUser).pkg
   }
   let result
-  const reqUrl = this.request.url.split('?')[0]
-  if (reqUrl.indexOf('ai') > -1) {
+  if (this.request.url.indexOf('/ai') > -1) {
     result = yield api.createBy([cluster, 'apps','ai'], null, app)
   } else {
     result = yield api.createBy([cluster, 'apps' ], null, app)
@@ -130,7 +129,7 @@ exports.getApps = function* () {
   }
   const api = apiFactory.getK8sApi(loginUser)
   let result
-  if (this.request.url.indexOf('ai') > -1) {
+  if (this.request.url.indexOf('/ai') > -1) {
     result = yield api.getBy([cluster, 'apps', 'ai'], queryObj, { headers })
   } else {
     result = yield api.getBy([cluster, 'apps'], queryObj, { headers })

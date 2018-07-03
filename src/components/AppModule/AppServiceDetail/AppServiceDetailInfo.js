@@ -1306,7 +1306,7 @@ class AppServiceDetailInfo extends Component {
     } else {
       cpuFormatResult = '-'
     }
-    const annotations = serviceDetail.metadata.annotations
+    const annotations = serviceDetail.spec.template.metadata.annotations
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">

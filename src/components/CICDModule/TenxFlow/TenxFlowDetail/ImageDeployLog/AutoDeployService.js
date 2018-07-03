@@ -128,9 +128,9 @@ let AutoDeployService = React.createClass({
     getCdInimage(flowId)
   },
   componentDidMount() {
-    const { loadAppList, cluster} = this.props
+    const { loadAppList, cluster, location } = this.props
     const self = this
-    loadAppList(cluster, { size: 50 }, {
+    loadAppList(cluster, { size: 50 }, location.pathname ,{
       success: {
         func: (res) => {
           self.setState({
@@ -235,9 +235,9 @@ let AutoDeployService = React.createClass({
   },
   getAppList(cluster, imageName) {
     const self = this
-    const { loadAppList} = this.props
+    const { loadAppList, location } = this.props
     // const imageName = this.state.image_name
-    loadAppList(cluster, { size: 50 }, {
+    loadAppList(cluster, { size: 50 }, location.pathname, {
       success: {
         func: (res) => {
           let provinceData = []

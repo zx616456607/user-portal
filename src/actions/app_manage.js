@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX } from '../constants'
+import { API_URL_PREFIX, AI_MODELAPP_URL } from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const APP_LIST_REQUEST = 'APP_LIST_REQUEST'
@@ -23,8 +23,8 @@ function fetchAppList(cluster, query, pathname, callback) {
   let { customizeOpts } = query || {}
   let newQuery = Object.assign({}, query )
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
-  if (pathname === '/ai-deep-learning/ai-model-service') {
-    endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/ai`
+  if (pathname === AI_MODELAPP_URL) {
+    endpoint += '/ai'
   }
   if (query) {
     delete query.customizeOpts
@@ -97,7 +97,7 @@ export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 export function fetchCreateApp(appConfig, callback) {
   let postUrl = `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`
   if (appConfig.ai) {
-    postUrl = `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps/ai`
+    postUrl += '/ai'
   }
   return {
     cluster: appConfig.cluster,

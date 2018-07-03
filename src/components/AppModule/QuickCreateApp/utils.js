@@ -179,9 +179,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   }
   if (modelSet) {
     deployment.metadata.labels["tensorflow/model-serving-app"] = ''
-    deployment.metadata.annotations = deployment.metadata.annotations || {}
-    const annotations = deployment.metadata.annotations
-    annotations["tensorflow/modelset-name"] = modelSet
+    deployment.setAnnotations({'tensorflow/modelset-name': modelSet})
   }
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
