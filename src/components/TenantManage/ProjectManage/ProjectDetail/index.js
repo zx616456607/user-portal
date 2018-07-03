@@ -1285,7 +1285,7 @@ class ProjectDetail extends Component {
                               disabled={!editDisplayName}
                               placeholder="请输入项目名称"
                               {...getFieldProps('displayName', {
-                                initialValue: displayName,
+                                initialValue: displayName || (projectDetail && projectDetail.namespace),
                                 rules: [{
                                   validator: this.checkDisplayName,
                                 }]
