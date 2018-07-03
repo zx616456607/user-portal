@@ -110,6 +110,7 @@ function githubRepo(state = {}, action) {
   let repoType = ''
   if (action.extraData) {
     repoType = action.extraData.type
+
   }
   switch (action.type) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
@@ -124,7 +125,7 @@ function githubRepo(state = {}, action) {
         })
       }
       const username = Object.keys(action.response.result.data.results)[0]
-      const users = action.response.result.data.results[username].user
+      const users = action.response.result.data.results[username] && action.response.result.data.results[username].user
       let repos = {}
       for (var k in action.response.result.data.results) {
         repos[action.response.result.data.results[k].user] = action.response.result.data.results[k].repos
@@ -145,7 +146,7 @@ function githubRepo(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: false,
+          [`${repoType}List`]: {},
         }
       })
     }

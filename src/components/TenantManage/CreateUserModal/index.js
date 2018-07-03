@@ -261,10 +261,17 @@ let CreateUserModal = React.createClass({
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员</Radio>
-
+                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                    <Tooltip title="点击查看基础设施管理员权限">
+                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
+                    </Tooltip>
+                  </Radio>
               }
-              <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
+              <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
+                <Tooltip title="点击查看基础设施管理员权限">
+                  <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
+                </Tooltip>
+              </Radio>
             </Radio.Group>
           </FormItem>
 

@@ -8,17 +8,38 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Form, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { parseQueryStringToObject } from '../../../common/tools'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
+import {
+  getGithubList,
+  searchGithubList,
+  addGithubRepo,
+  notGithubProject,
+  registryGithub,
+  syncRepoList,
+  githubConfig,
+  authGithubList,
+  getUserInfo,
+} from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane
-
+const FormItem = Form.Item
+const createForm = Form.create
+const formItemLayout = {
+  labelCol: {
+    xs: {span: 24},
+    sm: {span: 6},
+  },
+  wrapperCol: {
+    xs: {span: 24},
+    sm: {span: 18},
+  }
+}
 const menusText = defineMessages({
   search: {
     id: 'CICD.TenxStorm.search',
@@ -170,6 +191,7 @@ class CodeList extends Component {
       )
     }
     let items = []
+
     if (data) {
       items = data.map((item, index) => {
         return (
@@ -210,29 +232,58 @@ class GithubComponent extends Component {
     this.state = {
       repokey: props.typeName,
       authorizeModal: false,
-      currentSearch: ''
+      currentSearch: '',
+      copySuccess:false,
+      githubConfigModal: false,
+      githubConfigLoading: false,
     }
   }
-
   loadData() {
-    const self = this
     const { typeName } = this.props
+    const self = this
     this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
+          setTimeout(() =>{
+            this.props.getUserInfo('github') // 获取用户GitHub信息
+          })
           if (res.data.hasOwnProperty('results')) {
-            const users = res.data.results[Object.keys(res.data.results)[0]].user
-            self.setState({ users })
+            if(Object.keys(res.data.results).length !== 0) {
+              const users = res.data.results[Object.keys(res.data.results)[0]].user
+              self.setState({ users })
+            }
           }
+
+
         }
       }
     })
   }
-
   componentWillMount() {
     this.loadData()
-  }
+    if(window.location.search) {
+      const getQueryString = () => {
+        var qs = location.search.substr(1), // 获取url中"?"符后的字串
+          args = {}, // 保存参数数据的对象
+          items = qs.length ? qs.split("&") : [], // 取得每一个参数项,
+          item = null,
+          len = items.length;
+        for(var i = 0; i < len; i++) {
+          item = items[i].split("=");
+          var name = decodeURIComponent(item[0]),
+            value = decodeURIComponent(item[1]);
+          if(name) {
+            args[name] = value;
+          }
+        }
+        return args;
+      }
+      const { code } = getQueryString()
+      this.props.authGithubList('github', { code: code})
+    }
 
+
+  }
   componentWillReceiveProps(nextProps) {
     const { currentSpace } = nextProps;
     if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
@@ -273,6 +324,82 @@ class GithubComponent extends Component {
       }
     })
   }
+  showGithubConfig() {
+    this.setState({
+      githubConfigModal: true
+    })
+  }
+  testChinese = (rule, value, callback) => {
+    if(new RegExp("[\\u4E00-\\u9FFF]+","g").test(value)) {
+      return callback('不得包含汉字')
+    }else {
+      callback()
+    }
+  }
+  confirmAuth = () => {
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return;
+      }else {
+        this.setState({
+          githubConfigLoading: true,
+        })
+        const { githubConfig } = this.props
+        const body = {
+          private: 1,
+          repo_type: "github",
+          address: "https://github.com",
+          clientId: values.clientId.trim(),
+          clientSecret: values.clientSecret.trim(),
+          redirectUrl: 'http://localhost:8003/ci_cd/coderepo',
+        }
+        githubConfig('github', body, {
+          success:{
+            func: res => {
+              let notification = new NotificationHandler()
+              if(res.data.status === 200) {
+                notification.success('配置成功')
+                this.setState({
+                  githubConfigLoading: false,
+                  githubConfigModal: false,
+                  hasBeenConfiged: true,
+                },() => {
+                  window.location.href = res.data.results.url
+                })
+                return
+              }
+              if(res.data.status === 400) {
+                notification.warn('clientId, clientSecret, redirectUrl 其中有参数为空')
+                return
+              }
+              if(res.data.status === 500) {
+                notification.warn('未知错误')
+                return
+              }
+            }
+          }
+
+        })
+      }
+    });
+  }
+  returnDefaultTooltip() {
+    setTimeout(() => {
+      this.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
+  // 复制homepageUrl
+  copyHomepageUrl = className => {
+    let code = document.getElementsByClassName(`${className}`);
+    code[0].select();
+    document.execCommand("Copy", false);
+    this.setState({
+      copySuccess: true
+    });
+  }
+
   handleSearch(e) {
     const image = e.target.value
     const users = this.state.users
@@ -354,7 +481,6 @@ class GithubComponent extends Component {
             regToken: ''
           })
           self.props.scope.props.getRepoList(config.type)
-          self.props.scope.props.getUserInfo(config.type)
         },
         isAsync: true
       },
@@ -388,44 +514,108 @@ class GithubComponent extends Component {
     this.setState({ regToken: e.target.value })
   }
   render() {
-    const { githubList, formatMessage, isFetching, typeName} = this.props
+    const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
+    const { getFieldProps } = this.props.form
+    const clientIdProps = getFieldProps('clientId', {
+      validate: [
+        {
+          rules: [
+            { required: true, message: '请输入Client ID' },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
+        {
+          rules: [
+            { validator: this.testChinese },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
+      ],
+    })
+    const clientSecretProps = getFieldProps('clientSecret', {
+      validate: [
+        {
+          rules: [
+            { required: true, message: '请输入Client Secret' },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
+        {
+          rules: [
+            { validator: this.testChinese },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
+      ],
+    })
     const scope = this
     let typeNames = typeName == 'github' ? 'GitHub': 'Gogs'
     let codeList = []
-
     if (!githubList) {
-      if (typeName == 'github') {
+      if (typeName === 'github') {
         return (
           <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
-          {this.state.loading ?
-            <Button type="primary" size="large" loading={true}>授权、同步 GitHub 代码源</Button>
-          :
-            <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
-          }
+            <Button type="primary" size="large" onClick={() => this.showGithubConfig()}>授权、同步 GitHub  代码源</Button>
+            <Modal title={'选择代码源'} visible={this.state.githubConfigModal}
+                   onCancel={()=> this.setState({githubConfigModal: false}) }
+                   footer={[
+                     <Button type="default" size="large" key="cancel" onClick={()=> this.setState({githubConfigModal: false})}>取消</Button>,
+                     <Button type="primary" size="large" key="ok" onClick={this.confirmAuth} loading={this.state.githubConfigLoading}>确定授权</Button>
+                   ]} >
+              <div className="content-wrapper">
+                <h3 className="title">1、设置GitHub应用</h3>
+                <div className="content">
+                  <p className="indent-content">
+                    <h4>① 标准GitHub，<a href="https://github.com/settings/developers" target="_blank">点击此处</a> 在弹出的新窗口中进行应用设置。</h4>
+                    <div className="indent-content-inner">企业版GitHub，请登录你的账号，点击Settings，然后点击Applications进行设置。</div>
+                  </p>
+                  <p className="indent-content">
+                    <h4>② 点击 "Register new application" 并填写表单内容:</h4>
+                    <div className="indent-content-inner">
+                      <p>Application name: 任何您喜欢的应用名称, 例如 My app</p>
+                      <p className="homePageUrl">
+                        Homepage URL:
+                        <input className="homePage" value={`${window.location.protocol}//${window.location.host}`}/>
+
+                        <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
+                          <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
+                            <use xlinkHref='#appcentercopy' />
+                          </svg>
+                        </Tooltip>
+
+                      </p>
+                      <p>Application description: 任何你喜欢的描述，可选</p>
+                      <p className="authorizationUrl">Authorization callback URL:
+                        <input className="authorization" value={`${window.location.href}`}/>
+
+                        <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
+                          <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
+                            <use xlinkHref='#appcentercopy' />
+                          </svg>
+                        </Tooltip>
+                      </p>
+                    </div>
+                  </p>
+                  <p className="indent-content">
+                    <h4>③ 点击 "Register Application"</h4>
+                  </p>
+                </div>
+                <h3 className="secondTitle">2、 设置 CI/CD 使用上一步中的 GitHub 应用验证</h3>
+                <div className="tip">（将新创建 GitHub 应用的 Client ID 和 Secret 复制粘贴到下方的对应输入框中）</div>
+                <Form className="content setCicd">
+                  <FormItem label="Client ID" {...formItemLayout} hasFeedback>
+                    <Input placeholder="请输入Client ID" {...clientIdProps} id="clientId" size="default"/>
+                  </FormItem>
+                  <FormItem label="Client Secret" {...formItemLayout} hasFeedback>
+                    <Input placeholder="请输入Client Secret" {...clientSecretProps} size="default"/>
+                  </FormItem>
+                </Form>
+              </div>
+            </Modal>
           </div>
         )
       }
-      return (
-        <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
-          <Button type="primary" size="large" onClick={() => this.showGogsModal() }>添加 Gogs 代码仓库</Button>
-          <Modal title="添加 Gogs 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
-            onCancel={this.closeAddGitlabModal}
-            footer={[
-              <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
-              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
-            ]}
-            >
-            <div>
-              <p style={{ lineHeight: '30px' }}>仓库地址：
-                <Input placeholder="http://*** | https://***" id="github" onChange={(e)=> this.changeUrl(e)} value={this.state.regUrl} size="large" />
-              </p>
-              <p style={{ lineHeight: '30px' }}>Private Token：
-                <Input placeholder="Private Token: " size="large" onChange={(e)=> this.changeToken(e)} value={this.state.regToken} />
-              </p>
-            </div>
-          </Modal>
-        </div>
-      )
+
     }
     if (Object.keys(githubList).length > 0) {
       for (let i in githubList) {
@@ -435,26 +625,27 @@ class GithubComponent extends Component {
           </TabPane>
         )
       }
-
     }
+
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
+          <Icon type="user" />
+          <span>{this.props.userInfo && this.props.userInfo.repoUser.username}</span>
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
-          <div className="right-search">
-            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search' onClick={this.searchClick}></i>
-          </div>
+          {/*<div className="right-search">*/}
+            {/*<Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />*/}
+            {/*<i className='fa fa-search' onClick={this.searchClick}></i>*/}
+          {/*</div>*/}
         </div>
-
-        <Tabs onChange={(e) => this.changeList(e)}>
-          {codeList}
-        </Tabs>
+        {/*<Tabs onChange={(e) => this.changeList(e)}>*/}
+          {/*{codeList}*/}
+        {/*</Tabs>*/}
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
           >
@@ -468,15 +659,18 @@ class GithubComponent extends Component {
 
 function mapStateToProps(state, props) {
   const defaultValue = {
-    githubList: [],
+    githubList: false,
     isFetching: false
   }
-  const { githubRepo} = state.cicd_flow
-  const { githubList, isFetching, users} = githubRepo['github'] || defaultValue
+  const { githubRepo, userInfo } = state.cicd_flow
+  const { cicdApi } = state.entities.loginUser.info
+  const { githubList, isFetching } = githubRepo['github'] || defaultValue
+
   return {
     githubList,
     isFetching,
-    users,
+    cicdApi,
+    userInfo: userInfo.github,
     currentSpace: state.entities.current.space.namespace
   }
 }
@@ -488,14 +682,17 @@ GithubComponent.propTypes = {
   searchGithubList: PropTypes.func.isRequired,
   addGithubRepo: PropTypes.func.isRequired
 }
-
+const FormGithubComponent = createForm()(GithubComponent)
 export default connect(mapStateToProps, {
   registryGithub,
   getGithubList,
   searchGithubList,
   addGithubRepo,
   notGithubProject,
-  syncRepoList
-})(injectIntl(GithubComponent, {
+  syncRepoList,
+  githubConfig,
+  authGithubList,
+  getUserInfo
+})(injectIntl(FormGithubComponent, {
   withRef: true,
 }))

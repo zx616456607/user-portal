@@ -429,6 +429,10 @@ module.exports = function (Router) {
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
+  // github repo config
+  router.post('/repos/:type', devopsController.githubConfig)
+  // get github list
+  router.put('/repos/:type/auth', devopsController.githubList)
   // Repos
   router.get('/devops/repos/supported', devopsController.getSupportedRepository)
   router.post('/devops/repos/:type', devopsController.registerRepo)
