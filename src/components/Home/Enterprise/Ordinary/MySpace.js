@@ -221,7 +221,7 @@ class MySpace extends Component {
       <Row className="number-row">
         <Col span={left}></Col>
         <Col span={right} className="number">
-          <span style={{ color: overUsed ? 'red' : '#ccc' }}>{useCount}</span>
+          <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
           /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
         </Col>
       </Row>
@@ -385,14 +385,16 @@ class MySpace extends Component {
                   ciList.map((item, index) => (
                     <div className="info" key={`ci-${index}`}>
                       <Row>
-                        <Col span={9}>
+                        <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={15}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={2}>
+                          {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                     </div>
                   ))
                 }
@@ -402,14 +404,16 @@ class MySpace extends Component {
                   deliverList.map((item, index) => (
                     <div className="info" key={`deliver-${index}`}>
                       <Row>
-                        <Col span={9}>
+                        <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={15}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={2}>
+                          {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                     </div>
                   ))
                 }
