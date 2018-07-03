@@ -116,7 +116,6 @@ function githubRepo(state = {}, action) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_GITHUB_LIST_SUCCESS: {
-      console.log(action);
       if (!action.response.result.data.hasOwnProperty('results')) {
         return Object.assign({}, state, {
           isFetching: false,
@@ -126,7 +125,7 @@ function githubRepo(state = {}, action) {
         })
       }
       const username = Object.keys(action.response.result.data.results)[0]
-      const users = action.response.result.data.results[username].user
+      const users = action.response.result.data.results[username] && action.response.result.data.results[username].user
       let repos = {}
       for (var k in action.response.result.data.results) {
         repos[action.response.result.data.results[k].user] = action.response.result.data.results[k].repos
