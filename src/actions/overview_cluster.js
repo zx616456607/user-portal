@@ -18,6 +18,27 @@ export const OVERVIEW_CLUSTERINFO_FAILURE = 'OVERVIEW_CLUSTERINFO_FAILURE'
 
 // Fetches cluster info from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetPrivilege(query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTERINFO_REQUEST, OVERVIEW_CLUSTERINFO_SUCCESS, OVERVIEW_CLUSTERINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/privilege?${toQuerystring(query)}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches cluster info from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function GetPrivilege(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetPrivilege(query, callback))
+  }
+}
+
+// Fetches cluster info from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchClusterInfo(clusterID, query) {
   return {
     [FETCH_API]: {

@@ -431,7 +431,8 @@ class AppList extends Component {
     } = nextProps || this.props
     const query = { page, size, name, sortOrder, sortBy }
     query.customizeOpts = options
-    loadAppList(cluster, query, {
+
+    loadAppList(cluster, query, location.pathname, {
       success: {
         func: (result) => {
           // Add app status watch, props must include statusWatchWs!!!
@@ -442,7 +443,7 @@ class AppList extends Component {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
-            loadAppList(cluster, query)
+            loadAppList(cluster, query, location.pathname)
           }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true

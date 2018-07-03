@@ -147,9 +147,11 @@ module.exports = function (Router) {
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
+  router.post('/clusters/:cluster/apps/ai', appController.createApp)
   router.post('/clusters/:cluster/plugins', appController.createPlugin)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
   router.get('/clusters/:cluster/apps', appController.getApps)
+  router.get('/clusters/:cluster/apps/ai', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
   router.put('/clusters/:cluster/apps/batch-stop', appController.stopApps)
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
@@ -262,6 +264,7 @@ module.exports = function (Router) {
   router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
+  router.get('/overview/privilege', overviewClusterController.getPrivilege)
   router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
   router.get('/overview/clusterinfo-std/clusters/:cluster_id', overviewClusterController.getStdClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)

@@ -21,6 +21,7 @@ const portHelper = require('./port_helper')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
+
   const app = this.request.body
   if (!app || !app.name) {
     const err = new Error('App name is required.')
@@ -40,7 +41,12 @@ exports.createApp = function* () {
   }else{
     api = apiFactory.getApi(loginUser).pkg
   }
-  const result = yield api.createBy([cluster, 'apps'], null, app)
+  let result
+  if (this.request.url.indexOf('/ai') > -1) {
+    result = yield api.createBy([cluster, 'apps','ai'], null, app)
+  } else {
+    result = yield api.createBy([cluster, 'apps' ], null, app)
+  }
   this.body = {
     cluster,
     data: result.data
@@ -122,7 +128,12 @@ exports.getApps = function* () {
     queryObj.sort_by = query.sortBy
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
+  let result
+  if (this.request.url.indexOf('/ai') > -1) {
+    result = yield api.getBy([cluster, 'apps', 'ai'], queryObj, { headers })
+  } else {
+    result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
+  }
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   const apps = result.data.apps
   apps.map((app) => {

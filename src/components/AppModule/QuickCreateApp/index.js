@@ -687,7 +687,10 @@ class QuickCreateApp extends Component {
       cluster: clusterID,
       template: template.join('---\n'),
       appName: this.getAppName(fields),
-      appPkgID: appPkgID
+      appPkgID: appPkgID,
+    }
+    if (location.query.addAI) {
+      appConfig.ai = true
     }
     createApp(appConfig, callback)
   }
