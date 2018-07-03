@@ -486,7 +486,7 @@ class Ordinary extends Component {
 
   render() {
     const { isLoading, isNoPermission } = this.state
-    if(isLoading){debugger
+    if(isLoading){
       return <div id='OrdinaryLoading'>
         <Spin spinning={isLoading}>
         </Spin>
