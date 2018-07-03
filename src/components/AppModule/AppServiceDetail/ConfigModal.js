@@ -145,9 +145,18 @@ class ConfigModal extends Component {
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = this.state
     const { composeType } = this.state
     const serviceName = service.metadata.name
-    let resources = getResources(composeType)
-    if (composeType === RESOURCES_DIY) {
+    const { getFieldValue } = this.props.form
+    let resources
+    const gpu = getFieldValue('GPULimits')
+    if (getFieldValue('operaConfig') === 'X86') {
+      resources = getResources(composeType)
+      if (composeType === RESOURCES_DIY) {
+        resources = getResources(DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
+      }
+    } else if (getFieldValue('operaConfig') === 'GPU') {
       resources = getResources(DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
+      resources.requests.gpu = 1
+      resources.limits.gpu = gpu
     }
     const { requests, limits } = resources
     let notification = new NotificationHandler()
@@ -245,7 +254,7 @@ class ConfigModal extends Component {
             </Col>
           </Row>
           <Row>
-            <Col className="itemTitle" span={3} style={{ textAlign: 'left', height: 32, lineHeight: 2 }}>
+            <Col className="itemTitle" span={3} style={{ textAlign: 'left', height: 32, lineHeight: 3 }}>
               选择配置
             </Col>
             <Col className="itemBody" span={21}>
@@ -417,7 +426,7 @@ class ConfigModal extends Component {
                     <div className="topBox" style={{ background: '#2db7f5', color: '#fff' }}>
                       自定义
                     </div>
-                    <div className="bottomBox" style={{ height: 111, padding: 5 }}>
+                    <div className="bottomBox" style={{ height: 105, padding: 5 }}>
                       <Row>
                         <Col span={8}>
                           <InputNumber
