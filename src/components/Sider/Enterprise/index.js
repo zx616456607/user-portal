@@ -310,7 +310,20 @@ class Sider extends Component {
           </Link>
         </div>
       </Menu.Item>,
-
+      <Menu.Item key='approvalLimit'>
+      <div className="adminBox">
+        <Tooltip title="仅系统管理员可见" placement="right">
+          <svg className="start forAdmin">
+            <use xlinkHref='#start' />
+          </svg>
+        </Tooltip>
+        <Link to='/tenant_manage/approvalLimit'>
+                        <span>
+                          配额审批
+                        </span>
+        </Link>
+      </div>
+    </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
@@ -321,20 +334,6 @@ class Sider extends Component {
           <Link to='/tenant_manage/ldap'>
                           <span>
                             集成企业目录
-                          </span>
-          </Link>
-        </div>
-      </Menu.Item>,
-      <Menu.Item key='approvalLimit'>
-        <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              <use xlinkHref='#start' />
-            </svg>
-          </Tooltip>
-          <Link to='/tenant_manage/approvalLimit'>
-                          <span>
-                            配额审批
                           </span>
           </Link>
         </div>

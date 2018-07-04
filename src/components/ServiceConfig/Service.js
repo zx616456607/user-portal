@@ -30,6 +30,7 @@ import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
 import includes from 'lodash/includes'
 import classNames from 'classnames'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 
 class CollapseList extends Component {
   constructor(props) {
@@ -324,6 +325,7 @@ class Service extends Component {
             <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>您是否确定要删除配置组 {this.state.configArray.map(item => item).join('，')} ?</div>
           </Modal>
           {/*折叠面板-start*/}
+          <ResourceBanner resourceType='configuration'/>
           <Row gutter={16}>
             <Col span={4}>
               <div className="title">配置分类</div>

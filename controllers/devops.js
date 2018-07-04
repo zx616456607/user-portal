@@ -1172,3 +1172,12 @@ function* delCachedVolume() {
   this.body = result
 }
 exports.delCachedVolume = delCachedVolume
+
+// 获取全局资源使用量
+exports.checkResourceDevopsquotaExist = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(['resourcequota', 'inuse'], null)
+  this.body = result
+}

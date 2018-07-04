@@ -28,6 +28,7 @@ import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { TENX_STORE } from '../../../constants/index'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -865,6 +866,7 @@ class ContainerList extends Component {
         <Title title="容器列表"/>
         <div id='ContainerList' key='ContainerList'>
           <div className='operationBox'>
+            <ResourceBanner resourceType='container'/>
             <div className='leftBox'>
               <Button
                 type='primary' size='large'
