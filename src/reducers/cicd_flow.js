@@ -156,9 +156,7 @@ function githubRepo(state = {}, action) {
 
       return merge({}, defaultState, state, { isFetching: true })
     }
-    case ActionTypes.PUT_GITHUB_LIST_SUCCESS:
-      console.log(action.response.result.data.results);
-      {
+    case ActionTypes.PUT_GITHUB_LIST_SUCCESS: {
 
       let list  = {}
       for (let k in action.response.result.data.results) {

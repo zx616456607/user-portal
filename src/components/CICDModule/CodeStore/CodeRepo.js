@@ -420,7 +420,7 @@ class CodeRepo extends Component {
 
   }
   componentDidMount() {
-    if(this.props.location.query.code) {
+    if(this.props.location.query.code && this.props.location.query.state) {
       this.setState({
         repokey: 'github'
       })
