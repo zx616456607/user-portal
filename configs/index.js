@@ -57,6 +57,7 @@ const config = {
     port: env.REDIS_PORT || 6380,
     password: env.REDIS_PWD || '',
     sessionPrefix: 'session_',
+    session_store_prefix: 'koa:sess:',
   },
   tenxSysSign: {
     key: 'SYSTEM_CALL_SIGNATURE',
