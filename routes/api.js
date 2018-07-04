@@ -732,6 +732,7 @@ module.exports = function (Router) {
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
+  router.get('/devops/resourcequota/inuse', devopsController.checkResourceDevopsquotaExist)
 
   //clean
   router.put('/cleaner/settings', cleanController.startCleaner)
@@ -809,5 +810,6 @@ module.exports = function (Router) {
   router.put('/resourcequota/apply/:id', resourcequota.updateResourcequota)
   router.get('/resourcequota/apply/:id', resourcequota.checkResourcequotaDetail)
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
+  // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }

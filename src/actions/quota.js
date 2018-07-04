@@ -52,6 +52,7 @@ export function getGlobaleQuota(query, callback) {
   }
 }
 
+// 这里请求的是api_server中的全局资源使用量
 export const FETCH_GLOBALE_GET_QUOTA_REQUEST = 'FETCH_GLOBALE_GET_QUOTA_REQUEST'
 export const FETCH_GLOBALE_GET_QUOTA_SUCCESS = 'FETCH_GLOBALE_GET_QUOTA_SUCCESS'
 export const FETCH_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_GLOBALE_GET_QUOTA_FAILURE'
@@ -87,6 +88,40 @@ export function getGlobaleQuotaList(query, callback) {
     return dispatch(fetchGlobaleQuotaList(query, callback))
   }
 }
+
+// 这里请求的是devops中的全局资源使用量
+export const FETCH_DEVOPS_GLOBALE_GET_QUOTA_REQUEST = 'FETCH_DEVOPS_GLOBALE_GET_QUOTA_REQUEST'
+export const FETCH_DEVOPS_GLOBALE_GET_QUOTA_SUCCESS = 'FETCH_DEVOPS_GLOBALE_GET_QUOTA_SUCCESS'
+export const FETCH_DEVOPS_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_DEVOPS_GLOBALE_GET_QUOTA_FAILURE'
+
+function fetchDevopsGlobaleQuotaList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/devops/resourcequota/inuse`
+  let newheaders
+  if (query.header !== undefined) {
+    newheaders = query.header
+  }
+  return {
+    [FETCH_API]: {
+      types: [FETCH_DEVOPS_GLOBALE_GET_QUOTA_REQUEST, FETCH_DEVOPS_GLOBALE_GET_QUOTA_SUCCESS, FETCH_DEVOPS_GLOBALE_GET_QUOTA_FAILURE],
+      endpoint,
+      options: {
+        headers: newheaders,
+        method: 'GET',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getDevopsGlobaleQuotaList(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDevopsGlobaleQuotaList(query, callback))
+  }
+}
+
+
+
 
 export const UPDATE_GLOBALE_QUOTA_REQUEST = 'UPDATE_GLOBALE_QUOTA_REQUEST'
 export const UPDATE_GLOBALE_QUOTA_SUCCESS = 'UPDATE_GLOBALE_QUOTA_SUCCESS'

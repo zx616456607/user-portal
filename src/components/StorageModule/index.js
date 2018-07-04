@@ -14,6 +14,7 @@ import './style/index.less'
 import classNames from 'classnames'
 import { browserHistory } from 'react-router'
 import Title from '../Title'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 
 const tabs = [
   {
@@ -36,6 +37,7 @@ export default class StorageHome extends Component {
       <QueueAnim className='storage_home'>
         <Title title="存储"/>
         <div id='storage_home' key="storage_home">
+          <ResourceBanner resourceType='volume'/>
           <div className='tabs_header_style'>
             {
               tabs.map(tab => {

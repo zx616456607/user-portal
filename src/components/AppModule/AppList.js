@@ -1042,7 +1042,7 @@ class AppList extends Component {
         >
         <Title title="应用列表"/>
         <div id='AppList' key='AppList'>
-          <ResourceBanner />
+          <ResourceBanner resourceType='application'/>
           <div className='operationBox operationBoxa'>
             <div className='leftBox'>
              { createButton }

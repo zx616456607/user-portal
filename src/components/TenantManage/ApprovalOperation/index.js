@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../client/util/util'
 import { calcuDate } from '../../../common/tools'
 import { updateResourcequota } from '../../../../client/actions/applyLimit'
-import { removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app';
+// import { removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app';
 const FormItem = Form.Item
 // 表单布局
 const formItemLayout = {
@@ -29,7 +29,19 @@ const formItemLayoutLarge = {
   wrapperCol: { span: 21 },
 }
 
-const getcolums = ({ setApprovalState, cancelApprovalState, approvalState }) => {
+// 整理后台传来的资源定义列表
+const formateResourceDefinitions = (resourceDefinitions = []) => {
+  let definitions = {}
+  for (const value of resourceDefinitions){
+    for(const child of value.children){
+      definitions[child.resourceType] = child.resourceName
+    }
+  }
+  return definitions
+}
+
+const getcolums = ({ setApprovalState, cancelApprovalState, approvalState, resourceDefinitions,
+  }) => {
   const allPass = approvalState.every( x => x === true )
   const allRefuse = approvalState.every( x => x=== false )
   const allPassType = allPass ? 'check-circle' : 'check-circle-o'
@@ -41,18 +53,27 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState }) => 
     title: '资源',
     dataIndex: 'resource',
     key: 'resource',
+    width: 160,
+    render: (text, record) => {
+      return (
+        <span>{formateResourceDefinitions(resourceDefinitions)[record.resource]}</span>
+      )
+     }
   }, {
     title: '申请集群',
     dataIndex: 'aggregate',
     key: 'aggregate',
+    width: 150,
   }, {
     title: '已用',
     dataIndex: 'use',
     key: 'use',
+    width: 150,
   }, {
     title: '申请配额',
     dataIndex: 'applyLimit',
     key: 'applyLimit',
+    width: 150,
     render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
   }, {
     title:
@@ -71,6 +92,7 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState }) => 
     </div>,
     dataIndex: 'status',
     key: 'status',
+    width: 150,
     render: (text, record) => {
       let key = parseInt(record.key) - 1
       const pass = approvalState[key]
@@ -81,7 +103,7 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState }) => 
       const RefuseType = noPass ? 'cross-circle' : 'cross-circle-o'
       const RefuseClass = noPass ? 'allRefuseIcon' : 'notallRefuseIcon'
       return (
-        <div>
+        <div className="iconItemWrap">
           <span className="allApprovalIcon">
             <Tooltip title="同意">
               <Icon type={PassType} className={PassClass} onClick={setApprovalState.bind(null, key)} />
@@ -107,7 +129,7 @@ const findClusersName = ({ id, choiceClusters }) => {
     }
 }
 
-  const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
+  const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse) => {
     const date = []
     let indexKey = 1
     if (applyDetails) {
@@ -118,7 +140,7 @@ const findClusersName = ({ id, choiceClusters }) => {
             key: indexKey,
             resource: resourcekey,
             aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-            use: '后台没有提供',
+            use: resourceInuse[key][resourcekey],
             applyLimit: applyDetails[key][resourcekey] || '无限制',
             approvalStatus: approveDetails[key] ? approveDetails[key].indexOf(resourcekey) !== -1 : false,
             clusterID: key,
@@ -151,15 +173,17 @@ const formateUpdateResoure = (tabData, approvalState) => {
   }
   return body
 }
+
 class ApprovalOperation extends React.Component {
   state = {
-    approvalState: [false], // 审批状态, Array(n) n = data的个数
+    approvalState: _.fill(Array(100), true), // 审批状态, Array(n) n = data的个数
     loading: false, // 完成审批的loading状
   }
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     toggleVisable: PropTypes.func.isRequired,
     title: PropTypes.string.isRequired,
+    resourceDefinitions: PropTypes.object.isRequired
   }
   setApprovalState = key => {
     let { approvalState } = this.state
@@ -169,7 +193,7 @@ class ApprovalOperation extends React.Component {
       return
     }
     if (approvalState.length !== tabDataLength) {
-      approvalState = _.fill(Array(tabDataLength), false)
+      approvalState = _.fill(Array(tabDataLength), true)
     }
     approvalState[parseInt(key)] = true
     this.setState({ approvalState })
@@ -182,7 +206,7 @@ class ApprovalOperation extends React.Component {
       return
     }
     if (approvalState.length !== tabDataLength) {
-      approvalState = _.fill(Array(tabDataLength), false)
+      approvalState = _.fill(Array(tabDataLength), true)
     }
     approvalState[parseInt(key)] = false
     this.setState({ approvalState })
@@ -196,7 +220,7 @@ class ApprovalOperation extends React.Component {
         success: {
           func: res => {
             toggleVisable(undefined, 'success')
-            this.setState({ approvalState: [false] })
+            this.setState({ approvalState: _.fill(Array(100), true) })
             reload()
           },
           isAsync: true,
@@ -209,11 +233,17 @@ class ApprovalOperation extends React.Component {
     })
   }
   render() {
-    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData } = this.props
+    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData, resourceDefinitions } = this.props
     const { approvalState } = this.state
     const setApprovalState = this.setApprovalState
     const cancelApprovalState = this.cancelApprovalState
     const { isFetching, data: recordData = {} } = resourcequoteRecord
+    let accountType
+    if (recordData.applier === recordData.namespace) {
+      accountType = '个人项目'
+    } else {
+      accountType = '共享项目'
+    }
     return (
       <Modal
         visible = {visible}
@@ -223,7 +253,7 @@ class ApprovalOperation extends React.Component {
           <span className="ApprovalOperation result-wrap">
             <span>申请时间:</span><span className="result">{calcuDate(recordData.createTime)}</span>
           </span>,
-          <Button key="cancel" size="large" onClick={toggleVisable}>
+          <Button key="cancel" size="large" onClick={toggleVisable.bind(null, undefined, 'success')}>
             取消
           </Button>,
           <Button key="makeSure" type="primary" size="large" onClick={this.fetchApprovalResult.bind(null, record)}>
@@ -236,35 +266,36 @@ class ApprovalOperation extends React.Component {
           <FormItem
             label="申请项目" {...formItemLayout}
           >
-            <Input value={recordData.displayName}/>
+            <Input value={`${recordData.displayName} (${accountType})`} disabled/>
           </FormItem>
           <FormItem
             label="申请人" {...formItemLayout}
           >
-            <Input value={recordData.applier}/>
+            <Input value={recordData.applier} disabled/>
           </FormItem>
           <FormItem
             label="申请原因" {...formItemLayoutLarge}
           >
-            <Input value={recordData.comment} type="textarea" rows={4}/>
+            <Input value={recordData.comment} type="textarea" rows={4} disabled/>
           </FormItem>
-          <Table columns={getcolums({ setApprovalState, cancelApprovalState, approvalState})} dataSource={tabData} pagination={false} size="small"
-            scroll={{ y: 120 }}/>
+          <Table columns={getcolums({ setApprovalState, cancelApprovalState, approvalState, resourceDefinitions })} dataSource={tabData} pagination={false} size="small"
+            scroll={{ y: 120 }} loading={isFetching}/>
         </div>
       </Modal>
     )
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
   const choiceClusters = state.projectAuthority.projectVisibleClusters.default
 
   const { data: recordData = {} } = detailData
   const { applyDetails, approveDetails } = recordData
-  const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters)
+  let resourceInuse = props.resourceInuseProps
+  const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse)
   return {
-    resourcequoteRecord: detailData, choiceClusters,tabData
+    resourcequoteRecord: detailData, choiceClusters,tabData,
   }
 }
 export default connect(mapStateToProps, {

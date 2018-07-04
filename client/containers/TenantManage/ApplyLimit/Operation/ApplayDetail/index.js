@@ -25,11 +25,27 @@ const formItemLayoutLarge = {
   wrapperCol: { span: 21 },
 }
 
-const getcolums = () => {
+// 整理后台传来的资源定义列表
+const formateResourceDefinitions = (resourceDefinitions = []) => {
+  const definitions = {}
+  for (const value of resourceDefinitions) {
+    for (const child of value.children) {
+      definitions[child.resourceType] = child.resourceName
+    }
+  }
+  return definitions
+}
+
+const getcolums = (resourceDefinitions = []) => {
   const columns = [{
     title: '资源',
     dataIndex: 'resource',
     key: 'resource',
+    render: (text, record) => {
+      return (
+        <span>{formateResourceDefinitions(resourceDefinitions)[record.resource]}</span>
+      )
+    },
   }, {
     title: '申请集群',
     dataIndex: 'aggregate',
@@ -56,7 +72,7 @@ const getcolums = () => {
       }
       return (
         <div>
-          <span className="crossIcon"><Icon type={type} style={{ color }}/></span>
+          <span className="crossIcon"><Icon type={type} style={ { color } }/></span>
         </div>
       )
     },
@@ -82,7 +98,7 @@ const printApprovalResult = tabData => {
   }
   return approvalResult
 }
-const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
+const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse) => {
   const date = []
   let indexKey = 1
   if (applyDetails) {
@@ -93,7 +109,8 @@ const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
           key: indexKey,
           resource: resourcekey,
           aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-          use: '后台没有提供',
+          // use: '后台没有提供',
+          use: resourceInuse[key][resourcekey],
           applyLimit: applyDetails[key][resourcekey] || '无限制',
           approvalStatus: approveDetails[key] ?
             approveDetails[key].indexOf(resourcekey) !== -1 : false,
@@ -112,10 +129,17 @@ class ApplayDetail extends React.Component {
     record: PropTypes.object.isRequired,
   }
   render() {
-    const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters } = this.props
+    const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
+      resourceInuse } = this.props
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const { applyDetails, approveDetails } = recordData
-    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters)
+    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse)
+    let accountType
+    if (recordData.applier === recordData.namespace) {
+      accountType = '个人项目'
+    } else {
+      accountType = '共享项目'
+    }
     return (
       <Modal
         visible = {visible}
@@ -135,19 +159,19 @@ class ApplayDetail extends React.Component {
           <FormItem
             label="申请项目" {...formItemLayout}
           >
-            <Input value={recordData.displayName}/>
+            <Input value={`${recordData.displayName} (${accountType})`} disabled/>
           </FormItem>
           <FormItem
             label="申请人" {...formItemLayout}
           >
-            <Input value={recordData.applier}/>
+            <Input value={recordData.applier} disabled/>
           </FormItem>
           <FormItem
             label="申请原因" {...formItemLayoutLarge}
           >
-            <Input value={recordData.comment} type="textarea" rows={4}/>
+            <Input value={recordData.comment} type="textarea" rows={4} disabled/>
           </FormItem>
-          <Table columns={getcolums()}
+          <Table columns={getcolums(resourceDefinitions)}
             dataSource={tabData}
             pagination={false} size="small"
             scroll={{ y: 120 }} loading={isFetching}/>

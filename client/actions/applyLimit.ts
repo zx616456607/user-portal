@@ -51,6 +51,10 @@ export const CHECK_APPLYRECORD_SUCCESS = 'CHECK_APPLYRECORD_SUCCESS';
 export const CHECK_APPLYRECORD_FAILURE = 'CHECK_APPLYRECORD_FAILURE';
 
 const fetchCheckApplyRecord = (query, callback) => {
+  const noreducer = query.noreducer
+  if (noreducer ) {
+    delete query.noreducer
+  }
   return {
     [FETCH_API]: {
       types: [
@@ -62,6 +66,7 @@ const fetchCheckApplyRecord = (query, callback) => {
       schema: {},
     },
     callback,
+    noreducer,
   };
 };
 

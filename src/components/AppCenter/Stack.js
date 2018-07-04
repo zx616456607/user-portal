@@ -17,6 +17,7 @@ import PublicCompose from './ComposeCenter/PublicCompose.js'
 import "./style/ComposeCenter.less"
 import Title from '../Title'
 import classNames from 'classnames'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -52,6 +53,7 @@ class ComposeCenter extends Component {
         >
         <div id="ComposeCenter" key="ComposeCenterBox">
           <Title title="编排文件" />
+          <ResourceBanner resourceType='orchestrationTemplate'/>
           <div className="titleList">
             <ul className='tabs_header_style'>
               <li className={privateComposeStyle}
