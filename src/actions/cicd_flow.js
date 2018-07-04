@@ -157,9 +157,6 @@ export function registryGithub(types, callback) {
 export const SEARCH_GITHUB_LIST = 'SEARCH_GITHUB_LIST'
 
 export function searchGithubList(users, image, type) {
-  if(!type) {
-    type = 'github'
-  }
   return {
     type: SEARCH_GITHUB_LIST,
     users,

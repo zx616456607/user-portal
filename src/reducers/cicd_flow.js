@@ -127,18 +127,20 @@ function githubRepo(state = {}, action) {
       const username = Object.keys(action.response.result.data.results)[0]
       const users = action.response.result.data.results[username] && action.response.result.data.results[username].user
       let repos = {}
+
       for (var k in action.response.result.data.results) {
-        repos[action.response.result.data.results[k].user] = action.response.result.data.results[k].repos
+        repos = action.response.result.data.results[k]
       }
+
       action.response.result.data.results = repos
       const lists = cloneDeep(action.response.result.data.results)
 
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: action.response.result.data.results,
-          [`${repoType}bak`]: lists,
-          users
+          [`${repoType}List`]: repos.repos,
+          [`${repoType}bak`]: repos.repos,
+          users: repos.user
         }
       })
     }
@@ -147,6 +149,28 @@ function githubRepo(state = {}, action) {
         isFetching: false,
         [repoType]: {
           [`${repoType}List`]: {},
+        }
+      })
+    }
+    case ActionTypes.PUT_GITHUB_LIST_REQUEST: {
+
+      return merge({}, defaultState, state, { isFetching: true })
+    }
+    case ActionTypes.PUT_GITHUB_LIST_SUCCESS:
+      console.log(action.response.result.data.results);
+      {
+
+      let list  = {}
+      for (let k in action.response.result.data.results) {
+        list[k] = action.response.result.data.results[k].repos
+      }
+
+      return Object.assign({}, state, {
+        isFetching: false,
+        github: {
+          githubList: list[Object.keys(list)[0]],
+          githubbak: list[Object.keys(list)[0]],
+          users:list[Object.keys(list)[0]].user
         }
       })
     }
@@ -161,29 +185,29 @@ function githubRepo(state = {}, action) {
     case ActionTypes.SEARCH_GITHUB_LIST: {
       const newState = cloneDeep(state)
       if (action.image == '') {
-        newState[repoType][`${repoType}List`][action.users] = newState[repoType][`${repoType}bak`][action.users]
+        newState[repoType][`${repoType}List`] = newState[repoType][`${repoType}bak`]
       }
-      const temp = newState[repoType][`${repoType}List`][action.users].filter(list => {
+      const temp = newState[repoType][`${repoType}List`].filter(list => {
         const search = new RegExp(action.image)
         if (search.test(list.name)) {
           return true
         }
         return false
       })
-      newState[repoType][`${repoType}List`][action.users] = temp
+      newState[repoType][`${repoType}List`] = temp
       return newState
     }
     // add github active
     case ActionTypes.ADD_GITHUB_PROJECT_SUCCESS: {
       const addState = cloneDeep(state)
       const user = action.repoUser ? action.repoUser : action.users
-      const indexs = findIndex(addState[repoType][`${repoType}List`][user], (item) => {
+      const indexs = findIndex(addState[repoType][`${repoType}List`], (item) => {
         if (item.name === action.names) {
           return true
         }
         return false
       })
-      addState[repoType][`${repoType}List`][user][indexs].managedProject = {
+      addState[repoType][`${repoType}List`][indexs].managedProject = {
         active: 1,
         id: action.response.result.data.projectId
       }
@@ -192,13 +216,13 @@ function githubRepo(state = {}, action) {
     // remove github active
     case ActionTypes.NOT_Github_ACTIVE_PROJECT_SUCCESS: {
       const rmState = cloneDeep(state)
-      const rindex = findIndex(rmState[repoType][`${repoType}List`][action.users], (item) => {
+      const rindex = findIndex(rmState[repoType][`${repoType}List`], (item) => {
         if (item.managedProject && item.managedProject.id === action.id) {
           return true
         }
         return false
       })
-      rmState[repoType][`${repoType}List`][action.users][rindex].managedProject = { active: 0 }
+      rmState[repoType][`${repoType}List`][rindex].managedProject = { active: 0 }
       return rmState
     }
     default:

@@ -238,29 +238,7 @@ class GithubComponent extends Component {
       githubConfigLoading: false,
     }
   }
-  loadData() {
-    const { typeName } = this.props
-    const self = this
-    this.props.getGithubList(typeName, {
-      success: {
-        func: (res) => {
-          setTimeout(() =>{
-            this.props.getUserInfo('github') // 获取用户GitHub信息
-          })
-          if (res.data.hasOwnProperty('results')) {
-            if(Object.keys(res.data.results).length !== 0) {
-              const users = res.data.results[Object.keys(res.data.results)[0]].user
-              self.setState({ users })
-            }
-          }
-
-
-        }
-      }
-    })
-  }
-  componentWillMount() {
-    this.loadData()
+  auth() {
     if(window.location.search) {
       const getQueryString = () => {
         var qs = location.search.substr(1), // 获取url中"?"符后的字串
@@ -281,15 +259,25 @@ class GithubComponent extends Component {
       const { code } = getQueryString()
       this.props.authGithubList('github', { code: code})
     }
-
-
   }
-  componentWillReceiveProps(nextProps) {
-    const { currentSpace } = nextProps;
-    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
-      this.loadData()
-      return
-    }
+  loadData() {
+    const { typeName } = this.props
+    this.props.getGithubList(typeName, {
+      success: {
+        func: (res) => {
+          if (res.data.hasOwnProperty('results')) {
+            if(Object.keys(res.data.results).length === 0) {
+              setTimeout(() => {
+                this.auth()
+              })
+            }
+          }
+        }
+      }
+    })
+  }
+  componentWillMount() {
+    this.loadData()
   }
 
   removeRepo() {
@@ -351,7 +339,8 @@ class GithubComponent extends Component {
           address: "https://github.com",
           clientId: values.clientId.trim(),
           clientSecret: values.clientSecret.trim(),
-          redirectUrl: 'http://localhost:8003/ci_cd/coderepo',
+          redirectUrl: `${window.location.protocol}//${window.location.host}/ci_cd/coderepo`,
+
         }
         githubConfig('github', body, {
           success:{
@@ -399,7 +388,6 @@ class GithubComponent extends Component {
       copySuccess: true
     });
   }
-
   handleSearch(e) {
     const image = e.target.value
     const users = this.state.users
@@ -410,18 +398,19 @@ class GithubComponent extends Component {
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const { users } = this.props
     this.setState({
       currentSearch: image
     })
     if (image == '') {
-      this.props.searchGithubList(users, image)
+      this.props.searchGithubList(users, image, this.props.typeName)
     }
   }
+
   searchClick() {
     const image = this.state.currentSearch
     const users = this.state.users
-    this.props.searchGithubList(users, image)
+    this.props.searchGithubList(users, image, 'github')
   }
   syncRepoList() {
     const { syncRepoList } = this.props
@@ -436,11 +425,6 @@ class GithubComponent extends Component {
         },
         isAsync: true
       }
-    })
-  }
-  changeList(e) {
-    this.setState({
-      users: e
     })
   }
   registryRepo() {
@@ -501,18 +485,6 @@ class GithubComponent extends Component {
       }
     })
   }
-  showGogsModal() {
-    this.setState({ authorizeModal: true })
-    setTimeout(function(){
-      document.getElementById('github').focus()
-    },0)
-  }
-  changeUrl(e) {
-    this.setState({ regUrl: e.target.value })
-  }
-  changeToken(e) {
-    this.setState({ regToken: e.target.value })
-  }
   render() {
     const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
     const { getFieldProps } = this.props.form
@@ -549,13 +521,11 @@ class GithubComponent extends Component {
       ],
     })
     const scope = this
-    let typeNames = typeName == 'github' ? 'GitHub': 'Gogs'
-    let codeList = []
     if (!githubList) {
       if (typeName === 'github') {
         return (
           <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
-            <Button type="primary" size="large" onClick={() => this.showGithubConfig()}>授权、同步 GitHub  代码源</Button>
+            <Button type="primary" size="large" onClick={() => this.showGithubConfig()} disabled = {isFetching}>{isFetching? '加载中...' : '授权、同步 GitHub  代码源'}</Button>
             <Modal title={'选择代码源'} visible={this.state.githubConfigModal}
                    onCancel={()=> this.setState({githubConfigModal: false}) }
                    footer={[
@@ -576,18 +546,15 @@ class GithubComponent extends Component {
                       <p className="homePageUrl">
                         Homepage URL:
                         <input className="homePage" value={`${window.location.protocol}//${window.location.host}`}/>
-
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
                             <use xlinkHref='#appcentercopy' />
                           </svg>
                         </Tooltip>
-
                       </p>
                       <p>Application description: 任何你喜欢的描述，可选</p>
                       <p className="authorizationUrl">Authorization callback URL:
                         <input className="authorization" value={`${window.location.href}`}/>
-
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
                             <use xlinkHref='#appcentercopy' />
@@ -615,37 +582,27 @@ class GithubComponent extends Component {
           </div>
         )
       }
-
-    }
-    if (Object.keys(githubList).length > 0) {
-      for (let i in githubList) {
-        codeList.push(
-          <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={githubList[i]} />
-          </TabPane>
-        )
-      }
     }
 
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Icon type="user" />
-          <span>{this.props.userInfo && this.props.userInfo.repoUser.username}</span>
+          <span>{this.props.user && this.props.user}</span>
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
-          {/*<div className="right-search">*/}
-            {/*<Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />*/}
-            {/*<i className='fa fa-search' onClick={this.searchClick}></i>*/}
-          {/*</div>*/}
+          <div className="right-search">
+            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
+            <i className='fa fa-search' onClick={this.searchClick}></i>
+          </div>
         </div>
-        {/*<Tabs onChange={(e) => this.changeList(e)}>*/}
-          {/*{codeList}*/}
-        {/*</Tabs>*/}
+        <div>
+          <CodeList scope={scope} isFetching={isFetching} repoUser={this.props.user} data={githubList} />
+        </div>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
           >
@@ -658,20 +615,15 @@ class GithubComponent extends Component {
 
 
 function mapStateToProps(state, props) {
-  const defaultValue = {
-    githubList: false,
-    isFetching: false
-  }
-  const { githubRepo, userInfo } = state.cicd_flow
+  const { githubRepo } = state.cicd_flow
   const { cicdApi } = state.entities.loginUser.info
-  const { githubList, isFetching } = githubRepo['github'] || defaultValue
-
+  const { isFetching } = githubRepo
   return {
-    githubList,
+    githubList: githubRepo['github']? githubRepo['github'].githubList: false,
     isFetching,
     cicdApi,
-    userInfo: userInfo.github,
-    currentSpace: state.entities.current.space.namespace
+    user:githubRepo['github']? githubRepo['github'].users : '',
+
   }
 }
 
