@@ -29,7 +29,7 @@ import etcdImg from '../../assets/img/database_cache/etcd.jpg'
 import noZookeeper from '../../assets/img/database_cache/no_zookeeper.png'
 import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.png'
 import noEtcd from '../../assets/img/database_cache/no_etcd.png'
-
+import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import Title from '../Title'
 
 const clusterTable = {
@@ -261,6 +261,12 @@ class StatefulCluster extends Component {
           <div className='databaseCol' key={literal.displayName}>
             <Title title={literal.displayName} />
             <div className='databaseHead'>
+              {
+                clusterType === 'zookeeper' && <ResourceBanner resourceType='zookeeper'/>
+              }
+              {
+                 clusterType === 'elasticsearch' && <ResourceBanner resourceType='elasticsearch'/>
+              }
               {mode === standard ?
                 <div className='alertRow'>您的 {literal.displayName} 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
                 <div></div>}

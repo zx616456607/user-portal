@@ -60,6 +60,7 @@ import CreateGroup from './AlarmModal/CreateGroup'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
@@ -1438,6 +1439,7 @@ class ServiceList extends Component {
     return (
       <div id="AppServiceList">
         <Title title="服务列表" />
+        <ResourceBanner resourceType='service'/>
         <QueueAnim className="demo-content">
           <div key='animateBox'>
           <div className='operationBox operationBoxa'>

@@ -498,26 +498,32 @@ const parseMappingPorts = (annotations, spec) => {
     return;
   }
   let schemaPortName = annotations[TENX_SCHEMA_PORTNAME];
-  schemaPortName = schemaPortName.split(',');
-  const portArray = schemaPortName.map(item => {
-    const [ name, protocol ] = item.split('/');
-    return {
-      name,
-      protocol,
-    };
-  });
+  let portArray;
+  if (schemaPortName) {
+    schemaPortName = schemaPortName.split(',');
+    portArray = schemaPortName.map(item => {
+      const [ name, protocol ] = item.split('/');
+      return {
+        name,
+        protocol,
+      };
+    });
+  }
   const portsKeys = [];
   const portsParent = {};
   ports.forEach((port, index) => {
     portsKeys.push({
       value: index,
     });
-    const currentPort = portArray.filter(item => item.name === port.name)[0];
+    let currentPort;
+    if (portArray) {
+      currentPort = portArray.filter(item => item.name === port.name)[0];
+    }
     merge(portsParent, {
       [`${PORT}${index}`]: port.port,
-      [`${PORT_PROTOCOL}${index}`]: currentPort.protocol,
+      [`${PORT_PROTOCOL}${index}`]: currentPort ? currentPort.protocol : port.protocol,
     });
-    if (currentPort.protocol === 'TCP') {
+    if (!currentPort || currentPort.protocol === 'TCP') {
       merge(portsParent, {
         [`${MAPPING_PORTTYPE}${index}`]: MAPPING_PORT_AUTO,
       });

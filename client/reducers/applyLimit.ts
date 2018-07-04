@@ -18,12 +18,17 @@ function resourcequoteRecord(state = {}, action) {
         isFetching: true,
         total: 0,
       });
-    case ActionTypes.CHECK_APPLYRECORD_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        data: action.response.result.data.records,
-        total: action.response.result.data.total,
-      });
+    case ActionTypes.CHECK_APPLYRECORD_SUCCESS:{
+      if (action.noreducer) {
+        return state
+      } else {
+        return Object.assign({}, state, {
+          isFetching: false,
+          data: action.response.result.data.records,
+          total: action.response.result.data.total,
+        });
+      }
+    }
     case ActionTypes.CHECK_APPLYRECORD_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,

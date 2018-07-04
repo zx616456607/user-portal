@@ -1623,7 +1623,7 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
@@ -1631,7 +1631,7 @@ class Ordinary extends Component {
                         <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={4}>
                           {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                         </Col>
                       </Row>
