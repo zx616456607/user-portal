@@ -71,6 +71,8 @@ sh build.sh
 EOF
 #注意： Windows下也可使用（需要安装git）
 else
+  echo "lint ${project}"
+  npm run lint
   echo "start build ${project}"
   echo "node_env: ${NODE_ENV}"
   echo "running_mode: ${MODE}"

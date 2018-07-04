@@ -36,8 +36,8 @@ class TemplateInfo extends React.Component<any> {
 
   renderServices = () => {
     const { fields, id, editServiceKey, configureMode, saveService, deleteService } = this.props;
-    let serviceList: Array = [];
-    for (let [key, value] of Object.entries(fields)) {
+    const serviceList: Array = [];
+    for (const [key, value] of Object.entries(fields)) {
       const { serviceName, appPkgID } = value;
       let isWrap = false;
       if (serviceName && serviceName.value) {
@@ -79,13 +79,13 @@ class TemplateInfo extends React.Component<any> {
     let newCpuTotal = 0; // unit: C
     let newMemoryTotal = 0; // unit: G
     let newPriceHour = 0; // unit: T/￥
-    for (let key in fields) {
+    for (const key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
         const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key]);
         const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU);
         newCpuTotal += cpuShow * replicas;
         newMemoryTotal += memoryShow * replicas;
-        let price = current.cluster.resourcePrice[config];
+        const price = current.cluster.resourcePrice[config];
         if (price) {
           newPriceHour += price * replicas;
         } else {
