@@ -200,6 +200,7 @@
     "webpack-hot-middleware": "^2.12.2",
     "webpack-md5-hash": "^0.0.5",
     "whatwg-fetch": "^2.0.1",
-    "xterm": "^2.4.0"
+    "xterm": "^2.4.0",
+    "ws": "^5.2.1"
   }
 }

@@ -17,6 +17,16 @@
     function utf8_to_b64(str) {
       return window.btoa(window.unescape(encodeURIComponent(str)));
     }
+    function b64_to_utf8(str) {
+      // For k8s only
+      str = str.slice(1)
+      try {
+        str = decodeURIComponent(window.escape(window.atob(str)));
+      } catch (error) {
+        str = window.atob(str);
+      }
+      return str;
+    }
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function (event) {
       webSocketConnect()
@@ -75,7 +85,23 @@
           rows: rowsNum,
           cursorBlink: true
         });
-        ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
+        try {
+          ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
+        } catch (error) {
+          console.log('catch', error)
+        }
+        ws.addEventListener('close', function (event) {
+          console.log('close', event)
+        })
+        ws.addEventListener('open', function (event) {
+          console.log('open', event)
+        })
+        ws.addEventListener('error', function (event) {
+          console.log('error', event)
+        })
+        ws.addEventListener('message', function (message) {
+          console.log('message', b64_to_utf8(message.data))
+        })
         ws.addEventListener("open", function (event) {
           term.attach(ws);
           termCallback(data['pod'], 'success')
