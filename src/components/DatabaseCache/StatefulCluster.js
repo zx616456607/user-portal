@@ -245,7 +245,6 @@ class StatefulCluster extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList, clusterType, clusterProxy, storageClassType } = this.props;
-    console.log('clusterType', clusterType)
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
