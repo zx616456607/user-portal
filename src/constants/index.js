@@ -157,3 +157,4 @@ export const GPU_ALGORITHM = 'GPU'
 export const NO_CLASSIFY = 'noclassify'; // 未分类配置组
 export const CONFIGMAP_CLASSIFY_CONNECTION = '-configmap-classify-'
 export const GPU_KEY = 'nvidia.com/gpu';
+export const AI_MODELAPP_URL = '/ai-deep-learning/ai-model-service';

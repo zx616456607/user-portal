@@ -39,6 +39,68 @@ export function formatValuesToFields(values) {
   return fields
 }
 
+/**
+ * 校验配置文件路径、加密配置文件路径、存储卷挂载目录是否冲突
+ *
+ * @export
+ * @param {object} form form 对象
+ * @param {string} index 当前表单所在 index
+ * @param {string} value 当前输入值
+ * @param {string} type 'configMap' || 'secretConfigMap' || 'volume'
+ * @return {string} 'error' || undefined
+ */
+export function checkVolumeMountPath(form, index, value, type) {
+  const values = form.getFieldsValue()
+  const {
+    configMapKeys = [],
+    secretConfigMapKeys = [],
+    storageList = [],
+  } = values
+  let error
+
+  // 1.检查配置文件路径
+  const isConfigMap = type === 'configMap'
+  configMapKeys.every(_key => {
+    if (_key.deleted) {
+      return true
+    }
+    const _keyValue = _key.value
+    const configMapMountPath = values[`configMapMountPath${_keyValue}`]
+    if ((!isConfigMap || _keyValue !== index) && value === configMapMountPath) {
+      error = isConfigMap ? '已填写过该路径' : '该目录已被普通配置使用'
+      return false
+    }
+    return true
+  })
+
+  // 2.检查加密配置文件路径
+  const isSecretConfigMap = type === 'secretConfigMap'
+  secretConfigMapKeys.every(_key => {
+    if (_key.deleted) {
+      return true
+    }
+    const _keyValue = _key.value
+    const secretConfigMapMountPath = values[`secretConfigMapMountPath${_keyValue}`]
+    if ((!isSecretConfigMap || _keyValue !== index) && value === secretConfigMapMountPath) {
+      error = isSecretConfigMap ? '已填写过该路径' : '该目录已被加密配置使用'
+      return false
+    }
+    return true
+  })
+
+  // 3.检查存储卷挂载目录
+  const isVolume = type === 'volume'
+  storageList.every(({ mountPath }, _index) => {
+    if ((!isVolume || _index !== index) && value === mountPath) {
+      error = type === 'volume' ? '已填写过该路径' : '该目录已被存储卷目录使用'
+      return false
+    }
+    return true
+  })
+
+  return error
+}
+
 export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
@@ -93,6 +155,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     serviceTag,         // 服务与节点 标签
     serviceBottomTag,  // 服务与服务 标签
     advanceSet, // 服务与服务 高级设置
+    modelSet,  // 模型集
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -113,6 +176,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     deployment.setAnnotations({
       appPkgID
     })
+  }
+  if (modelSet) {
+    deployment.metadata.labels["tensorflow/model-serving-app"] = ''
+    deployment.setAnnotations({'tensorflow/modelset-name': modelSet})
   }
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)

@@ -64,6 +64,7 @@ let ConfigureService = React.createClass({
     const { callback, imageName, registryServer, form, mode, location, template, newImageName } = this.props
     let  { appName,templateName, templateVersion, templateDesc } = this.props
     const { setFieldsValue } = form
+    const { modelSet } = location.query
     callback && callback(form)
     if (location.query.template && appName) {
       setFieldsValue({
@@ -105,6 +106,11 @@ let ConfigureService = React.createClass({
       setFieldsValue(values)
     }
     this.loadImageTags(this.props, newImageName)
+    if (modelSet) {
+      setFieldsValue({
+        modelSet
+      })
+    }
   },
   focusInput(refId) {
     const ref = this.refs[refId]
@@ -538,7 +544,8 @@ let ConfigureService = React.createClass({
     const { imageConfigs } = this.state
     const { getFieldProps } = form
     const { query } = location
-    const { isWrap, fileType, registryServer, template: queryTemplate } = query || { isWrap: 'false' }
+    const { isWrap, fileType, registryServer, template: queryTemplate,
+      addAI, imageName, modelSet } = query || { isWrap: 'false' }
     let appNameProps;
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
@@ -605,7 +612,7 @@ let ConfigureService = React.createClass({
           {!isTemplate &&
             <FormItem
               {...formItemLayout}
-              wrapperCol={{ span: 8 }}
+              wrapperCol={{ span: 9 }}
               label="应用名称"
               hasFeedback
               key="appName"
@@ -626,7 +633,7 @@ let ConfigureService = React.createClass({
                 hasFeedback
                 key="templateVersion"
                 {...formItemLayout}
-                wrapperCol={{ span: 8 }}
+                wrapperCol={{ span: 9 }}
               >
                 <Input
                   size="large"
@@ -658,7 +665,7 @@ let ConfigureService = React.createClass({
                 label="模板描述"
                 key="templateDesc"
                 {...formItemLayout}
-                wrapperCol={{ span: 8 }}
+                wrapperCol={{ span: 9 }}
               >
                 <Input
                   size="large"
@@ -670,7 +677,7 @@ let ConfigureService = React.createClass({
             }
             <FormItem
               {...formItemLayout}
-              wrapperCol={{ span: 8 }}
+              wrapperCol={{ span: 9 }}
               label="服务名称"
               hasFeedback
               key="serviceName"
@@ -685,7 +692,7 @@ let ConfigureService = React.createClass({
             </FormItem>
             {isWrap === 'true' &&
             <FormItem {...formItemLayout}
-              wrapperCol={{ span: 8 }}
+              wrapperCol={{ span: 9 }}
               label="应用包"
               hasFeedback
               key="Appwrap">
@@ -693,10 +700,27 @@ let ConfigureService = React.createClass({
             </FormItem>
             }
             {
+              addAI && modelSet &&
+              <FormItem
+                {...formItemLayout}
+                wrapperCol={{ span: 9 }}
+                label="模型集"
+                hasFeedback
+                key="modelSet"
+              >
+                <Input
+                  size="large"
+                  placeholder="请输入模型集名称"
+                  readOnly
+                  value={modelSet}
+                />
+              </FormItem>
+            }
+            {
               (!queryTemplate || (queryTemplate && isWrap !== 'true')) &&
               <FormItem
                 {...formItemLayout}
-                wrapperCol={{ span: 8 }}
+                wrapperCol={{ span: 9 }}
                 label={location.query.appPkgID ? '运行环境':"镜像"}
                 key="image"
               >

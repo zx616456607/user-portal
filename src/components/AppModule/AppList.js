@@ -431,7 +431,8 @@ class AppList extends Component {
     } = nextProps || this.props
     const query = { page, size, name, sortOrder, sortBy }
     query.customizeOpts = options
-    loadAppList(cluster, query, {
+
+    loadAppList(cluster, query, location.pathname, {
       success: {
         func: (result) => {
           // Add app status watch, props must include statusWatchWs!!!
@@ -442,7 +443,7 @@ class AppList extends Component {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
-            loadAppList(cluster, query)
+            loadAppList(cluster, query, location.pathname)
           }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
@@ -1030,9 +1031,14 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-
-    const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
-        <i className="fa fa-plus" />创建应用
+    let linkUrl = '/app_manage/app_create'
+    let createBtn = '创建应用'
+    if (pathname === '/ai-deep-learning/ai-model-service') {
+      linkUrl = '/app_manage/app_create/quick_create?addAI=true'
+      createBtn = 'AI 模型应用'
+    }
+    const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push(linkUrl)}>
+        <i className="fa fa-plus" /> { createBtn }
       </Button>)
 
     return (

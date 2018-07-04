@@ -14,7 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../../common/status_identify'
 import { connect } from 'react-redux'
-import { loadClusterInfo } from '../../../../actions/overview_cluster'
+import { loadClusterInfo, GetPrivilege } from '../../../../actions/overview_cluster'
 import { loadClusterSummary } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { parseAmount } from '../../../../common/tools'
@@ -25,11 +25,13 @@ import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import snapshot from '../../../../assets/img/snapshot.png'
+import noPermission from '../../../../assets/img/noPermission.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
+import { isResourcePermissionError } from '../../../../common/tools'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
@@ -167,6 +169,8 @@ class Ordinary extends Component {
       publicCount: 0,
       roleNameArr: '',
       minvisible: true,
+      isLoading: true,
+      isNoPermission: false,
     }
   }
 
@@ -181,15 +185,37 @@ class Ordinary extends Component {
     })
   }
 
-  componentWillMount() {
-    const { loadClusterInfo, current } = this.props
-    const { minvisible } = this.state
-    const { clusterID } = current.cluster
-    loadClusterInfo(clusterID, { minvisible })
-    this.loadClusterSummary(clusterID)
-    this.fetchQuotaList()
-    this.storageList()
-    this.fetchProjectName()
+  async componentWillMount() {
+    const { GetPrivilege, current, loginUser, loadClusterInfo } = this.props
+    let b = true
+    await GetPrivilege({
+      username: loginUser.userName,
+      project: current.space.namespace,
+    },{
+      failed: {
+        func: err => {
+          if(isResourcePermissionError(err)){
+            this.setState({
+              isNoPermission: true,
+            })
+            b = false
+          }
+        }
+      }
+    })
+    this.setState({
+      isLoading: false,
+    }, () => {
+      if(b){
+        const { minvisible } = this.state
+        const { clusterID } = current.cluster
+        loadClusterInfo(clusterID, { minvisible })
+        this.loadClusterSummary(clusterID)
+        this.fetchQuotaList()
+        this.storageList()
+        this.fetchProjectName()
+      }
+    })
   }
 
   handleMinVisible(e) {
@@ -419,9 +445,9 @@ class Ordinary extends Component {
       <Row className="number-row" >
         <Col span={7}></Col>
         <Col span={17} className="number" >
-          <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
+          <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
-          <p>{maxCount === -1 ? '无限制' : maxCount}</p>
+          <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
         </Col>
       </Row>
     )
@@ -459,6 +485,23 @@ class Ordinary extends Component {
   }
 
   render() {
+    const { isLoading, isNoPermission } = this.state
+    if(isLoading){
+      return <div id='OrdinaryLoading'>
+        <Spin spinning={isLoading}>
+        </Spin>
+      </div>
+    }
+    if(isNoPermission){
+      return (
+        <div id='Ordinary'>
+          <div className="noPermission">
+            <img src={noPermission} />
+            <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
+          </div>
+        </div>
+      )
+    }
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
     const { space } = current
@@ -1538,16 +1581,19 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info" key={`calculation-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 6, right: 18})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 6, right: 18})}
+
                     </div>
                   ))
                 }
@@ -1557,16 +1603,18 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info" key={`application-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 9, right: 15})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 9, right: 15})}
                     </div>
                   ))
                 }
@@ -1576,16 +1624,18 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 14, right: 10})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                     </div>
                   ))
                 }
@@ -2460,4 +2510,5 @@ export default connect(mapStateToProp, {
   loadClusterInfo,
   loadClusterSummary,
   GetProjectsDetail,
+  GetPrivilege,
 })(Ordinary)

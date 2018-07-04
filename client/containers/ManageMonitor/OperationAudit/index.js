@@ -230,8 +230,8 @@ const formatOperationType = (code, data) => {
   for (const v of data) {
     if (v.children) {
       for (const k of v.children) {
-        if (k.opetation) {
-          types = types.concat(k.opetation)
+        if (k.operation) {
+          types = types.concat(k.operation)
         }
       }
     }
@@ -241,7 +241,6 @@ const formatOperationType = (code, data) => {
     hash[next.id] ? '' : hash[next.id] = true && item.push(next)
     return item
   }, [])
-
   for (const v of types) {
     if (code === v.id) {
       return v.resourceName
@@ -289,41 +288,45 @@ class OperationalAudit extends React.Component {
     this.getData()
     this.props.getOperationalTarget()
   }
-
+  // 将各个操作对象对应的操作类型按照 id:operation的形式格式化
+  selectOperation = list => {
+    const operationList = []
+    const select = arr => {
+      for (const v of arr) {
+        if (v.operation) {
+          operationList.push({
+            id: v.id,
+            operation: v.operation,
+          })
+        }
+        if (v.children) {
+          select(v.children)
+        }
+      }
+    }
+    select(list)
+    return operationList
+  }
   // 选择操作对象
   selectOptionTarget = value => {
     this.setState({
       resource: value,
+      operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
+      operation: undefined,
     }, () => {
       const { filterData } = this.props
-      this.setState({
-        operation: undefined,
-      })
-
       if (value.length !== 0) {
-        if (value.length === 1) {
-          this.setState({
-            operationType: [{ id: undefined, resourceName: '暂无可选' }],
-          })
-        }
-        for (const v of filterData) {
-          if (v.children) {
-            for (const k of v.children) {
-              if (value[value.length - 1] === k.id) {
-                this.setState({
-                  operationType: k.opetation ? k.opetation : [{ id: undefined, resourceName: '暂无可选' }],
-                })
-              }
-            }
+        const id = value[value.length - 1]
+        const selectOperationList = this.selectOperation(filterData)
+        // 将选出来的操作对象id和格式好的operation(操作类型数组循环比较，若比较出来，将操作类型的数组值赋为比较出来的值)
+        for (const v of selectOperationList) {
+          if (id === v.id) {
+            this.setState({
+              operationType: v.operation,
+            })
           }
         }
-      } else {
-        this.setState({
-          operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
-          operation: undefined,
-        })
       }
-
     })
   }
   // 选择操作类型
@@ -407,35 +410,35 @@ class OperationalAudit extends React.Component {
   }
   parseData = arr => {
     let operationType = []
-    const operationObjects = []
-    const mapData = arr => {
-      for (const v of arr) {
-        const item = {
-          label: v.name,
-          value: v.id,
-        }
-        if (v.children) {
-          const children = []
-          for (const k of v.children) {
-            const childItem = {
-              label: k.name,
-              value: k.id,
-            }
-            children.push(childItem)
+    // const operationObjects = []
+    const dataFormat = data => {
+      const list = data
+      const mapData = arr => {
+        for (const v of arr) {
+          v.label = v.name
+          v.value = v.id
+          if (v.children) {
+            mapData(v.children)
           }
-          item.children = children
+          if (v.operation) {
+            operationType = [ ...operationType, ...v.operation ]
+          }
         }
-
-        if (v.opetation) {
-          operationType = [ ...operationType, ...v.opetation ]
-        }
-        operationObjects.push(item)
       }
+      mapData(list)
     }
-    mapData(arr)
+    dataFormat(arr)
+    // const formatOperationType = types => {
+    //   const hash = {}
+    //   types = types.reduce(function(item, next) {
+    //     hash[next.id] ? '' : hash[next.id] = true && item.push(next)
+    //     return item
+    //   }, [])
+    //   return types
+    // }
     return {
-      operationType,
-      operationObjects,
+
+      operationObjects: arr,
     }
   }
 
