@@ -139,15 +139,15 @@ class AppTemplate extends React.Component<IProps, IState> {
       if (isEmpty(template)) {
         getImageTemplate(DEFAULT_REGISTRY).then(res => {
           newTemplateList = res.response.result.template;
-          let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
-          let newImageName = currentTemplate.name;
+          const currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+          const newImageName = currentTemplate.name;
           this.setState({
             newImageName,
           });
         });
       } else {
-        let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
-        let newImageName = currentTemplate.name;
+        const currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+        const newImageName = currentTemplate.name;
         this.setState({
           newImageName,
         });
@@ -194,7 +194,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { currentStep } = this.state;
     const { fields, template, getImageTemplate } = this.props;
     const { validateFieldsAndScroll } = this.form;
-    let notify = new NotificationHandler();
+    const notify = new NotificationHandler();
     const query = {
       key,
       isWrap,
@@ -225,15 +225,15 @@ class AppTemplate extends React.Component<IProps, IState> {
           if (isEmpty(template)) {
             getImageTemplate(DEFAULT_REGISTRY).then(res => {
               newTemplateList = res.response.result.template;
-              let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
-              let newImageName = currentTemplate.name;
+              const currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+              const newImageName = currentTemplate.name;
               this.setState({
                 newImageName,
               });
             });
           } else {
-            let currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
-            let newImageName = currentTemplate.name;
+            const currentTemplate = newTemplateList.filter(item => item.type === fileType)[0];
+            const newImageName = currentTemplate.name;
             this.setState({
               newImageName,
             });
@@ -286,7 +286,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { deleteKey, currentStep } = this.state;
     const serviceLength = Object.keys(fields).length;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
-    let notify = new NotificationHandler();
+    const notify = new NotificationHandler();
     if (serviceLength === 1) {
       notify.warn('删除错误', '至少保留一个服务');
       return;
