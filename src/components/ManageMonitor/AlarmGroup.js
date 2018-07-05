@@ -86,7 +86,7 @@ class AlarmGroup extends Component {
   deleteGroup(rowSelection) {
     const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
-    if (!this.state.deletingGroupIDs) {
+    if (!this.state.selectedRowKeys) {
       notification.error('请选择要删除的通知组')
     }
     const {
@@ -95,10 +95,10 @@ class AlarmGroup extends Component {
     } = this.props
 
     // unselect all rows
-    this.setState({
-      selectedRowKeys: [],
-    })
-    deleteNotifyGroups(this.state.deletingGroupIDs, clusterID, {
+    // this.setState({
+    //   selectedRowKeys: [],
+    // })
+    deleteNotifyGroups(this.state.selectedRowKeys, {
       success: {
         func: (result) => {
           this.closeDeleteModal()
@@ -132,13 +132,13 @@ class AlarmGroup extends Component {
     }
     this.setState({
       deleteModal: true,
-      deletingGroupIDs: groupIDs,
+      selectedRowKeys: groupIDs,
     })
   }
   closeDeleteModal() {
     this.setState({
       deleteModal: false,
-      deletingGroupIDs: [],
+      selectedRowKeys: [],
     })
   }
   openModifyModal(group) {
@@ -222,25 +222,6 @@ class AlarmGroup extends Component {
       return
     }
     return this.state.selectedRows[0]
-  }
-  handClickRow(e) {
-    // this func is click table row then checkbox checked or false
-    const { groups } = this.props
-    const { selectedRowKeys, deletingGroupIDs, selectedRows } = this.state
-    let keys = cloneDeep(selectedRowKeys)
-    let selectGrops = cloneDeep(deletingGroupIDs)
-    groups.map((list, index) => {
-      if (list.groupID == e.groupID) {
-        if (selectedRowKeys.indexOf(index) > -1) {
-          keys.splice(selectedRowKeys.indexOf(index))
-          selectGrops.splice(selectedRows[index])
-          return
-        }
-        selectGrops.push(e)
-        return keys.push(index)
-      }
-    })
-    this.setState({ selectedRowKeys: keys, selectedRows: selectGrops })
   }
   showAlramGroup() {
     this.setState({
@@ -395,7 +376,7 @@ class AlarmGroup extends Component {
               pagination={paginationProps}
               rowSelection={rowSelection}
               loading={this.props.isFetching}
-              onRowClick={(e) => this.handClickRow(e)}
+              rowKey="groupID"
             >
             </Table>
             { tableData && tableData.length !== 0 &&<span className="pageCount">共计 {tableData.length} 条</span>}
