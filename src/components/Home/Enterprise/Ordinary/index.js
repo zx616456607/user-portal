@@ -487,14 +487,14 @@ class Ordinary extends Component {
   render() {
     const { isLoading, isNoPermission } = this.state
     if(isLoading){
-      return <div id='OrdinaryLoading'>
+      return <div className="loading">
         <Spin spinning={isLoading}>
         </Spin>
       </div>
     }
     if(isNoPermission){
       return (
-        <div id='Ordinary'>
+        <div id='Ordinary' className="loading">
           <div className="noPermission">
             <img src={noPermission} />
             <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
