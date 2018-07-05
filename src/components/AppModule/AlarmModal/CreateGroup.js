@@ -466,6 +466,10 @@ let CreateAlarmGroup = React.createClass({
             <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
           </div>
         </div>
+
+        {/*
+        // 暂不支持 手机号 、微信 【LOT-137】
+
         <div className="lables">
           <div className="keys">
             手机
@@ -490,7 +494,8 @@ let CreateAlarmGroup = React.createClass({
               </a>
             </div>
           </div>
-        </div>
+        </div> */}
+
         <div className="ant-modal-footer" style={{margin:'0 -30px'}}>
           <Button type="ghost" size="large" onClick={()=> this.handCancel()}>取消</Button>
           <Button type="primary" size="large" onClick={()=> this.okModal()}>保存</Button>
