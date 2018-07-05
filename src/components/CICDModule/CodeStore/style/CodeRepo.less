@@ -167,8 +167,22 @@
     background: #f7f7f7;
     border: 1px dashed @border;
     .indent-content {
+      &:first-child {
+        margin-bottom: 10px;
+      }
       .indent-content-inner {
         padding-left: 10px;
+        .homePage,.authorization {
+          opacity: 0;
+          height: 0;
+        }
+        .applicationName{
+          margin-top: -18px;
+        }
+        .url {
+          color: @primary-color;
+          margin-right: 5px;
+        }
         .homePageUrl,.authorizationUrl {
           display: flex;
           justify-content: flex-start;
