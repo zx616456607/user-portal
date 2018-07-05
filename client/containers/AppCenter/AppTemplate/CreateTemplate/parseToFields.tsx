@@ -62,7 +62,7 @@ const CPU_ARRAY = [
 
 const formatValues = values => {
   const newValues = {};
-  for (let [key, value] of Object.entries(values)) {
+  for (const [key, value] of Object.entries(values)) {
     Object.assign(newValues, {
       [key]: {
         name: key,
@@ -135,10 +135,10 @@ const parseResource = containers => {
   const { cpu: limitsCpu, memory: limitsMemory } = limits;
   const { cpu: requestsCpu, memory: requestsMemory } = requests;
   let resourceType: any;
-  let DIYMemory: number = parseMemory(requestsMemory);
-  let DIYCPU: number = parseCpuToNumber(requestsCpu);
-  let DIYMaxMemory: number = parseMemory(limitsMemory);
-  let DIYMaxCPU: number = parseCpuToNumber(limitsCpu);
+  const DIYMemory: number = parseMemory(requestsMemory);
+  const DIYCPU: number = parseCpuToNumber(requestsCpu);
+  const DIYMaxMemory: number = parseMemory(limitsMemory);
+  const DIYMaxCPU: number = parseCpuToNumber(limitsCpu);
   resourceType = DIYMemory;
   const result = parseResourceIsDiy(DIYMemory, DIYCPU, DIYMaxCPU);
   if (result) {
@@ -263,13 +263,13 @@ const parseStorage = annotations => {
   serviceType = true;
   let storageOpts = annotations[TEMPLATE_STORAGE].replace(/&#34;/g, '\"');
   storageOpts = JSON.parse(storageOpts);
-  let storageParent = {};
+  const storageParent = {};
   const storageList: object[] = [];
   const templateStorage: string[] = [];
   storageOpts.forEach(item => {
     templateStorage.push(item.name);
     const sourceType = item.name.split('-')[0];
-    let type: string = formatStorageType(sourceType);
+    const type: string = formatStorageType(sourceType);
 
     storageList.push({
       ...item,
@@ -364,7 +364,7 @@ const parseConfigMap = (containers, volumes, annotations) => {
       if (classifyName === NO_CLASSIFY) {
         classifyName = '未分类配置组';
       }
-      let configGroupName: string[] = [classifyName, innerName];
+      const configGroupName: string[] = [classifyName, innerName];
       existentConfigMap.push(configGroupName.toString());
       configMapKeys.push({
         value: ++ configId,
@@ -498,26 +498,32 @@ const parseMappingPorts = (annotations, spec) => {
     return;
   }
   let schemaPortName = annotations[TENX_SCHEMA_PORTNAME];
-  schemaPortName = schemaPortName.split(',');
-  const portArray = schemaPortName.map(item => {
-    const [ name, protocol ] = item.split('/');
-    return {
-      name,
-      protocol,
-    };
-  });
+  let portArray;
+  if (schemaPortName) {
+    schemaPortName = schemaPortName.split(',');
+    portArray = schemaPortName.map(item => {
+      const [ name, protocol ] = item.split('/');
+      return {
+        name,
+        protocol,
+      };
+    });
+  }
   const portsKeys = [];
   const portsParent = {};
   ports.forEach((port, index) => {
     portsKeys.push({
       value: index,
     });
-    const currentPort = portArray.filter(item => item.name === port.name)[0];
+    let currentPort;
+    if (portArray) {
+      currentPort = portArray.filter(item => item.name === port.name)[0];
+    }
     merge(portsParent, {
       [`${PORT}${index}`]: port.port,
-      [`${PORT_PROTOCOL}${index}`]: currentPort.protocol,
+      [`${PORT_PROTOCOL}${index}`]: currentPort ? currentPort.protocol : port.protocol,
     });
-    if (currentPort.protocol === 'TCP') {
+    if (!currentPort || currentPort.protocol === 'TCP') {
       merge(portsParent, {
         [`${MAPPING_PORTTYPE}${index}`]: MAPPING_PORT_AUTO,
       });
@@ -554,8 +560,8 @@ const parseIngress = ingress => {
   }
   accessType = 'loadBalance';
   let loadBalance: string;
-  let lbKeys: Array = [];
-  let ingressParent: object = {};
+  const lbKeys: Array = [];
+  const ingressParent: object = {};
   ingress.forEach((item, index) => {
     const {
       controllerInfo, displayName, lbAlgorithm, sessionSticky,

@@ -56,6 +56,10 @@ function getValueByKey(key, json) {
   })
 }
 
+exports.getValueByKey = function (key, json) {
+  return getValueByKey(`${sessionPrefix}${redisConfig.session_store_prefix}${key}`, json)
+}
+
 function delKey(key) {
   return new Promise((resolve, reject) => {
     redisClient.del(key, (err, res) => {
