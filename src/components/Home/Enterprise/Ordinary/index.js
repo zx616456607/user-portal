@@ -169,8 +169,6 @@ class Ordinary extends Component {
       publicCount: 0,
       roleNameArr: '',
       minvisible: true,
-      isLoading: true,
-      isNoPermission: false,
     }
   }
 
@@ -185,37 +183,15 @@ class Ordinary extends Component {
     })
   }
 
-  async componentWillMount() {
-    const { GetPrivilege, current, loginUser, loadClusterInfo } = this.props
-    let b = true
-    await GetPrivilege({
-      username: loginUser.userName,
-      project: current.space.namespace,
-    },{
-      failed: {
-        func: err => {
-          if(isResourcePermissionError(err)){
-            this.setState({
-              isNoPermission: true,
-            })
-            b = false
-          }
-        }
-      }
-    })
-    this.setState({
-      isLoading: false,
-    }, () => {
-      if(b){
-        const { minvisible } = this.state
-        const { clusterID } = current.cluster
-        loadClusterInfo(clusterID, { minvisible })
-        this.loadClusterSummary(clusterID)
-        this.fetchQuotaList()
-        this.storageList()
-        this.fetchProjectName()
-      }
-    })
+  componentWillMount() {
+    const { current, loadClusterInfo } = this.props
+    const { minvisible } = this.state
+    const { clusterID } = current.cluster
+    loadClusterInfo(clusterID, { minvisible })
+    this.loadClusterSummary(clusterID)
+    this.fetchQuotaList()
+    this.storageList()
+    this.fetchProjectName()
   }
 
   handleMinVisible(e) {
@@ -485,23 +461,6 @@ class Ordinary extends Component {
   }
 
   render() {
-    const { isLoading, isNoPermission } = this.state
-    if(isLoading){
-      return <div className="loading">
-        <Spin spinning={isLoading}>
-        </Spin>
-      </div>
-    }
-    if(isNoPermission){
-      return (
-        <div id='Ordinary' className="loading">
-          <div className="noPermission">
-            <img src={noPermission} />
-            <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
-          </div>
-        </div>
-      )
-    }
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
     const { space } = current
