@@ -509,7 +509,7 @@ class GithubComponent extends Component {
       if (typeName === 'github') {
         return (
           <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
-            <Button type="primary" size="large" onClick={() => this.showGithubConfig()} disabled = {isFetching}>{isFetching? '加载中...' : '授权、同步 GitHub  代码源'}</Button>
+            <Button type="primary" size="large" style={{ width: 196 }} onClick={() => this.showGithubConfig()} disabled = {isFetching}>{isFetching? '加载中...' : '授权、同步 GitHub  代码源'}</Button>
             <Modal title={'选择代码源'} visible={this.state.githubConfigModal}
                    onCancel={()=> this.setState({githubConfigModal: false}) }
                    footer={[
@@ -521,15 +521,17 @@ class GithubComponent extends Component {
                 <div className="content">
                   <p className="indent-content">
                     <h4>① 标准GitHub，<a href="https://github.com/settings/developers" target="_blank">点击此处</a> 在弹出的新窗口中进行应用设置。</h4>
-                    <div className="indent-content-inner">企业版GitHub，请登录你的账号，点击Settings，然后点击Applications进行设置。</div>
                   </p>
                   <p className="indent-content">
                     <h4>② 点击 "Register new application" 并填写表单内容:</h4>
                     <div className="indent-content-inner">
-                      <p>Application name: 任何您喜欢的应用名称, 例如 My app</p>
+                      <input className="homePage" value={`${window.location.protocol}//${window.location.host}`}/>
+                      <input className="authorization" value={`${window.location.protocol}//${window.location.host+window.location.pathname}`}/>
+                      <p className="applicationName">Application name: 任何您喜欢的应用名称, 例如 My app</p>
                       <p className="homePageUrl">
                         Homepage URL:
-                        <input className="homePage" value={`${window.location.protocol}//${window.location.host}`}/>
+
+                        <span className="url">{`${window.location.protocol}//${window.location.host}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
                             <use xlinkHref='#appcentercopy' />
@@ -538,7 +540,7 @@ class GithubComponent extends Component {
                       </p>
                       <p>Application description: 任何你喜欢的描述，可选</p>
                       <p className="authorizationUrl">Authorization callback URL:
-                        <input className="authorization" value={`${window.location.href}`}/>
+                        <span className="url">{`${window.location.protocol}//${window.location.host+window.location.pathname}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
                             <use xlinkHref='#appcentercopy' />

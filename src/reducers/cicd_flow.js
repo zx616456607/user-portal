@@ -168,7 +168,7 @@ function githubRepo(state = {}, action) {
         github: {
           githubList: list[Object.keys(list)[0]],
           githubbak: list[Object.keys(list)[0]],
-          users:list[Object.keys(list)[0]].user
+          users:Object.keys(list)[0]
         }
       })
     }
