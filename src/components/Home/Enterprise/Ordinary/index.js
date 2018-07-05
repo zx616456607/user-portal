@@ -25,13 +25,11 @@ import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import snapshot from '../../../../assets/img/snapshot.png'
-import noPermission from '../../../../assets/img/noPermission.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
-import { isResourcePermissionError } from '../../../../common/tools'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {

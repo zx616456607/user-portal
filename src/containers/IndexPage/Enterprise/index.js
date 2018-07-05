@@ -9,6 +9,8 @@ import Ordinary from '../../../components/Home/Enterprise/Ordinary'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import Footer from '../../../components/Home/Footer'
 import Title from '../../../components/Title'
+import noPermission from '../../../assets/img/noPermission.png'
+import { isResourcePermissionError } from '../../../common/tools'
 
 class IndexPage extends Component {
   constructor(props) {
