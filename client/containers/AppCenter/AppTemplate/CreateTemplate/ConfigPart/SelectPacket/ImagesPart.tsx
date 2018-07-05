@@ -50,7 +50,7 @@ class ImagePart extends React.Component<IProps, IState> {
   loadImage = async () => {
     const { loadAllProject, clusterID, images } = this.props;
     const { searchValue, imageType, currentPage } = this.state;
-    let notify = new NotificationHandler();
+    const notify = new NotificationHandler();
     const query = {};
     if (searchValue) {
       Object.assign(query, { q: searchValue });
@@ -67,12 +67,12 @@ class ImagePart extends React.Component<IProps, IState> {
   loadImageStore() {
     const { getAppsList } = this.props;
     const { searchValue, currentPage } = this.state;
-    let notify = new NotificationHandler();
+    const notify = new NotificationHandler();
     let filter = 'type,2,publish_status,2';
     if (searchValue) {
       filter += `,file_nick_name,${searchValue}`;
     }
-    let query = {
+    const query = {
       form: (currentPage - 1) * 10,
       size: 10,
       filter,

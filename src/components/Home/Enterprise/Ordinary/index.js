@@ -25,13 +25,11 @@ import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
 import snapshot from '../../../../assets/img/snapshot.png'
-import noPermission from '../../../../assets/img/noPermission.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../constants'
 import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
-import { isResourcePermissionError } from '../../../../common/tools'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
@@ -169,8 +167,6 @@ class Ordinary extends Component {
       publicCount: 0,
       roleNameArr: '',
       minvisible: true,
-      isLoading: true,
-      isNoPermission: false,
     }
   }
 
@@ -185,37 +181,15 @@ class Ordinary extends Component {
     })
   }
 
-  async componentWillMount() {
-    const { GetPrivilege, current, loginUser, loadClusterInfo } = this.props
-    let b = true
-    await GetPrivilege({
-      username: loginUser.userName,
-      project: current.space.namespace,
-    },{
-      failed: {
-        func: err => {
-          if(isResourcePermissionError(err)){
-            this.setState({
-              isNoPermission: true,
-            })
-            b = false
-          }
-        }
-      }
-    })
-    this.setState({
-      isLoading: false,
-    }, () => {
-      if(b){
-        const { minvisible } = this.state
-        const { clusterID } = current.cluster
-        loadClusterInfo(clusterID, { minvisible })
-        this.loadClusterSummary(clusterID)
-        this.fetchQuotaList()
-        this.storageList()
-        this.fetchProjectName()
-      }
-    })
+  componentWillMount() {
+    const { current, loadClusterInfo } = this.props
+    const { minvisible } = this.state
+    const { clusterID } = current.cluster
+    loadClusterInfo(clusterID, { minvisible })
+    this.loadClusterSummary(clusterID)
+    this.fetchQuotaList()
+    this.storageList()
+    this.fetchProjectName()
   }
 
   handleMinVisible(e) {
@@ -485,23 +459,6 @@ class Ordinary extends Component {
   }
 
   render() {
-    const { isLoading, isNoPermission } = this.state
-    if(isLoading){
-      return <div id='OrdinaryLoading'>
-        <Spin spinning={isLoading}>
-        </Spin>
-      </div>
-    }
-    if(isNoPermission){
-      return (
-        <div id='Ordinary'>
-          <div className="noPermission">
-            <img src={noPermission} />
-            <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
-          </div>
-        </div>
-      )
-    }
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
     const { space } = current
