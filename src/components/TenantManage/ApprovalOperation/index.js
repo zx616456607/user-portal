@@ -136,9 +136,6 @@ const findClusersName = ({ id, choiceClusters }) => {
       for (const key in applyDetails) {
         const clusterName = findClusersName({ id: key, choiceClusters })
         for (const resourcekey in applyDetails[key]) {
-          console.log('key', key)
-          console.log('resourcekey', resourcekey)
-          console.log('resourceInuse', resourceInuse)
           // console.log('globaleDevopsQuotaList', globaleDevopsQuotaList)
           date.push({
             key: indexKey,
@@ -299,7 +296,6 @@ const mapStateToProps = (state, props) => {
   let resourceInuse = props.resourceInuseProps
   let globaleDevopsQuotaList = props.globaleDevopsQuotaList
   const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse, globaleDevopsQuotaList)
-  console.log('tabDtaa', tabData)
   return {
     resourcequoteRecord: detailData, choiceClusters,tabData,
   }
