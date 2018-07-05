@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * index.less page
+ *
+ * @author zhangtao
+ * @date Thursday July 5th 2018
+ */
 @import '../../../../assets/style/site/core.less';
 .ResourceBanner {
   display: flex;
@@ -19,5 +28,15 @@
   }
   .progress {
     width: 200px;
+  }
+  .reload{
+    padding-left: @padding-base;
+    color: @primary-color;
+    cursor: pointer;
+  }
+  .ResourceBanner {
+    .ant-progress-inner {
+      background-color: #c4dff6!important;
+    }
   }
 }

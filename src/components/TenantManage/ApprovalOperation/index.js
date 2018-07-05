@@ -129,18 +129,22 @@ const findClusersName = ({ id, choiceClusters }) => {
     }
 }
 
-  const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse) => {
+  const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse, globaleDevopsQuotaList) => {
     const date = []
     let indexKey = 1
-    if (applyDetails) {
+    if (applyDetails && globaleDevopsQuotaList && !_.isEmpty(resourceInuse)) {
       for (const key in applyDetails) {
         const clusterName = findClusersName({ id: key, choiceClusters })
         for (const resourcekey in applyDetails[key]) {
+          console.log('key', key)
+          console.log('resourcekey', resourcekey)
+          console.log('resourceInuse', resourceInuse)
+          // console.log('globaleDevopsQuotaList', globaleDevopsQuotaList)
           date.push({
             key: indexKey,
             resource: resourcekey,
             aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-            use: resourceInuse[key][resourcekey],
+            use: resourceInuse[key][resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
             applyLimit: applyDetails[key][resourcekey] || '无限制',
             approvalStatus: approveDetails[key] ? approveDetails[key].indexOf(resourcekey) !== -1 : false,
             clusterID: key,
@@ -293,7 +297,9 @@ const mapStateToProps = (state, props) => {
   const { data: recordData = {} } = detailData
   const { applyDetails, approveDetails } = recordData
   let resourceInuse = props.resourceInuseProps
-  const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse)
+  let globaleDevopsQuotaList = props.globaleDevopsQuotaList
+  const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse, globaleDevopsQuotaList)
+  console.log('tabDtaa', tabData)
   return {
     resourcequoteRecord: detailData, choiceClusters,tabData,
   }

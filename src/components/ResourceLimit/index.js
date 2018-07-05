@@ -651,7 +651,10 @@ class ResourceQuota extends React.Component {
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
-    const { clusterData, clusterName, isProject } = this.props
+    const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
+       showProjectName
+     } = this.props
+    // console.log('projectDetail', projectDetail)
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
@@ -680,6 +683,14 @@ class ResourceQuota extends React.Component {
             </div> : <div></div>
         }
         <div className="topDesc">
+          {
+            outlineRoles.includes('manager') ?
+            <div className="applyLimitBtn">
+              <Link to={`/tenant_manage/applyLimit?projectName=${JSON.stringify(showProjectName)}`}>
+                <Button type="primary" onClick={ history }>配额申请</Button>
+              </Link>
+            </div> : ''
+          }
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
         {
