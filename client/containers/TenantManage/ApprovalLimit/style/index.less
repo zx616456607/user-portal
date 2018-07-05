@@ -92,11 +92,9 @@
     }
     .icon {
       display: inline-block;
-      height: @iconHeight - 2;
-      width: @iconHeight - 2;
-      background-color: #cdcdcd;
-      border-radius: ( @iconHeight - 2 ) / 2;
-      // background: transparent url('../../../../assets/img/TenantManage/waitApproval.svg') no-repeat;
+      height: @iconHeight;
+      width: @iconHeight;
+      background: transparent url('../../../../assets/img/TenantManage/allRefuse.svg') no-repeat;
     }
   }
   .ant-table-body {
@@ -130,5 +128,18 @@
         font-size: @font-size-base;
       }
     }
+  }
+  .applayDetailButton {
+    border-color: @primary-color;
+    color: @primary-color;
+    &:hover {
+      color: white;
+      background-color: @primary-color;
+    }
+  }
+  .goApplay {
+    display: inline-block;
+    width: 48px;
+    text-align: center;
   }
 }

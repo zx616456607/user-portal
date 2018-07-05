@@ -129,6 +129,9 @@ class ApplyLimit extends React.Component {
     currentPage: 1,
     searchValue: null, // 当前搜索的关键字
     applyTimeSorted: '', // 根据申请事件排序关键字
+    displayName: undefined, // 从query传过来的项目名称
+    displayNameText: undefined, // 从query传过来的用于搜索的项目名称
+    showWindow: false, // 显示申请框
   }
   handleChange = (pagination, filters, sorter) => {
     const { checkApplyRecord } = this.props
@@ -177,20 +180,39 @@ class ApplyLimit extends React.Component {
     checkApplyRecord(query)
   }
   componentDidMount = () => {
-    const { checkApplyRecord, userName } = this.props
+    const { checkApplyRecord, userName, location } = this.props
     const query = { from: 0, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
+    const displayName = location.search.split('?')[1].split('=')[1]
+    let showdisplayName
+    let showdisplayNameText
+    if (displayName) {
+      showdisplayName = JSON.parse(displayName)
+    }
+    if (showdisplayName) {
+      showdisplayNameText = showdisplayName.displayName
+      if (showdisplayName.namespace) {
+        showdisplayNameText += ` ( ${showdisplayName.namespace} )`
+      }
+    }
+    if (location.search !== '') {
+      this.setState({ displayNameText: showdisplayNameText, displayName: showdisplayName.namespace,
+        applayVisable: true })
+    }
   }
   setApplayVisable = status => { // 当status的值为success时 会重新liading一下数据
     const { ListProjects, checkApplyRecord, userName } = this.props
     const { currentPage: n } = this.state
     const { applayVisable } = this.state
-    this.setState({ applayVisable: !applayVisable })
+    this.setState({ applayVisable: !applayVisable, showWindow: true })
     ListProjects() // 获取项目名称
     if (status === 'success') {
       const query = { from: (n - 1) * 10, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
       checkApplyRecord(query)
     }
+  }
+  cancelApplayVisable = () => {
+    this.setState({ applayVisable: false })
   }
   reloadApplyRecord = () => {
     const { currentPage: n } = this.state
@@ -215,12 +237,12 @@ class ApplyLimit extends React.Component {
     checkApplyRecord(query)
   }
   render() {
-    const { filteredInfo, applayVisable, searchValue, applyTimeSorted } = this.state
+    const { filteredInfo, applayVisable, searchValue, applyTimeSorted, displayNameText, showWindow,
+    } = this.state
     const { isFetching, data, total } = this.props.resourcequoteRecord
     const { checkApplyRecord, namespace, userName } = this.props
-    const { currentPage } = this.state
+    const { currentPage, displayName } = this.state
     const reloadApplyRecord = this.reloadApplyRecord
-    // 页脚设置
     const pageOption = {
       simple: true,
       total: !_.isEmpty(data) && total || 0,
@@ -274,7 +296,11 @@ class ApplyLimit extends React.Component {
             </Card>
           </div>
         </QueueAnim>
-        <ApplyForm applayVisable={applayVisable} setApplayVisable={this.setApplayVisable}/>
+        {
+          (displayNameText || showWindow)
+           && <ApplyForm applayVisable={applayVisable} setApplayVisable={this.setApplayVisable}
+             displayName={displayName} displayNameText={displayNameText}
+             cancelApplayVisable={this.cancelApplayVisable}/>}
       </TenxPage>
     )
   }

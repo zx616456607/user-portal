@@ -18,7 +18,7 @@ import ApplayDetail from '../ApplyLimit/Operation/ApplayDetail'
 import QueueAnim from 'rc-queue-anim'
 import '@tenx-ui/page/assets/index.css'
 import TenxPage from '@tenx-ui/page'
-import TenxIcon from '@tenx-ui/icon'
+// import TenxIcon from '@tenx-ui/icon'
 import { connect } from 'react-redux'
 import { checkApplyRecord } from '../../../actions/applyLimit'
 import _ from 'lodash'
@@ -125,7 +125,7 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
     </span>,
   },
   {
-    title: '查看详情',
+    title: '操作',
     dataIndex: 'detail',
     key: 'detail',
     render: (text, record) => {
@@ -163,8 +163,11 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
       }
       return (
         <div onClick={toggleDetail.bind(null, record)} >
-          <TenxIcon type="circle-arrow-right-o" className="livingIcon"
-          /> </div>
+          {/* <TenxIcon type="circle-arrow-right-o" className="livingIcon" */}
+          { record.approvalStatus === 0 ? <Button type="primary"><span className="goApplay">去审批</span></Button> :
+            <Button className="applayDetailButton">审批详情</Button>
+          }
+        </div>
       )
     },
   },
@@ -491,11 +494,11 @@ class ApprovalLimit extends React.Component {
     // console.log('查询条件', {
     //   itemType, approvalStatus, approver, startValue1: moment(startValue).format('X'), startValue, endValue,
     // })
-    const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
-    if (!_.isEmpty(resourceInuse)) {
-      resourceInuse.global = global
-    }
-    resourceInuse.global = { ...resourceInuse.global, ...globaleDevopsQuotaList }
+    // const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
+    // if (!_.isEmpty(resourceInuse)) {
+    //   resourceInuse.global = global
+    // }
+    // resourceInuse.global = { ...resourceInuse.global, ...globaleDevopsQuotaList }
     return (
       <TenxPage inner className="ApprovalLimit">
         <QueueAnim>
@@ -575,13 +578,14 @@ class ApprovalLimit extends React.Component {
         </Modal>
         {
           this.record !== null && <ApplayDetail title="资源配额审批详情" visible={detailVisible} toggleVisable={this.toggleDetailForm}
-            record={this.record} resourceInuse={resourceInuse} resourceDefinitions={definitions}/>
+            record={this.record} resourceInuse={resourceInuse} resourceDefinitions={definitions}
+            globaleDevopsQuotaList={globaleDevopsQuotaList}/>
         }
         {
           this.record !== null && <ApprovalOperation title="资源配额审批" visible={showApprovalModal}
             toggleVisable={this.toggleApprovalModal}
             record={this.record} reload={this.reload} resourceInuseProps={resourceInuse}
-            resourceDefinitions={definitions}
+            resourceDefinitions={definitions} globaleDevopsQuotaList={globaleDevopsQuotaList}
           />
         }
       </TenxPage>

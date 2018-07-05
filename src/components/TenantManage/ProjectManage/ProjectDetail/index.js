@@ -1775,7 +1775,10 @@ class ProjectDetail extends Component {
                 </Spin>
               </TabPane>
               <TabPane tab="资源配额管理" key="quota">
-                <ResourceQuota isProject={true} projectName={projectDetail.projectName} />
+                <ResourceQuota isProject={true} projectName={projectDetail.projectName}
+                outlineRoles={projectDetail.outlineRoles}
+                showProjectName={ { displayName: projectDetail.displayName,
+                namespace: projectDetail.namespace } } />
               </TabPane>
             </Tabs>
 

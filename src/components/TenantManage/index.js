@@ -37,13 +37,14 @@ const getColumns = ({ toggleApprovalModal, type }) => {
     title: '申请时间',
     dataIndex: 'approvalTime',
   }, {
-    title: '查看详情',
+    title: '操作',
     dataIndex: 'detail',
     render: (text, record ) => {
       return (
         <div onClick={toggleApprovalModal.bind(null, record) }>
-    <TenxIcon type="circle-arrow-right-o" className="checkDetail"/>
-                            </div>
+          {/* <TenxIcon type="circle-arrow-right-o" className="checkDetail"/> */}
+          <Button type="primary" size="small"><span className="goApplay" >去审批</span></Button>
+        </div>
       )
     }
   }];
@@ -663,7 +664,7 @@ class TenantManage extends React.Component {
                   </Col>
                   <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
                                      record={this.record} reload={this.reload} resourceDefinitions={definitions}
-                                     resourceInuseProps={resourceInuse}
+                                     resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
                                      />
                 </Row>
               </Card>
