@@ -1593,7 +1593,6 @@ class Ordinary extends Component {
                           {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                         </Col>
                       </Row>
-
                     </div>
                   ))
                 }
