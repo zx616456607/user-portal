@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Modal, InputNumber, Icon } from 'antd'
+import { Row, Col, Button, Modal, InputNumber, Icon, Form, Radio } from 'antd'
 import { connect } from 'react-redux'
 import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY, DEFAULT_CONTAINER_RESOURCES_CPU } from '../../../../constants'
@@ -26,9 +26,13 @@ import {
   RESOURCES_CPU_MIN,
   RESOURCES_CPU_DEFAULT,
   RESOURCES_DIY,
+  RESOURCES_GPU_MAX,
+  RESOURCES_GPU_MIN,
+  RESOURCES_GPU_STEP
 } from '../../../constants'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
+import { relativeTimeRounding } from 'moment';
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const PRESET_MEMORY_ARRAY = [512, 1024, 2048, 4096, 8192]
@@ -50,6 +54,9 @@ function getCPUByMemory(memory) {
       return RESOURCES_CPU_DEFAULT.toString()
   }
 }
+const FormItem = Form.Item
+const RadioGroup = Radio.Group
+
 class ConfigModal extends Component {
   constructor(props) {
     super(props)
@@ -138,9 +145,18 @@ class ConfigModal extends Component {
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU } = this.state
     const { composeType } = this.state
     const serviceName = service.metadata.name
-    let resources = getResources(composeType)
-    if (composeType === RESOURCES_DIY) {
+    const { getFieldValue } = this.props.form
+    let resources
+    const gpu = getFieldValue('GPULimits')
+    if (getFieldValue('operaConfig') === 'X86') {
+      resources = getResources(composeType)
+      if (composeType === RESOURCES_DIY) {
+        resources = getResources(DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
+      }
+    } else if (getFieldValue('operaConfig') === 'GPU') {
       resources = getResources(DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
+      resources.requests.gpu = 1
+      resources.limits.gpu = gpu
     }
     const { requests, limits } = resources
     let notification = new NotificationHandler()
@@ -201,9 +217,9 @@ class ConfigModal extends Component {
       })
     }
   }
-
   render() {
-    const { service, visible } = this.props
+    const { service, visible, form } = this.props
+    const { getFieldProps, getFieldValue } = form
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, composeType } = this.state
     if (!visible) {
       return null
@@ -218,6 +234,10 @@ class ConfigModal extends Component {
         保 存
       </Button>
     ]
+    const GPULimitsProps = getFieldProps('GPULimits', {
+      initialValue: RESOURCES_GPU_MIN,
+      // onChange: this.maxGpuChange
+    })
     return (
       <Modal
         visible={visible}
@@ -234,160 +254,248 @@ class ConfigModal extends Component {
             </Col>
           </Row>
           <Row>
-            <Col className="itemTitle" span={3} style={{ textAlign: 'left' }}>
+            <Col className="itemTitle" span={3} style={{ textAlign: 'left', height: 32, lineHeight: 3 }}>
               选择配置
             </Col>
             <Col className="itemBody" span={21}>
               <div className="operaBox">
-                <div className="selectCompose">
-                  <ul className="composeList">
-                    {/*<li className="composeDetail">
-                      <Button type={composeType == 256 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(256)}>
-                        <div className="topBox">
-                          1X
-                        </div>
-                        <div className="bottomBox">
-                          <span>256M&nbsp;内存</span><br />
-                          <span>1CPU&nbsp;(共享)</span>
-                        </div>
-                      </Button>
-                    </li>*/}
-                    <li className="composeDetail">
-                      <Button type={composeType == 512 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(512)}>
-                        <div className="topBox">
-                          2X
-                        </div>
-                        <div className="bottomBox">
-                          <span>512M&nbsp;内存</span><br />
-                          <span>0.2~1CPU</span>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
-                        </div>
-                      </Button>
-                    </li>
-                    <li className="composeDetail">
-                      <Button type={composeType == 1024 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(1024)}>
-                        <div className="topBox">
-                          4X
-                        </div>
-                        <div className="bottomBox">
-                          <span>1GB&nbsp;内存</span><br />
-                          <span>0.4~1CPU</span>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
-                        </div>
-                      </Button>
-                    </li>
-                    <li className="composeDetail">
-                      <Button type={composeType == 2048 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(2048)}>
-                        <div className="topBox">
-                          8X
-                        </div>
-                        <div className="bottomBox">
-                          <span>2GB&nbsp;内存</span><br />
-                          <span>0.8~1CPU</span>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
-                        </div>
-                      </Button>
-                    </li>
-                    <li className="composeDetail">
-                      <Button type={composeType == 4096 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(4096)}>
-                        <div className="topBox">
-                          16X
-                        </div>
-                        <div className="bottomBox">
-                          <span>4GB&nbsp;内存</span><br />
-                          <span>1CPU</span>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
-                        </div>
-                      </Button>
-                    </li>
-                    <li className="composeDetail">
-                      <Button type={composeType == 8192 ? "primary" : "ghost"}
-                        onClick={() => this.selectComposeType(8192)}>
-                        <div className="topBox">
-                          32X
-                        </div>
-                        <div className="bottomBox">
-                          <span>8GB&nbsp;内存</span><br />
-                          <span>2CPU</span>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
-                        </div>
-                      </Button>
-                    </li>
-                    {
-                      enterpriseFlag &&
-                      <li className="composeDetail DIY">
-                        <div
-                          className={
-                            composeType == RESOURCES_DIY
-                            ? "btn ant-btn-primary"
-                            : "btn ant-btn-ghost"
-                          }
-                          onClick={()=> this.selectComposeType(RESOURCES_DIY)}>
+              <FormItem style={{ marginBottom: 0 }}>
+                <RadioGroup {...getFieldProps('operaConfig', { initialValue: 'X86' })}>
+                  <Radio key="X86" value="X86">X86 计算</Radio>
+                  <Radio key="GPU" value="GPU">高性能计算 GPU</Radio>
+                </RadioGroup>
+              </FormItem>
+              {
+                getFieldValue('operaConfig') === 'X86' ?
+                  <div className="selectCompose">
+                    <ul className="composeList">
+                      {/*<li className="composeDetail">
+                        <Button type={composeType == 256 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(256)}>
                           <div className="topBox">
-                            自定义
-                        </div>
+                            1X
+                          </div>
                           <div className="bottomBox">
-                            <Row>
-                              <Col span={8}>
-                                <InputNumber
-                                  onChange={value => this.changeDIYMemory(value)}
-                                  value={parseInt(DIYMemory)}
-                                  defaultValue={RESOURCES_MEMORY_MIN}
-                                  step={RESOURCES_MEMORY_STEP}
-                                  min={RESOURCES_MEMORY_MIN}
-                                  max={RESOURCES_MEMORY_MAX} />
-                              </Col>
-                              <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                              <Col span={8}>
-                                <InputNumber
-                                  onChange={(value) => this.setState({DIYMaxMemory: value})}
-                                  value={parseInt(DIYMaxMemory)}
-                                  defaultValue={RESOURCES_MEMORY_MIN}
-                                  step={RESOURCES_MEMORY_STEP}
-                                  min={DIYMemory}
-                                  max={RESOURCES_MEMORY_MAX} />
-                              </Col>
-                              <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
-                            </Row>
-                            <Row>
-                              <Col span={8}>
-                                <InputNumber
-                                  onChange={value => this.changeDIYCPU(value)}
-                                  value={DIYCPU}
-                                  step={RESOURCES_CPU_STEP}
-                                  min={RESOURCES_CPU_MIN}
-                                  max={RESOURCES_CPU_MAX}/>
-                              </Col>
-                              <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                              <Col span={8}>
-                                <InputNumber
-                                  onChange={(value) => this.setState({DIYMaxCPU: value})}
-                                  value={DIYMaxCPU}
-                                  step={RESOURCES_CPU_STEP}
-                                  min={DIYCPU}
-                                  max={RESOURCES_CPU_MAX}/>
-                              </Col>
-                              <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
-                            </Row>
+                            <span>256M&nbsp;内存</span><br />
+                            <span>1CPU&nbsp;(共享)</span>
+                          </div>
+                        </Button>
+                      </li>*/}
+                      <li className="composeDetail">
+                        <Button type={composeType == 512 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(512)}>
+                          <div className="topBox">
+                            2X
+                          </div>
+                          <div className="bottomBox">
+                            <span>512M&nbsp;内存</span><br />
+                            <span>0.2~1CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
                           </div>
-                        </div>
+                        </Button>
                       </li>
-                    }
-                  </ul>
-                  <div style={{ clear: "both" }}></div>
+                      <li className="composeDetail">
+                        <Button type={composeType == 1024 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(1024)}>
+                          <div className="topBox">
+                            4X
+                          </div>
+                          <div className="bottomBox">
+                            <span>1GB&nbsp;内存</span><br />
+                            <span>0.4~1CPU</span>
+                            <div className="triangle"></div>
+                            <Icon type="check" />
+                          </div>
+                        </Button>
+                      </li>
+                      <li className="composeDetail">
+                        <Button type={composeType == 2048 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(2048)}>
+                          <div className="topBox">
+                            8X
+                          </div>
+                          <div className="bottomBox">
+                            <span>2GB&nbsp;内存</span><br />
+                            <span>0.8~1CPU</span>
+                            <div className="triangle"></div>
+                            <Icon type="check" />
+                          </div>
+                        </Button>
+                      </li>
+                      <li className="composeDetail">
+                        <Button type={composeType == 4096 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(4096)}>
+                          <div className="topBox">
+                            16X
+                          </div>
+                          <div className="bottomBox">
+                            <span>4GB&nbsp;内存</span><br />
+                            <span>1CPU</span>
+                            <div className="triangle"></div>
+                            <Icon type="check" />
+                          </div>
+                        </Button>
+                      </li>
+                      <li className="composeDetail">
+                        <Button type={composeType == 8192 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(8192)}>
+                          <div className="topBox">
+                            32X
+                          </div>
+                          <div className="bottomBox">
+                            <span>8GB&nbsp;内存</span><br />
+                            <span>2CPU</span>
+                            <div className="triangle"></div>
+                            <Icon type="check" />
+                          </div>
+                        </Button>
+                      </li>
+                      {
+                        enterpriseFlag &&
+                        <li className="composeDetail DIY">
+                          <div
+                            className={
+                              composeType == RESOURCES_DIY
+                              ? "btn ant-btn-primary"
+                              : "btn ant-btn-ghost"
+                            }
+                            onClick={()=> this.selectComposeType(RESOURCES_DIY)}>
+                            <div className="topBox">
+                              自定义
+                            </div>
+                            <div className="bottomBox">
+                              <Row>
+                                <Col span={8}>
+                                  <InputNumber
+                                    onChange={value => this.changeDIYMemory(value)}
+                                    value={parseInt(DIYMemory)}
+                                    defaultValue={RESOURCES_MEMORY_MIN}
+                                    step={RESOURCES_MEMORY_STEP}
+                                    min={RESOURCES_MEMORY_MIN}
+                                    max={RESOURCES_MEMORY_MAX} />
+                                </Col>
+                                <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                                <Col span={8}>
+                                  <InputNumber
+                                    onChange={(value) => this.setState({DIYMaxMemory: value})}
+                                    value={parseInt(DIYMaxMemory)}
+                                    defaultValue={RESOURCES_MEMORY_MIN}
+                                    step={RESOURCES_MEMORY_STEP}
+                                    min={DIYMemory}
+                                    max={RESOURCES_MEMORY_MAX} />
+                                </Col>
+                                <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                              </Row>
+                              <Row>
+                                <Col span={8}>
+                                  <InputNumber
+                                    onChange={value => this.changeDIYCPU(value)}
+                                    value={DIYCPU}
+                                    step={RESOURCES_CPU_STEP}
+                                    min={RESOURCES_CPU_MIN}
+                                    max={RESOURCES_CPU_MAX}/>
+                                </Col>
+                                <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                                <Col span={8}>
+                                  <InputNumber
+                                    onChange={(value) => this.setState({DIYMaxCPU: value})}
+                                    value={DIYMaxCPU}
+                                    step={RESOURCES_CPU_STEP}
+                                    min={DIYCPU}
+                                    max={RESOURCES_CPU_MAX}/>
+                                </Col>
+                                <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                              </Row>
+                              <div className="triangle"></div>
+                              <Icon type="check" />
+                            </div>
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                    <div style={{ clear: "both" }}></div>
+                  </div>
+                :
+                <div className="composeDetail" style={{ margin: 0 }} >
+                  <div style={{ width: 250, textAlign: 'center',
+                      border: '1px solid #2db7f5',
+                      position: 'relative',
+                      borderRadius: 6 }}
+                      className='ant-btn-primary'>
+                    <div className="topBox" style={{ background: '#2db7f5', color: '#fff' }}>
+                      自定义
+                    </div>
+                    <div className="bottomBox" style={{ height: 105, padding: 5 }}>
+                      <Row>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={value => this.changeDIYMemory(value)}
+                            value={parseInt(DIYMemory)}
+                            defaultValue={RESOURCES_MEMORY_MIN}
+                            step={RESOURCES_MEMORY_STEP}
+                            min={RESOURCES_MEMORY_MIN}
+                            max={RESOURCES_MEMORY_MAX} />
+                        </Col>
+                        <Col span={2} style={{ lineHeight: '32px' }}>~</Col>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={(value) => this.setState({DIYMaxMemory: value})}
+                            value={parseInt(DIYMaxMemory)}
+                            defaultValue={RESOURCES_MEMORY_MIN}
+                            step={RESOURCES_MEMORY_STEP}
+                            min={DIYMemory}
+                            max={RESOURCES_MEMORY_MAX} />
+                        </Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                      </Row>
+                      <Row>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={value => this.changeDIYCPU(value)}
+                            value={DIYCPU}
+                            step={RESOURCES_CPU_STEP}
+                            min={RESOURCES_CPU_MIN}
+                            max={RESOURCES_CPU_MAX}/>
+                        </Col>
+                        <Col span={2} style={{ lineHeight: '32px' }}>~</Col>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={(value) => this.setState({DIYMaxCPU: value})}
+                            value={DIYMaxCPU}
+                            step={RESOURCES_CPU_STEP}
+                            min={DIYCPU}
+                            max={RESOURCES_CPU_MAX}/>
+                        </Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                      </Row>
+                      <Row>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={value => this.changeDIYGPU(value)}
+                            value={RESOURCES_GPU_MIN}
+                            disabled
+                            step={RESOURCES_GPU_STEP}
+                            min={RESOURCES_GPU_STEP}
+                            max={RESOURCES_GPU_MAX}/>
+                        </Col>
+                        <Col span={2} style={{ lineHeight: '32px' }}>~</Col>
+                        <Col span={8}>
+                          <InputNumber
+                            onChange={(value) => this.setState({DIYMaxCPU: value})}
+                            {...GPULimitsProps}
+                            step={RESOURCES_GPU_STEP}
+                            min={RESOURCES_GPU_STEP}
+                            max={RESOURCES_GPU_MAX}/>
+                        </Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>颗 GPU</Col>
+                      </Row>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
+                    </div>
+                  </div>
                 </div>
+              }
               </div>
             </Col>
           </Row>
@@ -413,4 +521,4 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   changeQuotaService,
-})(ConfigModal)
+})(Form.create()(ConfigModal))

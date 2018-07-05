@@ -409,7 +409,7 @@ class GogsComponent extends Component {
     this.setState({ regToken: e.target.value })
   }
   render() {
-    const { gogsList, formatMessage, isFetching, typeName} = this.props
+    const { gogsList, formatMessage, isFetching, repoUser, typeName} = this.props
     const scope = this
     let codeList = []
     if (!gogsList || this.state.loggedOut) {
@@ -439,7 +439,6 @@ class GogsComponent extends Component {
       for (let i in gogsList) {
         codeList.push(
           <TabPane tab={<span></span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={gogsList[i]} typeName={this.props.typeName} />
           </TabPane>
         )
       }
@@ -462,9 +461,9 @@ class GogsComponent extends Component {
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-        <Tabs>
-          {codeList}
-        </Tabs>
+        <div>
+          <CodeList scope={scope} isFetching={isFetching} repoUser={repoUser} data={gogsList} typeName={typeName} />
+        </div>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={() => this.removeRepo()} onCancel={() => this.setState({ removeModal: false })}
           >

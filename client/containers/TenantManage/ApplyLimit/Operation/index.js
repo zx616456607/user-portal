@@ -16,6 +16,10 @@ import './style/index.less'
 import { connect } from 'react-redux'
 import { deleteResourcequota, checkResourcequotaDetail } from '../../../../actions/applyLimit'
 import { REG } from '../../../../../src/constants'
+import { getResourceDefinition } from '../../../../../src/actions/quota'
+import { getDeepValue } from '../../../../util/util'
+import { getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
+import _ from 'lodash'
 class Operation extends React.Component {
   static propTypes = {
     condition: PropTypes.string,
@@ -26,6 +30,8 @@ class Operation extends React.Component {
     detailVisable: false, // 详情弹出框标志位
     clearVisable: false, // 清除申请记录标志位
     clearLoading: false, // 清楚申请过程中的loading
+    definitions: undefined, // 后台定义的资源类型
+    globaleDevopsQuotaList: undefined, // devops
   }
   setRelealVisable = () => {
     const { relealVisable } = this.state
@@ -54,11 +60,36 @@ class Operation extends React.Component {
   }
   toggleDetailVisable = () => {
     const { detailVisable } = this.state
-    const { record, checkResourcequotaDetail } = this.props
+    const { record, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
+      personNamespace } = this.props
     this.setState({
       detailVisable: !detailVisable,
     })
     checkResourcequotaDetail(record.id)
+    getResourceDefinition({
+      success: {
+        func: ({ data: resourceList }) => {
+          this.setState({
+            definitions: resourceList.definitions,
+          })
+        },
+      },
+      isAsync: true,
+    })
+    let query = {}
+    if (record.namespace !== personNamespace) {
+      query = { header: { teamspace: record.namespace } }
+    }
+    getDevopsGlobaleQuotaList(query, {
+      success: {
+        func: res => {
+          this.setState({
+            globaleDevopsQuotaList: res.result,
+          })
+        },
+        isAsync: true,
+      },
+    })
   }
   toggleClearVisable = () => {
     const { clearVisable } = this.state
@@ -88,10 +119,13 @@ class Operation extends React.Component {
     })
   }
   render() {
-    const { condition, record } = this.props
-    const { relealVisable, relealLoading, detailVisable, clearLoading, clearVisable } = this.state
-
-
+    const { condition, record, resourceInuse } = this.props
+    const { relealVisable, relealLoading, detailVisable, clearLoading, clearVisable, definitions,
+      globaleDevopsQuotaList } = this.state
+    const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
+    if (!_.isEmpty(resourceInuse)) {
+      resourceInuse.global = global
+    }
     return (
       <div className="content-btns Operation">
         {
@@ -120,8 +154,8 @@ class Operation extends React.Component {
           <Alert message="撤销该申请后, 该申请将不会发送给系统管理员, 确定撤销此次申请?"
             type="warning" showIcon />
         </Modal>
-        <ApplayDetail title="资源配额申请详情" visible={detailVisable} toggleVisable={this.toggleDetailVisable}
-          record={record}/>
+        <ApplayDetail title="资源配额审批详情" visible={detailVisable} toggleVisable={this.toggleDetailVisable}
+          record={record} resourceDefinitions={definitions} resourceInuse={resourceInuse}/>
         <Modal
           visible = {clearVisable}
           title="清除申请记录"
@@ -146,12 +180,16 @@ class Operation extends React.Component {
 
 const mapStateToProps = state => {
   const resourcequoteRecord = state.applyLimit.resourcequoteRecord
+  const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
+  const { data: recordData = {} } = detailData
+  const { resourceInuse } = recordData
+  const personNamespace = state.entities.loginUser.info.namespace
   // const namespace = state.entities.loginUser.info.namespace
   return {
-    resourcequoteRecord,
+    resourcequoteRecord, resourceInuse, personNamespace,
   }
 }
 
 export default connect(mapStateToProps, {
-  deleteResourcequota, checkResourcequotaDetail,
+  deleteResourcequota, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
 })(Operation)

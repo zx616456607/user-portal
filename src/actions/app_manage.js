@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX } from '../constants'
+import { API_URL_PREFIX, AI_MODELAPP_URL } from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const APP_LIST_REQUEST = 'APP_LIST_REQUEST'
@@ -18,11 +18,14 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAppList(cluster, query, callback) {
+function fetchAppList(cluster, query, pathname, callback) {
   // Front-end customization requirements
   let { customizeOpts } = query || {}
   let newQuery = Object.assign({}, query )
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
+  if (pathname === AI_MODELAPP_URL) {
+    endpoint += '/ai'
+  }
   if (query) {
     delete query.customizeOpts
     delete query.headers
@@ -45,9 +48,9 @@ function fetchAppList(cluster, query, callback) {
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadAppList(cluster, query, callback) {
+export function loadAppList(cluster, query, pathname, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppList(cluster, query, callback))
+    return dispatch(fetchAppList(cluster, query, pathname, callback))
   }
 }
 
@@ -92,11 +95,15 @@ export const APP_CREATE_SUCCESS = 'APP_CREATE_SUCCESS'
 export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 
 export function fetchCreateApp(appConfig, callback) {
+  let postUrl = `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`
+  if (appConfig.ai) {
+    postUrl += '/ai'
+  }
   return {
     cluster: appConfig.cluster,
     [FETCH_API]: {
       types: [APP_CREATE_REQUEST, APP_CREATE_SUCCESS, APP_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`,
+      endpoint: postUrl,
       options: {
         method: 'POST',
         body: {

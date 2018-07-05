@@ -304,7 +304,7 @@ exports.doUserAuthorization = function* () {
   // Save to session
   loginUser.ciAuthInfo = resData.authInfo
 
-  this.status = 200
+  // this.status = 200
   this.redirect('/ci_cd/coderepo?' + type)
 }
 /*
@@ -1017,6 +1017,27 @@ exports.getStats = function* () {
     data: result
   }
 }
+exports.githubConfig = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const body = this.request.body
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(['repos', repoType], null, body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.githubList = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const body = this.request.body
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(['repos', repoType, 'auth'], null, body)
+  this.body = {
+    data: result
+  }
+}
 
 exports.getAvailableImages = function*() {
   const loginUser = this.session.loginUser
@@ -1172,3 +1193,12 @@ function* delCachedVolume() {
   this.body = result
 }
 exports.delCachedVolume = delCachedVolume
+
+// 获取全局资源使用量
+exports.checkResourceDevopsquotaExist = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(['resourcequota', 'inuse'], null)
+  this.body = result
+}

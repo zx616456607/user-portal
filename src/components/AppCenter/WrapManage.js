@@ -24,6 +24,7 @@ import { isResourcePermissionError, toQuerystring } from '../../common/tools'
 import WrapListTable from './AppWrap/WrapListTable'
 import { throwError } from '../../actions'
 import { wrapManageList, deleteWrapManage, uploadWrap, checkWrapName } from '../../actions/app_center'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
@@ -583,6 +584,7 @@ class WrapManage extends Component {
       <QueueAnim>
         <Title title="应用包管理" />
         <div key="wrap_list" id="app_wrap_manage">
+          <ResourceBanner resourceType='applicationPackage'/>
           <div className="btnRow">
             <Button size="large" type="primary" icon="upload" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button className="refreshBtn" size="large" style={{ margin: '0 10px' }} onClick={() => this.handleRefresh()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>

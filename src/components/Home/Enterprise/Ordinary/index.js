@@ -445,9 +445,9 @@ class Ordinary extends Component {
       <Row className="number-row" >
         <Col span={7}></Col>
         <Col span={17} className="number" >
-          <span style={{ color: overUesd ? 'red' : '#ccc' }}>{usedCount}</span>
+          <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
-          <p>{maxCount === -1 ? '无限制' : maxCount}</p>
+          <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
         </Col>
       </Row>
     )
@@ -1581,16 +1581,18 @@ class Ordinary extends Component {
                   computeList.map((item, index) => (
                     <div className="info" key={`calculation-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 6, right: 18})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                     </div>
                   ))
                 }
@@ -1600,16 +1602,18 @@ class Ordinary extends Component {
                   platformList.map((item, index) => (
                     <div className="info" key={`application-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 9, right: 15})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 9, right: 15})}
                     </div>
                   ))
                 }
@@ -1619,16 +1623,18 @@ class Ordinary extends Component {
                   serviceList.map((item, index) => (
                     <div className="info" key={`service-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col span={4}>
                           <Tooltip title={item.text}>
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={18}>
+                        <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
+                        <Col span={4}>
+                          {this.renderProcessNumber(item.key, { left: 14, right: 10})}
+                        </Col>
                       </Row>
-                      {this.renderProcessNumber(item.key, { left: 14, right: 10})}
                     </div>
                   ))
                 }
