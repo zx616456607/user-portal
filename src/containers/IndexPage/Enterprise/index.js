@@ -1,30 +1,77 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Breadcrumb } from 'antd'
+import { Breadcrumb, Spin } from 'antd'
 import "./style/IndexPage.less"
+import { GetPrivilege } from '../../../actions/overview_cluster'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import Admin from '../../../components/Home/Enterprise/Admin'
 import Ordinary from '../../../components/Home/Enterprise/Ordinary'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import Footer from '../../../components/Home/Footer'
 import Title from '../../../components/Title'
+import noPermission from '../../../assets/img/noPermission.png'
+import { isResourcePermissionError } from '../../../common/tools'
 
 class IndexPage extends Component {
   constructor(props) {
     super(props)
-
   }
-  componentDidMount(){
+  state = {
+    isLoading: true,
+    isNoPermission: false,
+  }
+  async componentDidMount(){
     const {
-      setCurrent,
       loadLoginUserDetail,
       loginUser,
+      GetPrivilege,
+      current,
     } = this.props
-    if (!loginUser.info.userName) {
-      loadLoginUserDetail()
-    }
+
+    let b = true
+    await GetPrivilege({
+      username: loginUser.info.userName,
+      project: current.space.namespace,
+    },{
+      failed: {
+        func: err => {
+          if(isResourcePermissionError(err)){
+            this.setState({
+              isNoPermission: true,
+            })
+            b = false
+          }
+        }
+      }
+    })
+    this.setState({
+      isLoading: false,
+    }, () => {
+      if(b){
+        if (!loginUser.info.userName) {
+          loadLoginUserDetail()
+        }
+      }
+    })
   }
   render() {
+    const { isLoading, isNoPermission } = this.state
+    if(isLoading){
+      return <div className="loading">
+        <Spin spinning={isLoading}>
+        </Spin>
+      </div>
+    }
+    if(isNoPermission){
+      return (
+        <div className="loading">
+          <div className="noPermission">
+            <img src={noPermission} />
+            <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
+          </div>
+        </div>
+      )
+    }
     const { loginUser,current } = this.props
     if(current.space.spaceName){
       if((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && current.space.namespace !== 'default'){
@@ -62,6 +109,7 @@ function mapStateToProps(state,props) {
 export default connect (mapStateToProps,{
   setCurrent,
   loadLoginUserDetail,
+  GetPrivilege,
 })(IndexPage)
 /*function mapStateToProps(state, props) {
   const { login, name } = props.params
