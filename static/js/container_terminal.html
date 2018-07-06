@@ -91,16 +91,41 @@
           console.log('catch', error)
         }
         ws.addEventListener('close', function (event) {
-          console.log('close', event)
+          // console.log('close', event)
         })
         ws.addEventListener('open', function (event) {
-          console.log('open', event)
+          // console.log('open', event)
         })
         ws.addEventListener('error', function (event) {
-          console.log('error', event)
+          // console.log('error', event)
         })
         ws.addEventListener('message', function (message) {
-          console.log('message', b64_to_utf8(message.data))
+          console.log('message', message)
+          if (b64_to_utf8(message.data) === '[403 resource permission error] This operation has no permissions') {
+            const error = {
+              statusCode: 403,
+              message: {
+                status: 'Failure',
+                message: 'user can not access resource due to acl',
+                reason: 'Forbidden',
+                details:{
+                  name: '',
+                  kind: 'ResourcePermission'
+                },
+                code: 403,
+                data: {
+                  id: 38,
+                  name: '登录容器终端',
+                  desc: '登录容器终端',
+                  category: 35,
+                  code: 'LOGIN_CON',
+                  status: 0,
+                  count: 0
+                }
+              }
+            }
+            termCallback(data['pod'], '[403 resource permission error]', error)
+          }
         })
         ws.addEventListener("open", function (event) {
           term.attach(ws);
