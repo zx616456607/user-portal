@@ -75,7 +75,7 @@ class PublishImage extends React.Component {
     }
   }
   loadData() {
-    const { getImagesList } = this.props
+    const { getImagesList, cluster } = this.props
     const { filterName, targetProject, current, filter } = this.state
     const query = {
       from: (current - 1) * 10,
@@ -85,6 +85,8 @@ class PublishImage extends React.Component {
     }
     filterName && Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
     targetProject && Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
+    const tempfilter = query.filter
+    query.filter = tempfilter + ',target_cluster,' + cluster.clusterID
     this.setState({
       tableLoading: true
     })
@@ -321,13 +323,16 @@ class PublishImage extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { appStore } = state
+  const { appStore, ent, entities } = state
+  const { current } = entities
   const { imageCheckList } = appStore
   const { data: publishRecord } = imageCheckList || { data: {} }
   const { apps, total } = publishRecord || { apps: [], total: 0 }
+  const { cluster } =  current
   return {
     apps,
     total,
+    cluster,
   }
 }
 

@@ -887,3 +887,30 @@ export function getKubeproxy(cluster, callback) {
     return dispatch(fetchGetKubeproxy(cluster, callback))
   }
 }
+
+
+export const SET_CLUSTERHARBOR_REQUEST = 'SET_CLUSTERHARBOR_REQUEST'
+export const SET_CLUSTERHARBOR_SUCCESS = 'SET_CLUSTERHARBOR_SUCCESS'
+export const SET_CLUSTERHARBOR_FAILURE = 'SET_CLUSTERHARBOR_FAILURE'
+
+function fetchSetClusterHarbor(cluster, body, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [SET_CLUSTERHARBOR_REQUEST, SET_CLUSTERHARBOR_SUCCESS, SET_CLUSTERHARBOR_FAILURE],
+      endpoint:`${API_URL_PREFIX}/clusters/${cluster}/configs/harbor`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function setClusterHarbor(cluster, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetClusterHarbor(cluster, query, callback))
+  }
+}

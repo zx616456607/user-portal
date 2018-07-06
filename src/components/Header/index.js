@@ -55,6 +55,8 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/panel/,
     /\/app_center\/template/,
     /\/ai\-deep\-learning\/?/,
+    /\/app_center\/projects/,
+    /\/app_center\/wrap_store/,
   ],
   cluster: [
     /^\/$/,
@@ -66,6 +68,8 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/manange_monitor\/panel/,
     /\/app_center\/template\/create/,
     /\/ai\-deep\-learning\/?/,
+    /\/app_center\/projects/,
+    /\/app_center\/wrap_store/,
   ],
 }
 

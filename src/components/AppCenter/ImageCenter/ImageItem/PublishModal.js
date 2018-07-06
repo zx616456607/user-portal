@@ -15,12 +15,14 @@ import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio } fro
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
 import { loadProjectList } from '../../../../actions/harbor'
+import { loadClusterList } from '../../../../actions/cluster'
 import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { encodeImageFullname } from '../../../../common/tools'
 import defaultImage from '../../../../../static/img/appstore/defaultimage.png'
 import isEmpty from 'lodash/isEmpty'
+import filter from 'lodash/filter'
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -43,19 +45,16 @@ class PublishModal extends React.Component {
       visible: false,
       pkgIcon: '',
       radioVal: 'market',
-      privateData: []
+      privateData: [],
+      clusters: [],
     }
   }
   componentWillMount() {
-    const { loadProjectList } = this.props
-    loadProjectList().then( res=>{
-      const listData = res.response.result.data
-      const privateData = listData.filter( item=>{
-        return item
-        // return item.public === 0   过滤显示 公开=1  私有=0
-      })
+    const { loadClusterList } = this.props
+    loadClusterList().then( res => {
+      const clusters = res.response.result.data || []
       this.setState({
-        privateData: privateData
+        clusters,
       })
     })
   }
@@ -74,6 +73,7 @@ class PublishModal extends React.Component {
       form.resetFields()
     }
     if (!oldVisible && newVisible) {
+      const { clusters } = nextProps
       let body = {
         image: `${server}/${currentImage.name}`
       }
@@ -247,6 +247,12 @@ class PublishModal extends React.Component {
     }
     callback()
   }
+  checkTargetCluster(rule, value, callback) {
+    if (!value) {
+      return callback('请选择目标集群')
+    }
+    callback()
+  }
   confirmModal() {
     const { callback, form, imagePublish, currentImage, server, publishName } = this.props
     const { pkgIcon, imageID, radioVal } = this.state
@@ -270,7 +276,7 @@ class PublishModal extends React.Component {
       })
       let body = {}
       if (selectType) {
-        const { tagsName, description, classifyName, request_message } = values
+        const { tagsName, description, classifyName, request_message, targetCluster } = values
         const fileNickName = form.getFieldValue('fileNickName')
         body = {
           origin_id: `${server}/${currentImage.name}:${tagsName}`,
@@ -279,7 +285,8 @@ class PublishModal extends React.Component {
           classifyName: classifyName[0],
           request_message,
           type: 2,
-          resource: imageID
+          resource: imageID,
+          targetCluster,
         }
         if (pkgIcon) {
           Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
@@ -415,8 +422,27 @@ class PublishModal extends React.Component {
       radioVal: e.target.value
     })
   }
+  onClusterChange = (value) => {
+    const { clusters } = this.state
+    const { loadProjectList } = this.props
+    const cluster = filter(clusters, {clusterID: value})[0]
+    const harbor = !!cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : "1.2.3.4"
+    // todo 获取到harbor 通过harbor 获取仓库组
+    loadProjectList(undefined, {
+      harbor,
+    }).then( res => {
+      const listData = res.response.result.data || []
+      const privateData = listData.filter( item=>{
+        return item
+        // return item.public === 0   过滤显示 公开=1  私有=0
+      })
+      this.setState({
+        privateData,
+      })
+    })
+  }
   render() {
-    const { visible, pkgIcon, successModal, privateData } = this.state
+    const { visible, pkgIcon, successModal, privateData, clusters } = this.state
     const { space, form, currentImage, imgTag, wrapGroupList, publishName, description, classify_name } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue  } = form
     const formItemLayout = {
@@ -494,6 +520,14 @@ class PublishModal extends React.Component {
       ],
       onChange: (val) => this.handleSelectcheckTargetStore(val)
     })
+    const targetCluster = getFieldProps('targetCluster', {
+      rules: [
+        {
+          validator: this.checkTargetCluster
+        }
+      ],
+      onChange: this.onClusterChange,
+    })
     const commitMsg = getFieldProps('commit_msg', {
       rules: [
         {
@@ -568,10 +602,17 @@ class PublishModal extends React.Component {
     wrapGroupList.classifies.forEach(item => {
       children.push(<Option value={item.classifyName} key={item.classifyName}>{item.classifyName}</Option>)
     })
+
+    const currSelCluster = getFieldValue("targetCluster")
+
     const targetStoreChildren = []
-    privateData && privateData.length && privateData.length >0 && privateData.map( (item,index)=>{
+    !!currSelCluster && privateData && privateData.length && privateData.length >0 && privateData.map( (item,index)=>{
+      // todo 根据集群筛选
       targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
     })
+    const clusterOptions = clusters.map((item, index) =>
+      <Option key={index} value={item.clusterID} >{item.clusterName}</Option>
+    )
     return(
       <div>
         <Modal
@@ -600,6 +641,19 @@ class PublishModal extends React.Component {
               <Radio value="market" key='market'>发布到商店</Radio>
               <Radio value="store" key='store'>发布到仓库组</Radio>
             </RadioGroup>
+          </FormItem>
+          <FormItem
+            {...formItemLayout}
+            label="目标集群"
+          >
+            <Select
+              style={{ width: '100%' }}
+              showSearch
+              {...targetCluster}
+              placeholder="请选择集群"
+            >
+              {clusterOptions}
+            </Select>
           </FormItem>
           {
             this.state.radioVal ==='market' ?
@@ -710,7 +764,6 @@ class PublishModal extends React.Component {
                   {selectVsionChildren}
                 </Select>
               </FormItem>
-
               <FormItem
                 {...formItemLayout}
                 label="目标仓库组"
@@ -804,20 +857,29 @@ class SuccessModal extends React.Component {
 PublishModal = Form.create()(PublishModal)
 
 function mapStateToProps(state) {
-  const { images, current, appStore } = state
+  const { images, current, appStore, entities } = state
   const { wrapGroupList } = images
+  const { cluster, space } =  entities.current
   const { result: groupList } = wrapGroupList || { result: {} }
   const { data: groupData } = groupList || { data: [] }
   const { currentImageWithStatus } = appStore || { data: [] }
   const { data, file_nick_name: publishName, icon, description, classify_name } = currentImageWithStatus
+
+
+  const { projectVisibleClusters } = state.projectAuthority
+  const currentNamespace = space.namespace
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
+  const clusters = currentProjectClusterList.data || []
   return {
     imgTag: data,
     publishName,
+    cluster,
     icon,
     description,
     classify_name,
     wrapGroupList: groupData,
-    space: current && current.space
+    space: current && current.space,
+    clusters,
   }
 }
 
@@ -828,5 +890,6 @@ export default connect(mapStateToProps, {
   getImageStatus,
   imageNameExists,
   loadRepositoriesTagConfigInfo,
-  loadProjectList
+  loadProjectList,
+  loadClusterList,
 })(PublishModal)

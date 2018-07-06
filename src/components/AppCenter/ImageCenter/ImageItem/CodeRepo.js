@@ -301,6 +301,7 @@ class CodeRepo extends Component {
           loading={isFetching}
         />
         <PublishModal
+          scope={this}
           server={server}
           visible={publishModal}
           currentImage={currentImage}

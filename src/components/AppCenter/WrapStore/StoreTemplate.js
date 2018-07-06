@@ -11,7 +11,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin } from 'antd'
+import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Col, Button, Spin, Alert } from 'antd'
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList, getWrapGroupList, updateWrapGroup } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
@@ -575,7 +575,7 @@ class WrapComopnent extends React.Component {
   render() {
     const {
       current, dataSource, dataHotList, updateParentState, rectStyle,
-      isAdmin, location, getStoreList, getAppsHotList, role,
+      isAdmin, location, getStoreList, getAppsHotList, role, activeKey,
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal,
       imageDetailModalShow, offshelfId, detailModal, currentWrap,
@@ -675,6 +675,13 @@ class WrapComopnent extends React.Component {
             <Col span={18} offset={5}><Icon type="info-circle-o" /> 下架之后会将所选镜像版本删除，原镜像不受影响</Col>
           </Row>
         </Modal>
+        {
+          activeKey === "app" && (
+            <div className='alertRow'>
+              应用包商店暂不支持项目、集群隔离
+            </div>
+          )
+        }
         <div className="wrapStoreBody">
           <div className="wrapListBox wrapStoreLeft">
             <div className="filterAndSortBox">

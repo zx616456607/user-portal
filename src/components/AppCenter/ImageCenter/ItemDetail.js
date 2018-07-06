@@ -123,8 +123,8 @@ class ItemDetail extends Component {
     if (isAdmin) {
       tabPanels.push(
         <TabPane tab="镜像同步" key="sync">
-          <ImageUpdate 
-            registry={registry} 
+          <ImageUpdate
+            registry={registry}
             location={location}
           />
         </TabPane>

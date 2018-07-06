@@ -71,7 +71,7 @@ class SelectImage extends Component {
     //   serverType = 'all'
     // }
     // loadPublicImageList(registry, serverType, callback)
-    const { registry, loadAllProject } = props
+    const { registry, loadAllProject, cluster } = props
     let notify = new NotificationHandler()
     if (!callback) {
       callback = {
@@ -96,7 +96,9 @@ class SelectImage extends Component {
         }
       }
     }
-    loadAllProject(registry, query, callback)
+    const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : "1.2.3.4"
+    //todo 切换 集群列表
+    loadAllProject(registry, Object.assign({}, query, { harbor }), callback)
   }
 
   componentWillMount() {
@@ -170,6 +172,7 @@ class SelectImage extends Component {
       size: 10,
       filter
     }
+    //todo 切换 集群列表
     getAppsList(query, {
       failed: {
         func: res => {
@@ -380,19 +383,25 @@ class SelectImage extends Component {
 
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
-  const { cluster, unit } =  state.entities.current
+  const { cluster, unit, space } =  state.entities.current
   const oemInfo = state.entities.loginUser.info.oemInfo || {}
   const { productName } = oemInfo.company || {}
   const { appStore }  = state
   const { imagePublishRecord } = appStore
   const { data: imageStoreList } = imagePublishRecord || { data: {} }
+
+  const { projectVisibleClusters } = state.projectAuthority
+  const currentNamespace = space.namespace
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
+  const clusters = currentProjectClusterList.data || []
   return {
     registry,
     images: state.harbor.allProject[registry],
-    cluster: cluster.clusterID,
+    cluster,
     unit,
     productName,
-    imageStoreList
+    imageStoreList,
+    clusters,
   }
 }
 
