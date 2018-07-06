@@ -278,8 +278,8 @@ class ImageCheckTable extends React.Component {
           width: '8%',
         }, {
           title: '目标集群',
-          dataIndex: 'ClusterName',
-          key: 'ClusterName',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
           width: '12%',
         }, {
           title: '原镜像名称',
@@ -438,8 +438,8 @@ class ImageCheckTable extends React.Component {
           width: '12%',
         },{
           title: '目标集群',
-          dataIndex: 'ClusterName',
-          key: 'ClusterName',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
           width: '12%',
         }, {
           title: '原镜像名称',

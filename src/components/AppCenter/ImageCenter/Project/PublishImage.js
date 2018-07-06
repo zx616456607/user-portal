@@ -86,7 +86,7 @@ class PublishImage extends React.Component {
     filterName && Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
     targetProject && Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
     const tempfilter = query.filter
-    query.filter = tempfilter + ',target_cluster,' + cluster.clusterID
+    query.filter = tempfilter + 'target_cluster,' + cluster.clusterID
     this.setState({
       tableLoading: true
     })

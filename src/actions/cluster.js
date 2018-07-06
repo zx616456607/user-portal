@@ -909,8 +909,8 @@ function fetchSetClusterHarbor(cluster, body, callback) {
   }
 }
 
-export function setClusterHarbor(cluster, query, callback) {
+export function setClusterHarbor(cluster, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSetClusterHarbor(cluster, query, callback))
+    return dispatch(fetchSetClusterHarbor(cluster, body, callback))
   }
 }

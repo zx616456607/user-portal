@@ -17,7 +17,7 @@ import './style/ImageService.less'
 import harborImg from '../../assets/img/integration/harbor.png'
 import { connect } from 'react-redux'
 import { setClusterHarbor } from '../../actions/cluster'
-import { IP_REGEX } from '../../../constants/index'
+import { URL_REGEX } from '../../../constants/index'
 import NotificationHandler from '../../components/Notification'
 
 const notify = new NotificationHandler()
@@ -26,6 +26,7 @@ class ImageService extends React.Component {
   state = {
     loading: false,
     isEdit: false,
+    readonly: false,
   }
   onEditClick = () => {
     this.setState({
@@ -35,22 +36,41 @@ class ImageService extends React.Component {
   onSubmitClick = () => {
     const { form: { validateFields }, setClusterHarbor, cluster: { clusterID } } = this.props
 
-    validateFields(['url'], (error) => {
+    validateFields(['url'], (error, values) => {
       if(error) return
-      setClusterHarbor(clusterID, {}, {
-        success: {
-          func: (res) => {
-            console.log(res)
-            this.setState({
-              isEdit: false,
-            })
+      this.setState({
+        loading: true,
+        readonly: true,
+      }, () => {
+        setClusterHarbor(clusterID, {
+          url: values.url,
+        }, {
+          success: {
+            func: (res) => {
+              // succ
+              notify.success("编辑镜像服务地址成功")
+              this.setState({
+                isEdit: false,
+                readonly: false,
+              })
+            }
+          },
+          failed: {
+            func: (err) => {
+              notify.warn(JSON.stringify(err))
+              this.setState({
+                readonly: false,
+              })
+            }
+          },
+          finally: {
+            func: () => {
+              this.setState({
+                loading: false,
+              })
+            }
           }
-        },
-        failed: {
-          func: (err) => {
-            notify.warn(JSON.stringify(err))
-          }
-        },
+        })
       })
     })
   }
@@ -59,6 +79,8 @@ class ImageService extends React.Component {
     const { getFieldProps } = form
     const {
       isEdit,
+      loading,
+      readonly,
     } = this.state
     const cardTitle = <div className="title">
       镜像服务
@@ -72,14 +94,14 @@ class ImageService extends React.Component {
         <Row>
           <Col span={7}>
             <Form.Item>
-              <Input {...getFieldProps('url',{
+              <Input readOnly={readonly} {...getFieldProps('url',{
                 rules: [
                   {
                     validator: (rule, value, callback) => {
                       if (!value) {
                         return callback([new Error('请配置镜像服务')])
                       }
-                      if (!IP_REGEX.test(value)) {
+                      if (!URL_REGEX.test(value)) {
                         return callback([new Error('请输入正确的IP地址')])
                       }
                       callback()
@@ -98,7 +120,7 @@ class ImageService extends React.Component {
                 [
                   <Button className="btn" onClick={this.onEditClick}>取消</Button>
                   ,
-                  <Button className="btn" type="primary" onClick={this.onSubmitClick}>提交</Button>
+                  <Button className="btn" loading={loading} type="primary" onClick={this.onSubmitClick}>提交</Button>
                 ]
             }
           </Col>

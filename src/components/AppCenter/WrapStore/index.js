@@ -40,10 +40,10 @@ class AppWrapStore extends React.Component {
     }
   }
   componentWillMount() {
-    const { getWrapGroupList, getAppsHotList } = this.props
+    const { getWrapGroupList, getAppsHotList, cluster } = this.props
     getWrapGroupList()
     this.getStoreList()
-    getAppsHotList()
+    getAppsHotList(cluster.clusterID)
   }
   changeTab(activeKey){
     const { getAppsHotList } = this.props
@@ -58,7 +58,8 @@ class AppWrapStore extends React.Component {
       this.resetDownloadCount()
       return
     }
-    getAppsHotList()
+    const clusterID = this.props.cluster.clusterID
+    getAppsHotList(clusterID)
   }
   getStoreList() {
     const { getWrapStoreList, getAppsList, cluster } = this.props

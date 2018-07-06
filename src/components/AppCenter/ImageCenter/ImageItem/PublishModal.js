@@ -260,12 +260,12 @@ class PublishModal extends React.Component {
     let validateArr = []
     const selectType = radioVal === 'market'
     if (selectType) {
-      validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message']
+      validateArr = ['imageName', 'tagsName', 'description', 'classifyName', 'request_message', 'targetCluster']
       if (!publishName) {
         validateArr.push('fileNickName')
       }
     } else {
-      validateArr = ['select_name', 'select_version', 'target_store', 'commit_msg']
+      validateArr = ['select_name', 'select_version', 'target_store', 'commit_msg', 'targetCluster']
     }
     form.validateFields(validateArr, (errors, values) => {
       if (!!errors) {
@@ -298,7 +298,8 @@ class PublishModal extends React.Component {
           targetProject: target_store,
           request_message: commit_msg,
           type: 2,
-          resource: imageID
+          resource: imageID,
+          targetCluster,
         }
       }
       notify.close()
@@ -418,28 +419,38 @@ class PublishModal extends React.Component {
     getImageStatus(body)
   }
   handleChangePublishRadio(e) {
+    const radioVal = e.target.value
+    const getFieldValue = this.props.form.getFieldValue
     this.setState({
-      radioVal: e.target.value
+      radioVal,
+    }, () => {
+      const clusterID = getFieldValue("targetCluster")
+      this.getProjects(radioVal, clusterID)
     })
   }
   onClusterChange = (value) => {
-    const { clusters } = this.state
-    const { loadProjectList } = this.props
-    const cluster = filter(clusters, {clusterID: value})[0]
-    const harbor = !!cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : "1.2.3.4"
-    // todo 获取到harbor 通过harbor 获取仓库组
-    loadProjectList(undefined, {
-      harbor,
-    }).then( res => {
-      const listData = res.response.result.data || []
-      const privateData = listData.filter( item=>{
-        return item
-        // return item.public === 0   过滤显示 公开=1  私有=0
+    const { radioVal } = this.state
+    this.getProjects(radioVal, value)
+  }
+  getProjects = (radioVal, clusterID) => {
+    if(radioVal === 'store' && !!clusterID){
+      const { clusters } = this.state
+      const { loadProjectList } = this.props
+      const cluster = filter(clusters, {clusterID: clusterID})[0]
+      const harbor = !!cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
+      loadProjectList(undefined, {
+        harbor,
+      }).then( res => {
+        const listData = res.response.result.data || []
+        const privateData = listData.filter( item=>{
+          return item
+          // return item.public === 0   过滤显示 公开=1  私有=0
+        })
+        this.setState({
+          privateData,
+        })
       })
-      this.setState({
-        privateData,
-      })
-    })
+    }
   }
   render() {
     const { visible, pkgIcon, successModal, privateData, clusters } = this.state

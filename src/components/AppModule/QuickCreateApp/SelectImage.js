@@ -96,7 +96,7 @@ class SelectImage extends Component {
         }
       }
     }
-    const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : "1.2.3.4"
+    const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
     //todo 切换 集群列表
     loadAllProject(registry, Object.assign({}, query, { harbor }), callback)
   }
