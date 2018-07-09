@@ -30,7 +30,8 @@ class Logs extends Component {
     }
   }
   loadData(query, data) {
-    const { loadProjectLogs, params } = this.props
+    const { loadProjectLogs, params, harbor } = this.props
+    query.harbor = harbor
     loadProjectLogs(DEFAULT_REGISTRY, params.id, query, data)
   }
   componentWillMount() {
@@ -207,8 +208,13 @@ function mapStateToProps(state, props) {
   } else {
     projectLogs = defaultProjectLogs
   }
+
+  const { cluster } =  state.entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
-    projectLogs
+    projectLogs,
+    harbor,
   }
 }
 

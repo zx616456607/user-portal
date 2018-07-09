@@ -14,9 +14,8 @@ import { browserHistory } from 'react-router'
 import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
-import { loadProjectList } from '../../../../actions/harbor'
+import { loadProjectList, loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { loadClusterList } from '../../../../actions/cluster'
-import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { encodeImageFullname } from '../../../../common/tools'
@@ -363,9 +362,9 @@ class PublishModal extends React.Component {
     })
   }
   getConfigInfo(tag) {
-    const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
-    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
       success: {
         func: res => {
           this.setState({
@@ -385,9 +384,9 @@ class PublishModal extends React.Component {
   }
 
   handleSelectVersionContent(val) {
-    const { loadRepositoriesTagConfigInfo, currentImage } = this.props
+    const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
-    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
       success: {
         func: res => {
           this.setState({
@@ -881,6 +880,10 @@ function mapStateToProps(state) {
   const currentNamespace = space.namespace
   const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const clusters = currentProjectClusterList.data || []
+
+
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     imgTag: data,
     publishName,
@@ -891,6 +894,7 @@ function mapStateToProps(state) {
     wrapGroupList: groupData,
     space: current && current.space,
     clusters,
+    harbor,
   }
 }
 

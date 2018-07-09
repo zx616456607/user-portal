@@ -40,9 +40,9 @@ class ItemDetail extends Component {
   }
 
   componentWillMount() {
-    const { loadProjectDetail, loadProjectMembers, params } = this.props
-    loadProjectDetail(DEFAULT_REGISTRY, params.id)
-    loadProjectMembers(DEFAULT_REGISTRY,  params.id, null, {
+    const { loadProjectDetail, loadProjectMembers, params, harbor } = this.props
+    loadProjectDetail(harbor, DEFAULT_REGISTRY, params.id)
+    loadProjectMembers(DEFAULT_REGISTRY,  params.id, { harbor }, {
       failed: {
         func: err => {
           const { statusCode } = err
@@ -168,17 +168,22 @@ class ItemDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor, entities } = state
+  const { harbor: stateHarbor, entities } = state
   const { location } = props
   const { loginUser } = entities
   const { role } = loginUser.info
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
-    projectDetail: harbor.detail.data || {},
-    projectMembers: harbor.members || {},
+    projectDetail: stateHarbor.detail.data || {},
+    projectMembers: stateHarbor.members || {},
     loginUser: entities.loginUser.info,
     registry: DEFAULT_REGISTRY,
     location,
-    role
+    role,
+    harbor,
   }
 }
 

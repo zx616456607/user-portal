@@ -29,7 +29,7 @@ let EnvComponent = React.createClass({
     }
   },
   loadData() {
-    const { form, loadRepositoriesTagConfigInfo, registryServer, index } = this.props
+    const { form, loadRepositoriesTagConfigInfo, registryServer, index, harbor } = this.props
     let imageName = form.getFieldValue(`serviceSelect${index}`)
     if (!imageName) {
       form.setFieldsValue({
@@ -60,7 +60,7 @@ let EnvComponent = React.createClass({
       imageName = `library/${imageName}`
     }
     const self = this
-    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, imageTag, {
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY, imageName, imageTag, {
       success: {
         func: (result) => {
           if (!result.data) {
@@ -302,9 +302,14 @@ function mapStateToProps(state, props) {
   if(availableImage) {
     registryServer = availableImage.server ||  defaultRegistryServer
   }
+
+  const { cluster } =  state.entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     registryServer,
-    imageConfig
+    imageConfig,
+    harbor,
   }
 }
 

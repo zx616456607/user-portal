@@ -299,9 +299,10 @@ class TenxFlowDetail extends Component {
   goCheckImage(item) {
     const { imageName, projectId } = item
     let notification = new NotificationHandler()
-    const {namespace, owner} = this.props.flowInfo
+    const { harbor, flowInfo } = this.props
+    const { namespace, owner } = flowInfo
     this.setState({showTargeImage: false})
-    this.props.loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+    this.props.loadRepositoriesTags(harbor, DEFAULT_REGISTRY, imageName, {
       success: {
         func: (res) => {
           if(!res.data || res.data.length == 0) {
@@ -683,6 +684,11 @@ function mapStateToProps(state, props) {
   } else {
     otherImage = []
   }
+
+  const { entities } = state
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     isFetching,
     flowInfo,
@@ -691,7 +697,8 @@ function mapStateToProps(state, props) {
     logs,
     currentSpace: state.entities.current.space.namespace,
     otherImage,
-    repoBranchesAndTags
+    repoBranchesAndTags,
+    harbor,
   }
 }
 

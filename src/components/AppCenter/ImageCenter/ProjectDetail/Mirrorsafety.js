@@ -49,14 +49,14 @@ class MirrorSafety extends Component {
   }
 
   componentWillMount() {
-    const { registry, imageName, loadRepositoriesTags, tagVersion, envEdition } = this.props
+    const { registry, imageName, loadRepositoriesTags, tagVersion, envEdition, harbor } = this.props
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
     if( mode === standard && envEdition == 0){
       return
     }
     let processedName = encodeImageFullname(imageName)
-    loadRepositoriesTags(registry, processedName)
+    loadRepositoriesTags(harbor, registry, processedName)
     if (tagVersion !== '') {
       this.setState({
         tag: tagVersion,
@@ -66,7 +66,7 @@ class MirrorSafety extends Component {
   }
 
   componentWillReceiveProps(nextPorps) {
-    const { registry, loadRepositoriesTags } = this.props
+    const { registry, loadRepositoriesTags, harbor } = this.props
     const imageName = nextPorps.imageName
     const tagVersion = nextPorps.tagVersion
     let ActiveKeyNext = '1'
@@ -81,7 +81,7 @@ class MirrorSafety extends Component {
     }
     if (this.state.imageName !== imageName) {
       let processedName = encodeImageFullname(imageName)
-      loadRepositoriesTags(registry, processedName)
+      loadRepositoriesTags(harbor, registry, processedName)
       this.setState({
         TabsDisabled: true,
         imageName,
@@ -270,8 +270,8 @@ class MirrorSafety extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, harbor,images} = state
-  const { imageTags } = harbor
+  const { entities, images} = state
+  const { imageTags } = state.harbor
   const { imageInfo, imageName, imageType } = props
   let imgTag = []
   let processedName = encodeImageFullname(imageName)
@@ -289,6 +289,10 @@ function mapStateToProps(state, props) {
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorsafetyLyins = images.mirrorSafetyLyinsinfo
   let envEdition = entities.loginUser.info.envEdition || 0
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     cluster_id,
     imageInfo,
@@ -299,7 +303,8 @@ function mapStateToProps(state, props) {
     mirrorSafetyScan,
     mirrorsafetyClair,
     mirrorsafetyLyins,
-    envEdition
+    envEdition,
+    harbor,
   }
 }
 

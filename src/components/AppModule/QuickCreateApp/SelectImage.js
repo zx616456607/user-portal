@@ -18,7 +18,7 @@ import {
   loadFavouriteList, searchFavoriteImages, searchPrivateImages,
   publicFilterServer
 } from '../../../actions/app_center'
-import { loadAllProject, searchHarborPublicImages, searchHarborPrivateImages } from '../../../actions/harbor'
+import { loadAllProject } from '../../../actions/harbor'
 import { getAppsList } from '../../../actions/app_store'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { encodeImageFullname } from '../../../common/tools'
