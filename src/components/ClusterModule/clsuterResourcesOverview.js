@@ -33,7 +33,7 @@ class ClusterResourcesOverview extends Component{
     return <div id="cluster__resourcesoverview">
       <ClusterInfo cluster={cluster}/>
       <ResourcesOverview clusterSummary={clusterSummary} cluster={cluster} />
-      <ImageService scope={this} cluster={cluster}/>
+      <ImageService cluster={cluster}/>
       <NetworkConfiguration id="Network" cluster={cluster}/>
     </div>
   }
