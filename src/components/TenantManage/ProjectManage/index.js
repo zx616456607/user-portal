@@ -873,6 +873,7 @@ let ProjectManage = React.createClass({
       key: 'operation',
       width: '15%',
       render: (text, record) => {
+        const { roleCode }= this.props
         const menu = (
           <Menu onClick={(e) => this.delSingle(e, record)} style={{ width: 80 }}>
             <Menu.Item disabled={roleNum !==1 && record.role === 'participator'} key="delete">
@@ -887,13 +888,13 @@ let ProjectManage = React.createClass({
                   <Dropdown.Button
                     overlay={menu} type="ghost"
                     onClick={(e) => {
-                      if (!billingEnabled) {
+                      if (!billingEnabled || roleCode === 4 ) {
                         browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${record.projectName}`)
                         return
                       }
                       this.paySingle(e, record)
                     }} >
-                    { billingEnabled ? '充值' : '查看' }
+                    { billingEnabled && roleCode !== 4? '充值' : '查看' }
                   </Dropdown.Button> :
                   <Button disabled={record.role === '参与者'}
                           type='ghost' style={{marginLeft: '10px'}}
