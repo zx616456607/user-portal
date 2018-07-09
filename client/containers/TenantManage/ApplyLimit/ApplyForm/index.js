@@ -22,6 +22,7 @@ import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
 import { getResourceDefinition } from '../../../../../src/actions/quota'
 import QueueAnim from 'rc-queue-anim'
+// import { getProjectVisibleClusters } from '../../../../../src/actions/project'
 // import { templateNameCheck } from '../../../../../src/common/naming_validation'
 // const Option = Select.Option
 // const OptGroup = Select.OptGroup
@@ -139,7 +140,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                         disabled={!getFieldValue(`resource${k}`) }
                         onSelect={ clusterID => getClusterQuotaListSelect(clusterID, k) }
                       >
-                        {fromatChoiceClusters(choiceClusters)}
+                        {fromatChoiceClusters(choiceClusters[getFieldValue('item')])}
                       </Select>
                     </FormItem>
                   )
@@ -220,8 +221,12 @@ class ApplyForm extends React.Component {
   }
   componentDidMount = () => {
     const { displayNameText, displayName } = this.props
+    let newdisplayName = displayName
+    if (displayName === '我的个人项目') {
+      newdisplayName = 'default'
+    }
     if (displayNameText) {
-      this.loadResourceDefinitioList(displayName)
+      this.loadResourceDefinitioList(newdisplayName)
     }
   }
   handleSubmit = () => {
@@ -364,7 +369,7 @@ class ApplyForm extends React.Component {
   }
   loadResourceDefinitioList = value => {
     const { getResourceDefinition, getClusterQuotaList, personNamespace, getGlobaleQuotaList,
-      getDevopsGlobaleQuotaList } = this.props
+      getDevopsGlobaleQuotaList, getProjectVisibleClusters } = this.props
     const { checkResourceKindState } = this.state
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { getFieldsValue } = this.props.form
@@ -381,6 +386,14 @@ class ApplyForm extends React.Component {
         isAsync: true,
       },
     })
+    // 加载项目所在集群个数
+    let newVluae
+    if (value === personNamespace) {
+      newVluae = 'default'
+    } else {
+      newVluae = value
+    }
+    getProjectVisibleClusters(newVluae)
     // 如果已经选择了集群, 那么向后端请求集群资源使用量
     const formValue = getFieldsValue()
     let teamspace
@@ -550,7 +563,7 @@ const mapStateToProps = state => {
       }
     })
   }
-  const choiceClusters = state.projectAuthority.projectVisibleClusters.default // 所有集群列表
+  const choiceClusters = state.projectAuthority.projectVisibleClusters // 所有集群列表
   return {
     projectName, clusterID, choiceClusters, personNamespace,
   }

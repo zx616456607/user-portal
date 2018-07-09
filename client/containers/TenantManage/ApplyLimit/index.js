@@ -22,8 +22,8 @@ import TenxPage from '@tenx-ui/page'
 import './style/ApplyLimit.less'
 import Operation from './Operation'
 import ApplyForm from './ApplyForm'
-import { checkApplyRecord } from '../../../actions/applyLimit'
-import { ListProjects } from '../../../../src/actions/project'
+import * as applyLimitActions from '../../../actions/applyLimit' // checkApplyRecord
+import * as projectActions from '../../../../src/actions/project' // { ListProjects }
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../util/util'
 // import moment from 'moment'
@@ -183,20 +183,16 @@ class ApplyLimit extends React.Component {
     const { checkApplyRecord, userName, location } = this.props
     const query = { from: 0, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
-    const displayName = location.search.split('?')[1].split('=')[1]
-    let showdisplayName
+    const { displayName, namespace } = location.query
     let showdisplayNameText
-    if (displayName) {
-      showdisplayName = JSON.parse(displayName)
+    if (displayName === undefined) {
+      showdisplayNameText = namespace
     }
-    if (showdisplayName) {
-      showdisplayNameText = showdisplayName.displayName
-      if (showdisplayName.namespace) {
-        showdisplayNameText += ` ( ${showdisplayName.namespace} )`
-      }
+    if (displayName !== undefined) {
+      showdisplayNameText = `${displayName} ( ${namespace} )`
     }
     if (location.search !== '') {
-      this.setState({ displayNameText: showdisplayNameText, displayName: showdisplayName.namespace,
+      this.setState({ displayNameText: showdisplayNameText, displayName: namespace,
         applayVisable: true })
     }
   }
@@ -316,6 +312,6 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  checkApplyRecord,
-  ListProjects,
+  checkApplyRecord: applyLimitActions.checkApplyRecord,
+  ListProjects: projectActions.ListProjects,
 })(ApplyLimit)
