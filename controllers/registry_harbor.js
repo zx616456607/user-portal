@@ -16,6 +16,7 @@ const utils = require('../utils')
 const markdown = require('markdown-it')()
 const configEnv = require('../configs')
 const securityUtil = require('../utils/security')
+const _ = require('lodash')
 
 // [GET] /projects/search
 exports.searchProjects = harborHandler(
@@ -44,7 +45,7 @@ exports.getCurrentUserCtl = function* () {
 function* getCurrentUser(loginUser) {
   const config = getRegistryConfig()
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(config, auth)
+  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   return new Promise((resolve, reject) => {
     harbor.getCurrentUser((err, statusCode, body) => {
       if (err) {
@@ -81,7 +82,7 @@ function* deleteRepoTags() {
   const name = this.params.name
   const tags = this.params.tags.split(',')
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(config, auth)
+  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   const reqArray = tags.map(tag => new Promise((resolve, reject) => {
     harbor.deleteRepositoryTag(user, name, tag, (err, statusCode, body) => {
       if (err || statusCode >= 300) {
@@ -110,7 +111,7 @@ exports.getRepositoriyConfig = function* () {
   const config = getRegistryConfig()
   const loginUser = this.session.loginUser
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(config, auth)
+  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   const repoName = `${this.params.user}/${this.params.name}`
   const tag = this.params.tag
   const result = yield new Promise((resolve, reject) => {
@@ -206,7 +207,7 @@ exports.getRepository = function* () {
   const config = getRegistryConfig()
   const loginUser = this.session.loginUser
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(config, auth)
+  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   const name = this.params.name
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepository(name, (err, statusCode, body) => {
@@ -486,6 +487,7 @@ function getRegistryConfig() {
   // Default registry url
   return {url: "localhost"}
 }
+exports.getRegistryConfig = getRegistryConfig
 
 /*
 Get registry auth info from user session
@@ -499,7 +501,7 @@ function harborHandler(handler) {
     const config = getRegistryConfig()
     const loginUser = this.session.loginUser
     const auth = yield getAuthInfo(loginUser)
-    const harbor = new harborAPIs(config, auth)
+    const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
     const result = yield new Promise((resolve, reject) => {
       handler(harbor, this, (err, statusCode, result, headers) => {
         if (err) {
@@ -532,3 +534,19 @@ Get registry auth info from user session
 function* getAuthInfo(loginUser) {
   return securityUtil.decryptContent(loginUser.registryAuth)
 }
+
+// 支持多harbor，可以在 query 中指定 harbor 这个 key 来指定 harbor 地址
+function changeHarborConfigByQuery(query, _config) {
+  const method = 'changeHarborConfigByQuery'
+  const config = _.cloneDeep(_config) || {}
+  const harborUrl = query.harbor
+  if (harborUrl) {
+    if (!/^https?:\/\//.test(harborUrl)) {
+      logger.warn(method, 'Illegal harbor url:', harborUrl)
+    } else {
+      config.url = harborUrl
+    }
+  }
+  return config
+}
+exports.changeHarborConfigByQuery = changeHarborConfigByQuery

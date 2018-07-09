@@ -18,10 +18,12 @@ const parse = require('co-busboy')
 const formStream = require('formstream')
 const mime = require('mime')
 const harborAPI = require('../registry/lib/harborAPIs')
+const harborController = require('./registry_harbor')
 
 function getImageInfo(user, repoName, tag) {
   const auth = securityUtil.decryptContent(user.registryAuth)
-  const harbor = new harborAPI(null, auth)
+  const config = harborController.getRegistryConfig()
+  const harbor = new harborAPI(harborController.changeHarborConfigByQuery(this.query, config), auth)
   return new Promise((resolve, reject) => harbor.getManifest(repoName, tag, (err, statusCode, result) => {
     if (err) {
       reject(err)
@@ -50,7 +52,7 @@ exports.getScanStatus = function* () {
     throw err
   }
   const user = this.session.loginUser
-  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const info = yield getImageInfo.call(this, user, body.imageName, body.tag)
   const status = yield postToSecuredWithManifest(user, 'scan-status', {manifest: info.manifest})
   this.body = status
 }
@@ -63,7 +65,7 @@ exports.getLayerInfo = function* () {
     throw err
   }
   const user = this.session.loginUser
-  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const info = yield getImageInfo.call(this, user, body.imageName, body.tag)
   const layerInfo = yield postToSecuredWithManifest(user, 'layer-info', {manifest: info.manifest})
   this.body = layerInfo
 }
@@ -112,7 +114,7 @@ exports.scan = function* () {
     throw err
   }
   const user = this.session.loginUser
-  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const info = yield getImageInfo.call(this, user, body.imageName, body.tag)
   const result = yield postToSecuredWithManifest(user, 'scan', info, {cluster_id: body.cluster_id})
   this.body = result
 }
