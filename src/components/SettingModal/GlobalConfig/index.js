@@ -1407,10 +1407,7 @@ let MirrorService = React.createClass({
               <img src={MirrorImg} alt="镜像服务" />
             </div>
             <div className="contentForm" style={{ marginTop: 35 }}>
-              <div className="key">新版本支持每个集群配置一个harbor，构建集群必须配置harbor，CI/CD基础镜像 push 到构建集群 harbor 上
-                <Tooltip placement="top" title={ImageTip}>
-                  <a>【harbor地址】</a>
-                </Tooltip>
+              <div className="key">新版本支持每个集群配置一个harbor，构建集群必须配置harbor
               </div>
             </div>
             {/*<div className="contentForm">
@@ -1695,7 +1692,7 @@ let Continue = React.createClass({
                 <span className='forward'>流水线基础镜像</span>
                 基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像，基础镜像存储在构建集群harbor上，切换构建集群时请重新上传
                 <Tooltip placement="top" title={ImageTip}>
-                  <a>【harbor地址】</a>
+                  <a>【查看harbor地址】</a>
                 </Tooltip>
               </div>
               <div className='contenttablemain'>
