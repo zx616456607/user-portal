@@ -133,9 +133,9 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
     dataIndex: 'detail',
     key: 'detail',
     render: (text, record) => {
-      const toggleDetail = record => {
-        getDetailRecord(record)
-        checkResourcequotaDetail(record.id)
+      const toggleDetail = recordTo => {
+        getDetailRecord(recordTo)
+        checkResourcequotaDetail(recordTo.id)
         // let query = {}
         // if (record.namespace !== personNamespace) { // 如果是我的个人项目
         //   query = { header: { teamspace: record.namespace } }
@@ -144,10 +144,10 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
         //   query = { header: { onbehalfuser: record.namespace } }
         // }
         const newquery = { header: {} }
-        if (record.applier === record.namespace) { // 如果是个人项目
-          newquery.header.onbehalfuser = record.namespace
+        if (recordTo.applier === recordTo.namespace) { // 如果是个人项目
+          newquery.header.onbehalfuser = recordTo.namespace
         } else {
-          newquery.header.teamspace = record.namespace
+          newquery.header.teamspace = recordTo.namespace
         }
         getDevopsGlobaleQuotaList(newquery, {
           success: {
@@ -159,7 +159,7 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
             isAsync: true,
           },
         })
-        if (record.approvalStatus === 0) {
+        if (recordTo.approvalStatus === 0) {
           toggleApprovalModal()
           return
         }

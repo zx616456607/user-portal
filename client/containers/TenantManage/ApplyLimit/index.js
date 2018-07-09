@@ -30,7 +30,7 @@ import { getDeepValue } from '../../../util/util'
 import { calcuDate } from '../../../../src/common/tools'
 // 表格头定义
 const columns = ({ reloadApplyRecord }) => {
-  const columns = [{
+  const columnsArr = [{
     title: '申请项目',
     dataIndex: 'item',
     key: 'item',
@@ -102,7 +102,7 @@ const columns = ({ reloadApplyRecord }) => {
       )
     },
   }]
-  return columns
+  return columnsArr
 }
 
 const getdataSource = ({ dataSource, namespace }) => {
