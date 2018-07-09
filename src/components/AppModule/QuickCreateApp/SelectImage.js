@@ -160,10 +160,11 @@ class SelectImage extends Component {
     // }
   }
   loadImageStore() {
-    const { getAppsList } = this.props
+    const { getAppsList, cluster } = this.props
     const { searchInputValue, currentPage } = this.state
     let notify = new NotificationHandler()
-    let filter = 'type,2,publish_status,2'
+    // const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
+    let filter = 'type,2,publish_status,2,target_cluster,' + cluster.clusterID
     if (searchInputValue) {
       filter += `,file_nick_name,${searchInputValue}`
     }
