@@ -13,6 +13,7 @@ import PropTypes from 'prop-types'
 import './style/index.less'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../../util/util'
+import _ from 'lodash'
 
 const FormItem = Form.Item
 // 表单布局
@@ -98,10 +99,11 @@ const printApprovalResult = tabData => {
   }
   return approvalResult
 }
-const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse) => {
+const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse,
+  globaleDevopsQuotaList) => {
   const date = []
   let indexKey = 1
-  if (applyDetails) {
+  if (applyDetails && globaleDevopsQuotaList && !_.isEmpty(resourceInuse)) {
     for (const key in applyDetails) {
       const clusterName = findClusersName({ id: key, choiceClusters })
       for (const resourcekey in applyDetails[key]) {
@@ -109,8 +111,8 @@ const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInu
           key: indexKey,
           resource: resourcekey,
           aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-          // use: '后台没有提供',
-          use: resourceInuse[key][resourcekey],
+          use: resourceInuse[key][resourcekey] !== undefined ?
+            resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
           applyLimit: applyDetails[key][resourcekey] || '无限制',
           approvalStatus: approveDetails[key] ?
             approveDetails[key].indexOf(resourcekey) !== -1 : false,
@@ -130,10 +132,11 @@ class ApplayDetail extends React.Component {
   }
   render() {
     const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
-      resourceInuse } = this.props
+      resourceInuse, globaleDevopsQuotaList } = this.props
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const { applyDetails, approveDetails } = recordData
-    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse)
+    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse,
+      globaleDevopsQuotaList)
     let accountType
     if (recordData.applier === recordData.namespace) {
       accountType = '个人项目'
@@ -144,12 +147,12 @@ class ApplayDetail extends React.Component {
       <Modal
         visible = {visible}
         title = {title}
-        onCancel={ toggleVisable }
+        onCancel={ toggleVisable.bind(null, 'cancel') }
         footer={[
           <span className="ApplyDetail result-wrap">
             <span>审批结果:</span><span className="result">{printApprovalResult(tabData)}</span>
           </span>,
-          <Button key="makeSure" type="primary" size="large" onClick={toggleVisable}>
+          <Button key="makeSure" type="primary" size="large" onClick={toggleVisable.bind(null, 'cancel')}>
               知道了
           </Button>,
         ]}

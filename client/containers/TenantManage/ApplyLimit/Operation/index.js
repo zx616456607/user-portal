@@ -19,7 +19,6 @@ import { REG } from '../../../../../src/constants'
 import { getResourceDefinition } from '../../../../../src/actions/quota'
 import { getDeepValue } from '../../../../util/util'
 import { getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
-import _ from 'lodash'
 class Operation extends React.Component {
   static propTypes = {
     condition: PropTypes.string,
@@ -58,37 +57,45 @@ class Operation extends React.Component {
       },
     })
   }
-  toggleDetailVisable = () => {
+  toggleDetailVisable = type => {
     const { detailVisable } = this.state
     const { record, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
       personNamespace } = this.props
     this.setState({
       detailVisable: !detailVisable,
     })
-    checkResourcequotaDetail(record.id)
-    getResourceDefinition({
-      success: {
-        func: ({ data: resourceList }) => {
-          this.setState({
-            definitions: resourceList.definitions,
-          })
+    if (type !== 'cancel') {
+      checkResourcequotaDetail(record.id)
+      getResourceDefinition({
+        success: {
+          func: ({ data: resourceList }) => {
+            this.setState({
+              definitions: resourceList.definitions,
+            })
+          },
+          isAsync: true,
         },
-      },
-      isAsync: true,
-    })
-    let query = {}
-    if (record.namespace !== personNamespace) {
-      query = { header: { teamspace: record.namespace } }
+      })
+      let query = {}
+      if (record.namespace !== personNamespace) {
+        query = { header: { teamspace: record.namespace } }
+      }
+      getDevopsGlobaleQuotaList(query, {
+        success: {
+          func: res => {
+            this.setState({
+              globaleDevopsQuotaList: res.result,
+            })
+          },
+          isAsync: true,
+        },
+      })
     }
-    getDevopsGlobaleQuotaList(query, {
-      success: {
-        func: res => {
-          this.setState({
-            globaleDevopsQuotaList: res.result,
-          })
-        },
-        isAsync: true,
-      },
+  }
+  cancelDetailVisable = () => {
+    const { detailVisable } = this.state
+    this.setState({
+      detailVisable: !detailVisable,
     })
   }
   toggleClearVisable = () => {
@@ -122,10 +129,10 @@ class Operation extends React.Component {
     const { condition, record, resourceInuse } = this.props
     const { relealVisable, relealLoading, detailVisable, clearLoading, clearVisable, definitions,
       globaleDevopsQuotaList } = this.state
-    const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
-    if (!_.isEmpty(resourceInuse)) {
-      resourceInuse.global = global
-    }
+    // const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
+    // if (!_.isEmpty(resourceInuse)) {
+    //   resourceInuse.global = global
+    // }
     return (
       <div className="content-btns Operation">
         {
@@ -155,7 +162,8 @@ class Operation extends React.Component {
             type="warning" showIcon />
         </Modal>
         <ApplayDetail title="资源配额审批详情" visible={detailVisable} toggleVisable={this.toggleDetailVisable}
-          record={record} resourceDefinitions={definitions} resourceInuse={resourceInuse}/>
+          record={record} resourceDefinitions={definitions} resourceInuse={resourceInuse}
+          globaleDevopsQuotaList={globaleDevopsQuotaList}/>
         <Modal
           visible = {clearVisable}
           title="清除申请记录"

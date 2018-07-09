@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../client/util/util'
-import { getClusterQuota, getClusterQuotaList, getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition } from '../../../actions/quota'
+import { getClusterQuota, getClusterQuotaList, getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getDevopsGlobaleQuotaList } from '../../../actions/quota'
 import './style/index.less'
 import _ from 'lodash'
 import QueueAnim from 'rc-queue-anim'
@@ -50,14 +50,42 @@ const judgeProjectType = (space = {}) => {
     return { projectText: `(${displayName})${projectName}`, projectId: projectName, projectType: 3 } // projectType: 3: 共享项目项目
   }
 }
+
+// 根据space写出跳转到项目申请页的query
+const formateQuery = ({ displayName, namespace }) => {
+  let showDisplayName = {}
+  if (namespace == 'default') {
+    showDisplayName.displayName = '我的个人项目'
+    showDisplayName.namespace = undefined
+  } else {
+    showDisplayName.displayName = displayName,
+    showDisplayName.namespace = namespace
+  }
+  return JSON.stringify(showDisplayName)
+}
+
+// 根据entities/current/space下面字段的特征判断该用户是否有权限申请配额
+const judgeapplyLimit = ({namespace, outlineRoles = [] }) => {
+  let flagManager
+  if (namespace === 'default') { // 我的个人项目
+    flagManager = true
+    return flagManager
+  }
+  flagManager =  outlineRoles.includes('manager')
+  return flagManager
+}
+
 function mapStateToProps(state, props) {
   const cluster = getDeepValue( state, ['entities','current','cluster'] )
   let { clusterName, namespace, clusterID } = cluster
   const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
   const space = getDeepValue( state, ['entities','current','space'] )
-  return {clusterName, namespace, clusterID, role, ...(judgeProjectType(space))}
+  const flagManager = judgeapplyLimit(space)
+  return {clusterName, namespace, clusterID, role, ...(judgeProjectType(space)),
+     showDisplayName: formateQuery(space), flagManager}
 }
-@connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList, getGlobaleQuota, getGlobaleQuotaList, })
+@connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
+  getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList })
 export default class ResourceBanner extends React.Component {
   state = {
     setResource: undefined, // 默认资源未定义
@@ -68,9 +96,10 @@ export default class ResourceBanner extends React.Component {
     // 资源类型
     resourceType: PropTypes.string.isRequired,
   }
-  componentDidMount = () => {
+  timer = null
+  reload = () => {
     const {getResourceDefinition, resourceType, clusterID, getGlobaleQuota, getGlobaleQuotaList,
-      getClusterQuota, getClusterQuotaList,  } = this.props
+      getClusterQuota, getClusterQuotaList, getDevopsGlobaleQuotaList  } = this.props
     getResourceDefinition({
       success: {
         func: (result) => {
@@ -89,18 +118,29 @@ export default class ResourceBanner extends React.Component {
                   }
                   this.setState({ setResource: resource }) // null表示无限制
                   // this.setState({ setResource: result.data})
-                }
+                },
+                isAsync: true,
               },
-              isAsync: true,
             })
             getGlobaleQuotaList({}, {
               success: {
                 func: result => {
-                  this.setState({ usedResource: result.data[resourceType] })
+                  if (result.data[resourceType]) {
+                    this.setState({ usedResource: result.data[resourceType] })
+                  }
                 },
+                isAsync: true,
               },
               isAsync: true,
             })
+            // getDevopsGlobaleQuotaList({}, { // devops/Globale 只会在cicd去拉去, 所以这个地方不用拉取
+            //   success: {
+            //     func: result => {
+            //       console.log('全局资源result', result)
+            //     },
+            //     isAsync: true,
+            //   }
+            // })
           } else {
             let query = { id: clusterID }
             getClusterQuota(query, {
@@ -114,17 +154,17 @@ export default class ResourceBanner extends React.Component {
                     resource = null
                   }
                   this.setState({ setResource: resource }) // null表示无限制
-                }
+                },
+                isAsync: true,
               },
-              isAsync: true,
             })
             getClusterQuotaList(query, {
               success: {
                 func: result => {
                   this.setState({ usedResource: result.data[resourceType] })
-                }
+                },
+                isAsync: true,
               },
-              isAsync: true,
             })
           }
         },
@@ -137,8 +177,16 @@ export default class ResourceBanner extends React.Component {
       },
     })
   }
+  componentDidMount = () => {
+    this.reload()
+    this.timer = setInterval(this.reload, 10000)
+  }
+  componentWillUnmount = () => {
+    clearTimeout(this.timer)
+  }
   render () {
-    const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId, projectType  } = this.props
+    const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId,
+      projectType, showDisplayName, flagManager  } = this.props
     const { setResource, usedResource, resourceName } = this.state
     let percent = 0
     if (setResource) {
@@ -152,20 +200,27 @@ export default class ResourceBanner extends React.Component {
     } else if (projectType === 3) { // 共享项目
       link = `/tenant_manage/project_manage/project_detail?name=${projectId}`
     }
+    let flagManagerText = 'none'
+    if ( flagManager ) {
+      flagManagerText = 'block'
+    }
     return(
       <QueueAnim>
         {
           setResource !== undefined && projectId !== undefined?
           <div className="ResourceBanner" key="ResourceBanner">
-            <div>{`${projectText}项目在${clusterName}中${resourceName}配额使用情况`}</div>
+            <div>{`「${projectText}」项目在「${clusterName}」中「${resourceName}」配额使用情况`}</div>
           <div className="progress">
             <Progress percent={percent} strokeWidth={5} status="active" showInfo={false}/>
           </div>
-          <div>{`${usedResource}/${setResource === null ? '无限制' : setResource }`}</div>
+          <div>
+            {`${usedResource}/${setResource === null ? '无限制' : setResource }`}
+            <span onClick={ this.reload } className="reload">刷新</span>
+          </div>
           {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
             <div><Link to={link}><Icon type="plus" />编辑配额</Link></div> :
-            <div><Link to={`/tenant_manage/applyLimit`}><Icon type="plus" />申请增加配额</Link></div>
+            <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?projectName=${showDisplayName}`}><Icon type="plus" />申请增加配额</Link></div>
           }
           </div> : null
         }
