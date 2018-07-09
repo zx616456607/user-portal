@@ -33,7 +33,7 @@ let FistStop = React.createClass({
   },
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
-    loadAppList(cluster.clusterID, {size: 1000}) // 解决从应用列表跳转过来不请求的问题
+    loadAppList(cluster.clusterID, {size: 100}) // 解决从应用列表跳转过来不请求的问题, 超过100会被忽略
     if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ADMIN_ROLE) {
       getAllClusterNodes(cluster.clusterID)
     }
