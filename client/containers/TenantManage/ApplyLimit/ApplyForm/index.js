@@ -10,9 +10,12 @@
 import * as React from 'react'
 import { Form, Button, Select, Modal, Input, Card, Row, Col, Icon, InputNumber,
   Tooltip, Checkbox, notification } from 'antd'
-import { getClusterQuotaList, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
-import { getProjectVisibleClusters } from '../../../../../src/actions/project'
-import { applayResourcequota } from '../../../../../client/actions/applyLimit'
+// import { getClusterQuotaList, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
+import * as quotaActions from '../../../../../src/actions/quota'
+// import { getProjectVisibleClusters } from '../../../../../src/actions/project'
+import * as projectActions from '../../../../../src/actions/project'
+// import { applayResourcequota } from '../../../../../client/actions/applyLimit'
+import * as applyLimitActions from '../../../../../client/actions/applyLimit'
 import './style/index.less'
 import { connect } from 'react-redux'
 // import { REG } from '../../../../../src/constants'
@@ -20,7 +23,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import isArray from 'lodash/isArray'
-import { getResourceDefinition } from '../../../../../src/actions/quota'
+// import { getResourceDefinition } from '../../../../../src/actions/quota'
 import QueueAnim from 'rc-queue-anim'
 // import { getProjectVisibleClusters } from '../../../../../src/actions/project'
 // import { templateNameCheck } from '../../../../../src/common/naming_validation'
@@ -570,10 +573,10 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  getClusterQuotaList,
-  getGlobaleQuotaList,
-  getProjectVisibleClusters,
-  applayResourcequota,
-  getResourceDefinition,
-  getDevopsGlobaleQuotaList,
+  getClusterQuotaList: quotaActions.getClusterQuotaList,
+  getGlobaleQuotaList: quotaActions.getGlobaleQuotaList,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
+  applayResourcequota: applyLimitActions.applayResourcequota,
+  getResourceDefinition: quotaActions.getResourceDefinition,
+  getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
 })(createForm()(ApplyForm))

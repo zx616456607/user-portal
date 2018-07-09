@@ -20,16 +20,20 @@ import '@tenx-ui/page/assets/index.css'
 import TenxPage from '@tenx-ui/page'
 // import TenxIcon from '@tenx-ui/icon'
 import { connect } from 'react-redux'
-import { checkApplyRecord } from '../../../actions/applyLimit'
+// import { checkApplyRecord, checkResourcequotaDetail } from '../../../actions/applyLimit'
+import * as applyLimitActions from '../../../actions/applyLimit'
 import _ from 'lodash'
-import { loadUserList } from '../../../../src/actions/user'
+// import { loadUserList } from '../../../../src/actions/user'
+import * as userActions from '../../../../src/actions/user'
 import { getDeepValue } from '../../../util/util'
 import moment from 'moment'
-import { checkResourcequotaDetail } from '../../../actions/applyLimit'
-import { ListProjects } from '../../../../src/actions/project'
+// import { checkResourcequotaDetail } from '../../../actions/applyLimit'
+// import { ListProjects } from '../../../../src/actions/project'
+import * as projectActions from '../../../../src/actions/project'
 import ApprovalOperation from '../../../../src/components/TenantManage/ApprovalOperation'
-import { getDevopsGlobaleQuotaList } from '../../../../src/actions/quota'
-import { getResourceDefinition } from '../../../../src/actions/quota'
+// import { getDevopsGlobaleQuotaList, getResourceDefinition } from '../../../../src/actions/quota'
+import * as quotaActions from '../../../../src/actions/quota'
+// import { getResourceDefinition } from '../../../../src/actions/quota'
 import { calcuDate } from '../../../../src/common/tools'
 const Option = Select.Option
 
@@ -607,6 +611,10 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  checkApplyRecord, loadUserList, checkResourcequotaDetail, ListProjects, getDevopsGlobaleQuotaList,
-  getResourceDefinition,
+  checkApplyRecord: applyLimitActions.checkApplyRecord,
+  loadUserList: userActions.loadUserList,
+  checkResourcequotaDetail: applyLimitActions.checkResourcequotaDetail,
+  ListProjects: projectActions.ListProjects,
+  getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
+  getResourceDefinition: quotaActions.getResourceDefinition,
 })(ApprovalLimit)

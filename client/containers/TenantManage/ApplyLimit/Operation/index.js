@@ -14,11 +14,13 @@ import ApplayDetail from './ApplayDetail'
 import PropTypes from 'prop-types'
 import './style/index.less'
 import { connect } from 'react-redux'
-import { deleteResourcequota, checkResourcequotaDetail } from '../../../../actions/applyLimit'
+// import { deleteResourcequota, checkResourcequotaDetail } from '../../../../actions/applyLimit'
+import * as applyLimitActions from '../../../../actions/applyLimit'
 import { REG } from '../../../../../src/constants'
-import { getResourceDefinition } from '../../../../../src/actions/quota'
+// import { getResourceDefinition, getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
+import * as quotaActions from '../../../../../src/actions/quota'
 import { getDeepValue } from '../../../../util/util'
-import { getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
+// import { getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
 class Operation extends React.Component {
   static propTypes = {
     condition: PropTypes.string,
@@ -199,5 +201,8 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  deleteResourcequota, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
+  deleteResourcequota: applyLimitActions.deleteResourcequota,
+  checkResourcequotaDetail: applyLimitActions.checkResourcequotaDetail,
+  getResourceDefinition: quotaActions.getResourceDefinition,
+  getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
 })(Operation)
