@@ -333,7 +333,7 @@ class GithubComponent extends Component {
           success:{
             func: res => {
               if(res.data.status === 200) {
-                notification.success('success')
+                notification.success('配置成功')
                 this.setState({
                   githubConfigLoading: false,
                   githubConfigModal: false,
