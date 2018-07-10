@@ -52,7 +52,7 @@ class Endpoints extends React.Component {
     this.loadTargets()
   }
 
-  loadTargets(query) {
+  loadTargets(query = {}) {
     const { getTargets, harbor } = this.props
     const { searchInput } = this.state
     query.harbor = harbor
@@ -287,7 +287,7 @@ class Endpoints extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor: stateHarbor } = state
+  const { harbor: stateHarbor, entities } = state
 
   const { cluster } =  entities.current
   const { harbor: harbors } = cluster
