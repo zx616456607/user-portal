@@ -22,15 +22,15 @@ import TenxPage from '@tenx-ui/page'
 import './style/ApplyLimit.less'
 import Operation from './Operation'
 import ApplyForm from './ApplyForm'
-import { checkApplyRecord } from '../../../actions/applyLimit'
-import { ListProjects } from '../../../../src/actions/project'
+import * as applyLimitActions from '../../../actions/applyLimit' // checkApplyRecord
+import * as projectActions from '../../../../src/actions/project' // { ListProjects }
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../util/util'
 // import moment from 'moment'
 import { calcuDate } from '../../../../src/common/tools'
 // 表格头定义
 const columns = ({ reloadApplyRecord }) => {
-  const columns = [{
+  const columnsArr = [{
     title: '申请项目',
     dataIndex: 'item',
     key: 'item',
@@ -53,14 +53,14 @@ const columns = ({ reloadApplyRecord }) => {
       { text: '全部同意', value: 1 }, // '全部同意'
       { text: '部分同意', value: 3 }, // '全部拒绝'
       { text: '全部拒绝', value: 2 }, // 部分同意
-      { text: '待审批...', value: 0 }, // 审批中
+      { text: '待审批', value: 0 }, // 审批中
     ],
     render: (text, record) => {
       const iconText = { iconName: '', iconText: '' }
       switch (record.condition) {
         case 0: {
           iconText.iconName = 'iconWaitApproval'
-          iconText.iconText = '待审批...'
+          iconText.iconText = '待审批'
           break
         }
         case 1: { // 全部同意
@@ -83,8 +83,8 @@ const columns = ({ reloadApplyRecord }) => {
       }
       return (<div>
         <span className={iconText.iconName}>
-          <span className="iconText">{iconText.iconText}</span>
           <span className="icon" ></span>
+          <span className="iconText">{iconText.iconText}</span>
         </span>
       </div>)
     },
@@ -102,7 +102,7 @@ const columns = ({ reloadApplyRecord }) => {
       )
     },
   }]
-  return columns
+  return columnsArr
 }
 
 const getdataSource = ({ dataSource, namespace }) => {
@@ -180,24 +180,21 @@ class ApplyLimit extends React.Component {
     checkApplyRecord(query)
   }
   componentDidMount = () => {
-    const { checkApplyRecord, userName, location } = this.props
+    const { checkApplyRecord, userName, location, getProjectVisibleClusters } = this.props
     const query = { from: 0, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
-    const displayName = location.search.split('?')[1].split('=')[1]
-    let showdisplayName
+    const { displayName, namespace } = location.query
     let showdisplayNameText
-    if (displayName) {
-      showdisplayName = JSON.parse(displayName)
+    if (displayName === undefined) {
+      showdisplayNameText = namespace
     }
-    if (showdisplayName) {
-      showdisplayNameText = showdisplayName.displayName
-      if (showdisplayName.namespace) {
-        showdisplayNameText += ` ( ${showdisplayName.namespace} )`
-      }
+    if (displayName !== undefined) {
+      showdisplayNameText = `${displayName} ( ${namespace} )`
     }
     if (location.search !== '') {
-      this.setState({ displayNameText: showdisplayNameText, displayName: showdisplayName.namespace,
+      this.setState({ displayNameText: showdisplayNameText, displayName: namespace,
         applayVisable: true })
+      getProjectVisibleClusters('default')
     }
   }
   setApplayVisable = status => { // 当status的值为success时 会重新liading一下数据
@@ -316,6 +313,7 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  checkApplyRecord,
-  ListProjects,
+  checkApplyRecord: applyLimitActions.checkApplyRecord,
+  ListProjects: projectActions.ListProjects,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
 })(ApplyLimit)

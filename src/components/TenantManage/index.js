@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * index.js page
+ *
+ * @author zhangtao
+ * @date Tuesday July 10th 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
@@ -27,15 +36,36 @@ import { getDeepValue } from '../../../client/util/util'
 import { checkResourcequotaDetail } from '../../../client/actions/applyLimit'
 import { getResourceDefinition } from '../../../src/actions/quota'
 import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
+import * as userActions from '../../actions/user'
+import cloneDeep from 'lodash/cloneDeep'
 
-const getColumns = ({ toggleApprovalModal, type }) => {
+const getColumns = ({ toggleApprovalModal, type, allUsers }) => {
   return [{
     title: type === 'person' ? '个人项目' : '共享项目',
     dataIndex: 'item',
-    render: (text, record) => <span className="personalItem">{record.item}</span>
+    render: (text, record) => {
+      let link
+      let projectId = 'cannot find'
+      for (const value of allUsers) {
+        if (value.namespace === record.namespace) {
+          projectId = value.userID
+        }
+      }
+      if (record.applier === record.namespace) { // 这个代表个人项目
+        link = `/tenant_manage/user/${projectId}`
+      } else {
+        link = `/tenant_manage/project_manage/project_detail?name=${record.namespace
+        }`
+      }
+      return (
+        <Link to={link}>{record.item}</Link>
+      )
+    },
+    width: 100,
   }, {
     title: '申请时间',
     dataIndex: 'approvalTime',
+    width: 100,
   }, {
     title: '操作',
     dataIndex: 'detail',
@@ -43,10 +73,11 @@ const getColumns = ({ toggleApprovalModal, type }) => {
       return (
         <div onClick={toggleApprovalModal.bind(null, record) }>
           {/* <TenxIcon type="circle-arrow-right-o" className="checkDetail"/> */}
-          <Button type="primary" size="small"><span className="goApplay" >去审批</span></Button>
+          <Button type="primary" size="small"><span className="goApplay" >审批</span></Button>
         </div>
       )
-    }
+    },
+    width:100,
   }];
 }
 class TenantManage extends React.Component {
@@ -73,11 +104,12 @@ class TenantManage extends React.Component {
       publicItem: {}, //当前共享项目以及个数
       definitions: undefined, // 后台定义的资源类型
       globaleDevopsQuotaList: undefined, // devops
+      allUsers: [] // 当前所有用户信息
     }
   }
   record = {}
   componentWillMount = () => {
-    const { checkApplyRecord } = this.props
+    const { checkApplyRecord, loadUserList} = this.props
     this.loadInfosList()
     if (localStorage.getItem('state')) {
       this.setState({
@@ -104,6 +136,14 @@ class TenantManage extends React.Component {
         isAsync: true
       }
     })
+    const newUserQuery = { size: 0 }
+    loadUserList(newUserQuery, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        },
+      },
+    }) // 获取所有成员
   }
   reload = () => {
     const { checkApplyRecord } = this.props
@@ -247,6 +287,9 @@ class TenantManage extends React.Component {
       })
     }
   }
+  cancelApprovalModal = () => {
+    this.setState({showApprovalModal: false  })
+  }
   showOperationNav = () => {
     this.setState({
       operationNav: true
@@ -285,7 +328,7 @@ class TenantManage extends React.Component {
     }]
     const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
       role_defaultSet, team_createdByUser, showApprovalModal, personItem, publicItem, definitions,
-      globaleDevopsQuotaList } = this.state
+      globaleDevopsQuotaList, allUsers } = this.state
     let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
@@ -591,6 +634,7 @@ class TenantManage extends React.Component {
     const itemStyle = {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
+    const waitTotal = personItem.total + publicItem.total
     return (
       <QueueAnim>
         <div id="tenantManage" key='tenantManage'>
@@ -649,22 +693,23 @@ class TenantManage extends React.Component {
 
             </Col>
             <Col span={12}>
-              <Card title={<span style={{ color: '#666'}}><span>资源配额申请概览  (待处理)</span><span style={{ paddingLeft: '24px' }}>共 <span style={{ color: '#2db7f5' }}>{personItem.total + publicItem.total}</span> 个</span></span>}
+              <Card title={<span style={{ color: '#666'}}><span>资源配额申请概览  (待处理)</span><span style={{ paddingLeft: '24px' }}>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span></span>}
                     extra={<Link to="/tenant_manage/approvalLimit">审批记录>></Link>}
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
                   <Col span={12} className="personalProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'person' })} dataSource={personItem.tabDataIndex} size="small" pagination={false}
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'person', allUsers })} dataSource={personItem.tabDataIndex} size="small" pagination={false}
                            scroll={{ y: 360 }} loading={tabisFetching}/>
                   </Col>
                   <Col span={12} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'share' })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'share', allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
                     loading={tabisFetching} scroll={{ y: 360 }} />
                   </Col>
                   <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
                                      record={this.record} reload={this.reload} resourceDefinitions={definitions}
                                      resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
+                                     cancelApprovalModal = {this.cancelApprovalModal}
                                      />
                 </Row>
               </Card>
@@ -774,4 +819,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   fetchinfoList, checkApplyRecord, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
+  loadUserList: userActions.loadUserList
 })(TenantManage)

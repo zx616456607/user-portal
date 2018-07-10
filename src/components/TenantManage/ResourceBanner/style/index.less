@@ -28,15 +28,20 @@
   }
   .progress {
     width: 200px;
+    .ant-progress-inner {
+      background-color: #c4dff6 !important;
+    }
   }
   .reload{
     padding-left: @padding-base;
     color: @primary-color;
     cursor: pointer;
-  }
-  .ResourceBanner {
-    .ant-progress-inner {
-      background-color: #c4dff6!important;
+    user-select:none;
+    &:hover {
+      color:#4fc4fa;
+    }
+    &:active {
+      color:#76d4ff;
     }
   }
 }
