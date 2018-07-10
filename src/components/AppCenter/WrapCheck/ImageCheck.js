@@ -277,6 +277,11 @@ class ImageCheckTable extends React.Component {
           key: 'fileNickName',
           width: '8%',
         }, {
+          title: '目标集群',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
+          width: '12%',
+        }, {
           title: '原镜像名称',
           dataIndex: 'originID',
           key: 'originID',
@@ -430,6 +435,11 @@ class ImageCheckTable extends React.Component {
           title: '目标仓库组',
           dataIndex: 'targetProject',
           key: 'targetProject',
+          width: '12%',
+        },{
+          title: '目标集群',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
           width: '12%',
         }, {
           title: '原镜像名称',

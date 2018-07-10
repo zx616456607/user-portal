@@ -155,7 +155,7 @@ let ConfigureService = React.createClass({
   loadImageTags(props, name) {
     const {
       location, getOtherImageTag, form,
-      currentFields, mode, loadRepositoriesTags
+      currentFields, mode, loadRepositoriesTags, harbor
     } = props
     let { imageName } = props
     const { other, isWrap } = location.query
@@ -203,7 +203,7 @@ let ConfigureService = React.createClass({
       })
       return
     }
-    loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, imageName, {
        success: {
          func: result => {
            if (!result.data.length) {
@@ -259,7 +259,8 @@ let ConfigureService = React.createClass({
       loadOtherDetailTagConfig,
       loadRepositoriesTagConfigInfo,
       imageName,
-      location
+      location,
+      harbor,
     } = this.props
     if (images) {
       imageName = images
@@ -288,7 +289,7 @@ let ConfigureService = React.createClass({
       }
       loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, config, callback)
     } else {
-      loadImageConfigFunc = loadRepositoriesTagConfigInfo.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
+      loadImageConfigFunc = loadRepositoriesTagConfigInfo.bind(this, harbor, DEFAULT_REGISTRY, imageName, imageTag, callback)
     }
     loadImageConfigFunc()
   },
@@ -848,9 +849,9 @@ const createFormOpts = {
 ConfigureService = Form.create(createFormOpts)(ConfigureService)
 
 function mapStateToProps(state, props) {
-  const { quickCreateApp, entities, getImageTag, harbor, images } = state
+  const { quickCreateApp, entities, getImageTag, harbor: stateHarbor, images } = state
   const { otherImageTag } = getImageTag
-  const { imageTags } = harbor
+  const { imageTags } = stateHarbor
   const { imageName, location, id } = props
   const { fields } = quickCreateApp
   const currentFields = quickCreateApp.fields[id]
@@ -869,6 +870,10 @@ function mapStateToProps(state, props) {
   }
   const { wrapTemplate } = images
   const { template } = wrapTemplate || { template: [] }
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     allFields: fields,
     currentFields,
@@ -877,7 +882,8 @@ function mapStateToProps(state, props) {
       list: tags,
       isFetching: tagsIsFetching
     },
-    template
+    template,
+    harbor,
   }
 }
 

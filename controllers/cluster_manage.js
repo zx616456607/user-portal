@@ -405,6 +405,15 @@ exports.updateKubeproxy = function* () {
   const result = yield api.updateBy([ cluster, 'kubeproxy' ], null, body)
   this.body = result
 }
+
+exports.setHarbor = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([ cluster, 'configs', 'harbor' ], null, body)
+  this.body = result
+}
+
 exports.getNodeDetail = function* (){
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster

@@ -94,7 +94,7 @@ let MyComponent = React.createClass({
         'harborProjectName': '',
         'exportImageVersion': 'latest',
       })
-      this.props.funcs.loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
+      this.props.funcs.loadProjectList(DEFAULT_REGISTRY, { page_size: 100, harbor })
       this.setState({
         exportImageModalVisible: true,
         exportContainerName: name
@@ -209,8 +209,8 @@ let MyComponent = React.createClass({
     })
   },
   checkImageNameEqual(exportImageName, callback){
-    const { loadAllProject, loadRepositoriesTags } = this.props
-    loadAllProject(DEFAULT_REGISTRY, {q: exportImageName},{
+    const { loadAllProject, loadRepositoriesTags, harbor } = this.props
+    loadAllProject(DEFAULT_REGISTRY, {q: exportImageName, harbor},{
       success: {
         func: (res) => {
           const { form } = this.props
@@ -231,7 +231,7 @@ let MyComponent = React.createClass({
               this.setState({
                 imageNameEqual: true
               })
-              loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+              loadRepositoriesTags(harbor, DEFAULT_REGISTRY, imageName, {
                 success: {
                   func: (res) => {
                     let imageTag = form.getFieldValue('exportImageVersion')
@@ -273,7 +273,7 @@ let MyComponent = React.createClass({
     return callback()
   },
   checkImageVersion(rule, value, callback){
-    const { loadRepositoriesTags, form } = this.props
+    const { loadRepositoriesTags, form, harbor } = this.props
     if(!value){
       return callback('请输入镜像版本')
     }
@@ -287,7 +287,7 @@ let MyComponent = React.createClass({
       let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
       let exporImageName = form.getFieldValue('exportImageName')
       let imageName = projectName + '/' + exporImageName
-      loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+      loadRepositoriesTags(harbor, DEFAULT_REGISTRY, imageName, {
         success: {
           func: (res) => {
             let imageTagArray = res.data
@@ -841,7 +841,8 @@ class ContainerList extends Component {
       name, page, size,
       sortOrder, total, cluster,
       isFetching, instanceExport, exportimageUrl,
-      loadProjectList, harborProjects, loadAllProject, loadRepositoriesTags
+      loadProjectList, harborProjects, loadAllProject, loadRepositoriesTags,
+      harbor,
     } = this.props
     const { containerList, searchInputValue, searchInputDisabled, forceDeleteVisble } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
@@ -1006,6 +1007,7 @@ class ContainerList extends Component {
               harborProjects={harborProjects}
               loadAllProject={loadAllProject}
               loadRepositoriesTags={loadRepositoriesTags}
+              harbor={harbor}
             />
           </Card>
         </div>
@@ -1071,6 +1073,8 @@ function mapStateToProps(state, props) {
   })
   harborProjects.list = newList.concat(visitorList)
 
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     cluster: cluster.clusterID,
     exportimageUrl: loginUser.info,
@@ -1086,6 +1090,7 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     harborProjects,
+    harbor,
   }
 }
 

@@ -18,6 +18,7 @@ import './style/index.less'
 import _ from 'lodash'
 import QueueAnim from 'rc-queue-anim'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
+import { toQuerystring } from '../../../../src/common/tools'
 
 
 const findQuotaChinsesName = ({ resourceType, resourceList }) => {
@@ -55,13 +56,13 @@ const judgeProjectType = (space = {}) => {
 const formateQuery = ({ displayName, namespace }) => {
   let showDisplayName = {}
   if (namespace == 'default') {
-    showDisplayName.displayName = '我的个人项目'
-    showDisplayName.namespace = undefined
+    showDisplayName.displayName = undefined
+    showDisplayName.namespace =  '我的个人项目'
   } else {
     showDisplayName.displayName = displayName,
     showDisplayName.namespace = namespace
   }
-  return JSON.stringify(showDisplayName)
+  return toQuerystring(showDisplayName)
 }
 
 // 根据entities/current/space下面字段的特征判断该用户是否有权限申请配额
@@ -133,14 +134,16 @@ export default class ResourceBanner extends React.Component {
               },
               isAsync: true,
             })
-            // getDevopsGlobaleQuotaList({}, { // devops/Globale 只会在cicd去拉去, 所以这个地方不用拉取
-            //   success: {
-            //     func: result => {
-            //       console.log('全局资源result', result)
-            //     },
-            //     isAsync: true,
-            //   }
-            // })
+            getDevopsGlobaleQuotaList({}, { // devops/Globale 只会在cicd去拉去, 所以这个地方不用拉取
+              success: {
+                func: result => {
+                  if (result.result[resourceType]) {
+                    this.setState({ usedResource: result.result[resourceType] })
+                  }
+                },
+                isAsync: true,
+              }
+            })
           } else {
             let query = { id: clusterID }
             getClusterQuota(query, {
@@ -220,7 +223,7 @@ export default class ResourceBanner extends React.Component {
           {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
             <div><Link to={link}><Icon type="plus" />编辑配额</Link></div> :
-            <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?projectName=${showDisplayName}`}><Icon type="plus" />申请增加配额</Link></div>
+            <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />申请增加配额</Link></div>
           }
           </div> : null
         }

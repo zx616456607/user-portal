@@ -40,9 +40,9 @@ class PublicProject extends Component {
     inputSearch && inputSearch.focus()
   }
   loadData(query) {
-    const { loadProjectList } = this.props
+    const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
-    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query), {
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
@@ -102,11 +102,16 @@ class PublicProject extends Component {
 
 
 function mapStateToProps(state, props) {
-  const { harbor, entities } = state
-  let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
+  const { harbor: stateHarbor, entities } = state
+  let harborProjects = stateHarbor.projects && stateHarbor.projects[DEFAULT_REGISTRY] || {}
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     harborProjects,
     loginUser: entities.loginUser.info,
+    harbor,
   }
 }
 

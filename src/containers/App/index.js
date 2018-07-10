@@ -100,11 +100,14 @@ class App extends Component {
         })
       }, 200)
     })
-    if (pathname.match(/\//g).length > 2) {
+    if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
       browserHistory.push('/')
     }
   }
-
+  checkPath(pathname) {
+    const pathArr = ['/app_manage/app_create/quick_create']
+    return !(pathArr.indexOf(pathname) > -1)
+  }
   componentWillReceiveProps(nextProps) {
     const {
       errorMessage,

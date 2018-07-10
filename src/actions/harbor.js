@@ -72,8 +72,8 @@ export const HARBOR_GET_PROJECT_DETAIL_SUCCESS = 'HARBOR_GET_PROJECT_DETAIL_SUCC
 export const HARBOR_GET_PROJECT_DETAIL_FAILURE = 'HARBOR_GET_PROJECT_DETAIL_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchProjectDetail(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}`
+function fetchProjectDetail(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -86,9 +86,9 @@ function fetchProjectDetail(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function loadProjectDetail(registry, id, callback) {
+export function loadProjectDetail(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchProjectDetail(registry, id, callback))
+    return dispatch(fetchProjectDetail(harbor, registry, id, callback))
   }
 }
 
@@ -153,8 +153,8 @@ export const HARBOR_ADD_PROJECT_MEMBER_SUCCESS = 'HARBOR_ADD_PROJECT_MEMBER_SUCC
 export const HARBOR_ADD_PROJECT_MEMBER_FAILURE = 'HARBOR_ADD_PROJECT_MEMBER_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAddProjectMember(registry, projectID, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members`
+function fetchAddProjectMember(harbor, registry, projectID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -171,9 +171,9 @@ function fetchAddProjectMember(registry, projectID, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function addProjectMember(registry, projectID, body, callback) {
+export function addProjectMember(harbor, registry, projectID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAddProjectMember(registry, projectID, body, callback))
+    return dispatch(fetchAddProjectMember(harbor, registry, projectID, body, callback))
   }
 }
 
@@ -182,8 +182,8 @@ export const HARBOR_DELETE_PROJECT_MEMBER_SUCCESS = 'HARBOR_DELETE_PROJECT_MEMBE
 export const HARBOR_DELETE_PROJECT_MEMBER_FAILURE = 'HARBOR_DELETE_PROJECT_MEMBER_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProjectMember(registry, projectID, userId, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}`
+function fetchDeleteProjectMember(harbor, registry, projectID, userId, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -199,9 +199,9 @@ function fetchDeleteProjectMember(registry, projectID, userId, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function deleteProjectMember(registry, projectID, userId, callback) {
+export function deleteProjectMember(harbor, registry, projectID, userId, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteProjectMember(registry, projectID, userId, callback))
+    return dispatch(fetchDeleteProjectMember(harbor, registry, projectID, userId, callback))
   }
 }
 
@@ -210,8 +210,8 @@ export const HARBOR_UPDATE_PROJECT_MEMBER_SUCCESS = 'HARBOR_UPDATE_PROJECT_MEMBE
 export const HARBOR_UPDATE_PROJECT_MEMBER_FAILURE = 'HARBOR_UPDATE_PROJECT_MEMBER_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectMember(registry, projectID, userId, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}`
+function fetchUpdateProjectMember(harbor, registry, projectID, userId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -228,9 +228,9 @@ function fetchUpdateProjectMember(registry, projectID, userId, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function updateProjectMember(registry, projectID, userId, body, callback) {
+export function updateProjectMember(harbor, registry, projectID, userId, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUpdateProjectMember(registry, projectID, userId, body, callback))
+    return dispatch(fetchUpdateProjectMember(harbor, registry, projectID, userId, body, callback))
   }
 }
 
@@ -290,7 +290,7 @@ function fetchAllProject(registry, query, callback) {
 
 
 // Relies on Redux Thunk middleware.
-export function loadAllProject(registry, query,callback) {
+export function loadAllProject(registry, query, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchAllProject(registry, query, callback))
   }
@@ -301,8 +301,8 @@ export const CREATE_HARBOR_PROJECT_SUCCESS = 'CREATE_HARBOR_PROJECT_SUCCESS'
 export const CREATE_HARBOR_PROJECT_FAILURE = 'CREATE_HARBOR_PROJECT_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCreateProject(registry, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects`
+function fetchCreateProject(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -319,9 +319,9 @@ function fetchCreateProject(registry, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function createProject(registry, body, callback) {
+export function createProject(harbor, registry, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateProject(registry, body, callback))
+    return dispatch(fetchCreateProject(harbor, registry, body, callback))
   }
 }
 
@@ -330,23 +330,23 @@ export const HARBOR_REPOSITORIES_TAGS_SUCCESS = 'HARBOR_REPOSITORIES_TAGS_SUCCES
 export const HARBOR_REPOSITORIES_TAGS_FAILURE = 'HARBOR_REPOSITORIES_TAGS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRepositoriesTags(registry, imageName, callback) {
+function fetchRepositoriesTags(harbor, registry, imageName, callback) {
   return {
     registry,
     imageName,
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags?harbor=${harbor}`,
       schema: {}
     }
   }
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTags(registry, imageName, callback) {
+export function loadRepositoriesTags(harbor, registry, imageName, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchRepositoriesTags(registry, imageName, callback))
+    return dispatch(fetchRepositoriesTags(harbor, registry, imageName, callback))
   }
 }
 
@@ -358,16 +358,16 @@ function fetchLoadWrapTags(body,callback) {
   return {
     [FETCH_API]: {
       types: [HARBOR_APP_WRAP_TAGS_REQUEST,HARBOR_APP_WRAP_TAGS_SUCCESS,HARBOR_APP_WRAP_TAGS_FAILURE],
-      endpoint:`${API_URL_PREFIX}/pkg/${body.filename}/${body.filetype}/versions`,
+      endpoint:`${API_URL_PREFIX}/pkg/${body.filename}/${body.filetype}/versions?harbor=${loadWrapTags}`,
       schema: {},
     },
     callback
   }
 }
 
-export function loadWrapTags(body, callback) {
+export function loadWrapTags(harbor, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchLoadWrapTags(body, callback))
+    return dispatch(fetchLoadWrapTags(harbor, body, callback))
   }
 }
 
@@ -376,8 +376,8 @@ export const HARBOR_DELETE_REPO_SUCCESS = 'HARBOR_DELETE_REPO_SUCCESS'
 export const HARBOR_DELETE_REPO_FAILURE = 'HARBOR_DELETE_REPO_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteRepo(registry, repoName, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/repositories/${repoName}/tags`
+function fetchDeleteRepo(harbor, registry, repoName, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/repositories/${repoName}/tags?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -393,9 +393,9 @@ function fetchDeleteRepo(registry, repoName, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function deleteRepo(registry, repoName, callback) {
+export function deleteRepo(harbor, registry, repoName, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteRepo(registry, repoName, callback))
+    return dispatch(fetchDeleteRepo(harbor, registry, repoName, callback))
   }
 }
 
@@ -405,7 +405,7 @@ export const DELETE_DETAIL_ALONE_FAILURE = 'DELETE_DETAIL_ALONE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchDeleteAlone(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.repoName}/tags/${query.tagName}`
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.repoName}/tags/${query.tagName}?harbor=${query.harbor}`
   return {
     [FETCH_API]: {
       types: [ DELETE_DETAIL_ALONE_REQUEST, DELETE_DETAIL_ALONE_SUCCESS, DELETE_DETAIL_ALONE_FAILURE ],
@@ -431,8 +431,8 @@ export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
 export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProject(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}`
+function fetchDeleteProject(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -448,9 +448,9 @@ function fetchDeleteProject(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function deleteProject(registry, id, callback) {
+export function deleteProject(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteProject(registry, id, callback))
+    return dispatch(fetchDeleteProject(harbor, registry, id, callback))
   }
 }
 
@@ -459,7 +459,7 @@ export const HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS = 'HARBOR_REPOSITORIES_T
 export const HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE = 'HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
+function fetchRepositoriesTagConfigInfo(harbor, registry, imageName, tag, callback) {
   return {
     registry,
     imageName,
@@ -467,16 +467,16 @@ function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST, HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS, HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags/${tag}/configinfo`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags/${tag}/configinfo?harbor=${harbor}`,
       schema: {}
     }
   }
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
+export function loadRepositoriesTagConfigInfo(harbor, registry, imageName, tag, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback))
+    return dispatch(fetchRepositoriesTagConfigInfo(harbor, registry, imageName, tag, callback))
   }
 }
 
@@ -485,8 +485,8 @@ export const UPDATE_HARBOR_PROJECT_SUCCESS = 'UPDATE_HARBOR_PROJECT_SUCCESS'
 export const UPDATE_HARBOR_PROJECT_FAILURE = 'UPDATE_HARBOR_PROJECT_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProject(registry, id, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}/publicity`
+function fetchUpdateProject(harbor, registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}/publicity?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -503,9 +503,9 @@ function fetchUpdateProject(registry, id, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function updateProject(registry, id, body, callback) {
+export function updateProject(harbor, registry, id, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUpdateProject(registry, id, body, callback))
+    return dispatch(fetchUpdateProject(harbor, registry, id, body, callback))
   }
 }
 
@@ -514,8 +514,8 @@ export const GET_CONFIGURATIONS_SUCCESS = 'GET_CONFIGURATIONS_SUCCESS'
 export const GET_CONFIGURATIONS_FAILURE = 'GET_CONFIGURATIONS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetConfigurations(registry, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations`
+function fetchGetConfigurations(harbor, registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -528,9 +528,9 @@ function fetchGetConfigurations(registry, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function getConfigurations(registry, callback) {
+export function getConfigurations(harbor, registry, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchGetConfigurations(registry, callback))
+    return dispatch(fetchGetConfigurations(harbor, registry, callback))
   }
 }
 
@@ -539,7 +539,7 @@ export const LOAD_IMAGEUPDATE_LIST_SUCCESS = 'LOAD_IMAGEUPDATE_LIST_SUCCESS'
 export const LOAD_IMAGEUPDATE_LIST_FAILURE = 'LOAD_IMAGEUPDATE_LIST_FAILURE'
 
 function fetchLoadImageUpdateList(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${body.registry}/projects/${body.projectID}/replication/summary`
+  let endpoint = `${API_URL_PREFIX}/registries/${body.registry}/projects/${body.projectID}/replication/summary?harbor=${harbor}`
   return {
     registry: body.registry,
     [FETCH_API]: {
@@ -551,9 +551,9 @@ function fetchLoadImageUpdateList(body, callback) {
   }
 }
 
-export function loadImageUpdateList(body, callback) {
+export function loadImageUpdateList(harbor, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchLoadImageUpdateList(body, callback))
+    return dispatch(fetchLoadImageUpdateList(harbor, body, callback))
   }
 }
 
@@ -561,8 +561,8 @@ export const IMAGE_UPDATE_RULES_SWITCH_REQUEST = 'IMAGE_UPDATE_RULES_SWITCH_REQU
 export const IMAGE_UPDATE_RULES_SWITCH_SUCCESS = 'IMAGE_UPDATE_RULES_SWITCH_SUCCESS'
 export const IMAGE_UPDATE_RULES_SWITCH_FAILURE = 'IMAGE_UPDATE_RULES_SWITCH_FAILURE'
 
-function fetchImageUpdateSwitch(registry, id, body,  callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}/enablement`
+function fetchImageUpdateSwitch(harbor, registry, id, body,  callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}/enablement?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ IMAGE_UPDATE_RULES_SWITCH_REQUEST, IMAGE_UPDATE_RULES_SWITCH_SUCCESS, IMAGE_UPDATE_RULES_SWITCH_FAILURE ],
@@ -577,9 +577,9 @@ function fetchImageUpdateSwitch(registry, id, body,  callback) {
   }
 }
 
-export function imageUpdateSwitch(registry, id, body, callback) {
+export function imageUpdateSwitch(harbor, registry, id, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchImageUpdateSwitch(registry, id, body, callback))
+    return dispatch(fetchImageUpdateSwitch(harbor, registry, id, body, callback))
   }
 }
 
@@ -588,8 +588,8 @@ export const DELETE_IMAGE_UPDATE_RULES_SUCCESS = 'DELETE_IMAGE_UPDATE_RULES_SUCC
 export const DELETE_IMAGE_UPDATE_RULES_FAILURE = 'DELETE_IMAGE_UPDATE_RULES_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDelteImageUpdateRules(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}`
+function fetchDelteImageUpdateRules(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -605,9 +605,9 @@ function fetchDelteImageUpdateRules(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function deleteImageUpdateRules(registry, id, callback) {
+export function deleteImageUpdateRules(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDelteImageUpdateRules(registry, id, callback))
+    return dispatch(fetchDelteImageUpdateRules(harbor, registry, id, callback))
   }
 }
 
@@ -615,8 +615,8 @@ export const EDIT_IMAGE_UPDATE_RULES_REQUEST = 'EDIT_IMAGE_UPDATE_RULES_REQUEST'
 export const EDIT_IMAGE_UPDATE_RULES_SUCCESS = 'EDIT_IMAGE_UPDATE_RULES_SUCCESS'
 export const EDIT_IMAGE_UPDATE_RULES_FAILURE = 'EDIT_IMAGE_UPDATE_RULES_FAILURE'
 
-function fetchEditImageUpdateRules(registry, id, body,  callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}`
+function fetchEditImageUpdateRules(harbor, registry, id, body,  callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ EDIT_IMAGE_UPDATE_RULES_REQUEST, EDIT_IMAGE_UPDATE_RULES_SUCCESS, EDIT_IMAGE_UPDATE_RULES_FAILURE ],
@@ -631,9 +631,9 @@ function fetchEditImageUpdateRules(registry, id, body,  callback) {
   }
 }
 
-export function editImageUpdateRules(registry, id, body, callback) {
+export function editImageUpdateRules(harbor, registry, id, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchEditImageUpdateRules(registry, id, body, callback))
+    return dispatch(fetchEditImageUpdateRules(harbor, registry, id, body, callback))
   }
 }
 
@@ -642,8 +642,8 @@ export const CREATE_TARGET_STORE_SUCCESS = 'CREATE_TARGET_STORE_SUCCESS'
 export const CREATE_TARGET_STORE_FAILURE = 'CREATE_TARGET_STORE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCreateTargeStore(registry, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
+function fetchCreateTargeStore(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ CREATE_TARGET_STORE_REQUEST, CREATE_TARGET_STORE_SUCCESS, CREATE_TARGET_STORE_FAILURE ],
@@ -659,9 +659,9 @@ function fetchCreateTargeStore(registry, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function createTargetStore(registry, body, callback) {
+export function createTargetStore(harbor, registry, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateTargeStore(registry, body, callback))
+    return dispatch(fetchCreateTargeStore(harbor, registry, body, callback))
   }
 }
 
@@ -670,8 +670,8 @@ export const UPDATE_CONFIGURATIONS_SUCCESS = 'UPDATE_CONFIGURATIONS_SUCCESS'
 export const UPDATE_CONFIGURATIONS_FAILURE = 'UPDATE_CONFIGURATIONS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateConfigurations(registry, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations`
+function fetchUpdateConfigurations(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -688,9 +688,9 @@ function fetchUpdateConfigurations(registry, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function updateConfigurations(registry, body, callback) {
+export function updateConfigurations(harbor, registry, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUpdateConfigurations(registry, body, callback))
+    return dispatch(fetchUpdateConfigurations(harbor, registry, body, callback))
   }
 }
 
@@ -699,8 +699,8 @@ export const IMAGE_UPDATE_ADD_NEW_RULES_SUCCESS = 'IMAGE_UPDATE_ADD_NEW_RULES_SU
 export const IMAGE_UPDATE_ADD_NEW_RULES_FAILURE = 'IMAGE_UPDATE_ADD_NEW_RULES_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchiImageUpdateAddNewRules(registry, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication`
+function fetchiImageUpdateAddNewRules(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -717,9 +717,9 @@ function fetchiImageUpdateAddNewRules(registry, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function iamgeUpdateAddNewRules(registry, body, callback) {
+export function iamgeUpdateAddNewRules(harbor, registry, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchiImageUpdateAddNewRules(registry, body, callback))
+    return dispatch(fetchiImageUpdateAddNewRules(harbor, registry, body, callback))
   }
 }
 
@@ -728,8 +728,8 @@ export const VALIDATION_NEW_TARGET_STORE_SUCCESS = 'VALIDATION_NEW_TARGET_STORE_
 export const VALIDATION_NEW_TARGET_STORE_FAILURE = 'VALIDATION_NEW_TARGET_STORE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchiValidationNewTargetStore(registry, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/ping`
+function fetchiValidationNewTargetStore(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/ping?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -746,9 +746,9 @@ function fetchiValidationNewTargetStore(registry, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function validationNewTargetStore(registry, body, callback) {
+export function validationNewTargetStore(harbor, registry, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchiValidationNewTargetStore(registry, body, callback))
+    return dispatch(fetchiValidationNewTargetStore(harbor, registry, body, callback))
   }
 }
 
@@ -757,8 +757,8 @@ export const VALIDATION_OLD_TARGET_STORE_SUCCESS = 'VALIDATION_OLD_TARGET_STORE_
 export const VALIDATION_OLD_TARGET_STORE_FAILURE = 'VALIDATION_OLD_TARGET_STORE_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchiValidationOldTargetStore(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/ping`
+function fetchiValidationOldTargetStore(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/ping?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -774,9 +774,9 @@ function fetchiValidationOldTargetStore(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function validationOldTargetStore(registry, id, callback) {
+export function validationOldTargetStore(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchiValidationOldTargetStore(registry, id, callback))
+    return dispatch(fetchiValidationOldTargetStore(harbor, registry, id, callback))
   }
 }
 
@@ -785,8 +785,8 @@ export const GET_IMAGE_UPDATE_TASK_LOG_SUCCESS = 'GET_IMAGE_UPDATE_TASK_LOG_SUCC
 export const GET_IMAGE_UPDATE_TASK_LOG_FAILURE = 'GET_IMAGE_UPDATE_TASK_LOG_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetImageUpdateTaskLog(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/jobs/replication/${id}/log`
+function fetchGetImageUpdateTaskLog(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/jobs/replication/${id}/log?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
@@ -799,9 +799,9 @@ function fetchGetImageUpdateTaskLog(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function getTasklogs(registry, id, callback) {
+export function getTasklogs(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchGetImageUpdateTaskLog(registry, id, callback))
+    return dispatch(fetchGetImageUpdateTaskLog(harbor, registry, id, callback))
   }
 }
 
@@ -837,8 +837,8 @@ export const DELETE_TARGET_BY_ID_SUCCESS = 'DELETE_TARGET_BY_ID_SUCCESS'
 export const DELETE_TARGET_BY_ID_FAILURE = 'DELETE_TARGET_BY_ID_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteTargetById(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}`
+function fetchDeleteTargetById(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ DELETE_TARGET_BY_ID_REQUEST, DELETE_TARGET_BY_ID_SUCCESS, DELETE_TARGET_BY_ID_FAILURE ],
@@ -853,9 +853,9 @@ function fetchDeleteTargetById(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function deleteTargetById(registry, id, callback) {
+export function deleteTargetById(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteTargetById(registry, id, callback))
+    return dispatch(fetchDeleteTargetById(harbor, registry, id, callback))
   }
 }
 
@@ -864,8 +864,8 @@ export const UPDATE_TARGET_BY_ID_SUCCESS = 'UPDATE_TARGET_BY_ID_SUCCESS'
 export const UPDATE_TARGET_BY_ID_FAILURE = 'UPDATE_TARGET_BY_ID_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateTargetById(registry, id, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}`
+function fetchUpdateTargetById(harbor, registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ UPDATE_TARGET_BY_ID_REQUEST, UPDATE_TARGET_BY_ID_SUCCESS, UPDATE_TARGET_BY_ID_FAILURE ],
@@ -881,9 +881,9 @@ function fetchUpdateTargetById(registry, id, body, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function updateTargetById(registry, id, body, callback) {
+export function updateTargetById(harbor, registry, id, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUpdateTargetById(registry, id, body, callback))
+    return dispatch(fetchUpdateTargetById(harbor, registry, id, body, callback))
   }
 }
 
@@ -892,8 +892,8 @@ export const GET_TARGET_POLICIES_SUCCESS = 'GET_TARGET_POLICIES_SUCCESS'
 export const GET_TARGET_POLICIES_FAILURE = 'GET_TARGET_POLICIES_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetTargetPolicies(registry, id, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/policies`
+function fetchGetTargetPolicies(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/policies?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [ GET_TARGET_POLICIES_REQUEST, GET_TARGET_POLICIES_SUCCESS, GET_TARGET_POLICIES_FAILURE ],
@@ -905,9 +905,9 @@ function fetchGetTargetPolicies(registry, id, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function getTargetPolicies(registry, id, callback) {
+export function getTargetPolicies(harbor, registry, id, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchGetTargetPolicies(registry, id, callback))
+    return dispatch(fetchGetTargetPolicies(harbor, registry, id, callback))
   }
 }
 
@@ -916,8 +916,8 @@ export const GET_REPLICATION_POLICIES_SUCCESS = 'GET_REPLICATION_POLICIES_SUCCES
 export const GET_REPLICATION_POLICIES_FAILURE = 'GET_REPLICATION_POLICIES_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetReplicationPolicies(registry, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication`
+function fetReplicationPolicies(harbor, registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication?harbor=${harbor}`
   return {
     [FETCH_API]: {
       types: [GET_REPLICATION_POLICIES_REQUEST,GET_REPLICATION_POLICIES_SUCCESS,GET_REPLICATION_POLICIES_FAILURE],
@@ -929,8 +929,8 @@ function fetReplicationPolicies(registry, callback) {
 }
 
 // Relies on Redux Thunk middleware.
-export function getReplicationPolicies(registry, callback) {
-  return dispatch => dispatch(fetReplicationPolicies(registry, callback))
+export function getReplicationPolicies(harbor, registry, callback) {
+  return dispatch => dispatch(fetReplicationPolicies(harbor, registry, callback))
 }
 
 //this is get the image info(docker and attribute)
@@ -938,12 +938,12 @@ export const GET_HARBOR_IMAGEINFO_REQUEST = 'GET_HARBOR_IMAGEINFO_REQUEST'
 export const GET_HARBOR_IMAGEINFO_SUCCESS = 'GET_HARBOR_IMAGEINFO_SUCCESS'
 export const GET_HARBOR_IMAGEINFO_FAILURE = 'GET_HARBOR_IMAGEINFO_FAILURE'
 
-export function getImageDetailInfo(obj, callback) {
+export function getImageDetailInfo(harbor, obj, callback) {
   return {
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_HARBOR_IMAGEINFO_REQUEST, GET_HARBOR_IMAGEINFO_SUCCESS, GET_HARBOR_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}?harbor=${harbor}`,
       schema: Schemas.REGISTRYS,
     },
     callback
@@ -954,11 +954,11 @@ export const PUT_HARBOR_EDIT_IMAGEINfO_REQUEST = 'PUT_HARBOR_EDIT_IMAGEINfO_REQU
 export const PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS = 'PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS'
 export const PUT_HARBOR_EDIT_IMAGEINfO_FAILURE = 'PUT_HARBOR_EDIT_IMAGEINfO_FAILURE'
 
-export function putEditImageDetailInfo(obj, callback) {
+export function putEditImageDetailInfo(harbor, obj, callback) {
   return {
     [FETCH_API]: {
       types: [PUT_HARBOR_EDIT_IMAGEINfO_REQUEST, PUT_HARBOR_EDIT_IMAGEINfO_SUCCESS, PUT_HARBOR_EDIT_IMAGEINfO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}?harbor=${harbor}`,
       options: {
         method: 'PUT',
         body: obj.body,

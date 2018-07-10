@@ -14,6 +14,7 @@ import './style/index.less'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../../util/util'
 import _ from 'lodash'
+import QueueAnim from 'rc-queue-anim'
 
 const FormItem = Form.Item
 // 表单布局
@@ -47,21 +48,25 @@ const getcolums = (resourceDefinitions = []) => {
         <span>{formateResourceDefinitions(resourceDefinitions)[record.resource]}</span>
       )
     },
+    width: 100,
   }, {
     title: '申请集群',
     dataIndex: 'aggregate',
     key: 'aggregate',
+    width: 100,
   }, {
     title: '已用',
     dataIndex: 'use',
     key: 'use',
+    width: 100,
   }, {
     title: '申请配额',
     dataIndex: 'applyLimit',
     key: 'applyLimit',
     render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
+    width: 100,
   }, {
-    title: '审批',
+    title: '审批状态',
     dataIndex: 'approvalStatus',
     key: 'approvalStatus',
     render: (text, record) => {
@@ -77,6 +82,7 @@ const getcolums = (resourceDefinitions = []) => {
         </div>
       )
     },
+    width: 100,
   }]
   return columns
 }
@@ -131,8 +137,8 @@ class ApplayDetail extends React.Component {
     record: PropTypes.object.isRequired,
   }
   render() {
-    const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
-      resourceInuse, globaleDevopsQuotaList } = this.props
+    const { visible, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
+      resourceInuse, globaleDevopsQuotaList, cancelVisable } = this.props
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const { applyDetails, approveDetails } = recordData
     const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse,
@@ -147,12 +153,12 @@ class ApplayDetail extends React.Component {
       <Modal
         visible = {visible}
         title = {title}
-        onCancel={ toggleVisable.bind(null, 'cancel') }
+        onCancel={cancelVisable}
         footer={[
           <span className="ApplyDetail result-wrap">
             <span>审批结果:</span><span className="result">{printApprovalResult(tabData)}</span>
           </span>,
-          <Button key="makeSure" type="primary" size="large" onClick={toggleVisable.bind(null, 'cancel')}>
+          <Button key="makeSure" type="primary" size="large" onClick={cancelVisable}>
               知道了
           </Button>,
         ]}
@@ -174,10 +180,18 @@ class ApplayDetail extends React.Component {
           >
             <Input value={recordData.comment} type="textarea" rows={4} disabled/>
           </FormItem>
-          <Table columns={getcolums(resourceDefinitions)}
-            dataSource={tabData}
-            pagination={false} size="small"
-            scroll={{ y: 120 }} loading={isFetching}/>
+          {
+            isFetching === false ?
+              <QueueAnim>
+                <div key="table">
+                  <Table columns={getcolums(resourceDefinitions)}
+                    dataSource={tabData}
+                    pagination={false} size="small"
+                    scroll={{ y: 120 }} loading={isFetching}/>
+                </div>
+              </QueueAnim> : null
+          }
+
         </div>
       </Modal>
     )

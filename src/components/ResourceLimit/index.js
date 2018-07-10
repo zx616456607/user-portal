@@ -19,6 +19,7 @@ import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList,
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
+import { toQuerystring } from '../../common/tools'
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -654,6 +655,10 @@ class ResourceQuota extends React.Component {
     const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
        showProjectName
      } = this.props
+    let newshowProjectName = showProjectName
+    if ( !isProject ) {
+      newshowProjectName = { namespace: '我的个人项目' }
+    }
     // console.log('projectDetail', projectDetail)
     //默认集群
     const menu = (
@@ -684,10 +689,10 @@ class ResourceQuota extends React.Component {
         }
         <div className="topDesc">
           {
-            outlineRoles.includes('manager') ?
+            (outlineRoles.includes('manager') || !isProject) ?
             <div className="applyLimitBtn">
-              <Link to={`/tenant_manage/applyLimit?projectName=${JSON.stringify(showProjectName)}`}>
-                <Button type="primary" onClick={ history }>配额申请</Button>
+              <Link to={`/tenant_manage/applyLimit?${toQuerystring(newshowProjectName)}`}>
+                <Button type="primary" >配额申请</Button>
               </Link>
             </div> : ''
           }

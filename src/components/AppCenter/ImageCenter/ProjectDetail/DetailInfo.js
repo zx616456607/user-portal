@@ -36,24 +36,24 @@ class DetailInfo extends Component {
     const { imageName } = this.props
     const { imageName: nextImageName} = nextProps
     if (imageName !== nextImageName) {
-      const { getImageDetailInfo, registry, imageName } = nextProps
+      const { getImageDetailInfo, registry, imageName, harbor } = nextProps
       const name = encodeURIComponent(imageName)
       const body = {
         registry,
         name,
       }
-      getImageDetailInfo(body)
+      getImageDetailInfo(harbor, body)
     }
   }
 
   loadImageDetailInfo() {
-    const { getImageDetailInfo, registry, imageName } = this.props
+    const { getImageDetailInfo, registry, imageName, harbor } = this.props
     const name = encodeURIComponent(imageName)
     const body = {
       registry,
       name,
     }
-    getImageDetailInfo(body)
+    getImageDetailInfo(harbor, body)
   }
 
   handEdit() {
@@ -73,7 +73,7 @@ class DetailInfo extends Component {
   }
 
   updateImageInfo() {
-    const { putEditImageDetailInfo, registry, imageName } = this.props
+    const { putEditImageDetailInfo, registry, imageName, harbor } = this.props
     const { detailInfo } = this.state
     let notification = new NotificationHandler()
     const name = encodeURIComponent(imageName)
@@ -89,7 +89,7 @@ class DetailInfo extends Component {
       loading: true,
     })
     notification.spin(`更新镜像 ${nameArray[1]} 信息中...`)
-    putEditImageDetailInfo(config, {
+    putEditImageDetailInfo(harbor, config, {
       success: {
         func: () => {
           notification.close()
@@ -196,9 +196,9 @@ DetailInfo.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor, entities } = state
+  const { harbor: stateHarbor, entities } = state
   const { loginUser } = entities
-  const { imageBasicInfo } = harbor
+  const { imageBasicInfo } = stateHarbor
   const { registry } = props
   let defaultImageInfo = {
     isFetching: true,
@@ -208,10 +208,15 @@ function mapStateToProps(state, props) {
   if (imageBasicInfo[ registry ]) {
     defaultImageInfo = imageBasicInfo[ registry ]
   }
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     currnetImageInfo: defaultImageInfo,
     projectMembers: harbor.members || {},
     loginUser: loginUser.info,
+    harbor,
   }
 }
 

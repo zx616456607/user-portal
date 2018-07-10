@@ -48,10 +48,12 @@ class ImagePart extends React.Component<IProps, IState> {
   }
 
   loadImage = async () => {
-    const { loadAllProject, clusterID, images } = this.props;
+    const { loadAllProject, clusterID, images, harbor } = this.props;
     const { searchValue, imageType, currentPage } = this.state;
     const notify = new NotificationHandler();
-    const query = {};
+    const query = {
+      harbor,
+    };
     if (searchValue) {
       Object.assign(query, { q: searchValue });
     }
@@ -227,13 +229,16 @@ class ImagePart extends React.Component<IProps, IState> {
 
 const mapStateToProps = (state, props) => {
   const register = DEFAULT_REGISTRY;
-  const { entities, harbor, appStore } = state;
+  const { entities, harbor: stateHarbor, appStore } = state;
   const { clusterID } = entities.current.cluster;
-  const { allProject } = harbor;
+  const { harbor: harbors } = entities.current.cluster;
+  const harbor = harbors[0]
+  const { allProject } = stateHarbor;
   const { imagePublishRecord } = appStore;
   const { data: imageStoreList } = imagePublishRecord || { data: {} };
   return {
     clusterID,
+    harbor,
     imageStoreList,
     images: allProject[register] || { isFetching: false, publicImages: [], privateImages: [] },
   };

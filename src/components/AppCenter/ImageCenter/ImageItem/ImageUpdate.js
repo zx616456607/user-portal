@@ -132,14 +132,14 @@ class ImageUpdate extends Component {
   }
 
   handleloadImageUpdateList(){
-    const { detail, registry, loadImageUpdateList } = this.props
+    const { detail, registry, loadImageUpdateList, harbor } = this.props
     let projectID = detail.data.projectId
     const body = {
       registry: registry,
       projectID,
     }
     return new Promise((resolve, reject) => {
-      loadImageUpdateList(body, {
+      loadImageUpdateList(harbor, body, {
         success : {
           func: (res) => {
             resolve({
@@ -159,10 +159,10 @@ class ImageUpdate extends Component {
       })
     })
   }
-  
+
   loadAllPolicies() {
-    const { getReplicationPolicies, registry } = this.props
-    getReplicationPolicies(registry)
+    const { getReplicationPolicies, registry, harbor } = this.props
+    getReplicationPolicies(harbor, registry)
   }
   componentWillMount() {
     const { isReplications } = this.props
@@ -201,7 +201,7 @@ class ImageUpdate extends Component {
 
     document.removeEventListener('keyup', handler)
   }
-  
+
   refreshData() {
     const { isReplications } = this.props
     if (isReplications) {
@@ -210,7 +210,7 @@ class ImageUpdate extends Component {
     }
     this.handleloadImageUpdateList()
   }
-  
+
   handleInputValue(e){
     this.setState({
       inputValue: e.target.value
@@ -258,9 +258,9 @@ class ImageUpdate extends Component {
   }
 
   createNewTargetStore(newStoreInfo){
-    const { registry, createTargetStore } = this.props
+    const { registry, createTargetStore, harbor } = this.props
     return new Promise((resolve, reject) => {
-      createTargetStore(registry, newStoreInfo, {
+      createTargetStore(harbor, registry, newStoreInfo, {
         success : {
           func: (res) => {
             resolve({
@@ -283,9 +283,9 @@ class ImageUpdate extends Component {
   }
 
   handelEidtImageRules(id, body){
-    const { editImageUpdateRules, registry, isReplications } = this.props
+    const { editImageUpdateRules, registry, isReplications, harbor } = this.props
     let Notification = new NotificationHandler()
-    editImageUpdateRules(registry, id, body, {
+    editImageUpdateRules(harbor, registry, id, body, {
       success : {
         func: () => {
           Notification.success('修改规则成功')
@@ -313,11 +313,11 @@ class ImageUpdate extends Component {
   }
 
   validationTargetStore(storeType, storeInfo){
-    const { registry, validationOldTargetStore, validationNewTargetStore } = this.props
+    const { registry, validationOldTargetStore, validationNewTargetStore, harbor } = this.props
     return new Promise((resolve, reject) => {
       if(storeType == 'create'){
         // test create store
-        validationNewTargetStore(registry, storeInfo, {
+        validationNewTargetStore(harbor, registry, storeInfo, {
           success : {
             func: () => {
               resolve(true)
@@ -333,7 +333,7 @@ class ImageUpdate extends Component {
         return
       }
       // test original store
-      validationOldTargetStore(registry, storeInfo, {
+      validationOldTargetStore(harbor, registry, storeInfo, {
         success : {
           func: () => {
             resolve(true)
@@ -349,7 +349,7 @@ class ImageUpdate extends Component {
   }
 
   postCreateNewRules(ruleName, targetId, startUse){
-    const { iamgeUpdateAddNewRules, registry, detail } = this.props
+    const { iamgeUpdateAddNewRules, registry, detail, harbor } = this.props
     let projectID = detail.data.projectId
     const body = {
       project_id: projectID,
@@ -358,7 +358,7 @@ class ImageUpdate extends Component {
       enabled: 0
     }
     return new Promise((resolve, reject) => {
-      iamgeUpdateAddNewRules(registry, body, {
+      iamgeUpdateAddNewRules(harbor, registry, body, {
         success : {
           func: () => {
             this.setState({
@@ -632,12 +632,12 @@ class ImageUpdate extends Component {
   }
 
   startUseRules(id){
-    const { registry, imageUpdateSwitch } = this.props
+    const { registry, imageUpdateSwitch, harbor } = this.props
     const body = {
       enabled: 1
     }
     return new Promise((resolve, reject) => {
-      imageUpdateSwitch(registry, id, body, {
+      imageUpdateSwitch(harbor, registry, id, body, {
         success : {
           func: () => {
             resolve({
@@ -658,7 +658,7 @@ class ImageUpdate extends Component {
   }
 
   handleImageUpdateSwitch(currentKey){
-    const { registry, imageUpdateSwitch, rulesData, deleteImageUpdateRules, isReplications } = this.props
+    const { registry, imageUpdateSwitch, rulesData, isReplications, harbor } = this.props
     let Notification = new NotificationHandler()
     const { switchTitle } = this.state
     let id = rulesData[currentKey].id
@@ -669,7 +669,7 @@ class ImageUpdate extends Component {
     if(switchTitle == '启用'){
       body.enabled = 1
     }
-    imageUpdateSwitch(registry, id, body, {
+    imageUpdateSwitch(harbor, registry, id, body, {
       success : {
         func: () => {
           Notification.success(switchTitle + '规则成功')
@@ -696,7 +696,7 @@ class ImageUpdate extends Component {
   }
 
   handleDeleteImageUpdataRules(currentKey){
-    const { registry, rulesData, deleteImageUpdateRules, isReplications } = this.props
+    const { registry, rulesData, deleteImageUpdateRules, isReplications, harbor } = this.props
     let Notification = new NotificationHandler()
     let id = rulesData[currentKey].id
     if(rulesData[currentKey].enabled == 1){
@@ -706,7 +706,7 @@ class ImageUpdate extends Component {
       });
       return
     }
-    deleteImageUpdateRules(registry, id, {
+    deleteImageUpdateRules(harbor, registry, id, {
       success : {
         func: () => {
           Notification.success('删除规则成功')
@@ -898,8 +898,8 @@ class ImageUpdate extends Component {
   }
 
   getLogs(item){
-    const { getTasklogs, registry } = this.props
-    getTasklogs(registry, item)
+    const { getTasklogs, registry, harbor } = this.props
+    getTasklogs(harbor, registry, item)
     this.setState({
       logsVisible: true
     })
@@ -1246,9 +1246,9 @@ class ImageUpdate extends Component {
 ImageUpdate = Form.create()(ImageUpdate)
 
 function mapStateToProp(state, props) {
-  const { harbor } = state
+  const { harbor: stateHarbor, entities } = state
   const { location } = props
-  const { detail, imageUpdate, imageUpdateLogs, rules, targets: allTargets } = harbor
+  const { detail, imageUpdate, imageUpdateLogs, rules, targets: allTargets } = stateHarbor
   const { policies, jobs, targets } = imageUpdate
   const { data: ruleList } = rules
   const { pathname } = location
@@ -1257,6 +1257,10 @@ function mapStateToProp(state, props) {
     isReplications = true
   }
   const { data: allTargetList } = allTargets
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     detail,
     loading: isReplications ? rules.isFetching : imageUpdate.isFetching,
@@ -1264,7 +1268,8 @@ function mapStateToProp(state, props) {
     taskUpdataData: jobs || [],
     targets: isReplications ? allTargetList : targets || [],
     imageUpdateLogs,
-    isReplications
+    isReplications,
+    harbor,
   }
 }
 

@@ -18,6 +18,7 @@ import { getDeepValue } from '../../../../client/util/util'
 import { calcuDate } from '../../../common/tools'
 import { updateResourcequota } from '../../../../client/actions/applyLimit'
 // import { removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app';
+import QueueAnim from 'rc-queue-anim'
 const FormItem = Form.Item
 // 表单布局
 const formItemLayout = {
@@ -70,54 +71,64 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState, resou
     key: 'use',
     width: 150,
   }, {
-    title: '申请配额',
+    title: '配额更改为',
     dataIndex: 'applyLimit',
     key: 'applyLimit',
     width: 150,
     render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
-  }, {
-    title:
-    <div>
-      <span>审批</span>
-      <span className="allApprovalIcon">
-        <Tooltip title="全部同意">
-          <Icon type={allPassType} className={allPassClass} onClick={setApprovalState.bind(null, 'all')} />
-        </Tooltip>
-      </span>
-      <span>
-        <Tooltip title="全部拒绝">
-          <Icon type={allRefuseType} className={allRefuseClass} onClick={cancelApprovalState.bind(null, 'all')}/>
-        </Tooltip>
-      </span>
-    </div>,
-    dataIndex: 'status',
-    key: 'status',
-    width: 150,
-    render: (text, record) => {
-      let key = parseInt(record.key) - 1
-      const pass = approvalState[key]
-      const noPass = !pass
-      const PassType = pass ? 'check-circle' : 'check-circle-o'
-      const PassClass = pass ? 'allPassIcon' : 'notAllPassIcon'
+  },
+  //  {
+  //   title:
+  //   <div>
+  //     <span>审批</span>
+  //     <span className="allApprovalIcon">
+  //       <Tooltip title="全部同意">
+  //         <span onClick={setApprovalState.bind(null, 'all')} >
+  //           <Icon type={allPassType} className={allPassClass} />
+  //         </span>
+  //       </Tooltip>
+  //     </span>
+  //     <span>
+  //       <Tooltip title="全部拒绝">
+  //         <span onClick={cancelApprovalState.bind(null, 'all')}>
+  //           <Icon type={allRefuseType} className={allRefuseClass} />
+  //         </span>
+  //       </Tooltip>
+  //     </span>
+  //   </div>,
+  //   dataIndex: 'status',
+  //   key: 'status',
+  //   width: 150,
+  //   render: (text, record) => {
+  //     let key = parseInt(record.key) - 1
+  //     const pass = approvalState[key]
+  //     const noPass = !pass
+  //     const PassType = pass === true ? 'check-circle' : 'check-circle-o'
+  //     const PassClass = pass === true ? 'allPassIcon' : 'notAllPassIcon'
 
-      const RefuseType = noPass ? 'cross-circle' : 'cross-circle-o'
-      const RefuseClass = noPass ? 'allRefuseIcon' : 'notallRefuseIcon'
-      return (
-        <div className="iconItemWrap">
-          <span className="allApprovalIcon">
-            <Tooltip title="同意">
-              <Icon type={PassType} className={PassClass} onClick={setApprovalState.bind(null, key)} />
-            </Tooltip>
-          </span>
-          <span>
-            <Tooltip title="拒绝">
-              <Icon type={RefuseType} className={RefuseClass} onClick={cancelApprovalState.bind(null, key)}/>
-            </Tooltip>
-          </span>
-      </div>
-      )
-    },
-  }]
+  //     const RefuseType = noPass === true ? 'cross-circle' : 'cross-circle-o'
+  //     const RefuseClass = noPass === true ? 'allRefuseIcon' : 'notallRefuseIcon'
+  //     return (
+  //       <div className="iconItemWrap">
+  //         <span className="allApprovalIcon">
+  //           <Tooltip title="同意">
+  //             <span onClick={setApprovalState.bind(null, key)} >
+  //               <Icon type={PassType} className={PassClass} />
+  //             </span>
+  //           </Tooltip>
+  //         </span>
+  //         <span>
+  //           <Tooltip title="拒绝">
+  //             <span onClick={cancelApprovalState.bind(null, key)}>
+  //               <Icon type={RefuseType} className={RefuseClass} />
+  //             </span>
+  //           </Tooltip>
+  //         </span>
+  //     </div>
+  //     )
+  //   },
+  // }
+]
   return columns
 }
 
@@ -177,7 +188,7 @@ const formateUpdateResoure = (tabData, approvalState) => {
 
 class ApprovalOperation extends React.Component {
   state = {
-    approvalState: _.fill(Array(100), true), // 审批状态, Array(n) n = data的个数
+    approvalState: _.fill(Array(1), false), // 审批状态, Array(n) n = data的个数 1 // 表示什么都不是 不默认同意, 也不默认不同意
     loading: false, // 完成审批的loading状
   }
   static propTypes = {
@@ -194,7 +205,7 @@ class ApprovalOperation extends React.Component {
       return
     }
     if (approvalState.length !== tabDataLength) {
-      approvalState = _.fill(Array(tabDataLength), true)
+      approvalState = _.fill(Array(tabDataLength), false)
     }
     approvalState[parseInt(key)] = true
     this.setState({ approvalState })
@@ -207,7 +218,7 @@ class ApprovalOperation extends React.Component {
       return
     }
     if (approvalState.length !== tabDataLength) {
-      approvalState = _.fill(Array(tabDataLength), true)
+      approvalState = _.fill(Array(tabDataLength), false)
     }
     approvalState[parseInt(key)] = false
     this.setState({ approvalState })
@@ -221,7 +232,7 @@ class ApprovalOperation extends React.Component {
         success: {
           func: res => {
             toggleVisable(undefined, 'success')
-            this.setState({ approvalState: _.fill(Array(100), true) })
+            this.setState({ approvalState: _.fill(Array(1), false) })
             reload()
           },
           isAsync: true,
@@ -233,13 +244,56 @@ class ApprovalOperation extends React.Component {
         },
     })
   }
+  cnacelModal = () => {
+    const { cancelApprovalModal } = this.props
+    this.setState({ approvalState: _.fill(Array(1), false), })
+    cancelApprovalModal()
+  }
+    // 通过 rowSelection 对象表明需要行选择
+  rowSelection = {
+    onSelect: (record, selected, selectedRows) => {
+
+      console.log('selectedRows', selectedRows);
+      this.cancelApprovalState('all')
+      for(const value of selectedRows) {
+        this.setApprovalState(value.key - 1)
+      }
+    },
+    onSelectAll: (selected, selectedRows, changeRows) => {
+      console.log('selected', selected,);
+      console.log('selectedRows',selectedRows,);
+      console.log('changeRows', changeRows);
+      if(selected === true) { // 表示全部选中
+        this.setApprovalState('all')
+      }
+      if(selected === false) { //表示全部取消
+        this.cancelApprovalState('all')
+      }
+    },
+  };
   render() {
-    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData, resourceDefinitions } = this.props
+    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData,
+      resourceDefinitions, cancelApprovalModal, detailDataisFetching } = this.props
     const { approvalState } = this.state
     const setApprovalState = this.setApprovalState
     const cancelApprovalState = this.cancelApprovalState
     const { isFetching, data: recordData = {} } = resourcequoteRecord
+    const tabDataLength = this.props.tabData.length
+    let approvalStateArr = approvalState.slice(0, tabDataLength)
+    // let btnDisable = approvalStateArr.some(value => {
+    //   return value === 1
+    // // })
+    // console.log('btnDisable', btnDisable)
+    let approvalPass = 0
+
     let accountType
+    if (!_.isEmpty(approvalStateArr)) {
+      for(const value of approvalStateArr) {
+        if (value === true) {
+          approvalPass ++
+        }
+      }
+    }
     if (recordData.applier === recordData.namespace) {
       accountType = '个人项目'
     } else {
@@ -249,17 +303,20 @@ class ApprovalOperation extends React.Component {
       <Modal
         visible = {visible}
         title = {title}
-        onCancel={ toggleVisable }
+        onCancel={ this.cnacelModal }
         footer={[
-          <span className="ApprovalOperation result-wrap">
+          <span className="ApprovalOperation result-wrap" key="span">
             <span>申请时间:</span><span className="result">{calcuDate(recordData.createTime)}</span>
           </span>,
-          <Button key="cancel" size="large" onClick={toggleVisable.bind(null, undefined, 'success')}>
+          <Button key="cancel" size="large" onClick={this.cnacelModal}>
             取消
           </Button>,
-          <Button key="makeSure" type="primary" size="large" onClick={this.fetchApprovalResult.bind(null, record)}>
-              完成审批
-          </Button>,
+          <Tooltip title={`${approvalPass}个通过, ${tabDataLength-approvalPass}个拒绝`}>
+            <Button key="makeSure" type="primary" size="large" onClick={this.fetchApprovalResult.bind(null, record)}
+            >
+                <span>{`确认通过 (${approvalPass})`}</span>
+            </Button>
+          </Tooltip>,
         ]}
         width={700}
       >
@@ -279,8 +336,17 @@ class ApprovalOperation extends React.Component {
           >
             <Input value={recordData.comment} type="textarea" rows={4} disabled/>
           </FormItem>
-          <Table columns={getcolums({ setApprovalState, cancelApprovalState, approvalState, resourceDefinitions })} dataSource={tabData} pagination={false} size="small"
-            scroll={{ y: 120 }} loading={isFetching}/>
+          {
+            detailDataisFetching === false ?
+            <QueueAnim>
+            <div key='table'>
+            <span className="alertTips" >tips: 选择可以通过的申请,未选择的表示拒绝申请</span>
+            <Table columns={getcolums({ setApprovalState, cancelApprovalState, approvalState, resourceDefinitions })} dataSource={tabData} pagination={false} size="small"
+              scroll={{ y: 120 }} loading={isFetching} rowSelection={this.rowSelection} />
+            </div>
+            </QueueAnim> : null
+          }
+
         </div>
       </Modal>
     )
@@ -291,13 +357,13 @@ const mapStateToProps = (state, props) => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
   const choiceClusters = state.projectAuthority.projectVisibleClusters.default
 
-  const { data: recordData = {} } = detailData
+  const { data: recordData = {} , isFetching: detailDataisFetching} = detailData
   const { applyDetails, approveDetails } = recordData
   let resourceInuse = props.resourceInuseProps
   let globaleDevopsQuotaList = props.globaleDevopsQuotaList
   const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse, globaleDevopsQuotaList)
   return {
-    resourcequoteRecord: detailData, choiceClusters,tabData,
+    resourcequoteRecord: detailData, choiceClusters,tabData,detailDataisFetching
   }
 }
 export default connect(mapStateToProps, {

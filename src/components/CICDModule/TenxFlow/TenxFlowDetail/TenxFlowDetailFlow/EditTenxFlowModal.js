@@ -359,7 +359,7 @@ let EditTenxFlowModal = React.createClass({
       this.getClusterStroageClassType(currentBuildCluster)
       alreadyGetStorageClassType = true
     }
-    const { loadClusterList, loadProjectList } = this.props
+    const { loadClusterList, loadProjectList, harbor } = this.props
     loadClusterList(null, {
       success: {
         func: res => {
@@ -396,14 +396,14 @@ let EditTenxFlowModal = React.createClass({
         isAsync: true,
       }
     })
-    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
+    loadProjectList(DEFAULT_REGISTRY, { page_size: 100, harbor })
     this.loadBaseImageConfig(config.spec.container.image)
   },
   loadBaseImageConfig(imageNameAndTag) {
     let [ imageName, tag ] = imageNameAndTag.split(':')
     tag = tag || 'latest'
-    const { loadRepositoriesTagConfigInfo } = this.props
-    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
+    const { loadRepositoriesTagConfigInfo, harbor } = this.props
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY, imageName, tag, {
       success: {
         func: res => {
           this.setState({
@@ -2717,12 +2717,16 @@ function mapStateToProps(state, props) {
   const registryNamespaces = state.images.registryNamespaces || {}
 
   const { current } = state.entities
+  const { cluster } = current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     clusters,
     clustersNodes,
     harborProjects,
     registryNamespaces,
     currentProject: current.space,
+    harbor,
   }
 }
 
