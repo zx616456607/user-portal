@@ -30,6 +30,7 @@ import NotificationHandler from '../../../components/Notification'
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item
 const createForm = Form.create
+const notification = new NotificationHandler()
 const formItemLayout = {
   labelCol: {
     xs: {span: 24},
@@ -118,7 +119,7 @@ class CodeList extends Component {
     this.setState({
       loadingList
     })
-    let notification = new NotificationHandler()
+
     item.repoUser = repoUser
     this.props.scope.props.addGithubRepo('github',item, {
       success: {
@@ -161,7 +162,7 @@ class CodeList extends Component {
     this.setState({
       loadingList
     })
-    let notification = new NotificationHandler()
+
     parentScope.props.notGithubProject(users, id,'github', {
       success: {
         func: () => {
@@ -191,7 +192,6 @@ class CodeList extends Component {
       )
     }
     let items = []
-
     if (data) {
       items = data.map((item, index) => {
         return (
@@ -241,21 +241,24 @@ class GithubComponent extends Component {
   auth() {
     const { code, state } = this.props.scope.props.location.query
     if(code && state) {
-      this.props.authGithubList('github', { code: code})
+      this.props.authGithubList('github', { code: code}, {
+        failed: {
+          func: err => {
+            notification.warn(err.message.message)
+          }
+        }
+      })
     }
   }
   loadData() {
     const { typeName } = this.props
     this.props.getGithubList(typeName, {
-      success: {
-        func: (res) => {
-          if (res.data.hasOwnProperty('results')) {
-            if(Object.keys(res.data.results).length === 0) {
-              setTimeout(() => {
-                this.auth()
-              })
-            }
-          }
+      failed: {
+        func: () => {
+          // 如果请求失败了，说明有可能没授权，所以尝试授权
+          setTimeout(() => {
+            this.auth()
+          })
         }
       }
     })
@@ -278,7 +281,7 @@ class GithubComponent extends Component {
       parentScope.setState({typeVisible: true})
       return
     }
-    let notification = new NotificationHandler()
+
     notification.spin(`正在执行中...`)
     this.setState({loading: true})
     registryGithub(typeName, {
@@ -324,12 +327,11 @@ class GithubComponent extends Component {
           clientId: values.clientId.trim(),
           clientSecret: values.clientSecret.trim(),
           redirectUrl: `${window.location.protocol}//${window.location.host}/ci_cd/coderepo`,
-
         }
+
         githubConfig('github', body, {
           success:{
             func: res => {
-              let notification = new NotificationHandler()
               if(res.data.status === 200) {
                 notification.success('配置成功')
                 this.setState({
@@ -339,22 +341,22 @@ class GithubComponent extends Component {
                 },() => {
                   window.location.href = res.data.results.url
                 })
-                return
-              }
-              if(res.data.status === 400) {
-                notification.warn('clientId, clientSecret, redirectUrl 其中有参数为空')
-                return
-              }
-              if(res.data.status === 500) {
-                notification.warn('未知错误')
-                return
+
               }
             }
+          },
+          failed: {
+            func: err => {
+              notification.warn(err.message.message)
+              this.setState({
+                githubConfigModal: false,
+                githubConfigLoading: false,
+              })
+            }
           }
-
         })
       }
-    });
+    })
   }
   returnDefaultTooltip() {
     setTimeout(() => {
@@ -399,7 +401,7 @@ class GithubComponent extends Component {
   syncRepoList() {
     const { syncRepoList } = this.props
     const types = this.props.scope.state.repokey
-    let notification = new NotificationHandler()
+
     notification.spin(`正在执行中...`)
     syncRepoList(types, {
       success: {
@@ -415,7 +417,7 @@ class GithubComponent extends Component {
     const url = this.state.regUrl
     const token = this.state.regToken
     const { formatMessage } = this.props
-    let notification = new NotificationHandler()
+
     if (!url) {
       notification.info(formatMessage(menusText.notSrc))
       return
@@ -469,6 +471,22 @@ class GithubComponent extends Component {
       }
     })
   }
+  validateLength = (value, length, callback) => {
+    if(value.length < length) {
+      return callback(`长度不能小于${length}字符`)
+    }else if(value.length > length) {
+      return callback(`长度不能大于${length}字符`)
+    }else {
+      callback()
+    }
+
+  }
+  clientIdLength = (rule, value, callback) => {
+    this.validateLength(value, 20, callback)
+  }
+  clientSecretLength = (rule, value, callback) => {
+    this.validateLength(value, 40, callback)
+  }
   render() {
     const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
     const { getFieldProps } = this.props.form
@@ -483,6 +501,12 @@ class GithubComponent extends Component {
         {
           rules: [
             { validator: this.testChinese },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
+        {
+          rules: [
+            { validator: this.clientIdLength },
           ],
           trigger: ['onBlur', 'onChange'],
         },
@@ -502,9 +526,16 @@ class GithubComponent extends Component {
           ],
           trigger: ['onBlur', 'onChange'],
         },
+        {
+          rules: [
+            { validator: this.clientSecretLength },
+          ],
+          trigger: ['onBlur', 'onChange'],
+        },
       ],
     })
     const scope = this
+
     if (!githubList) {
       if (typeName === 'github') {
         return (

@@ -148,16 +148,14 @@ function githubRepo(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: {},
+          [`${repoType}List`]: [],
         }
       })
     }
     case ActionTypes.PUT_GITHUB_LIST_REQUEST: {
-
       return merge({}, defaultState, state, { isFetching: true })
     }
     case ActionTypes.PUT_GITHUB_LIST_SUCCESS: {
-
       let list  = {}
       for (let k in action.response.result.data.results) {
         list[k] = action.response.result.data.results[k].repos
@@ -172,6 +170,24 @@ function githubRepo(state = {}, action) {
         }
       })
     }
+    case ActionTypes.PUT_GITHUB_LIST_FAILURE: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        github: {
+          githubList: [],
+        }
+      })
+    }
+
+    case ActionTypes.POST_GITHUB_CONFIG_FAILURE: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        github: {
+          githubList: [],
+        }
+      })
+    }
+
     case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
       return Object.assign({}, state, {
         isFetching: false,
