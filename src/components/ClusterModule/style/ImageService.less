@@ -1,0 +1,48 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of ResourcesOverview
+ *
+ * 2018-05-07
+ * @author zhangpc
+ */
+@import '~assets/style/site/core';
+
+.image_service {
+  position: relative;
+  margin-bottom: @padding-medium;
+  .ant-card-head h3 {
+    font-size: @font-size-base;
+    font-weight: initial;
+    .title {
+      .hint{
+        color: @font-color-3;
+        margin-left: @padding-small;
+        .required{
+          color: @error-color;
+        }
+      }
+    }
+  }
+  .imgBox {
+    float: left;
+    width: 20%;
+    text-align: center;
+    height: 150px;
+    img{
+      transform: translateY(25px);
+    }
+  }
+  .harborConfig{
+    float: left;
+    width: 80%;
+    margin-top: 45px;
+  }
+  .btn{
+    margin-left: 5px;
+    margin-top: 2px;
+  }
+}

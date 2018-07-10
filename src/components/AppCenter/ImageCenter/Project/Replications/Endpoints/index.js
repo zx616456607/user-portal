@@ -53,19 +53,20 @@ class Endpoints extends React.Component {
   }
 
   loadTargets(query) {
-    const { getTargets } = this.props
+    const { getTargets, harbor } = this.props
     const { searchInput } = this.state
+    query.harbor = harbor
     getTargets(DEFAULT_REGISTRY, { name: searchInput }, query)
   }
 
   delTarget() {
-    const { deleteTargetById } = this.props
+    const { deleteTargetById, harbor } = this.props
     const { currentRow } = this.state
     this.setState({
       delBtnLoading: true,
     })
     const notification = new NotificationHandler()
-    deleteTargetById(DEFAULT_REGISTRY, currentRow.id, {
+    deleteTargetById(harbor, DEFAULT_REGISTRY, currentRow.id, {
       success: {
         func: () => {
           notification.success(`删除目标 ${currentRow.name} 成功`)
@@ -100,14 +101,14 @@ class Endpoints extends React.Component {
   }
 
   onUpsertModalOk(body) {
-    const { createTargetStore, updateTargetById } = this.props
+    const { createTargetStore, updateTargetById, harbor } = this.props
     const { mode, currentRow } = this.state
     this.setState({
       upsertBtnLoading: true,
     })
     const notification = new NotificationHandler()
     if (mode === 'create') {
-      createTargetStore(DEFAULT_REGISTRY, body, {
+      createTargetStore(harbor, DEFAULT_REGISTRY, body, {
         success: {
           func: () => {
             this.loadTargets()
@@ -130,7 +131,7 @@ class Endpoints extends React.Component {
       return
     }
 
-    updateTargetById(DEFAULT_REGISTRY, currentRow.id, body, {
+    updateTargetById(harbor, DEFAULT_REGISTRY, currentRow.id, body, {
       success: {
         func: () => {
           this.loadTargets()
@@ -153,14 +154,14 @@ class Endpoints extends React.Component {
   }
 
   updateTarget(currentRow) {
-    const { getTargetPolicies } = this.props
+    const { getTargetPolicies, harbor } = this.props
     this.setState({
       mode: 'edit',
       upsertModal: true,
       updateTargetDisabled: false,
       currentRow,
     })
-    getTargetPolicies(DEFAULT_REGISTRY, currentRow.id, {
+    getTargetPolicies(harbor, DEFAULT_REGISTRY, currentRow.id, {
       success: {
         func: res => {
           if (res.data && res.data.length > 0) {
@@ -175,7 +176,7 @@ class Endpoints extends React.Component {
   }
 
   render() {
-    const { targets, validationNewTargetStore, validationOldTargetStore } = this.props
+    const { targets, validationNewTargetStore, validationOldTargetStore, harbor } = this.props
     const { isFetching, data } = targets
     const {
       searchInput, deleteModal, currentRow, delBtnLoading,
@@ -277,6 +278,7 @@ class Endpoints extends React.Component {
               validationNewTargetStore,
               validationOldTargetStore,
             }}
+            harbor={harbor}
           />
         }
       </div>
@@ -285,9 +287,14 @@ class Endpoints extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor: stateHarbor } = state
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
-    targets: harbor.targets || {},
+    targets: stateHarbor.targets || {},
+    harbor,
   }
 }
 

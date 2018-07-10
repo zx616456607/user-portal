@@ -61,11 +61,11 @@ class AdvancedSetting extends Component {
   }
 
   componentWillMount(){
-    const { getConfigurations, harbor, billingConfig } = this.props
+    const { getConfigurations, harbor, billingConfig, harborUrl } = this.props
     if(!harbor.hasAdminRole) {
       return
     }
-    getConfigurations(DEFAULT_REGISTRY, {
+    getConfigurations(harborUrl, DEFAULT_REGISTRY, {
       success: {
         func: (res) => {
           let projectCreationRestriction = res.data.projectCreationRestriction
@@ -670,12 +670,12 @@ class AdvancedSetting extends Component {
   }
 
   handleSaveImageProjectRight(){
-    const { form, updateConfigurations } = this.props
+    const { form, updateConfigurations, harborUrl } = this.props
     const { getFieldValue } = form
     let value = getFieldValue('imageProjectRightProps')
     const notification = new NotificationHandler()
     notification.spin('修改仓库组创建权限中')
-    updateConfigurations(DEFAULT_REGISTRY, {
+    updateConfigurations(harborUrl, DEFAULT_REGISTRY, {
       project_creation_restriction: value
     }, {
         success: {
@@ -864,13 +864,17 @@ function mapPropsToState(state,props) {
   const { cluster } = state.entities.current
   const { harbor, vmWrapConfig, billingConfig,role } = state.entities.loginUser.info
   const { configurations } = state.harbor
+
+  const { harbor: harbors } = cluster
+  const harborUrl = harbors ? harbors[0] || "" : ""
   return {
     cluster,
     configurations,
     harbor,
     role,
     vmWrapConfig,
-    billingConfig
+    billingConfig,
+    harborUrl,
   }
 }
 

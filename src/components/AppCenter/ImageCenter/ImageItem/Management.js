@@ -44,7 +44,7 @@ class AddUserModal extends Component {
   }
 
   handModalOk() {
-    const { form, func, registry, id } =this.props
+    const { form, func, registry, id, harbor } =this.props
     form.validateFields((error,values)=> {
       if (!!error) {
         return
@@ -53,7 +53,7 @@ class AddUserModal extends Component {
         username: values.username,
         roles: [ values.role ]
       }
-      func.addProjectMember(registry, id, body, {
+      func.addProjectMember(harbor, registry, id, body, {
         success: {
           func: () => {
             func.loadData()
@@ -195,11 +195,11 @@ class Management extends Component {
       e.stopPropagation()
       return
     }
-    const { id, registry, updateProjectMember } = this.props
+    const { id, registry, updateProjectMember, harbor } = this.props
     const body = {
       roles: [ role ]
     }
-    updateProjectMember(registry, id, user[camelize('user_id')], body, {
+    updateProjectMember(harbor, registry, id, user[camelize('user_id')], body, {
       success: {
         func: () => {
           notification.success('切换用户角色成功')
@@ -216,8 +216,8 @@ class Management extends Component {
   }
 
   loadData() {
-    const { loadProjectMembers, id, registry } = this.props
-    loadProjectMembers(registry, id)
+    const { loadProjectMembers, id, registry, harbor } = this.props
+    loadProjectMembers(registry, id, { harbor })
   }
 
   handCancel() {
@@ -234,14 +234,14 @@ class Management extends Component {
   }
 
   handDeleteUser() {
-    const { deleteProjectMember, id, registry } = this.props
+    const { deleteProjectMember, id, registry, harbor } = this.props
     const user = this.state.userList[0]
     const doSuccess = () => {
       this.loadData()
       this.setState({deleteUser:false})
       notification.success(`移除用户 ${user.username} 成功`)
     }
-    deleteProjectMember(registry, id, user[camelize('user_id')], {
+    deleteProjectMember(harbor, registry, id, user[camelize('user_id')], {
       success: {
         func: () => {
           doSuccess()
@@ -274,7 +274,7 @@ class Management extends Component {
   }
 
   render() {
-    const { members, currentUser, addProjectMember } = this.props
+    const { members, currentUser, addProjectMember, harbor } = this.props
     const { list, isFetching } = members || {}
     let { filteredInfo } = this.state
     filteredInfo = filteredInfo || {}
@@ -401,7 +401,7 @@ class Management extends Component {
           <div className="confirmText">您确认删除成员 {this.state.userList.map(list=>list.username).join(',')}？</div>
         </Modal>
         {/* add user modal */}
-        <AddUserModal visible={this.state.addUser} func={func} {...this.props}/>
+        <AddUserModal visible={this.state.addUser} func={func} harbor={harbor} {...this.props}/>
 
       </div>
     )
@@ -409,13 +409,18 @@ class Management extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor, user } = state
+  const { harbor: stateHarbor, user, entities } = state
   const users = user.users || {}
-  let harborProjects = harbor.projects && harbor.projects[props.registry] || {}
+  let harborProjects = stateHarbor.projects && stateHarbor.projects[props.registry] || {}
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     harborProjects,
     searchUserLoading: users.isFetching || false,
-    users: users.result && users.result.users || []
+    users: users.result && users.result.users || [],
+    harbor,
   }
 }
 

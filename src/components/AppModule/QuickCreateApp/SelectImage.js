@@ -18,7 +18,7 @@ import {
   loadFavouriteList, searchFavoriteImages, searchPrivateImages,
   publicFilterServer
 } from '../../../actions/app_center'
-import { loadAllProject, searchHarborPublicImages, searchHarborPrivateImages } from '../../../actions/harbor'
+import { loadAllProject } from '../../../actions/harbor'
 import { getAppsList } from '../../../actions/app_store'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { encodeImageFullname } from '../../../common/tools'
@@ -71,7 +71,7 @@ class SelectImage extends Component {
     //   serverType = 'all'
     // }
     // loadPublicImageList(registry, serverType, callback)
-    const { registry, loadAllProject } = props
+    const { registry, loadAllProject, cluster } = props
     let notify = new NotificationHandler()
     if (!callback) {
       callback = {
@@ -96,7 +96,9 @@ class SelectImage extends Component {
         }
       }
     }
-    loadAllProject(registry, query, callback)
+    const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
+    //todo 切换 集群列表
+    loadAllProject(registry, Object.assign({}, query, { harbor }), callback)
   }
 
   componentWillMount() {
@@ -158,10 +160,11 @@ class SelectImage extends Component {
     // }
   }
   loadImageStore() {
-    const { getAppsList } = this.props
+    const { getAppsList, cluster } = this.props
     const { searchInputValue, currentPage } = this.state
     let notify = new NotificationHandler()
-    let filter = 'type,2,publish_status,2'
+    // const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
+    let filter = 'type,2,publish_status,2,target_cluster,' + cluster.clusterID
     if (searchInputValue) {
       filter += `,file_nick_name,${searchInputValue}`
     }
@@ -170,6 +173,7 @@ class SelectImage extends Component {
       size: 10,
       filter
     }
+    //todo 切换 集群列表
     getAppsList(query, {
       failed: {
         func: res => {
@@ -380,19 +384,25 @@ class SelectImage extends Component {
 
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
-  const { cluster, unit } =  state.entities.current
+  const { cluster, unit, space } =  state.entities.current
   const oemInfo = state.entities.loginUser.info.oemInfo || {}
   const { productName } = oemInfo.company || {}
   const { appStore }  = state
   const { imagePublishRecord } = appStore
   const { data: imageStoreList } = imagePublishRecord || { data: {} }
+
+  const { projectVisibleClusters } = state.projectAuthority
+  const currentNamespace = space.namespace
+  const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
+  const clusters = currentProjectClusterList.data || []
   return {
     registry,
     images: state.harbor.allProject[registry],
-    cluster: cluster.clusterID,
+    cluster,
     unit,
     productName,
-    imageStoreList
+    imageStoreList,
+    clusters,
   }
 }
 

@@ -21,7 +21,7 @@ const _ = require('lodash')
 // [GET] /projects/search
 exports.searchProjects = harborHandler(
   (harbor, ctx, callback) => {
-    harbor.searchProjects(ctx.query.q, callback)
+    harbor.searchProjects(ctx.query, callback)
   }
 )
 

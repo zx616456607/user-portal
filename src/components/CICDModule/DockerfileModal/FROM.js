@@ -28,8 +28,8 @@ const FROM = React.createClass({
     return {}
   },
   componentWillMount() {
-    const { loadProjectList } = this.props
-    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 }, {
+    const { loadProjectList, harbor } = this.props
+    loadProjectList(DEFAULT_REGISTRY, { page_size: 100, harbor, }, {
       success: {
         func: () => this.loadHarbor(),
         isAsync: true,
@@ -66,7 +66,7 @@ const FROM = React.createClass({
     if (value === 'imageUrl') {
       return
     }
-    const { form, harborProjects, loadProjectRepos } = this.props
+    const { form, harborProjects, loadProjectRepos, harbor } = this.props
     let targetProject
     (harborProjects.list || []).every(project => {
       if (project.name === value) {
@@ -80,22 +80,22 @@ const FROM = React.createClass({
       return
     }
     !unreset && form.resetFields([ 'image', 'tag' ])
-    loadProjectRepos(DEFAULT_REGISTRY, { page_size: 100, project_id: targetProject[PROJECT_ID] })
+    loadProjectRepos(DEFAULT_REGISTRY, { page_size: 100, project_id: targetProject[PROJECT_ID], harbor })
   },
   onImageChange(image, unreset) {
-    const { form, loadRepositoriesTags } = this.props
+    const { form, loadRepositoriesTags, harbor } = this.props
     const { getFieldProps, getFieldValue, resetFields } = form
     const harborProject = getFieldValue('harborProject')
     const imageName = `${harborProject}/${image}`
     !unreset && resetFields([ 'tag' ])
-    loadRepositoriesTags(DEFAULT_REGISTRY, imageName)
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, imageName)
   },
   onTagChange(tag) {
-    const { form, loadRepositoriesTagConfigInfo } = this.props
+    const { form, loadRepositoriesTagConfigInfo, harbor } = this.props
     const { getFieldProps, getFieldsValue, resetFields } = form
     const { harborProject, image } = getFieldsValue([ 'harborProject', 'image' ])
     const imageName = `${harborProject}/${image}`
-    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag)
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY, imageName, tag)
   },
   render() {
     const { formItemLayout, form, harborProjects, repos, imageTags, imageTagConfig } = this.props
@@ -270,14 +270,19 @@ const FROM = React.createClass({
 })
 
 function mapStateToProps(state, ownProps) {
-  const { harbor } = state
-  const { projects, repos, imageTags, imageTagConfig } = harbor
+  const { harbor: stateHarbor } = state
+  const { projects, repos, imageTags, imageTagConfig } = stateHarbor
   const harborProjects = projects && projects[DEFAULT_REGISTRY] || {}
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     harborProjects,
     repos,
     imageTags: imageTags && imageTags[DEFAULT_REGISTRY] || {},
     imageTagConfig: imageTagConfig && imageTagConfig[DEFAULT_REGISTRY] || {},
+    harbor,
   }
 }
 

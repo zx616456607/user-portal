@@ -75,7 +75,7 @@ const UpsertModal = React.createClass({
   },
 
   ping() {
-    const { form, onOk, currentRow, func, mode } = this.props
+    const { form, onOk, currentRow, func, mode, harbor } = this.props
     this.setState({
       isPingSuccess: null,
     })
@@ -108,11 +108,11 @@ const UpsertModal = React.createClass({
       if (mode === 'edit') {
         const { isChanged } = this.getChangedValues(values)
         if (!isChanged) {
-          func.validationOldTargetStore(DEFAULT_REGISTRY, currentRow.id, callback)
+          func.validationOldTargetStore(harbor, DEFAULT_REGISTRY, currentRow.id, callback)
           return
         }
       }
-      func.validationNewTargetStore(DEFAULT_REGISTRY, values, callback)
+      func.validationNewTargetStore(harbor, DEFAULT_REGISTRY, values, callback)
     })
   },
 

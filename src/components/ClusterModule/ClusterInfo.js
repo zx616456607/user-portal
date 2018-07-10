@@ -264,9 +264,22 @@ let ClusterInfo = React.createClass ({
     });
   },
   selectBuilderEnvironment(){
-    this.setState({
-      selectBuilderEnvironmentModal: true
-    })
+    const { harbor } = this.props.cluster
+    if(!!harbor && harbor.length > 0 && !!harbor[0]){
+      this.setState({
+        selectBuilderEnvironmentModal: true
+      })
+    } else {
+      Modal.info({
+        title: '提示',
+        content: (
+          <div>
+            <p>集群未配置harbor，无法修改为构建集群！</p>
+          </div>
+        ),
+        onOk() {},
+      });
+    }
   },
   confirmSelectCurrentCluster(){
     this.setState({
@@ -486,7 +499,11 @@ let ClusterInfo = React.createClass ({
           onOk={this.confirmSelectCurrentCluster}
           onCancel={this.cancleSelectCurrentCluster}
         >
-          <div style={{color:"#00a0ea"}}><i className="fa fa-question-circle-o" aria-hidden="true" style={{marginRight:'12px'}}></i>目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境</div>
+          <div style={{color:"#00a0ea"}}>
+            <i className="fa fa-question-circle-o" aria-hidden="true" style={{marginRight:'12px'}}></i>
+              目前只支持一个集群作为构建集群，修改构建集群后，需要将CI/CD基础镜像上传到新的harbor上，是否确定将 [ {clusterName} ] 作为构建集群？
+              {/*目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境*/}
+            </div>
         </Modal>
       </Card>
     )

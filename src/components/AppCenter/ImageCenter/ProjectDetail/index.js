@@ -13,7 +13,6 @@ import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo, loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo,loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
-import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion'
 // import DockerFile from './Dockerfile'
@@ -441,7 +440,6 @@ export default connect(mapStateToProps, {
   loadFavouriteList,
   updateImageinfo,
   getImageDetailInfo,
-  loadRepositoriesTags,
   loadMirrorSafetyScanStatus,
   loadMirrorSafetyLayerinfo,
   loadMirrorSafetyScan,

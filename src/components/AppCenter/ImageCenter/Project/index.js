@@ -26,6 +26,7 @@ const DEFAULT_QUERY = {
   page: 1,
   page_size: 10,
 }
+let isLoaded = false
 
 class CreateItem extends Component {
   constructor(props) {
@@ -53,12 +54,12 @@ class CreateItem extends Component {
     callback()
   }
   handOk() {
-    const { form, func } = this.props
+    const { form, func, harbor } = this.props
     form.validateFields((error, values)=> {
       if (!!error) {
         return
       }
-      func.createProject(DEFAULT_REGISTRY, values, {
+      func.createProject(harbor, DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
             notification.success(`仓库组 ${values.project_name} 创建成功`)
@@ -140,9 +141,9 @@ class Project extends Component {
   }
 
   loadData(query ) {
-    const { loadProjectList } = this.props
+    const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
-    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query), {
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
@@ -155,7 +156,12 @@ class Project extends Component {
 
   componentWillMount() {
     this.loadData()
-    this.props.loadSysteminfo(DEFAULT_REGISTRY)
+  }
+  componentWillReceiveProps(nextProps) {
+    if(!!nextProps.harbor && !isLoaded){
+      isLoaded = true
+      this.props.loadSysteminfo(DEFAULT_REGISTRY)
+    }
   }
   componentDidUpdate() {
     let searchInput = document.getElementsByClassName('search')[0]
@@ -167,7 +173,7 @@ class Project extends Component {
 
   deleteItemOk() {
     // go delete item
-    const { deleteProject } = this.props
+    const { deleteProject, harbor } = this.props
     const { selectedRows } = this.state
     const doSuccess = () => {
       notification.success(`仓库组 ${selectedRows[0].name} 删除成功`)
@@ -177,7 +183,7 @@ class Project extends Component {
       const { currentPage } = this.state
       this.loadData({page: currentPage})
     }
-    deleteProject(DEFAULT_QUERY, selectedRows[0][camelize('project_id')], {
+    deleteProject(harbor, DEFAULT_QUERY, selectedRows[0][camelize('project_id')], {
       success: {
         func: () => {
           doSuccess()
@@ -210,7 +216,7 @@ class Project extends Component {
   }
   render() {
     const { getFieldProps } = this.props.form
-    const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
+    const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser, harbor } = this.props
     const { currentPage } = this.state
     const func = {
       scope: this,
@@ -252,10 +258,10 @@ class Project extends Component {
                 :null
                 }*/}
               </div>
-              <DataTable loginUser={loginUser} dataSource={harborProjects} func={func} from="private" currentPage={currentPage}/>
+              <DataTable loginUser={loginUser} dataSource={harborProjects} func={func} harbor={harbor} from="private" currentPage={currentPage}/>
             </Card>
             {/* 创建仓库组 Modal */}
-            <CreateItem visible={this.state.createItem} func={func}/>
+            <CreateItem visible={this.state.createItem} func={func} harbor={harbor}/>
 
             {/* 删除仓库组 Modal */}
             <Modal title="删除仓库组" visible={this.state.deleteItem}
@@ -273,13 +279,18 @@ class Project extends Component {
 
 Project = Form.create()(Project)
 function mapStateToProps(state, props) {
-  const { harbor, entities } = state
-  let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
-  let harborSysteminfo = harbor.systeminfo && harbor.systeminfo[DEFAULT_REGISTRY] && harbor.systeminfo[DEFAULT_REGISTRY].info || {}
+  const { harbor: stateHarbor, entities } = state
+  let harborProjects = stateHarbor.projects && stateHarbor.projects[DEFAULT_REGISTRY] || {}
+  let harborSysteminfo = stateHarbor.systeminfo && stateHarbor.systeminfo[DEFAULT_REGISTRY] && stateHarbor.systeminfo[DEFAULT_REGISTRY].info || {}
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     harborProjects,
     harborSysteminfo,
     loginUser: entities.loginUser.info,
+    harbor,
   }
 }
 
