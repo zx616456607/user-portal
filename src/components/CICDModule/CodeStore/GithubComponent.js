@@ -192,10 +192,10 @@ class CodeList extends Component {
       )
     }
     let items = []
-    if (data) {
+    if (data && data[0]) {
       items = data.map((item, index) => {
         return (
-          <div className='CodeTable' key={item.name} >
+          <div className='CodeTable' key={item.projectId} >
             <div className="name textoverflow">{item.name}</div>
             <div className="type">{item.private ? "private" : 'public'}</div>
             <div className="action">
@@ -242,6 +242,13 @@ class GithubComponent extends Component {
     const { code, state } = this.props.scope.props.location.query
     if(code && state) {
       this.props.authGithubList('github', { code: code}, {
+        success: {
+          func: () => {
+            setTimeout(() => {
+              this.props.getUserInfo('github')
+            })
+          }
+        },
         failed: {
           func: err => {
             notification.warn(err.message.message)
@@ -251,8 +258,15 @@ class GithubComponent extends Component {
     }
   }
   loadData() {
-    const { typeName } = this.props
+    const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
+      success: {
+        func: () => {
+          setTimeout(() => {
+            getUserInfo('github')
+          })
+        }
+      },
       failed: {
         func: () => {
           // 如果请求失败了，说明有可能没授权，所以尝试授权
@@ -487,8 +501,9 @@ class GithubComponent extends Component {
   clientSecretLength = (rule, value, callback) => {
     this.validateLength(value, 40, callback)
   }
+
   render() {
-    const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
+    const { githubList, formatMessage, isFetching, typeName, repoUser} = this.props
     const { getFieldProps } = this.props.form
     const clientIdProps = getFieldProps('clientId', {
       validate: [
@@ -605,7 +620,7 @@ class GithubComponent extends Component {
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Icon type="user" />
-          <span>{this.props.user && this.props.user}</span>
+          <span>{repoUser.username}</span>
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
@@ -632,15 +647,23 @@ class GithubComponent extends Component {
 
 
 function mapStateToProps(state, props) {
-  const { githubRepo } = state.cicd_flow
+  const { githubRepo, userInfo } = state.cicd_flow
   const { cicdApi } = state.entities.loginUser.info
   const { isFetching } = githubRepo
+  let repoUser = {
+    depot: '',
+    url: null,
+    username: ''
+  }
+  if(userInfo.github) {
+    repoUser = userInfo.github.repoUser
+  }
   return {
     githubList: githubRepo['github']? githubRepo['github'].githubList: false,
     isFetching,
     cicdApi,
     user:githubRepo['github']? githubRepo['github'].users : '',
-
+    repoUser
   }
 }
 
