@@ -35,6 +35,8 @@ import ApprovalOperation from '../../../../src/components/TenantManage/ApprovalO
 import * as quotaActions from '../../../../src/actions/quota'
 // import { getResourceDefinition } from '../../../../src/actions/quota'
 import { calcuDate } from '../../../../src/common/tools'
+import { Link } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
 
 // 格式化options
@@ -67,7 +69,7 @@ const iconStatusFormat = approvalStatus => {
       break
     }
     case 0: {
-      iconStatus.text = '待审批...'
+      iconStatus.text = '待审批'
       iconStatus.className = 'iconWaitApproval'
       break
     }
@@ -81,10 +83,30 @@ const iconStatusFormat = approvalStatus => {
 const getColums = ({ toggleDetailForm, getDetailRecord,
   checkResourcequotaDetail, toggleApprovalModal, getDevopsGlobaleQuotaList,
   self }) => {
+  const { allUsers } = self.state
   const colums = [{
     title: '申请项目',
     dataIndex: 'item',
     key: 'item',
+    render: (text, record) => {
+      let link
+      let projectId = 'cannot find'
+      for (const value of allUsers) {
+        if (value.namespace === record.namespace) {
+          projectId = value.userID
+        }
+      }
+
+      if (record.applier === record.namespace) { // 这个代表个人项目
+        link = `/tenant_manage/user/${projectId}`
+      } else {
+        link = `/tenant_manage/project_manage/project_detail?name=${record.namespace
+        }`
+      }
+      return (
+        <Link to={link}>{record.item}</Link>
+      )
+    },
   }, {
     title: '申请时间',
     dataIndex: 'applyTime',
@@ -101,8 +123,8 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
       return (
         <div>
           <span className={iconStatus.className}>
-            <span className="iconText">{iconStatus.text}</span>
             <span className="icon" ></span>
+            <span className="iconText">{iconStatus.text}</span>
           </span>
         </div>
       )
@@ -226,20 +248,22 @@ class ApprovalLimit extends React.Component {
     approvalStatus: undefined, // 审批状态
     approver: undefined, // 审批者
     showApprovalModal: false, // 显示/隐藏审批页面
-    applyTimeSorted: {}, // 根据申请事件排序关键字
+    applyTimeSorted: { sort: 'd,create_time' }, // 根据申请事件排序关键字
     approvalTimeSorted: {}, // 根据创建事件排序
     globaleDevopsQuotaList: undefined, // devops
     definitions: undefined, // 后台定义的资源类型
     wait: 0, // 待审批 个数
+    allUsers: [], // 所有用户列表
   }
   record = null
   componentDidMount = () => {
     const { checkApplyRecord, loadUserList, ListProjects } = this.props
-    const query = { from: 0, size: 10 } // 刷新页面时 默认请求第一页
+    const query = { from: 0, size: 10, sort: 'd,create_time' } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
     // 查询平台管理员和系统管理员
     // 后台接口不支持全部查询,假设最大不可能超过100个管理员
-    const waitquery = { from: 0, size: 10, filter: 'status,0', noreducer: true }
+    const waitquery = { from: 0, size: 10, filter: 'status,0', noreducer: true,
+    }
     checkApplyRecord(waitquery, {
       success: {
         func: ({ data }) => {
@@ -250,8 +274,16 @@ class ApprovalLimit extends React.Component {
       },
       isAsync: true,
     })
-    const userQuery = { from: 0, size: 100, filter: 'role,3,role,2' }
-    loadUserList(userQuery) // 获取所有成员
+    const userQuery = { size: 0, filter: 'role,3,role,2' }
+    loadUserList(userQuery)
+    const newUserQuery = { size: 0 }
+    loadUserList(newUserQuery, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        },
+      },
+    }) // 获取所有成员
     ListProjects() // 获取集群信息
   }
   disabledStartDate = startValue => {
@@ -320,6 +352,11 @@ class ApprovalLimit extends React.Component {
       detailVisible: !detailVisible,
     })
   }
+  cancelDetailForm = () => {
+    this.setState({
+      detailVisible: false,
+    })
+  }
   getDetailRecord = record => {
     this.record = record
   }
@@ -338,7 +375,7 @@ class ApprovalLimit extends React.Component {
       },
       isAsync: true,
     })
-    const query = { from: 0, size: 10 }
+    const query = { from: 0, size: 10, sort: 'd,create_time' }
     checkApplyRecord(query)
   }
   onSearch = value => {
@@ -379,6 +416,9 @@ class ApprovalLimit extends React.Component {
       },
       isAsync: true,
     })
+  }
+  cancelApprovalModal = () => {
+    this.setState({ showApprovalModal: false })
   }
   handleSearch = () => {
     const { itemType, approvalStatus, approver, startValue, endValue } = this.state
@@ -443,8 +483,11 @@ class ApprovalLimit extends React.Component {
     checkApplyRecord(query)
   }
   resetSearch = () => {
+    const { checkApplyRecord } = this.props
     this.setState({ currentPage: 1, searchValue: null, itemType: undefined,
       approvalStatus: undefined, approver: undefined, startValue: undefined, endValue: undefined })
+    const query = { from: 0, size: 10, sort: 'd,create_time' } // 刷新页面时 默认请求第一页
+    checkApplyRecord(query)
   }
   render() {
     const { startValue, endValue, endOpen, approvalVisible, approvalLoading,
@@ -460,6 +503,7 @@ class ApprovalLimit extends React.Component {
     const { isFetching, data: tabData, total } = resourcequoteRecord
     const { data: formatTabData } = formateTabDate(tabData)
     const toggleApprovalModal = this.toggleApprovalModal
+    // const cancelApprovalModal = this.cancelApprovalModal
     const formateStartValue = moment(startValue).format('X') // 转换成事件戳
     const formatEndValue = moment(endValue).format('X') // 转换成事件戳
     const self = this
@@ -583,13 +627,14 @@ class ApprovalLimit extends React.Component {
         {
           this.record !== null && <ApplayDetail title="资源配额审批详情" visible={detailVisible} toggleVisable={this.toggleDetailForm}
             record={this.record} resourceInuse={resourceInuse} resourceDefinitions={definitions}
-            globaleDevopsQuotaList={globaleDevopsQuotaList}/>
+            globaleDevopsQuotaList={globaleDevopsQuotaList} cancelVisable={self.cancelDetailForm}/>
         }
         {
           this.record !== null && <ApprovalOperation title="资源配额审批" visible={showApprovalModal}
             toggleVisable={this.toggleApprovalModal}
             record={this.record} reload={this.reload} resourceInuseProps={resourceInuse}
             resourceDefinitions={definitions} globaleDevopsQuotaList={globaleDevopsQuotaList}
+            cancelApprovalModal = {this.cancelApprovalModal}
           />
         }
       </TenxPage>

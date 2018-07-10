@@ -53,14 +53,14 @@ const columns = ({ reloadApplyRecord }) => {
       { text: '全部同意', value: 1 }, // '全部同意'
       { text: '部分同意', value: 3 }, // '全部拒绝'
       { text: '全部拒绝', value: 2 }, // 部分同意
-      { text: '待审批...', value: 0 }, // 审批中
+      { text: '待审批', value: 0 }, // 审批中
     ],
     render: (text, record) => {
       const iconText = { iconName: '', iconText: '' }
       switch (record.condition) {
         case 0: {
           iconText.iconName = 'iconWaitApproval'
-          iconText.iconText = '待审批...'
+          iconText.iconText = '待审批'
           break
         }
         case 1: { // 全部同意
@@ -83,8 +83,8 @@ const columns = ({ reloadApplyRecord }) => {
       }
       return (<div>
         <span className={iconText.iconName}>
-          <span className="iconText">{iconText.iconText}</span>
           <span className="icon" ></span>
+          <span className="iconText">{iconText.iconText}</span>
         </span>
       </div>)
     },
@@ -180,7 +180,7 @@ class ApplyLimit extends React.Component {
     checkApplyRecord(query)
   }
   componentDidMount = () => {
-    const { checkApplyRecord, userName, location } = this.props
+    const { checkApplyRecord, userName, location, getProjectVisibleClusters } = this.props
     const query = { from: 0, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
     const { displayName, namespace } = location.query
@@ -194,6 +194,8 @@ class ApplyLimit extends React.Component {
     if (location.search !== '') {
       this.setState({ displayNameText: showdisplayNameText, displayName: namespace,
         applayVisable: true })
+      console.log('getProjectVisibleClusters', getProjectVisibleClusters)
+      getProjectVisibleClusters('default')
     }
   }
   setApplayVisable = status => { // 当status的值为success时 会重新liading一下数据
@@ -314,4 +316,5 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   checkApplyRecord: applyLimitActions.checkApplyRecord,
   ListProjects: projectActions.ListProjects,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
 })(ApplyLimit)

@@ -35,8 +35,12 @@ class Operation extends React.Component {
     globaleDevopsQuotaList: undefined, // devops
   }
   setRelealVisable = () => {
-    const { relealVisable } = this.state
-    this.setState({ relealVisable: !relealVisable })
+    // const { relealVisable } = this.state
+    this.setState({ relealVisable: true })
+  }
+  cancelRelealVisable = () => {
+    // const { relealVisable } = this.state
+    this.setState({ relealVisable: false })
   }
   relealApply = () => {
     // 向后台发送撤销请求, 成功后
@@ -60,11 +64,11 @@ class Operation extends React.Component {
     })
   }
   toggleDetailVisable = type => {
-    const { detailVisable } = this.state
+    // const { detailVisable } = this.state
     const { record, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
       personNamespace } = this.props
     this.setState({
-      detailVisable: !detailVisable,
+      detailVisable: true,
     })
     if (type !== 'cancel') {
       checkResourcequotaDetail(record.id)
@@ -97,13 +101,18 @@ class Operation extends React.Component {
   cancelDetailVisable = () => {
     const { detailVisable } = this.state
     this.setState({
-      detailVisable: !detailVisable,
+      detailVisable: false,
     })
   }
   toggleClearVisable = () => {
-    const { clearVisable } = this.state
+    // const { clearVisable } = this.state
     this.setState({
-      clearVisable: !clearVisable,
+      clearVisable: true,
+    })
+  }
+  cancelClearVisable = () => {
+    this.setState({
+      clearVisable: false,
     })
   }
   clearRecord = () => {
@@ -149,9 +158,9 @@ class Operation extends React.Component {
         <Modal
           visible = {relealVisable}
           title="撤销申请"
-          onCancel={ this.setRelealVisable }
+          onCancel={ this.cancelRelealVisable }
           footer={[
-            <Button key="back" type="ghost" size="large" onClick={this.setRelealVisable}>
+            <Button key="back" type="ghost" size="large" onClick={this.cancelRelealVisable}>
               取消
             </Button>,
             <Button key="submit" type="primary" size="large" loading={relealLoading}
@@ -165,13 +174,13 @@ class Operation extends React.Component {
         </Modal>
         <ApplayDetail title="资源配额审批详情" visible={detailVisable} toggleVisable={this.toggleDetailVisable}
           record={record} resourceDefinitions={definitions} resourceInuse={resourceInuse}
-          globaleDevopsQuotaList={globaleDevopsQuotaList}/>
+          globaleDevopsQuotaList={globaleDevopsQuotaList} cancelVisable={this.cancelDetailVisable}/>
         <Modal
           visible = {clearVisable}
           title="清除申请记录"
-          onCancel={ this.toggleClearVisable }
+          onCancel={ this.cancelClearVisable }
           footer={[
-            <Button key="back" type="ghost" size="large" onClick={this.toggleClearVisable}>
+            <Button key="back" type="ghost" size="large" onClick={this.cancelClearVisable}>
               取消
             </Button>,
             <Button key="submit" type="primary" size="large" loading={clearLoading}

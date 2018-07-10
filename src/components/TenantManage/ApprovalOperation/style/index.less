@@ -17,6 +17,8 @@
   }
   .ant-table {
     border: none;
+    .ant-table-body {
+    }
   }
   .appiyLimitNum {
     color: @primary-color;
@@ -30,23 +32,23 @@
   .allPassIcon {
     font-size: 16px;
     color: green;
-    font-weight: 100;
+    font-weight: normal;
   }
   .notAllPassIcon {
     font-size: 16px;
-    font-weight: 100;
+    font-weight: normal;
     &:hover {
       color:green;
     }
   }
   .allRefuseIcon {
     font-size: 16px;
-    font-weight: 100;
+    font-weight: normal;
     color: red;
 
   }
   .notallRefuseIcon {
-    font-weight: 100;
+    font-weight: normal;
     font-size: 16px;
     &:hover {
       color: red;
@@ -54,5 +56,10 @@
   }
   .iconItemWrap{
     padding-left: 32px;
+  }
+  .alertTips {
+    color: #ccc;
+    padding-left: @padding-large;
+    font-size: 10px;
   }
 }
