@@ -865,6 +865,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='discover'>
+                    <Link to='/app_manage/discover'>
+                      <span><div className='sideCircle'></div> 服务发现</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
                       <span><div className='sideCircle'></div> 应用负载均衡</span>

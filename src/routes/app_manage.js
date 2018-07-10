@@ -88,6 +88,12 @@ const appManageRoutes = [{
     component: require('../components/ServiceConfig/Secrets').default
   }]
 },{
+  path: 'discover',
+  // component: require('../components/ServiceConfig').default,
+  indexRoute: {
+    component: require('../../client/containers/ServiceDiscover').default,
+  },
+},{
   path: 'load_balance',
   indexRoute: {
     component: require('../components/AppModule/LoadBalance').default,
