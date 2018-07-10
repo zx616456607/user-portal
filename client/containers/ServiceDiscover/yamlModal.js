@@ -8,7 +8,7 @@ export default class YamlModal extends React.Component {
   }
 
   componentDidMount() {
-    console.log( this.props.self.name )
+    // console.log( this.props.self.name )
     const { isWrite } = this.props
     isWrite && this.setState({
       EditOpts: { readOnly: false },
