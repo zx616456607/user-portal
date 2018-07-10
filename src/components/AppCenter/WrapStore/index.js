@@ -40,10 +40,10 @@ class AppWrapStore extends React.Component {
     }
   }
   componentWillMount() {
-    const { getWrapGroupList, getAppsHotList } = this.props
+    const { getWrapGroupList, getAppsHotList, cluster } = this.props
     getWrapGroupList()
     this.getStoreList()
-    getAppsHotList()
+    getAppsHotList(cluster.clusterID)
   }
   changeTab(activeKey){
     const { getAppsHotList } = this.props
@@ -57,18 +57,22 @@ class AppWrapStore extends React.Component {
     if (activeKey === 'app') {
       this.resetDownloadCount()
       return
-    } 
-    getAppsHotList()
+    }
+    const clusterID = this.props.cluster.clusterID
+    getAppsHotList(clusterID)
   }
   getStoreList() {
-    const { getWrapStoreList, getAppsList } = this.props
+    const { getWrapStoreList, getAppsList, cluster } = this.props
     const { current, filterName, sort_by, classify, activeKey } = this.state
     let query = {
       from: (current - 1) * 12,
-      size: 12
+      size: 12,
+      filter: "target_cluster," + (!!cluster ? cluster.clusterID : ""),
     }
     if (activeKey === 'image') {
-      Object.assign(query, { filter: 'type,2,publish_status,2' })
+      const { filter } = query
+      const newFilter = filter + ',type,2,publish_status,2'
+      Object.assign(query, { filter: newFilter })
     }
     if (filterName) {
       if (activeKey === 'app') {
@@ -225,6 +229,8 @@ function mapStateToProps(state) {
   const { imagePublishRecord, imageHotRecord } = appStore
   const { data: imageStoreList, isFetching: imageStoreFetching } = imagePublishRecord || { data: {}, isFetching: false }
   const { data: imageHotList, isFetching: imageHotFetching } = imageHotRecord || { data: {}, isFetching: false }
+
+  const { cluster } = entities.current
   return {
     loginUser: loginUser.info,
     wrapStoreList: storeData,
@@ -235,7 +241,8 @@ function mapStateToProps(state) {
     imageStoreList,
     imageStoreFetching,
     imageHotList,
-    imageHotFetching
+    imageHotFetching,
+    cluster,
   }
 }
 export default connect(mapStateToProps, {

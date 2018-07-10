@@ -19,6 +19,7 @@ import {
   removeTerminal,
 } from '../../actions/terminal'
 import { loadContainerDetailEvents, setTingLogs } from '../../actions/app_manage'
+import { throwError } from '../../actions'
 import cloneDeep from 'lodash/cloneDeep'
 import Dock from 'react-dock'
 import Logs from '../ContainerModule/ContainerLogs'
@@ -52,11 +53,16 @@ class TerminalModal extends Component {
   }
 
   componentWillMount() {
-    window.webTerminalCallBack = (name, status) => {
-      const { clusterID, updateTerminal, list } = this.props
+    window.webTerminalCallBack = (name, status, error) => {
+      const { clusterID, updateTerminal, list, throwError } = this.props
       const _list = cloneDeep(list)
       _list && _list.every((item) => {
         if(item.metadata.name == name) {
+          if (status === '[403 resource permission error]') {
+            this.closeTerminalItem(item)
+            throwError(error)
+            return
+          }
           item.terminalStatus = status
           if (status === 'exit') {
             this.closeTerminalItem(item)
@@ -446,7 +452,8 @@ export default connect(mapStateToProps, {
   changeActiveTerminal,
   removeTerminal,
   setTingLogs,
-  loadContainerDetailEvents
+  loadContainerDetailEvents,
+  throwError,
 })(injectIntl(TerminalModal, {
   withRef: true,
 }))

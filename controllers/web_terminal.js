@@ -15,7 +15,7 @@ module.exports = function webTerminal(server, redis) {
   const wss = new WebSocketServer({noServer: true})
   wss.on('connection', (ws, request, message) => {
     // only 401 or 403 reach here
-    const b64 = ' ' + Buffer.from(unescape(encodeURIComponent(message))).toString('base64')
+    const b64 = ' ' + Buffer.from(message).toString('base64')
     ws.send(b64, () => ws.close())
   })
   server.on('upgrade', (req, client, head) => {
@@ -77,7 +77,8 @@ function _handleClusterInfo(rawResponse, context) {
     const wss = context.wss
     logger.error('user has no permission to access pod, cluster id', context.cluster, 'user', context.loginUser.user, 'namespace', context.namespace, 'pod', context.podName)
     wss.handleUpgrade(context.req, context.client, context.head,
-      ws => wss.emit('connection', ws, context.req, JSON.stringify(response)))
+      ws => wss.emit('connection', ws, context.req, '[403 resource permission error] This operation has no permissions'))
+    //   ws => wss.emit('connection', ws, context.req, JSON.stringify(response)))
     return
   }
   const clusterInfo = response.data

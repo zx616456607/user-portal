@@ -123,6 +123,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
   router.get('/clusters/:cluster/kubeproxy', clusterController.getKubeproxy)
   router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
+  router.put('/clusters/:cluster/configs/harbor', clusterController.setHarbor)
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)

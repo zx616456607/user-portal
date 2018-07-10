@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table } from 'antd'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Tooltip } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import './style/GlobalConfig.less'
@@ -34,6 +34,7 @@ import QueueAnim from 'rc-queue-anim'
 const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
+const ImageTip = <img src={ChartRepoImg} />
 
 function inputFocusMethod(node){
   node && node.focus();
@@ -1405,10 +1406,11 @@ let MirrorService = React.createClass({
             <div className="contentImg">
               <img src={MirrorImg} alt="镜像服务" />
             </div>
-            <div className="contentkeys">
-              <div className="key">镜像服务地址</div>
+            <div className="contentForm" style={{ marginTop: 35 }}>
+              <div className="key">新版本支持每个集群配置一个harbor，构建集群必须配置harbor
+              </div>
             </div>
-            <div className="contentForm">
+            {/*<div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
                   <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} id='mirrorServerAgent'/>
@@ -1425,7 +1427,7 @@ let MirrorService = React.createClass({
                 </FormItem>
                 <input type="hidden" {...harborID} />
               </Form>
-            </div>
+            </div>*/}
           </div>
         </div>
       </div>
@@ -1687,8 +1689,11 @@ let Continue = React.createClass({
             </div>
             <div className='contenttable'>
               <div className='contenttableheader'>
-                <span className='forward'>TenxFlow 基础镜像</span>
-                基础镜像是用于 TenxFlow 任务中，提供任务执行基础环境的容器镜像
+                <span className='forward'>流水线基础镜像</span>
+                基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像，基础镜像存储在构建集群harbor上，切换构建集群时请重新上传
+                <Tooltip placement="top" title={ImageTip}>
+                  <a>【查看harbor地址】</a>
+                </Tooltip>
               </div>
               <div className='contenttablemain'>
                 <ConIntergration />

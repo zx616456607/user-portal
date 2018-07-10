@@ -67,9 +67,9 @@ class CodeRepo extends Component {
     searchInput && searchInput.focus()
   }
   loadRepos(query) {
-    const { loadProjectRepos, registry, location } = this.props
+    const { loadProjectRepos, registry, location, harbor } = this.props
     const { imageName } = location.query || {}
-    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query), {
+    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query, { harbor }), {
       success: {
         func: res => {
           res.data && res.data.forEach(image => {
@@ -87,7 +87,7 @@ class CodeRepo extends Component {
   }
 
   deleteRepoOk() {
-    const { deleteRepo } = this.props
+    const { deleteRepo, harbor } = this.props
     const { selectedRepo } = this.state
     const doSuccess = () => {
       notification.success(`镜像 ${selectedRepo} 删除成功`)
@@ -97,7 +97,7 @@ class CodeRepo extends Component {
       this.loadRepos()
     }
     let processedImageName = encodeImageFullname(selectedRepo)
-    deleteRepo(DEFAULT_REGISTRY, processedImageName, {
+    deleteRepo(harbor, DEFAULT_REGISTRY, processedImageName, {
       success: {
         func: () => {
           doSuccess()
@@ -356,13 +356,18 @@ class CodeRepo extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor, entities } = state
+  const { harbor: stateHarbor, entities } = state
   const { loginUser } = entities
   const user = loginUser.info
+
+  const { cluster } =  entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
-    repos: harbor.repos || {},
+    repos: stateHarbor.repos || {},
     user,
-    members:harbor.members.list
+    harbor,
+    members:stateHarbor.members.list
   }
 }
 
