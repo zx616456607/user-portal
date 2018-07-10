@@ -99,7 +99,7 @@ class Operation extends React.Component {
     }
   }
   cancelDetailVisable = () => {
-    const { detailVisable } = this.state
+    // const { detailVisable } = this.state
     this.setState({
       detailVisable: false,
     })

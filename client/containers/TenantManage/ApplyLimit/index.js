@@ -194,7 +194,6 @@ class ApplyLimit extends React.Component {
     if (location.search !== '') {
       this.setState({ displayNameText: showdisplayNameText, displayName: namespace,
         applayVisable: true })
-      console.log('getProjectVisibleClusters', getProjectVisibleClusters)
       getProjectVisibleClusters('default')
     }
   }
