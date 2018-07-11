@@ -160,7 +160,7 @@ const MyComponent = React.createClass({
       failed: {
         func: (res) => {
           if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+            notification.error('该项目正在被流水线任务引用，请解除引用后重试')
           } else {
             notification.error('解除激活失败')
           }
