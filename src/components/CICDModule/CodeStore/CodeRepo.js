@@ -24,8 +24,6 @@ import Title from '../../Title'
 
 const TabPane = Tabs.TabPane
 
-
-
 const menusText = defineMessages({
   search: {
     id: 'CICD.TenxStorm.search',

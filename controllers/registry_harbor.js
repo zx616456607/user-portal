@@ -539,7 +539,7 @@ function* getAuthInfo(loginUser) {
 function changeHarborConfigByQuery(query, _config) {
   const method = 'changeHarborConfigByQuery'
   const config = _.cloneDeep(_config) || {}
-  const harborUrl = query.harbor
+  const harborUrl = query && query.harbor
   if (harborUrl) {
     if (!/^https?:\/\//.test(harborUrl)) {
       logger.warn(method, 'Illegal harbor url:', harborUrl)
