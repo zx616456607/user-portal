@@ -409,7 +409,7 @@ function mapStateToProps(state, props) {
   } = state.harbor
   let targetImageTag = imageTags[DEFAULT_REGISTRY] || {}
 
-  const { cluster } =  entities.current
+  const { cluster } =  state.entities.current
   const { harbor: harbors } = cluster
   const harbor = harbors ? harbors[0] || "" : ""
   return {

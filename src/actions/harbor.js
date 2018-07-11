@@ -538,7 +538,7 @@ export const LOAD_IMAGEUPDATE_LIST_REQUEST = 'LOAD_IMAGEUPDATE_LIST_REQUEST'
 export const LOAD_IMAGEUPDATE_LIST_SUCCESS = 'LOAD_IMAGEUPDATE_LIST_SUCCESS'
 export const LOAD_IMAGEUPDATE_LIST_FAILURE = 'LOAD_IMAGEUPDATE_LIST_FAILURE'
 
-function fetchLoadImageUpdateList(body, callback) {
+function fetchLoadImageUpdateList(harbor, body, callback) {
   let endpoint = `${API_URL_PREFIX}/registries/${body.registry}/projects/${body.projectID}/replication/summary?harbor=${harbor}`
   return {
     registry: body.registry,
