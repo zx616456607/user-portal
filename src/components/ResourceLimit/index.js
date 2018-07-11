@@ -105,6 +105,15 @@ class ResourceQuota extends React.Component {
         }
       }
     }
+    // 如果是个人账户页面，teamspace传default
+    if(window.location.pathname === '/account') {
+      query = {
+        id: key ? key : clusterID,
+        header: {
+          teamspace: 'default'
+        }
+      }
+    }
     /**
      * 获取资源定义，目的为了让资源配额管理支持后台动态设置
      */
