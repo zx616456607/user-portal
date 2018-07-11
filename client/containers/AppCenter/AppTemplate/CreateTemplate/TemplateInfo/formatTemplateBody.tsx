@@ -6,7 +6,7 @@ import { buildJson, getFieldsValues } from '../../../../../../src/components/App
 
 const formatTemplateInfo = (serviceArray: Array): Array => {
   const copyArr = cloneDeep(serviceArray);
-  copyArr = copyArr.reverse();
+  copyArr.reverse();
   copyArr.forEach((item, index, arr) => {
     if (index < arr.length - 1) {
       item.dependencies = [copyArr[index + 1]];
@@ -21,7 +21,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
   let accessType: string = '';
   let loadBalanceName: string = '';
   const chart: object = {};
-  let info: Array = [];
+  let info: Array;
   let count = 0;
   const fieldsLength = Object.keys(fields).length;
   for (const [key, value] of Object.entries(fields)) {
