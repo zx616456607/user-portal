@@ -543,6 +543,7 @@ const Normal = React.createClass({
       isCanCreateVolume, imageConfigs,
       id, isTemplate, location
     } = this.props
+    const { query } = location
     const { listNodes } = currentCluster
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
     const { getFieldProps, setFieldsValue } = form
@@ -694,7 +695,7 @@ const Normal = React.createClass({
                   8           1               1    1   */}
           {/* listnodes  为0是老的数据 */}
           {
-            listNodes === 0 || listNodes === 1 ?
+            listNodes === 0 || listNodes === 1 || isTemplate || query.template ?
               null:
               <div id='nodeScheduler'>
                 <Collapse>
