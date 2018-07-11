@@ -1,31 +1,33 @@
 import React from 'react'
-// import { connect } from 'react-redux'
+import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
+import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Card, Pagination } from 'antd'
-// import { browserHistory } from 'react-router'
-// import { toQuerystring } from '../../../src/common/tools'
-// import { loadApiInfo } from '../../../src/actions/open_api'
+import { Button, Table, Menu, Dropdown, Card, Pagination, Icon } from 'antd'
 import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
 import './style/index.less'
+import { getDnsList, deleteDnsItem } from '../../actions/dnsRecord'
+import Notification from '../../../src/components/Notification'
+
+const notification = new Notification()
 
 class ServiceDiscover extends React.Component {
   state = {
     search: '',
     visible: false,
     showYaml: false,
-    targetRow: '',
-    isWrite: true,
+    targetName: '',
   }
 
   componentDidMount() {
-
+    this.loadData()
   }
 
   loadData = () => {
-
+    const { getDnsList, cluster } = this.props
+    getDnsList(cluster)
   }
 
   handleCreate = () => {
@@ -50,20 +52,29 @@ class ServiceDiscover extends React.Component {
   editItem = record => {
     this.setState({
       showYaml: !this.state.showYaml,
-      targetRow: record,
-      isWrite: true,
+      targetName: record && record.name || '',
     })
   }
 
-  deleteItem = () => {
+  deleteItem = record => {
     // console.log( 'delete' )
-  }
-
-  watchItem = record => {
-    this.setState({
-      showYaml: !this.state.showYaml,
-      targetRow: record,
-      isWrite: false,
+    const { deleteDnsItem, cluster } = this.props
+    deleteDnsItem(cluster, record.name, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success('成功删除 DNS 记录')
+          this.loadData()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode, message } = err
+          notification.close()
+          notification.warn(`删除 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
+        },
+      },
     })
   }
 
@@ -75,71 +86,77 @@ class ServiceDiscover extends React.Component {
       case 'deleteItem':
         this.deleteItem(record)
         break
-      case 'watchItem':
-        this.watchItem(record)
-        break
       default:
         break
     }
   }
-
+  dealWith = (text, type) => {
+    if (type === 'name') {
+      return text
+    }
+    const targetArr = JSON.parse(text)
+    return targetArr.map((item, index) => {
+      return <p key={index}>{item}</p>
+    })
+  }
   render() {
-    const { search, visible, showYaml, targetRow, isWrite } = this.state
-    const total = 2
+    const { search, visible, showYaml, targetName } = this.state
+    const { list, isFetching, cluster } = this.props
+    const listData = !search ? list : list.filter(item => (
+      item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
+    ))
+    const total = listData.length
     const pagination = {
       simple: true,
       total,
       current: 1, // page,
       pageSize: 10, // DEFAULT_PAGE_SIZE,
-      // onChange: this.handlePage
+      // onChange: this.handlePager
     }
     const columnsDiscover = [
       {
         title: '名称',
         key: 'name',
         dataIndex: 'name',
-        width: '16%',
+        width: '12%',
       }, {
         title: '类型',
         key: 'type',
         dataIndex: 'type',
-        width: '16%',
-      // render: (text) => <div className={iconclassName('正常')}>
-      //     {this.formatStatus(text)}
-      //   </div>
+        width: '14%',
+        render: text => <div>{ text === 'ip' ? '外部 IP 地址' : '外部主机名' }</div>,
       }, {
         title: '目标',
         key: 'target',
         dataIndex: 'target',
-        width: '20%',
-        // render: (fstype) => <div>{fstype}</div>
+        width: '16%',
+        render: (text, record) => <div>{this.dealWith(text, record.type)}</div>,
+      }, {
+        title: '端口号',
+        key: 'port',
+        dataIndex: 'port',
+        width: '11%',
       }, {
         title: '创建时间',
         key: 'time',
         dataIndex: 'time',
-        width: '16%',
-        // render: (size) => <div>{size} M</div>
+        width: '18%',
+        render: text => <div>{formatDate(text)}</div>,
       }, {
         title: '更新时间',
         key: 'refresh',
         dataIndex: 'refresh',
-        width: '16%',
-        // render: (volume) => <div>
-        //   <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`}>
-        //     {volume}
-        //   </Link>
-        // </div>
+        width: '12%',
       }, {
         title: '操 作',
         key: 'opearater',
         dataIndex: 'opearater',
-        width: '15%',
+        width: '17%',
         render: (key, record) => {
           const menu = <Menu
             onClick={ key => this.operatorDns(key, record)}
-            style={{ width: '80px' }}>
-            <Menu.Item key="editItem">编辑</Menu.Item>
-            <Menu.Item key="watchItem">查看 yaml </Menu.Item>
+            style={{ width: 120 }}>
+            <Menu.Item key="editItem">编辑 / 查看 yaml</Menu.Item>
             <Menu.Item key="deleteItem">删除</Menu.Item>
           </Menu>
           return <div>
@@ -149,24 +166,11 @@ class ServiceDiscover extends React.Component {
               trigger={[ 'click' ]}
               // onClick={() => this.operatorDns(record)}
               type="ghost">
-              操作
+              <Icon type="edit" />更多操作
             </Dropdown.Button>
           </div>
         },
       }]
-    const dnsList = [{
-      name: '胡彦斌',
-      type: 'type',
-      target: 'target',
-      time: '2018-7-9',
-      refresh: '刷新',
-    }, {
-      name: '胡彦祖',
-      type: 'type',
-      target: 'target',
-      time: '2018-7-9',
-      refresh: '刷新',
-    }]
     return <QueueAnim className="serviceDiscover">
       <div className="discoverPage" key="discover">
         <Title title="服务发现" />
@@ -175,6 +179,7 @@ class ServiceDiscover extends React.Component {
             <DnsModal
               visible={visible}
               handleCreate={this.handleCreate}
+              loadData={this.loadData}
             />
             : null
         }
@@ -183,8 +188,10 @@ class ServiceDiscover extends React.Component {
             <YamlModal
               visible={showYaml}
               editItem={this.editItem}
-              self={targetRow}
-              isWrite={isWrite}
+              targetName={targetName}
+              cluster={cluster}
+              loadData={this.loadData}
+              key={targetName}
             />
             : null
         }
@@ -215,14 +222,36 @@ class ServiceDiscover extends React.Component {
           <Table
             className="reset_antd_table_header"
             columns={columnsDiscover}
-            dataSource={dnsList}
+            dataSource={listData}
             pagination={false}
-            // loading={ isFetching }
+            loading={ isFetching }
           />
         </Card>
       </div>
     </QueueAnim>
   }
 }
+const mapStateToProps = ({ entities: { current }, dnsRecord: { getList } }) => {
+  const list = getList.data && getList.data.data || []
+  const arr = []
+  list.map(item => {
+    return arr.push({
+      name: item.metadata.name,
+      type: item.metadata.labels['system/endpoint-type'],
+      target: item.metadata.annotations && item.metadata.annotations['system/endpoint-ips'] || item.spec.externalName,
+      time: item.metadata.creationTimestamp,
+      port: item.metadata.annotations && item.metadata.annotations['system/endpoint-ip-port'] || '-',
+      refresh: '刷新时间',
+    })
+  })
+  return {
+    cluster: current.cluster.clusterID,
+    isFetching: getList.isFetching,
+    list: arr,
+  }
+}
 
-export default ServiceDiscover
+export default connect(mapStateToProps, {
+  getDnsList,
+  deleteDnsItem,
+})(ServiceDiscover)

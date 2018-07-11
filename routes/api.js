@@ -59,6 +59,7 @@ const autoScalerController = require('../controllers/autoscaler')
 const schedulerController = require('../controllers/scheduler')
 const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
+const dnsRecordController = require('../controllers/dns_record')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -811,5 +812,13 @@ module.exports = function (Router) {
   router.put('/resourcequota/apply/:id', resourcequota.updateResourcequota)
   router.get('/resourcequota/apply/:id', resourcequota.checkResourcequotaDetail)
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
+
+  // DNS Record
+  router.post('/clusters/:cluster/endpoints',dnsRecordController.createDnsItem)
+  router.get('/clusters/:cluster/endpoints',dnsRecordController.getDnsList)
+  router.get('/clusters/:cluster/endpoints/:name',dnsRecordController.getDnsItemDetail)
+  router.put('/clusters/:cluster/endpoints',dnsRecordController.updataDnsItem)
+  router.delete('/clusters/:cluster/endpoints/:name',dnsRecordController.deleteDnsItem)
+
   return router.routes()
 }
