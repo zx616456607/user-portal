@@ -270,7 +270,7 @@ const FROM = React.createClass({
 })
 
 function mapStateToProps(state, ownProps) {
-  const { harbor: stateHarbor } = state
+  const { harbor: stateHarbor, entities } = state
   const { projects, repos, imageTags, imageTagConfig } = stateHarbor
   const harborProjects = projects && projects[DEFAULT_REGISTRY] || {}
 
