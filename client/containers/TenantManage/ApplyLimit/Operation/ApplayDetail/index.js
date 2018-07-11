@@ -187,7 +187,8 @@ class ApplayDetail extends React.Component {
                   <Table columns={getcolums(resourceDefinitions)}
                     dataSource={tabData}
                     pagination={false} size="small"
-                    scroll={{ y: 120 }} loading={isFetching}/>
+                    scroll={{ y: 120 }} loading={isFetching}
+                  />
                 </div>
               </QueueAnim> : null
           }
