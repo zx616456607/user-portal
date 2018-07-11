@@ -1,0 +1,23 @@
+@import '../../../../assets/style/site/core.less';
+
+.storage {
+  padding: @padding-small;
+  background: #ffffff;
+  .graph {
+    height: 300px;
+    display: flex;
+    justify-content: flex-start;
+    .cluster {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border: 1px dashed @primary-color;
+      border-radius: @border-radius-base;
+      font-size: 0;
+      img {
+        border: 1px solid @primary-color;
+
+      }
+    }
+  }
+}

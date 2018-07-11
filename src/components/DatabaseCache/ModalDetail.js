@@ -20,6 +20,7 @@ import { setServiceProxyGroup } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
+import Storage from './ClusterDetailComponent/Storage'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -931,6 +932,13 @@ class ModalDetail extends Component {
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+              </TabPane>
+              <TabPane tab='存储' key='#Storage'>
+                <Storage/>
+              </TabPane>
+              <TabPane tab='备份' key='#Backup'>
+              </TabPane>
+              <TabPane tab='配置管理' key='#ConfigManage'>
               </TabPane>
               { billingEnabled ?
                 [<TabPane tab='访问方式' key='#VisitType'>

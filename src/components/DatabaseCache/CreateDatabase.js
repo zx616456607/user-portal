@@ -8,25 +8,33 @@
  * @author GaoJian
  */
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio, Spin } from 'antd'
-import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
+import { injectIntl } from 'react-intl'
+import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin } from 'antd'
+import { CreateDbCluster } from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
-import { MY_SPACE } from '../../constants'
+import {
+  MY_SPACE, RESOURCES_CPU_DEFAULT,
+  RESOURCES_CPU_MAX, RESOURCES_CPU_MIN,
+  RESOURCES_CPU_STEP,
+  RESOURCES_MEMORY_MAX,
+  RESOURCES_MEMORY_MIN, RESOURCES_MEMORY_STEP,
+  UPGRADE_EDITION_REQUIRED_CODE
+} from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
-import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import { camelize } from 'humps'
+import classNames from "classnames";
 
 const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
+
 
 let CreateDatabase = React.createClass({
   getInitialState: function () {
@@ -34,7 +42,9 @@ let CreateDatabase = React.createClass({
       currentType: this.props.database,
       showPwd: 'text',
       firstFocues: true,
-      onselectCluster: true
+      onselectCluster: true,
+      composeType: 512,
+      advanceConfigContent: "log-bin = mysql-bin"
     }
   },
   componentWillMount() {
@@ -330,7 +340,66 @@ let CreateDatabase = React.createClass({
     }
     return option
   },
+
+  // 集群配置相关
+  selectComposeType(type){
+    this.setState({
+      composeType: type
+    })
+  },
+
+  DIYMinMemoryCheck(rules, value, callback) {
+    if (!value) {
+      return callback('最小内存不能为空')
+    }
+    callback()
+  },
+
+  DIYMinMemoryChange(value) {
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const maxMemoryValue = getFieldValue('DIYMaxMemory')
+    if (value >= maxMemoryValue) {
+      setFieldsValue({
+        DIYMaxMemory: value
+      })
+    }
+  },
+
+  DIYMaxMemoryCheck(rules, value, callback) {
+    if (!value) {
+      return callback('最大内存不能为空')
+    }
+    callback()
+  },
+
+  DIYMinCPUCheck(rules, value, callback) {
+    if (!value) {
+      return callback('最小CPU不能为空')
+    }
+    callback()
+  },
+
+  DIYMinCPUChange(value) {
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const maxCPUValue = getFieldValue('DIYMaxCPU')
+    if (value >= maxCPUValue) {
+      setFieldsValue({
+        DIYMaxCPU: value
+      })
+    }
+  },
+
+  DIYMaxCPUCheck(rules, value, callback) {
+    if (!value) {
+      return callback('最大CPU不能为空')
+    }
+    callback()
+  },
+
   render() {
+    const { composeType } = this.state
     const { isFetching, projects, projectVisibleClusters, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
@@ -422,6 +491,44 @@ let CreateDatabase = React.createClass({
         {statefulAppOptions}
       </Select>
     )
+
+    // 集群配置相关
+    const DIYMinMemoryProps = getFieldProps('DIYMinMemory', {
+      rules: [
+        {
+          validator: this.DIYMinMemoryCheck
+        }
+      ],
+      initialValue: RESOURCES_MEMORY_MIN,
+      onChange: this.DIYMinMemoryChange
+    })
+    const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
+      rules: [
+        {
+          validator: this.DIYMaxMemoryCheck
+        }
+      ],
+      initialValue: RESOURCES_MEMORY_MIN
+    })
+    const DIYMinCPUProps = getFieldProps('DIYMinCPU', {
+      rules: [
+        {
+          validator: this.DIYMinCPUCheck
+        }
+      ],
+      initialValue: RESOURCES_CPU_DEFAULT,
+      onChange: this.DIYMinCPUChange
+    })
+    const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
+      rules: [
+        {
+          validator: this.DIYMaxCPUCheck
+        }
+      ],
+      initialValue: RESOURCES_CPU_DEFAULT
+    })
+
+
     return (
       <QueueAnim>
         <div id='CreateDatabase' key="createDatabase">
@@ -467,6 +574,86 @@ let CreateDatabase = React.createClass({
                   </FormItem>
                 </div>
                 <div style={{ clear: 'both' }}></div>
+              </div>
+              <div className='commonBox config'>
+                <div className='title'>
+                  <span>集群配置</span>
+                </div>
+                <Col span={18} className="configBox">
+                  <Button className="configList" type={composeType === 512 ? "primary" : "ghost"}
+                          onClick={() => this.selectComposeType(512)}>
+                    <div className="topBox">
+                      2X
+                    </div>
+                    <div className="bottomBox">
+                      <span>512 MB 内存</span><br />
+                      <span>0.1 核 CPU</span>
+                      <div className="triangle"/>
+                      <Icon type="check" />
+                    </div>
+                  </Button>
+                  <div className={classNames("configList DIY",{
+                    "btn ant-btn-primary": composeType === 'DIY',
+                    "btn ant-btn-ghost": composeType !== 'DIY'
+                  })} onClick={() => this.selectComposeType('DIY')}>
+                    <div className="topBox">
+                      自定义
+                    </div>
+                    <div className="bottomBox">
+                      <Row>
+                        <Col span={8}>
+                          <FormItem>
+                            <InputNumber
+                              {...DIYMinMemoryProps}
+                              size="small"
+                              step={RESOURCES_MEMORY_STEP}
+                              min={RESOURCES_MEMORY_MIN}
+                              max={RESOURCES_MEMORY_MAX} />
+                          </FormItem>
+                        </Col>
+                        <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                        <Col span={8}>
+                          <FormItem>
+                            <InputNumber
+                              {...DIYMaxMemoryProps}
+                              size="small"
+                              step={RESOURCES_MEMORY_STEP}
+                              min={getFieldValue('DIYMinMemory')}
+                              max={RESOURCES_MEMORY_MAX} />
+                          </FormItem>
+                        </Col>
+                        <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                      </Row>
+                      <Row>
+                        <Col span={8}>
+                          <FormItem>
+                            <InputNumber
+                              {...DIYMinCPUProps}
+                              size="small"
+                              step={RESOURCES_CPU_STEP}
+                              min={RESOURCES_CPU_MIN}
+                              max={RESOURCES_CPU_MAX}/>
+                          </FormItem>
+                        </Col>
+                        <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
+                        <Col span={8}>
+                          <FormItem>
+                            <InputNumber
+                              {...DIYMaxCPUProps}
+                              size="small"
+                              step={RESOURCES_CPU_STEP}
+                              min={getFieldValue('DIYMinCPU')}
+                              max={RESOURCES_CPU_MAX}/>
+                          </FormItem>
+                        </Col>
+                        <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                      </Row>
+                      <div className="triangle"/>
+                      <Icon type="check" />
+                    </div>
+                  </div>
+                </Col>
+
               </div>
               <div className='commonBox accesstype'>
                 <div className='title'>
@@ -586,6 +773,28 @@ let CreateDatabase = React.createClass({
                 </div>
                 :null
               }
+              <div className="commonBox advanceConfig">
+                <div className="top">高级配置</div>
+                <div className="configTitle">配置管理</div>
+                <div className="configItem">
+                  <div className="title">配置文件</div>
+                  <div>mysql.conf</div>
+                </div>
+                <div className="configItem">
+                  <div className="title">挂载目录</div>
+                  <div>/ect/mysql</div>
+                </div>
+                <div className="configItem">
+                  <div className="title">内容</div>
+                  <div className="content">
+                    <Input type="textarea" rows={4} value={this.state.advanceConfigContent} onChange={e => {
+                      this.setState({
+                        advanceConfigContent: e.target.value
+                      })
+                    }}/>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className='btnBox'>
               <Button size='large' onClick={this.handleReset}>
