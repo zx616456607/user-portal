@@ -15,7 +15,14 @@ import { Link } from 'react-router'
 import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
-import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
+import { putGlobaleQuota,
+  putClusterQuota,
+  getGlobaleQuota,
+  getGlobaleQuotaList,
+  getResourceDefinition,
+  getClusterQuota,
+  getClusterQuotaList,
+  getDevopsGlobaleQuotaList } from '../../actions/quota'
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
@@ -65,7 +72,17 @@ class ResourceQuota extends React.Component {
     }
   }
   fetchQuota(key) {
-    const { getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
+    const { getGlobaleQuota,
+      getGlobaleQuotaList,
+      getResourceDefinition,
+      getClusterQuota,
+      getClusterQuotaList,
+      clusterID,
+      userName,
+      projectName,
+      getDevopsGlobaleQuotaList,
+      isProject,
+      namespace } = this.props
     let query
     if (isProject) {
       query = {
@@ -169,7 +186,7 @@ class ResourceQuota extends React.Component {
         func: res => {
           if (REG.test(res.code)) {
             this.setState({
-              globaleUseList: res.data
+              globaleUseList: { ...this.state.globaleUseList, ...res.data }
             })
           }
         },
@@ -198,6 +215,17 @@ class ResourceQuota extends React.Component {
           }
         },
         isAsync: true
+      }
+    })
+    getDevopsGlobaleQuotaList(query, {
+      success: {
+        func: res => {
+          if (REG.test(res.status)) {
+            this.setState({
+              globaleUseList: { ...this.state.globaleUseList, ...res.result }
+            })
+          }
+        }
       }
     })
   }
@@ -459,7 +487,6 @@ class ResourceQuota extends React.Component {
    */
   maxGlobaleCount(value) {
     const { globaleList } = this.state
-
     let count = -1
     if (globaleList) {
       for( let k in globaleList) {
@@ -1058,7 +1085,6 @@ class ResourceQuota extends React.Component {
                                     </Col>
                                   </Row>
                                 )
-
                               })
                               :
                               ''
@@ -1074,12 +1100,9 @@ class ResourceQuota extends React.Component {
                       return (
                         <div className="quotaItem">
                           <span>{v.name}</span>
-
                           {
-
                             v.children?
                               v.children.map((k, current) => {
-
                                 return k.children ?
                                   <div key={k.id} className="childrenItem">
                                     {this.icon(k.name)}
@@ -1188,4 +1211,5 @@ export default connect(mapStateToProps, {
   getResourceDefinition,
   putGlobaleQuota,
   putClusterQuota,
+  getDevopsGlobaleQuotaList,
 })(ResourceQuota)
