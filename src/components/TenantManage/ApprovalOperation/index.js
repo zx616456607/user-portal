@@ -19,6 +19,8 @@ import { calcuDate } from '../../../common/tools'
 import { updateResourcequota } from '../../../../client/actions/applyLimit'
 // import { removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app';
 import QueueAnim from 'rc-queue-anim'
+import cloneDeep from 'lodash/cloneDeep'
+import compact from 'lodash/compact'
 const FormItem = Form.Item
 // 表单布局
 const formItemLayout = {
@@ -144,6 +146,7 @@ const findClusersName = ({ id, choiceClusters }) => {
     const date = []
     let indexKey = 1
     if (applyDetails && globaleDevopsQuotaList && !_.isEmpty(resourceInuse)) {
+      // if (applyDetails && !_.isEmpty(resourceInuse)) {
       for (const key in applyDetails) {
         const clusterName = findClusersName({ id: key, choiceClusters })
         for (const resourcekey in applyDetails[key]) {
@@ -190,6 +193,7 @@ class ApprovalOperation extends React.Component {
   state = {
     approvalState: _.fill(Array(1), false), // 审批状态, Array(n) n = data的个数 1 // 表示什么都不是 不默认同意, 也不默认不同意
     loading: false, // 完成审批的loading状
+    selectedRowKeys: [],
   }
   static propTypes = {
     visible: PropTypes.bool.isRequired,
@@ -233,6 +237,7 @@ class ApprovalOperation extends React.Component {
           func: res => {
             toggleVisable(undefined, 'success')
             this.setState({ approvalState: _.fill(Array(1), false) })
+            this.setState({ selectedRowKeys: [] })
             reload()
           },
           isAsync: true,
@@ -247,43 +252,19 @@ class ApprovalOperation extends React.Component {
   cnacelModal = () => {
     const { cancelApprovalModal } = this.props
     this.setState({ approvalState: _.fill(Array(1), false), })
+    this.setState({ selectedRowKeys: [] })
     cancelApprovalModal()
   }
-    // 通过 rowSelection 对象表明需要行选择
-  rowSelection = {
-    onSelect: (record, selected, selectedRows) => {
-
-      console.log('selectedRows', selectedRows);
-      this.cancelApprovalState('all')
-      for(const value of selectedRows) {
-        this.setApprovalState(value.key - 1)
-      }
-    },
-    onSelectAll: (selected, selectedRows, changeRows) => {
-      console.log('selected', selected,);
-      console.log('selectedRows',selectedRows,);
-      console.log('changeRows', changeRows);
-      if(selected === true) { // 表示全部选中
-        this.setApprovalState('all')
-      }
-      if(selected === false) { //表示全部取消
-        this.cancelApprovalState('all')
-      }
-    },
-  };
   render() {
     const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData,
       resourceDefinitions, cancelApprovalModal, detailDataisFetching } = this.props
-    const { approvalState } = this.state
+    const { approvalState, selectedRowKeys } = this.state
     const setApprovalState = this.setApprovalState
     const cancelApprovalState = this.cancelApprovalState
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const tabDataLength = this.props.tabData.length
     let approvalStateArr = approvalState.slice(0, tabDataLength)
-    // let btnDisable = approvalStateArr.some(value => {
-    //   return value === 1
-    // // })
-    // console.log('btnDisable', btnDisable)
+
     let approvalPass = 0
 
     let accountType
@@ -299,6 +280,49 @@ class ApprovalOperation extends React.Component {
     } else {
       accountType = '共享项目'
     }
+        // 通过 rowSelection 对象表明需要行选择
+  const rowSelection = {
+    onSelect: (record, selected, selectedRows) => {
+
+      console.log('selectedRows', selectedRows);
+      this.cancelApprovalState('all')
+      for(const value of selectedRows) {
+        this.setApprovalState(value.key - 1)
+      }
+    },
+    onSelectAll: (selected, selectedRows, changeRows) => {
+      // console.log('selected', selected,);
+      // console.log('selectedRows',selectedRows,);
+      // console.log('changeRows', changeRows);
+      if(selected === true) { // 表示全部选中
+        this.setApprovalState('all')
+      }
+      if(selected === false) { //表示全部取消
+        this.cancelApprovalState('all')
+      }
+    },
+    onChange: (selectedRowKeys) => {
+      console.log('selectedRowKeys changed: ', selectedRowKeys);
+      this.setState({ selectedRowKeys });
+    },
+    selectedRowKeys: selectedRowKeys,
+  }
+  const rowClick = (record, index, e) => {
+    console.log('indexasdfadsf', index)
+    const newselectedRowKeys = cloneDeep(selectedRowKeys)
+    if (newselectedRowKeys.includes(index+1)){
+      delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
+    } else {
+      newselectedRowKeys.push(index + 1)
+    }
+    this.setState({ selectedRowKeys: compact(newselectedRowKeys) })
+    const { approvalState } = this.state
+    if (approvalState[index] === true) {
+      this.cancelApprovalState(index)
+    } else {
+      this.setApprovalState(index)
+    }
+  }
     return (
       <Modal
         visible = {visible}
@@ -311,7 +335,7 @@ class ApprovalOperation extends React.Component {
           <Button key="cancel" size="large" onClick={this.cnacelModal}>
             取消
           </Button>,
-          <Tooltip title={`${approvalPass}个通过, ${tabDataLength-approvalPass}个拒绝`}>
+          <Tooltip title={`${approvalPass} 个通过, ${tabDataLength-approvalPass} 个拒绝`}>
             <Button key="makeSure" type="primary" size="large" onClick={this.fetchApprovalResult.bind(null, record)}
             >
                 <span>{`确认通过 (${approvalPass})`}</span>
@@ -340,9 +364,10 @@ class ApprovalOperation extends React.Component {
             detailDataisFetching === false ?
             <QueueAnim>
             <div key='table'>
-            <span className="alertTips" >tips: 选择可以通过的申请,未选择的表示拒绝申请</span>
+            <span className="alertTips" >tips: 选择可以通过的申请, 未选择的表示拒绝申请</span>
             <Table columns={getcolums({ setApprovalState, cancelApprovalState, approvalState, resourceDefinitions })} dataSource={tabData} pagination={false} size="small"
-              scroll={{ y: 120 }} loading={isFetching} rowSelection={this.rowSelection} />
+              scroll={{ y: 120 }} loading={isFetching} rowSelection={rowSelection}
+              onRowClick={rowClick}/>
             </div>
             </QueueAnim> : null
           }
