@@ -15,8 +15,14 @@ class Storage extends React.Component {
       </div>
       <div className="graph">
         <div className="cluster">
-          <img src={graphCluster} alt=""/>
+          <div className="clusterName">
+            MySql集群：
+          </div>
+          <div className="graphCluster">
+            <img src={graphCluster} alt=""/>
+          </div>
         </div>
+        <div className="line"></div>
         <div className="storage">
           <img src={graphStorage} alt=""/>
         </div>
