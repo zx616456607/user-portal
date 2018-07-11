@@ -283,8 +283,6 @@ class ApprovalOperation extends React.Component {
         // 通过 rowSelection 对象表明需要行选择
   const rowSelection = {
     onSelect: (record, selected, selectedRows) => {
-
-      console.log('selectedRows', selectedRows);
       this.cancelApprovalState('all')
       for(const value of selectedRows) {
         this.setApprovalState(value.key - 1)
@@ -302,13 +300,11 @@ class ApprovalOperation extends React.Component {
       }
     },
     onChange: (selectedRowKeys) => {
-      console.log('selectedRowKeys changed: ', selectedRowKeys);
       this.setState({ selectedRowKeys });
     },
     selectedRowKeys: selectedRowKeys,
   }
   const rowClick = (record, index, e) => {
-    console.log('indexasdfadsf', index)
     const newselectedRowKeys = cloneDeep(selectedRowKeys)
     if (newselectedRowKeys.includes(index+1)){
       delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
