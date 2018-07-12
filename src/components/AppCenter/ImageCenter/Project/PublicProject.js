@@ -25,6 +25,7 @@ const DEFAULT_QUERY = {
   page_size: 10,
   is_public: 1,
 }
+let isLoaded = false
 
 class PublicProject extends Component {
   constructor(props) {
@@ -42,7 +43,7 @@ class PublicProject extends Component {
   loadData(query) {
     const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
-    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, { harbor }, query), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
@@ -56,11 +57,22 @@ class PublicProject extends Component {
   searchProjects() {
     this.loadData({ project_name: this.state.searchInput })
   }
-
-  componentWillMount() {
-    this.loadData({
-      is_public: 1,
-    })
+  componentWillMount(){
+    const { harbor } = this.props
+    this.loadWithHarbor(harbor)
+  }
+  componentWillReceiveProps(next) {
+    const { harbor } = next
+    this.loadWithHarbor(harbor)
+  }
+  loadWithHarbor(harbor) {
+    if(harbor && !isLoaded){
+      isLoaded = true
+      this.loadData({
+        is_public: 1,
+        harbor,
+      })
+    }
   }
 
   render() {

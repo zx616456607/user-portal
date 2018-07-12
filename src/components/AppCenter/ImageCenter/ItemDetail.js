@@ -27,7 +27,7 @@ import NotificationHandler from '../../../components/Notification'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
-
+let isLoaded = false
 class ItemDetail extends Component {
   constructor(props) {
     super()
@@ -39,23 +39,31 @@ class ItemDetail extends Component {
     this.currentUser = {}
   }
 
-  componentWillMount() {
-    const { loadProjectDetail, loadProjectMembers, params, harbor } = this.props
-    loadProjectDetail(harbor, DEFAULT_REGISTRY, params.id)
-    loadProjectMembers(DEFAULT_REGISTRY,  params.id, { harbor }, {
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          this.currentUser = {}
-          if (statusCode === 403) {
-            return
-          }
-          notification.error(`获取成员失败`)
-        }
-      }
-    })
+  componentWillMount(){
+    this.loadDataWithHarbor(this.props.harbor)
   }
-
+  componentWillReceiveProps(nextProps) {
+    this.loadDataWithHarbor(nextProps.harbor)
+  }
+  loadDataWithHarbor(harbor) {
+    if(!!harbor && !isLoaded){
+      isLoaded = true
+      const { loadProjectDetail, loadProjectMembers, params } = this.props
+      loadProjectDetail(harbor, DEFAULT_REGISTRY, params.id)
+      loadProjectMembers(DEFAULT_REGISTRY,  params.id, { harbor }, {
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            this.currentUser = {}
+            if (statusCode === 403) {
+              return
+            }
+            notification.error(`获取成员失败`)
+          }
+        }
+      })
+    }
+  }
   renderPublic(key) {
     switch (key) {
       case 0:
