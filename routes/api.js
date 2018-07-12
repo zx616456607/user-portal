@@ -612,6 +612,7 @@ module.exports = function (Router) {
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)
+  router.get('/cluster/:cluster/alerts/logsalert/:strategyName/existence', alertController.checkLogExist) // 判断该告警规则是否存在
   router.post('/cluster/:cluster/alerts/setting', alertController.addAlertSetting)
   router.post('/clusters/:cluster/alerts/logsalert', alertController.addAlertRegularSetting) // 增加告警规则
   router.put('/cluster/:cluster/alerts/setting/:strategyID', alertController.modifyAlertSetting)
