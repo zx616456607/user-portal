@@ -181,7 +181,7 @@ class WrapsPart extends React.Component<any, IState> {
   render() {
     const { currentType, searchValue } = this.state;
     const { wrapList, wrapStoreList } = this.props;
-    let total: number = currentType === TRID_TYPE ? wrapList.total : wrapStoreList.total;
+    const total: number = currentType === TRID_TYPE ? wrapList.total : wrapStoreList.total;
     const paginationOpts = {
       simple: true,
       pageSize: DEFAULT_PAGE_SIZE,

@@ -19,6 +19,7 @@ import './style/DockerFile.less'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import DockerfileModal from '../DockerfileModal'
+import ResourceBanner from '../../../../src/components/TenantManage/ResourceBanner'
 
 const editorOptions = {
   readOnly: false
@@ -299,6 +300,7 @@ class DockerFile extends Component {
         type='right'
         >
         <Title title="Dockerfile" />
+        <ResourceBanner resourceType='dockerfile'/>
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>

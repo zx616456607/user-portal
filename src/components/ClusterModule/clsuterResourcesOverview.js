@@ -13,6 +13,7 @@ import './style/clusterResourcesOverview.less'
 import ClusterInfo from './ClusterInfo'
 import NetworkConfiguration from './NetworkConfiguration'
 import ResourcesOverview from './ResourcesOverview'
+import ImageService from './ImageService'
 
 class ClusterResourcesOverview extends Component{
   constructor(props){
@@ -32,6 +33,7 @@ class ClusterResourcesOverview extends Component{
     return <div id="cluster__resourcesoverview">
       <ClusterInfo cluster={cluster}/>
       <ResourcesOverview clusterSummary={clusterSummary} cluster={cluster} />
+      <ImageService cluster={cluster}/>
       <NetworkConfiguration id="Network" cluster={cluster}/>
     </div>
   }

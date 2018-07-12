@@ -44,7 +44,7 @@ HarborAPIs.prototype.searchProjects = function (query, callback) {
   } else {
     // Matching all q/page/n to do the search
     if (query) {
-      requestUrl += "?q=" + query
+      requestUrl += `?${utils.toQuerystring(query)}`
     }
   }
   logger.debug(method, "Request url: " + requestUrl);

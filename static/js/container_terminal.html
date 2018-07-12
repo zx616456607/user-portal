@@ -17,6 +17,16 @@
     function utf8_to_b64(str) {
       return window.btoa(window.unescape(encodeURIComponent(str)));
     }
+    function b64_to_utf8(str) {
+      // For k8s only
+      str = str.slice(1)
+      try {
+        str = decodeURIComponent(window.escape(window.atob(str)));
+      } catch (error) {
+        str = window.atob(str);
+      }
+      return str;
+    }
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function (event) {
       webSocketConnect()
@@ -75,7 +85,48 @@
           rows: rowsNum,
           cursorBlink: true
         });
-        ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
+        try {
+          ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
+        } catch (error) {
+          console.log('catch', error)
+        }
+        ws.addEventListener('close', function (event) {
+          // console.log('close', event)
+        })
+        ws.addEventListener('open', function (event) {
+          // console.log('open', event)
+        })
+        ws.addEventListener('error', function (event) {
+          // console.log('error', event)
+        })
+        ws.addEventListener('message', function (message) {
+          console.log('message', message)
+          if (b64_to_utf8(message.data) === '[403 resource permission error] This operation has no permissions') {
+            const error = {
+              statusCode: 403,
+              message: {
+                status: 'Failure',
+                message: 'user can not access resource due to acl',
+                reason: 'Forbidden',
+                details:{
+                  name: '',
+                  kind: 'ResourcePermission'
+                },
+                code: 403,
+                data: {
+                  id: 38,
+                  name: '登录容器终端',
+                  desc: '登录容器终端',
+                  category: 35,
+                  code: 'LOGIN_CON',
+                  status: 0,
+                  count: 0
+                }
+              }
+            }
+            termCallback(data['pod'], '[403 resource permission error]', error)
+          }
+        })
         ws.addEventListener("open", function (event) {
           term.attach(ws);
           termCallback(data['pod'], 'success')

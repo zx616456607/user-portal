@@ -15,10 +15,18 @@ import { Link } from 'react-router'
 import classNames from 'classnames'
 import './style/index.less'
 import { InputNumber, Table, Button, Icon, Input, Modal, Row, Col, Tooltip, Dropdown, Menu, Progress, Select, Checkbox, Form } from 'antd'
-import { putGlobaleQuota, putClusterQuota, getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList } from '../../actions/quota'
+import { putGlobaleQuota,
+  putClusterQuota,
+  getGlobaleQuota,
+  getGlobaleQuotaList,
+  getResourceDefinition,
+  getClusterQuota,
+  getClusterQuotaList,
+  getDevopsGlobaleQuotaList } from '../../actions/quota'
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
+import { toQuerystring } from '../../common/tools'
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -64,7 +72,17 @@ class ResourceQuota extends React.Component {
     }
   }
   fetchQuota(key) {
-    const { getGlobaleQuota, getGlobaleQuotaList, getResourceDefinition, getClusterQuota, getClusterQuotaList, clusterID, userName, projectName, isProject, namespace } = this.props
+    const { getGlobaleQuota,
+      getGlobaleQuotaList,
+      getResourceDefinition,
+      getClusterQuota,
+      getClusterQuotaList,
+      clusterID,
+      userName,
+      projectName,
+      getDevopsGlobaleQuotaList,
+      isProject,
+      namespace } = this.props
     let query
     if (isProject) {
       query = {
@@ -168,7 +186,7 @@ class ResourceQuota extends React.Component {
         func: res => {
           if (REG.test(res.code)) {
             this.setState({
-              globaleUseList: res.data
+              globaleUseList: { ...this.state.globaleUseList, ...res.data }
             })
           }
         },
@@ -197,6 +215,17 @@ class ResourceQuota extends React.Component {
           }
         },
         isAsync: true
+      }
+    })
+    getDevopsGlobaleQuotaList(query, {
+      success: {
+        func: res => {
+          if (REG.test(res.status)) {
+            this.setState({
+              globaleUseList: { ...this.state.globaleUseList, ...res.result }
+            })
+          }
+        }
       }
     })
   }
@@ -458,7 +487,6 @@ class ResourceQuota extends React.Component {
    */
   maxGlobaleCount(value) {
     const { globaleList } = this.state
-
     let count = -1
     if (globaleList) {
       for( let k in globaleList) {
@@ -651,7 +679,14 @@ class ResourceQuota extends React.Component {
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
-    const { clusterData, clusterName, isProject } = this.props
+    const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
+       showProjectName
+     } = this.props
+    let newshowProjectName = showProjectName
+    if ( !isProject ) {
+      newshowProjectName = { namespace: '我的个人项目' }
+    }
+    // console.log('projectDetail', projectDetail)
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
@@ -680,6 +715,14 @@ class ResourceQuota extends React.Component {
             </div> : <div></div>
         }
         <div className="topDesc">
+          {
+            (outlineRoles.includes('manager') || !isProject) ?
+            <div className="applyLimitBtn">
+              <Link to={`/tenant_manage/applyLimit?${toQuerystring(newshowProjectName)}`}>
+                <Button type="primary" >配额申请</Button>
+              </Link>
+            </div> : ''
+          }
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
         {
@@ -1042,7 +1085,6 @@ class ResourceQuota extends React.Component {
                                     </Col>
                                   </Row>
                                 )
-
                               })
                               :
                               ''
@@ -1058,12 +1100,9 @@ class ResourceQuota extends React.Component {
                       return (
                         <div className="quotaItem">
                           <span>{v.name}</span>
-
                           {
-
                             v.children?
                               v.children.map((k, current) => {
-
                                 return k.children ?
                                   <div key={k.id} className="childrenItem">
                                     {this.icon(k.name)}
@@ -1172,4 +1211,5 @@ export default connect(mapStateToProps, {
   getResourceDefinition,
   putGlobaleQuota,
   putClusterQuota,
+  getDevopsGlobaleQuotaList,
 })(ResourceQuota)

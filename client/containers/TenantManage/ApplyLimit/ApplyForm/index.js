@@ -8,15 +8,25 @@
  * @date Wednesday June 13th 2018
  */
 import * as React from 'react'
-import { Form, Button, Select, Modal, Input, Card, Row, Col, Icon, InputNumber,
-  Tooltip, Checkbox, notification } from 'antd'
-import { getClusterQuotaList, getGlobaleQuotaList } from '../../../../../src/actions/quota'
-import { getProjectVisibleClusters } from '../../../../../src/actions/project'
-import { applayResourcequota } from '../../../../../client/actions/applyLimit'
+import { Form, Button, Select, Modal, Input, Card, Row, Col, Icon,
+  Checkbox, notification } from 'antd'
+// import { getClusterQuotaList, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../../src/actions/quota'
+import * as quotaActions from '../../../../../src/actions/quota'
+// import { getProjectVisibleClusters } from '../../../../../src/actions/project'
+import * as projectActions from '../../../../../src/actions/project'
+// import { applayResourcequota } from '../../../../../client/actions/applyLimit'
+import * as applyLimitActions from '../../../../../client/actions/applyLimit'
 import './style/index.less'
 import { connect } from 'react-redux'
-import { REG } from '../../../../../src/constants'
-import _ from 'lodash'
+// import { REG } from '../../../../../src/constants'
+import cloneDeep from 'lodash/cloneDeep'
+import compact from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
+import isArray from 'lodash/isArray'
+// import { getResourceDefinition } from '../../../../../src/actions/quota'
+import QueueAnim from 'rc-queue-anim'
+// import { getProjectVisibleClusters } from '../../../../../src/actions/project'
+// import { templateNameCheck } from '../../../../../src/common/naming_validation'
 // const Option = Select.Option
 // const OptGroup = Select.OptGroup
 
@@ -42,254 +52,174 @@ const rulesFormat = message => {
   return rule
 }
 
-// 返回资源选项
-const formateOpt = () => {
-  const ciList = [
-    {
-      key: 'cached_volumes',
-      text: '缓存卷 (个)',
-    },
-    {
-      key: 'tenxflow',
-      text: '流水线 (个)',
-    },
-    {
-      key: 'jieduan',
-      text: '阶段 (个)',
-    },
-    {
-      key: 'subTask',
-      text: '任务 (个)',
-    },
-    {
-      key: 'dockerfile',
-      text: 'Dockerfile (个)',
-    },
-  ]
-  const cdList = [
-    {
-      key: 'orchestrationTemplate',
-      text: '编排文件 (个)',
-    },
-    {
-      key: 'applicationPackage',
-      text: '应用包 (个)',
-    }, {
-      key: 'applicationTemplate',
-      text: '应用模板 (个)',
-    }, {
-      key: 'stage',
-      text: '阶段 (个)',
-    }, {
-      key: 'cacheVolume',
-      text: '缓存卷 (个)',
-    },
-  ]
-
-  const computeList = [
-    {
-      key: 'cpu',
-      text: 'CPU (C)',
-    },
-    {
-      key: 'memory',
-      text: '内存 (GB)',
-    },
-    {
-      key: 'storage',
-      text: '磁盘 (GB)',
-    },
-  ]
-
-  const platformList = [
-    {
-      key: 'application',
-      text: '应用 (个)',
-    }, {
-      key: 'service',
-      text: '服务 (个)',
-    }, {
-      key: 'container',
-      text: '容器 (个)',
-    }, {
-      key: 'volume',
-      text: '存储 (个)',
-    }, {
-      key: 'snapshot',
-      text: '快照 (个)',
-    }, {
-      key: 'configuration',
-      text: '服务配置 (个)',
-    }, {
-      key: 'secret',
-      text: '加密服务配置 (个)',
-    }, {
-      key: 'loadbalance',
-      text: '应用负载均衡（个）',
-    }, {
-      key: 'autoScale',
-      text: '自动伸缩策略 (个)',
-    },
-    // {
-    //   key: 'chuantongyingyong',
-    //   text: '传统应用 (个)',
-    // },
-    // {
-    //   key: 'chuantongyingyonghuanjing',
-    //   text: '传统应用环境 (个)',
-    // },
-  ]
-
-  const serviceList = [
-    {
-      key: 'mysql',
-      text: 'MySQL集群 (个)',
-    }, {
-      key: 'redis',
-      text: 'Redis集群 (个)',
-    }, {
-      key: 'zookeeper',
-      text: 'Zookeeper集群 (个)',
-    }, {
-      key: 'elasticsearch',
-      text: 'ElasticSearch集群 (个)',
-    },
-  ]
-  const formateToReactNode = (arr, title) => {
-    return (
-      <Select.OptGroup key ={ title }>
-        {
-          arr.map(o => {
-            return <Select.Option value={o.key} key={o.key}>{o.text}</Select.Option>
-          })
-        }
-      </Select.OptGroup>
-    )
-  }
-  const cicdNode = formateToReactNode(ciList.concat(cdList), 'CI/CD')
-  const computerNode = formateToReactNode(computeList, '计算资源')
-  const platformNode = formateToReactNode(platformList, '应用管理')
-  const serviceNode = formateToReactNode(serviceList, '数据库与缓存')
-  return { cicdNode, computerNode, platformNode, serviceNode }
-}
 
 // 如果当前资源为全局资源则返回ture, 如果不是则返回false
-const findAllresource = key => {
-  const allResource = [ // 如果选中的key是这里的一个,则为全局资源
-    'tenxflow', // 流水线
-    'subTask', // 子任务
-    'dockerfile', // Dockerfile
-    'registryProject', // 镜像仓库组
-    'registry', // 镜像仓库
-    'orchestrationTemplate', // 编排文件
-    'applicationPackage', // 应用包
-    'applicationTemplate', // 应用模板
-    'stage', // 阶段
-    'cacheVolume', // 缓存卷
-  ]
-  return allResource.indexOf(key) > -1
+const findAllresource = (key, globalResource) => {
+  let flag = false
+  for (const o of Object.values(globalResource)) {
+    if (o === key) {
+      flag = true
+    }
+  }
+  return flag
 }
 
 // 将可选择集群整理成jsx
 const fromatChoiceClusters = choiceClusters => {
-  if (!_.isEmpty(choiceClusters) && !_.isEmpty(choiceClusters.data)) {
+  if (!isEmpty(choiceClusters) && !isEmpty(choiceClusters.data)) {
     return choiceClusters.data.map(o => {
       return (
-        <Select.Option value={o.clusterName} key={o.clusterName}>{o.clusterName}</Select.Option>
+        <Select.Option value={o.clusterID} key={o.clusterName}>{o.clusterName}</Select.Option>
       )
     })
   }
   return null
 
 }
-// 根据集群名称查询集群id
-const findChoiceClusersId = (name, choiceClusters) => {
-  if (!_.isEmpty(choiceClusters) && !_.isEmpty(choiceClusters.data)) {
-    for (const o of choiceClusters.data) {
+// // 根据集群名称查询集群id
+// const findChoiceClusersId = (name, choiceClusters) => {
+//   if (!isEmpty(choiceClusters) && !isEmpty(choiceClusters.data)) {
+//     for (const o of choiceClusters.data) {
 
-      if (o.clusterName === name) {
-        return o.clusterID
-      }
-    }
-  }
-}
+//       if (o.clusterName === name) {
+//         return o.clusterID
+//       }
+//     }
+//   }
+// }
 
 const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResourceKind,
-  checkResourceKindState, quotalList, choiceClusters }) => {
-
+  checkResourceKindState, choiceClusters, getClusterQuotaListSelect, definitions,
+  self }) => {
+  // console.log('checkResourceKindState', checkResourceKindState)
+  // const { getFieldsValue } = self.props.form
+  // console.log('getFieldsValue', getFieldsValue())
+  const { personNamespace } = self.props
+  const cluserIndex = (getFieldValue('item') === personNamespace || getFieldValue('item') === '我的个人项目')
+    ? 'default' : getFieldValue('item')
   getFieldProps('keys', {
     initialValue: [ 0 ],
   })
   const formItem = getFieldValue('keys').map(k => {
-    const num = quotalList[getFieldValue(`resource${k}`)] || 0
+    // const clusterID = getFieldValue(`aggregate${k}`)
+    const num = self.state.currentQuotaList[k][getFieldValue(`resource${k}`)]
+    // const numWord = getFieldValue(`noLimit${k}`) ? '无限制' : ''
     return (
-      <Row type="flex">
-        <Col span={6}>
-          <div className="resource-wrap">
-            <FormItem key={k} >
-              <Select {...getFieldProps(`resource${k}`, { rules: rulesFormat('请选择资源') })}
+      // <QueueAnim key={k}>
+      <div key={`item${k}`}>
+        <Row type="flex">
+          <Col span={5}>
+            <div className="resource-wrap">
+              <FormItem key={k} >
+                <Select {...getFieldProps(`resource${k}`, // { rules: rulesFormat('请选择资源') }
+                  {
+                    rules: [
+                      {
+                        validator: (rules, value, callback) =>
+                          self.checkGolobalValueRepetition(rules, value, callback, k),
+                        trigger: [ 'onBlur', 'onChange' ],
+                      },
+                    ],
+                  }
+                )}
                 placeholder="请选择资源"
-                onSelect = { value => checkResourceKind(value, k) }
-              >
-                { formateOpt().platformNode }
-                { formateOpt().cicdNode }
-                { formateOpt().computerNode }
-                { formateOpt().serviceNode }
-              </Select>
-            </FormItem>
-          </div>
-        </Col>
-        <Col span={6}>
-          <div className="resource-wrap">
-            {
-              checkResourceKindState[k] ?
-                (
-                  <span className="allResource">项目全局资源</span>
-                ) : (
-                  <FormItem key={k}>
-                    <Select {...getFieldProps(`aggregate${k}`, { rules: rulesFormat('请选择集群') })}
+                onSelect = { value => checkResourceKind(value, k)}
+                disabled = { isEmpty(getFieldValue('item')) }
+                dropdownMatchSelectWidth = {false}
+                >
+                  {
+                    definitions && definitions.map(o => {
+                      return (
+                        <Select.OptGroup key={o.resourceName}>
+                          {
+                            o.children.map(i =>
+                              <Select.Option key={i.resourceType} value={i.resourceType}>
+                                {i.resourceName}
+                              </Select.Option>
+                            )
+                          }
+                        </Select.OptGroup>
+                      )
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </div>
+          </Col>
+          <Col span={5}>
+            <div className="resource-wrap">
+              {
+                checkResourceKindState[k] ?
+                  (
+                    <span className="allResource">项目全局资源</span>
+                  ) : (
+                    <FormItem key={k} >
+                      <Select {...getFieldProps(`aggregate${k}`, // { rules: rulesFormat('请选择集群') }
+                        {
+                          rules: [
+                            {
+                              validator: (rules, value, callback) =>
+                                self.checkCluserValueRepetition(rules, value, callback, k),
+                              trigger: [ 'onBlur', 'onChange' ],
+                            },
+                          ],
+                        }
+                      )}
                       placeholder="请选择集群"
-                    >
-                      {/* <Option value="devAggregate">开发集群</Option>
-                <Option value="Allaggregate">项目全局资源</Option> */}
-                      {fromatChoiceClusters(choiceClusters)}
-                    </Select>
-                  </FormItem>
-                )
-            }
-          </div>
-        </Col>
-        <Col span={4}>
-          <div className="resource-wrap useNum">{quotalList[getFieldValue(`resource${k}`)]}</div>
-        </Col>
-        <Col span={5}>
-          <div className="resource-wrap applyNum">
-            <FormItem key={k}>
-              <Tooltip title={ `配额数量不小于${num}`}>
-                <InputNumber min={num} disabled={ getFieldValue(`noLimit${k}`) }
-
-                  {...getFieldProps(`number${k}`, { initialValue: (getFieldValue(`noLimit${k}`) ? undefined : num),
-                    // rules: [{ validator: checkPrime }],
-                  })}
-                  placeholder={ getFieldValue(`noLimit${k}`) ? '无限制' : `当前配额 ${num}`}
-                />
-              </Tooltip>
-            </FormItem>
-          </div>
-        </Col>
-        <Col span={1}>
-          <div className="resource-wrap">
-            <FormItem key={k}>
-              <Checkbox {...getFieldProps(`noLimit${k}`, { initialValue: false, valuePropName: 'checked' })}></Checkbox>
-            </FormItem>
-          </div>
-        </Col>
-        <Col span={2}>
-          <div className="resource-wrap useNum">
-            <Icon onClick={() => removeFunction(k)} type="delete" />
-          </div>
-        </Col>
-      </Row>
+                      disabled={!getFieldValue(`resource${k}`) }
+                      onSelect={ clusterID => getClusterQuotaListSelect(clusterID, k) }
+                      >
+                        {fromatChoiceClusters(choiceClusters[cluserIndex])}
+                      </Select>
+                    </FormItem>
+                  )
+              }
+            </div>
+          </Col>
+          <Col span={3}>
+            <div className="resource-wrap useNum">{num}</div>
+          </Col>
+          <Col span={5}>
+            <div className="resource-wrap applyNum">
+              <FormItem key={k} >
+                {
+                  getFieldValue(`noLimit${k}`) ?
+                    <Input disabled={ getFieldValue(`noLimit${k}`) }
+                      {...getFieldProps(`numberNotUse${k}`, { initialValue: '无限制' }) }
+                    />
+                    :
+                    <Input disabled={ getFieldValue(`noLimit${k}`) }
+                      {...getFieldProps(`number${k}`, {
+                        rules: [
+                          {
+                            validator: (rules, value, callback) =>
+                              self.globalValueCheck(rules, value, callback),
+                            trigger: [ 'onBlur', 'onChange' ],
+                          },
+                        ],
+                      }
+                      ) }
+                    />
+                }
+              </FormItem>
+            </div>
+          </Col>
+          <Col span={4}>
+            <div className="resource-wrap">
+              <FormItem key={k}>
+                <Checkbox {...getFieldProps(`noLimit${k}`, { initialValue: false, valuePropName: 'checked' })}
+                >无限制</Checkbox>
+              </FormItem>
+            </div>
+          </Col>
+          <Col span={2}>
+            <div className="resource-wrap useNum">
+              <Icon onClick={() => removeFunction(k)} type="delete" />
+            </div>
+          </Col>
+        </Row>
+      </div>
+      // </QueueAnim>
     )
   })
   return formItem
@@ -301,10 +231,18 @@ class ApplyForm extends React.Component {
     checkResourceKindState: {}, // 当前选中的资源类型, 默认为集群相关
     clusterQuotaList: {}, // 当前资源使用量
     globaleQuotaList: {}, //  当前全局资源使用量
+    globalResource: undefined, // 此列表表中的资源是全局资源apiServer相关
+    globaleDevopsQuotaList: undefined, // 此列表表中的资源是全局资源devops相关
+    definitions: undefined, // 此列表显示后台定义的资源列表
+    currentQuotaList: [{}], // 当前每个条目的资源使用情况
   }
   uuid = 0 // id号
   remove = k => {
+    const { validateFields } = this.props.form
+    const { getFieldsValue } = this.props.form
+    const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { form } = this.props
+    const { checkResourceKindState } = this.state
     let keys = form.getFieldValue('keys')
     keys = keys.filter(key => {
       return key !== k
@@ -312,8 +250,31 @@ class ApplyForm extends React.Component {
     form.setFieldsValue({
       keys,
     })
+    delete currentQuotaList[k]
+    const quota = compact(currentQuotaList)
+    delete checkResourceKindState[k]
+    const newCheckResourceKindState = compact(checkResourceKindState)
+    this.setState({ checkResourceKindState: newCheckResourceKindState, currentQuotaList: quota },
+      () => {
+        const newforceUpdateAggregate = []
+        const formVlaue = getFieldsValue()
+        const forceUpdate = formVlaue.keys.map(value => {
+          return `resource${value}`
+        })
+        formVlaue.keys.forEach(value => {
+          if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
+            newforceUpdateAggregate.push(`aggregate${value}`)
+          }
+          // return `aggregate${value}`
+        })
+        validateFields(forceUpdate, { force: true })
+        if (!isEmpty(newforceUpdateAggregate)) {
+          validateFields(newforceUpdateAggregate, { force: true })
+        }
+      })
   }
   add = () => {
+    const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     this.uuid++
     const { form } = this.props
     let keys = form.getFieldValue('keys')
@@ -321,19 +282,41 @@ class ApplyForm extends React.Component {
     form.setFieldsValue({
       keys,
     })
+    currentQuotaList[this.uuid] = {}
+    this.setState({ currentQuotaList })
+  }
+  componentDidMount = () => {
+    const { displayNameText, displayName } = this.props
+    let newdisplayName = displayName
+    if (displayName === '我的个人项目') {
+      newdisplayName = 'default'
+    }
+    if (displayNameText) {
+      this.loadResourceDefinitioList(newdisplayName)
+    }
   }
   handleSubmit = () => {
-    const { choiceClusters, applayResourcequota, setApplayVisable, personNamespace } = this.props
+    const { applayResourcequota, setApplayVisable, personNamespace,
+      getResourceDefinition } = this.props
+    // const { getFieldValue } = this.props.form
+    const { globalResource } = this.state
+    const { resetFields } = this.props.form
     this.props.form.validateFields((errors, value) => {
       if (errors) {
         notification.warn({
-          message: '表单验证错误',
+          message: '申请填写有误',
         })
         return
       }
       let query
+      let headerText
+      if (value.item === '我的个人项目') {
+        headerText = 'default'
+      } else {
+        headerText = value.item
+      }
       if (value.item !== personNamespace) {
-        query = { header: { teamspace: value.item } }
+        query = { header: { teamspace: headerText } }
       }
       const formValue = {
         comment: value.applyReason,
@@ -341,38 +324,73 @@ class ApplyForm extends React.Component {
           global: {},
         },
       }
+      // const cluserIndex = (getFieldValue('item') === personNamespace || getFieldValue('item') === '我的个人项目')
+      //   ? 'default' : getFieldValue('item')
       for (const key of value.keys) {
-        let indexName = findChoiceClusersId(value[`aggregate${key}`], choiceClusters)
-        if (findAllresource(value[`resource${key}`])) { // 如果是全局资源
+        // let indexName = findChoiceClusersId(value[`aggregate${key}`], choiceClusters)
+        // console.log('choiceClusters', choiceClusters)
+        // let indexName = choiceClusters[cluserIndex].clusterID
+        let indexName = value[`aggregate${key}`]
+        if (findAllresource(value[`resource${key}`], globalResource)) { // 如果是全局资源
           indexName = 'global'
         }
         let indexValue = value[`number${key}`]
         if (value[`noLimit${key}`]) {
           indexValue = null
         }
-        if (_.isEmpty(formValue.applyDetails[indexName])) {
+        if (isEmpty(formValue.applyDetails[indexName])) {
           formValue.applyDetails[indexName] = {}
         }
         formValue.applyDetails[indexName][value[`resource${key}`]] = indexValue
       }
       this.setState({ applayLoading: true })
+      // console.log('formValue', formValue)
       applayResourcequota(query, formValue, {
         success: {
-          func: res => {
-            if (REG.test(res.code)) {
-              this.setState({
-                applayLoading: false,
-              })
-              setApplayVisable('success')
-            }
+          func: () => {
+            resetFields() // 重置表单
+            this.setState({ // 重置state
+              applayLoading: false, // 申请loading状态
+              checkResourceKindState: {}, // 当前选中的资源类型, 默认为集群相关
+              clusterQuotaList: {}, // 当前资源使用量
+              globaleQuotaList: {}, //  当前全局资源使用量
+              globalResource: undefined, // 此列表表中的资源是全局资源
+              definitions: undefined, // 此列表显示后台定义的资源列表
+              currentQuotaList: [{}],
+            })
+            this.uuid = 0
+            this.setState({
+              applayLoading: false,
+            })
+            setApplayVisable('success')
+            // 加载请选择资源的选项
+            getResourceDefinition({
+              success: {
+                func: result => {
+                  const resourceList = result.data
+                  this.setState({
+                    globalResource: resourceList.globalResource,
+                    definitions: resourceList.definitions,
+                  })
+                },
+                isAsync: true,
+              },
+            })
           },
           isAsync: true,
         },
       })
     })
   }
-  getClusterQuotaList = value => {
-    const { getClusterQuotaList, getGlobaleQuotaList, clusterID, personNamespace } = this.props
+  getClusterQuotaListSelect = (clusterID, k) => {
+    // console.log('clusterID', clusterID)
+    const { getClusterQuotaList, personNamespace } = this.props
+    const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const { getFieldValue } = this.props.form
+    let value = getFieldValue('item')
+    if (value === '我的个人项目') {
+      value = 'default'
+    }
     const header = { header: { teamspace: value } }
     const query = { id: clusterID }
     if (personNamespace !== value) {
@@ -381,33 +399,68 @@ class ApplyForm extends React.Component {
     getClusterQuotaList(query, {
       success: {
         func: res => {
-          if (REG.test(res.code)) {
-            this.setState({
-              clusterQuotaList: res.data,
-            })
-          }
+          Object.assign(currentQuotaList[k], res.data)
+          this.setState({ currentQuotaList })
         },
         isAsync: true,
       },
     })
-    getGlobaleQuotaList(query, {
-      success: {
-        func: res => {
-          if (REG.test(res.code)) {
-            this.setState({
-              globaleQuotaList: res.data,
-            })
-          }
-        },
-        isAsync: true,
-      },
-    })
-    // getProjectVisibleClusters()
   }
   checkResourceKind = (value, key) => {
-    const { checkResourceKindState } = this.state
-    checkResourceKindState[key] = findAllresource(value)
-    this.setState({ checkResourceKindState })
+    const { checkResourceKindState, globalResource } = this.state
+    const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const { getGlobaleQuotaList, personNamespace, getDevopsGlobaleQuotaList, getClusterQuotaList,
+    } = this.props
+    const { getFieldValue } = this.props.form
+    let itemValue = getFieldValue('item')
+
+    if (itemValue === '我的个人项目') {
+      itemValue = 'default'
+      // itemValue = encodeURI(itemValue)
+    }
+    let query = {}
+    if (personNamespace !== itemValue) {
+      query = { header: { teamspace: itemValue } }
+    }
+    const ResourceKind = findAllresource(value, globalResource)
+    checkResourceKindState[key] = ResourceKind
+
+    if (ResourceKind) { // 如果是全局资源
+      getGlobaleQuotaList(query, {
+        success: {
+          func: res => {
+            Object.assign(currentQuotaList[key], res.data)
+            this.setState({ currentQuotaList })
+          },
+          isAsync: true,
+        },
+      })
+      getDevopsGlobaleQuotaList(query, {
+        success: {
+          func: res => {
+            Object.assign(currentQuotaList[key], res.result)
+            this.setState({ currentQuotaList })
+          },
+          isAsync: true,
+        },
+      })
+      return
+    }
+    // 如果已经选择了集群, 那么向后端请求集群资源使用量
+    const clusterID = getFieldValue(`aggregate${key}`)
+    const clusterIDQuery = { id: clusterID }
+    if (clusterID) {
+      getClusterQuotaList(clusterIDQuery, {
+        success: {
+          func: res => {
+            Object.assign(currentQuotaList[key], res.data)
+            this.setState({ currentQuotaList })
+          },
+          isAsync: true,
+        },
+      })
+    }
+    // this.setState({ currentQuotaList })
   }
   checkPrime = (rule, value, callback, num = 1) => {
     if (value < num) {
@@ -416,22 +469,180 @@ class ApplyForm extends React.Component {
       callback()
     }
   }
+  loadResourceDefinitioList = value => {
+    const { getResourceDefinition, getClusterQuotaList, personNamespace, getGlobaleQuotaList,
+      getDevopsGlobaleQuotaList, getProjectVisibleClusters } = this.props
+    const { checkResourceKindState } = this.state
+    const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const { getFieldsValue } = this.props.form
+    // 加载请选择资源的选项
+    getResourceDefinition({
+      success: {
+        func: result => {
+          const resourceList = result.data
+          this.setState({
+            globalResource: resourceList.globalResource,
+            definitions: resourceList.definitions,
+          })
+        },
+        isAsync: true,
+      },
+    })
+    // 加载项目所在集群个数
+    let newVluae
+    if (value === personNamespace) {
+      newVluae = 'default'
+    } else {
+      newVluae = value
+    }
+    getProjectVisibleClusters(newVluae)
+    // 如果已经选择了集群, 那么向后端请求集群资源使用量
+    const formValue = getFieldsValue()
+    let teamspace
+    if (personNamespace !== value) { // 个人项目
+      teamspace = value
+    }
+    for (const key of formValue.keys) {
+      if (formValue[`aggregate${key}`] && formValue[`resource${key}`]) {
+        const clusterIDQuery = { id: formValue[`aggregate${key}`] }
+        if (teamspace) {
+          clusterIDQuery.header = { teamspace }
+        }
+        getClusterQuotaList(clusterIDQuery, {
+          success: {
+            func: res => {
+              Object.assign(currentQuotaList[key], res.data)
+              this.setState({ currentQuotaList })
+            },
+            isAsync: true,
+          },
+        })
+      }
+      let query = {}
+      if (personNamespace !== value) {
+        query = { header: { teamspace: value } }
+      }
+      const ResourceKind = checkResourceKindState[key]
+      if (ResourceKind) { // 如果是全局资源
+        getGlobaleQuotaList(query, {
+          success: {
+            func: res => {
+              Object.assign(currentQuotaList[key], res.data)
+              this.setState({ currentQuotaList })
+            },
+            isAsync: true,
+          },
+        })
+        getDevopsGlobaleQuotaList(query, {
+          success: {
+            func: res => {
+              Object.assign(currentQuotaList[key], res.result)
+              this.setState({ currentQuotaList })
+            },
+          },
+          isAsync: true,
+        })
+      }
+    }
+  }
+  cancealWindow = () => {
+    const { resetFields } = this.props.form
+    const { cancelApplayVisable, displayNameText } = this.props
+    cancelApplayVisable()
+    resetFields() // 重置表单
+    if (displayNameText === undefined) {
+      this.setState({ // 重置state
+        applayLoading: false, // 申请loading状态
+        checkResourceKindState: {}, // 当前选中的资源类型, 默认为集群相关
+        clusterQuotaList: {}, // 当前资源使用量
+        globaleQuotaList: {}, //  当前全局资源使用量
+        globalResource: undefined, // 此列表表中的资源是全局资源
+        definitions: undefined, // 此列表显示后台定义的资源列表
+        currentQuotaList: [{}],
+      })
+    }
+    this.uuid = 0
+  }
+  globalValueCheck = (rules, value, callback) => {
+    if (!value) {
+      return callback('不能为空')
+    }
+    if (parseInt(value) === 0) {
+      return callback('不能为零')
+    }
+    // const reg = /^[1-9]*[1-9][0-9]*$/
+    const reg = /^\d+$/
+    if (!reg.test(value)) {
+      return callback('请填整数')
+    }
+    // const newValue = parseInt(value)
+    // if (newValue < 0 || newValue > 999) {
+    //   return callback('配额数量需在0-999之间')
+    // }
+    callback()
+  }
+  checkGolobalValueRepetition = (rules, value, callback, k) => {
+    const { checkResourceKindState } = this.state
+    // console.log('checkResourceKindState', checkResourceKindState)
+    const { getFieldsValue } = this.props.form
+    const formVlaue = getFieldsValue()
+    // console.log('getFieldsValue', formVlaue)
+    if (!value) {
+      return callback('不能为空')
+    }
+    for (const keys of formVlaue.keys) {
+      if (k === keys) {
+        continue
+      }
+      if (checkResourceKindState[k]) {
+        if (value === formVlaue[`resource${keys}`]) {
+          callback('有重复项')
+        }
+      }
+    }
+    callback()
+  }
+  checkCluserValueRepetition = (rules, value, callback, k) => {
+    // const { checkResourceKindState } = this.state
+    // console.log('checkResourceKindState', checkResourceKindState)
+    const { getFieldsValue } = this.props.form
+    const formVlaue = getFieldsValue()
+    if (!value) {
+      callback('不能为空')
+    }
+    for (const keys of formVlaue.keys) {
+      if (k === keys) {
+        continue
+      }
+      if (value === formVlaue[`aggregate${keys}`] &&
+      formVlaue[`resource${k}`] === formVlaue[`resource${keys}`]) {
+        callback('有重复项')
+      }
+    }
+    callback()
+  }
   render() {
-    const { applayLoading, checkResourceKindState, clusterQuotaList, globaleQuotaList } = this.state
-    const { applayVisable, setApplayVisable, projectName, choiceClusters,
-      personNamespace } = this.props
+    const { applayLoading, checkResourceKindState, clusterQuotaList, globaleQuotaList, definitions,
+      globaleDevopsQuotaList,
+    } = this.state
+    const { applayVisable, projectName, choiceClusters,
+      personNamespace, displayName } = this.props
     const { getFieldProps, getFieldValue } = this.props.form
     const removeFunction = this.remove
     const checkResourceKind = this.checkResourceKind
-    const quotalList = { ...clusterQuotaList, ...globaleQuotaList }
+    const quotalList = { ...clusterQuotaList, ...globaleQuotaList, ...globaleDevopsQuotaList }
+    // console.log('quotalList', quotalList)
     const checkPrime = this.checkPrime
+    const getClusterQuotaListSelect = this.getClusterQuotaListSelect
+    const self = this
+    // let displayNameVlaue
     return (
       <Modal
         visible = {applayVisable}
         title="申请提高项目资源配额"
-        onCancel={ setApplayVisable }
+        onCancel={ this.cancealWindow }
         footer={[
-          <Button key="back" type="ghost" size="large" onClick={setApplayVisable}>取消</Button>,
+          <Button key="back" type="ghost" size="large" onClick={this.cancealWindow}>取消</Button>,
           <Button key="submit" type="primary" size="large" loading={applayLoading}
             onClick={this.handleSubmit}>
               申 请
@@ -446,16 +657,18 @@ class ApplyForm extends React.Component {
               label="项目"
             >
               <Select
-                {...getFieldProps('item', { rules: rulesFormat('请选择要申请配额的项目') })}
+                {...getFieldProps('item', { rules: rulesFormat('请选择要申请配额的项目'),
+                  initialValue: displayName,
+                })}
                 placeholder="选择申请配额的项目"
-                onSelect={ value => this.getClusterQuotaList(value) }
+                onSelect = { value => this.loadResourceDefinitioList(value) }
               >
                 <Select.Option value={personNamespace}>我的个人项目</Select.Option>
                 <Select.OptGroup key="共享项目">
                   {
                     projectName.map(o =>
-                      <Select.Option value={o} key="o">
-                        {o}
+                      <Select.Option value={o.projectName} key="o">
+                        {o.name}
                       </Select.Option>)
                   }
                 </Select.OptGroup>
@@ -466,23 +679,28 @@ class ApplyForm extends React.Component {
               label="申请原因"
             >
               <Input {...getFieldProps('applyReason', { rules: rulesFormat('请填写申请原因') })}
-                placeholder="必填" type="textarea" rows={4} />
+                placeholder="必填" type="textarea" rows={3} />
             </FormItem>
-            { getFieldValue('item') &&
-            <Card
-              title={
-                <Row type="flex">
-                  <Col span={6}><span className="cardItem">资源</span></Col>
-                  <Col span={6}><span className="cardItem">选择集群</span></Col>
-                  <Col span={6}><span className="cardItem">已使用</span></Col>
-                  <Col span={6}><span className="cardItem">配额</span></Col>
-                </Row>
-              }
-            >
-              {setFormItem({ getFieldProps, getFieldValue, removeFunction, checkResourceKind,
-                checkResourceKindState, quotalList, choiceClusters, checkPrime })}
-            </Card>
-            }
+            <QueueAnim>
+              <div key="card">
+                <Card
+                  title={
+                    <Row type="flex">
+                      <Col span={5}><span className="cardItem">资源</span></Col>
+                      <Col span={5}><span className="cardItem">选择集群</span></Col>
+                      <Col span={4}><span className="cardItem">已使用</span></Col>
+                      <Col span={5}><span className="cardItem">配额</span></Col>
+                      <Col span={4}><span className="cardItem"></span></Col>
+                    </Row>
+                  }
+                >
+                  {setFormItem({ getFieldProps, getFieldValue, removeFunction, checkResourceKind,
+                    checkResourceKindState, quotalList, choiceClusters, checkPrime,
+                    getClusterQuotaListSelect, definitions, self,
+                  })}
+                </Card>
+              </div>
+            </QueueAnim>
             <div className="addBtn" onClick={this.add}>
               <Icon type="plus-circle-o"/><span>添加申请</span>
             </div>
@@ -500,20 +718,26 @@ const mapStateToProps = state => {
   const { clusterID } = current.cluster
   const projectName = []
   const personNamespace = state.entities.loginUser.info.namespace
-  if (_.isArray(data) && !_.isEmpty(data)) {
+  if (isArray(data) && !isEmpty(data)) {
     data.forEach(o => {
-      projectName.push(o.namespace)
+      const managerValue = o.outlineRoles || []
+      const flag = managerValue.includes('manager')
+      if (flag) {
+        projectName.push({ projectName: o.projectName, name: o.name })
+      }
     })
   }
-  const choiceClusters = state.projectAuthority.projectVisibleClusters.default
+  const choiceClusters = state.projectAuthority.projectVisibleClusters // 所有集群列表
   return {
     projectName, clusterID, choiceClusters, personNamespace,
   }
 }
 
 export default connect(mapStateToProps, {
-  getClusterQuotaList,
-  getGlobaleQuotaList,
-  getProjectVisibleClusters,
-  applayResourcequota,
+  getClusterQuotaList: quotaActions.getClusterQuotaList,
+  getGlobaleQuotaList: quotaActions.getGlobaleQuotaList,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
+  applayResourcequota: applyLimitActions.applayResourcequota,
+  getResourceDefinition: quotaActions.getResourceDefinition,
+  getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
 })(createForm()(ApplyForm))

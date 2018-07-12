@@ -27,6 +27,7 @@ import './style/MysqlCluster.less'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/database_cache/no_redis.png'
 import Title from '../Title'
+import ResourceBanner from '../TenantManage/ResourceBanner/index'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -218,6 +219,7 @@ class RedisDatabase extends Component {
         <div className='databaseCol' key='RedisDatabase'>
           <Title title="Redis" />
           <div className='databaseHead'>
+          <ResourceBanner resourceType='redis'/>
             { mode === standard ? <div className='alertRow'>您的 Redis 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;Redis集群

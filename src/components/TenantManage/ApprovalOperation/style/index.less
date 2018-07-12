@@ -15,45 +15,51 @@
       color: @primary-color;
     }
   }
-  .ant-table-tbody {
-    tr {
-      td:nth-child(1) {
-        width: 90px;
-      }
-      td:nth-child(2) {
-        width: 140px;
-      }
-      td:nth-child(3) {
-        width: 86px;
-      }
-      td:nth-child(4) {
-        width: 159px;
-      }
-    }
-  }
   .ant-table {
     border: none;
+    .ant-table-body {
+    }
   }
   .appiyLimitNum {
     color: @primary-color;
+    font-size: 15px;
+    padding-left: @padding-base;
   }
   .allApprovalIcon {
+    font-size: 16px;
     padding: 0 6px;
   }
   .allPassIcon {
+    font-size: 16px;
     color: green;
+    font-weight: normal;
   }
   .notAllPassIcon {
+    font-size: 16px;
+    font-weight: normal;
     &:hover {
       color:green;
     }
   }
   .allRefuseIcon {
+    font-size: 16px;
+    font-weight: normal;
     color: red;
+
   }
   .notallRefuseIcon {
+    font-weight: normal;
+    font-size: 16px;
     &:hover {
       color: red;
     }
+  }
+  .iconItemWrap{
+    padding-left: 32px;
+  }
+  .alertTips {
+    color:red;
+    padding-left: @padding-large;
+    font-size: 10px;
   }
 }

@@ -137,7 +137,8 @@ const sessionOpts = {
   cookie: {
     maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
   },
-  ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
+  ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720), // 720 minutes(half a day)
+  prefix: config.redis.session_store_prefix,
 }
 
 let sessionStore;

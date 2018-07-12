@@ -22,8 +22,8 @@ import NotificationHandler from '../../../components/Notification'
 const Option = Select.Option
 
 function loadTags(props, imageFullName) {
-  const { loadRepositoriesTags, registry } = props
-  loadRepositoriesTags(registry, imageFullName)
+  const { loadRepositoriesTags, registry, harbor } = props
+  loadRepositoriesTags(harbor, registry, imageFullName)
 }
 
 class RollingUpdateModal extends Component {
@@ -101,13 +101,13 @@ class RollingUpdateModal extends Component {
   }
 
   getWrapTags() {
-    const { service } = this.props
+    const { service, harbor } = this.props
     const wrap = service.wrapper.appPkgName.split('.')
     const body = {
       filename: wrap[0],
       filetype: wrap[1],
     }
-    this.props.loadWrapTags(body,{
+    this.props.loadWrapTags(harbor, body,{
       success:{
         func:(res)=> {
           this.setState({wrapTags: res.data})
@@ -408,8 +408,13 @@ function mapStateToProps(state, props) {
     imageTags
   } = state.harbor
   let targetImageTag = imageTags[DEFAULT_REGISTRY] || {}
+
+  const { cluster } =  state.entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     registry: DEFAULT_REGISTRY,
+    harbor,
     ...targetImageTag
   }
 }

@@ -25,6 +25,7 @@ import './style/MysqlCluster.less'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/database_cache/no_mysql.png'
 import Title from '../Title'
+import ResourceBanner from '../TenantManage/ResourceBanner/index'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -238,6 +239,7 @@ class MysqlCluster extends Component {
         <div className='databaseCol' key='mysqlDatabase'>
           <Title  title="MySQL" />
           <div className='databaseHead'>
+            <ResourceBanner resourceType='mysql'/>
             { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;MySQL集群

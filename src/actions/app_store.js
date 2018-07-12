@@ -45,11 +45,11 @@ export const APP_STORE_HOT_LIST_FAILURE = 'APP_STORE_HOT_LIST_FAILURE'
 
 // Fetches wechat auth qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAppsHotList(callback) {
+function fetchAppsHotList(clusterID, callback) {
   let query = {
     from: 0,
     size: 10,
-    filter: `type,2,publish_status,2`,
+    filter: `type,2,publish_status,2,target_cluster,${clusterID}`,
     download_times: 'd'
   }
   let endpoint = `${API_URL_PREFIX}/app-store/apps`
@@ -68,9 +68,9 @@ function fetchAppsHotList(callback) {
 
 // Fetches wechat auth qr code from API
 // Relies on Redux Thunk middleware.
-export function getAppsHotList(callback) {
+export function getAppsHotList(clusterID, callback) {
   return (dispatch) => {
-    return dispatch(fetchAppsHotList(callback))
+    return dispatch(fetchAppsHotList(clusterID, callback))
   }
 }
 

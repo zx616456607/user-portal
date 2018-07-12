@@ -27,6 +27,7 @@ import UpdateConfigFileModal from './UpdateConfigFileModal'
 import CreateServiceGroupModal from './ConfigGroup/CreateModal'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import { isResourceQuotaError, isResourcePermissionError } from '../../common/tools'
+import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
 
@@ -321,6 +322,7 @@ class ServiceSecretsConfig extends React.Component {
     }
     return (
       <div className="service-secret-config" id="service-secret-config">
+      <ResourceBanner resourceType='secret'/>
         <div className="layout-content-btns">
           <Button
             type="primary"

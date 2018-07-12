@@ -50,7 +50,8 @@
     display: flex;
 
     .iconText {
-      width: 50px;
+      width: 58px;
+      padding-left: 8px;
     }
     .icon {
       display: inline-block;
@@ -63,7 +64,8 @@
     display: flex;
 
     .iconText {
-      width: 50px;
+      width: 58px;
+      padding-left: 8px;
     }
     .icon {
       display: inline-block;
@@ -76,28 +78,72 @@
     display: flex;
 
     .iconText {
-      width: 50px;
+      width: 58px;
+      padding-left: 8px;
     }
     .icon {
       display: inline-block;
       height: @iconHeight;
       width: @iconHeight;
-      background: transparent url('../../../../assets/img/TenantManage/waitApproval.svg') no-repeat;
+      background: transparent url('../../../../assets/img/TenantManage/waitApprovalye.svg') no-repeat;
     }
   }
   .iconallRefuse {
     display: flex;
-
     .iconText {
-      width: 50px;
+      width: 58px;
+      padding-left: 8px;
     }
     .icon {
       display: inline-block;
       height: @iconHeight;
       width: @iconHeight;
-      background-color: #cdcdcd;
-      border-radius: @iconHeight / 2;
-      // background: transparent url('../../../../assets/img/TenantManage/waitApproval.svg') no-repeat;
+      background: transparent url('../../../../assets/img/TenantManage/allRefuse.svg') no-repeat;
     }
+  }
+  .ant-table-body {
+    tbody {
+      tr:nth-child(1) {
+        td {
+          border-top: 1px solid #e9e9e9;
+        }
+      }
+    }
+    thead {
+      th {
+        color: #7f7f7f;
+        font-size: 12px;
+        font-weight: normal;
+      }
+    }
+  }
+  .secondHeader {
+    position: relative;
+    .paginationWrap {
+      margin: 0;
+      position: absolute;
+      right: 0;
+      display: inline-block;
+      width: 200px;
+      .paginationtotal {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        font-size: @font-size-base;
+      }
+    }
+  }
+  .applayDetailButton {
+    border-color: @primary-color;
+    color: @primary-color;
+    &:hover {
+      color: white;
+      background-color: @primary-color;
+    }
+  }
+  .goApplay {
+    display: inline-block;
+    width: 48px;
+    text-align: center;
   }
 }

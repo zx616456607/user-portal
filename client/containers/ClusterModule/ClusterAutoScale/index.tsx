@@ -35,12 +35,12 @@ class ClusterAutoScale extends React.Component {
     );
   }
   openTab2Modal = (tab) => {
-    let obj = {};
+    const obj = {};
     obj['isTab2ModalShowFrom' + tab] = true;
     this.setState(obj);
   }
   closeTab2Modal = (tab) => {
-    let obj = {};
+    const obj = {};
     obj['isTab2ModalShowFrom' + tab] = true;
     this.setState(obj);
   }

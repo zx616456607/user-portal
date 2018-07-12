@@ -48,7 +48,7 @@ let menuList = [
       try {
         browserHistory.push('/cluster/backup')
         if (window.monitorPortalHistory) {
-          window.monitorPortalHistory.push('/cluster/backup')
+          window.monitorPortalHistory.push('/backup')
         }
       } catch (error) {
         //

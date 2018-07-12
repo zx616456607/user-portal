@@ -13,6 +13,8 @@ import PropTypes from 'prop-types'
 import './style/index.less'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../../util/util'
+import _ from 'lodash'
+import QueueAnim from 'rc-queue-anim'
 
 const FormItem = Form.Item
 // 表单布局
@@ -25,26 +27,46 @@ const formItemLayoutLarge = {
   wrapperCol: { span: 21 },
 }
 
-const getcolums = () => {
+// 整理后台传来的资源定义列表
+const formateResourceDefinitions = (resourceDefinitions = []) => {
+  const definitions = {}
+  for (const value of resourceDefinitions) {
+    for (const child of value.children) {
+      definitions[child.resourceType] = child.resourceName
+    }
+  }
+  return definitions
+}
+
+const getcolums = (resourceDefinitions = []) => {
   const columns = [{
     title: '资源',
     dataIndex: 'resource',
     key: 'resource',
+    render: (text, record) => {
+      return (
+        <span>{formateResourceDefinitions(resourceDefinitions)[record.resource]}</span>
+      )
+    },
+    width: 100,
   }, {
     title: '申请集群',
     dataIndex: 'aggregate',
     key: 'aggregate',
+    width: 100,
   }, {
     title: '已用',
     dataIndex: 'use',
     key: 'use',
+    width: 100,
   }, {
     title: '申请配额',
     dataIndex: 'applyLimit',
     key: 'applyLimit',
     render: (text, record) => <span className="appiyLimitNum">{record.applyLimit}</span>,
+    width: 100,
   }, {
-    title: '审批',
+    title: '审批状态',
     dataIndex: 'approvalStatus',
     key: 'approvalStatus',
     render: (text, record) => {
@@ -56,10 +78,11 @@ const getcolums = () => {
       }
       return (
         <div>
-          <span className="crossIcon"><Icon type={type} style={{ color }}/></span>
+          <span className="crossIcon"><Icon type={type} style={ { color } }/></span>
         </div>
       )
     },
+    width: 100,
   }]
   return columns
 }
@@ -82,10 +105,11 @@ const printApprovalResult = tabData => {
   }
   return approvalResult
 }
-const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
+const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInuse,
+  globaleDevopsQuotaList) => {
   const date = []
   let indexKey = 1
-  if (applyDetails) {
+  if (applyDetails && globaleDevopsQuotaList && !_.isEmpty(resourceInuse)) {
     for (const key in applyDetails) {
       const clusterName = findClusersName({ id: key, choiceClusters })
       for (const resourcekey in applyDetails[key]) {
@@ -93,7 +117,8 @@ const formatTabDate = (applyDetails, approveDetails, choiceClusters) => {
           key: indexKey,
           resource: resourcekey,
           aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-          use: '后台没有提供',
+          use: resourceInuse[key][resourcekey] !== undefined ?
+            resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
           applyLimit: applyDetails[key][resourcekey] || '无限制',
           approvalStatus: approveDetails[key] ?
             approveDetails[key].indexOf(resourcekey) !== -1 : false,
@@ -112,20 +137,28 @@ class ApplayDetail extends React.Component {
     record: PropTypes.object.isRequired,
   }
   render() {
-    const { visible, toggleVisable, title, resourcequoteRecord, choiceClusters } = this.props
+    const { visible, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
+      resourceInuse, globaleDevopsQuotaList, cancelVisable } = this.props
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const { applyDetails, approveDetails } = recordData
-    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters)
+    const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse,
+      globaleDevopsQuotaList)
+    let accountType
+    if (recordData.applier === recordData.namespace) {
+      accountType = '个人项目'
+    } else {
+      accountType = '共享项目'
+    }
     return (
       <Modal
         visible = {visible}
         title = {title}
-        onCancel={ toggleVisable }
+        onCancel={cancelVisable}
         footer={[
           <span className="ApplyDetail result-wrap">
             <span>审批结果:</span><span className="result">{printApprovalResult(tabData)}</span>
           </span>,
-          <Button key="makeSure" type="primary" size="large" onClick={toggleVisable}>
+          <Button key="makeSure" type="primary" size="large" onClick={cancelVisable}>
               知道了
           </Button>,
         ]}
@@ -135,22 +168,31 @@ class ApplayDetail extends React.Component {
           <FormItem
             label="申请项目" {...formItemLayout}
           >
-            <Input value={recordData.displayName}/>
+            <Input value={`${recordData.displayName} (${accountType})`} disabled/>
           </FormItem>
           <FormItem
             label="申请人" {...formItemLayout}
           >
-            <Input value={recordData.applier}/>
+            <Input value={recordData.applier} disabled/>
           </FormItem>
           <FormItem
             label="申请原因" {...formItemLayoutLarge}
           >
-            <Input value={recordData.comment} type="textarea" rows={4}/>
+            <Input value={recordData.comment} type="textarea" rows={4} disabled/>
           </FormItem>
-          <Table columns={getcolums()}
-            dataSource={tabData}
-            pagination={false} size="small"
-            scroll={{ y: 120 }} loading={isFetching}/>
+          {
+            isFetching === false ?
+              <QueueAnim>
+                <div key="table">
+                  <Table columns={getcolums(resourceDefinitions)}
+                    dataSource={tabData}
+                    pagination={false} size="small"
+                    scroll={{ y: 120 }} loading={isFetching}
+                  />
+                </div>
+              </QueueAnim> : null
+          }
+
         </div>
       </Modal>
     )

@@ -24,6 +24,7 @@ import CreateVolume from '../../StorageModule/CreateVolume'
 import { browserHistory } from 'react-router'
 import { UPDATE_INTERVAL } from '../../../constants'
 import QueueAnim from 'rc-queue-anim'
+import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 
 const notificationHandler = new NotificationHandler()
 
@@ -594,6 +595,7 @@ class Snapshot extends Component {
       <QueueAnim className='appmanage_snapshot' type='right'>
       <div id="appmanage_snapshot" key='appmanage_snapshot'>
         <Title title="独享存储快照" />
+        <ResourceBanner resourceType='snapshot'/>
         <div className='appmanage_snapshot_header'>
           <Button size="large" onClick={() => this.loadSnapshotList()} style={{ marginRight: 8 }}>
             <i className="fa fa-refresh" aria-hidden="true" style={{ marginRight: 8 }}/>

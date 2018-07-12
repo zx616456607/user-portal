@@ -1008,7 +1008,7 @@ class ProjectDetail extends Component {
     const isAble = roleNum === 2
     const { getFieldProps } = form;
     const quota = location.query.tabs
-    const url = quota ? '/' : '/tenant_manage/project_manage'
+    const url = quota ? '/tenant_manage/cluster_authorization' : '/tenant_manage/project_manage'
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
@@ -1285,7 +1285,7 @@ class ProjectDetail extends Component {
                               disabled={!editDisplayName}
                               placeholder="请输入项目名称"
                               {...getFieldProps('displayName', {
-                                initialValue: displayName,
+                                initialValue: displayName || (projectDetail && projectDetail.namespace),
                                 rules: [{
                                   validator: this.checkDisplayName,
                                 }]
@@ -1775,7 +1775,10 @@ class ProjectDetail extends Component {
                 </Spin>
               </TabPane>
               <TabPane tab="资源配额管理" key="quota">
-                <ResourceQuota isProject={true} projectName={projectDetail.projectName} />
+                <ResourceQuota isProject={true} projectName={projectDetail.projectName}
+                outlineRoles={projectDetail.outlineRoles}
+                showProjectName={ { displayName: projectDetail.displayName,
+                namespace: projectDetail.namespace } } />
               </TabPane>
             </Tabs>
 

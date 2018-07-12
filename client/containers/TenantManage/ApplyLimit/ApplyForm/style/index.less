@@ -2,9 +2,10 @@
 .ApplyForm {
   .ant-card-head {
     background-color: @backgroud-color;
+    padding-left: @padding-small;
     .cardItem {
       color: #888;
-      font-weight: 100;
+      font-weight: normal;
       font-size: 12px;
     }
    }
@@ -13,7 +14,7 @@
     margin: @padding-medium 0;
     font-size: 16px;
     color: #888;
-    font-weight: 100;
+    font-weight: normal;
     width: 100px;
     &:hover {
       color: @primary-color;
@@ -52,7 +53,9 @@
     line-height: 30px;
   }
   .applyNum {
-    padding-left: @padding-large;
+    .ant-form-item-control {
+      padding-left: @padding-base;
+    }
   }
   .allResource {
     display: inline-block;

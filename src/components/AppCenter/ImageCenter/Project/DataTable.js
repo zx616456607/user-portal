@@ -36,11 +36,11 @@ class DataTable extends Component {
 
   setProjectPublic() {
     const { currentProject } = this.state
-    const { func } = this.props
+    const { func, harbor } = this.props
     const body = {
       public: Math.abs(currentProject.public - 1)
     }
-    func.updateProject(DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
+    func.updateProject(harbor, DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
       success: {
         func: () => {
           func.loadData()

@@ -124,6 +124,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
   router.get('/clusters/:cluster/kubeproxy', clusterController.getKubeproxy)
   router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
+  router.put('/clusters/:cluster/configs/harbor', clusterController.setHarbor)
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
@@ -265,6 +266,7 @@ module.exports = function (Router) {
   router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
+  router.get('/overview/privilege', overviewClusterController.getPrivilege)
   router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
   router.get('/overview/clusterinfo-std/clusters/:cluster_id', overviewClusterController.getStdClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
@@ -429,6 +431,10 @@ module.exports = function (Router) {
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
+  // github repo config
+  router.post('/repos/:type', devopsController.githubConfig)
+  // get github list
+  router.put('/repos/:type/auth', devopsController.githubList)
   // Repos
   router.get('/devops/repos/supported', devopsController.getSupportedRepository)
   router.post('/devops/repos/:type', devopsController.registerRepo)
@@ -735,6 +741,7 @@ module.exports = function (Router) {
   router.get('/resourcequota', quotaController.get)
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
+  router.get('/devops/resourcequota/inuse', devopsController.checkResourceDevopsquotaExist)
 
   //clean
   router.put('/cleaner/settings', cleanController.startCleaner)
@@ -820,5 +827,6 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/endpoints',dnsRecordController.updataDnsItem)
   router.delete('/clusters/:cluster/endpoints/:name',dnsRecordController.deleteDnsItem)
 
+  // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }

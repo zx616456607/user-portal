@@ -48,10 +48,12 @@ class ImagePart extends React.Component<IProps, IState> {
   }
 
   loadImage = async () => {
-    const { loadAllProject, clusterID, images } = this.props;
+    const { loadAllProject, clusterID, images, harbor } = this.props;
     const { searchValue, imageType, currentPage } = this.state;
-    let notify = new NotificationHandler();
-    const query = {};
+    const notify = new NotificationHandler();
+    const query = {
+      harbor,
+    };
     if (searchValue) {
       Object.assign(query, { q: searchValue });
     }
@@ -67,12 +69,12 @@ class ImagePart extends React.Component<IProps, IState> {
   loadImageStore() {
     const { getAppsList } = this.props;
     const { searchValue, currentPage } = this.state;
-    let notify = new NotificationHandler();
+    const notify = new NotificationHandler();
     let filter = 'type,2,publish_status,2';
     if (searchValue) {
       filter += `,file_nick_name,${searchValue}`;
     }
-    let query = {
+    const query = {
       form: (currentPage - 1) * 10,
       size: 10,
       filter,
@@ -227,13 +229,16 @@ class ImagePart extends React.Component<IProps, IState> {
 
 const mapStateToProps = (state, props) => {
   const register = DEFAULT_REGISTRY;
-  const { entities, harbor, appStore } = state;
+  const { entities, harbor: stateHarbor, appStore } = state;
   const { clusterID } = entities.current.cluster;
-  const { allProject } = harbor;
+  const { harbor: harbors } = entities.current.cluster;
+  const harbor = harbors[0]
+  const { allProject } = stateHarbor;
   const { imagePublishRecord } = appStore;
   const { data: imageStoreList } = imagePublishRecord || { data: {} };
   return {
     clusterID,
+    harbor,
     imageStoreList,
     images: allProject[register] || { isFetching: false, publicImages: [], privateImages: [] },
   };

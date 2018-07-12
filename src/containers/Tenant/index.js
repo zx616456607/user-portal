@@ -74,13 +74,13 @@ const menuList_sys = [
   {
     url: '/tenant_manage/cluster_authorization',
     name: '集群授权审批'
+  },{
+    url:'/tenant_manage/approvalLimit',
+    name: '配额审批'
   },
   {
     url: '/tenant_manage/ldap',
     name: '集成企业目录'
-  },{
-    url:'/tenant_manage/approvalLimit',
-    name: '配额审批'
   }
 ]
 const menuList_platform = menuList_sys

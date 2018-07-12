@@ -184,9 +184,9 @@ let CreateUserModal = React.createClass({
     })
     const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{ whitespace: true },
-      {
-        validator: this.checkPass2,
-      }],
+        {
+          validator: this.checkPass2,
+        }],
     })
     const resetPasswdProps = getFieldProps('resetPassword', {
       valuePropName: 'checked',
@@ -214,36 +214,36 @@ let CreateUserModal = React.createClass({
     }
     return (
       <Modal title="创建新成员" visible={visible}
-        style={{ top: 30 }}
-        onOk={this.handleOk} onCancel={this.handleCancel}
-        wrapClassName="NewMemberForm"
-        width="500px" maskClosable={false}
-        footer={[
-          <Button
-            key="back"
-            type="ghost"
-            size="large"
-            onClick={this.handleCancel}>
-            取 消
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            size="large"
-            disabled={disabled}
-            onClick={this.handleOk}
-            loading={confirmLoading}
-          >
-            提 交
-          </Button>,
-        ]}>
+             style={{ top: 30 }}
+             onOk={this.handleOk} onCancel={this.handleCancel}
+             wrapClassName="NewMemberForm"
+             width="500px" maskClosable={false}
+             footer={[
+               <Button
+                 key="back"
+                 type="ghost"
+                 size="large"
+                 onClick={this.handleCancel}>
+                 取 消
+               </Button>,
+               <Button
+                 key="submit"
+                 type="primary"
+                 size="large"
+                 disabled={disabled}
+                 onClick={this.handleOk}
+                 loading={confirmLoading}
+               >
+                 提 交
+               </Button>,
+             ]}>
         <Form horizontal>
           <FormItem
             {...formItemLayout}
             label="名称"
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-            >
+          >
             {/*   not browser autoComplete    */}
             <Input type="text" id="autoname" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
             <Input type="password" id="autopassword" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
@@ -254,17 +254,24 @@ let CreateUserModal = React.createClass({
           <FormItem
             {...formItemLayout}
             label="类型"
-            >
+          >
             <Radio.Group  {...roleProps} defaultValue="0">
               <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
               {
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员</Radio>
-
+                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                    <Tooltip title="点击查看基础设施管理员权限">
+                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
+                    </Tooltip>
+                  </Radio>
               }
-              <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
+              <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
+                <Tooltip title="点击查看基础设施管理员权限">
+                  <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
+                </Tooltip>
+              </Radio>
             </Radio.Group>
           </FormItem>
 
@@ -286,9 +293,9 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="密码"
             hasFeedback
-            >
+          >
             <Input {...passwdProps} type="password" autoComplete="off"
-              placeholder="新成员名称登录密码"
+                   placeholder="新成员名称登录密码"
             />
           </FormItem>
 
@@ -296,14 +303,14 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="确认密码"
             hasFeedback
-            >
+          >
             <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
           </FormItem>
 
           <FormItem
             {...formItemLayout}
             label="需要重置密码"
-            >
+          >
             <Checkbox {...resetPasswdProps}>用户必须在首次登录时创建新密码</Checkbox>
           </FormItem>
 
@@ -311,7 +318,7 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="手机"
             hasFeedback
-            >
+          >
             <Input {...telProps} type="text" placeholder="新成员手机" />
           </FormItem>
 
@@ -319,7 +326,7 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="邮箱"
             hasFeedback
-            >
+          >
             <Input {...emailProps} type="email" placeholder="新成员邮箱帐号" />
           </FormItem>
 
@@ -328,7 +335,7 @@ let CreateUserModal = React.createClass({
               <FormItem
                 {...formItemLayout}
                 label="需要发送密码"
-                >
+              >
                 <Checkbox  {...checkProps}>
                   创建完成后，密码帐户名发送至该邮箱
                 </Checkbox>

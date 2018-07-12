@@ -64,19 +64,19 @@ class ServiceAPI extends Component {
   }
 
   componentWillMount() {
-    const { registry, loadRepositoriesTagConfigInfo } = this.props;
+    const { registry, loadRepositoriesTagConfigInfo, harbor } = this.props;
     const { fullname, imageTags} = this.props;
     let processedName = encodeImageFullname(fullname)
-    loadRepositoriesTagConfigInfo(registry, processedName, imageTags);
+    loadRepositoriesTagConfigInfo(harbor, registry, processedName, imageTags);
   }
   componentWillReceiveProps(nextProps) {
     const newImagename = nextProps.fullname
     const newImageTag = nextProps.imageTags
-    const { registry, loadRepositoriesTagConfigInfo } = this.props;
+    const { registry, loadRepositoriesTagConfigInfo, harbor } = this.props;
     const { fullname, imageTags} = this.props;
     if (newImagename !== fullname || imageTags !== newImageTag) {
       let processedName = encodeImageFullname(newImagename)
-      loadRepositoriesTagConfigInfo(registry, processedName, newImageTag);
+      loadRepositoriesTagConfigInfo(harbor, registry, processedName, newImageTag);
     }
   }
   render() {
@@ -197,12 +197,17 @@ function mapStateToProps(state, props) {
   if(configList[tag]){
     list = configList[tag]
   }
+
+  const { cluster } =  state.entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     registry: DEFAULT_REGISTRY,
     registryServer: configList.server,
     configList: list,
     isFetching: configList.isFetching,
-    tag
+    tag,
+    harbor,
   }
 }
 

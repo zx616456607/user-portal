@@ -180,7 +180,7 @@ class ImageCheckTable extends React.Component {
     target.value = value
   }
   copyOperate() {
-    let target = document.getElementsByClassName('imageIDCopyInput')[0];
+    let target = document.getElementsByClassName('imageIDCopyInputimageIDCopyInput')[0];
     target.select()
     document.execCommand("Copy", false);
     this.setState({
@@ -276,6 +276,11 @@ class ImageCheckTable extends React.Component {
           dataIndex: 'fileNickName',
           key: 'fileNickName',
           width: '8%',
+        }, {
+          title: '目标集群',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
+          width: '12%',
         }, {
           title: '原镜像名称',
           dataIndex: 'originID',
@@ -430,6 +435,11 @@ class ImageCheckTable extends React.Component {
           title: '目标仓库组',
           dataIndex: 'targetProject',
           key: 'targetProject',
+          width: '12%',
+        },{
+          title: '目标集群',
+          dataIndex: 'clusterName',
+          key: 'clusterName',
           width: '12%',
         }, {
           title: '原镜像名称',

@@ -110,6 +110,7 @@ function githubRepo(state = {}, action) {
   let repoType = ''
   if (action.extraData) {
     repoType = action.extraData.type
+
   }
   switch (action.type) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
@@ -123,32 +124,54 @@ function githubRepo(state = {}, action) {
           }
         })
       }
-      const username = Object.keys(action.response.result.data.results)[0]
-      const users = action.response.result.data.results[username].user
-      let repos = {}
-      for (var k in action.response.result.data.results) {
-        repos[action.response.result.data.results[k].user] = action.response.result.data.results[k].repos
+      const data = action.response.result.data.results
+      let resultList = []
+      for(const k in data) {
+        resultList.push(data[k].repos)
       }
-      action.response.result.data.results = repos
-      const lists = cloneDeep(action.response.result.data.results)
-
+      resultList = resultList.sort((a, b) => b.length - a.length)[0]
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: action.response.result.data.results,
-          [`${repoType}bak`]: lists,
-          users
+          [`${repoType}List`]: resultList,
+          [`${repoType}bak`]: resultList,
         }
       })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
+      return merge({}, defaultState, state, { isFetching: false })
+    }
+    case ActionTypes.PUT_GITHUB_LIST_REQUEST: {
+      return merge({}, defaultState, state, { isFetching: true })
+    }
+    case ActionTypes.PUT_GITHUB_LIST_SUCCESS: {
+      const data = action.response.result.data.results
+      let resultList = []
+      for(const k in data) {
+        resultList.push(data[k].repos)
+      }
+      resultList = resultList.sort((a, b) => b.length - a.length)[0]
       return Object.assign({}, state, {
         isFetching: false,
-        [repoType]: {
-          [`${repoType}List`]: false,
+        github: {
+          githubList: resultList,
+          githubbak: resultList,
         }
       })
     }
+    case ActionTypes.PUT_GITHUB_LIST_FAILURE: {
+      return merge({}, defaultState, state, { isFetching: false })
+    }
+
+    case ActionTypes.POST_GITHUB_CONFIG_FAILURE: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        github: {
+          githubList: [],
+        }
+      })
+    }
+
     case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
       return Object.assign({}, state, {
         isFetching: false,
@@ -160,29 +183,29 @@ function githubRepo(state = {}, action) {
     case ActionTypes.SEARCH_GITHUB_LIST: {
       const newState = cloneDeep(state)
       if (action.image == '') {
-        newState[repoType][`${repoType}List`][action.users] = newState[repoType][`${repoType}bak`][action.users]
+        newState[repoType][`${repoType}List`] = newState[repoType][`${repoType}bak`]
       }
-      const temp = newState[repoType][`${repoType}List`][action.users].filter(list => {
+      const temp = newState[repoType][`${repoType}List`].filter(list => {
         const search = new RegExp(action.image)
         if (search.test(list.name)) {
           return true
         }
         return false
       })
-      newState[repoType][`${repoType}List`][action.users] = temp
+      newState[repoType][`${repoType}List`] = temp
       return newState
     }
     // add github active
     case ActionTypes.ADD_GITHUB_PROJECT_SUCCESS: {
       const addState = cloneDeep(state)
       const user = action.repoUser ? action.repoUser : action.users
-      const indexs = findIndex(addState[repoType][`${repoType}List`][user], (item) => {
+      const indexs = findIndex(addState[repoType][`${repoType}List`], (item) => {
         if (item.name === action.names) {
           return true
         }
         return false
       })
-      addState[repoType][`${repoType}List`][user][indexs].managedProject = {
+      addState[repoType][`${repoType}List`][indexs].managedProject = {
         active: 1,
         id: action.response.result.data.projectId
       }
@@ -191,13 +214,13 @@ function githubRepo(state = {}, action) {
     // remove github active
     case ActionTypes.NOT_Github_ACTIVE_PROJECT_SUCCESS: {
       const rmState = cloneDeep(state)
-      const rindex = findIndex(rmState[repoType][`${repoType}List`][action.users], (item) => {
+      const rindex = findIndex(rmState[repoType][`${repoType}List`], (item) => {
         if (item.managedProject && item.managedProject.id === action.id) {
           return true
         }
         return false
       })
-      rmState[repoType][`${repoType}List`][action.users][rindex].managedProject = { active: 0 }
+      rmState[repoType][`${repoType}List`][rindex].managedProject = { active: 0 }
       return rmState
     }
     default:

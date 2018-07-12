@@ -16,7 +16,7 @@ import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
-import { loadRepositoriesTags, deleteAlone, loadProjectMembers } from '../../../../actions/harbor'
+import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
 const TabPane = Tabs.TabPane
 const Search = Input.Search
@@ -86,13 +86,13 @@ class ImageVersion extends Component {
   }
 
   loadData() {
-    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry } = this.props
+    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
       processedName,
     })
-    loadRepositoriesTags(DEFAULT_REGISTRY, processedName, {
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
@@ -175,7 +175,7 @@ class ImageVersion extends Component {
   }
 
   handleOk() {
-    const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore } = this.props
+    const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore, harbor } = this.props
     const { aryName, delValue, isBatchDel, deleteAll } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
@@ -186,6 +186,7 @@ class ImageVersion extends Component {
       tagName: isBatchDel ? aryName.trim() : delValue,
       registry: DEFAULT_REGISTRY,
       repoName: config.name,
+      harbor,
     }
 
     deleteAlone(query, {
@@ -482,16 +483,20 @@ function mapStateToProps(state, props) {
     isWrapStore = true
   }
   const { tag, server } = targetImageTag || defaultImageDetailTag
+
+  const { cluster } =  state.entities.current
+  const { harbor: harbors } = cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
     detailAry: tag,
     isFetching: targetImageTag.isFetching,
-    isWrapStore
+    isWrapStore,
+    harbor,
   }
 }
 
 export default connect(mapStateToProps, {
   deleteAlone,
   loadRepositoriesTags,
-  loadProjectMembers,
   appStoreApprove
 })(ImageVersion)

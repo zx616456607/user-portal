@@ -100,11 +100,14 @@ class App extends Component {
         })
       }, 200)
     })
-    if (pathname.match(/\//g).length > 2) {
+    if (pathname.match(/\//g).length > 2 && this.checkPath(pathname)) {
       browserHistory.push('/')
     }
   }
-
+  checkPath(pathname) {
+    const pathArr = ['/app_manage/app_create/quick_create']
+    return !(pathArr.indexOf(pathname) > -1)
+  }
   componentWillReceiveProps(nextProps) {
     const {
       errorMessage,
@@ -163,7 +166,7 @@ class App extends Component {
           msg = '团队余额不足，请充值后重试'
         }
         else {
-          msg = '团队空间余额不足，请充值后重试'
+          msg = '项目余额不足，请充值后重试'
         }
       }
       notification.warn('操作失败', msg, null)

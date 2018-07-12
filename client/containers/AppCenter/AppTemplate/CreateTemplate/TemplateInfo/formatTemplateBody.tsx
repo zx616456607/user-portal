@@ -6,7 +6,7 @@ import { buildJson, getFieldsValues } from '../../../../../../src/components/App
 
 const formatTemplateInfo = (serviceArray: Array): Array => {
   const copyArr = cloneDeep(serviceArray);
-  copyArr = copyArr.reverse();
+  copyArr.reverse();
   copyArr.forEach((item, index, arr) => {
     if (index < arr.length - 1) {
       item.dependencies = [copyArr[index + 1]];
@@ -20,16 +20,16 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
   const serviceArray: Array = [];
   let accessType: string = '';
   let loadBalanceName: string = '';
-  let chart: object = {};
-  let info: Array = [];
+  const chart: object = {};
+  let info: Array;
   let count = 0;
   const fieldsLength = Object.keys(fields).length;
-  for (let [key, value] of Object.entries(fields)) {
+  for (const [key, value] of Object.entries(fields)) {
     count ++;
-    let serviceOption = {};
+    const serviceOption = {};
     let content: Array = [];
     if (fields.hasOwnProperty(key)) {
-      let json = buildJson(value, current.cluster, loginUser, imageConfig, true);
+      const json = buildJson(value, current.cluster, loginUser, imageConfig, true);
       content.push(yaml.dump(json.deployment));
       content.push(yaml.dump(json.service));
       json.storage.forEach(item => {
@@ -46,8 +46,8 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       });
       if (value.accessType && value.accessType.value === 'loadBalance') {
         accessType = value.accessType.value;
-        let lbKeys = value.lbKeys.value;
-        let ingresses: Array = [];
+        const lbKeys = value.lbKeys.value;
+        const ingresses: Array = [];
         lbKeys.forEach(item => {
           const items = [];
           const { host } = value[`ingress-${item}`].value;

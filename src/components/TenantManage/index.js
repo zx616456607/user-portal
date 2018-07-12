@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * index.js page
+ *
+ * @author zhangtao
+ * @date Tuesday July 10th 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
@@ -25,24 +34,50 @@ import { calcuDate } from '../../common/tools'
 import { checkApplyRecord } from '../../../client/actions/applyLimit'
 import { getDeepValue } from '../../../client/util/util'
 import { checkResourcequotaDetail } from '../../../client/actions/applyLimit'
+import { getResourceDefinition } from '../../../src/actions/quota'
+import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
+import * as userActions from '../../actions/user'
+import cloneDeep from 'lodash/cloneDeep'
 
-const getColumns = ({ toggleApprovalModal, type }) => {
+const getColumns = ({ toggleApprovalModal, type, allUsers }) => {
   return [{
     title: type === 'person' ? '个人项目' : '共享项目',
     dataIndex: 'item',
-    render: (text, record) => <span className="personalItem">{record.item}</span>
+    render: (text, record) => {
+      let link
+      let projectId = 'cannot find'
+      for (const value of allUsers) {
+        if (value.namespace === record.namespace) {
+          projectId = value.userID
+        }
+      }
+      if (record.applier === record.namespace) { // 这个代表个人项目
+        link = `/tenant_manage/user/${projectId}`
+      } else {
+        link = `/tenant_manage/project_manage/project_detail?name=${record.namespace
+        }`
+      }
+      return (
+        <Link to={link}>{record.item}</Link>
+      )
+    },
+    width: 100,
   }, {
     title: '申请时间',
     dataIndex: 'approvalTime',
+    width: 100,
   }, {
-    title: '查看详情',
+    title: '操作',
     dataIndex: 'detail',
     render: (text, record ) => {
       return (
-    <TenxIcon type="circle-arrow-right-o" className="checkDetail"
-                            onClick={toggleApprovalModal.bind(null, record)}/>
+        <div onClick={toggleApprovalModal.bind(null, record) }>
+          {/* <TenxIcon type="circle-arrow-right-o" className="checkDetail"/> */}
+          <Button type="primary" size="small"><span className="goApplay" >审批</span></Button>
+        </div>
       )
-    }
+    },
+    width:100,
   }];
 }
 class TenantManage extends React.Component {
@@ -65,24 +100,75 @@ class TenantManage extends React.Component {
       classindex: 0,
       showApprovalModal: false, // 显示审批弹出框
       operationNav: false, //显示操作引导弹窗
+      personItem: {}, //当前个人项目以及个数
+      publicItem: {}, //当前共享项目以及个数
+      definitions: undefined, // 后台定义的资源类型
+      globaleDevopsQuotaList: undefined, // devops
+      allUsers: [] // 当前所有用户信息
     }
   }
   record = {}
   componentWillMount = () => {
-    const { checkApplyRecord } = this.props
+    const { checkApplyRecord, loadUserList} = this.props
     this.loadInfosList()
     if (localStorage.getItem('state')) {
       this.setState({
         iconState: localStorage.getItem('state') == 'true' ? true : false
       })
     }
-    let query = { from: 0, size: 100, filter: 'status,0'  }
-    checkApplyRecord(query)
+    // 先请求共享项目
+    let query = { from: 0, size: 100, filter: 'project_type,public,status,0', sort:'d,create_time'  }
+    checkApplyRecord(query, {
+      success: {
+        func: ({ data }) => {
+          this.setState({ publicItem: formateProjectData(data)})
+        },
+        isAsync: true
+      }
+    })
+    // 再请求个人项目
+    query = { from: 0, size: 100, filter: 'project_type,person,status,0',  sort:'d,create_time'  }
+    checkApplyRecord(query, {
+      success: {
+        func: ({ data }) => {
+          this.setState({ personItem: formateProjectData(data)})
+        },
+        isAsync: true
+      }
+    })
+    const newUserQuery = { size: 0 }
+    loadUserList(newUserQuery, {
+      success: {
+        func: res => {
+          this.setState({ allUsers: cloneDeep(res.users || []) })
+        },
+      },
+    }) // 获取所有成员
   }
   reload = () => {
     const { checkApplyRecord } = this.props
-    let query = { from: 0, size: 100, filter: 'status,0'  }
-    checkApplyRecord(query)
+    // let query = { from: 0, size: 100, filter: 'status,0'  }
+    // checkApplyRecord(query)
+        // 先请求共享项目
+        let query = { from: 0, size: 100, filter: 'project_type,public,status,0', sort:'d,create_time'  }
+        checkApplyRecord(query, {
+          success: {
+            func: ({ data }) => {
+              this.setState({ publicItem: formateProjectData(data)})
+            },
+            isAsync: true
+          }
+        })
+        // 再请求个人项目
+        query = { from: 0, size: 100, filter: 'project_type,person,status,0',  sort:'d,create_time'  }
+        checkApplyRecord(query, {
+          success: {
+            func: ({ data }) => {
+              this.setState({ personItem: formateProjectData(data)})
+            },
+            isAsync: true
+          }
+        })
   }
   loadInfosList() {
     const { fetchinfoList } = this.props
@@ -168,12 +254,41 @@ class TenantManage extends React.Component {
   }
   toggleApprovalModal = ( record, type, e ) => {
     const { showApprovalModal } = this.state
-    const { checkResourcequotaDetail } = this.props
+    const { checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList, personNamespace } = this.props
     this.setState({ showApprovalModal: !showApprovalModal })
     if ( type !== 'success' ) {
       this.getDetailRecord(record)
       checkResourcequotaDetail(record.id)
+      let newquery = { header: {}}
+      if (record.applier === record.namespace) { // 如果是个人项目
+        newquery.header.onbehalfuser = record.namespace
+      } else {
+        newquery.header.teamspace = record.namespace
+      }
+      getDevopsGlobaleQuotaList(newquery, {
+        success: {
+          func: res => {
+            this.setState({
+              globaleDevopsQuotaList: res.result,
+            })
+          },
+          isAsync: true,
+        },
+      })
+      getResourceDefinition({
+        success: {
+          func: ({data: resourceList}) => {
+            this.setState({
+              definitions: resourceList.definitions,
+            })
+          },
+          isAsync: true,
+        }
+      })
     }
+  }
+  cancelApprovalModal = () => {
+    this.setState({showApprovalModal: false  })
   }
   showOperationNav = () => {
     this.setState({
@@ -212,14 +327,20 @@ class TenantManage extends React.Component {
       item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
     }]
     const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
-      role_defaultSet, team_createdByUser, showApprovalModal } = this.state
+      role_defaultSet, team_createdByUser, showApprovalModal, personItem, publicItem, definitions,
+      globaleDevopsQuotaList, allUsers } = this.state
     let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
     let t_createdByUser = team_createdByUser
     const toggleApprovalModal = this.toggleApprovalModal
 
-    const { tabisFetching, personTabData, shareTabDate, tabDataLength } = this.props
+    const { tabisFetching, personTabData, shareTabDate, tabDataLength, resourceInuse } = this.props
+    const global = { ...(resourceInuse && resourceInuse.global), ...globaleDevopsQuotaList }
+    if (!_.isEmpty(resourceInuse)) {
+      resourceInuse.global = global
+    }
+    resourceInuse.global = { ...resourceInuse.global, ...globaleDevopsQuotaList }
     let memberOption = {
       tooltip: {
         trigger: 'item',
@@ -513,6 +634,7 @@ class TenantManage extends React.Component {
     const itemStyle = {
       visibility: this.state.iconState ? 'hidden' : 'inherit'
     }
+    const waitTotal = personItem.total + publicItem.total
     return (
       <QueueAnim>
         <div id="tenantManage" key='tenantManage'>
@@ -571,21 +693,24 @@ class TenantManage extends React.Component {
 
             </Col>
             <Col span={12}>
-              <Card title={<span>资源配额申请概览 (待处理) <span>共{tabDataLength}个</span></span>}
+              <Card title={<span style={{ color: '#666'}}><span>资源配额申请概览  (待处理)</span><span style={{ paddingLeft: '24px' }}>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span></span>}
                     extra={<Link to="/tenant_manage/approvalLimit">审批记录>></Link>}
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
                   <Col span={12} className="personalProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'person' })} dataSource={personTabData} size="small" pagination={false}
-                           scroll={{ y: 400 }} loading={tabisFetching}/>
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'person', allUsers })} dataSource={personItem.tabDataIndex} size="small" pagination={false}
+                           scroll={{ y: 360 }} loading={tabisFetching}/>
                   </Col>
                   <Col span={12} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'share' })} dataSource={shareTabDate} size="small" pagination={false}
-                    loading={tabisFetching}/>
+                    <Table columns={getColumns({ toggleApprovalModal, type: 'share', allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
+                    loading={tabisFetching} scroll={{ y: 360 }} />
                   </Col>
                   <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                                     record={this.record} reload={this.reload}/>
+                                     record={this.record} reload={this.reload} resourceDefinitions={definitions}
+                                     resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
+                                     cancelApprovalModal = {this.cancelApprovalModal}
+                                     />
                 </Row>
               </Card>
             </Col>
@@ -643,35 +768,56 @@ class TenantManage extends React.Component {
   }
 }
 // 整理返回的数据,将未审批的用户, 分为个人用户和共享项目
-const formateTabData = ({ tabData, UserNameSpace }) => {
-  const personTabData = []
-  const shareTabDate = []
-  let tabDataIndex = personTabData
-  for ( const o of tabData ) {
-    if ( o.applier === UserNameSpace ) {
-      tabDataIndex = personTabData
-    } else {
-      tabDataIndex = shareTabDate
-    }
+// const formateTabData = ({ tabData }) => {
+//   const personTabData = []
+//   const shareTabDate = []
+//   let tabDataIndex = personTabData
+//   console.log('tabData', tabData)
+//   console.log('UserNameSpace', UserNameSpace)
+//   for ( const o of tabData ) {
+//     if ( o.applier === UserNameSpace ) {
+//       tabDataIndex = personTabData
+//     } else {
+//       tabDataIndex = shareTabDate
+//     }
+//     tabDataIndex.push({
+//       item: o.displayName,
+//       approvalTime: calcuDate(o.createTime),
+//       id: o.id,
+//     })
+//   }
+//   const tabDataLength = tabData.length
+//   return { tabDataLength, personTabData, shareTabDate }
+// }
+
+// 整理个人项目和共享项目数据结构
+const formateProjectData = ({ records, total }) => {
+  const tabDataIndex = []
+  for ( const o of records ) {
     tabDataIndex.push({
       item: o.displayName,
       approvalTime: calcuDate(o.createTime),
       id: o.id,
+      namespace: o.namespace,
+      applier: o.applier
     })
   }
-  const tabDataLength = tabData.length
-  return { tabDataLength, personTabData, shareTabDate }
+  return { tabDataIndex, total }
 }
-
 
 function mapStateToProps(state, props) {
   const tabData = getDeepValue(state, [ 'applyLimit', 'resourcequoteRecord', 'data' ]) || []
   const isFetching = getDeepValue(state, [ 'applyLimit', 'resourcequoteRecord', 'isFetching' ])
   const UserNameSpace = getDeepValue(state, [ 'entities', 'loginUser', 'info', 'namespace' ])
-  const {tabDataLength, personTabData, shareTabDate} = formateTabData({  tabData, UserNameSpace  })
-  return { tabisFetching: isFetching, personTabData, shareTabDate, tabDataLength }
+  // const {tabDataLength, personTabData, shareTabDate} = formateTabData({  tabData, UserNameSpace  })
+  const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
+  const personNamespace = state.entities.loginUser.info.namespace
+  const { data: recordData = {} } = detailData
+  const { resourceInuse = {} } = recordData
+  return { tabisFetching: isFetching, personNamespace, resourceInuse}
 }
 
 export default connect(mapStateToProps, {
-  fetchinfoList, checkApplyRecord, checkResourcequotaDetail
+  fetchinfoList, checkApplyRecord, checkResourcequotaDetail, getResourceDefinition, getDevopsGlobaleQuotaList,
+  loadUserList: userActions.loadUserList
 })(TenantManage)

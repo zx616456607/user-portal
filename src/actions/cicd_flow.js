@@ -77,6 +77,59 @@ export function getGithubList(types, callback) {
   }
 }
 
+// github配置
+export const POST_GITHUB_CONFIG_REQUEST = 'POST_GITHUB_CONFIG_REQUEST'
+export const POST_GITHUB_CONFIG_SUCCESS = 'POST_GITHUB_CONFIG_SUCCESS'
+export const POST_GITHUB_CONFIG_FAILURE = 'POST_GITHUB_CONFIG_FAILURE'
+
+function postGithubConfig(types, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [POST_GITHUB_CONFIG_REQUEST, POST_GITHUB_CONFIG_SUCCESS, POST_GITHUB_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/repos/${types}`,
+      options:{
+        method:'POST',
+        body:body
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function githubConfig(types, params, callback) {
+  return dispatch => {
+    dispatch(postGithubConfig(types, params, callback))
+  }
+}
+
+// 获取github代码列表
+export const PUT_GITHUB_LIST_REQUEST = 'PUT_GITHUB_LIST_REQUEST'
+export const PUT_GITHUB_LIST_SUCCESS = 'PUT_GITHUB_LIST_SUCCESS'
+export const PUT_GITHUB_LIST_FAILURE = 'PUT_GITHUB_LIST_FAILURE'
+
+function putGithubList(type, body, callback) {
+
+  return {
+    [FETCH_API]: {
+      types: [PUT_GITHUB_LIST_REQUEST, PUT_GITHUB_LIST_SUCCESS, PUT_GITHUB_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/repos/${type}/auth`,
+      options:{
+        method:'PUT',
+        body:body
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function authGithubList(type, params, callback) {
+  return dispatch => {
+    dispatch(putGithubList(type, params, callback))
+  }
+}
+
 export const GET_GITHUB_URL_REQUEST = 'GET_GITHUB_URL_REQUEST'
 export const GET_GITHUB_URL_SUCCESS = 'GET_GITHUB_URL_SUCCESS'
 export const GET_GITHUB_URL_FAILURE = 'GET_GITHUB_URL_FAILURE'
@@ -104,9 +157,6 @@ export function registryGithub(types, callback) {
 export const SEARCH_GITHUB_LIST = 'SEARCH_GITHUB_LIST'
 
 export function searchGithubList(users, image, type) {
-  if(!type) {
-    type = 'github'
-  }
   return {
     type: SEARCH_GITHUB_LIST,
     users,
@@ -122,6 +172,7 @@ export const GET_REPO_USER_INFO_SUCCESS = 'GET_REPO_USER_INFO_SUCCESS'
 export const GET_REPO_USER_INFO_FAILURE = 'GET_REPO_USER_INFO_FAILURE'
 
 function fetchGetUserInfo(types) {
+
   return {
     [FETCH_API]: {
       types: [GET_REPO_USER_INFO_REQUEST, GET_REPO_USER_INFO_SUCCESS, GET_REPO_USER_INFO_FAILURE],
