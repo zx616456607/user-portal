@@ -385,7 +385,9 @@ const MyComponent = React.createClass({
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+            注销该代码仓库，已激活的代码项目将『解除激活』，关联流水线、第三方工具可能失效无法继续执行, 确认注销该代码仓库？
+          </div>
         </Modal>
       </div>
     );
