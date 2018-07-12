@@ -20,7 +20,7 @@ import { setServiceProxyGroup } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
-import Storage from './ClusterDetailComponent/Storage'
+import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -934,7 +934,7 @@ class ModalDetail extends Component {
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='存储' key='#Storage'>
-                <Storage/>
+                <Storage databaseInfo={databaseInfo}/>
               </TabPane>
               <TabPane tab='备份' key='#Backup'>
               </TabPane>
