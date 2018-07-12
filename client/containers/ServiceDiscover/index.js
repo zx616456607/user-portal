@@ -13,13 +13,14 @@ import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
 import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Card, Pagination, Icon } from 'antd'
+import { Button, Table, Menu, Dropdown, Card, Pagination } from 'antd'
 import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
 import './style/index.less'
 import { getDnsList, deleteDnsItem } from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
+// import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 
 const notification = new Notification()
 
@@ -167,8 +168,8 @@ class ServiceDiscover extends React.Component {
         render: (key, record) => {
           const menu = <Menu
             onClick={ key => this.operatorDns(key, record)}
-            style={{ width: 120 }}>
-            <Menu.Item key="editItem">编辑 / 查看 yaml</Menu.Item>
+            style={{ width: 110 }}>
+            {/* <Menu.Item key="editItem">编辑 / 查看</Menu.Item> */}
             <Menu.Item key="deleteItem">删除</Menu.Item>
           </Menu>
           return <div>
@@ -176,9 +177,9 @@ class ServiceDiscover extends React.Component {
               // onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)}
               overlay={menu}
               trigger={[ 'click' ]}
-              // onClick={() => this.operatorDns(record)}
+              onClick={() => this.editItem(record)}
               type="ghost">
-              <Icon type="edit" />更多操作
+              编辑 / 查看
             </Dropdown.Button>
           </div>
         },
@@ -207,10 +208,14 @@ class ServiceDiscover extends React.Component {
             />
             : null
         }
+        {/* <ResourceBanner resourceType="dnsrecord" /> */}
         <div className="layout-content-btns">
           <Button type="primary" size="large" onClick={this.handleCreate}>
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
             DNS 记录
+          </Button>
+          <Button type="ghost" size="large" onClick={this.loadData}>
+            <i className="fa fa-refresh" style={{ marginRight: 8 }}/>刷新
           </Button>
           <SearchInput
             size="large"
