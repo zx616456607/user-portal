@@ -1,7 +1,21 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * Backup container
+ *
+ * v0.1 - 2018-07-12
+ * @author zhouhaitao
+ */
+
+
 import React from 'react'
 import './style/Backup.less'
 import { Button, Row, Col, Collapse } from 'antd'
+import { connect } from 'react-redux'
 import { calcuDate } from '../../../../src/common/tools'
+import { getBackupChainDetail } from '../../../actions/backupChain'
+
 const Panel = Collapse.Panel
 
 class Backup extends React.Component {
@@ -23,7 +37,7 @@ class Backup extends React.Component {
       },
     ],
     extendId: '',
-    expendKey: '', // 展开后根据expendKey去请求备份链的内容
+    expendKeys: [], // 用expendKeys和keys做对比，keys多出来的那一项是当前展开的
   }
   renderHeader = v => (
     <Row className="list-item" key={v.id}>
@@ -36,14 +50,23 @@ class Backup extends React.Component {
       <Col span={4}>{calcuDate(v.creattTime)}</Col>
     </Row>)
   expendPanel = keys => {
-    // 当keys中找不到expendKey，说明第一次展开，去请求数据
-    if (keys.indexOf(this.state.expendKey) < 0) {
+    if (keys.length === 0) {
+      return
+    }
+    // 当expendKeys中找不到keys中的最后一项，说明第一次展开，去请求数据
+    if (this.state.expendKeys.indexOf(keys[keys.length - 1]) < 0) {
       this.setState({
-        expendKey: keys[keys.length - 1],
+        expendKeys: keys,
       }, () => {
+        // 根据expendKey请求备份链下的详细内容
+        // const expendKey = keys[keys.length - 1]
+        // const expendIndex = this.state.data.findIndex(v => {
+        //   return v.id === parseInt(expendKey)
+        // })
 
       })
     }
+
 
   }
   render() {
@@ -76,4 +99,11 @@ class Backup extends React.Component {
     </div>
   }
 }
-export default Backup
+
+const mapStateToProps = state => {
+  return state
+}
+
+export default connect(mapStateToProps, {
+  getBackupChainDetail,
+})(Backup)

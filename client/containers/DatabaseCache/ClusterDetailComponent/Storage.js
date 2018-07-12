@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * Storage container
+ *
+ * v0.1 - 2018-07-12
+ * @author zhouhaitao
+ */
+
 import React from 'react'
 import './style/Storage.less'
 import { Button, Icon, Modal } from 'antd'
