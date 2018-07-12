@@ -82,9 +82,9 @@ let MyComponent = React.createClass({
   handDelete(key,record) {
     // Dropdown delete action
     const { scope, history } = this.props
-    console.log('key', key)
-    console.log('record', record)
-    return
+    // console.log('key', key)
+    // console.log('record', record)
+    // return
     this.setState({record})
     switch(key) {
       case 'delete': {
