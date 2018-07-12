@@ -41,7 +41,7 @@ class Backup extends React.Component {
       this.setState({
         expendKey: keys[keys.length - 1],
       }, () => {
-        console.log(this.state.expendKey)
+
       })
     }
 
