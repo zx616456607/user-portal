@@ -15,7 +15,7 @@ import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting, addAlertRegularSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, addAlertRegularSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence, getAlertLogSettingExistence } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
@@ -75,7 +75,7 @@ let FistStop = React.createClass({
     this.props.getAlertSettingExistence(cluster.clusterID,newValue,{
       success: {
         func:(res)=> {
-          if (res.data[newValue]) {
+          if (res.data === false) { // false 代表重复
             this.setState({checkName:'error'})
             callback('策略名称重复')
             return
@@ -416,7 +416,7 @@ FistStop = connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
-  getAlertSettingExistence,
+  getAlertSettingExistence : getAlertLogSettingExistence,
 })(Form.create()(FistStop))
 
 // two step in cpu add rule
