@@ -14,30 +14,17 @@ import './style/Backup.less'
 import { Button, Row, Col, Collapse } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../../../src/common/tools'
-import { getBackupChainDetail } from '../../../actions/backupChain'
+import { getbackupChainDetail, getbackupChain } from '../../../actions/backupChain'
 
 const Panel = Collapse.Panel
 
 class Backup extends React.Component {
   state= {
-    data: [
-      {
-        name: 'xxx备份链',
-        id: 1,
-        capacity: '100GB',
-        pointNum: 3,
-        creattTime: '2018-07-11T17:34:54+08:00',
-      },
-      {
-        name: 'fdsfds备份链',
-        id: 2,
-        capacity: '100GB',
-        pointNum: 6,
-        creattTime: '2018-07-11T17:34:54+08:00',
-      },
-    ],
     extendId: '',
     expendKeys: [], // 用expendKeys和keys做对比，keys多出来的那一项是当前展开的
+  }
+  componentDidMount() {
+    this.props.getbackupChain()
   }
   renderHeader = v => (
     <Row className="list-item" key={v.id}>
@@ -58,6 +45,7 @@ class Backup extends React.Component {
       this.setState({
         expendKeys: keys,
       }, () => {
+        this.props.getbackupChainDetail(`${keys[keys.length - 1]}`)
         // 根据expendKey请求备份链下的详细内容
         // const expendKey = keys[keys.length - 1]
         // const expendIndex = this.state.data.findIndex(v => {
@@ -70,6 +58,7 @@ class Backup extends React.Component {
 
   }
   render() {
+    const { chainsData } = this.props
     return <div className="backup">
       <div className="title">备份</div>
       <div className="content">
@@ -83,7 +72,7 @@ class Backup extends React.Component {
         <div className="list">
           <Collapse onChange={this.expendPanel}>
             {
-              this.state.data.map(v => {
+              chainsData.map(v => {
                 return <Panel header={this.renderHeader(v)} key={v.id}>
                   <p>
 
@@ -101,9 +90,14 @@ class Backup extends React.Component {
 }
 
 const mapStateToProps = state => {
-  return state
+  const { chains } = state.backupChain
+  const chainsData = chains.data || []
+  return {
+    chainsData,
+  }
 }
 
 export default connect(mapStateToProps, {
-  getBackupChainDetail,
+  getbackupChainDetail,
+  getbackupChain,
 })(Backup)
