@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * Dns List
+ *
+ * v0.1 - 2018-07-10
+ * @author lvjunfeng
+ */
+
 import React from 'react'
 import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
@@ -19,6 +29,7 @@ class ServiceDiscover extends React.Component {
     visible: false,
     showYaml: false,
     targetName: '',
+    currentPage: 1,
   }
 
   componentDidMount() {
@@ -99,20 +110,26 @@ class ServiceDiscover extends React.Component {
       return <p key={index}>{item}</p>
     })
   }
+  handlePager = value => {
+    this.setState({ currentPage: value })
+  }
   render() {
-    const { search, visible, showYaml, targetName } = this.state
+    const { search, visible, showYaml, targetName, currentPage } = this.state
     const { list, isFetching, cluster } = this.props
-    const listData = !search ? list : list.filter(item => (
+    let listData = !search ? list : list.filter(item => (
       item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
     ))
     const total = listData.length
     const pagination = {
       simple: true,
       total,
-      current: 1, // page,
-      pageSize: 10, // DEFAULT_PAGE_SIZE,
-      // onChange: this.handlePager
+      current: currentPage,
+      pageSize: 10,
+      onChange: this.handlePager,
     }
+    listData = listData.length < 10 ?
+      listData
+      : listData.slice((currentPage - 1) * 10, currentPage * 10)
     const columnsDiscover = [
       {
         title: '名称',

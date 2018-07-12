@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * modal of Create Dns Record
+ *
+ * v0.1 - 2018-07-10
+ * @author lvjunfeng
+ */
+
 import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Row, Col, Icon } from 'antd'
@@ -147,13 +157,6 @@ class DnsModal extends React.Component {
     callback()
   }
 
-  checkPort = (rule, value, callback) => {
-    const reg = /^[0-9]*$/
-    if (!reg.test(value)) {
-      return callback('请输入合法端口号')
-    }
-  }
-
   render() {
     const { visible, handleCreate, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -247,11 +250,7 @@ class DnsModal extends React.Component {
                 <Input
                   placeholder="填写服务端口 (如不填写默认 80)"
                   style={{ width: 280 }}
-                  { ...getFieldProps('port', {
-                    rules: [{
-                      validator: this.checkPort,
-                    }],
-                  })}
+                  { ...getFieldProps('port')}
                 />
               </FormItem>
             </div>
