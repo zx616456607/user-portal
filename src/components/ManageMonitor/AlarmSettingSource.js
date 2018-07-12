@@ -71,6 +71,7 @@ let MyComponent = React.createClass({
   },
   handDelete(key,record) {
     // Dropdown delete action
+    console.log('record', record)
     const { scope, history } = this.props
     this.setState({record})
     switch(key) {

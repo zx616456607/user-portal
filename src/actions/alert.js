@@ -312,6 +312,32 @@ export function getAlertSettingExistence(cluster, strategyName, callback) {
   }
 }
 
+// 日志告警相关
+getAlertSettingExistence
+export const ALERT_LOG_SETTING_EXISTENCE_REQUEST = 'ALERT_LOG_SETTING_EXISTENCE_REQUEST'
+export const ALERT_LOG_SETTING_EXISTENCE_SUCCESS = 'ALERT_LOG_SETTING_EXISTENCE_SUCCESS'
+export const ALERT_LOG_SETTING_EXISTENCE_FAILURE =  'ALERT_LOG_SETTING_EXISTENCE_FAILURE'
+
+function fetchAlertLogSettingExistence(cluster, strategyName, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/logsalert/${strategyName}/existence`
+  return {
+    [FETCH_API]: {
+      types: [ALERT_LOG_SETTING_EXISTENCE_REQUEST, ALERT_LOG_SETTING_EXISTENCE_SUCCESS,ALERT_LOG_SETTING_EXISTENCE_FAILURE],
+      schema: {},
+      endpoint
+    },
+    callback
+  }
+}
+
+export function getAlertLogSettingExistence(cluster, strategyName, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAlertLogSettingExistence(cluster, strategyName, callback))
+  }
+}
+
+
+
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
 export const ALERT_SETTING_ADD_SUCCESS = 'ALERT_SETTING_ADD_SUCCESS'
 export const ALERT_SETTING_ADD_FAILURE = 'ALERT_SETTING_ADD_FAILURE'
