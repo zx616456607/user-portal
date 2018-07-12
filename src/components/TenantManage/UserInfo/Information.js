@@ -477,7 +477,16 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
-    const notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) || (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
+    let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) || (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
+    let accountTypeEdit = notAllowChange
+    if(loginUser.role === ROLE_PLATFORM_ADMIN || loginUser.role === ROLE_BASE_ADMIN ) {
+      accountTypeEdit = true
+    }
+    if(loginUser.userID == this.props.userID && loginUser.role === ROLE_PLATFORM_ADMIN ) {
+      console.log(notAllowChange);
+      notAllowChange = false
+    }
+
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
@@ -561,7 +570,7 @@ class Information extends Component {
             <Col span={4}>类型</Col>
             <Col span={13}>{roleName}</Col>
             <Col span={7}>
-              <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserRoleModal()}>
+              <Button style={{width: '80px'}} disabled={accountTypeEdit} type="primary" onClick={() => this.changeUserRoleModal()}>
                 修 改
               </Button>
             </Col>
