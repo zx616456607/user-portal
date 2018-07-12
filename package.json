@@ -99,6 +99,7 @@
     "raw-body": "^2.1.7",
     "react-checkbox-tree": "^1.1.0",
     "react-codemirror2": "^3.0.7",
+    "react-color": "^2.14.1",
     "redis": "^2.6.3",
     "request": "^2.75.0",
     "sendcloud": "^1.6.1",

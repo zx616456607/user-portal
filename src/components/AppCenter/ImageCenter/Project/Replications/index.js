@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import { Card, Tabs, Table } from 'antd'
 import Endpoints from './Endpoints'
 import Rules from './Rules'
+import LabelModule from '../LabelModule'
 import './style/index.less'
 
 const TabPane = Tabs.TabPane
@@ -28,12 +29,15 @@ class Replications extends React.Component {
       <QueueAnim className="project-replications">
         <div key="replications">
           <Card>
-            <Tabs defaultActiveKey="endpoints">
+            <Tabs defaultActiveKey="label">
               <TabPane tab="同步目标" key="endpoints">
                 <Endpoints />
               </TabPane>
               <TabPane tab="同步规则" key="rules">
                 <Rules location={location}/>
+              </TabPane>
+              <TabPane tab="标签" key="label">
+                <LabelModule />
               </TabPane>
             </Tabs>
           </Card>
