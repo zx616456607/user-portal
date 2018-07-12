@@ -162,6 +162,16 @@ exports.checkExist = function* (){
   this.body = result
 }
 
+// 判断该告警规则是否存在
+exports.checkLogExist = function* (){
+  const cluster = this.params.cluster
+  const strategyName = this.params.strategyName
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'alerts/logsalert', strategyName, "existence"], null)
+  this.body = result
+}
+
 exports.getAlertSetting = function* () {
   const cluster = this.params.cluster
   const user = this.session.loginUser

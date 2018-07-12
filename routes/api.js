@@ -59,6 +59,7 @@ const autoScalerController = require('../controllers/autoscaler')
 const schedulerController = require('../controllers/scheduler')
 const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
+const dnsRecordController = require('../controllers/dns_record')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -612,6 +613,7 @@ module.exports = function (Router) {
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)
+  router.get('/cluster/:cluster/alerts/logsalert/:strategyName/existence', alertController.checkLogExist) // 判断该告警规则是否存在
   router.post('/cluster/:cluster/alerts/setting', alertController.addAlertSetting)
   router.post('/clusters/:cluster/alerts/logsalert', alertController.addAlertRegularSetting) // 增加告警规则
   router.put('/cluster/:cluster/alerts/setting/:strategyID', alertController.modifyAlertSetting)
@@ -818,6 +820,14 @@ module.exports = function (Router) {
   router.put('/resourcequota/apply/:id', resourcequota.updateResourcequota)
   router.get('/resourcequota/apply/:id', resourcequota.checkResourcequotaDetail)
   router.get('/resourcequota/apply/checkApplyExist', resourcequota.checkResourcequotaExist)
+
+  // DNS Record
+  router.post('/clusters/:cluster/endpoints',dnsRecordController.createDnsItem)
+  router.get('/clusters/:cluster/endpoints',dnsRecordController.getDnsList)
+  router.get('/clusters/:cluster/endpoints/:name',dnsRecordController.getDnsItemDetail)
+  router.put('/clusters/:cluster/endpoints',dnsRecordController.updataDnsItem)
+  router.delete('/clusters/:cluster/endpoints/:name',dnsRecordController.deleteDnsItem)
+
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }
