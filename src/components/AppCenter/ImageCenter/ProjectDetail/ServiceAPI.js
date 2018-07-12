@@ -198,7 +198,7 @@ function mapStateToProps(state, props) {
     list = configList[tag]
   }
 
-  const { cluster } =  entities.current
+  const { cluster } =  state.entities.current
   const { harbor: harbors } = cluster
   const harbor = harbors ? harbors[0] || "" : ""
   return {

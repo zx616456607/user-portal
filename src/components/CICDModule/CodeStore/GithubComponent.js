@@ -172,7 +172,7 @@ class CodeList extends Component {
       failed: {
         func: (res) => {
           if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+            notification.error('该项目正在被流水线任务引用，请解除引用后重试')
           } else {
             notification.error('解除激活失败')
           }
@@ -251,7 +251,33 @@ class GithubComponent extends Component {
         },
         failed: {
           func: err => {
-            notification.warn(err.message.message)
+            if(err.statusCode === 400) {
+              if(err.message.message === 'The code passed is incorrect or expired.') {
+                notification.success('已经授权')
+                setTimeout(() => {
+                  this.props.getGithubList('github', {
+                    success: {
+                      func: () => {
+                        setTimeout(() => {
+                          this.props.getUserInfo('github')
+                        })
+                      }
+                    }
+                  })
+                })
+                return
+              }
+              if(err.message.message === 'The client_id and/or client_secret passed are incorrect.') {
+                notification.warn('输入的ClientID或者ClientSecret有误')
+                return
+              }
+              notification.warn('clientId, clientSecret, redirectUrl 其中有参数为空')
+              return
+            }
+            if(err.statusCode === 500) {
+              notification.warn('未知错误')
+              return
+            }
           }
         }
       })
@@ -259,6 +285,11 @@ class GithubComponent extends Component {
   }
   loadData() {
     const { typeName, getUserInfo } = this.props
+    const { code, state } = this.props.scope.props.location.query
+    if(code && state) {
+      this.auth()
+      return
+    }
     this.props.getGithubList(typeName, {
       success: {
         func: () => {
@@ -268,7 +299,10 @@ class GithubComponent extends Component {
         }
       },
       failed: {
-        func: () => {
+        func:err => {
+          if (err.message.message === 'access_token is empty. please check client_id, client_secret.') {
+            notification.warn('请重新配置')
+          }
           // 如果请求失败了，说明有可能没授权，所以尝试授权
           setTimeout(() => {
             this.auth()
@@ -415,7 +449,6 @@ class GithubComponent extends Component {
   syncRepoList() {
     const { syncRepoList } = this.props
     const types = this.props.scope.state.repokey
-
     notification.spin(`正在执行中...`)
     syncRepoList(types, {
       success: {

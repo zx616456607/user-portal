@@ -201,7 +201,7 @@ exports.verifyUser = function* (next) {
     const harborCurrentUser = yield harbor.getCurrentUser(loginUser)
     loginUser.harbor = harborCurrentUser || {}
   } catch (error) {
-    //
+    logger.error(method, error)
   }
   // Add config into user for frontend websocket
   indexService.addConfigsForFrontend(loginUser)

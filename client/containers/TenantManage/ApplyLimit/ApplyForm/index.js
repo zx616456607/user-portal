@@ -110,7 +110,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
         <Row type="flex">
           <Col span={5}>
             <div className="resource-wrap">
-              <FormItem key={k} hasFeedback>
+              <FormItem key={k} >
                 <Select {...getFieldProps(`resource${k}`, // { rules: rulesFormat('请选择资源') }
                   {
                     rules: [
@@ -153,7 +153,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                   (
                     <span className="allResource">项目全局资源</span>
                   ) : (
-                    <FormItem key={k} hasFeedback>
+                    <FormItem key={k} >
                       <Select {...getFieldProps(`aggregate${k}`, // { rules: rulesFormat('请选择集群') }
                         {
                           rules: [
@@ -181,7 +181,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
           </Col>
           <Col span={5}>
             <div className="resource-wrap applyNum">
-              <FormItem key={k} hasFeedback>
+              <FormItem key={k} >
                 {
                   getFieldValue(`noLimit${k}`) ?
                     <Input disabled={ getFieldValue(`noLimit${k}`) }
@@ -296,9 +296,9 @@ class ApplyForm extends React.Component {
     }
   }
   handleSubmit = () => {
-    const { choiceClusters, applayResourcequota, setApplayVisable, personNamespace,
+    const { applayResourcequota, setApplayVisable, personNamespace,
       getResourceDefinition } = this.props
-    const { getFieldValue } = this.props.form
+    // const { getFieldValue } = this.props.form
     const { globalResource } = this.state
     const { resetFields } = this.props.form
     this.props.form.validateFields((errors, value) => {
@@ -324,12 +324,13 @@ class ApplyForm extends React.Component {
           global: {},
         },
       }
-      const cluserIndex = (getFieldValue('item') === personNamespace || getFieldValue('item') === '我的个人项目')
-        ? 'default' : getFieldValue('item')
+      // const cluserIndex = (getFieldValue('item') === personNamespace || getFieldValue('item') === '我的个人项目')
+      //   ? 'default' : getFieldValue('item')
       for (const key of value.keys) {
         // let indexName = findChoiceClusersId(value[`aggregate${key}`], choiceClusters)
         // console.log('choiceClusters', choiceClusters)
-        let indexName = choiceClusters[cluserIndex].clusterID
+        // let indexName = choiceClusters[cluserIndex].clusterID
+        let indexName = value[`aggregate${key}`]
         if (findAllresource(value[`resource${key}`], globalResource)) { // 如果是全局资源
           indexName = 'global'
         }
@@ -357,6 +358,7 @@ class ApplyForm extends React.Component {
               definitions: undefined, // 此列表显示后台定义的资源列表
               currentQuotaList: [{}],
             })
+            this.uuid = 0
             this.setState({
               applayLoading: false,
             })
@@ -559,6 +561,7 @@ class ApplyForm extends React.Component {
         currentQuotaList: [{}],
       })
     }
+    this.uuid = 0
   }
   globalValueCheck = (rules, value, callback) => {
     if (!value) {
@@ -676,7 +679,7 @@ class ApplyForm extends React.Component {
               label="申请原因"
             >
               <Input {...getFieldProps('applyReason', { rules: rulesFormat('请填写申请原因') })}
-                placeholder="必填" type="textarea" rows={4} />
+                placeholder="必填" type="textarea" rows={3} />
             </FormItem>
             <QueueAnim>
               <div key="card">
