@@ -13,7 +13,7 @@
 import React from 'react'
 import { Table, Button, Row, Col, Select } from 'antd'
 import { connect } from 'react-redux'
-import { getAIModelsets } from '.././../../actions/aiops'
+import * as aiopsActions from '.././../../actions/aiops'
 import './style/DeployAI.less'
 
 const AI_IMAGE_DATA = [
@@ -63,9 +63,9 @@ class DeployAI extends React.Component {
         rowSelection={{
           selectedRowKeys,
           type: 'radio',
-          onChange: selectedRowKeys => {
+          onChange: keys => {
             onChange && onChange({
-              runAIImage: selectedRowKeys[0],
+              runAIImage: keys[0],
             })
           },
         }}
@@ -145,5 +145,5 @@ const mapStateToProps = (
 })
 
 export default connect(mapStateToProps, {
-  getAIModelsets,
+  getAIModelsets: aiopsActions.getAIModelsets,
 })(DeployAI)

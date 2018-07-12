@@ -1,9 +1,10 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Select, Button, Table, DatePicker, Row, Col, Cascader, Pagination } from 'antd'
 import { injectIntl } from 'react-intl'
-import { getOperationLogList, getOperationalTarget } from '../../../../src/actions/manage_monitor'
+import manageMonitorActions from '../../../../src/actions/manage_monitor'
 import { formatDate } from '../../../../src/common/tools.js'
 import Title from '../../../../src/components/Title'
 import '../style/operationAudit.less'
@@ -414,8 +415,8 @@ class OperationalAudit extends React.Component {
     // const operationObjects = []
     const dataFormat = data => {
       const list = data
-      const mapData = arr => {
-        for (const v of arr) {
+      const mapData = item => {
+        for (const v of item) {
           v.label = v.name
           v.value = v.id
           if (v.children) {
@@ -630,9 +631,8 @@ const OperationalAuditCom = injectIntl(OperationalAudit, {
   withRef: true,
 })
 export default connect(mapStateToProps, {
-  getOperationLogList,
-  getOperationalTarget,
-
+  getOperationLogList: manageMonitorActions.getOperationLogList,
+  getOperationalTarget: manageMonitorActions.getOperationalTarget,
 })(OperationalAuditCom)
 export {
   formatResourceName,

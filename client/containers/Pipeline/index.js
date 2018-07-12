@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import { toQuerystring } from '../../../src/common/tools'
-import { loadApiInfo } from '../../../src/actions/open_api'
+import * as openApiActions from '../../../src/actions/open_api'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 
@@ -26,7 +26,7 @@ class Pipeline extends React.Component {
     windowHeight: window.innerHeight,
   }
 
-  componentWillMount() {
+  componentDidMount() {
     window.pipelineIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
@@ -39,9 +39,6 @@ class Pipeline extends React.Component {
           break
       }
     }
-  }
-
-  componentDidMount() {
     window.addEventListener('resize', this.handleWindowResize)
     const { loadApiInfo } = this.props
     loadApiInfo()
@@ -123,5 +120,5 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, {
-  loadApiInfo,
+  loadApiInfo: openApiActions.loadApiInfo,
 })(Pipeline)
