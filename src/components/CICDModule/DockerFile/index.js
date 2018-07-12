@@ -300,7 +300,7 @@ class DockerFile extends Component {
         type='right'
         >
         <Title title="Dockerfile" />
-        <ResourceBanner resourceType='dockerfile'/>
+        {/* <ResourceBanner resourceType='dockerfile'/> */} {/*dockerfile 不做限制 */}
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>

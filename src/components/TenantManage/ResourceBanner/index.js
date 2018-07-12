@@ -92,6 +92,7 @@ export default class ResourceBanner extends React.Component {
     setResource: undefined, // 默认资源未定义
     usedResource: 0, // 默认使用零个
     resourceName: '', // 名称为空
+    resourceflay: 0, //零为全局资源, 1为集群资源
   }
   static propTypes = {
     // 资源类型
@@ -107,6 +108,7 @@ export default class ResourceBanner extends React.Component {
           const resourceList = result.data
           this.setState( { resourceName: findQuotaChinsesName({ resourceType, resourceList}).trim() } )
           if ( Object.values(result.data.globalResource).find(n => n === resourceType) ) { //全局资源
+            this.setState({ resourceflay: 0 }) // 集群资源
             getGlobaleQuota( {} ,{
               success: {
                 func: (result) => {
@@ -145,6 +147,7 @@ export default class ResourceBanner extends React.Component {
               }
             })
           } else {
+            this.setState({ resourceflay: 1 }) // 集群资源
             let query = { id: clusterID }
             getClusterQuota(query, {
               success: {
@@ -190,7 +193,7 @@ export default class ResourceBanner extends React.Component {
   render () {
     const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId,
       projectType, showDisplayName, flagManager  } = this.props
-    const { setResource, usedResource, resourceName } = this.state
+    const { setResource, usedResource, resourceName, resourceflay } = this.state
     let percent = 0
     if (setResource) {
       percent = parseInt((usedResource / setResource) * 100)
@@ -207,12 +210,20 @@ export default class ResourceBanner extends React.Component {
     if ( flagManager ) {
       flagManagerText = 'block'
     }
+    let resourceTypeText = 'none'
+    if (resourceflay === 1) {
+      resourceTypeText = 'inline'
+    }
     return(
       <QueueAnim>
         {
           setResource !== undefined && projectId !== undefined?
           <div className="ResourceBanner" key="ResourceBanner">
-            <div>{`「${projectText}」项目在「${clusterName}」中「${resourceName}」配额使用情况`}</div>
+            <div>
+              <span>{`「${projectText}」项目`}</span>
+              <span style={{ display: resourceTypeText }}>{`在「${clusterName}」`}</span>
+              <span>{`中「${resourceName}」配额使用情况`}</span>
+            </div>
           <div className="progress">
             <Progress percent={percent} strokeWidth={5} status="active" showInfo={false}/>
           </div>
