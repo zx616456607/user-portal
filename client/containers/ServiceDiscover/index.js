@@ -118,24 +118,24 @@ class ServiceDiscover extends React.Component {
         title: '名称',
         key: 'name',
         dataIndex: 'name',
-        width: '12%',
+        width: '15%',
       }, {
         title: '类型',
         key: 'type',
         dataIndex: 'type',
-        width: '14%',
+        width: '15%',
         render: text => <div>{ text === 'ip' ? '外部 IP 地址' : '外部主机名' }</div>,
       }, {
         title: '目标',
         key: 'target',
         dataIndex: 'target',
-        width: '16%',
+        width: '18%',
         render: (text, record) => <div>{this.dealWith(text, record.type)}</div>,
       }, {
         title: '端口号',
         key: 'port',
         dataIndex: 'port',
-        width: '11%',
+        width: '12%',
       }, {
         title: '创建时间',
         key: 'time',
@@ -143,15 +143,10 @@ class ServiceDiscover extends React.Component {
         width: '18%',
         render: text => <div>{formatDate(text)}</div>,
       }, {
-        title: '更新时间',
-        key: 'refresh',
-        dataIndex: 'refresh',
-        width: '12%',
-      }, {
         title: '操 作',
         key: 'opearater',
         dataIndex: 'opearater',
-        width: '17%',
+        width: '18%',
         render: (key, record) => {
           const menu = <Menu
             onClick={ key => this.operatorDns(key, record)}
@@ -241,7 +236,6 @@ const mapStateToProps = ({ entities: { current }, dnsRecord: { getList } }) => {
       target: item.metadata.annotations && item.metadata.annotations['system/endpoint-ips'] || item.spec.externalName,
       time: item.metadata.creationTimestamp,
       port: item.metadata.annotations && item.metadata.annotations['system/endpoint-ip-port'] || '-',
-      refresh: '刷新时间',
     })
   })
   return {
