@@ -84,9 +84,6 @@ exports.auth = function* (next) {
   }
   let teamspace = this.headers.teamspace
   let onbehalfuser = this.headers.onbehalfuser
-  if (teamspace === 'default') {
-    teamspace = null
-  }
   // get teamspace from cookie
   if (!teamspace) {
     const currentConfig = this.cookies.get(USER_CURRENT_CONFIG) || ''
@@ -94,6 +91,9 @@ exports.auth = function* (next) {
     if (_teamspace && _teamspace !== 'default' && _teamspace !== 'undefined') {
       teamspace = _teamspace
     }
+  }
+  if (teamspace === 'default') {
+    teamspace = null
   }
   this.session.loginUser.teamspace = !onbehalfuser ? teamspace : null
   this.session.loginUser.onbehalfuser = onbehalfuser
@@ -201,7 +201,7 @@ exports.verifyUser = function* (next) {
     const harborCurrentUser = yield harbor.getCurrentUser(loginUser)
     loginUser.harbor = harborCurrentUser || {}
   } catch (error) {
-    //
+    logger.error(method, error)
   }
   // Add config into user for frontend websocket
   indexService.addConfigsForFrontend(loginUser)

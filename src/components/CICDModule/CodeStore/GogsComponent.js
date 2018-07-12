@@ -155,7 +155,7 @@ class CodeList extends Component {
       failed: {
         func: (res) => {
           if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+            notification.error('该项目正在被流水线任务引用，请解除引用后重试')
           } else {
             notification.error('解除激活失败')
           }
@@ -446,14 +446,14 @@ class GogsComponent extends Component {
     return (
       <div key="github-Component" type="right"  id="gogList" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.users}
+          <Icon type="user" /> {repoUser.username}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
-          <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
+          <Tooltip title={repoUser ? repoUser.url : ''}>
             <Icon type="link" style={{ margin: '0 20px' }} />
           </Tooltip>
           <div className="right-search">

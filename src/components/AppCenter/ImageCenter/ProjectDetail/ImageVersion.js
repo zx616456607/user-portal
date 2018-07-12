@@ -484,7 +484,7 @@ function mapStateToProps(state, props) {
   }
   const { tag, server } = targetImageTag || defaultImageDetailTag
 
-  const { cluster } =  entities.current
+  const { cluster } =  state.entities.current
   const { harbor: harbors } = cluster
   const harbor = harbors ? harbors[0] || "" : ""
   return {

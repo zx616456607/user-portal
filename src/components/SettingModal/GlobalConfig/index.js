@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Tooltip } from 'antd'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Tooltip, Popover } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import './style/GlobalConfig.less'
@@ -21,6 +21,7 @@ import MsaImg from '../../../assets/img/setting/globalconfigmsa.png'
 import FTPImg from '../../../assets/img/setting/globalconfigftp.png'
 import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
+import tip_harbor from '../../../assets/img/setting/tip_harbor.jpg'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
@@ -34,7 +35,6 @@ import QueueAnim from 'rc-queue-anim'
 const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
-const ImageTip = <img src={ChartRepoImg} />
 
 function inputFocusMethod(node){
   node && node.focus();
@@ -1675,10 +1675,22 @@ let StorageService = React.createClass({
 let Continue = React.createClass({
   getInitialState() {
     return {
-
+      visible: false,
     }
   },
+  handleVisibleChange (visible) {
+    this.setState({
+      visible,
+    })
+  },
+  closeTip() {
+    this.setState({
+      visible: false,
+    })
+  },
   render() {
+    const { visible } = this.state
+    const ImageTip = <div className="imgTip"><span onClick={this.closeTip} className="close">X</span><img style={{width: 800}} src={tip_harbor} /></div>
     return (
       <div className="continue">
         <div className='title'>持续集成</div>
@@ -1691,9 +1703,9 @@ let Continue = React.createClass({
               <div className='contenttableheader'>
                 <span className='forward'>流水线基础镜像</span>
                 基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像，基础镜像存储在构建集群harbor上，切换构建集群时请重新上传
-                <Tooltip placement="top" title={ImageTip}>
-                  <a>【查看harbor地址】</a>
-                </Tooltip>
+                <Popover overlayClassName="GlobalConfigTip" placement="left" onVisibleChange={this.handleVisibleChange} visible={visible} content={ImageTip} trigger="click">
+                  <a>【查看 harbor 地址】</a>
+                </Popover>
               </div>
               <div className='contenttablemain'>
                 <ConIntergration />

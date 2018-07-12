@@ -124,59 +124,43 @@ function githubRepo(state = {}, action) {
           }
         })
       }
-      const username = Object.keys(action.response.result.data.results)[0]
-      const users = action.response.result.data.results[username] && action.response.result.data.results[username].user
-      let repos = {}
-
-      for (var k in action.response.result.data.results) {
-        repos = action.response.result.data.results[k]
+      const data = action.response.result.data.results
+      let resultList = []
+      for(const k in data) {
+        resultList.push(data[k].repos)
       }
-
-      action.response.result.data.results = repos
-      const lists = cloneDeep(action.response.result.data.results)
-
+      resultList = resultList.sort((a, b) => b.length - a.length)[0]
       return Object.assign({}, state, {
         isFetching: false,
         [repoType]: {
-          [`${repoType}List`]: repos.repos,
-          [`${repoType}bak`]: repos.repos,
-          users: repos.user
+          [`${repoType}List`]: resultList,
+          [`${repoType}bak`]: resultList,
         }
       })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
-      return Object.assign({}, state, {
-        isFetching: false,
-        [repoType]: {
-          [`${repoType}List`]: [],
-        }
-      })
+      return merge({}, defaultState, state, { isFetching: false })
     }
     case ActionTypes.PUT_GITHUB_LIST_REQUEST: {
       return merge({}, defaultState, state, { isFetching: true })
     }
     case ActionTypes.PUT_GITHUB_LIST_SUCCESS: {
-      let list  = {}
-      for (let k in action.response.result.data.results) {
-        list[k] = action.response.result.data.results[k].repos
+      const data = action.response.result.data.results
+      let resultList = []
+      for(const k in data) {
+        resultList.push(data[k].repos)
       }
-
+      resultList = resultList.sort((a, b) => b.length - a.length)[0]
       return Object.assign({}, state, {
         isFetching: false,
         github: {
-          githubList: list[Object.keys(list)[0]],
-          githubbak: list[Object.keys(list)[0]],
-          users:Object.keys(list)[0]
+          githubList: resultList,
+          githubbak: resultList,
         }
       })
     }
     case ActionTypes.PUT_GITHUB_LIST_FAILURE: {
-      return Object.assign({}, state, {
-        isFetching: false,
-        github: {
-          githubList: [],
-        }
-      })
+      return merge({}, defaultState, state, { isFetching: false })
     }
 
     case ActionTypes.POST_GITHUB_CONFIG_FAILURE: {

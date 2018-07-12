@@ -27,10 +27,17 @@ class ImageService extends React.Component {
     loading: false,
     isEdit: false,
     readonly: false,
+    value: this.props.cluster.harbor ? this.props.cluster.harbor[0] || "" : "",
+    lastValue: this.props.cluster.harbor ? this.props.cluster.harbor[0] || "" : "",
   }
-  onEditClick = () => {
+  onEditClick = isEdit => {
+    const { value, lastValue } = this.state
     this.setState({
-      isEdit: !this.state.isEdit,
+      isEdit,
+      value: isEdit ? value : lastValue,
+    }, () => {
+      const { form: { setFieldsValue } } = this.props
+      setFieldsValue({ url: isEdit ? value : lastValue })
     })
   }
   onSubmitClick = () => {
@@ -52,12 +59,13 @@ class ImageService extends React.Component {
               this.setState({
                 isEdit: false,
                 readonly: false,
+                lastValue: values.url,
               })
             }
           },
           failed: {
             func: (err) => {
-              notify.warn(JSON.stringify(err))
+              notify.warn('镜像服务地址不可用')
               this.setState({
                 readonly: false,
               })
@@ -74,6 +82,14 @@ class ImageService extends React.Component {
       })
     })
   }
+  onChange = e => {
+    const value = e.target.value
+    this.setState({
+      value,
+    })
+    const { form: { setFieldsValue } } = this.props
+    setFieldsValue({ url: value })
+  }
   render() {
     const { form, cluster } = this.props
     const { getFieldProps } = form
@@ -81,6 +97,7 @@ class ImageService extends React.Component {
       isEdit,
       loading,
       readonly,
+      value,
     } = this.state
     const cardTitle = <div className="title">
       镜像服务
@@ -108,19 +125,19 @@ class ImageService extends React.Component {
                     }
                   }
                   ],
-                  initialValue: cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
-                })} disabled={!isEdit} placeholder="配置镜像服务" />
+                  initialValue: value,
+                })} onChange={this.onChange} disabled={!isEdit} placeholder="配置镜像服务" />
             </Form.Item>
           </Col>
           <Col span={12}>
             {
               !isEdit?
-                <Button className="btn" onClick={this.onEditClick}>编辑</Button>
+                <Button className="btn" onClick={() => this.onEditClick(true)}>编辑</Button>
                 :
                 [
-                  <Button className="btn" onClick={this.onEditClick}>取消</Button>
+                  <Button className="btn" onClick={() => this.onEditClick(false)}>取消</Button>
                   ,
-                  <Button className="btn" loading={loading} type="primary" onClick={this.onSubmitClick}>提交</Button>
+                  <Button className="btn" loading={loading} type="primary" onClick={this.onSubmitClick}>保存</Button>
                 ]
             }
           </Col>

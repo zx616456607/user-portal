@@ -69,6 +69,7 @@ function fetchGlobaleQuotaList(query, callback) {
       headers = { onbehalfuser }
     }
   }
+
   return {
     [FETCH_API]: {
       types: [FETCH_GLOBALE_GET_QUOTA_REQUEST, FETCH_GLOBALE_GET_QUOTA_SUCCESS, FETCH_GLOBALE_GET_QUOTA_FAILURE],

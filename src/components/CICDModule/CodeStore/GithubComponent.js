@@ -172,7 +172,7 @@ class CodeList extends Component {
       failed: {
         func: (res) => {
           if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+            notification.error('该项目正在被流水线任务引用，请解除引用后重试')
           } else {
             notification.error('解除激活失败')
           }
@@ -192,10 +192,10 @@ class CodeList extends Component {
       )
     }
     let items = []
-    if (data) {
+    if (data && data[0]) {
       items = data.map((item, index) => {
         return (
-          <div className='CodeTable' key={item.name} >
+          <div className='CodeTable' key={item.projectId} >
             <div className="name textoverflow">{item.name}</div>
             <div className="type">{item.private ? "private" : 'public'}</div>
             <div className="action">
@@ -242,19 +242,67 @@ class GithubComponent extends Component {
     const { code, state } = this.props.scope.props.location.query
     if(code && state) {
       this.props.authGithubList('github', { code: code}, {
+        success: {
+          func: () => {
+            setTimeout(() => {
+              this.props.getUserInfo('github')
+            })
+          }
+        },
         failed: {
           func: err => {
-            notification.warn(err.message.message)
+            if(err.statusCode === 400) {
+              if(err.message.message === 'The code passed is incorrect or expired.') {
+                notification.success('已经授权')
+                setTimeout(() => {
+                  this.props.getGithubList('github', {
+                    success: {
+                      func: () => {
+                        setTimeout(() => {
+                          this.props.getUserInfo('github')
+                        })
+                      }
+                    }
+                  })
+                })
+                return
+              }
+              if(err.message.message === 'The client_id and/or client_secret passed are incorrect.') {
+                notification.warn('输入的ClientID或者ClientSecret有误')
+                return
+              }
+              notification.warn('clientId, clientSecret, redirectUrl 其中有参数为空')
+              return
+            }
+            if(err.statusCode === 500) {
+              notification.warn('未知错误')
+              return
+            }
           }
         }
       })
     }
   }
   loadData() {
-    const { typeName } = this.props
+    const { typeName, getUserInfo } = this.props
+    const { code, state } = this.props.scope.props.location.query
+    if(code && state) {
+      this.auth()
+      return
+    }
     this.props.getGithubList(typeName, {
-      failed: {
+      success: {
         func: () => {
+          setTimeout(() => {
+            getUserInfo('github')
+          })
+        }
+      },
+      failed: {
+        func:err => {
+          if (err.message.message === 'access_token is empty. please check client_id, client_secret.') {
+            notification.warn('请重新配置')
+          }
           // 如果请求失败了，说明有可能没授权，所以尝试授权
           setTimeout(() => {
             this.auth()
@@ -380,7 +428,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    this.props.searchGithubList(users, image)
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
   changeSearch(e) {
     const image = e.target.value
@@ -388,9 +436,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    if (image == '') {
-      this.props.searchGithubList(users, image, this.props.typeName)
-    }
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
 
   searchClick() {
@@ -401,7 +447,6 @@ class GithubComponent extends Component {
   syncRepoList() {
     const { syncRepoList } = this.props
     const types = this.props.scope.state.repokey
-
     notification.spin(`正在执行中...`)
     syncRepoList(types, {
       success: {
@@ -487,8 +532,9 @@ class GithubComponent extends Component {
   clientSecretLength = (rule, value, callback) => {
     this.validateLength(value, 40, callback)
   }
+
   render() {
-    const { githubList, formatMessage, isFetching, typeName, cicdApi} = this.props
+    const { githubList, formatMessage, isFetching, typeName, repoUser} = this.props
     const { getFieldProps } = this.props.form
     const clientIdProps = getFieldProps('clientId', {
       validate: [
@@ -605,7 +651,7 @@ class GithubComponent extends Component {
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Icon type="user" />
-          <span>{this.props.user && this.props.user}</span>
+          <span>{repoUser.username}</span>
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
@@ -632,15 +678,23 @@ class GithubComponent extends Component {
 
 
 function mapStateToProps(state, props) {
-  const { githubRepo } = state.cicd_flow
+  const { githubRepo, userInfo } = state.cicd_flow
   const { cicdApi } = state.entities.loginUser.info
   const { isFetching } = githubRepo
+  let repoUser = {
+    depot: '',
+    url: null,
+    username: ''
+  }
+  if(userInfo.github) {
+    repoUser = userInfo.github.repoUser
+  }
   return {
     githubList: githubRepo['github']? githubRepo['github'].githubList: false,
     isFetching,
     cicdApi,
     user:githubRepo['github']? githubRepo['github'].users : '',
-
+    repoUser
   }
 }
 
