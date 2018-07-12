@@ -1,0 +1,32 @@
+@import '../../../../../src/assets/style/site/core.less';
+.backup {
+  padding: @padding-small;
+  padding-left: 40px;
+  background: #fff;
+  border-radius: @border-radius-base;
+  border: 1px solid @border-color-split;
+  .title {
+    position: relative;
+    font-size: @font-size-medium;
+    &:before {
+      content: '';
+      display: block;
+      height: 20px;
+      width: 5px;
+      background: @primary-color;
+      position: absolute;
+      top: 0;
+      left: -10px;
+    }
+  }
+  .content {
+    .operation {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      button {
+        margin-left: @padding-medium;
+      }
+    }
+  }
+}
