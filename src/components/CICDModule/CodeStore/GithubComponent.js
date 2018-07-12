@@ -428,7 +428,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    this.props.searchGithubList(users, image)
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
   changeSearch(e) {
     const image = e.target.value
@@ -436,9 +436,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    if (image == '') {
-      this.props.searchGithubList(users, image, this.props.typeName)
-    }
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
 
   searchClick() {
