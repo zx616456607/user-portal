@@ -36,7 +36,7 @@ class PublishImage extends React.Component {
       filterName: '',
       targetProject: '',
       current: 1,
-      filter: 'target_project__eq,',
+      filter: 'target_project__eq,,',
       storageCurrent: 1,
       radioVal: 'market',
     }
@@ -60,14 +60,14 @@ class PublishImage extends React.Component {
     switch (key) {
       case 'market':
         return this.setState({
-          filter: 'target_project__eq,',
+          filter: 'target_project__eq,,',
           targetProject: '',
           ccurrent: 1,
           radioVal: 'market'
         },this.loadData)
       case 'store':
         return this.setState({
-          filter: 'target_project__neq,',
+          filter: 'target_project__neq,,',
           filterName: '',
           current: 1,
           radioVal: 'store'

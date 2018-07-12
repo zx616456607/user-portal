@@ -35,7 +35,6 @@ import QueueAnim from 'rc-queue-anim'
 const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
-const ImageTip = <img style={{width: 900}} src={tip_harbor} />
 
 function inputFocusMethod(node){
   node && node.focus();
@@ -1676,10 +1675,22 @@ let StorageService = React.createClass({
 let Continue = React.createClass({
   getInitialState() {
     return {
-
+      visible: false,
     }
   },
+  handleVisibleChange (visible) {
+    this.setState({
+      visible,
+    })
+  },
+  closeTip() {
+    this.setState({
+      visible: false,
+    })
+  },
   render() {
+    const { visible } = this.state
+    const ImageTip = <div className="imgTip"><span onClick={this.closeTip} className="close">X</span><img style={{width: 800}} src={tip_harbor} /></div>
     return (
       <div className="continue">
         <div className='title'>持续集成</div>
@@ -1692,7 +1703,7 @@ let Continue = React.createClass({
               <div className='contenttableheader'>
                 <span className='forward'>流水线基础镜像</span>
                 基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像，基础镜像存储在构建集群harbor上，切换构建集群时请重新上传
-                <Popover placement="left" content={ImageTip} trigger="click">
+                <Popover overlayClassName="GlobalConfigTip" placement="left" onVisibleChange={this.handleVisibleChange} visible={visible} content={ImageTip} trigger="click">
                   <a>【查看 harbor 地址】</a>
                 </Popover>
               </div>
