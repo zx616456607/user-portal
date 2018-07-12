@@ -587,8 +587,8 @@ class Tab1 extends React.Component {
       </div>
     )
   }
-  componentWillReceiveProps(next) {
-    if (next.isTab2Deleted) {
+  componentDidUpdate(prevProps) {
+    if (!prevProps.isTab2Deleted && this.props.isTab2Deleted) {
       this.loadData()
     }
   }
