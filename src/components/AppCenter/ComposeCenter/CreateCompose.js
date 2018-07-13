@@ -43,6 +43,7 @@ class CreateCompose extends Component {
     let currentYaml = '';
     if (!!parentState.stackItemContent && scope.state.createModalShow) {
       currentYaml = parentState.stackItemContent;
+      // console.log( '````', parentState.stackItemContent )
       this.setState({
         currentYaml: currentYaml
       })
