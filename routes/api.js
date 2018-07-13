@@ -762,7 +762,7 @@ module.exports = function (Router) {
   router.get('/app-store/apps/approval', appStoreController.getAppApprovalList)
   router.get('/app-store/apps', appStoreController.getStorelist)
   router.get('/app-store/apps/:name/existence', appStoreController.checkAppNameExists)
-  router.post('/app-store/apps/images/publishment', appStoreController.publishImage)
+  router.post('/app-store/:cluster/apps/images/publishment', appStoreController.publishImage)
   router.put('/app-store/apps/images/management', appStoreController.manageImages)
   router.get('/app-store/apps/images', appStoreController.getImagesList)
   router.post('/app-store/apps/images/status', appStoreController.getImageStatus)
@@ -802,7 +802,7 @@ module.exports = function (Router) {
   router.get('/clusters/autoscaler/resource', autoScalerController.getRes)
 
   // scheduler
-  router.get('/clusters/:cluster/services', schedulerController.getAllServiceTag)
+  // router.get('/clusters/:cluster/services', schedulerController.getAllServiceTag)
   router.post('/clusters/:cluster/services/:service/labels', schedulerController.addServiceTag)
   router.put('/clusters/:cluster/services/:service/labels', schedulerController.updataServiceTag)
   router.del('/clusters/:cluster/services/:service/labels/:labels', schedulerController.delateServiceTag)

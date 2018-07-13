@@ -18,9 +18,9 @@ import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
 import './style/index.less'
-import { getDnsList, deleteDnsItem } from '../../actions/dnsRecord'
+import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
-// import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
+import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 
 const notification = new Notification()
 
@@ -69,7 +69,6 @@ class ServiceDiscover extends React.Component {
   }
 
   deleteItem = record => {
-    // console.log( 'delete' )
     const { deleteDnsItem, cluster } = this.props
     deleteDnsItem(cluster, record.name, {
       success: {
@@ -102,13 +101,13 @@ class ServiceDiscover extends React.Component {
         break
     }
   }
-  dealWith = (text, type) => {
-    if (type === 'name') {
+  dealWith = (text, record) => {
+    if (record.type === 'name') {
       return text
     }
     const targetArr = JSON.parse(text)
     return targetArr.map((item, index) => {
-      return <p key={index}>{item}</p>
+      return <p key={record.name + index}>{item}</p>
     })
   }
   handlePager = value => {
@@ -148,7 +147,7 @@ class ServiceDiscover extends React.Component {
         key: 'target',
         dataIndex: 'target',
         width: '18%',
-        render: (text, record) => <div>{this.dealWith(text, record.type)}</div>,
+        render: (text, record) => <div>{this.dealWith(text, record)}</div>,
       }, {
         title: '端口号',
         key: 'port',
@@ -167,7 +166,7 @@ class ServiceDiscover extends React.Component {
         width: '18%',
         render: (key, record) => {
           const menu = <Menu
-            onClick={ key => this.operatorDns(key, record)}
+            onClick={ k => this.operatorDns(k, record)}
             style={{ width: 110 }}>
             {/* <Menu.Item key="editItem">编辑 / 查看</Menu.Item> */}
             <Menu.Item key="deleteItem">删除</Menu.Item>
@@ -208,7 +207,7 @@ class ServiceDiscover extends React.Component {
             />
             : null
         }
-        {/* <ResourceBanner resourceType="dnsrecord" /> */}
+        <ResourceBanner resourceType="dns" />
         <div className="layout-content-btns">
           <Button type="primary" size="large" onClick={this.handleCreate}>
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
@@ -268,6 +267,6 @@ const mapStateToProps = ({ entities: { current }, dnsRecord: { getList } }) => {
 }
 
 export default connect(mapStateToProps, {
-  getDnsList,
-  deleteDnsItem,
+  getDnsList: dnsRecordActions.getDnsList,
+  deleteDnsItem: dnsRecordActions.deleteDnsItem,
 })(ServiceDiscover)
