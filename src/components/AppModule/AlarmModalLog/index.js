@@ -329,7 +329,7 @@ let FistStop = React.createClass({
     return (
       <Form className="paramsSetting">
         <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
-          <Input {...nameProps} placeholder="请输入名称"/>
+          <Input {...nameProps} placeholder="请输入名称" disabled={isEdit}/>
         </Form.Item>
         <Row>
           <Col span="12">
@@ -788,7 +788,8 @@ let TwoStop = React.createClass({
   },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs, data, alarmType } = this.props
+    const { funcs, data, alarmType, initData, isEdit: fisEdit } = this.props
+    console.log('initData', initData)
     let cpuItems
     const isEdit = false
     if (isEdit) {
@@ -890,6 +891,7 @@ let TwoStop = React.createClass({
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
                 }],
+                initialValue: fisEdit ? initData.regex : undefined,
                 onChange: (type) => this.changeType(key, type)
               }) } style={{ width: 330 }} ></Input>
             </Form.Item>
@@ -899,7 +901,7 @@ let TwoStop = React.createClass({
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
                 }],
-                initialValue: '80'
+                initialValue: fisEdit ? initData.numEvents : '80'
               }) } style={{ width: 80 }} />次
             </Form.Item>
             {/* <span className="rightBtns">
@@ -947,6 +949,8 @@ class AlarmModal extends Component {
   componentDidMount() {
     const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster, pathname, activeCluster } = this.props
     let clusterID = cluster.clusterID
+    // console.log('strategy', strategy)
+    return
     if (startsWith(pathname, '/cluster') && activeCluster) {
       clusterID = activeCluster
     }
@@ -1057,24 +1061,29 @@ class AlarmModal extends Component {
       // }
       const service = this.state.server
       const num_events = parseInt(specs[0].value)
-      const datas = notifyGroup.result.data
+      console.log('notifyGroup', notifyGroup)
       let sendEmail = []
-      datas.forEach((data)=>{
-        if (data.groupID === receiversGroup) {
-          sendEmail = data.receivers.email.map(( email ) => {
-            return email.addr
-          })
-        }
-      })
+      if (this.state.isSendEmail) {
+        const datas = notifyGroup.result.data
+        datas.forEach((data)=>{
+          if (data.groupID === receiversGroup) {
+            sendEmail = data.receivers.email.map(( email ) => {
+              return email.addr
+            })
+          }
+        })
+      }
       const requestBody = {
         name: strategyName,
         num_events,
         Minutes: repeatInterval,
         Service: service,
         regex: specs[0].metricType,
+        app: appName,
       }
       if (this.state.isSendEmail) {
         requestBody.email = sendEmail
+        requestBody.alertGroup = receiversGroup
       }
       if (isEdit) {
         if(!this.state.isSendEmail) {
@@ -1085,7 +1094,7 @@ class AlarmModal extends Component {
         if (startsWith(pathname, '/cluster') && activeCluster) {
           clusterID = activeCluster
         }
-        this.props.updateAlertSetting(clusterID, strategy.strategyID, requestBody, {
+        this.props.updateAlertSetting(clusterID, requestBody, {
           success: {
             func: () => {
               notification.close()
@@ -1277,7 +1286,7 @@ class AlarmModal extends Component {
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             {
               funcs.scope.state.step >= 2 &&
-              <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()} alarmType={this.state.type}/>
+              <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()} alarmType={this.state.type} initData = { this.props.strategy }/>
             }
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
@@ -1349,7 +1358,7 @@ function alarmModalMapStateToProp(state, porp) {
 AlarmModal = connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting: addAlertRegularSetting,
-  updateAlertSetting,
+  updateAlertSetting: addAlertRegularSetting,
   getAlertSetting,
 })(Form.create()(AlarmModal))
 

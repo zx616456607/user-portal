@@ -18,7 +18,7 @@ const config = {
   running_mode: env.RUNNING_MODE || constants.ENTERPRISE_MODE, // enterprise / standard
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
-  port: env.DASHBOARD_PORT || 8003,
+  port: env.DASHBOARD_PORT || 8004,
   url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
@@ -28,6 +28,7 @@ const config = {
     external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.230:48000'
+    // host: env.TENX_API_HOST || '192.168.1.242:8000'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,
