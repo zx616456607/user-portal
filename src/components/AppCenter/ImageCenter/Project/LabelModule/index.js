@@ -32,7 +32,7 @@ class Project extends Component {
   state = {
     color: 'orange',
     selectedRowKeys: [],
-    isShowEditor: false,
+    isShowEditor: true,
     current: {},
   }
   componentDidMount() {
@@ -82,6 +82,11 @@ class Project extends Component {
   }
   onEditorOk = data => {
     console.log(data)
+  }
+  onEditorCancel = () => {
+    this.setState({
+      isShowEditor: false,
+    })
   }
   render() {
     const { color, selectedRowKeys, isShowEditor, current } = this.state
@@ -167,6 +172,7 @@ class Project extends Component {
               <Editor
                 current={current}
                 onOk={this.onEditorOk}
+                onCancel={this.onEditorCancel}
               />
               :
               null
