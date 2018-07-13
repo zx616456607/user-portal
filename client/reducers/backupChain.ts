@@ -38,6 +38,13 @@ function chains(state = {}, action:object) {
                         pointNum: 6,
                         creattTime: '2018-07-11T17:34:54+08:00',
                     },
+                    {
+                        name: 'aaaaaa备份链',
+                        id: 3,
+                        capacity: '100GB',
+                        pointNum: 6,
+                        creattTime: '2018-07-11T17:34:54+08:00',
+                    },
                 ]
             return {
                 isFetching: false,
@@ -58,10 +65,12 @@ function detail(state = {}, action: object) {
       return {
         isFetching: true,
       }
-    case GET_BACKUPCHAIN_DETAIL_SUCCESS:
+      case GET_BACKUPCHAIN_DETAIL_SUCCESS:
+        const newData = action.payload
         return {
-        isFetching: false,
+          isFetching: false,
           ...state,
+          ...newData,
       }
     case GET_BACKUPCHAIN_DETAIL_FAILURE:
       return {

@@ -72,7 +72,40 @@ export const getbackupChainDetail = (id: string, callback?: function) => {
         const expendIndex = data.findIndex(v => {
           return `${v.id}` === id
         })
-        data[expendIndex].children = []
+        data[expendIndex].children = [
+            {
+                time: '2018-05-30T17:11:43+08:00',
+                size: '3MB',
+                type: '增量备份（手动）',
+                status: 0,
+                backupType: '1',
+                id: 1,
+            },
+            {
+                time: '2018-05-30T17:11:43+08:00',
+                size: '3MB',
+                type: '增量备份（手动）',
+                status: 1,
+                backupType: '2',
+                id: 2,
+            },
+            {
+                time: '2018-05-30T17:11:43+08:00',
+                size: '3MB',
+                type: '增量备份（手动）',
+                status: 2,
+                backupType: '4',
+                id: 3,
+            },
+            {
+                time: '2018-05-30T17:11:43+08:00',
+                size: '3MB',
+                type: '全量备份（手动）',
+                backupType: '5',
+                status: 1,
+                id: 4,
+            },
+        ]
         dispatch ({
             type: GET_BACKUPCHAIN_DETAIL_SUCCESS,
             payload: data,

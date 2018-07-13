@@ -22,6 +22,7 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
+import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -30,7 +31,6 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../assets/img/database_cache/etcd.jpg'
-import { SHOW_BILLING } from '../../constants'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -941,6 +941,7 @@ class ModalDetail extends Component {
                 <Backup/>
               </TabPane>
               <TabPane tab='配置管理' key='#ConfigManage'>
+                <ConfigManagement/>
               </TabPane>
               { billingEnabled ?
                 [<TabPane tab='访问方式' key='#VisitType'>
