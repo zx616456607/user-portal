@@ -40,7 +40,6 @@ class PublicProject extends Component {
     inputSearch && inputSearch.focus()
   }
   loadData(query) {
-    debugger
     const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {

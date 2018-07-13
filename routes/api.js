@@ -762,7 +762,7 @@ module.exports = function (Router) {
   router.get('/app-store/apps/approval', appStoreController.getAppApprovalList)
   router.get('/app-store/apps', appStoreController.getStorelist)
   router.get('/app-store/apps/:name/existence', appStoreController.checkAppNameExists)
-  router.post('/app-store/apps/images/publishment', appStoreController.publishImage)
+  router.post('/app-store/:cluster/apps/images/publishment', appStoreController.publishImage)
   router.put('/app-store/apps/images/management', appStoreController.manageImages)
   router.get('/app-store/apps/images', appStoreController.getImagesList)
   router.post('/app-store/apps/images/status', appStoreController.getImageStatus)

@@ -253,7 +253,7 @@ class PublishModal extends React.Component {
     callback()
   }
   confirmModal() {
-    const { callback, form, imagePublish, currentImage, server, publishName } = this.props
+    const { callback, form, imagePublish, currentImage, server, publishName, cluster } = this.props
     const { pkgIcon, imageID, radioVal } = this.state
     let notify = new NotificationHandler()
     let validateArr = []
@@ -303,7 +303,7 @@ class PublishModal extends React.Component {
       }
       notify.close()
       notify.spin('提交审核中')
-      imagePublish(body, {
+      imagePublish(cluster.clusterID, body, {
         success: {
           func: () => {
             notify.close()
