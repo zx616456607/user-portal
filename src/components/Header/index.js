@@ -214,7 +214,7 @@ class Header extends Component {
     })
   }
 
-  handleProjectChange(project) {
+  handleProjectChange(project, showClusterControl) {
     const { getProjectVisibleClusters, setCurrent, current, showCluster } = this.props
     let notification = new NotificationHandler()
     // sys admin select the user list
@@ -263,6 +263,9 @@ class Header extends Component {
           if (clusters.length === 1) {
             isShowCluster = false
           }
+          if (showClusterControl !== undefined) {
+            isShowCluster = showClusterControl
+          }
           this.setState({
             spacesVisible: false,
             clustersVisible: isShowCluster,
@@ -288,7 +291,8 @@ class Header extends Component {
     this.props.setSwitchSpaceOrCluster()
     let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
-      msg = `${team}已成功切换到 [${current.space.userName}]，${msg}`
+      const teamName = current.space.userName ||current.space. name || current.space.namespace
+      msg = `${team}已成功切换到 [${teamName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
@@ -325,7 +329,7 @@ class Header extends Component {
       })
       this.state.allUsers.every(user => {
         if (user.namespace === namespace) {
-          this.handleProjectChange(user)
+          this.handleProjectChange(user, false)
           return false
         }
         return true
