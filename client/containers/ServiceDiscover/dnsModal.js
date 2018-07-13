@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Row, Col, Icon } from 'antd'
 import './style/index.less'
-import { createServiceDns } from '../../actions/dnsRecord'
+import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import { validateK8sResourceForServiceName } from '../../../src/common/naming_validation'
 
@@ -106,8 +106,8 @@ class DnsModal extends React.Component {
           isAsync: true,
         },
         failed: {
-          func: err => {
-            const { statusCode, message } = err
+          func: error => {
+            const { statusCode, message } = error
             notification.close()
             notification.warn(`新建 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
             handleCreate()
@@ -285,5 +285,5 @@ const mapStateToProps = ({ entities: { current } }) => ({
 })
 
 export default connect(mapStateToProps, {
-  createServiceDns,
+  createServiceDns: dnsRecordActions.createServiceDns,
 })(Form.create()(DnsModal))
