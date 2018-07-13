@@ -7,10 +7,64 @@
  * v0.1 - 2018-07-11
  * @author rensiwei
  */
+ @import "../../../../../../assets/style/site/core";
 
-
- .LabelModule{
-   .marginRight{
+.LabelModule{
+  .marginRight{
      margin-right: 15px;
+   }
+  .ant-table-thead>tr >th{
+      font-weight: normal;
+      background: white;
+      border-bottom: 1px solid #e9e9e9;
+    }
+  .tag{
+    height: 30px;
+    text-align: center;
+    color: white;
+    width: 80px;
+    line-height: 30px;
+    border-radius: 20px;
+  }
+  .topRow {
+    .ant-btn-lg{
+      padding:5px 10px;
+    }
+    button{
+      margin-right: 10px;
+    }
+    .search {
+      width: 180px;
+    }
+    .fa-search{
+      margin-left: -20px;
+      font-size: 14px;
+      position: relative;
+      color: #999;
+      cursor: pointer;
+    }
+    .totalPage {
+      float: right;
+      margin-right: 150px;
+      padding-top: 7px;
+    }
+  }
+  .pickerBtn{
+    margin-left: 20px;
+  }
+  .editor{
+    box-sizing: border-box;
+    background-color: #fcfcfc;
+    border: 1px solid #d9d9d9;
+    border-radius: 5px;
+    padding: 30px 40px;
+    margin: 10px 0;
+    font-size: @font-size-base;
+  }
+}
+
+ .labelmodule_picker{
+   .twitter-picker{
+     width: 205px !important;
    }
  }
