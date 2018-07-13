@@ -16,7 +16,7 @@ import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
-import { ADMIN_ROLE } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
@@ -34,7 +34,7 @@ let FistStop = React.createClass({
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
     loadAppList(cluster.clusterID, {size: 100}) // 解决从应用列表跳转过来不请求的问题, 超过100会被忽略
-    if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ADMIN_ROLE) {
+    if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ROLE_SYS_ADMIN) {
       getAllClusterNodes(cluster.clusterID)
     }
     setParentState({
@@ -203,7 +203,7 @@ let FistStop = React.createClass({
   },
   getTargetType() {
     const { loginUser } = this.props
-    if (loginUser.info.role == ADMIN_ROLE) {
+    if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
       return [<Option value="node" key="node">节点</Option>,
       <Option value="service" key="service">服务</Option>]
     }
@@ -239,7 +239,7 @@ let FistStop = React.createClass({
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: data.targetType == 1 && loginUser.info.role == ADMIN_ROLE ? 'node' : 'service'
+        initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
       });
       isNode = data.targetType
       applyProps = getFieldProps('apply', {
@@ -282,7 +282,7 @@ let FistStop = React.createClass({
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+        initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
       });
       let initAppName
       let initService

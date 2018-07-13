@@ -446,14 +446,14 @@ class GogsComponent extends Component {
     return (
       <div key="github-Component" type="right"  id="gogList" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.users}
+          <Icon type="user" /> {repoUser.username}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
-          <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
+          <Tooltip title={repoUser ? repoUser.url : ''}>
             <Icon type="link" style={{ margin: '0 20px' }} />
           </Tooltip>
           <div className="right-search">
@@ -467,7 +467,9 @@ class GogsComponent extends Component {
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={() => this.removeRepo()} onCancel={() => this.setState({ removeModal: false })}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>
+            注销该代码仓库，已激活的代码项目将『解除激活』，关联流水线、第三方工具可能失效无法继续执行, 确认注销该代码仓库？
+          </div>
         </Modal>
       </div>
     );

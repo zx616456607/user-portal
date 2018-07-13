@@ -1008,7 +1008,7 @@ class ProjectDetail extends Component {
     const isAble = roleNum === 2
     const { getFieldProps } = form;
     const quota = location.query.tabs
-    const url = quota ? '/' : '/tenant_manage/project_manage'
+    const url = quota ? '/tenant_manage/cluster_authorization' : '/tenant_manage/project_manage'
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });

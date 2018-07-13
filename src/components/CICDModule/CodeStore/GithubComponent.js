@@ -251,7 +251,33 @@ class GithubComponent extends Component {
         },
         failed: {
           func: err => {
-            notification.warn(err.message.message)
+            if(err.statusCode === 400) {
+              if(err.message.message === 'The code passed is incorrect or expired.') {
+                notification.success('已经授权')
+                setTimeout(() => {
+                  this.props.getGithubList('github', {
+                    success: {
+                      func: () => {
+                        setTimeout(() => {
+                          this.props.getUserInfo('github')
+                        })
+                      }
+                    }
+                  })
+                })
+                return
+              }
+              if(err.message.message === 'The client_id and/or client_secret passed are incorrect.') {
+                notification.warn('输入的ClientID或者ClientSecret有误')
+                return
+              }
+              notification.warn('clientId, clientSecret, redirectUrl 其中有参数为空')
+              return
+            }
+            if(err.statusCode === 500) {
+              notification.warn('未知错误')
+              return
+            }
           }
         }
       })
@@ -259,6 +285,11 @@ class GithubComponent extends Component {
   }
   loadData() {
     const { typeName, getUserInfo } = this.props
+    const { code, state } = this.props.scope.props.location.query
+    if(code && state) {
+      this.auth()
+      return
+    }
     this.props.getGithubList(typeName, {
       success: {
         func: () => {
@@ -268,7 +299,10 @@ class GithubComponent extends Component {
         }
       },
       failed: {
-        func: () => {
+        func:err => {
+          if (err.message.message === 'access_token is empty. please check client_id, client_secret.') {
+            notification.warn('请重新配置')
+          }
           // 如果请求失败了，说明有可能没授权，所以尝试授权
           setTimeout(() => {
             this.auth()
@@ -394,7 +428,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    this.props.searchGithubList(users, image)
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
   changeSearch(e) {
     const image = e.target.value
@@ -402,9 +436,7 @@ class GithubComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    if (image == '') {
-      this.props.searchGithubList(users, image, this.props.typeName)
-    }
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
 
   searchClick() {
@@ -415,7 +447,6 @@ class GithubComponent extends Component {
   syncRepoList() {
     const { syncRepoList } = this.props
     const types = this.props.scope.state.repokey
-
     notification.spin(`正在执行中...`)
     syncRepoList(types, {
       success: {
@@ -638,7 +669,9 @@ class GithubComponent extends Component {
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+            注销该代码仓库，已激活的代码项目将『解除激活』，关联流水线、第三方工具可能失效无法继续执行, 确认注销该代码仓库？
+          </div>
         </Modal>
       </div>
     );

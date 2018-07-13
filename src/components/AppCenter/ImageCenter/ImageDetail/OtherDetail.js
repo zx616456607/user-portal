@@ -162,11 +162,9 @@ class OtherDetail extends Component {
     )
   }
 }
-
 OtherDetail.propTypes = {
   intl: PropTypes.object.isRequired,
 }
-
 // function mapStateToProps(state, props) {
 //   const defaultConfig = {
 //     isFavourite:'0',

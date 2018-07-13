@@ -82,7 +82,8 @@ function* deleteRepoTags() {
   const name = this.params.name
   const tags = this.params.tags.split(',')
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
+  const harborConfig = changeHarborConfigByQuery(this.query, config)
+  const harbor = new harborAPIs(harborConfig, auth)
   const reqArray = tags.map(tag => new Promise((resolve, reject) => {
     harbor.deleteRepositoryTag(user, name, tag, (err, statusCode, body) => {
       if (err || statusCode >= 300) {
@@ -94,7 +95,7 @@ function* deleteRepoTags() {
   const result = yield reqArray
   this.body = {
     data: result,
-    server: config.url
+    server: harborConfig.url
   }
 }
 exports.deleteRepoTags = deleteRepoTags
@@ -111,7 +112,8 @@ exports.getRepositoriyConfig = function* () {
   const config = getRegistryConfig()
   const loginUser = this.session.loginUser
   const auth = yield getAuthInfo(loginUser)
-  const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
+  const harborConfig = changeHarborConfigByQuery(this.query, config)
+  const harbor = new harborAPIs(harborConfig, auth)
   const repoName = `${this.params.user}/${this.params.name}`
   const tag = this.params.tag
   const result = yield new Promise((resolve, reject) => {
@@ -147,7 +149,7 @@ exports.getRepositoriyConfig = function* () {
   })
   this.body = {
     data: result ? _formatConfig(result) : {},
-    server: config.url
+    server: harborConfig.url
   }
 }
 
@@ -501,7 +503,8 @@ function harborHandler(handler) {
     const config = getRegistryConfig()
     const loginUser = this.session.loginUser
     const auth = yield getAuthInfo(loginUser)
-    const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
+    const harborConfig = changeHarborConfigByQuery(this.query, config)
+    const harbor = new harborAPIs(harborConfig, auth)
     const result = yield new Promise((resolve, reject) => {
       handler(harbor, this, (err, statusCode, result, headers) => {
         if (err) {
@@ -516,7 +519,7 @@ function harborHandler(handler) {
       })
     })
     const body = {
-      server: getRegistryConfig().url,
+      server: harborConfig.url,
       data: result.result,
     }
     if (result.hasOwnProperty('headers')
