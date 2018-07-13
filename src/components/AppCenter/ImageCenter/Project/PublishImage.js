@@ -86,7 +86,7 @@ class PublishImage extends React.Component {
     filterName && Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
     targetProject && Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
     const tempfilter = query.filter
-    query.filter = tempfilter + 'target_cluster,' + cluster.clusterID
+    query.filter = tempfilter + 'current_cluster,' + cluster.clusterID
     this.setState({
       tableLoading: true
     })
@@ -195,58 +195,68 @@ class PublishImage extends React.Component {
         title: '镜像名称',
         dataIndex: 'image',
         key: 'image',
-        width: '20%',
+        width: '17%',
         render: text => text && text.split('/')[1]
       }, {
         title: '发布名称',
         dataIndex: 'fileNickName',
         key: 'fileNickName',
-        width: '20%'
+        width: '17%'
+      }, {
+        title: '目标集群',
+        dataIndex: 'clusterName',
+        key: 'clusterName',
+        width: '17%'
       }, {
         title: '发布版本',
         dataIndex: 'tag',
         key: 'tag',
-        width: '20%'
+        width: '17%'
       }, {
         title: '发布状态',
         dataIndex: 'publishStatus',
         key: 'publishStatus',
-        width: '20%',
+        width: '17%',
         render: this.getAppStatus
       }, {
         title: '发布时间',
         dataIndex: 'publishTime',
         key: 'publishTime',
-        width: '20%',
+        width: '17%',
         render: text => formatDate(text)
       }]
     const storageColumns = [{
         title: '镜像名称',
         dataIndex: 'image',
         key: 'image',
-        width: '20%',
+        width: '17%',
         render: text => text && text.split('/')[1]
+      }, {
+        title: '目标集群',
+        dataIndex: 'clusterName',
+        key: 'clusterName',
+        width: '17%'
       }, {
         title: '发布版本',
         dataIndex: 'tag',
         key: 'tag',
-        width: '20%'
+        width: '17%'
       }, {
         title: '目标仓库组',
         dataIndex: 'targetProject',
         key: 'targetProject',
-        width: '20%'
+        width: '17%'
       }, {
         title: '发布状态',
         dataIndex: 'publishStatus',
         key: 'publishStatus',
-        width: '20%',
+        width: '17%',
         render: this.getAppStatus
       }, {
         title: '发布时间',
         dataIndex: 'publishTime',
         key: 'publishTime',
-        width: '20%',
+        width: '17%',
         render: text => formatDate(text)
       }]
     return(

@@ -96,9 +96,10 @@ exports.checkAppNameExists = function*(){
 
 exports.publishImage = function* () {
   const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
-  const result = yield api.appstore.createBy(['apps', 'images','publishment'], null, body)
+  const result = yield api.appstore.createBy([cluster, 'apps', 'images','publishment'], null, body)
   this.body = result
 }
 

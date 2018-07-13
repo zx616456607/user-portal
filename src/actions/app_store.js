@@ -158,8 +158,8 @@ export const APP_IMAGE_PUBLISH_REQUEST = 'APP_IMAGE_PUBLISH_REQUEST'
 export const APP_IMAGE_PUBLISH_SUCCESS = 'APP_IMAGE_PUBLISH_SUCCESS'
 export const APP_IMAGE_PUBLISH_FAILURE = 'APP_IMAGE_PUBLISH_FAILURE'
 
-function fetchAppStoreImagePublish(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/app-store/apps/images/publishment`
+function fetchAppStoreImagePublish(clusterID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/app-store/${clusterID}/apps/images/publishment`
   return {
     [FETCH_API]: {
       types: [APP_IMAGE_PUBLISH_REQUEST, APP_IMAGE_PUBLISH_SUCCESS, APP_IMAGE_PUBLISH_FAILURE],
@@ -174,9 +174,9 @@ function fetchAppStoreImagePublish(body, callback) {
   }
 }
 
-export function imagePublish(body,callback) {
+export function imagePublish(clusterID, body,callback) {
   return (dispatch) => {
-    return dispatch(fetchAppStoreImagePublish(body,callback))
+    return dispatch(fetchAppStoreImagePublish(clusterID, body,callback))
   }
 }
 
