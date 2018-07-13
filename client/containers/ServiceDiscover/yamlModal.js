@@ -13,7 +13,7 @@ import { Modal } from 'antd'
 import yaml from 'js-yaml'
 import { connect } from 'react-redux'
 import YamlEditor from '../../../src/components/Editor/Yaml'
-import { getDnsItemDetail, changeDnsItem } from '../../actions/dnsRecord'
+import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import './style/index.less'
 
@@ -106,6 +106,6 @@ const mapStateToProps = () => {
 }
 
 export default connect(mapStateToProps, {
-  getDnsItemDetail,
-  changeDnsItem,
+  getDnsItemDetail: dnsRecordActions.getDnsItemDetail,
+  changeDnsItem: dnsRecordActions.changeDnsItem,
 })(YamlModal)

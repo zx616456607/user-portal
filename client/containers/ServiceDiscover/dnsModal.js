@@ -12,9 +12,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Select, Row, Col, Icon } from 'antd'
 import './style/index.less'
-import { createServiceDns } from '../../actions/dnsRecord'
+import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
-import { templateNameCheck } from '../../../src/common/naming_validation'
+import { validateK8sResourceForServiceName } from '../../../src/common/naming_validation'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -106,8 +106,8 @@ class DnsModal extends React.Component {
           isAsync: true,
         },
         failed: {
-          func: err => {
-            const { statusCode, message } = err
+          func: error => {
+            const { statusCode, message } = error
             notification.close()
             notification.warn(`新建 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
             handleCreate()
@@ -140,8 +140,12 @@ class DnsModal extends React.Component {
     if (!reg.test(value)) {
       return callback('请以小写字母开头')
     }
-    if (templateNameCheck(value) !== 'success') {
-      return callback(templateNameCheck(value))
+    const checkReg = /[a-z0-9]$/
+    if (!checkReg.test(value)) {
+      return callback('请以小写字母或者数字结尾')
+    }
+    if (!validateK8sResourceForServiceName(value)) {
+      return callback('名称由字母、数字、中划线组成')
     }
     callback()
   }
@@ -281,5 +285,5 @@ const mapStateToProps = ({ entities: { current } }) => ({
 })
 
 export default connect(mapStateToProps, {
-  createServiceDns,
+  createServiceDns: dnsRecordActions.createServiceDns,
 })(Form.create()(DnsModal))
