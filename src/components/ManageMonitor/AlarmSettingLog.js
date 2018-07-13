@@ -1081,7 +1081,7 @@ class AlarmSetting extends Component {
       let middleEditStrategy = this.state.editModal
       // console.log('middleEditStrategy', middleEditStrategy)
       // 这里做了一个桥接, 桥接以前的数据的结构
-      console.log('middleEditStrategy', middleEditStrategy)
+      // console.log('middleEditStrategy', middleEditStrategy)
       editStrategy = {
         active : undefined,
         appName : middleEditStrategy.app, // 这个不对

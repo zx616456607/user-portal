@@ -789,7 +789,7 @@ let TwoStop = React.createClass({
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs, data, alarmType, initData, isEdit: fisEdit } = this.props
-    console.log('initData', initData)
+    // console.log('initData', initData)
     let cpuItems
     const isEdit = false
     if (isEdit) {
@@ -950,7 +950,7 @@ class AlarmModal extends Component {
     const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster, pathname, activeCluster } = this.props
     let clusterID = cluster.clusterID
     // console.log('strategy', strategy)
-    return
+    // return
     if (startsWith(pathname, '/cluster') && activeCluster) {
       clusterID = activeCluster
     }
