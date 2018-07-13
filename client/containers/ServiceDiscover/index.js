@@ -18,7 +18,7 @@ import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
 import './style/index.less'
-import { getDnsList, deleteDnsItem } from '../../actions/dnsRecord'
+import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 
@@ -166,7 +166,7 @@ class ServiceDiscover extends React.Component {
         width: '18%',
         render: (key, record) => {
           const menu = <Menu
-            onClick={ key => this.operatorDns(key, record)}
+            onClick={ k => this.operatorDns(k, record)}
             style={{ width: 110 }}>
             {/* <Menu.Item key="editItem">编辑 / 查看</Menu.Item> */}
             <Menu.Item key="deleteItem">删除</Menu.Item>
@@ -267,6 +267,6 @@ const mapStateToProps = ({ entities: { current }, dnsRecord: { getList } }) => {
 }
 
 export default connect(mapStateToProps, {
-  getDnsList,
-  deleteDnsItem,
+  getDnsList: dnsRecordActions.getDnsList,
+  deleteDnsItem: dnsRecordActions.deleteDnsItem,
 })(ServiceDiscover)

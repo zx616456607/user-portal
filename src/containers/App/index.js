@@ -352,6 +352,13 @@ class App extends Component {
           </div>
         )
       }
+      if (!current.cluster.apiHost) {
+        return (
+          <div className="loading">
+            <Spin size="large" /> 获取集群信息中...
+          </div>
+        )
+      }
       if (switchSpaceOrCluster) {
         return (
           <div className="loading">
