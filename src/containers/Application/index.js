@@ -67,6 +67,10 @@ const menuList_enterprise = [
     name: '服务配置'
   },
   {
+    url: '/app_manage/discover',
+    name: '服务发现'
+  },
+  {
     url: '/app_manage/load_balance',
     name: '应用负载均衡'
   },
