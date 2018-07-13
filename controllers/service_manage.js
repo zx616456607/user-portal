@@ -608,8 +608,12 @@ exports.getAllService = function*() {
   const api = apiFactory.getK8sApi(this.session.loginUser)
 	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
-	this.status = response.code
-  response.data.services.map((item) => {
+  if (!response.data) {
+    response.data = {
+      services: [],
+    }
+  }
+  response.data && response.data.services.map((item) => {
     portHelper.addPort(item.deployment, item.service, lbgroupSettings.data)
     let annotations = item.deployment.spec.template.metadata.annotations
     if (annotations && annotations.appPkgName && annotations.appPkgTag){
