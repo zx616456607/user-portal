@@ -29,7 +29,6 @@ import { formatDate } from '../../../../../../common/tools'
 import UpsertModal from './UpsertModal'
 import './style/index.less'
 
-let isLoaded = false
 class Endpoints extends React.Component {
   constructor(props) {
     super(props)
@@ -49,18 +48,17 @@ class Endpoints extends React.Component {
     this.updateTarget = this.updateTarget.bind(this)
   }
 
+  componentWillMount() {
+    this.loadTargets()
+  }
 
   loadTargets(query = {}) {
     const { getTargets, harbor } = this.props
     const { searchInput } = this.state
-    getTargets(DEFAULT_REGISTRY, Object.assign({}, { harbor }, { name: searchInput }, query))
+    query.harbor = harbor
+    getTargets(DEFAULT_REGISTRY, { name: searchInput }, query)
   }
-  componentWillReceiveProps(next){
-    if(next.harbor && !isLoaded){
-      isLoaded = true
-      this.loadTargets({ harbor: next.harbor })
-    }
-  }
+
   delTarget() {
     const { deleteTargetById, harbor } = this.props
     const { currentRow } = this.state

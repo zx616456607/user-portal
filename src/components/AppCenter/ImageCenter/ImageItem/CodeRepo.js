@@ -23,7 +23,7 @@ import PublishModal from './PublishModal'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const notification = new NotificationHandler()
-let isLoaded = false
+
 class CodeRepo extends Component {
   constructor(props) {
     super()
@@ -48,30 +48,19 @@ class CodeRepo extends Component {
     this.confirmPublishModal = this.confirmPublishModal.bind(this)
   }
 
-  componentWillMount(){
-    const { harbor } = this.props
-    this.loadWithHarbor(harbor)
-  }
-  componentWillReceiveProps(next) {
-    const { harbor } = next
-    this.loadWithHarbor(harbor)
-  }
-  loadWithHarbor(harbor) {
-    if(harbor && !isLoaded){
-      isLoaded = true
-      const { params, location } = this.props
-      const { imageName } = location.query || {}
-      let q
-      if (imageName !== '' && imageName !== undefined) {
-        q = imageName.split('/')[1]
-        this.setState({
-          imageDetailModalShow: true,
-          currentImage: { name: imageName },
-          searchInput: q,
-        })
-      }
-      this.loadRepos({ q, harbor })
+  componentWillMount() {
+    const { params, location } = this.props
+    const { imageName } = location.query || {}
+    let q
+    if (imageName !== '' && imageName !== undefined) {
+      q = imageName.split('/')[1]
+      this.setState({
+        imageDetailModalShow: true,
+        currentImage: { name: imageName },
+        searchInput: q,
+      })
     }
+    this.loadRepos({ q })
   }
   componentDidUpdate() {
     let searchInput = document.getElementsByClassName('search')[0]
@@ -80,7 +69,7 @@ class CodeRepo extends Component {
   loadRepos(query) {
     const { loadProjectRepos, registry, location, harbor } = this.props
     const { imageName } = location.query || {}
-    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, { harbor }, query), {
+    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query, { harbor }), {
       success: {
         func: res => {
           res.data && res.data.forEach(image => {
@@ -168,7 +157,7 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail, isAdminAndHarbor, location, user, members = [] } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location, user, members } = this.props
     const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []

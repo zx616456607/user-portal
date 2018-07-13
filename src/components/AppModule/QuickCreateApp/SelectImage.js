@@ -32,7 +32,6 @@ const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane
 const PUBLIC_IMAGES = 'publicImages'
 const IMAGE_STORE = 'imageStore'
-let isLoaded = false
 class SelectImage extends Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
@@ -103,20 +102,17 @@ class SelectImage extends Component {
   }
 
   componentWillMount() {
-    const { imageType } = this.state
+    const { searchInputValue, imageType } = this.state
     if (imageType === IMAGE_STORE) {
       return this.loadImageStore()
     }
-  }
-  componentWillReceiveProps(next) {
-    const { cluster } = next
-    if(cluster.harbor && cluster.harbor[0] && !isLoaded){
-      isLoaded = true
-      const { searchInputValue } = next
-      this.loadData(next, {
-        q: searchInputValue || ""
+    if(searchInputValue) {
+      this.loadData(this.props, {
+        q: searchInputValue
       })
+      return
     }
+    this.loadData(this.props)
   }
 
   componentDidMount() {
