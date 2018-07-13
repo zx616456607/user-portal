@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Button, Input, Form } from 'antd'
 
 const FormItem = Form.Item
@@ -34,44 +35,46 @@ class Editor extends Component {
     const { tag, color, desc } = current
     const { getFieldProps } = form
     return (
-      <Form className="editor">
-        <Row>
-          <Col span={6}>
-            <FormItem {...formItemLayout} label="标签名称"><Input {
-              ...getFieldProps('tag', {
-                rules: [{
-                  validator: this.checkName,
-                }],
-                initialValue: tag,
-              })
-            } /></FormItem>
-          </Col>
-          <Col span={6}>
-            <FormItem {...formItemLayout} label="颜色"><Input {
-              ...getFieldProps('color', {
-                rules: [{
-                  validator: this.checkColor,
-                }],
-                initialValue: color,
-              })
-            } /></FormItem>
-          </Col>
-          <Col span={6}>
-            <FormItem {...formItemLayout} label="描述"><Input {
-              ...getFieldProps('desc', {
-                rules: [{
-                  validator: this.checkDesc,
-                }],
-                initialValue: desc,
-              })
-            } /></FormItem>
-          </Col>
-          <Col className="btnContainer" span={6}>
-            <Button type="primary" size="large" onClick={onCancel}>保存</Button>
-            <Button type="ghost" size="large" onClick={this.onOk}>取消</Button>
-          </Col>
-        </Row>
-      </Form>
+      <QueueAnim>
+        <Form key="form" className="editor">
+          <Row>
+            <Col span={6}>
+              <FormItem {...formItemLayout} label="标签名称"><Input {
+                ...getFieldProps('tag', {
+                  rules: [{
+                    validator: this.checkName,
+                  }],
+                  initialValue: tag,
+                })
+              } /></FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem {...formItemLayout} label="颜色"><Input {
+                ...getFieldProps('color', {
+                  rules: [{
+                    validator: this.checkColor,
+                  }],
+                  initialValue: color,
+                })
+              } /></FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem {...formItemLayout} label="描述"><Input {
+                ...getFieldProps('desc', {
+                  rules: [{
+                    validator: this.checkDesc,
+                  }],
+                  initialValue: desc,
+                })
+              } /></FormItem>
+            </Col>
+            <Col className="btnContainer" span={6}>
+              <Button type="primary" size="large" onClick={this.onOk}>保存</Button>
+              <Button type="ghost" size="large" onClick={onCancel}>取消</Button>
+            </Col>
+          </Row>
+        </Form>
+      </QueueAnim>
     )
   }
 }
