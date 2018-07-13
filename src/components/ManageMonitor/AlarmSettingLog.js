@@ -82,6 +82,9 @@ let MyComponent = React.createClass({
   handDelete(key,record) {
     // Dropdown delete action
     const { scope, history } = this.props
+    // console.log('key', key)
+    // console.log('record', record)
+    // return
     this.setState({record})
     switch(key) {
       case 'delete': {
@@ -90,7 +93,7 @@ let MyComponent = React.createClass({
       }
       case 'edit': {
         scope.setState({
-          editModal: record,
+          // editModal: record, // TODO:
           alarmModal: true,
           isEdit: true
         })
@@ -179,6 +182,9 @@ let MyComponent = React.createClass({
       {/* <Menu.Item key="delete">
         <span>删除</span>
       </Menu.Item> */}
+      <Menu.Item key="edit">
+        <span>修改</span>
+      </Menu.Item>
       <Menu.Item key="stop" disabled={(record.isEnabled === false)}>
         <span>停用</span>
       </Menu.Item>
@@ -506,11 +512,12 @@ let MyComponent = React.createClass({
       </tr>
     } else {
       lists = data.map((list, index) => {
+      let alertName = list.filter[0].query.queryString.query.split(':').pop().trim()
       return (
         <tr key={`list${index}`}>
-            <td> {`log-${list.name}`}</td>
+            <td> {`${list.name}`}</td>
             <td >服务日志</td>
-            <td ><span className="targetName">{list.filter[0].query.queryString.query.split(':').pop()}</span></td>
+            <td ><Link to={`/app_manage/service?serName=${alertName}`}>{alertName}</Link></td>
             <td >{this.formatStatus(list.isEnabled)}</td>
             <td >{`${list.timeframe.minutes} 分钟`}</td>
             <td >{list.description}</td>
@@ -1085,7 +1092,7 @@ class AlarmSetting extends Component {
               创建
             </Button>
             <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />  刷 新</Button>
-            {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button>*/}
+            {/* <Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} > 修改</Button> */}
             {/* <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="按策略名称搜索" onChange={(e)=> this.setState({search:e.target.value.trim()})} onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
