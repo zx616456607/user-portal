@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Form, Icon, Button, InputNumber } from 'antd'
+import { Row, Col, Form, Icon, InputNumber } from 'antd'
 import './index.less'
 import {
   RESOURCES_CPU_DEFAULT,

@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
+import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Slider, Timeline, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import { setServiceProxyGroup } from '../../actions/services'
@@ -45,6 +45,7 @@ const Option = Select.Option;
 const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
+const FormItem = Form.Item;
 class VolumeHeader extends Component {
   constructor(props) {
     super(props)
@@ -145,10 +146,12 @@ class BaseInfo extends Component {
         minCPUValue: 0.3,
         minMemoryValue: 400
       },
+      changePasswordModal: false,
       // 绑定到 ResourceConfig组件上的资源配置值
       resourceConfig: {
 
-      }
+      },
+      pwdModalShow: false
     }
   }
   componentDidMount() {
@@ -182,6 +185,74 @@ class BaseInfo extends Component {
         copySuccess: false
       });
     }, 500);
+  }
+  // 修改密码弹出层
+  passwordPanel = () => {
+    const { getFieldProps } = this.props.form
+    const checkPass = (rule, value, callback) => {
+      const { validateFields } = this.props.form;
+      if (value) {
+        validateFields(['rePasswd'], { force: true });
+      }
+      callback();
+    }
+    const checkRepetPass = (rule, value, callback) => {
+      const { getFieldValue } = this.props.form;
+      if (value && value !== getFieldValue('passwd')) {
+        callback('两次输入密码不一致！');
+      } else {
+        callback();
+      }
+    }
+
+    const passwdProps = getFieldProps('passwd', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+        { validator: checkPass },
+      ],
+    })
+    const rePasswdProps = getFieldProps('rePasswd', {
+      rules: [{
+        required: true,
+        whitespace: true,
+        message: '请再次输入密码',
+      }, {
+        validator: checkRepetPass,
+      }],
+    })
+    const confirm = e => {
+      e.preventDefault();
+      this.props.form.validateFields((errors, values) => {
+        if (!!errors) {
+          return;
+        }
+        this.setState({
+          pwdModalShow: false
+        },() => {
+          console.log(this.state.pwdModalShow)
+        })
+      });
+    }
+    return <Form className="pwdChangeWrapper">
+        <FormItem >
+          <Input {...passwdProps} type="password" placeholder="原密码" style={{width: 205}}/>
+        </FormItem>
+        <FormItem >
+          <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{width: 205}}/>
+        </FormItem>
+        <div className="pwd-btn-group">
+          <Button onClick={() => this.setState({
+            pwdModalShow: false
+          })
+          }>取消</Button>
+          <Button type='primary' onClick={confirm}>确定</Button>
+        </div>
+      </Form>
+
+  }
+  // 修改密码
+  changePassword = () => {
+
   }
   findPassword(spec) {
     const length = spec.containers.length
@@ -226,6 +297,10 @@ class BaseInfo extends Component {
       composeType: this.state.defaultType,
       resourceConfig: Object.assign({}, this.state.defaultResourceConfig)
     })
+  }
+
+  componentWillUnmount() {
+    console.log(123)
   }
   render() {
     const { bindingIPs, databaseInfo ,dbName } = this.props
@@ -304,7 +379,18 @@ class BaseInfo extends Component {
             <ul className='parse-list'>
               <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
               {this.state.passShow ?
-              <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+              <li>
+                <span className='key'>密码：</span>
+                <span className='value'>{ this.findPassword(podSpec) }</span>
+                <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
+                  <i className="fa fa-eye-slash"></i> 隐藏
+                </span>
+                <Popover content={this.passwordPanel} visible={this.state.pwdModalShow} title={null} trigger="click">
+                  <Button type="primary" style={{ marginLeft:24 }} onClick={() => this.setState({
+                    pwdModalShow: true
+                  })}>修改密码</Button>
+                </Popover>
+              </li>
               :
               <li>
                 <span className='key'>密码：</span>
@@ -312,7 +398,11 @@ class BaseInfo extends Component {
                 <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
                   <i className="fa fa-eye"></i>显示
                 </span>
-                <Button type="primary" style={{ marginLeft:24 }}>修改密码</Button>
+                <Popover content={this.passwordPanel()}  visible={this.state.pwdModalShow} title={null} trigger="click">
+                  <Button type="primary" style={{ marginLeft:24 }} onClick={() => this.setState({
+                    pwdModalShow: true
+                  })}>修改密码</Button>
+                </Popover>
               </li>}
             </ul>
           </div>}
@@ -356,6 +446,8 @@ class BaseInfo extends Component {
     )
   }
 }
+
+const FormBaseInfo = Form.create()(BaseInfo)
 
 class VisitTypes extends Component{
   constructor(props) {
@@ -1021,7 +1113,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                <FormBaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='存储' key='#Storage'>
                 <Storage databaseInfo={databaseInfo}/>
