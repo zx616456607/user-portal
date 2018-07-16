@@ -725,7 +725,10 @@ class ResourceQuota extends React.Component {
         }
         <div className="topDesc">
           {
-            (outlineRoles.includes('manager') || !isProject) ?
+            ( this.props.role !== ROLE_SYS_ADMIN &&
+              this.props.role !== ROLE_PLATFORM_ADMIN &&
+              (outlineRoles.includes('manager') || !isProject )
+            ) ?
             <div className="applyLimitBtn">
               <Link to={`/tenant_manage/applyLimit?${toQuerystring(newshowProjectName)}`}>
                 <Button type="primary" >配额申请</Button>
@@ -1203,6 +1206,7 @@ function mapStateToProps(state) {
   const { namespace } = loginUser.info
   const { projectVisibleClusters } = state.projectAuthority
   const clusterData = projectVisibleClusters[user] && projectVisibleClusters[user].data || []
+
   return {
     role,
     namespace,
