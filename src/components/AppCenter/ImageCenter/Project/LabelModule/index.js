@@ -11,7 +11,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Popover, Input } from 'antd'
+import { Table, Button, Popover, Input, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import { connect } from 'react-redux'
@@ -104,7 +104,7 @@ class Project extends Component {
         key: 'tag',
         render: (text, record) => (
           <div className="tag" style={{ backgroundColor: record.color }}>
-            {record.type === 'global' ? <TenxIcon type="tag_global" /> : <TenxIcon type="tag_part" />}
+            {record.type === 'global' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
             {text}
           </div>
         ),
@@ -150,10 +150,10 @@ class Project extends Component {
         </div>
         <div key="main">
           <div className="topRow">
-            <Button type="primary" size="large" onClick={this.add}><i className='fa fa-tag'/>&nbsp;新建标签</Button>
+            <Button type="primary" size="large" onClick={this.add}><i className='fa fa-plus'/>&nbsp;新建标签</Button>
             <Button type="ghost" size="large" onClick={this.loadData}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
             <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
-            <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.del}><i className='fa fa-del'/>&nbsp;删除</Button>
+            <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
             <Input
               placeholder="按标签名称搜索"
               className="search"

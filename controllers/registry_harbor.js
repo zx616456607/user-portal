@@ -377,6 +377,22 @@ exports.getReplicationTargetRelatedPolicies = harborHandler(
 exports.getReplicationSummary = harborHandler(
   (harbor, ctx, callback) => next(null, null, null, ensureUserHasAdminRole, callback, harbor, ctx, {})
 )
+
+// [GET] getLabels
+exports.getLabels = harborHandler(
+  (harbor, ctx, callback) => harbor.getLabels(ctx.params, callback))
+// [PUT] updateLabel
+exports.updateLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.updateLabel(ctx.params.id, ctx.params.label, callback))
+// [POST] createLabel
+exports.createLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.createLabel(ctx.params.label, callback))
+// [POST] setImageLabel
+exports.setImageLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.setImageLabel(ctx.params.repository, ctx.params.tag, ctx.params.labelId, callback))
+
+
+
 exports.getImageTemplate = function* () {
   const registry = this.params.registry
   this.status = 200

@@ -363,6 +363,10 @@ module.exports = function (Router) {
   router.delete('/registries/:registry/targets/:id', harborController.deleteReplicationTarget)
   router.get('/registries/:registry/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
   router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
+  router.get('/registries/:registry/label', harborController.getLabels)
+  router.put('/registries/:registry/label', harborController.updateLabel)
+  router.post('/registries/:registry/label', harborController.createLabel)
+  router.post('/registries/:registry/images/label', harborController.setImageLabel)
 
   router.get('/registries/:registry/statistics', harborController.getStatistics)
   router.get('/registries/:registry/template', harborController.getImageTemplate)
