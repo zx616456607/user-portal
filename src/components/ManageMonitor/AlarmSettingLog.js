@@ -93,7 +93,7 @@ let MyComponent = React.createClass({
       }
       case 'edit': {
         scope.setState({
-          // editModal: record, // TODO:
+          editModal: record,
           alarmModal: true,
           isEdit: true
         })
@@ -1061,6 +1061,7 @@ class AlarmSetting extends Component {
     // const rowSelection = {
     //   // checkbox select callback
     // }
+    const { clusterID } = this.props
     const _this = this
     const modalFunc=  {
       scope : this,
@@ -1077,7 +1078,38 @@ class AlarmSetting extends Component {
       }
     })
     if(this.state.editModal){
-      editStrategy = this.state.editModal
+      let middleEditStrategy = this.state.editModal
+      // console.log('middleEditStrategy', middleEditStrategy)
+      // 这里做了一个桥接, 桥接以前的数据的结构
+      // console.log('middleEditStrategy', middleEditStrategy)
+      editStrategy = {
+        active : undefined,
+        appName : middleEditStrategy.app, // 这个不对
+        checked : undefined,
+        clusterID : clusterID,
+        createTime : middleEditStrategy.description,
+        creator : middleEditStrategy.owner,
+        description : "",
+        // disableNotifyEndTime : "2018-07-11T1:5:41+0:00",
+        enable : middleEditStrategy.IsEnabled === true ? 1 : 0,
+        modityTime : middleEditStrategy.description,
+        namespace : middleEditStrategy.filter[1].query.queryString.query.split(':').pop().trim(),
+        // namespaceType : 0,
+        nodeName : "",
+        receivers : middleEditStrategy.email.length === 0 ? '' : middleEditStrategy.email[0], // 有告警通知组的概念
+        receiversGroup : middleEditStrategy.alertGroup,
+        repeatInterval: middleEditStrategy.timeframe.minutes * 60,
+        sendEmail : middleEditStrategy.email.length === 0 ? 0 : 1,
+        statusCode : 1,
+        strategyID : middleEditStrategy.owner + middleEditStrategy.name,
+        strategyName : middleEditStrategy.name,
+        targetName : middleEditStrategy.filter[0].query.queryString.query.split(':').pop().trim(),
+        targetType : 0,
+        updater : middleEditStrategy.owner,
+        numEvents: middleEditStrategy.numEvents,
+        regex: middleEditStrategy.regex,
+      }
+      // console.log('logeditStrategy', editStrategy)
     }
     if(checkedNum != 1){
       canEdit = false

@@ -1108,6 +1108,7 @@ class AlarmSetting extends Component {
     if(this.state.editModal){
       editStrategy = this.state.editModal
     }
+    // console.log('editStrategy',editStrategy)
     if(checkedNum != 1){
       canEdit = false
     }
