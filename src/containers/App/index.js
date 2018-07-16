@@ -105,7 +105,13 @@ class App extends Component {
     }
   }
   checkPath(pathname) {
-    const pathArr = ['/app_manage/app_create/quick_create']
+    const pathArr = [
+      '/app_manage/app_create/quick_create',
+      '/app_center/projects/public',
+      '/app_center/projects/publish',
+      '/app_center/projects/replications',
+      '/app_center/projects/other',
+    ]
     return !(pathArr.indexOf(pathname) > -1)
   }
   componentWillReceiveProps(nextProps) {
