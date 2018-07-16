@@ -11,14 +11,13 @@
 
 import React from 'react'
 import './style/Backup.less'
-import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
+import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
 import { getbackupChainDetail, getbackupChain } from '../../../actions/backupChain'
 import rollback from '../../../assets/img/database_cache/rollback.png'
 import create from '../../../assets/img/database_cache/new.png'
 import BackupStrategy from '../BackupStrategy'
-
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -31,6 +30,10 @@ class Backup extends React.Component {
     manualBackupModalShow: false, // 手动备份弹框
     curentChain: '', // 点击手动备份或者备份链的加号，将当前链或者当前点击的备份链信息存到这里
     backupType: 0,
+    rollBackAlert: false, // 回滚操作弹框显示隐藏
+    notYetConfirm: true, // 确认回滚勾选
+    delThis: false, // 删除备份链弹框显示隐藏
+    backupChain: '', // 当前操作的备份点
   }
   componentDidMount() {
     this.props.getbackupChain()
@@ -65,12 +68,80 @@ class Backup extends React.Component {
       this.setState({
         currentItem: '',
       })
+    }
+  }
+  rollBackAlert = () => {
+    const confirmRollBack = () => {
+      this.setState({ rollBackAlert: false })
+    }
+    const onChange = e => {
+      this.setState({
+        notYetConfirm: !e.target.checked,
+      })
 
     }
+    const content = (
+      <Modal
+        visible={this.state.rollBackAlert}
+        title="回滚操作"
+        footer={[
+          <Button key="cancel" onClick={() => this.setState({ rollBackAlert: false })}>取消</Button>,
+          <Button key="confirm" type="primary" disabled={this.state.notYetConfirm} onClick={confirmRollBack}>确定</Button>,
+        ]}
+      >
+        <div className="rollbackAlertContent">
+          <div className="left">
+            <Icon type="question-circle-o" />
+          </div>
+          <div className="right">
+            <p>回滚后，此数据库集群将恢复到该备份点的状态。确定回滚操作吗？</p>
+            <Checkbox onChange={onChange}>已经对当前数据备份，确定执行回滚操作</Checkbox>
+          </div>
+        </div>
+      </Modal>
+    )
+    return content
+  }
+  // 回滚
+  rollBack = point => {
+    this.setState({
+      rollBackAlert: true,
+      backupChain: point,
+    })
+  }
+  newDatabase = () => {
 
   }
+  delBackupPointAlert = () => {
+    // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
+
+    const confirmDel = () => {
+      this.setState({
+        delThis: false,
+      })
+    }
+    return (
+      <Modal
+        visible={this.state.delThis}
+        onOk={confirmDel}
+        onCancel={() => this.setState({ delThis: false })}
+        title="删除备份点"
+      >
+        <div className="delPoint">
+          <Icon type="question-circle-o" />
+          此操作不可恢复，确定删除此备份点xxx吗？
+        </div>
+      </Modal>
+    )
+  }
+  delThis = point => {
+    this.setState({
+      delThis: true,
+      backupChain: point,
+    })
+  }
   // 备份点操作
-  backupPointmenu = () => {
+  backupPointmenu = point => {
     const iconStyle = {
       width: 13,
       height: 13,
@@ -80,16 +151,20 @@ class Backup extends React.Component {
     return (
       <Menu>
         <Menu.Item key="1">
-          <img src={rollback} style={iconStyle} alt=""/>
-          回滚
+          <div onClick={() => this.rollBack(point)}>
+            <img src={rollback} style={iconStyle} alt=""/>
+            回滚</div>
         </Menu.Item>
         <Menu.Item key="2">
-          <img src={create} style={iconStyle} alt=""/>
-          新建MySql数据库
+          <div onClick={() => this.newDatabase(point)}>
+            <img src={create} style={iconStyle} alt=""/>
+            新建MySql数据库
+          </div>
         </Menu.Item>
         <Menu.Item key="3">
-          <Icon type="delete" style={{ marginRight: 5 }}/>
-          删除
+          <div onClick={() => this.delThis(point)}>
+            <Icon type="delete" style={{ marginRight: 5 }}/>
+            删除</div>
         </Menu.Item>
       </Menu>)
   }
@@ -321,14 +396,9 @@ class Backup extends React.Component {
                                   </span>
                                 </Col>
                                 <Col span={4}>
-                                  <Dropdown.Button overlay={this.backupPointmenu()} type="ghost">
-                                    <img src={rollback} style={{
-                                      width: 13,
-                                      height: 13,
-                                      fontSize: 0,
-                                      marginRight: 5,
-                                    }} alt=""/>
-                                    回滚
+                                  <Dropdown.Button overlay={this.backupPointmenu(k)} type="ghost">
+                                    <Icon type="setting" />
+                                    操作
                                   </Dropdown.Button>
                                 </Col>
                               </Row>
@@ -351,6 +421,10 @@ class Backup extends React.Component {
       {this.autoBackupModal()}
       {/* 手动设置自动备份*/}
       {this.manualBackupModal()}
+      {/* 确认回滚弹窗*/}
+      {this.rollBackAlert()}
+      {/* 确认删除备份点弹窗*/}
+      {this.delBackupPointAlert()}
     </div>
   }
 }

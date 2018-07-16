@@ -18,6 +18,7 @@ import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
+import ResourceConfig from '../../../client/components/ResourceConfig'
 import {
   MY_SPACE, RESOURCES_CPU_DEFAULT,
   RESOURCES_CPU_MAX, RESOURCES_CPU_MIN,
@@ -37,6 +38,7 @@ const FormItem = Form.Item;
 
 
 let CreateDatabase = React.createClass({
+
   getInitialState: function () {
     return {
       currentType: this.props.database,
@@ -341,62 +343,16 @@ let CreateDatabase = React.createClass({
     return option
   },
 
-  // 集群配置相关
-  selectComposeType(type){
+  //获取集群配置的值
+  recordResouceConfigValue(values) {
+    console.log(values)
+  },
+  selectComposeType(type) {
     this.setState({
-      composeType: type
+      composeType: type,
     })
   },
 
-  DIYMinMemoryCheck(rules, value, callback) {
-    if (!value) {
-      return callback('最小内存不能为空')
-    }
-    callback()
-  },
-
-  DIYMinMemoryChange(value) {
-    const { form } = this.props
-    const { getFieldValue, setFieldsValue } = form
-    const maxMemoryValue = getFieldValue('DIYMaxMemory')
-    if (value >= maxMemoryValue) {
-      setFieldsValue({
-        DIYMaxMemory: value
-      })
-    }
-  },
-
-  DIYMaxMemoryCheck(rules, value, callback) {
-    if (!value) {
-      return callback('最大内存不能为空')
-    }
-    callback()
-  },
-
-  DIYMinCPUCheck(rules, value, callback) {
-    if (!value) {
-      return callback('最小CPU不能为空')
-    }
-    callback()
-  },
-
-  DIYMinCPUChange(value) {
-    const { form } = this.props
-    const { getFieldValue, setFieldsValue } = form
-    const maxCPUValue = getFieldValue('DIYMaxCPU')
-    if (value >= maxCPUValue) {
-      setFieldsValue({
-        DIYMaxCPU: value
-      })
-    }
-  },
-
-  DIYMaxCPUCheck(rules, value, callback) {
-    if (!value) {
-      return callback('最大CPU不能为空')
-    }
-    callback()
-  },
 
   render() {
     const { composeType } = this.state
@@ -492,43 +448,6 @@ let CreateDatabase = React.createClass({
       </Select>
     )
 
-    // 集群配置相关
-    const DIYMinMemoryProps = getFieldProps('DIYMinMemory', {
-      rules: [
-        {
-          validator: this.DIYMinMemoryCheck
-        }
-      ],
-      initialValue: RESOURCES_MEMORY_MIN,
-      onChange: this.DIYMinMemoryChange
-    })
-    const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
-      rules: [
-        {
-          validator: this.DIYMaxMemoryCheck
-        }
-      ],
-      initialValue: RESOURCES_MEMORY_MIN
-    })
-    const DIYMinCPUProps = getFieldProps('DIYMinCPU', {
-      rules: [
-        {
-          validator: this.DIYMinCPUCheck
-        }
-      ],
-      initialValue: RESOURCES_CPU_DEFAULT,
-      onChange: this.DIYMinCPUChange
-    })
-    const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
-      rules: [
-        {
-          validator: this.DIYMaxCPUCheck
-        }
-      ],
-      initialValue: RESOURCES_CPU_DEFAULT
-    })
-
-
     return (
       <QueueAnim>
         <div id='CreateDatabase' key="createDatabase">
@@ -575,86 +494,18 @@ let CreateDatabase = React.createClass({
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
-              <div className='commonBox config'>
+              <div className="commonBox configContent">
                 <div className='title'>
                   <span>集群配置</span>
                 </div>
-                <Col span={18} className="configBox">
-                  <Button className="configList" type={composeType === 512 ? "primary" : "ghost"}
-                          onClick={() => this.selectComposeType(512)}>
-                    <div className="topBox">
-                      2X
-                    </div>
-                    <div className="bottomBox">
-                      <span>512 MB 内存</span><br />
-                      <span>0.1 核 CPU</span>
-                      <div className="triangle"/>
-                      <Icon type="check" />
-                    </div>
-                  </Button>
-                  <div className={classNames("configList DIY",{
-                    "btn ant-btn-primary": composeType === 'DIY',
-                    "btn ant-btn-ghost": composeType !== 'DIY'
-                  })} onClick={() => this.selectComposeType('DIY')}>
-                    <div className="topBox">
-                      自定义
-                    </div>
-                    <div className="bottomBox">
-                      <Row>
-                        <Col span={8}>
-                          <FormItem>
-                            <InputNumber
-                              {...DIYMinMemoryProps}
-                              size="small"
-                              step={RESOURCES_MEMORY_STEP}
-                              min={RESOURCES_MEMORY_MIN}
-                              max={RESOURCES_MEMORY_MAX} />
-                          </FormItem>
-                        </Col>
-                        <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                        <Col span={8}>
-                          <FormItem>
-                            <InputNumber
-                              {...DIYMaxMemoryProps}
-                              size="small"
-                              step={RESOURCES_MEMORY_STEP}
-                              min={getFieldValue('DIYMinMemory')}
-                              max={RESOURCES_MEMORY_MAX} />
-                          </FormItem>
-                        </Col>
-                        <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
-                      </Row>
-                      <Row>
-                        <Col span={8}>
-                          <FormItem>
-                            <InputNumber
-                              {...DIYMinCPUProps}
-                              size="small"
-                              step={RESOURCES_CPU_STEP}
-                              min={RESOURCES_CPU_MIN}
-                              max={RESOURCES_CPU_MAX}/>
-                          </FormItem>
-                        </Col>
-                        <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
-                        <Col span={8}>
-                          <FormItem>
-                            <InputNumber
-                              {...DIYMaxCPUProps}
-                              size="small"
-                              step={RESOURCES_CPU_STEP}
-                              min={getFieldValue('DIYMinCPU')}
-                              max={RESOURCES_CPU_MAX}/>
-                          </FormItem>
-                        </Col>
-                        <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
-                      </Row>
-                      <div className="triangle"/>
-                      <Icon type="check" />
-                    </div>
-                  </div>
-                </Col>
-
+                <div className="rightConfigBox">
+                  <ResourceConfig
+                    toggleComposeType={this.selectComposeType}
+                    composeType={composeType}
+                    onValueChange={this.recordResouceConfigValue}/>
+                </div>
               </div>
+
               <div className='commonBox accesstype'>
                 <div className='title'>
                   <span>集群访问方式</span>

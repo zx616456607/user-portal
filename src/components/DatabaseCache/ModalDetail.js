@@ -23,6 +23,7 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
+import ResourceConfig from '../../../client/components/ResourceConfig'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -31,13 +32,19 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../assets/img/database_cache/etcd.jpg'
+import {
+  RESOURCES_CPU_DEFAULT,
+  RESOURCES_CPU_MAX,
+  RESOURCES_CPU_MIN,
+  RESOURCES_CPU_STEP,
+  RESOURCES_MEMORY_MAX, RESOURCES_MEMORY_MIN,
+  RESOURCES_MEMORY_STEP
+} from "../../constants";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
-const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
-
 class VolumeHeader extends Component {
   constructor(props) {
     super(props)
@@ -70,6 +77,7 @@ class VolumeDetail extends Component {
   constructor(props) {
     super(props)
   }
+
   render() {
     const volumes = this.props.volumes.podSpec.volumes
     const containers = this.props.volumes.podSpec.containers[0]
@@ -126,16 +134,36 @@ class BaseInfo extends Component {
     super(props)
     this.state ={
       passShow: false,
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
+      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size),
+      resourceConfigEdit: false,
+      resourceConfigValue: '',
+      composeType: 'DIY',
+      defaultType: 'DIY', //默认的资源配置类型
+      defaultResourceConfig: { //默认的资源配置值
+        maxCPUValue: 0.5,
+        maxMemoryValue: 700,
+        minCPUValue: 0.3,
+        minMemoryValue: 400
+      },
+      // 绑定到 ResourceConfig组件上的资源配置值
+      resourceConfig: {
+
+      }
     }
   }
   componentDidMount() {
+    // 模拟从后台请求回的数据
+    this.setState({
+      resourceConfig: this.state.defaultResourceConfig
+    })
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({winWidth: '220px'})
       return
     }
-    this.setState({winWidth: '120px'})
+    this.setState({
+      winWidth: '120px',
+    })
   }
   copyDownloadCode(index) {
     //this function for user click the copy btn and copy the download code
@@ -171,13 +199,43 @@ class BaseInfo extends Component {
     }
     return ""
   }
+  // 修改资源配置的时候将值记录下来
+  recordResouceConfigValue = (values) => {
+    this.setState({
+      resourceConfigValue: values
+    })
+  }
+  // 选择现成的or自定义的资源类型
+  selectComposeType = type => {
+    this.setState({
+      composeType: type,
+    })
+  }
+  // 保存资源配置修改
+  saveResourceConfig = () => {
+    console.log(this.state.resourceConfigValue)
+    this.setState({
+      resourceConfigEdit: false
+    })
+  }
+  // 取消资源配置修改
+  cancelEditResourceConfig = () => {
+    this.refs.resourceConfig.resetFields() // 取消重置自定义中的所有值
+    this.setState({
+      resourceConfigEdit: false,
+      composeType: this.state.defaultType,
+      resourceConfig: Object.assign({}, this.state.defaultResourceConfig)
+    })
+  }
   render() {
     const { bindingIPs, databaseInfo ,dbName } = this.props
+    const { resourceConfigEdit, composeType, defaultType } = this.state
     const parentScope = this.props.scope
     const { billingEnabled } = parentScope.props
     const rootScope = parentScope.props.scope
     const selfScope = this
     let podSpec = {}
+
     if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
       podSpec = databaseInfo.podList.pods[0].podSpec
     }
@@ -244,14 +302,45 @@ class BaseInfo extends Component {
           {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
-              <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
               <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
               {this.state.passShow ?
               <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
               :
-              <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>}
+              <li>
+                <span className='key'>密码：</span>
+                <span className='value'>******</span>
+                <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
+                  <i className="fa fa-eye"></i>显示
+                </span>
+                <Button type="primary" style={{ marginLeft:24 }}>修改密码</Button>
+              </li>}
             </ul>
           </div>}
+          <div className="resourceConfigPart">
+            <div className="themeHeader"><i className="themeBorder"/>资源配置
+              {
+                resourceConfigEdit?
+                  <div className="resource-config-btn">
+                    <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
+                    <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
+                  </div>
+                  :
+                  <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
+              }
+            </div>
+            <div className="tips">
+              Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例。 将进行滚动升级。
+            </div>
+
+            <ResourceConfig
+              ref="resourceConfig"
+              toggleComposeType={this.selectComposeType}
+              composeType={composeType}
+              onValueChange={this.recordResouceConfigValue}
+              value={this.state.resourceConfig}
+              freeze={!resourceConfigEdit}/>
+          </div>
+
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
