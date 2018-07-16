@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Button, Input, Form, Popover } from 'antd'
 import { TwitterPicker } from 'react-color'
+import NotificationHandler from '../../../../../components/Notification'
+
+const notification = new NotificationHandler()
 
 const FormItem = Form.Item
 const formItemLayout = {
@@ -23,6 +26,9 @@ class Editor extends Component {
     const { form: { validateFields } } = this.props
     validateFields((error, values) => {
       if(error){
+        if(!values.color){
+          notification.warn("请输入或选择标签颜色")
+        }
         return
       }
       this.props.onOk(values)
@@ -44,17 +50,22 @@ class Editor extends Component {
   checkColor = (rules, value, _cb) => {
     if(!value){
       !!_cb && _cb(new Error("请输入或选择标签颜色"))
-      return false
+      // notification.warn("请输入或选择标签颜色")
+      return
     }
     if(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value)){
       !!_cb && _cb()
-      return true
+      return
     }
     else {
       !!_cb && _cb(new Error("请输入正确的颜色"))
     }
   }
   checkDesc = (rules, value, _cb) => {
+    if(!value){
+      _cb(new Error("请输入描述"))
+      return false
+    }
     _cb()
   }
   render() {

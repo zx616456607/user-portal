@@ -28,6 +28,22 @@ const colors = [
   '#FCBB00', '#F9B659', '#FF6A00', '#FF8A67', '#F5232B',
   '#F95561', '#EC3195', '#FB7F9E', '#687689', '#AABAC4',
 ]
+const data = [
+  {
+    tag: "全局",
+    color: "#ed22ad",
+    desc: "desc",
+    createTime: "2018-05-05 18:00:00",
+    type: "global"
+  },
+  {
+    tag: "局部",
+    color: "#ed22ad",
+    desc: "desc",
+    createTime: "2018-05-05 18:00:00",
+    type: "part"
+  },
+]
 class Project extends Component {
   state = {
     color: 'orange',
@@ -80,8 +96,10 @@ class Project extends Component {
       isShowEditor: true,
     })
   }
-  onEditorOk = data => {
-    console.log(data)
+  onEditorOk = params => {
+    console.log(params)
+    data.push(params)
+    this.onEditorCancel()
   }
   onEditorCancel = () => {
     this.setState({
@@ -120,22 +138,6 @@ class Project extends Component {
         width: '33%',
         dataIndex: 'createTime',
         key: 'createTime',
-      },
-    ]
-    const data = [
-      {
-        tag: "全局",
-        color: "#ed22ad",
-        desc: "desc",
-        createTime: "2018-05-05 18:00:00",
-        type: "global"
-      },
-      {
-        tag: "局部",
-        color: "#ed22ad",
-        desc: "desc",
-        createTime: "2018-05-05 18:00:00",
-        type: "part"
       },
     ]
     const rowSelection = {
