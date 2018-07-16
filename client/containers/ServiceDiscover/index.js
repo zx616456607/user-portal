@@ -81,9 +81,9 @@ class ServiceDiscover extends React.Component {
       },
       failed: {
         func: err => {
-          const { statusCode, message } = err
+          const { message } = err
           notification.close()
-          notification.warn(`删除 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
+          notification.warn('删除 DNS 记录失败', message.message)
         },
       },
     })
