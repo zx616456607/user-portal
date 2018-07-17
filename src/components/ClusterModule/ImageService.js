@@ -101,7 +101,7 @@ class ImageService extends React.Component {
     } = this.state
     const cardTitle = <div className="title">
       镜像服务
-      <span className="hint"><span className="required">*</span>构建集群必须配置harbor</span>
+      <span className="hint"><span className="required">*</span>集群必须配置harbor</span>
     </div>
     return <Card title={cardTitle} className="image_service">
       <div className="imgBox">
