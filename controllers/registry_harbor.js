@@ -380,13 +380,13 @@ exports.getReplicationSummary = harborHandler(
 
 // [GET] getLabels
 exports.getLabels = harborHandler(
-  (harbor, ctx, callback) => harbor.getLabels(ctx.params, callback))
+  (harbor, ctx, callback) => harbor.getLabels(ctx.query, callback))
 // [PUT] updateLabel
 exports.updateLabel = harborHandler(
   (harbor, ctx, callback) => harbor.updateLabel(ctx.params.id, ctx.params.label, callback))
 // [POST] createLabel
 exports.createLabel = harborHandler(
-  (harbor, ctx, callback) => harbor.createLabel(ctx.params.label, callback))
+  (harbor, ctx, callback) => harbor.createLabel(ctx.params, callback))
 // [POST] setImageLabel
 exports.setImageLabel = harborHandler(
   (harbor, ctx, callback) => harbor.setImageLabel(ctx.params.repository, ctx.params.tag, ctx.params.labelId, callback))

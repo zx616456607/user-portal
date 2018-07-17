@@ -17,9 +17,10 @@ import './style/index.less'
 import { connect } from 'react-redux'
 import TenxIcon from '@tenx-ui/icon'
 import Editor from './Editor'
-import { BlockPicker, TwitterPicker, SketchPicker } from 'react-color'
-import { loadProjectList } from '../../../../../actions/harbor'
+import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { loadLabelList, updateLabel, createLabel, setImageLabel } from '../../../../../actions/harbor'
 import NotificationHandler from '../../../../../components/Notification'
+import filter from 'lodash/filter'
 
 const notification = new NotificationHandler()
 const colors = [
@@ -30,26 +31,39 @@ const colors = [
 ]
 const data = [
   {
-    tag: "全局",
+    id: "1",
+    name: "全局",
     color: "#ed22ad",
-    desc: "desc",
-    createTime: "2018-05-05 18:00:00",
-    type: "global"
+    description: "desc",
+    creation_time: "2018-05-05 18:00:00",
+    scope: "g"
   },
   {
-    tag: "局部",
+    id: "2",
+    name: "局部",
     color: "#ed22ad",
-    desc: "desc",
-    createTime: "2018-05-05 18:00:00",
-    type: "part"
+    description: "desc",
+    creation_time: "2018-05-05 18:00:00",
+    scope: "p"
   },
 ]
+for(var i = 3; i < 100; i++){
+  data.push({
+    id: i,
+    name: "局部" + i,
+    color: "#ed22ad",
+    description: "desc",
+    creation_time: "2018-05-05 18:00:00",
+    scope: "p"
+  })
+}
 class Project extends Component {
   state = {
     color: 'orange',
-    selectedRowKeys: [],
+    selectedRows: [],
     isShowEditor: true,
     current: {},
+    currPage: 1,
   }
   componentDidMount() {
     this.loadData()
@@ -62,29 +76,38 @@ class Project extends Component {
   }
   onRowChange = (selectedRowKeys, selectedRows) => {
     const { isShowEditor } = this.state
-    if (isShowEditor) return
+    // if (isShowEditor) return
     this.setState({
-      selectedRowKeys,
-      current: selectedRows[0] || {},
+      selectedRows,
     })
   }
   loadData = () => {
-    console.log('loadData')
+    const { loadLabelList, harbor, scope, projectId } = this.props
+    const query = {
+      harbor,
+      scope,
+    }
+    if(scope === "p"){
+      query.projectId = projectId
+    }
+    loadLabelList(DEFAULT_REGISTRY, query).then((e) => {
+      console.log('loadData', e)
+    })
   }
   edit = () => {
-    const { selectedRowKeys, current } = this.state
-    if (selectedRowKeys.length === 1){
+    const { selectedRows, current } = this.state
+    if (selectedRows.length === 1){
       this.setState({
         isShowEditor: true,
-        current,
+        current: selectedRows[0],
       })
-    } else if(selectedRowKeys.length === 0) {
-      notification.warn('请选择标签')
+    } else if(selectedRows.length === 0) {
+      notification.warn('请选择一个标签')
     }
   }
   del = () => {
-    const { selectedRowKeys, current } = this.state
-    if (selectedRowKeys.length === 1){
+    const { selectedRows, current } = this.state
+    if (selectedRows.length === 1){
 
     } else {
       notification.warn('请选择标签')
@@ -97,8 +120,40 @@ class Project extends Component {
     })
   }
   onEditorOk = params => {
-    console.log(params)
-    data.push(params)
+    const { current } = this.state
+    const { createLabel, updateLabel, harbor } = this.props
+    if (!!current.id) {
+      const temp = {
+        id: current.id,
+        label: params,
+      }
+      updateLabel(harbor, DEFAULT_REGISTRY, temp, {
+        succecc: {
+          func: res => {
+            console.log(res)
+          }
+        },
+        failed: {
+          func: err => {
+            console.log(err)
+          }
+        },
+      })
+    } else {
+      createLabel(harbor, DEFAULT_REGISTRY, params, {
+        succecc: {
+          func: res => {
+            console.log(res)
+          }
+        },
+        failed: {
+          func: err => {
+            console.log(err)
+          }
+        },
+      })
+      data.push(params)
+    }
     this.onEditorCancel()
   }
   onEditorCancel = () => {
@@ -106,23 +161,23 @@ class Project extends Component {
       isShowEditor: false,
     })
   }
+  onTableChange = (pageination) => {
+    this.setState({
+      currPage: pageination.current
+    })
+  }
   render() {
-    const { color, selectedRowKeys, isShowEditor, current } = this.state
-    const picker = <TwitterPicker
-        style={{ width: 205, }}
-        colors={colors}
-        color={color}
-        triangle="hide"
-        onChangeComplete={this.handleColorChange} />
+    const { color, selectedRows, isShowEditor, current, currPage } = this.state
+    const { scope } = this.props
     const columns = [
       {
         title: '标签',
         width: '33%',
-        dataIndex: 'tag',
-        key: 'tag',
+        dataIndex: 'name',
+        key: 'name',
         render: (text, record) => (
           <div className="tag" style={{ backgroundColor: record.color }}>
-            {record.type === 'global' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+            {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
             {text}
           </div>
         ),
@@ -136,25 +191,30 @@ class Project extends Component {
       {
         title: '创建时间',
         width: '33%',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'creation_time',
+        key: 'creation_time',
       },
     ]
     const rowSelection = {
-      selectedRowKeys,
+      selectedRows,
       onChange: this.onRowChange,
     }
-    const btnDisabled = !selectedRowKeys.length
+    const tempData = filter(data, { scope })
+    const total = tempData.length
+    const pagination = {
+      simple: true,
+      current: currPage,
+      defaultPageSize: 10,
+      total,
+    }
+    const btnDisabled = !selectedRows.length
     return (
       <QueueAnim className='LabelModule'>
-        <div style={{width: 100, height: 100, backgroundColor: color, position: 'relative', marginBottom: '10px'}}>
-          <span style={{position: 'absolute', left: 50, top: 50, transform: 'translate(-50%, -50%)', color: 'white'}}>text</span>
-        </div>
         <div key="main">
           <div className="topRow">
             <Button type="primary" size="large" onClick={this.add}><i className='fa fa-plus'/>&nbsp;新建标签</Button>
             <Button type="ghost" size="large" onClick={this.loadData}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
-            <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
+            <Button disabled={selectedRows.length !== 1} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
             <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
             <Input
               placeholder="按标签名称搜索"
@@ -165,9 +225,9 @@ class Project extends Component {
               onPressEnter={this.searchProjects}
             />
             <i className="fa fa-search" onClick={this.searchProjects}></i>
-            <Popover overlayClassName="labelmodule_picker" placement="bottom" content={picker} trigger="click">
-              <Button size="large" type="primary" className="pickerBtn">picker</Button>
-            </Popover>
+            {
+              total ? <div className="total">共计 {total} 条</div> : null
+            }
           </div>
           {
             isShowEditor ?
@@ -180,10 +240,12 @@ class Project extends Component {
               null
           }
           <Table
+            pagination={pagination}
             columns={columns}
-            dataSource={data}
-            rowKey={row => row.tag}
+            dataSource={tempData}
+            rowKey={row => row.id}
             rowSelection={rowSelection}
+            onChange={this.onTableChange}
           />
         </div>
       </QueueAnim>
@@ -191,13 +253,18 @@ class Project extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  const { entities } = state
+const mapStateToProps = (state, props) => {
+  const { entities } = state;
+  const { harbor: harbors } = entities.current.cluster;
+  const harbor = harbors[0]
   return {
-    entities,
-  }
-}
+    harbor,
+  };
+};
 
-export default connect(mapStateToProps, {
-  loadProjectList,
+export default connect(mapStateToProps,  {
+  loadLabelList,
+  updateLabel,
+  createLabel,
+  setImageLabel
 })(Project)

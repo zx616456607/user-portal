@@ -557,6 +557,109 @@ export function loadImageUpdateList(harbor, body, callback) {
   }
 }
 
+export const LOAD_LABEL_LIST_REQUEST = 'LOAD_LABEL_LIST_REQUEST'
+export const LOAD_LABEL_LIST_SUCCESS = 'LOAD_LABEL_LIST_SUCCESS'
+export const LOAD_LABEL_LIST_FAILURE = 'LOAD_LABEL_LIST_FAILURE'
+
+function fetchLabelList(registry, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ LOAD_LABEL_LIST_REQUEST, LOAD_LABEL_LIST_SUCCESS, LOAD_LABEL_LIST_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function loadLabelList(registry, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLabelList(registry, query, callback))
+  }
+}
+
+export const UPDATE_LABEL_REQUEST = 'UPDATE_LABEL_REQUEST'
+export const UPDATE_LABEL_SUCCESS = 'UPDATE_LABEL_SUCCESS'
+export const UPDATE_LABEL_FAILURE = 'UPDATE_LABEL_FAILURE'
+
+function fetchUpdateLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ UPDATE_LABEL_REQUEST, UPDATE_LABEL_SUCCESS, UPDATE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateLabel(harbor, registry, body, callback))
+  }
+}
+
+export const CREATE_LABEL_REQUEST = 'CREATE_LABEL_REQUEST'
+export const CREATE_LABEL_SUCCESS = 'CREATE_LABEL_SUCCESS'
+export const CREATE_LABEL_FAILURE = 'CREATE_LABEL_FAILURE'
+
+function fetchCreateLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ CREATE_LABEL_REQUEST, CREATE_LABEL_SUCCESS, CREATE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function createLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateLabel(harbor, registry, body, callback))
+  }
+}
+
+export const SET_LABEL_REQUEST = 'SET_LABEL_REQUEST'
+export const SET_LABEL_SUCCESS = 'SET_LABEL_SUCCESS'
+export const SET_LABEL_FAILURE = 'SET_LABEL_FAILURE'
+
+function fetchSetImageLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/images/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ SET_LABEL_REQUEST, SET_LABEL_SUCCESS, SET_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function setImageLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetImageLabel(harbor, registry, body, callback))
+  }
+}
+
 export const IMAGE_UPDATE_RULES_SWITCH_REQUEST = 'IMAGE_UPDATE_RULES_SWITCH_REQUEST'
 export const IMAGE_UPDATE_RULES_SWITCH_SUCCESS = 'IMAGE_UPDATE_RULES_SWITCH_SUCCESS'
 export const IMAGE_UPDATE_RULES_SWITCH_FAILURE = 'IMAGE_UPDATE_RULES_SWITCH_FAILURE'

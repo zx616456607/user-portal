@@ -5,7 +5,7 @@ import { TwitterPicker } from 'react-color'
 import NotificationHandler from '../../../../../components/Notification'
 
 const notification = new NotificationHandler()
-
+let isSet = false
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -68,12 +68,25 @@ class Editor extends Component {
     }
     _cb()
   }
+  componentWillReceiveProps(next){
+    if (!!next.current && !!next.current.id && !isSet){
+      isSet = true
+      const { form: { setFieldsValue } } = this.props
+      setFieldsValue({
+        color: next.current.color,
+        desc: next.current.desc,
+        tag: next.current.tag,
+      })
+      setTimeout(() => {
+        isSet = false
+      }, 1000)
+    }
+  }
   render() {
-    const { current, onOk, onCancel, form } = this.props
+    const { current, onCancel, form } = this.props
     const { tag, color, desc } = current
     const { getFieldProps, getFieldValue } = form
-
-    const colorInputVal = getFieldValue("color")
+    const colorInputVal = getFieldValue("color") || current.color || ""
     const picker = <TwitterPicker
         style={{ width: 205, }}
         colors={colors}
@@ -82,6 +95,14 @@ class Editor extends Component {
         onChangeComplete={this.handleColorChange} />
     return (
       <QueueAnim>
+        <div>
+          {
+            current.id ?
+              "编辑, id: " + current.id
+              :
+              "新增"
+          }
+        </div>
         <Form key="form" className="editor">
           <Row>
             <Col span={6}>

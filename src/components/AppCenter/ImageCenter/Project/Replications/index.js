@@ -37,7 +37,7 @@ class Replications extends React.Component {
                 <Rules location={location}/>
               </TabPane>
               <TabPane tab="标签" key="label">
-                <LabelModule />
+                <LabelModule scope="g" />
               </TabPane>
             </Tabs>
           </Card>

@@ -14,10 +14,13 @@ import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
+import TenxIcon from '@tenx-ui/icon'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
+import { formatDate } from '../../../../common/tools'
+
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
@@ -132,12 +135,59 @@ class ImageVersion extends Component {
   }
 
   fetchData(data) {
+    data = [
+      {
+        digest: "sha256:2e37ea5aef670c4fe0cb2ef0c5ad9695472dd5f5070e9af2002d3febc8f44a71",
+        name: "v3.0",
+        size: 74399746,
+        architecture: "amd64",
+        os: "linux",
+        docker_version: "17.03.2-ce",
+        author: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e",
+        created: "2018-04-25T03:46:33.956571327Z",
+        push_time: "2018-04-25T03:46:33",
+        config: {
+          labels: {
+            maintainer: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e"
+          }
+        },
+        signature: null,
+        labels: [
+          {
+            id: 6,
+            name: "lalala",
+            description: "lalala1",
+            color: "#61717D",
+            scope: "g",
+            project_id: 0,
+            creation_time: "2018-07-16T09:08:39Z",
+            update_time: "2018-07-17T03:44:32Z"
+          }, {
+          id: "1",
+          name: "全局",
+          color: "#ed22ad",
+          description: "desc",
+          creation_time: "2018-05-05 18:00:00",
+          scope: "g"
+          }, {
+            id: "2",
+            name: "局部",
+            color: "#ed22ad",
+            description: "desc",
+            creation_time: "2018-05-05 18:00:00",
+            scope: "p"
+          },
+        ]
+      }
+    ]
     const curData = []
     if (data && data.length) {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
-          edition: item,
+          edition: item.name,
+          push_time: item.push_time,
+          labels: item.labels,
         }
         curData.unshift(curColums)
       })
@@ -316,7 +366,9 @@ class ImageVersion extends Component {
 
   handleRefresh() {
     const { config, loadRepositoriesTags } = this.props
-    loadRepositoriesTags(DEFAULT_REGISTRY, config.name, {
+    const imageDetail = this.props.config
+    let processedName = encodeImageFullname(imageDetail.name)
+    loadRepositoriesTags(DEFAULT_REGISTRY, config.name, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
@@ -346,28 +398,69 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-      width: '65%',
+      width: '25%',
+    },{
+      id: 'push_time',
+      title: '推送时间',
+      dataIndex: 'push_time',
+      key: 'push_time',
+      width: '25%',
+      render: text => formatDate(text)
+    }, {
+      id: 'labels',
+      title: '标签',
+      dataIndex: 'labels',
+      key: 'labels',
+      width: '25%',
+      render: (labels, record) => {
+        const label = labels[0] || {}
+        return (
+          [
+            <div className="tag" style={{ backgroundColor: label.color }}>
+              {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {' ' + label.name}
+            </div>,
+            <span>...</span>
+          ]
+        )
+      }
     }, {
       title: '操作',
       dataIndex: 'comment',
-      render: (text, record) => <div>
-        <Dropdown.Button
-          overlay={
-            <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
-              <MenuItem key='deploy'>
-                <i className="anticon anticon-appstore-o"></i> 部署镜像
-              </MenuItem>
-              {
-                isAdminAndHarbor ?
-                  <MenuItem key='del'>
-                    <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
-                  </MenuItem> : ''
-              }
-            </Menu>
-          } type="ghost" onClick={this.handleDetail.bind(this, record)}>
-          <Icon type="eye-o" />查看详情
-          </Dropdown.Button>
-      </div >
+      render: (text, record) => {
+        const items = []
+        record.isLock ?
+          items.push(<MenuItem key='lock'>
+            <Icon type="lock" /> 锁定
+          </MenuItem>)
+          :
+          items.push(<MenuItem key='unlock'>
+            <Icon type="unlock" /> 解锁
+          </MenuItem>)
+        items.push(<MenuItem key='del'>
+          <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
+        </MenuItem>)
+        return (
+          <div>
+            <Dropdown.Button
+              overlay={
+                <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
+                  <MenuItem key='deploy'>
+                    <i className="anticon anticon-appstore-o"></i> 部署镜像
+                  </MenuItem>
+                  {
+                    isAdminAndHarbor ?
+                      items
+                      :
+                      ""
+                  }
+                </Menu>
+              } type="ghost" onClick={this.handleDetail.bind(this, record)}>
+              <Icon type="eye-o" />查看详情
+              </Dropdown.Button>
+          </div >
+        )
+      }
     }]
 
     // {
