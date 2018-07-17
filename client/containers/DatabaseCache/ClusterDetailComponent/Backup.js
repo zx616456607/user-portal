@@ -34,6 +34,7 @@ class Backup extends React.Component {
     notYetConfirm: true, // 确认回滚勾选
     delThis: false, // 删除备份链弹框显示隐藏
     backupChain: '', // 当前操作的备份点
+    days: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
   }
   componentDidMount() {
     this.props.getbackupChain()
@@ -232,7 +233,16 @@ class Backup extends React.Component {
       })
     }
     // 获取选择备份周期
-    const selectPeriod = () => {
+    const selectPeriod = (week, index) => {
+      const { days } = this.state
+      const localWeeks = JSON.parse(JSON.stringify(days))
+      localWeeks[index] = localWeeks[index] ? false : week.en
+      this.setState({
+        days: localWeeks,
+      }, () => {
+
+      })
+
       // console.log(period)
     }
     const statusSwitch = () => {
@@ -269,7 +279,7 @@ class Backup extends React.Component {
         <Row className="item">
           <Col span={4} className="title">备份周期</Col>
           <Col span={19} push={1}>
-            <BackupStrategy setPeriod={selectPeriod}/>
+            <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
           </Col>
         </Row>
         <Row className="item">
@@ -287,7 +297,6 @@ class Backup extends React.Component {
       </div>
     </Modal>
   }
-
   // 手动弹窗组件
   manualBackupModal = () => {
     const tipText1 = `将在${this.state.curentChain.name}备份链上做差异备份`

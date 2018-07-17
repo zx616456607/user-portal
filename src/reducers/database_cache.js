@@ -72,7 +72,7 @@ function databaseAllList(state = {}, action) {
       return merge({}, defaultState, state, {
         [clusterType]: { isFetching: false }
       })
-  // delete database cluster 
+  // delete database cluster
     case ActionTypes.DELETE_DATABASE_CACHE_SUCCESS: {
       const delState = cloneDeep(state)
       const databaseList = delState[clusterType].databaseList
@@ -90,7 +90,7 @@ function databaseAllList(state = {}, action) {
         searchState[clusterType].databaseList = searchState[clusterType].bak
         return searchState
       }
-      
+
       const list = searchState[clusterType].bak.filter(item => {
         const search = new RegExp(action.name)
         if (search.test(item.serivceName)) {
@@ -165,6 +165,76 @@ function databaseClusterDetail(state = {}, action) {
   }
 }
 
+// 新建MysQL集群时获取默认配置
+function mysqlConfigDefault(state = {}, action) {
+  const defaultState = {
+    defaultConfig: {
+      isFetching: false,
+      config: null
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_MYSQL_CONFIG_REQUEST:
+      return merge({}, defaultState, state, {
+        defaultConfig: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.GET_MYSQL_CONFIG_SUCCESS:
+      console.log(action)
+      return Object.assign({}, state, {
+        defaultConfig: {
+          isFetching: false,
+          config: {}
+        }
+      })
+    case ActionTypes.GET_MYSQL_CONFIG_FAILURE:
+      return merge({}, defaultState, state, {
+        defaultConfig: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
+
+// 获取MySQL集群配置
+function mysqlConfig(state = {}, action) {
+  const defaultState = {
+    configInfo: {
+      isFetching: false,
+      config: null
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_MYSQL_CONFIG_REQUEST:
+      return merge({}, defaultState, state, {
+        configInfo: {
+          isFetching: true,
+          config: null
+        }
+      })
+    case ActionTypes.GET_MYSQL_CONFIG_SUCCESS:
+      console.log(action)
+      return Object.assign({}, state, {
+        databaseInfo: {
+          isFetching: false,
+          config: {}
+        }
+      })
+    case ActionTypes.GET_MYSQL_CONFIG_FAILURE:
+      return merge({}, defaultState, state, {
+        configInfo: {
+          isFetching: false,
+          config: null
+        }
+      })
+    default:
+      return state
+  }
+}
+
 function loadDBStorageAllList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -196,6 +266,8 @@ export function databaseCache(state = { databaseCache: {} }, action) {
     databaseAllList: databaseAllList(state.databaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     loadDBStorageAllList: loadDBStorageAllList(state.loadDBStorageAllList, action),
-    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action)
+    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action),
+    mysqlConfig: mysqlConfig(state.mysqlConfig, action),
+    mysqlConfigDefault: mysqlConfigDefault(state.mysqlConfigDefault, action)
   }
 }

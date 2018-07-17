@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
+import { Modal, Button, Icon, Input, Spin, Tooltip, Switch } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -38,6 +38,10 @@ let MyComponent = React.createClass({
       currentData: database,
       currentDatabase: database.serivceName
     })
+  },
+  //自动备份开关
+  autoBackupSwitch: checked => {
+
   },
   render: function () {
     const canCreate = this.props.canCreate
@@ -99,6 +103,7 @@ let MyComponent = React.createClass({
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li><span className='listKey'>自动备份</span><Switch checkedChildren="开" onChange={this.autoBackupSwitch} unCheckedChildren="关" /></li>
             </ul>
           </div>
         </div>
@@ -212,10 +217,9 @@ class MysqlCluster extends Component {
     //this function for user show the modal of create database
     this.setState({
       CreateDatabaseModalShow: true
-    });
-    setTimeout(function() {
+    }, () => {
       document.getElementById('dbName').focus()
-    }, 100);
+    });
   }
   handSearch() {
     const { search } = this.state

@@ -246,3 +246,50 @@ export function loadDBStorageAllList(cluster, callback) {
     return dispatch(fetchDBStorageAllList(cluster, callback))
   }
 }
+
+export const GET_MYSQL_CONFIG_REQUEST = 'GET_MYSQL_CONFIG_REQUEST'
+export const GET_MYSQL_CONFIG_SUCCESS = 'GET_MYSQL_CONFIG_SUCCESS'
+export const GET_MYSQL_CONFIG_FAILURE = 'GET_MYSQL_CONFIG_FAILURE'
+
+function fetchMySqlConfig(cluster, name, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_MYSQL_CONFIG_REQUEST, GET_MYSQL_CONFIG_SUCCESS, GET_MYSQL_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getMySqlConfig(cluster, name, callback) {
+  console.log(cluster, name);
+  return (dispatch) => {
+    return dispatch(fetchMySqlConfig(cluster, name, callback))
+  }
+}
+
+export const GET_MYSQL_CONFIG_DEFAULT_REQUEST = 'GET_MYSQL_CONFIG_DEFAULT_REQUEST'
+export const GET_MYSQL_CONFIG_DEFAULT_SUCCESS = 'GET_MYSQL_CONFIG_DEFAULT_SUCCESS'
+export const GET_MYSQL_CONFIG_DEFAULT_FAILURE = 'GET_MYSQL_CONFIG_DEFAULT_FAILURE'
+
+function fetchMySqlConfigDefault(cluster, name, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_MYSQL_CONFIG_DEFAULT_REQUEST, GET_MYSQL_CONFIG_DEFAULT_SUCCESS, GET_MYSQL_CONFIG_DEFAULT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config/default`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getMySqlConfigDefault(cluster, name, callback) {
+  console.log(cluster);
+  return (dispatch) => {
+    return dispatch(fetchMySqlConfigDefault(cluster, name, callback))
+  }
+}
+

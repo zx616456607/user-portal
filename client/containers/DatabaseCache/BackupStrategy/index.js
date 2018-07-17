@@ -37,7 +37,7 @@ export const weeks = [{
 }]
 export default class Index extends React.PureComponent {
   state = {
-    weeksSelected: [ false, false, false, false, false, false, false ],
+    weeksSelected: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
     timeList: [{
       key: new Date().getTime(),
       value: null,
@@ -53,16 +53,10 @@ export default class Index extends React.PureComponent {
     onChange && onChange(this.state)
   })
   _onWeekChange = (week, index) => {
-    const { weeksSelected } = this.state
-    const localWeeks = JSON.parse(JSON.stringify(weeksSelected))
-    localWeeks[index] = localWeeks[index] ? false : week.en
-    this._setState({
-      weeksSelected: localWeeks,
-    })
-    this.props.setPeriod(localWeeks)
+    this.props.setPeriod(week, index)
   }
   render() {
-    const { weeksSelected } = this.state
+    const { weeksSelected } = this.props
     return (
       <div className="container">
         <ButtonGroup>

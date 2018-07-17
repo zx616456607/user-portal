@@ -289,7 +289,7 @@ class BaseInfo extends Component {
       resourceConfigEdit: false
     })
   }
-  // 取消资源配置修改
+  // 取消资源配置修改+  -++++
   cancelEditResourceConfig = () => {
     this.refs.resourceConfig.resetFields() // 取消重置自定义中的所有值
     this.setState({
@@ -299,9 +299,6 @@ class BaseInfo extends Component {
     })
   }
 
-  componentWillUnmount() {
-    console.log(123)
-  }
   render() {
     const { bindingIPs, databaseInfo ,dbName } = this.props
     const { resourceConfigEdit, composeType, defaultType } = this.state
@@ -880,7 +877,8 @@ class ModalDetail extends Component {
     this.state = {
       currentDatabase: null,
       activeTabKey:'#BaseInfo',
-      putModaling: false
+      putModaling: false,
+      alertModal: false,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -913,7 +911,6 @@ class ModalDetail extends Component {
     });
 
   }
-
   componentWillMount() {
     const { loadDbClusterDetail, cluster, dbName } = this.props
     const _this = this
@@ -931,7 +928,6 @@ class ModalDetail extends Component {
       }
     });
   }
-
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
@@ -966,7 +962,6 @@ class ModalDetail extends Component {
       }
     });
   }
-
   putModal() {
     const putVisible = this.props.scope.state.putVisible
     this.props.scope.setState({
@@ -1051,6 +1046,26 @@ class ModalDetail extends Component {
     }
     return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
   }
+  stopAlert = () => {
+    this.setState({
+      alertModal: true
+    })
+  }
+  startAlert = () => {
+    this.setState({
+      alertModal: true
+    })
+  }
+  stopTheCluster = () => {
+    this.setState({
+      alertModal: false
+    })
+  }
+  startTheCluster = () => {
+    this.setState({
+      alertModal: false
+    })
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled } = this.props;
 
@@ -1061,7 +1076,6 @@ class ModalDetail extends Component {
         </div>
       )
     }
-
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -1078,10 +1092,18 @@ class ModalDetail extends Component {
               <div> 状态：
                 {this.dbStatus(databaseInfo.podInfo)}
               </div>
-
             </div>
             <div className='rightBox'>
               <div className='li'>
+                {
+                  databaseInfo.podInfo.running > 0 ?
+                    <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+                      <span className="stopIcon"></span>停止
+                    </Button>
+                    :
+                    <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+                }
+
                 <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
                   <i className="fa fa-refresh"></i>&nbsp;
                   刷新
@@ -1147,6 +1169,26 @@ class ModalDetail extends Component {
             </Tabs>
           </div>
         </div>
+        <Modal
+          visible={this.state.alertModal}
+          title="停止数据库与缓存集群"
+          onCancel={() => this.setState({alertModal: false})}
+          onOk={this.stopTheCluster}
+        >
+          <div className="alertContent">
+            <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.serviceInfo.name}集群？`}
+          </div>
+        </Modal>
+        <Modal
+          visible={this.state.alertModal}
+          title="启动数据库与缓存集群"
+          onCancel={() => this.setState({alertModal: false})}
+          onOk={this.startTheCluster}
+        >
+          <div className="alertContent">
+            <Icon type="question-circle-o" />{`是否确定启动${databaseInfo.serviceInfo.name}集群？`}
+          </div>
+        </Modal>
       </div>
     )
   }

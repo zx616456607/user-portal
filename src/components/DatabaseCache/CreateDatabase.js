@@ -14,9 +14,13 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin } from 'antd'
 import { CreateDbCluster } from '../../actions/database_cache'
+import { getResourceByMemory } from '../../../src/common/tools'
+import newMySqlCluster from '../../../kubernetes/objects/newMysqlCluster'
+import yaml from 'js-yaml'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
+import { getMySqlConfig, getMySqlConfigDefault } from '../../actions/database_cache'
 import NotificationHandler from '../../components/Notification'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import {
@@ -30,15 +34,12 @@ import {
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
 import { camelize } from 'humps'
-import classNames from "classnames";
-
 const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
 
 let CreateDatabase = React.createClass({
-
   getInitialState: function () {
     return {
       currentType: this.props.database,
@@ -46,24 +47,46 @@ let CreateDatabase = React.createClass({
       firstFocues: true,
       onselectCluster: true,
       composeType: 512,
-      advanceConfigContent: "log-bin = mysql-bin"
+      advanceConfigContent: "log-bin = mysql-bin",
+      showAdvanceConfig: false,
+      clusterConfig: {}
     }
   },
   componentWillMount() {
-    const { ListProjects } = this.props
+    const { ListProjects, cluster, clusterName, getMySqlConfigDefault } = this.props
+    getMySqlConfigDefault(cluster, '')
     ListProjects({ size: 0 })
     this.loadStorageClassList()
+    // 初始给集群配置赋值
+    function formatConfigData(convertedConfig) {
+      const configData = {}
+      configData.limits = {
+        cpu: convertedConfig.limitCpu,
+        memory:convertedConfig.limitMemory,
+      }
+      configData.requests = {
+        cpu: convertedConfig.cpu,
+        memory:convertedConfig.memory,
+      }
+      return configData
+    }
+    const convertedConfig = getResourceByMemory('512')
+    this.setState({
+      clusterConfig: formatConfigData(convertedConfig)
+    })
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
-    if(!nextProps.scope.state.CreateDatabaseModalShow) {
-      this.setState({onselectCluster: true, loading: false})
-    }
-    this.setState({
-      currentType: nextProps.database,
-    })
-    if(this.props.visible !== nextProps.visible && nextProps.visible){
-      this.loadStorageClassList()
+    if (this.props !== nextProps) {
+      if(!nextProps.scope.state.CreateDatabaseModalShow) {
+        this.setState({onselectCluster: true, loading: false})
+      }
+      this.setState({
+        currentType: nextProps.database,
+      })
+      if(this.props.visible !== nextProps.visible && nextProps.visible){
+        this.loadStorageClassList()
+      }
     }
   },
   onChangeCluster(clusterID) {
@@ -249,6 +272,19 @@ let CreateDatabase = React.createClass({
         lbGroupID,
         storageClassName: values.storageClass,
       }
+      const newMySqlClusterData = new newMySqlCluster(values.name, replicas, this.state.clusterConfig, values.storageClass, values.storageSelect)
+      console.log(yaml.dump(newMySqlClusterData));
+      return
+      const data = {
+        apiVersion: "daas.tenxcloud.com/v1",
+        kind: "MySQLCluster",
+        metadata: {
+          annotatioins: {
+
+          }
+        }
+      }
+
       if (!templateId) {
         notification.info(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
         _this.setState({loading: false})
@@ -288,7 +324,6 @@ let CreateDatabase = React.createClass({
           }
         }
       });
-
     });
   },
   getDefaultOutClusterValue(){
@@ -345,7 +380,31 @@ let CreateDatabase = React.createClass({
 
   //获取集群配置的值
   recordResouceConfigValue(values) {
-    console.log(values)
+    let configData = {}
+    //格式化配置信息
+    function formatConfigData(convertedConfig) {
+      const configData = {}
+      configData.limits = {
+        cpu: convertedConfig.limitCpu,
+        memory:convertedConfig.limitMemory,
+      }
+      configData.requests = {
+        cpu: convertedConfig.cpu,
+        memory:convertedConfig.memory,
+      }
+      return configData
+    }
+    if(values.maxMemoryValue) {
+      const { maxMemoryValue, minMemoryValue, maxCPUValue, minCPUValue } = values
+      const convertedConfig = getResourceByMemory('DIY', minMemoryValue, minCPUValue, maxMemoryValue, maxCPUValue)
+      configData = formatConfigData(convertedConfig)
+    }else {
+      const convertedConfig = getResourceByMemory('512')
+      configData = formatConfigData(convertedConfig)
+    }
+    this.setState({
+      clusterConfig: configData
+    })
   },
   selectComposeType(type) {
     this.setState({
@@ -431,8 +490,8 @@ let CreateDatabase = React.createClass({
         <Option key={item.clusterID}>{item.clusterName}</Option>
       )
     })
-    const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
-    const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const statefulApps = {
       mysql: 'MySQL',
       redis: 'Redis',
@@ -625,26 +684,34 @@ let CreateDatabase = React.createClass({
                 :null
               }
               <div className="commonBox advanceConfig">
-                <div className="top">高级配置</div>
-                <div className="configTitle">配置管理</div>
-                <div className="configItem">
-                  <div className="title">配置文件</div>
-                  <div>mysql.conf</div>
+                <div className="top" onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
+                  <Icon type={this.state.showAdvanceConfig? "minus-square" : "plus-square"} />
+                  高级配置
                 </div>
-                <div className="configItem">
-                  <div className="title">挂载目录</div>
-                  <div>/ect/mysql</div>
-                </div>
-                <div className="configItem">
-                  <div className="title">内容</div>
-                  <div className="content">
-                    <Input type="textarea" rows={4} value={this.state.advanceConfigContent} onChange={e => {
-                      this.setState({
-                        advanceConfigContent: e.target.value
-                      })
-                    }}/>
-                  </div>
-                </div>
+                {
+                  this.state.showAdvanceConfig &&
+                    <div>
+                      <div className="configTitle">配置管理</div>
+                      <div className="configItem">
+                        <div className="title">配置文件</div>
+                        <div>mysql.conf</div>
+                      </div>
+                      <div className="configItem">
+                        <div className="title">挂载目录</div>
+                        <div>/ect/mysql</div>
+                      </div>
+                      <div className="configItem">
+                        <div className="title">内容</div>
+                        <div className="content">
+                          <Input type="textarea" rows={4} value={this.state.advanceConfigContent} onChange={e => {
+                            this.setState({
+                              advanceConfigContent: e.target.value
+                            })
+                          }}/>
+                        </div>
+                      </div>
+                    </div>
+                }
               </div>
             </div>
             <div className='btnBox'>
@@ -724,6 +791,8 @@ CreateDatabase = injectIntl(CreateDatabase, {
 export default connect(mapStateToProps, {
   CreateDbCluster,
   setCurrent,
+  getMySqlConfig, // 获取集群配置
+  getMySqlConfigDefault, // 获取默认配置
   getProjectVisibleClusters,
   ListProjects,
   getClusterStorageList,

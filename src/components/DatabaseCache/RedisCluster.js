@@ -12,7 +12,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
+import { Switch, Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -40,6 +40,10 @@ let MyComponent = React.createClass({
       currentData: database,
       currentDatabase: database.serivceName
     })
+  },
+  //自动备份开关
+  autoBackupSwitch: checked => {
+
   },
   render: function () {
     const { config, isFetching } = this.props;
@@ -97,6 +101,7 @@ let MyComponent = React.createClass({
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB') :'0'}<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>自动备份</span><Switch checkedChildren="开" onChange={this.autoBackupSwitch} unCheckedChildren="关" /></li>
             </ul>
           </div>
         </div>
