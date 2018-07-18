@@ -383,7 +383,15 @@ class ImageDetailBox extends Component {
                 imageName={this.props.imageName}
               />
             </TabPane>
-            <TabPane tab={formatMessage(menusText.tag)} key="tag"><ImageVersion location={location} isAdminAndHarbor={isAdminAndHarbor} scope={this} config={imageDetail} scopeDetail={scope}/></TabPane>
+            <TabPane tab={formatMessage(menusText.tag)} key="tag">
+              <ImageVersion
+                imageName={this.props.imageName}
+                location={location}
+                isAdminAndHarbor={isAdminAndHarbor}
+                scope={this} config={imageDetail}
+                scopeDetail={scope}
+              />
+            </TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
             <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} imageType="publicImages" registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} tabledisabled={this.state.tabledisabled} /></TabPane>
           </Tabs>

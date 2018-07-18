@@ -120,6 +120,141 @@ export function loadProjectRepos(registry, query, callback) {
   }
 }
 
+export const HARBOR_GET_PROJECT_MAXTAGS_REQUEST = 'HARBOR_GET_PROJECT_MAXTAGS_REQUEST'
+export const HARBOR_GET_PROJECT_MAXTAGS_SUCCESS = 'HARBOR_GET_PROJECT_MAXTAGS_SUCCESS'
+export const HARBOR_GET_PROJECT_MAXTAGS_FAILURE = 'HARBOR_GET_PROJECT_MAXTAGS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchProjectMaxTagCount(registry, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/repositories`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_GET_PROJECT_MAXTAGS_REQUEST, HARBOR_GET_PROJECT_MAXTAGS_SUCCESS, HARBOR_GET_PROJECT_MAXTAGS_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadProjectMaxTagCount(registry, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchProjectMaxTagCount(registry, query, callback))
+  }
+}
+
+export const HARBOR_SET_PROJECT_MAXTAGS_REQUEST = 'HARBOR_SET_PROJECT_MAXTAGS_REQUEST'
+export const HARBOR_SET_PROJECT_MAXTAGS_SUCCESS = 'HARBOR_SET_PROJECT_MAXTAGS_SUCCESS'
+export const HARBOR_SET_PROJECT_MAXTAGS_FAILURE = 'HARBOR_SET_PROJECT_MAXTAGS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectMaxTagCount(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/maxtag`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  const body = {
+    max_tags_count: query.max_tags_count
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_SET_PROJECT_MAXTAGS_REQUEST, HARBOR_SET_PROJECT_MAXTAGS_SUCCESS, HARBOR_SET_PROJECT_MAXTAGS_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateProjectMaxTagCount(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProjectMaxTagCount(query, callback))
+  }
+}
+
+export const HARBOR_SET_PROJECT_TAGLABEL_REQUEST = 'HARBOR_SET_PROJECT_TAGLABEL_REQUEST'
+export const HARBOR_SET_PROJECT_TAGLABEL_SUCCESS = 'HARBOR_SET_PROJECT_TAGLABEL_SUCCESS'
+export const HARBOR_SET_PROJECT_TAGLABEL_FAILURE = 'HARBOR_SET_PROJECT_TAGLABEL_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSetRepositoriesTagLabel(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/tags/${query.tagName}/labels`
+  if (query) {
+    endpoint += `?${toQuerystring({ harbor: query.harbor })}`
+  }
+  const body = {
+    id: query.id,
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_SET_PROJECT_TAGLABEL_REQUEST, HARBOR_SET_PROJECT_TAGLABEL_SUCCESS, HARBOR_SET_PROJECT_TAGLABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function setRepositoriesTagLabel(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetRepositoriesTagLabel(query, callback))
+  }
+}
+
+export const HARBOR_DEL_PROJECT_TAGLABEL_REQUEST = 'HARBOR_DEL_PROJECT_TAGLABEL_REQUEST'
+export const HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS = 'HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS'
+export const HARBOR_DEL_PROJECT_TAGLABEL_FAILURE = 'HARBOR_DEL_PROJECT_TAGLABEL_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDelRepositoriesTagLabel(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/tags/${query.tagName}/labels/${query.id}`
+  if (query) {
+    endpoint += `?${toQuerystring({ harbor: query.harbor })}`
+  }
+  const body = {
+    max_tags_count: query.max_tags_count
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_DEL_PROJECT_TAGLABEL_REQUEST, HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS, HARBOR_DEL_PROJECT_TAGLABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function delRepositoriesTagLabel(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelRepositoriesTagLabel(query, callback))
+  }
+}
+
+// router.post('/registries/:registry/repositories/:user/:name/tags/labels', harborController.setRepositoriesTagLock)
+// router.del('/registries/:registry/repositories/:user/:name/tags/labels/:id', harborController.setRepositoriesTagUnlock)
+
 export const HARBOR_GET_PROJECT_MEMBERS_REQUEST = 'HARBOR_GET_PROJECT_MEMBERS_REQUEST'
 export const HARBOR_GET_PROJECT_MEMBERS_SUCCESS = 'HARBOR_GET_PROJECT_MEMBERS_SUCCESS'
 export const HARBOR_GET_PROJECT_MEMBERS_FAILURE = 'HARBOR_GET_PROJECT_MEMBERS_FAILURE'
@@ -330,23 +465,23 @@ export const HARBOR_REPOSITORIES_TAGS_SUCCESS = 'HARBOR_REPOSITORIES_TAGS_SUCCES
 export const HARBOR_REPOSITORIES_TAGS_FAILURE = 'HARBOR_REPOSITORIES_TAGS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRepositoriesTags(harbor, registry, imageName, callback) {
+function fetchRepositoriesTags(query, callback) {
   return {
-    registry,
-    imageName,
+    registry: query.registry,
+    imageName: query.imageName,
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags?harbor=${harbor}`,
+      endpoint: `${API_URL_PREFIX}/registries/${query.registry}/repositories/${encodeImageFullname(query.imageName)}/tags?harbor=${query.harbor}`,
       schema: {}
     }
   }
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTags(harbor, registry, imageName, callback) {
+export function loadRepositoriesTags(query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchRepositoriesTags(harbor, registry, imageName, callback))
+    return dispatch(fetchRepositoriesTags(query, callback))
   }
 }
 

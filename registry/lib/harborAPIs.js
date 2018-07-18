@@ -184,6 +184,23 @@ HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
+// [PUT] repositories/:user/:projectname/maxtag
+HarborAPIs.prototype.setRepositoriesMaxTag = function (name, body, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/maxtag`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+// POST /api/repositories/:project/:rest/tags/:tag/labels
+HarborAPIs.prototype.setRepositoriesTagLabel = function (name, tagname, body, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+// DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
+HarborAPIs.prototype.delRepositoriesTagLabel = function (name, tagname, id, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
+
 HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
   const method = 'getRepositoriesManifest'
   logger.debug(method, `Get Repos tags`)

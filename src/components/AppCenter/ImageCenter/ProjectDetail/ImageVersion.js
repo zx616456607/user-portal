@@ -8,7 +8,8 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin, Tabs, Button, Table, Icon, Select, Input, Pagination, Dropdown, Menu, Modal } from 'antd'
+import { Card, Spin, Tabs, Button, Table, Icon, Select, Input,
+  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -17,14 +18,64 @@ import ServiceAPI from './ServiceAPI.js'
 import TenxIcon from '@tenx-ui/icon'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
-import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
+import { loadRepositoriesTags, deleteAlone, loadProjectMaxTagCount, updateProjectMaxTagCount,
+  setRepositoriesTagLabel, delRepositoriesTagLabel } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
 import { formatDate } from '../../../../common/tools'
+import cloneDeep from 'lodash/cloneDeep'
+import filter from 'lodash/filter'
 
+const notification = new NotificationHandler()
+const commonData = [
+  {
+    digest: "sha256:2e37ea5aef670c4fe0cb2ef0c5ad9695472dd5f5070e9af2002d3febc8f44a71",
+    name: "v3.0",
+    size: 74399746,
+    architecture: "amd64",
+    os: "linux",
+    docker_version: "17.03.2-ce",
+    author: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e",
+    created: "2018-04-25T03:46:33.956571327Z",
+    push_time: "2018-04-25T03:46:33",
+    config: {
+      labels: {
+        maintainer: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e"
+      }
+    },
+    signature: null,
+    labels: [
+      {
+        id: 6,
+        name: "lalala",
+        description: "lalala1",
+        color: "#61717D",
+        scope: "g",
+        project_id: 0,
+        creation_time: "2018-07-16T09:08:39Z",
+        update_time: "2018-07-17T03:44:32Z"
+      }, {
+      id: "1",
+      name: "全局",
+      color: "#ed22ad",
+      description: "desc",
+      creation_time: "2018-05-05 18:00:00",
+      scope: "g"
+      }, {
+        id: "2",
+        name: "局部123局部123局部123局部123",
+        color: "#ed22ad",
+        description: "desc",
+        creation_time: "2018-05-05 18:00:00",
+        scope: "p"
+      },
+    ]
+  }
+]
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
 const MenuItem = Menu.Item
+const SubMenu = Menu.SubMenu
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -81,6 +132,8 @@ class ImageVersion extends Component {
       processedName: '',
       deleteAll: false,
       selectedRowKeys: [],
+      max_tags_count: 0,
+      lastCount: 0,
     }
   }
 
@@ -89,19 +142,38 @@ class ImageVersion extends Component {
   }
 
   loadData() {
-    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor } = this.props
-    const imageDetail = this.props.config
+    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor, loadProjectMaxTagCount,
+      config: imageDetail,
+    } = this.props
+    const project_id = ""
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
       processedName,
     })
-    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
+    const query = {
+      harbor,
+      registry: DEFAULT_REGISTRY,
+      imageName: processedName,
+    }
+    loadRepositoriesTags(query, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
             this.fetchData(res.data)
           }
         }
+      }
+    })
+    loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
+      success: {
+        func: res => {
+          console.log("max_tags_count", res.max_tags_count)
+          this.setState({
+            max_tags_count: res.max_tags_count || 10,
+            lastCount: res.max_tags_count || 10,
+          })
+        },
+        isAsync: true,
       }
     })
   }
@@ -135,51 +207,7 @@ class ImageVersion extends Component {
   }
 
   fetchData(data) {
-    data = [
-      {
-        digest: "sha256:2e37ea5aef670c4fe0cb2ef0c5ad9695472dd5f5070e9af2002d3febc8f44a71",
-        name: "v3.0",
-        size: 74399746,
-        architecture: "amd64",
-        os: "linux",
-        docker_version: "17.03.2-ce",
-        author: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e",
-        created: "2018-04-25T03:46:33.956571327Z",
-        push_time: "2018-04-25T03:46:33",
-        config: {
-          labels: {
-            maintainer: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e"
-          }
-        },
-        signature: null,
-        labels: [
-          {
-            id: 6,
-            name: "lalala",
-            description: "lalala1",
-            color: "#61717D",
-            scope: "g",
-            project_id: 0,
-            creation_time: "2018-07-16T09:08:39Z",
-            update_time: "2018-07-17T03:44:32Z"
-          }, {
-          id: "1",
-          name: "全局",
-          color: "#ed22ad",
-          description: "desc",
-          creation_time: "2018-05-05 18:00:00",
-          scope: "g"
-          }, {
-            id: "2",
-            name: "局部",
-            color: "#ed22ad",
-            description: "desc",
-            creation_time: "2018-05-05 18:00:00",
-            scope: "p"
-          },
-        ]
-      }
-    ]
+    // data = commonData
     const curData = []
     if (data && data.length) {
       data.forEach((item, index) => {
@@ -353,9 +381,69 @@ class ImageVersion extends Component {
   handleMenu(record, e) {
     if (e.key === 'deploy') {
       this.handleDeploy(record.edition)
-    } if (e.key === 'del') {
+    } else if (e.key === 'del') {
       this.handleDelete(record.edition)
+    } else if (e.key === 'lock') {
+      this.lock(record)
+    } else if (e.key === 'unlock') {
+      this.unlock(record)
     }
+  }
+  lock = record => {
+    const { imageName, harbor, setRepositoriesTagLabel } = this.props
+    const { max_tags_count } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: record.edition,
+    }
+    setRepositoriesTagLabel(query, {
+      success: {
+        func: res => {
+          if(res.statusCode === 200){
+            notification.success("锁定成功")
+            this.loadData()
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          if(!!err){
+            notification.warn("锁定失败")
+          }
+        }
+      }
+    })
+  }
+  unlock = record => {
+    const { imageName, harbor, delRepositoriesTagLabel } = this.props
+    const { max_tags_count } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: record.edition,
+    }
+    delRepositoriesTagLabel(query, {
+      success: {
+        func: res => {
+          if(res.statusCode === 200){
+            notification.success("解锁成功")
+            this.loadData()
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          if(!!err){
+            notification.warn("解锁失败")
+          }
+        }
+      }
+    })
   }
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
@@ -385,10 +473,56 @@ class ImageVersion extends Component {
       }
     })
   }
-
+  onCheckboxChange = (flag, label, record) => {
+    console.log(arguments)
+  }
+  onPressEnter = e => {
+    this.onConfirmOk()
+  }
+  onConfirmOk = () => {
+    const { imageName, harbor, updateProjectMaxTagCount } = this.props
+    const { max_tags_count } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      max_tags_count,
+      harbor,
+    }
+    updateProjectMaxTagCount(query, {
+      success: {
+        func: res => {
+          if(!!res.data && res.data === 'success'){
+            notification.success("修改成功")
+          }
+        }
+      },
+      failed: {
+        func: err => {
+          console.log(err)
+          if(!!err && err.code === 400){
+            const current_tag_total = err.message.current_tag_total
+            if(!!current_tag_total){
+              this.setState({
+                max_tags_count: current_tag_total,
+                lastCount: current_tag_total,
+              })
+            }
+            notification.warn("版本最多个数，需不小于（≥）当前版本数" + (current_tag_total && "，当前版本数为：" + current_tag_total))
+          } else {
+            notification.warn("修改失败")
+          }
+        }
+      }
+    })
+  }
+  onConfirmCancel = () => {
+    this.setState({
+      isShowMaxConfirm: false,
+    })
+  }
   render() {
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
-    const { edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys, deleteAll } = this.state
+    const { max_tags_count, edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys, deleteAll } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
@@ -398,29 +532,42 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-      width: '25%',
+      width: '19%',
     },{
       id: 'push_time',
       title: '推送时间',
       dataIndex: 'push_time',
       key: 'push_time',
-      width: '25%',
+      width: '27%',
       render: text => formatDate(text)
     }, {
       id: 'labels',
       title: '标签',
       dataIndex: 'labels',
       key: 'labels',
-      width: '25%',
+      width: '27%',
       render: (labels, record) => {
-        const label = labels[0] || {}
+        const tempLabels = cloneDeep(labels)
+        if(!tempLabels.length) return "无标签"
+        const label = tempLabels[0] || {}
+        const otherTags = tempLabels.slice(1).map((o, i) => {
+          return (
+            <div><div className="tag otherTag" style={{ backgroundColor: o.color }}>
+              {o.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {' ' + o.name}
+            </div></div>
+          )
+        })
         return (
           [
             <div className="tag" style={{ backgroundColor: label.color }}>
               {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
               {' ' + label.name}
             </div>,
-            <span>...</span>
+            tempLabels.length > 1 ?
+            <Popover overlayClassName="otherTagsTip" placement="right" content={otherTags}>
+              <span className="more">...</span>
+            </Popover> : ""
           ]
         )
       }
@@ -440,14 +587,34 @@ class ImageVersion extends Component {
         items.push(<MenuItem key='del'>
           <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
         </MenuItem>)
+        const allLabels = record.labels
+        const subItems = record.labels.map((label, i) => {
+          let checked = false
+          if(!!filter(allLabels, { name: label.name })[0]) checked = true
+          return (
+            <Menu.Item>
+              <div>
+                <Checkbox onChange={e => { this.onCheckboxChange(e.target.checked, label, record) }} checked={checked} />
+                <div className="tag otherTag" style={{ backgroundColor: label.color }}>
+                  {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+                  {' ' + label.name}
+                </div>
+              </div>
+            </Menu.Item>
+          )
+        })
         return (
           <div>
             <Dropdown.Button
               overlay={
-                <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
+                <Menu className="imageVersionDropdownMenu" style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
                   <MenuItem key='deploy'>
                     <i className="anticon anticon-appstore-o"></i> 部署镜像
                   </MenuItem>
+                  <SubMenu
+                    title={<span><Icon type="tags" /> 配置标签</span>}>
+                    {subItems}
+                  </SubMenu>
                   {
                     isAdminAndHarbor ?
                       items
@@ -503,6 +670,14 @@ class ImageVersion extends Component {
                 <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
+            <span style={{ marginLeft: 10 }}>
+              保留版本最多
+              <Input onChange={ e => this.setState({ max_tags_count: e.target.value })} value={max_tags_count} style={{width: 50}} onPressEnter={this.onPressEnter} />
+              个（自动清理最旧版本）
+              <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+              </Tooltip>
+            </span>
             {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
@@ -591,5 +766,9 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   deleteAlone,
   loadRepositoriesTags,
-  appStoreApprove
+  appStoreApprove,
+  loadProjectMaxTagCount,
+  updateProjectMaxTagCount,
+  setRepositoriesTagLabel,
+  delRepositoriesTagLabel,
 })(ImageVersion)

@@ -107,6 +107,31 @@ exports.getRepositoriesTags = harborHandler(
     harbor.getRepositoriesTags(repoName, callback)
   }
 )
+
+// [PUT] /projects/:project_id/user_id/:user_id
+exports.setRepositoriesMaxTag = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.setRepositoriesMaxTag(repoName, ctx.request.body, callback)
+  }
+)
+// POST /api/repositories/:project/:rest/tags/:tag/labels
+exports.setRepositoriesTagLabel = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.setRepositoriesTagLabel(repoName, ctx.params.tagname, ctx.request.body, callback)
+  }
+)
+// DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
+exports.delRepositoriesTagLabel = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.delRepositoriesTagLabel(repoName, ctx.params.tagname, ctx.params.id, callback)
+  }
+)
+
+
+
 // [GET] /repositories/:user/:name/tags/configinfo
 exports.getRepositoriyConfig = function* () {
   const config = getRegistryConfig()
