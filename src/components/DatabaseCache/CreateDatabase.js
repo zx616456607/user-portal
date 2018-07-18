@@ -20,7 +20,7 @@ import yaml from 'js-yaml'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
-import { getMySqlConfig, getMySqlConfigDefault } from '../../actions/database_cache'
+import { getMySqlConfig, getMySqlConfigDefault, createMySqlClusterPwd, createMySqlConfig, createDatabaseCluster } from '../../actions/database_cache'
 import NotificationHandler from '../../components/Notification'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import {
@@ -53,7 +53,7 @@ let CreateDatabase = React.createClass({
     }
   },
   componentWillMount() {
-    const { ListProjects, cluster, clusterName, getMySqlConfigDefault } = this.props
+    const { ListProjects, cluster, getMySqlConfigDefault } = this.props
     getMySqlConfigDefault(cluster, '')
     ListProjects({ size: 0 })
     this.loadStorageClassList()
@@ -61,12 +61,12 @@ let CreateDatabase = React.createClass({
     function formatConfigData(convertedConfig) {
       const configData = {}
       configData.limits = {
-        cpu: convertedConfig.limitCpu,
-        memory:convertedConfig.limitMemory,
+        cpu: `${convertedConfig.cpu * 1000}m`,
+        memory: `${convertedConfig.memory}Mi`,
       }
       configData.requests = {
-        cpu: convertedConfig.cpu,
-        memory:convertedConfig.memory,
+        cpu: `${convertedConfig.limitCpu * 1000}m`,
+        memory:`${convertedConfig.limitMemory}Mi`,
       }
       return configData
     }
@@ -212,7 +212,7 @@ let CreateDatabase = React.createClass({
     //this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { scope, CreateDbCluster, setCurrent, space } = this.props;
+    const { scope, CreateDbCluster, setCurrent, space, cluster, createMySqlClusterPwd, createDatabaseCluster, createMySqlConfig } = this.props;
     const { projects, projectVisibleClusters, form } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
@@ -260,70 +260,55 @@ let CreateDatabase = React.createClass({
         lbGroupID = values.outerCluster
       }
       const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
-      const body = {
-        cluster: values.clusterSelect,
-        externalIP: externalIP,
-        serviceName: values.name,
-        password: values.password,
-        replicas: replicas,
-        volumeSize: values.storageSelect,
-        teamspace: newSpace.namespace,
-        templateId,
+      const newMySqlClusterData = new newMySqlCluster(
+        values.name,
+        replicas,
         lbGroupID,
-        storageClassName: values.storageClass,
-      }
-      const newMySqlClusterData = new newMySqlCluster(values.name, replicas, this.state.clusterConfig, values.storageClass, values.storageSelect)
-      console.log(yaml.dump(newMySqlClusterData));
-      return
-      const data = {
-        apiVersion: "daas.tenxcloud.com/v1",
-        kind: "MySQLCluster",
-        metadata: {
-          annotatioins: {
+        this.state.clusterConfig,
+        values.storageClass,
+        `${values.storageSelect}Mi`)
 
-          }
-        }
-      }
 
-      if (!templateId) {
-        notification.info(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
-        _this.setState({loading: false})
-        return
-      }
-      CreateDbCluster(body, {
-        success: {
-          func: ()=> {
-            notification.success('创建成功')
-            loadDbCacheList(body.cluster, _this.state.currentType)
-            setCurrent({
-              cluster: newCluster,
-              space: newSpace
-            })
-            _this.props.form.resetFields();
-            scope.setState({
-              CreateDatabaseModalShow: false
-            });
-          },
-          isAsync: true
-        },
-        failed: {
-          func: (res)=> {
-            if (res.statusCode == 409) {
-              notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
-            } else {
-              if(res.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-                notification.error('创建数据库服务失败')
-              }
-
+      const create = async () => {
+        // 错误处理
+        const handleError = error => {
+            if (error.message.message.indexOf('already exists') > 0) {
+              notification.warn('集群名已经存在')
+              this.setState({loading: false})
             }
-          }
-        },
-        finally: {
-          func:()=> {
-            this.setState({loading: false})
-          }
         }
-      });
+        // 创建密码
+        const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
+        if(pwdCreate.error) {
+          handleError(pwdCreate.error)
+          return
+        }
+        // 创建配置
+        const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent)
+        if(confCreate.error) {
+          handleError(confCreate.error)
+          return
+        }
+        // 创建集群
+        const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newMySqlClusterData))
+        if(dbCreate.error) {
+          handleError(dbCreate.error)
+          return
+        }
+        // 创建成功
+        notification.success('创建成功')
+        setCurrent({
+          cluster: newCluster,
+          space: newSpace
+        })
+        this.props.form.resetFields();
+        scope.setState({
+          CreateDatabaseModalShow: false
+        }, () => {
+          loadDbCacheList(cluster, 'mysql')
+        });
+      }
+      create()
     });
   },
   getDefaultOutClusterValue(){
@@ -385,12 +370,12 @@ let CreateDatabase = React.createClass({
     function formatConfigData(convertedConfig) {
       const configData = {}
       configData.limits = {
-        cpu: convertedConfig.limitCpu,
-        memory:convertedConfig.limitMemory,
+        cpu: `${convertedConfig.cpu * 1000}m`,
+        memory: `${convertedConfig.memory}Mi`,
       }
       configData.requests = {
-        cpu: convertedConfig.cpu,
-        memory:convertedConfig.memory,
+        cpu: `${convertedConfig.limitCpu * 1000}m`,
+        memory:`${convertedConfig.limitMemory}Mi`,
       }
       return configData
     }
@@ -411,7 +396,6 @@ let CreateDatabase = React.createClass({
       composeType: type,
     })
   },
-
 
   render() {
     const { composeType } = this.state
@@ -673,7 +657,7 @@ let CreateDatabase = React.createClass({
               { billingEnabled ?
                 <div className="modal-price">
                   <div className="price-left">
-                    <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
                     <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
                   </div>
                   <div className="price-unit">
@@ -791,9 +775,12 @@ CreateDatabase = injectIntl(CreateDatabase, {
 export default connect(mapStateToProps, {
   CreateDbCluster,
   setCurrent,
+  createMySqlConfig, //创建mysql集群配置
   getMySqlConfig, // 获取集群配置
   getMySqlConfigDefault, // 获取默认配置
+  createDatabaseCluster, // 创建集群
   getProjectVisibleClusters,
   ListProjects,
   getClusterStorageList,
+  createMySqlClusterPwd, // 创建密码
 })(CreateDatabase)

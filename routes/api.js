@@ -520,9 +520,22 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
   router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBService)
   // Filter by type
-  router.get('/clusters/:cluster/dbservices', databaseCacheController.listDBService)
-  router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
+  router.get('/clusters/:cluster/daas/:type', databaseCacheController.listDBService)
+  router.get('/clusters/:cluster/daas/:type/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
+
+  // 获取高级配置
+  router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getMySqlConfig)
+  router.post('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.createMySqlConfig)
+  router.get('/clusters/:cluster/daas/mysql/:name/config/default', databaseCacheController.getMySqlDefaultConfig)
+  // 创建MySQL集群密码
+  router.post('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.createMySqlClusterPwd)
+  // 修改MySQL集群密码
+  router.put('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.updateMySqlClusterPwd)
+  // 查看MySQL集群密码
+  router.get('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.getMySqlClusterPwd)
+  // 创建集群
+  router.post('/clusters/:clusterID/daas/mysql', databaseCacheController.createDatabaseCluster)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

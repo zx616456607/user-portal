@@ -93,13 +93,12 @@ function databaseAllList(state = {}, action) {
 
       const list = searchState[clusterType].bak.filter(item => {
         const search = new RegExp(action.name)
-        if (search.test(item.serivceName)) {
+        if (search.test(item.metadata.name)) {
           return true
         }
         return false
       })
       searchState[clusterType].databaseList = list
-
       return searchState
     }
     default:

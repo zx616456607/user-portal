@@ -13,8 +13,8 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Slider, Timeline, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { injectIntl } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import { setServiceProxyGroup } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
@@ -32,14 +32,6 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../assets/img/database_cache/etcd.jpg'
-import {
-  RESOURCES_CPU_DEFAULT,
-  RESOURCES_CPU_MAX,
-  RESOURCES_CPU_MIN,
-  RESOURCES_CPU_STEP,
-  RESOURCES_MEMORY_MAX, RESOURCES_MEMORY_MIN,
-  RESOURCES_MEMORY_STEP
-} from "../../constants";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -135,7 +127,7 @@ class BaseInfo extends Component {
     super(props)
     this.state ={
       passShow: false,
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size),
+      storageValue: this.props.database.spec ? parseInt(this.props.database.spec.volumeClaimTemplate.spec.resources.requests.storage) : 0,
       resourceConfigEdit: false,
       resourceConfigValue: '',
       composeType: 'DIY',
@@ -917,12 +909,14 @@ class ModalDetail extends Component {
     this.setState({
       currentDatabase: dbName,
     });
-    loadDbClusterDetail(cluster, dbName, {
+
+    loadDbClusterDetail(cluster, dbName, 'mysql', {
       success: {
         func: (res) => {
+          console.log(res);
           _this.setState({
-            replicas: res.database.podInfo.desired,
-            storageValue: parseInt(res.database.volumeInfo.size)
+            replicas: res.database.spec.replicas,
+            storageValue: parseInt(res.database.spec.volumeClaimTemplate.spec.resources.requests.storage)
           })
         }
       }
@@ -1035,16 +1029,16 @@ class ModalDetail extends Component {
     return logoMapping[clusterType]
   }
   dbStatus(phase) {
-    if (phase.running >0) {
+    if (phase === 'Success') {
       return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
     }
-    if (phase.padding >0) {
-       return (<span className='padding'><i className="fa fa-circle"></i> 启动中 </span>)
+    if (phase === 'Pending' >0) {
+       return (<span className='padding'><i className="fa fa-circle"></i> 创建中 </span>)
     }
-    if (phase.failed >0) {
-       return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
-    }
-    return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
+    // if (phase.failed >0) {
+    //    return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
+    // }
+    // return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
   }
   stopAlert = () => {
     this.setState({
@@ -1076,6 +1070,7 @@ class ModalDetail extends Component {
         </div>
       )
     }
+    console.log(databaseInfo);
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -1085,18 +1080,18 @@ class ModalDetail extends Component {
           </div>
           <div className='infoBox'>
             <p className='instanceName'>
-              {databaseInfo.serviceInfo.name}
+              {databaseInfo.metadata.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.serviceInfo.namespace} / {databaseInfo.serviceInfo.name}</div>
+              <div className="desc">{databaseInfo.metadata.namespace} / {databaseInfo.metadata.name}</div>
               <div> 状态：
-                {this.dbStatus(databaseInfo.podInfo)}
+                {this.dbStatus(databaseInfo.status.phase)}
               </div>
             </div>
             <div className='rightBox'>
               <div className='li'>
                 {
-                  databaseInfo.podInfo.running > 0 ?
+                  databaseInfo.status.phase === 'stop' ?
                     <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
                       <span className="stopIcon"></span>停止
                     </Button>
@@ -1176,7 +1171,7 @@ class ModalDetail extends Component {
           onOk={this.stopTheCluster}
         >
           <div className="alertContent">
-            <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.serviceInfo.name}集群？`}
+            <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.metadata.name}集群？`}
           </div>
         </Modal>
         <Modal
@@ -1186,7 +1181,7 @@ class ModalDetail extends Component {
           onOk={this.startTheCluster}
         >
           <div className="alertContent">
-            <Icon type="question-circle-o" />{`是否确定启动${databaseInfo.serviceInfo.name}集群？`}
+            <Icon type="question-circle-o" />{`是否确定启动${databaseInfo.metadata.name}集群？`}
           </div>
         </Modal>
       </div>
