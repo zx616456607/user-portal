@@ -127,13 +127,12 @@ type = mysql/redis/....
 */
 exports.listDBService = function* () {
   const cluster = this.params.cluster
+  const type = this.params.type
   const loginUser = this.session.loginUser
-  const query = this.query || {}
-  const category = query.type
 
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices'], { "category": category });
-  const databases = result.data.petSets || []
+  const result = yield api.getBy([cluster, 'daas', type]);
+  const databases = result.data.items || []
   // remote some data
   databases.forEach(function (db) {
     if (db.objectMeta) {
@@ -141,10 +140,81 @@ exports.listDBService = function* () {
     }
     delete db.typeMeta
   })
+
   this.body = {
     cluster,
     databaseList: databases,
   }
+}
+// 获取mysql集群配置
+exports.getMySqlConfig = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster
+  const clusterName = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config'])
+  this.body = result
+}
+// 创建MySQL集群配置
+exports.createMySqlConfig = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster
+  const clusterName = this.params.name
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'config'], null, body)
+  this.body = result
+}
+// 获取默认配置
+exports.getMySqlDefaultConfig = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster
+  const clusterName = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config', 'default'])
+  this.body = result
+}
+
+// 创建密码
+exports.createMySqlClusterPwd = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const clusterName = this.params.name
+  console.log(clusterName);
+  const api = apiFactory.getK8sApi(loginUser)
+  const body = this.request.body
+  const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
+  this.body = result
+}
+
+// 修改密码
+exports.updateMySqlClusterPwd = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const clusterName = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const body = this.request.body
+  const result = yield api.updateBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
+  this.body = result
+}
+// 查看密码
+exports.getMySqlClusterPwd = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const clusterName = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'])
+  this.body = result
+}
+
+exports.createDatabaseCluster = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const body = this.request.body
+  console.log(body);
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([ clusterId, 'daas', 'mysql' ], null, body)
+  this.body = result
 }
 
 exports.scaleDBService = function* () {
@@ -166,69 +236,70 @@ exports.getDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const serviceName = this.params.name
+  const type = this.params.type
 
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices', serviceName], null);
+  const result = yield api.getBy([cluster, 'daas', type, serviceName], null);
   const database = result.data || []
 
   // Get redis password from init container
-  let initEnv = []
-  let isRedis = false
-  if (database.petsetSpec.template) {
-    let podTemplate = database.petsetSpec.template
-    if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
-      isRedis = true
-      // For redis, get password from init container
-      if (podTemplate.spec.initContainers) {
-        let initContainers = podTemplate.spec.initContainers
-        initContainers.forEach(function (c) {
-          if (c.name === 'install' && c.env) {
-            c.env.forEach(function (e) {
-              if (e.name === 'REDIS_PASSWORD') {
-                initEnv.push({
-                  name: e.name,
-                  value: e.value
-                })
-              }
-            })
-          }
-        })
-      }
-    }
-  }
-  // Remove some data
-  if (database.objectMeta) {
-    delete database.objectMeta.labels
-  }
-  delete database.typeMeta
-  delete database.eventList
-  if (database.podList && database.podList.pods) {
-    database.podList.pods.forEach(function (pod) {
-      if (!pod.podSpec.containers[0].env) {
-        pod.podSpec.containers[0].env = []
-      }
-      // For redis, use password from init container
-      if (isRedis) {
-        pod.podSpec.containers[0].env = initEnv
-      }
-      if (pod.objectMeta) {
-        delete pod.objectMeta.labels
-        delete pod.objectMeta.annotations
-        delete pod.annotations
-      }
-    })
-  }
-  if (database.petsetSpec) {
-    database.volumeInfo = {
-      // Use the first pvc for now
-      size: database.petsetSpec.volumeClaimTemplates[0].spec.resources.requests.storage
-    }
-    delete database.petsetSpec
-  }
-  if (database.serviceInfo) {
-    delete database.serviceInfo.labels
-    delete database.serviceInfo.selector
-  }
+  // let initEnv = []
+  // let isRedis = false
+  // if (database.petsetSpec.template) {
+  //   let podTemplate = database.petsetSpec.template
+  //   if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
+  //     isRedis = true
+  //     // For redis, get password from init container
+  //     if (podTemplate.spec.initContainers) {
+  //       let initContainers = podTemplate.spec.initContainers
+  //       initContainers.forEach(function (c) {
+  //         if (c.name === 'install' && c.env) {
+  //           c.env.forEach(function (e) {
+  //             if (e.name === 'REDIS_PASSWORD') {
+  //               initEnv.push({
+  //                 name: e.name,
+  //                 value: e.value
+  //               })
+  //             }
+  //           })
+  //         }
+  //       })
+  //     }
+  //   }
+  // }
+  // // Remove some data
+  // if (database.objectMeta) {
+  //   delete database.objectMeta.labels
+  // }
+  // delete database.typeMeta
+  // delete database.eventList
+  // if (database.podList && database.podList.pods) {
+  //   database.podList.pods.forEach(function (pod) {
+  //     if (!pod.podSpec.containers[0].env) {
+  //       pod.podSpec.containers[0].env = []
+  //     }
+  //     // For redis, use password from init container
+  //     if (isRedis) {
+  //       pod.podSpec.containers[0].env = initEnv
+  //     }
+  //     if (pod.objectMeta) {
+  //       delete pod.objectMeta.labels
+  //       delete pod.objectMeta.annotations
+  //       delete pod.annotations
+  //     }
+  //   })
+  // }
+  // if (database.petsetSpec) {
+  //   database.volumeInfo = {
+  //     // Use the first pvc for now
+  //     size: database.petsetSpec.volumeClaimTemplates[0].spec.resources.requests.storage
+  //   }
+  //   delete database.petsetSpec
+  // }
+  // if (database.serviceInfo) {
+  //   delete database.serviceInfo.labels
+  //   delete database.serviceInfo.selector
+  // }
 
   this.body = {
     cluster,
