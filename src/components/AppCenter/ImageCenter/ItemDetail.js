@@ -65,8 +65,9 @@ class ItemDetail extends Component {
       }
     })
   }
-   async componentDidMount() {
-    this.handleClusterChange()
+   componentDidMount() {
+     const { clusterId } = this.props.location.query
+    clusterId ? this.handleClusterChange() : this.fetchData()
   }
   fetchData = () => {
     const { loadProjectDetail, loadProjectMembers, params, harbor } = this.props
