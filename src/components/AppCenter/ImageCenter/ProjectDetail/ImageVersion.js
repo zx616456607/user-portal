@@ -19,63 +19,20 @@ import TenxIcon from '@tenx-ui/icon'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone, loadProjectMaxTagCount, updateProjectMaxTagCount,
-  setRepositoriesTagLabel, delRepositoriesTagLabel } from '../../../../actions/harbor'
+  setRepositoriesTagLabel, delRepositoriesTagLabel, loadLabelList } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
 import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
+import remove from 'lodash/remove'
 
 const notification = new NotificationHandler()
-const commonData = [
-  {
-    digest: "sha256:2e37ea5aef670c4fe0cb2ef0c5ad9695472dd5f5070e9af2002d3febc8f44a71",
-    name: "v3.0",
-    size: 74399746,
-    architecture: "amd64",
-    os: "linux",
-    docker_version: "17.03.2-ce",
-    author: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e",
-    created: "2018-04-25T03:46:33.956571327Z",
-    push_time: "2018-04-25T03:46:33",
-    config: {
-      labels: {
-        maintainer: "Joshua Andrew \u003cweiwei@tenxcloud.com\u003e"
-      }
-    },
-    signature: null,
-    labels: [
-      {
-        id: 6,
-        name: "lalala",
-        description: "lalala1",
-        color: "#61717D",
-        scope: "g",
-        project_id: 0,
-        creation_time: "2018-07-16T09:08:39Z",
-        update_time: "2018-07-17T03:44:32Z"
-      }, {
-      id: "1",
-      name: "全局",
-      color: "#ed22ad",
-      description: "desc",
-      creation_time: "2018-05-05 18:00:00",
-      scope: "g"
-      }, {
-        id: "2",
-        name: "局部123局部123局部123局部123",
-        color: "#ed22ad",
-        description: "desc",
-        creation_time: "2018-05-05 18:00:00",
-        scope: "p"
-      },
-    ]
-  }
-]
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
 const MenuItem = Menu.Item
 const SubMenu = Menu.SubMenu
+const confirm = Modal.confirm
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -134,6 +91,7 @@ class ImageVersion extends Component {
       selectedRowKeys: [],
       max_tags_count: 0,
       lastCount: 0,
+      allLabels: [],
     }
   }
 
@@ -143,7 +101,7 @@ class ImageVersion extends Component {
 
   loadData() {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor, loadProjectMaxTagCount,
-      config: imageDetail,
+      config: imageDetail, loadLabelList,
     } = this.props
     const project_id = ""
     let processedName = encodeImageFullname(imageDetail.name)
@@ -161,20 +119,52 @@ class ImageVersion extends Component {
           if (res && res.data && res.data.length) {
             this.fetchData(res.data)
           }
-        }
+        },
+        isAsync: true,
       }
     })
     loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
       success: {
         func: res => {
-          console.log("max_tags_count", res.max_tags_count)
+          const currTag = filter(res.data, { name: processedName })[0]
+          const max_tags_count = currTag ? currTag.maxTagsCount : 0
           this.setState({
-            max_tags_count: res.max_tags_count || 10,
-            lastCount: res.max_tags_count || 10,
+            max_tags_count,
+            lastCount: max_tags_count,
           })
         },
         isAsync: true,
       }
+    })
+    this.setState({
+      allLabels: [],
+    }, () => {
+      const params = {
+        harbor,
+      }
+      const succ = res => {
+        const data = res.data
+        if(!!data){
+          const { allLabels } = this.state
+          this.setState({
+            allLabels: [].concat(allLabels, remove(cloneDeep(data), label => label.id !== 1))
+          })
+        }
+      }
+      // 项目内标签
+      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'p', project_id: imageDetail.projectId }), {
+        success:{
+          func: succ,
+          isAsync: true,
+        }
+      })
+      // 全局标签
+      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'g' }), {
+        success:{
+          func: succ,
+          isAsync: true,
+        }
+      })
     })
   }
 
@@ -191,30 +181,32 @@ class ImageVersion extends Component {
     this.setState({
       serverIp: nextPorps.scope.props.server,
     })
-    const { loadRepositoriesTags } = this.props
+    const { loadRepositoriesTags, harbor } = this.props
     if (newImageDetail.name != oldImageDatail.name) {
       let processedName = encodeImageFullname(newImageDetail.name)
-      loadRepositoriesTags(DEFAULT_REGISTRY, processedName, {
+      loadRepositoriesTags({
+        registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+      }, {
         success: {
           func: res => {
             if (res && res.data && res.data.length) {
               this.fetchData(res.data)
             }
-          }
+          },
+          isAsync: true,
         }
       })
     }
   }
 
   fetchData(data) {
-    // data = commonData
     const curData = []
     if (data && data.length) {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
           edition: item.name,
-          push_time: item.push_time,
+          push_time: item.last_updated || item.first_push,
           labels: item.labels,
         }
         curData.unshift(curColums)
@@ -286,7 +278,9 @@ class ImageVersion extends Component {
             })
           }
           scopeDetail.loadRepos()
-          loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
+          loadRepositoriesTags({
+            registry: DEFAULT_REGISTRY, imageName: config.name, harbor
+          })
         },
         isAsync: true
       }, failed: {
@@ -336,7 +330,9 @@ class ImageVersion extends Component {
           this.setState({
             processedName,
           })
-          loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
+          loadRepositoriesTags({
+            registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+          })
         },
         isAsync: true
       },
@@ -389,61 +385,109 @@ class ImageVersion extends Component {
       this.unlock(record)
     }
   }
+
   lock = record => {
-    const { imageName, harbor, setRepositoriesTagLabel } = this.props
-    const { max_tags_count } = this.state
-    const query = {
-      registry: DEFAULT_REGISTRY,
-      name: imageName,
-      harbor,
-      id: 1,
-      tagName: record.edition,
+    const onOk = () => {
+      const { imageName, harbor } = this.props
+      const { max_tags_count } = this.state
+      const query = {
+        registry: DEFAULT_REGISTRY,
+        name: imageName,
+        harbor,
+        id: 1,
+        tagName: record.edition,
+      }
+      this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" })
     }
-    setRepositoriesTagLabel(query, {
+    confirm({
+      title: '锁定',
+      content: <div>
+        <div>锁定版本后，将不受自动清理旧版本功能影响！</div>
+        <div>一般为版本为稳定、常用版本时，保留备份使用！</div>
+        <div>注：该版本的推送更新、手动删除不受锁定限制</div>
+        <div>确定锁定该版本，不被清理？</div>
+      </div>,
+      onOk,
+      onCancel() {},
+      okText: "确认锁定（不被清理)",
+    })
+  }
+  setLabel = (query, { succ, failed }) => {
+    this.props.setRepositoriesTagLabel(query, {
       success: {
         func: res => {
-          if(res.statusCode === 200){
-            notification.success("锁定成功")
-            this.loadData()
-          }
-        }
+          notification.success(succ)
+          this.loadData()
+        },
+        isAsync: true,
       },
       failed: {
         func: err => {
           if(!!err){
-            notification.warn("锁定失败")
+            notification.warn(failed)
           }
         }
       }
     })
   }
   unlock = record => {
-    const { imageName, harbor, delRepositoriesTagLabel } = this.props
-    const { max_tags_count } = this.state
-    const query = {
-      registry: DEFAULT_REGISTRY,
-      name: imageName,
-      harbor,
-      id: 1,
-      tagName: record.edition,
+    const onOk = () => {
+      const { imageName, harbor } = this.props
+      const { max_tags_count } = this.state
+      const query = {
+        registry: DEFAULT_REGISTRY,
+        name: imageName,
+        harbor,
+        id: 1,
+        tagName: record.edition,
+      }
+      this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' })
     }
-    delRepositoriesTagLabel(query, {
+    confirm({
+      title: '解锁',
+      content: <div>
+        <div>解锁版本后，将受自动清理旧版本功能影响！</div>
+        <div>若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
+        <div>确定解锁该版本？</div>
+      </div>,
+      onOk,
+      onCancel() {},
+      okText: "确认解锁（允许清理)",
+    })
+  }
+  delLabel = (query, { succ, failed }) => {
+    this.props.delRepositoriesTagLabel(query, {
       success: {
         func: res => {
-          if(res.statusCode === 200){
-            notification.success("解锁成功")
-            this.loadData()
-          }
-        }
+          notification.success(succ)
+          this.loadData()
+        },
+        isAsync: true,
       },
       failed: {
         func: err => {
           if(!!err){
-            notification.warn("解锁失败")
+            notification.warn(failed)
           }
         }
       }
     })
+  }
+
+  onCheckboxChange = (flag, label, record) => {
+    const { imageName: name, harbor }= this.props
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name,
+      harbor,
+      id: label.id,
+      tagName: record.edition,
+    }
+    if(flag){
+      this.setLabel(query, { succ: '添加标签成功', failed: '添加标签失败' })
+    }else{
+      this.delLabel(query, { succ: '删除标签成功', failed: '删除标签失败' })
+    }
   }
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
@@ -453,16 +497,19 @@ class ImageVersion extends Component {
   }
 
   handleRefresh() {
-    const { config, loadRepositoriesTags } = this.props
+    const { config, loadRepositoriesTags, harbor } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
-    loadRepositoriesTags(DEFAULT_REGISTRY, config.name, processedName, {
+    loadRepositoriesTags({
+      registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+    }, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
             this.fetchData(res.data)
           }
-        }
+        },
+        isAsync: true,
       },
       finally: {
         func: () => {
@@ -472,9 +519,6 @@ class ImageVersion extends Component {
         }
       }
     })
-  }
-  onCheckboxChange = (flag, label, record) => {
-    console.log(arguments)
   }
   onPressEnter = e => {
     this.onConfirmOk()
@@ -494,7 +538,8 @@ class ImageVersion extends Component {
           if(!!res.data && res.data === 'success'){
             notification.success("修改成功")
           }
-        }
+        },
+        isAsync: true,
       },
       failed: {
         func: err => {
@@ -533,6 +578,17 @@ class ImageVersion extends Component {
       dataIndex: 'edition',
       key: 'edition',
       width: '19%',
+      render: (text, record) => {
+        console.log(!!!filter(record.labels, { id: 1 })[0])
+        return (
+          <div>{text} {
+            !!filter(record.labels, { id: 1 })[0] ?
+              <Icon type="lock" />
+              :
+              ""
+           }</div>
+        )
+      }
     },{
       id: 'push_time',
       title: '推送时间',
@@ -547,7 +603,9 @@ class ImageVersion extends Component {
       key: 'labels',
       width: '27%',
       render: (labels, record) => {
-        const tempLabels = cloneDeep(labels)
+        const tempLabels = remove(cloneDeep(labels), label => {
+          return label.id !== 1
+        })
         if(!tempLabels.length) return "无标签"
         const label = tempLabels[0] || {}
         const otherTags = tempLabels.slice(1).map((o, i) => {
@@ -576,7 +634,7 @@ class ImageVersion extends Component {
       dataIndex: 'comment',
       render: (text, record) => {
         const items = []
-        record.isLock ?
+        !!!filter(record.labels, { id: 1 })[0] ?
           items.push(<MenuItem key='lock'>
             <Icon type="lock" /> 锁定
           </MenuItem>)
@@ -587,10 +645,10 @@ class ImageVersion extends Component {
         items.push(<MenuItem key='del'>
           <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
         </MenuItem>)
-        const allLabels = record.labels
-        const subItems = record.labels.map((label, i) => {
+        const { allLabels } = this.state
+        const subItems = allLabels.length ? allLabels.map((label, i) => {
           let checked = false
-          if(!!filter(allLabels, { name: label.name })[0]) checked = true
+          if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
           return (
             <Menu.Item>
               <div>
@@ -602,7 +660,7 @@ class ImageVersion extends Component {
               </div>
             </Menu.Item>
           )
-        })
+        }) : <Menu.Item>暂无可选标签</Menu.Item>
         return (
           <div>
             <Dropdown.Button
@@ -771,4 +829,5 @@ export default connect(mapStateToProps, {
   updateProjectMaxTagCount,
   setRepositoriesTagLabel,
   delRepositoriesTagLabel,
+  loadLabelList,
 })(ImageVersion)

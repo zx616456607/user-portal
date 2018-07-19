@@ -408,10 +408,13 @@ exports.getLabels = harborHandler(
   (harbor, ctx, callback) => harbor.getLabels(ctx.query, callback))
 // [PUT] updateLabel
 exports.updateLabel = harborHandler(
-  (harbor, ctx, callback) => harbor.updateLabel(ctx.params.id, ctx.params.label, callback))
+  (harbor, ctx, callback) => harbor.updateLabel(ctx.request.body.id, ctx.request.body.label, callback))
+// [PUT] deleteLabel
+exports.deleteLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteLabel(ctx.params.id, callback))
 // [POST] createLabel
 exports.createLabel = harborHandler(
-  (harbor, ctx, callback) => harbor.createLabel(ctx.params, callback))
+  (harbor, ctx, callback) => harbor.createLabel(ctx.request.body, callback))
 // [POST] setImageLabel
 exports.setImageLabel = harborHandler(
   (harbor, ctx, callback) => harbor.setImageLabel(ctx.params.repository, ctx.params.tag, ctx.params.labelId, callback))

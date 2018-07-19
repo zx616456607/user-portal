@@ -368,6 +368,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
   router.get('/registries/:registry/label', harborController.getLabels)
   router.put('/registries/:registry/label', harborController.updateLabel)
+  router.del('/registries/:registry/label/:id', harborController.deleteLabel)
   router.post('/registries/:registry/label', harborController.createLabel)
   router.post('/registries/:registry/images/label', harborController.setImageLabel)
 

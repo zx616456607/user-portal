@@ -74,8 +74,8 @@ class Editor extends Component {
       const { form: { setFieldsValue } } = this.props
       setFieldsValue({
         color: next.current.color,
-        desc: next.current.desc,
-        tag: next.current.tag,
+        description: next.current.description,
+        name: next.current.name,
       })
       setTimeout(() => {
         isSet = false
@@ -84,7 +84,7 @@ class Editor extends Component {
   }
   render() {
     const { current, onCancel, form } = this.props
-    const { tag, color, desc } = current
+    const { name, color, description } = current
     const { getFieldProps, getFieldValue } = form
     const colorInputVal = getFieldValue("color") || current.color || ""
     const picker = <TwitterPicker
@@ -108,11 +108,11 @@ class Editor extends Component {
             <Col span={6}>
               <FormItem {...formItemLayout} label="标签名称">
                 <Input {
-                  ...getFieldProps('tag', {
+                  ...getFieldProps('name', {
                     rules: [{
                       validator: this.checkName,
                     }],
-                    initialValue: tag,
+                    initialValue: name,
                   })
                 } />
               </FormItem>
@@ -140,11 +140,11 @@ class Editor extends Component {
             <Col span={6}>
               <FormItem {...formItemLayout} label="描述">
                 <Input {
-                  ...getFieldProps('desc', {
+                  ...getFieldProps('description', {
                     rules: [{
                       validator: this.checkDesc,
                     }],
-                    initialValue: desc,
+                    initialValue: description,
                   })
                 } />
               </FormItem>

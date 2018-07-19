@@ -228,9 +228,6 @@ function fetchDelRepositoriesTagLabel(query, callback) {
   if (query) {
     endpoint += `?${toQuerystring({ harbor: query.harbor })}`
   }
-  const body = {
-    max_tags_count: query.max_tags_count
-  }
   return {
     registry: query.registry,
     [FETCH_API]: {
@@ -740,6 +737,30 @@ function fetchUpdateLabel(harbor, registry, body, callback) {
 export function updateLabel(harbor, registry, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUpdateLabel(harbor, registry, body, callback))
+  }
+}
+export const DELETE_LABEL_REQUEST = 'DELETE_LABEL_REQUEST'
+export const DELETE_LABEL_SUCCESS = 'DELETE_LABEL_SUCCESS'
+export const DELETE_LABEL_FAILURE = 'DELETE_LABEL_FAILURE'
+
+function fetchDelLabel(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label/${id}?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ DELETE_LABEL_REQUEST, DELETE_LABEL_SUCCESS, DELETE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelLabel(harbor, registry, body, callback))
   }
 }
 

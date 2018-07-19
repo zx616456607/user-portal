@@ -192,7 +192,7 @@ HarborAPIs.prototype.setRepositoriesMaxTag = function (name, body, callback) {
 // POST /api/repositories/:project/:rest/tags/:tag/labels
 HarborAPIs.prototype.setRepositoriesTagLabel = function (name, tagname, body, callback) {
   const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels`
-  this.sendRequest(url, 'PUT', body, callback)
+  this.sendRequest(url, 'POST', body, callback)
 }
 // DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
 HarborAPIs.prototype.delRepositoriesTagLabel = function (name, tagname, id, callback) {
@@ -236,6 +236,12 @@ HarborAPIs.prototype.getLabels = function(query, callback) {
 HarborAPIs.prototype.updateLabel = function(id, label, callback) {
   const url = `${this.getAPIPrefix()}/labels/${id}`
   this.sendRequest(url, 'PUT', label, callback)
+}
+
+// TODO: 删除标签
+HarborAPIs.prototype.deleteLabel = function(id, callback) {
+  const url = `${this.getAPIPrefix()}/labels/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
 }
 
 // TODO: 创建标签，结构里的字段，看字面已经能知道什么意思了。需要注意的是 scope，g 是全局的，p 是项目的，全局的 project_id 是 0，项目的传真实的 project id

@@ -11,59 +11,35 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Popover, Input, Icon } from 'antd'
+import { Table, Button, Popover, Input, Icon, Spin, Modal } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import { connect } from 'react-redux'
 import TenxIcon from '@tenx-ui/icon'
 import Editor from './Editor'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { loadLabelList, updateLabel, createLabel, setImageLabel } from '../../../../../actions/harbor'
+import { loadLabelList, updateLabel, createLabel, setImageLabel, deleteLabel } from '../../../../../actions/harbor'
 import NotificationHandler from '../../../../../components/Notification'
 import filter from 'lodash/filter'
+import { formatDate } from "../../../../../common/tools";
 
 const notification = new NotificationHandler()
+const confirm = Modal.confirm
 const colors = [
   '#872ED8', '#AE64F4', '#4067FF', '#548CFE', '#2DB8F4',
   '#2BCFE5', '#00D183', '#27E09A', '#54C41A', '#83D167',
   '#FCBB00', '#F9B659', '#FF6A00', '#FF8A67', '#F5232B',
   '#F95561', '#EC3195', '#FB7F9E', '#687689', '#AABAC4',
 ]
-const data = [
-  {
-    id: "1",
-    name: "全局",
-    color: "#ed22ad",
-    description: "desc",
-    creation_time: "2018-05-05 18:00:00",
-    scope: "g"
-  },
-  {
-    id: "2",
-    name: "局部",
-    color: "#ed22ad",
-    description: "desc",
-    creation_time: "2018-05-05 18:00:00",
-    scope: "p"
-  },
-]
-for(var i = 3; i < 100; i++){
-  data.push({
-    id: i,
-    name: "局部" + i,
-    color: "#ed22ad",
-    description: "desc",
-    creation_time: "2018-05-05 18:00:00",
-    scope: "p"
-  })
-}
 class Project extends Component {
   state = {
+    spinning: true,
     color: 'orange',
     selectedRows: [],
-    isShowEditor: true,
+    isShowEditor: false,
     current: {},
     currPage: 1,
+    data: [],
   }
   componentDidMount() {
     this.loadData()
@@ -82,17 +58,36 @@ class Project extends Component {
     })
   }
   loadData = () => {
-    const { loadLabelList, harbor, scope, projectId } = this.props
-    const query = {
-      harbor,
-      scope,
-    }
-    if(scope === "p"){
-      query.projectId = projectId
-    }
-    loadLabelList(DEFAULT_REGISTRY, query).then((e) => {
-      console.log('loadData', e)
+    this.setState({
+      spinning: true,
+    }, () => {
+      const { loadLabelList, harbor, scope, projectId } = this.props
+      const query = {
+        harbor,
+        scope,
+      }
+      if(scope === "p"){
+        query.project_id = projectId
+      }
+      loadLabelList(DEFAULT_REGISTRY, query, {
+        success:{
+          func: res => {
+            const data = res.data
+            if(!!data){
+              this.setState({
+                data,
+                spinning: false,
+              })
+            }
+          },
+          isAsync: true,
+        }
+      })
     })
+  }
+  reload = () => {
+    this.loadData()
+    this.onEditorCancel() // 重置
   }
   edit = () => {
     const { selectedRows, current } = this.state
@@ -107,8 +102,32 @@ class Project extends Component {
   }
   del = () => {
     const { selectedRows, current } = this.state
-    if (selectedRows.length === 1){
-
+    const { deleteLabel, harbor } = this.props
+    if (selectedRows.length){
+      const onOk = () => {
+        selectedRows.map(async (row, index) => await deleteLabel(harbor, DEFAULT_REGISTRY, row.id, {
+          success: {
+            func: (res) => {
+              notification.success("删除标签 [" + row.name + "] 成功")
+              if(index >= selectedRows.length-1){
+                this.loadData()
+              }
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              notification.warn("删除标签 [" + row.name + "] 失败")
+            }
+          }
+        }))
+      }
+      confirm({
+        title: "删除",
+        content: "确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+          (index !== rows.length-1 ? ", " : "") }) + "] ?",
+        onOk,
+      })
     } else {
       notification.warn('请选择标签')
     }
@@ -121,44 +140,59 @@ class Project extends Component {
   }
   onEditorOk = params => {
     const { current } = this.state
-    const { createLabel, updateLabel, harbor } = this.props
+    const { createLabel, updateLabel, harbor, scope, projectId } = this.props
     if (!!current.id) {
       const temp = {
         id: current.id,
         label: params,
       }
       updateLabel(harbor, DEFAULT_REGISTRY, temp, {
-        succecc: {
+        success: {
           func: res => {
             console.log(res)
-          }
+            notification.success('修改标签成功')
+            this.loadData()
+            this.onEditorCancel()
+          },
+          isAsync: true,
         },
         failed: {
           func: err => {
             console.log(err)
-          }
+            notification.warn('修改标签失败')
+          },
+          isAsync: true,
         },
       })
     } else {
-      createLabel(harbor, DEFAULT_REGISTRY, params, {
-        succecc: {
+      createLabel(harbor, DEFAULT_REGISTRY, Object.assign({}, params, {
+        scope,
+        project_id: projectId && scope !== 'g' ? projectId : 0,
+      }), {
+        success: {
           func: res => {
             console.log(res)
-          }
+            notification.success('新增标签成功')
+            this.loadData()
+            this.onEditorCancel()
+          },
+          isAsync: true,
         },
         failed: {
           func: err => {
             console.log(err)
-          }
+            notification.warn('新增标签失败')
+          },
+          isAsync: true,
         },
       })
-      data.push(params)
     }
-    this.onEditorCancel()
   }
   onEditorCancel = () => {
     this.setState({
       isShowEditor: false,
+      current: {},
+      selectedRows: [],
     })
   }
   onTableChange = (pageination) => {
@@ -167,7 +201,7 @@ class Project extends Component {
     })
   }
   render() {
-    const { color, selectedRows, isShowEditor, current, currPage } = this.state
+    const { spinning, color, selectedRows, isShowEditor, current, currPage, data } = this.state
     const { scope } = this.props
     const columns = [
       {
@@ -185,14 +219,15 @@ class Project extends Component {
       {
         title: '描述',
         width: '33%',
-        dataIndex: 'desc',
-        key: 'desc',
+        dataIndex: 'description',
+        key: 'description',
       },
       {
         title: '创建时间',
         width: '33%',
-        dataIndex: 'creation_time',
-        key: 'creation_time',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
+        render: text => formatDate(text),
       },
     ]
     const rowSelection = {
@@ -207,14 +242,15 @@ class Project extends Component {
       defaultPageSize: 10,
       total,
     }
-    const btnDisabled = !selectedRows.length
+    const btnDisabled = selectedRows.length !== 1 //!selectedRows.length
+    const btnEditDisabled = selectedRows.length !== 1
     return (
       <QueueAnim className='LabelModule'>
-        <div key="main">
+        <Spin spinning={spinning} key="main">
           <div className="topRow">
             <Button type="primary" size="large" onClick={this.add}><i className='fa fa-plus'/>&nbsp;新建标签</Button>
-            <Button type="ghost" size="large" onClick={this.loadData}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
-            <Button disabled={selectedRows.length !== 1} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
+            <Button type="ghost" size="large" onClick={this.reload}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
+            <Button disabled={btnEditDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
             <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
             <Input
               placeholder="按标签名称搜索"
@@ -247,7 +283,7 @@ class Project extends Component {
             rowSelection={rowSelection}
             onChange={this.onTableChange}
           />
-        </div>
+        </Spin>
       </QueueAnim>
     )
   }
@@ -266,5 +302,6 @@ export default connect(mapStateToProps,  {
   loadLabelList,
   updateLabel,
   createLabel,
-  setImageLabel
+  setImageLabel,
+  deleteLabel,
 })(Project)
