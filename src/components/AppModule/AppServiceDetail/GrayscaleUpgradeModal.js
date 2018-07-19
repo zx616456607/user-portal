@@ -35,7 +35,7 @@ class GrayscaleUpgradeModal extends React.Component {
   }
 
   parseImage = image => {
-    let tagIndex = image.indexOf(':')
+    let tagIndex = image.lastIndexOf(':')
     if(tagIndex < 0) {
       tagIndex = image.length
     }
