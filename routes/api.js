@@ -518,7 +518,7 @@ module.exports = function (Router) {
 
   // Petsets - DB service APIs
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
-  router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBService)
+  router.delete('/clusters/:cluster/daas/:type/:name', databaseCacheController.deleteDBService)
   // Filter by type
   router.get('/clusters/:cluster/daas/:type', databaseCacheController.listDBService)
   router.get('/clusters/:cluster/daas/:type/:name', databaseCacheController.getDBService)
@@ -526,7 +526,11 @@ module.exports = function (Router) {
 
   // 获取高级配置
   router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getMySqlConfig)
+  // 创建配置
   router.post('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.createMySqlConfig)
+  // 更新配置
+  router.put('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.updateMySqlConfig)
+  // 获取默认配置
   router.get('/clusters/:cluster/daas/mysql/:name/config/default', databaseCacheController.getMySqlDefaultConfig)
   // 创建MySQL集群密码
   router.post('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.createMySqlClusterPwd)
@@ -535,7 +539,13 @@ module.exports = function (Router) {
   // 查看MySQL集群密码
   router.get('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.getMySqlClusterPwd)
   // 创建集群
-  router.post('/clusters/:clusterID/daas/mysql', databaseCacheController.createDatabaseCluster)
+  router.post('/clusters/:clusterID/daas/:type', databaseCacheController.createDatabaseCluster)
+  // 获取备份链
+  router.get('/clusters/:clusterID/daas/:type/backup', databaseCacheController.getBackupChain)
+  // 创建手动备份
+  router.post('/clusters/:clusterID/daas/:type/backup', databaseCacheController.manualBackup)
+  // 创建手动备份
+  router.delete('/clusters/:clusterID/daas/:type/backup/:name', databaseCacheController.deleteManualBackup)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

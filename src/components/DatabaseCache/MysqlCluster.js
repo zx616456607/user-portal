@@ -66,7 +66,7 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-
+    console.log(config);
     let items = config.map((item, index) => {
       const storageSize = item.spec.volumeClaimTemplate.spec.resources.requests.storage //存储大小
       return (

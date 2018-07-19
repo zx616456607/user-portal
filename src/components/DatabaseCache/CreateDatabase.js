@@ -16,6 +16,7 @@ import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin }
 import { CreateDbCluster } from '../../actions/database_cache'
 import { getResourceByMemory } from '../../../src/common/tools'
 import newMySqlCluster from '../../../kubernetes/objects/newMysqlCluster'
+import newRedisCluster from '../../../kubernetes/objects/newRedisCluster'
 import yaml from 'js-yaml'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
@@ -23,14 +24,7 @@ import { getClusterStorageList } from '../../actions/cluster'
 import { getMySqlConfig, getMySqlConfigDefault, createMySqlClusterPwd, createMySqlConfig, createDatabaseCluster } from '../../actions/database_cache'
 import NotificationHandler from '../../components/Notification'
 import ResourceConfig from '../../../client/components/ResourceConfig'
-import {
-  MY_SPACE, RESOURCES_CPU_DEFAULT,
-  RESOURCES_CPU_MAX, RESOURCES_CPU_MIN,
-  RESOURCES_CPU_STEP,
-  RESOURCES_MEMORY_MAX,
-  RESOURCES_MEMORY_MIN, RESOURCES_MEMORY_STEP,
-  UPGRADE_EDITION_REQUIRED_CODE
-} from '../../constants'
+import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
 import { camelize } from 'humps'
@@ -212,8 +206,19 @@ let CreateDatabase = React.createClass({
     //this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { scope, CreateDbCluster, setCurrent, space, cluster, createMySqlClusterPwd, createDatabaseCluster, createMySqlConfig } = this.props;
-    const { projects, projectVisibleClusters, form } = this.props;
+    const { scope,
+      projects,
+      projectVisibleClusters,
+      form,
+      setCurrent,
+      space,
+      cluster,
+      createMySqlClusterPwd,
+      createDatabaseCluster,
+      createMySqlConfig,
+      namespace,
+      database,
+    } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -260,55 +265,93 @@ let CreateDatabase = React.createClass({
         lbGroupID = values.outerCluster
       }
       const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
-      const newMySqlClusterData = new newMySqlCluster(
-        values.name,
-        replicas,
-        lbGroupID,
-        this.state.clusterConfig,
-        values.storageClass,
-        `${values.storageSelect}Mi`)
-
-
-      const create = async () => {
-        // 错误处理
-        const handleError = error => {
-            if (error.message.message.indexOf('already exists') > 0) {
-              notification.warn('集群名已经存在')
-              this.setState({loading: false})
-            }
+      // 错误处理
+      const handleError = error => {
+        if (error.message.message && error.message.message.indexOf('already exists') > 0) {
+          notification.warn('集群名已经存在')
+          this.setState({loading: false})
+        }else {
+          notification.warn(error.message)
+          this.setState({loading: false})
         }
-        // 创建密码
-        const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
-        if(pwdCreate.error) {
-          handleError(pwdCreate.error)
-          return
-        }
-        // 创建配置
-        const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent)
-        if(confCreate.error) {
-          handleError(confCreate.error)
-          return
-        }
-        // 创建集群
-        const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newMySqlClusterData))
-        if(dbCreate.error) {
-          handleError(dbCreate.error)
-          return
-        }
-        // 创建成功
-        notification.success('创建成功')
-        setCurrent({
-          cluster: newCluster,
-          space: newSpace
-        })
-        this.props.form.resetFields();
-        scope.setState({
-          CreateDatabaseModalShow: false
-        }, () => {
-          loadDbCacheList(cluster, 'mysql')
-        });
       }
-      create()
+      if(database === 'mysql') {
+        const createMySql = async () => {
+          const newMySqlClusterData = new newMySqlCluster(
+            values.name,
+            replicas,
+            lbGroupID,
+            this.state.clusterConfig,
+            values.storageClass,
+            `${values.storageSelect}Mi`
+          )
+
+          // 创建密码
+          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
+          if(pwdCreate.error) {
+            handleError(pwdCreate.error)
+            return
+          }
+          // 创建配置
+          const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent)
+          if(confCreate.error) {
+            handleError(confCreate.error)
+            return
+          }
+          // 创建集群
+          const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newMySqlClusterData), 'mysql')
+          if(dbCreate.error) {
+            handleError(dbCreate.error)
+            return
+          }
+          // 创建成功
+          notification.success('创建成功')
+          setCurrent({
+            cluster: newCluster,
+            space: newSpace
+          })
+          this.props.form.resetFields();
+          scope.setState({
+            CreateDatabaseModalShow: false
+          }, () => {
+            loadDbCacheList(cluster, 'mysql')
+          });
+        }
+        createMySql()
+      }else if(database === 'redis') {
+        const createRedis = async () => {
+          const newRedisClusterData = new newRedisCluster(
+            values.name,
+            replicas,
+            lbGroupID,
+            this.state.clusterConfig,
+            values.storageClass,
+            `${values.storageSelect}Mi`,
+            namespace,
+            values.password,
+            ''
+          )
+          const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
+          if(dbCreate.error) {
+            handleError(dbCreate.error)
+            return
+          }
+          // 创建成功
+          notification.success('创建成功')
+          setCurrent({
+            cluster: newCluster,
+            space: newSpace
+          })
+          this.props.form.resetFields();
+          scope.setState({
+            CreateDatabaseModalShow: false
+          }, () => {
+            loadDbCacheList(cluster, 'mysql')
+          });
+        }
+        createRedis()
+      }
+
     });
   },
   getDefaultOutClusterValue(){
@@ -396,7 +439,6 @@ let CreateDatabase = React.createClass({
       composeType: type,
     })
   },
-
   render() {
     const { composeType } = this.state
     const { isFetching, projects, projectVisibleClusters, space, billingEnabled } = this.props
@@ -721,7 +763,7 @@ let CreateDatabase = React.createClass({
 
 function mapStateToProps(state, props) {
   const { cluster, space } = state.entities.current
-  const { billingConfig } = state.entities.loginUser.info
+  const { billingConfig, namespace } = state.entities.loginUser.info
   const { clusterStorage } = state.cluster
   const defaultDbNames = {
     isFetching: false,
@@ -745,6 +787,7 @@ function mapStateToProps(state, props) {
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
+    namespace,
     space,
     current,
     databaseNames,

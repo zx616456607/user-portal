@@ -904,19 +904,19 @@ class ModalDetail extends Component {
 
   }
   componentWillMount() {
-    const { loadDbClusterDetail, cluster, dbName } = this.props
+    const { loadDbClusterDetail, cluster, dbName, database } = this.props
     const _this = this
     this.setState({
       currentDatabase: dbName,
     });
-
-    loadDbClusterDetail(cluster, dbName, 'mysql', {
+    console.log(database)
+    loadDbClusterDetail(cluster, dbName, database, true, {
       success: {
         func: (res) => {
           console.log(res);
           _this.setState({
-            replicas: res.database.spec.replicas,
-            storageValue: parseInt(res.database.spec.volumeClaimTemplate.spec.resources.requests.storage)
+            replicas: res.database.spec.advanceSetting.serverReplicas,
+            storageValue: `512`
           })
         }
       }
@@ -1061,7 +1061,7 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
 
     if (isFetching || databaseInfo == null) {
       return (
@@ -1070,7 +1070,7 @@ class ModalDetail extends Component {
         </div>
       )
     }
-    console.log(databaseInfo);
+
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -1130,13 +1130,13 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <FormBaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                {/*<FormBaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />*/}
               </TabPane>
               <TabPane tab='存储' key='#Storage'>
                 <Storage databaseInfo={databaseInfo}/>
               </TabPane>
               <TabPane tab='备份' key='#Backup'>
-                <Backup/>
+                <Backup database={database}/>
               </TabPane>
               <TabPane tab='配置管理' key='#ConfigManage'>
                 <ConfigManagement/>

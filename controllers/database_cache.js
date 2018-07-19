@@ -112,10 +112,11 @@ exports.deleteDBService = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const serviceName = this.params.name
+  const type = this.params.type
   const query = this.query || {}
   const api = apiFactory.getK8sApi(loginUser)
 
-  const result = yield api.deleteBy([cluster, 'dbservices', serviceName], query);
+  const result = yield api.deleteBy([cluster, 'daas', type, serviceName], query);
 
   this.body = {
     result
@@ -165,6 +166,17 @@ exports.createMySqlConfig = function* () {
   const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'config'], null, body)
   this.body = result
 }
+
+// 更新MySQL集群配置
+exports.updateMySqlConfig = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster
+  const clusterName = this.params.name
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ clusterId, 'daas', 'mysql', clusterName, 'config'], null, body)
+  this.body = result
+}
 // 获取默认配置
 exports.getMySqlDefaultConfig = function* () {
   const loginUser = this.session.loginUser
@@ -206,14 +218,44 @@ exports.getMySqlClusterPwd = function* () {
   const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'])
   this.body = result
 }
-
+// 创建集群
 exports.createDatabaseCluster = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
+  const type = this.params.type
   const body = this.request.body
-  console.log(body);
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([ clusterId, 'daas', 'mysql' ], null, body)
+  const result = yield api.createBy([ clusterId, 'daas', type ], null, body)
+  this.body = result
+}
+// 手动备份
+exports.getBackupChain = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', type, 'backup' ])
+  this.body = result
+}
+// 手动备份
+exports.manualBackup = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([ clusterId, 'daas', type, 'backup' ], null, body)
+  this.body = result
+}
+
+// 删除手动备份
+exports.deleteManualBackup = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([ clusterId, 'daas', type, 'backup', name ])
   this.body = result
 }
 

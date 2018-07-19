@@ -14,10 +14,12 @@ import './style/Backup.less'
 import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
-import { getbackupChainDetail, getbackupChain } from '../../../actions/backupChain'
+import { getbackupChainDetail, getbackupChain, createBackupChain, deleteManualBackupChain } from '../../../actions/backupChain'
+import newManualBackup from '../../../../kubernetes/objects/newManualBackup'
 import rollback from '../../../assets/img/database_cache/rollback.png'
 import create from '../../../assets/img/database_cache/new.png'
 import BackupStrategy from '../BackupStrategy'
+import yaml from 'js-yaml'
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -25,7 +27,7 @@ class Backup extends React.Component {
   state= {
     extendId: '',
     expendKeys: [], // 用expendKeys和keys做对比，keys多出来的那一项是当前展开的
-    currentItem: '', // 为了标记当前展开的高亮
+    currentItemUid: '', // 为了标记当前展开的高亮
     autoBackupModalShow: false, // 自动备份弹框
     manualBackupModalShow: false, // 手动备份弹框
     curentChain: '', // 点击手动备份或者备份链的加号，将当前链或者当前点击的备份链信息存到这里
@@ -37,24 +39,25 @@ class Backup extends React.Component {
     days: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
   }
   componentDidMount() {
-    this.props.getbackupChain()
+    const { clusterID, database, getbackupChain } = this.props
+    getbackupChain(clusterID, database)
   }
-  renderHeader = v => {
+  renderHeader = (v, i) => {
     return (
-      <Row className="list-item-header" ref="header" key={v.id} style={ this.state.currentItem === `${v.id}` ? { background: '#fafafa' } : {}}>
+      <Row className="list-item-header" ref="header" key={v.metadata.uid} style={ this.state.currentItemUid === `${v.metadata.uid}` ? { background: '#fafafa' } : {}}>
         <Col span={4}>
-          {v.name}
-          <span>"当前链"</span>
+          {v.metadata.name}
+          { i === 0 && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
         </Col>
-        <Col span={4}>{v.capacity}</Col>
-        <Col span={4}>备份点{v.pointNum}个</Col>
-        <Col span={4}>{calcuDate(v.creattTime)}</Col>
+        <Col span={4}>总10.00GB</Col>
+        <Col span={4}>备份点1个</Col>
+        <Col span={4}>{calcuDate(v.metadata.creationTimestamp)}</Col>
       </Row>)
   }
   expendPanel = keys => {
     if (keys.length === 0) {
       this.setState({
-        currentItem: '',
+        currentItemUid: '',
       })
       return
     }
@@ -62,12 +65,18 @@ class Backup extends React.Component {
     if (this.state.expendKeys.indexOf(keys[keys.length - 1]) < 0) {
       this.setState({
         expendKeys: keys,
-        currentItem: keys[keys.length - 1],
+        currentItemUid: keys[keys.length - 1],
       })
-      this.props.getbackupChainDetail(`${keys[keys.length - 1]}`)
+      const { chainsData, database } = this.props
+      const currentIndex = chainsData.findIndex(
+        v => v.metadata.uid === keys[keys.length - 1]
+      )
+
+      // 将uid传出去
+      this.props.getbackupChainDetail(chainsData[currentIndex].metadata.name, database)
     } else {
       this.setState({
-        currentItem: '',
+        currentItemUid: '',
       })
     }
   }
@@ -117,6 +126,16 @@ class Backup extends React.Component {
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
 
     const confirmDel = () => {
+      const { deleteManualBackupChain, clusterID, database, getbackupChain } = this.props
+      const { backupChain } = this.state
+      deleteManualBackupChain(clusterID, database, backupChain.metadata.name, {
+        success: {
+          func: () => {
+            setTimeout(() => getbackupChain(clusterID, database))
+          },
+        },
+
+      })
       this.setState({
         delThis: false,
       })
@@ -299,7 +318,8 @@ class Backup extends React.Component {
   }
   // 手动弹窗组件
   manualBackupModal = () => {
-    const tipText1 = `将在${this.state.curentChain.name}备份链上做差异备份`
+    const { database } = this.props
+    const tipText1 = `将在${this.state.curentChain ? this.state.curentChain.name : ''}备份链上做差异备份`
     const tipText2 = '新建备份链后，自动备份和手动备份的差异备份将在新建备份链上进行'
     // 选择备份方式
     const selectBackupType = e => {
@@ -310,27 +330,46 @@ class Backup extends React.Component {
 
     // 提交
     const commitBackup = () => {
-      this.props.form.validateFields(errors => {
+      this.props.form.validateFields((errors, value) => {
         if (errors) {
           return
         }
+        const { namespace, createBackupChain, getbackupChain, database, clusterID } = this.props
+        const newManualBackupModule = new newManualBackup(
+          value.name, namespace, new Date().getTime())
+        createBackupChain(clusterID, database, yaml.dump(newManualBackupModule), {
+          success: {
+            func: () => {
+              this.setState({
+                manualBackupModalShow: false,
+              }, () => {
+                setTimeout(() => {
+                  getbackupChain(clusterID, database)
+                })
+              })
+
+            },
+          },
+          failed: {
+            func: () => {},
+          },
+        })
+
       })
     }
     const formItemLayout = {
       labelCol: {
-        xs: { span: 24 },
-        sm: { span: 5 },
+        sm: { span: 5, pull: 1 },
       },
       wrapperCol: {
-        xs: { span: 24 },
         sm: { span: 19 },
       },
     }
 
     const { getFieldProps } = this.props.form
-    const prefix = `${this.state.backupType === 0 ? '增量' : '全量'}`
+
     const nameCheck = getFieldProps('name', {
-      rules: [{ required: true, message: `请输入${prefix}备份名称`, whitespace: true }],
+      rules: [{ required: true, message: '请输入备份名称', whitespace: true }],
     })
 
     return <Modal
@@ -346,18 +385,26 @@ class Backup extends React.Component {
         <Row>
           <Col span={4} className="title">备份方式</Col>
           <Col span={20}>
-            <RadioGroup onChange={selectBackupType} defaultValue={0}>
-              <Radio value={0}>原备份链上差异备份</Radio>
-              <Radio value={1}>新建备份链</Radio>
-            </RadioGroup>
+            {
+              database === 'redis' ?
+                <RadioGroup defaultValue={0}>
+                  <Radio value={0}>新建备份链</Radio>
+                </RadioGroup>
+                :
+                <RadioGroup onChange={selectBackupType} defaultValue={0}>
+                  <Radio value={0}>原备份链上差异备份</Radio>
+                  <Radio value={1}>新建备份链</Radio>
+                </RadioGroup>
+
+            }
             <div className="tip">
-              {this.state.backupType === 0 ? tipText1 : tipText2}
+              {this.state.backupType === 0 && database !== 'redis' ? tipText1 : tipText2}
             </div>
             <FormItem
               {...formItemLayout}
-              label={`${prefix}备份名称`}
+              label= "备份名称"
             >
-              <Input placeholder= {`请输入${prefix}备份名称`} id="name" {...nameCheck} style={{ width: 200 }}/>
+              <Input placeholder= "请输入备份名称" id="name" {...nameCheck} style={{ width: 200 }}/>
             </FormItem>
           </Col>
         </Row>
@@ -366,7 +413,7 @@ class Backup extends React.Component {
   }
 
   render() {
-    const { chainsData } = this.props
+    const { chainsData, database } = this.props
     return <div className="backup">
       <div className="title">备份</div>
       <div className="content">
@@ -379,51 +426,57 @@ class Backup extends React.Component {
           <Button onClick={() => this.menualBackup(chainsData[0])}>手动备份</Button>
         </div>
         <div className="list">
-          <Collapse onChange={this.expendPanel}>
-            {
-              chainsData.map((v, i) => {
-                return <Panel header={this.renderHeader(v, i)} key={v.id}>
-                  <div className="new-point" onClick={() => this.menualBackup(chainsData[i])} >
-                    <div className="line"></div>
-                  </div>
-                  {
-                    v.children ?
-                      <Timeline>
-                        {
-                          v.children.map(k => (
-                            <Timeline.Item
-                              dot={k.backupType === '5' ? this.fullBackupPoint(k.status) : ''}
-                              key={k.id}
-                              color={this.pointClass(k.status).color}>
-                              <Row>
-                                <Col span={5}>{formatDate(k.time)}</Col>
-                                <Col span={5}>{k.size}</Col>
-                                <Col span={5}>{k.type}</Col>
-                                <Col span={5}>
-                                  <span className={ `status ${this.pointClass(k.status).className}` }>
-                                    {this.pointStatus(k.status)}
-                                  </span>
-                                </Col>
-                                <Col span={4}>
-                                  <Dropdown.Button overlay={this.backupPointmenu(k)} type="ghost">
-                                    <Icon type="setting" />
-                                    操作
-                                  </Dropdown.Button>
-                                </Col>
-                              </Row>
-                            </Timeline.Item>
-                          ))
-                        }
-                      </Timeline>
-                      :
-                      ''
-                  }
-                </Panel>
+          {
+            chainsData.length === 0 ?
+              <div className="no-data">暂无数据</div>
+              :
+              <Collapse onChange={this.expendPanel}>
+                {
+                  chainsData.map((v, i) => {
+                    return <Panel header={this.renderHeader(v, i)} key={v.metadata.uid}>
+                      <div className="new-point" onClick={() => this.menualBackup(chainsData[i])} >
+                        <div className="line"></div>
+                      </div>
+                      {
+                        v.children ?
+                          <Timeline>
+                            {
+                              v.children.map(k => (
+                                <Timeline.Item
+                                  dot={k.backupType === '5' ? this.fullBackupPoint(k.status) : ''}
+                                  key={k.metadata.uid}
+                                  color={this.pointClass(k.status).color}>
+                                  <Row>
+                                    <Col span={5}>{formatDate(k.metadata.creationTimestamp)}</Col>
+                                    <Col span={5}>待确认 2MB</Col>
+                                    <Col span={5}>{database === 'redis' ? '全量备份(待确认)' : '根据标志判断是哪种备份'}</Col>
+                                    <Col span={5}>
+                                      <span className={ `status ${this.pointClass(k.status).className}` }>
+                                        {this.pointStatus(k.status)}
+                                      </span>
+                                    </Col>
+                                    <Col span={4}>
+                                      <Dropdown.Button overlay={this.backupPointmenu(k)} type="ghost">
+                                        <Icon type="setting" />
+                                        操作
+                                      </Dropdown.Button>
+                                    </Col>
+                                  </Row>
+                                </Timeline.Item>
+                              ))
+                            }
+                          </Timeline>
+                          :
+                          ''
+                      }
+                    </Panel>
+                  })
+                }
 
-              })
-            }
+              </Collapse>
+          }
 
-          </Collapse>
+
         </div>
       </div>
       {/* 设置自动备份弹框*/}
@@ -439,14 +492,20 @@ class Backup extends React.Component {
 }
 
 const mapStateToProps = state => {
+  const { clusterID } = state.entities.current.cluster
+  const { namespace } = state.entities.loginUser.info
   const { chains } = state.backupChain
   const chainsData = chains.data || []
   return {
+    namespace,
     chainsData,
+    clusterID,
   }
 }
 const BackupForm = Form.create()(Backup)
 export default connect(mapStateToProps, {
-  getbackupChainDetail,
-  getbackupChain,
+  getbackupChainDetail, // 获取备份链展开后的备份点
+  getbackupChain, // 获取备份链列表
+  deleteManualBackupChain, // 删除手动备份链
+  createBackupChain,
 })(BackupForm)

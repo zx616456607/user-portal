@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * Deployment class for k8s
+ * new mysql cluster class for database_cache
  *
  * v0.1 - 2018-07-17
  * @author zhouhaitao
@@ -14,8 +14,12 @@
    constructor (name, replicas, lbgroup, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
      this.kind = 'MySQLCluster'
-     this.metadata = lbgroup === 'none'? {name}: {
-       annotations: {
+     this.metadata =  {
+       annotations: lbgroup === 'none'? {
+         ['system/lbgroup']: lbgroup,
+       }
+       :
+       {
          ['system/lbgroup']: lbgroup,
          ['tenxcloud.com/schemaPortname']: `${name}-0/TCP`
        },

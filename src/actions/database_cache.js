@@ -198,7 +198,7 @@ function deleteDbCluster(cluster, dbName, clusterTypes ,callback) {
     cluster,
     [FETCH_API]: {
       types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}?type=${clusterTypes}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${clusterTypes}/${dbName}`,
       options: {
         method: 'DELETE'
       },
@@ -267,15 +267,15 @@ export function getMySqlConfig(cluster, name, callback) {
     return dispatch(fetchMySqlConfig(cluster, name, callback))
   }
 }
-// 获取mysql集群默认配置
-export const GET_MYSQL_CONFIG_DEFAULT_REQUEST = 'GET_MYSQL_CONFIG_DEFAULT_REQUEST'
-export const GET_MYSQL_CONFIG_DEFAULT_SUCCESS = 'GET_MYSQL_CONFIG_DEFAULT_SUCCESS'
-export const GET_MYSQL_CONFIG_DEFAULT_FAILURE = 'GET_MYSQL_CONFIG_DEFAULT_FAILURE'
+// 获取集群默认配置
+export const GET_DB_CLUSTER_CONFIG_DEFAULT_REQUEST = 'GET_DB_CLUSTER_CONFIG_DEFAULT_REQUEST'
+export const GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS = 'GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS'
+export const GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE = 'GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE'
 
 function fetchMySqlConfigDefault(cluster, name, callback) {
   return {
     [FETCH_API]: {
-      types: [GET_MYSQL_CONFIG_DEFAULT_REQUEST, GET_MYSQL_CONFIG_DEFAULT_SUCCESS, GET_MYSQL_CONFIG_DEFAULT_FAILURE],
+      types: [GET_DB_CLUSTER_CONFIG_DEFAULT_REQUEST, GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS, GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config/default`,
       schema: {}
     },
@@ -288,15 +288,15 @@ export function getMySqlConfigDefault(cluster, name, callback) {
   }
 }
 
-// 创建mysql集群配置
-export const CREATE_MYSQL_CONFIG_REQUEST = 'CREATE_MYSQL_CONFIG_REQUEST'
-export const CREATE_MYSQL_CONFIG_SUCCESS = 'CREATE_MYSQL_CONFIG_SUCCESS'
-export const CREATE_MYSQL_CONFIG_FAILURE = 'CREATE_MYSQL_CONFIG_FAILURE'
+// 创建集群配置
+export const CREATE_DB_CLUSTER_CONFIG_REQUEST = 'CREATE_DB_CLUSTER_CONFIG_REQUEST'
+export const CREATE_DB_CLUSTER_CONFIG_SUCCESS = 'CREATE_DB_CLUSTER_CONFIG_SUCCESS'
+export const CREATE_DB_CLUSTER_CONFIG_FAILURE = 'CREATE_DB_CLUSTER_CONFIG_FAILURE'
 
 function createMySqlConfigRequest(cluster, name, config, callback) {
   return {
     [FETCH_API]: {
-      types: [CREATE_MYSQL_CONFIG_REQUEST, CREATE_MYSQL_CONFIG_SUCCESS, CREATE_MYSQL_CONFIG_FAILURE],
+      types: [CREATE_DB_CLUSTER_CONFIG_REQUEST, CREATE_DB_CLUSTER_CONFIG_SUCCESS, CREATE_DB_CLUSTER_CONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
       schema: {},
       options: {
@@ -312,6 +312,34 @@ function createMySqlConfigRequest(cluster, name, config, callback) {
 export function createMySqlConfig(cluster, name, config, callback) {
   return (dispatch) => {
     return dispatch(createMySqlConfigRequest(cluster, name, config, callback))
+  }
+}
+
+
+// 更新集群配置
+export const UPDATE_DB_CLUSTER_CONFIG_REQUEST = 'UPDATE_DB_CLUSTER_CONFIG_REQUEST'
+export const UPDATE_DB_CLUSTER_CONFIG_SUCCESS = 'UPDATE_DB_CLUSTER_CONFIG_SUCCESS'
+export const UPDATE_DB_CLUSTER_CONFIG_FAILURE = 'UPDATE_DB_CLUSTER_CONFIG_FAILURE'
+
+function updateMySqlConfigRequest(cluster, name, config, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_DB_CLUSTER_CONFIG_REQUEST, UPDATE_DB_CLUSTER_CONFIG_SUCCESS, UPDATE_DB_CLUSTER_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: {
+          config
+        }
+      },
+    },
+    callback
+  }
+}
+export function updateMySqlConfig(cluster, name, config, callback) {
+  return (dispatch) => {
+    return dispatch(updateMySqlConfigRequest(cluster, name, config, callback))
   }
 }
 
@@ -349,7 +377,7 @@ export const UPDATE_MYSQL_PWD_REQUEST = 'UPDATE_MYSQL_PWD_REQUEST'
 export const UPDATE_MYSQL_PWD_SUCCESS = 'UPDATE_MYSQL_PWD_SUCCESS'
 export const UPDATE_MYSQL_PWD_FAILURE = 'UPDATE_MYSQL_PWD_FAILURE'
 
-function updateMySqlCreatePwdRequest(clusterID, clusterName, pwd, username, callback) {
+function updateMySqlCreatePwdRequest(clusterID, clusterName, pwd, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_MYSQL_PWD_REQUEST, UPDATE_MYSQL_PWD_SUCCESS, UPDATE_MYSQL_PWD_FAILURE],
@@ -357,8 +385,6 @@ function updateMySqlCreatePwdRequest(clusterID, clusterName, pwd, username, call
       options: {
         method: 'PUT',
         body: {
-          password: pwd,
-          username,
           root_password: pwd
         }
       },
@@ -395,29 +421,53 @@ export function getMySqlClusterPwd(cluster, name, callback) {
 }
 
 // 创建集群
-export const CREATE_MYSQL_REQUEST = 'CREATE_MYSQL_REQUEST'
-export const CREATE_MYSQL_SUCCESS = 'CREATE_MYSQL_SUCCESS'
-export const CREATE_MYSQL_FAILURE = 'CREATE_MYSQL_FAILURE'
+export const CREATE_DB_CLUSTER_REQUEST = 'CREATE_DB_CLUSTER_REQUEST'
+export const CREATE_DB_CLUSTER_SUCCESS = 'CREATE_DB_CLUSTER_SUCCESS'
+export const CREATE_DB_CLUSTER_FAILURE = 'CREATE_DB_CLUSTER_FAILURE'
 
-function createDatabaseClusterRequest (clusterId, template) {
+function createDatabaseClusterRequest (clusterId, template, type) {
   return {
     [FETCH_API]: {
-      types: [CREATE_MYSQL_REQUEST, CREATE_MYSQL_SUCCESS, CREATE_MYSQL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/mysql`,
+      types: [CREATE_DB_CLUSTER_REQUEST, CREATE_DB_CLUSTER_SUCCESS, CREATE_DB_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}`,
       schema: {},
       options: {
+        headers: {
+          'Content-Type': 'text/plain'
+        },
         method: 'POST',
-        body: {
-          template
-        }
+        body: template
       },
     },
   }
 }
-export function createDatabaseCluster(cluster, template) {
+export function createDatabaseCluster(cluster, template, type) {
   return (dispatch) => {
-    return dispatch(createDatabaseClusterRequest(cluster, template))
+    return dispatch(createDatabaseClusterRequest(cluster, template, type))
   }
 }
 
-// 获取集群列表
+export function getBackupRecord(cluster, type) {
+  return (dispatch) => {
+    return dispatch(fetchBackupRecord(cluster, type))
+  }
+}
+
+
+// 删除手动备份
+export function deleteRadisManualBackup(clusterId, type, template, callback) {
+  return {
+    [FETCH_API]: {
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/backup`,
+      schema: {},
+      options: {
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        method: 'POST',
+        body: template
+      },
+      callback
+    }
+  }
+}

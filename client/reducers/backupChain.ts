@@ -16,36 +16,14 @@ import {
   GET_BACKUPCHAIN_FAILURE,
 } from '../actions/backupChain'
 
-function chains(state = {}, action:object) {
+function chains(state = {}, action: any) {
     switch (action.type) {
         case GET_BACKUPCHAIN_REQUEST:
             return {
                 isFetching: true,
             }
         case GET_BACKUPCHAIN_SUCCESS:
-            const data = [
-                    {
-                        name: 'xxx备份链',
-                        id: 1,
-                        capacity: '100GB',
-                        pointNum: 3,
-                        creattTime: '2018-07-11T17:34:54+08:00',
-                    },
-                    {
-                        name: 'fdsfds备份链',
-                        id: 2,
-                        capacity: '100GB',
-                        pointNum: 6,
-                        creattTime: '2018-07-11T17:34:54+08:00',
-                    },
-                    {
-                        name: 'aaaaaa备份链',
-                        id: 3,
-                        capacity: '100GB',
-                        pointNum: 6,
-                        creattTime: '2018-07-11T17:34:54+08:00',
-                    },
-                ]
+            const data = action.response.result.database.items
             return {
                 isFetching: false,
                 data,
