@@ -697,7 +697,7 @@ let Vm = React.createClass({
       vmDetail = JSON.parse(config.configDetail)
     }
     setFieldsValue({
-      url: `${vmDetail.protocol}://${vmDetail.host}`,
+      url: vmDetail.protocol || vmDetail.host ? `${vmDetail.protocol}://${vmDetail.host}` : "",
     })
     // resetFields(['service', 'email', 'password', 'emailID'])
     vmChange();
@@ -877,7 +877,7 @@ let ChartServer = React.createClass({
       chartRepoDetail = JSON.parse(config.configDetail)
     }
     setFieldsValue({
-      url: `${chartRepoDetail.protocol}://${chartRepoDetail.host}`,
+      url: `${chartRepoDetail.protocol}://${chartRepoDetail.url}`,
     })
     // resetFields(['service', 'email', 'password', 'emailID'])
     onChange();

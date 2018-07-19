@@ -31,9 +31,9 @@ class YamlModal extends React.Component {
     getDnsItemDetail(cluster, targetName, {
       failed: {
         func: err => {
-          const { statusCode, message } = err
+          const { message } = err
           notification.close()
-          notification.warn(`获取 DNS 记录，错误代码: ${statusCode}， ${message.message}`)
+          notification.warn('获取 DNS 记录', message.message)
         },
       },
     }).then(res => {
@@ -78,9 +78,9 @@ class YamlModal extends React.Component {
       },
       failed: {
         func: err => {
-          const { statusCode, message } = err
+          const { message } = err
           notification.close()
-          notification.warn(`修改 DNS 记录失败，请检查 yaml， 错误代码: ${statusCode}， ${message.message}`)
+          notification.warn('修改 DNS 记录失败，请检查 yaml', message.message)
         },
       },
     })

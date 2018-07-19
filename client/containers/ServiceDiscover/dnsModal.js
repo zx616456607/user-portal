@@ -107,10 +107,9 @@ class DnsModal extends React.Component {
         },
         failed: {
           func: error => {
-            const { statusCode, message } = error
+            const { message } = error
             notification.close()
-            notification.warn(`新建 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
-            handleCreate()
+            notification.warn('新建 DNS 记录失败', message.message)
           },
         },
       })
