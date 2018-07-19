@@ -69,7 +69,10 @@ class Editor extends Component {
     _cb()
   }
   componentWillReceiveProps(next){
-    if (!!next.current && !!next.current.id && !isSet){
+    if(!!next.current.id && !!this.props.current.id && next.current.id !== this.props.current.id){
+      isSet = false
+    }
+    if (!!next.current.id && !isSet){
       isSet = true
       const { form: { setFieldsValue } } = this.props
       setFieldsValue({
@@ -77,9 +80,9 @@ class Editor extends Component {
         description: next.current.description,
         name: next.current.name,
       })
-      setTimeout(() => {
-        isSet = false
-      }, 1000)
+      // setTimeout(() => {
+      //   isSet = false
+      // }, 1000)
     }
   }
   render() {

@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin, Tabs, Button, Table, Icon, Select, Input,
-  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip } from 'antd'
+  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip, InputNumber } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -32,7 +32,7 @@ const Search = Input.Search
 const Option = Select.Option
 const MenuItem = Menu.Item
 const SubMenu = Menu.SubMenu
-const confirm = Modal.confirm
+// const confirm = Modal.confirm
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -92,6 +92,7 @@ class ImageVersion extends Component {
       max_tags_count: 0,
       lastCount: 0,
       allLabels: [],
+      isEditMaxTag: false,
     }
   }
 
@@ -397,10 +398,10 @@ class ImageVersion extends Component {
         id: 1,
         tagName: record.edition,
       }
-      this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" })
+      this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" }, true)
     }
     confirm({
-      title: '锁定',
+      modalTitle: '锁定',
       content: <div>
         <div>锁定版本后，将不受自动清理旧版本功能影响！</div>
         <div>一般为版本为稳定、常用版本时，保留备份使用！</div>
@@ -412,12 +413,12 @@ class ImageVersion extends Component {
       okText: "确认锁定（不被清理)",
     })
   }
-  setLabel = (query, { succ, failed }) => {
+  setLabel = (query, { succ, failed }, isLoadData) => {
     this.props.setRepositoriesTagLabel(query, {
       success: {
         func: res => {
           notification.success(succ)
-          this.loadData()
+          !!isLoadData && this.loadData()
         },
         isAsync: true,
       },
@@ -441,10 +442,10 @@ class ImageVersion extends Component {
         id: 1,
         tagName: record.edition,
       }
-      this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' })
+      this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' }, true)
     }
     confirm({
-      title: '解锁',
+      modalTitle: '解锁',
       content: <div>
         <div>解锁版本后，将受自动清理旧版本功能影响！</div>
         <div>若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
@@ -455,12 +456,12 @@ class ImageVersion extends Component {
       okText: "确认解锁（允许清理)",
     })
   }
-  delLabel = (query, { succ, failed }) => {
+  delLabel = (query, { succ, failed }, isLoadData) => {
     this.props.delRepositoriesTagLabel(query, {
       success: {
         func: res => {
           notification.success(succ)
-          this.loadData()
+          !!isLoadData && this.loadData()
         },
         isAsync: true,
       },
@@ -535,9 +536,12 @@ class ImageVersion extends Component {
     updateProjectMaxTagCount(query, {
       success: {
         func: res => {
-          if(!!res.data && res.data === 'success'){
-            notification.success("修改成功")
-          }
+          notification.success("修改成功")
+          this.setState({
+            isEditMaxTag: false,
+          }, () => {
+            this.loadData()
+          })
         },
         isAsync: true,
       },
@@ -567,7 +571,8 @@ class ImageVersion extends Component {
   }
   render() {
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
-    const { max_tags_count, edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys, deleteAll } = this.state
+    const { max_tags_count, edition, dataAry, delValue, aryName,
+      isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
@@ -583,9 +588,9 @@ class ImageVersion extends Component {
         return (
           <div>{text} {
             !!filter(record.labels, { id: 1 })[0] ?
-              <Icon type="lock" />
+              <i className="fa fa-lock"></i>
               :
-              ""
+              <i className="fa fa-unlock"></i>
            }</div>
         )
       }
@@ -594,14 +599,14 @@ class ImageVersion extends Component {
       title: '推送时间',
       dataIndex: 'push_time',
       key: 'push_time',
-      width: '27%',
+      width: '25%',
       render: text => formatDate(text)
     }, {
       id: 'labels',
       title: '标签',
       dataIndex: 'labels',
       key: 'labels',
-      width: '27%',
+      width: '25%',
       render: (labels, record) => {
         const tempLabels = remove(cloneDeep(labels), label => {
           return label.id !== 1
@@ -634,15 +639,16 @@ class ImageVersion extends Component {
       dataIndex: 'comment',
       render: (text, record) => {
         const items = []
-        !!!filter(record.labels, { id: 1 })[0] ?
+        const isLock = !!!filter(record.labels, { id: 1 })[0]
+        isLock ?
           items.push(<MenuItem key='lock'>
-            <Icon type="lock" /> 锁定
+            <i className="fa fa-lock"></i>&nbsp;&nbsp;锁定
           </MenuItem>)
           :
           items.push(<MenuItem key='unlock'>
-            <Icon type="unlock" /> 解锁
+            <i className="fa fa-unlock"></i>&nbsp;&nbsp;解锁
           </MenuItem>)
-        items.push(<MenuItem key='del'>
+        items.push(<MenuItem disabled={!isLock} key='del'>
           <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
         </MenuItem>)
         const { allLabels } = this.state
@@ -650,7 +656,7 @@ class ImageVersion extends Component {
           let checked = false
           if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
           return (
-            <Menu.Item>
+            <Menu.Item onSelect={this.onSelect}>
               <div>
                 <Checkbox onChange={e => { this.onCheckboxChange(e.target.checked, label, record) }} checked={checked} />
                 <div className="tag otherTag" style={{ backgroundColor: label.color }}>
@@ -728,13 +734,64 @@ class ImageVersion extends Component {
                 <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
-            <span style={{ marginLeft: 10 }}>
+            {/*<span style={{ marginLeft: 10 }}>
               保留版本最多
               <Input onChange={ e => this.setState({ max_tags_count: e.target.value })} value={max_tags_count} style={{width: 50}} onPressEnter={this.onPressEnter} />
               个（自动清理最旧版本）
               <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
                 <Icon type="question-circle" style={{cursor: 'pointer'}} />
               </Tooltip>
+            </span>*/}
+            <span style={{ marginLeft: 16 }}>
+              <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+              </Tooltip>&nbsp;保留版本最多&nbsp;
+              {
+                isEditMaxTag
+                ? <InputNumber
+                  min={1}
+                  step={1}
+                  value={max_tags_count}
+                  onChange={max_tags_count => this.setState({ max_tags_count })}
+                />
+                : max_tags_count
+              }
+              &nbsp;个（自动清理旧版本）
+              {
+                !isEditMaxTag &&
+                <Tooltip title="编辑">
+                  <Icon
+                    type="edit"
+                    style={{ cursor: 'pointer', marginLeft: 8 }}
+                    onClick={() => {
+                      this.max_tags_count = max_tags_count
+                      this.setState({ isEditMaxTag: true })
+                    }}
+                  />
+                </Tooltip>
+              }
+              {
+                isEditMaxTag && [
+                  <Tooltip title="取消">
+                    <Icon
+                      key="cancel"
+                      type="cross"
+                      style={{ cursor: 'pointer', marginLeft: 8 }}
+                      onClick={() => {
+                        this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
+                      }}
+                    />
+                  </Tooltip>,
+                  <Tooltip title="保存">
+                    <Icon
+                      key="save"
+                      type="save"
+                      style={{ cursor: 'pointer', marginLeft: 16 }}
+                      onClick={this.onConfirmOk}
+                    />
+                  </Tooltip>
+                ]
+              }
             </span>
             {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>

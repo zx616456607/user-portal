@@ -20,11 +20,11 @@ import Editor from './Editor'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { loadLabelList, updateLabel, createLabel, setImageLabel, deleteLabel } from '../../../../../actions/harbor'
 import NotificationHandler from '../../../../../components/Notification'
-import filter from 'lodash/filter'
 import { formatDate } from "../../../../../common/tools";
+import { remove, filter, cloneDeep } from 'lodash'
 
 const notification = new NotificationHandler()
-const confirm = Modal.confirm
+// const confirm = Modal.confirm
 const colors = [
   '#872ED8', '#AE64F4', '#4067FF', '#548CFE', '#2DB8F4',
   '#2BCFE5', '#00D183', '#27E09A', '#54C41A', '#83D167',
@@ -40,6 +40,10 @@ class Project extends Component {
     current: {},
     currPage: 1,
     data: [],
+    searchInput: "",
+    allData: [],
+    delVisible: false,
+    isDelLoading: false,
   }
   componentDidMount() {
     this.loadData()
@@ -76,7 +80,10 @@ class Project extends Component {
             if(!!data){
               this.setState({
                 data,
+                allData: data,
+                searchInput: "",
                 spinning: false,
+                current: {},
               })
             }
           },
@@ -101,36 +108,48 @@ class Project extends Component {
     }
   }
   del = () => {
-    const { selectedRows, current } = this.state
-    const { deleteLabel, harbor } = this.props
+    const { selectedRows } = this.state
     if (selectedRows.length){
-      const onOk = () => {
-        selectedRows.map(async (row, index) => await deleteLabel(harbor, DEFAULT_REGISTRY, row.id, {
-          success: {
-            func: (res) => {
-              notification.success("删除标签 [" + row.name + "] 成功")
-              if(index >= selectedRows.length-1){
-                this.loadData()
-              }
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (err) => {
-              notification.warn("删除标签 [" + row.name + "] 失败")
-            }
-          }
-        }))
-      }
-      confirm({
-        title: "删除",
-        content: "确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
-          (index !== rows.length-1 ? ", " : "") }) + "] ?",
-        onOk,
+      this.setState({
+        delVisible: true,
       })
+      // const onOk =
+      // confirm({
+      //   modalTitle: "删除",
+      //   content: "确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+      //     (index !== rows.length-1 ? ", " : "") }) + "] ?",
+      //   onOk,
+      // })
     } else {
       notification.warn('请选择标签')
     }
+  }
+  onDelOk = () => {
+    this.setState({
+      isDelLoading: true,
+    }, () => {
+      const { selectedRows, current } = this.state
+      const { deleteLabel, harbor } = this.props
+      selectedRows.map(async (row, index) => await deleteLabel(harbor, DEFAULT_REGISTRY, row.id, {
+        success: {
+          func: (res) => {
+            notification.success("删除标签 [" + row.name + "] 成功")
+            if(index >= selectedRows.length-1){
+              this.loadData()
+              this.setState({
+                delVisible: false,
+              })
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            notification.warn("删除标签 [" + row.name + "] 失败")
+          }
+        }
+      }))
+    })
   }
   add = () => {
     this.setState({
@@ -200,8 +219,36 @@ class Project extends Component {
       currPage: pageination.current
     })
   }
+  onRowClick = record => {
+    const { selectedRows } = this.state
+    let temp = cloneDeep(selectedRows)
+    !!filter(selectedRows, {
+      id: record.id
+    })[0] ?
+    temp = remove(selectedRows, row => row.id !== record.id )
+    :
+    temp.push(record)
+    this.setState({
+      selectedRows: temp,
+    })
+  }
+  onSearchChange = e => {
+    const value = e.target.value
+    this.setState({
+      spinning: true,
+    }, () => {
+      const temp = []
+      this.state.allData.map(o => o.name.indexOf(value) > -1 && temp.push(o) )
+      this.setState({ searchInput: value, data: temp })
+      setTimeout(() => {
+        this.setState({
+          spinning: false,
+        })
+      }, 500)
+    })
+  }
   render() {
-    const { spinning, color, selectedRows, isShowEditor, current, currPage, data } = this.state
+    const { spinning, color, selectedRows, isShowEditor, current, currPage, data, searchInput, delVisible, isDelLoading } = this.state
     const { scope } = this.props
     const columns = [
       {
@@ -231,7 +278,7 @@ class Project extends Component {
       },
     ]
     const rowSelection = {
-      selectedRows,
+      selectedRowKeys: selectedRows.map( row => row.id ),
       onChange: this.onRowChange,
     }
     const tempData = filter(data, { scope })
@@ -256,9 +303,8 @@ class Project extends Component {
               placeholder="按标签名称搜索"
               className="search"
               size="large"
-              value={this.state.searchInput}
-              onChange={e => this.setState({ searchInput: e.target.value })}
-              onPressEnter={this.searchProjects}
+              value={searchInput}
+              onChange={this.onSearchChange}
             />
             <i className="fa fa-search" onClick={this.searchProjects}></i>
             {
@@ -282,8 +328,19 @@ class Project extends Component {
             rowKey={row => row.id}
             rowSelection={rowSelection}
             onChange={this.onTableChange}
+            onRowClick={this.onRowClick}
           />
         </Spin>
+        <Modal
+          visible={delVisible}
+          title="删除"
+          onOk={this.onDelOk}
+          confirmLoading={isDelLoading}
+          onCancel={ () => this.setState({ delVisible: false })}
+        >
+        {<div>{"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+            (index !== rows.length-1 ? ", " : "") }) + "] ?"}</div>}
+        </Modal>
       </QueueAnim>
     )
   }
