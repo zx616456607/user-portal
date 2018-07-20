@@ -8,8 +8,8 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin, Tabs, Button, Table, Icon, Select, Input,
-  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip, InputNumber } from 'antd'
+import { Card, Spin, Tabs, Button, Table, Icon, Select, Input, message,
+  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip, InputNumber, Alert } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -25,6 +25,7 @@ import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import remove from 'lodash/remove'
+import { transform } from 'typescript';
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -93,6 +94,11 @@ class ImageVersion extends Component {
       lastCount: 0,
       allLabels: [],
       isEditMaxTag: false,
+      isShowLockModel: false,
+      lockType: "",
+      currentEdition: "",
+      checkboxStates: {},
+      dropdownVisible: {},
     }
   }
 
@@ -380,94 +386,88 @@ class ImageVersion extends Component {
       this.handleDeploy(record.edition)
     } else if (e.key === 'del') {
       this.handleDelete(record.edition)
-    } else if (e.key === 'lock') {
-      this.lock(record)
-    } else if (e.key === 'unlock') {
-      this.unlock(record)
+    } else if (e.key === 'lock' || e.key === 'unlock') {
+      this.lockState(record, e.key)
     }
   }
-
-  lock = record => {
-    const onOk = () => {
-      const { imageName, harbor } = this.props
-      const { max_tags_count } = this.state
-      const query = {
-        registry: DEFAULT_REGISTRY,
-        name: imageName,
-        harbor,
-        id: 1,
-        tagName: record.edition,
-      }
-      this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" }, true)
-    }
-    confirm({
-      modalTitle: '锁定',
-      content: <div>
-        <div>锁定版本后，将不受自动清理旧版本功能影响！</div>
-        <div>一般为版本为稳定、常用版本时，保留备份使用！</div>
-        <div>注：该版本的推送更新、手动删除不受锁定限制</div>
-        <div>确定锁定该版本，不被清理？</div>
-      </div>,
-      onOk,
-      onCancel() {},
-      okText: "确认锁定（不被清理)",
+  lockCb = () => {
+    this.setState({
+      isShowLockModel: false,
+      currentEdition: "",
+      lockType: ""
+    }, () => {
+      this.loadData()
     })
   }
-  setLabel = (query, { succ, failed }, isLoadData) => {
+  lockFunc = () => {
+    const { imageName, harbor } = this.props
+    const { max_tags_count, currentEdition } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: currentEdition,
+    }
+    this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" }, this.lockCb)
+  }
+  lockState = (record, lockType) => {
+    this.setState({
+      isShowLockModel: true,
+      lockType,
+      currentEdition: record.edition,
+    })
+  }
+  setLabel = (query, { succ, failed }, _cb) => {
     this.props.setRepositoriesTagLabel(query, {
       success: {
         func: res => {
+          // message.success(succ)
+          notification.destroy()
           notification.success(succ)
-          !!isLoadData && this.loadData()
+          !!_cb && _cb()
         },
         isAsync: true,
       },
       failed: {
         func: err => {
           if(!!err){
+            notification.destroy()
+            // message.warning(failed)
             notification.warn(failed)
           }
         }
       }
     })
   }
-  unlock = record => {
-    const onOk = () => {
-      const { imageName, harbor } = this.props
-      const { max_tags_count } = this.state
-      const query = {
-        registry: DEFAULT_REGISTRY,
-        name: imageName,
-        harbor,
-        id: 1,
-        tagName: record.edition,
-      }
-      this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' }, true)
+  unLockFunc = () => {
+    const { imageName, harbor } = this.props
+    const { max_tags_count, currentEdition } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: currentEdition,
     }
-    confirm({
-      modalTitle: '解锁',
-      content: <div>
-        <div>解锁版本后，将受自动清理旧版本功能影响！</div>
-        <div>若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
-        <div>确定解锁该版本？</div>
-      </div>,
-      onOk,
-      onCancel() {},
-      okText: "确认解锁（允许清理)",
-    })
+    this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' }, this.lockCb)
   }
-  delLabel = (query, { succ, failed }, isLoadData) => {
+  delLabel = (query, { succ, failed }, _cb) => {
     this.props.delRepositoriesTagLabel(query, {
       success: {
         func: res => {
+          notification.destroy()
+          // message.success(succ)
           notification.success(succ)
-          !!isLoadData && this.loadData()
+          !!_cb && _cb()
         },
         isAsync: true,
       },
       failed: {
         func: err => {
           if(!!err){
+            notification.destroy()
+            // message.warning(failed)
             notification.warn(failed)
           }
         }
@@ -475,7 +475,7 @@ class ImageVersion extends Component {
     })
   }
 
-  onCheckboxChange = (flag, label, record) => {
+  onCheckboxChange = (flag, label, record, _cb) => {
     const { imageName: name, harbor }= this.props
     const query = {
       registry: DEFAULT_REGISTRY,
@@ -485,9 +485,9 @@ class ImageVersion extends Component {
       tagName: record.edition,
     }
     if(flag){
-      this.setLabel(query, { succ: '添加标签成功', failed: '添加标签失败' })
+      this.setLabel(query, { succ: '添加标签成功', failed: '添加标签失败' }, _cb)
     }else{
-      this.delLabel(query, { succ: '删除标签成功', failed: '删除标签失败' })
+      this.delLabel(query, { succ: '删除标签成功', failed: '删除标签失败' }, _cb)
     }
   }
 
@@ -569,10 +569,38 @@ class ImageVersion extends Component {
       isShowMaxConfirm: false,
     })
   }
+  onSelect = (ref, nextChecked, label, record) => {
+    this.onCheckboxChange(nextChecked, label, record, () => {
+      const { checkboxStates }  = this.state
+      const temp = JSON.stringify(checkboxStates) !== "{}" ? cloneDeep(checkboxStates) : cloneDeep(this.checkboxStates)
+      temp[ref] = nextChecked
+      // this.setState({
+      //   checkboxStates: temp,
+      // })
+      this.checkboxStates[ref] = nextChecked
+    })
+  }
+  setRefs = (inst, ref) => {
+    this[ref] = inst
+  }
   render() {
+    // const menu = (
+    //   <Menu onClick={this.handleMenuClick}>
+    //     <Menu.Item key="1">第一个菜单项</Menu.Item>
+    //     <Menu.Item key="2">第二个菜单项</Menu.Item>
+    //     <Menu.Item key="3">第三个菜单项</Menu.Item>
+    //   </Menu>
+    // );
+    // return (
+    //   <Dropdown.Button visible={true} onClick={this.handleButtonClick} overlay={menu} type="ghost">
+    //     某功能按钮
+    //   </Dropdown.Button>
+    // )
+    if(!this.checkboxStates) this.checkboxStates = {}
+    if(!this.dropdownVisible) this.dropdownVisible = {}
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
     const { max_tags_count, edition, dataAry, delValue, aryName,
-      isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag } = this.state
+      isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag, isShowLockModel, lockType } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
@@ -584,7 +612,6 @@ class ImageVersion extends Component {
       key: 'edition',
       width: '19%',
       render: (text, record) => {
-        console.log(!!!filter(record.labels, { id: 1 })[0])
         return (
           <div>{text} {
             !!filter(record.labels, { id: 1 })[0] ?
@@ -651,31 +678,71 @@ class ImageVersion extends Component {
         items.push(<MenuItem disabled={!isLock} key='del'>
           <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
         </MenuItem>)
-        const { allLabels } = this.state
-        const subItems = allLabels.length ? allLabels.map((label, i) => {
+
+        const name = record.edition
+        this.dropdownVisible[name] = false
+        const overOut = (flag, name) => {
+          const { dropdownVisible } = this.state
+          const temp = cloneDeep(dropdownVisible)
+          temp[name] = flag
+          this.setState({
+            dropdownVisible: temp
+          })
+          this.dropdownVisible[name] = true
+        }
+        const { allLabels, checkboxStates } = this.state
+        const subItems = allLabels.length && allLabels.map((label, i) => {
           let checked = false
           if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
+          const ref = name + "_" + label.name + "_checkbox"
+          this.checkboxStates[ref] = checked
           return (
-            <Menu.Item onSelect={this.onSelect}>
-              <div>
-                <Checkbox onChange={e => { this.onCheckboxChange(e.target.checked, label, record) }} checked={checked} />
+            <MenuItem key={ref} className="row">
+              <Checkbox
+                ref={inst => this.setRefs(inst, ref)}
+                defaultChecked={checked}
+                onChange={
+                  e => {
+                    e.stopPropagation()
+                    this.onSelect(ref, e.target.checked, label, record)
+                  }
+                }
+                // onChange={e => { this.onCheckboxChange(e.target.checked, label, record) }}
+                // checked={ typeof this.state.checkboxStates[ref] === "boolean" ? this.state.checkboxStates[ref] : checked}
+              >
                 <div className="tag otherTag" style={{ backgroundColor: label.color }}>
                   {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
                   {' ' + label.name}
                 </div>
-              </div>
-            </Menu.Item>
+              </Checkbox>
+            </MenuItem>
           )
-        }) : <Menu.Item>暂无可选标签</Menu.Item>
+        })
         return (
           <div>
-            <Dropdown.Button
+            <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
+              <span><Icon type="eye-o" />查看详情</span>
+            </Button>
+            <Dropdown
+              visible={typeof this.state.dropdownVisible[name] === "boolean" ? this.state.dropdownVisible[name] : this.dropdownVisible[name]}
+              onVisibleChange={flag => overOut(flag, name)}
               overlay={
-                <Menu className="imageVersionDropdownMenu" style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
+                <Menu defaultOpenKeys={['subMenu']} openKeys={['subMenu']} className="imageVersionDropdownMenu" style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
                   <MenuItem key='deploy'>
-                    <i className="anticon anticon-appstore-o"></i> 部署镜像
+                    <span><i className="anticon anticon-appstore-o"></i> 部署镜像</span>
                   </MenuItem>
+                  {/*<MenuItem key='tags'>
+                    <Popover overlayClassName="imageVersionPopover" content={content} placement="left">
+                      <span>
+                        <Icon type="tags" /> 配置标签
+                      </span>
+                    </Popover>
+                  </MenuItem>*/}
                   <SubMenu
+                    key="subMenu"
+                    className="rowContainer"
+                    onMouseover={() => overOut(true, name)}
+                    onMouseout={() => overOut(false, name)}
                     title={<span><Icon type="tags" /> 配置标签</span>}>
                     {subItems}
                   </SubMenu>
@@ -686,10 +753,11 @@ class ImageVersion extends Component {
                       ""
                   }
                 </Menu>
-              } type="ghost" onClick={this.handleDetail.bind(this, record)}>
-              <Icon type="eye-o" />查看详情
-              </Dropdown.Button>
-          </div >
+              }>
+              <Button type="ghost" className="downBtn">
+                <Icon type="circle-o-down" />
+              </Button></Dropdown>
+          </div>
         )
       }
     }]
@@ -842,6 +910,49 @@ class ImageVersion extends Component {
             }
           </div>
         </Modal>
+        {
+          isShowLockModel ?
+            <Modal
+              className="lockModal"
+              visible={isShowLockModel}
+              title={lockType === "lock" ? "锁定" : "解锁"}
+              onOk={lockType === "lock" ? this.lockFunc : this.unLockFunc}
+              okText={lockType === "lock" ? "确认锁定（不被清理)" : "确认解锁（允许清理)"}
+              onCancel={() => this.setState({ isShowLockModel: false })}
+            >
+              {
+                lockType === "lock" ?
+                  <Alert className="alert" message={
+                    <div>
+                      <div className="left"><i className="fa fa-lock"></i></div>
+                      <div className="right">
+                        <div>锁定版本后，将不受自动清理旧版本功能影响！
+                        一般为版本为稳定、常用版本时，保留备份使用！
+                        <span className="hint">注：该版本的推送更新、手动删除不受锁定限制</span></div>
+                        <div>确定锁定该版本，不被清理？</div>
+                      </div>
+                      <div className="clear"></div>
+                    </div>
+                  }>
+                  </Alert>
+                  :
+                  <Alert className="alert" message={
+                    <div>
+                      <div className="left"><i className="fa fa-unlock"></i></div>
+                      <div className="right">
+                        <div>解锁版本后，将受自动清理旧版本功能影响！
+                        若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
+                        <div>确定解锁该版本？</div>
+                      </div>
+                      <div className="clear"></div>
+                    </div>
+                  }>
+                  </Alert>
+              }
+            </Modal>
+            :
+            null
+        }
       </Card>
     )
   }

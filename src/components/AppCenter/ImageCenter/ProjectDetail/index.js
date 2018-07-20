@@ -381,6 +381,7 @@ class ImageDetailBox extends Component {
               <DetailInfo
                 registry={DEFAULT_REGISTRY}
                 imageName={this.props.imageName}
+                project_id={this.props.scope.props.params.id}
               />
             </TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="tag">

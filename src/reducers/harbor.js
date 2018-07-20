@@ -546,8 +546,8 @@ function imageBasicInfo(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          markdownData: action.response.result.result,
-          htmlData: action.response.result.htmlData,
+          markdownData: action.response.result.data[0].description,
+          // htmlData: action.response.result.htmlData,
         },
       })
     case ActionTypes.GET_HARBOR_IMAGEINFO_FAILURE:

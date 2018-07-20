@@ -461,9 +461,10 @@ HarborAPIs.prototype.getRepository = function (name, callback) {
 HarborAPIs.prototype.updateRepository = function (name, body, callback) {
   const url = `${this.getAPIPrefix()}/repositories/${name}`
   const headers = {
-    'Content-Type': 'text/plain',
+    'Content-Type': 'application/json',// 'text/plain',
   }
-  this.sendRequest(url, 'PUT', body, { headers, json: false }, callback)
+  logger.info("sendRequest", "body: " + body);
+  this.sendRequest(url, 'PUT', body, { headers }, callback)
 }
 
 // TODO: 给某个镜像设标签，看示例 url 跟函数参数，应该能知道传的参都是什么意思

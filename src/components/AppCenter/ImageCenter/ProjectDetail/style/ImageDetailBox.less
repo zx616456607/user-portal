@@ -1,40 +1,57 @@
-.imageVersionDropdownMenu{
-  .ant-dropdown-menu-submenu-vertical > .ant-dropdown-menu{
-    left: auto !important;
-    right: 100% !important;
-    top: -33px;
-    max-height: 140px;
-    overflow-y: auto;
+.imageVersionPopover, .imageVersionDropdownMenu{
+  .ant-popover-inner-contentk, .ant-dropdown-menu{
+    padding: 5px 0;
   }
+  .rowContainer{
+    .ant-dropdown-menu{
+      max-height: 400px;
+      left: auto !important;
+      right: 100% !important;
+      top: -33px;
+      overflow-y: auto;
+    }
+    .row{
+      padding: 0;
+    }
+    .row > label{
+      display: inline-block;
+      padding: 7px 15px;
+      &:hover{
+        background-color: #eaf8fe;
+      }
+      cursor: pointer;
+    }
+  }
+
   .otherTag{
-    height: 25px;
+    height: 24px;
     text-align: center;
     color: white;
     min-width: 80px;
-    line-height: 25px;
+    line-height: 24px;
     border-radius: 20px;
     display: inline-block;
-    padding: 0 20px;
+    padding: 0 12px;
     margin-left: 5px;
     .tenx-icon{
-      transform: translateY(2px);
+      transform: translateY(1px);
       font-size: 14px;
     }
   }
 }
 .otherTagsTip{
   .tag{
-    height: 30px;
+    height: 24px;
     text-align: center;
     color: white;
     min-width: 80px;
-    line-height: 30px;
+    line-height: 24px;
     border-radius: 20px;
     display: inline-block;
-    padding: 0 20px;
+    padding: 0 12px;
     margin: 2.5px 0;
     .tenx-icon{
-      transform: translateY(2px);
+      transform: translateY(1px);
       font-size: 14px;
     }
   }
@@ -44,14 +61,14 @@
 }
 #ImageDetailBox {
   .tag{
-    height: 30px;
+    height: 24px;
     text-align: center;
     color: white;
     min-width: 80px;
-    line-height: 30px;
+    line-height: 24px;
     border-radius: 20px;
     display: inline-block;
-    padding: 0 20px;
+    padding: 0 12px;
     .tenx-icon{
       transform: translateY(2px);
       font-size: 14px;

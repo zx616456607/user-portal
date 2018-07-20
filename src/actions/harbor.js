@@ -1197,12 +1197,16 @@ export const GET_HARBOR_IMAGEINFO_REQUEST = 'GET_HARBOR_IMAGEINFO_REQUEST'
 export const GET_HARBOR_IMAGEINFO_SUCCESS = 'GET_HARBOR_IMAGEINFO_SUCCESS'
 export const GET_HARBOR_IMAGEINFO_FAILURE = 'GET_HARBOR_IMAGEINFO_FAILURE'
 
-export function getImageDetailInfo(harbor, obj, callback) {
+export function getImageDetailInfo(harbor, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories?harbor=${harbor}`
+  if (query) {
+    endpoint = `${endpoint}&${toQuerystring(query)}`
+  }
   return {
-    registry: obj.registry,
+    registry: query.registry,
     [FETCH_API]: {
       types: [GET_HARBOR_IMAGEINFO_REQUEST, GET_HARBOR_IMAGEINFO_SUCCESS, GET_HARBOR_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}?harbor=${harbor}`,
+      endpoint,
       schema: Schemas.REGISTRYS,
     },
     callback
