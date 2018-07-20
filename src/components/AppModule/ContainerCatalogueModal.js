@@ -774,6 +774,16 @@ let ContainerCatalogueModal = React.createClass({
                       if (!PATH_REG.test(value)) {
                         return callback('请输入正确的路径')
                       }
+                      if (!parentForm) {
+                        const list = cloneDeep(fieldsList)
+                        list.splice(currentIndex, 1)
+                        for (let i = 0; i < list.length; i++) {
+                          if (value === list[i].mountPath) {
+                            return callback('已填写过该路径')
+                          }
+                        }
+                        return callback()
+                      }
                       return callback(checkVolumeMountPath(parentForm, currentIndex, value, 'volume'))
                     }
                   }]

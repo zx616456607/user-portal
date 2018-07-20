@@ -63,7 +63,7 @@ build_user_portal_backend() {
   set -e
 }
 
-project="user-portal 2.0"
+project="user-portal"
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   cat << EOF
 Run the command the build release of the ${project}:

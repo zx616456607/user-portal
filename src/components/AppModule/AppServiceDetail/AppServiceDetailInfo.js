@@ -582,7 +582,7 @@ class BindNodes extends Component {
         preferTag.push(item)
       })
     }
-    const reqFlag = spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
+    const reqFlag = spec.affinity.nodeAffinity && spec.affinity.nodeAffinity.hasOwnProperty('requiredDuringSchedulingIgnoredDuringExecution')
     if (reqFlag) {
       const reqData = spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
       reqData.nodeSelectorTerms[0].matchExpressions.map( item=>{
@@ -645,7 +645,8 @@ class BindNodes extends Component {
   }
   getNodeSelectorTarget(spec) {
     const hostNameKey = 'kubernetes.io/hostname'
-    if (!spec.hasOwnProperty('nodeSelector') || !spec.nodeSelector.hasOwnProperty(hostNameKey)) {
+    if (!spec || !spec.hasOwnProperty('nodeSelector')
+    || !spec.nodeSelector.hasOwnProperty(hostNameKey)) {
       return null
     }
     return spec.nodeSelector[hostNameKey]
@@ -1337,7 +1338,7 @@ class AppServiceDetailInfo extends Component {
           </div>
         </div>
         {
-          annotations.hasOwnProperty('tensorflow/modelsetName') ?
+          annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
           <div className="compose commonBox">
             <span className="titleSpan">模型信息</span>
             <Row className="titleBox">

@@ -481,22 +481,24 @@ const MyComponent = React.createClass({
       );
       let lb = false
       let k8sSer = ''
-      for (let k8sService of k8sServiceList) {
-        if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
+      if (k8sServiceList) {
+        for (let k8sService of k8sServiceList) {
+          if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
 
-          const key = camelize('ingress-lb')
-          if (
-            k8sService.metadata.annotations &&
-            k8sService.metadata.annotations[key] &&
-            !isEmpty(k8sService.metadata.annotations[key])
-          ) {
-            let lbArr = JSON.parse(k8sService.metadata.annotations[key])
-            if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
-              lb = true
-              k8sSer = k8sService
+            const key = camelize('ingress-lb')
+            if (
+              k8sService.metadata.annotations &&
+              k8sService.metadata.annotations[key] &&
+              !isEmpty(k8sService.metadata.annotations[key])
+            ) {
+              let lbArr = JSON.parse(k8sService.metadata.annotations[key])
+              if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
+                lb = true
+                k8sSer = k8sService
+              }
             }
+            break
           }
-          break
         }
       }
       const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs, k8sSer)
