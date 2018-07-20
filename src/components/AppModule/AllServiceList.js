@@ -116,6 +116,7 @@ const MyComponent = React.createClass({
       }
       return
     }
+
     if (checkedList.length > 1) {
       let runCount = 0
       let stopCount = 0

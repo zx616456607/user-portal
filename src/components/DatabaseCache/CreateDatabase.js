@@ -14,7 +14,6 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin } from 'antd'
 import { CreateDbCluster } from '../../actions/database_cache'
-import { getResourceByMemory } from '../../../src/common/tools'
 import newMySqlCluster from '../../../kubernetes/objects/newMysqlCluster'
 import newRedisCluster from '../../../kubernetes/objects/newRedisCluster'
 import yaml from 'js-yaml'
@@ -25,7 +24,7 @@ import { getMySqlConfig, getMySqlConfigDefault, createMySqlClusterPwd, createMyS
 import NotificationHandler from '../../components/Notification'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import { MY_SPACE } from '../../constants'
-import { parseAmount } from '../../common/tools.js'
+import { parseAmount, getResourceByMemory } from '../../common/tools.js'
 import './style/CreateDatabase.less'
 import { camelize } from 'humps'
 const Option = Select.Option;
@@ -346,7 +345,7 @@ let CreateDatabase = React.createClass({
           scope.setState({
             CreateDatabaseModalShow: false
           }, () => {
-            loadDbCacheList(cluster, 'mysql')
+            loadDbCacheList(cluster, 'redis')
           });
         }
         createRedis()

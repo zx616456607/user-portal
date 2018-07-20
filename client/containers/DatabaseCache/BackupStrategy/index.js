@@ -14,30 +14,30 @@ import { Button } from 'antd'
 
 const ButtonGroup = Button.Group
 export const weeks = [{
-  en: 'Sunday',
+  en: '0',
   cn: '星期天',
 }, {
-  en: 'Monday',
+  en: '1',
   cn: '星期一',
 }, {
-  en: 'Tuesday',
+  en: '2',
   cn: '星期二',
 }, {
-  en: 'Wednesday',
+  en: '3',
   cn: '星期三',
 }, {
-  en: 'Thursday',
+  en: '4',
   cn: '星期四',
 }, {
-  en: 'Friday',
+  en: '5',
   cn: '星期五',
 }, {
-  en: 'Saturday',
+  en: '6',
   cn: '星期六',
 }]
 export default class Index extends React.PureComponent {
   state = {
-    weeksSelected: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
+    weeksSelected: [ '0', '1', '2', '3', '4', '5', '6' ],
     timeList: [{
       key: new Date().getTime(),
       value: null,

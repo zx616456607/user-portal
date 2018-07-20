@@ -14,15 +14,26 @@ import './style/Backup.less'
 import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
-import { getbackupChainDetail, getbackupChain, createBackupChain, deleteManualBackupChain } from '../../../actions/backupChain'
+import { getbackupChainDetail,
+  getbackupChain,
+  createBackupChain,
+  deleteManualBackupChain,
+  checkAutoBackupExist,
+  autoBackupSet,
+  autoBackupDetele,
+} from '../../../actions/backupChain'
+import NotificationHandler from '../../../../src/components/Notification'
 import newManualBackup from '../../../../kubernetes/objects/newManualBackup'
 import rollback from '../../../assets/img/database_cache/rollback.png'
 import create from '../../../assets/img/database_cache/new.png'
 import BackupStrategy from '../BackupStrategy'
 import yaml from 'js-yaml'
+
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
+const notification = new NotificationHandler()
+
 class Backup extends React.Component {
   state= {
     extendId: '',
@@ -36,11 +47,32 @@ class Backup extends React.Component {
     notYetConfirm: true, // 确认回滚勾选
     delThis: false, // 删除备份链弹框显示隐藏
     backupChain: '', // 当前操作的备份点
-    days: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
+    days: [ '0', '1', '2', '3', '4', '5', '6' ],
+    daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+    autoBackupSwitch: false,
+    hour: '1',
+    minutes: '0',
   }
   componentDidMount() {
-    const { clusterID, database, getbackupChain } = this.props
-    getbackupChain(clusterID, database)
+    const { clusterID, database, getbackupChain, checkAutoBackupExist } = this.props
+    getbackupChain(clusterID, database) // 获取备份链数据
+    checkAutoBackupExist(clusterID, database, {
+      success: {
+        func: res => {
+          // 如果自动备份链请求到数据了，说明开启了自动备份。把控制自动备份开关的state置为true
+          if (res.database.items.length !== 0) {
+            this.setState({
+              autoBackupSwitch: true,
+            })
+          }
+        },
+      },
+      failed: {
+        func: () => {
+          notification.warn('检查是否有自动备份失败')
+        },
+      },
+    }) // 检查是否有自动备份
   }
   renderHeader = (v, i) => {
     return (
@@ -124,7 +156,6 @@ class Backup extends React.Component {
   }
   delBackupPointAlert = () => {
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
-
     const confirmDel = () => {
       const { deleteManualBackupChain, clusterID, database, getbackupChain } = this.props
       const { backupChain } = this.state
@@ -245,34 +276,96 @@ class Backup extends React.Component {
   }
   // 自动备份弹窗组件
   autoBackupModal = () => {
-    // 确定
-    const handleAutoBackupOk = () => {
-      this.setState({
-        autoBackupModalShow: false,
-      })
-    }
+    const { database, databaseInfo, clusterID, autoBackupSet, autoBackupDetele } = this.props
     // 获取选择备份周期
     const selectPeriod = (week, index) => {
       const { days } = this.state
       const localWeeks = JSON.parse(JSON.stringify(days))
       localWeeks[index] = localWeeks[index] ? false : week.en
+      // 转换周期格式（仅天）参考格式： http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/crontab.html
+      const newDays = localWeeks.filter(v => !!v)
+      if (newDays[0] === '0') {
+        newDays.push(newDays.shift())
+      }
       this.setState({
         days: localWeeks,
-      }, () => {
-
+        daysConvert: newDays,
       })
 
       // console.log(period)
     }
-    const statusSwitch = () => {
+    // 确定
+    const handleAutoBackupOk = () => {
+      const { hour, minutes, daysConvert } = this.state
+      const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
+      // 传给后台的yaml文件
+      const postData = {
+        apiVersion: 'daas.tenxcloud.com/v1',
+        kind: 'RedisCronBackup',
+        metadata: {
+          name: `${databaseInfo.metadata.name}redis01`,
+          namespace: 'admin',
+          labels: {
+            'tenxcloud.com/cluster': 'redis01',
+          },
+        },
+        spec: {
+          schedule,
+          cluster: databaseInfo.metadata.name,
+          sourceDirectory: '/redis-master-data/',
+          s3SecretName: 's301',
+          s3SecretNamespace: 'kube-system',
+        },
+      }
+      // 设置自动备份
+      autoBackupSet(clusterID, database, yaml.dump(postData), {
+        success: {
+          func: () => {
+            notification.success('设置自动备份成功')
+            // 设置自动备份成功后，将控制自动备份的开关打开
+            this.setState({
+              autoBackupSwitch: true,
+            })
+          },
+        },
+      })
+      this.setState({
+        autoBackupModalShow: false,
+      })
+    }
+
+    const statusSwitch = val => {
+      if (!val) {
+        autoBackupDetele(clusterID, database, databaseInfo.metadata.name, {
+          success: {
+            func: () => {
+              notification.warn('关闭自动备份成功')
+              this.setState({
+                autoBackupSwitch: false,
+              })
+            },
+          },
+          failed: {
+            func: () => {
+              notification.warn('关闭自动备份失败')
+            },
+          },
+        })
+        return
+      }
+      this.setState({
+        autoBackupSwitch: true,
+      })
       // console.log(val)
     }
     // 获取小时
-    const hour = () => {
+    const hour = h => {
+      this.setState({ hour: `${h}` })
       // console.log(time)
     }
     // 获取分钟
-    const minutes = () => {
+    const minutes = m => {
+      this.setState({ minutes: `${m}` })
       // console.log(time)
     }
     return <Modal
@@ -287,31 +380,36 @@ class Backup extends React.Component {
       <div className="autoContent">
         <Row className="item">
           <Col span={4} className="title">备份集群</Col>
-          <Col span={19} push={1}>123</Col>
+          <Col span={19} push={1}>{databaseInfo.metadata.name}</Col>
         </Row>
         <Row className="item">
           <Col span={4} className="title">状态</Col>
           <Col span={19} push={1}>
-            <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" defaultChecked />
+            <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
           </Col>
         </Row>
-        <Row className="item">
-          <Col span={4} className="title">备份周期</Col>
-          <Col span={19} push={1}>
-            <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
-          </Col>
-        </Row>
-        <Row className="item">
-          <Col span={4} className="title">备份时间</Col>
-          <Col span={19} push={1}>
+        {
+          this.state.autoBackupSwitch &&
             <div>
-              <InputNumber min={0} max={24} defaultValue={1} onChange={hour} />
-              <span className="text">时</span>
-              <InputNumber min={0} max={60} defaultValue={0} onChange={minutes} />
-              <span className="text">分</span>
+              <Row className="item">
+                <Col span={4} className="title">备份周期</Col>
+                <Col span={19} push={1}>
+                  <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
+                </Col>
+              </Row>
+              <Row className="item">
+                <Col span={4} className="title">备份时间</Col>
+                <Col span={19} push={1}>
+                  <div>
+                    <InputNumber min={0} max={24} defaultValue={1} onChange={hour} />
+                    <span className="text">时</span>
+                    <InputNumber min={0} max={60} defaultValue={0} onChange={minutes} />
+                    <span className="text">分</span>
+                  </div>
+                </Col>
+              </Row>
             </div>
-          </Col>
-        </Row>
+        }
 
       </div>
     </Modal>
@@ -413,13 +511,19 @@ class Backup extends React.Component {
   }
 
   render() {
-    const { chainsData, database } = this.props
+    const { chainsData, database, autoBackupChains } = this.props
     return <div className="backup">
       <div className="title">备份</div>
       <div className="content">
         <div className="operation">
           <div className="status">
-            自动备份：<span style={{ color: '#5cb85c' }}>已开启</span>
+            自动备份：
+            {
+              autoBackupChains.data.length === 0 ?
+                <span style={{ color: '#cccccc' }}>已关闭</span>
+                :
+                <span style={{ color: '#5cb85c' }}>已开启</span>
+            }
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           <Button type="primary" disabled={chainsData.length === 0} onClick={this.autoBackup}>设置自动备份</Button>
@@ -494,12 +598,13 @@ class Backup extends React.Component {
 const mapStateToProps = state => {
   const { clusterID } = state.entities.current.cluster
   const { namespace } = state.entities.loginUser.info
-  const { chains } = state.backupChain
+  const { chains, autoBackupChains } = state.backupChain
   const chainsData = chains.data || []
   return {
     namespace,
     chainsData,
     clusterID,
+    autoBackupChains, // 当前是自动备份的备份链
   }
 }
 const BackupForm = Form.create()(Backup)
@@ -508,4 +613,7 @@ export default connect(mapStateToProps, {
   getbackupChain, // 获取备份链列表
   deleteManualBackupChain, // 删除手动备份链
   createBackupChain,
+  checkAutoBackupExist, // 检查是否又自动备份链
+  autoBackupSet, // 设置自动备份
+  autoBackupDetele, // 关闭定时备份
 })(BackupForm)

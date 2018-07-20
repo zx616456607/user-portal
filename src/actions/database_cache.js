@@ -141,6 +141,7 @@ export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCES
 export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
 
 function getDbClusterDetail(cluster, dbName, type, needLoading, callback) {
+  console.log(cluster, dbName, type);
   return {
     cluster,
     [FETCH_API]: {
@@ -447,12 +448,30 @@ export function createDatabaseCluster(cluster, template, type) {
   }
 }
 
-export function getBackupRecord(cluster, type) {
-  return (dispatch) => {
-    return dispatch(fetchBackupRecord(cluster, type))
+// 编辑集群
+export const UPDATE_DB_CLUSTER_REQUEST = 'UPDATE_DB_CLUSTER_REQUEST'
+export const UPDATE_DB_CLUSTER_SUCCESS = 'UPDATE_DB_CLUSTER_SUCCESS'
+export const UPDATE_DB_CLUSTER_FAILURE = 'UPDATE_DB_CLUSTER_FAILURE'
+
+function editDatabaseClusterRequest (clusterId, type, name, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_DB_CLUSTER_REQUEST, UPDATE_DB_CLUSTER_SUCCESS, UPDATE_DB_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      },
+    },
+    callback
   }
 }
-
+export function editDatabaseCluster(cluster, type, name, body, callback) {
+  return (dispatch) => {
+    return dispatch(editDatabaseClusterRequest(cluster, type, name, body, callback))
+  }
+}
 
 // 删除手动备份
 export function deleteRadisManualBackup(clusterId, type, template, callback) {

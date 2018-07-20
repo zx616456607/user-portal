@@ -56,7 +56,7 @@ const fetchBackupChainDetail = (id, type, callback) => {
     }
 }
 
-// 创建备份链
+// 手动创建备份链
 export const CREATE_BACKUPCHAIN_REQUEST = 'CREATE_BACKUPCHAIN_REQUEST'
 export const CREATE_BACKUPCHAIN_SUCCESS = 'CREATE_BACKUPCHAIN_SUCCESS'
 export const CREATE_BACKUPCHAIN_FAILURE = 'CREATE_BACKUPCHAIN_FAILURE'
@@ -127,5 +127,78 @@ const deleteBackupChainRequest = (clusterId, type, name, callback) => {
 export const deleteManualBackupChain = (clusterId: string, type: string, name: string, callback) => {
     return dispatch => {
         dispatch (deleteBackupChainRequest(clusterId, type, name, callback))
+    }
+}
+
+// 检查是否有自动备份
+export const CHECK_AUTO_BACKUP_EXIST_REQUEST = 'CHECK_AUTO_BACKUP_EXIST_REQUEST'
+export const CHECK_AUTO_BACKUP_EXIST_SUCCESS = 'CHECK_AUTO_BACKUP_EXIST_SUCCESS'
+export const CHECK_AUTO_BACKUP_EXIST_FAILURE = 'CHECK_AUTO_BACKUP_EXIST_FAILURE'
+
+const checkAutoBackupExistRequest = (clusterId, type, callback) => {
+    return {
+        [FETCH_API]: {
+            types: [CHECK_AUTO_BACKUP_EXIST_REQUEST, CHECK_AUTO_BACKUP_EXIST_SUCCESS, CHECK_AUTO_BACKUP_EXIST_FAILURE],
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup`,
+            schema: {},
+        },
+        callback,
+    }
+}
+export const checkAutoBackupExist = (clusterId: string, type: string, callback) => {
+    return dispatch => {
+        dispatch (checkAutoBackupExistRequest(clusterId, type, callback))
+    }
+}
+
+// 设置自动备份
+export const AUTO_BACKUP_SET_REQUEST = 'AUTO_BACKUP_SET_REQUEST'
+export const AUTO_BACKUP_SET_SUCCESS = 'AUTO_BACKUP_SET_SUCCESS'
+export const AUTO_BACKUP_SET_FAILURE = 'AUTO_BACKUP_SET_FAILURE'
+
+const autoBackupSetRequest = (clusterId, type, template, callback) => {
+    return {
+        [FETCH_API]: {
+            types: [AUTO_BACKUP_SET_REQUEST, AUTO_BACKUP_SET_SUCCESS, AUTO_BACKUP_SET_FAILURE],
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup`,
+            schema: {},
+            options: {
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                method: 'POST',
+                body: template,
+            },
+        },
+        callback,
+    }
+}
+export const autoBackupSet = (clusterId: string, type: string, template: string, callback) => {
+    return dispatch => {
+        dispatch (autoBackupSetRequest(clusterId, type, template, callback))
+    }
+}
+
+// 关闭自动备份
+export const AUTO_BACKUP_DELETE_REQUEST = 'AUTO_BACKUP_DELETE_REQUEST'
+export const AUTO_BACKUP_DELETE_SUCCESS = 'AUTO_BACKUP_DELETE_SUCCESS'
+export const AUTO_BACKUP_DELETE_FAILURE = 'AUTO_BACKUP_DELETE_FAILURE'
+
+const autoBackupDeleteRequest = (clusterId, type, name, callback) => {
+    return {
+        [FETCH_API]: {
+            types: [AUTO_BACKUP_DELETE_REQUEST, AUTO_BACKUP_DELETE_SUCCESS, AUTO_BACKUP_DELETE_FAILURE],
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup/${name}`,
+            schema: {},
+            options: {
+                method: 'DELETE',
+            },
+        },
+        callback,
+    }
+}
+export const autoBackupDetele = (clusterId: string, type: string, name: string, callback) => {
+    return dispatch => {
+        dispatch (autoBackupDeleteRequest(clusterId, type, name, callback))
     }
 }

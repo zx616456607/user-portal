@@ -115,9 +115,7 @@ exports.deleteDBService = function* () {
   const type = this.params.type
   const query = this.query || {}
   const api = apiFactory.getK8sApi(loginUser)
-
   const result = yield api.deleteBy([cluster, 'daas', type, serviceName], query);
-
   this.body = {
     result
   }
@@ -186,7 +184,6 @@ exports.getMySqlDefaultConfig = function* () {
   const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config', 'default'])
   this.body = result
 }
-
 // 创建密码
 exports.createMySqlClusterPwd = function* () {
   const loginUser = this.session.loginUser
@@ -198,7 +195,6 @@ exports.createMySqlClusterPwd = function* () {
   const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
   this.body = result
 }
-
 // 修改密码
 exports.updateMySqlClusterPwd = function* () {
   const loginUser = this.session.loginUser
@@ -228,7 +224,19 @@ exports.createDatabaseCluster = function* () {
   const result = yield api.createBy([ clusterId, 'daas', type ], null, body)
   this.body = result
 }
-// 手动备份
+
+// 编辑集群
+exports.updateDatabaseCluster = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const body = this.request.body
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ clusterId, 'daas', type, name ], null, body)
+  this.body = result
+}
+// 获取备份链
 exports.getBackupChain = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
@@ -247,7 +255,6 @@ exports.manualBackup = function* () {
   const result = yield api.createBy([ clusterId, 'daas', type, 'backup' ], null, body)
   this.body = result
 }
-
 // 删除手动备份
 exports.deleteManualBackup = function* () {
   const loginUser = this.session.loginUser
@@ -256,6 +263,35 @@ exports.deleteManualBackup = function* () {
   const name = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.deleteBy([ clusterId, 'daas', type, 'backup', name ])
+  this.body = result
+}
+// 检查是否有自动备份
+exports.checkAutoBackupExist = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', type, 'cronbackup' ])
+  this.body = result
+}
+// 自动备份
+exports.setAutoBackup = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([ clusterId, 'daas', type, 'cronbackup' ], null, body)
+  this.body = result
+}
+// 删除自动备份
+exports.deleteAutoBackup = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([ clusterId, 'daas', type, 'cronbackup', name ])
   this.body = result
 }
 

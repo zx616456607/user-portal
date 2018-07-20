@@ -14,7 +14,7 @@ import { Button, Icon, Modal, Row, Col, Slider, InputNumber } from 'antd'
 import graphCluster from '../../../assets/img/database_cache/cluster.png'
 import graphStorage from '../../../assets/img/database_cache/storage.png'
 import extend from '../../../assets/img/database_cache/extend.png'
-import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
+// import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
 
@@ -65,21 +65,20 @@ class Storage extends React.Component {
     const hourPrice = parseAmount(this.state.volumeSize / 1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(
       this.state.volumeSize / 1024 * resourcePrice.storage * 24 * 30, 4)
-    const { databaseInfo } = this.props
+    // const { databaseInfo } = this.props
     return <div className="storage">
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" disabled= {databaseInfo.podInfo.running > 0 } onClick={this.showExtendModal}>
-          <img src={databaseInfo.podInfo.running > 0 ? extendDisabled : extend } alt=""/>
+        <Button type="primary" onClick={this.showExtendModal}>
+          <img src={ extend } alt=""/>
           <span>扩容</span>
         </Button>
-        {
-          databaseInfo.podInfo.running > 0 &&
-          <span className="tip">
-            <Icon type="info-circle-o" />
-            停止集群后可做扩容操作
-          </span>
-        }
+
+        <span className="tip">
+          <Icon type="info-circle-o" />
+          停止集群后可做扩容操作
+        </span>
+
       </div>
       <div className="graph">
         <div className="cluster">
