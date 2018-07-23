@@ -479,6 +479,13 @@ const MyComponent = React.createClass({
         </Menu>
 
       );
+      let mirror = ''
+      if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
+        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+        mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
+      }else {
+        mirror = images.join(', ')? images.join(', ') : ''
+      }
       let lb = false
       let k8sSer = ''
       if (k8sServiceList) {
@@ -565,8 +572,8 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
-            <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""} placement="topLeft">
-              <span>{item.images.join(', ') || '-'}</span>
+            <Tooltip title={mirror} placement="topLeft">
+              <span>{mirror}</span>
             </Tooltip>
           </div>
           <div className="service commonData appSvcListDomain">
