@@ -1,0 +1,54 @@
+.createSecurityGroup {
+  padding: 20px;
+  .createSecurityPage {
+    .securityGroudHeader {
+      margin-bottom: 20px;
+      font-size: 16px;
+      .returnBtn {
+        margin-right: 16px;
+        background: #2db7f5;
+        color: #fff;
+        padding: 6px;
+        background-color: transparent;
+        & > * {
+          display: inline-block;
+          cursor: pointer;
+        }
+        .btnLeft {
+          width: 0;
+          height: 0;
+          border-bottom: 15px solid transparent;
+          border-top: 15px solid transparent;
+          border-right: 15px solid @primary-color;
+          font-size: 0;
+          line-height: 0;
+        }
+        .btnRight {
+          display: inline-block;
+          background: @primary-color;
+          color: #fff;
+          height: 30px;
+          line-height: 30px;
+          vertical-align: top;
+          padding: 0 8px 0 6px;
+          border-top-right-radius: 5px;
+          border-bottom-right-radius: 5px;
+        }
+      }
+      .headerTitle {
+        display: inline-block;
+        height: 16px;
+        border-left: 4px solid #2db7f5;
+        padding-left: 8px;
+      }
+    }
+    .securityGroudContent {
+      background: #fff;
+      color: #666;
+      padding-bottom: 25px;
+      .ant-form-item-label label {
+        font-size: 14px;
+      }
+    }
+  }
+}

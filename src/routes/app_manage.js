@@ -94,6 +94,15 @@ const appManageRoutes = [{
     component: require('../../client/containers/ServiceDiscover').default,
   },
 },{
+  path: 'security_group',
+  indexRoute: {
+    component: require('../../client/containers/SecurityGroup').default,
+  },
+  childRoutes: [{
+    path: 'create',
+    component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default
+  }]
+},{
   path: 'load_balance',
   indexRoute: {
     component: require('../components/AppModule/LoadBalance').default,
