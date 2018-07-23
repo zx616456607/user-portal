@@ -241,7 +241,7 @@ exports.getBackupChain = function* () {
   const clusterId = this.params.clusterID
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterId, 'daas', type, 'backup' ])
+  const result = yield api.getBy([ clusterId, 'daas', type, 'backups' ])
   this.body = result
 }
 // 手动备份
@@ -251,7 +251,7 @@ exports.manualBackup = function* () {
   const type = this.params.type
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([ clusterId, 'daas', type, 'backup' ], null, body)
+  const result = yield api.createBy([ clusterId, 'daas', type, 'backups' ], null, body)
   this.body = result
 }
 // 删除手动备份
@@ -261,7 +261,7 @@ exports.deleteManualBackup = function* () {
   const type = this.params.type
   const name = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([ clusterId, 'daas', type, 'backup', name ])
+  const result = yield api.deleteBy([ clusterId, 'daas', type, 'backups', name ])
   this.body = result
 }
 // 检查是否有自动备份
@@ -270,7 +270,7 @@ exports.checkAutoBackupExist = function* () {
   const clusterId = this.params.clusterID
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterId, 'daas', type, 'cronbackup' ])
+  const result = yield api.getBy([ clusterId, 'daas', type, 'cronbackups' ])
   this.body = result
 }
 // 自动备份
@@ -280,7 +280,7 @@ exports.setAutoBackup = function* () {
   const type = this.params.type
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([ clusterId, 'daas', type, 'cronbackup' ], null, body)
+  const result = yield api.createBy([ clusterId, 'daas', type, 'cronbackups' ], null, body)
   this.body = result
 }
 // 删除自动备份
@@ -290,7 +290,7 @@ exports.deleteAutoBackup = function* () {
   const type = this.params.type
   const name = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([ clusterId, 'daas', type, 'cronbackup', name ])
+  const result = yield api.deleteBy([ clusterId, 'daas', type, 'cronbackups', name ])
   this.body = result
 }
 

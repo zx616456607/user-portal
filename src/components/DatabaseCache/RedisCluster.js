@@ -12,7 +12,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip } from 'antd'
+import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip, InputNumber } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -29,8 +29,8 @@ import noDbImgs from '../../assets/img/database_cache/no_redis.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
 import yaml from "js-yaml";
-
-
+import { autoBackupSet, autoBackupDetele, checkAutoBackupExist } from '../../../client/actions/backupChain'
+import BackupStrategy from '../../../client/containers/DatabaseCache/BackupStrategy'
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -44,8 +44,10 @@ let MyComponent = React.createClass({
     })
   },
   //自动备份开关
-  autoBackupSwitch: checked => {
-
+  autoBackupSwitch: function(checked, item) {
+    if(checked) {
+      this.props.setAutoBackup(item)
+    }
   },
   render: function () {
     const { config, isFetching } = this.props;
@@ -102,7 +104,19 @@ let MyComponent = React.createClass({
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
-              <li><span className='listKey'>自动备份</span><Switch checkedChildren="开" onChange={this.autoBackupSwitch} unCheckedChildren="关" /></li>
+              {
+                console.log(item)
+              }
+              {
+                console.log(this.props.autoBackupList)
+              }
+              <li><span className='listKey'>自动备份</span>
+                <Switch checkedChildren="开"
+                        onChange={(checked) => this.autoBackupSwitch(checked, item)}
+                        unCheckedChildren="关"
+                        defaultChecked={this.props.autoBackupList.indexOf(item.objectMeta.uid) >= 0}
+                />
+              </li>
             </ul>
           </div>
         </div>
@@ -127,7 +141,14 @@ class RedisDatabase extends Component {
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false
+      CreateDatabaseModalShow: false,
+      autoBackupModalShow: false,
+      days: [ '0', '1', '2', '3', '4', '5', '6' ],
+      daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+      hour: '1',
+      minutes: '0',
+      currentClusterNeedBackup: '',
+      aleradySetAuto: []
     }
   }
   clusterRefresh() {
@@ -155,7 +176,7 @@ class RedisDatabase extends Component {
     })
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster, getProxy } = this.props
+    const { loadDbCacheList, cluster, getProxy, checkAutoBackupExist } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群','invalid cluster ID')
@@ -163,7 +184,32 @@ class RedisDatabase extends Component {
     }
     getProxy(cluster)
     // 获取集群列表
-    loadDbCacheList(cluster, 'redis')
+    loadDbCacheList(cluster, 'redis', {
+      success: {
+        func: res => {
+          setTimeout(() => {
+            checkAutoBackupExist(cluster, 'redis', {
+              success: {
+                func: response => {
+                  const list = res.databaseList;
+                  const alerady = response.database.items //已经设置自动备份的数据、
+                  for (const v of alerady) {
+                    this.state.aleradySetAuto.push(v.metadata.uid)
+                    this.setState()
+                  }
+
+                },
+              },
+              failed: {
+                func: () => {
+                  notification.warn('检查是否有自动备份失败')
+                },
+              },
+            }) // 检查是否有自动备份
+          })
+        }
+      }
+    })
   }
   componentDidMount() {
     const _this = this
@@ -211,7 +257,8 @@ class RedisDatabase extends Component {
 
   // 自动备份弹窗组件
   autoBackupModal = () => {
-    const { database, databaseInfo, clusterID, autoBackupSet, autoBackupDetele } = this.props
+    const { currentClusterNeedBackup } = this.state
+    const { database, databaseInfo, cluster, autoBackupSet, autoBackupDetele } = this.props
     // 获取选择备份周期
     const selectPeriod = (week, index) => {
       const { days } = this.state
@@ -238,7 +285,7 @@ class RedisDatabase extends Component {
         apiVersion: 'daas.tenxcloud.com/v1',
         kind: 'RedisCronBackup',
         metadata: {
-          name: `${databaseInfo.objectMeta.name}redis01`,
+          name: `${currentClusterNeedBackup.objectMeta.name}redis01`,
           namespace: 'admin',
           labels: {
             'tenxcloud.com/cluster': 'redis01',
@@ -246,26 +293,23 @@ class RedisDatabase extends Component {
         },
         spec: {
           schedule,
-          cluster: databaseInfo.objectMeta.name,
+          cluster: currentClusterNeedBackup.objectMeta.name,
           sourceDirectory: '/redis-master-data/',
           s3SecretName: 's301',
           s3SecretNamespace: 'kube-system',
         },
       }
       // 设置自动备份
-      autoBackupSet(clusterID, database, yaml.dump(postData), {
+      autoBackupSet(cluster, database, yaml.dump(postData), {
         success: {
           func: () => {
             notification.success('设置自动备份成功')
-            // 设置自动备份成功后，将控制自动备份的开关打开
             this.setState({
-              autoBackupSwitch: true,
+              autoBackupModalShow: false,
             })
+
           },
         },
-      })
-      this.setState({
-        autoBackupModalShow: false,
       })
     }
 
@@ -315,7 +359,7 @@ class RedisDatabase extends Component {
       <div className="autoContent">
         <Row className="item">
           <Col span={4} className="title">备份集群</Col>
-          <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
+          <Col span={19} push={1}>123</Col>
         </Row>
         <Row className="item">
           <Col span={4} className="title">状态</Col>
@@ -323,8 +367,7 @@ class RedisDatabase extends Component {
             <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
           </Col>
         </Row>
-        {
-          this.state.autoBackupSwitch &&
+
           <div>
             <Row className="item">
               <Col span={4} className="title">备份周期</Col>
@@ -344,12 +387,16 @@ class RedisDatabase extends Component {
               </Col>
             </Row>
           </div>
-        }
-
       </div>
     </Modal>
   }
 
+  onAutoBackup = item => {
+    this.setState({
+      autoBackupModalShow: true,
+      currentClusterNeedBackup: item,
+    })
+  }
 
   render() {
     const _this = this;
@@ -381,7 +428,7 @@ class RedisDatabase extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent scope={_this} isFetching={isFetching} setAutoBackup={this.onAutoBackup} autoBackupList = {this.state.aleradySetAuto} config={databaseList} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
@@ -396,6 +443,7 @@ class RedisDatabase extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
+        { this.autoBackupModal() }
       </QueueAnim>
     )
   }
@@ -450,4 +498,7 @@ export default connect(mapStateToProps, {
   loadMyStack,
   searchDbservice,
   getProxy,
+  autoBackupSet,
+  autoBackupDetele,
+  checkAutoBackupExist,
 })(RedisDatabase)

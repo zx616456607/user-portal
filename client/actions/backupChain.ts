@@ -24,7 +24,7 @@ const fetchBackupChain = (id, type, callback) => {
         GET_BACKUPCHAIN_SUCCESS,
         GET_BACKUPCHAIN_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backup`,
+      endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backups`,
       schema: {},
     },
     callback,
@@ -49,7 +49,7 @@ const fetchBackupChainDetail = (id, type, callback) => {
         CREATE_APP_SERVER_SUCCESS,
         CREATE_APP_SERVER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backup`,
+      endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backups`,
       schema: {},
     },
     callback,
@@ -65,7 +65,7 @@ const createBackupChainRequest = (id, type, template, callback) => {
     return {
         [FETCH_API]: {
             types: [CREATE_BACKUPCHAIN_REQUEST, CREATE_BACKUPCHAIN_SUCCESS, CREATE_BACKUPCHAIN_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backup`,
+            endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backups`,
             schema: {},
             options: {
                 headers: {
@@ -115,7 +115,7 @@ const deleteBackupChainRequest = (clusterId, type, name, callback) => {
     return {
         [FETCH_API]: {
             types: [DELETE_BACKUPCHAIN_REQUEST, DELETE_BACKUPCHAIN_SUCCESS, DELETE_BACKUPCHAIN_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/backup/${name}`,
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/backups/${name}`,
             schema: {},
             options: {
                 method: 'DELETE',
@@ -139,7 +139,7 @@ const checkAutoBackupExistRequest = (clusterId, type, callback) => {
     return {
         [FETCH_API]: {
             types: [CHECK_AUTO_BACKUP_EXIST_REQUEST, CHECK_AUTO_BACKUP_EXIST_SUCCESS, CHECK_AUTO_BACKUP_EXIST_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup`,
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackups`,
             schema: {},
         },
         callback,
@@ -160,7 +160,7 @@ const autoBackupSetRequest = (clusterId, type, template, callback) => {
     return {
         [FETCH_API]: {
             types: [AUTO_BACKUP_SET_REQUEST, AUTO_BACKUP_SET_SUCCESS, AUTO_BACKUP_SET_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup`,
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackups`,
             schema: {},
             options: {
                 headers: {
@@ -188,7 +188,7 @@ const autoBackupDeleteRequest = (clusterId, type, name, callback) => {
     return {
         [FETCH_API]: {
             types: [AUTO_BACKUP_DELETE_REQUEST, AUTO_BACKUP_DELETE_SUCCESS, AUTO_BACKUP_DELETE_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackup/${name}`,
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/cronbackups/${name}`,
             schema: {},
             options: {
                 method: 'DELETE',

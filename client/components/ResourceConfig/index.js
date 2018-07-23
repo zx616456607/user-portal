@@ -290,8 +290,8 @@ class ResourceConfig extends React.Component {
                   {...DIYMinCPUProps}
                   size="small"
                   step={RESOURCES_CPU_STEP}
-                  min={RESOURCES_CPU_MIN}
-                  max={RESOURCES_CPU_MAX}/>
+                  min={parseInt(RESOURCES_CPU_MIN)}
+                  max={parseInt(RESOURCES_CPU_MAX)}/>
               </FormItem>
             </Col>
             <Col span={1} style={{ lineHeight: '32px' }}>~</Col>
@@ -302,8 +302,8 @@ class ResourceConfig extends React.Component {
                   {...DIYMaxCPUProps}
                   size="small"
                   step={RESOURCES_CPU_STEP}
-                  min={getFieldValue('DIYMinCPU')}
-                  max={RESOURCES_CPU_MAX}/>
+                  min={parseInt(getFieldValue('DIYMinCPU'))}
+                  max={parseInt(RESOURCES_CPU_MAX)}/>
               </FormItem>
             </Col>
             <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
