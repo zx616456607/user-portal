@@ -487,7 +487,7 @@ let ConfigureService = React.createClass({
     if (!value) {
       return callback()
     }
-    const { current, checkServiceName, allFields, id, location } = this.props
+    const { current, checkServiceName, allFields, id, location, isTemplate } = this.props
     if (!validateK8sResourceForServiceName(value)) {
       return callback('服务名称可由 3~60 位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
@@ -502,7 +502,7 @@ let ConfigureService = React.createClass({
         }
       }
     }
-    if (location && location.query && location.query.template) {
+    if (location && location.query && location.query.template && isTemplate) {
       return callback()
     }
     clearTimeout(this.serviceNameExistsTimeout)

@@ -111,6 +111,7 @@ class App extends Component {
       '/app_center/projects/publish',
       '/app_center/projects/replications',
       '/app_center/projects/other',
+      '/app_center/template/create'
     ]
     return !(pathArr.indexOf(pathname) > -1)
   }

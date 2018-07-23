@@ -60,7 +60,7 @@ let CreateConfigFileModal = React.createClass({
     this.checkNameTimer = setTimeout(()=>{
       if(type === 'secrets' && !!data && !!activeGroupName) {
         const group = filter(data, { name: activeGroupName })[0]
-        if(!!group && !!group.data[value]){
+        if(!!group && !!group.data && !!group.data[value]){
           callback([new Error('该名称已存在')])
         }else{
           callback()

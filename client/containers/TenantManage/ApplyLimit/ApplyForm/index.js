@@ -94,13 +94,18 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
   // console.log('checkResourceKindState', checkResourceKindState)
   // const { getFieldsValue } = self.props.form
   // console.log('getFieldsValue', getFieldsValue())
-  const { personNamespace } = self.props
+  const { personNamespace, resourceType, clusterIDParams } = self.props
+  const { globalResource } = self.state
+  if (resourceType !== undefined && globalResource !== undefined &&
+     checkResourceKindState[0] === undefined) {
+    checkResourceKind(resourceType, 0)
+  }
   const cluserIndex = (getFieldValue('item') === personNamespace || getFieldValue('item') === '我的个人项目')
     ? 'default' : getFieldValue('item')
   getFieldProps('keys', {
     initialValue: [ 0 ],
   })
-  const formItem = getFieldValue('keys').map(k => {
+  const formItem = getFieldValue('keys').map((k, index) => {
     // const clusterID = getFieldValue(`aggregate${k}`)
     const num = self.state.currentQuotaList[k][getFieldValue(`resource${k}`)]
     // const numWord = getFieldValue(`noLimit${k}`) ? '无限制' : ''
@@ -120,6 +125,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                         trigger: [ 'onBlur', 'onChange' ],
                       },
                     ],
+                    initialValue: index === 0 && resourceType,
                   }
                 )}
                 placeholder="请选择资源"
@@ -163,6 +169,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                               trigger: [ 'onBlur', 'onChange' ],
                             },
                           ],
+                          initialValue: index === 0 && clusterIDParams,
                         }
                       )}
                       placeholder="请选择集群"
@@ -408,6 +415,7 @@ class ApplyForm extends React.Component {
   }
   checkResourceKind = (value, key) => {
     const { checkResourceKindState, globalResource } = this.state
+    // console.log('globalResource', globalResource)
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { getGlobaleQuotaList, personNamespace, getDevopsGlobaleQuotaList, getClusterQuotaList,
     } = this.props
@@ -635,7 +643,7 @@ class ApplyForm extends React.Component {
     const checkPrime = this.checkPrime
     const getClusterQuotaListSelect = this.getClusterQuotaListSelect
     const self = this
-    // let displayNameVlaue
+    // console.log('globalResource', globalResource)
     return (
       <Modal
         visible = {applayVisable}

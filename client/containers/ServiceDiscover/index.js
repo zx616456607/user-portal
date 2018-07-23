@@ -185,7 +185,7 @@ class ServiceDiscover extends React.Component {
             <Dropdown.Button
               // onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)}
               overlay={menu}
-              trigger={[ 'click' ]}
+              trigger={[ 'click', 'hover' ]}
               onClick={() => this.editItem(record)}
               type="ghost">
               编辑 / 查看

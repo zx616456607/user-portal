@@ -32,6 +32,12 @@ let uuid = 1
 
 class DnsModal extends React.Component {
 
+  componentDidMount() {
+    setTimeout(() => {
+      document.getElementById('recordName').focus()
+    }, 50)
+  }
+
   remove = k => {
     const { form } = this.props
     // can use data-binding to get
@@ -56,6 +62,9 @@ class DnsModal extends React.Component {
     form.setFieldsValue({
       keys: nextKeys,
     })
+    setTimeout(() => {
+      document.getElementById(`name${uuid - 1}`).focus()
+    }, 50)
   }
 
   handleOk = () => {
@@ -74,7 +83,7 @@ class DnsModal extends React.Component {
           },
         },
       }
-      if (address === 'ip') {
+      if (address === 'IP') {
         const arr = []
         values.keys.map(item => {
           return arr.push(values[`name${item}`])
@@ -119,7 +128,7 @@ class DnsModal extends React.Component {
   handleSelect = val => {
     const { setFieldsValue } = this.props.form
     setFieldsValue({ address: val })
-    if (val === 'ip') {
+    if (val === 'IP') {
       uuid = 1
       setFieldsValue({ keys: [ 0 ] })
     } else {
@@ -153,9 +162,9 @@ class DnsModal extends React.Component {
     if (!value) {
       return callback()
     }
-    const reg = /((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))/
+    const reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!reg.test(value)) {
-      return callback('请填写正确的 ip 地址')
+      return callback('请填写正确的 IP 地址')
     }
     callback()
   }
@@ -227,16 +236,16 @@ class DnsModal extends React.Component {
               rules: [{
                 required: true,
               }],
-              initialValue: 'ip',
+              initialValue: 'IP',
             })}
             onChange={this.handleSelect}
           >
-            <Option value="ip">外部 IP 地址</Option>
+            <Option value="IP">外部 IP 地址</Option>
             <Option value="name">外部主机名</Option>
           </Select>
         </FormItem>
         {
-          getFieldValue('address') === 'ip' ?
+          getFieldValue('address') === 'IP' ?
             <div>
               { formItems }
               <Row>
