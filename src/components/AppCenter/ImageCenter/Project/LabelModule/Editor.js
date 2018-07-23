@@ -98,14 +98,14 @@ class Editor extends Component {
         onChangeComplete={this.handleColorChange} />
     return (
       <QueueAnim>
-        <div>
+        {/*<div>
           {
             current.id ?
               "编辑, id: " + current.id
               :
               "新增"
           }
-        </div>
+        </div>*/}
         <Form key="form" className="editor">
           <Row>
             <Col span={6}>

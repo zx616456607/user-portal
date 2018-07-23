@@ -97,7 +97,6 @@ class ImageVersion extends Component {
       isShowLockModel: false,
       lockType: "",
       currentEdition: "",
-      checkboxStates: {},
       dropdownVisible: {},
     }
   }
@@ -540,7 +539,7 @@ class ImageVersion extends Component {
           this.setState({
             isEditMaxTag: false,
           }, () => {
-            this.loadData()
+            // this.loadData()
           })
         },
         isAsync: true,
@@ -569,20 +568,6 @@ class ImageVersion extends Component {
       isShowMaxConfirm: false,
     })
   }
-  onSelect = (ref, nextChecked, label, record) => {
-    this.onCheckboxChange(nextChecked, label, record, () => {
-      const { checkboxStates }  = this.state
-      const temp = JSON.stringify(checkboxStates) !== "{}" ? cloneDeep(checkboxStates) : cloneDeep(this.checkboxStates)
-      temp[ref] = nextChecked
-      // this.setState({
-      //   checkboxStates: temp,
-      // })
-      this.checkboxStates[ref] = nextChecked
-    })
-  }
-  setRefs = (inst, ref) => {
-    this[ref] = inst
-  }
   render() {
     // const menu = (
     //   <Menu onClick={this.handleMenuClick}>
@@ -596,7 +581,6 @@ class ImageVersion extends Component {
     //     某功能按钮
     //   </Dropdown.Button>
     // )
-    if(!this.checkboxStates) this.checkboxStates = {}
     if(!this.dropdownVisible) this.dropdownVisible = {}
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
     const { max_tags_count, edition, dataAry, delValue, aryName,
@@ -617,7 +601,8 @@ class ImageVersion extends Component {
             !!filter(record.labels, { id: 1 })[0] ?
               <i className="fa fa-lock"></i>
               :
-              <i className="fa fa-unlock"></i>
+              ""
+              // <i className="fa fa-unlock"></i>
            }</div>
         )
       }
@@ -690,25 +675,21 @@ class ImageVersion extends Component {
           })
           this.dropdownVisible[name] = true
         }
-        const { allLabels, checkboxStates } = this.state
+        const { allLabels } = this.state
         const subItems = allLabels.length && allLabels.map((label, i) => {
           let checked = false
           if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
-          const ref = name + "_" + label.name + "_checkbox"
-          this.checkboxStates[ref] = checked
+          const key = name + "_" + label.name + "_checkbox"
           return (
-            <MenuItem key={ref} className="row">
+            <MenuItem key={key} className="row">
               <Checkbox
-                ref={inst => this.setRefs(inst, ref)}
                 defaultChecked={checked}
                 onChange={
                   e => {
                     e.stopPropagation()
-                    this.onSelect(ref, e.target.checked, label, record)
+                    this.onCheckboxChange(e.target.checked, label, record)
                   }
                 }
-                // onChange={e => { this.onCheckboxChange(e.target.checked, label, record) }}
-                // checked={ typeof this.state.checkboxStates[ref] === "boolean" ? this.state.checkboxStates[ref] : checked}
               >
                 <div className="tag otherTag" style={{ backgroundColor: label.color }}>
                   {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
@@ -718,6 +699,16 @@ class ImageVersion extends Component {
             </MenuItem>
           )
         })
+        items.unshift(
+          <SubMenu
+            key="subMenu"
+            className="rowContainer"
+            onMouseover={() => overOut(true, name)}
+            onMouseout={() => overOut(false, name)}
+            title={<span><Icon type="tags" /> 配置标签</span>}>
+            {subItems}
+          </SubMenu>
+        )
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
@@ -731,21 +722,6 @@ class ImageVersion extends Component {
                   <MenuItem key='deploy'>
                     <span><i className="anticon anticon-appstore-o"></i> 部署镜像</span>
                   </MenuItem>
-                  {/*<MenuItem key='tags'>
-                    <Popover overlayClassName="imageVersionPopover" content={content} placement="left">
-                      <span>
-                        <Icon type="tags" /> 配置标签
-                      </span>
-                    </Popover>
-                  </MenuItem>*/}
-                  <SubMenu
-                    key="subMenu"
-                    className="rowContainer"
-                    onMouseover={() => overOut(true, name)}
-                    onMouseout={() => overOut(false, name)}
-                    title={<span><Icon type="tags" /> 配置标签</span>}>
-                    {subItems}
-                  </SubMenu>
                   {
                     isAdminAndHarbor ?
                       items
@@ -810,10 +786,7 @@ class ImageVersion extends Component {
                 <Icon type="question-circle" style={{cursor: 'pointer'}} />
               </Tooltip>
             </span>*/}
-            <span style={{ marginLeft: 16 }}>
-              <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
-                <Icon type="question-circle" style={{cursor: 'pointer'}} />
-              </Tooltip>&nbsp;保留版本最多&nbsp;
+            <span style={{ marginLeft: 16 }}>&nbsp;保留版本最多&nbsp;
               {
                 isEditMaxTag
                 ? <InputNumber
@@ -824,7 +797,9 @@ class ImageVersion extends Component {
                 />
                 : max_tags_count
               }
-              &nbsp;个（自动清理旧版本）
+              &nbsp;个（自动清理旧版本 <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+              </Tooltip>）
               {
                 !isEditMaxTag &&
                 <Tooltip title="编辑">
@@ -928,7 +903,7 @@ class ImageVersion extends Component {
                       <div className="right">
                         <div>锁定版本后，将不受自动清理旧版本功能影响！
                         一般为版本为稳定、常用版本时，保留备份使用！
-                        <span className="hint">注：该版本的推送更新、手动删除不受锁定限制</span></div>
+                        <span className="hint">注：锁定版本的推送更新、手动删除不受锁定限制</span></div>
                         <div>确定锁定该版本，不被清理？</div>
                       </div>
                       <div className="clear"></div>

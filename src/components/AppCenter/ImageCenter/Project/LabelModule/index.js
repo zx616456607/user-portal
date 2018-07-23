@@ -289,7 +289,11 @@ class Project extends Component {
       defaultPageSize: 10,
       total,
     }
-    const btnDisabled = selectedRows.length !== 1 //!selectedRows.length
+    let isHasLockTag = false
+    selectedRows.map(o => {
+      if (o.id === 1) isHasLockTag = true
+    })
+    const btnDelDisabled = selectedRows.length !== 1 || isHasLockTag //!selectedRows.length
     const btnEditDisabled = selectedRows.length !== 1
     return (
       <QueueAnim className='LabelModule'>
@@ -298,7 +302,7 @@ class Project extends Component {
             <Button type="primary" size="large" onClick={this.add}><i className='fa fa-plus'/>&nbsp;新建标签</Button>
             <Button type="ghost" size="large" onClick={this.reload}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
             <Button disabled={btnEditDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
-            <Button disabled={btnDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
+            <Button disabled={btnDelDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
             <Input
               placeholder="按标签名称搜索"
               className="search"
