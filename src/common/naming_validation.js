@@ -407,12 +407,8 @@ export function ingressNameCheck(value) {
  */
 
 export function ingressRelayRuleCheck(value) {
-  if (!value) {
+  if (!value.trim()) {
     return '请输入校验规则'
-  }
-  let regx = /([a-zA-Z0-9&%_\./-~-]+)*/
-  if (!regx.test(value)) {
-    return '可由数字、字母以及特殊字符组成'
   }
   return 'success'
 }
