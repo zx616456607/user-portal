@@ -136,7 +136,10 @@ class BaseInfo extends Component {
       changePasswordModal: false,
       // 绑定到 ResourceConfig组件上的资源配置值
       resourceConfig: {
-
+        maxCPUValue: 0.5,
+        maxMemoryValue: 100,
+        minCPUValue: 0.5,
+        minMemoryValue: 100
       },
       pwdModalShow: false
     }
@@ -145,30 +148,32 @@ class BaseInfo extends Component {
     // 将后台请求回的资源数据赋值
     const resource = this.props.databaseInfo.resources
     const resourceConfigs = {
-      maxCPUValue:resource.limits.cpu.indexOf('m')<0? resource.limits.cpu : parseInt(resource.limits.cpu)/1000,
-      maxMemoryValue:resource.limits.memory.indexOf('Gi')>= 0 ? parseInt(resource.limits.memory) * 1000 : parseInt(resource.limits.memory),
-      minCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
-      minMemoryValue:resource.requests.memory.indexOf('Gi')>= 0 ? parseInt(resource.requests.memory) * 100 : parseInt(resource.requests.memory)
+      maxCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
+      maxMemoryValue:resource.requests.memory.indexOf('Gi')>= 0 ? parseInt(resource.requests.memory) * 1000 : parseInt(resource.requests.memory),
+      minCPUValue:resource.limits.cpu.indexOf('m')<0? resource.limits.cpu : parseInt(resource.limits.cpu)/1000,
+      minMemoryValue:resource.limits.memory.indexOf('Gi')>= 0 ? parseInt(resource.limits.memory) * 100 : parseInt(resource.limits.memory)
     }
 
     // 判断资源类型是自定义类型还是默认类型
     const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-
+    console.log(`maxCPUValue:${maxCPUValue}, maxMemoryValue:${maxMemoryValue}, minCPUValue:${minCPUValue}, minMemoryValue:${minMemoryValue}`);
     if (
-      maxCPUValue === 1 &&
-      minCPUValue === 0.2 &&
-      maxMemoryValue === 512 &&
-      minMemoryValue === 512
+      maxCPUValue == 1 &&
+      minCPUValue == 0.2 &&
+      maxMemoryValue == 512 &&
+      minMemoryValue == 512
     ) {
       this.setState({
         composeType: 512,
         defaultType: 512
       })
+    } else {
+      this.setState({
+        resourceConfig: resourceConfigs,
+        defaultResourceConfig: resourceConfigs
+      })
+
     }
-    this.setState({
-      resourceConfig: resourceConfigs,
-      defaultResourceConfig: resourceConfigs
-    })
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({winWidth: '220px'})
@@ -356,8 +361,8 @@ class BaseInfo extends Component {
     //   podSpec = databaseInfo.podList.pods[0].podSpec
     // }
 
-    let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    let storagePrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     // const showHourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc), 4)
@@ -514,9 +519,10 @@ class VisitTypes extends Component{
   }
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    console.log(databaseInfo);
+    const lbinfo = databaseInfo.objectMeta.annotations[ANNOTATION_LBGROUP_NAME]
 
-    if(lbinfo == 'none') {
+    if(lbinfo == 'none') {8
       this.setState({
         initValue: 1,
         initSelectDics: true
@@ -681,11 +687,11 @@ class VisitTypes extends Component{
   render() {
     const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.objectMeta.annotations[ANNOTATION_LBGROUP_NAME]
     let clusterAdd = [];
     let port = databaseInfo.serviceInfo.ports[0].port;
-    let serviceName = databaseInfo.serviceInfo.name;
-    let portNum = databaseInfo.podList.listMeta.total;
+    let serviceName = databaseInfo.objectMeta.name;
+    let portNum = databaseInfo.pods.podList.listMeta.length;
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
@@ -1186,7 +1192,7 @@ class ModalDetail extends Component {
           </div>
           <div className='infoBox'>
             <p className='instanceName'>
-              {databaseInfo.objectMeta.name}
+              {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
             </p>
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>

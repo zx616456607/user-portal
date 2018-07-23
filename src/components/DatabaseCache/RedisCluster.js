@@ -12,7 +12,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Switch, Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
+import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -28,6 +28,8 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/database_cache/no_redis.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
+import yaml from "js-yaml";
+
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -206,6 +208,148 @@ class RedisDatabase extends Component {
     const { search } = this.state
     this.props.searchDbservice('redis', search)
   }
+
+  // 自动备份弹窗组件
+  autoBackupModal = () => {
+    const { database, databaseInfo, clusterID, autoBackupSet, autoBackupDetele } = this.props
+    // 获取选择备份周期
+    const selectPeriod = (week, index) => {
+      const { days } = this.state
+      const localWeeks = JSON.parse(JSON.stringify(days))
+      localWeeks[index] = localWeeks[index] ? false : week.en
+      // 转换周期格式（仅天）参考格式： http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/crontab.html
+      const newDays = localWeeks.filter(v => !!v)
+      if (newDays[0] === '0') {
+        newDays.push(newDays.shift())
+      }
+      this.setState({
+        days: localWeeks,
+        daysConvert: newDays,
+      })
+
+      // console.log(period)
+    }
+    // 确定
+    const handleAutoBackupOk = () => {
+      const { hour, minutes, daysConvert } = this.state
+      const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
+      // 传给后台的yaml文件
+      const postData = {
+        apiVersion: 'daas.tenxcloud.com/v1',
+        kind: 'RedisCronBackup',
+        metadata: {
+          name: `${databaseInfo.objectMeta.name}redis01`,
+          namespace: 'admin',
+          labels: {
+            'tenxcloud.com/cluster': 'redis01',
+          },
+        },
+        spec: {
+          schedule,
+          cluster: databaseInfo.objectMeta.name,
+          sourceDirectory: '/redis-master-data/',
+          s3SecretName: 's301',
+          s3SecretNamespace: 'kube-system',
+        },
+      }
+      // 设置自动备份
+      autoBackupSet(clusterID, database, yaml.dump(postData), {
+        success: {
+          func: () => {
+            notification.success('设置自动备份成功')
+            // 设置自动备份成功后，将控制自动备份的开关打开
+            this.setState({
+              autoBackupSwitch: true,
+            })
+          },
+        },
+      })
+      this.setState({
+        autoBackupModalShow: false,
+      })
+    }
+
+    const statusSwitch = val => {
+      if (!val) {
+        autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
+          success: {
+            func: () => {
+              notification.warn('关闭自动备份成功')
+              this.setState({
+                autoBackupSwitch: false,
+              })
+            },
+          },
+          failed: {
+            func: () => {
+              notification.warn('关闭自动备份失败')
+            },
+          },
+        })
+        return
+      }
+      this.setState({
+        autoBackupSwitch: true,
+      })
+      // console.log(val)
+    }
+    // 获取小时
+    const hour = h => {
+      this.setState({ hour: `${h}` })
+      // console.log(time)
+    }
+    // 获取分钟
+    const minutes = m => {
+      this.setState({ minutes: `${m}` })
+      // console.log(time)
+    }
+    return <Modal
+      visible={this.state.autoBackupModalShow}
+      title="设置自动备份"
+      onOk={handleAutoBackupOk}
+      onCancel={() => this.setState({
+        autoBackupModalShow: false,
+      })}
+      width={650}
+    >
+      <div className="autoContent">
+        <Row className="item">
+          <Col span={4} className="title">备份集群</Col>
+          <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
+        </Row>
+        <Row className="item">
+          <Col span={4} className="title">状态</Col>
+          <Col span={19} push={1}>
+            <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
+          </Col>
+        </Row>
+        {
+          this.state.autoBackupSwitch &&
+          <div>
+            <Row className="item">
+              <Col span={4} className="title">备份周期</Col>
+              <Col span={19} push={1}>
+                <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
+              </Col>
+            </Row>
+            <Row className="item">
+              <Col span={4} className="title">备份时间</Col>
+              <Col span={19} push={1}>
+                <div>
+                  <InputNumber min={0} max={24} defaultValue={1} onChange={hour} />
+                  <span className="text">时</span>
+                  <InputNumber min={0} max={60} defaultValue={0} onChange={minutes} />
+                  <span className="text">分</span>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        }
+
+      </div>
+    </Modal>
+  }
+
 
   render() {
     const _this = this;
