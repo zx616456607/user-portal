@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
 import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Card, Pagination } from 'antd'
+import { Button, Table, Menu, Dropdown, Card, Pagination, Modal, Icon } from 'antd'
 import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
@@ -29,6 +29,7 @@ class ServiceDiscover extends React.Component {
     search: '',
     visible: false,
     showYaml: false,
+    deleteVisible: false,
     targetName: '',
     currentPage: 1,
   }
@@ -69,21 +70,30 @@ class ServiceDiscover extends React.Component {
   }
 
   deleteItem = record => {
+    this.setState({
+      deleteVisible: !this.state.deleteVisible,
+      targetName: record && record.name || '',
+    })
+  }
+
+  confirmDelete = () => {
     const { deleteDnsItem, cluster } = this.props
-    deleteDnsItem(cluster, record.name, {
+    const { targetName } = this.state
+    deleteDnsItem(cluster, targetName, {
       success: {
         func: () => {
           notification.close()
           notification.success('成功删除 DNS 记录')
+          this.deleteItem()
           this.loadData()
         },
         isAsync: true,
       },
       failed: {
         func: err => {
-          const { statusCode, message } = err
+          const { message } = err
           notification.close()
-          notification.warn(`删除 DNS 记录失败，错误代码: ${statusCode}， ${message.message}`)
+          notification.warn('删除 DNS 记录失败', message.message)
         },
       },
     })
@@ -114,7 +124,7 @@ class ServiceDiscover extends React.Component {
     this.setState({ currentPage: value })
   }
   render() {
-    const { search, visible, showYaml, targetName, currentPage } = this.state
+    const { search, visible, showYaml, deleteVisible, targetName, currentPage } = this.state
     const { list, isFetching, cluster } = this.props
     let listData = !search ? list : list.filter(item => (
       item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
@@ -175,7 +185,7 @@ class ServiceDiscover extends React.Component {
             <Dropdown.Button
               // onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)}
               overlay={menu}
-              trigger={[ 'click' ]}
+              trigger={[ 'click', 'hover' ]}
               onClick={() => this.editItem(record)}
               type="ghost">
               编辑 / 查看
@@ -207,6 +217,18 @@ class ServiceDiscover extends React.Component {
             />
             : null
         }
+        <Modal
+          title="删除操作"
+          visible={deleteVisible}
+          onOk={this.confirmDelete}
+          onCancel={this.deleteItem}
+          okText={'确认删除'}
+        >
+          <div style={{ color: '#2db7f5' }}>
+            <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
+            确认删除该 DNS 记录？
+          </div>
+        </Modal>
         <ResourceBanner resourceType="dns" />
         <div className="layout-content-btns">
           <Button type="primary" size="large" onClick={this.handleCreate}>

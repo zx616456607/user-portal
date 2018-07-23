@@ -132,6 +132,9 @@ class ApplyLimit extends React.Component {
     displayName: undefined, // 从query传过来的项目名称
     displayNameText: undefined, // 从query传过来的用于搜索的项目名称
     showWindow: false, // 显示申请框
+    resourceType: undefined, // 跳转带过来的资源类型
+    clusterID: undefined, // 跳转带过来的集群id
+
   }
   handleChange = (pagination, filters, sorter) => {
     const { checkApplyRecord } = this.props
@@ -183,7 +186,7 @@ class ApplyLimit extends React.Component {
     const { checkApplyRecord, userName, location, getProjectVisibleClusters } = this.props
     const query = { from: 0, size: 10, filter: `applier,${userName}` } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
-    const { displayName, namespace } = location.query
+    const { displayName, namespace, resourceType, clusterID } = location.query
     let showdisplayNameText
     if (displayName === undefined) {
       showdisplayNameText = namespace
@@ -192,8 +195,8 @@ class ApplyLimit extends React.Component {
       showdisplayNameText = `${displayName} ( ${namespace} )`
     }
     if (location.search !== '') {
-      this.setState({ displayNameText: showdisplayNameText, displayName: namespace,
-        applayVisable: true })
+      this.setState({ displayNameText: showdisplayNameText, displayName: namespace, resourceType,
+        clusterID, applayVisable: true })
       getProjectVisibleClusters('default')
     }
   }
@@ -235,7 +238,7 @@ class ApplyLimit extends React.Component {
   }
   render() {
     const { filteredInfo, applayVisable, searchValue, applyTimeSorted, displayNameText, showWindow,
-    } = this.state
+      resourceType, clusterID } = this.state
     const { isFetching, data, total } = this.props.resourcequoteRecord
     const { checkApplyRecord, namespace, userName } = this.props
     const { currentPage, displayName } = this.state
@@ -297,7 +300,8 @@ class ApplyLimit extends React.Component {
           (displayNameText || showWindow)
            && <ApplyForm applayVisable={applayVisable} setApplayVisable={this.setApplayVisable}
              displayName={displayName} displayNameText={displayNameText}
-             cancelApplayVisable={this.cancelApplayVisable}/>}
+             cancelApplayVisable={this.cancelApplayVisable} resourceType={resourceType}
+             clusterIDParams={clusterID}/>}
       </TenxPage>
     )
   }

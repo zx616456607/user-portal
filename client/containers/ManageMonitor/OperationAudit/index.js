@@ -219,20 +219,33 @@ const formatTypeName = (code, data) => {
         if (code === k.id) {
           return k.name
         }
+        if (k.children) {
+          for (const j of k.children) {
+            if (code === j.id) {
+              return j.name
+            }
+
+          }
+        }
       }
     }
-
   }
 }
 // 转换操作类型
 const formatOperationType = (code, data) => {
-
   let types = []
   for (const v of data) {
     if (v.children) {
       for (const k of v.children) {
         if (k.operation) {
           types = types.concat(k.operation)
+        }
+        if (k.children) {
+          for (const j of k.children) {
+            if (j.operation) {
+              types = types.concat(j.operation)
+            }
+          }
         }
       }
     }
@@ -465,10 +478,12 @@ class OperationalAudit extends React.Component {
         dataIndex: 'targetAndType',
         title: '对象及类型',
         render: (val, row) => {
+
           try {
             JSON.parse(row.resourceName)
-            row.resourceName = formatResourceName(row.resourceName, row.resourceId)
+            row.resourceName = formatResourceName(row.resourceName, row.operationType)
           } catch (e) {
+
             row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }

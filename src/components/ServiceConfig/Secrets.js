@@ -206,7 +206,7 @@ class ServiceSecretsConfig extends React.Component {
       },
       failed: {
         func: error => {
-          if(isResourcePermissionError(err)){
+          if(isResourcePermissionError(error)){
             //403 没权限判断 在App/index中统一处理 这里直接返回
             return;
           }
