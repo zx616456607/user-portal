@@ -46,7 +46,6 @@ class VolumeHeader extends Component {
   constructor(props) {
     super(props)
   }
-
   render() {
     const { data } = this.props
     return (
@@ -54,16 +53,16 @@ class VolumeHeader extends Component {
         <Col className="group-name textoverflow" span="8">
           <Icon type="folder-open" />
           <Icon type="folder" />
-          <Link to={`/app_manage/container/` + data.objectMeta.name}>{data.objectMeta.name}</Link>
+          <Link to={`/app_manage/container/` + data.name}>{data.name}</Link>
         </Col>
         <Col span="6">
-          <div className={data.podPhase}>
+          <div className={data.status}>
             <i className="fa fa-circle"></i> &nbsp;
-          {data.podPhase}
+          {data.status}
           </div>
         </Col>
         <Col span="10">
-          创建时间&nbsp;&nbsp;{calcuDate(data.objectMeta.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{calcuDate(data.creationTimestamp)}
         </Col>
       </Row>
     )
@@ -76,34 +75,26 @@ class VolumeDetail extends Component {
   }
 
   render() {
-    const volumes = this.props.volumes.podSpec.volumes
-    const containers = this.props.volumes.podSpec.containers[0]
+    console.log(this.props);
+    const { volumes } = this.props
+    // const containers = this.props.volumes.podSpec.containers[0]
     if (!volumes) {
       return (
         <div></div>
       )
     }
-    const configFileItem = volumes.map(list => {
-      if (list.name === 'datadir') {
-        return list.persistentVolumeClaim.claimName
-      }
-    })
-    const volumeMounts = containers.volumeMounts.map(list => {
-      if (list.name === 'datadir') {
-        return list.mountPath
-      }
-    })
+
     return (
       <Row className='file-list'>
         <Timeline>
-          <Timeline.Item key={configFileItem}>
+          <Timeline.Item key={volumes.claimName}>
             <Row className='file-item'>
               <div className='line'></div>
               <table>
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{volumes.claimName}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -111,8 +102,8 @@ class VolumeDetail extends Component {
                       <div className='lis'>挂载路径</div>
                     </td>
                     <td>
-                      <div className="li"><Link to={`/app_manage/container/` + this.props.volumes.objectMeta.name}>{this.props.volumes.objectMeta.name}</Link></div>
-                      <div className='lis'>{volumeMounts}</div>
+                      <div className="li"><Link to={`/app_manage/container/` + volumes.name}>{volumes.name}</Link></div>
+                      <div className='lis'>{volumes.mountPath}</div>
                     </td>
                   </tr>
                 </tbody>
@@ -154,26 +145,26 @@ class BaseInfo extends Component {
     // 将后台请求回的资源数据赋值
     const resource = this.props.databaseInfo.resources
     const resourceConfigs = {
-      maxCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
-      maxMemoryValue:parseInt(resource.requests.memory),
-      minCPUValue:parseInt(resource.limits.cpu)/1000,
-      minMemoryValue:parseInt(resource.limits.memory)
+      maxCPUValue:resource.limits.cpu.indexOf('m')<0? resource.limits.cpu : parseInt(resource.limits.cpu)/1000,
+      maxMemoryValue:resource.limits.memory.indexOf('Gi')>= 0 ? parseInt(resource.limits.memory) * 1000 : parseInt(resource.limits.memory),
+      minCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
+      minMemoryValue:resource.requests.memory.indexOf('Gi')>= 0 ? parseInt(resource.requests.memory) * 100 : parseInt(resource.requests.memory)
     }
 
     // 判断资源类型是自定义类型还是默认类型
-    // const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-    // if (
-    //   maxCPUValue === 1 &&
-    //   minCPUValue === 0.2 &&
-    //   maxMemoryValue === 512 &&
-    //   minMemoryValue === 512
-    // ) {
-    //   this.setState({
-    //     composeType: 512,
-    //     defaultType: 512
-    //   })
-    // }
-    console.log(resourceConfigs);
+    const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
+
+    if (
+      maxCPUValue === 1 &&
+      minCPUValue === 0.2 &&
+      maxMemoryValue === 512 &&
+      minMemoryValue === 512
+    ) {
+      this.setState({
+        composeType: 512,
+        defaultType: 512
+      })
+    }
     this.setState({
       resourceConfig: resourceConfigs,
       defaultResourceConfig: resourceConfigs
@@ -331,7 +322,8 @@ class BaseInfo extends Component {
     }
     editDatabaseCluster(cluster, database, dbName, body, {
       success: {
-        func: () => {
+        func: res => {
+          console.log(res);
           setTimeout(() => {
             loadDbClusterDetail(cluster, dbName, database, true);
           })
@@ -342,7 +334,7 @@ class BaseInfo extends Component {
       },
     })
   }
-  // 取消资源配置修改+  -++++
+  // 取消资源配置修改
   cancelEditResourceConfig = () => {
     this.refs.resourceConfig.resetFields() // 取消重置自定义中的所有值
     this.setState({
@@ -353,8 +345,8 @@ class BaseInfo extends Component {
   }
 
   render() {
-    const { bindingIPs, databaseInfo ,dbName } = this.props
-    const { resourceConfigEdit, composeType, defaultType } = this.state
+    const { databaseInfo ,dbName } = this.props
+    const { resourceConfigEdit, composeType } = this.state
     const parentScope = this.props.scope
     const { billingEnabled } = parentScope.props
     const rootScope = parentScope.props.scope
@@ -414,13 +406,14 @@ class BaseInfo extends Component {
        }
       </div>
     )
-    // const volumeMount = databaseInfo.podList.pods.map((list, index) => {
-    //   return (
-    //     <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
-    //       <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={selfScope}/>
-    //     </Panel>
-    //   )
-    // })
+
+    const volumeMount = databaseInfo.pods.map((list, index) => {
+      return (
+        <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
+          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={this}/>
+        </Panel>
+      )
+    })
 
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
@@ -489,9 +482,9 @@ class BaseInfo extends Component {
               <Button type="primary" size="large" onClick={() => parentScope.props.scope.putModal()}>更改实例数</Button>
             </Popover>
           </div>
-          {/*<Collapse accordion>*/}
-            {/*{volumeMount}*/}
-          {/*</Collapse>*/}
+          <Collapse accordion>
+            {volumeMount}
+          </Collapse>
         </div>
       </div>
     )
@@ -939,9 +932,7 @@ class ModalDetail extends Component {
   deleteDatebaseCluster(dbName) {
     //this function for use delete the database
     const { deleteDatabaseCluster, cluster, scope, database } = this.props;
-    const { loadDbClusterDetail } = scope.props;
     const _this = this
-    const clusterTypes = scope.state.clusterTypes
     this.setState({delModal: false})
     let notification = new NotificationHandler()
     _this.setState({ deleteBtn: true })
@@ -1004,12 +995,12 @@ class ModalDetail extends Component {
     }
   }
   refurbishDetail() {
-    const { loadDbClusterDetail, cluster, dbName } = this.props
+    const { loadDbClusterDetail, cluster, dbName, database } = this.props
     const _this = this
     this.setState({
       currentDatabase: dbName,
     });
-    loadDbClusterDetail(cluster, dbName, {
+    loadDbClusterDetail(cluster, dbName, database, {
       success: {
         func: (res) => {
           _this.setState({ replicas: res.database.replicas })
@@ -1024,12 +1015,37 @@ class ModalDetail extends Component {
     })
   }
   handSave() {
-    const {putDbClusterDetail, cluster, dbName, loadDbCacheList, loadDbClusterDetail} = this.props
+    const {putDbClusterDetail, cluster, database, dbName, editDatabaseCluster, loadDbCacheList, loadDbClusterDetail} = this.props
     const parentScope = this.props.scope
     const _this = this
     const notification = new NotificationHandler()
 
     this.setState({putModaling: true})
+
+    const body = {replicas: this.state.replicas}
+    editDatabaseCluster(cluster, database, dbName, body, {
+      success: {
+        func: () => {
+          notification.success('更新成功')
+          parentScope.setState({ detailModal: false })
+          _this.setState({putModaling: false})
+          setTimeout(() => {
+            loadDbCacheList(cluster, database)
+            loadDbClusterDetail(cluster, dbName, database, {
+              success: {
+                func: (res) => {
+                  parentScope.setState({
+                    replicas: res.database.replicas,
+                    storageValue: parseInt(res.database.storage)
+                  })
+                }
+              }
+            });
+          })
+        }
+      },
+    })
+    return
     putDbClusterDetail(cluster, dbName, this.state.replicas, {
       success: {
         func: (res) => {
@@ -1090,7 +1106,7 @@ class ModalDetail extends Component {
     return logoMapping[clusterType]
   }
   dbStatus(status) {
-    console.log(status);
+
     if (status === 'Running') {
       return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
     }
@@ -1118,7 +1134,6 @@ class ModalDetail extends Component {
     editDatabaseCluster(cluster, database, name, body, {
       success: {
         func: () => {
-          console.log(7859789)
           setTimeout(() => {
             loadDbClusterDetail(cluster, dbName, database, true);
           })
@@ -1136,7 +1151,6 @@ class ModalDetail extends Component {
     editDatabaseCluster(cluster, database, name, body, {
       success: {
         func: () => {
-          console.log(7859789)
           setTimeout(() => {
             loadDbClusterDetail(cluster, dbName, database, true);
           })
@@ -1163,7 +1177,6 @@ class ModalDetail extends Component {
         </div>
       )
     }
-    console.log(databaseInfo);
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -1226,7 +1239,7 @@ class ModalDetail extends Component {
                 <FormBaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='存储' key='#Storage'>
-                <Storage databaseInfo={databaseInfo}/>
+                <Storage databaseInfo={databaseInfo} database={this.props.database}/>
               </TabPane>
               <TabPane tab='备份' key='#Backup'>
                 <Backup database={database} databaseInfo={databaseInfo}/>

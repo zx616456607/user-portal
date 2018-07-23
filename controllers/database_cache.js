@@ -189,7 +189,6 @@ exports.createMySqlClusterPwd = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.clusterID
   const clusterName = this.params.name
-  console.log(clusterName);
   const api = apiFactory.getK8sApi(loginUser)
   const body = this.request.body
   const result = yield api.createBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'], null, body)
@@ -292,6 +291,17 @@ exports.deleteAutoBackup = function* () {
   const name = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.deleteBy([ clusterId, 'daas', type, 'cronbackup', name ])
+  this.body = result
+}
+
+// 扩容
+exports.expandDatabaseCluster = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([ clusterId, 'daas', type, 'expands' ], null, body)
   this.body = result
 }
 

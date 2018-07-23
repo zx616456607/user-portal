@@ -540,7 +540,7 @@ module.exports = function (Router) {
   router.get('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.getMySqlClusterPwd)
   // 创建集群
   router.post('/clusters/:clusterID/daas/:type', databaseCacheController.createDatabaseCluster)
-  // 创建集群
+  // 修改集群
   router.put('/clusters/:clusterID/daas/:type/:name', databaseCacheController.updateDatabaseCluster)
   // 获取备份链
   router.get('/clusters/:clusterID/daas/:type/backup', databaseCacheController.getBackupChain)
@@ -554,6 +554,8 @@ module.exports = function (Router) {
   router.post('/clusters/:clusterID/daas/:type/cronbackup', databaseCacheController.setAutoBackup)
   // 删除自动备份
   router.delete('/clusters/:clusterID/daas/:type/cronbackup/:name', databaseCacheController.deleteAutoBackup)
+  // 创建扩容
+  router.post('/clusters/:clusterID/daas/:type/expands', databaseCacheController.expandDatabaseCluster)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

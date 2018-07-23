@@ -76,14 +76,14 @@ class Backup extends React.Component {
   }
   renderHeader = (v, i) => {
     return (
-      <Row className="list-item-header" ref="header" key={v.metadata.uid} style={ this.state.currentItemUid === `${v.metadata.uid}` ? { background: '#fafafa' } : {}}>
+      <Row className="list-item-header" ref="header" key={v.objectMeta.uid} style={ this.state.currentItemUid === `${v.objectMeta.uid}` ? { background: '#fafafa' } : {}}>
         <Col span={4}>
-          {v.metadata.name}
+          {v.objectMeta.name}
           { i === 0 && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
         </Col>
         <Col span={4}>总10.00GB</Col>
         <Col span={4}>备份点1个</Col>
-        <Col span={4}>{calcuDate(v.metadata.creationTimestamp)}</Col>
+        <Col span={4}>{calcuDate(v.objectMeta.creationTimestamp)}</Col>
       </Row>)
   }
   expendPanel = keys => {
@@ -101,11 +101,11 @@ class Backup extends React.Component {
       })
       const { chainsData, database } = this.props
       const currentIndex = chainsData.findIndex(
-        v => v.metadata.uid === keys[keys.length - 1]
+        v => v.objectMeta.uid === keys[keys.length - 1]
       )
 
       // 将uid传出去
-      this.props.getbackupChainDetail(chainsData[currentIndex].metadata.name, database)
+      this.props.getbackupChainDetail(chainsData[currentIndex].objectMeta.name, database)
     } else {
       this.setState({
         currentItemUid: '',
@@ -159,7 +159,7 @@ class Backup extends React.Component {
     const confirmDel = () => {
       const { deleteManualBackupChain, clusterID, database, getbackupChain } = this.props
       const { backupChain } = this.state
-      deleteManualBackupChain(clusterID, database, backupChain.metadata.name, {
+      deleteManualBackupChain(clusterID, database, backupChain.objectMeta.name, {
         success: {
           func: () => {
             setTimeout(() => getbackupChain(clusterID, database))
@@ -303,7 +303,7 @@ class Backup extends React.Component {
         apiVersion: 'daas.tenxcloud.com/v1',
         kind: 'RedisCronBackup',
         metadata: {
-          name: `${databaseInfo.metadata.name}redis01`,
+          name: `${databaseInfo.objectMeta.name}redis01`,
           namespace: 'admin',
           labels: {
             'tenxcloud.com/cluster': 'redis01',
@@ -311,7 +311,7 @@ class Backup extends React.Component {
         },
         spec: {
           schedule,
-          cluster: databaseInfo.metadata.name,
+          cluster: databaseInfo.objectMeta.name,
           sourceDirectory: '/redis-master-data/',
           s3SecretName: 's301',
           s3SecretNamespace: 'kube-system',
@@ -336,7 +336,7 @@ class Backup extends React.Component {
 
     const statusSwitch = val => {
       if (!val) {
-        autoBackupDetele(clusterID, database, databaseInfo.metadata.name, {
+        autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
           success: {
             func: () => {
               notification.warn('关闭自动备份成功')
@@ -380,7 +380,7 @@ class Backup extends React.Component {
       <div className="autoContent">
         <Row className="item">
           <Col span={4} className="title">备份集群</Col>
-          <Col span={19} push={1}>{databaseInfo.metadata.name}</Col>
+          <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
         </Row>
         <Row className="item">
           <Col span={4} className="title">状态</Col>
@@ -537,7 +537,7 @@ class Backup extends React.Component {
               <Collapse onChange={this.expendPanel}>
                 {
                   chainsData.map((v, i) => {
-                    return <Panel header={this.renderHeader(v, i)} key={v.metadata.uid}>
+                    return <Panel header={this.renderHeader(v, i)} key={v.objectMeta.uid}>
                       <div className="new-point" onClick={() => this.menualBackup(chainsData[i])} >
                         <div className="line"></div>
                       </div>
@@ -548,10 +548,10 @@ class Backup extends React.Component {
                               v.children.map(k => (
                                 <Timeline.Item
                                   dot={k.backupType === '5' ? this.fullBackupPoint(k.status) : ''}
-                                  key={k.metadata.uid}
+                                  key={k.objectMeta.uid}
                                   color={this.pointClass(k.status).color}>
                                   <Row>
-                                    <Col span={5}>{formatDate(k.metadata.creationTimestamp)}</Col>
+                                    <Col span={5}>{formatDate(k.objectMeta.creationTimestamp)}</Col>
                                     <Col span={5}>待确认 2MB</Col>
                                     <Col span={5}>{database === 'redis' ? '全量备份(待确认)' : '根据标志判断是哪种备份'}</Col>
                                     <Col span={5}>

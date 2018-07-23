@@ -14,9 +14,11 @@ import { Button, Icon, Modal, Row, Col, Slider, InputNumber } from 'antd'
 import graphCluster from '../../../assets/img/database_cache/cluster.png'
 import graphStorage from '../../../assets/img/database_cache/storage.png'
 import extend from '../../../assets/img/database_cache/extend.png'
-// import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
+import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
+import yaml from 'js-yaml'
+import { expendDatabaseCluster } from '../../../../src/actions/database_cache'
 
 class Storage extends React.Component {
   state = {
@@ -30,6 +32,35 @@ class Storage extends React.Component {
     })
   }
   confirmExtend = () => {
+    const { cluster, databaseInfo, database, expendDatabaseCluster, namespace } = this.props
+    const data = {
+      apiVersion: 'daas.tenxcloud.com/v1',
+      kind: 'RedisDiskExpand',
+      metadata: {
+        name: databaseInfo.objectMeta.name,
+        namespace,
+        labels: {
+          'tenxcloud.com/cluster': databaseInfo.objectMeta.name,
+        },
+      },
+      spec: {
+        cluster: databaseInfo.objectMeta.name,
+        expandedSize: `${this.state.volumeSize}Mi`,
+      },
+    }
+    const yamlData = yaml.dump(data)
+    expendDatabaseCluster(cluster.clusterID, yamlData, database, {
+      success: {
+        func: () => {
+
+        },
+      },
+      failed: {
+        func: () => {
+
+        },
+      },
+    })
     this.setState({
       extendModal: false,
     })
@@ -59,41 +90,42 @@ class Storage extends React.Component {
   }
 
   render() {
-    const { cluster } = this.props
+    const { cluster, databaseInfo, database } = this.props
     const resourcePrice = cluster.resourcePrice
     const storagePrice = resourcePrice.storage / 10000
     const hourPrice = parseAmount(this.state.volumeSize / 1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(
       this.state.volumeSize / 1024 * resourcePrice.storage * 24 * 30, 4)
-    // const { databaseInfo } = this.props
     return <div className="storage">
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" onClick={this.showExtendModal}>
-          <img src={ extend } alt=""/>
+        <Button type="primary" disabled={databaseInfo.staus !== 'Stop'} onClick={this.showExtendModal}>
+          <img src={ databaseInfo.staus !== 'Stop' ? extendDisabled : extend } alt=""/>
           <span>扩容</span>
         </Button>
-
-        <span className="tip">
-          <Icon type="info-circle-o" />
-          停止集群后可做扩容操作
-        </span>
+        {
+          !databaseInfo.staus === 'Stop' &&
+          <span className="tip">
+            <Icon type="info-circle-o" />
+            停止集群后可做扩容操作
+          </span>
+        }
 
       </div>
       <div className="graph">
         <div className="cluster">
           <div className="clusterName">
-            MySql集群：
+            {database}集群：{databaseInfo.objectMeta.name}
           </div>
           <div className="graphCluster">
             <img src={graphCluster} alt=""/>
-            <div className="name">3个容器实例</div>
+            <div className="name">{databaseInfo.replicas}个容器实例</div>
           </div>
         </div>
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">存储卷： 512M</div>
+          <div className="name">存储卷： { parseInt(databaseInfo.storage)}M</div>
         </div>
       </div>
       <Modal
@@ -149,6 +181,7 @@ class Storage extends React.Component {
 }
 function mapStateToProps(state) {
   const { cluster } = state.entities.current
+  const { namespace } = state.entities.loginUser.info
   const { billingConfig } = state.entities.loginUser.info
   const clusterID = cluster.clusterID
   const { enabled: billingEnabled } = billingConfig
@@ -156,7 +189,10 @@ function mapStateToProps(state) {
     cluster,
     clusterID,
     billingEnabled,
+    namespace,
   }
 }
 
-export default connect(mapStateToProps, {})(Storage)
+export default connect(mapStateToProps, {
+  expendDatabaseCluster,
+})(Storage)

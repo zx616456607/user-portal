@@ -490,3 +490,32 @@ export function deleteRadisManualBackup(clusterId, type, template, callback) {
     }
   }
 }
+
+
+// 扩容
+export const EXPEND_DB_CLUSTER_REQUEST = 'EXPEND_DB_CLUSTER_REQUEST'
+export const EXPEND_DB_CLUSTER_SUCCESS = 'EXPEND_DB_CLUSTER_SUCCESS'
+export const EXPEND_DB_CLUSTER_FAILURE = 'EXPEND_DB_CLUSTER_FAILURE'
+
+function expendDatabaseClusterRequest (clusterId, template, type, callback) {
+  return {
+    [FETCH_API]: {
+      types: [EXPEND_DB_CLUSTER_REQUEST, EXPEND_DB_CLUSTER_SUCCESS, EXPEND_DB_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/expands`,
+      schema: {},
+      options: {
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        method: 'POST',
+        body: template
+      },
+    },
+    callback
+  }
+}
+export function expendDatabaseCluster(cluster, template, type, callback) {
+  return (dispatch) => {
+    return dispatch(expendDatabaseClusterRequest(cluster, template, type, callback))
+  }
+}
