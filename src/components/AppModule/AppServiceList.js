@@ -357,6 +357,7 @@ const MyComponent = React.createClass({
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
         redeployDisable = false
       }
+
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const dropdown = (
@@ -480,6 +481,9 @@ const MyComponent = React.createClass({
 
       );
       let mirror = ''
+      const images = item.spec.template.spec.containers.map(container => {
+        return container.image
+      })
       if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
         const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
         mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
