@@ -184,6 +184,7 @@ class PublishImage extends React.Component {
   }
   render() {
     const { apps, listData, total, } = this.props
+    console.log(apps)
     const { current, filterName, targetProject, tableLoading, btnLoading } = this.state
     const pagination = {
       simple: true,

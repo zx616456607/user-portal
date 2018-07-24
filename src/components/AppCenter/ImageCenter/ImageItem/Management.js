@@ -50,8 +50,10 @@ class AddUserModal extends Component {
         return
       }
       const body = {
-        username: values.username,
-        roles: [ values.role ]
+        role_id: values.role,
+        member_user: {
+          username: values.username,
+        }
       }
       func.addProjectMember(harbor, registry, id, body, {
         success: {
@@ -197,7 +199,7 @@ class Management extends Component {
     }
     const { id, registry, updateProjectMember, harbor } = this.props
     const body = {
-      roles: [ role ]
+      role_id: role,
     }
     updateProjectMember(harbor, registry, id, user[camelize('user_id')], body, {
       success: {
@@ -281,8 +283,8 @@ class Management extends Component {
     const columns = [
       {
         title: '成员名',
-        dataIndex: 'username',
-        key: 'username',
+        dataIndex: 'entityName',
+        key: 'entityName',
       }, {
         title: '仓库组角色',
         dataIndex: camelize('role_id'),

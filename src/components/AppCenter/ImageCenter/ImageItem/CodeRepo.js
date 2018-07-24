@@ -335,14 +335,19 @@ class CodeRepo extends Component {
             sudo docker tag  {server}/{projectDetail.name}/hello-world:latest {projectDetail.name}/hello-world:latest
             </pre>
         </Modal>
-        <Modal
-          visible={this.state.imageDetailModalShow}
-          className="AppServiceDetail"
-          transitionName="move-right"
-          onCancel={()=> this.setState({imageDetailModalShow:false})}
-        >
-          <ProjectDetail isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
-        </Modal>
+        {
+          this.state.imageDetailModalShow ?
+          <Modal
+            visible={this.state.imageDetailModalShow}
+            className="AppServiceDetail"
+            transitionName="move-right"
+            onCancel={()=> this.setState({imageDetailModalShow:false})}
+          >
+            <ProjectDetail isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
+          </Modal>
+          :
+          null
+        }
         {/* 删除镜像 Modal */}
         <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
           onCancel={()=> this.setState({deleteRepoVisible:false})}
