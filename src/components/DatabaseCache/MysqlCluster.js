@@ -37,7 +37,7 @@ let MyComponent = React.createClass({
     scope.setState({
       detailModal: true,
       currentData: database,
-      currentDatabase: database.metadata.name
+      currentDatabase: database.objectMeta.name
     })
   },
   //自动备份开关
@@ -66,16 +66,28 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    const statusText = status => {
+      switch(status) {
+        case 'Pending':
+          return '启动中'
+        case 'Stopping':
+          return '停止中'
+        case 'Stopped':
+          return '已停止'
+        case 'Running':
+          return '运行中'
+      }
+    }
 
     let items = config.map((item, index) => {
-      const storageSize = item.spec.volumeClaimTemplate.spec.resources.requests.storage //存储大小
+
       return (
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={mysqlImg} />
               <div className='detailName'>
-                {item.metadata.name}
+                {item.objectMeta.name}
               </div>
               <div className='detailName'>
                 <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
@@ -83,22 +95,20 @@ let MyComponent = React.createClass({
             </div>
             <ul className='detailParse'>
               <li><span className='listKey'>状态</span>
-                {item.status.phase === 'Pending' ?
-                  <span className='normal'>创建中 </span>
-                  :null
-                }
-                {item.status.phase === 'Success' ?
-                  <span className='normal'>成功 </span>
-                  :null
-                }
+                <span className='normal'>{statusText(item.staus)} </span>
               </li>
-              <li><span className='listKey'>副本数</span>{`${1}/${item.spec.replicas}`}个</li>
+              <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建时间</span>
-                <span>{formatDate(item.metadata.creationTimestamp)}</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{storageSize ? storageSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
-              <li><span className='listKey'>自动备份</span><Switch checkedChildren="开" onChange={this.autoBackupSwitch} unCheckedChildren="关" /></li>
+              <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li><span className='listKey'>自动备份</span>
+                <Switch checkedChildren="开"
+                        onChange={(checked) => this.autoBackupSwitch(checked, item)}
+                        unCheckedChildren="关"
+                />
+              </li>
             </ul>
           </div>
         </div>

@@ -273,19 +273,19 @@ export const GET_DB_CLUSTER_CONFIG_DEFAULT_REQUEST = 'GET_DB_CLUSTER_CONFIG_DEFA
 export const GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS = 'GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS'
 export const GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE = 'GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE'
 
-function fetchMySqlConfigDefault(cluster, name, callback) {
+function fetchConfigDefault(cluster, type, callback) {
   return {
     [FETCH_API]: {
       types: [GET_DB_CLUSTER_CONFIG_DEFAULT_REQUEST, GET_DB_CLUSTER_CONFIG_DEFAULT_SUCCESS, GET_DB_CLUSTER_CONFIG_DEFAULT_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/mysql/${name}/config/default`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/config/default`,
       schema: {}
     },
     callback
   }
 }
-export function getMySqlConfigDefault(cluster, name, callback) {
+export function getConfigDefault(cluster, type, callback) {
   return (dispatch) => {
-    return dispatch(fetchMySqlConfigDefault(cluster, name, callback))
+    return dispatch(fetchConfigDefault(cluster, type, callback))
   }
 }
 
@@ -378,16 +378,14 @@ export const UPDATE_MYSQL_PWD_REQUEST = 'UPDATE_MYSQL_PWD_REQUEST'
 export const UPDATE_MYSQL_PWD_SUCCESS = 'UPDATE_MYSQL_PWD_SUCCESS'
 export const UPDATE_MYSQL_PWD_FAILURE = 'UPDATE_MYSQL_PWD_FAILURE'
 
-function updateMySqlCreatePwdRequest(clusterID, clusterName, pwd, callback) {
+function updateMySqlCreatePwdRequest(clusterID, clusterName, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_MYSQL_PWD_REQUEST, UPDATE_MYSQL_PWD_SUCCESS, UPDATE_MYSQL_PWD_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/mysql/${name}/secret`,
       options: {
         method: 'PUT',
-        body: {
-          root_password: pwd
-        }
+        body,
       },
       schema: {}
     },
@@ -420,6 +418,32 @@ export function getMySqlClusterPwd(cluster, name, callback) {
     return dispatch(fetchMySqlCreatePwd(cluster, name, callback))
   }
 }
+
+// 修改mysql集群密码
+export const UPDATE_MYSQL_CLUSTER_PWD_REQUEST = 'UPDATE_MYSQL_CLUSTER_PWD_REQUEST'
+export const UPDATE_MYSQL_CLUSTER_PWD_SUCCESS = 'UPDATE_MYSQL_CLUSTER_PWD_SUCCESS'
+export const UPDATE_MYSQL_CLUSTER_PWD_FAILURE = 'UPDATE_MYSQL_CLUSTER_PWD_FAILURE'
+
+function updateMysqlPwdRequest (clusterId, name, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_MYSQL_CLUSTER_PWD_REQUEST, UPDATE_MYSQL_CLUSTER_PWD_SUCCESS, UPDATE_MYSQL_CLUSTER_PWD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/mysql/${name}/secret`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      },
+    },
+    callback
+  }
+}
+export function updateMysqlPwd(cluster, name, body, callback) {
+  return (dispatch) => {
+    return dispatch(updateMysqlPwdRequest(cluster, name, body, callback))
+  }
+}
+
 
 // 创建集群
 export const CREATE_DB_CLUSTER_REQUEST = 'CREATE_DB_CLUSTER_REQUEST'

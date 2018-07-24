@@ -8,25 +8,29 @@
  * @author GaoJian
  */
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon ,message, Radio, Spin } from 'antd'
-import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
+import { injectIntl } from 'react-intl'
+import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin } from 'antd'
+import { CreateDbCluster } from '../../actions/database_cache'
+import newMySqlCluster from '../../../kubernetes/objects/newMysqlCluster'
+import newRedisCluster from '../../../kubernetes/objects/newRedisCluster'
+import yaml from 'js-yaml'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
+import { getConfigDefault, createMySqlClusterPwd, createMySqlConfig, createDatabaseCluster } from '../../actions/database_cache'
 import NotificationHandler from '../../components/Notification'
+import ResourceConfig from '../../../client/components/ResourceConfig'
 import { MY_SPACE } from '../../constants'
-import { parseAmount } from '../../common/tools.js'
+import { parseAmount, getResourceByMemory } from '../../common/tools.js'
 import './style/CreateDatabase.less'
-import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import { camelize } from 'humps'
-
 const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
+
 
 let CreateDatabase = React.createClass({
   getInitialState: function () {
@@ -34,24 +38,62 @@ let CreateDatabase = React.createClass({
       currentType: this.props.database,
       showPwd: 'text',
       firstFocues: true,
-      onselectCluster: true
+      onselectCluster: true,
+      composeType: 512,
+      advanceConfigContent: "log-bin = mysql-bin",
+      showAdvanceConfig: false,
+      clusterConfig: {}
     }
   },
   componentWillMount() {
-    const { ListProjects } = this.props
+    const { ListProjects, cluster, database, getConfigDefault } = this.props
+    getConfigDefault(cluster, database, {
+      success: {
+        func: res => {
+          this.setState({
+            advanceConfigContent: res.data.config
+          })
+          console.log(res);
+        }
+      },
+      failed: {
+        func: err => {
+          console.log(err)
+        }
+      }
+    })
     ListProjects({ size: 0 })
     this.loadStorageClassList()
+    // 初始给集群配置赋值
+    function formatConfigData(convertedConfig) {
+      const configData = {}
+      configData.limits = {
+        cpu: `${convertedConfig.cpu * 1000}m`,
+        memory: `${convertedConfig.memory}Mi`,
+      }
+      configData.requests = {
+        cpu: `${convertedConfig.limitCpu * 1000}m`,
+        memory:`${convertedConfig.limitMemory}Mi`,
+      }
+      return configData
+    }
+    const convertedConfig = getResourceByMemory('512')
+    this.setState({
+      clusterConfig: formatConfigData(convertedConfig)
+    })
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
-    if(!nextProps.scope.state.CreateDatabaseModalShow) {
-      this.setState({onselectCluster: true, loading: false})
-    }
-    this.setState({
-      currentType: nextProps.database,
-    })
-    if(this.props.visible !== nextProps.visible && nextProps.visible){
-      this.loadStorageClassList()
+    if (this.props !== nextProps) {
+      if(!nextProps.scope.state.CreateDatabaseModalShow) {
+        this.setState({onselectCluster: true, loading: false})
+      }
+      this.setState({
+        currentType: nextProps.database,
+      })
+      if(this.props.visible !== nextProps.visible && nextProps.visible){
+        this.loadStorageClassList()
+      }
     }
   },
   onChangeCluster(clusterID) {
@@ -177,8 +219,19 @@ let CreateDatabase = React.createClass({
     //this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { scope, CreateDbCluster, setCurrent, space } = this.props;
-    const { projects, projectVisibleClusters, form } = this.props;
+    const { scope,
+      projects,
+      projectVisibleClusters,
+      form,
+      setCurrent,
+      space,
+      cluster,
+      createMySqlClusterPwd,
+      createDatabaseCluster,
+      createMySqlConfig,
+      namespace,
+      database,
+    } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -225,57 +278,92 @@ let CreateDatabase = React.createClass({
         lbGroupID = values.outerCluster
       }
       const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
-      const body = {
-        cluster: values.clusterSelect,
-        externalIP: externalIP,
-        serviceName: values.name,
-        password: values.password,
-        replicas: replicas,
-        volumeSize: values.storageSelect,
-        teamspace: newSpace.namespace,
-        templateId,
-        lbGroupID,
-        storageClassName: values.storageClass,
-      }
-      if (!templateId) {
-        notification.info(`${_this.state.currentType} 集群创建还在开发中，敬请期待`)
-        _this.setState({loading: false})
-        return
-      }
-      CreateDbCluster(body, {
-        success: {
-          func: ()=> {
-            notification.success('创建成功')
-            loadDbCacheList(body.cluster, _this.state.currentType)
-            setCurrent({
-              cluster: newCluster,
-              space: newSpace
-            })
-            _this.props.form.resetFields();
-            scope.setState({
-              CreateDatabaseModalShow: false
-            });
-          },
-          isAsync: true
-        },
-        failed: {
-          func: (res)=> {
-            if (res.statusCode == 409) {
-              notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
-            } else {
-              if(res.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-                notification.error('创建数据库服务失败')
-              }
-
-            }
-          }
-        },
-        finally: {
-          func:()=> {
-            this.setState({loading: false})
-          }
+      // 错误处理
+      const handleError = error => {
+        if (error.message.message && error.message.message.indexOf('already exists') > 0) {
+          notification.warn('集群名已经存在')
+          this.setState({loading: false})
+        }else {
+          notification.warn(error.message)
+          this.setState({loading: false})
         }
-      });
+      }
+      if(database === 'mysql') {
+        const createMySql = async () => {
+          const newMySqlClusterData = new newMySqlCluster(
+            values.name,
+            replicas,
+            lbGroupID,
+            this.state.clusterConfig,
+            values.storageClass,
+            `${values.storageSelect}Mi`
+          )
+
+          // 创建密码
+          const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
+          if(pwdCreate.error) {
+            handleError(pwdCreate.error)
+            return
+          }
+          // 创建配置
+          const confCreate = await createMySqlConfig(cluster, values.name, this.state.advanceConfigContent)
+          if(confCreate.error) {
+            handleError(confCreate.error)
+            return
+          }
+          // 创建集群
+          const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newMySqlClusterData), 'mysql')
+          if(dbCreate.error) {
+            handleError(dbCreate.error)
+            return
+          }
+          // 创建成功
+          notification.success('创建成功')
+          setCurrent({
+            cluster: newCluster,
+            space: newSpace
+          })
+          this.props.form.resetFields();
+          scope.setState({
+            CreateDatabaseModalShow: false
+          }, () => {
+            loadDbCacheList(cluster, 'mysql')
+          });
+        }
+        createMySql()
+      }else if(database === 'redis') {
+        const createRedis = async () => {
+          const newRedisClusterData = new newRedisCluster(
+            values.name,
+            replicas,
+            lbGroupID,
+            this.state.clusterConfig,
+            values.storageClass,
+            `${values.storageSelect}Mi`,
+            namespace,
+            values.password,
+            ''
+          )
+          const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
+          if(dbCreate.error) {
+            handleError(dbCreate.error)
+            return
+          }
+          // 创建成功
+          notification.success('创建成功')
+          setCurrent({
+            cluster: newCluster,
+            space: newSpace
+          })
+          this.props.form.resetFields();
+          scope.setState({
+            CreateDatabaseModalShow: false
+          }, () => {
+            loadDbCacheList(cluster, 'redis')
+          });
+        }
+        createRedis()
+      }
 
     });
   },
@@ -330,7 +418,42 @@ let CreateDatabase = React.createClass({
     }
     return option
   },
+
+  //获取集群配置的值
+  recordResouceConfigValue(values) {
+    let configData = {}
+    //格式化配置信息
+    function formatConfigData(convertedConfig) {
+      const configData = {}
+      configData.requests = {
+        cpu: `${convertedConfig.cpu * 1000}m`,
+        memory: `${convertedConfig.memory}Mi`,
+      }
+      configData.limits = {
+        cpu: `${convertedConfig.limitCpu * 1000}m`,
+        memory:`${convertedConfig.limitMemory}Mi`,
+      }
+      return configData
+    }
+    if(values.maxMemoryValue) {
+      const { maxMemoryValue, minMemoryValue, maxCPUValue, minCPUValue } = values
+      const convertedConfig = getResourceByMemory('DIY', minMemoryValue, minCPUValue, maxMemoryValue, maxCPUValue)
+      configData = formatConfigData(convertedConfig)
+    }else {
+      const convertedConfig = getResourceByMemory('512')
+      configData = formatConfigData(convertedConfig)
+    }
+    this.setState({
+      clusterConfig: configData
+    })
+  },
+  selectComposeType(type) {
+    this.setState({
+      composeType: type,
+    })
+  },
   render() {
+    const { composeType } = this.state
     const { isFetching, projects, projectVisibleClusters, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
@@ -406,8 +529,8 @@ let CreateDatabase = React.createClass({
         <Option key={item.clusterID}>{item.clusterName}</Option>
       )
     })
-    const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
-    const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const statefulApps = {
       mysql: 'MySQL',
       redis: 'Redis',
@@ -422,6 +545,7 @@ let CreateDatabase = React.createClass({
         {statefulAppOptions}
       </Select>
     )
+
     return (
       <QueueAnim>
         <div id='CreateDatabase' key="createDatabase">
@@ -468,6 +592,18 @@ let CreateDatabase = React.createClass({
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
+              <div className="commonBox configContent">
+                <div className='title'>
+                  <span>集群配置</span>
+                </div>
+                <div className="rightConfigBox">
+                  <ResourceConfig
+                    toggleComposeType={this.selectComposeType}
+                    composeType={composeType}
+                    onValueChange={this.recordResouceConfigValue}/>
+                </div>
+              </div>
+
               <div className='commonBox accesstype'>
                 <div className='title'>
                   <span>集群访问方式</span>
@@ -576,8 +712,8 @@ let CreateDatabase = React.createClass({
               { billingEnabled ?
                 <div className="modal-price">
                   <div className="price-left">
-                    <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
-                    <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
+                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
                   </div>
                   <div className="price-unit">
                     <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
@@ -586,6 +722,36 @@ let CreateDatabase = React.createClass({
                 </div>
                 :null
               }
+              <div className="commonBox advanceConfig">
+                <div className="top" onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
+                  <Icon type={this.state.showAdvanceConfig? "minus-square" : "plus-square"} />
+                  高级配置
+                </div>
+                {
+                  this.state.showAdvanceConfig &&
+                  <div>
+                    <div className="configTitle">配置管理</div>
+                    <div className="configItem">
+                      <div className="title">配置文件</div>
+                      <div>mysql.conf</div>
+                    </div>
+                    <div className="configItem">
+                      <div className="title">挂载目录</div>
+                      <div>/ect/mysql</div>
+                    </div>
+                    <div className="configItem">
+                      <div className="title">内容</div>
+                      <div className="content">
+                        <Input type="textarea" rows={4} value={this.state.advanceConfigContent} onChange={e => {
+                          this.setState({
+                            advanceConfigContent: e.target.value
+                          })
+                        }}/>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
             <div className='btnBox'>
               <Button size='large' onClick={this.handleReset}>
@@ -610,7 +776,7 @@ let CreateDatabase = React.createClass({
 
 function mapStateToProps(state, props) {
   const { cluster, space } = state.entities.current
-  const { billingConfig } = state.entities.loginUser.info
+  const { billingConfig, namespace } = state.entities.loginUser.info
   const { clusterStorage } = state.cluster
   const defaultDbNames = {
     isFetching: false,
@@ -634,6 +800,7 @@ function mapStateToProps(state, props) {
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
+    namespace,
     space,
     current,
     databaseNames,
@@ -664,7 +831,11 @@ CreateDatabase = injectIntl(CreateDatabase, {
 export default connect(mapStateToProps, {
   CreateDbCluster,
   setCurrent,
+  createMySqlConfig, //创建mysql集群配置
+  getConfigDefault, // 获取默认配置
+  createDatabaseCluster, // 创建集群
   getProjectVisibleClusters,
   ListProjects,
   getClusterStorageList,
+  createMySqlClusterPwd, // 创建密码
 })(CreateDatabase)

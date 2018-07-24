@@ -104,12 +104,6 @@ let MyComponent = React.createClass({
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
-              {
-                console.log(item)
-              }
-              {
-                console.log(this.props.autoBackupList)
-              }
               <li><span className='listKey'>自动备份</span>
                 <Switch checkedChildren="开"
                         onChange={(checked) => this.autoBackupSwitch(checked, item)}

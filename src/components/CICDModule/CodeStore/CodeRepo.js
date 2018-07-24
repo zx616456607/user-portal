@@ -1,12 +1,12 @@
 /**
-* Licensed Materials - Property of tenxcloud.com
-* (C) Copyright 2016 TenxCloud. All Rights Reserved.
-*
-* codeRepo component
-*
-* v0.1 - 2016-10-31
-* @author BaiYu
-*/
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * codeRepo component
+ *
+ * v0.1 - 2016-10-31
+ * @author BaiYu
+ */
 import React, { Component, PropTypes } from 'react'
 import { Form, Icon, Button, Input, Tabs, Tooltip, Checkbox, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
@@ -320,12 +320,12 @@ const MyComponent = React.createClass({
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
           <Button type="primary" size="large" onClick={() => this.showGtilabModal() }>添加 GitLab 代码仓库</Button>
           <Modal title="添加 GitLab 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
-            onCancel={this.closeAddGitlabModal}
-            footer={[
-              <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
-              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
-            ]}
-            >
+                 onCancel={this.closeAddGitlabModal}
+                 footer={[
+                   <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
+                   <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
+                 ]}
+          >
             <div>
               <p style={{ lineHeight: '30px' }}>仓库地址：<span>（如 http://gitlab.demo.com）</span>
                 <Input placeholder="http://*** | https://***" id="gitlab" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
@@ -383,8 +383,8 @@ const MyComponent = React.createClass({
 
         {items}
         <Modal title="注销代码源操作" visible={this.state.removeModal}
-          onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
-          >
+               onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
+        >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
             注销该代码仓库，已激活的代码项目将『解除激活』，关联流水线、第三方工具可能失效无法继续执行, 确认注销该代码仓库？
           </div>
@@ -412,7 +412,7 @@ class CodeRepo extends Component {
       success: {
         func: (res) => {
           _this.setState({typeList: res.data})
-        //  this.loadData(res.data[0])
+          //  this.loadData(res.data[0])
         },
         isAsync: true
       }
@@ -506,8 +506,8 @@ class CodeRepo extends Component {
 
     return (
       <QueueAnim id='codeRepo'
-        type='right'
-        >
+                 type='right'
+      >
         <Title title="代码仓库" />
         <div className="codeContent">
           <div className='headBox'>
@@ -580,4 +580,3 @@ export default connect(mapStateToProps, {
 })(injectIntl(CodeRepo, {
   withRef: true
 }));
-

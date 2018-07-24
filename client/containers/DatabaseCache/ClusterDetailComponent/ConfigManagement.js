@@ -1,7 +1,9 @@
 import React from 'react'
 import './style/configManagement.less'
 import { Form, Input, Button } from 'antd'
-
+import { connect } from 'react-redux'
+import { getMySqlConfig, updateMySqlConfig } from '../../../../src/actions/database_cache'
+import NotificationHandler from '../../../../src/components/Notification'
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -14,13 +16,92 @@ const formItemLayout = {
 class ConfigManagement extends React.Component {
   state = {
     isEdit: false,
+    configContent: '',
+    configContentDefault: '',
+  }
+  componentDidMount() {
+    const { database, databaseInfo, clusterID, getMySqlConfig } = this.props
+    if (database === 'mysql') {
+      getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
+        success: {
+          func: res => {
+            this.setState({
+              configContent: res.data.config,
+              configContentDefault: res.data.config,
+            })
+
+          },
+        },
+        failed: {
+          func: () => {
+            const notification = new NotificationHandler()
+            notification.warn('获取MySQL配置失败')
+          },
+        },
+      })
+    }
+
   }
   submitChange = () => {
+    this.props.form.validateFields(errors => {
+      if (errors) {
+        return
+      }
+      const { database, databaseInfo, clusterID } = this.props
+      if (database === 'mysql') {
+        const { updateMySqlConfig } = this.props
+        updateMySqlConfig(clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
+          success: {
+            func: res => {
+              this.setState({
+                isEdit: false,
+                configContent: res.data.config,
+                configContentDefault: res.data.config,
+              })
+            },
+          },
+          failed: {
+            func: () => {
+              const notification = new NotificationHandler()
+              notification.warn('更新MySQL配置失败')
+            },
+          },
+        })
+      }
+
+    })
+  }
+  onCancel = () => {
+    this.props.form.resetFields()
     this.setState({
       isEdit: false,
+      configContent: this.state.configContentDefault,
     })
   }
   render() {
+    const testChinese = (rule, value, callback) => {
+      if (new RegExp('[\\u4E00-\\u9FFF]+', 'g').test(value)) {
+        return callback('不得包含汉字')
+      }
+      callback()
+    }
+    const { getFieldProps } = this.props.form
+    const configContent = getFieldProps('config', {
+      rules: [{
+        required: true,
+        message: '配置不能为空',
+      },
+      {
+        validator: testChinese,
+        trigger: [ 'onBlur', 'onChange' ],
+      }],
+      onChange: e => {
+        this.setState({
+          configContent: e.target.value,
+        })
+      },
+    })
+
     return <div className="configManagement">
       <div className="title">配置管理</div>
       <div className="content">
@@ -47,17 +128,26 @@ class ConfigManagement extends React.Component {
                   <Button type="primary" onClick={() => this.setState({ isEdit: true })}>修改</Button>
                   :
                   <div>
-                    <Button onClick={() => this.setState({ isEdit: false })}>取消</Button>
+                    <Button onClick={this.onCancel}>取消</Button>
                     <Button type="primary" onClick={this.submitChange}>保存</Button>
                   </div>
               }
             </div>
-            <Input type="textarea" disabled={!this.state.isEdit} rows={6}/>
+            <Input type="textarea" {...configContent} disabled={!this.state.isEdit} value={this.state.configContent} rows={6}/>
           </FormItem>
         </Form>
       </div>
     </div>
   }
 }
-
-export default Form.create()(ConfigManagement)
+const mapStateToProps = state => {
+  const { cluster } = state.entities.current
+  return {
+    clusterID: cluster.clusterID,
+  }
+}
+const FormConfigManagement = Form.create()(ConfigManagement)
+export default connect(mapStateToProps, {
+  getMySqlConfig, // 获取mysql集群配置
+  updateMySqlConfig, // 更新mysql集群配置
+})(FormConfigManagement)

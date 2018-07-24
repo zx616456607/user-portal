@@ -525,13 +525,13 @@ module.exports = function (Router) {
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
   // 获取高级配置
-  router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getMySqlConfig)
+  router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getAdvanceConfig)
   // 创建配置
   router.post('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.createMySqlConfig)
   // 更新配置
   router.put('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.updateMySqlConfig)
   // 获取默认配置
-  router.get('/clusters/:cluster/daas/mysql/:name/config/default', databaseCacheController.getMySqlDefaultConfig)
+  router.get('/clusters/:cluster/daas/:type/config/default', databaseCacheController.getDefaultConfig)
   // 创建MySQL集群密码
   router.post('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.createMySqlClusterPwd)
   // 修改MySQL集群密码

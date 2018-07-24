@@ -11,8 +11,6 @@ import {
 import classNames from 'classnames'
 const FormItem = Form.Item
 class ResourceConfig extends React.Component {
-
-
   getCustomValue = (maxMemory, minMemory, maxCPU, minCPU) => {
     const { getFieldValue } = this.props.form
     const maxMemoryValue = maxMemory || getFieldValue('DIYMaxMemory')
@@ -26,8 +24,10 @@ class ResourceConfig extends React.Component {
   selectComposeType(type) {
     if (type === 512) {
       const value = {
-        memory: 512,
-        cpu: 0.1,
+        maxMemoryValue: 512,
+        minMemoryValue: 512,
+        maxCPUValue: 1,
+        minCPUValue: 0.2,
       }
       this.props.onValueChange(value)
     }

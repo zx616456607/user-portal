@@ -357,6 +357,7 @@ const MyComponent = React.createClass({
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
         redeployDisable = false
       }
+
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const dropdown = (
@@ -479,6 +480,17 @@ const MyComponent = React.createClass({
         </Menu>
 
       );
+      let mirror = ''
+
+      const images = item.spec.template.spec.containers.map(container => {
+        return container.image
+      })
+      if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
+        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+        mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
+      }else {
+        mirror = images.join(', ')? images.join(', ') : ''
+      }
       let lb = false
       let k8sSer = ''
       if (k8sServiceList) {
@@ -565,8 +577,8 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
-            <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""} placement="topLeft">
-              <span>{item.images.join(', ') || '-'}</span>
+            <Tooltip title={mirror} placement="topLeft">
+              <span>{mirror}</span>
             </Tooltip>
           </div>
           <div className="service commonData appSvcListDomain">

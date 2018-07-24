@@ -146,10 +146,11 @@ exports.listDBService = function* () {
   }
 }
 // 获取mysql集群配置
-exports.getMySqlConfig = function* () {
+exports.getAdvanceConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
   const clusterName = this.params.name
+  const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config'])
   this.body = result
@@ -176,12 +177,13 @@ exports.updateMySqlConfig = function* () {
   this.body = result
 }
 // 获取默认配置
-exports.getMySqlDefaultConfig = function* () {
+exports.getDefaultConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
   const clusterName = this.params.name
+  const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'config', 'default'])
+  const result = yield api.getBy([ clusterId, 'daas', type, 'config', 'default'])
   this.body = result
 }
 // 创建密码
@@ -329,7 +331,7 @@ exports.getDBService = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'daas', type, serviceName], null);
   const database = result.data || []
-
+  console.log(JSON.stringify(result.data))
   // Get redis password from init container
   // let initEnv = []
   // let isRedis = false
