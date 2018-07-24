@@ -468,7 +468,6 @@ const MyComponent = React.createClass({
 
 
       let mirror = ''
-      console.log(item);
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })

@@ -357,6 +357,7 @@ const MyComponent = React.createClass({
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
         redeployDisable = false
       }
+
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const dropdown = (
