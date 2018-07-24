@@ -318,8 +318,12 @@ class WrapComopnent extends React.Component {
     })
   }
   renderWrapList(dataSource, isHot) {
-    const { activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin, downloadCount, updateDownloadCount } = this.props
+    const {
+      activeKey, dataFetching, dataHotFetching, rectStyle, isAdmin, isUPAdmin, downloadCount, updateDownloadCount,
+      vmWrapConfig,
+    } = this.props
     const { copyStatus } = this.state
+    const { enabled } = vmWrapConfig
     let newData
     if (isHot) {
       if (dataHotFetching) {
@@ -361,7 +365,7 @@ class WrapComopnent extends React.Component {
       const menu = width => (
         <Menu style={{ width }} onClick={e => this.handleMenuClick(e, item)}>
           {
-            activeKey === 'app'
+            activeKey === 'app' && enabled
               ? <Menu.Item key="vm">
                 传统部署
                 </Menu.Item>
@@ -742,9 +746,10 @@ function mapStateToProps(state) {
   const { entities } = state
   const { loginUser } = entities
   const { info } = loginUser
-  const { role } = info
+  const { role, vmWrapConfig } = info
   return {
     role,
+    vmWrapConfig,
   }
 }
 export default connect(mapStateToProps, {
