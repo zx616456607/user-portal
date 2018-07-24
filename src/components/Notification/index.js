@@ -188,4 +188,7 @@ export default class Notification {
       duration,
     })
   }
+  destroy () {
+    notification.destroy()
+  }
 }

@@ -218,12 +218,6 @@ class ClusterTabList extends Component {
             <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
-
-            <TabPane tab={<div className='tablepanediv'><svg className='size pluginSize select hover'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
-              <ClusterPlugin cluster={cluster}
-              />
-            </TabPane>
-
             <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#networksolutions"></use></svg><span className='tablepanespan'>网络方案</span></div>} key="5">
               <NetworkSolutions
                 clusterID={clusterID}

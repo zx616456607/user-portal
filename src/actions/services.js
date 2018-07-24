@@ -961,11 +961,11 @@ export function editServiceEnv(body, callback){
 
 export const SET_SERVICE_PROXY_REQUEST = 'SET_SERVICE_PROXY_REQUEST'
 export const SET_SERVICE_PROXY_SUCCESS = 'SET_SERVICE_PROXY_SUCCESS'
-export const SET_SERVICE_PROXY_FAILED = 'SET_SERVICE_PROXY_FAILED'
+export const SET_SERVICE_PROXY_FAILURE = 'SET_SERVICE_PROXY_FAILURE'
 function fetchSetServiceProxyGroup(body, callback){
   return {
     [FETCH_API]: {
-      types: [SET_SERVICE_PROXY_REQUEST, SET_SERVICE_PROXY_SUCCESS, SET_SERVICE_PROXY_FAILED],
+      types: [SET_SERVICE_PROXY_REQUEST, SET_SERVICE_PROXY_SUCCESS, SET_SERVICE_PROXY_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/services/${body.service}/lbgroups/${body.groupID}`,
       options: {
         method: 'PUT',
@@ -978,7 +978,7 @@ function fetchSetServiceProxyGroup(body, callback){
 }
 
 export function setServiceProxyGroup(body, callback){
-  return (dispath, getState) => {
-    return dispath(fetchSetServiceProxyGroup(body, callback))
+  return (dispatch) => {
+    return dispatch(fetchSetServiceProxyGroup(body, callback))
   }
 }

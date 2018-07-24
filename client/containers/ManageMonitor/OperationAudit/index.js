@@ -77,7 +77,6 @@ function statusFormat(status, createTime) {
 
 // 转换对象及类型中的对象
 const formatResourceName = (resourceName, resourceId) => {
-
   // this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     const newBody = JSON.parse(resourceName)
@@ -171,7 +170,7 @@ const formatResourceName = (resourceName, resourceId) => {
           break
         }
         if (item && item.strategyID) {
-          ids.push(item.strategyID)
+          ids.push(item.strategyName)
         }
       }
       return ids.join(',')

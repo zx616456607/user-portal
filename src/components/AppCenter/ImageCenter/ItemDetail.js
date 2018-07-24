@@ -19,6 +19,7 @@ import Logs from './ImageItem/Logs'
 import Management from './ImageItem/Management'
 import CodeRepo from './ImageItem/CodeRepo'
 import ImageUpdate from './ImageItem/ImageUpdate'
+import LabelModule  from './Project/LabelModule'
 import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
 import { setCurrent } from '../../../actions/entities'
 import { DEFAULT_REGISTRY } from '../../../constants'
@@ -115,7 +116,7 @@ class ItemDetail extends Component {
   render() {
     if (this.state.isSettingCurrent) return <div></div>
     const { projectDetail, params, projectMembers, loginUser, registry, location, role } = this.props
-    const { name } = projectDetail
+    const { name, projectId } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     let currentMember = {}
@@ -157,6 +158,16 @@ class ItemDetail extends Component {
           <ImageUpdate
             registry={registry}
             location={location}
+          />
+        </TabPane>
+      )
+    }
+    if (currentUserRole > 0 || isAdmin) {
+      tabPanels.push(
+        <TabPane tab="标签管理" key="tag">
+          <LabelModule
+            scope="p"
+            projectId={projectId}
           />
         </TabPane>
       )

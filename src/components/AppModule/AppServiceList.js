@@ -333,7 +333,7 @@ const MyComponent = React.createClass({
       <Tooltip title='该服务可被访问（通过应用负载均衡 LB ）'>
         <span className='standrand privateColor'>lb</span>
       </Tooltip>
-  )
+    )
   },
   render: function () {
     const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
@@ -365,37 +365,37 @@ const MyComponent = React.createClass({
           {
             item.status.phase == "Stopped"
               ? <Menu.Item key="start">
-              启动
-            </Menu.Item>
+                启动
+              </Menu.Item>
               : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
             item.status.phase == "Running" || item.status.phase == 'Pending'
               ?<Menu.Item key="stop">
-              停止
-            </Menu.Item>
+                停止
+              </Menu.Item>
               : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
             item.status.phase == "Running"
-            ? <Menu.Item key="restart">
-              重启
-            </Menu.Item>
-            : <Menu.Item style={{display:'none'}}></Menu.Item>
+              ? <Menu.Item key="restart">
+                重启
+              </Menu.Item>
+              : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
             redeployDisable
-            ? <Menu.Item
-              key="batchRestartService"
-              disabled={isRollingUpdateOrScrollRelease}
-              title={
-                isRollingUpdateOrScrollRelease &&
-                `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
-              }
-            >
-              重新部署
-            </Menu.Item>
-            : <Menu.Item style={{display:'none'}}></Menu.Item>
+              ? <Menu.Item
+                key="batchRestartService"
+                disabled={isRollingUpdateOrScrollRelease}
+                title={
+                  isRollingUpdateOrScrollRelease &&
+                  `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
+                }
+              >
+                重新部署
+              </Menu.Item>
+              : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           <Menu.Item key="delete">
             删除
@@ -405,7 +405,7 @@ const MyComponent = React.createClass({
             滚动发布
           </Menu.Item>
           <Menu.Item key="grayscaleUpgrade">
-             灰度发布
+            灰度发布
           </Menu.Item>
           <SubMenu title="扩展">
             <Menu.Item
@@ -481,7 +481,6 @@ const MyComponent = React.createClass({
 
       );
       let mirror = ''
-
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
@@ -1250,8 +1249,8 @@ class AppServiceList extends Component {
     return (
       <div id="AppServiceList" style={{ padding: '10px 15px' }}>
         <QueueAnim className="demo-content"
-          key="demo"
-          type="right"
+                   key="demo"
+                   type="right"
         >
           <div className="operaBox" key="serverList">
             <Title title={`${appName} 的服务列表`} />
@@ -1268,12 +1267,12 @@ class AppServiceList extends Component {
               启动
             </Button>
             <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
-              onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+                   onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
             >
               <StateBtnModal serviceList={serviceList} scope={parentScope} state="Restart" />
             </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
-              onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
+                   onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
             >
               <StateBtnModal serviceList={serviceList} state="Running" />
             </Modal>
@@ -1286,7 +1285,7 @@ class AppServiceList extends Component {
               刷新
             </Button>
             <Modal title="停止操作" visible={this.state.StopServiceModal}
-              onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
+                   onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
             >
               <StateBtnModal serviceList={serviceList} scope={parentScope} state="Stopped" />
             </Modal>
@@ -1295,16 +1294,16 @@ class AppServiceList extends Component {
               删除
             </Button>
             <Modal title="删除操作" visible={this.state.DeleteServiceModal}
-              onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
+                   onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
             >
-        <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' cdRule={this.props.cdRule}/>
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' cdRule={this.props.cdRule}/>
             </Modal>
             <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
               <i className="fa fa-bolt"></i>
               重启
             </Button>
             <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
-              onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
+                   onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
             >
               <StateBtnModal serviceList={serviceList} state="QuickRestar" />
             </Modal>
@@ -1335,22 +1334,22 @@ class AppServiceList extends Component {
             </div>
             <div className="name commonTitle">
               服务名称
-          </div>
+            </div>
             <div className="status commonTitle">
               状态
-          </div>
+            </div>
             <div className="image commonTitle">
               镜像
-          </div>
+            </div>
             <div className="service commonTitle">
               服务地址
-          </div>
+            </div>
             <div className="createTime commonTitle">
               创建时间
-          </div>
+            </div>
             <div className="actionBox commonTitle">
               操作
-          </div>
+            </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
@@ -1380,14 +1379,14 @@ class AppServiceList extends Component {
           </Modal>
           {
             rollingUpdateModalShow ?
-            <RollingUpdateModal
-              parentScope={parentScope}
-              cluster={cluster}
-              appName={appName}
-              visible={rollingUpdateModalShow}
-              loadServiceList={loadServiceList}
-              service={currentShowInstance} />
-            :null
+              <RollingUpdateModal
+                parentScope={parentScope}
+                cluster={cluster}
+                appName={appName}
+                visible={rollingUpdateModalShow}
+                loadServiceList={loadServiceList}
+                service={currentShowInstance} />
+              :null
           }
           {
             grayscaleUpgradeModalVisible &&

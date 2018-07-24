@@ -421,7 +421,7 @@ class ImageCenter extends Component {
             {
               isAuth &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
-              同步管理
+              仓库管理
               </span>
             }
             {OtherItem}

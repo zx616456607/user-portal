@@ -81,7 +81,7 @@ const MyComponent = React.createClass({
     if (imagesList.length === 1) {
       isRollingUpdate = false
     }
-    const annotations = serviceDetail.metadata.annotations || {}
+    const annotations = serviceDetail.metadata && serviceDetail.metadata.annotations || {}
     const currentImages = JSON.parse(annotations['rollingupdate/target'] || '{}')
     const items = config.map((item) => {
       const imageArray = this.getImages(item)
