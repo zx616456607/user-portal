@@ -551,19 +551,23 @@ module.exports = function (Router) {
   // 修改集群
   router.put('/clusters/:clusterID/daas/:type/:name', databaseCacheController.updateDatabaseCluster)
   // 获取备份链
-  router.get('/clusters/:clusterID/daas/:type/backups', databaseCacheController.getBackupChain)
+  router.get('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.getBackupChain)
   // 创建手动备份
-  router.post('/clusters/:clusterID/daas/:type/backups', databaseCacheController.manualBackup)
+  router.post('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.manualBackup)
   // 删除手动备份
-  router.delete('/clusters/:clusterID/daas/:type/backups/:name', databaseCacheController.deleteManualBackup)
+  router.delete('/clusters/:clusterID/daas/:type/:clusterName/backups/:name', databaseCacheController.deleteManualBackup)
   // 检查是否有自动备份
-  router.get('/clusters/:clusterID/daas/:type/cronbackups', databaseCacheController.checkAutoBackupExist)
+  router.get('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.checkAutoBackupExist)
   // 设置自动备份
-  router.post('/clusters/:clusterID/daas/:type/cronbackups', databaseCacheController.setAutoBackup)
+  router.post('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.setAutoBackup)
+  // 修改自动备份
+  router.put('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.updateAutoBackup)
   // 删除自动备份
   router.delete('/clusters/:clusterID/daas/:type/cronbackups/:name', databaseCacheController.deleteAutoBackup)
   // 创建扩容
-  router.post('/clusters/:clusterID/daas/:type/expands', databaseCacheController.expandDatabaseCluster)
+  router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
+  // 回滚
+  router.post('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.rollback)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

@@ -968,7 +968,7 @@ class ModalDetail extends Component {
             detailModal: false
           });
           setTimeout(() => {
-            scope.props.loadDbCacheList(cluster, 'mysql')
+            scope.props.loadDbCacheList(cluster, database)
           })
         }
       },
@@ -1103,7 +1103,7 @@ class ModalDetail extends Component {
     return logoMapping[clusterType]
   }
   dbStatus(status) {
-
+    console.log(status);
     if (status === 'Running') {
       return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
     }
@@ -1171,11 +1171,17 @@ class ModalDetail extends Component {
   clusterBtn = status => {
     console.log(status);
     switch (status) {
-      case 'Pending' || 'Running':
+      case 'Pending':
         return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
           <span className="stopIcon"></span>停止
         </Button>
-      case 'Stopped' || 'Stopping':
+      case 'Running':
+        return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+          <span className="stopIcon"></span>停止
+        </Button>
+      case 'Stopped':
+        return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+      case 'Stopping':
         return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
     }
   }

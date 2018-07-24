@@ -521,25 +521,22 @@ export const EXPEND_DB_CLUSTER_REQUEST = 'EXPEND_DB_CLUSTER_REQUEST'
 export const EXPEND_DB_CLUSTER_SUCCESS = 'EXPEND_DB_CLUSTER_SUCCESS'
 export const EXPEND_DB_CLUSTER_FAILURE = 'EXPEND_DB_CLUSTER_FAILURE'
 
-function expendDatabaseClusterRequest (clusterId, template, type, callback) {
+function expendDatabaseClusterRequest (clusterId, type, name, body, callback) {
   return {
     [FETCH_API]: {
       types: [EXPEND_DB_CLUSTER_REQUEST, EXPEND_DB_CLUSTER_SUCCESS, EXPEND_DB_CLUSTER_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/expands`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}/expands`,
       schema: {},
       options: {
-        headers: {
-          'Content-Type': 'text/plain'
-        },
         method: 'POST',
-        body: template
+        body
       },
     },
     callback
   }
 }
-export function expendDatabaseCluster(cluster, template, type, callback) {
+export function expendDatabaseCluster(clusterId, type, name, body, callback) {
   return (dispatch) => {
-    return dispatch(expendDatabaseClusterRequest(cluster, template, type, callback))
+    return dispatch(expendDatabaseClusterRequest(clusterId, type, name, body, callback))
   }
 }

@@ -17,8 +17,10 @@ import extend from '../../../assets/img/database_cache/extend.png'
 import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
-import yaml from 'js-yaml'
+import NotificationHandler from '../../../../src/components/Notification'
 import { expendDatabaseCluster } from '../../../../src/actions/database_cache'
+
+const notification = new NotificationHandler()
 
 class Storage extends React.Component {
   state = {
@@ -32,27 +34,14 @@ class Storage extends React.Component {
     })
   }
   confirmExtend = () => {
-    const { cluster, databaseInfo, database, expendDatabaseCluster, namespace } = this.props
+    const { cluster, databaseInfo, database, expendDatabaseCluster } = this.props
     const data = {
-      apiVersion: 'daas.tenxcloud.com/v1',
-      kind: 'RedisDiskExpand',
-      metadata: {
-        name: databaseInfo.objectMeta.name,
-        namespace,
-        labels: {
-          'tenxcloud.com/cluster': databaseInfo.objectMeta.name,
-        },
-      },
-      spec: {
-        cluster: databaseInfo.objectMeta.name,
-        expandedSize: `${this.state.volumeSize}Mi`,
-      },
+      expandedSize: `${this.state.volumeSize}Mi`,
     }
-    const yamlData = yaml.dump(data)
-    expendDatabaseCluster(cluster.clusterID, yamlData, database, {
+    expendDatabaseCluster(cluster.clusterID, database, databaseInfo.objectMeta.name, data, {
       success: {
         func: () => {
-
+          notification.success('扩容成功')
         },
       },
       failed: {

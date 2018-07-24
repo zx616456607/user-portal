@@ -26,7 +26,7 @@ function chains(state = {}, action: any) {
                 isFetching: true,
             }
         case GET_BACKUPCHAIN_SUCCESS:
-            const data = action.response.result.database.items
+            const data = action.response.result.data.items
             return {
                 isFetching: false,
                 data,
@@ -53,7 +53,8 @@ function autoBackupChains(state = autoBackupInitial, action: any) {
                 data: [],
             }
         case CHECK_AUTO_BACKUP_EXIST_SUCCESS:
-            const data = action.response.result.database.items
+            console.log(action);
+            const data = action.response.result.data
             return {
                 isFetching: false,
                 data,

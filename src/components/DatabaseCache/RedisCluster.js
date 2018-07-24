@@ -178,32 +178,7 @@ class RedisDatabase extends Component {
     }
     getProxy(cluster)
     // 获取集群列表
-    loadDbCacheList(cluster, 'redis', {
-      success: {
-        func: res => {
-          setTimeout(() => {
-            checkAutoBackupExist(cluster, 'redis', {
-              success: {
-                func: response => {
-                  const list = res.databaseList;
-                  const alerady = response.database.items //已经设置自动备份的数据、
-                  for (const v of alerady) {
-                    this.state.aleradySetAuto.push(v.metadata.uid)
-                    this.setState()
-                  }
-
-                },
-              },
-              failed: {
-                func: () => {
-                  notification.warn('检查是否有自动备份失败')
-                },
-              },
-            }) // 检查是否有自动备份
-          })
-        }
-      }
-    })
+    loadDbCacheList(cluster, 'redis')
   }
   componentDidMount() {
     const _this = this
