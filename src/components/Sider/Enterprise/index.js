@@ -745,7 +745,7 @@ class Sider extends Component {
               </li>
               { role !== ROLE_USER && role !==  ROLE_PLATFORM_ADMIN?
                 <li onClick={() => this.selectModel('cluster')}
-                    className={currentKey == '.' ? 'selectedLi' : ''}>
+                    className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
