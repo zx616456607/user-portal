@@ -25,12 +25,12 @@ class CreateNameAndTarget extends React.Component {
         label="策略名称"
         {...formItemLayout}
       >
-        <Input placeholder="请输入..."
+        <Input placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
           style={{ width: 280 }}
           {...getFieldProps('name', {
             rules: [{
               required: true,
-              message: '请输入...',
+              message: '请输入安全组名称，如 禁止外访 A 地图 API',
             }],
           })}
         />
@@ -45,7 +45,7 @@ class CreateNameAndTarget extends React.Component {
           {...getFieldProps('target', {
             rules: [{
               required: true,
-              message: '请选择隔离对象',
+              message: '请选择服务',
             }],
             initialValue: 'lucy',
           })}

@@ -101,6 +101,9 @@ const appManageRoutes = [{
   childRoutes: [{
     path: 'create',
     component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default
+  }, {
+    path: ':name',
+    component: require('../../client/containers/SecurityGroup/SecurityGroupDetail').default,
   }]
 },{
   path: 'load_balance',

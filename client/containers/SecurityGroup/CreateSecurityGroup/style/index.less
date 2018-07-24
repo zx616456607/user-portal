@@ -4,11 +4,11 @@
     .securityGroudHeader {
       margin-bottom: 20px;
       font-size: 16px;
+      height: 32px;
+      display: flex;
       .returnBtn {
         margin-right: 16px;
-        background: #2db7f5;
         color: #fff;
-        padding: 6px;
         background-color: transparent;
         & > * {
           display: inline-block;
@@ -19,13 +19,13 @@
           height: 0;
           border-bottom: 15px solid transparent;
           border-top: 15px solid transparent;
-          border-right: 15px solid @primary-color;
+          border-right: 15px solid #2db7f5;
           font-size: 0;
           line-height: 0;
         }
         .btnRight {
           display: inline-block;
-          background: @primary-color;
+          background: #2db7f5;
           color: #fff;
           height: 30px;
           line-height: 30px;
@@ -36,18 +36,28 @@
         }
       }
       .headerTitle {
-        display: inline-block;
-        height: 16px;
-        border-left: 4px solid #2db7f5;
-        padding-left: 8px;
+        margin-top: 6px;
+        box-sizing:border-box;
+        display: flex;
+        .headerLeft {
+          background-color: #2db7f5;
+          width: 4px;
+          height: 18px;
+          margin-right: 8px;
+        }
       }
     }
     .securityGroudContent {
       background: #fff;
       color: #666;
-      padding-bottom: 25px;
+      padding: 40px;
       .ant-form-item-label label {
         font-size: 14px;
+      }
+      .whiteList, .submitBtn {
+        border-top: 1px solid #ccc;
+        padding: 20px 0;
+        font-size: 16px;
       }
     }
   }

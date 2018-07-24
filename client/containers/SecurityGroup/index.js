@@ -10,10 +10,10 @@
 
 import React from 'react'
 import SearchInput from '../../components/SearchInput'
-import { browserHistory } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Card, Pagination, Icon } from 'antd'
+import { Button, Table, Menu, Dropdown, Card, Pagination, Icon, Modal } from 'antd'
 import Title from '../../../src/components/Title'
 import './style/index.less'
 // import * as dnsRecordActions from '../../actions/dnsRecord'
@@ -26,6 +26,7 @@ class SecurityGroup extends React.Component {
     proStatus: true,
     search: '',
     currentPage: 1,
+    deleteVisible: false,
   }
 
   handlePager = value => {
@@ -49,12 +50,14 @@ class SecurityGroup extends React.Component {
   //   console.log( '***', record )
   // }
 
-  // deleteItem = record => {
-  //   console.log( '***', "record" , record )
-  // }
+  deleteItem = () => {
+    this.setState({
+      deleteVisible: !this.state.deleteVisible,
+    })
+  }
 
   render() {
-    const { proStatus, search, currentPage } = this.state
+    const { proStatus, search, currentPage, deleteVisible } = this.state
     const total = 10
     const pagination = {
       simple: true,
@@ -77,6 +80,7 @@ class SecurityGroup extends React.Component {
         key: 'name',
         dataIndex: 'name',
         width: '30%',
+        render: (text, record) => <Link to={`/app_manage/security_group/${record.name}`}>{text || '未知'}</Link>,
       }, {
         title: '隔离对象',
         key: 'target',
@@ -116,8 +120,24 @@ class SecurityGroup extends React.Component {
     return <QueueAnim className="securityGroup">
       <div className="securityPage" key="security">
         <Title title="创建安全组" />
+        <Modal
+          title="删除操作"
+          visible={deleteVisible}
+          onOk={this.confirmDelete}
+          onCancel={this.deleteItem}
+          okText={'确认删除'}
+        >
+          <div className="modalContent">
+            <Icon
+              className="modalIcon"
+              type="exclamation-circle"/>
+            <div>
+              <p>删除安全组导致隔离不再生效，且不可恢复，请谨慎操作</p>
+              <p>确认删除安全组 xxxxxxxx ？</p>
+            </div>
+          </div>
+        </Modal>
         <div className="layout-content-btns">
-
           <Button type="primary" size="large" onClick={() => browserHistory.push('/app_manage/security_group/create')}>
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
             创建安全组
@@ -143,7 +163,6 @@ class SecurityGroup extends React.Component {
             }
             <span className="titEdit"><Icon type="edit" />修改</span>
           </span>
-
           {
             total ?
               <div className="page-box">
