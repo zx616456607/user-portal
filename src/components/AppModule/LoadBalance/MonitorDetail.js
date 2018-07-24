@@ -24,7 +24,7 @@ import HealthCheckModal from './HealthCheckModal'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
-import { ingressNameCheck, ingressRelayRuleCheck } from '../../../common/naming_validation'
+import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -349,6 +349,14 @@ class MonitorDetail extends React.Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
 
+  contextCheck = (rule, value, callback) => {
+    const message = ingressContextCheck(value)
+    if (message !== 'success') {
+      return callback(message)
+    }
+    callback()
+  }
+
   agreementCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请选择监听协议')
@@ -445,7 +453,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'host']
+    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'host', 'context']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -471,7 +479,7 @@ class MonitorDetail extends React.Component {
         return
       }
 
-      const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host } = values
+      const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context } = values
       const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
       // Nginx don't need round-robin to be explicitly specified
@@ -485,6 +493,7 @@ class MonitorDetail extends React.Component {
         lbAlgorithm: strategy,
         host: hostname,
         path: path ? '/' + path.join('/') : '',
+        context,
         items: this.getServiceList()
       }
       if (currentIngress) {
@@ -649,6 +658,14 @@ class MonitorDetail extends React.Component {
       ]
     })
 
+    const contextProps = getFieldProps('context', {
+      initialValue: currentIngress && currentIngress.context,
+      rules: [
+        {
+          validator: this.contextCheck
+        }
+      ]
+    })
     const serviceChild = (allServices || []).map(item =>{
       return <Option key={item.metadata.name}>{item.metadata.name}</Option>
     })
@@ -840,12 +857,18 @@ class MonitorDetail extends React.Component {
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
           </FormItem>
           <FormItem
-            label="转发规则"
+            label="服务位置"
             {...formItemLayout}
             hasFeedback={!!getFieldValue('host')}
             help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
             <Input placeholder="输入域名URL，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
+          </FormItem>
+          <FormItem
+            label="访问路径"
+            {...formItemLayout}
+          >
+            <Input placeholder="请输入访问路径，以 / 开头" {...contextProps}/>
           </FormItem>
           <Row>
             <Col span={20} offset={3}>

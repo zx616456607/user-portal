@@ -16,7 +16,7 @@ import {
 import classNames from 'classnames'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
-import { ingressNameCheck, ingressRelayRuleCheck } from '../../../../../common/naming_validation'
+import {ingressContextCheck, ingressNameCheck, ingressRelayRuleCheck} from '../../../../../common/naming_validation'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -169,6 +169,13 @@ class IngressModal extends React.Component {
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
+  contextCheck = (rule, value, callback) => {
+    const message = ingressContextCheck(value)
+    if (message !== 'success') {
+      return callback(message)
+    }
+    callback()
+  }
   portCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请输入服务端口')
@@ -210,6 +217,14 @@ class IngressModal extends React.Component {
       rules: [
         {
           validator: this.hostCheck
+        }
+      ]
+    })
+    const contextProps = getFieldProps('context', {
+      initialValue: currentIngress && currentIngress.context,
+      rules: [
+        {
+          validator: this.contextCheck
         }
       ]
     })
@@ -307,12 +322,18 @@ class IngressModal extends React.Component {
             <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
           </FormItem>
           <FormItem
-            label="转发规则"
+            label="服务位置"
             {...formItemLayout}
             hasFeedback={!!getFieldValue('host')}
             help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
             <Input placeholder="输入域名URL，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
+          </FormItem>
+          <FormItem
+            label="访问路径"
+            {...formItemLayout}
+          >
+            <Input placeholder="请输入访问路径，以 / 开头" {...contextProps}/>
           </FormItem>
           <FormItem
             label="服务端口"

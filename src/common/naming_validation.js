@@ -414,6 +414,20 @@ export function ingressRelayRuleCheck(value) {
 }
 
 /**
+ * this function for ingress context check
+ */
+
+export function ingressContextCheck(value) {
+  if (!value) {
+    return '请输入访问路径'
+  }
+  let regx = /^\/[-\/_a-zA-Z0-9]*$/
+  if (!regx.test(value)) {
+    return '以/开头，由数字、字母、中划线、下划线组成'
+  }
+  return 'success'
+}
+/**
  * this function for loadbalance name check
  */
 
