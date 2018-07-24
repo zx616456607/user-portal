@@ -177,7 +177,7 @@ const Ports = React.createClass({
                   mappingPortTypeProps
                     ? (
                     <FormItem>
-                      <Select size="default" {...mappingPortTypeProps} disabled={isTemplate}>
+                      <Select size="default" {...mappingPortTypeProps} disabled={isTemplate || disabled}>
                         <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
                         <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
                       </Select>
@@ -196,6 +196,7 @@ const Ports = React.createClass({
                         size="default"
                         {...mappingPortProps}
                         min={SPECIAL_MIN}
+                        disabled={disabled}
                         max={MAX} />
                     </FormItem>
                   </Col>
