@@ -120,6 +120,138 @@ export function loadProjectRepos(registry, query, callback) {
   }
 }
 
+export const HARBOR_GET_PROJECT_MAXTAGS_REQUEST = 'HARBOR_GET_PROJECT_MAXTAGS_REQUEST'
+export const HARBOR_GET_PROJECT_MAXTAGS_SUCCESS = 'HARBOR_GET_PROJECT_MAXTAGS_SUCCESS'
+export const HARBOR_GET_PROJECT_MAXTAGS_FAILURE = 'HARBOR_GET_PROJECT_MAXTAGS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchProjectMaxTagCount(registry, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/repositories`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_GET_PROJECT_MAXTAGS_REQUEST, HARBOR_GET_PROJECT_MAXTAGS_SUCCESS, HARBOR_GET_PROJECT_MAXTAGS_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadProjectMaxTagCount(registry, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchProjectMaxTagCount(registry, query, callback))
+  }
+}
+
+export const HARBOR_SET_PROJECT_MAXTAGS_REQUEST = 'HARBOR_SET_PROJECT_MAXTAGS_REQUEST'
+export const HARBOR_SET_PROJECT_MAXTAGS_SUCCESS = 'HARBOR_SET_PROJECT_MAXTAGS_SUCCESS'
+export const HARBOR_SET_PROJECT_MAXTAGS_FAILURE = 'HARBOR_SET_PROJECT_MAXTAGS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectMaxTagCount(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/maxtag`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  const body = {
+    max_tags_count: query.max_tags_count
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_SET_PROJECT_MAXTAGS_REQUEST, HARBOR_SET_PROJECT_MAXTAGS_SUCCESS, HARBOR_SET_PROJECT_MAXTAGS_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateProjectMaxTagCount(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProjectMaxTagCount(query, callback))
+  }
+}
+
+export const HARBOR_SET_PROJECT_TAGLABEL_REQUEST = 'HARBOR_SET_PROJECT_TAGLABEL_REQUEST'
+export const HARBOR_SET_PROJECT_TAGLABEL_SUCCESS = 'HARBOR_SET_PROJECT_TAGLABEL_SUCCESS'
+export const HARBOR_SET_PROJECT_TAGLABEL_FAILURE = 'HARBOR_SET_PROJECT_TAGLABEL_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSetRepositoriesTagLabel(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/tags/${query.tagName}/labels`
+  if (query) {
+    endpoint += `?${toQuerystring({ harbor: query.harbor })}`
+  }
+  const body = {
+    id: query.id,
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_SET_PROJECT_TAGLABEL_REQUEST, HARBOR_SET_PROJECT_TAGLABEL_SUCCESS, HARBOR_SET_PROJECT_TAGLABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function setRepositoriesTagLabel(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetRepositoriesTagLabel(query, callback))
+  }
+}
+
+export const HARBOR_DEL_PROJECT_TAGLABEL_REQUEST = 'HARBOR_DEL_PROJECT_TAGLABEL_REQUEST'
+export const HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS = 'HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS'
+export const HARBOR_DEL_PROJECT_TAGLABEL_FAILURE = 'HARBOR_DEL_PROJECT_TAGLABEL_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDelRepositoriesTagLabel(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories/${query.name}/tags/${query.tagName}/labels/${query.id}`
+  if (query) {
+    endpoint += `?${toQuerystring({ harbor: query.harbor })}`
+  }
+  return {
+    registry: query.registry,
+    [FETCH_API]: {
+      types: [ HARBOR_DEL_PROJECT_TAGLABEL_REQUEST, HARBOR_DEL_PROJECT_TAGLABEL_SUCCESS, HARBOR_DEL_PROJECT_TAGLABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function delRepositoriesTagLabel(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelRepositoriesTagLabel(query, callback))
+  }
+}
+
+// router.post('/registries/:registry/repositories/:user/:name/tags/labels', harborController.setRepositoriesTagLock)
+// router.del('/registries/:registry/repositories/:user/:name/tags/labels/:id', harborController.setRepositoriesTagUnlock)
+
 export const HARBOR_GET_PROJECT_MEMBERS_REQUEST = 'HARBOR_GET_PROJECT_MEMBERS_REQUEST'
 export const HARBOR_GET_PROJECT_MEMBERS_SUCCESS = 'HARBOR_GET_PROJECT_MEMBERS_SUCCESS'
 export const HARBOR_GET_PROJECT_MEMBERS_FAILURE = 'HARBOR_GET_PROJECT_MEMBERS_FAILURE'
@@ -330,23 +462,23 @@ export const HARBOR_REPOSITORIES_TAGS_SUCCESS = 'HARBOR_REPOSITORIES_TAGS_SUCCES
 export const HARBOR_REPOSITORIES_TAGS_FAILURE = 'HARBOR_REPOSITORIES_TAGS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRepositoriesTags(harbor, registry, imageName, callback) {
+function fetchRepositoriesTags(query, callback) {
   return {
-    registry,
-    imageName,
+    registry: query.registry,
+    imageName: query.imageName,
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags?harbor=${harbor}`,
+      endpoint: `${API_URL_PREFIX}/registries/${query.registry}/repositories/${encodeImageFullname(query.imageName)}/tags?harbor=${query.harbor}`,
       schema: {}
     }
   }
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTags(harbor, registry, imageName, callback) {
+export function loadRepositoriesTags(query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchRepositoriesTags(harbor, registry, imageName, callback))
+    return dispatch(fetchRepositoriesTags(query, callback))
   }
 }
 
@@ -554,6 +686,133 @@ function fetchLoadImageUpdateList(harbor, body, callback) {
 export function loadImageUpdateList(harbor, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchLoadImageUpdateList(harbor, body, callback))
+  }
+}
+
+export const LOAD_LABEL_LIST_REQUEST = 'LOAD_LABEL_LIST_REQUEST'
+export const LOAD_LABEL_LIST_SUCCESS = 'LOAD_LABEL_LIST_SUCCESS'
+export const LOAD_LABEL_LIST_FAILURE = 'LOAD_LABEL_LIST_FAILURE'
+
+function fetchLabelList(registry, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ LOAD_LABEL_LIST_REQUEST, LOAD_LABEL_LIST_SUCCESS, LOAD_LABEL_LIST_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function loadLabelList(registry, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLabelList(registry, query, callback))
+  }
+}
+
+export const UPDATE_LABEL_REQUEST = 'UPDATE_LABEL_REQUEST'
+export const UPDATE_LABEL_SUCCESS = 'UPDATE_LABEL_SUCCESS'
+export const UPDATE_LABEL_FAILURE = 'UPDATE_LABEL_FAILURE'
+
+function fetchUpdateLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ UPDATE_LABEL_REQUEST, UPDATE_LABEL_SUCCESS, UPDATE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateLabel(harbor, registry, body, callback))
+  }
+}
+export const DELETE_LABEL_REQUEST = 'DELETE_LABEL_REQUEST'
+export const DELETE_LABEL_SUCCESS = 'DELETE_LABEL_SUCCESS'
+export const DELETE_LABEL_FAILURE = 'DELETE_LABEL_FAILURE'
+
+function fetchDelLabel(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label/${id}?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ DELETE_LABEL_REQUEST, DELETE_LABEL_SUCCESS, DELETE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelLabel(harbor, registry, body, callback))
+  }
+}
+
+export const CREATE_LABEL_REQUEST = 'CREATE_LABEL_REQUEST'
+export const CREATE_LABEL_SUCCESS = 'CREATE_LABEL_SUCCESS'
+export const CREATE_LABEL_FAILURE = 'CREATE_LABEL_FAILURE'
+
+function fetchCreateLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ CREATE_LABEL_REQUEST, CREATE_LABEL_SUCCESS, CREATE_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function createLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateLabel(harbor, registry, body, callback))
+  }
+}
+
+export const SET_LABEL_REQUEST = 'SET_LABEL_REQUEST'
+export const SET_LABEL_SUCCESS = 'SET_LABEL_SUCCESS'
+export const SET_LABEL_FAILURE = 'SET_LABEL_FAILURE'
+
+function fetchSetImageLabel(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/images/label?harbor=${harbor}`
+  return {
+    [FETCH_API]: {
+      types: [ SET_LABEL_REQUEST, SET_LABEL_SUCCESS, SET_LABEL_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function setImageLabel(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetImageLabel(harbor, registry, body, callback))
   }
 }
 
@@ -938,12 +1197,16 @@ export const GET_HARBOR_IMAGEINFO_REQUEST = 'GET_HARBOR_IMAGEINFO_REQUEST'
 export const GET_HARBOR_IMAGEINFO_SUCCESS = 'GET_HARBOR_IMAGEINFO_SUCCESS'
 export const GET_HARBOR_IMAGEINFO_FAILURE = 'GET_HARBOR_IMAGEINFO_FAILURE'
 
-export function getImageDetailInfo(harbor, obj, callback) {
+export function getImageDetailInfo(harbor, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${query.registry}/repositories?harbor=${harbor}`
+  if (query) {
+    endpoint = `${endpoint}&${toQuerystring(query)}`
+  }
   return {
-    registry: obj.registry,
+    registry: query.registry,
     [FETCH_API]: {
       types: [GET_HARBOR_IMAGEINFO_REQUEST, GET_HARBOR_IMAGEINFO_SUCCESS, GET_HARBOR_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/repositories/${obj.name}?harbor=${harbor}`,
+      endpoint,
       schema: Schemas.REGISTRYS,
     },
     callback

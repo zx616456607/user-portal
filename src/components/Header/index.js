@@ -70,6 +70,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/ai\-deep\-learning\/?/,
     /\/app_center\/projects/,
     /\/app_center\/wrap_store/,
+    /\/cluster\/plugin/,
   ],
 }
 

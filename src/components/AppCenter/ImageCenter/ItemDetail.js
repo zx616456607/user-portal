@@ -19,11 +19,14 @@ import Logs from './ImageItem/Logs'
 import Management from './ImageItem/Management'
 import CodeRepo from './ImageItem/CodeRepo'
 import ImageUpdate from './ImageItem/ImageUpdate'
+import LabelModule  from './Project/LabelModule'
 import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
+import { setCurrent } from '../../../actions/entities'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import { camelize } from 'humps'
 import NotificationHandler from '../../../components/Notification'
+import find from 'lodash/find'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -34,12 +37,40 @@ class ItemDetail extends Component {
     this.state = {
       isProject: true, // top project type
       sortedInfo: null,
-      filteredInfo: null
+      filteredInfo: null,
+      isSettingCurrent: false,
     }
     this.currentUser = {}
   }
-
-  componentWillMount() {
+  handleClusterChange = () => {
+    const { setCurrent, current, projectVisibleClusters, location } = this.props
+    const { namespace } = current.space
+    const clusterList = projectVisibleClusters[namespace].data || []
+    const cluster = find(clusterList, { clusterID: location.query.clusterId })
+    if (current.cluster.namespace === current.space.namespace
+      && cluster.clusterID === current.cluster.clusterID) {
+      return
+    }
+    this.setState({
+      isSettingCurrent: true,
+    })
+    setCurrent({ cluster }, {
+      success: {
+        func: result => {
+          this.fetchData()
+          this.setState({
+            isSettingCurrent: false,
+          })
+        },
+        isAsync: true,
+      }
+    })
+  }
+   componentDidMount() {
+     const { clusterId } = this.props.location.query
+    clusterId ? this.handleClusterChange() : this.fetchData()
+  }
+  fetchData = () => {
     const { loadProjectDetail, loadProjectMembers, params, harbor } = this.props
     loadProjectDetail(harbor, DEFAULT_REGISTRY, params.id)
     loadProjectMembers(DEFAULT_REGISTRY,  params.id, { harbor }, {
@@ -83,8 +114,9 @@ class ItemDetail extends Component {
   }
 
   render() {
+    if (this.state.isSettingCurrent) return <div></div>
     const { projectDetail, params, projectMembers, loginUser, registry, location, role } = this.props
-    const { name } = projectDetail
+    const { name, projectId } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     let currentMember = {}
@@ -130,6 +162,16 @@ class ItemDetail extends Component {
         </TabPane>
       )
     }
+    if (currentUserRole > 0 || isAdmin) {
+      tabPanels.push(
+        <TabPane tab="标签管理" key="tag">
+          <LabelModule
+            scope="p"
+            projectId={projectId}
+          />
+        </TabPane>
+      )
+    }
     return (
       <div className="imageProject">
         <br />
@@ -168,7 +210,7 @@ class ItemDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor: stateHarbor, entities } = state
+  const { harbor: stateHarbor, entities, projectAuthority } = state
   const { location } = props
   const { loginUser } = entities
   const { role } = loginUser.info
@@ -184,10 +226,13 @@ function mapStateToProps(state, props) {
     location,
     role,
     harbor,
+    current: entities.current,
+    projectVisibleClusters: projectAuthority.projectVisibleClusters,
   }
 }
 
 export default connect(mapStateToProps, {
   loadProjectDetail,
   loadProjectMembers,
+  setCurrent,
 })(ItemDetail)

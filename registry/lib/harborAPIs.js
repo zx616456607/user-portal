@@ -179,10 +179,27 @@ HarborAPIs.prototype.deleteRepositoryTag = function (project, repository, tag, c
 HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
   const method = 'getRepositoriesTags'
   logger.debug(method, `Get Repos tags`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags`
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags?detail=1`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
+
+// [PUT] repositories/:user/:projectname/maxtag
+HarborAPIs.prototype.setRepositoriesMaxTag = function (name, body, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/maxtag`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+// POST /api/repositories/:project/:rest/tags/:tag/labels
+HarborAPIs.prototype.setRepositoriesTagLabel = function (name, tagname, body, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels`
+  this.sendRequest(url, 'POST', body, callback)
+}
+// DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
+HarborAPIs.prototype.delRepositoriesTagLabel = function (name, tagname, id, callback) {
+  const url =`${this.getAPIPrefix()}/repositories/${name}/tags/${tagname}/labels/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
 
 HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
   const method = 'getRepositoriesManifest'
@@ -190,6 +207,62 @@ HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
   const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+// TODO: scope=g 是取全局标签
+// scope=p 是取项目内标签，取项目内标签还要跟project_id=2，传具体 project id
+// 全局的或项目内的，如果 query 参数再加个 name=xxxx, 是按名称搜索，也能起到检查是否存在的作用，不存在，返回的是个空数组
+
+/*
+{ id: 4,  // id 是有用的，给镜像设标签的时候要用到这个 id
+  name: 'suo',
+  description: 'descriptiondescription',
+  color: '#0065AB',
+  scope: 'g',
+  project_id: 0,
+  creation_time: '2018-07-13T02:18:27Z',
+  update_time: '2018-07-16T04:19:07Z' }
+*/
+
+// http://192.168.1.232/api/labels?scope=g&name=lalala
+// http://192.168.1.232/api/labels?scope=p&project_id=2
+// http://192.168.1.232/api/labels?scope=p&project_id=2&name=project
+HarborAPIs.prototype.getLabels = function(query, callback) {
+  const url = `${this.getAPIPrefix()}/labels${encodeQueryString(query)}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// TODO: 就是把取到的标签的结构，把要改的字段值改了之后，在把结构给 put 回来
+HarborAPIs.prototype.updateLabel = function(id, label, callback) {
+  const url = `${this.getAPIPrefix()}/labels/${id}`
+  this.sendRequest(url, 'PUT', label, callback)
+}
+
+// TODO: 删除标签
+HarborAPIs.prototype.deleteLabel = function(id, callback) {
+  const url = `${this.getAPIPrefix()}/labels/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
+// TODO: 创建标签，结构里的字段，看字面已经能知道什么意思了。需要注意的是 scope，g 是全局的，p 是项目的，全局的 project_id 是 0，项目的传真实的 project id
+
+/*
+{ name: 'lalala',
+  description: 'lalala',
+  color: '#61717D',
+  scope: 'g',
+  project_id: 0 }
+
+{ name: 'project',
+  description: 'project',
+  color: '#BE90D6',
+  scope: 'p',
+  project_id: 2 }
+*/
+
+HarborAPIs.prototype.createLabel = function(label, callback) {
+  const url = `${this.getAPIPrefix()}/labels`
+  this.sendRequest(url, 'POST', label, callback)
 }
 
 /*----------------log start---------------*/
@@ -388,9 +461,17 @@ HarborAPIs.prototype.getRepository = function (name, callback) {
 HarborAPIs.prototype.updateRepository = function (name, body, callback) {
   const url = `${this.getAPIPrefix()}/repositories/${name}`
   const headers = {
-    'Content-Type': 'text/plain',
+    'Content-Type': 'application/json',// 'text/plain',
   }
-  this.sendRequest(url, 'PUT', body, { headers, json: false }, callback)
+  logger.info("sendRequest", "body: " + body);
+  this.sendRequest(url, 'PUT', body, { headers }, callback)
+}
+
+// TODO: 给某个镜像设标签，看示例 url 跟函数参数，应该能知道传的参都是什么意思
+// http://192.168.1.232/api/repositories/tenx_containers/cluster-autoscaler/tags/v3.0/labels
+HarborAPIs.prototype.setImageLabel = function(repository, tag, labelId, callback) {
+  const url = `${this.getAPIPrefix()}/repositories/${repository}/tags/${tag}/labels`
+  this.sendRequest(url, 'POST', {id: labelId}, callback)
 }
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, options, callback) {

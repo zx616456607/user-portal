@@ -477,13 +477,21 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
-    let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) || (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
+    let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN &&
+      (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) ||
+      (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
     let accountTypeEdit = notAllowChange
+
+    // 平台管理员和基础设施管理员不允许修改用户类型
     if(loginUser.role === ROLE_PLATFORM_ADMIN || loginUser.role === ROLE_BASE_ADMIN ) {
       accountTypeEdit = true
     }
     if(loginUser.userID == this.props.userID && loginUser.role === ROLE_PLATFORM_ADMIN ) {
-      console.log(notAllowChange);
+      notAllowChange = false
+    }
+
+    // 当前登陆的用户就是详情的用户或者处在我的账户页面，可编辑信息
+    if(loginUser.userID == this.props.userID || this.props.location.pathname === '/account') {
       notAllowChange = false
     }
 

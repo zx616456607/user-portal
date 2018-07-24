@@ -53,8 +53,12 @@ const judgeProjectType = (space = {}) => {
 }
 
 // 根据space写出跳转到项目申请页的query
-const formateQuery = ({ displayName, namespace }) => {
-  let showDisplayName = {}
+const formateQuery = ({ space: { displayName, namespace },  resourceType, clusterID}) => {
+  // console.log('resourceType', resourceType)
+  // console.log('clusterID', clusterID)
+  let showDisplayName = {
+    resourceType, clusterID,
+  }
   if (namespace == 'default') {
     showDisplayName.displayName = undefined
     showDisplayName.namespace =  '我的个人项目'
@@ -82,8 +86,9 @@ function mapStateToProps(state, props) {
   const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
   const space = getDeepValue( state, ['entities','current','space'] )
   const flagManager = judgeapplyLimit(space)
+  const { resourceType } = props
   return {clusterName, namespace, clusterID, role, ...(judgeProjectType(space)),
-     showDisplayName: formateQuery(space), flagManager}
+     showDisplayName: formateQuery({space, resourceType, clusterID}), flagManager}
 }
 @connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
   getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList })
@@ -200,11 +205,11 @@ export default class ResourceBanner extends React.Component {
     }
     let link = '404'
     if (projectType === 1) { //我的个人项目
-      link = '/account'
+      link = `/account?${toQuerystring({ tabs: 'quota' })}`
     } else if (projectType === 2) { //个人项目
-      link = `/tenant_manage/user/${projectId}`
+      link = `/tenant_manage/user/${projectId}?${toQuerystring({ tabs: 'quota' })}`
     } else if (projectType === 3) { // 共享项目
-      link = `/tenant_manage/project_manage/project_detail?name=${projectId}`
+      link = `/tenant_manage/project_manage/project_detail?name=${projectId}&${toQuerystring({ tabs: 'quota' })}`
     }
     let flagManagerText = 'none'
     if ( flagManager ) {

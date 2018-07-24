@@ -357,6 +357,7 @@ const MyComponent = React.createClass({
       if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
         redeployDisable = false
       }
+
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
       const dropdown = (
@@ -479,24 +480,36 @@ const MyComponent = React.createClass({
         </Menu>
 
       );
+      let mirror = ''
+      const images = item.spec.template.spec.containers.map(container => {
+        return container.image
+      })
+      if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
+        const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
+        mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
+      }else {
+        mirror = images.join(', ')? images.join(', ') : ''
+      }
       let lb = false
       let k8sSer = ''
-      for (let k8sService of k8sServiceList) {
-        if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
+      if (k8sServiceList) {
+        for (let k8sService of k8sServiceList) {
+          if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
 
-          const key = camelize('ingress-lb')
-          if (
-            k8sService.metadata.annotations &&
-            k8sService.metadata.annotations[key] &&
-            !isEmpty(k8sService.metadata.annotations[key])
-          ) {
-            let lbArr = JSON.parse(k8sService.metadata.annotations[key])
-            if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
-              lb = true
-              k8sSer = k8sService
+            const key = camelize('ingress-lb')
+            if (
+              k8sService.metadata.annotations &&
+              k8sService.metadata.annotations[key] &&
+              !isEmpty(k8sService.metadata.annotations[key])
+            ) {
+              let lbArr = JSON.parse(k8sService.metadata.annotations[key])
+              if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
+                lb = true
+                k8sSer = k8sService
+              }
             }
+            break
           }
-          break
         }
       }
       const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs, k8sSer)
@@ -563,8 +576,8 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
-            <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""} placement="topLeft">
-              <span>{item.images.join(', ') || '-'}</span>
+            <Tooltip title={mirror} placement="topLeft">
+              <span>{mirror}</span>
             </Tooltip>
           </div>
           <div className="service commonData appSvcListDomain">

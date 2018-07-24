@@ -221,7 +221,7 @@ class MonitorTable extends React.Component {
 }
 function mapStateToProps(state, props) {
   const { lbDetail, clusterID } = props
-  const name = lbDetail.deployment.metadata.name
+  const name = lbDetail && lbDetail.deployment.metadata.name
   return {
     clusterID,
     name

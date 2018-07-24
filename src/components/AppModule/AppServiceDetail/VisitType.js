@@ -27,6 +27,9 @@ import findIndex from "lodash/findIndex";
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const notification = new NotificationHandler()
+
+const MAPPING_PORT_SPECIAL = 'special'
+
 class VisitType extends Component{
   constructor(props) {
     super(props)
@@ -131,14 +134,16 @@ class VisitType extends Component{
     ports.forEach((item, index) => {
       const portKey = `port${index}`
       const portProtocolKey = `portProtocol${index}`
-      const mappingPportTypeKey = `mappingPortType${index}`
+      const mappingPortTypeKey = `mappingPortType${index}`
+      const mappingPortKey = `mappingPort${index}`
       portsKeys.push({
         value: index
       })
       form.setFieldsValue({
         [portKey]: item.targetPort,
         [portProtocolKey]: item.protocol,
-        [mappingPportTypeKey]: userPort[index][2]
+        [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
+        [mappingPortKey]: userPort[index][2]
       })
     })
     form.setFieldsValue({
@@ -346,6 +351,12 @@ class VisitType extends Component{
             }
           },
           isAsync: true
+        },
+        failed: {
+          func: res => {
+            notification.close()
+            notification.warn('更改出口方式失败', res.message.message || res.message)
+          }
         }
       })
     })
@@ -503,7 +514,7 @@ class VisitType extends Component{
         },
         isAsync: true
       },
-      failure: {
+      failed: {
         func: res => {
           notify.close()
           notify.warn('解绑失败', res.message.message || res.message)
