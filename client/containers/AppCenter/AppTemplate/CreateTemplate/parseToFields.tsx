@@ -565,16 +565,18 @@ const parseIngress = ingress => {
   ingress.forEach((item, index) => {
     const {
       controllerInfo, displayName, lbAlgorithm, sessionSticky,
-      sessionPersistent, protocol, items, path, healthCheck,
+      sessionPersistent, protocol, items, path: wrapPath, healthCheck,
+      context,
     } = item;
     if (!loadBalance) {
       loadBalance = controllerInfo.name;
     }
     lbKeys.push(index);
-    const [ host, ...path ] = path.split('/');
+    const [ host, ...path ] = wrapPath.split('/');
     const hostValue = isEmpty(path[0]) ? host : host + '/' + path.join('/');
     const ingressOptions = {
       host: hostValue,
+      context,
       lbAlgorithm,
       displayName,
       port: items[0].servicePort,
