@@ -155,9 +155,12 @@ function allProject(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_ALL_PROJECT_FAILURE:
-      return merge({}, defaultState, state, {
+      const tempState =  merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+      tempState[registry].publicImages = []
+      tempState[registry].privateImages = []
+      return tempState
     default:
       return state
   }
@@ -225,7 +228,7 @@ function repositoriesTags(state = {}, action) {
         [imageName]: {
           isFetching: false,
           server: action.response.result.server,
-          tag: data
+          tag: data[0] && data[0].name && data.map(tag => tag.name) || data
         }
       }
     })
@@ -233,7 +236,9 @@ function repositoriesTags(state = {}, action) {
     return merge({}, defaultState, state, {
       [registry]: {
         [imageName]: {
-          isFetching: false
+          isFetching: false,
+          server: "",
+          tag: [],
         }
       }
     })
