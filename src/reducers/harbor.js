@@ -155,9 +155,12 @@ function allProject(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_ALL_PROJECT_FAILURE:
-      return merge({}, defaultState, state, {
+      const tempState =  merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+      tempState[registry].publicImages = []
+      tempState[registry].privateImages = []
+      return tempState
     default:
       return state
   }
