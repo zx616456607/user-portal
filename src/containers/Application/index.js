@@ -79,10 +79,6 @@ const menuList_enterprise = [
     name: '应用负载均衡'
   },
   {
-    url: '/app_manage/network_isolation',
-    name: '网络隔离'
-  },
-  {
     url: '/app_manage/auto_scale',
     name: '自动伸缩策略'
   },

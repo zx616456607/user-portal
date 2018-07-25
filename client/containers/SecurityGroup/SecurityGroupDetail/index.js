@@ -9,13 +9,23 @@
  */
 
 import React from 'react'
-// import { Row, Col } from 'antd'
-// import './style/index.less'
-
+import QueueAnim from 'rc-queue-anim'
+import { Card } from 'antd'
+import './style/index.less'
+import DetailHeader from './DetailHeader'
+import IsolatedObj from './IsolatedObj'
 class SecurityGroupDetail extends React.Component {
   render() {
-    return <div>
-      888888
+    return <div className="securityPageDetail">
+      <QueueAnim className="detail">
+        <DetailHeader key="securityDetail"/>
+        <Card key="secutiryDetailcard">
+          <p className="detailTitle">隔离对象</p>
+          <IsolatedObj />
+          <p className="detailTitle">隔离对象的访问白名单</p>
+
+        </Card>
+      </QueueAnim>
     </div>
   }
 }

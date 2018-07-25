@@ -161,7 +161,9 @@ class SecurityGroup extends React.Component {
                 <span className="proOpen">已开启隔离</span> :
                 <span className="proClose">已关闭隔离</span>
             }
-            <span className="titEdit"><Icon type="edit" />修改</span>
+            <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
+              <Icon type="edit"/>修改
+            </span>
           </span>
           {
             total ?

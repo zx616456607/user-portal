@@ -102,6 +102,11 @@ const appManageRoutes = [{
     path: 'create',
     component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default
   }, {
+    path: 'network_isolation',
+    indexRoute: {
+      component: require('../components/AppModule/NetworkIsolation').default,
+    },
+  }, {
     path: ':name',
     component: require('../../client/containers/SecurityGroup/SecurityGroupDetail').default,
   }]
@@ -118,11 +123,6 @@ const appManageRoutes = [{
   path: 'snapshot',
   indexRoute: {
     component: require('../components/AppModule/AppSnapshot').default,
-  },
-}, {
-  path: 'network_isolation',
-  indexRoute: {
-    component: require('../components/AppModule/NetworkIsolation').default,
   },
 }, {
   path: 'auto_scale',

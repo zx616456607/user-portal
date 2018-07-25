@@ -11,14 +11,18 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Form, Select, Input, Row, Col, Icon } from 'antd'
-
+import QueueAnim from 'rc-queue-anim'
 const FormItem = Form.Item
 const Option = Select.Option
+const imgSrc = [
+  { src: require('../../../../../assets/img/SecurityGroup/ingress.png') },
+  { src: require('../../../../../assets/img/SecurityGroup/egress.png') },
+]
 
 // let uuid = 0
 class AddWhiteList extends React.Component {
   state={
-    uuid: 1,
+    uuid: 0,
   }
   componentDidMount() {
     // console.log( this.props )
@@ -56,6 +60,10 @@ class AddWhiteList extends React.Component {
     })
     this.setState({
       uuid: uuid + 1,
+    }, () => {
+      setTimeout(() => {
+        document.getElementById(`${type}${uuid}*`).focus()
+      }, 100)
     })
   }
 
@@ -175,9 +183,10 @@ class AddWhiteList extends React.Component {
     getFieldProps(`${type}`, {
       initialValue: [ ],
     })
+    const imgurl = isIngress && imgSrc[0].src || imgSrc[1].src
     const formItems = getFieldValue(`${type}`).map(k => {
       return (
-        <Row className="ingress">
+        <Row className="ingress" key={k}>
           <Col span={4}></Col>
           <Col span={20} className="ingressForm">
             <FormItem key={`select${k}`}>
@@ -206,7 +215,19 @@ class AddWhiteList extends React.Component {
       )
     })
     return <div>
-      {formItems}
+      <QueueAnim type={[ 'scale', 'scale' ]}>
+        {
+          formItems.length > 0 ?
+            formItems :
+            <Row className="ingress" key={type}>
+              <Col span={4}></Col>
+              <Col span={20}>
+                <img src={imgurl} alt="无白名单"/>
+                <p>{ type } 无白名单，该策略 { type } 隔离不生效</p>
+              </Col>
+            </Row>
+        }
+      </QueueAnim>
       <Row className="ingress">
         <Col span={4}></Col>
         <Col span={3} onClick={this.add} className="add">
