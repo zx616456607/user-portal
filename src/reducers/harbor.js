@@ -228,7 +228,7 @@ function repositoriesTags(state = {}, action) {
         [imageName]: {
           isFetching: false,
           server: action.response.result.server,
-          tag: data
+          tag: data[0] && data[0].name && data.map(tag => tag.name) || data
         }
       }
     })
@@ -236,7 +236,9 @@ function repositoriesTags(state = {}, action) {
     return merge({}, defaultState, state, {
       [registry]: {
         [imageName]: {
-          isFetching: false
+          isFetching: false,
+          server: "",
+          tag: [],
         }
       }
     })

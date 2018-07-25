@@ -462,23 +462,23 @@ export const HARBOR_REPOSITORIES_TAGS_SUCCESS = 'HARBOR_REPOSITORIES_TAGS_SUCCES
 export const HARBOR_REPOSITORIES_TAGS_FAILURE = 'HARBOR_REPOSITORIES_TAGS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRepositoriesTags(harbor, registry, imageName, callback) {
+function fetchRepositoriesTags(harbor, registry, imageName, callback, is_detail) {
   return {
     registry: registry,
     imageName: imageName,
     callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags?harbor=${harbor}`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${encodeImageFullname(imageName)}/tags?harbor=${harbor}&is_detail=${is_detail ? 1 : 0}`,
       schema: {}
     }
   }
 }
 
 // Relies on Redux Thunk middleware.
-export function loadRepositoriesTags(harbor, registry, imageName, callback) {
+export function loadRepositoriesTags(harbor, registry, imageName, callback, is_detail) {
   return (dispatch, getState) => {
-    return dispatch(fetchRepositoriesTags(harbor, registry, imageName, callback))
+    return dispatch(fetchRepositoriesTags(harbor, registry, imageName, callback, is_detail))
   }
 }
 

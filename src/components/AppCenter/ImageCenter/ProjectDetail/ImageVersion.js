@@ -128,7 +128,7 @@ class ImageVersion extends Component {
         },
         isAsync: true,
       }
-    })
+    }, true)
     loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
       success: {
         func: res => {
@@ -202,7 +202,7 @@ class ImageVersion extends Component {
           },
           isAsync: true,
         }
-      })
+      }, true)
     }
   }
 
@@ -522,7 +522,7 @@ class ImageVersion extends Component {
           })
         }
       }
-    })
+    }, true)
   }
   onPressEnter = e => {
     this.onConfirmOk()
