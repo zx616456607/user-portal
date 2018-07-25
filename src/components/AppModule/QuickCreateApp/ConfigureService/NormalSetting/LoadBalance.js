@@ -74,11 +74,12 @@ class LoadBalance extends React.Component {
       [`config-${copyKey}`]: configs
     })
     const {
-      healthCheck, healthOptions, host, lbAlgorithm, monitorName, port,
+      healthCheck, healthOptions, host, context, lbAlgorithm, monitorName, port,
       sessionSticky, sessionPersistent
     } = configs
     let body = {
       host,
+      context,
       lbAlgorithm,
       displayName: monitorName,
       port
