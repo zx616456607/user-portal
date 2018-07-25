@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './style/ProjectDetail.less'
 import {
   Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
-  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin, Switch
  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
@@ -46,6 +46,7 @@ import { loadClusterList } from '../../../../actions/cluster'
 import {ASYNC_VALIDATOR_TIMEOUT, REG} from '../../../../constants'
 import ResourceModal from './ResourceModal'
 import PermissionOverview from './PermissionOverview'
+import ServiceMeshForm from './ServiceMeshForm';
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -103,6 +104,8 @@ class ProjectDetail extends Component {
       selectedCluster: "",
       isChangeCluster: false,
       projectLoading: true,
+      Switchchecked: false, //TODO: 这个需要用后台接口在didmount中初始化
+      serviceMesh: false,
     }
   }
   componentDidMount() {
@@ -998,11 +1001,17 @@ class ProjectDetail extends Component {
     }
     return permission;
   }
+  SwitchOnChange = checked => {
+    this.setState({ Switchchecked: checked})
+    this.setState({ serviceMesh: true })
+  }
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster,
+      Switchchecked, serviceMesh
     } = this.state;
+    const userType = 1; // TODO: 假设的用户类型
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
     const isAble = roleNum === 2
@@ -1423,6 +1432,44 @@ class ProjectDetail extends Component {
               </Col>
               <Col span={12}>
                 <div className="basicInfoRight">
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        启动服务网格
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
+                        {/* // TODO: 增加服务网格*/}
+                        { <div>
+                            {
+                              userType === 1 &&
+                              <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
+                              onChange={this.SwitchOnChange}/>
+                               <span style={{ paddingLeft: '12px', fontSize: '14px' }}>
+                              <Tooltip title="项目开通服务网格，表示项目中所有服务均被开启服务网格，项目中所有服务服务
+                                  将由服务网格代理，使用微服务中心提供的治理功能">
+                                <Icon type="question-circle-o" />
+                              </Tooltip>
+                            </span>
+                              </div>
+                            }
+                            {
+                              userType === 2 && <span>当前平台未配置微服务治理套件，前往
+                                  <span style={{ color: '#2db7f5' }}>全局配置</span>
+                                </span>
+                            }
+                            {
+                              userType === 3 && <span>当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
+                            }
+                            <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
+                            ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}/>
+                          </div>
+                        }
+                      </div>
+                    </Col>
+                  </Row>
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
