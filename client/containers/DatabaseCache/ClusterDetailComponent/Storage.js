@@ -108,13 +108,13 @@ class Storage extends React.Component {
           </div>
           <div className="graphCluster">
             <img src={graphCluster} alt=""/>
-            <div className="name">{databaseInfo.replicas}个容器实例</div>
+            <div className="name">{databaseInfo.replicas ? databaseInfo.replicas : 0}个容器实例</div>
           </div>
         </div>
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">存储卷： { parseInt(databaseInfo.storage)}M</div>
+          <div className="name">存储卷： { databaseInfo.storage ? parseInt(databaseInfo.storage) : 0}M</div>
         </div>
       </div>
       <Modal

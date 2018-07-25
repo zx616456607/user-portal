@@ -108,7 +108,6 @@ let MyComponent = React.createClass({
                 <Switch checkedChildren="开"
                         onChange={(checked) => this.autoBackupSwitch(checked, item)}
                         unCheckedChildren="关"
-                        defaultChecked={this.props.autoBackupList.indexOf(item.objectMeta.uid) >= 0}
                 />
               </li>
             </ul>

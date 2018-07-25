@@ -153,7 +153,7 @@ export const autoBackupSet = (clusterId: string, type: string, name: string, bod
     }
 }
 
-// 修改自动备份
+// 修改自动备份,同时redis的关闭自动备份也是这个，传{schedule: ''}
 export const UPDATE_BACKUP_SET_REQUEST = 'UPDATE_BACKUP_SET_REQUEST'
 export const UPDATE_BACKUP_SET_SUCCESS = 'UPDATE_BACKUP_SET_SUCCESS'
 export const UPDATE_BACKUP_SET_FAILURE = 'UPDATE_BACKUP_SET_FAILURE'
@@ -178,16 +178,16 @@ export const updateAutoBackupSet = (clusterId: string, type: string, name: strin
     }
 }
 
-// 关闭自动备份
+// 关闭自动备份(仅限MySQL)
 export const AUTO_BACKUP_DELETE_REQUEST = 'AUTO_BACKUP_DELETE_REQUEST'
 export const AUTO_BACKUP_DELETE_SUCCESS = 'AUTO_BACKUP_DELETE_SUCCESS'
 export const AUTO_BACKUP_DELETE_FAILURE = 'AUTO_BACKUP_DELETE_FAILURE'
 
-const autoBackupDeleteRequest = (clusterId, type, clusterName, name, callback) => {
+const autoBackupDeleteRequest = (clusterId, type, clusterName, callback) => {
     return {
         [FETCH_API]: {
             types: [AUTO_BACKUP_DELETE_REQUEST, AUTO_BACKUP_DELETE_SUCCESS, AUTO_BACKUP_DELETE_FAILURE],
-            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${clusterName}/cronbackups/${name}`,
+            endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${clusterName}/cronbackups`,
             schema: {},
             options: {
                 method: 'DELETE',
@@ -196,9 +196,9 @@ const autoBackupDeleteRequest = (clusterId, type, clusterName, name, callback) =
         callback,
     }
 }
-export const autoBackupDetele = (clusterId: string, type: string, clusterName: string, name: string, callback) => {
+export const autoBackupDetele = (clusterId: string, type: string, clusterName: string, callback) => {
     return dispatch => {
-        dispatch (autoBackupDeleteRequest(clusterId, type, clusterName, name, callback))
+        dispatch (autoBackupDeleteRequest(clusterId, type, clusterName, callback))
     }
 }
 

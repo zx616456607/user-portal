@@ -11,8 +11,8 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Modal, Button, Icon, Input, Spin, Tooltip, Switch } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Modal, Button, Icon, Row, Col, InputNumber, Input, Spin, Tooltip, Switch } from 'antd'
+import { injectIntl } from 'react-intl'
 import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
@@ -26,7 +26,10 @@ import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/database_cache/no_mysql.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
-
+import yaml from "js-yaml";
+import BackupStrategy from '../../../client/containers/DatabaseCache/BackupStrategy'
+import { updateAutoBackupSet, autoBackupSet, autoBackupDetele } from '../../../client/actions/backupChain'
+const notification = new NotificationHandler()
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -41,9 +44,11 @@ let MyComponent = React.createClass({
     })
   },
   //自动备份开关
-  autoBackupSwitch: checked => {
-
+  autoBackupSwitch: function(item) {
+    console.log(324);
+    this.props.setAutoBackup(item)
   },
+
   render: function () {
     const canCreate = this.props.canCreate
     const { config, isFetching } = this.props;
@@ -103,10 +108,11 @@ let MyComponent = React.createClass({
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
-              <li><span className='listKey'>自动备份</span>
+              <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
+                <div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>
                 <Switch checkedChildren="开"
-                        onChange={(checked) => this.autoBackupSwitch(checked, item)}
                         unCheckedChildren="关"
+                        checked={item.cronBackup}
                 />
               </li>
             </ul>
@@ -135,6 +141,14 @@ class MysqlCluster extends Component {
       CreateDatabaseModalShow: false,
       dbservice: [],
       search: '',
+      autoBackupModalShow: false,
+      days: [ '0', '1', '2', '3', '4', '5', '6' ],
+      daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+      hour: '1',
+      minutes: '0',
+      currentClusterNeedBackup: '',
+      aleradySetAuto: [],
+      autoBackupSwitch: false
     }
   }
   refreshDatabase() {
@@ -170,7 +184,7 @@ class MysqlCluster extends Component {
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
-      let notification = new NotificationHandler()
+
       notification.error('请选择集群','invalid cluster ID')
       return
     }
@@ -203,7 +217,7 @@ class MysqlCluster extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { form, current} = nextProps
+    const { current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
@@ -231,6 +245,154 @@ class MysqlCluster extends Component {
   handSearch() {
     const { search } = this.state
     this.props.searchDbservice('mysql', search)
+  }
+  // 自动备份弹窗组件
+  autoBackupModal = () => {
+    const {
+      database, cluster,
+      autoBackupSet, updateAutoBackupSet, autoBackupDetele, loadDbCacheList,
+    } = this.props
+    const databaseInfo = this.state.currentClusterNeedBackup
+    console.log(databaseInfo);
+    // 获取选择备份周期
+    const selectPeriod = (week, index) => {
+      const { days } = this.state
+      const localWeeks = JSON.parse(JSON.stringify(days))
+      localWeeks[index] = localWeeks[index] ? false : week.en
+      // 转换周期格式（仅天）参考格式： http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/crontab.html
+      const newDays = localWeeks.filter(v => !!v)
+      if (newDays[0] === '0') {
+        newDays.push(newDays.shift())
+      }
+      this.setState({
+        days: localWeeks,
+        daysConvert: newDays,
+      })
+      // console.log(period)
+    }
+    // 确定
+    const handleAutoBackupOk = () => {
+      const { hour, minutes, daysConvert } = this.state
+      // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
+      const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
+      if (!this.state.autoBackupSwitch) {
+        // 如果开关关闭，说明要关闭自动备份
+          autoBackupDetele(cluster, database, databaseInfo.objectMeta.name, {
+            success: {
+              func: () => {
+                notification.success('关闭自动备份成功')
+                setTimeout(() => loadDbCacheList(cluster, 'mysql'))
+              },
+            },
+            failed: {
+              func: () => {
+                notification.warn('关闭自动备份失败')
+              },
+            },
+          })
+
+      } else {
+        const postData = { schedule }
+        // 如果已经设置过自动备份，说明要修改，调用修改接口
+        if (this.state.hadSetAutoBackup) {
+          updateAutoBackupSet(cluster, database, databaseInfo.objectMeta.name, postData, {
+            success: {
+              func: () => {
+                notification.success('修改自动备份成功')
+                setTimeout(() => loadDbCacheList(cluster, 'mysql'))
+              },
+            },
+          })
+        } else {
+          // 否则是已经关闭了自动备份，需要调用设置接口
+          autoBackupSet(cluster, database, databaseInfo.objectMeta.name, postData, {
+            success: {
+              func: () => {
+                notification.success('设置自动备份成功')
+                setTimeout(() => loadDbCacheList(cluster, 'mysql'))
+              },
+            },
+            failed: {
+              func: () => {
+                notification.warn('设置自动备份失败')
+              },
+            },
+          })
+        }
+      }
+      this.setState({
+        autoBackupModalShow: false,
+      })
+    }
+
+    const statusSwitch = val => {
+      this.setState({
+        autoBackupSwitch: val,
+      })
+
+      // console.log(val)
+    }
+    // 获取小时
+    const hour = h => {
+      this.setState({ hour: `${h}` })
+      // console.log(time)
+    }
+    // 获取分钟
+    const minutes = m => {
+      this.setState({ minutes: `${m}` })
+      // console.log(time)
+    }
+    return databaseInfo && <Modal
+      visible={this.state.autoBackupModalShow}
+      title={database === 'redis' ? '设置自动全量备份' : '设置自动差异备份（基于当前链）'}
+      onOk={handleAutoBackupOk}
+      onCancel={() => this.setState({
+        autoBackupModalShow: false,
+      })}
+      width={650}
+    >
+      <div className="autoContent">
+        <Row className="item">
+          <Col span={4} className="title">备份集群</Col>
+          <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
+        </Row>
+        <Row className="item">
+          <Col span={4} className="title">状态</Col>
+          <Col span={19} push={1}>
+            <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
+          </Col>
+        </Row>
+        {
+          this.state.autoBackupSwitch &&
+          <div>
+            <Row className="item">
+              <Col span={4} className="title">备份周期</Col>
+              <Col span={19} push={1}>
+                <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
+              </Col>
+            </Row>
+            <Row className="item">
+              <Col span={4} className="title">备份时间</Col>
+              <Col span={19} push={1}>
+                <div>
+                  <InputNumber min={0} max={24} defaultValue={1} onChange={hour} />
+                  <span className="text">时</span>
+                  <InputNumber min={0} max={60} defaultValue={0} onChange={minutes} />
+                  <span className="text">分</span>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        }
+      </div>
+    </Modal>
+  }
+  onAutoBackup = item => {
+    this.setState({
+      autoBackupModalShow: true,
+      currentClusterNeedBackup: item,
+      autoBackupSwitch: item.cronBackup
+    })
   }
 
   render() {
@@ -264,7 +426,7 @@ class MysqlCluster extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent scope={_this} setAutoBackup={this.onAutoBackup} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
@@ -279,6 +441,7 @@ class MysqlCluster extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
+        { this.autoBackupModal() }
       </QueueAnim>
     )
   }
@@ -337,4 +500,7 @@ export default connect(mapStateToProps, {
   loadMyStack,
   searchDbservice,
   getProxy,
+  autoBackupSet, // 设置自动备份
+  autoBackupDetele, // 关闭定时备份
+  updateAutoBackupSet, // 修改定时备份
 })(MysqlCluster)

@@ -529,6 +529,7 @@ module.exports = function (Router) {
   router.delete('/clusters/:cluster/daas/:type/:name', databaseCacheController.deleteDBService)
   // Filter by type
   router.get('/clusters/:cluster/daas/:type', databaseCacheController.listDBService)
+  router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBServiceDetail)
   router.get('/clusters/:cluster/daas/:type/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
@@ -563,7 +564,7 @@ module.exports = function (Router) {
   // 修改自动备份
   router.put('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.updateAutoBackup)
   // 删除自动备份
-  router.delete('/clusters/:clusterID/daas/:type/cronbackups/:name', databaseCacheController.deleteAutoBackup)
+  router.delete('/clusters/:clusterID/daas/:type/:clusterName/cronbackups', databaseCacheController.deleteAutoBackup)
   // 创建扩容
   router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
   // 回滚

@@ -20,7 +20,8 @@ import { loadDbClusterDetail,
   putDbClusterDetail,
   loadDbCacheList,
   editDatabaseCluster,
-  updateMysqlPwd } from '../../actions/database_cache'
+  updateMysqlPwd,
+  getDbDetail} from '../../actions/database_cache'
 import { setServiceProxyGroup } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
@@ -538,9 +539,9 @@ class VisitTypes extends Component{
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
     console.log(databaseInfo);
-    const lbinfo = databaseInfo.objectMeta.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
 
-    if(lbinfo == 'none') {8
+    if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
         initSelectDics: true
@@ -705,11 +706,11 @@ class VisitTypes extends Component{
   render() {
     const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.objectMeta.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
     let clusterAdd = [];
-    let port = databaseInfo.serviceInfo.ports[0].port;
+    let port = databaseInfo.service.port.port;
     let serviceName = databaseInfo.objectMeta.name;
-    let portNum = databaseInfo.pods.podList.listMeta.length;
+    let portNum = databaseInfo.pods.length;
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
@@ -763,7 +764,7 @@ class VisitTypes extends Component{
       }
       return true
     })
-    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+    let portAnnotation = databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
@@ -913,7 +914,7 @@ class LeasingInfo extends Component {
   constructor(props) {
     super(props)
     this.state ={
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
+      storageValue: this.props.databaseInfo.storage ? parseInt(this.props.databaseInfo.storage) : 0
     }
   }
   render() {
@@ -951,6 +952,7 @@ class ModalDetail extends Component {
       putModaling: false,
       startAlertModal: false,
       stopAlertModal: false,
+      accessMethodData: null
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -985,7 +987,22 @@ class ModalDetail extends Component {
 
   }
   componentWillMount() {
-    const { loadDbClusterDetail, cluster, dbName, database } = this.props
+    const { loadDbClusterDetail, getDbDetail, cluster, dbName, database } = this.props
+    // 请求之前的获取详情的接口，主要为了访问方式的数据
+    getDbDetail(cluster, dbName, {
+      success: {
+        func: res => {
+          this.setState({
+            accessMethodData: res.database
+          })
+        }
+      },
+      failed: {
+        func: err => {
+          console.log(err);
+        }
+      }
+    })
     const _this = this
     this.setState({
       currentDatabase: dbName,
@@ -1253,7 +1270,7 @@ class ModalDetail extends Component {
                 <Storage databaseInfo={databaseInfo} database={this.props.database}/>
               </TabPane>
               <TabPane tab='备份' key='#Backup'>
-                <Backup database={database} databaseInfo={databaseInfo}/>
+                <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
               </TabPane>
               <TabPane tab='配置管理' key='#ConfigManage'>
                 <ConfigManagement database={database} databaseInfo={databaseInfo}/>
@@ -1261,7 +1278,7 @@ class ModalDetail extends Component {
               { billingEnabled ?
                 [<TabPane tab='访问方式' key='#VisitType'>
                  <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
-                              databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                             databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                  </TabPane>,
                  <TabPane tab='事件' key='#events'>
                    <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
@@ -1347,5 +1364,6 @@ export default connect(mapStateToProps, {
   loadDbCacheList,
   parseAmount,
   editDatabaseCluster,
-  updateMysqlPwd // 修改MySQL集群密码
+  updateMysqlPwd,
+  getDbDetail// 修改MySQL集群密码
 })(ModalDetail)

@@ -540,3 +540,24 @@ export function expendDatabaseCluster(clusterId, type, name, body, callback) {
     return dispatch(expendDatabaseClusterRequest(clusterId, type, name, body, callback))
   }
 }
+
+// 扩容
+export const GET_DB_DETAIL_REQUEST = 'GET_DB_DETAIL_REQUEST'
+export const GET_DB_DETAIL_SUCCESS = 'GET_DB_DETAIL_SUCCESS'
+export const GET_DB_DETAIL_FAILURE = 'GET_DB_DETAIL_FAILURE'
+
+function getDbDetailRequest (clusterId, name, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DB_DETAIL_REQUEST, GET_DB_DETAIL_SUCCESS, GET_DB_DETAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/dbservices/${name}`,
+      schema: {}
+    },
+    callback
+  }
+}
+export function getDbDetail(clusterId, name, body, callback) {
+  return (dispatch) => {
+    return dispatch(getDbDetailRequest(clusterId, name, body, callback))
+  }
+}
