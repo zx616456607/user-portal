@@ -71,7 +71,7 @@ class SelectImage extends Component {
     //   serverType = 'all'
     // }
     // loadPublicImageList(registry, serverType, callback)
-    const { registry, loadAllProject, cluster } = props
+    const { registry, loadAllProject, cluster, harbor } = props
     let notify = new NotificationHandler()
     if (!callback) {
       callback = {
@@ -96,8 +96,6 @@ class SelectImage extends Component {
         }
       }
     }
-    const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
-    //todo 切换 集群列表
     loadAllProject(registry, Object.assign({}, query, { harbor }), callback)
   }
 
@@ -106,15 +104,26 @@ class SelectImage extends Component {
     if (imageType === IMAGE_STORE) {
       return this.loadImageStore()
     }
+    let query
     if(searchInputValue) {
-      this.loadData(this.props, {
+      query = {
         q: searchInputValue
-      })
-      return
+      }
     }
-    this.loadData(this.props)
+    this.loadData(this.props, query)
   }
-
+  componentWillReceiveProps(next) {
+    const { searchInputValue } = this.state
+    let query
+    if(searchInputValue) {
+      query = {
+        q: searchInputValue
+      }
+    }
+    if(next.harbor !== this.props.harbor){
+      this.loadData(next, query)
+    }
+  }
   componentDidMount() {
     const searchImagesInput = document.getElementById('searchImages')
     searchImagesInput && searchImagesInput.focus()
@@ -395,9 +404,12 @@ function mapStateToProps(state, props) {
   const currentNamespace = space.namespace
   const currentProjectClusterList = projectVisibleClusters[currentNamespace] || {}
   const clusters = currentProjectClusterList.data || []
+
+  const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
   return {
     registry,
     images: state.harbor.allProject[registry],
+    harbor,
     cluster,
     unit,
     productName,
