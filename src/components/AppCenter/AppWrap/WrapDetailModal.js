@@ -327,12 +327,18 @@ class WrapDetailModal extends React.Component {
     deploy(pkgDetail.fileName)
   }
   renderDeployBtn() {
-    const { pkgDetail, isStore, isAdmin } = this.props
+    const { pkgDetail, isStore, isAdmin, vmWrapConfig } = this.props
+    const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, pkgDetail)} style={{ width: 110 }}>
-        <Menu.Item key="vm">
-          传统部署
-        </Menu.Item>
+        {
+          enabled ?
+            <Menu.Item key="vm">
+              传统部署
+            </Menu.Item>
+            :
+            <Menu.Item key="vmnone" style={{ display: 'none' }}/>
+        }
         {
           !isStore ?
             [
@@ -676,7 +682,7 @@ class WrapDetailModal extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-  const { images } = state
+  const { images, entities } = state
   const { wrapDetail, wrapGroupList } = images || { wrapDetail: {} }
   const { result } = wrapDetail || { result: {} }
   const { data } = result || { data: {} }
@@ -685,6 +691,7 @@ function mapStateToProps(state, props) {
   const { data: groupData } = groupList || { data: [] }
   const { location } = props
   const { pathname } = location || { pathname: '' }
+  const { vmWrapConfig } = entities.loginUser.info
   let isWrapStore = false
   if (pathname === '/app_center/wrap_store') {
     isWrapStore = true
@@ -692,7 +699,8 @@ function mapStateToProps(state, props) {
   return {
     wrapGroupList: groupData,
     pkgDetail: pkgs,
-    isWrapStore
+    isWrapStore,
+    vmWrapConfig,
   }
 }
 

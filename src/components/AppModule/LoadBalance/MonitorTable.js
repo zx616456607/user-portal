@@ -143,27 +143,32 @@ class MonitorTable extends React.Component {
       {
         title: '监听器名称',
         dataIndex: 'displayName',
-        width: '20%'
+        width: '15%'
       },
       {
         title: '协议',
-        width: '20%',
+        width: '15%',
         render: () => 'http'
       },
       {
         title: '监听端口',
-        width: '20%',
+        width: '15%',
         render: () => 80
       },
       {
-        title: '域名',
+        title: '服务位置',
         dataIndex: 'host',
         width: '20%',
         render: (text, record) => record.host + record.path
       },
       {
-        title: '操作',
+        title: '访问路径',
+        dataIndex: 'context',
         width: '20%',
+      },
+      {
+        title: '操作',
+        width: '15%',
         render: (text, row) =>
           <div>
             <Button type="primary" className="editBtn" onClick={() => togglePart(false, row)}>编辑</Button>

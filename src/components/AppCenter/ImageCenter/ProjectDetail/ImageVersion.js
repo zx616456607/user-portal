@@ -8,20 +8,32 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin, Tabs, Button, Table, Icon, Select, Input, Pagination, Dropdown, Menu, Modal } from 'antd'
+import { Card, Spin, Tabs, Button, Table, Icon, Select, Input, message,
+  Pagination, Dropdown, Menu, Modal, Popover, Checkbox, Tooltip, InputNumber, Alert } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
+import TenxIcon from '@tenx-ui/icon'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
-import { loadRepositoriesTags, deleteAlone } from '../../../../actions/harbor'
+import { loadRepositoriesTags, deleteAlone, loadProjectMaxTagCount, updateProjectMaxTagCount,
+  setRepositoriesTagLabel, delRepositoriesTagLabel, loadLabelList } from '../../../../actions/harbor'
 import { appStoreApprove } from '../../../../actions/app_store'
+import { formatDate } from '../../../../common/tools'
+import cloneDeep from 'lodash/cloneDeep'
+import filter from 'lodash/filter'
+import remove from 'lodash/remove'
+import { transform } from 'typescript';
+
+const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
 const Search = Input.Search
 const Option = Select.Option
 const MenuItem = Menu.Item
+const SubMenu = Menu.SubMenu
+// const confirm = Modal.confirm
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -78,6 +90,14 @@ class ImageVersion extends Component {
       processedName: '',
       deleteAll: false,
       selectedRowKeys: [],
+      max_tags_count: 0,
+      lastCount: 0,
+      allLabels: [],
+      isEditMaxTag: false,
+      isShowLockModel: false,
+      lockType: "",
+      currentEdition: "",
+      dropdownVisible: {},
     }
   }
 
@@ -86,20 +106,71 @@ class ImageVersion extends Component {
   }
 
   loadData() {
-    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor } = this.props
-    const imageDetail = this.props.config
+    const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor, loadProjectMaxTagCount,
+      config: imageDetail, loadLabelList,
+    } = this.props
+    const project_id = ""
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
       processedName,
     })
+    const query = {
+      harbor,
+      registry: DEFAULT_REGISTRY,
+      imageName: processedName,
+    }
     loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
             this.fetchData(res.data)
           }
+        },
+        isAsync: true,
+      }
+    })
+    loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
+      success: {
+        func: res => {
+          const currTag = filter(res.data, { name: processedName })[0]
+          const max_tags_count = currTag ? currTag.maxTagsCount : 0
+          this.setState({
+            max_tags_count,
+            lastCount: max_tags_count,
+          })
+        },
+        isAsync: true,
+      }
+    })
+    this.setState({
+      allLabels: [],
+    }, () => {
+      const params = {
+        harbor,
+      }
+      const succ = res => {
+        const data = res.data
+        if(!!data){
+          const { allLabels } = this.state
+          this.setState({
+            allLabels: [].concat(allLabels, remove(cloneDeep(data), label => label.id !== 1))
+          })
         }
       }
+      // 项目内标签
+      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'p', project_id: imageDetail.projectId }), {
+        success:{
+          func: succ,
+          isAsync: true,
+        }
+      })
+      // 全局标签
+      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'g' }), {
+        success:{
+          func: succ,
+          isAsync: true,
+        }
+      })
     })
   }
 
@@ -116,16 +187,20 @@ class ImageVersion extends Component {
     this.setState({
       serverIp: nextPorps.scope.props.server,
     })
-    const { loadRepositoriesTags } = this.props
+    const { loadRepositoriesTags, harbor } = this.props
     if (newImageDetail.name != oldImageDatail.name) {
       let processedName = encodeImageFullname(newImageDetail.name)
-      loadRepositoriesTags(DEFAULT_REGISTRY, processedName, {
+      const query = {
+        registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+      }
+      loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
         success: {
           func: res => {
             if (res && res.data && res.data.length) {
               this.fetchData(res.data)
             }
-          }
+          },
+          isAsync: true,
         }
       })
     }
@@ -137,7 +212,9 @@ class ImageVersion extends Component {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
-          edition: item,
+          edition: item.name,
+          push_time: item.last_updated || item.first_push,
+          labels: item.labels,
         }
         curData.unshift(curColums)
       })
@@ -208,7 +285,10 @@ class ImageVersion extends Component {
             })
           }
           scopeDetail.loadRepos()
-          loadRepositoriesTags(DEFAULT_REGISTRY, config.name)
+          const query = {
+            registry: DEFAULT_REGISTRY, imageName: config.name, harbor
+          }
+          loadRepositoriesTags(harbor, DEFAULT_REGISTRY, config.name)
         },
         isAsync: true
       }, failed: {
@@ -258,7 +338,10 @@ class ImageVersion extends Component {
           this.setState({
             processedName,
           })
-          loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
+          const query = {
+            registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+          }
+          loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName)
         },
         isAsync: true
       },
@@ -303,8 +386,110 @@ class ImageVersion extends Component {
   handleMenu(record, e) {
     if (e.key === 'deploy') {
       this.handleDeploy(record.edition)
-    } if (e.key === 'del') {
+    } else if (e.key === 'del') {
       this.handleDelete(record.edition)
+    } else if (e.key === 'lock' || e.key === 'unlock') {
+      this.lockState(record, e.key)
+    }
+  }
+  lockCb = () => {
+    this.setState({
+      isShowLockModel: false,
+      currentEdition: "",
+      lockType: ""
+    }, () => {
+      this.loadData()
+    })
+  }
+  lockFunc = () => {
+    const { imageName, harbor } = this.props
+    const { max_tags_count, currentEdition } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: currentEdition,
+    }
+    this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" }, this.lockCb)
+  }
+  lockState = (record, lockType) => {
+    this.setState({
+      isShowLockModel: true,
+      lockType,
+      currentEdition: record.edition,
+    })
+  }
+  setLabel = (query, { succ, failed }, _cb) => {
+    this.props.setRepositoriesTagLabel(query, {
+      success: {
+        func: res => {
+          // message.success(succ)
+          notification.destroy()
+          notification.success(succ)
+          !!_cb && _cb()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if(!!err){
+            notification.destroy()
+            // message.warning(failed)
+            notification.warn(failed)
+          }
+        }
+      }
+    })
+  }
+  unLockFunc = () => {
+    const { imageName, harbor } = this.props
+    const { max_tags_count, currentEdition } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      harbor,
+      id: 1,
+      tagName: currentEdition,
+    }
+    this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' }, this.lockCb)
+  }
+  delLabel = (query, { succ, failed }, _cb) => {
+    this.props.delRepositoriesTagLabel(query, {
+      success: {
+        func: res => {
+          notification.destroy()
+          // message.success(succ)
+          notification.success(succ)
+          !!_cb && _cb()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if(!!err){
+            notification.destroy()
+            // message.warning(failed)
+            notification.warn(failed)
+          }
+        }
+      }
+    })
+  }
+
+  onCheckboxChange = (flag, label, record, _cb) => {
+    const { imageName: name, harbor }= this.props
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name,
+      harbor,
+      id: label.id,
+      tagName: record.edition,
+    }
+    if(flag){
+      this.setLabel(query, { succ: '添加标签成功', failed: '添加标签失败' }, _cb)
+    }else{
+      this.delLabel(query, { succ: '删除标签成功', failed: '删除标签失败' }, _cb)
     }
   }
 
@@ -315,14 +500,20 @@ class ImageVersion extends Component {
   }
 
   handleRefresh() {
-    const { config, loadRepositoriesTags } = this.props
-    loadRepositoriesTags(DEFAULT_REGISTRY, config.name, {
+    const { config, loadRepositoriesTags, harbor } = this.props
+    const imageDetail = this.props.config
+    let processedName = encodeImageFullname(imageDetail.name)
+    const query = {
+      registry: DEFAULT_REGISTRY, imageName: processedName, harbor
+    }
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
             this.fetchData(res.data)
           }
-        }
+        },
+        isAsync: true,
       },
       finally: {
         func: () => {
@@ -333,10 +524,71 @@ class ImageVersion extends Component {
       }
     })
   }
-
+  onPressEnter = e => {
+    this.onConfirmOk()
+  }
+  onConfirmOk = () => {
+    const { imageName, harbor, updateProjectMaxTagCount } = this.props
+    const { max_tags_count } = this.state
+    const query = {
+      registry: DEFAULT_REGISTRY,
+      name: imageName,
+      max_tags_count,
+      harbor,
+    }
+    updateProjectMaxTagCount(query, {
+      success: {
+        func: res => {
+          notification.success("修改成功")
+          this.setState({
+            isEditMaxTag: false,
+          }, () => {
+            // this.loadData()
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          console.log(err)
+          if(!!err && err.code === 400){
+            const current_tag_total = err.message.current_tag_total
+            if(!!current_tag_total){
+              this.setState({
+                max_tags_count: current_tag_total,
+                lastCount: current_tag_total,
+              })
+            }
+            notification.warn("版本最多个数，需不小于（≥）当前版本数" + (current_tag_total && "，当前版本数为：" + current_tag_total))
+          } else {
+            notification.warn("修改失败")
+          }
+        }
+      }
+    })
+  }
+  onConfirmCancel = () => {
+    this.setState({
+      isShowMaxConfirm: false,
+    })
+  }
   render() {
+    // const menu = (
+    //   <Menu onClick={this.handleMenuClick}>
+    //     <Menu.Item key="1">第一个菜单项</Menu.Item>
+    //     <Menu.Item key="2">第二个菜单项</Menu.Item>
+    //     <Menu.Item key="3">第三个菜单项</Menu.Item>
+    //   </Menu>
+    // );
+    // return (
+    //   <Dropdown.Button visible={true} onClick={this.handleButtonClick} overlay={menu} type="ghost">
+    //     某功能按钮
+    //   </Dropdown.Button>
+    // )
+    if(!this.dropdownVisible) this.dropdownVisible = {}
     const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
-    const { edition, dataAry, delValue, aryName, isBatchDel, selectedRowKeys, deleteAll } = this.state
+    const { max_tags_count, edition, dataAry, delValue, aryName,
+      isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag, isShowLockModel, lockType } = this.state
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
@@ -346,28 +598,148 @@ class ImageVersion extends Component {
       title: '版本',
       dataIndex: 'edition',
       key: 'edition',
-      width: '65%',
+      width: '19%',
+      render: (text, record) => {
+        return (
+          <div>{text} {
+            !!filter(record.labels, { id: 1 })[0] ?
+              <i className="fa fa-lock"></i>
+              :
+              ""
+              // <i className="fa fa-unlock"></i>
+           }</div>
+        )
+      }
+    },{
+      id: 'push_time',
+      title: '推送时间',
+      dataIndex: 'push_time',
+      key: 'push_time',
+      width: '25%',
+      render: text => formatDate(text)
+    }, {
+      id: 'labels',
+      title: '标签',
+      dataIndex: 'labels',
+      key: 'labels',
+      width: '25%',
+      render: (labels, record) => {
+        const tempLabels = remove(cloneDeep(labels), label => {
+          return label.id !== 1
+        })
+        if(!tempLabels.length) return "无标签"
+        const label = tempLabels[0] || {}
+        const otherTags = tempLabels.slice(1).map((o, i) => {
+          return (
+            <div><div className="tag otherTag" style={{ backgroundColor: o.color }}>
+              {o.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {' ' + o.name}
+            </div></div>
+          )
+        })
+        return (
+          [
+            <div className="tag" style={{ backgroundColor: label.color }}>
+              {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {' ' + label.name}
+            </div>,
+            tempLabels.length > 1 ?
+            <Popover overlayClassName="otherTagsTip" placement="right" content={otherTags}>
+              <span className="more">...</span>
+            </Popover> : ""
+          ]
+        )
+      }
     }, {
       title: '操作',
       dataIndex: 'comment',
-      render: (text, record) => <div>
-        <Dropdown.Button
-          overlay={
-            <Menu style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
-              <MenuItem key='deploy'>
-                <i className="anticon anticon-appstore-o"></i> 部署镜像
-              </MenuItem>
-              {
-                isAdminAndHarbor ?
-                  <MenuItem key='del'>
-                    <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
-                  </MenuItem> : ''
-              }
-            </Menu>
-          } type="ghost" onClick={this.handleDetail.bind(this, record)}>
-          <Icon type="eye-o" />查看详情
-          </Dropdown.Button>
-      </div >
+      render: (text, record) => {
+        const items = []
+        const isLock = !!!filter(record.labels, { id: 1 })[0]
+        isLock ?
+          items.push(<MenuItem key='lock'>
+            <i className="fa fa-lock"></i>&nbsp;&nbsp;锁定
+          </MenuItem>)
+          :
+          items.push(<MenuItem key='unlock'>
+            <i className="fa fa-unlock"></i>&nbsp;&nbsp;解锁
+          </MenuItem>)
+        items.push(<MenuItem disabled={!isLock} key='del'>
+          <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
+        </MenuItem>)
+
+        const name = record.edition
+        this.dropdownVisible[name] = false
+        const overOut = (flag, name) => {
+          const { dropdownVisible } = this.state
+          const temp = cloneDeep(dropdownVisible)
+          temp[name] = flag
+          this.setState({
+            dropdownVisible: temp
+          })
+          this.dropdownVisible[name] = true
+        }
+        const { allLabels } = this.state
+        const subItems = allLabels.length && allLabels.map((label, i) => {
+          let checked = false
+          if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
+          const key = name + "_" + label.name + "_checkbox"
+          return (
+            <MenuItem key={key} className="row">
+              <Checkbox
+                defaultChecked={checked}
+                onChange={
+                  e => {
+                    e.stopPropagation()
+                    this.onCheckboxChange(e.target.checked, label, record)
+                  }
+                }
+              >
+                <div className="tag otherTag" style={{ backgroundColor: label.color }}>
+                  {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+                  {' ' + label.name}
+                </div>
+              </Checkbox>
+            </MenuItem>
+          )
+        })
+        items.unshift(
+          <SubMenu
+            key="subMenu"
+            className="rowContainer"
+            onMouseover={() => overOut(true, name)}
+            onMouseout={() => overOut(false, name)}
+            title={<span><Icon type="tags" /> 配置标签</span>}>
+            {subItems}
+          </SubMenu>
+        )
+        return (
+          <div>
+            <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
+              <span><Icon type="eye-o" />查看详情</span>
+            </Button>
+            <Dropdown
+              visible={typeof this.state.dropdownVisible[name] === "boolean" ? this.state.dropdownVisible[name] : this.dropdownVisible[name]}
+              onVisibleChange={flag => overOut(flag, name)}
+              overlay={
+                <Menu defaultOpenKeys={['subMenu']} openKeys={['subMenu']} className="imageVersionDropdownMenu" style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
+                  <MenuItem key='deploy'>
+                    <span><i className="anticon anticon-appstore-o"></i> 部署镜像</span>
+                  </MenuItem>
+                  {
+                    isAdminAndHarbor ?
+                      items
+                      :
+                      ""
+                  }
+                </Menu>
+              }>
+              <Button type="ghost" className="downBtn">
+                <Icon type="circle-o-down" />
+              </Button></Dropdown>
+          </div>
+        )
+      }
     }]
 
     // {
@@ -410,6 +782,64 @@ class ImageVersion extends Component {
                 <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
             }
             <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
+            {/*<span style={{ marginLeft: 10 }}>
+              保留版本最多
+              <Input onChange={ e => this.setState({ max_tags_count: e.target.value })} value={max_tags_count} style={{width: 50}} onPressEnter={this.onPressEnter} />
+              个（自动清理最旧版本）
+              <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+              </Tooltip>
+            </span>*/}
+            <span style={{ marginLeft: 16 }}>&nbsp;保留版本最多&nbsp;
+              {
+                isEditMaxTag
+                ? <InputNumber
+                  min={1}
+                  step={1}
+                  value={max_tags_count}
+                  onChange={max_tags_count => this.setState({ max_tags_count })}
+                />
+                : max_tags_count
+              }
+              &nbsp;个（自动清理旧版本 <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+              </Tooltip>）
+              {
+                !isEditMaxTag &&
+                <Tooltip title="编辑">
+                  <Icon
+                    type="edit"
+                    style={{ cursor: 'pointer', marginLeft: 8 }}
+                    onClick={() => {
+                      this.max_tags_count = max_tags_count
+                      this.setState({ isEditMaxTag: true })
+                    }}
+                  />
+                </Tooltip>
+              }
+              {
+                isEditMaxTag && [
+                  <Tooltip title="取消">
+                    <Icon
+                      key="cancel"
+                      type="cross"
+                      style={{ cursor: 'pointer', marginLeft: 8 }}
+                      onClick={() => {
+                        this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
+                      }}
+                    />
+                  </Tooltip>,
+                  <Tooltip title="保存">
+                    <Icon
+                      key="save"
+                      type="save"
+                      style={{ cursor: 'pointer', marginLeft: 16 }}
+                      onClick={this.onConfirmOk}
+                    />
+                  </Tooltip>
+                ]
+              }
+            </span>
             {/* <div className='SearchInput' style={{ width: 280 }}>
               <div className='littleLeft'>
                 <i className='fa fa-search' onClick={this.handleSearch} />
@@ -459,6 +889,49 @@ class ImageVersion extends Component {
             }
           </div>
         </Modal>
+        {
+          isShowLockModel ?
+            <Modal
+              className="lockModal"
+              visible={isShowLockModel}
+              title={lockType === "lock" ? "锁定" : "解锁"}
+              onOk={lockType === "lock" ? this.lockFunc : this.unLockFunc}
+              okText={lockType === "lock" ? "确认锁定（不被清理)" : "确认解锁（允许清理)"}
+              onCancel={() => this.setState({ isShowLockModel: false })}
+            >
+              {
+                lockType === "lock" ?
+                  <Alert className="alert" message={
+                    <div>
+                      <div className="left"><i className="fa fa-lock"></i></div>
+                      <div className="right">
+                        <div>锁定版本后，将不受自动清理旧版本功能影响！
+                        一般为版本为稳定、常用版本时，保留备份使用！
+                        <span className="hint">注：锁定版本的推送更新、手动删除不受锁定限制</span></div>
+                        <div>确定锁定该版本，不被清理？</div>
+                      </div>
+                      <div className="clear"></div>
+                    </div>
+                  }>
+                  </Alert>
+                  :
+                  <Alert className="alert" message={
+                    <div>
+                      <div className="left"><i className="fa fa-unlock"></i></div>
+                      <div className="right">
+                        <div>解锁版本后，将受自动清理旧版本功能影响！
+                        若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
+                        <div>确定解锁该版本？</div>
+                      </div>
+                      <div className="clear"></div>
+                    </div>
+                  }>
+                  </Alert>
+              }
+            </Modal>
+            :
+            null
+        }
       </Card>
     )
   }
@@ -498,5 +971,10 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   deleteAlone,
   loadRepositoriesTags,
-  appStoreApprove
+  appStoreApprove,
+  loadProjectMaxTagCount,
+  updateProjectMaxTagCount,
+  setRepositoriesTagLabel,
+  delRepositoriesTagLabel,
+  loadLabelList,
 })(ImageVersion)

@@ -107,6 +107,31 @@ exports.getRepositoriesTags = harborHandler(
     harbor.getRepositoriesTags(repoName, callback)
   }
 )
+
+// [PUT] /projects/:project_id/user_id/:user_id
+exports.setRepositoriesMaxTag = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.setRepositoriesMaxTag(repoName, ctx.request.body, callback)
+  }
+)
+// POST /api/repositories/:project/:rest/tags/:tag/labels
+exports.setRepositoriesTagLabel = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.setRepositoriesTagLabel(repoName, ctx.params.tagname, ctx.request.body, callback)
+  }
+)
+// DELETE /api/repositories/:project/:rest/tags/:tag/labels/:id
+exports.delRepositoriesTagLabel = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.delRepositoriesTagLabel(repoName, ctx.params.tagname, ctx.params.id, callback)
+  }
+)
+
+
+
 // [GET] /repositories/:user/:name/tags/configinfo
 exports.getRepositoriyConfig = function* () {
   const config = getRegistryConfig()
@@ -231,7 +256,10 @@ exports.getRepository = function* () {
 
 // [PUT] /repositories/:name
 exports.updateRepository= harborHandler(
-  (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name, ctx.request.body && ctx.request.body.detail, callback))
+  (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name,
+    ctx.request.body && ctx.request.body.description &&
+    { description: ctx.request.body.description },
+    callback))
 
 // [GET] /statistics
 exports.getStatistics = harborHandler(
@@ -377,6 +405,25 @@ exports.getReplicationTargetRelatedPolicies = harborHandler(
 exports.getReplicationSummary = harborHandler(
   (harbor, ctx, callback) => next(null, null, null, ensureUserHasAdminRole, callback, harbor, ctx, {})
 )
+
+// [GET] getLabels
+exports.getLabels = harborHandler(
+  (harbor, ctx, callback) => harbor.getLabels(ctx.query, callback))
+// [PUT] updateLabel
+exports.updateLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.updateLabel(ctx.request.body.id, ctx.request.body.label, callback))
+// [PUT] deleteLabel
+exports.deleteLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteLabel(ctx.params.id, callback))
+// [POST] createLabel
+exports.createLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.createLabel(ctx.request.body, callback))
+// [POST] setImageLabel
+exports.setImageLabel = harborHandler(
+  (harbor, ctx, callback) => harbor.setImageLabel(ctx.params.repository, ctx.params.tag, ctx.params.labelId, callback))
+
+
+
 exports.getImageTemplate = function* () {
   const registry = this.params.registry
   this.status = 200

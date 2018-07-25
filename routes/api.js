@@ -322,6 +322,9 @@ module.exports = function (Router) {
   router.del('/registries/:registry/repositories/:user/:name/tags', harborController.deleteRepository)
   router.del('/registries/:registry/repositories/:user/:name/tags/:tags', harborController.deleteRepoTags)
   router.get('/registries/:registry/repositories/:user/:name/tags', harborController.getRepositoriesTags)
+  router.put('/registries/:registry/repositories/:user/:name/maxtag', harborController.setRepositoriesMaxTag)
+  router.post('/registries/:registry/repositories/:user/:name/tags/:tagname/labels', harborController.setRepositoriesTagLabel)
+  router.del('/registries/:registry/repositories/:user/:name/tags/:tagname/labels/:id', harborController.delRepositoriesTagLabel)
   router.get('/registries/:registry/repositories/:user/:name/tags/:tag/configinfo', harborController.getRepositoriyConfig)
 
   router.post('/registries/:registry/projects', harborController.createProject)
@@ -363,6 +366,11 @@ module.exports = function (Router) {
   router.delete('/registries/:registry/targets/:id', harborController.deleteReplicationTarget)
   router.get('/registries/:registry/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
   router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
+  router.get('/registries/:registry/label', harborController.getLabels)
+  router.put('/registries/:registry/label', harborController.updateLabel)
+  router.del('/registries/:registry/label/:id', harborController.deleteLabel)
+  router.post('/registries/:registry/label', harborController.createLabel)
+  router.post('/registries/:registry/images/label', harborController.setImageLabel)
 
   router.get('/registries/:registry/statistics', harborController.getStatistics)
   router.get('/registries/:registry/template', harborController.getImageTemplate)
@@ -376,7 +384,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/private', registryController.getPrivateImages)
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
-  router.delete('/registries/:registry/:image*', registryController.deleteImage)
+  // router.delete('/registries/:registry/:image*', registryController.deleteImage)
   // router.get('/registries/:registry/stats', registryController.queryServerStats)
 
   // Private docker registry integration

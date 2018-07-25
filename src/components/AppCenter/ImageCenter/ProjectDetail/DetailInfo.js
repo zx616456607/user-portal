@@ -33,7 +33,7 @@ class DetailInfo extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { imageName } = this.props
+    const { imageName, project_id } = this.props
     const { imageName: nextImageName} = nextProps
     if (imageName !== nextImageName) {
       const { getImageDetailInfo, registry, imageName, harbor } = nextProps
@@ -41,17 +41,21 @@ class DetailInfo extends Component {
       const body = {
         registry,
         name,
+        q: imageName,
+        project_id,
       }
       getImageDetailInfo(harbor, body)
     }
   }
 
   loadImageDetailInfo() {
-    const { getImageDetailInfo, registry, imageName, harbor } = this.props
+    const { getImageDetailInfo, registry, imageName, harbor, project_id } = this.props
     const name = encodeURIComponent(imageName)
     const body = {
       registry,
       name,
+      q: imageName,
+      project_id,
     }
     getImageDetailInfo(harbor, body)
   }
@@ -82,7 +86,7 @@ class DetailInfo extends Component {
       registry,
       name,
       body: {
-        detail: detailInfo,
+        description: detailInfo,
       }
     }
     this.setState({
@@ -122,7 +126,7 @@ class DetailInfo extends Component {
     const { currnetImageInfo, projectMembers, loginUser } = this.props
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     const members = projectMembers.list || []
-    const { htmlData, isFetching } = currnetImageInfo
+    const { htmlData, isFetching, markdownData } = currnetImageInfo
     if (isFetching) {
       return <Card className="imageDetailInfo markdown"><Spin /></Card>
     }
@@ -139,6 +143,10 @@ class DetailInfo extends Component {
     if (htmlData) {
       htmlValue = htmlData
     }
+    if (markdownData) {
+      htmlValue = markdownData
+    }
+
     const editorOptions = {
       readOnly: false
     }
@@ -184,7 +192,7 @@ class DetailInfo extends Component {
                 </Button>
               </div>
             </div>
-            : <div dangerouslySetInnerHTML={{ __html: htmlValue }}></div>
+            : <div style={{ whiteSpace: 'pre-line' }} dangerouslySetInnerHTML={{ __html: htmlValue }}></div>
         }
       </Card>
     )
