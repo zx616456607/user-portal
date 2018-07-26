@@ -22,7 +22,7 @@ import { loadDbClusterDetail,
   editDatabaseCluster,
   updateMysqlPwd,
   getDbDetail} from '../../actions/database_cache'
-import { setServiceProxyGroup } from '../../actions/services'
+import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
@@ -433,7 +433,7 @@ class BaseInfo extends Component {
       </div>
     )
 
-    const volumeMount = databaseInfo.pods.map((list, index) => {
+    const volumeMount = databaseInfo.pods && databaseInfo.pods.map((list, index) => {
       return (
         <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
           <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={this}/>
@@ -539,7 +539,7 @@ class VisitTypes extends Component{
   componentWillMount() {
     const { service, getProxy, clusterID, databaseInfo } = this.props;
     console.log(databaseInfo);
-    const lbinfo = databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
 
     if(lbinfo == 'none') {
       this.setState({
@@ -599,29 +599,40 @@ class VisitTypes extends Component{
     if(!value) {
       value = this.state.initValue
     }
-    const { databaseInfo, setServiceProxyGroup, clusterID, form, scope } = this.props;
+    const { databaseInfo, database, dbServiceProxyGroupSave, clusterID, form, scope } = this.props;
     form.validateFields((err, values) => {
       if(err) {
         return
       }
       let groupID = 'none'
+      let body = {
+        annotations: {
+          'system/lbgroup': groupID,
+        }
+      }
+
       if(value == 2) {
         groupID = form.getFieldValue('groupID')
+        body = {
+          annotations: {
+            'system/lbgroup': groupID,
+            'tenxcloud.com/schemaPortname': `${databaseInfo.service.name}/${databaseInfo.service.port.protocol}/${databaseInfo.service.port.port}`
+          }
+        }
       }
+      console.log(JSON.stringify(body));
       const notification = new NotificationHandler()
       notification.spin('保存中更改中')
-      setServiceProxyGroup({
-        cluster: clusterID,
-        service: databaseInfo.serviceInfo.externalName,
-        groupID
-      },{
+
+      dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, {
         success: {
           func: (res) => {
+            console.log(res);
             notification.close()
             notification.success('出口方式更改成功')
             const { loadDbClusterDetail } = scope.props
             setTimeout(() => {
-              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, false)
+              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
             }, 0)
             this.setState({
               disabled: true,
@@ -710,7 +721,7 @@ class VisitTypes extends Component{
     let clusterAdd = [];
     let port = databaseInfo.service.port.port;
     let serviceName = databaseInfo.objectMeta.name;
-    let portNum = databaseInfo.pods.length;
+    let portNum = databaseInfo.pods && databaseInfo.pods.length;
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
@@ -907,6 +918,7 @@ function mapSateToProp(state) {
 
 VisitTypes = connect(mapSateToProp, {
   setServiceProxyGroup,
+  dbServiceProxyGroupSave,
   getProxy
 })(Form.create()(VisitTypes))
 
@@ -1120,7 +1132,6 @@ class ModalDetail extends Component {
     return logoMapping[clusterType]
   }
   dbStatus(status) {
-    console.log(status);
     if (status === 'Running') {
       return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
     }
@@ -1186,7 +1197,6 @@ class ModalDetail extends Component {
     })
   }
   clusterBtn = status => {
-    console.log(status);
     switch (status) {
       case 'Pending':
         return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
@@ -1226,13 +1236,13 @@ class ModalDetail extends Component {
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
               <div> 状态：
-                {this.dbStatus(databaseInfo.staus)}
+                {this.dbStatus(databaseInfo.status)}
               </div>
             </div>
             <div className='rightBox'>
               <div className='li'>
                 {/*操作按钮*/}
-                {this.clusterBtn(databaseInfo.staus)}
+                {this.clusterBtn(databaseInfo.status)}
                 <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
                   <i className="fa fa-refresh"></i>&nbsp;
                   刷新

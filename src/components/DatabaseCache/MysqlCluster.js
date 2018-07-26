@@ -45,7 +45,6 @@ let MyComponent = React.createClass({
   },
   //自动备份开关
   autoBackupSwitch: function(item) {
-    console.log(324);
     this.props.setAutoBackup(item)
   },
 
@@ -253,7 +252,6 @@ class MysqlCluster extends Component {
       autoBackupSet, updateAutoBackupSet, autoBackupDetele, loadDbCacheList,
     } = this.props
     const databaseInfo = this.state.currentClusterNeedBackup
-    console.log(databaseInfo);
     // 获取选择备份周期
     const selectPeriod = (week, index) => {
       const { days } = this.state

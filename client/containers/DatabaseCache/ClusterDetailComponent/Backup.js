@@ -27,7 +27,7 @@ import {
 import { loadDbCacheList } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 import rollback from '../../../assets/img/database_cache/rollback.png'
-import create from '../../../assets/img/database_cache/new.png'
+// import create from '../../../assets/img/database_cache/new.png'
 import BackupStrategy from '../BackupStrategy'
 
 const Panel = Collapse.Panel
@@ -55,11 +55,32 @@ class Backup extends React.Component {
     hour: '1',
     minutes: '0',
     currentIndex: '0', // 当前选的第几个备份链
+    notAllowDiffBackup: false, // 是否允许差异备份
   }
   componentDidMount() {
-    const { clusterID, database, getbackupChain, databaseInfo } = this.props
-    getbackupChain(clusterID, database, databaseInfo.objectMeta.name) // 获取备份链数据
+    this.geiList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
+  }
+
+  geiList = () => {
+    const { clusterID, database, getbackupChain, databaseInfo } = this.props
+    getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
+      success: {
+        func: res => {
+          if (res.data.items && res.data.items.length !== 0) {
+            this.setState({
+              notAllowDiffBackup: false,
+              backupType: 'diffbackup',
+            })
+          } else {
+            this.setState({
+              notAllowDiffBackup: true,
+              backupType: 'fullbackup',
+            })
+          }
+        },
+      },
+    }) // 获取备份链数据
   }
   checkAutoBackupExist = () => {
     const { clusterID, database, databaseInfo, checkAutoBackupExist } = this.props
@@ -105,7 +126,7 @@ class Backup extends React.Component {
           { i === 0 && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
         </Col>
         <Col span={4}>总 {(v.size / 1024).toFixed(2)} kb</Col>
-        <Col span={4}>备份点 {v.total} 个</Col>
+        <Col span={4}>备份点 {v.chains.length} 个</Col>
         <Col span={4}>{calcuDate(v.creationTimestamp)}</Col>
       </Row>)
   }
@@ -132,7 +153,7 @@ class Backup extends React.Component {
   rollBackAlert = () => {
     const confirmRollBack = () => {
       const {
-        postRollback, clusterID, databaseInfo, database, getbackupChain,
+        postRollback, clusterID, database,
       } = this.props
       const { name } = this.state.backupChain
       const body = { name }
@@ -140,7 +161,7 @@ class Backup extends React.Component {
         success: {
           func: () => {
             notification.success('回滚操作成功')
-            setTimeout(() => getbackupChain(clusterID, database, databaseInfo.objectMeta.name))
+            setTimeout(() => this.geiList())
           },
         },
         failed: {
@@ -186,21 +207,18 @@ class Backup extends React.Component {
       backupChain: point,
     })
   }
-  newDatabase = () => {
-
-  }
   delBackupPointAlert = () => {
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
     const confirmDel = () => {
       const {
-        deleteManualBackupChain, clusterID, databaseInfo, database, getbackupChain,
+        deleteManualBackupChain, clusterID, databaseInfo, database,
       } = this.props
       const { backupChain } = this.state
       deleteManualBackupChain(clusterID, database, databaseInfo.objectMeta.name, backupChain.name, {
         success: {
           func: () => {
             notification.success('删除成功')
-            setTimeout(() => getbackupChain(clusterID, database, databaseInfo.objectMeta.name))
+            setTimeout(() => this.geiList())
           },
         },
       })
@@ -229,7 +247,7 @@ class Backup extends React.Component {
     })
   }
   // 备份点操作
-  backupPointmenu = point => {
+  backupPointmenu = (point, i) => {
     const iconStyle = {
       width: 13,
       height: 13,
@@ -243,13 +261,8 @@ class Backup extends React.Component {
             <img src={rollback} style={iconStyle} alt=""/>
             回滚</div>
         </Menu.Item>
-        <Menu.Item key="2">
-          <div onClick={() => this.newDatabase(point)}>
-            <img src={create} style={iconStyle} alt=""/>
-            新建MySql数据库
-          </div>
-        </Menu.Item>
-        <Menu.Item key="3">
+
+        <Menu.Item key="3" disabled={i === 0}>
           <div onClick={() => this.delThis(point)}>
             <Icon type="delete" style={{ marginRight: 5 }}/>
             删除</div>
@@ -310,7 +323,7 @@ class Backup extends React.Component {
       manualBackupModalShow: true,
       curentChain: chain,
       currentIndex: i,
-      backupType: i && i !== 0 ? 'fullbackup' : 'diffbackup',
+      backupType: i && i !== 0 || this.state.notAllowDiffBackup ? 'fullbackup' : 'diffbackup',
     })
   }
   // 自动备份弹窗组件
@@ -453,8 +466,14 @@ class Backup extends React.Component {
         </Row>
         <Row className="item">
           <Col span={4} className="title">状态</Col>
-          <Col span={19} push={1}>
+          <Col span={3} push={1}>
             <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
+          </Col>
+          <Col span={1} push={1}>
+            <Icon type="exclamation-circle-o" />
+          </Col>
+          <Col span={12} push={1} className="tip">
+            开启自动备份后，将基于当前链路中的全量备份自动差异备份运行中的集群、
           </Col>
         </Row>
         {
@@ -503,7 +522,6 @@ class Backup extends React.Component {
         }
         const {
           createBackupChain,
-          getbackupChain,
           databaseInfo,
           database,
           clusterID } = this.props
@@ -518,7 +536,7 @@ class Backup extends React.Component {
                   manualBackupModalShow: false,
                 }, () => {
                   setTimeout(() => {
-                    getbackupChain(clusterID, database, databaseInfo.objectMeta.name)
+                    this.geiList()
                   })
                 })
               },
@@ -563,7 +581,7 @@ class Backup extends React.Component {
                 :
                 <RadioGroup onChange={selectBackupType}>
                   {
-                    this.state.currentIndex === 0 && <Radio value="diffbackup" checked={this.state.backupType === 'diffbackup'}>原备份链上差异备份</Radio>
+                    this.state.currentIndex === 0 && <Radio value="diffbackup" disabled={this.state.notAllowDiffBackup} checked={this.state.backupType === 'diffbackup'}>原备份链上差异备份</Radio>
                   }
                   <Radio value="fullbackup" checked={this.state.backupType === 'fullbackup'}>新建备份链</Radio>
                 </RadioGroup>
@@ -594,7 +612,7 @@ class Backup extends React.Component {
     }
   }
   renderList = () => {
-    const { chainsData, database } = this.props
+    const { chainsData, database, databaseInfo } = this.props
     const iconStyle = {
       width: 13,
       height: 13,
@@ -607,9 +625,16 @@ class Backup extends React.Component {
         {
           chainsData.length !== 0 && chainsData.map((v, i) => {
             return <Panel header={this.renderHeader(v, i)} key={v.name}>
-              <div className="new-point" onClick={() => this.menualBackup(chainsData[i], i)} >
-                <div className="line"></div>
-              </div>
+              {
+                databaseInfo.status !== 'Running' ?
+                  <div className="disabled-point" onClick={() => this.menualBackup(chainsData[i], i)} >
+                    <div className="line"></div>
+                  </div>
+                  :
+                  <div className="new-point" onClick={() => this.menualBackup(chainsData[i], i)} >
+                    <div className="line"></div>
+                  </div>
+              }
               {
                 v.chains ?
                   <Timeline>
@@ -629,7 +654,7 @@ class Backup extends React.Component {
                               </span>
                             </Col>
                             <Col span={4}>
-                              <Dropdown.Button overlay={this.backupPointmenu(k)} type="ghost">
+                              <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
                                 <img src={rollback} style={iconStyle} alt=""/>
                                 回滚
                               </Dropdown.Button>
@@ -674,7 +699,7 @@ class Backup extends React.Component {
       </div>
   }
   render() {
-    const { chainsData, database } = this.props
+    const { chainsData, database, databaseInfo } = this.props
     return <div className="backup">
       <div className="title">备份</div>
       <div className="content">
@@ -690,7 +715,7 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           <Button type="primary" disabled={chainsData.length === 0 && database === 'mysql'} onClick={this.autoBackup}>设置自动备份</Button>
-          <Button onClick={() => this.menualBackup(chainsData[0], 0)}>手动备份</Button>
+          <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled={databaseInfo.status !== 'Running'}>手动备份</Button>
         </div>
         <div className="list">
           {

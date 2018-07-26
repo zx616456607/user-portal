@@ -145,7 +145,8 @@ exports.listDBService = function* () {
     databaseList: databases,
   }
 }
-// 获取mysql集群配置
+
+// 获取高级配置
 exports.getAdvanceConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
@@ -180,7 +181,6 @@ exports.updateMySqlConfig = function* () {
 exports.getDefaultConfig = function* () {
   const loginUser = this.session.loginUser
   const clusterId = this.params.cluster
-  const clusterName = this.params.name
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([ clusterId, 'daas', type, 'config', 'default'])
@@ -334,6 +334,18 @@ exports.rollback = function* () {
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([ clusterId, 'daas', type, name, 'restores' ], null, body)
+  this.body = result
+}
+
+// 修改集群访问方式
+exports.updateAccessMethod = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const type = this.params.type
+  const name = this.params.name
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ clusterId, 'daas', type, name, 'service' ], null, body)
   this.body = result
 }
 

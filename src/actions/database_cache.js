@@ -141,7 +141,7 @@ export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCES
 export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
 
 function getDbClusterDetail(cluster, dbName, type, needLoading, callback) {
-  console.log(cluster, dbName, type);
+
   return {
     cluster,
     [FETCH_API]: {

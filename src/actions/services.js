@@ -982,3 +982,28 @@ export function setServiceProxyGroup(body, callback){
     return dispatch(fetchSetServiceProxyGroup(body, callback))
   }
 }
+
+// 数据库与缓存-集群详情-访问方式tab内集群访问方式保存
+export const DB_SERVICE_PROXY_SAVE_REQUEST = 'DB_SERVICE_PROXY_SAVE_REQUEST'
+export const DB_SERVICE_PROXY_SAVE_SUCCESS = 'DB_SERVICE_PROXY_SAVE_SUCCESS'
+export const DB_SERVICE_PROXY_SAVE_FAILURE = 'DB_SERVICE_PROXY_SAVE_FAILURE'
+function fetchDBServiceProxyGroup(clusterID, type, name, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [DB_SERVICE_PROXY_SAVE_REQUEST, DB_SERVICE_PROXY_SAVE_SUCCESS, DB_SERVICE_PROXY_SAVE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${name}/service`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function dbServiceProxyGroupSave(clusterID, type, name, body, callback){
+  return (dispatch) => {
+    return dispatch(fetchDBServiceProxyGroup(clusterID, type, name, body, callback))
+  }
+}

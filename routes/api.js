@@ -569,6 +569,8 @@ module.exports = function (Router) {
   router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
   // 回滚
   router.post('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.rollback)
+  // 修改集群访问方式
+  router.put('/clusters/:clusterID/daas/:type/:name/service', databaseCacheController.updateAccessMethod)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

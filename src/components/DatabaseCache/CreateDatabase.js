@@ -42,11 +42,19 @@ let CreateDatabase = React.createClass({
       composeType: 512,
       advanceConfigContent: "log-bin = mysql-bin",
       showAdvanceConfig: false,
-      clusterConfig: {}
+      clusterConfig: {},
+      path: '/etc/redis',
+      file: 'redis.conf'
     }
   },
   componentWillMount() {
     const { ListProjects, cluster, database, getConfigDefault } = this.props
+    if(database === 'mysql') {
+      this.setState({
+        path:'/ect/mysql',
+        file: 'mysql.conf'
+      })
+    }
     getConfigDefault(cluster, database, {
       success: {
         func: res => {
@@ -342,7 +350,7 @@ let CreateDatabase = React.createClass({
             `${values.storageSelect}Mi`,
             namespace,
             values.password,
-            ''
+            this.state.advanceConfigContent.trim()
           )
           const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
           if(dbCreate.error) {
@@ -716,8 +724,8 @@ let CreateDatabase = React.createClass({
                     <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
                   </div>
                   <div className="price-unit">
-                    <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
-                    <p className="unit">（约：{ countPrice.fullAmount }/月）</p>
+                    <p>合计：<span className="unit">{countPrice && countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
+                    <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
                   </div>
                 </div>
                 :null
@@ -733,11 +741,11 @@ let CreateDatabase = React.createClass({
                     <div className="configTitle">配置管理</div>
                     <div className="configItem">
                       <div className="title">配置文件</div>
-                      <div>mysql.conf</div>
+                      <div>{this.state.file}</div>
                     </div>
                     <div className="configItem">
                       <div className="title">挂载目录</div>
-                      <div>/ect/mysql</div>
+                      <div>{this.state.path}</div>
                     </div>
                     <div className="configItem">
                       <div className="title">内容</div>
@@ -832,7 +840,7 @@ export default connect(mapStateToProps, {
   CreateDbCluster,
   setCurrent,
   createMySqlConfig, //创建mysql集群配置
-  getConfigDefault, // 获取默认配置
+  getConfigDefault, // 获取redis默认配置
   createDatabaseCluster, // 创建集群
   getProjectVisibleClusters,
   ListProjects,

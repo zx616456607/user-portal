@@ -27,6 +27,14 @@ class Storage extends React.Component {
     extendModal: false,
     volumeSizemin: 512,
     volumeSize: 512,
+    storage: 0,
+  }
+  componentDidMount() {
+    this.setState({
+      storage: parseInt(this.props.databaseInfo.storage),
+      volumeSizemin: parseInt(this.props.databaseInfo.storage),
+      volumeSize: parseInt(this.props.databaseInfo.storage),
+    })
   }
   showExtendModal = () => {
     this.setState({
@@ -40,7 +48,13 @@ class Storage extends React.Component {
     }
     expendDatabaseCluster(cluster.clusterID, database, databaseInfo.objectMeta.name, data, {
       success: {
-        func: () => {
+        func: res => {
+          this.setState({
+            storage: parseInt(res.data.spec.expandedSize),
+            volumeSizemin: parseInt(res.data.spec.expandedSize),
+            volumeSize: parseInt(res.data.spec.expandedSize),
+
+          })
           notification.success('扩容成功')
         },
       },
@@ -88,12 +102,12 @@ class Storage extends React.Component {
     return <div className="storage">
       <div className="title">存储</div>
       <div className="extendBtn">
-        <Button type="primary" disabled={databaseInfo.staus !== 'Stop'} onClick={this.showExtendModal}>
-          <img src={ databaseInfo.staus !== 'Stop' ? extendDisabled : extend } alt=""/>
+        <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>
+          <img src={ databaseInfo.status !== 'Stopped' ? extendDisabled : extend } alt=""/>
           <span>扩容</span>
         </Button>
         {
-          !databaseInfo.staus === 'Stop' &&
+          databaseInfo.status !== 'Stopped' &&
           <span className="tip">
             <Icon type="info-circle-o" />
             停止集群后可做扩容操作
@@ -114,7 +128,7 @@ class Storage extends React.Component {
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">存储卷： { databaseInfo.storage ? parseInt(databaseInfo.storage) : 0}M</div>
+          <div className="name">存储卷： { this.state.storage }M</div>
         </div>
       </div>
       <Modal
@@ -134,7 +148,7 @@ class Storage extends React.Component {
             </Col>
             <Col span={15}>
               <Slider
-                min={512}
+                min={this.state.volumeSizemin}
                 max={20480}
                 step={512}
                 defaultValue={this.state.volumeSizemin}
