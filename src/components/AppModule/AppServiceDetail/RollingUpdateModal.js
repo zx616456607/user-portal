@@ -330,7 +330,7 @@ class RollingUpdateModal extends Component {
                 {showText}
                 </Col>
                 <Tooltip title={item.image}>
-                  <Col span={18}>
+                  <Col className={'textoverflow'} span={18}>
                   {show}:
                   <Tag>{tag}</Tag>
                   </Col>
