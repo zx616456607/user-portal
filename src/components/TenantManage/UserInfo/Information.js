@@ -555,7 +555,6 @@ class Information extends Component {
       })
     }*/
     let newAuth = []
-    console.log(globalRoles);
     globalRoles && globalRoles.map(v => {
       newAuth.push(checkedAuth(v))
     });
