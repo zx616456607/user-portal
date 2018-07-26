@@ -23,8 +23,11 @@ class CreateNameAndTarget extends React.Component {
   }
 
   render() {
-    const { form, formItemLayout, isCreate } = this.props
+    const { form, formItemLayout, isCreate, serverList } = this.props
     const { getFieldProps } = form
+    const optionList = serverList.map((item, k) => {
+      return <Option value={item} key={k}>{item}</Option>
+    })
     return <div className="createSecurityPage">
       <FormItem
         label="安全组名称"
@@ -47,6 +50,7 @@ class CreateNameAndTarget extends React.Component {
         {...formItemLayout}
       >
         <Select id="select" size="large"
+          multiple
           style={{ width: 280 }}
           placeholder="请选择服务"
           {...getFieldProps('target', {
@@ -57,9 +61,7 @@ class CreateNameAndTarget extends React.Component {
             // initialValue: 'lucy',
           })}
         >
-          <Option value="jack">jack</Option>
-          <Option value="lucy">lucy</Option>
-          <Option value="yiminghe">yiminghe</Option>
+          {optionList}
         </Select>
       </FormItem>
     </div>

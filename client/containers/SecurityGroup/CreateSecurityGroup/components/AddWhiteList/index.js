@@ -19,15 +19,12 @@ const imgSrc = [
   { src: require('../../../../../assets/img/SecurityGroup/egress.png') },
 ]
 
-// let uuid = 0
 class AddWhiteList extends React.Component {
   state={
     uuid: 0,
   }
   componentDidMount() {
     // console.log( this.props )
-    // const { type } = this.props
-    // [type]uuid = uuid
   }
 
   remove = k => {
@@ -60,22 +57,19 @@ class AddWhiteList extends React.Component {
     })
     this.setState({
       uuid: uuid + 1,
-    }, () => {
-      setTimeout(() => {
-        document.getElementById(`${type}${uuid}*`).focus()
-      }, 100)
     })
   }
 
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
-    const target = type === 'ingress' ? '来源' : '目标'
+    const target = isIngress ? '来源' : '目标'
     const { getFieldValue, getFieldProps } = form
-    switch (getFieldValue(`${type}${k}`)) {
-      case ('CIDR'):
+    const option = getFieldValue(`${type}${k}`)
+    switch (option) {
+      case 'CIDR':
         return <span className="typeCidr">
-          <FormItem key={`*${k}`}>
-            <Input {...getFieldProps(`${type}${k}*`, {
+          <FormItem>
+            <Input {...getFieldProps(`${type}${option}${k}`, {
               rules: [{
                 required: true,
                 whitespace: true,
@@ -87,17 +81,17 @@ class AddWhiteList extends React.Component {
             />
           </FormItem>
           <span>除去</span>
-          <FormItem key={`**${k}`}>
+          <FormItem>
             <Input
-              {...getFieldProps(`${type}${k}**`)}
+              {...getFieldProps(`${type}${option}${k}except`)}
               style={{ width: 212 }}
               placeholder="如 10.10.2.0/16"
             />
           </FormItem>
         </span>
-      case ('serviceName'):
-        return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
+      case 'serviceName':
+        return <FormItem>
+          <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
               required: true,
               whitespace: true,
@@ -108,9 +102,9 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}服务`}
           />
         </FormItem>
-      case ('cluster'):
-        return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
+      case 'cluster':
+        return <FormItem>
+          <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
               required: true,
               whitespace: true,
@@ -121,9 +115,9 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}集群网络出口`}
           />
         </FormItem>
-      case ('load'):
-        return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
+      case 'load':
+        return <FormItem>
+          <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
               required: true,
               whitespace: true,
@@ -134,10 +128,10 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}应用负载均衡`}
           />
         </FormItem>
-      case ('named'):
+      case 'named':
         return <span className="typeCidr">
-          <FormItem key={`*${k}`}>
-            <Input {...getFieldProps(`${type}${k}*`, {
+          <FormItem>
+            <Input {...getFieldProps(`${type}${option}${k}`, {
               rules: [{
                 required: true,
                 whitespace: true,
@@ -148,17 +142,17 @@ class AddWhiteList extends React.Component {
             placeholder={`请输入要放通的${target}命名空间`}
             />
           </FormItem>
-          <FormItem key={`*-${k}`}>
+          <FormItem>
             <Input
-              {...getFieldProps(`${type}${k}**`)}
+              {...getFieldProps(`${type}${option}${k}server`)}
               style={{ width: 250 }}
               placeholder={ isIngress ? '服务1，服务2' : '逗号分隔服务名，为空代表所有服务' }
             />
           </FormItem>
         </span>
-      case ('sql'):
+      case 'sql':
         return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
+          <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
               required: true,
               whitespace: true,
@@ -169,9 +163,9 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}命名空间`}
           />
         </FormItem>
-      case ('redis'):
+      case 'redis':
         return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
+          <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
               required: true,
               whitespace: true,
@@ -196,11 +190,14 @@ class AddWhiteList extends React.Component {
       { value: 'load', inner: '应用负载均衡' },
       { value: 'named', inner: '命名空间' }]
     if (!isIngress) {
-      selectData = selectData.concat([{ value: 'redis', inner: 'Redis 集群' }, { value: 'sql', inner: 'MySQL 集群' }])
+      selectData = selectData.concat([
+        { value: 'redis', inner: 'Redis 集群' },
+        { value: 'sql', inner: 'MySQL 集群' },
+      ])
     }
     const { getFieldProps, getFieldValue } = form
     getFieldProps(`${type}`, {
-      initialValue: [ ],
+      initialValue: [],
     })
     const imgurl = isIngress && imgSrc[0].src || imgSrc[1].src
     const formItems = getFieldValue(`${type}`).map(k => {
@@ -218,8 +215,8 @@ class AddWhiteList extends React.Component {
                   initialValue: 'CIDR',
                 })}>
                 {
-                  selectData.map(item => {
-                    return <Option value={item.value}>{item.inner}</Option>
+                  selectData.map((item, ind) => {
+                    return <Option value={item.value} key={ind}>{item.inner}</Option>
                   })
                 }
               </Select>

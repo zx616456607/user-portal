@@ -13,11 +13,13 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Form, Row, Col, Button } from 'antd'
 import './style/index.less'
-// import * as dnsRecordActions from '../../actions/dnsRecord'
 import CreateNameAndTarget from './components/NameAndTarget'
 import IngressAndEgressWhiteList from './components/IngressAndEgressWhiteList'
 import { browserHistory } from 'react-router'
-// import Notification from '../../../../src/components/Notification'
+import Notification from '../../../../src/components/Notification'
+import * as securityActions from '../../../../src/actions/services'
+
+const notifi = new Notification()
 
 const formItemLayout = {
   labelCol: {
@@ -38,12 +40,20 @@ class CreateSecurityGroup extends React.Component {
   }
 
   componentDidMount() {
-    const { pathname } = this.props.location
+    const { loadAllServices, cluster, location } = this.props
+    const { pathname } = location
     if (pathname !== '/app_manage/security_group/create') {
       this.setState({
         isCreate: false,
       })
     }
+    loadAllServices(cluster, {}, {
+      failed: {
+        func: err => {
+          notifi.warn('获取服务列表失败', err.message)
+        },
+      },
+    })
   }
 
   submit = () => {
@@ -56,7 +66,7 @@ class CreateSecurityGroup extends React.Component {
     })
   }
   render() {
-    const { form } = this.props
+    const { form, serverList } = this.props
     const { isCreate } = this.state
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
@@ -79,6 +89,7 @@ class CreateSecurityGroup extends React.Component {
             form={form}
             isCreate={isCreate}
             formItemLayout={formItemLayout}
+            serverList={serverList}
           />
           <p className="whiteList">隔离对象的访问白名单</p>
           <IngressAndEgressWhiteList
@@ -97,4 +108,14 @@ class CreateSecurityGroup extends React.Component {
     </QueueAnim>
   }
 }
-export default connect()(Form.create()(CreateSecurityGroup))
+const mapStateToProps = ({ entities: { current }, services: { serviceList: { services } } }) => {
+  const serverList = []
+  services && services.length > 0 && services.map(item => serverList.push(item.metadata.name))
+  return {
+    cluster: current.cluster.clusterID,
+    serverList,
+  }
+}
+export default connect(mapStateToProps, {
+  loadAllServices: securityActions.loadAllServices,
+})(Form.create()(CreateSecurityGroup))
