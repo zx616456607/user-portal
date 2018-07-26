@@ -17,20 +17,27 @@ const Option = Select.Option
 
 class CreateNameAndTarget extends React.Component {
 
+  componentDidMount() {
+    const { isCreate, form } = this.props
+    !isCreate && form.setFieldsValue({ name: '名称' })
+  }
+
   render() {
-    const { form, formItemLayout } = this.props
+    const { form, formItemLayout, isCreate } = this.props
     const { getFieldProps } = form
     return <div className="createSecurityPage">
       <FormItem
-        label="策略名称"
+        label="安全组名称"
         {...formItemLayout}
       >
-        <Input placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
+        <Input
+          disabled={!isCreate}
+          placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
           style={{ width: 280 }}
           {...getFieldProps('name', {
             rules: [{
               required: true,
-              message: '请输入安全组名称，如 禁止外访 A 地图 API',
+              message: '请输入安全组名称',
             }],
           })}
         />
@@ -41,13 +48,13 @@ class CreateNameAndTarget extends React.Component {
       >
         <Select id="select" size="large"
           style={{ width: 280 }}
-          // onChange={handleSelectChange}
+          placeholder="请选择服务"
           {...getFieldProps('target', {
             rules: [{
               required: true,
               message: '请选择服务',
             }],
-            initialValue: 'lucy',
+            // initialValue: 'lucy',
           })}
         >
           <Option value="jack">jack</Option>

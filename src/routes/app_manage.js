@@ -107,6 +107,11 @@ const appManageRoutes = [{
       component: require('../components/AppModule/NetworkIsolation').default,
     },
   }, {
+    path: 'edit/:name',
+    indexRoute: {
+      component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default,
+    },
+  }, {
     path: ':name',
     component: require('../../client/containers/SecurityGroup/SecurityGroupDetail').default,
   }]

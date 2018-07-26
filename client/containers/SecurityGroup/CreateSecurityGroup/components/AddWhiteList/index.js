@@ -67,24 +67,34 @@ class AddWhiteList extends React.Component {
     })
   }
 
-  relatedSelect = k => {
+  relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
     const target = type === 'ingress' ? '来源' : '目标'
     const { getFieldValue, getFieldProps } = form
     switch (getFieldValue(`${type}${k}`)) {
       case ('CIDR'):
-        return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入要放通的${target}网络`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}网络， 如 10.10.2.0/24`}
-          />
-        </FormItem>
+        return <span className="typeCidr">
+          <FormItem key={`*${k}`}>
+            <Input {...getFieldProps(`${type}${k}*`, {
+              rules: [{
+                required: true,
+                whitespace: true,
+                message: `请输入要放通的${target}网络`,
+              }],
+            })}
+            style={{ width: 280 }}
+            placeholder={`请输入要放通的${target}网络， 如 10.10.2.0/24`}
+            />
+          </FormItem>
+          <span>除去</span>
+          <FormItem key={`**${k}`}>
+            <Input
+              {...getFieldProps(`${type}${k}**`)}
+              style={{ width: 212 }}
+              placeholder="如 10.10.2.0/16"
+            />
+          </FormItem>
+        </span>
       case ('serviceName'):
         return <FormItem key={`*${k}`}>
           <Input {...getFieldProps(`${type}${k}*`, {
@@ -125,18 +135,27 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       case ('named'):
-        return <FormItem key={`*${k}`}>
-          <Input {...getFieldProps(`${type}${k}*`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入要放通的${target}命名空间`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}命名空间`}
-          />
-        </FormItem>
+        return <span className="typeCidr">
+          <FormItem key={`*${k}`}>
+            <Input {...getFieldProps(`${type}${k}*`, {
+              rules: [{
+                required: true,
+                whitespace: true,
+                message: `请输入要放通的${target}命名空间`,
+              }],
+            })}
+            style={{ width: 280 }}
+            placeholder={`请输入要放通的${target}命名空间`}
+            />
+          </FormItem>
+          <FormItem key={`*-${k}`}>
+            <Input
+              {...getFieldProps(`${type}${k}**`)}
+              style={{ width: 250 }}
+              placeholder={ isIngress ? '服务1，服务2' : '逗号分隔服务名，为空代表所有服务' }
+            />
+          </FormItem>
+        </span>
       case ('sql'):
         return <FormItem key={`*${k}`}>
           <Input {...getFieldProps(`${type}${k}*`, {
@@ -205,7 +224,7 @@ class AddWhiteList extends React.Component {
                 }
               </Select>
             </FormItem>
-            { this.relatedSelect(k) }
+            <div className="second">{ this.relatedSelect(k, isIngress) }</div>
             <Icon
               type="delete"
               className="deleteItem"

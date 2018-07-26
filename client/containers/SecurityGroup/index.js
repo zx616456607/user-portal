@@ -46,9 +46,9 @@ class SecurityGroup extends React.Component {
     }
   }
 
-  // editItem = record => {
-  //   console.log( '***', record )
-  // }
+  editItem = record => {
+    browserHistory.push(`/app_manage/security_group/edit/${record.name}`)
+  }
 
   deleteItem = () => {
     this.setState({
@@ -70,7 +70,7 @@ class SecurityGroup extends React.Component {
       {
         name: '0.0',
         target: '^.^',
-        time: '2018-07-23T03:42:33Z',
+        time: '2018-07-26T04:11:23Z',
         key: '15245sa',
       },
     ]
@@ -119,7 +119,7 @@ class SecurityGroup extends React.Component {
       }]
     return <QueueAnim className="securityGroup">
       <div className="securityPage" key="security">
-        <Title title="创建安全组" />
+        <Title title="安全组" />
         <Modal
           title="删除操作"
           visible={deleteVisible}
