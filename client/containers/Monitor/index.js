@@ -86,7 +86,7 @@ class Monitor extends React.Component {
     return <div className="monitor" style={style}>
       <Title title={title} />
 
-      <iframe title="流水线" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
+      <iframe title="监控与备份" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
     </div>
   }
 }
