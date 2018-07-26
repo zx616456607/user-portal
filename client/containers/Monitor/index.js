@@ -59,7 +59,8 @@ class Monitor extends React.Component {
       project, onbehalfuser, onbehalfuserid, token,
       username, location: { pathname, query: locationQuery },
     } = this.props
-    let redirect
+    // let redirect
+    let redirect = '/cluster/monitor'
     let title = '系统服务监控'
     if (pathname === '/cluster/backup') {
       redirect = '/backup'
