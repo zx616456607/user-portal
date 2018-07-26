@@ -104,7 +104,7 @@ exports.deleteRepoTags = deleteRepoTags
 exports.getRepositoriesTags = harborHandler(
   (harbor, ctx, callback) => {
     const repoName = `${ctx.params.user}/${ctx.params.name}`
-    harbor.getRepositoriesTags(repoName, callback)
+    harbor.getRepositoriesTags(repoName, callback, ctx.query.is_detail)
   }
 )
 
