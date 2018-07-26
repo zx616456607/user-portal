@@ -195,7 +195,8 @@ export default store => next => action => {
   options.headers = options.headers || {}
   // sys admin check user personal space
   if (space.userName) {
-    options.headers.onbehalfuser = space.userName
+    // options.headers.onbehalfuser = space.userName
+    options.headers.onbehalfuser = ''
     space.namespace = 'default'
   }
   options.headers.teamspace = options.headers.teamspace || space.namespace || ''
