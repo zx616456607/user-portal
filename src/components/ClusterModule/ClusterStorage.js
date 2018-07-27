@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Switch, Icon, Form, Select, Input, Button, Modal, Spin } from 'antd'
+import { Switch, Icon, Form, Select, Input, Button, Modal, Spin, Tooltip, Alart } from 'antd'
 import { connect } from 'react-redux'
 import './style/ClusterStorage.less'
 import cloneDeep from 'lodash/cloneDeep'
@@ -28,8 +28,9 @@ import GfsStorage from '../../../kubernetes/objects/gfsStorage'
 import NfsDeplyment from '../../../kubernetes/objects/nfsDeplyment'
 import HostTemplate from '../../../kubernetes/objects/hostTemplate'
 import { createCephStorage, getClusterStorageList, deleteStorageClass, updateStorageClass } from '../../actions/cluster'
-import { getStorageClassType } from '../../actions/storage'
+import { getStorageClassType, setDefaultStorage } from '../../actions/storage'
 import NotificationHandler from '../../components/Notification'
+import filter from 'lodash/filter'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -56,6 +57,7 @@ class ClusterStorage extends Component {
     this.validateAllName = this.validateAllName.bind(this)
     this.loadStorageClassType = this.loadStorageClassType.bind(this)
     this.renderHostTips = this.renderHostTips.bind(this)
+    this.onDefSetCancel = this.onDefSetCancel.bind(this)
     this.state = {
       hostChecked: true,
       hostIsFetching: true,
@@ -78,6 +80,9 @@ class ClusterStorage extends Component {
       cephLoading: false,
       nfsLoading: false,
       gfsLoading: false,
+      isShowSetDefaultModal: false,
+      currType: "",
+      defaultStorage: "",
     }
   }
 
@@ -141,14 +146,17 @@ class ClusterStorage extends Component {
             cephArray: {
               key: cephArray.length ? cephArray.length : -1,
               listArray: cephArray,
+              list: cephlist,
             },
             nfsArray: {
               key: nfsArray.length ? nfsArray.length : -1,
               listArray: nfsArray,
+              list: nfslist,
             },
             gfsArray: {
               key: gfsArray.length ? gfsArray.length : -1,
               listArray: gfsArray,
+              list: gfslist,
             }
           })
         }
@@ -514,7 +522,7 @@ class ClusterStorage extends Component {
       const metadata = cephListData[item.index] ? cephListData[item.index].metadata : {}
       const parameters = cephListData[item.index] ? cephListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className='list' key={ `ceph_list_${item.index}` }>
+        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `ceph_list_${item.index}` }>
           <FormItem
             label="集群名称"
             key="cluster_name"
@@ -1108,7 +1116,7 @@ class ClusterStorage extends Component {
       const metadata = gfsListData[item.index] ? gfsListData[item.index].metadata : {}
       const parameters = gfsListData[item.index] ? gfsListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className='list' key={ `ceph_list_${item.index}` }>
+        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `gfs_list_${item.index}` }>
           <FormItem
             label="集群名称"
             key="cluster_name"
@@ -1314,7 +1322,7 @@ class ClusterStorage extends Component {
       const metadata = nfsListData[item.index] ? nfsListData[item.index].metadata : {}
       const parameters = nfsListData[item.index] ? nfsListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className='list' key={ `ceph_list_${item.index}` }>
+        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `nfs_list_${item.index}` }>
           <FormItem
             label="nfs 服务名称"
             key="service_name"
@@ -1477,9 +1485,89 @@ class ClusterStorage extends Component {
       </div>
     </div>
   }
-
+  openDefStoModal (currType) {
+    const defSto = filter(this.state[currType + "Array"].list, { isDefault: 1 })[0]
+    this.setState({
+      isShowSetDefaultModal: true,
+      currType,
+      defaultStorage: defSto ? defSto.metadata.name : "",
+    })
+  }
+  getModalContent(currType) {
+    let title
+    let label
+    let alert
+    switch(currType){
+      case "ceph":
+        title = "设置默认块存储集群"
+        label = "默认块存储集群"
+        alert = "设置一个默认的块存储集群，当创建独享型块存储时默认选择该存储集群"
+        break;
+      case "nfs":
+        title = "设置默认NFS存储集群"
+        label = "默认NFS存储集群"
+        alert = "设置一个默认的NFS，当创建共享型 NFS 存储时默认选择该存储 server"
+        break;
+      case "gfs":
+        title = "设置默认GlusterFS存储集群"
+        label = "默认GlusterFS存储集群"
+        alert = "设置一个默认的 GlusterFS，当创建共享型 GlusterFS 存储时默认选择该存储集群"
+        break;
+    }
+    return {
+      title,
+      label,
+      alert
+    }
+  }
+  onDefSetCancel() {
+    this.setState({
+      isShowSetDefaultModal: false,
+      currType: "",
+      defaultStorage: "",
+    })
+  }
+  renderOpt(currType) {
+    return this.state[currType + "Array"].list.map(item => {
+      const name = item.metadata.annotations["tenxcloud.com/scName"]
+      return <Option
+        value={item.metadata.name}
+        key={item.metadata.name}>
+        {name}
+      </Option>
+    })
+  }
+  onDefSetok() {
+    const { form, setDefaultStorage, cluster } = this.props
+    const clusterID = cluster.clusterID
+    const { currType } = this.state
+    const { getFieldValue } = form
+    const name = getFieldValue("defaultSettingStorage")
+    setDefaultStorage({
+      clusterID,
+      type: currType,
+      name,
+    }, {
+      success: {
+        func: res => {
+          console.log(res)
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          console.log(err)
+        },
+        isAsync: true,
+      },
+    })
+  }
   render() {
-    const { hostChecked, deleteModalVisible, hostVisible, loading } = this.state
+    const { hostChecked, deleteModalVisible, hostVisible, loading,
+      isShowSetDefaultModal, currType, defaultStorage
+    } = this.state
+    const { title, label, alert } = this.getModalContent(currType)
+    const { getFieldProps } = this.props.form
     return(
       <div id='cluster_storage'>
         <div className='host'>
@@ -1499,6 +1587,11 @@ class ClusterStorage extends Component {
         <div className='ceph'>
           <div className="header">
             块存储集群（rbd）- 独享型
+            <div className="right">
+              <Tooltip title='设置默认集群'>
+                <Button icon="setting" className='settingDefalutStorage' onClick={() => this.openDefStoModal("ceph")}/>
+              </Tooltip>
+            </div>
           </div>
           <div className="body">
             <div className="img_box ceph_img">
@@ -1516,6 +1609,11 @@ class ClusterStorage extends Component {
         <div className='nfs'>
           <div className="header">
             网络文件系统（NFS）- 共享型
+            <div className="right">
+              <Tooltip title='设置默认集群'>
+                <Button icon="setting" className='settingDefalutStorage' onClick={() => this.openDefStoModal("nfs")}/>
+              </Tooltip>
+            </div>
           </div>
           <div className="body">
             <div className="img_box nfs_img">
@@ -1533,6 +1631,11 @@ class ClusterStorage extends Component {
         <div className='ceph'>
           <div className="header">
             分布式文件系统（GlusterFS）- 共享型
+            <div className="right">
+              <Tooltip title='设置默认集群'>
+                <Button icon="setting" className='settingDefalutStorage' onClick={() => this.openDefStoModal("gfs")}/>
+              </Tooltip>
+            </div>
           </div>
           <div className="body">
             <div className="img_box nfs_img">
@@ -1583,6 +1686,39 @@ class ClusterStorage extends Component {
             是否确定移除该存储配置？
           </div>
         </Modal>
+        {
+          isShowSetDefaultModal ?
+            <Modal
+              visible={isShowSetDefaultModal}
+              title={title}
+              wrapClassName="settingDefault"
+              onCancel={this.onDefSetCancel}
+              onOk={this.onDefSetok}
+            >
+              <div>
+                <div className='alertRow'>{alert}</div>
+              </div>
+              <Form.Item
+                label={label}
+                labelCol={{span: 8}}
+                wrapperCol={{span: 16}}
+              >
+                <Select
+                  style={{width:'180px'}}
+                  placeholder='选择默认集群'
+                  {...getFieldProps('defaultSettingStorage',{
+                    initialValue: defaultStorage ? defaultStorage : undefined,
+                  })}
+                >
+                {
+                  this.renderOpt(currType)
+                }
+                </Select>
+              </Form.Item>
+            </Modal>
+            :
+            null
+        }
       </div>
     )
   }
@@ -1616,4 +1752,5 @@ export default connect(mapStateToProp, {
   deleteStorageClass,
   updateStorageClass,
   getStorageClassType,
+  setDefaultStorage,
 })(ClusterStorage)

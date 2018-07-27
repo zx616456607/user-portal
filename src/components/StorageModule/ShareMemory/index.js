@@ -275,6 +275,34 @@ class ShareMemory extends Component {
   onModalStorageTypeChange = (value) => {
     this.setState({
       modalStorageType: value
+    }, () => {
+      const { nfsList, gfsList, form } = this.props
+      const { setFieldsValue } = form
+      let storageClassName
+      let tempList
+      if(value === 'nfs'){
+        tempList = nfsList
+        if(!nfsList || !nfsList.length){
+          setFieldsValue({
+            storageClassName,
+          })
+        }
+      } else {
+        tempList = gfsList
+        if(!gfsList || !gfsList.length){
+          setFieldsValue({
+            storageClassName,
+          })
+        }
+      }
+      tempList.map(item => {
+        if(item.isDefault === 1){
+          storageClassName = item.metadata.name
+        }
+      })
+      setFieldsValue({
+        storageClassName,
+      })
     })
   }
   onSliderChange = (num) => {
@@ -321,7 +349,20 @@ class ShareMemory extends Component {
       confirmLoading,
       deleteModalVisible,
       searchInput,
+      modalStorageType,
     } = this.state
+    let init_storageClassName
+    let tempList
+    if(modalStorageType === 'nfs'){
+      tempList = nfsList
+    }else {
+      tempList = gfsList
+    }
+    tempList.map(item => {
+      if(item.isDefault === 1){
+        init_storageClassName = item.metadata.name
+      }
+    })
     const { query = {} } = location
     const { getFieldProps } = form
     const columns = [
@@ -523,6 +564,7 @@ class ShareMemory extends Component {
                   <Select
                     placeholder='请选择一个server'
                     {...getFieldProps('storageClassName', {
+                      initialValue: init_storageClassName,
                       rules:[{
                         required:true,
                         message:'server不能为空',
@@ -530,7 +572,7 @@ class ShareMemory extends Component {
                     })}
                   >
                   {
-                    this.state.modalStorageType === 'nfs' ?
+                    modalStorageType === 'nfs' ?
                     nfsList.map(nfs =>
                       <Option key={nfs.metadata.name}>
                         {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}

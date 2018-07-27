@@ -464,7 +464,7 @@ class CreateVolume extends Component {
   }
 
   render(){
-    const { form, cluster, snapshotRequired, isFetching, billingEnabled } = this.props
+    const { form, cluster, snapshotRequired, isFetching, billingEnabled, cephList } = this.props
     const { currentSnapshot } = this.state
     const { getFieldProps } = form
     const VolumeNameProps = getFieldProps('volumeName',{
@@ -494,6 +494,12 @@ class CreateVolume extends Component {
     	labelCol: {span: 4},
     	wrapperCol: {span: 19}
     }
+    let init_address = ""
+    cephList.map(item => {
+      if(item.isDefault === 1){
+        init_address = item.metadata.name
+      }
+    })
     return(
       <div id="CreateVolume">
         <Form className='formStyle'>
@@ -533,6 +539,7 @@ class CreateVolume extends Component {
                       disabled={this.state.selectChecked}
                       placeholder="请选择一个块存储集群"
                       {...getFieldProps('address', {
+                        initialValue: init_address,
                         rules: [{
                           required: true,
                           message: "请选择块存储集群"

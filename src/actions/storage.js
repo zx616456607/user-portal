@@ -622,6 +622,32 @@ export function getStorageClassType(cluster, callback) {
   }
 }
 
+export const SET_DEFAULT_STORAGE_CLASS_TYPE_REQUEST = 'SET_DEFAULT_STORAGE_CLASS_TYPE_REQUEST'
+export const SET_DEFAULT_STORAGE_CLASS_TYPE_SUCCESS = 'SET_DEFAULT_STORAGE_CLASS_TYPE_SUCCESS'
+export const SET_DEFAULT_STORAGE_CLASS_TYPE_FAILURE = 'SET_DEFAULT_STORAGE_CLASS_TYPE_FAILURE'
+
+function fetchSetDefaultClusterStorageClass(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SET_DEFAULT_STORAGE_CLASS_TYPE_REQUEST, SET_DEFAULT_STORAGE_CLASS_TYPE_SUCCESS, SET_DEFAULT_STORAGE_CLASS_TYPE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/storageclass/setdefault`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback
+  }
+}
+
+export function setDefaultStorage(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchSetDefaultClusterStorageClass(body, callback))
+  }
+}
+setDefaultStorage
+
 export const GET_CHECK_VOLUME_NAME_EXIST_REQUEST = 'GET_CHECK_VOLUME_NAME_EXIST_REQUEST'
 export const GET_CHECK_VOLUME_NAME_EXIST_SUCCESS = 'GET_CHECK_VOLUME_NAME_EXIST_SUCCESS'
 export const GET_CHECK_VOLUME_NAME_EXIST_FAILURE = 'GET_CHECK_VOLUME_NAME_EXIST_FAILURE'

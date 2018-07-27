@@ -54,3 +54,12 @@ exports.getStorageClassType = function* (){
   const result = yield api.getBy([ cluster, 'storageclass', 'type' ])
   this.body = result
 }
+
+exports.setStorageClassDefault = function* () {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([ cluster, 'storageclass', "setdefault"], null, { body })
+  this.body = result
+}
