@@ -183,33 +183,40 @@ function ruleToPeer(rule) {
 }
 
 // TODO:
+// const RuleTypeCIDR = 'cidr'
+// const RuleTypeService = 'service'
+// const RuleTypeHAProxy = 'haproxy'
+// const RuleTypeIngress = 'ingress'
+// const RuleTypeNamespace = 'namespace'
 
-const policy = buildNetworkPolicy('时速云', ['svcA1', 'abc123Two', 'lalala456'], [{
-  type: RuleTypeService,
-  serviceName: 'longlonglong',
-  namespace: 'hello',
-}, {
-  type: RuleTypeService,
-  serviceName: 'lilili',
-}, {
-  type: RuleTypeCIDR,
-  cidr: '1.2.3.4/16',
-  except: ['1.2.3.5'],
-}, {
-  type: RuleTypeCIDR,
-  cidr: '1.2.3.4/24',
-}, {
-  type: RuleTypeNamespace,
-  namespace: 'richrichrich',
-}, {
-  type: RuleTypeIngress,
-  ingressId: 'ingress-eyrdfpxlme'
-}, {
-  type: RuleTypeHAProxy,
-}])
+// const policy = buildNetworkPolicy('时速云', ['svcA1', 'abc123Two', 'lalala456'], [{
+//   type: RuleTypeService,
+//   serviceName: 'longlonglong',
+//   namespace: 'hello',
+// }, {
+//   type: RuleTypeService,
+//   serviceName: 'lilili',
+// }, {
+//   type: RuleTypeCIDR,
+//   cidr: '1.2.3.4/16',
+//   except: ['1.2.3.5'],
+// }, {
+//   type: RuleTypeCIDR,
+//   cidr: '1.2.3.4/24',
+// }, {
+//   type: RuleTypeNamespace,
+//   namespace: 'richrichrich',
+// }, {
+//   type: RuleTypeIngress,
+//   ingressId: 'ingress-eyrdfpxlme'
+// }, {
+//   type: RuleTypeHAProxy,
+// }])
 
-console.log(JSON.stringify(policy, null, 2))
+// console.log(JSON.stringify(policy, null, 2))
 
-const result = parseNetworkPolicy(policy)
+// const result = parseNetworkPolicy(policy)
 
-console.log(result)
+// console.log(result)
+
+export { buildNetworkPolicy, parseNetworkPolicy }

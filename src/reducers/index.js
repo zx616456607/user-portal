@@ -60,6 +60,7 @@ import appAutoScaler from '../../client/reducers/clusterAutoScaler'
 import applyLimit from '../../client/reducers/applyLimit'
 import aiops from '../../client/reducers/aiops'
 import dnsRecord from '../../client/reducers/dnsRecord'
+import securityGroup from '../../client/reducers/securityGroup'
 
 import {
   LOGIN_EXPIRED_MESSAGE,
@@ -190,6 +191,7 @@ const rootReducer = combineReducers({
   aiops,
   applyLimit,
   dnsRecord,
+  securityGroup
 })
 
 export default rootReducer
