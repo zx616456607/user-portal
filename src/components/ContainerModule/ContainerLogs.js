@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Icon, Tooltip, Button } from 'antd'
 import '@tenx-ui/logs/assets/index.css'
-import TenxLogs from '@tenx-ui/logs'
+import TenxLogs from '@tenx-ui/logs/lib'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
