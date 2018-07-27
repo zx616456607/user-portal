@@ -27,7 +27,7 @@ function fetchGlobaleQuota(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
   return {
@@ -66,7 +66,7 @@ function fetchGlobaleQuotaList(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
 
@@ -138,7 +138,7 @@ function updateGlobaleQuota(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
   return {
@@ -206,7 +206,7 @@ function fetchClusterQuota(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
   return {
@@ -243,7 +243,7 @@ function updateClusterQuota(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
   return {
@@ -280,7 +280,7 @@ function fetchClusterQuotaList(query, callback) {
       headers = { teamspace }
     } else {
       let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser }
+      headers = { onbehalfuser: '' }
     }
   }
   return {

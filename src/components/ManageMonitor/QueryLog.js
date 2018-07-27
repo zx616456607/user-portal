@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
 import { ListProjects } from '../../actions/project'
+import { loadUserList } from '../../actions/user'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog, getQueryLogFileList, searchFileLogOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
@@ -163,69 +164,6 @@ function instanceSelected(config, instance) {
     return 'instanceDetail';
   }
 }
-
-let NamespaceModal = React.createClass({
-  propTypes: {
-    namespace: React.PropTypes.array
-  },
-  getInitialState: function () {
-    return {
-      currentList: []
-    };
-  },
-  componentWillMount: function () {
-    const {namespace} = this.props;
-    this.setState({
-      currentList: namespace
-    });
-  },
-  inputSearch: function (e) {
-    //this function for user search namespace
-    const {namespace, scope} = this.props;
-    let value = e.target.value;
-    let tempList = [];
-    namespace.map((item) => {
-      if (item.namespace.indexOf(value) > -1) {
-        tempList.push(item)
-      }
-    });
-    this.setState({
-      currentList: tempList
-    });
-  },
-  render: function () {
-    const { scope, defaultNamespace } = this.props;
-    let namespaceList = null;
-    if (this.state.currentList.length == 0) {
-      namespaceList = (
-        <div className='loadingBox'>
-          <span>没数据哦</span>
-        </div>
-      )
-    } else {
-      namespaceList = this.state.currentList.map((item, index) => {
-        return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.projectName, item.teamID, item.namespace)}>
-            {item.projectName}
-          </div>
-        )
-      });
-    }
-    return (
-      <div className='namespaceModal'>
-        <div className='searchBox'>
-          <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
-        </div>
-        <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的个人项目', 'default', 'default')}>
-            <span>我的个人项目</span>
-          </div>
-          {namespaceList}
-        </div>
-      </div>
-    )
-  }
-});
 
 let ClusterModal = React.createClass({
   propTypes: {
@@ -743,7 +681,7 @@ class QueryLog extends Component {
   }
 
   componentWillMount() {
-    const { current, query, intl } = this.props;
+    const { current, query, intl, loadUserList, loginUser } = this.props;
     const { formatMessage } = intl;
     const _this = this;
     loadProjects(this.props, {
@@ -757,15 +695,18 @@ class QueryLog extends Component {
         }
       }
     })
+    loadUserList({ size: 0, sort: 'a,userName' })
     const { space, cluster } = current;
-    const { teamID, namespace, name } = space;
-    this.onSelectNamespace(name, teamID, namespace);
+    const { namespace, projectName, userName } = space;
     const { clusterName, clusterID } = cluster;
-    this.onSelectCluster(clusterName, clusterID, namespace);
+    const { userName: loginName } = loginUser
+    const finalNamespace = namespace === 'default' ? userName ? userName : loginName : loginName
+    this.onSelectNamespace(projectName, finalNamespace);
+    this.onSelectCluster(clusterName, clusterID, finalNamespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
-        currentNamespace: name,
+        currentNamespace:  `${projectName},${finalNamespace}`,
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
@@ -808,7 +749,9 @@ class QueryLog extends Component {
   }
 
   componentDidMount(){
-    const { location, cluster, loadServiceContainerList } = this.props
+    const { location, cluster, loadServiceContainerList, current } = this.props
+    const { space } = current;
+    const { projectName } = space;
     const query = location.query
     let end_time = new Date()
     let current_time = new Date()
@@ -817,7 +760,7 @@ class QueryLog extends Component {
     this.onChangeEndTime(end_time)
     this.onChangeStartTime(start_time)
     if(query.from == 'serviceDetailLogs'){
-      loadServiceContainerList(cluster, query.serviceName, null, {
+      loadServiceContainerList(cluster, query.serviceName, { projectName }, {
         success: {
           func: (res) => {
             this.setState({
@@ -836,15 +779,15 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectNamespace(name, teamId, namespace) {
+  onSelectNamespace(projectName, namespace) {
     //this function for user get search 10-20 of namespace list
     const { getClusterOfQueryLog } = this.props;
     const _this = this;
-    if (name != this.state.currentNamespace) {
+    if (namespace != this.state.currentNamespace) {
       this.setState({
         gettingCluster: true,
         namespacePopup: false,
-        currentNamespace: name,
+        currentNamespace: `${projectName},${namespace}`,
         currentCluster: null,
         currentService: null,
         currentInstance: [],
@@ -852,9 +795,8 @@ class QueryLog extends Component {
         serviceList: [],
         instanceList: [],
         selectedNamespace: false,
-        searchNamespace: namespace
       });
-      getClusterOfQueryLog(namespace, namespace, {
+      getClusterOfQueryLog(projectName, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -871,9 +813,10 @@ class QueryLog extends Component {
   onSelectCluster(name, clusterId, namespace) {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
+    const { currentNamespace } = this.state
     const _this = this;
-    if (this.state.searchNamespace != undefined) {
-      namespace = this.state.searchNamespace;
+    if (currentNamespace != undefined) {
+      namespace = currentNamespace.split(',')[1];
     }
     if (name != this.state.currentCluster) {
       this.setState({
@@ -904,6 +847,7 @@ class QueryLog extends Component {
   onSelectService(name, item) {
     //this function for user get search 10-20 of service list
     const _this = this;
+    const { currentNamespace } = this.state
     if (name != this.state.currentService) {
       this.setState({
         gettingInstance: true,
@@ -915,8 +859,9 @@ class QueryLog extends Component {
         currentServiceItem: item,
         currentFile: '所有文件',
       });
+      const projectName = currentNamespace.split(',')[0]
       const { loadServiceContainerList } = this.props;
-      loadServiceContainerList(this.state.currentClusterId, name, null, {
+      loadServiceContainerList(this.state.currentClusterId, name, { projectName }, {
         success: {
           func: (res) => {
             let path = '未配置采集目录'
@@ -1224,11 +1169,24 @@ class QueryLog extends Component {
     getQueryLogFileList(cluster, instance, body)
   }
 
+  renderUserList = () => {
+    const { userList, loginUser } = this.props
+    const { userName } = loginUser
+    const filterUser = userList.filter(user => user.userName !== userName)
+    return (filterUser || []).map(user => <Select.Option key={`default,${user.userName}`}>{user.userName}</Select.Option>)
+  }
+
+  renderProjectList = () => {
+    const { namespaceList } = this.state
+    return (namespaceList || []).map(project =>
+      <Select.Option key={`${project.projectName},${project.projectName}`}>{project.projectName}</Select.Option>)
+  }
   render() {
-    const { logs, isFetching, intl, defaultNamespace } = this.props;
+    const { logs, isFetching, intl, defaultNamespace, loginUser } = this.props;
+    const { userName } = loginUser
     const { formatMessage } = intl;
     const scope = this;
-    const { gettingNamespace, start_time, end_time, key_word, backward, goBackLogs } = this.state;
+    const { start_time, end_time, key_word, backward, goBackLogs, currentNamespace } = this.state;
     /*if (gettingNamespace) {
       return (
         <div className='loadingBox'>
@@ -1268,21 +1226,24 @@ class QueryLog extends Component {
           <div className='operaBox'>
             <div className='commonBox'>
               <span className='titleSpan'>{standardFlag ? <span>团队：</span> : '项目：'}</span>
-              <Popover
-                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} defaultNamespace={defaultNamespace} />}
-                trigger='click'
-                placement='bottom'
-                getTooltipContainer={() => document.getElementById('QueryLog')}
-                onVisibleChange={this.hideUserPopup}
-                visible={this.state.namespacePopup}
-                arrowPointAtCenter={true}
-                >
-                <div className={checkClass(this.state.namespacePopup, this.state.selectedNamespace)} >
-                  <span className='selectedSpan'>{this.state.currentNamespace ? this.state.currentNamespace : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectUser} /></span>]}</span>
-                  <Icon type='down' />
-                  <span className='wrongSpan'><FormattedMessage {...menusText.noNamespace} /></span>
-                </div>
-              </Popover>
+              <Select
+                optionFilterProp="children"
+                showSearch
+                getPopupContainer={() => document.getElementById('QueryLog')}
+                style={{ width: 200 }}
+                value={currentNamespace}
+                onSelect={value => this.onSelectNamespace(value.split(',')[0], value.split(',')[1])}
+              >
+                <Select.OptGroup label="选择项目">
+                  <Select.Option key={`default,${userName}`}>我的个人项目</Select.Option>
+                </Select.OptGroup>
+                <Select.OptGroup label="个人项目">
+                  {this.renderUserList()}
+                </Select.OptGroup>
+                <Select.OptGroup label="共享项目">
+                  {this.renderProjectList()}
+                </Select.OptGroup>
+              </Select>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
@@ -1463,7 +1424,7 @@ function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
   const { cluster, space } = current
   const defaultNamespace = space.namespace
-  const { teamspaces } = state.user
+  const { teamspaces, users } = state.user
   const { teamClusters } = state.team
   const defaultLogs = {
     cluster: cluster.clusterID,
@@ -1482,6 +1443,11 @@ function mapStateToProps(state, props) {
   if (current && current.cluster && current.cluster.disabledPlugins) {
     loggingEnabled = !current.cluster.disabledPlugins['logging']
   }
+  const defaultUsers = {
+    users: [],
+  }
+
+  const { users: userList } = users.result || defaultUsers
   return {
     loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
@@ -1497,6 +1463,7 @@ function mapStateToProps(state, props) {
     loggingEnabled,
     defaultNamespace,
     getLogFileOfQueryLog,
+    userList,
   }
 }
 
@@ -1519,4 +1486,5 @@ export default connect(mapStateToProps, {
   throwError,
   getQueryLogFileList,
   searchFileLogOfQueryLog,
+  loadUserList,
 })(QueryLog)

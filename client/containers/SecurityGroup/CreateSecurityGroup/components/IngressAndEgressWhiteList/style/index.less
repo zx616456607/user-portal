@@ -1,0 +1,49 @@
+.whiteListPage {
+  min-height: 50px;
+  height: auto !important;
+  height: 50px;
+  .ingress {
+    font-size: 14px;
+    line-height: 32px;
+    margin-bottom: 12px;
+    min-height: 32px;
+    height: auto !important;
+    height: 32px;
+    .firstCol {
+      padding-left: 16px;
+    }
+    .ingressTit {
+      opacity: 0.8;
+    }
+    .ingressForm {
+      display: flex;
+      & > * {
+        margin-right: 12px;
+      }
+      .deleteItem {
+        padding: 8px 4px;
+        cursor: pointer;
+      }
+      .second {
+        width: 550px;
+        .typeCidr {
+          display: flex;
+          & > * {
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+    .add {
+      cursor: pointer;
+      color: #2db7f5;
+    }
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
+  .egressBorder {
+    border-top: 1px dashed #ccc;
+    margin: 20px 12px;
+  }
+}

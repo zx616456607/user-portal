@@ -25,7 +25,6 @@ import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import remove from 'lodash/remove'
-import { transform } from 'typescript';
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -119,7 +118,7 @@ class ImageVersion extends Component {
       registry: DEFAULT_REGISTRY,
       imageName: processedName,
     }
-    loadRepositoriesTags(query, {
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
@@ -128,7 +127,7 @@ class ImageVersion extends Component {
         },
         isAsync: true,
       }
-    })
+    }, true)
     loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
       success: {
         func: res => {
@@ -190,9 +189,10 @@ class ImageVersion extends Component {
     const { loadRepositoriesTags, harbor } = this.props
     if (newImageDetail.name != oldImageDatail.name) {
       let processedName = encodeImageFullname(newImageDetail.name)
-      loadRepositoriesTags({
+      const query = {
         registry: DEFAULT_REGISTRY, imageName: processedName, harbor
-      }, {
+      }
+      loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
         success: {
           func: res => {
             if (res && res.data && res.data.length) {
@@ -201,7 +201,7 @@ class ImageVersion extends Component {
           },
           isAsync: true,
         }
-      })
+      }, true)
     }
   }
 
@@ -284,9 +284,10 @@ class ImageVersion extends Component {
             })
           }
           scopeDetail.loadRepos()
-          loadRepositoriesTags({
+          const query = {
             registry: DEFAULT_REGISTRY, imageName: config.name, harbor
-          })
+          }
+          loadRepositoriesTags(harbor, DEFAULT_REGISTRY, config.name)
         },
         isAsync: true
       }, failed: {
@@ -336,9 +337,10 @@ class ImageVersion extends Component {
           this.setState({
             processedName,
           })
-          loadRepositoriesTags({
+          const query = {
             registry: DEFAULT_REGISTRY, imageName: processedName, harbor
-          })
+          }
+          loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName)
         },
         isAsync: true
       },
@@ -500,9 +502,10 @@ class ImageVersion extends Component {
     const { config, loadRepositoriesTags, harbor } = this.props
     const imageDetail = this.props.config
     let processedName = encodeImageFullname(imageDetail.name)
-    loadRepositoriesTags({
+    const query = {
       registry: DEFAULT_REGISTRY, imageName: processedName, harbor
-    }, {
+    }
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, processedName, {
       success: {
         func: res => {
           if (res && res.data && res.data.length) {
@@ -518,7 +521,7 @@ class ImageVersion extends Component {
           })
         }
       }
-    })
+    }, true)
   }
   onPressEnter = e => {
     this.onConfirmOk()

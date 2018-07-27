@@ -626,12 +626,11 @@ function mapStateToProps(state) {
   }
 
   const filterData = operationalTarget.data || []
-
   return {
     isFetching,
     logs,
     namespace,
-    filterData,
+    filterData: filterData.filter(v => v.id !== 0), // 过来掉数据中的‘其他’
   }
 }
 

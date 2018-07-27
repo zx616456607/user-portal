@@ -94,6 +94,28 @@ const appManageRoutes = [{
     component: require('../../client/containers/ServiceDiscover').default,
   },
 },{
+  path: 'security_group',
+  indexRoute: {
+    component: require('../../client/containers/SecurityGroup').default,
+  },
+  childRoutes: [{
+    path: 'create',
+    component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default
+  }, {
+    path: 'network_isolation',
+    indexRoute: {
+      component: require('../components/AppModule/NetworkIsolation').default,
+    },
+  }, {
+    path: 'edit/:name',
+    indexRoute: {
+      component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default,
+    },
+  }, {
+    path: ':name',
+    component: require('../../client/containers/SecurityGroup/SecurityGroupDetail').default,
+  }]
+},{
   path: 'load_balance',
   indexRoute: {
     component: require('../components/AppModule/LoadBalance').default,
@@ -106,11 +128,6 @@ const appManageRoutes = [{
   path: 'snapshot',
   indexRoute: {
     component: require('../components/AppModule/AppSnapshot').default,
-  },
-}, {
-  path: 'network_isolation',
-  indexRoute: {
-    component: require('../components/AppModule/NetworkIsolation').default,
   },
 }, {
   path: 'auto_scale',
