@@ -265,14 +265,6 @@ class QuickCreateApp extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const propHabor = nextProps.cluster.harbor[0]
-    const resServer = this.props.location.query.registryServer
-    if(!!propHabor
-      && !!resServer
-      && (propHabor !== resServer && propHabor.indexOf(resServer) < 0)){
-      window.location.href = window.location.origin
-      return
-    }
     const { location } = nextProps
     const { hash, query } = location
     if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
