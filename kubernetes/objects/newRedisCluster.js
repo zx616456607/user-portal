@@ -36,7 +36,6 @@ class newRedisCluster {
         storageClassName: storageType,
         storageCapacity: size,
         master: configContent,
-        slave: configContent,
         sentinel: ''
       }
     }

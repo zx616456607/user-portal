@@ -351,7 +351,6 @@ export const CREATE_MYSQL_PWD_SUCCESS = 'CREATE_MYSQL_PWD_SUCCESS'
 export const CREATE_MYSQL_PWD_FAILURE = 'CREATE_MYSQL_PWD_FAILURE'
 
 function createMySqlPwd(clusterID, clusterName, pwd, callback) {
-  console.log(clusterID, clusterName, pwd,);
   return {
     [FETCH_API]: {
       types: [CREATE_MYSQL_PWD_REQUEST, CREATE_MYSQL_PWD_SUCCESS, CREATE_MYSQL_PWD_FAILURE],

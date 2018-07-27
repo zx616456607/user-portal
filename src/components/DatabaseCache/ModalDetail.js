@@ -103,7 +103,6 @@ class VolumeDetail extends Component {
   }
 
   render() {
-    console.log(this.props);
     const { volumes } = this.props
     // const containers = this.props.volumes.podSpec.containers[0]
     if (!volumes) {
@@ -193,7 +192,6 @@ class BaseInfo extends Component {
 
     // 判断资源类型是自定义类型还是默认类型
     const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-    console.log(`maxCPUValue:${maxCPUValue}, maxMemoryValue:${maxMemoryValue}, minCPUValue:${minCPUValue}, minMemoryValue:${minMemoryValue}`);
     if (
       maxCPUValue == 1 &&
       minCPUValue == 0.2 &&
@@ -287,8 +285,7 @@ class BaseInfo extends Component {
           }
           updateMysqlPwd(cluster, dbName, body, {
             success: {
-              func: res => {
-                console.log(res);
+              func: () => {
                 setTimeout(() => {
                   loadDbClusterDetail(cluster, dbName, database, true);
                 })
@@ -297,11 +294,6 @@ class BaseInfo extends Component {
                 })
               }
             },
-            failed: {
-              func: error => {
-                console.log(error)
-              }
-            }
           })
         } else if(database === 'redis') {
           const body = {
@@ -371,8 +363,7 @@ class BaseInfo extends Component {
     }
     editDatabaseCluster(cluster, database, dbName, body, {
       success: {
-        func: res => {
-          console.log(res);
+        func: () => {
           setTimeout(() => {
             loadDbClusterDetail(cluster, dbName, database, true);
           })
@@ -557,8 +548,7 @@ class VisitTypes extends Component{
     }
   }
   componentWillMount() {
-    const { service, getProxy, clusterID, databaseInfo } = this.props;
-    console.log(databaseInfo);
+    const { getProxy, clusterID, databaseInfo } = this.props;
     const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
 
     if(lbinfo == 'none') {
@@ -640,14 +630,12 @@ class VisitTypes extends Component{
           }
         }
       }
-      console.log(JSON.stringify(body));
       const notification = new NotificationHandler()
       notification.spin('保存中更改中')
 
       dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, {
         success: {
-          func: (res) => {
-            console.log(res);
+          func: () => {
             notification.close()
             notification.success('出口方式更改成功')
             const { loadDbClusterDetail } = scope.props
@@ -1028,11 +1016,6 @@ class ModalDetail extends Component {
             accessMethodData: res.database
           })
         }
-      },
-      failed: {
-        func: err => {
-          console.log(err);
-        }
       }
     })
     const _this = this
@@ -1207,11 +1190,6 @@ class ModalDetail extends Component {
           this.setState({
             startAlertModal: false
           })
-        }
-      },
-      failed: {
-        func: err => {
-          console.log(err)
         }
       }
     })

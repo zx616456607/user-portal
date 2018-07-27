@@ -53,7 +53,6 @@ function autoBackupChains(state = autoBackupInitial, action: any) {
                 data: [],
             }
         case CHECK_AUTO_BACKUP_EXIST_SUCCESS:
-            console.log(action);
             const data = action.response.result.data
             return {
                 isFetching: false,

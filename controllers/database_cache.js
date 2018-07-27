@@ -373,7 +373,6 @@ exports.getDBService = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'daas', type, serviceName], null);
   const database = result.data || []
-  console.log(JSON.stringify(result.data))
   // Get redis password from init container
   // let initEnv = []
   // let isRedis = false

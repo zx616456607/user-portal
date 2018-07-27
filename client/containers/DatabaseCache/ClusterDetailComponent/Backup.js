@@ -438,7 +438,6 @@ class Backup extends React.Component {
         days: localWeeks,
         daysConvert: newDays,
       })
-      // console.log(period)
     }
     // 确定
     const handleAutoBackupOk = () => {
@@ -527,18 +526,14 @@ class Backup extends React.Component {
       this.setState({
         autoBackupSwitch: val,
       })
-
-      // console.log(val)
     }
     // 获取小时
     const hour = h => {
       this.setState({ hour: `${h}` })
-      // console.log(time)
     }
     // 获取分钟
     const minutes = m => {
       this.setState({ minutes: `${m}` })
-      // console.log(time)
     }
     return <Modal
       visible={this.state.autoBackupModalShow}
