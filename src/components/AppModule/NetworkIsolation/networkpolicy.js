@@ -18,8 +18,8 @@ function parseNetworkPolicy(policy) {
     name: policy.metadata.annotations['policy-name'],
     targetServices: policy.spec.podSelector.matchExpressions[0].values,
   }
-  if (policy.spec.ingress && policy.spec.ingress.from) {
-    const from = policy.spec.ingress.from
+  if (policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
+    const from = policy.spec.ingress[0].from
     result.ingress = []
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
@@ -27,8 +27,8 @@ function parseNetworkPolicy(policy) {
       result.ingress.push(rule)
     }
   }
-  if (policy.spec.egress && policy.spec.egress.to) {
-    const to = policy.spec.egress.to
+  if (policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
+    const to = policy.spec.egress[0].to
     result.egress = []
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
@@ -59,10 +59,10 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
   const policyTypes = []
   if (ingress && ingress.length) {
     policyTypes.push('Ingress')
-    policy.spec.ingress = {
+    policy.spec.ingress = [{
       from: [],
-    }
-    const from = policy.spec.ingress.from
+    }]
+    const from = policy.spec.ingress[0].from
     for (let i = 0; i < ingress.length; ++i) {
       const rule = ingress[i]
       const peer = ruleToPeer(rule)
@@ -71,10 +71,10 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
   }
   if (egress && egress.length) {
     policyTypes.push('Egress')
-    policy.spec.egress = {
+    policy.spec.egress = [{
       to: [],
-    }
-    const to = policy.spec.egress.to
+    }]
+    const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]
       const peer = ruleToPeer(rule)
@@ -194,7 +194,7 @@ const policy = buildNetworkPolicy('时速云', ['svcA1', 'abc123Two', 'lalala456
 }, {
   type: RuleTypeCIDR,
   cidr: '1.2.3.4/16',
-  except: '1.2.3.5',
+  except: ['1.2.3.5'],
 }, {
   type: RuleTypeCIDR,
   cidr: '1.2.3.4/24',

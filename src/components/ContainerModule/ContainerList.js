@@ -87,7 +87,7 @@ let MyComponent = React.createClass({
   },
   exportImageModal(name, status){
     if(status == 'Running'){
-      const { form } = this.props
+      const { form, harbor } = this.props
       const { setFieldsValue } = form
       setFieldsValue({
         'exportImageName': undefined,

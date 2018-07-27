@@ -75,7 +75,6 @@ exports.resourceDefinite = function* () {
   const api = apiFactory.getApi(loginUser)
   const result = yield api.resourcequota.getBy(['definitions'])
   this.body = result
-
 }
 
 

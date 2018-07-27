@@ -36,6 +36,8 @@ static/bundles/
 configs/index.js
 manifest.json
 static/webpack_dll/
+static/devops
+static/monitor
 stats.json
 index.html
 static/blob/*

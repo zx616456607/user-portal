@@ -869,14 +869,14 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 服务发现</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='security_group'>
+                    <Link to='/app_manage/security_group'>
+                      <span><div className='sideCircle'></div> 安全组</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
                       <span><div className='sideCircle'></div> 应用负载均衡</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='network_isolation'>
-                    <Link to='/app_manage/network_isolation'>
-                      <span><div className='sideCircle'></div> 网络隔离</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='auto_scale'>
