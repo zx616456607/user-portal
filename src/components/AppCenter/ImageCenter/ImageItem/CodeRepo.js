@@ -157,7 +157,7 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail, isAdminAndHarbor, location, user, members } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location, user, members, currentUserRole } = this.props
     const { publishModal, currentImage } = this.state
     let { isFetching, list, server, total } = repos || {}
     list = list || []
@@ -343,7 +343,7 @@ class CodeRepo extends Component {
             transitionName="move-right"
             onCancel={()=> this.setState({imageDetailModalShow:false})}
           >
-            <ProjectDetail isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
+            <ProjectDetail currentUserRole={currentUserRole} isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
           </Modal>
           :
           null
