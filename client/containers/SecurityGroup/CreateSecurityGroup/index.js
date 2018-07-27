@@ -17,10 +17,11 @@ import CreateNameAndTarget from './components/NameAndTarget'
 import IngressAndEgressWhiteList from './components/IngressAndEgressWhiteList'
 import { browserHistory } from 'react-router'
 import Notification from '../../../../src/components/Notification'
-import * as securityActions from '../../../../src/actions/services'
+import * as servicesActions from '../../../../src/actions/services'
+import { buildNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
+import * as securityActions from '../../../actions/securityGroup'
 
 const notifi = new Notification()
-
 const formItemLayout = {
   labelCol: {
     xs: { span: 24 },
@@ -37,6 +38,7 @@ class CreateSecurityGroup extends React.Component {
 
   state={
     isCreate: true,
+    loading: false,
   }
 
   componentDidMount() {
@@ -57,17 +59,101 @@ class CreateSecurityGroup extends React.Component {
   }
 
   submit = () => {
-    const { form } = this.props
-    form.validateFields(errors => {
-      // console.log( '////', values )
+    const { form, createSecurityGroup, cluster } = this.props
+    form.validateFields((errors, values) => {
       if (errors) {
         return
       }
+      this.setState({ loading: true })
+      const { name, target, ingress, egress } = values
+      const ingList = []
+      const egList = []
+      if (ingress.length > 0) {
+        ingress.map(el => {
+          const type = values[`ingress${el}`]
+          switch (`ingress${el}`) {
+            case 'cidr':
+              return ingList.push({
+                type: 'cidr',
+                cidr: values[`ingress${type}${el}`],
+                except: [ `ingress${type}${el}except` ],
+              })
+            case 'service':
+              return ingList.push({
+                type: 'service',
+                serviceName: values[`ingress${type}${el}`],
+              })
+            case 'haproxy':
+              return ingList.push({
+                type: 'haproxy',
+              })
+            case 'ingress':
+              return ingList.push({
+                type: 'ingress',
+                ingressId: values[`ingress${type}${el}`],
+              })
+            case 'namespace':
+              return ingList.push({
+                type: 'namespace',
+                namespace: values[`ingress${type}${el}`],
+              })
+            default:
+              return null
+          }
+        })
+      }
+      if (egress.length > 0) {
+        egress.map(el => {
+          const type = values[`egress${el}`]
+          switch (`egress${el}`) {
+            case 'cidr':
+              return ingList.push({
+                type: 'cidr',
+                cidr: values[`egress${type}${el}`],
+                except: [ `egress${type}${el}except` ],
+              })
+            case 'service':
+            case 'mysql':
+            case 'redis':
+              return ingList.push({
+                type: 'service',
+                serviceName: values[`egress${type}${el}`],
+              })
+            case 'namespace':
+              return ingList.push({
+                type: 'namespace',
+                namespace: values[`egress${type}${el}`],
+              })
+            default:
+              return null
+          }
+        })
+      }
+      const body = buildNetworkPolicy(name, target, ingList, egList)
+      createSecurityGroup(cluster, body, {
+        success: {
+          func: () => {
+            notifi.close()
+            notifi.success('新建安全组成功')
+            this.setState({ loading: false })
+            browserHistory.goBack()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: error => {
+            const { message } = error
+            notifi.close()
+            notifi.warn('新建安全组失败', message.message)
+            this.setState({ loading: false })
+          },
+        },
+      })
     })
   }
   render() {
     const { form, serverList } = this.props
-    const { isCreate } = this.state
+    const { isCreate, loading } = this.state
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
         {
@@ -100,7 +186,7 @@ class CreateSecurityGroup extends React.Component {
             <Col span={4}></Col>
             <Col span={20}>
               <Button onClick={() => browserHistory.goBack()} style={{ marginRight: 8 }}>取消</Button>
-              <Button type="primary" onClick={this.submit}>{ isCreate ? '确定' : '保存' }</Button>
+              <Button type="primary" loading={loading} onClick={this.submit}>{ isCreate ? '确定' : '保存' }</Button>
             </Col>
           </Row>
         </div>
@@ -108,6 +194,7 @@ class CreateSecurityGroup extends React.Component {
     </QueueAnim>
   }
 }
+
 const mapStateToProps = ({ entities: { current }, services: { serviceList: { services } } }) => {
   const serverList = []
   services && services.length > 0 && services.map(item => serverList.push(item.metadata.name))
@@ -116,6 +203,8 @@ const mapStateToProps = ({ entities: { current }, services: { serviceList: { ser
     serverList,
   }
 }
+
 export default connect(mapStateToProps, {
-  loadAllServices: securityActions.loadAllServices,
+  loadAllServices: servicesActions.loadAllServices,
+  createSecurityGroup: securityActions.createSecurityGroup,
 })(Form.create()(CreateSecurityGroup))

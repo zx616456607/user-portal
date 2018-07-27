@@ -15,7 +15,8 @@ import { Icon, Button } from 'antd'
 
 class DetailHeader extends React.Component {
   render() {
-    // const { pipelineInfo, createTime } = this.props
+    const { loadData, current } = this.props
+    const name = current && current.metadata.annotations.policyName
     return (
       <div className="container" key="header">
         <div className="left">
@@ -23,7 +24,7 @@ class DetailHeader extends React.Component {
             <Icon type="check-circle-o" />
           </div>
           <div className="nameNStatus">
-            <div className="name">训练******任务</div>
+            <div className="name">安全组名称: { name }</div>
             <div className="status">
               <div style={{ marginRight: 8 }}>创建时间: </div>
               <div> "formatDate(createTime)"</div>
@@ -40,7 +41,7 @@ class DetailHeader extends React.Component {
           </Button>
           <Button
             type="ghost"
-            onClick={this.loadData}>
+            onClick={loadData}>
             <i className="fa fa-refresh" style={{ marginRight: 5 }}/>
             刷新
           </Button>
