@@ -40,6 +40,7 @@ import LogCollection from './LogCollection'
 import OperationEnv from './OperationEnv'
 import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
+import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -796,6 +797,10 @@ let ConfigureService = React.createClass({
           isTemplate={isTemplate}
           {...{location}}
           key="normal"
+        />
+        <SecurityGroup
+          form={form}
+          formItemLayout={formItemLayout}
         />
         <AssistSetting
           form={form}
