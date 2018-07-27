@@ -369,7 +369,7 @@ class MysqlCluster extends Component {
       })}
       width={650}
     >
-      <div className="autoContent">
+      <div className="dbClusterBackup-autoContent">
         <Row className="item">
           <Col span={4} className="title">备份集群</Col>
           <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>

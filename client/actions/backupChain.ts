@@ -9,8 +9,6 @@
  */
 import { FETCH_API } from '../../src/middleware/api';
 import { API_URL_PREFIX } from '../../src/constants';
-import { CREATE_APP_SERVER_FAILURE, CREATE_APP_SERVER_REQUEST, CREATE_APP_SERVER_SUCCESS } from "./clusterAutoScaler";
-import {object} from "prop-types";
 
 // 获取备份链
 export const GET_BACKUPCHAIN_REQUEST = 'GET_BACKUPCHAIN_REQUEST'
@@ -35,25 +33,6 @@ export const getbackupChain = (id: string, type: string, name: string, callback?
   return dispatch => {
     dispatch (fetchBackupChain(id, type, name, callback))
   }
-}
-
-// 获取备份链详情
-export const GET_BACKUPCHAIN_DETAIL_REQUEST = 'GET_BACKUPCHAIN_DETAIL_REQUEST'
-export const GET_BACKUPCHAIN_DETAIL_SUCCESS = 'GET_BACKUPCHAIN_DETAIL_SUCCESS'
-export const GET_BACKUPCHAIN_DETAIL_FAILURE = 'GET_BACKUPCHAIN_DETAIL_FAILURE'
-const fetchBackupChainDetail = (id, type, callback) => {
-  return {
-    [FETCH_API]: {
-      types: [
-        CREATE_APP_SERVER_REQUEST,
-        CREATE_APP_SERVER_SUCCESS,
-        CREATE_APP_SERVER_FAILURE,
-      ],
-      endpoint: `${API_URL_PREFIX}/clusters/${id}/daas/${type}/backups`,
-      schema: {},
-    },
-    callback,
-    }
 }
 
 // 手动创建备份链

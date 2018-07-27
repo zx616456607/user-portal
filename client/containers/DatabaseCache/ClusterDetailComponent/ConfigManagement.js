@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * configManagement component
+ *
+ * v0.1 - 2018-07-12
+ * @author zhouhaitao
+ */
+
 import React from 'react'
 import './style/configManagement.less'
 import { Form, Input, Button } from 'antd'

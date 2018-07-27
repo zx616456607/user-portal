@@ -99,7 +99,7 @@ class Storage extends React.Component {
     const hourPrice = parseAmount(this.state.volumeSize / 1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(
       this.state.volumeSize / 1024 * resourcePrice.storage * 24 * 30, 4)
-    return <div className="storage">
+    return <div className="dbClustetStorage">
       <div className="title">存储</div>
       <div className="extendBtn">
         <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>

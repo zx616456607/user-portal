@@ -174,22 +174,22 @@ class BaseInfo extends Component {
   componentDidMount() {
     // 将后台请求回的资源数据赋值
     const resource = this.props.databaseInfo.resources
+    const { limits, requests } = resource
+    const cpuMax = limits.cpu
+    const memoryMax = limits.memory
+    const cpuMin = requests.cpu
+    const memoryMin = requests.memory
     let resourceConfigs = {
-      maxCPUValue:resource.limits.cpu.indexOf('m')<0? resource.limits.cpu : parseInt(resource.limits.cpu)/1000,
-      maxMemoryValue:resource.limits.memory.indexOf('Gi')>= 0 ? parseInt(resource.limits.memory) * 1000 : parseInt(resource.limits.memory),
-      minCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
-      minMemoryValue:resource.requests.memory.indexOf('Gi')>= 0 ? parseInt(resource.requests.memory) * 100 : parseInt(resource.requests.memory)
+      maxCPUValue:cpuMax.indexOf('m')<0? cpuMax : parseInt(cpuMax)/1000,
+      maxMemoryValue:memoryMax.indexOf('Gi')>= 0 ? parseInt(memoryMax) * 1000 : parseInt(memoryMax),
+      minCPUValue:cpuMin.indexOf('m')<0? cpuMin : parseInt(cpuMin)/1000,
+      minMemoryValue:memoryMin.indexOf('Gi')>= 0 ? parseInt(memoryMin) * 100 : parseInt(memoryMin)
     }
-
     if(resource.requests.cpu.indexOf('m')<0) {
-      resourceConfigs = {
-        maxCPUValue:resource.requests.cpu.indexOf('m')<0? resource.requests.cpu : parseInt(resource.requests.cpu)/1000,
-        maxMemoryValue:resource.limits.memory.indexOf('Gi')>= 0 ? parseInt(resource.limits.memory) * 1000 : parseInt(resource.limits.memory),
-        minCPUValue:resource.limits.cpu.indexOf('m')<0? resource.limits.cpu : parseInt(resource.limits.cpu)/1000,
-        minMemoryValue:resource.requests.memory.indexOf('Gi')>= 0 ? parseInt(resource.requests.memory) * 100 : parseInt(resource.requests.memory)
-      }
+      let temp = resourceConfigs.maxCPUValue
+      resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
+      resourceConfigs.minCPUValue = temp
     }
-
     // 判断资源类型是自定义类型还是默认类型
     const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
     if (

@@ -7,8 +7,6 @@
  * v0.1 - 2018-07-12
  * @author zhouhaitao
  */
-
-
 import React from 'react'
 import './style/Backup.less'
 import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
@@ -145,7 +143,6 @@ class Backup extends React.Component {
         expendKeys: keys,
         currentItemUid: keys[keys.length - 1],
       })
-
     } else {
       this.setState({
         currentItemUid: '',
@@ -174,6 +171,7 @@ class Backup extends React.Component {
       })
       this.setState({ rollBackAlert: false })
     }
+
     const onChange = e => {
       this.setState({
         notYetConfirm: !e.target.checked,
@@ -188,7 +186,7 @@ class Backup extends React.Component {
           <Button key="confirm" type="primary" disabled={this.state.notYetConfirm} onClick={confirmRollBack}>确定</Button>,
         ]}
       >
-        <div className="rollbackAlertContent">
+        <div className="dbClusterBackup-rollbackAlertContent">
           <div className="left">
             <Icon type="question-circle-o" />
           </div>
@@ -247,7 +245,7 @@ class Backup extends React.Component {
       >
         {
           backupChain.index === 0 && backupChain.backType === 'fullbackup' ?
-            <div className="delPoint">
+            <div className="dbClusterBackup-delPoint">
               <Col span={3} className="alert-icon">
                 <Icon type="exclamation-circle-o" />
               </Col>
@@ -544,7 +542,7 @@ class Backup extends React.Component {
       })}
       width={650}
     >
-      <div className="autoContent">
+      <div className="dbClusterBackup-autoContent">
         <Row className="item">
           <Col span={4} className="title">备份集群</Col>
           <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
@@ -653,7 +651,7 @@ class Backup extends React.Component {
       })}
       onOk={commitBackup}
     >
-      <Form className="manualBackup">
+      <Form className="dbClusterBackup-manualBackup">
         <Row>
           <Col span={4} className="title">备份方式</Col>
           <Col span={20}>
@@ -739,7 +737,7 @@ class Backup extends React.Component {
                             <Col span={4}>
                               <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
                                 <img src={rollback} style={iconStyle} alt=""/>
-                                回滚
+                                <span onClick={() => this.rollBack(k)}>回滚</span>
                               </Dropdown.Button>
                             </Col>
                           </Row>
@@ -783,7 +781,7 @@ class Backup extends React.Component {
   }
   render() {
     const { chainsData, database, databaseInfo } = this.props
-    return <div className="backup">
+    return <div className="dbClusterBackup">
       <div className="title">备份</div>
       <div className="content">
         <div className="operation">

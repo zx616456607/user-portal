@@ -1,3 +1,13 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * resourceConfig component
+ *
+ * v0.1 - 2018-07-12
+ * @author zhouhaitao
+ */
+
 import React from 'react'
 import { Row, Col, Form, Icon, InputNumber } from 'antd'
 import './index.less'
