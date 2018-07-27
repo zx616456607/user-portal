@@ -265,6 +265,14 @@ class QuickCreateApp extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const propHabor = nextProps.cluster.harbor[0]
+    const resServer = this.props.location.query.registryServer
+    if(!!propHabor
+      && !!resServer
+      && (propHabor !== resServer && propHabor.indexOf(resServer) < 0)){
+      window.location.href = window.location.origin
+      return
+    }
     const { location } = nextProps
     const { hash, query } = location
     if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
@@ -1276,6 +1284,7 @@ function mapStateToProps(state, props) {
   const { location } = props
   const { wrapList, wrapTemplate } = state.images
   const { loginUser, current } = entities
+  const { cluster } = current
   const { billingConfig } = loginUser.info
   const { enabled: billingEnabled } = billingConfig
   const { loadBalanceList } = loadBalance || { loadBalanceList: {} };
@@ -1290,7 +1299,8 @@ function mapStateToProps(state, props) {
   return {
     fields: quickCreateApp.fields,
     standardFlag,
-    current: current,
+    current,
+    cluster,
     loginUser: loginUser.info,
     wrapList: datalist,
     billingEnabled,
