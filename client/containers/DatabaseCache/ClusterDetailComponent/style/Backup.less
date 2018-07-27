@@ -141,7 +141,7 @@
           font-weight: bold;
           position: relative;
           left: -3px;
-          cursor: pointer;
+          cursor: not-allowed;
           .line {
             width: 1px;
             height: 40px;
@@ -251,5 +251,14 @@
     color: @primary-color;
     font-size: 16px;
     margin-top: -2px;
+  }
+  .alert {
+    margin-bottom: @padding-medium;
+  }
+  .alert-icon {
+    i {
+      font-size: 40px;
+      color: @error-color;
+    }
   }
 }

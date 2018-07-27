@@ -128,7 +128,7 @@ class Storage extends React.Component {
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">存储卷： { this.state.storage }M</div>
+          <div className="name">存储卷： { this.state.storage || 0 }M</div>
         </div>
       </div>
       <Modal

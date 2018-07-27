@@ -82,9 +82,31 @@ let MyComponent = React.createClass({
           return '运行中'
       }
     }
-
+    const style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
+    }
     let items = config.map((item, index) => {
-
       return (
         <div className='List' key={index}>
           <div className='list-wrap'>
@@ -93,14 +115,18 @@ let MyComponent = React.createClass({
               <div className='detailName'>
                 {item.objectMeta.name}
               </div>
+              <div className="status">
+                <span className='listKey'>状态:</span>
+                <span className='normal' style={style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {statusText(item.status)} </span>
+              </div>
+
               <div className='detailName'>
                 <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span>
-                <span className='normal'>{statusText(item.staus)} </span>
-              </li>
               <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建时间</span>

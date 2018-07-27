@@ -48,6 +48,32 @@ class VolumeHeader extends Component {
   constructor(props) {
     super(props)
   }
+  // 类名
+  style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
+
+  }
   render() {
     const { data } = this.props
     return (
@@ -58,9 +84,9 @@ class VolumeHeader extends Component {
           <Link to={`/app_manage/container/` + data.name}>{data.name}</Link>
         </Col>
         <Col span="6">
-          <div className={data.status}>
+          <div style={this.style(data.status)}>
             <i className="fa fa-circle"></i> &nbsp;
-          {data.status}
+            {data.status}
           </div>
         </Col>
         <Col span="10">
@@ -313,12 +339,9 @@ class BaseInfo extends Component {
       </Form>
 
   }
-
-
   // 修改资源配置的时候将值记录下来
   recordResouceConfigValue = (values) => {
     // getResourceByMemory
-    console.log(values);
     this.setState({
       resourceConfigValue: values
     })
@@ -371,17 +394,14 @@ class BaseInfo extends Component {
   }
 
   render() {
-    const { databaseInfo ,dbName } = this.props
+    const { databaseInfo ,dbName, database } = this.props
     const { resourceConfigEdit, composeType } = this.state
     const parentScope = this.props.scope
     const { billingEnabled } = parentScope.props
     const rootScope = parentScope.props.scope
-
-
     // if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
     //   podSpec = databaseInfo.podList.pods[0].podSpec
     // }
-
     let storagePrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
@@ -435,7 +455,7 @@ class BaseInfo extends Component {
 
     const volumeMount = databaseInfo.pods && databaseInfo.pods.map((list, index) => {
       return (
-        <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
+        <Panel header={<VolumeHeader data={list} database={database}/>} key={'volumeMount-' + index}>
           <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={this}/>
         </Panel>
       )

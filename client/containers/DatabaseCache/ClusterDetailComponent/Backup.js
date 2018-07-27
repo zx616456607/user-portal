@@ -27,6 +27,7 @@ import {
 import { loadDbCacheList } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 import rollback from '../../../assets/img/database_cache/rollback.png'
+import TenxIcon from '@tenx-ui/icon'
 // import create from '../../../assets/img/database_cache/new.png'
 import BackupStrategy from '../BackupStrategy'
 
@@ -56,6 +57,7 @@ class Backup extends React.Component {
     minutes: '0',
     currentIndex: '0', // 当前选的第几个备份链
     notAllowDiffBackup: false, // 是否允许差异备份
+    fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
   }
   componentDidMount() {
     this.geiList() // 获取备份链数据
@@ -120,7 +122,7 @@ class Backup extends React.Component {
   }
   renderHeader = (v, i) => {
     return (
-      <Row className="list-item-header" ref="header" key={v.name} style={ this.state.currentItemUid === `${v.name}` ? { background: '#fafafa' } : {}}>
+      <Row className="list-item-header" ref="header" key={v.name}>
         <Col span={6}>
           {v.name}
           { i === 0 && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
@@ -176,7 +178,6 @@ class Backup extends React.Component {
       this.setState({
         notYetConfirm: !e.target.checked,
       })
-
     }
     const content = (
       <Modal
@@ -208,12 +209,12 @@ class Backup extends React.Component {
     })
   }
   delBackupPointAlert = () => {
+    const { backupChain } = this.state
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
     const confirmDel = () => {
       const {
         deleteManualBackupChain, clusterID, databaseInfo, database,
       } = this.props
-      const { backupChain } = this.state
       deleteManualBackupChain(clusterID, database, databaseInfo.objectMeta.name, backupChain.name, {
         success: {
           func: () => {
@@ -226,21 +227,51 @@ class Backup extends React.Component {
         delThis: false,
       })
     }
+    const onChange = e => {
+      this.setState({
+        fullBackupPointDel: !e.target.checked,
+      })
+    }
+    const isCurrentFullBackup = backupChain.index === 0 && backupChain.backType === 'fullbackup'
     return (
       <Modal
         visible={this.state.delThis}
         onOk={confirmDel}
         onCancel={() => this.setState({ delThis: false })}
-        title="删除备份点"
+        title= {isCurrentFullBackup ? '删除全量备份点' : '删除备份点'}
+        footer={[
+          <Button key="cancel" onClick={() => this.setState({ delThis: false })}>取消</Button>,
+          <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel} onClick={confirmDel}>确定</Button>,
+        ]}
+
       >
-        <div className="delPoint">
-          <Icon type="question-circle-o" />
-          此操作不可恢复，确定删除此备份点{this.state.backupChain.name}吗？
-        </div>
+        {
+          backupChain.index === 0 && backupChain.backType === 'fullbackup' ?
+            <div className="delPoint">
+              <Col span={3} className="alert-icon">
+                <Icon type="exclamation-circle-o" />
+              </Col>
+              <Row className="alert">
+                <Col span={21}>
+                  同一条备份链上的备份点与全量备份之间的数据有依赖关系，删除该全量备份后，该备份链上的所有备份点都将被删除，此操作不可恢复
+                </Col>
+              </Row>
+              <Row>
+                <Checkbox onChange={onChange}>若删除此全量备份，自动备份暂不生效，新建一个备份链后可继续自动备份</Checkbox>
+              </Row>
+            </div>
+            :
+            <div className="delPoint">
+              <Icon type="question-circle-o" />
+              此操作不可恢复，确定删除此备份点{this.state.backupChain.name}吗？
+            </div>
+
+        }
       </Modal>
     )
   }
-  delThis = point => {
+  delThis = (point, i) => {
+    point.index = i
     this.setState({
       delThis: true,
       backupChain: point,
@@ -262,8 +293,8 @@ class Backup extends React.Component {
             回滚</div>
         </Menu.Item>
 
-        <Menu.Item key="3" disabled={i === 0}>
-          <div onClick={() => this.delThis(point)}>
+        <Menu.Item key="3">
+          <div onClick={() => this.delThis(point, i)}>
             <Icon type="delete" style={{ marginRight: 5 }}/>
             删除</div>
         </Menu.Item>
@@ -271,41 +302,90 @@ class Backup extends React.Component {
   }
   //  备份点状态
   pointStatus = status => {
-    switch (status) {
-      case 0:
-        return '备份失败'
-      case 1:
-        return '正在备份'
-      case 2:
-        return '完成备份'
-      default:
-        return '未知状态'
+    const { database } = this.props
+    if (database === 'mysql') {
+      switch (status) {
+        case 'Failed':
+          return '备份失败'
+        case 'Scheduled':
+          return '正在备份'
+        case 'Started':
+          return '正在备份'
+        case 'Complete':
+          return '完成备份'
+        default:
+          return '未知状态'
+      }
+    } else if (database === 'redis') {
+      switch (status) {
+        case '202':
+          return '备份失败'
+        case '0':
+          return '正在备份'
+        case '200':
+          return '完成备份'
+        default:
+          return '未知状态'
+      }
+
     }
   }
   //  备份点类名
   pointClass = status => {
-    switch (status) {
-      case 0:
-        return {
-          className: 'err',
-          color: '#f85a5a',
-        }
-      case 1:
-        return {
-          className: 'ing',
-          color: '#2db7f5',
-        }
-      case 2:
-        return {
-          className: 'suc',
-          color: '#5cb85c',
-        }
-      default:
-        return {
-          className: '',
-          color: '#cccccc',
-        }
+    const { database } = this.props
+    if (database === 'mysql') {
+      switch (status) {
+        case 'Failed':
+          return {
+            className: 'err',
+            color: '#f85a5a',
+          }
+        case 'Started':
+          return {
+            className: 'ing',
+            color: '#2db7f5',
+          }
+        case 'Scheduled':
+          return {
+            className: 'ing',
+            color: '#2db7f5',
+          }
+        case 'Complete':
+          return {
+            className: 'suc',
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            className: '',
+            color: '#cccccc',
+          }
+      }
+    } else if (database === 'redis') {
+      switch (status) {
+        case '202':
+          return {
+            className: 'err',
+            color: '#f85a5a',
+          }
+        case '0':
+          return {
+            className: 'ing',
+            color: '#2db7f5',
+          }
+        case '200':
+          return {
+            className: 'suc',
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            className: '',
+            color: '#cccccc',
+          }
+      }
     }
+
   }
   // 全量备份点样式
   fullBackupPoint = status => {
@@ -324,6 +404,16 @@ class Backup extends React.Component {
       curentChain: chain,
       currentIndex: i,
       backupType: i && i !== 0 || this.state.notAllowDiffBackup ? 'fullbackup' : 'diffbackup',
+    }, () => {
+      for (const v of this.state.curentChain.chains) {
+        if (v.backType === 'fullbackup' && (v.status === '' || v.status === 'Failed' || v.status === '202')) {
+          this.setState({
+            backupType: 'fullbackup',
+            notAllowDiffBackup: true,
+          })
+        }
+      }
+
     })
   }
   // 自动备份弹窗组件
@@ -559,7 +649,6 @@ class Backup extends React.Component {
     const nameCheck = getFieldProps('name', {
       rules: [{ required: true, message: '请输入备份名称', whitespace: true }],
     })
-
     return <Modal
       width={650}
       visible={this.state.manualBackupModalShow}
@@ -619,7 +708,6 @@ class Backup extends React.Component {
       fontSize: 0,
       marginRight: 5,
     }
-
     return database === 'mysql' ?
       <Collapse onChange={this.expendPanel}>
         {
@@ -627,7 +715,7 @@ class Backup extends React.Component {
             return <Panel header={this.renderHeader(v, i)} key={v.name}>
               {
                 databaseInfo.status !== 'Running' ?
-                  <div className="disabled-point" onClick={() => this.menualBackup(chainsData[i], i)} >
+                  <div className="disabled-point">
                     <div className="line"></div>
                   </div>
                   :
@@ -714,8 +802,14 @@ class Backup extends React.Component {
             }
           </div>
           {/* 初次备份时候，自动备份禁用 */}
-          <Button type="primary" disabled={chainsData.length === 0 && database === 'mysql'} onClick={this.autoBackup}>设置自动备份</Button>
-          <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled={databaseInfo.status !== 'Running'}>手动备份</Button>
+          <Button type="primary" disabled={chainsData.length === 0 && database === 'mysql'} onClick={this.autoBackup}>
+            <Icon type="setting" />
+            设置自动备份
+          </Button>
+          <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled={databaseInfo.status !== 'Running'}>
+            <TenxIcon type="hand-press" style={{ marginRight: 4 }}/>
+            手动备份
+          </Button>
         </div>
         <div className="list">
           {
