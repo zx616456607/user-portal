@@ -113,6 +113,10 @@ class App extends Component {
       '/app_center/projects/other',
       '/app_center/template/create'
     ]
+    if(pathname === '/app_manage/app_create/quick_create' &&
+      this.props.location.hash === "#configure-service"){
+      return true
+    }
     return !(pathArr.indexOf(pathname) > -1)
   }
   componentWillReceiveProps(nextProps) {
