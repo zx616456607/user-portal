@@ -1,0 +1,33 @@
+#whiteList {
+  display: flex;
+  padding-left: 15px;
+  .listLeft {
+    flex: 1;
+  }
+  .listRight {
+    flex: 4;
+    .lineRow {
+      padding-bottom: 20px;
+      display: flex;
+      & > * {
+        height: 30px;
+        line-height: 30px;
+        margin-right: 12px;
+        border-radius: 5px;
+        border: 1px solid #d9d9d9;
+        background: #f8f8f8;
+        color: #999;
+        padding: 0 12px;
+      }
+      .lineColType {
+        width: 120px;
+      }
+      .lineColLocal {
+        width: 260px;
+      }
+      .lineColServer {
+        width: 200px;
+      }
+    }
+  }
+}
