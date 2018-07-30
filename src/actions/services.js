@@ -266,7 +266,9 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchServiceContainerList(cluster, serviceName, query, callback) {
   const { customizeOpts, projectName, userName } = query || {}
-  delete query.projectName
+  if (query) {
+    delete query.projectName
+  }
   return {
     cluster,
     serviceName,
