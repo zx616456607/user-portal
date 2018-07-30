@@ -268,6 +268,7 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
   const { customizeOpts, projectName, userName } = query || {}
   if (query) {
     delete query.projectName
+    delete query.userName
   }
   return {
     cluster,
