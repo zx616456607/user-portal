@@ -327,7 +327,7 @@ class IngressModal extends React.Component {
             hasFeedback={!!getFieldValue('host')}
             help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="输入域名URL，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
+            <Input placeholder="请输入服务位置，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
           </FormItem>
           <FormItem
             label="访问路径"
