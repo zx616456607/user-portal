@@ -108,7 +108,7 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           filename: body.filename,
         },
         headers: {
-          onbehalfuser: body.namespace,
+          onbehalfuser: body.namespace || '',
         }
       },
       schema: {}
@@ -147,7 +147,7 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           filename: body.filename,
         },
         headers: {
-          onbehalfuser: body.namespace,
+          onbehalfuser: body.namespace || '',
         }
       },
       schema: {}
