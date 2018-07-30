@@ -702,7 +702,6 @@ class QueryLog extends Component {
     const { userName: loginName } = loginUser
     const finalNamespace = namespace === 'default' ? userName ? userName : loginName : loginName
     this.onSelectNamespace(projectName, finalNamespace);
-    this.onSelectCluster(clusterName, clusterID, finalNamespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
@@ -710,10 +709,12 @@ class QueryLog extends Component {
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
+      }, () => {
+        this.onSelectCluster(clusterName, clusterID, finalNamespace);
+        this.onSelectService(service);
+        this.onSelectInstance(instance);
+        setTimeout(this.submitSearch);
       });
-      this.onSelectService(service);
-      this.onSelectInstance(instance);
-      setTimeout(this.submitSearch);
     }
   }
 
