@@ -25,7 +25,6 @@ import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import remove from 'lodash/remove'
-import { transform } from 'typescript';
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -703,16 +702,15 @@ class ImageVersion extends Component {
             </MenuItem>
           )
         })
-        items.unshift(
-          <SubMenu
-            key="subMenu"
-            className="rowContainer"
-            onMouseover={() => overOut(true, name)}
-            onMouseout={() => overOut(false, name)}
-            title={<span><Icon type="tags" /> 配置标签</span>}>
-            {subItems}
-          </SubMenu>
-        )
+        const labelMenu = <SubMenu
+          key="subMenu"
+          className="rowContainer"
+          onMouseover={() => overOut(true, name)}
+          onMouseout={() => overOut(false, name)}
+          title={<span><Icon type="tags" /> 配置标签</span>}>
+          {subItems}
+        </SubMenu>
+        items.unshift(labelMenu)
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
@@ -729,6 +727,12 @@ class ImageVersion extends Component {
                   {
                     isAdminAndHarbor ?
                       items
+                      :
+                      ""
+                  }
+                  {
+                    !isAdminAndHarbor && (currentUserRole === 1 || currentUserRole === 2)?
+                      labelMenu
                       :
                       ""
                   }
@@ -965,6 +969,7 @@ function mapStateToProps(state, props) {
     isFetching: targetImageTag.isFetching,
     isWrapStore,
     harbor,
+    loginUser: state.entities.loginUser.info,
   }
 }
 
