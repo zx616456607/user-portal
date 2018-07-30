@@ -31,6 +31,7 @@ import { LITE } from '../../../constants'
 import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
+import { Link } from 'react-router'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -1395,22 +1396,26 @@ let MirrorService = React.createClass({
     return (
       <div className="mirrorservice">
         <div className="title">
-          镜像服务
+          默认 Harbor
           {
             liteFlag &&
             <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
           }
+          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster'}}>【集群管理】</Link>-<Link to={{pathname: '/app_center/projects'}}>【镜像服务】</Link>配置</span>
         </div>
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
               <img src={MirrorImg} alt="镜像服务" />
             </div>
-            <div className="contentForm" style={{ marginTop: 35 }}>
+            {/*<div className="contentForm" style={{ marginTop: 35 }}>
               <div className="key">新版本支持每个集群配置一个harbor，构建集群必须配置harbor
               </div>
+            </div>*/}
+            <div className="contentkeys">
+              <div className="key">Harbor 地址</div>
             </div>
-            {/*<div className="contentForm">
+            <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
                   <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} id='mirrorServerAgent'/>
@@ -1427,7 +1432,7 @@ let MirrorService = React.createClass({
                 </FormItem>
                 <input type="hidden" {...harborID} />
               </Form>
-            </div>*/}
+            </div>
           </div>
         </div>
       </div>
