@@ -4,7 +4,8 @@
   }
   .host,
   .ceph,
-  .nfs{
+  .nfs,
+  .gfs{
     background: #ffffff;
     border-radius: 4px;
     margin-bottom: 24px;
@@ -119,7 +120,8 @@
     }
   }
   .ceph,
-  .nfs{
+  .nfs,
+  .gfs{
     .list_container{
       padding-bottom: 20px;
       .list,
@@ -127,7 +129,15 @@
         float: left;
         display: inline-block;
       }
-      .defaultStroage.list{
+      .list{
+        position: relative;
+        width: calc(~"100% - 100px");
+        max-width: 1200px;
+        border:1px dashed #666;
+        border-radius: 5px;
+        padding: 20px;
+      }
+      .defaultStorage{
         padding-top: 40px;
         .dafaultGroup{
           position: absolute;
@@ -141,14 +151,6 @@
           border: 1px dashed #cbcbcb;
         }
       }
-      .list{
-        position: relative;
-        width: calc(~"100% - 100px");
-        max-width: 1200px;
-        border:1px dashed #666;
-        border-radius: 5px;
-        padding: 20px;
-      }
       .handle_box{
         width: 100px;
         .right_button{
@@ -158,6 +160,11 @@
     }
   }
   .ceph{
+    .handle_box{
+      padding:134px 0 0 20px;
+    }
+  }
+  .gfs{
     .handle_box{
       padding:134px 0 0 20px;
     }

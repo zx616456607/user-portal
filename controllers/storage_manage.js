@@ -60,6 +60,6 @@ exports.setStorageClassDefault = function* () {
   const body = this.request.body
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([ cluster, 'storageclass', "setdefault"], null, { body })
+  const result = yield api.updateBy([ cluster, 'storageclass', "default"], null, body)
   this.body = result
 }

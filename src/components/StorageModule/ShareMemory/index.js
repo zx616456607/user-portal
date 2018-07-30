@@ -141,12 +141,37 @@ class ShareMemory extends Component {
 
   openCreateModal(){
     const { form, getClusterStorageList, clusterID } = this.props
-    form.resetFields()
+    const { getFieldValue, resetFields, setFieldsValue } = form
+    resetFields()
     this.setState({
       createShareMemoryVisible: true,
       confirmLoading: false,
     })
-    getClusterStorageList(clusterID)
+    getClusterStorageList(clusterID, {
+      success: {
+        func: (res) => {
+          const storageType = getFieldValue("storageType")
+          let tempList
+          let name
+          if(storageType === 'nfs'){
+            tempList = res.data.nfslist
+          }else {
+            tempList = res.data.glusterfsList
+          }
+          tempList.map(item => {
+            if(item.metadata.labels["system/storageDefault"] === "true"){
+              name = item.metadata.name
+            }
+          })
+          setTimeout(() => {
+            setFieldsValue({
+              storageClassName: name,
+            })
+          }, 500)
+        },
+        isAsync: true
+      }
+    })
   }
 
   confirmCreateShareMemory() {
@@ -296,7 +321,7 @@ class ShareMemory extends Component {
         }
       }
       tempList.map(item => {
-        if(item.isDefault === 1){
+        if(item.metadata.labels["system/storageDefault"] === "true"){
           storageClassName = item.metadata.name
         }
       })
@@ -351,18 +376,7 @@ class ShareMemory extends Component {
       searchInput,
       modalStorageType,
     } = this.state
-    let init_storageClassName
-    let tempList
-    if(modalStorageType === 'nfs'){
-      tempList = nfsList
-    }else {
-      tempList = gfsList
-    }
-    tempList.map(item => {
-      if(item.isDefault === 1){
-        init_storageClassName = item.metadata.name
-      }
-    })
+
     const { query = {} } = location
     const { getFieldProps } = form
     const columns = [
@@ -530,110 +544,111 @@ class ShareMemory extends Component {
               确定要删除这 {selectedRowKeys.length} 个存储吗？
             </div>
           </Modal>
-          <Modal
-            className="createShareMemoryModal"
-            title="创建共享存储目录"
-            visible={createShareMemoryVisible}
-            closable={true}
-            onOk={() => this.confirmCreateShareMemory()}
-            onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
-            width="570px"
-            maskClosable={false}
-            confirmLoading={confirmLoading}
-            wrapClassName="create_share_memory_path"
-          >
-            <Form>
-              <FormItem
-                label="存储类型"
-                {...formItemLayout}
-              >
-                <Select
-                  placeholder='请选择类型'
-                  {...getFieldProps('storageType', {
-                    initialValue:'nfs',
-                    onChange: this.onModalStorageTypeChange
-                  })}
-                  className="left"
-                >
-                  <Option key="nfs" value="nfs">NFS</Option>
-                  <Option key="glusterfs" value="glusterfs">GlusterFS</Option>
-                </Select>
+          {
+            createShareMemoryVisible && <Modal
+              className="createShareMemoryModal"
+              title="创建共享存储目录"
+              visible={createShareMemoryVisible}
+              closable={true}
+              onOk={() => this.confirmCreateShareMemory()}
+              onCancel={() => this.setState({createShareMemoryVisible:false, modalStorageType: 'nfs'})}
+              width="570px"
+              maskClosable={false}
+              confirmLoading={confirmLoading}
+              wrapClassName="create_share_memory_path"
+            >
+              <Form>
                 <FormItem
-                  className="right"
-                >
-                  <Select
-                    placeholder='请选择一个server'
-                    {...getFieldProps('storageClassName', {
-                      initialValue: init_storageClassName,
-                      rules:[{
-                        required:true,
-                        message:'server不能为空',
-                      }],
-                    })}
-                  >
-                  {
-                    modalStorageType === 'nfs' ?
-                    nfsList.map(nfs =>
-                      <Option key={nfs.metadata.name}>
-                        {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
-                      </Option>
-                    )
-                    :
-                    gfsList.map(gfs =>
-                      <Option key={gfs.metadata.name}>
-                        {(!!gfs.metadata.annotations && gfs.metadata.annotations['tenxcloud.com/scName']) || gfs.metadata.name}
-                      </Option>
-                    )
-                  }
-                  </Select>
-                </FormItem>
-
-              </FormItem>
-              <FormItem
-                label="存储名称"
-                {...formItemLayout}
-              >
-                <Input
-                  placeholder="请输入存储名称"
-                  {...getFieldProps('name', {
-                    rules:[{
-                      validator: this.checkVolumeNameExist
-                    }],
-                  })}
-                />
-              </FormItem>
-              {
-                this.state.modalStorageType === 'nfs' ?
-                null
-                :
-                <FormItem
-                  label="存储大小"
+                  label="存储类型"
                   {...formItemLayout}
                 >
-                  <Col
-                    className="left">
-                    <Slider min={1} max={20} onChange={this.onSliderChange} value={this.state.sliderValue} />
-                  </Col>
-                  <Col
-                    className="right">
-                    <InputNumber
-                      className="inputNumWid"
-                      placeholder="请输入存储大小" min={1} max={20}
-                      {...getFieldProps('storage', {
-                        initialValue: 1,
-                        onChange: this.onSliderChange,
+                  <Select
+                    placeholder='请选择类型'
+                    {...getFieldProps('storageType', {
+                      initialValue:'nfs',
+                      onChange: this.onModalStorageTypeChange
+                    })}
+                    className="left"
+                  >
+                    <Option key="nfs" value="nfs">NFS</Option>
+                    <Option key="glusterfs" value="glusterfs">GlusterFS</Option>
+                  </Select>
+                  <FormItem
+                    className="right"
+                  >
+                    <Select
+                      placeholder='请选择一个server'
+                      {...getFieldProps('storageClassName', {
                         rules:[{
-                          type: "number"
-                          //validator: this.checkVolumeNameExist
+                          required:true,
+                          message:'server不能为空',
                         }],
                       })}
-                    />
-                  </Col>
-                  <div className='unit'>GB</div>
+                    >
+                    {
+                      modalStorageType === 'nfs' ?
+                      nfsList.map(nfs =>
+                        <Option key={nfs.metadata.name}>
+                          {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
+                        </Option>
+                      )
+                      :
+                      gfsList.map(gfs =>
+                        <Option key={gfs.metadata.name}>
+                          {(!!gfs.metadata.annotations && gfs.metadata.annotations['tenxcloud.com/scName']) || gfs.metadata.name}
+                        </Option>
+                      )
+                    }
+                    </Select>
+                  </FormItem>
+
                 </FormItem>
-              }
-            </Form>
-          </Modal>
+                <FormItem
+                  label="存储名称"
+                  {...formItemLayout}
+                >
+                  <Input
+                    placeholder="请输入存储名称"
+                    {...getFieldProps('name', {
+                      rules:[{
+                        validator: this.checkVolumeNameExist
+                      }],
+                    })}
+                  />
+                </FormItem>
+                {
+                  this.state.modalStorageType === 'nfs' ?
+                  null
+                  :
+                  <FormItem
+                    label="存储大小"
+                    {...formItemLayout}
+                  >
+                    <Col
+                      className="left">
+                      <Slider min={1} max={20} onChange={this.onSliderChange} value={this.state.sliderValue} />
+                    </Col>
+                    <Col
+                      className="right">
+                      <InputNumber
+                        className="inputNumWid"
+                        placeholder="请输入存储大小" min={1} max={20}
+                        {...getFieldProps('storage', {
+                          initialValue: 1,
+                          onChange: this.onSliderChange,
+                          rules:[{
+                            type: "number"
+                            //validator: this.checkVolumeNameExist
+                          }],
+                        })}
+                      />
+                    </Col>
+                    <div className='unit'>GB</div>
+                  </FormItem>
+                }
+              </Form>
+            </Modal>
+          }
         </div>
       </QueueAnim>
     )

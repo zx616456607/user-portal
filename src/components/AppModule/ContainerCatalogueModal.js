@@ -451,7 +451,7 @@ let ContainerCatalogueModal = React.createClass({
   onVolumeChange(value) {
     if (value === 'create') {
       const { getClusterStorageList, clusterID,
-        nfsList, glusterfsList, cephList } = this.props
+        form } = this.props
       getClusterStorageList(clusterID)
       return
     }
@@ -468,16 +468,17 @@ let ContainerCatalogueModal = React.createClass({
     })
     let storageClassName
     let tempList
-    if (!!type1) {
-      if(type1 === 'nfs'){
-        tempList = nfsList
-      } else if(type1 === 'glusterfs') {
-        tempList = glusterfsList
+    const type_1 = form.getFieldValue('type_1')
+    if (!!type_1) {
+      if(type_1 === 'nfs'){
+        tempList = this.props.nfsList
+      } else if(type_1 === 'glusterfs') {
+        tempList = this.props.glusterfsList
       } else {
-        tempList = cephList
+        tempList = this.props.cephList
       }
       tempList.map(item => {
-        if(item.isDefault === 1){
+        if(item.metadata.labels["system/storageDefault"] === "true"){
           storageClassName = item.metadata.name
         }
       })
@@ -637,16 +638,17 @@ let ContainerCatalogueModal = React.createClass({
       })
     },1000);
     let init_storageClassName
-    if (!!type1) {
-      if(type1 === 'nfs'){
+    let tempList = []
+    if (!!type_1) {
+      if(type_1 === 'nfs'){
         tempList = nfsList
-      } else if(type1 === 'glusterfs') {
+      } else if(type_1 === 'glusterfs') {
         tempList = glusterfsList
       } else {
         tempList = cephList
       }
       tempList.map(item => {
-        if(item.isDefault === 1){
+        if(item.metadata.labels["system/storageDefault"] === "true"){
           init_storageClassName = item.metadata.name
         }
       })

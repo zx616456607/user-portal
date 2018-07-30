@@ -630,7 +630,7 @@ function fetchSetDefaultClusterStorageClass(body, callback) {
   return {
     [FETCH_API]: {
       types: [SET_DEFAULT_STORAGE_CLASS_TYPE_REQUEST, SET_DEFAULT_STORAGE_CLASS_TYPE_SUCCESS, SET_DEFAULT_STORAGE_CLASS_TYPE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/storageclass/setdefault`,
+      endpoint: `${API_URL_PREFIX}/clusters/${body.clusterID}/storageclass/setdefault`,
       schema: {},
       options: {
         method: 'PUT',

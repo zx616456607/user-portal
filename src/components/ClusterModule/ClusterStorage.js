@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Switch, Icon, Form, Select, Input, Button, Modal, Spin, Tooltip, Alart } from 'antd'
+import { Switch, Icon, Form, Select, Input, Button, Modal, Spin, Tooltip, Alart, notification } from 'antd'
 import { connect } from 'react-redux'
 import './style/ClusterStorage.less'
 import cloneDeep from 'lodash/cloneDeep'
@@ -121,24 +121,30 @@ class ClusterStorage extends Component {
           let nfsArray = []
           let gfsArray = []
           cephlist.forEach((cephItem, index) => {
+            let isDefault = cephItem.metadata.labels["system/storageDefault"] === "true"
             let item = {
               index,
               disabled: true,
               seePwd: false,
+              isDefault,
             }
             cephArray.push(item)
           })
           nfslist.forEach((nfstem, index) => {
+            let isDefault = nfstem.metadata.labels["system/storageDefault"] === "true"
             let item = {
               index,
               disabled: true,
+              isDefault,
             }
             nfsArray.push(item)
           })
           gfslist.forEach((gfstem, index) => {
+            let isDefault = gfstem.metadata.labels["system/storageDefault"] === "true"
             let item = {
               index,
               disabled: true,
+              isDefault,
             }
             gfsArray.push(item)
           })
@@ -522,7 +528,10 @@ class ClusterStorage extends Component {
       const metadata = cephListData[item.index] ? cephListData[item.index].metadata : {}
       const parameters = cephListData[item.index] ? cephListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `ceph_list_${item.index}` }>
+        <div className={item.isDefault ? 'list defaultStorage' : 'list'} key={ `ceph_list_${item.index}` }>
+          { item.isDefault&&
+              <div className="dafaultGroup">默认</div>
+          }
           <FormItem
             label="集群名称"
             key="cluster_name"
@@ -1116,7 +1125,10 @@ class ClusterStorage extends Component {
       const metadata = gfsListData[item.index] ? gfsListData[item.index].metadata : {}
       const parameters = gfsListData[item.index] ? gfsListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `gfs_list_${item.index}` }>
+        <div className={item.isDefault  ? 'list defaultStorage' : 'list'} key={ `gfs_list_${item.index}` }>
+          { item.isDefault&&
+              <div className="dafaultGroup">默认</div>
+          }
           <FormItem
             label="集群名称"
             key="cluster_name"
@@ -1322,7 +1334,10 @@ class ClusterStorage extends Component {
       const metadata = nfsListData[item.index] ? nfsListData[item.index].metadata : {}
       const parameters = nfsListData[item.index] ? nfsListData[item.index].parameters : {}
       return <div className='list_container' key={`list_container${item.index}`}>
-        <div className={!item.isDefault ? 'list defaultStorage' : 'list'} key={ `nfs_list_${item.index}` }>
+        <div className={item.isDefault  ? 'list defaultStorage' : 'list'} key={ `nfs_list_${item.index}` }>
+          { item.isDefault&&
+              <div className="dafaultGroup">默认</div>
+          }
           <FormItem
             label="nfs 服务名称"
             key="service_name"
@@ -1486,7 +1501,11 @@ class ClusterStorage extends Component {
     </div>
   }
   openDefStoModal (currType) {
-    const defSto = filter(this.state[currType + "Array"].list, { isDefault: 1 })[0]
+    let defSto
+    this.state[currType + "Array"].list.map(o => {
+      if(o.metadata.labels["system/storageDefault"] === "true") defSto = o
+      return o
+    })
     this.setState({
       isShowSetDefaultModal: true,
       currType,
@@ -1520,15 +1539,9 @@ class ClusterStorage extends Component {
       alert
     }
   }
-  onDefSetCancel() {
-    this.setState({
-      isShowSetDefaultModal: false,
-      currType: "",
-      defaultStorage: "",
-    })
-  }
   renderOpt(currType) {
-    return this.state[currType + "Array"].list.map(item => {
+    let options
+    options = this.state[currType + "Array"].list.map(item => {
       const name = item.metadata.annotations["tenxcloud.com/scName"]
       return <Option
         value={item.metadata.name}
@@ -1536,30 +1549,47 @@ class ClusterStorage extends Component {
         {name}
       </Option>
     })
+    return options
   }
-  onDefSetok() {
+  onDefSetok = () => {
     const { form, setDefaultStorage, cluster } = this.props
     const clusterID = cluster.clusterID
     const { currType } = this.state
-    const { getFieldValue } = form
-    const name = getFieldValue("defaultSettingStorage")
-    setDefaultStorage({
-      clusterID,
-      type: currType,
-      name,
-    }, {
-      success: {
-        func: res => {
-          console.log(res)
+    const { getFieldValue, validateFields } = form
+    validateFields(["defaultSettingStorage"], (err, values) => {
+      if(err)return
+      let params = {
+        clusterID,
+        storageType: currType === 'gfs' ? 'glusterfs' : currType,
+      }
+      if(values.defaultSettingStorage){
+        params.name = values.defaultSettingStorage
+      } else {
+        params.disableDefault = true
+      }
+      setDefaultStorage(params, {
+        success: {
+          func: res => {
+            Notification.success((values.defaultSettingStorage ? "设置默认集群" : "清空默认集群") + "成功")
+            this.onDefSetCancel()
+            this.loadClusterStorageList()
+          },
+          isAsync: true,
         },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          console.log(err)
+        failed: {
+          func: err => {
+            Notification.warn("设置默认集群失败")
+          },
+          isAsync: true,
         },
-        isAsync: true,
-      },
+      })
+    })
+  }
+  onDefSetCancel() {
+    this.setState({
+      isShowSetDefaultModal: false,
+      currType: "",
+      defaultStorage: "",
     })
   }
   render() {
@@ -1567,7 +1597,7 @@ class ClusterStorage extends Component {
       isShowSetDefaultModal, currType, defaultStorage
     } = this.state
     const { title, label, alert } = this.getModalContent(currType)
-    const { getFieldProps } = this.props.form
+    const { getFieldProps, getFieldValue } = this.props.form
     return(
       <div id='cluster_storage'>
         <div className='host'>
@@ -1628,7 +1658,7 @@ class ClusterStorage extends Component {
             <div className="check_box"></div>
           </div>
         </div>
-        <div className='ceph'>
+        <div className='gfs'>
           <div className="header">
             分布式文件系统（GlusterFS）- 共享型
             <div className="right">
@@ -1689,6 +1719,7 @@ class ClusterStorage extends Component {
         {
           isShowSetDefaultModal ?
             <Modal
+              maskClosable={false}
               visible={isShowSetDefaultModal}
               title={title}
               wrapClassName="settingDefault"
@@ -1708,12 +1739,21 @@ class ClusterStorage extends Component {
                   placeholder='选择默认集群'
                   {...getFieldProps('defaultSettingStorage',{
                     initialValue: defaultStorage ? defaultStorage : undefined,
+                    onChange:value => this.setState({ defaultStorage: value })
                   })}
                 >
                 {
                   this.renderOpt(currType)
                 }
                 </Select>
+                <Button style={{marginLeft: 5}} disabled={!!!defaultStorage} onClick={() => {
+                  this.setState({
+                    defaultStorage: ""
+                  })
+                  this.props.form.setFieldsValue({ defaultSettingStorage: undefined })
+                }}>
+                  清空设置
+                </Button>
               </Form.Item>
             </Modal>
             :

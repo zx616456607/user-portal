@@ -494,9 +494,9 @@ class CreateVolume extends Component {
     	labelCol: {span: 4},
     	wrapperCol: {span: 19}
     }
-    let init_address = ""
+    let init_address
     cephList.map(item => {
-      if(item.isDefault === 1){
+      if(item.metadata.labels["system/storageDefault"] === "true"){
         init_address = item.metadata.name
       }
     })
