@@ -126,16 +126,19 @@ class AIDeepLearning extends React.Component {
       username, location: { pathname, query: locationQuery },
       children,
     } = this.props
+    let title
     let redirect
-    if (pathname === '/ai-deep-learning/notebook') {
-      redirect = '/ai-deep-learning/notebook'
-    } else if (pathname === '/ai-deep-learning/large-scale-train') {
+    if (pathname === '/ai-deep-learning/large-scale-train') {
+      title = '大规模训练'
       redirect = '/ai-deep-learning/largeScaleTrain'
     } else if (pathname === '/ai-deep-learning/data-set') {
+      title = '数据集'
       redirect = '/ai-deep-learning/dataSet'
     } else if (pathname === '/ai-deep-learning/model-set') {
+      title = '模型集'
       redirect = '/ai-deep-learning/modelSet'
     } else {
+      title = 'Notebook'
       redirect = '/ai-deep-learning/notebook'
     }
     const query = Object.assign(
@@ -151,7 +154,7 @@ class AIDeepLearning extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title="流水线" />
+        <Title title={title} />
         <Spin size="large" />
       </div>
     }
@@ -181,11 +184,11 @@ class AIDeepLearning extends React.Component {
             : 'hiddenContent AIDeepLearningContent CommonSecondContent'
         }
       >
-        <Title title="流水线" />
+        <Title title={title} />
         {
           pathname === '/ai-deep-learning/ai-model-service'
             ? children
-            : <iframe title="流水线" id="pipeline" src={`/ai?${toQuerystring(query)}`} />
+            : <iframe title="AI 深度学习" id="pipeline" src={`/ai?${toQuerystring(query)}`} />
         }
       </div>
     </div>

@@ -59,14 +59,19 @@ class Pipeline extends React.Component {
       project, onbehalfuser, onbehalfuserid, token,
       username, location: { pathname, query: locationQuery },
     } = this.props
+    let title
     let redirect
     if (pathname === '/ci_cd/thirdparty') {
+      title = '第三方工具'
       redirect = '/devops/thirdparty'
     } else if (pathname === '/ci_cd/cached_volumes') {
+      title = '缓存卷'
       redirect = '/devops/volumes/rbd'
     } else if (pathname === '/ci_cd/overview') {
+      title = 'CI/CD 概览'
       redirect = '/devops/pandect'
     } else {
+      title = '流水线'
       redirect = '/devops/pipelines'
     }
     const query = Object.assign(
@@ -82,12 +87,12 @@ class Pipeline extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title="流水线" />
+        <Title title={title} />
         <Spin size="large" />
       </div>
     }
     return <div className="pipeline" style={style}>
-      <Title title="流水线" />
+      <Title title={title} />
       <iframe title="流水线" id="pipeline" src={`/devops?${toQuerystring(query)}`} />
     </div>
   }
