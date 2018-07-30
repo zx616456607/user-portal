@@ -190,7 +190,7 @@ class DelTeamModal extends Component{
             <Icon type="exclamation-circle" />
           </Col>
           <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
-            团队余额将退回至“{userName}（创建者）”帐户，稍后请查收个人帐户的充值记录【来源显示：时速云（注：团队解散退款）】
+            团队余额将退回至“{userName}（创建者）”帐户，稍后请查收个人帐户的充值记录【来源显示：容器云平台（注：团队解散退款）】
           </Col>
         </Row>
       </div>
