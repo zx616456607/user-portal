@@ -134,8 +134,10 @@ class ContainerLogs extends Component {
       </div>
     })()
     setTimeout(() => {
-      this.logRef.clearLogs()
-      this.logRef.writeln(this.getLogs(loading))
+      if(!!this.logRef){
+        this.logRef.clearLogs()
+        this.logRef.writeln(this.getLogs(loading))
+      }
     }, 500)
   }
 
@@ -314,7 +316,6 @@ class ContainerLogs extends Component {
         </div>
       )
     }
-    console.log(logs)
     return loading && logsLoading ? [
       logs.map(this.renderLog),
       loading
