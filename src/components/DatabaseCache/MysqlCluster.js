@@ -206,7 +206,15 @@ class MysqlCluster extends Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode === 404) {
+            notification.error('MySQL集群未找到')
+          }
+        }
       }
+
     })
     const { teamCluster } = this.props
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
@@ -223,7 +231,15 @@ class MysqlCluster extends Component {
       return
     }
     getProxy(cluster)
-    loadDbCacheList(cluster, 'mysql')
+    loadDbCacheList(cluster, 'mysql', {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404) {
+            notification.error('MySQL集群未找到')
+          }
+        }
+      }
+    })
     // 获取集群列表
 
   }

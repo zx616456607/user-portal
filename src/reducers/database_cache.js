@@ -66,11 +66,10 @@ function databaseAllList(state = {}, action) {
           databaseList: action.response.result.databaseList || []
         }
       })
-
     }
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [clusterType]: { isFetching: false }
+      return merge({}, defaultState, {
+        [clusterType]: { isFetching: false },
       })
   // delete database cluster
     case ActionTypes.DELETE_DATABASE_CACHE_SUCCESS: {

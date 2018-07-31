@@ -277,14 +277,14 @@ class Backup extends React.Component {
       </Menu>)
   }
   //  备份点状态
-  pointStatus = status => {
+  pointStatus = (status, item) => {
     const { database } = this.props
     if (database === 'mysql') {
       switch (status) {
         case 'Failed':
           return <div style={{ marginTop: -2 }}>
               备份失败
-            <Tooltip title="失败原因"><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
+            <Tooltip title={`失败原因：${item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
           </div>
         case 'Scheduled':
           return '正在备份'
@@ -540,7 +540,7 @@ class Backup extends React.Component {
                             <Col span={4}>{this.convertBackupType(k.backType)}</Col>
                             <Col span={4}>
                               <span className={ `status ${this.pointClass(k.status).className}` }>
-                                {this.pointStatus(k.status)}
+                                {this.pointStatus(k.status, k)}
                               </span>
                             </Col>
                             <Col span={6}>
@@ -578,7 +578,7 @@ class Backup extends React.Component {
               <Col span={3}>{(v.size / 1024 / 1024).toFixed(2)} M</Col>
               <Col span={3}>
                 <span className={ `status ${this.pointClass(v.chains[0].status).className}` }>
-                  {this.pointStatus(v.chains[0].status)}
+                  {this.pointStatus(v.chains[0].status, v.chains[0])}
                 </span>
               </Col>
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>

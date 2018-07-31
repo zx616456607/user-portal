@@ -198,7 +198,15 @@ class RedisDatabase extends Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode === 500) {
+            notification.error('Redis集群未找到')
+          }
+        }
       }
+
     })
   }
   componentWillMount() {
@@ -210,7 +218,16 @@ class RedisDatabase extends Component {
     }
     getProxy(cluster)
     // 获取集群列表
-    loadDbCacheList(cluster, 'redis')
+    loadDbCacheList(cluster, 'redis', {
+      failed: {
+        func: err => {
+          if (err.statusCode === 500) {
+            notification.error('Redis集群未找到')
+          }
+        }
+      }
+
+    })
   }
   componentDidMount() {
     const _this = this
