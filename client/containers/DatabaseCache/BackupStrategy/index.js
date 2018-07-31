@@ -56,7 +56,7 @@ export default class Index extends React.PureComponent {
     this.props.setPeriod(week, index)
   }
   render() {
-    const { weeksSelected } = this.props
+    const { weeksSelected, disabled } = this.props
     return (
       <div className="container">
         <ButtonGroup>
@@ -64,6 +64,7 @@ export default class Index extends React.PureComponent {
             weeks.map((week, index) => (
               <Button
                 key={week.en}
+                disabled={disabled}
                 type={weeksSelected[index] ? 'primary' : 'default'}
                 onClick={() => this._onWeekChange(week, index)}
               >

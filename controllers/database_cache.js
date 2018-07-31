@@ -120,7 +120,6 @@ exports.deleteDBService = function* () {
     result
   }
 }
-
 /*
 type = mysql/redis/....
 */
@@ -213,6 +212,15 @@ exports.getMySqlClusterPwd = function* () {
   const clusterName = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'])
+  this.body = result
+}
+// 检查集群名是否存在
+exports.checkClusterName = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster
+  const name = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'daas', name, 'exist' ])
   this.body = result
 }
 // 创建集群
@@ -369,7 +377,6 @@ exports.getDBService = function* () {
   const loginUser = this.session.loginUser
   const serviceName = this.params.name
   const type = this.params.type
-
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'daas', type, serviceName], null);
   const database = result.data || []

@@ -498,7 +498,7 @@ class BaseInfo extends Component {
               }
             </div>
             <div className="tips">
-              Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例。 将进行滚动升级。
+              Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例, 将进行滚动升级。
             </div>
 
             <ResourceConfig
@@ -1272,7 +1272,17 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <FormBaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                {
+                  this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
+                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                    currentData={this.props.currentData}
+                    databaseInfo={databaseInfo}
+                    storageValue={this.state.storageValue}
+                    database={this.props.database}
+                    dbName={dbName}
+                    scope= {this}
+                  />
+                }
               </TabPane>
               <TabPane tab='存储' key='#Storage'>
                 <Storage databaseInfo={databaseInfo} database={this.props.database}/>

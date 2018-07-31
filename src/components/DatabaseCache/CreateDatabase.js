@@ -20,11 +20,12 @@ import yaml from 'js-yaml'
 import { setCurrent } from '../../actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getClusterStorageList } from '../../actions/cluster'
-import { getConfigDefault, createMySqlClusterPwd, createMySqlConfig, createDatabaseCluster } from '../../actions/database_cache'
+import { getConfigDefault, createMySqlClusterPwd, createMySqlConfig, createDatabaseCluster, checkDbName } from '../../actions/database_cache'
 import NotificationHandler from '../../components/Notification'
 import ResourceConfig from '../../../client/components/ResourceConfig'
-import { MY_SPACE } from '../../constants'
+import {ASYNC_VALIDATOR_TIMEOUT, MY_SPACE} from '../../constants'
 import { parseAmount, getResourceByMemory } from '../../common/tools.js'
+import { validateK8sResourceForServiceName } from '../../common/naming_validation'
 import './style/CreateDatabase.less'
 import { camelize } from 'humps'
 const Option = Select.Option;
@@ -51,7 +52,7 @@ let CreateDatabase = React.createClass({
     const { ListProjects, cluster, database, getConfigDefault } = this.props
     if(database === 'mysql') {
       this.setState({
-        path:'/ect/mysql',
+        path:'/etc/mysql',
         file: 'mysql.conf'
       })
     }
@@ -61,12 +62,6 @@ let CreateDatabase = React.createClass({
           this.setState({
             advanceConfigContent: res.data.config
           })
-          console.log(res);
-        }
-      },
-      failed: {
-        func: err => {
-          console.log(err)
         }
       }
     })
@@ -124,12 +119,12 @@ let CreateDatabase = React.createClass({
     this.setState({
       currentType: database
     });
-    document.getElementById('dbName').focus()
+    document.getElementById('name').focus()
   },
   onChangeNamespace(namespace) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
-    const { projects, getProjectVisibleClusters, setCurrent, form, current } = this.props
+    const { projects, getProjectVisibleClusters, setCurrent, form } = this.props
     projects.every(space => {
       if (space.namespace == namespace) {
         setCurrent({
@@ -158,39 +153,7 @@ let CreateDatabase = React.createClass({
       return true
     })
   },
-  databaseExists(rule, value, callback) {
-    //this function for check the new database name is exist or not
-    const { databaseNames } = this.props;
-    let existFlag = false;
-    if (!Boolean(value)) {
-      callback();
-      return
-    } else {
-      databaseNames.map((item) => {
-        if (value == item) {
-          callback([new Error('抱歉，该数据库名称已被占用。')]);
-          existFlag = true;
-        }
-      });
 
-      if (value.length < 3) {
-        callback([new Error('数据库名称长度不能少于3位')]);
-        existFlag = true;
-      }
-      if (value.length > 12) {
-        callback('数据库名称长度不高于12位');
-        existFlag = true;
-      }
-      let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
-      if (!checkName.test(value)) {
-        callback([new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头')]);
-        existFlag = true;
-      }
-      if (!existFlag) {
-        callback();
-      }
-    }
-  },
   checkPwd: function () {
     //this function for user change the password box input type
     //when the type is password and change to the text, user could see the password
@@ -460,30 +423,76 @@ let CreateDatabase = React.createClass({
       composeType: type,
     })
   },
+  databaseExists(rule, value, callback) {
+    //this function for check the new database name is exist or not
+    const { checkDbName, cluster } = this.props;
+    let flag = false;
+    if (!Boolean(value)) {
+      callback();
+      return
+    } else {
+      setTimeout(() => {
+        checkDbName(cluster, value, {
+          success: {
+            func: (result) => {
+              if (result.data) {
+                callback([new Error('集群名称已存在')]);
+                flag = true
+                return
+              }
+              callback()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              return callback([new Error('集群名校验失败')])
+              flag = true
+            },
+            isAsync: true
+          }
+        })
+      }, ASYNC_VALIDATOR_TIMEOUT)
+
+    }
+  },
+  dbNameIsLegal(rule, value, callback) {
+    let flag = false;
+    if (!validateK8sResourceForServiceName(value)) {
+      flag = true
+      return callback('名称由3~60 位小写字母、数字、中划线组成')
+    }
+
+    // if (value.length < 3) {
+    //   callback([new Error('集群名称长度不能少于3位')]);
+    //   flag = true;
+    // }
+    // if (value.length > 12) {
+    //   callback('集群名称长度不高于12位');
+    //   flag = true;
+    // }
+    let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
+    if (!checkName.test(value)) {
+      callback([new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头')]);
+      flag = true;
+    }
+    if (!flag) {
+      callback();
+    }
+
+  },
+
   render() {
     const { composeType } = this.state
-    const { isFetching, projects, projectVisibleClusters, space, billingEnabled } = this.props
+    const { isFetching, projects, projectVisibleClusters, space } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
-    const selectNamespaceProps = getFieldProps('namespaceSelect', {
-      rules: [
-        { required: true, message: '请选择项目' },
-      ],
-      initialValue: space.namespace,
-      onChange: this.onChangeNamespace
-    });
-    const selectClusterProps = getFieldProps('clusterSelect', {
-      rules: [
-        { required: true, message: '请选择集群' },
-      ],
-      initialValue: this.props.clusterName,
-      onChange: this.onChangeCluster
-    });
     const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
     const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, whitespace: true ,message:'请输入名称'},
         { validator: this.databaseExists },
+        { validator: this.dbNameIsLegal },
       ],
     });
     let defaultValue = this.getDefaultOutClusterValue()
@@ -559,43 +568,17 @@ let CreateDatabase = React.createClass({
         <div id='CreateDatabase' key="createDatabase">
           <Form horizontal>
             <div className='infoBox'>
-              {/*<div className='commonBox'>*/}
-              {/*<div className='title'>*/}
-              {/*<span>类型</span>*/}
-              {/*</div>*/}
-              {/*<div className='inputBox'>*/}
-              {/*{statefulAppMenus}*/}
-              {/*</div>*/}
-              {/*<div style={{ clear: 'both' }}></div>*/}
-              {/*</div>*/}
-              {/*<div className='commonBox'>*/}
-              {/*<div className='title'>*/}
-              {/*<span>部署环境</span>*/}
-              {/*</div>*/}
-              {/*<div className='inputBox'>*/}
-              {/*<FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>*/}
-              {/*<Select {...selectNamespaceProps} className='envSelect' size='large'>*/}
-              {/*{ teamspaceList }*/}
-              {/*</Select>*/}
-              {/*</FormItem>*/}
-              {/*<FormItem style={{ width: '150px', float: 'left' }}>*/}
-              {/*<Select {...selectClusterProps} className='envSelect' size='large'>*/}
-              {/*{ clusterList }*/}
-              {/*</Select>*/}
-              {/*</FormItem>*/}
-              {/*</div>*/}
-              {/*<div style={{ clear: 'both' }}></div>*/}
-              {/*</div>*/}
               <div className='commonBox'>
                 <div className='title'>
                   <span>名称</span>
                 </div>
                 <div className='inputBox'>
+
                   <FormItem
                     hasFeedback
                     help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
-                    <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
+                    <Input {...nameProps} size='large' id="name" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                   </FormItem>
                 </div>
                 <div style={{ clear: 'both' }}></div>
@@ -717,21 +700,9 @@ let CreateDatabase = React.createClass({
                   </div>
                   <div style={{ clear: 'both' }}></div>
                 </div>}
-              { billingEnabled ?
-                <div className="modal-price">
-                  <div className="price-left">
-                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
-                    <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
-                  </div>
-                  <div className="price-unit">
-                    <p>合计：<span className="unit">{countPrice && countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
-                    <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
-                  </div>
-                </div>
-                :null
-              }
               <div className="commonBox advanceConfig">
-                <div className="top" onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
+                <div className="line"></div>
+                <div className="top" style={{ color: this.state.showAdvanceConfig? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
                   <Icon type={this.state.showAdvanceConfig? "minus-square" : "plus-square"} />
                   高级配置
                 </div>
@@ -747,10 +718,10 @@ let CreateDatabase = React.createClass({
                       <div className="title">挂载目录</div>
                       <div>{this.state.path}</div>
                     </div>
-                    <div className="configItem">
+                    <div className="configItem content">
                       <div className="title">内容</div>
                       <div className="content">
-                        <Input type="textarea" rows={4} value={this.state.advanceConfigContent} onChange={e => {
+                        <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
                           this.setState({
                             advanceConfigContent: e.target.value
                           })
@@ -760,6 +731,16 @@ let CreateDatabase = React.createClass({
                   </div>
                 }
               </div>
+                <div className="modal-price">
+                  <div className="price-left">
+                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
+                  </div>
+                  <div className="price-unit">
+                    <p>合计：<span className="unit">{countPrice && countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice && hourPrice.amount }{countPrice && countPrice.unit=='￥'? '' : ' T'}/小时</span></p>
+                    <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
+                  </div>
+                </div>
             </div>
             <div className='btnBox'>
               <Button size='large' onClick={this.handleReset}>
@@ -789,13 +770,11 @@ function mapStateToProps(state, props) {
   const defaultDbNames = {
     isFetching: false,
     cluster: cluster.clusterID,
-    databaseNames: []
   }
   const { databaseAllNames } = state.databaseCache
-  const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
+  const { isFetching } = databaseAllNames.DbClusters || defaultDbNames
   const { current } = state.entities
   const { projectList, projectVisibleClusters } = state.projectAuthority
-  const { enabled: billingEnabled } = billingConfig
   let projects = projectList.data || []
   projects = ([ MY_SPACE ]).concat(projects)
   let defaultStorageClassList = {
@@ -811,13 +790,11 @@ function mapStateToProps(state, props) {
     namespace,
     space,
     current,
-    databaseNames,
     isFetching,
     projects,
     projectVisibleClusters,
     resourcePrice: cluster.resourcePrice, //storage
     storageClassList: defaultStorageClassList,
-    billingEnabled
   }
 
 }
@@ -846,4 +823,5 @@ export default connect(mapStateToProps, {
   ListProjects,
   getClusterStorageList,
   createMySqlClusterPwd, // 创建密码
+  checkDbName, // 检查集群名是否存在
 })(CreateDatabase)

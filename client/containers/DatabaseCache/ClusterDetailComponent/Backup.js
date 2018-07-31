@@ -9,7 +9,7 @@
  */
 import React from 'react'
 import './style/Backup.less'
-import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Switch, InputNumber, Input, Form } from 'antd'
+import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Tooltip, Input, Form } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
 import {
@@ -24,11 +24,8 @@ import {
 } from '../../../actions/backupChain'
 import { loadDbCacheList } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
-import rollback from '../../../assets/img/database_cache/rollback.png'
 import TenxIcon from '@tenx-ui/icon'
-// import create from '../../../assets/img/database_cache/new.png'
-import BackupStrategy from '../BackupStrategy'
-
+import AutoBackupModal from '../../../components/AutoBackupModal'
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -38,7 +35,7 @@ class Backup extends React.Component {
   state= {
     extendId: '',
     expendKeys: [], // 用expendKeys和keys做对比，keys多出来的那一项是当前展开的
-    currentItemUid: '', // 为了标记当前展开的高亮
+    currentItem: '', // 为了标记当前展开的高亮
     autoBackupModalShow: false, // 自动备份弹框
     manualBackupModalShow: false, // 手动备份弹框
     curentChain: '', // 点击手动备份或者备份链的加号，将当前链或者当前点击的备份链信息存到这里
@@ -47,12 +44,7 @@ class Backup extends React.Component {
     notYetConfirm: true, // 确认回滚勾选
     delThis: false, // 删除备份链弹框显示隐藏
     backupChain: '', // 当前操作的备份点
-    days: [ '0', '1', '2', '3', '4', '5', '6' ],
-    daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
-    autoBackupSwitch: false,
     hadSetAutoBackup: false, // 是否已经设置了自动备份
-    hour: '1',
-    minutes: '0',
     currentIndex: '0', // 当前选的第几个备份链
     notAllowDiffBackup: false, // 是否允许差异备份
     fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
@@ -89,7 +81,7 @@ class Backup extends React.Component {
         func: res => {
           if (database === 'redis') {
             // 如果有数据或者数据内的schedule字段不为空，说明开启了自动备份。把控制自动备份开关的state置为true
-            if (res.data.length !== 0 || res.data[0] && res.data[0].schedule !== '') {
+            if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
               this.setState({
                 autoBackupSwitch: true,
                 hadSetAutoBackup: true,
@@ -120,34 +112,26 @@ class Backup extends React.Component {
   }
   renderHeader = (v, i) => {
     return (
-      <Row className="list-item-header" ref="header" key={v.name}>
+      <Row className="list-item-header" ref="header" key={v.name} style={ this.state.currentItem === `${v.name}` ? { background: '#fafafa' } : {}}>
         <Col span={6}>
           {v.name}
-          { i === 0 && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
+          { (i === 0 && v.masterBackup) && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
         </Col>
-        <Col span={4}>总 {(v.size / 1024).toFixed(2)} kb</Col>
-        <Col span={4}>备份点 {v.chains.length} 个</Col>
-        <Col span={4}>{calcuDate(v.creationTimestamp)}</Col>
+        <Col span={4}>{(v.size / 1024 / 1024).toFixed(2)} M</Col>
+        <Col span={6}>备份点 {v.chains.length} 个</Col>
+        <Col span={6}>创建于{calcuDate(v.creationTimestamp)}</Col>
       </Row>)
   }
   expendPanel = keys => {
     if (keys.length === 0) {
       this.setState({
-        currentItemUid: '',
+        currentItem: '',
       })
       return
     }
-    // 当expendKeys中找不到keys中的最后一项，说明第一次展开，去请求数据
-    if (this.state.expendKeys.indexOf(keys[keys.length - 1]) < 0) {
-      this.setState({
-        expendKeys: keys,
-        currentItemUid: keys[keys.length - 1],
-      })
-    } else {
-      this.setState({
-        currentItemUid: '',
-      })
-    }
+    this.setState({
+      currentItem: keys[keys.length - 1],
+    })
   }
   rollBackAlert = () => {
     const confirmRollBack = () => {
@@ -277,17 +261,11 @@ class Backup extends React.Component {
   }
   // 备份点操作
   backupPointmenu = (point, i) => {
-    const iconStyle = {
-      width: 13,
-      height: 13,
-      fontSize: 0,
-      marginRight: 5,
-    }
     return (
       <Menu>
         <Menu.Item key="1">
           <div onClick={() => this.rollBack(point)}>
-            <img src={rollback} style={iconStyle} alt=""/>
+            <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
             回滚</div>
         </Menu.Item>
 
@@ -304,7 +282,10 @@ class Backup extends React.Component {
     if (database === 'mysql') {
       switch (status) {
         case 'Failed':
-          return '备份失败'
+          return <div style={{ marginTop: -2 }}>
+              备份失败
+            <Tooltip title="失败原因"><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
+          </div>
         case 'Scheduled':
           return '正在备份'
         case 'Started':
@@ -317,11 +298,16 @@ class Backup extends React.Component {
     } else if (database === 'redis') {
       switch (status) {
         case '202':
-          return '备份失败'
+          return <div style={{ marginTop: -2 }}>
+            备份失败
+            <Tooltip title="失败原因"><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
+          </div>
         case '0':
           return '正在备份'
         case '200':
           return '完成备份'
+        case '':
+          return '正在备份'
         default:
           return '未知状态'
       }
@@ -414,176 +400,7 @@ class Backup extends React.Component {
 
     })
   }
-  // 自动备份弹窗组件
-  autoBackupModal = () => {
-    const {
-      database, databaseInfo, clusterID,
-      autoBackupSet, updateAutoBackupSet, autoBackupDetele, loadDbCacheList,
-    } = this.props
-    const parentScope = this.props.scope.props.scope
 
-    // 获取选择备份周期
-    const selectPeriod = (week, index) => {
-      const { days } = this.state
-      const localWeeks = JSON.parse(JSON.stringify(days))
-      localWeeks[index] = localWeeks[index] ? false : week.en
-      // 转换周期格式（仅天）参考格式： http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/crontab.html
-      const newDays = localWeeks.filter(v => !!v)
-      if (newDays[0] === '0') {
-        newDays.push(newDays.shift())
-      }
-      this.setState({
-        days: localWeeks,
-        daysConvert: newDays,
-      })
-    }
-    // 确定
-    const handleAutoBackupOk = () => {
-      const { hour, minutes, daysConvert } = this.state
-      // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
-      const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
-      if (!this.state.autoBackupSwitch) {
-        // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口
-        if (database === 'redis') {
-          const postData = { schedule: '' }
-          updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-            success: {
-              func: () => {
-                parentScope.setState({ detailModal: false })
-                notification.success('关闭自动备份成功')
-                setTimeout(() => {
-                  loadDbCacheList(clusterID, database)
-                  this.checkAutoBackupExist()
-                })
-              },
-            },
-          })
-        } else if (database === 'mysql') {
-          autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
-            success: {
-              func: () => {
-                notification.success('关闭自动备份成功')
-                parentScope.setState({ detailModal: false })
-                setTimeout(() => {
-                  loadDbCacheList(clusterID, database)
-                  this.checkAutoBackupExist()
-                })
-              },
-            },
-            failed: {
-              func: () => {
-                notification.warn('关闭自动备份失败')
-              },
-            },
-          })
-        }
-
-      } else {
-        const postData = { schedule }
-        // 如果已经设置过自动备份，说明要修改，调用修改接口
-        if (this.state.hadSetAutoBackup) {
-          updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-            success: {
-              func: () => {
-                parentScope.setState({ detailModal: false })
-                notification.success('修改自动备份成功')
-                setTimeout(() => {
-                  loadDbCacheList(clusterID, database)
-                  this.checkAutoBackupExist()
-                })
-              },
-            },
-          })
-        } else {
-          // 否则是已经关闭了自动备份，需要调用设置接口
-          autoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-            success: {
-              func: () => {
-                notification.success('设置自动备份成功')
-                parentScope.setState({ detailModal: false })
-                setTimeout(() => {
-                  loadDbCacheList(clusterID, database)
-                  this.checkAutoBackupExist()
-                })
-              },
-            },
-            failed: {
-              func: () => {
-                notification.warn('设置自动备份失败')
-              },
-            },
-          })
-        }
-      }
-      this.setState({
-        autoBackupModalShow: false,
-      })
-    }
-
-    const statusSwitch = val => {
-      this.setState({
-        autoBackupSwitch: val,
-      })
-    }
-    // 获取小时
-    const hour = h => {
-      this.setState({ hour: `${h}` })
-    }
-    // 获取分钟
-    const minutes = m => {
-      this.setState({ minutes: `${m}` })
-    }
-    return <Modal
-      visible={this.state.autoBackupModalShow}
-      title={database === 'redis' ? '设置自动全量备份' : '设置自动差异备份（基于当前链）'}
-      onOk={handleAutoBackupOk}
-      onCancel={() => this.setState({
-        autoBackupModalShow: false,
-      })}
-      width={650}
-    >
-      <div className="dbClusterBackup-autoContent">
-        <Row className="item">
-          <Col span={4} className="title">备份集群</Col>
-          <Col span={19} push={1}>{databaseInfo.objectMeta.name}</Col>
-        </Row>
-        <Row className="item">
-          <Col span={4} className="title">状态</Col>
-          <Col span={3} push={1}>
-            <Switch checkedChildren="开" onChange={statusSwitch} unCheckedChildren="关" checked={this.state.autoBackupSwitch} />
-          </Col>
-          <Col span={1} push={1}>
-            <Icon type="exclamation-circle-o" />
-          </Col>
-          <Col span={12} push={1} className="tip">
-            开启自动备份后，将基于当前链路中的全量备份自动差异备份运行中的集群、
-          </Col>
-        </Row>
-        {
-          this.state.autoBackupSwitch &&
-            <div>
-              <Row className="item">
-                <Col span={4} className="title">备份周期</Col>
-                <Col span={19} push={1}>
-                  <BackupStrategy weeksSelected={this.state.days} setPeriod={selectPeriod}/>
-                </Col>
-              </Row>
-              <Row className="item">
-                <Col span={4} className="title">备份时间</Col>
-                <Col span={19} push={1}>
-                  <div>
-                    <InputNumber min={0} max={24} defaultValue={1} onChange={hour} />
-                    <span className="text">时</span>
-                    <InputNumber min={0} max={60} defaultValue={0} onChange={minutes} />
-                    <span className="text">分</span>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-        }
-      </div>
-    </Modal>
-  }
   // 手动弹窗组件
   manualBackupModal = () => {
     const { database } = this.props
@@ -688,29 +505,21 @@ class Backup extends React.Component {
       case 'fullbackup':
         return '全量备份'
       case 'diffbackup':
-        return '增量备份'
+        return '差异备份'
       default:
         return '未知'
     }
   }
   renderList = () => {
     const { chainsData, database, databaseInfo } = this.props
-    const iconStyle = {
-      width: 13,
-      height: 13,
-      fontSize: 0,
-      marginRight: 5,
-    }
     return database === 'mysql' ?
       <Collapse onChange={this.expendPanel}>
         {
           chainsData.length !== 0 && chainsData.map((v, i) => {
             return <Panel header={this.renderHeader(v, i)} key={v.name}>
               {
-                databaseInfo.status !== 'Running' ?
-                  <div className="disabled-point">
-                    <div className="line"></div>
-                  </div>
+                databaseInfo.status !== 'Running' || !v.masterBackup ?
+                  ''
                   :
                   <div className="new-point" onClick={() => this.menualBackup(chainsData[i], i)} >
                     <div className="line"></div>
@@ -725,18 +534,18 @@ class Backup extends React.Component {
                           dot={k.backType === 'fullbackup' ? this.fullBackupPoint(k.status) : ''}
                           key={k.creationTimestamp}
                           color={this.pointClass(k.status).color}>
-                          <Row>
-                            <Col span={5}>{formatDate(k.creationTimestamp)}</Col>
-                            <Col span={5}>{(k.size / 1024).toFixed(2)} kb</Col>
-                            <Col span={5}>{this.convertBackupType(k.backType)}</Col>
-                            <Col span={5}>
+                          <Row className="children-chain">
+                            <Col span={7}>{formatDate(k.creationTimestamp)}</Col>
+                            <Col span={3}>{(k.size / 1024 / 1024).toFixed(2)} M</Col>
+                            <Col span={4}>{this.convertBackupType(k.backType)}</Col>
+                            <Col span={4}>
                               <span className={ `status ${this.pointClass(k.status).className}` }>
                                 {this.pointStatus(k.status)}
                               </span>
                             </Col>
-                            <Col span={4}>
+                            <Col span={6}>
                               <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
-                                <img src={rollback} style={iconStyle} alt=""/>
+                                <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
                                 <span onClick={() => this.rollBack(k)}>回滚</span>
                               </Dropdown.Button>
                             </Col>
@@ -758,26 +567,44 @@ class Backup extends React.Component {
         {
           chainsData.length !== 0 && chainsData.map(v => {
             return <Row className="redis-list-item-header" ref="header" key={v.name}>
-              <Col span={4}>
-                {v.name}<span style={{ color: '#57c5f7' }}> (全量备份)</span>
+              <Col span={5} className="name">
+                <Tooltip title={v.name}>
+                  <span className="backup-point-name">
+                    {v.name}
+                  </span>
+                </Tooltip>
+                <span style={{ color: '#57c5f7' }}></span>
               </Col>
-              <Col span={4}>总 {(v.size / 1024).toFixed(2)} kb</Col>
-              <Col span={4}>
+              <Col span={3}>{(v.size / 1024 / 1024).toFixed(2)} M</Col>
+              <Col span={3}>
                 <span className={ `status ${this.pointClass(v.chains[0].status).className}` }>
                   {this.pointStatus(v.chains[0].status)}
                 </span>
               </Col>
-              <Col span={4}>{formatDate(v.creationTimestamp)}</Col>
-              <Col span={4} push={4}>
+              <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
+              <Col span={5}>
                 <Dropdown.Button overlay={this.backupPointmenu(v)} type="ghost">
-                  <img src={rollback} style={iconStyle} alt=""/>
-                  回滚
+                  <div onClick={() => this.rollBack(v)}>
+                    <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
+                    回滚
+                  </div>
                 </Dropdown.Button>
               </Col>
             </Row>
           })
         }
       </div>
+  }
+  // 自动备份设置成功
+  setAutobackupSuccess = () => {
+    const parentScope = this.props.scope.props.scope
+    const { loadDbCacheList, clusterID, database } = this.props
+    parentScope.setState({ detailModal: false })
+    loadDbCacheList(clusterID, database)
+    this.setState({
+      autoBackupModalShow: false,
+    })
+    this.checkAutoBackupExist()
   }
   render() {
     const { chainsData, database, databaseInfo } = this.props
@@ -795,26 +622,68 @@ class Backup extends React.Component {
             }
           </div>
           {/* 初次备份时候，自动备份禁用 */}
-          <Button type="primary" disabled={chainsData.length === 0 && database === 'mysql'} onClick={this.autoBackup}>
-            <Icon type="setting" />
-            设置自动备份
-          </Button>
-          <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled={databaseInfo.status !== 'Running'}>
-            <TenxIcon type="hand-press" style={{ marginRight: 4 }}/>
-            手动备份
-          </Button>
+          {
+            chainsData.length === 0 && database === 'mysql' ?
+              <div className="btn-wrapper">
+                <div className="fake">
+                  <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
+                    <div className="mask"></div>
+                  </Tooltip>
+                </div>
+                <Button type="primary" disabled onClick={this.autoBackup}>
+                  <Icon type="setting" />
+                  设置自动备份
+                </Button>
+              </div>
+              :
+              <Button type="primary" onClick={this.autoBackup}>
+                <Icon type="setting" />
+                设置自动备份
+              </Button>
+          }
+          {
+            databaseInfo.status !== 'Running' ?
+              <div className="btn-wrapper">
+                <div className="fake">
+                  <Tooltip title="运行中的集群支持备份">
+                    <div className="mask" ></div>
+                  </Tooltip>
+                </div>
+                <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled>
+                  <TenxIcon type="hand-press" style={{ marginRight: 4 }}/>
+                  手动备份
+                </Button>
+              </div>
+              :
+              <Button onClick={() => this.menualBackup(chainsData[0], 0)}>
+                <TenxIcon type="hand-press" style={{ marginRight: 4 }}/>
+                手动备份
+              </Button>
+          }
         </div>
         <div className="list">
           {
             chainsData.length === 0 ?
-              <div className="no-data">暂无数据</div>
+              <div className="no-data">
+                <Icon type="frown" />暂无数据
+              </div>
               :
               <div>{this.renderList()}</div>
           }
         </div>
       </div>
       {/* 设置自动备份弹框*/}
-      {this.autoBackupModal()}
+      <AutoBackupModal
+        isShow={this.state.autoBackupModalShow}
+        closeModal={() => this.setState({
+          autoBackupModalShow: false,
+        })}
+        hadSetAutoBackup={this.state.hadSetAutoBackup}
+        onSubmitSuccess={this.setAutobackupSuccess}
+        databaseInfo={databaseInfo}
+        database={database}
+      />
+      {/* this.autoBackupModal()*/}
       {/* 手动设置自动备份*/}
       {this.manualBackupModal()}
       {/* 确认回滚弹窗*/}
@@ -825,19 +694,25 @@ class Backup extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const { database } = props
   const { clusterID } = state.entities.current.cluster
   const { namespace } = state.entities.loginUser.info
   const { chains, autoBackupChains } = state.backupChain
   const chainsData = chains.data || []
-  // 将当前备份链放到第一个
-  if (chainsData && chainsData.length !== 0) {
-    for (let i = 0; i < chainsData.length; i++) {
-      if (chainsData[i].masterBackup) {
-        chainsData.unshift(chainsData.splice(i, 1)[0])
-        i = chainsData.length
+  if (database === 'mysql') {
+    // 将当前备份链放到第一个
+    if (chainsData && chainsData.length !== 0) {
+      for (let i = 0; i < chainsData.length; i++) {
+        if (chainsData[i].masterBackup) {
+          chainsData.unshift(chainsData.splice(i, 1)[0])
+          i = chainsData.length
+        }
       }
     }
+  } else if (database === 'redis') {
+    // 排序，最新的放在最上边
+    chainsData.sort((a, b) => Date.parse(b.creationTimestamp) - Date.parse(a.creationTimestamp))
   }
   return {
     namespace,

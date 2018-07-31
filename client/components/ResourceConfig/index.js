@@ -173,7 +173,7 @@ class ResourceConfig extends React.Component {
         </div>
         <div className="contentBox">
           <span>512 MB 内存</span><br />
-          <span>0.1 核 CPU</span>
+          <span>0.2-1 核 CPU</span>
           <div className="triangle"/>
           <Icon type="check" />
         </div>
@@ -253,7 +253,7 @@ class ResourceConfig extends React.Component {
         </div>
         <div className="contentBox">
           <span>512 MB 内存</span><br />
-          <span>0.1 核 CPU</span>
+          <span>0.2-1 核 CPU</span>
           <div className="triangle"/>
           <Icon type="check" />
         </div>

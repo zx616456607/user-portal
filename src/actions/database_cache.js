@@ -141,7 +141,6 @@ export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCES
 export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
 
 function getDbClusterDetail(cluster, dbName, type, needLoading, callback) {
-
   return {
     cluster,
     [FETCH_API]: {
@@ -558,5 +557,28 @@ function getDbDetailRequest (clusterId, name, body, callback) {
 export function getDbDetail(clusterId, name, body, callback) {
   return (dispatch) => {
     return dispatch(getDbDetailRequest(clusterId, name, body, callback))
+  }
+}
+
+
+// 扩容
+export const CHECK_DB_NAME_REQUEST = 'GET_DB_DETAIL_REQUEST'
+export const CHECK_DB_NAME_SUCCESS = 'CHECK_DB_NAME_SUCCESS'
+export const CHECK_DB_NAME_FAILURE = 'CHECK_DB_NAME_FAILURE'
+
+function checkDbNameRequest(clusterId, name, callback) {
+
+  return {
+    [FETCH_API]: {
+      types: [CHECK_DB_NAME_REQUEST, CHECK_DB_NAME_SUCCESS, CHECK_DB_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${name}/check/exist`,
+      schema: {}
+    },
+    callback
+  }
+}
+export function checkDbName(clusterId, name, callback) {
+  return (dispatch) => {
+    return dispatch(checkDbNameRequest(clusterId, name, callback))
   }
 }

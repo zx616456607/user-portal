@@ -13,13 +13,11 @@ import './style/Storage.less'
 import { Button, Icon, Modal, Row, Col, Slider, InputNumber } from 'antd'
 import graphCluster from '../../../assets/img/database_cache/cluster.png'
 import graphStorage from '../../../assets/img/database_cache/storage.png'
-import extend from '../../../assets/img/database_cache/extend.png'
-import extendDisabled from '../../../assets/img/database_cache/extend-disabled.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../src/components/Notification'
 import { expendDatabaseCluster } from '../../../../src/actions/database_cache'
-
+import TenxIcon from '@tenx-ui/icon'
 const notification = new NotificationHandler()
 
 class Storage extends React.Component {
@@ -103,8 +101,8 @@ class Storage extends React.Component {
       <div className="title">存储</div>
       <div className="extendBtn">
         <Button type="primary" disabled={databaseInfo.status !== 'Stopped'} onClick={this.showExtendModal}>
-          <img src={ databaseInfo.status !== 'Stopped' ? extendDisabled : extend } alt=""/>
-          <span>扩容</span>
+          <TenxIcon type="expansion"/>
+          <span style={{ marginLeft: 5 }}>扩容</span>
         </Button>
         {
           databaseInfo.status !== 'Stopped' &&

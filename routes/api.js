@@ -532,7 +532,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBServiceDetail)
   router.get('/clusters/:cluster/daas/:type/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
-
+  // 检查集群名是否存在
+  router.get('/clusters/:cluster/daas/:name/check/exist', databaseCacheController.checkClusterName)
   // 获取高级配置
   router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getAdvanceConfig)
   // 创建配置

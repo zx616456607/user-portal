@@ -24,16 +24,16 @@ const menuList = [
     url: '/database_cache/redis_cluster',
     name: 'Redis集群'
   },
-
-  {
-    url: '/database_cache/zookeeper_cluster',
-    name: 'ZooKeeper集群'
-  },
-
-  {
-    url: '/database_cache/elasticsearch_cluster',
-    name: 'ES集群'
-  },
+  // 数据库缓存相关优化注释掉
+  // {
+  //   url: '/database_cache/zookeeper_cluster',
+  //   name: 'ZooKeeper集群'
+  // },
+  //
+  // {
+  //   url: '/database_cache/elasticsearch_cluster',
+  //   name: 'ES集群'
+  // },
 
   //{
   //  url: '/database_cache/etcd_cluster',

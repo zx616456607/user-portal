@@ -15,6 +15,12 @@
   background: #fff;
   border-radius: @border-radius-base;
   border: 1px solid @border-color-split;
+  .ant-dropdown-button {
+    margin-top: -2px;
+  }
+  .rollback-icon {
+    font-size: 12px;
+  }
   .title {
     position: relative;
     font-size: @font-size-medium;
@@ -35,12 +41,45 @@
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      .btn-wrapper {
+        position: relative;
+        .fake {
+          position: absolute;
+          top: 0;
+          left: 20px;
+          z-index: 100;
+          cursor: not-allowed;
+          opacity: 0;
+          .mask {
+            width: 130px;
+            height: 30px;
+            background: #0aad89;
+          }
+        }
+      }
       button {
         margin-left: @padding-medium;
+      }
+      .tip {
+        margin-left: @padding-base;
+        color: @font-color-4;
       }
     }
     .list {
       margin-top: @padding-base;
+      .children-chain {
+        position: relative;
+        top: -10px;
+        margin-left: 0;
+        margin-right: 0;
+        height: 40px;
+        line-height: 40px;
+        display: block;
+        padding-left: 5px;
+        &:hover {
+          background: #ebf8fe;
+        }
+      }
       .status {
         position: relative;
         &:before {
@@ -59,6 +98,7 @@
         color: @error-color;
         &:before {
           background: @error-color;
+          top: 10px;
         }
       }
       .suc {
@@ -74,10 +114,14 @@
         }
       }
       .no-data {
-        height: 32px;
-        line-height: 34px;
-        border: 1px solid @border-color-split;
+        height: 40px;
+        line-height: 42px;
+        border: 1px dashed @border-color-split;
         text-align: center;
+        color: @font-color-3;
+        i {
+          margin-right: @padding-base;
+        }
       }
       .ant-collapse-header {
         border-left: 1px solid @border-color-base !important;
@@ -204,6 +248,19 @@
           padding-left: 16px;
           &:hover {
             background: #fafafa;
+          }
+          .name {
+            display: flex;
+            .backup-point-name {
+              width: 50px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+            justify-content: flex-start;
+          }
+          .status {
+            margin-left: 12px;
           }
         }
       }

@@ -100,7 +100,7 @@ let CreateTeamModal = React.createClass({
       ],
     })
     const commentProps = getFieldProps('comment', {
-    
+
     })
     const formItemLayout = {
       labelCol: { span: 2 },

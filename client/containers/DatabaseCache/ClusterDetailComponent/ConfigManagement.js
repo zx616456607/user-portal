@@ -17,7 +17,7 @@ import NotificationHandler from '../../../../src/components/Notification'
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
-    sm: { span: 2 },
+    sm: { span: 3 },
   },
   wrapperCol: {
     sm: { span: 18 },
@@ -171,11 +171,12 @@ class ConfigManagement extends React.Component {
                 !this.state.isEdit ?
                   <Button type="primary" onClick={() => this.setState({ isEdit: true })}>修改</Button>
                   :
-                  <div>
+                  <span>
                     <Button onClick={this.onCancel}>取消</Button>
                     <Button type="primary" onClick={this.submitChange}>保存</Button>
-                  </div>
+                  </span>
               }
+              <span className="tip">重新编辑配置文件后，系统将重启该集群的所有实例，将进行滚动升级</span>
             </div>
             <Input type="textarea" {...configContent} disabled={!this.state.isEdit} value={this.state.configContent} rows={6}/>
           </FormItem>

@@ -22,11 +22,22 @@
   .content {
     .ant-form-item {
       margin-bottom: @padding-base !important;
+      margin-left: -10px;
+    }
+    .ant-form-item-required {
+      &:before {
+        display: none;
+      }
     }
     .btnGroup {
       margin-bottom: @padding-base;
       button {
         margin-right: @padding-base;
+      }
+      .tip {
+        font-size: 12px;
+        color: @font-color-4;
+        margin-left: @padding-base;
       }
     }
   }
