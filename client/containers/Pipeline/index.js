@@ -60,22 +60,23 @@ class Pipeline extends React.Component {
       username, location: { pathname, query: locationQuery },
     } = this.props
     let title
-    let redirect
+    let redirect = locationQuery.redirect
+    delete locationQuery.redirect
     if (pathname === '/ci_cd/thirdparty') {
       title = '第三方工具'
-      redirect = '/devops/thirdparty'
+      redirect = redirect || '/devops/thirdparty'
     } else if (pathname === '/ci_cd/cached_volumes') {
       title = '缓存卷'
-      redirect = '/devops/volumes/rbd'
+      redirect = redirect || '/devops/volumes/rbd'
     } else if (pathname === '/ci_cd/overview') {
       title = 'CI/CD 概览'
-      redirect = '/devops/pandect'
+      redirect = redirect || '/devops/pandect'
     } else {
       title = '流水线'
-      redirect = '/devops/pipelines'
+      redirect = redirect || '/devops/pipelines'
     }
     const query = Object.assign(
-      { redirect },
+      {},
       locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, hash,
@@ -93,7 +94,7 @@ class Pipeline extends React.Component {
     }
     return <div className="pipeline" style={style}>
       <Title title={title} />
-      <iframe title="流水线" id="pipeline" src={`/devops?${toQuerystring(query)}`} />
+      <iframe title="流水线" id="pipeline" src={`/devops/#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }

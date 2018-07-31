@@ -767,7 +767,7 @@ class Sider extends Component {
                           try {
                             browserHistory.push('/backup')
                             if (window.monitorPortalHistory) {
-                              window.monitorPortalHistory.push('/backup')
+                              window.monitorPortalHistory.replace('/backup')
                             }
                           } catch (error) {
                             //
@@ -976,7 +976,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/ci_cd/overview')
                           if (window.devFlowPortalHistory) {
-                            window.devFlowPortalHistory.push('/devops/pandect')
+                            window.devFlowPortalHistory.replace('/devops/pandect')
                           }
                         } catch (error) {
                           //
@@ -1009,7 +1009,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/ci_cd/pipelines')
                           if (window.devFlowPortalHistory) {
-                            window.devFlowPortalHistory.push('/devops/pipelines')
+                            window.devFlowPortalHistory.replace('/devops/pipelines')
                           }
                         } catch (error) {
                           //
@@ -1030,7 +1030,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/ci_cd/cached_volumes')
                           if (window.devFlowPortalHistory) {
-                            window.devFlowPortalHistory.push('/devops/volumes/rbd')
+                            window.devFlowPortalHistory.replace('/devops/volumes/rbd')
                           }
                         } catch (error) {
                           //
@@ -1046,7 +1046,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/ci_cd/thirdparty')
                           if (window.devFlowPortalHistory) {
-                            window.devFlowPortalHistory.push('/devops/thirdparty')
+                            window.devFlowPortalHistory.replace('/devops/thirdparty')
                           }
                         } catch (error) {
                           //
@@ -1333,7 +1333,7 @@ class Sider extends Component {
                           try {
                             browserHistory.push('/cluster/monitor')
                             if (window.monitorPortalHistory) {
-                              window.monitorPortalHistory.push('/cluster/monitor')
+                              window.monitorPortalHistory.replace('/cluster/monitor')
                             }
                           } catch (error) {
                             //
@@ -1358,7 +1358,7 @@ class Sider extends Component {
                           try {
                             browserHistory.push('/cluster/backup')
                             if (window.monitorPortalHistory) {
-                              window.monitorPortalHistory.push('/backup')
+                              window.monitorPortalHistory.replace('/backup')
                             }
                           } catch (error) {
                             //
@@ -1382,7 +1382,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/backup')
                           if (window.monitorPortalHistory) {
-                            window.monitorPortalHistory.push('/backup')
+                            window.monitorPortalHistory.replace('/backup')
                           }
                         } catch (error) {
                           //
