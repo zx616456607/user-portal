@@ -41,6 +41,13 @@ class ErrorPage extends Component {
     )
   }
 
+  goHome() {
+    const location = window.parent
+      ? window.parent.location
+      : window.location
+    location.href = '/'
+  }
+
   render() {
     const { code, errorMessage } = this.props
     const { error } = errorMessage
@@ -54,9 +61,7 @@ class ErrorPage extends Component {
         <img className='errorImg' src={error404PNG} />
         <p>{message}</p>
         <div>
-          <a href='/'>
-            <div className='backBtn'>返回首页</div>
-          </a>
+          <div onClick={this.goHome} className='backBtn'>返回首页</div>
         </div>
       </div>
     )

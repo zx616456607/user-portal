@@ -30,8 +30,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/notebook')
-        if (window.devFlowPortalHistory) {
-          window.devFlowPortalHistory.push('/ai-deep-learning/notebook')
+        if (window.aiPortalHistory) {
+          window.aiPortalHistory.replace('/ai-deep-learning/notebook')
         }
       } catch (error) {
         //
@@ -44,8 +44,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/large-scale-train')
-        if (window.devFlowPortalHistory) {
-          window.devFlowPortalHistory.push('/ai-deep-learning/largeScaleTrain')
+        if (window.aiPortalHistory) {
+          window.aiPortalHistory.replace('/ai-deep-learning/largeScaleTrain')
         }
       } catch (error) {
         //
@@ -58,8 +58,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/data-set')
-        if (window.devFlowPortalHistory) {
-          window.devFlowPortalHistory.push('/ai-deep-learning/dataSet')
+        if (window.aiPortalHistory) {
+          window.aiPortalHistory.replace('/ai-deep-learning/dataSet')
         }
       } catch (error) {
         //
@@ -72,8 +72,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/model-set')
-        if (window.devFlowPortalHistory) {
-          window.devFlowPortalHistory.push('/ai-deep-learning/modelSet')
+        if (window.aiPortalHistory) {
+          window.aiPortalHistory.replace('/ai-deep-learning/modelSet')
         }
       } catch (error) {
         //
@@ -142,7 +142,7 @@ class AIDeepLearning extends React.Component {
       redirect = '/ai-deep-learning/notebook'
     }
     const query = Object.assign(
-      { redirect },
+      {},
       locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, cluster, hash,
@@ -188,7 +188,7 @@ class AIDeepLearning extends React.Component {
         {
           pathname === '/ai-deep-learning/ai-model-service'
             ? children
-            : <iframe title="AI 深度学习" id="pipeline" src={`/ai?${toQuerystring(query)}`} />
+            : <iframe title="AI 深度学习" id="pipeline" src={`/ai/#${redirect}?${toQuerystring(query)}`} />
         }
       </div>
     </div>

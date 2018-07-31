@@ -59,7 +59,6 @@ class Monitor extends React.Component {
       project, onbehalfuser, onbehalfuserid, token,
       username, location: { pathname, query: locationQuery },
     } = this.props
-    // let redirect
     let redirect = '/cluster/monitor'
     let title = '系统服务监控'
     if (pathname === '/cluster/backup') {
@@ -67,7 +66,7 @@ class Monitor extends React.Component {
       title = '平台数据备份'
     }
     const query = Object.assign(
-      { redirect },
+      {},
       locationQuery,
       {
         token, username, project, onbehalfuser, onbehalfuserid, hash,
@@ -86,7 +85,7 @@ class Monitor extends React.Component {
     return <div className="monitor" style={style}>
       <Title title={title} />
 
-      <iframe title="监控与备份" id="monitor" src={`/monitor?${toQuerystring(query)}`} />
+      <iframe title="监控与备份" id="monitor" src={`/monitor/#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }
