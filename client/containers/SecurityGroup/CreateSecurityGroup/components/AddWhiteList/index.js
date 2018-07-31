@@ -28,7 +28,6 @@ class AddWhiteList extends React.Component {
   }
 
   remove = k => {
-    const { uuid } = this.state
     const { form, type } = this.props
     // can use data-binding to get
     let keys = form.getFieldValue(`${type}`)
@@ -38,9 +37,6 @@ class AddWhiteList extends React.Component {
     // can use data-binding to set
     form.setFieldsValue({
       [type]: keys,
-    })
-    this.setState({
-      uuid: uuid - 1,
     })
   }
 
@@ -66,7 +62,7 @@ class AddWhiteList extends React.Component {
     const { getFieldValue, getFieldProps } = form
     const option = getFieldValue(`${type}${k}`)
     switch (option) {
-      case 'CIDR':
+      case 'cidr':
         return <span className="typeCidr">
           <FormItem>
             <Input {...getFieldProps(`${type}${option}${k}`, {
@@ -89,7 +85,7 @@ class AddWhiteList extends React.Component {
             />
           </FormItem>
         </span>
-      case 'serviceName':
+      case 'service':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -102,7 +98,7 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}服务`}
           />
         </FormItem>
-      case 'cluster':
+      case 'haproxy':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -115,7 +111,7 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}集群网络出口`}
           />
         </FormItem>
-      case 'load':
+      case 'ingress':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -128,7 +124,7 @@ class AddWhiteList extends React.Component {
           placeholder={`请输入要放通的${target}应用负载均衡`}
           />
         </FormItem>
-      case 'named':
+      case 'namespace':
         return <span className="typeCidr">
           <FormItem>
             <Input {...getFieldProps(`${type}${option}${k}`, {
@@ -150,7 +146,7 @@ class AddWhiteList extends React.Component {
             />
           </FormItem>
         </span>
-      case 'sql':
+      case 'mysql':
         return <FormItem key={`*${k}`}>
           <Input {...getFieldProps(`${type}${option}${k}`, {
             rules: [{
@@ -184,15 +180,18 @@ class AddWhiteList extends React.Component {
   render() {
     const { form, type } = this.props
     const isIngress = type === 'ingress'
-    let selectData = [{ value: 'CIDR', inner: 'CIDR' },
-      { value: 'serviceName', inner: '服务名称' },
-      { value: 'cluster', inner: '集群网络出口' },
-      { value: 'load', inner: '应用负载均衡' },
-      { value: 'named', inner: '命名空间' }]
-    if (!isIngress) {
+    let selectData = [{ value: 'cidr', inner: 'CIDR' },
+      { value: 'service', inner: '服务名称' },
+      { value: 'namespace', inner: '命名空间' }]
+    if (isIngress) {
+      selectData = selectData.concat([
+        { value: 'haproxy', inner: '集群网络出口' },
+        { value: 'ingress', inner: '应用负载均衡' },
+      ])
+    } else {
       selectData = selectData.concat([
         { value: 'redis', inner: 'Redis 集群' },
-        { value: 'sql', inner: 'MySQL 集群' },
+        { value: 'mysql', inner: 'MySQL 集群' },
       ])
     }
     const { getFieldProps, getFieldValue } = form
@@ -212,7 +211,7 @@ class AddWhiteList extends React.Component {
                   rules: [{
                     required: true, message: '请选择',
                   }],
-                  initialValue: 'CIDR',
+                  initialValue: 'cidr',
                 })}>
                 {
                   selectData.map((item, ind) => {
@@ -237,16 +236,16 @@ class AddWhiteList extends React.Component {
             formItems :
             <Row className="ingress" key={type}>
               <Col span={4}></Col>
-              <Col span={20}>
+              <Col span={10} className="addCol">
                 <img src={imgurl} alt="无白名单"/>
-                <p>{ type } 无白名单，该策略 { type } 隔离不生效</p>
+                <p className="addCol">{ type } 无白名单，该策略 { type } 隔离不生效</p>
               </Col>
             </Row>
         }
       </QueueAnim>
       <Row className="ingress">
         <Col span={4}></Col>
-        <Col span={3} onClick={this.add} className="add">
+        <Col span={10} onClick={this.add} className="addCol add">
           <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
           添加一个{ isIngress ? '来源' : '目标' }
         </Col>

@@ -18,6 +18,7 @@ import NetworkAllow from '../../../assets/img/app/networkAllow.png'
 import NetworkForbid from '../../../assets/img/app/networkForbid.png'
 import NotificationHandler from '../../../components/Notification'
 import { getNetworkIsolationStatus, postNetworkIsolation, deleteNetworkIsolation } from '../../../actions/app_manage'
+import { browserHistory } from 'react-router'
 
 class NetworkIsolation extends Component {
   constructor(props) {
@@ -31,7 +32,7 @@ class NetworkIsolation extends Component {
       allow: false
     }
   }
-  
+
   getNetworkIsolationStatus(){
     const { getNetworkIsolationStatus, clusterID, namespace } = this.props
     let body = {
@@ -156,7 +157,7 @@ class NetworkIsolation extends Component {
       }
     })
   }
-  
+
   render() {
     const { allow } = this.state
     return(
@@ -188,6 +189,14 @@ class NetworkIsolation extends Component {
             </div>
           </div>
           <div className="footer">
+            <Button
+              type="primary"
+              size="large"
+              style={{ marginRight: 20 }}
+              onClick={() => browserHistory.goBack()}
+              >
+              返回
+            </Button>
             <Button type="primary" size="large" onClick={this.openSetNetwordModal}>
               {
                 allow

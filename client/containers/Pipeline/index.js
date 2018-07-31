@@ -56,7 +56,7 @@ class Pipeline extends React.Component {
 
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token,
+      project, onbehalfuser, onbehalfuserid, token, billingEnabled,
       username, location: { pathname, query: locationQuery },
     } = this.props
     let title
@@ -78,7 +78,8 @@ class Pipeline extends React.Component {
       { redirect },
       locationQuery,
       {
-        token, username, project, onbehalfuser, onbehalfuserid, hash,
+        token, username, project, onbehalfuser,
+        onbehalfuserid, hash, billingenabled: billingEnabled ? 1 : 0,
       }
     )
     const { windowHeight } = this.state
@@ -100,6 +101,8 @@ class Pipeline extends React.Component {
 
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   let onbehalfuser
   let onbehalfuserid
   // sys admin check user personal space
@@ -121,6 +124,7 @@ const mapStateToProps = state => {
     project,
     username,
     token,
+    billingEnabled,
   }
 }
 

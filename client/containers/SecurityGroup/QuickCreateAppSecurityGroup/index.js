@@ -64,7 +64,7 @@ class SecyrityCollapse extends React.Component {
                       required: true,
                       message: '请选择安全组',
                     }],
-                    // initialValue: 'lucy',
+                    initialValue: 'lucy',
                   })}
                 >
                   <Option value="jack">jack</Option>

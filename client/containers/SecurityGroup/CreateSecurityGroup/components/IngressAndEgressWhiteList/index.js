@@ -29,7 +29,7 @@ export default class IngressWhiteList extends React.Component {
       />
       <div className="egressBorder"></div>
       <Row className="ingress">
-        <Col span={4} className="firstCol">egress 目标白名单</Col>
+        <Col span={4} className="firstCol"> &nbsp;&nbsp;egress 目标白名单</Col>
         <Col span={20} className="ingressTit">
           无论项目是否设置了『项目内或项目间』隔离，隔离对象访问 egress 白名单的对象
         </Col>
