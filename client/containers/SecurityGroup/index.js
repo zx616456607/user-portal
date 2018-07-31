@@ -67,7 +67,7 @@ class SecurityGroup extends React.Component {
   }
 
   editItem = record => {
-    browserHistory.push(`/app_manage/security_group/edit/${record.name}`)
+    browserHistory.push(`/app_manage/security_group/edit/${record.metaName}`)
   }
 
   deleteItem = record => {
@@ -238,7 +238,8 @@ const mapStateToProps = ({
 }) => {
   const listData = []
   data && data.map(item => listData.push({
-    name: item.metadata.annotations.policyName,
+    name: item.metadata.annotations['policy-name'],
+    metaName: item.metadata.name,
     target: item.spec.podSelector.matchExpressions[0].values,
     time: item.metadata.creationTimestamp,
     key: item.metadata.name,

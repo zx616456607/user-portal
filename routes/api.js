@@ -730,9 +730,10 @@ module.exports = function (Router) {
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
 
   // Network Isolation
-  router.get('/cluster/:clusterID/networkisolation', netIsolationController.getCurrentSetting)
-  router.post('/cluster/:clusterID/networkisolation', netIsolationController.setIsolationRule)
-  router.delete('/cluster/:clusterID/networkisolation', netIsolationController.restoreDefault)
+  router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.restoreDefault)
+  router.post('/cluster/:clusterID/networkpolicy/bypass-namespace-internal', netIsolationController.setEachConnect)
 
   // Apms
   router.get('/clusters/:clusterID/apms', apmController.getApms)

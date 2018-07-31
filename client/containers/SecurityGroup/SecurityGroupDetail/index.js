@@ -44,19 +44,19 @@ class SecurityGroupDetail extends React.Component {
     }))
   }
   render() {
+    const { current } = this.state
     return <div className="securityPageDetail">
       <QueueAnim className="detail">
         <DetailHeader key="securityDetail"
-          current={this.state.current}
+          current={current}
           loadData={this.loadData}/>
-        <Card key="secutiryDetailcard">
+        <Card key="securityDetailCard">
           <p className="detailTitle">隔离对象</p>
-          <IsolatedObj
-            current={this.state.current} />
+          <IsolatedObj current={current} />
           <p className="detailTitle">隔离对象的访问白名单</p>
-          <WhiteList type="ingress" current={this.state.current} />
+          <WhiteList type="ingress" current={current} />
           <div className="ingressDriver"></div>
-          <WhiteList typpe="egress" current={this.state.current} />
+          <WhiteList typpe="egress" current={current} />
         </Card>
       </QueueAnim>
     </div>

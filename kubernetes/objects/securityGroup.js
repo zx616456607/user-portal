@@ -15,10 +15,10 @@ const RuleTypeNamespace = 'namespace'
 
 function parseNetworkPolicy(policy) {
   const result = {
-    name: policy.metadata.annotations['policy-name'],
-    targetServices: policy.spec.podSelector.matchExpressions[0].values,
+    name: policy.metadata && policy.metadata.annotations['policy-name'],
+    targetServices: policy.spec && policy.spec.podSelector.matchExpressions[0].values,
   }
-  if (policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
+  if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
     const from = policy.spec.ingress[0].from
     result.ingress = []
     for (let i = 0; i < from.length; ++i) {
