@@ -702,7 +702,6 @@ class QueryLog extends Component {
     const { userName: loginName } = loginUser
     const finalNamespace = namespace === 'default' ? userName ? userName : loginName : loginName
     this.onSelectNamespace(projectName, finalNamespace);
-    this.onSelectCluster(clusterName, clusterID, finalNamespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
@@ -710,10 +709,12 @@ class QueryLog extends Component {
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
+      }, () => {
+        this.onSelectCluster(clusterName, clusterID, finalNamespace);
+        this.onSelectService(service);
+        this.onSelectInstance(instance);
+        setTimeout(this.submitSearch);
       });
-      this.onSelectService(service);
-      this.onSelectInstance(instance);
-      setTimeout(this.submitSearch);
     }
   }
 
@@ -859,9 +860,17 @@ class QueryLog extends Component {
         currentServiceItem: item,
         currentFile: '所有文件',
       });
-      const projectName = currentNamespace.split(',')[0]
+      const { loginUser } = this.props
+      const { userName: loginName } = loginUser
+      const [ projectName, userName ] = currentNamespace.split(',')
+      let query = {
+        projectName,
+      }
+      if (projectName === 'default' && (loginName !== userName)) {
+        query = Object.assign({}, query, { userName })
+      }
       const { loadServiceContainerList } = this.props;
-      loadServiceContainerList(this.state.currentClusterId, name, { projectName }, {
+      loadServiceContainerList(this.state.currentClusterId, name, query, {
         success: {
           func: (res) => {
             let path = '未配置采集目录'
@@ -1045,7 +1054,7 @@ class QueryLog extends Component {
     this.setState({
       goBackLogs: false,
     })
-    const { getQueryLogList, getServiceQueryLogList, logs } = this.props;
+    const { getQueryLogList, getServiceQueryLogList, logs, loginUser } = this.props;
     let key_word = this.state.key_word;
     if (this.state.queryType) {
       if (key_word && key_word.length > 0) {
@@ -1061,7 +1070,12 @@ class QueryLog extends Component {
       log_type: this.state.logType,
       filename: '',
     }
-    const { currentFile } = this.state
+    const { currentFile, currentNamespace } = this.state
+    const { userName } = loginUser
+    const [ projectName, namespace ] = currentNamespace.split(',')
+    if (projectName === 'default' && (userName !== namespace)) {
+      body = Object.assign({}, body, { namespace })
+    }
     if(currentFile !== '所有文件'){
       body.filename = currentFile
     }

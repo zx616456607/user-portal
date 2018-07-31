@@ -24,6 +24,7 @@ const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/permission\/access\-controls\/overview/,
   /^\/resourcequota\/apply/,
   /^\/clusters\/[\-\w]+\/endpoints/, // clusters/<clusterId>/endpoints
+  /^\/clusters\/[\-\w]+\/networkpolicy/,
 ]
 
 // Fetches an API response

@@ -100,7 +100,6 @@
           // console.log('error', event)
         })
         ws.addEventListener('message', function (message) {
-          console.log('message', message)
           if (b64_to_utf8(message.data) === '[403 resource permission error] This operation has no permissions') {
             const error = {
               statusCode: 403,

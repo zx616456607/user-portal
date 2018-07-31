@@ -126,6 +126,7 @@ class ClusterStorage extends Component {
               index,
               disabled: true,
               seePwd: false,
+              readOnly: true,
               isDefault,
             }
             cephArray.push(item)
@@ -417,6 +418,7 @@ class ClusterStorage extends Component {
       index: index + 1,
       disabled: false,
       newAdd: true,
+      readOnly: true,
     })
     setTimeout(() => {
       const id = `RBD_name${index + 1}`
@@ -502,6 +504,19 @@ class ClusterStorage extends Component {
     this.setState({
       gfsArray: {
         ...this.state.gfsArray,
+        listArray: list,
+      },
+    })
+  }
+  setReadOnly = (data, readOnly) => {
+    const { index, disabled } = data
+    if (disabled) return
+    const { cephArray } = this.state
+    const list = []
+    cephArray.listArray.map(local => list.push(local.index !== index ? local : { ...local, readOnly }))
+    this.setState({
+      cephArray: {
+        ...this.state.cephArray,
         listArray: list,
       },
     })
@@ -621,6 +636,7 @@ class ClusterStorage extends Component {
               placeholder='如： admin'
               disabled={item.disabled}
               size="large"
+              autoComplete="on"
               {...getFieldProps(`RBD_adminId${item.index}`, {
                 initialValue: parameters ? parameters.adminId : undefined,
                 rules: [{
@@ -643,6 +659,10 @@ class ClusterStorage extends Component {
               placeholder='请输入用户认证密钥'
               disabled={item.disabled}
               size="large"
+              autoComplete="on"
+              readOnly={item.readOnly}
+              onFocus={() => this.setReadOnly(item, false)}
+              onBlur={() => this.setReadOnly(item, true)}
               type={!item.disabled && item.seePwd ? 'text' : 'password' }
               {...getFieldProps(`RBD_key${item.index}`, {
                 initialValue: parameters ? parameters.key : undefined,
