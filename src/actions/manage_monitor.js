@@ -106,6 +106,9 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           time_nano: body.time_nano,
           direction: body.direction,
           filename: body.filename,
+        },
+        headers: {
+          onbehalfuser: body.namespace || '',
         }
       },
       schema: {}
@@ -142,6 +145,9 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           time_nano: body.time_nano,
           direction: body.direction,
           filename: body.filename,
+        },
+        headers: {
+          onbehalfuser: body.namespace || '',
         }
       },
       schema: {}

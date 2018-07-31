@@ -265,8 +265,11 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchServiceContainerList(cluster, serviceName, query, callback) {
-  const { customizeOpts, projectName } = query || {}
-  delete query.projectName
+  const { customizeOpts, projectName, userName } = query || {}
+  if (query) {
+    delete query.projectName
+    delete query.userName
+  }
   return {
     cluster,
     serviceName,
@@ -278,6 +281,7 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
       options: {
         headers: {
           teamspace: projectName || 'default',
+          onbehalfuser: userName || '',
         }
       },
     },
