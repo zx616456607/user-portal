@@ -140,10 +140,10 @@ class Project extends Component {
     this.deleteItemOk = this.deleteItemOk.bind(this)
   }
 
-  loadData(query ) {
+  loadData(query = {}) {
     const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
-    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, { harbor }, query), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
@@ -161,6 +161,9 @@ class Project extends Component {
     if(!!nextProps.harbor && !isLoaded){
       isLoaded = true
       this.props.loadSysteminfo(DEFAULT_REGISTRY)
+    }
+    if(nextProps.harbor !== this.props.harbor){
+      this.loadData({ harbor: nextProps.harbor })
     }
   }
   componentDidUpdate() {

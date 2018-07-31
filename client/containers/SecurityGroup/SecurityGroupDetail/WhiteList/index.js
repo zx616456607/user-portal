@@ -9,17 +9,48 @@
  */
 import React from 'react'
 import './style/index.less'
+import { parseNetworkPolicy } from '../../../../../kubernetes/objects/securityGroup'
 
 class DetailWhiteList extends React.Component {
   render() {
-    const isIngress = this.props.type === 'ingress' && true || false
-    const isolateObj = [{ type: 'CIDR', name: '3.3.3.3', server: 'aaa,bbb' },
-      { type: 'CIDR', name: '3.3.3.3', server: 'aaa,bbb' }].map((item, k) => {
-      return <div className="lineRow" key={k}>
-        <div className="lineColType">{item.type}</div>
-        <div className="lineColLocal">{item.name}</div>
-        <div className="lineColServer">{item.server}</div>
-      </div>
+    const { type, current } = this.props
+    const isIngress = type === 'ingress' && true || false
+    const result = parseNetworkPolicy(current)
+    const { egress, ingress } = result
+    const detailArr = isIngress ? ingress : egress
+    const isolateObj = detailArr && detailArr.map((item, k) => {
+      switch (item.type) {
+        case 'cidr':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">CIDR</div>
+            <div className="lineColLocal">{item.cidr}</div>
+            除去
+            <div className="lineColServer">{item.except || '无'} </div>
+          </div>
+        case 'service':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">服务名称</div>
+            <div className="lineColLocal">{item.serviceName}</div>
+          </div>
+        case 'haproxy':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">集群网络出口</div>
+            {/* <div className="lineColLocal">{item.haproxy}</div>
+            <div className="lineColServer">{item.except || '无'} </div> */}
+          </div>
+        case 'ingress':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">应用负载均衡</div>
+            <div className="lineColLocal">{item.ingressId}</div>
+          </div>
+        case 'namespace':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">命名空间</div>
+            <div className="lineColLocal">{item.namespace}</div>
+          </div>
+        default:
+          return <span>---</span>
+      }
     })
     return (
       <div id="whiteList" >
@@ -28,7 +59,7 @@ class DetailWhiteList extends React.Component {
           <p>（{ isIngress ? '入站' : '出站' }）</p>
         </div>
         <div className="listRight">
-          { isolateObj }
+          { isolateObj || <div className="lineRow" key={type}>无</div> }
         </div>
       </div>
     )

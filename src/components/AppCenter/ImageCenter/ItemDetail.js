@@ -87,17 +87,6 @@ class ItemDetail extends Component {
     })
   }
 
-  renderPublic(key) {
-    switch (key) {
-      case 0:
-        return '私有仓库组'
-      case 1:
-        return '公开仓库组'
-      default:
-        break;
-    }
-  }
-
   renderRole(role) {
     switch (role) {
       case 0:
@@ -121,7 +110,7 @@ class ItemDetail extends Component {
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     let currentMember = {}
     members.every(member => {
-      if (member.username === loginUser.userName) {
+      if (member.entityName === loginUser.userName) {
         currentMember = member
         return false
       }
@@ -136,7 +125,7 @@ class ItemDetail extends Component {
     let isAdminAndHarbor = (isAdmin && role === ROLE_SYS_ADMIN) || (currentUserRole === 1)
     const tabPanels = [
       <TabPane tab="镜像仓库" key="repo">
-        <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
+        <CodeRepo currentUserRole={currentUserRole} registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
       </TabPane>,
     ]
     if (currentUserRole > 0 || isAdmin) {
@@ -162,7 +151,7 @@ class ItemDetail extends Component {
         </TabPane>
       )
     }
-    if (currentUserRole > 0 || isAdmin) {
+    if (currentUserRole === 1 || isAdmin) {
       tabPanels.push(
         <TabPane tab="标签管理" key="tag">
           <LabelModule
@@ -184,7 +173,7 @@ class ItemDetail extends Component {
                   <span className="btn-back">返回</span>
                 </span>
                 <span className="itemName">{name || ''}</span>
-                <span>{this.renderPublic(projectDetail.public)} </span>
+                <span>{ projectDetail.metadata ? projectDetail.metadata.public ? '公开仓库组' : '私有仓库组' : "" } </span>
                 {
                   (currentUserRole > 0) && (
                     <span className="margin">|</span>,

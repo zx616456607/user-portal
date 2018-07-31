@@ -201,7 +201,7 @@ class Management extends Component {
     const body = {
       role_id: role,
     }
-    updateProjectMember(harbor, registry, id, user[camelize('user_id')], body, {
+    updateProjectMember(harbor, registry, id, user.entityId, body, {
       success: {
         func: () => {
           notification.success('切换用户角色成功')
@@ -322,11 +322,11 @@ class Management extends Component {
         key: 'action',
         render: (text, row) => {
           // this role == row.role
-          if (row.username == currentUser.username) {
+          if (row.entityName == currentUser.entityName) {
             return '无需切换'
           }
           const content= (
-            <div className="menu" onClick={() => this.state.popVisible[row.username] = false}>
+            <div className="menu" onClick={() => this.state.popVisible[row.entityName] = false}>
               <div className={row[camelize('role_id')] == 1 ? 'menu-item menu-disabled':'menu-item'} onClick={(e)=> this.handSelected(row, 1, e)}>
                 管理员 <span className="icon">{row[camelize('role_id')] ==1?<Icon type="check-circle-o" />:null}</span>
               </div>
@@ -344,13 +344,13 @@ class Management extends Component {
                 getTooltipContainer={()=>document.getElementsByClassName('imageProject')[0]}
                 onVisibleChange={visible => {
                     this.setState({
-                      popVisible: { [row.username]: visible }
+                      popVisible: { [row.entityName]: visible }
                     })
                   }
                 }
-                visible={this.state.popVisible[row.username]}
+                visible={this.state.popVisible[row.entityName]}
               >
-                <Button onClick={() => this.setState({popVisible: {[row.username]: true}})} type="primary">切换角色</Button>
+                <Button onClick={() => this.setState({popVisible: {[row.entityName]: true}})} type="primary">切换角色</Button>
               </Popover>
               <Button onClick={()=> this.setState({deleteUser:true,userList:[row]})}>删除</Button>
             </div>
@@ -400,7 +400,7 @@ class Management extends Component {
           onCancel={()=> this.setState({deleteUser:false})}
           onOk={()=> this.handDeleteUser()}
         >
-          <div className="confirmText">您确认删除成员 {this.state.userList.map(list=>list.username).join(',')}？</div>
+          <div className="confirmText">您确认删除成员 {this.state.userList.map(list=>list.entityName).join(',')}？</div>
         </Modal>
         {/* add user modal */}
         <AddUserModal visible={this.state.addUser} func={func} harbor={harbor} {...this.props}/>

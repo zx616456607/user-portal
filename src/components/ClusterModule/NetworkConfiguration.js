@@ -646,9 +646,6 @@ let NetworkConfiguration = React.createClass ({
       return <Option value="none" key="none">暂无出口</Option>
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
-    if(!proxy || !proxy.data || !proxy.data.length) {
-      return <Option value="none" key="none">暂无出口</Option>
-    }
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     const optionMapArray = []
     for(let i = 0; i < proxy.data.length; i++){
@@ -1030,6 +1027,7 @@ let NetworkConfiguration = React.createClass ({
              <Select
                style={{width:'180px'}}
                placeholder='选择默认网络出口'
+               notFoundContent="暂无出口"
                {...getFieldProps('defaultSetting',{
                  initialValue: this.state.defaultGroup,
                  onChange: this.selectSettingChange
