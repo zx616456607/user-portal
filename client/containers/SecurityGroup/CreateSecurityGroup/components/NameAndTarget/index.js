@@ -12,18 +12,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Form, Input, Select } from 'antd'
 
+
 const FormItem = Form.Item
 const Option = Select.Option
 
 class CreateNameAndTarget extends React.Component {
 
-  componentDidMount() {
-    const { isCreate, form } = this.props
-    !isCreate && form.setFieldsValue({ name: '名称' })
-  }
-
   render() {
-    const { form, formItemLayout, isCreate, serverList } = this.props
+    const { form, formItemLayout, isEdit, serverList } = this.props
     const { getFieldProps } = form
     const optionList = serverList.map((item, k) => {
       return <Option value={item} key={k}>{item}</Option>
@@ -34,7 +30,7 @@ class CreateNameAndTarget extends React.Component {
         {...formItemLayout}
       >
         <Input
-          disabled={!isCreate}
+          disabled={isEdit}
           placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
           style={{ width: 280 }}
           {...getFieldProps('name', {

@@ -10,35 +10,19 @@
 
 import React from 'react'
 import './style/index.less'
-import { connect } from 'react-redux'
-// import { Icon, Button } from 'antd'
 
 class IsolatedObj extends React.Component {
   render() {
-    // const { pipelineInfo, createTime } = this.props
+    const { current } = this.props
+    const serviceList = current && current.spec.podSelector.matchExpressions[0].values || []
+    const isolatedService = serviceList.map(item => {
+      return <div key={item}>{item}</div>
+    })
     return (
       <div className="isolateCont" >
-        <div>123</div>
-        <div>456</div>
-        <div>789</div>
-        <div>0.0</div>
-        <div>www</div>
-        <div>www</div>
-        <div>www</div>
-        <div>ww</div>
-        <div>ww</div>
-        <div>www</div>
-        <div>www</div>
-        <div>www</div>
-        <div>ww</div>
-        <div>ww</div>
+        { isolatedService }
       </div>
     )
   }
 }
-// const mapStateToProps = ({ largeScaleTrain: { resObj } }) => (
-//   {
-//     createTime: resObj && resObj.metadata.creationTimestamp || '',
-//   }
-// )
-export default connect()(IsolatedObj)
+export default IsolatedObj

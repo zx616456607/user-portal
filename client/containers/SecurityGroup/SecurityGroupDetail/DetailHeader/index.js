@@ -12,35 +12,40 @@ import React from 'react'
 import './style/index.less'
 import { connect } from 'react-redux'
 import { Icon, Button } from 'antd'
+import { formatDate } from '../../../../../src/common/tools'
+import { browserHistory } from 'react-router'
 
 class DetailHeader extends React.Component {
   render() {
-    // const { pipelineInfo, createTime } = this.props
+    const { loadData, current } = this.props
+    const metadataName = current && current.metadata.name
+    const name = current && current.metadata.annotations['policy-name']
+    const time = current && current.metadata.creationTimestamp
     return (
-      <div className="container" key="header">
+      <div className="securityGroupDetailHeader" key="header">
         <div className="left">
           <div className="imgBox">
             <Icon type="check-circle-o" />
           </div>
           <div className="nameNStatus">
-            <div className="name">训练******任务</div>
+            <div className="name">安全组名称: { name }</div>
             <div className="status">
               <div style={{ marginRight: 8 }}>创建时间: </div>
-              <div> "formatDate(createTime)"</div>
+              <div>{ formatDate(time) }</div>
             </div>
           </div>
         </div>
         <div className="right">
           <Button
             type="primary"
-            // onClick={() => browserHistory.push('/app_manage/security_group/create')}
+            onClick={() => browserHistory.push(`/app_manage/security_group/edit/${metadataName}`)}
           >
             <Icon type="edit" style={{ marginRight: 5 }}/>
             修改
           </Button>
           <Button
             type="ghost"
-            onClick={this.loadData}>
+            onClick={loadData}>
             <i className="fa fa-refresh" style={{ marginRight: 5 }}/>
             刷新
           </Button>
@@ -49,9 +54,4 @@ class DetailHeader extends React.Component {
     )
   }
 }
-// const mapStateToProps = ({ largeScaleTrain: { resObj } }) => (
-//   {
-//     createTime: resObj && resObj.metadata.creationTimestamp || '',
-//   }
-// )
 export default connect()(DetailHeader)

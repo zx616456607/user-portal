@@ -9,6 +9,7 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../../src/common/tools'
@@ -16,17 +17,36 @@ import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Menu, Dropdown, Card, Pagination, Icon, Modal } from 'antd'
 import Title from '../../../src/components/Title'
 import './style/index.less'
-// import * as dnsRecordActions from '../../actions/dnsRecord'
-// import Notification from '../../../src/components/Notification'
+import * as securityActions from '../../actions/securityGroup'
+import Notification from '../../../src/components/Notification'
 
-// const notification = new Notification()
+const notification = new Notification()
 
 class SecurityGroup extends React.Component {
+
   state = {
     proStatus: true,
     search: '',
     currentPage: 1,
     deleteVisible: false,
+    toDelete: {},
+  }
+
+  componentDidMount() {
+    this.loadData()
+  }
+
+  loadData = () => {
+    const { getSecurityGroupList, cluster } = this.props
+    getSecurityGroupList(cluster, {
+      failed: {
+        func: error => {
+          const { message } = error
+          notification.close()
+          notification.warn('获取列表数据出错', message.message)
+        },
+      },
+    })
   }
 
   handlePager = value => {
@@ -47,17 +67,49 @@ class SecurityGroup extends React.Component {
   }
 
   editItem = record => {
-    browserHistory.push(`/app_manage/security_group/edit/${record.name}`)
+    browserHistory.push(`/app_manage/security_group/edit/${record.metaName}`)
   }
 
-  deleteItem = () => {
+  deleteItem = record => {
     this.setState({
       deleteVisible: !this.state.deleteVisible,
+      toDelete: record || '',
+    })
+  }
+
+  confirmDelete = () => {
+    const { toDelete } = this.state
+    const { deleteSecurityGroup, cluster } = this.props
+    deleteSecurityGroup(cluster, toDelete.key, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`删除安全组 ${toDelete.name} 成功`)
+          this.deleteItem()
+          this.loadData()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: error => {
+          const { message } = error
+          notification.close()
+          notification.warn(`删除安全组 ${toDelete.name} 失败`, message.message)
+          this.loadData()
+        },
+      },
+    })
+  }
+
+  renderTarget = data => {
+    return data.map((item, k) => {
+      return <p key={k}>{item}</p>
     })
   }
 
   render() {
-    const { proStatus, search, currentPage, deleteVisible } = this.state
+    const { proStatus, search, currentPage, deleteVisible, toDelete } = this.state
+    const { listData, isFetching } = this.props
     const total = 10
     const pagination = {
       simple: true,
@@ -66,27 +118,19 @@ class SecurityGroup extends React.Component {
       pageSize: 10,
       onChange: this.handlePager,
     }
-    const listData = [
-      {
-        name: '0.0',
-        target: '^.^',
-        time: '2018-07-26T04:11:23Z',
-        key: '15245sa',
-      },
-    ]
     const columns = [
       {
         title: '安全组名称',
         key: 'name',
         dataIndex: 'name',
-        width: '30%',
-        render: (text, record) => <Link to={`/app_manage/security_group/${record.name}`}>{text || '未知'}</Link>,
+        width: '20%',
+        render: (text, record) => <Link to={`/app_manage/security_group/${record.key}`}>{text || '未知'}</Link>,
       }, {
         title: '隔离对象',
         key: 'target',
         dataIndex: 'target',
-        width: '30%',
-        render: text => <div>**{ text }*</div>,
+        width: '20%',
+        render: arr => <div>{ this.renderTarget(arr) }</div>,
       }, {
         title: '创建时间',
         key: 'time',
@@ -133,7 +177,7 @@ class SecurityGroup extends React.Component {
               type="exclamation-circle"/>
             <div>
               <p>删除安全组导致隔离不再生效，且不可恢复，请谨慎操作</p>
-              <p>确认删除安全组 xxxxxxxx ？</p>
+              <p>确认删除安全组 {toDelete.name} ？</p>
             </div>
           </div>
         </Modal>
@@ -180,7 +224,7 @@ class SecurityGroup extends React.Component {
             columns={columns}
             dataSource={listData}
             pagination={false}
-            // loading={ isFetching }
+            loading={ isFetching }
           />
         </Card>
       </div>
@@ -188,4 +232,26 @@ class SecurityGroup extends React.Component {
   }
 }
 
-export default SecurityGroup
+const mapStateToProps = ({
+  entities: { current },
+  securityGroup: { getSecurityGroupList: { data, isFetching } },
+}) => {
+  const listData = []
+  data && data.map(item => listData.push({
+    name: item.metadata.annotations['policy-name'],
+    metaName: item.metadata.name,
+    target: item.spec.podSelector.matchExpressions[0].values,
+    time: item.metadata.creationTimestamp,
+    key: item.metadata.name,
+  }))
+  return {
+    cluster: current.cluster.clusterID,
+    listData,
+    isFetching,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getSecurityGroupList: securityActions.getSecurityGroupList,
+  deleteSecurityGroup: securityActions.deleteSecurityGroup,
+})(SecurityGroup)

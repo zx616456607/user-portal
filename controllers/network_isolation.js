@@ -12,7 +12,7 @@ exports.getCurrentSetting = function* () {
   const loginUser = this.session.loginUser
   const clusterID = this.params.clusterID
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([clusterID, 'networkisolation'])
+  const result = yield api.getBy([clusterID, 'networkpolicy', 'default-deny' ])
   this.body = result ? result.data : {}
 }
 
@@ -21,7 +21,7 @@ exports.setIsolationRule = function* () {
   const clusterID = this.params.clusterID
   const rule = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([clusterID, 'networkisolation'], null, rule)
+  const result = yield api.createBy([clusterID, 'networkpolicy', 'default-deny'], null, rule)
   this.body = result ? result.data : {}
 }
 
@@ -29,6 +29,15 @@ exports.restoreDefault = function* () {
   const loginUser = this.session.loginUser
   const clusterID = this.params.clusterID
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([clusterID, 'networkisolation'])
+  const result = yield api.deleteBy([clusterID, 'networkpolicy', 'default-deny'])
+  this.body = result ? result.data : {}
+}
+
+exports.setEachConnect = function* () {
+  const loginUser = this.session.loginUser
+  const clusterID = this.params.clusterID
+  const rule = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([clusterID, 'networkpolicy', 'bypass-namespace-internal'], null, rule)
   this.body = result ? result.data : {}
 }
