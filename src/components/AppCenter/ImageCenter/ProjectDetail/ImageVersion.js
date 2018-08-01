@@ -597,7 +597,7 @@ class ImageVersion extends Component {
     //   </Dropdown.Button>
     // )
     if(!this.dropdownVisible) this.dropdownVisible = {}
-    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
+    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore, currentUserRole } = this.props
     const { max_tags_count, edition, dataAry, delValue, aryName,
       isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag, isShowLockModel, lockType } = this.state
     const imageDetail = this.props.config
