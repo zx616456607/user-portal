@@ -613,6 +613,12 @@ class ClusterList extends Component {
     }
     changeActiveCluster(activeCluster)
     getAddClusterCMD()
+    if (location.hash && location.hash.indexOf('imageServer') > -1) { // 需要锚点到镜像服务
+      setTimeout(() => {
+        let anchorElement = document.getElementById('imageServiceIdForAnchor')
+        anchorElement && anchorElement.scrollIntoView()
+      }, 2000)
+    }
   }
 
   onTabChange(key) {

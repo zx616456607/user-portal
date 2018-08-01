@@ -99,7 +99,7 @@ class ImageService extends React.Component {
       readonly,
       value,
     } = this.state
-    const cardTitle = <div className="title">
+    const cardTitle = <div className="title" id={'imageServiceIdForAnchor'}>
       镜像服务
       <span className="hint"><span className="required">*</span>集群必须配置harbor</span>
     </div>
