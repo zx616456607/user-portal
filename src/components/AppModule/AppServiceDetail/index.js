@@ -16,6 +16,7 @@ import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
 import AppServiceAssistSetting from './AppServiceAssistSetting'
 import ComposeGroup from './ComposeGroup'
+import SecurityGroupTab from '../../../../client/containers/SecurityGroup/AppDetailTab'
 import BindDomain from './BindDomain'
 import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
@@ -457,7 +458,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               {/* TODO: 增加服务治理开关*/}
               <TabPane tab="服务治理开关" key="#serviceMeshSwitch">
-                <ServiceMeshSwitch/>
+                <ServiceMeshSwitch serviceName={service.metadata.name}/>
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
                 <AppServiceAssistSetting
@@ -471,6 +472,9 @@ class AppServiceDetail extends Component {
                   service={serviceDetail}
                   cluster={service.cluster}
                   />
+              </TabPane>
+              <TabPane tab='安全组' key='#securitygroup'>
+                <SecurityGroupTab />
               </TabPane>
               <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>
                 <BindDomain

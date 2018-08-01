@@ -276,7 +276,7 @@ class ImageDetailBox extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.config;
-    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location } = this.props
+    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location, currentUserRole } = this.props
     if (!imageInfo) {
       return ('')
     }
@@ -391,6 +391,7 @@ class ImageDetailBox extends Component {
                 isAdminAndHarbor={isAdminAndHarbor}
                 scope={this} config={imageDetail}
                 scopeDetail={scope}
+                currentUserRole={currentUserRole}
               />
             </TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>

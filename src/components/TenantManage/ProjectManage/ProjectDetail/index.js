@@ -47,6 +47,8 @@ import {ASYNC_VALIDATOR_TIMEOUT, REG} from '../../../../constants'
 import ResourceModal from './ResourceModal'
 import PermissionOverview from './PermissionOverview'
 import ServiceMeshForm from './ServiceMeshForm';
+import ServiceMeshSwitch from './ServiceMeshSwitch';
+import * as SEMeshActions from '../../../../actions/serviceMesh'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -104,8 +106,6 @@ class ProjectDetail extends Component {
       selectedCluster: "",
       isChangeCluster: false,
       projectLoading: true,
-      Switchchecked: false, //TODO: 这个需要用后台接口在didmount中初始化
-      serviceMesh: false,
     }
   }
   componentDidMount() {
@@ -1001,17 +1001,11 @@ class ProjectDetail extends Component {
     }
     return permission;
   }
-  SwitchOnChange = checked => {
-    this.setState({ Switchchecked: checked})
-    this.setState({ serviceMesh: true })
-  }
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster,
-      Switchchecked, serviceMesh
     } = this.state;
-    const userType = 1; // TODO: 假设的用户类型
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
     const isAble = roleNum === 2
@@ -1069,9 +1063,12 @@ class ProjectDetail extends Component {
         projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 2) {
             if (flag) {
+              // TODO: 这里需要改动
               return (
-                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`}>
-                  <span>{item.clusterName}</span>
+                <Row>
+                  <Col span={12}>
+                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`} >
+                  <span >{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
                     (isAble || isManager) &&
@@ -1089,11 +1086,20 @@ class ProjectDetail extends Component {
                     </div>
                   </Modal>
                 </div>
+                  </Col>
+                  <Col span={12}>
+                  <div className="gutter-box">
+                        {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
+                        {/* // TODO: 增加服务网格*/}
+                        <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={projectDetail}/>
+                    </div>
+                  </Col>
+                </Row>
               )
             }
             return (
-              <dd className="topList" key={item.clusterID}>
-                <span>{item.clusterName}</span>
+              <dd className="topList" key={item.clusterID} >
+                <span >{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                   {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.clusterID,0)}/>*/}
@@ -1350,6 +1356,49 @@ class ProjectDetail extends Component {
                       </Col>
                     </Row>
                   }
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        项目角色
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        备注
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box ">
+                        <div className="example-input commonBox remark">
+                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment', {
+                            initialValue: comment
+                          }) } />
+                          {
+                            editComment ?
+                              [
+                                <Tooltip title="取消">
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelEdit()} />
+                                </Tooltip>,
+                                <Tooltip title="保存">
+                                  <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
+                                </Tooltip>
+                              ] :
+                              (isAble|| isManager) &&
+                              <Tooltip title="编辑">
+                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
+                              </Tooltip>
+                          }
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
                   {/*<Row gutter={16}>*/}
                   {/*<Col className='gutter-row' span={4}>*/}
                   {/*<div className="gutter-box">*/}
@@ -1370,6 +1419,34 @@ class ProjectDetail extends Component {
                   {/*</div>*/}
                   {/*</Col>*/}
                   {/*</Row>*/}
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="basicInfoRight">
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        创建时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        更新时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.updateTime && formatDate(projectDetail.updateTime)}
+                      </div>
+                    </Col>
+                  </Row>
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
@@ -1417,124 +1494,19 @@ class ProjectDetail extends Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col className='gutter-row' span={19} offset={4}>
+                    <Col className='gutter-row' span={24} >
                       {
                         appliedLenght > 0 &&
                         <div className="clusterWithStatus">
-                          {applying(true)}
+                          <Row>
+                            <Col span={12}><span className="item">已授权集群</span></Col>
+                            <Col span={12}><span className="item">启用服务网格</span></Col>
+                          </Row>
+                          {/* {applying(true)} */}
                           {applied(true)}
-                          {reject(true)}
+                          {/* {reject(true)} */}
                         </div>
                       }
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div className="basicInfoRight">
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        启动服务网格
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
-                        {/* // TODO: 增加服务网格*/}
-                        { <div>
-                            {
-                              userType === 1 &&
-                              <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
-                              onChange={this.SwitchOnChange}/>
-                               <span style={{ paddingLeft: '12px', fontSize: '14px' }}>
-                              <Tooltip title="项目开通服务网格，表示项目中所有服务均被开启服务网格，项目中所有服务服务
-                                  将由服务网格代理，使用微服务中心提供的治理功能">
-                                <Icon type="question-circle-o" />
-                              </Tooltip>
-                            </span>
-                              </div>
-                            }
-                            {
-                              userType === 2 && <span>当前平台未配置微服务治理套件，前往
-                                  <span style={{ color: '#2db7f5' }}>全局配置</span>
-                                </span>
-                            }
-                            {
-                              userType === 3 && <span>当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
-                            }
-                            <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
-                            ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}/>
-                          </div>
-                        }
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        项目角色
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        创建时间
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        更新时间
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {projectDetail && projectDetail.updateTime && formatDate(projectDetail.updateTime)}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        备注
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        <div className="example-input commonBox">
-                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment', {
-                            initialValue: comment
-                          }) } />
-                          {
-                            editComment ?
-                              [
-                                <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelEdit()} />
-                                </Tooltip>,
-                                <Tooltip title="保存">
-                                  <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
-                                </Tooltip>
-                              ] :
-                              (isAble|| isManager) &&
-                              <Tooltip title="编辑">
-                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
-                              </Tooltip>
-                          }
-                        </div>
-                      </div>
                     </Col>
                   </Row>
                 </div>
@@ -1894,5 +1866,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   getGlobaleQuotaList,
   permissionOverview,
   loadClusterList,
-  PermissionResource
+  PermissionResource,
+  ToggleServiceMesh: SEMeshActions.ToggleServiceMesh,
 })(ProjectDetail)

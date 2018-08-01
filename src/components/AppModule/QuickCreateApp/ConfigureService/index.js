@@ -41,6 +41,7 @@ import OperationEnv from './OperationEnv'
 import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
 import ServiceMesh from './ServiceMesh'
+import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -211,6 +212,11 @@ let ConfigureService = React.createClass({
              return notify.warn('运行环境的镜像（版本）不存在', '请联系管理员上传')
            }
            let imageTag = result.data[0]
+           result.data.map(tag => {
+             if(!!tag.name && tag.name === LATEST) {
+               imageTag = LATEST
+             }
+           })
            if (result.data.indexOf(LATEST) > -1) {
              imageTag = LATEST
            }
@@ -228,7 +234,7 @@ let ConfigureService = React.createClass({
               }
             }
            setFieldsValue({
-             imageTag,
+             imageTag: typeof imageTag === 'object' ? imageTag.name : imageTag,
            })
            // load image config by tag
            this.loadImageConfig(other, imageName, imageTag)
@@ -752,7 +758,7 @@ let ConfigureService = React.createClass({
                   disabled={isWrap === 'true'}
                 >
                   {
-                    imageTags.list.map(tag => (
+                    imageTags.list && imageTags.list.map(tag => (
                       <Option key={tag}>{tag}</Option>
                     ))
                   }
@@ -797,6 +803,10 @@ let ConfigureService = React.createClass({
           isTemplate={isTemplate}
           {...{location}}
           key="normal"
+        />
+        <SecurityGroup
+          form={form}
+          formItemLayout={formItemLayout}
         />
         <AssistSetting
           form={form}

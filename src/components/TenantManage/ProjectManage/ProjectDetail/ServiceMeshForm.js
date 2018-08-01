@@ -9,7 +9,14 @@
  */
 import React, { PropTypes } from 'react'
 import { Modal, Checkbox,Alert, Button } from 'antd'
+import { connect } from 'react-redux'
+import * as SEMeshActions from '../../../../actions/serviceMesh'
 import "./style/ServiceMeshForm.less"
+
+const mapStatetoProps = () => ({})
+@connect(mapStatetoProps,{
+  ToggleServiceMesh: SEMeshActions.ToggleServiceMesh
+})
 export default class ServiceMeshForm extends React.Component {
   state = {
     Buttonloading: false,
@@ -28,10 +35,11 @@ export default class ServiceMeshForm extends React.Component {
     setTimeout(() => {SwitchOnChange(!ModalType)}, 0)
     this.setState({ checked: false })
   }
-  onOk = () => {
-    const { onClose } = this.props
+  onOk = async (status) => {
+    const { onClose, ToggleServiceMesh, clusterId } = this.props
     this.setState({ Buttonloading: true })
     // TODO: 向后台发送请求
+    const result = await ToggleServiceMesh({ projectName:'', status, cluster: clusterId })
     setTimeout(() => {
       this.setState({ Buttonloading: false })
       onClose()
@@ -50,7 +58,7 @@ export default class ServiceMeshForm extends React.Component {
         visible={visible}
         title={`项目开启服务网格`}
         onCancel={this.onCancel}
-        onOk={this.onOk}
+        onOk={() => this.onOk('on')}
         confirmLoading={Buttonloading}
       >
         <div className="ServiceMeshForm">
@@ -76,7 +84,7 @@ export default class ServiceMeshForm extends React.Component {
         footer={[
           <Button key="back" type="ghost" size="large" onClick={this.onCancel}>取消</Button>,
           <Button key="submit" type="primary" size="large" loading={Buttonloading}
-            onClick={this.onOk} disabled={!checked} >
+            onClick={() => this.onOk('off')} disabled={!checked} >
             确定
           </Button>,
         ]}

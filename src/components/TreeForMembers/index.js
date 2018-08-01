@@ -86,7 +86,7 @@ class TreeComponent extends Component {
     }
   }
   getExistMember(data,type,flag) {
-    const { existMember, sourceData } = this.state
+    const { existMember, sourceData, permissionInfo, filterPermissionInfo } = this.state
     let teamData = []
     if (type === 'team') {
       teamData = this.transformMultiArrayToLinearArray(cloneDeep(data))
@@ -102,6 +102,16 @@ class TreeComponent extends Component {
         }
       }
     }
+    if(permissionInfo.length){
+      for (let i = 0; i < permissionInfo.length; i++) {
+        for (let j = 0; j < sourceData.length; j++) {
+          if (sourceData[j].id === permissionInfo[i].id) {
+            // rightInfo.push(sourceData[j])
+            checkedKeys.push(`${permissionInfo[i].id}`)
+          }
+        }
+      }
+    }
     rightInfo = this.deleteRepeatPermission(rightInfo)
     let copyExist = this.numberToString(existMember)
     let addKey = []
@@ -112,8 +122,8 @@ class TreeComponent extends Component {
       checkedKeys:Array.from(new Set(checkedKeys)),
       originalMembers: Array.from(new Set(checkedKeys)),
       disableCheckArr:Array.from(new Set(checkedKeys.concat(addKey))),
-      permissionInfo: rightInfo,
-      filterPermissionInfo: rightInfo
+      permissionInfo: permissionInfo.length ? permissionInfo : rightInfo,
+      filterPermissionInfo: filterPermissionInfo.length ? filterPermissionInfo : rightInfo
     })
     if (flag) {
       this.setState({
@@ -348,7 +358,7 @@ class TreeComponent extends Component {
       disableCheckArr:withParent,
       permissionInfo:per,
       filterPermissionInfo: per,
-      alreadyCheckedKeys:alreadyCheck
+      alreadyCheckedKeys:[].concat(alreadyCheck, this.state.alreadyCheckedKeys)
     },()=>{
       this.isReadyCheck()
     })
@@ -440,7 +450,7 @@ class TreeComponent extends Component {
     })
   }
   render() {
-    const { disableCheckArr, alreadyAllChecked, filterPermissionInfo,filterOutPermissionInfo, leftValue, rightValue } = this.state
+    const { disableCheckArr, alreadyAllChecked, filterPermissionInfo, filterOutPermissionInfo, leftValue, rightValue } = this.state
     const { text, memberCount, roleMember, modalStatus, filterUser, filterLoading } = this.props
     const loopFunc = data => data.length >0 && data.map((item) => {
       if (item.users) {

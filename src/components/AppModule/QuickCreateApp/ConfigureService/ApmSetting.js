@@ -143,7 +143,7 @@ const ApmSetting = React.createClass({
     return (
       <FormItem
         {...formItemLayout}
-        label="性能管理"
+        label="启用性能管理"
         key="apm"
         className="apmSetting"
       >

@@ -450,7 +450,8 @@ let ContainerCatalogueModal = React.createClass({
 
   onVolumeChange(value) {
     if (value === 'create') {
-      const { getClusterStorageList, clusterID } = this.props
+      const { getClusterStorageList, clusterID,
+        form } = this.props
       getClusterStorageList(clusterID)
       return
     }
@@ -465,8 +466,26 @@ let ContainerCatalogueModal = React.createClass({
       }
       return true
     })
+    let storageClassName
+    let tempList
+    const type_1 = form.getFieldValue('type_1')
+    if (!!type_1) {
+      if(type_1 === 'nfs'){
+        tempList = this.props.nfsList
+      } else if(type_1 === 'glusterfs') {
+        tempList = this.props.glusterfsList
+      } else {
+        tempList = this.props.cephList
+      }
+      tempList.map(item => {
+        if(item.metadata.labels["system/storageDefault"] === "true"){
+          storageClassName = item.metadata.name
+        }
+      })
+    }
     form.setFieldsValue({
       volumeIsOld,
+      storageClassName,
     })
   },
 
@@ -618,6 +637,23 @@ let ContainerCatalogueModal = React.createClass({
         loading: false, //选择存储loading 状态
       })
     },1000);
+    let init_storageClassName
+    let tempList = []
+    if (!!type_1) {
+      if(type_1 === 'nfs'){
+        tempList = nfsList
+      } else if(type_1 === 'glusterfs') {
+        tempList = glusterfsList
+      } else {
+        tempList = cephList
+      }
+      tempList.map(item => {
+        if(item.metadata.labels["system/storageDefault"] === "true"){
+          init_storageClassName = item.metadata.name
+        }
+      })
+    }
+
     return (
       <div id='container_catalogue'>
         <div className="body">
@@ -700,6 +736,7 @@ let ContainerCatalogueModal = React.createClass({
                         placeholder="请选择一个存储集群"
                         disabled={isEdit && fieldsList[currentIndex].oldVolume}
                         {...getFieldProps('storageClassName', {
+                          initialValue: init_storageClassName,
                           rules: [{
                             validator: (rule, value, callback) => {
                               if (!value) {

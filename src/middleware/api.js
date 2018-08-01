@@ -24,6 +24,7 @@ const SKIP_CAMELIZE_KEYS_ENDPOINTS = [
   /^\/permission\/access\-controls\/overview/,
   /^\/resourcequota\/apply/,
   /^\/clusters\/[\-\w]+\/endpoints/, // clusters/<clusterId>/endpoints
+  /^\/clusters\/[\-\w]+\/networkpolicy/,
 ]
 
 // Fetches an API response
@@ -195,7 +196,7 @@ export default store => next => action => {
   options.headers = options.headers || {}
   // sys admin check user personal space
   if (space.userName) {
-    options.headers.onbehalfuser = space.userName
+    options.headers.onbehalfuser = typeof options.headers.onbehalfuser === 'undefined' ? '' : space.userName
     space.namespace = 'default'
   }
   options.headers.teamspace = options.headers.teamspace || space.namespace || ''

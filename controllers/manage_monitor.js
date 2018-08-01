@@ -136,7 +136,7 @@ exports.getClusterOfQueryLog = function* () {
     clusters = result.clusters || []
   } else {
     const projectApi = apiFactory.getApi(loginUser)
-    const result = yield projectApi.projects.getBy([projectName, 'clusters'], null)
+    const result = yield projectApi.projects.getBy([projectName, 'visible-clusters'], null)
     clusters = result.data.clusters || []
   }
   let tempResult = [];

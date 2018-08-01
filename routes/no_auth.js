@@ -52,9 +52,7 @@ module.exports = function (Router) {
   router.get('/email/invitations/join', function* (){
     yield this.render(global.indexHtml, { title: '', body: '' })
   })
-  // router.get('/alerts/invitations/join', function* (){
-  //   yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
-  // })
+
   router.get('/email/invitations/join-code', alertController.acceptInvitation)
   // router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
   router.patch(`/api/v2/users/resetpw`, userController.resetPassword)

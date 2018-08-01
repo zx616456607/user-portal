@@ -60,6 +60,7 @@ const schedulerController = require('../controllers/scheduler')
 const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 const dnsRecordController = require('../controllers/dns_record')
+const securityGroupController = require('../controllers/security_group')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -114,6 +115,10 @@ module.exports = function (Router) {
   router.post('/projects/:name/roles/batch-delete', projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
+  // servicMesh 相关
+  router.put('/projects/label', projectController.updateToggleServiceMesh)
+  router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
+  router.get('/projects/istio/check', projectController.getCheckClusterIstio)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -167,6 +172,10 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
+
+  // serviceMesh 相关
+  router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
+  router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
@@ -729,9 +738,10 @@ module.exports = function (Router) {
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
 
   // Network Isolation
-  router.get('/cluster/:clusterID/networkisolation', netIsolationController.getCurrentSetting)
-  router.post('/cluster/:clusterID/networkisolation', netIsolationController.setIsolationRule)
-  router.delete('/cluster/:clusterID/networkisolation', netIsolationController.restoreDefault)
+  router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)
+  router.post('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.setIsolationRule)
+  router.delete('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.restoreDefault)
+  router.post('/cluster/:clusterID/networkpolicy/bypass-namespace-internal', netIsolationController.setEachConnect)
 
   // Apms
   router.get('/clusters/:clusterID/apms', apmController.getApms)
@@ -742,6 +752,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/storageclass', storageController.putUpdateCephStorage)
   router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
   router.get('/clusters/:cluster/storageclass/type', storageController.getStorageClassType)
+  router.put('/clusters/:cluster/storageclass/setdefault', storageController.setStorageClassDefault)
 
   //Quota
   router.get('/clusters/:cluster/resourcequota', quotaController.clusterList)
@@ -835,6 +846,13 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/endpoints/:name',dnsRecordController.getDnsItemDetail)
   router.put('/clusters/:cluster/endpoints',dnsRecordController.updataDnsItem)
   router.delete('/clusters/:cluster/endpoints/:name',dnsRecordController.deleteDnsItem)
+
+  // securityGroup
+  router.post('/clusters/:cluster/networkpolicy',securityGroupController.createSecurityGroup)
+  router.get('/clusters/:cluster/networkpolicy',securityGroupController.getSecurityGroupList)
+  router.get('/clusters/:cluster/networkpolicy/:name',securityGroupController.getSecurityGroupDetail)
+  router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
+  router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

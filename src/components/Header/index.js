@@ -194,6 +194,9 @@ class Header extends Component {
     }
     Object.assign(cluster, { storageClassType: defalutStorageCLassType })
     const { clusterID } = cluster
+    if (!clusterID || clusterID === 'undefined') {
+      return
+    }
     getStorageClassType(clusterID, {
       success: {
         func: res => {

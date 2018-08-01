@@ -1276,6 +1276,7 @@ function mapStateToProps(state, props) {
   const { location } = props
   const { wrapList, wrapTemplate } = state.images
   const { loginUser, current } = entities
+  const { cluster } = current
   const { billingConfig } = loginUser.info
   const { enabled: billingEnabled } = billingConfig
   const { loadBalanceList } = loadBalance || { loadBalanceList: {} };
@@ -1290,7 +1291,8 @@ function mapStateToProps(state, props) {
   return {
     fields: quickCreateApp.fields,
     standardFlag,
-    current: current,
+    current,
+    cluster,
     loginUser: loginUser.info,
     wrapList: datalist,
     billingEnabled,
