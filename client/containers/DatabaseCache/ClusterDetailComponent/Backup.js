@@ -50,21 +50,25 @@ class Backup extends React.Component {
     fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
   }
   componentDidMount() {
-    this.geiList() // 获取备份链数据
+    this.getList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
   }
 
-  geiList = () => {
+  getList = (callback, flag) => {
     const { clusterID, database, getbackupChain, databaseInfo } = this.props
-    getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
+    return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
+            if (res.data.items.length === 1 && flag && flag === 'create' && database === 'mysql') {
+              callback && callback()
+            }
             this.setState({
               notAllowDiffBackup: false,
               backupType: 'diffbackup',
             })
           } else {
+            callback && callback()
             this.setState({
               notAllowDiffBackup: true,
               backupType: 'fullbackup',
@@ -144,7 +148,7 @@ class Backup extends React.Component {
         success: {
           func: () => {
             notification.success('回滚操作成功')
-            setTimeout(() => this.geiList())
+            setTimeout(() => this.getList())
           },
         },
         failed: {
@@ -169,6 +173,7 @@ class Backup extends React.Component {
           <Button key="cancel" onClick={() => this.setState({ rollBackAlert: false })}>取消</Button>,
           <Button key="confirm" type="primary" disabled={this.state.notYetConfirm} onClick={confirmRollBack}>确定</Button>,
         ]}
+        onCancel={() => this.setState({ rollBackAlert: false })}
       >
         <div className="dbClusterBackup-rollbackAlertContent">
           <div className="left">
@@ -176,7 +181,10 @@ class Backup extends React.Component {
           </div>
           <div className="right">
             <p>回滚后，此数据库集群将恢复到该备份点的状态。确定回滚操作吗？</p>
-            <Checkbox onChange={onChange}>已经对当前数据备份，确定执行回滚操作</Checkbox>
+            {
+              this.state.rollBackAlert &&
+              <Checkbox onChange={onChange}>已经对当前数据备份，确定执行回滚操作</Checkbox>
+            }
           </div>
         </div>
       </Modal>
@@ -201,7 +209,12 @@ class Backup extends React.Component {
         success: {
           func: () => {
             notification.success('删除成功')
-            setTimeout(() => this.geiList())
+            setTimeout(() => this.getList(() => {
+              const parentScope = this.props.scope.props.scope
+              const { loadDbCacheList, clusterID, database } = this.props
+              parentScope.setState({ detailModal: false })
+              setTimeout(() => loadDbCacheList(clusterID, database))
+            }, 'del'))
           },
         },
       })
@@ -227,6 +240,7 @@ class Backup extends React.Component {
         ]}
 
       >
+
         {
           backupChain.index === 0 && backupChain.backType === 'fullbackup' ?
             <div className="dbClusterBackup-delPoint">
@@ -239,13 +253,18 @@ class Backup extends React.Component {
                 </Col>
               </Row>
               <Row>
-                <Checkbox onChange={onChange}>若删除此全量备份，自动备份暂不生效，新建一个备份链后可继续自动备份</Checkbox>
+                {
+                  this.state.delThis &&
+                  <Checkbox onChange={onChange}>若删除此全量备份，自动备份暂不生效，新建一个备份链后可继续自动备份</Checkbox>
+                }
               </Row>
             </div>
             :
-            <div className="delPoint">
-              <Icon type="question-circle-o" />
-              此操作不可恢复，确定删除此备份点{this.state.backupChain.name}吗？
+            <div className="dbClusterBackup-delPoint">
+              <div className="delPoint">
+                <Icon type="question-circle-o" />
+                此操作不可恢复，确定删除此备份点{this.state.backupChain.name}吗？
+              </div>
             </div>
 
         }
@@ -278,7 +297,7 @@ class Backup extends React.Component {
         case 'Failed':
           return <div style={{ marginTop: -2 }}>
               备份失败
-            <Tooltip title={`失败原因：${item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
+            <Tooltip title={`失败原因：${item.message && item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
           </div>
         case 'Scheduled':
           return '正在备份'
@@ -294,7 +313,7 @@ class Backup extends React.Component {
         case '202':
           return <div style={{ marginTop: -2 }}>
             备份失败
-            <Tooltip title="失败原因"><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
+            <Tooltip title={`失败原因：${item.message && item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
           </div>
         case '0':
           return '正在备份'
@@ -343,7 +362,7 @@ class Backup extends React.Component {
       switch (status) {
         case '202':
           return {
-            className: 'err',
+            className: 'redis-err',
             color: '#f85a5a',
           }
         case '0':
@@ -383,15 +402,16 @@ class Backup extends React.Component {
       currentIndex: i,
       backupType: i && i !== 0 || this.state.notAllowDiffBackup ? 'fullbackup' : 'diffbackup',
     }, () => {
-      for (const v of this.state.curentChain.chains) {
-        if (v.backType === 'fullbackup' && (v.status === '' || v.status === 'Failed' || v.status === '202')) {
-          this.setState({
-            backupType: 'fullbackup',
-            notAllowDiffBackup: true,
-          })
+      if (chain) {
+        for (const v of this.state.curentChain.chains) {
+          if (v.backType === 'fullbackup' && (v.status === '' || v.status === 'Failed' || v.status === '202')) {
+            this.setState({
+              backupType: 'fullbackup',
+              notAllowDiffBackup: true,
+            })
+          }
         }
       }
-
     })
   }
 
@@ -410,6 +430,7 @@ class Backup extends React.Component {
     }
     // 提交
     const commitBackup = () => {
+
       this.props.form.validateFields((errors, value) => {
         if (errors) {
           return
@@ -430,7 +451,12 @@ class Backup extends React.Component {
                   manualBackupModalShow: false,
                 }, () => {
                   setTimeout(() => {
-                    this.geiList()
+                    this.getList(() => {
+                      const parentScope = this.props.scope.props.scope
+                      const { loadDbCacheList, clusterID, database } = this.props
+                      parentScope.setState({ detailModal: false })
+                      setTimeout(() => loadDbCacheList(clusterID, database))
+                    }, 'create')
                   })
                 })
               },
@@ -505,7 +531,16 @@ class Backup extends React.Component {
     }
   }
   renderList = () => {
-    const { chainsData, database, databaseInfo } = this.props
+    const { database, databaseInfo } = this.props
+    let chainsData = JSON.parse(JSON.stringify(this.props.chainsData))
+    const sortData = chainsData.splice(1)
+    sortData.sort(
+      (a, b) => {
+        return Date.parse(b.chains[b.chains.length - 1].creationTimestamp)
+          - Date.parse(a.chains[a.chains.length - 1].creationTimestamp)
+      })
+    chainsData = [ this.props.chainsData[0] ].concat(sortData)
+
     return database === 'mysql' ?
       <Collapse onChange={this.expendPanel}>
         {
@@ -566,7 +601,7 @@ class Backup extends React.Component {
       :
       <div className="redis-list-wrapper">
         {
-          chainsData.length !== 0 && chainsData.map(v => {
+          chainsData.length !== 0 && chainsData.map((v, i) => {
             return <Row className="redis-list-item-header" ref="header" key={v.name}>
               <Col span={5} className="name">
                 <Tooltip title={v.name}>
@@ -578,18 +613,25 @@ class Backup extends React.Component {
               </Col>
               <Col span={3}>{(v.size / 1024 / 1024).toFixed(2)} M</Col>
               <Col span={3}>
-                <span className={ `status ${this.pointClass(v.chains[0].status).className}` }>
+                <span className={ `redis-status ${this.pointClass(v.chains[0].status).className}` }>
                   {this.pointStatus(v.chains[0].status, v.chains[0])}
                 </span>
               </Col>
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
               <Col span={5}>
-                <Dropdown.Button overlay={this.backupPointmenu(v)} type="ghost">
-                  <div onClick={() => this.rollBack(v)}>
-                    <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-                    回滚
-                  </div>
-                </Dropdown.Button>
+                {
+                  v.chains[0].status === '202' ?
+                    <Button icon="delete" onClick={() => this.delThis(v.chains[0], i)} style={{ width: 95, background: '#fff' }}>
+                      删除
+                    </Button>
+                    :
+                    <Dropdown.Button overlay={this.backupPointmenu(v)} type="ghost">
+                      <div onClick={() => this.rollBack(v)}>
+                        <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
+                        回滚
+                      </div>
+                    </Dropdown.Button>
+                }
               </Col>
             </Row>
           })
@@ -643,7 +685,7 @@ class Backup extends React.Component {
               </Button>
           }
           {
-            databaseInfo.status !== 'Running' ?
+            databaseInfo.status === 'Running' ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="运行中的集群支持备份">

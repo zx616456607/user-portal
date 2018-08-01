@@ -212,7 +212,7 @@ exports.getMySqlClusterPwd = function* () {
   const clusterName = this.params.name
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([ clusterId, 'daas', 'mysql', clusterName, 'secret'])
-  this.body = result
+  this.body = resultconsole
 }
 // 检查集群名是否存在
 exports.checkClusterName = function* () {
@@ -229,7 +229,6 @@ exports.createDatabaseCluster = function* () {
   const clusterId = this.params.clusterID
   const type = this.params.type
   const body = this.request.body
-  console.log(body);
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([ clusterId, 'daas', type ], null, body)
   this.body = result

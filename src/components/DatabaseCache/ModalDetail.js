@@ -726,7 +726,6 @@ class VisitTypes extends Component{
   }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
-    console.log(databaseInfo);
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
     const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let clusterAdd = [];
@@ -799,7 +798,7 @@ class VisitTypes extends Component{
     let externalUrl
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
+        externalUrl = databaseInfo.serviceInfo && databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo && databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
       } else {
         externalUrl = bindingIP + ':' + externalPort
       }
