@@ -9,10 +9,10 @@ let isSet = false
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
-    span: 4
+    span: 6
   },
   wrapperCol: {
-    span: 20
+    span: 18
   }
 }
 const colors = [
@@ -126,7 +126,7 @@ class Editor extends Component {
             </Col>
             <Col span={6}>
               <FormItem {...formItemLayout} label="颜色">
-                <div className="colorBox"
+                <div className={"colorBox"}
                   style={{ backgroundColor: colorInputVal }}
                 ></div>
                 <Popover overlayClassName="labelmodule_picker" placement="bottom" content={picker} trigger="click">

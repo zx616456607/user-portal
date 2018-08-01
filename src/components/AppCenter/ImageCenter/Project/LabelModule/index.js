@@ -266,7 +266,7 @@ class Project extends Component {
         key: 'name',
         render: (text, record) => (
           <Tooltip title={text}>
-            <div className="tag" style={{ backgroundColor: record.color }}>
+            <div className={(record.color ? "" : "nocolor ") + "tag"} style={{ backgroundColor: record.color }}>
               {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
               {text}
             </div>
@@ -347,14 +347,18 @@ class Project extends Component {
           />
         </Spin>
         <Modal
+          maskClosable={false}
           visible={delVisible}
           title="删除"
           onOk={this.onDelOk}
           confirmLoading={isDelLoading}
           onCancel={ () => this.setState({ delVisible: false })}
         >
-        {<div>{"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
-            (index !== rows.length-1 ? ", " : "") }) + "] ?"}</div>}
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            <span> {"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+            (index !== rows.length-1 ? ", " : "") }) + "] ?"}</span>
+          </div>
         </Modal>
       </QueueAnim>
     )
