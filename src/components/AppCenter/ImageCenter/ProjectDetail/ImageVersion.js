@@ -25,7 +25,6 @@ import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import remove from 'lodash/remove'
-import { transform } from 'typescript';
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -162,12 +161,24 @@ class ImageVersion extends Component {
         success:{
           func: succ,
           isAsync: true,
+        },
+        failed: {
+          func: (err) => {
+            // console.log(err)
+          },
+          isAsync: true,
         }
       })
       // 全局标签
       loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'g' }), {
         success:{
           func: succ,
+          isAsync: true,
+        },
+        failed: {
+          func: (err) => {
+            // console.log(err)
+          },
           isAsync: true,
         }
       })
@@ -212,7 +223,7 @@ class ImageVersion extends Component {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
-          edition: item.name,
+          edition: item.name || item.tag,
           push_time: item.last_updated || item.first_push,
           labels: item.labels,
         }
@@ -616,7 +627,7 @@ class ImageVersion extends Component {
       dataIndex: 'push_time',
       key: 'push_time',
       width: '25%',
-      render: text => formatDate(text)
+      render: text => { return text ? formatDate(text) : "" }
     }, {
       id: 'labels',
       title: '标签',
@@ -703,16 +714,15 @@ class ImageVersion extends Component {
             </MenuItem>
           )
         })
-        items.unshift(
-          <SubMenu
-            key="subMenu"
-            className="rowContainer"
-            onMouseover={() => overOut(true, name)}
-            onMouseout={() => overOut(false, name)}
-            title={<span><Icon type="tags" /> 配置标签</span>}>
-            {subItems}
-          </SubMenu>
-        )
+        const labelMenu = <SubMenu
+          key="subMenu"
+          className="rowContainer"
+          onMouseover={() => overOut(true, name)}
+          onMouseout={() => overOut(false, name)}
+          title={<span><Icon type="tags" /> 配置标签</span>}>
+          {subItems}
+        </SubMenu>
+        items.unshift(labelMenu)
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
@@ -729,6 +739,12 @@ class ImageVersion extends Component {
                   {
                     isAdminAndHarbor ?
                       items
+                      :
+                      ""
+                  }
+                  {
+                    !isAdminAndHarbor && (currentUserRole === 1 || currentUserRole === 2)?
+                      labelMenu
                       :
                       ""
                   }
@@ -965,6 +981,7 @@ function mapStateToProps(state, props) {
     isFetching: targetImageTag.isFetching,
     isWrapStore,
     harbor,
+    loginUser: state.entities.loginUser.info,
   }
 }
 

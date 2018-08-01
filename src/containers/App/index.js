@@ -43,6 +43,10 @@ const mode = require('../../../configs/model').mode
 const standardFlag = mode === standard
 const realMode = getPortalRealMode()
 
+const EXCLUDE_GET_CLUSTER_INFO_PATH = [
+  '/cluster',
+]
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -113,6 +117,10 @@ class App extends Component {
       '/app_center/projects/other',
       '/app_center/template/create'
     ]
+    if(pathname === '/app_manage/app_create/quick_create' &&
+      this.props.location.hash === "#configure-service"){
+      return true
+    }
     return !(pathArr.indexOf(pathname) > -1)
   }
   componentWillReceiveProps(nextProps) {
@@ -344,7 +352,8 @@ class App extends Component {
   }
 
   getChildren() {
-    const { children, errorMessage, loginUser, current } = this.props
+    const { children, errorMessage, loginUser, current, location } = this.props
+    const { pathname } = location
     const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
@@ -359,7 +368,7 @@ class App extends Component {
           </div>
         )
       }
-      if (!current.cluster.apiHost) {
+      if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
         return (
           <div className="loading">
             <Spin size="large" /> 获取集群信息中...

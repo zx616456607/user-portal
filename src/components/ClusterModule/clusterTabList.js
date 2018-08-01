@@ -86,10 +86,10 @@ class ClusterTabList extends Component {
     this.loadData(nextProps)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { clusterID, getAddNodeCMD, getClusterSummary, location } = this.props
     getAddNodeCMD(clusterID)
-    getClusterSummary(clusterID)
+    await getClusterSummary(clusterID)
     if(location &&　location.query.from == "clusterDetail"){
       this.setState({
         TabsactiveKey: "host"
@@ -195,7 +195,7 @@ class ClusterTabList extends Component {
       <QueueAnim className='clusterTabListBox'
         type='right'
         >
-        <div id='clusterTabList' key='clusterTabList'>
+        <div id='clusterTabList'>
           <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">

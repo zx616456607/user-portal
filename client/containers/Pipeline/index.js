@@ -56,24 +56,31 @@ class Pipeline extends React.Component {
 
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token,
+      project, onbehalfuser, onbehalfuserid, token, billingEnabled,
       username, location: { pathname, query: locationQuery },
     } = this.props
-    let redirect
+    let title
+    let redirect = locationQuery.redirect
+    delete locationQuery.redirect
     if (pathname === '/ci_cd/thirdparty') {
-      redirect = '/devops/thirdparty'
+      title = '第三方工具'
+      redirect = redirect || '/devops/thirdparty'
     } else if (pathname === '/ci_cd/cached_volumes') {
-      redirect = '/devops/volumes/rbd'
+      title = '缓存卷'
+      redirect = redirect || '/devops/volumes/rbd'
     } else if (pathname === '/ci_cd/overview') {
-      redirect = '/devops/pandect'
+      title = 'CI/CD 概览'
+      redirect = redirect || '/devops/pandect'
     } else {
-      redirect = '/devops/pipelines'
+      title = '流水线'
+      redirect = redirect || '/devops/pipelines'
     }
     const query = Object.assign(
-      { redirect },
+      {},
       locationQuery,
       {
-        token, username, project, onbehalfuser, onbehalfuserid, hash,
+        token, username, project, onbehalfuser,
+        onbehalfuserid, hash, billingenabled: billingEnabled ? 1 : 0,
       }
     )
     const { windowHeight } = this.state
@@ -82,19 +89,21 @@ class Pipeline extends React.Component {
     }
     if (!token) {
       return <div className="loading">
-        <Title title="流水线" />
+        <Title title={title} />
         <Spin size="large" />
       </div>
     }
     return <div className="pipeline" style={style}>
-      <Title title="流水线" />
-      <iframe title="流水线" id="pipeline" src={`/devops?${toQuerystring(query)}`} />
+      <Title title={title} />
+      <iframe title="流水线" id="pipeline" src={`/devops/#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }
 
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
+  const { billingConfig } = state.entities.loginUser.info
+  const { enabled: billingEnabled } = billingConfig
   let onbehalfuser
   let onbehalfuserid
   // sys admin check user personal space
@@ -116,6 +125,7 @@ const mapStateToProps = state => {
     project,
     username,
     token,
+    billingEnabled,
   }
 }
 

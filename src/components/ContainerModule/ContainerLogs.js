@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Icon, Tooltip, Button } from 'antd'
 import '@tenx-ui/logs/assets/index.css'
-import TenxLogs from '@tenx-ui/logs'
+import TenxLogs from '@tenx-ui/logs/lib'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -134,8 +134,10 @@ class ContainerLogs extends Component {
       </div>
     })()
     setTimeout(() => {
-      this.logRef.clearLogs()
-      this.logRef.writeln(this.getLogs(loading))
+      if(!!this.logRef){
+        this.logRef.clearLogs()
+        this.logRef.writeln(this.getLogs(loading))
+      }
     }, 500)
   }
 
@@ -314,7 +316,6 @@ class ContainerLogs extends Component {
         </div>
       )
     }
-    console.log(logs)
     return loading && logsLoading ? [
       logs.map(this.renderLog),
       loading

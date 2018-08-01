@@ -99,7 +99,7 @@ class ImageService extends React.Component {
       readonly,
       value,
     } = this.state
-    const cardTitle = <div className="title">
+    const cardTitle = <div className="title" id={'imageServiceIdForAnchor'}>
       镜像服务
       <span className="hint"><span className="required">*</span>集群必须配置harbor</span>
     </div>
@@ -108,6 +108,10 @@ class ImageService extends React.Component {
         <img src={harborImg}/>
       </div>
       <Form className="harborConfig">
+        <Row className="harborTips">
+          <span>配置harbor地址</span>
+          <span className={'tips'}>管理集群 Docker 镜像，用于镜像仓库、流水线镜像发布等功能，可以使用默认harbor，也可以配置其它harbor</span>
+        </Row>
         <Row>
           <Col span={7}>
             <Form.Item>
