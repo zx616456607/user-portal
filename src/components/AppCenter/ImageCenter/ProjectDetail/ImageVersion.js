@@ -126,6 +126,14 @@ class ImageVersion extends Component {
           }
         },
         isAsync: true,
+      },
+      failed:{
+        func: err => {
+          if(err.statusCode === 404){
+            notification.warn("对象不存在, 请求无法完成")
+          }
+        },
+        isAsync: true,
       }
     }, true)
     loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
