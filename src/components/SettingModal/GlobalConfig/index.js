@@ -1401,7 +1401,7 @@ let MirrorService = React.createClass({
             liteFlag &&
             <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
           }
-          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster'}}>【集群管理】</Link>-<Link to={{pathname: '/app_center/projects'}}>【镜像服务】</Link>配置</span>
+          <span className="tips">提供初始化所需基础镜像，并作为镜像仓库默认harbor；新版本支持每个集群配置一个harbor，在<Link to={{pathname: '/cluster', hash: '#imageServer'}}>【集群管理】-【镜像服务】</Link>配置</span>
         </div>
         <div className="content">
           <div className="contentMain">
@@ -1707,10 +1707,7 @@ let Continue = React.createClass({
             <div className='contenttable'>
               <div className='contenttableheader'>
                 <span className='forward'>流水线基础镜像</span>
-                基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像，基础镜像存储在构建集群harbor上，切换构建集群时请重新上传
-                <Popover overlayClassName="GlobalConfigTip" placement="left" onVisibleChange={this.handleVisibleChange} visible={visible} content={ImageTip} trigger="click">
-                  <a>【查看 harbor 地址】</a>
-                </Popover>
+                基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像
               </div>
               <div className='contenttablemain'>
                 <ConIntergration />
