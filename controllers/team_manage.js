@@ -309,7 +309,6 @@ exports.deleteTeamspace = function* () {
 }
 
 exports.checkTeamName = function* () {
-  console.log('dsadsarwerewrfewrfdsfdsfdsfdsfdsfs')
   const teamName = this.params.team_name
   const api = apiFactory.getApi(this.session.loginUser)
   const response = yield api.teams.getBy([teamName, 'existence'])

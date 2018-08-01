@@ -380,64 +380,64 @@ exports.getDBService = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'daas', type, serviceName], null);
   const database = result.data || []
-  // Get redis password from init container
-  // let initEnv = []
-  // let isRedis = false
-  // if (database.petsetSpec.template) {
-  //   let podTemplate = database.petsetSpec.template
-  //   if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
-  //     isRedis = true
-  //     // For redis, get password from init container
-  //     if (podTemplate.spec.initContainers) {
-  //       let initContainers = podTemplate.spec.initContainers
-  //       initContainers.forEach(function (c) {
-  //         if (c.name === 'install' && c.env) {
-  //           c.env.forEach(function (e) {
-  //             if (e.name === 'REDIS_PASSWORD') {
-  //               initEnv.push({
-  //                 name: e.name,
-  //                 value: e.value
-  //               })
-  //             }
-  //           })
-  //         }
-  //       })
-  //     }
-  //   }
-  // }
-  // // Remove some data
-  // if (database.objectMeta) {
-  //   delete database.objectMeta.labels
-  // }
-  // delete database.typeMeta
-  // delete database.eventList
-  // if (database.podList && database.podList.pods) {
-  //   database.podList.pods.forEach(function (pod) {
-  //     if (!pod.podSpec.containers[0].env) {
-  //       pod.podSpec.containers[0].env = []
-  //     }
-  //     // For redis, use password from init container
-  //     if (isRedis) {
-  //       pod.podSpec.containers[0].env = initEnv
-  //     }
-  //     if (pod.objectMeta) {
-  //       delete pod.objectMeta.labels
-  //       delete pod.objectMeta.annotations
-  //       delete pod.annotations
-  //     }
-  //   })
-  // }
-  // if (database.petsetSpec) {
-  //   database.volumeInfo = {
-  //     // Use the first pvc for now
-  //     size: database.petsetSpec.volumeClaimTemplates[0].spec.resources.requests.storage
-  //   }
-  //   delete database.petsetSpec
-  // }
-  // if (database.serviceInfo) {
-  //   delete database.serviceInfo.labels
-  //   delete database.serviceInfo.selector
-  // }
+/*  Get redis password from init container
+  let initEnv = []
+  let isRedis = false
+  if (database.petsetSpec.template) {
+    let podTemplate = database.petsetSpec.template
+    if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
+      isRedis = true
+      // For redis, get password from init container
+      if (podTemplate.spec.initContainers) {
+        let initContainers = podTemplate.spec.initContainers
+        initContainers.forEach(function (c) {
+          if (c.name === 'install' && c.env) {
+            c.env.forEach(function (e) {
+              if (e.name === 'REDIS_PASSWORD') {
+                initEnv.push({
+                  name: e.name,
+                  value: e.value
+                })
+              }
+            })
+          }
+        })
+      }
+    }
+  }
+  // Remove some data
+  if (database.objectMeta) {
+    delete database.objectMeta.labels
+  }
+  delete database.typeMeta
+  delete database.eventList
+  if (database.podList && database.podList.pods) {
+    database.podList.pods.forEach(function (pod) {
+      if (!pod.podSpec.containers[0].env) {
+        pod.podSpec.containers[0].env = []
+      }
+      // For redis, use password from init container
+      if (isRedis) {
+        pod.podSpec.containers[0].env = initEnv
+      }
+      if (pod.objectMeta) {
+        delete pod.objectMeta.labels
+        delete pod.objectMeta.annotations
+        delete pod.annotations
+      }
+    })
+  }
+  if (database.petsetSpec) {
+    database.volumeInfo = {
+      // Use the first pvc for now
+      size: database.petsetSpec.volumeClaimTemplates[0].spec.resources.requests.storage
+    }
+    delete database.petsetSpec
+  }
+  if (database.serviceInfo) {
+    delete database.serviceInfo.labels
+    delete database.serviceInfo.selector
+  }*/
 
   this.body = {
     cluster,
