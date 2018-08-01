@@ -161,12 +161,24 @@ class ImageVersion extends Component {
         success:{
           func: succ,
           isAsync: true,
+        },
+        failed: {
+          func: (err) => {
+            // console.log(err)
+          },
+          isAsync: true,
         }
       })
       // 全局标签
       loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'g' }), {
         success:{
           func: succ,
+          isAsync: true,
+        },
+        failed: {
+          func: (err) => {
+            // console.log(err)
+          },
           isAsync: true,
         }
       })
@@ -211,7 +223,7 @@ class ImageVersion extends Component {
       data.forEach((item, index) => {
         const curColums = {
           id: index,
-          edition: item.name,
+          edition: item.name || item.tag,
           push_time: item.last_updated || item.first_push,
           labels: item.labels,
         }
@@ -615,7 +627,7 @@ class ImageVersion extends Component {
       dataIndex: 'push_time',
       key: 'push_time',
       width: '25%',
-      render: text => formatDate(text)
+      render: text => { return text ? formatDate(text) : "" }
     }, {
       id: 'labels',
       title: '标签',

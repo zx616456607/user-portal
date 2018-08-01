@@ -4,7 +4,8 @@
   }
   .host,
   .ceph,
-  .nfs{
+  .nfs,
+  .gfs{
     background: #ffffff;
     border-radius: 4px;
     margin-bottom: 24px;
@@ -15,6 +16,10 @@
       border-bottom: 1px solid #e5e5e5;
       font-size: 14px;
       padding-left: 20px;
+      .right{
+        float: right;
+        padding: 0 15px;
+      }
     }
     .body{
       padding: 30px;
@@ -115,7 +120,8 @@
     }
   }
   .ceph,
-  .nfs{
+  .nfs,
+  .gfs{
     .list_container{
       padding-bottom: 20px;
       .list,
@@ -124,11 +130,26 @@
         display: inline-block;
       }
       .list{
+        position: relative;
         width: calc(~"100% - 100px");
         max-width: 1200px;
         border:1px dashed #666;
         border-radius: 5px;
         padding: 20px;
+      }
+      .defaultStorage{
+        padding-top: 40px;
+        .dafaultGroup{
+          position: absolute;
+          top: -1px;
+          left: 20px;
+          width: 36px;
+          height: 30px;
+          line-height: 30px;
+          text-align: center;
+          color: #639264;
+          border: 1px dashed #cbcbcb;
+        }
       }
       .handle_box{
         width: 100px;
@@ -139,6 +160,11 @@
     }
   }
   .ceph{
+    .handle_box{
+      padding:134px 0 0 20px;
+    }
+  }
+  .gfs{
     .handle_box{
       padding:134px 0 0 20px;
     }

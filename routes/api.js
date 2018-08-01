@@ -745,6 +745,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/storageclass', storageController.putUpdateCephStorage)
   router.del('/clusters/:cluster/storageclass/:name', storageController.postDeleteCephStorage)
   router.get('/clusters/:cluster/storageclass/type', storageController.getStorageClassType)
+  router.put('/clusters/:cluster/storageclass/setdefault', storageController.setStorageClassDefault)
 
   //Quota
   router.get('/clusters/:cluster/resourcequota', quotaController.clusterList)
