@@ -13,7 +13,11 @@ import './style/index.less'
 import { connect } from 'react-redux'
 import { Card, Button, Table, Modal, Form, Input, Select } from 'antd'
 import QueueAnim from 'rc-queue-anim'
+import * as serviceAction from '../../../../src/actions/app_manage'
+import Notification from '../../../../src/components/Notification'
+import * as securityActions from '../../../actions/securityGroup'
 
+const notification = new Notification()
 const FormItem = Form.Item
 const Option = Select.Option
 const formItemLayout = {
@@ -32,10 +36,34 @@ class SecurityGroupTab extends React.Component {
 
   state={
     relatedVisible: false,
+    listData: [],
   }
 
   componentDidMount() {
-    this.props.form.setFieldsValue({ name: 'serviceName' })
+    const { getServiceReference, cluster, form, serviceDetail, getSecurityGroupList } = this.props
+    form.setFieldsValue({ name: 'serviceName' })
+    const query = {
+      service: Object.keys(serviceDetail[cluster])[ 0 ],
+    }
+    getServiceReference(cluster, query, {
+      success: {
+        func: res => {
+          this.setState({
+            listData: res,
+          })
+        },
+      },
+      failed: {
+        func: error => {
+          const { message } = error
+          notification.close()
+          notification.warn('获取安全组列表数据出错', message.message)
+        },
+      },
+    })
+    getSecurityGroupList(cluster, {
+
+    })
   }
 
   relatedGroup = () => {
@@ -45,24 +73,9 @@ class SecurityGroupTab extends React.Component {
   }
 
   render() {
-    const { relatedVisible } = this.state
-    const { form } = this.props
+    const { relatedVisible, listData } = this.state
+    const { form, selectData } = this.props
     const { getFieldProps } = form
-    const listData = [
-      {
-        name: '0.0',
-        key: '15a245saa',
-      }, {
-        name: '*.*',
-        key: '525525',
-      }, {
-        name: '0.0',
-        key: '152s45sda',
-      }, {
-        name: '*.*',
-        key: '525come',
-      },
-    ]
     const columns = [
       {
         title: '安全组名称',
@@ -79,7 +92,7 @@ class SecurityGroupTab extends React.Component {
     return (
       <Card id="securityTab">
         <Modal
-          title="删除操作"
+          title="关联安全组"
           visible={relatedVisible}
           onOk={this.relatedGroup}
           onCancel={this.relatedGroup}
@@ -102,24 +115,24 @@ class SecurityGroupTab extends React.Component {
                 multiple
                 size="large"
                 style={{ width: 300 }}
-                // onChange={handleSelectChange}
                 {...getFieldProps('target', {
                   rules: [{
                     required: true,
                     message: '请选择服务',
                   }],
-                  initialValue: 'lucy',
                 })}
               >
-                <Option value="jack">jack</Option>
-                <Option value="lucy">lucy</Option>
-                <Option value="yiminghe">yiminghe</Option>
+                {
+                  selectData.map(item => {
+                    return <Option value={item.metaName} key={item.metaName}>{item.name}</Option>
+                  })
+                }
               </Select>
             </FormItem>
           </div>
         </Modal>
         <QueueAnim>
-          <div className="securityTit" key="securityTit">安全组</div>
+          <div className="securityTit" key="securityTit">安全组 (防火墙)</div>
           <div className="securityCont" key="securityCont">
             <p className="securityText">
               当前集群默认 ( namespace | 项目 ) 间互通， 可以通过配置安全组来管理服务安全策略
@@ -149,4 +162,25 @@ class SecurityGroupTab extends React.Component {
     )
   }
 }
-export default connect()(Form.create()(SecurityGroupTab))
+
+const mapStateToProps = ({
+  entities: { current },
+  services: { serviceDetail },
+  securityGroup: { getSecurityGroupList: { data } },
+}) => {
+  const selectData = []
+  data && data.map(item => selectData.push({
+    name: item.metadata.annotations['policy-name'],
+    metaName: item.metadata.name,
+  }))
+  return {
+    cluster: current.cluster.clusterID,
+    serviceDetail,
+    selectData,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getServiceReference: serviceAction.getServiceReference,
+  getSecurityGroupList: securityActions.getSecurityGroupList,
+})(Form.create()(SecurityGroupTab))

@@ -46,6 +46,8 @@ import { parseToFields } from '../../../../client/containers/AppCenter/AppTempla
 import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
 import Title from '../../Title'
 import ResourceErrorsModal from './ResourceErrorsModal'
+import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client/actions/securityGroup'
+import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -733,8 +735,58 @@ class QuickCreateApp extends Component {
         }
         return
       }
+      // 更新安全组 (失败就不创建)
+      const { securityGroup } = values
+      console.log( '111' )
+      // if (securityGroup && securityGroup.length) {
+      //   let isSuccess = true
+      //   const reqArray = []
+      //   const { getfSecurityGroupDetail, updateSecurityGroup, cluster } = this.props
+      //   securityGroup.map(item => {
+      //     // return reqArray.push(
+      //       getfSecurityGroupDetail(cluster.clusterID, item, {
+      //         success: {
+      //           func: res => {
+      //             const { name, targetServices, ingress, egress } = parseNetworkPolicy(res.data)
+      //             targetServices.push(values.serviceName)
+      //             const body = buildNetworkPolicy(name, targetServices, ingress || [], egress || [])
+      //             updateSecurityGroup(cluster.clusterID, body, {
+      //               failed: {
+      //                 func: error => {
+      //                   const { message } = error
+      //                   notification.close()
+      //                   notification.warn('修改安全组出错', message.message)
+      //                   isSuccess = false
+      //                   return
+      //                 },
+      //               },
+      //             })
+      //             console.log( '22222' )
+      //           },
+      //           isAsync: true,
+      //         },
+      //         failed: {
+      //           func: error => {
+      //             const { message } = error
+      //             notification.close()
+      //             notification.warn('获取安全组数据出错', message.message)
+      //             isSuccess = false
+      //             return
+      //           },
+      //         },
+      //       })
+      //     // )
+      //   })
+      //   // const res = await Promise.all(reqArray)
+      //   console.log( res )
+      //   console.log( '333', isSuccess )
+      //   if (!isSuccess) {
+      //     return
+      //   }
+      // }
       const { setFormFields } = this.props
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
+  // console.log( formatValuesToFields(values), 'formatValuesToFields' )
       setFormFields(id, formatValuesToFields(values), {
         success: {
           func: this.createAppOrAddService,
@@ -1316,5 +1368,7 @@ export default connect(mapStateToProps, {
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
   getImageTemplate,
-  getLBList
+  getLBList,
+  getfSecurityGroupDetail,
+  updateSecurityGroup,
 })(QuickCreateApp)

@@ -203,6 +203,7 @@ class DnsModal extends React.Component {
       )
     })
     return <Modal
+      wrapClassName="addDnsModal"
       title="添加 DNS 记录"
       visible={visible}
       onOk={this.handleOk}

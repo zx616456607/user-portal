@@ -36,7 +36,7 @@ class SecurityGroupDetail extends React.Component {
         func: error => {
           const { message } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          notification.warn('获取安全组数据出错', message.message)
         },
       },
     }).then(res => this.setState({

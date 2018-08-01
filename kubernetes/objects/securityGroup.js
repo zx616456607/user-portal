@@ -27,7 +27,7 @@ function parseNetworkPolicy(policy) {
       result.ingress.push(rule)
     }
   }
-  if (policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
+  if (policy.spec && policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
     const to = policy.spec.egress[0].to
     result.egress = []
     for (let i = 0; i < to.length; ++i) {

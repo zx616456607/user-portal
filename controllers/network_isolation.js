@@ -41,3 +41,11 @@ exports.setEachConnect = function* () {
   const result = yield api.createBy([clusterID, 'networkpolicy', 'bypass-namespace-internal'], null, rule)
   this.body = result ? result.data : {}
 }
+
+exports.getServiceReferences = function* () {
+  const loginUser = this.session.loginUser
+  const clusterID = this.params.clusterID
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([clusterID, 'networkpolicy', 'references' ], this.query)
+  this.body = result ? result.data : {}
+}

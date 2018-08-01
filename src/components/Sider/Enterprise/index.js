@@ -871,7 +871,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='security_group'>
                     <Link to='/app_manage/security_group'>
-                      <span><div className='sideCircle'></div> 安全组</span>
+                      <span><div className='sideCircle'></div> 安全组 (防火墙)</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='load_balance'>

@@ -468,7 +468,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab='安全组' key='#securitygroup'>
+              <TabPane tab='安全组 (防火墙)' key='#securitygroup'>
                 <SecurityGroupTab />
               </TabPane>
               <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>

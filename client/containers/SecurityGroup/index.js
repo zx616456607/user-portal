@@ -19,13 +19,14 @@ import Title from '../../../src/components/Title'
 import './style/index.less'
 import * as securityActions from '../../actions/securityGroup'
 import Notification from '../../../src/components/Notification'
+import * as networkpolicy from '../../../src/actions/app_manage'
 
 const notification = new Notification()
 
 class SecurityGroup extends React.Component {
 
   state = {
-    proStatus: true,
+    proStatus: false,
     search: '',
     currentPage: 1,
     deleteVisible: false,
@@ -33,7 +34,19 @@ class SecurityGroup extends React.Component {
   }
 
   componentDidMount() {
+    const { getNetworkIsolationStatus, cluster } = this.props
     this.loadData()
+    getNetworkIsolationStatus(cluster, {
+      success: {
+        func: res => {
+          if (res.defaultDeny) {
+            this.setState({
+              proStatus: true,
+            })
+          }
+        },
+      },
+    })
   }
 
   loadData = () => {
@@ -102,15 +115,24 @@ class SecurityGroup extends React.Component {
   }
 
   renderTarget = data => {
-    return data.map((item, k) => {
+    return data && data.map((item, k) => {
       return <p key={k}>{item}</p>
+    })
+  }
+
+  changeInp = search => {
+    this.setState({
+      search,
     })
   }
 
   render() {
     const { proStatus, search, currentPage, deleteVisible, toDelete } = this.state
     const { listData, isFetching } = this.props
-    const total = 10
+    let list = !search ? listData : listData.filter(item => (
+      item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
+    ))
+    const total = list.length
     const pagination = {
       simple: true,
       total,
@@ -118,6 +140,9 @@ class SecurityGroup extends React.Component {
       pageSize: 10,
       onChange: this.handlePager,
     }
+    list = list.length < 10 ?
+      list
+      : list.slice((currentPage - 1) * 10, currentPage * 10)
     const columns = [
       {
         title: '安全组名称',
@@ -146,12 +171,10 @@ class SecurityGroup extends React.Component {
           const menu = <Menu
             onClick={ k => this.operatorDns(k, record)}
             style={{ width: 80 }}>
-            <Menu.Item key="editItem">修 改</Menu.Item>
             <Menu.Item key="deleteItem">删 除</Menu.Item>
           </Menu>
           return <div>
             <Dropdown.Button
-              // onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)}
               overlay={menu}
               trigger={[ 'click', 'hover' ]}
               onClick={() => this.editItem(record)}
@@ -162,7 +185,7 @@ class SecurityGroup extends React.Component {
         },
       }]
     return <QueueAnim className="securityGroup">
-      <div className="securityPage" key="security">
+      <div className="securityGroupPage" key="security">
         <Title title="安全组" />
         <Modal
           title="删除操作"
@@ -171,7 +194,7 @@ class SecurityGroup extends React.Component {
           onCancel={this.deleteItem}
           okText={'确认删除'}
         >
-          <div className="modalContent">
+          <div className="securityGroupContent">
             <Icon
               className="modalIcon"
               type="exclamation-circle"/>
@@ -222,7 +245,7 @@ class SecurityGroup extends React.Component {
           <Table
             className="reset_antd_table_header"
             columns={columns}
-            dataSource={listData}
+            dataSource={list}
             pagination={false}
             loading={ isFetching }
           />
@@ -240,7 +263,8 @@ const mapStateToProps = ({
   data && data.map(item => listData.push({
     name: item.metadata.annotations['policy-name'],
     metaName: item.metadata.name,
-    target: item.spec.podSelector.matchExpressions[0].values,
+    target: item.spec.podSelector.matchExpressions
+      && item.spec.podSelector.matchExpressions[0].values,
     time: item.metadata.creationTimestamp,
     key: item.metadata.name,
   }))
@@ -254,4 +278,5 @@ const mapStateToProps = ({
 export default connect(mapStateToProps, {
   getSecurityGroupList: securityActions.getSecurityGroupList,
   deleteSecurityGroup: securityActions.deleteSecurityGroup,
+  getNetworkIsolationStatus: networkpolicy.getNetworkIsolationStatus,
 })(SecurityGroup)
