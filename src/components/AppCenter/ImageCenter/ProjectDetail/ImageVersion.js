@@ -707,8 +707,7 @@ class ImageVersion extends Component {
                 }
               >
                 <div className="tag otherTag" style={{ backgroundColor: label.color }}>
-                  {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
-                  {' ' + label.name}
+                  <span>{label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}{' ' + label.name}</span>
                 </div>
               </Checkbox>
             </MenuItem>
