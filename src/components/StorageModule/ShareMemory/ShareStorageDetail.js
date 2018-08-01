@@ -38,7 +38,7 @@ class ShareStorageDetail extends Component {
     loadStorageInfo(params.cluster, params.share_name, {fstype: this.props.location.query.diskType}, {
       failed:{
         func: err => {
-          notification.warn("获取存储信息失败")
+          notification.warn("获取存储详情失败")
         },
         isAsync: true,
       }

@@ -31,7 +31,7 @@ function loadData(props) {
   loadStorageInfo(props.params.cluster, props.params.storage_name, {}, {
     failed:{
       func: err => {
-        notification.warn("获取存储信息失败")
+        notification.warn("获取存储详情失败")
       },
       isAsync: true,
     }
