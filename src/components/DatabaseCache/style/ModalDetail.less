@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 @borderColor: #F2F2F2;
 @activeColor: #2db7f5;
 @boxColor: #C2C2C2;
@@ -118,7 +119,6 @@
       }
       .leftBox {
         float: left;
-        width: 50%;
         span {
           line-height: 30px;
         }
@@ -142,6 +142,13 @@
       .rightBox {
         float: right;
         margin-top: 15px;
+        .stopIcon {
+          width: 10px;
+          height: 10px;
+          display: inline-block;
+          background: #ffffff;
+          margin-right: 5px;
+        }
         button {
           font-size: 14px;
         }
@@ -245,10 +252,27 @@
         text-indent: 5px;
         margin: 20px 0;
       }
+      .resourceConfigPart {
+        .tips {
+          width: 100%;
+          padding: @padding-base;
+          border: 1px dashed #2db7f5;
+          background: #e5f2fa;
+          color: #2db7f5;
+          font-size: 12px;
+          border-radius: @border-radius-base;
+        }
+      }
       .themeHeader{
         margin: 20px 0;
         display: flex;
         align-items: center;
+        .resource-config-btn {
+          margin-left: 30px;
+          button {
+            margin-right: 8px;
+          }
+        }
       }
       .themeBorder {
         display: inline-block;
@@ -528,3 +552,24 @@
     font-weight: normal;
   }
 }
+.pwdChangeWrapper {
+  padding: @padding-base 0;
+  .ant-form-explain {
+    width: 205px;
+  }
+  .pwd-btn-group {
+    margin-left: 80px;
+    button {
+      margin-right: @padding-base;
+    }
+  }
+}
+.alertContent {
+  i {
+    color: @primary-color;
+    font-size: 16px;
+    margin-top: 3px;
+    margin-right: 8px;
+  }
+}
+

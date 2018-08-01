@@ -66,13 +66,12 @@ function databaseAllList(state = {}, action) {
           databaseList: action.response.result.databaseList || []
         }
       })
-
     }
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [clusterType]: { isFetching: false }
+      return merge({}, defaultState, {
+        [clusterType]: { isFetching: false },
       })
-  // delete database cluster 
+  // delete database cluster
     case ActionTypes.DELETE_DATABASE_CACHE_SUCCESS: {
       const delState = cloneDeep(state)
       const databaseList = delState[clusterType].databaseList
@@ -90,16 +89,15 @@ function databaseAllList(state = {}, action) {
         searchState[clusterType].databaseList = searchState[clusterType].bak
         return searchState
       }
-      
+
       const list = searchState[clusterType].bak.filter(item => {
         const search = new RegExp(action.name)
-        if (search.test(item.serivceName)) {
+        if (search.test(item.objectMeta.name)) {
           return true
         }
         return false
       })
       searchState[clusterType].databaseList = list
-
       return searchState
     }
     default:
@@ -165,6 +163,7 @@ function databaseClusterDetail(state = {}, action) {
   }
 }
 
+
 function loadDBStorageAllList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -196,6 +195,6 @@ export function databaseCache(state = { databaseCache: {} }, action) {
     databaseAllList: databaseAllList(state.databaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     loadDBStorageAllList: loadDBStorageAllList(state.loadDBStorageAllList, action),
-    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action)
+    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action),
   }
 }

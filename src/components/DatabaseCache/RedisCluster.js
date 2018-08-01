@@ -12,8 +12,8 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip, InputNumber } from 'antd'
+import { injectIntl } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
@@ -22,13 +22,13 @@ import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
-// import './style/RedisCluster.less'
-import './style/MysqlCluster.less'
+import './style/RedisCluster.less'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/database_cache/no_redis.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
-
+import AutoBackupModal from '../../../client/components/AutoBackupModal'
+import { autoBackupSet, autoBackupDetele, checkAutoBackupExist } from '../../../client/actions/backupChain'
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -38,8 +38,12 @@ let MyComponent = React.createClass({
     scope.setState({
       detailModal: true,
       currentData: database,
-      currentDatabase: database.serivceName
+      currentDatabase: database.objectMeta.name
     })
+  },
+  //自动备份开关
+  autoBackupSwitch: function(item) {
+    this.props.setAutoBackup(item)
   },
   render: function () {
     const { config, isFetching } = this.props;
@@ -63,6 +67,44 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    const statusText = status => {
+      switch(status) {
+        case 'Pending':
+          return '启动中'
+        case 'Success':
+          return '启动成功'
+        case 'Running':
+          return '运行中'
+        case 'Stopped':
+          return '已停止'
+      }
+    }
+    const style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
+    }
+    // 最新创建的在第一个
+    config.sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) - Date.parse(a.objectMeta.creationTimestamp))
     let items = config.map((item, index) => {
       return (
         <div className='List' key={index}>
@@ -70,33 +112,32 @@ let MyComponent = React.createClass({
             <div className='detailHead'>
               <img src={redisImg} />
               <div className='detailName'>
-                {item.serivceName}
+                {item.objectMeta.name}
+              </div>
+              <div className="status">
+                <span className='listKey'>状态:</span>
+                <span className='normal' style={style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {statusText(item.status)} </span>
               </div>
               <div className='detailName'>
                 <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span>
-                {item.pods.running >0 ?
-                  <span className='normal'>运行 {item.pods.running} 个 </span>
-                  :null
-                }
-                {item.pods.pending >0 ?
-                  <span>停止 {item.pods.pending} 个 </span>
-                  :null
-                }
-                {item.pods.failed >0 ?
-                  <span>失败 {item.pods.pending} 个 </span>
-                  :null
-                }
-              </li>
-              <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB') :'0'}<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
+                <div className="opacity-switch"  onClick={() => this.autoBackupSwitch(item)}></div>
+                <Switch checkedChildren="开"
+                        unCheckedChildren="关"
+                        checked={item.cronBackup}
+                />
+              </li>
             </ul>
           </div>
         </div>
@@ -110,6 +151,8 @@ let MyComponent = React.createClass({
   }
 });
 
+const notification = new NotificationHandler()
+
 class RedisDatabase extends Component {
   constructor() {
     super()
@@ -121,9 +164,19 @@ class RedisDatabase extends Component {
       detailModal: false,
       putVisible: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false
+      CreateDatabaseModalShow: false,
+      autoBackupModalShow: false,
+      hadSetAutoBackup: false,
+      days: [ '0', '1', '2', '3', '4', '5', '6' ],
+      daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+      hour: '1',
+      minutes: '0',
+      currentClusterNeedBackup: '',
+      aleradySetAuto: [],
+      autoBackupSwitch: false,
     }
   }
+
   clusterRefresh() {
     const _this = this
     const { loadDbCacheList, cluster } = this.props
@@ -145,7 +198,15 @@ class RedisDatabase extends Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode === 500) {
+            notification.error('Redis集群未找到')
+          }
+        }
       }
+
     })
   }
   componentWillMount() {
@@ -156,7 +217,17 @@ class RedisDatabase extends Component {
       return
     }
     getProxy(cluster)
-    loadDbCacheList(cluster, 'redis')
+    // 获取集群列表
+    loadDbCacheList(cluster, 'redis', {
+      failed: {
+        func: err => {
+          if (err.statusCode === 500) {
+            notification.error('Redis集群未找到')
+          }
+        }
+      }
+
+    })
   }
   componentDidMount() {
     const _this = this
@@ -194,12 +265,27 @@ class RedisDatabase extends Component {
       CreateDatabaseModalShow: true
     });
     setTimeout(function() {
-      document.getElementById('dbName').focus()
-    }, 100);
+      document.getElementById('name').focus()
+    }, 300);
   }
   handSearch() {
     const { search } = this.state
     this.props.searchDbservice('redis', search)
+  }
+  onAutoBackup = item => {
+    const { checkAutoBackupExist, cluster } = this.props
+    this.setState({
+      autoBackupModalShow: true,
+      currentClusterNeedBackup: item,
+      hadSetAutoBackup: item.cronBackup
+    })
+  }
+  setAutobackupSuccess = () => {
+    const { loadDbCacheList, cluster, database } = this.props
+    loadDbCacheList(cluster, database)
+    this.setState({
+      autoBackupModalShow: false,
+    })
   }
 
   render() {
@@ -215,7 +301,7 @@ class RedisDatabase extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     return (
-      <QueueAnim id='mysqlDatabase' type='right'>
+      <QueueAnim id='redisDatabase' type='right'>
         <div className='databaseCol' key='RedisDatabase'>
           <Title title="Redis" />
           <div className='databaseHead'>
@@ -232,13 +318,15 @@ class RedisDatabase extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent scope={_this} isFetching={isFetching} setAutoBackup={this.onAutoBackup} autoBackupList = {this.state.aleradySetAuto} config={databaseList} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+          {
+            this.state.detailModal && <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+          }
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false}
@@ -247,6 +335,17 @@ class RedisDatabase extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
+        <AutoBackupModal
+          isShow={this.state.autoBackupModalShow}
+          closeModal={() => this.setState({
+            autoBackupModalShow: false,
+          })}
+          hadSetAutoBackup={this.state.hadSetAutoBackup}
+          onSubmitSuccess={this.setAutobackupSuccess}
+          databaseInfo={this.state.currentClusterNeedBackup}
+          database={this.props.database}
+        />
+
       </QueueAnim>
     )
   }
@@ -301,4 +400,7 @@ export default connect(mapStateToProps, {
   loadMyStack,
   searchDbservice,
   getProxy,
+  autoBackupSet,
+  autoBackupDetele,
+  checkAutoBackupExist,
 })(RedisDatabase)

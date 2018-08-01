@@ -1,0 +1,359 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * styles for backup
+ *
+ * v0.1 - 2018-07-12
+ * @author zhouhaitao
+ */
+
+@import '../../../../../src/assets/style/site/core.less';
+.dbClusterBackup {
+  padding: @padding-small;
+  padding-left: 40px;
+  background: #fff;
+  border-radius: @border-radius-base;
+  border: 1px solid @border-color-split;
+  .ant-dropdown-button {
+    margin-top: -2px;
+  }
+  .rollback-icon {
+    font-size: 12px;
+  }
+  .title {
+    position: relative;
+    font-size: @font-size-medium;
+    &:before {
+      content: '';
+      display: block;
+      height: 20px;
+      width: 5px;
+      background: @primary-color;
+      position: absolute;
+      top: 0;
+      left: -10px;
+    }
+  }
+  .content {
+    .operation {
+      margin-top: @padding-base;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      .btn-wrapper {
+        position: relative;
+        .fake {
+          position: absolute;
+          top: 0;
+          left: 20px;
+          z-index: 100;
+          cursor: not-allowed;
+          opacity: 0;
+          .mask {
+            width: 130px;
+            height: 30px;
+            background: #0aad89;
+          }
+        }
+      }
+      button {
+        margin-left: @padding-medium;
+      }
+      .tip {
+        margin-left: @padding-base;
+        color: @font-color-4;
+      }
+    }
+    .list {
+      margin-top: @padding-base;
+      .children-chain {
+        position: relative;
+        top: -10px;
+        margin-left: 0;
+        margin-right: 0;
+        height: 40px;
+        line-height: 40px;
+        display: block;
+        padding-left: 5px;
+        &:hover {
+          background: #ebf8fe;
+        }
+      }
+      .status {
+        position: relative;
+        &:before {
+          content: '';
+          display: block;
+          position: absolute;
+          left: -16px;
+          top: 0;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #ccc;
+        }
+      }
+      .redis-status {
+        position: relative;
+        &:before {
+          content: '';
+          display: block;
+          position: absolute;
+          left: -16px;
+          top: 0;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #ccc;
+        }
+      }
+      .err {
+        color: @error-color;
+        &:before {
+          background: @error-color;
+          top: 10px;
+        }
+      }
+      .redis-err {
+        color: @error-color;
+        &:before {
+          background: @error-color;
+          top: 16px;
+        }
+      }
+      .suc {
+        color: @success-color;
+        &:before {
+          background: @success-color;
+        }
+      }
+      .ing {
+        color: @primary-color;
+        &:before {
+          background: @primary-color;
+        }
+      }
+      .no-data {
+        height: 40px;
+        line-height: 42px;
+        border: 1px dashed @border-color-split;
+        text-align: center;
+        color: @font-color-3;
+        i {
+          margin-right: @padding-base;
+        }
+      }
+      .ant-collapse-header {
+        border-left: 1px solid @border-color-base !important;
+        padding-left: 0 !important;
+        .arrow {
+          z-index: 100 !important;
+        }
+        .list-item-header {
+          padding-left: @padding-small;
+          height: 48px;
+          line-height: 48px;
+        }
+      }
+      .ant-collapse-content-active {
+        border: none !important;
+      }
+      .ant-collapse-content-box {
+        padding-top: @padding-large !important;
+        padding-left: 0 !important;
+        .new-point {
+          width: 18px;
+          height: 18px;
+          margin-bottom: 50px;
+          border: 2px solid @success-color;
+          border-radius: 50%;
+          line-height: 16px;
+          color: @success-color;
+          font-size: 12px;
+          font-weight: bold;
+          position: relative;
+          left: -3px;
+          cursor: pointer;
+          .line {
+            width: 1px;
+            height: 40px;
+            border: 1px dashed @border-color-base;
+            position: absolute;
+            top: 20px;
+            left: 6px;
+          }
+          &:before {
+            display: block;
+            content: '';
+            width: 8px;
+            height: 1px;
+            position: absolute;
+            top: 6px;
+            left: 3px;
+            background: @success-color;
+          }
+          &:after {
+            display: block;
+            content: '';
+            width: 1px;
+            height: 8px;
+            position: absolute;
+            top: 3px;
+            left: 6px;
+            background: @success-color;
+          }
+        }
+        .disabled-point {
+          width: 18px;
+          height: 18px;
+          margin-bottom: 50px;
+          border: 2px solid #ccc;
+          border-radius: 50%;
+          line-height: 16px;
+          color: #ccc;
+          font-size: 12px;
+          font-weight: bold;
+          position: relative;
+          left: -3px;
+          cursor: not-allowed;
+          .line {
+            width: 1px;
+            height: 40px;
+            border: 1px dashed @border-color-base;
+            position: absolute;
+            top: 20px;
+            left: 6px;
+          }
+          &:before {
+            display: block;
+            content: '';
+            width: 8px;
+            height: 1px;
+            position: absolute;
+            top: 6px;
+            left: 3px;
+            background: #ccc;
+          }
+          &:after {
+            display: block;
+            content: '';
+            width: 1px;
+            height: 8px;
+            position: absolute;
+            top: 3px;
+            left: 6px;
+            background: #ccc;
+          }
+        }
+        .fullPoint {
+          width: 18px;
+          height: 18px;
+          border-radius: 4px;
+          background: #ccc;
+          font-size: 12px;
+          color: #fff;
+          text-align: center;
+          line-height: 18px;
+          margin-left: 10px;
+        }
+      }
+      .redis-list-wrapper {
+        margin-top: 20px;
+        /*redis样式*/
+        .redis-list-item-header {
+          height: 48px;
+          line-height: 50px;
+          border: 1px solid @border-color-base;
+          margin-bottom: 15px;
+          padding-left: 16px;
+          &:hover {
+            background: #fafafa;
+          }
+          .name {
+            display: flex;
+            .backup-point-name {
+              width: 50px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+            justify-content: flex-start;
+          }
+          .status {
+            margin-left: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+.dbClusterBackup-autoContent {
+  font-size: @font-size-medium;
+  .item {
+    margin-bottom: @padding-medium;
+    .title {
+      text-align: right;
+    }
+    .tip {
+      font-size: 12px;
+      color: @font-color-3;
+    }
+  }
+  .text {
+    margin: 0 8px;
+  }
+}
+.dbClusterBackup-manualBackup {
+  .tip {
+    margin: @padding-base 0 @padding-medium 0;
+    color: @font-color-3;
+  }
+  .ant-form-explain {
+    width: 200px !important;
+  }
+  .ant-form-item-label {
+    margin-left: -10px !important;
+  }
+  .ant-col-sm-19 {
+    margin-left: -20px;
+  }
+}
+.dbClusterBackup-rollbackAlertContent {
+  display: flex;
+  justify-content: flex-start;
+  .left {
+    color: @primary-color;
+    font-size: 16px;
+    margin-top: -4px;
+    margin-right: @padding-base;
+  }
+  .right {
+    p {
+      margin-bottom: @padding-medium;
+    }
+  }
+}
+.dbClusterBackup-delPoint {
+  i {
+    margin-right: @padding-base;
+    color: @primary-color;
+    font-size: 16px;
+    margin-top: -2px;
+  }
+  .alert {
+    margin-bottom: @padding-medium;
+  }
+  .delPoint {
+    color: @primary-color;
+    i {
+      margin-right: @padding-base;
+    }
+  }
+  .alert-icon {
+    i {
+      font-size: 40px;
+      color: @error-color;
+    }
+  }
+}
