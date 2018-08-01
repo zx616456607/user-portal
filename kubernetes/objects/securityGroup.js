@@ -24,7 +24,9 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
       const rule = peerToRule(peer)
-      result.ingress.push(rule)
+      if (rule) {
+        result.ingress.push(rule)
+      }
     }
   }
   if (policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
@@ -33,7 +35,9 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
       const rule = peerToRule(peer)
-      result.egress.push(rule)
+      if (rule) {
+        result.egress.push(rule)
+      }
     }
   }
   return result
