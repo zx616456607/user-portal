@@ -262,7 +262,7 @@ let CreateUserModal = React.createClass({
                   ""
                   :
                   <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
-                    <Tooltip title="点击查看基础设施管理员权限">
+                    <Tooltip title="点击查看平台管理员权限">
                       <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
                     </Tooltip>
                   </Radio>
