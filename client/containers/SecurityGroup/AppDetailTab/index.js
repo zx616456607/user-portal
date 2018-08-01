@@ -40,16 +40,29 @@ class SecurityGroupTab extends React.Component {
   }
 
   componentDidMount() {
-    const { getServiceReference, cluster, form, serviceDetail, getSecurityGroupList } = this.props
+    const { cluster, form, getSecurityGroupList } = this.props
     form.setFieldsValue({ name: 'serviceName' })
+    this.loadListData()
+    getSecurityGroupList(cluster, {})
+  }
+
+  loadListData = () => {
+    const { getServiceReference, cluster, serviceDetail } = this.props
     const query = {
       service: Object.keys(serviceDetail[cluster])[ 0 ],
     }
     getServiceReference(cluster, query, {
       success: {
         func: res => {
+          const arr = []
+          res.data.map(item => {
+            return arr.push({
+              name: item.metadata.annotations.policyName,
+              metaName: item.metadata.name,
+            })
+          })
           this.setState({
-            listData: res,
+            listData: arr,
           })
         },
       },
@@ -61,11 +74,7 @@ class SecurityGroupTab extends React.Component {
         },
       },
     })
-    getSecurityGroupList(cluster, {
-
-    })
   }
-
   relatedGroup = () => {
     this.setState({
       relatedVisible: !this.state.relatedVisible,

@@ -24,7 +24,11 @@ class AddWhiteList extends React.Component {
     uuid: 0,
   }
   componentDidMount() {
-    console.log( this.props )
+    const { ln } = this.props
+    ln && this.setState({
+      uuid: ln,
+    })
+
   }
 
   remove = k => {

@@ -47,5 +47,5 @@ exports.getServiceReferences = function* () {
   const clusterID = this.params.clusterID
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([clusterID, 'networkpolicy', 'references' ], this.query)
-  this.body = result ? result.data : {}
+  this.body = result
 }

@@ -704,7 +704,7 @@ class QuickCreateApp extends Component {
       return this.createAppOrAddService()
     }
     const { validateFieldsAndScroll } = this.form
-    validateFieldsAndScroll((errors, values) => {
+    validateFieldsAndScroll( async (errors, values) => {
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
@@ -737,56 +737,45 @@ class QuickCreateApp extends Component {
       }
       // 更新安全组 (失败就不创建)
       const { securityGroup } = values
-      console.log( '111' )
-      // if (securityGroup && securityGroup.length) {
-      //   let isSuccess = true
-      //   const reqArray = []
-      //   const { getfSecurityGroupDetail, updateSecurityGroup, cluster } = this.props
-      //   securityGroup.map(item => {
-      //     // return reqArray.push(
-      //       getfSecurityGroupDetail(cluster.clusterID, item, {
-      //         success: {
-      //           func: res => {
-      //             const { name, targetServices, ingress, egress } = parseNetworkPolicy(res.data)
-      //             targetServices.push(values.serviceName)
-      //             const body = buildNetworkPolicy(name, targetServices, ingress || [], egress || [])
-      //             updateSecurityGroup(cluster.clusterID, body, {
-      //               failed: {
-      //                 func: error => {
-      //                   const { message } = error
-      //                   notification.close()
-      //                   notification.warn('修改安全组出错', message.message)
-      //                   isSuccess = false
-      //                   return
-      //                 },
-      //               },
-      //             })
-      //             console.log( '22222' )
-      //           },
-      //           isAsync: true,
-      //         },
-      //         failed: {
-      //           func: error => {
-      //             const { message } = error
-      //             notification.close()
-      //             notification.warn('获取安全组数据出错', message.message)
-      //             isSuccess = false
-      //             return
-      //           },
-      //         },
-      //       })
-      //     // )
-      //   })
-      //   // const res = await Promise.all(reqArray)
-      //   console.log( res )
-      //   console.log( '333', isSuccess )
-      //   if (!isSuccess) {
-      //     return
-      //   }
-      // }
+      if (securityGroup && securityGroup.length) {
+        let isSuccess = true
+        const reqArray = []
+        const { getfSecurityGroupDetail, updateSecurityGroup, cluster } = this.props
+        securityGroup.map(item => {
+          return reqArray.push(
+            getfSecurityGroupDetail(cluster.clusterID, item, {
+              failed: {},
+            }).then(res => {
+              if (res.error) {
+                notification.close()
+                notification.warn('获取安全组数据出错', message.message)
+                isSuccess = false
+                return
+              }
+              const { name, targetServices, ingress, egress } = parseNetworkPolicy(res.response.result.data)
+              targetServices.push(values.serviceName)
+              const body = buildNetworkPolicy(name, targetServices, ingress || [], egress || [])
+              return updateSecurityGroup(cluster.clusterID, body, {
+                failed: {
+                  func: error => {
+                    const { message } = error
+                    notification.close()
+                    notification.warn('修改安全组隔离对象出错', message.message)
+                    isSuccess = false
+                    return
+                  },
+                },
+              })
+            })
+          )
+        })
+        await Promise.all(reqArray)
+        if (!isSuccess) {
+          return
+        }
+      }
       const { setFormFields } = this.props
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
-  // console.log( formatValuesToFields(values), 'formatValuesToFields' )
       setFormFields(id, formatValuesToFields(values), {
         success: {
           func: this.createAppOrAddService,

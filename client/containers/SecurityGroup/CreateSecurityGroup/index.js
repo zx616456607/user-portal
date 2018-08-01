@@ -40,6 +40,8 @@ class CreateSecurityGroup extends React.Component {
     isEdit: false,
     loading: false,
     current: {},
+    ingLn: undefined,
+    egLn: undefined,
   }
 
   componentDidMount() {
@@ -84,6 +86,7 @@ class CreateSecurityGroup extends React.Component {
         const { ingress, egress } = current.spec && current.spec
         if (ingress && ingress.length) {
           const num = ingress[0].from.length
+          this.setState({ ingLn: num })
           const ingressArr = []
           for (let i = 0; i < num; i++) {
             ingressArr.push(i)
@@ -92,7 +95,6 @@ class CreateSecurityGroup extends React.Component {
             ingress: ingressArr,
           })
           ingress[0].from.map((item, ind) => {
-            // console.log( 'key1111', Object.keys(item)[0], item )
             switch (Object.keys(item)[0]) {
               case 'podSelector':
                 switch (Object.keys(item[Object.keys(item)[0]].matchLabels)[0]) {
@@ -126,6 +128,7 @@ class CreateSecurityGroup extends React.Component {
         }
         if (egress && egress.length) {
           const ln = egress[0].to.length
+          this.setState({ egLn: ln })
           const egressArr = []
           for (let i = 0; i < ln; i++) {
             egressArr.push(i)
@@ -286,7 +289,8 @@ class CreateSecurityGroup extends React.Component {
   }
   render() {
     const { form, serverList } = this.props
-    const { isEdit, loading } = this.state
+    const { isEdit, loading, ingLn, egLn } = this.state
+    // console.log('length', ingLn, egLn )
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
         {
@@ -314,6 +318,8 @@ class CreateSecurityGroup extends React.Component {
           <IngressAndEgressWhiteList
             form={form}
             isEdit={isEdit}
+            ingLn={ingLn}
+            egLn={egLn}
           />
           <Row className="submitBtn">
             <Col span={4}></Col>
