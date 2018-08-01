@@ -20,8 +20,7 @@ import { loadDbClusterDetail,
   putDbClusterDetail,
   loadDbCacheList,
   editDatabaseCluster,
-  updateMysqlPwd,
-  getDbDetail} from '../../actions/database_cache'
+  updateMysqlPwd,} from '../../actions/database_cache'
 import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
@@ -604,7 +603,7 @@ class VisitTypes extends Component{
     });
   }
   saveEdit() {
-    const { groupid, initValue } = this.state;
+    const { editDatabaseCluster } = this.props.scope.props
     let value = this.state.value
     if(!value) {
       value = this.state.initValue
@@ -630,61 +629,64 @@ class VisitTypes extends Component{
           }
         }
       }
+      const success = {
+        func: () => {
+          notification.close()
+          notification.success('出口方式更改成功')
+          const { loadDbClusterDetail } = scope.props
+          setTimeout(() => {
+            loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+          }, 0)
+          this.setState({
+            disabled: true,
+            forEdit:false
+          });
+          if (value ===1) {
+            this.setState({
+              initValue: 1,
+              initSelectDics: true,
+              addrHide: true,
+              isinternal:false,
+              addrhide: false,
+              value: undefined,
+              selectDics: undefined
+            })
+          } else {
+            this.setState({
+              initValue: 2,
+              initGroupID: groupID,
+              initSelectDics: false,
+              addrHide: false,
+              selectDics: undefined,
+              value: undefined,
+              isinternal:true,
+            })
+            form.setFieldsValue({
+              groupID
+            })
+          }
+        },
+        isAsync: false
+      }
+      const failed = {
+        func: (res) => {
+        notification.close()
+        let message = '更改出口方式失败'
+        if(res.message) {
+          message = res.message
+        }
+        if(res.message && res.message.message) {
+          message = res.message.message
+        }
+        notification.error(message)
+      }}
       const notification = new NotificationHandler()
       notification.spin('保存中更改中')
-
-      dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, {
-        success: {
-          func: () => {
-            notification.close()
-            notification.success('出口方式更改成功')
-            const { loadDbClusterDetail } = scope.props
-            setTimeout(() => {
-              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
-            }, 0)
-            this.setState({
-              disabled: true,
-              forEdit:false
-            });
-            if (value ===1) {
-              this.setState({
-                initValue: 1,
-                initSelectDics: true,
-                addrHide: true,
-                isinternal:false,
-                addrhide: false,
-                value: undefined,
-                selectDics: undefined
-              })
-            } else {
-              this.setState({
-                initValue: 2,
-                initGroupID: groupID,
-                initSelectDics: false,
-                addrHide: false,
-                selectDics: undefined,
-                value: undefined,
-                isinternal:true,
-              })
-              form.setFieldsValue({
-                groupID
-              })
-            }
-          },
-          isAsync: false
-        },
-        failed: (res) => {
-          notification.close()
-          let message = '更改出口方式失败'
-          if(res.message) {
-            message = res.message
-          }
-          if(res.message && res.message.message) {
-            message = res.message.message
-          }
-          notification.error(message)
-        }
-      })
+      if(database === 'mysql') {
+        dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+      } else if (database === 'redis') {
+        editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+      }
     })
   }
   cancelEdit() {
@@ -724,8 +726,9 @@ class VisitTypes extends Component{
   }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
+    console.log(databaseInfo);
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let clusterAdd = [];
     let port = databaseInfo.service.port.port;
     let serviceName = databaseInfo.objectMeta.name;
@@ -736,6 +739,7 @@ class VisitTypes extends Component{
         end:`${serviceName}-${i}.${serviceName}:${port}`
       })
     }
+
     const domainList = clusterAdd && clusterAdd.map((item,index)=>{
       return (
         <dd className="addrList" key={item.start}>
@@ -783,7 +787,8 @@ class VisitTypes extends Component{
       }
       return true
     })
-    let portAnnotation = databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+
+    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
@@ -1007,17 +1012,7 @@ class ModalDetail extends Component {
 
   }
   componentWillMount() {
-    const { loadDbClusterDetail, getDbDetail, cluster, dbName, database } = this.props
-    // 请求之前的获取详情的接口，主要为了访问方式的数据
-    getDbDetail(cluster, dbName, {
-      success: {
-        func: res => {
-          this.setState({
-            accessMethodData: res.database
-          })
-        }
-      }
-    })
+    const { loadDbClusterDetail, cluster, dbName, database } = this.props
     const _this = this
     this.setState({
       currentDatabase: dbName,
@@ -1383,5 +1378,4 @@ export default connect(mapStateToProps, {
   parseAmount,
   editDatabaseCluster,
   updateMysqlPwd,
-  getDbDetail// 修改MySQL集群密码
 })(ModalDetail)

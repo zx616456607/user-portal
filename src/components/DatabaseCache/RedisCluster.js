@@ -265,8 +265,8 @@ class RedisDatabase extends Component {
       CreateDatabaseModalShow: true
     });
     setTimeout(function() {
-      document.getElementById('dbName').focus()
-    }, 800);
+      document.getElementById('name').focus()
+    }, 300);
   }
   handSearch() {
     const { search } = this.state

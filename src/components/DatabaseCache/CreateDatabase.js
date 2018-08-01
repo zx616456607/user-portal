@@ -269,7 +269,7 @@ let CreateDatabase = React.createClass({
             values.storageClass,
             `${values.storageSelect}Mi`
           )
-
+          console.log(newMySqlClusterData);
           // 创建密码
           const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
           if(pwdCreate.error) {
@@ -315,6 +315,7 @@ let CreateDatabase = React.createClass({
             values.password,
             this.state.advanceConfigContent.trim()
           )
+          console.log(newRedisClusterData);
           const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
           if(dbCreate.error) {
             handleError(dbCreate.error)

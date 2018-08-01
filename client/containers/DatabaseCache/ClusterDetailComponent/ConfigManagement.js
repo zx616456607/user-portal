@@ -15,14 +15,6 @@ import { connect } from 'react-redux'
 import { getMySqlConfig, updateMySqlConfig, editDatabaseCluster } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 const FormItem = Form.Item
-const formItemLayout = {
-  labelCol: {
-    sm: { span: 3 },
-  },
-  wrapperCol: {
-    sm: { span: 18 },
-  },
-}
 class ConfigManagement extends React.Component {
   state = {
     isEdit: false,
@@ -150,22 +142,17 @@ class ConfigManagement extends React.Component {
       <div className="title">配置管理</div>
       <div className="content">
         <Form>
-          <FormItem
-            {...formItemLayout}
-            label="挂载目录"
-          >
+          <FormItem>
+            <span>挂载目录</span>
             <span>/etc/mysql</span>
           </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="配置文件"
-          >
+          <FormItem>
+            <span>配置文件</span>
             <span>mysql.conf</span>
           </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="内容"
-          >
+          <FormItem>
+
+            <span>内容</span>
             <div className="btnGroup">
               {
                 !this.state.isEdit ?
@@ -177,8 +164,10 @@ class ConfigManagement extends React.Component {
                   </span>
               }
               <span className="tip">重新编辑配置文件后，系统将重启该集群的所有实例，将进行滚动升级</span>
+              <div className="inputWrapper">
+                <Input type="textarea" {...configContent} disabled={!this.state.isEdit} value={this.state.configContent} rows={6}/>
+              </div>
             </div>
-            <Input type="textarea" {...configContent} disabled={!this.state.isEdit} value={this.state.configContent} rows={6}/>
           </FormItem>
         </Form>
       </div>

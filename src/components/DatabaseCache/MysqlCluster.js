@@ -289,7 +289,10 @@ class MysqlCluster extends Component {
     this.setState({
       CreateDatabaseModalShow: true
     }, () => {
-      document.getElementById('dbName').focus()
+      setTimeout(() => {
+        document.getElementById('name').focus()
+      }, 300)
+
     });
   }
   handSearch() {

@@ -23,6 +23,12 @@
     .ant-form-item {
       margin-bottom: @padding-base !important;
       margin-left: -10px;
+      .ant-form-item-control >span {
+        display: inline-block;
+        width: 50px;
+        text-align: right;
+        margin-right: @padding-small;
+      }
     }
     .ant-form-item-required {
       &:before {
@@ -30,9 +36,14 @@
       }
     }
     .btnGroup {
+      vertical-align: top;
       margin-bottom: @padding-base;
+      display: inline-block;
       button {
         margin-right: @padding-base;
+      }
+      .inputWrapper {
+        margin-top: @padding-small;
       }
       .tip {
         font-size: 12px;

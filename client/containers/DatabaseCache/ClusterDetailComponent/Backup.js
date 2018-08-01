@@ -263,12 +263,6 @@ class Backup extends React.Component {
   backupPointmenu = (point, i) => {
     return (
       <Menu>
-        <Menu.Item key="1">
-          <div onClick={() => this.rollBack(point)}>
-            <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-            回滚</div>
-        </Menu.Item>
-
         <Menu.Item key="3">
           <div onClick={() => this.delThis(point, i)}>
             <Icon type="delete" style={{ marginRight: 5 }}/>
@@ -544,10 +538,17 @@ class Backup extends React.Component {
                               </span>
                             </Col>
                             <Col span={6}>
-                              <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
-                                <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-                                <span onClick={() => this.rollBack(k)}>回滚</span>
-                              </Dropdown.Button>
+                              {
+                                k.status === 'Complete' ?
+                                  <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
+                                    <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
+                                    <span onClick={() => this.rollBack(k)}>回滚</span>
+                                  </Dropdown.Button>
+                                  :
+                                  <Button icon="delete" onClick={() => this.delThis(k, i)} style={{ width: 95, background: '#fff' }}>
+                                    删除
+                                  </Button>
+                              }
                             </Col>
                           </Row>
                         </Timeline.Item>
