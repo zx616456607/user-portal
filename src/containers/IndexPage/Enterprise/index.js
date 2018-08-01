@@ -56,12 +56,12 @@ class IndexPage extends Component {
   }
   render() {
     const { isLoading, isNoPermission } = this.state
-    // if(isLoading){
-    //   return <div className="loading">
-    //     <Spin spinning={isLoading}>
-    //     </Spin>
-    //   </div>
-    // }
+    if(isLoading){
+      return <div className="loading">
+        <Spin spinning={isLoading}>
+        </Spin>
+      </div>
+    }
     if(isNoPermission){
       return (
         <div className="loading">
