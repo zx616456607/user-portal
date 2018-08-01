@@ -168,7 +168,7 @@ class Project extends Component {
       updateLabel(harbor, DEFAULT_REGISTRY, temp, {
         success: {
           func: res => {
-            console.log(res)
+            // console.log(res)
             notification.success('修改标签成功')
             this.loadData()
             this.onEditorCancel()
@@ -177,8 +177,12 @@ class Project extends Component {
         },
         failed: {
           func: err => {
-            console.log(err)
-            notification.warn('修改标签失败')
+            // console.log(err)
+            if(err.statusCode === 409){
+              notification.warn('标签名称重复')
+            }else{
+              notification.warn('修改标签失败')
+            }
           },
           isAsync: true,
         },
@@ -190,7 +194,7 @@ class Project extends Component {
       }), {
         success: {
           func: res => {
-            console.log(res)
+            // console.log(res)
             notification.success('新增标签成功')
             this.loadData()
             this.onEditorCancel()
@@ -199,8 +203,12 @@ class Project extends Component {
         },
         failed: {
           func: err => {
-            console.log(err)
-            notification.warn('新增标签失败')
+            // console.log(err)
+            if(err.statusCode === 409){
+              notification.warn('标签名称重复')
+            }else{
+              notification.warn('新增标签失败')
+            }
           },
           isAsync: true,
         },
