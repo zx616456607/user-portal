@@ -810,12 +810,15 @@ class ImageVersion extends Component {
               {
                 isEditMaxTag
                 ? <InputNumber
-                  min={1}
+                  min={0}
                   step={1}
-                  value={max_tags_count}
-                  onChange={max_tags_count => this.setState({ max_tags_count })}
+                  value={max_tags_count === -1 ? "" : max_tags_count}
+                  placeholder="无上限"
+                  onChange={max_tags_count => {
+                    this.setState({ max_tags_count: isNaN(max_tags_count) ? -1 : max_tags_count })
+                  }}
                 />
-                : max_tags_count
+                : max_tags_count === -1 ? "无上限" : max_tags_count
               }
               &nbsp;个（自动清理旧版本 <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
                 <Icon type="question-circle" style={{cursor: 'pointer'}} />
