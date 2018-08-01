@@ -11,7 +11,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Popover, Input, Icon, Spin, Modal } from 'antd'
+import { Table, Button, Popover, Input, Icon, Spin, Modal, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import { connect } from 'react-redux'
@@ -265,10 +265,12 @@ class Project extends Component {
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => (
-          <div className="tag" style={{ backgroundColor: record.color }}>
-            {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
-            {text}
-          </div>
+          <Tooltip title={text}>
+            <div className="tag" style={{ backgroundColor: record.color }}>
+              {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {text}
+            </div>
+          </Tooltip>
         ),
       },
       {
@@ -276,6 +278,7 @@ class Project extends Component {
         width: '33%',
         dataIndex: 'description',
         key: 'description',
+        render: text => <Tooltip title={text}><div className="description">{text}</div></Tooltip>
       },
       {
         title: '创建时间',
