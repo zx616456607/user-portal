@@ -453,7 +453,7 @@ exports.putToggleAPPMesh = function *() {
   }
   const loginUser = this.session.loginUser;
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'serverMesh'], null, project )
+  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'mesh'], null, project )
   this.status = response.statusCode
   this.body = response
 }
@@ -464,7 +464,7 @@ exports.getCheckAPPInClusMesh = function *() {
   const namespace = this.query.namespace
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.getBy([cluster, 'services', service, 'serverMesh'], {namespace})
+  const response = yield projectApi.clusters.getBy([cluster, 'services', service, 'mesh'], {namespace})
   this.status = response.statusCode
   this.body = response
 }
