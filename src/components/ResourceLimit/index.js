@@ -96,7 +96,7 @@ class ResourceQuota extends React.Component {
         query = {
           id: key ? key : clusterID,
           header: {
-            onbehalfuser: userName
+            onbehalfuser: ''
           }
         }
       } else {
@@ -287,7 +287,7 @@ class ResourceQuota extends React.Component {
       } else {
         if (userName !== namespace) {
           header = {
-            onbehalfuser: userName
+            onbehalfuser: ''
           }
         }
       }
@@ -323,7 +323,7 @@ class ResourceQuota extends React.Component {
                 query = {
                   id: clusterID,
                   header: {
-                    onbehalfuser: userName
+                    onbehalfuser: ''
                   }
                 }
               } else {
@@ -381,7 +381,7 @@ class ResourceQuota extends React.Component {
       } else {
         if (userName !== namespace) {
           header = {
-            onbehalfuser: userName
+            onbehalfuser: ''
           }
         }
       }

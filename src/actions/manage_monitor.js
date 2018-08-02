@@ -88,6 +88,12 @@ export const GET_QUERY_LOG_SUCCESS = 'GET_QUERY_LOG_SUCCESS'
 export const GET_QUERY_LOG_FAILURE = 'GET_QUERY_LOG_FAILURE'
 
 function fetchQueryLogList(cluster, instances, body, callback) {
+  let headers
+  if (body.namespace) {
+    headers = {
+      onbehalfuser: body.namespace,
+    }
+  }
   return {
     direction: body.direction,
     [FETCH_API]: {
@@ -107,9 +113,7 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           direction: body.direction,
           filename: body.filename,
         },
-        headers: {
-          onbehalfuser: body.namespace || '',
-        }
+        headers,
       },
       schema: {}
     },
@@ -127,6 +131,12 @@ export const GET_SERVICE_QUERY_LOG_REQUEST = 'GET_SERVICE_QUERY_LOG_REQUEST'
 export const GET_SERVICE_QUERY_LOG_SUCCESS = 'GET_SERVICE_QUERY_LOG_SUCCESS'
 export const GET_SERVICE_QUERY_LOG_FAILURE = 'GET_SERVICE_QUERY_LOG_FAILURE'
 function fetchServiceQueryLogList(cluster, service, body, callback) {
+  let headers
+  if (body.namespace) {
+    headers = {
+      onbehalfuser: body.namespace,
+    }
+  }
   return {
     direction: body.direction,
     [FETCH_API]: {
@@ -146,9 +156,7 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           direction: body.direction,
           filename: body.filename,
         },
-        headers: {
-          onbehalfuser: body.namespace || '',
-        }
+        headers,
       },
       schema: {}
     },
