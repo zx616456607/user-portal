@@ -45,7 +45,7 @@ class Backup extends React.Component {
     delThis: false, // 删除备份链弹框显示隐藏
     backupChain: '', // 当前操作的备份点
     hadSetAutoBackup: false, // 是否已经设置了自动备份
-    currentIndex: '0', // 当前选的第几个备份链
+    currentIndex: '', // 当前选的第几个备份链
     notAllowDiffBackup: false, // 是否允许差异备份
     fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
   }
@@ -60,7 +60,7 @@ class Backup extends React.Component {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
-            if (res.data.items.length === 1 && flag && flag === 'create' && database === 'mysql') {
+            if (res.data.items.length === 1 && flag && flag === 'create' && database === 'mysql' && this.state.backupType !== 'diffbackup') {
               callback && callback()
             }
             this.setState({
@@ -685,7 +685,7 @@ class Backup extends React.Component {
               </Button>
           }
           {
-            databaseInfo.status === 'Running' ?
+            databaseInfo.status !== 'Running' ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="运行中的集群支持备份">
@@ -752,6 +752,10 @@ const mapStateToProps = (state, props) => {
           i = chainsData.length
         }
       }
+    }
+    // 备份点排序，全量备份排在最下边
+    for (const v of chainsData) {
+      v.chains.sort((a, b) => Date.parse(b.creationTimestamp) - Date.parse(a.creationTimestamp))
     }
   } else if (database === 'redis') {
     // 排序，最新的放在最上边
