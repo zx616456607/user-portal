@@ -14,7 +14,6 @@ import { connect } from 'react-redux'
 import { Collapse, Row, Col, Form, Select, Button } from 'antd'
 import * as securityActions from '../../../actions/securityGroup'
 import Notification from '../../../../src/components/Notification'
-import { browserHistory } from 'react-router'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -23,10 +22,11 @@ const Panel = Collapse.Panel
 
 class SecyrityCollapse extends React.Component {
 
-  state={
-    show: false,
-  }
   componentDidMount() {
+    this.loadData()
+  }
+
+  loadData = () => {
     const { getSecurityGroupList, cluster } = this.props
     getSecurityGroupList(cluster, {
       failed: {
@@ -36,12 +36,6 @@ class SecyrityCollapse extends React.Component {
           notification.warn('获取列表数据出错', message.message)
         },
       },
-    })
-  }
-
-  handleColl = val => {
-    val.length && this.setState({
-      show: true,
     })
   }
 
@@ -56,7 +50,7 @@ class SecyrityCollapse extends React.Component {
             <span className="title" style={{ paddingLeft: 8 }}>安全组</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="securityRight">
-            <div className="desc">安全组 prompt </div>
+            <div className="desc">安全组是逻辑上的一个分组，安全组内服务互通，安全组外服务需配置（ingress/egress）白名单规则</div>
           </Col>
         </Row>
       </div>
@@ -73,38 +67,28 @@ class SecyrityCollapse extends React.Component {
                 <i className="fa fa-refresh"/>
                 刷新
               </Button>
-              <Button type="primary" onClick={() => browserHistory.push('/app_manage/security_group/create')}>
-                新建安全组
+              <Button type="primary">
+                <a href="/app_manage/security_group/create" target="_blank">新建安全组</a>
               </Button>
             </Col>
           </Row>
           <Row>
             <Col span={4}></Col>
             <Col span={10}>
-              {
-                this.state.show ?
-                  <FormItem className="antdItem">
-                    <Select
-                      multiple
-                      size="large"
-                      placeholder="选择安全组"
-                      {...getFieldProps('securityGroup', {
-                        rules: [{
-                          required: true,
-                          message: '请选择安全组',
-                        }],
-                      }
-                      )}
-                    >
-                      {
-                        listData.map(item => {
-                          return <Option value={item.metaName}>{item.name}</Option>
-                        })
-                      }
-                    </Select>
-                  </FormItem>
-                  : null
-              }
+              <FormItem className="antdItem">
+                <Select
+                  multiple
+                  size="large"
+                  placeholder="选择安全组"
+                  {...getFieldProps('securityGroup')}
+                >
+                  {
+                    listData.map(item => {
+                      return <Option value={item.metaName}>{item.name}</Option>
+                    })
+                  }
+                </Select>
+              </FormItem>
             </Col>
           </Row>
         </Panel>

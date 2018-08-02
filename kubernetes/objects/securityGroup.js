@@ -16,8 +16,14 @@ const RuleTypeNamespace = 'namespace'
 function parseNetworkPolicy(policy) {
   const result = {
     name: policy.metadata && policy.metadata.annotations['policy-name'],
-    targetServices: policy.spec && policy.spec.podSelector.matchExpressions[0].values,
+    targetServices: [],
   }
+  if (policy.spec.podSelector
+     && policy.spec.podSelector.matchExpressions
+     && policy.spec.podSelector.matchExpressions.length > 0
+     && policy.spec.podSelector.matchExpressions[0].values) {
+       result.targetServices = policy.spec.podSelector.matchExpressions[0].values
+     }
   if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
     const from = policy.spec.ingress[0].from
     result.ingress = []
@@ -46,15 +52,16 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
         'policy-name': name,
       },
     },
-    spec: {
-      podSelector: {
-        matchExpressions: [{
-          key: 'tenxcloud.com/svcName',
-          operator: 'In',
-          values: targetServices,
-        }],
-      },
-    },
+    spec: {},
+  }
+  if (targetServices && targetServices.length > 0) {
+    policy.spec.podSelector = {
+      matchExpressions: [{
+        key: 'tenxcloud.com/svcName',
+        operator: 'In',
+        values: targetServices,
+      }],
+    }
   }
   const policyTypes = []
   if (ingress && ingress.length) {

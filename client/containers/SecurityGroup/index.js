@@ -20,6 +20,7 @@ import './style/index.less'
 import * as securityActions from '../../actions/securityGroup'
 import Notification from '../../../src/components/Notification'
 import * as networkpolicy from '../../../src/actions/app_manage'
+// import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 
 const notification = new Notification()
 
@@ -195,9 +196,7 @@ class SecurityGroup extends React.Component {
           okText={'确认删除'}
         >
           <div className="securityGroupContent">
-            <Icon
-              className="modalIcon"
-              type="exclamation-circle"/>
+            <i className="fa fa-exclamation-triangle modalIcon" aria-hidden="true"></i>
             <div>
               <p>删除安全组导致隔离不再生效，且不可恢复，请谨慎操作</p>
               <p>确认删除安全组 {toDelete.name} ？</p>
@@ -205,6 +204,7 @@ class SecurityGroup extends React.Component {
           </div>
         </Modal>
         <div className="layout-content-btns">
+          {/* <ResourceBanner resourceType="" /> */}
           <Button type="primary" size="large" onClick={() => browserHistory.push('/app_manage/security_group/create')}>
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
             创建安全组

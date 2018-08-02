@@ -146,7 +146,7 @@ class AddWhiteList extends React.Component {
             <Input
               {...getFieldProps(`${type}${option}${k}server`)}
               style={{ width: 250 }}
-              placeholder={ isIngress ? '服务1，服务2' : '逗号分隔服务名，为空代表所有服务' }
+              placeholder="服务1，服务2"
             />
           </FormItem>
         </span>
@@ -156,11 +156,11 @@ class AddWhiteList extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: `请输入要放通的${target}命名空间`,
+              message: `请输入要放通的${target} Mysql 集群`,
             }],
           })}
           style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}命名空间`}
+          placeholder={`请输入要放通的${target} Mysql 集群`}
           />
         </FormItem>
       case 'redis':
@@ -169,11 +169,11 @@ class AddWhiteList extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: `请输入要放通的${target}命名空间`,
+              message: `请输入要放通的${target} Redis 集群`,
             }],
           })}
           style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}命名空间`}
+          placeholder={`请输入要放通的${target} Redis 集群`}
           />
         </FormItem>
       default:
@@ -249,10 +249,22 @@ class AddWhiteList extends React.Component {
       </QueueAnim>
       <Row className="ingress">
         <Col span={4}></Col>
-        <Col span={10} onClick={this.add} className="addCol add">
-          <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
-          添加一个{ isIngress ? '来源' : '目标' }
-        </Col>
+        {
+          formItems.length > 0 ?
+            <Col span={3}>
+              <span onClick={this.add} className="add">
+                <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
+                添加一个{ isIngress ? '来源' : '目标' }
+              </span>
+            </Col> :
+            <Col span={10} className="addCol">
+              <span onClick={this.add} className="add">
+                <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
+                添加一个{ isIngress ? '来源' : '目标' }
+              </span>
+            </Col>
+        }
+
       </Row>
     </div>
   }

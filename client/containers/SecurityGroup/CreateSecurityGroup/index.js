@@ -40,6 +40,7 @@ class CreateSecurityGroup extends React.Component {
     isEdit: false,
     loading: false,
     current: {},
+    policyName: undefined,
     ingLn: undefined,
     egLn: undefined,
   }
@@ -78,10 +79,19 @@ class CreateSecurityGroup extends React.Component {
         const { current } = this.state
         const { setFieldsValue } = this.props.form
         const groupName = current.metadata && current.metadata.annotations['policy-name'] || ''
-        const targetArr = current.spec && current.spec.podSelector.matchExpressions[0].values || []
+        const metaName = current.metadata && current.metadata.name || ''
+        const targetArr = current.spec
+                          && current.spec.podSelector.matchExpressions
+                          && current.spec.podSelector.matchExpressions[0].values || []
         setFieldsValue({
           name: groupName,
           target: targetArr,
+        })
+        this.setState({
+          policyName: {
+            groupName,
+            metaName,
+          },
         })
         const { ingress, egress } = current.spec && current.spec
         if (ingress && ingress.length) {
@@ -159,7 +169,7 @@ class CreateSecurityGroup extends React.Component {
                   [`egressnamespace${ind}`]: item.ipBlock.cidr,
                 })
               default:
-                return <span>---</span>
+                return null
             }
           })
         }
@@ -168,10 +178,10 @@ class CreateSecurityGroup extends React.Component {
   }
 
   submit = () => {
-    const { isEdit } = this.state
-    const { form, createSecurityGroup, cluster, updateSecurityGroup } = this.props
-    form.validateFields((errors, values) => {
-      // console.log( '****', values )
+    const { isEdit, policyName } = this.state
+    const { form, createSecurityGroup, cluster,
+      updateSecurityGroup, deleteSecurityGroup } = this.props
+    form.validateFields(async (errors, values) => {
       if (errors) {
         return
       }
@@ -241,14 +251,31 @@ class CreateSecurityGroup extends React.Component {
         })
       }
       const body = buildNetworkPolicy(name, target, ingList, egList)
-      if (!isEdit) {
-        createSecurityGroup(cluster, body, {
+      const isChangeName = policyName && policyName.groupName === name
+      if (!isEdit || !isChangeName) {
+        if (!isChangeName && isEdit) {
+          await deleteSecurityGroup(cluster, policyName.metaName, {
+            failed: {
+              func: error => {
+                const { message } = error
+                notification.close()
+                notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
+                this.loadData()
+              },
+            },
+          })
+        }
+        await createSecurityGroup(cluster, body, {
           success: {
             func: () => {
               notification.close()
-              notification.success('新建安全组成功')
+              if (isEdit) {
+                notification.success('修改安全组成功')
+              } else {
+                notification.success('新建安全组成功')
+              }
               this.setState({ loading: false })
-              browserHistory.goBack()
+              browserHistory.push('/app_manage/security_group')
             },
             isAsync: true,
           },
@@ -256,22 +283,23 @@ class CreateSecurityGroup extends React.Component {
             func: error => {
               const { message } = error
               notification.close()
-              notification.warn('新建安全组失败', message.message)
+              if (isEdit) {
+                notification.success('修改安全组失败')
+              } else {
+                notification.warn('新建安全组失败', message.message)
+              }
               this.setState({ loading: false })
             },
           },
         })
       } else {
-        // const { metadata } = this.state.current
-        // body.metadata.name = metadata.name
-        // body.metadata.resourceVersion = metadata.resourceVersion
         updateSecurityGroup(cluster, body, {
           success: {
             func: () => {
               notification.close()
               notification.success('修改安全组成功')
               this.setState({ loading: false })
-              browserHistory.goBack()
+              browserHistory.push('/app_manage/security_group')
             },
             isAsync: true,
           },
@@ -290,7 +318,6 @@ class CreateSecurityGroup extends React.Component {
   render() {
     const { form, serverList } = this.props
     const { isEdit, loading, ingLn, egLn } = this.state
-    // console.log('length', ingLn, egLn )
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
         {
@@ -348,4 +375,5 @@ export default connect(mapStateToProps, {
   createSecurityGroup: securityActions.createSecurityGroup,
   getfSecurityGroupDetail: securityActions.getfSecurityGroupDetail,
   updateSecurityGroup: securityActions.updateSecurityGroup,
+  deleteSecurityGroup: securityActions.deleteSecurityGroup,
 })(Form.create()(CreateSecurityGroup))

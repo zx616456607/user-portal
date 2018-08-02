@@ -19,18 +19,17 @@ const Option = Select.Option
 class CreateNameAndTarget extends React.Component {
 
   render() {
-    const { form, formItemLayout, isEdit, serverList } = this.props
+    const { form, formItemLayout, serverList } = this.props
     const { getFieldProps } = form
     const optionList = serverList.map((item, k) => {
       return <Option value={item} key={k}>{item}</Option>
     })
-    return <div className="createSecurityPage">
+    return <div className="nameAndeTarget">
       <FormItem
         label="安全组名称"
         {...formItemLayout}
       >
         <Input
-          disabled={isEdit}
           placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
           style={{ width: 280 }}
           {...getFieldProps('name', {

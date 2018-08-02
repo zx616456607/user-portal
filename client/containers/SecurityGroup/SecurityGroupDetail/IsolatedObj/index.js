@@ -14,7 +14,8 @@ import './style/index.less'
 class IsolatedObj extends React.Component {
   render() {
     const { current } = this.props
-    const serviceList = current && current.spec.podSelector.matchExpressions[0].values || []
+    const serviceList = current && current.spec.podSelector.matchExpressions
+                          && current.spec.podSelector.matchExpressions[0].values || []
     const isolatedService = serviceList.map(item => {
       return <div key={item}>{item}</div>
     })
