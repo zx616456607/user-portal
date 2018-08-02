@@ -753,6 +753,7 @@ class Deployment {
     }
   }
 
+
   setAnnotations(annotations) {
     this.spec.template.metadata.annotations = Object.assign(
       {},

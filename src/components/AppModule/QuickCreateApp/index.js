@@ -557,6 +557,7 @@ class QuickCreateApp extends Component {
     let accessType = ''
     let lbName = ''
     let lbBody = []
+
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
