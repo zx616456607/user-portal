@@ -113,8 +113,7 @@ class DataTable extends Component {
             }
             res = '公开'
           } else if(!!record.metadata.public){
-            const bool = Boolean(record.metadata.public)
-            if(bool){
+            if(record.metadata.public === "true"){
               res = '公开'
             } else {
               res = '私有'
