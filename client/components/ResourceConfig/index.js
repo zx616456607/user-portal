@@ -168,7 +168,7 @@ class ResourceConfig extends React.Component {
         'btn ant-btn-ghost': composeType !== 512,
       })}
       onClick={!freeze ? () => this.selectComposeType(512) : () => {}}>
-        <div className="titleBox">
+        <div className="resourceLimitTitleBox">
           2X
         </div>
         <div className="contentBox">
@@ -182,7 +182,7 @@ class ResourceConfig extends React.Component {
         'btn ant-btn-primary': composeType === 'DIY',
         'btn ant-btn-ghost': composeType !== 'DIY',
       })} onClick={!freeze ? () => this.selectComposeType('DIY') : () => {}}>
-        <div className="titleBox">
+        <div className="resourceLimitTitleBox">
           自定义
         </div>
         <div className="contentBox">
@@ -248,7 +248,7 @@ class ResourceConfig extends React.Component {
         'btn ant-btn-primary': composeType === 512,
         'btn ant-btn-disabled': composeType !== 512,
       })}>
-        <div className="titleBox">
+        <div className="resourceLimitTitleBox">
           2X
         </div>
         <div className="contentBox">
@@ -262,7 +262,7 @@ class ResourceConfig extends React.Component {
         'btn ant-btn-primary': composeType === 'DIY',
         'btn ant-btn-disabled': composeType !== 'DIY',
       })}>
-        <div className="titleBox">
+        <div className="resourceLimitTitleBox">
           自定义
         </div>
         <div className="contentBox">
