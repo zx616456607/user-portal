@@ -72,7 +72,6 @@ export const CHECK_PRO_IN_CLUS_MESH_SUCCESS = 'CHECK_PRO_IN_CLUS_MESH_SUCCESS'
 export const CHECK_PRO_IN_CLUS_MESH_FAILURE = 'CHECK_PRO_IN_CLUS_MESH_FAILURE'
 function fetchCheckProInClusMesh(query, callback) {
   let endpoint = `${API_URL_PREFIX}/projects/serverMesh/status`
-  console.log('query', query)
   if (query) {
     endpoint += `?${toQuerystring(query)}`;
   }
@@ -129,7 +128,6 @@ export const CHECK_APP_IN_CLUS_MESH_SUCCESS = 'CHECK_APP_IN_CLUS_MESH_SUCCESS'
 export const CHECK_APP_IN_CLUS_MESH_FAILURE = 'CHECK_APP_IN_CLUS_MESH_FAILURE'
 function fetchCheckAPPInClusMesh(cluster, service ,query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/serverMesh`
-  console.log('query', query)
   if (query) {
     endpoint += `?${toQuerystring(query)}`;
   }

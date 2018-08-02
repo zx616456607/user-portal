@@ -38,7 +38,6 @@ const ApmSetting = React.createClass({
 
   onApmChange(checked) {
     const value = checked
-    console.log('value', value)
     if (value) {
       this.setState({ midSupportModal: true, isOnlyShowSubmitBtn: false })
     }

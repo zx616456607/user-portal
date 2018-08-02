@@ -38,7 +38,6 @@ export default class ServiceMeshForm extends React.Component {
   onOk = async (status) => {
     const { onClose, ToggleServiceMesh, clusterId } = this.props
     this.setState({ Buttonloading: true })
-    // TODO: 向后台发送请求
     const result = await ToggleServiceMesh({ projectName:'', status, cluster: clusterId })
     setTimeout(() => {
       this.setState({ Buttonloading: false })

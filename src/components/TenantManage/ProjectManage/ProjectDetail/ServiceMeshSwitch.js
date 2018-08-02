@@ -31,16 +31,13 @@ export default class ServiceMeshSwitch extends React.Component {
     }
     const result2 = await checkClusterIstio({ clusterID: clusterId })
     const statusCode = getDeepValue(result2, ['response', 'result', 'data', 'code'])
-    console.log('statusCode', statusCode)
     if (statusCode !== 200) {
       this.setState({ userType: 3 })
       return
     }
     const newNameSpace = projectDetail && projectDetail.namespace;
     const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
-    console.log('result1', result1)
     const result1Data = getDeepValue(result1, ['response', 'result',]);
-    console.log('result1Data', result1Data)
     if (result1Data.data === true) {
       this.setState({ Switchchecked: true, userType: 1 })
       return

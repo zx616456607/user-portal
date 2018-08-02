@@ -769,7 +769,6 @@ let ConfigureService = React.createClass({
                 form={form}
                 formItemLayout={formItemLayout}
               />
-              { /*// TODO:  根据不同的登录身份和情况显示不同的提示, 和复选框*/}
               <ServiceMesh
                 form={form}
                 formItemLayout={formItemLayout}

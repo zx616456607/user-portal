@@ -1063,7 +1063,6 @@ class ProjectDetail extends Component {
         projectClusters.length > 0 && projectClusters.map((item, index) => {
           if (item.status === 2) {
             if (flag) {
-              // TODO: 这里需要改动
               return (
                 <Row>
                   <Col span={12}>
@@ -1090,7 +1089,6 @@ class ProjectDetail extends Component {
                   <Col span={12}>
                   <div className="gutter-box">
                         {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
-                        {/* // TODO: 增加服务网格*/}
                         <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={projectDetail}/>
                     </div>
                   </Col>
