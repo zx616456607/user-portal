@@ -105,7 +105,7 @@ class DataTable extends Component {
         //],
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
-        render: text => {
+        render: (text, record) => {
           let res = ""
           if(!isNaN(record.public)){
             if (text === 0) {
