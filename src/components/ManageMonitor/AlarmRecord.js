@@ -28,5 +28,4 @@ class AlarmSettingIndex extends React.Component {
   }
 }
 
-
 export default AlarmSettingIndex

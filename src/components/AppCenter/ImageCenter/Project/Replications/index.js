@@ -29,7 +29,7 @@ class Replications extends React.Component {
       <QueueAnim className="project-replications">
         <div key="replications">
           <Card>
-            <Tabs defaultActiveKey="label">
+            <Tabs defaultActiveKey="endpoints">
               <TabPane tab="同步目标" key="endpoints">
                 <Endpoints />
               </TabPane>

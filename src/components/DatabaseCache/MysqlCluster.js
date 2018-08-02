@@ -11,8 +11,8 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Modal, Button, Icon, Row, Col, InputNumber, Input, Spin, Tooltip, Switch } from 'antd'
+import { injectIntl } from 'react-intl'
 import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
@@ -26,7 +26,8 @@ import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/database_cache/no_mysql.png'
 import Title from '../Title'
 import ResourceBanner from '../TenantManage/ResourceBanner/index'
-
+import AutoBackupModal from '../../../client/components/AutoBackupModal'
+const notification = new NotificationHandler()
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -36,9 +37,14 @@ let MyComponent = React.createClass({
     scope.setState({
       detailModal: true,
       currentData: database,
-      currentDatabase: database.serivceName
+      currentDatabase: database.objectMeta.name
     })
   },
+  //自动备份开关
+  autoBackupSwitch: function(item) {
+    this.props.setAutoBackup(item)
+  },
+
   render: function () {
     const canCreate = this.props.canCreate
     const { config, isFetching } = this.props;
@@ -61,44 +67,87 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    const statusText = status => {
+      switch(status) {
+        case 'Pending':
+          return '启动中'
+        case 'Stopping':
+          return '停止中'
+        case 'Stopped':
+          return '已停止'
+        case 'Running':
+          return '运行中'
+      }
+    }
+    const style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
+    }
+    // 最新创建的在第一个
+    config.sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) - Date.parse(a.objectMeta.creationTimestamp))
     let items = config.map((item, index) => {
+      // 是否允许开启自动备份
+      const shoulldAutoBackup = item.objectMeta.annotations['system/daasBackupMaster'] && item.objectMeta.annotations['system/daasBackupMaster'] !== ''
       return (
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={mysqlImg} />
               <div className='detailName'>
-                {item.serivceName}
+                {item.objectMeta.name}
               </div>
+              <div className="status">
+                <span className='listKey'>状态:</span>
+                <span className='normal' style={style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {statusText(item.status)} </span>
+              </div>
+
               <div className='detailName'>
                 <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span>
-                {item.pods.running >0 ?
-                  <span className='normal'>运行 {item.pods.running} 个 </span>
-                  :null
-                }
-                {item.pods.pending >0 ?
-                  <span>停止 {item.pods.pending} 个 </span>
-                  :null
-                }
-                {item.pods.failed >0 ?
-                  <span>失败 {item.pods.pending} 个 </span>
-                  :null
-                }
-                {item.pods.desired <= 0 ?
-                  <span> 已停止 </span>
-                  :null
-                }
-              </li>
-              <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个</li>
+              <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
+                {
+                  shoulldAutoBackup || item.cronBackup?
+                    <div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>
+                    :
+                    <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
+                      <div className="opacity-switch banned"></div>
+                    </Tooltip>
+                }
+                  <Switch checkedChildren="开"
+                          unCheckedChildren="关"
+                          checked={item.cronBackup}
+                  />
+              </li>
             </ul>
           </div>
         </div>
@@ -125,6 +174,15 @@ class MysqlCluster extends Component {
       CreateDatabaseModalShow: false,
       dbservice: [],
       search: '',
+      hadSetAutoBackup: false,
+      autoBackupModalShow: false,
+      days: [ '0', '1', '2', '3', '4', '5', '6' ],
+      daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+      hour: '1',
+      minutes: '0',
+      currentClusterNeedBackup: '',
+      aleradySetAuto: [],
+      autoBackupSwitch: false
     }
   }
   refreshDatabase() {
@@ -148,7 +206,15 @@ class MysqlCluster extends Component {
           }
         },
         isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode === 404) {
+            notification.error('MySQL集群未找到')
+          }
+        }
       }
+
     })
     const { teamCluster } = this.props
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
@@ -160,12 +226,22 @@ class MysqlCluster extends Component {
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
-      let notification = new NotificationHandler()
+
       notification.error('请选择集群','invalid cluster ID')
       return
     }
     getProxy(cluster)
-    loadDbCacheList(cluster, 'mysql')
+    loadDbCacheList(cluster, 'mysql', {
+      failed: {
+        func: err => {
+          if (err.statusCode === 404) {
+            notification.error('MySQL集群未找到')
+          }
+        }
+      }
+    })
+    // 获取集群列表
+
   }
   componentDidMount() {
     const _this = this
@@ -191,7 +267,7 @@ class MysqlCluster extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { form, current} = nextProps
+    const { current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
@@ -212,14 +288,32 @@ class MysqlCluster extends Component {
     //this function for user show the modal of create database
     this.setState({
       CreateDatabaseModalShow: true
+    }, () => {
+      setTimeout(() => {
+        document.getElementById('name').focus()
+      }, 300)
+
     });
-    setTimeout(function() {
-      document.getElementById('dbName').focus()
-    }, 100);
   }
   handSearch() {
     const { search } = this.state
     this.props.searchDbservice('mysql', search)
+  }
+
+  onAutoBackup = item => {
+    this.setState({
+      autoBackupModalShow: true,
+      currentClusterNeedBackup: item,
+      hadSetAutoBackup: item.cronBackup
+    })
+  }
+
+  setAutobackupSuccess = () => {
+    const { loadDbCacheList, cluster, database } = this.props
+    loadDbCacheList(cluster, database)
+    this.setState({
+      autoBackupModalShow: false,
+    })
   }
 
   render() {
@@ -228,7 +322,6 @@ class MysqlCluster extends Component {
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
-    const currentCluster = this.props.current.cluster
     let canCreate = true
     if (!storageClassType.private) canCreate = false
     if(!canCreate) {
@@ -253,7 +346,7 @@ class MysqlCluster extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent scope={_this} setAutoBackup={this.onAutoBackup} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
@@ -268,6 +361,17 @@ class MysqlCluster extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
+        <AutoBackupModal
+          isShow={this.state.autoBackupModalShow}
+          closeModal={() => this.setState({
+            autoBackupModalShow: false,
+          })}
+          hadSetAutoBackup={this.state.hadSetAutoBackup}
+          onSubmitSuccess={this.setAutobackupSuccess}
+          databaseInfo={this.state.currentClusterNeedBackup}
+          database={this.props.database}
+        />
+
       </QueueAnim>
     )
   }

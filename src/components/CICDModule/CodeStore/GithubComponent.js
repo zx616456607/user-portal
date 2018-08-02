@@ -1,12 +1,12 @@
 /**
-* Licensed Materials - Property of tenxcloud.com
-* (C) Copyright 2016 TenxCloud. All Rights Reserved.
-*
-* codeRepo component
-*
-* v0.1 - 2016-10-31
-* @author BaiYu
-*/
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * codeRepo component
+ *
+ * v0.1 - 2016-10-31
+ * @author BaiYu
+ */
 import React, { Component, PropTypes } from 'react'
 import { Form, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
@@ -667,8 +667,8 @@ class GithubComponent extends Component {
           <CodeList scope={scope} isFetching={isFetching} repoUser={this.props.user} data={githubList} />
         </div>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
-          onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
-          >
+               onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
+        >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
             注销该代码仓库，已激活的代码项目将『解除激活』，关联流水线、第三方工具可能失效无法继续执行, 确认注销该代码仓库？
           </div>

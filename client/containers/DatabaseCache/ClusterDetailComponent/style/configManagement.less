@@ -1,0 +1,55 @@
+@import '../../../../../src/assets/style/site/core.less';
+.configManagement {
+  padding: @padding-small;
+  padding-left: 40px;
+  background: #fff;
+  border-radius: @border-radius-base;
+  border: 1px solid @border-color-split;
+  .title {
+    position: relative;
+    font-size: @font-size-medium;
+    &:before {
+      content: '';
+      display: block;
+      height: 20px;
+      width: 5px;
+      background: @primary-color;
+      position: absolute;
+      top: 0;
+      left: -10px;
+    }
+  }
+  .content {
+    .ant-form-item {
+      margin-bottom: @padding-base !important;
+      margin-left: -10px;
+      .ant-form-item-control >span {
+        display: inline-block;
+        width: 50px;
+        text-align: right;
+        margin-right: @padding-small;
+      }
+    }
+    .ant-form-item-required {
+      &:before {
+        display: none;
+      }
+    }
+    .btnGroup {
+      vertical-align: top;
+      margin-bottom: @padding-base;
+      display: inline-block;
+      button {
+        margin-right: @padding-base;
+      }
+      .inputWrapper {
+        margin-top: @padding-small;
+      }
+      .tip {
+        font-size: 12px;
+        color: @font-color-4;
+        margin-left: @padding-base;
+      }
+    }
+  }
+}

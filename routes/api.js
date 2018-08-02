@@ -535,11 +535,52 @@ module.exports = function (Router) {
 
   // Petsets - DB service APIs
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
-  router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBService)
+  router.delete('/clusters/:cluster/daas/:type/:name', databaseCacheController.deleteDBService)
   // Filter by type
-  router.get('/clusters/:cluster/dbservices', databaseCacheController.listDBService)
-  router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
+  router.get('/clusters/:cluster/daas/:type', databaseCacheController.listDBService)
+  router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBServiceDetail)
+  router.get('/clusters/:cluster/daas/:type/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
+  // 检查集群名是否存在
+  router.get('/clusters/:cluster/daas/:name/check/exist', databaseCacheController.checkClusterName)
+  // 获取高级配置
+  router.get('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.getAdvanceConfig)
+  // 创建配置
+  router.post('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.createMySqlConfig)
+  // 更新配置
+  router.put('/clusters/:cluster/daas/mysql/:name/config', databaseCacheController.updateMySqlConfig)
+  // 获取默认配置
+  router.get('/clusters/:cluster/daas/:type/config/default', databaseCacheController.getDefaultConfig)
+  // 创建MySQL集群密码
+  router.post('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.createMySqlClusterPwd)
+  // 修改MySQL集群密码
+  router.put('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.updateMySqlClusterPwd)
+  // 查看MySQL集群密码
+  router.get('/clusters/:clusterID/daas/mysql/:name/secret', databaseCacheController.getMySqlClusterPwd)
+  // 创建集群
+  router.post('/clusters/:clusterID/daas/:type', databaseCacheController.createDatabaseCluster)
+  // 修改集群
+  router.put('/clusters/:clusterID/daas/:type/:name', databaseCacheController.updateDatabaseCluster)
+  // 获取备份链
+  router.get('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.getBackupChain)
+  // 创建手动备份
+  router.post('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.manualBackup)
+  // 删除手动备份
+  router.delete('/clusters/:clusterID/daas/:type/:clusterName/backups/:name', databaseCacheController.deleteManualBackup)
+  // 检查是否有自动备份
+  router.get('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.checkAutoBackupExist)
+  // 设置自动备份
+  router.post('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.setAutoBackup)
+  // 修改自动备份
+  router.put('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.updateAutoBackup)
+  // 删除自动备份
+  router.delete('/clusters/:clusterID/daas/:type/:clusterName/cronbackups', databaseCacheController.deleteAutoBackup)
+  // 创建扩容
+  router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
+  // 回滚
+  router.post('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.rollback)
+  // 修改集群访问方式
+  router.put('/clusters/:clusterID/daas/:type/:name/service', databaseCacheController.updateAccessMethod)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

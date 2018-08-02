@@ -20,6 +20,8 @@ import { browserHistory } from 'react-router'
 import { loadStorageInfo } from '../../../actions/storage'
 import { formatDate } from '../../../common/tools'
 import MountServiceList from '../MountServiceList'
+import NotificationHandler from '../../Notification/index'
+const notification = new NotificationHandler()
 
 const TabPane = Tabs.TabPane
 
@@ -33,7 +35,14 @@ class ShareStorageDetail extends Component {
 
   componentWillMount() {
     const { loadStorageInfo, params } = this.props;
-    loadStorageInfo(params.cluster, params.share_name, {fstype: this.props.location.query.diskType})
+    loadStorageInfo(params.cluster, params.share_name, {fstype: this.props.location.query.diskType}, {
+      failed:{
+        func: err => {
+          notification.warn("获取存储详情失败")
+        },
+        isAsync: true,
+      }
+    })
   }
 
   render() {

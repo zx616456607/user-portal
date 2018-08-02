@@ -23,10 +23,19 @@ import storagePNG from '../../assets/img/storage.png'
 import Title from '../Title'
 import { SHOW_BILLING } from '../../constants'
 import { formatDate } from '../../common/tools'
+import NotificationHandler from '../Notification/index'
+const notification = new NotificationHandler()
 
 function loadData(props) {
   const { loadStorageInfo } = props
-  loadStorageInfo(props.params.cluster, props.params.storage_name)
+  loadStorageInfo(props.params.cluster, props.params.storage_name, {}, {
+    failed:{
+      func: err => {
+        notification.warn("获取存储详情失败")
+      },
+      isAsync: true,
+    }
+  })
 }
 
 const SubMenu = Menu.SubMenu
