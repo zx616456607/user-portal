@@ -106,10 +106,21 @@ class DataTable extends Component {
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
         render: text => {
-          if (text === 0) {
-            return '私有'
+          let res = ""
+          if(!isNaN(record.public)){
+            if (text === 0) {
+              res = '私有'
+            }
+            res = '公开'
+          } else if(!!record.metadata.public){
+            const bool = Boolean(record.metadata.public)
+            if(bool){
+              res = '公开'
+            } else {
+              res = '私有'
+            }
           }
-          return '公开'
+          return res
         }
       },
       {
