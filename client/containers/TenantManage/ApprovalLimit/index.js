@@ -552,21 +552,22 @@ class ApprovalLimit extends React.Component {
         <QueueAnim>
           <Title title="配额审批" />
           <div className="layout-content-btns header" key="header">
-            <Select placeholder="项目类型" style={{ width: 100 }} value={itemType}
+            <Select placeholder="项目类型" style={{ width: 140 }} value={itemType}
               onChange={this.clickItemType}>
               {optionFormat({ 个人项目: 'person', 共享项目: 'public' })}
             </Select>
-            <Select placeholder="审批状态" style={{ width: 100 }} value={approvalStatus}
+            <Select placeholder="审批状态" style={{ width: 140 }} value={approvalStatus}
               onChange={this.clickApprovalStatus}
             >
               {optionFormat({ 待审批: 0, 全部同意: 1, 全部拒绝: 2, 部分同意: 3 })}
             </Select>
-            <Select placeholder="审批者" style={{ width: 100 }} value={ approver}
+            <Select placeholder="审批者" style={{ width: 140 }} value={ approver}
               onChange={this.clickApprover} disabled={ approvalStatus === 0 }
             >
               {optionFormat((formateUsername(userName)))}
             </Select>
             <DatePicker
+              style={{ width: 140 }}
               showTime format="yyyy-MM-dd HH:mm:ss"
               disabledDate={this.disabledStartDate}
               value={startValue}
@@ -575,6 +576,7 @@ class ApprovalLimit extends React.Component {
               toggleOpen={this.handleStartToggle}
             />
             <DatePicker
+              style={{ width: 140 }}
               showTime format="yyyy-MM-dd HH:mm:ss"
               disabledDate={this.disabledEndDate}
               value={endValue}
@@ -587,7 +589,7 @@ class ApprovalLimit extends React.Component {
             <Button type="primary" onClick={this.resetSearch}>重置</Button>
           </div>
           <div className="layout-content-btns header secondHeader" key="secondHeader">
-            <CommonSearchInput placeholder="按项目名称搜索" size="large" onSearch={this.onSearch}/>
+            <CommonSearchInput placeholder="按项目名称搜索" size="default" onSearch={this.onSearch}/>
             <Button onClick={this.reload}><Icon type="reload" />刷新</Button>
             <span className="ApprovalMessage"><span>待审批:</span><span>{wait}个</span></span>
             <span className="paginationWrap">
