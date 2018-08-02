@@ -232,7 +232,7 @@ class ImageVersion extends Component {
         const curColums = {
           id: index,
           edition: item.name || item.tag,
-          push_time: item.last_updated || item.first_push,
+          push_time: item.last_updated || item.first_pushed,
           labels: item.labels,
         }
         curData.unshift(curColums)
