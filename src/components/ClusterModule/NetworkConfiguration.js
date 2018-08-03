@@ -269,8 +269,6 @@ let NetworkConfiguration = React.createClass ({
         })
         return
       }
-
-      return
       const notify = new NotificationHandler()
       const networkConfigArray = values.networkConfigArray
       networkConfigArray.forEach(item => {
