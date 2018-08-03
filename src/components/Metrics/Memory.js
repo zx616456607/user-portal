@@ -29,7 +29,7 @@ class Memory extends Component {
 
   render() {
     const option = new EchartsOption('内存')
-    const { memory, scope, hideInstantBtn } = this.props
+    const { memory, scope, hideInstantBtn, isService } = this.props
     const { isFetching, data } = memory
     const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
     let timeText = switchMemory ? '1分钟' : freshTime
@@ -37,6 +37,7 @@ class Memory extends Component {
       formatter: '{value} M'
     })
     option.setToolTipUnit(' M')
+    option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     data&&data.map((item) => {
       let dataArr = []

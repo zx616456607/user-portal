@@ -29,10 +29,11 @@ class Tcp extends Component {
 
   render() {
     const option = new EchartsOption('TCP')
-    const { tcpListen, tcpEst, tcpClose, tcpTime, events, scope } = this.props
+    const { tcpListen, tcpEst, tcpClose, tcpTime, events, scope, isService } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? '1分钟' : freshTime
     option.setToolTipUnit(' 个')
+    option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     let isDataEmpty = false
     tcpListen.data && tcpListen.data.map((item) => {
