@@ -731,47 +731,57 @@ class ClusterPlugin extends Component {
               )
             }
           }
-          let menua
-          if (row.status.message == 'stopped') {
-            menua = (
-              <Menu className="Settingplugin">
-                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
-                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
-                  重新部署
-                </Menu.Item> }
+          // let menua
+          // if (row.status.message == 'stopped') {
+          //   menua = (
+          //     <Menu className="Settingplugin">
+          //       <Menu.Item onClick={(e) => this.hand设置插件leMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
+          //       <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+          //       { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
+          //         重新部署
+          //       </Menu.Item> }
+          //       {this.getStateusForEvent(row)}
+          //     </Menu>
+          //   )
+          // } else {
+          //   menua = (
+          //     <Menu className="Settingplugin">
+          //       <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
+          //       <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+          //       { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
+          //         重新部署
+          //       </Menu.Item> }
+          //       {this.getStateusForEvent(row)}
+          //     </Menu>
+          //   )
+          // }
+          const result = (row.serviceInfo && row.serviceInfo.isSystem)
+            ? <div className="pluginAction">
+              <span className="button">
                 {this.getStateusForEvent(row)}
-              </Menu>
-            )
-          } else {
-            menua = (
-              <Menu className="Settingplugin">
-                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
-                <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
-                { !row.serviceInfo.isDeamonSet && <Menu.Item key="reinstall" onClick={(e) => this.showResetModal(row)}>
-                  重新部署
-                </Menu.Item> }
-                {this.getStateusForEvent(row)}
-              </Menu>
-            )
-          }
-          const result = (row.serviceInfo && row.serviceInfo.isSystem) ? <div className="pluginAction"> <span className="button">
-            {this.getStateusForEvent(row)}
-          </span>
-            <Button style={{ backgroundColor: '#fff' }} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button></div> : <div className="pluginAction">
+              </span>
+              <Button style={{ backgroundColor: '#fff' }} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button>
+            </div>
+            : <div className="pluginAction">
               <div className="Settingplugina">
                 <span className="button">
                   {this.getStateusForEvent(row)}
                 </span>
+                {row.status.message == 'uninstalled' ? '' : (
+                row.name !== 'istio'
+                  ?
+                <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+                  设置插件
+                </Dropdown.Button>
+                  :
+                <Button type="ghost" onClick={() => this.handleMenuClick('delete', row)} overlay={{}}>卸载插件</Button>
+                )}
+              </div>
+              {/* <div className="Settingpluginb">
                 {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
                   设置插件
                </Dropdown.Button>}
-              </div>
-              <div className="Settingpluginb">
-                {row.status.message == 'uninstalled' ? '' : <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-                  设置插件
-               </Dropdown.Button>}
-              </div>
+              </div> */}
               {/*<Button type="primary" onClick={() => this.showResetModal(row.name)} disabled={row.serviceInfo.isDeamonSet}>
                 重新部署
               </Button>

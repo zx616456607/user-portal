@@ -40,6 +40,7 @@ import LogCollection from './LogCollection'
 import OperationEnv from './OperationEnv'
 import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
+import ServiceMesh from './ServiceMesh'
 import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
 
 const LATEST = 'latest'
@@ -765,6 +766,10 @@ let ConfigureService = React.createClass({
               </FormItem>
             }
               <ApmSetting
+                form={form}
+                formItemLayout={formItemLayout}
+              />
+              <ServiceMesh
                 form={form}
                 formItemLayout={formItemLayout}
               />
