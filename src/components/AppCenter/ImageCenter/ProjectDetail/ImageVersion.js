@@ -126,6 +126,14 @@ class ImageVersion extends Component {
           }
         },
         isAsync: true,
+      },
+      failed:{
+        func: err => {
+          if(err.statusCode === 404){
+            notification.warn("对象不存在, 请求无法完成")
+          }
+        },
+        isAsync: true,
       }
     }, true)
     loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
@@ -224,7 +232,7 @@ class ImageVersion extends Component {
         const curColums = {
           id: index,
           edition: item.name || item.tag,
-          push_time: item.last_updated || item.first_push,
+          push_time: item.last_updated || item.first_pushed || item.created,
           labels: item.labels,
         }
         curData.unshift(curColums)
@@ -597,7 +605,7 @@ class ImageVersion extends Component {
     //   </Dropdown.Button>
     // )
     if(!this.dropdownVisible) this.dropdownVisible = {}
-    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore } = this.props
+    const { isFetching, detailAry, isAdminAndHarbor, isWrapStore, currentUserRole } = this.props
     const { max_tags_count, edition, dataAry, delValue, aryName,
       isBatchDel, selectedRowKeys, deleteAll, isEditMaxTag, isShowLockModel, lockType } = this.state
     const imageDetail = this.props.config
@@ -642,7 +650,7 @@ class ImageVersion extends Component {
         const label = tempLabels[0] || {}
         const otherTags = tempLabels.slice(1).map((o, i) => {
           return (
-            <div><div className="tag otherTag" style={{ backgroundColor: o.color }}>
+            <div><div className={(o.color ? "" : "nocolor ") + "tag otherTag"} style={{ backgroundColor: o.color }}>
               {o.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
               {' ' + o.name}
             </div></div>
@@ -650,7 +658,7 @@ class ImageVersion extends Component {
         })
         return (
           [
-            <div className="tag" style={{ backgroundColor: label.color }}>
+            <div className={(label.color ? "" : "nocolor ") + "tag"} style={{ backgroundColor: label.color }}>
               {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
               {' ' + label.name}
             </div>,
@@ -706,9 +714,8 @@ class ImageVersion extends Component {
                   }
                 }
               >
-                <div className="tag otherTag" style={{ backgroundColor: label.color }}>
-                  {label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
-                  {' ' + label.name}
+                <div className={(label.color ? "" : "nocolor ") + "tag otherTag"} style={{ backgroundColor: label.color }}>
+                  <span>{label.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}{' ' + label.name}</span>
                 </div>
               </Checkbox>
             </MenuItem>
@@ -751,7 +758,7 @@ class ImageVersion extends Component {
                 </Menu>
               }>
               <Button type="ghost" className="downBtn">
-                <Icon type="circle-o-down" />
+                <Icon type="down" />
               </Button></Dropdown>
           </div>
         )
@@ -810,15 +817,18 @@ class ImageVersion extends Component {
               {
                 isEditMaxTag
                 ? <InputNumber
-                  min={1}
+                  min={0}
                   step={1}
-                  value={max_tags_count}
-                  onChange={max_tags_count => this.setState({ max_tags_count })}
+                  value={max_tags_count === -1 ? "" : max_tags_count}
+                  placeholder="无上限"
+                  onChange={max_tags_count => {
+                    this.setState({ max_tags_count: isNaN(max_tags_count) ? -1 : max_tags_count })
+                  }}
                 />
-                : max_tags_count
+                : max_tags_count === -1 ? "无上限" : max_tags_count
               }
               &nbsp;个（自动清理旧版本 <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
-                <Icon type="question-circle" style={{cursor: 'pointer'}} />
+                <Icon type="question-circle-o" style={{cursor: 'pointer'}} />
               </Tooltip>）
               {
                 !isEditMaxTag &&

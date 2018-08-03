@@ -9,10 +9,10 @@ let isSet = false
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
-    span: 4
+    span: 6
   },
   wrapperCol: {
-    span: 20
+    span: 18
   }
 }
 const colors = [
@@ -26,8 +26,8 @@ class Editor extends Component {
     const { form: { validateFields } } = this.props
     validateFields((error, values) => {
       if(error){
-        if(!values.color){
-          notification.warn("请输入或选择标签颜色")
+        if(error.color){
+          notification.warn("请选择或输入正确的标签颜色")
         }
         return
       }
@@ -43,6 +43,10 @@ class Editor extends Component {
   checkName = (rules, value, _cb) => {
     if(!value){
       _cb(new Error("请输入标签名称"))
+      return
+    }
+    if(value.length > 128){
+      _cb(new Error("名称长度不能超过128个字符"))
       return
     }
     _cb()
@@ -122,7 +126,7 @@ class Editor extends Component {
             </Col>
             <Col span={6}>
               <FormItem {...formItemLayout} label="颜色">
-                <div className="colorBox"
+                <div className={"colorBox"}
                   style={{ backgroundColor: colorInputVal }}
                 ></div>
                 <Popover overlayClassName="labelmodule_picker" placement="bottom" content={picker} trigger="click">

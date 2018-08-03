@@ -196,10 +196,12 @@ export default store => next => action => {
   options.headers = options.headers || {}
   // sys admin check user personal space
   if (space.userName) {
-    options.headers.onbehalfuser = typeof options.headers.onbehalfuser === 'undefined' ? '' : space.userName
+    const headerOnbehalfuser = options.headers.onbehalfuser
+    options.headers.onbehalfuser = typeof headerOnbehalfuser !== 'undefined' ? headerOnbehalfuser : space.userName
     space.namespace = 'default'
   }
-  options.headers.teamspace = options.headers.teamspace || space.namespace || ''
+  const headerTeamspace = options.headers.teamspace
+  options.headers.teamspace = typeof headerTeamspace !== 'undefined' ? headerTeamspace : (space.namespace || '')
 
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
