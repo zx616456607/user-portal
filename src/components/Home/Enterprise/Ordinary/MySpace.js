@@ -404,7 +404,7 @@ class MySpace extends Component {
                   deliverList.map((item, index) => (
                     <div className="info" key={`deliver-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col className="textoverflow" span={6}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={16}>
