@@ -19,7 +19,6 @@ const menuList = [
     url: '/database_cache/mysql_cluster',
     name: 'MySQL集群'
   },
-
   {
     url: '/database_cache/redis_cluster',
     name: 'Redis集群'

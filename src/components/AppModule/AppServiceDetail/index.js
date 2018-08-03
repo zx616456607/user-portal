@@ -45,6 +45,7 @@ import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
 import { SHOW_BILLING } from '../../../constants'
 import { getServiceStatus } from '../../../common/status_identify'
+import ServiceMeshSwitch from './ServiceMeshSwitch'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -454,6 +455,10 @@ class AppServiceDetail extends Component {
                   size={this.props.size}
                   name={this.props.name}
                 />
+              </TabPane>
+              {/* TODO: 增加服务治理开关*/}
+              <TabPane tab="服务治理开关" key="#serviceMeshSwitch">
+                <ServiceMeshSwitch serviceName={service.metadata.name}/>
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
                 <AppServiceAssistSetting
