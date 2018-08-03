@@ -270,6 +270,14 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
     delete query.projectName
     delete query.userName
   }
+  let headers = {
+    teamspace: projectName || 'default',
+  }
+  if (userName) {
+    headers = Object.assign({}, headers, {
+      onbehalfuser: userName,
+    })
+  }
   return {
     cluster,
     serviceName,
@@ -279,10 +287,7 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
       schema: Schemas.CONTAINERS,
       options: {
-        headers: {
-          teamspace: projectName || 'default',
-          onbehalfuser: userName || '',
-        }
+        headers,
       },
     },
     callback: callback

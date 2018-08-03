@@ -29,7 +29,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
     const serviceOption = {};
     let content: Array = [];
     if (fields.hasOwnProperty(key)) {
-      const json = buildJson(value, current.cluster, loginUser, imageConfig, true);
+      const json = buildJson(value, current.cluster, loginUser, imageConfig, true, isDeploy);
       content.push(yaml.dump(json.deployment));
       content.push(yaml.dump(json.service));
       json.storage.forEach(item => {

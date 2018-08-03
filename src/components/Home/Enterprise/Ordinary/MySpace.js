@@ -187,7 +187,7 @@ class MySpace extends Component {
   }
   maxCount(value) {
     const { globaleList } = this.state
-    let count = 0
+    let count = -1
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
