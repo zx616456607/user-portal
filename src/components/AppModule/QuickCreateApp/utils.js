@@ -101,7 +101,7 @@ export function checkVolumeMountPath(form, index, value, type) {
   return error
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -344,7 +344,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     // 默认访问方式 集群内
     service.addLBGroupAnnotation('none')
   } else {
-    if (isTemplate) {
+    if (isTemplate && !isTemplateDeploy) {
       service.addLBGroupAnnotation(templateGroup)
     } else {
       service.addLBGroupAnnotation(groupID)
