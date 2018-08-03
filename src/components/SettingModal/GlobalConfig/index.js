@@ -8,7 +8,8 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Affix, Tooltip, Popover } from 'antd'
+import { Form, Button, Input, Spin, Checkbox } from 'antd'
+import ReactDom from 'react-dom'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import './style/GlobalConfig.less'
@@ -1776,7 +1777,7 @@ class GlobalConfig extends Component {
         {
           id: 'continue',
           name: '持续集成',
-        },
+        }
       ],
       currentMenu: 'GlobalConfigEmail'
     }
@@ -1799,7 +1800,13 @@ class GlobalConfig extends Component {
       }
     })
   }
-
+  componentDidMount() {
+    setTimeout(() => {
+      const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
+      const globalWrapper = this.refs.wrapper
+      globalWrapper.style.paddingTop = `${navHeight + 10}px`
+    }, 100)
+  }
   emailChange() {
     this.setState({ emailDisable: !this.state.emailDisable })
   }
@@ -1845,9 +1852,10 @@ class GlobalConfig extends Component {
     const element = document.getElementsByClassName(id)[0]
     const existItem = element.getElementsByClassName('title')[0]
     const anchor = document.createElement('div')
+    const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
     // 创建锚点元素，滚动到窗口顶部与锚点元素对齐，删除锚点
     anchor.style.position = 'absolute'
-    anchor.style.top = '-115px'
+    anchor.style.top = `-${navHeight + 55}px`
     element.insertBefore(anchor, existItem)
     anchor.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
     element.removeChild(anchor)
@@ -1859,6 +1867,8 @@ class GlobalConfig extends Component {
       cephDisable, cephChange, globalConfig, chartServerDisable,
       menuArr,currentMenu
     } = this.state
+
+
     const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
     let { cluster } = this.props
     if (!cluster) {
@@ -1876,9 +1886,8 @@ class GlobalConfig extends Component {
       )
     }
     return (
-      <div id="GlobalConfig">
-        <div className="nav">
-          <span>全局配置：</span>
+      <div id="GlobalConfig" ref='wrapper'>
+        <div className="nav" ref="nav">
           <span className="configNav">
             {
               menuArr.map(v => <Button size="large"
@@ -1890,6 +1899,7 @@ class GlobalConfig extends Component {
             }
           </span>
         </div>
+
         <QueueAnim>
           <div key='GlobalConfig' className="globalConfigContent">
             <Title title="全局配置" />
