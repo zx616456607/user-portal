@@ -212,7 +212,7 @@ class MySpace extends Component {
   renderProcessNumber(key, span = {}) {
     const useCount = this.useCount(key)
     const maxCount = this.maxCount(key)
-    const { left = 9, right = 15 } = span
+    const { left = 5, right = 19 } = span
     let overUsed = false
     if (useCount > maxCount && maxCount !== -1) {
       overUsed = true
@@ -220,7 +220,7 @@ class MySpace extends Component {
     return (
       <Row className="number-row">
         <Col span={left}></Col>
-        <Col span={right} className="number">
+        <Col span={right} className="number textoverflow">
           <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
           /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
         </Col>
@@ -385,13 +385,13 @@ class MySpace extends Component {
                   ciList.map((item, index) => (
                     <div className="info" key={`ci-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col className="textoverflow" span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={16}>
+                        <Col span={13}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={5}>
                           {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                         </Col>
                       </Row>

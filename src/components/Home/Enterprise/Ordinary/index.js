@@ -417,8 +417,8 @@ class Ordinary extends Component {
     }
     return (
       <Row className="number-row" >
-        <Col span={7}></Col>
-        <Col span={17} className="number" >
+        <Col span={2}></Col>
+        <Col span={22} className="number textoverflow" >
           <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
           <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
@@ -1543,10 +1543,10 @@ class Ordinary extends Component {
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={16}>
+                        <Col span={14}>
                           <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={6}>
                           {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                         </Col>
                       </Row>
