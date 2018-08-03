@@ -716,6 +716,11 @@ let NetworkConfiguration = React.createClass ({
       copyCMDSuccess: true,
     })
   },
+  serverDomainValidator(rule, value, cb) {
+    const pattern = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
+    if (value && !pattern.test(value)) cb('请输入正确的域名') // 域名可以为空
+    cb()
+  },
   renderDomainWarningStatus(data, item) {
     const { form } = this.props
     const { editCluster } = this.state
@@ -730,6 +735,14 @@ let NetworkConfiguration = React.createClass ({
       status = {
         status: 'warning',
         message: '若清空域名，使用该网络出口的服务的 http 协议将无法正常使用'
+      }
+      return status
+    }
+    const domainPattern = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
+    if (!domainPattern.test(currentValue)) {
+      return {
+        status: 'error',
+        message: '',
       }
     }
     return status
@@ -806,11 +819,16 @@ let NetworkConfiguration = React.createClass ({
         })
         let addressProps = getFieldProps(`address${item.key}`,{
           initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
-          rules:[{required: true, message: '服务出口不能为空'}]
+          rules:[{required: true, message: '服务出口不能为空'}, {
+            pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+            message: '请输入正确的ip地址'
+          }]
         })
         let domainProps  = getFieldProps(`domain${item.key}`,{
           initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
-          rules: [{ required: false }]
+          rules: [{ required: false }, {
+            validator: this.serverDomainValidator
+          }]
         })
         const domainWarningStatus = this.renderDomainWarningStatus(data, item)
         let groupidProps = getFieldProps(`groupId${item.key}`,{
