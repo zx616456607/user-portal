@@ -187,7 +187,7 @@ class MySpace extends Component {
   }
   maxCount(value) {
     const { globaleList } = this.state
-    let count = 0
+    let count = -1
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
@@ -388,10 +388,10 @@ class MySpace extends Component {
                         <Col span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={16}>
+                        <Col span={14}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={4}>
                           {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                         </Col>
                       </Row>
