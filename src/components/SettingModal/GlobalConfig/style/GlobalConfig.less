@@ -1,13 +1,42 @@
 #GlobalConfig{
   //min-width:1155px;
-  padding:20px;
+  .nav {
+    position: fixed;
+    top: 55px;
+    height: 60px;
+    line-height: 60px;
+    left: 220px;
+    z-index: 100;
+    width: 100%;
+    background: #ecf0f4;
+    .configNav {
+      button {
+        margin: 0 8px;
+        border-radius: 20px;
+      }
+      .defaultBtn {
+        background: none;
+        border: none
+      }
+    }
+  }
+  .navBlock {
+    height: 60px;
+  }
+  padding:70px 20px 20px 20px;
+  .globalConfigContent {
+    transition: all 0.2s ease-in;
+  }
   .GlobalConfigEmail,
+  .GlobalConfigFtp,
   .conInter,
   .mirrorservice,
   .continue,
   .GlobalConfigMSA,
   .GlobalConfigVm,
+  .GlobalConfigTemplate,
   .storageservice{
+    position: relative;
     overflow: hidden;
     .title {
       height:16px;
@@ -88,12 +117,11 @@
     }
   }
   .GlobalConfigMSA {
-    margin-bottom: 20px;
     .contentImg{
       padding: 0 50px 25px 50px;
     }
   }
-  .GlobalConfigVm {
+  .GlobalConfigVm,.GlobalConfigTemplate {
     .contentImg{
       padding: 0 50px 25px 50px;
     }
@@ -141,6 +169,9 @@
         }
       }
     }
+  }
+  #GlobalConfigTemplate {
+    height: 120px;
   }
 }
 .GlobalConfigTip{

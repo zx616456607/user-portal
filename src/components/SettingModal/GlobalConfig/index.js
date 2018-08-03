@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Tooltip, Popover } from 'antd'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Affix, Tooltip, Popover } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
 import './style/GlobalConfig.less'
@@ -630,7 +630,7 @@ let Ftp = React.createClass({
     });
 
     return (
-      <div className="GlobalConfigEmail">
+      <div className="GlobalConfigFtp">
         <div className="title">FTP 服务器配置</div>
         <div className="content">
           <div className="contentMain">
@@ -998,7 +998,7 @@ let ChartServer = React.createClass({
     });
 
     return (
-      <div className="GlobalConfigVm">
+      <div className="GlobalConfigTemplate">
         <div className="title">应用模版</div>
         <div className="content">
           <div className="contentMain">
@@ -1743,7 +1743,42 @@ class GlobalConfig extends Component {
       cicdeditDisable: true,
       mirrorDisable: true,
       cephDisable: true,
-      globalConfig: {}
+      globalConfig: {},
+      menuArr :[
+        {
+          id: 'GlobalConfigEmail',
+          name: '邮件报警',
+        },
+        {
+          id: 'GlobalConfigMSA',
+          name: '微服务',
+        },
+        {
+          id: 'GlobalConfigFtp',
+          name: 'FTP 服务器配置',
+        },
+        {
+          id: 'GlobalConfigVm',
+          name: '传统应用',
+        },
+        {
+          id: 'GlobalConfigTemplate',
+          name: '应用模板',
+        },
+        {
+          id: 'mirrorservice',
+          name: '默认 Harbor',
+        },
+        {
+          id: 'conInter',
+          name: '开放 API 地址',
+        },
+        {
+          id: 'continue',
+          name: '持续集成',
+        },
+      ],
+      currentMenu: 'GlobalConfigEmail'
     }
   }
 
@@ -1803,12 +1838,26 @@ class GlobalConfig extends Component {
       globalConfig: globalConfig
     })
   }
-
+  jumpTo = id => {
+    this.setState({
+      currentMenu: id
+    })
+    const element = document.getElementsByClassName(id)[0]
+    const existItem = element.getElementsByClassName('title')[0]
+    const anchor = document.createElement('div')
+    // 创建锚点元素，滚动到窗口顶部与锚点元素对齐，删除锚点
+    anchor.style.position = 'absolute'
+    anchor.style.top = '-115px'
+    element.insertBefore(anchor, existItem)
+    anchor.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    element.removeChild(anchor)
+  }
   render() {
     const {
       emailDisable, msaDisable, ftpDisable, vmDisable, emailChange,
       cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange,
       cephDisable, cephChange, globalConfig, chartServerDisable,
+      menuArr,currentMenu
     } = this.state
     const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
     let { cluster } = this.props
@@ -1827,56 +1876,78 @@ class GlobalConfig extends Component {
       )
     }
     return (
-      <QueueAnim>
-      <div id="GlobalConfig" key='GlobalConfig'>
-        <Title title="全局配置" />
-        <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <Msa
-          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
-          msaDisable={msaDisable}
-          msaChange={this.msaChange.bind(this)}
-          saveGlobalConfig={saveGlobalConfig}
-          updateGlobalConfig={saveGlobalConfig}
-          cluster={cluster}
-          config={globalConfig.msa}
-        />
-        <Ftp
-          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
-          ftpDisable={ftpDisable}
-          ftpChange={this.ftpChange.bind(this)}
-          saveGlobalConfig={saveGlobalConfig}
-          updateGlobalConfig={saveGlobalConfig}
-          cluster={cluster}
-          config={globalConfig.ftp}
-        />
-        <Vm
-          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
-          vmDisable={vmDisable}
-          vmChange={this.vmChange.bind(this)}
-          saveGlobalConfig={saveGlobalConfig}
-          updateGlobalConfig={saveGlobalConfig}
-          loadGlobalConfig={loadGlobalConfig}
-          loadLoginUserDetail={loadLoginUserDetail}
-          cluster={cluster}
-          config={globalConfig.vm}
-        />
-        <ChartServer
-          setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
-          disable={chartServerDisable}
-          onChange={this.chartServerChange.bind(this)}
-          saveGlobalConfig={saveGlobalConfig}
-          updateGlobalConfig={saveGlobalConfig}
-          loadGlobalConfig={loadGlobalConfig}
-          loadLoginUserDetail={loadLoginUserDetail}
-          cluster={cluster}
-          config={globalConfig.chart_repo}
-        />
-        <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
-        {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
-        <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
-        <Continue />
+      <div id="GlobalConfig">
+        <div className="nav">
+          <span>全局配置：</span>
+          <span className="configNav">
+            {
+              menuArr.map(v => <Button size="large"
+                                 className={currentMenu === v.id? '' : 'defaultBtn'}
+                                 key={v.id}
+                                 type={currentMenu === v.id ? 'primary' : 'default'}
+                                 onClick={() => this.jumpTo(v.id)}
+                               >{v.name}</Button>)
+            }
+          </span>
+        </div>
+        <QueueAnim>
+          <div key='GlobalConfig' className="globalConfigContent">
+            <Title title="全局配置" />
+            <Emaill
+              sendEmailVerification={this.props.sendEmailVerification}
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              emailDisable={emailDisable} emailChange={this.emailChange.bind(this)}
+              saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.mail} />
+            <Msa
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              msaDisable={msaDisable}
+              msaChange={this.msaChange.bind(this)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.msa}
+            />
+            <Ftp
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              ftpDisable={ftpDisable}
+              ftpChange={this.ftpChange.bind(this)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.ftp}
+            />
+            <Vm
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              vmDisable={vmDisable}
+              vmChange={this.vmChange.bind(this)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              loadGlobalConfig={loadGlobalConfig}
+              loadLoginUserDetail={loadLoginUserDetail}
+              cluster={cluster}
+              config={globalConfig.vm}
+            />
+            <ChartServer
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              disable={chartServerDisable}
+              onChange={this.chartServerChange.bind(this)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              loadGlobalConfig={loadGlobalConfig}
+              loadLoginUserDetail={loadLoginUserDetail}
+              cluster={cluster}
+              config={globalConfig.chart_repo}
+            />
+            <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
+            {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
+            <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
+            <Continue />
+          </div>
+        </QueueAnim>
+
       </div>
-      </QueueAnim>
     )
   }
 }
