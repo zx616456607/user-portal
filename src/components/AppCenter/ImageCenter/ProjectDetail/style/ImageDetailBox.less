@@ -1,6 +1,8 @@
 .imageVersionPopover, .imageVersionDropdownMenu{
   .ant-popover-inner-contentk, .ant-dropdown-menu{
     padding: 5px 0;
+    max-width: 350px;
+    overflow-x: hidden;
   }
   .rowContainer{
     .ant-dropdown-menu{
@@ -37,6 +39,16 @@
       transform: translateY(1px);
       font-size: 14px;
     }
+    max-width: 300px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    span{
+      overflow: hidden;
+    }
+  }
+  .nocolor.otherTag{
+    color: #666;
+    border: 1px solid #666;
   }
 }
 .otherTagsTip{
@@ -54,6 +66,14 @@
       transform: translateY(1px);
       font-size: 14px;
     }
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nocolor{
+    color: #666;
+    border: 1px solid #666;
   }
   .ant-popover-inner{
     min-width: 100px !important;
@@ -69,10 +89,17 @@
     border-radius: 20px;
     display: inline-block;
     padding: 0 12px;
+    max-width: 300px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     .tenx-icon{
       transform: translateY(2px);
       font-size: 14px;
     }
+  }
+  .nocolor{
+    color: #666;
+    border: 1px solid #666;
   }
   .more{
     font-size: 18px;

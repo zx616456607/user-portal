@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal, Alert } from 'antd'
+import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal, Alert, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -755,7 +755,9 @@ class PortDetail extends Component {
             容器端口
           </div>
           <div className="commonTitle">
-            协议
+            协议 <Tooltip title="若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用">
+              <Icon type="question-circle-o" />
+            </Tooltip>
           </div>
           <div className="commonTitle span4">
             服务端口

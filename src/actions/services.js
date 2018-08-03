@@ -270,6 +270,14 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
     delete query.projectName
     delete query.userName
   }
+  let headers = {
+    teamspace: projectName || 'default',
+  }
+  if (userName) {
+    headers = Object.assign({}, headers, {
+      onbehalfuser: userName,
+    })
+  }
   return {
     cluster,
     serviceName,
@@ -279,10 +287,7 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
       schema: Schemas.CONTAINERS,
       options: {
-        headers: {
-          teamspace: projectName || 'default',
-          onbehalfuser: userName || '',
-        }
+        headers,
       },
     },
     callback: callback
@@ -990,5 +995,30 @@ function fetchSetServiceProxyGroup(body, callback){
 export function setServiceProxyGroup(body, callback){
   return (dispatch) => {
     return dispatch(fetchSetServiceProxyGroup(body, callback))
+  }
+}
+
+// 数据库与缓存-集群详情-访问方式tab内集群访问方式保存
+export const DB_SERVICE_PROXY_SAVE_REQUEST = 'DB_SERVICE_PROXY_SAVE_REQUEST'
+export const DB_SERVICE_PROXY_SAVE_SUCCESS = 'DB_SERVICE_PROXY_SAVE_SUCCESS'
+export const DB_SERVICE_PROXY_SAVE_FAILURE = 'DB_SERVICE_PROXY_SAVE_FAILURE'
+function fetchDBServiceProxyGroup(clusterID, type, name, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [DB_SERVICE_PROXY_SAVE_REQUEST, DB_SERVICE_PROXY_SAVE_SUCCESS, DB_SERVICE_PROXY_SAVE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/daas/${type}/${name}/service`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function dbServiceProxyGroupSave(clusterID, type, name, body, callback){
+  return (dispatch) => {
+    return dispatch(fetchDBServiceProxyGroup(clusterID, type, name, body, callback))
   }
 }

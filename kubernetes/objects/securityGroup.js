@@ -30,7 +30,9 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
       const rule = peerToRule(peer)
-      result.ingress.push(rule)
+      if (rule) {
+        result.ingress.push(rule)
+      }
     }
   }
   if (policy.spec && policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
@@ -39,13 +41,20 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
       const rule = peerToRule(peer)
-      result.egress.push(rule)
+      if (rule) {
+        result.egress.push(rule)
+      }
     }
   }
   return result
 }
 
 function buildNetworkPolicy(name, targetServices, ingress, egress) {
+  const selectThisGroup = {
+    key: 'tenxcloud.com/svcName',
+    operator: 'In',
+    values: targetServices,
+  }
   const policy = {
     metadata: {
       annotations: {
@@ -56,19 +65,18 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
   }
   if (targetServices && targetServices.length > 0) {
     policy.spec.podSelector = {
-      matchExpressions: [{
-        key: 'tenxcloud.com/svcName',
-        operator: 'In',
-        values: targetServices,
-      }],
+      matchExpressions: [selectThisGroup],
     }
   }
-  const policyTypes = []
+  const ruleAllowSameGroup = {
+    podSelector: {
+      matchExpressions: [selectThisGroup],
+    },
+  }
+  policy.spec.ingress = [{from: [ruleAllowSameGroup]}]
+  policy.spec.egress = [{to: [ruleAllowSameGroup]}]
+  policy.spec.policyTypes = ['Ingress', 'Egress']
   if (ingress && ingress.length) {
-    policyTypes.push('Ingress')
-    policy.spec.ingress = [{
-      from: [],
-    }]
     const from = policy.spec.ingress[0].from
     for (let i = 0; i < ingress.length; ++i) {
       const rule = ingress[i]
@@ -77,10 +85,6 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
     }
   }
   if (egress && egress.length) {
-    policyTypes.push('Egress')
-    policy.spec.egress = [{
-      to: [],
-    }]
     const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]
@@ -88,7 +92,6 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
       to.push(peer)
     }
   }
-  policy.spec.policyTypes = policyTypes
   return policy
 }
 
@@ -189,41 +192,4 @@ function ruleToPeer(rule) {
   }
 }
 
-// TODO:
-// const RuleTypeCIDR = 'cidr'
-// const RuleTypeService = 'service'
-// const RuleTypeHAProxy = 'haproxy'
-// const RuleTypeIngress = 'ingress'
-// const RuleTypeNamespace = 'namespace'
-
-// const policy = buildNetworkPolicy('时速云', ['svcA1', 'abc123Two', 'lalala456'], [{
-//   type: RuleTypeService,
-//   serviceName: 'longlonglong',
-//   namespace: 'hello',
-// }, {
-//   type: RuleTypeService,
-//   serviceName: 'lilili',
-// }, {
-//   type: RuleTypeCIDR,
-//   cidr: '1.2.3.4/16',
-//   except: ['1.2.3.5'],
-// }, {
-//   type: RuleTypeCIDR,
-//   cidr: '1.2.3.4/24',
-// }, {
-//   type: RuleTypeNamespace,
-//   namespace: 'richrichrich',
-// }, {
-//   type: RuleTypeIngress,
-//   ingressId: 'ingress-eyrdfpxlme'
-// }, {
-//   type: RuleTypeHAProxy,
-// }])
-
-// console.log(JSON.stringify(policy, null, 2))
-
-// const result = parseNetworkPolicy(policy)
-
-// console.log(result)
-
-export { buildNetworkPolicy, parseNetworkPolicy }
+export {buildNetworkPolicy, parseNetworkPolicy}

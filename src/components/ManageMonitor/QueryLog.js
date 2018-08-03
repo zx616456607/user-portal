@@ -1244,7 +1244,8 @@ class QueryLog extends Component {
                 optionFilterProp="children"
                 showSearch
                 getPopupContainer={() => document.getElementById('QueryLog')}
-                style={{ width: 200 }}
+                style={{ width: 'calc(100% - 85px)' }}
+                size={'large'}
                 value={currentNamespace}
                 onSelect={value => this.onSelectNamespace(value.split(',')[0], value.split(',')[1])}
               >

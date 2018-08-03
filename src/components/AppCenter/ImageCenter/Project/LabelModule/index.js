@@ -11,7 +11,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Popover, Input, Icon, Spin, Modal } from 'antd'
+import { Table, Button, Popover, Input, Icon, Spin, Modal, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 import { connect } from 'react-redux'
@@ -168,7 +168,7 @@ class Project extends Component {
       updateLabel(harbor, DEFAULT_REGISTRY, temp, {
         success: {
           func: res => {
-            console.log(res)
+            // console.log(res)
             notification.success('修改标签成功')
             this.loadData()
             this.onEditorCancel()
@@ -177,8 +177,12 @@ class Project extends Component {
         },
         failed: {
           func: err => {
-            console.log(err)
-            notification.warn('修改标签失败')
+            // console.log(err)
+            if(err.statusCode === 409){
+              notification.warn('标签名称重复')
+            }else{
+              notification.warn('修改标签失败')
+            }
           },
           isAsync: true,
         },
@@ -190,7 +194,7 @@ class Project extends Component {
       }), {
         success: {
           func: res => {
-            console.log(res)
+            // console.log(res)
             notification.success('新增标签成功')
             this.loadData()
             this.onEditorCancel()
@@ -199,8 +203,12 @@ class Project extends Component {
         },
         failed: {
           func: err => {
-            console.log(err)
-            notification.warn('新增标签失败')
+            // console.log(err)
+            if(err.statusCode === 409){
+              notification.warn('标签名称重复')
+            }else{
+              notification.warn('新增标签失败')
+            }
           },
           isAsync: true,
         },
@@ -257,10 +265,12 @@ class Project extends Component {
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => (
-          <div className="tag" style={{ backgroundColor: record.color }}>
-            {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
-            {text}
-          </div>
+          <Tooltip title={text}>
+            <div className={(record.color ? "" : "nocolor ") + "tag"} style={{ backgroundColor: record.color }}>
+              {record.scope === 'g' ? <TenxIcon type="global-tag" /> : <TenxIcon type="tag" />}
+              {text}
+            </div>
+          </Tooltip>
         ),
       },
       {
@@ -268,6 +278,7 @@ class Project extends Component {
         width: '33%',
         dataIndex: 'description',
         key: 'description',
+        render: text => <Tooltip title={text}><div className="description">{text}</div></Tooltip>
       },
       {
         title: '创建时间',
@@ -336,14 +347,18 @@ class Project extends Component {
           />
         </Spin>
         <Modal
+          maskClosable={false}
           visible={delVisible}
           title="删除"
           onOk={this.onDelOk}
           confirmLoading={isDelLoading}
           onCancel={ () => this.setState({ delVisible: false })}
         >
-        {<div>{"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
-            (index !== rows.length-1 ? ", " : "") }) + "] ?"}</div>}
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            <span> {"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+            (index !== rows.length-1 ? ", " : "") }) + "] ?"}</span>
+          </div>
         </Modal>
       </QueueAnim>
     )

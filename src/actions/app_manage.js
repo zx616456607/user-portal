@@ -31,6 +31,10 @@ function fetchAppList(cluster, query, pathname, callback) {
     delete query.headers
     endpoint += `?${toQuerystring(query)}`
   }
+  let headers
+  if (newQuery.headers) {
+    headers = newQuery.headers
+  }
   return {
     cluster,
     customizeOpts,
@@ -39,7 +43,7 @@ function fetchAppList(cluster, query, pathname, callback) {
       endpoint,
       schema: Schemas.APPS,
       options: {
-        headers: newQuery.headers
+        headers,
       }
     },
     callback: callback

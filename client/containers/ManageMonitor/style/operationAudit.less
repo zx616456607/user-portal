@@ -19,19 +19,22 @@
         margin-top: 0 !important;
       }
       .selectionBox {
-        width: 130px;
-        margin-right: @padding-medium;
+        width: 145px;
+        margin-right: @padding-small;
       }
       .btn {
-        margin-right: @padding-medium;
+        margin-right: @padding-small;
         .fa {
           margin-right: 5px;
         }
       }
     }
-    .ant-pagination-simple {
-      display: flex;
-      justify-content: flex-end;
+    .pagination {
+      margin-top: 5px;
+      .ant-pagination-simple {
+        display: flex;
+        justify-content: flex-end;
+      }
     }
   }
   .dataTable {
@@ -66,9 +69,15 @@
     }
   }
 
-  @media screen and (min-width: 1280px) and (max-width: 1480px) {
+  @media screen and (min-width: 1250px) and (max-width: 1500px) {
     .ant-col-16 {
-      width: 75%;
+      width: 80%;
+    }
+    .ant-col-4 {
+      width: 18%;
+    }
+    .selectionBox,.ant-calendar-picker,.btn {
+      margin-right: @padding-base !important;
     }
   }
 }

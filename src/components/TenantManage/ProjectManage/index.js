@@ -600,7 +600,7 @@ let ProjectManage = React.createClass({
         isAsync: true
       },
       failed: {
-        func: res => {
+        func: err => {
           if(err.statusCode === 403){
             notify.warn(`创建项目失败, 用户没有权限`)
           }
@@ -726,7 +726,7 @@ let ProjectManage = React.createClass({
         isAsync: true
       },
       failed: {
-        func: res => {
+        func: err => {
           if(err.statusCode === 403){
             notify.warn(`创建项目失败, 用户没有权限`)
           }else{

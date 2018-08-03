@@ -13,14 +13,23 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip, Card, Radio, Select, Form} from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
-import { setServiceProxyGroup } from '../../actions/services'
+import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { injectIntl } from 'react-intl'
+import { loadDbClusterDetail,
+  deleteDatabaseCluster,
+  putDbClusterDetail,
+  loadDbCacheList,
+  editDatabaseCluster,
+  updateMysqlPwd,} from '../../actions/database_cache'
+import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
-import { calcuDate, parseAmount} from '../../common/tools.js'
+import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
+import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
+import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
+import ResourceConfig from '../../../client/components/ResourceConfig'
+import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
@@ -28,19 +37,42 @@ import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import etcdImg from '../../assets/img/database_cache/etcd.jpg'
-import { SHOW_BILLING } from '../../constants'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
-const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
-
+const FormItem = Form.Item;
 class VolumeHeader extends Component {
   constructor(props) {
     super(props)
   }
+  // 类名
+  style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
 
+  }
   render() {
     const { data } = this.props
     return (
@@ -48,16 +80,16 @@ class VolumeHeader extends Component {
         <Col className="group-name textoverflow" span="8">
           <Icon type="folder-open" />
           <Icon type="folder" />
-          <Link to={`/app_manage/container/` + data.objectMeta.name}>{data.objectMeta.name}</Link>
+          <Link to={`/app_manage/container/` + data.name}>{data.name}</Link>
         </Col>
         <Col span="6">
-          <div className={data.podPhase}>
+          <div style={this.style(data.status)}>
             <i className="fa fa-circle"></i> &nbsp;
-          {data.podPhase}
+            {data.status}
           </div>
         </Col>
         <Col span="10">
-          创建时间&nbsp;&nbsp;{calcuDate(data.objectMeta.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{calcuDate(data.creationTimestamp)}
         </Col>
       </Row>
     )
@@ -68,35 +100,27 @@ class VolumeDetail extends Component {
   constructor(props) {
     super(props)
   }
+
   render() {
-    const volumes = this.props.volumes.podSpec.volumes
-    const containers = this.props.volumes.podSpec.containers[0]
+    const { volumes } = this.props
+    // const containers = this.props.volumes.podSpec.containers[0]
     if (!volumes) {
       return (
         <div></div>
       )
     }
-    const configFileItem = volumes.map(list => {
-      if (list.name === 'datadir') {
-        return list.persistentVolumeClaim.claimName
-      }
-    })
-    const volumeMounts = containers.volumeMounts.map(list => {
-      if (list.name === 'datadir') {
-        return list.mountPath
-      }
-    })
+
     return (
       <Row className='file-list'>
         <Timeline>
-          <Timeline.Item key={configFileItem}>
+          <Timeline.Item key={volumes.claimName}>
             <Row className='file-item'>
               <div className='line'></div>
               <table>
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{volumes.claimName}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -104,8 +128,8 @@ class VolumeDetail extends Component {
                       <div className='lis'>挂载路径</div>
                     </td>
                     <td>
-                      <div className="li"><Link to={`/app_manage/container/` + this.props.volumes.objectMeta.name}>{this.props.volumes.objectMeta.name}</Link></div>
-                      <div className='lis'>{volumeMounts}</div>
+                      <div className="li"><Link to={`/app_manage/container/` + volumes.name}>{volumes.name}</Link></div>
+                      <div className='lis'>{volumes.mountPath}</div>
                     </td>
                   </tr>
                 </tbody>
@@ -124,16 +148,74 @@ class BaseInfo extends Component {
     super(props)
     this.state ={
       passShow: false,
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
+      storageValue: this.props.database.spec ? parseInt(this.props.database.spec.volumeClaimTemplate.spec.resources.requests.storage) : 0,
+      resourceConfigEdit: false,
+      resourceConfigValue: '',
+      composeType: 'DIY',
+      defaultType: 'DIY', //默认的资源配置类型
+      defaultResourceConfig: { //默认的资源配置值
+        maxCPUValue: 0.5,
+        maxMemoryValue: 100,
+        minCPUValue: 0.5,
+        minMemoryValue: 100
+      },
+      changePasswordModal: false,
+      // 绑定到 ResourceConfig组件上的资源配置值
+      resourceConfig: {
+        maxCPUValue: 0.5,
+        maxMemoryValue: 100,
+        minCPUValue: 0.5,
+        minMemoryValue: 100
+      },
+      pwdModalShow: false
     }
   }
   componentDidMount() {
+    // 将后台请求回的资源数据赋值
+    const resource = this.props.databaseInfo.resources
+    const { limits, requests } = resource
+    const cpuMax = limits.cpu
+    const memoryMax = limits.memory
+    const cpuMin = requests.cpu
+    const memoryMin = requests.memory
+    let resourceConfigs = {
+      maxCPUValue:cpuMax.indexOf('m')<0? cpuMax : parseInt(cpuMax)/1000,
+      maxMemoryValue:memoryMax.indexOf('Gi')>= 0 ? parseInt(memoryMax) * 1000 : parseInt(memoryMax),
+      minCPUValue:cpuMin.indexOf('m')<0? cpuMin : parseInt(cpuMin)/1000,
+      minMemoryValue:memoryMin.indexOf('Gi')>= 0 ? parseInt(memoryMin) * 100 : parseInt(memoryMin)
+    }
+    if(resource.requests.cpu.indexOf('m')<0) {
+      let temp = resourceConfigs.maxCPUValue
+      resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
+      resourceConfigs.minCPUValue = temp
+    }
+    // 判断资源类型是自定义类型还是默认类型
+    const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
+    if (
+      maxCPUValue == 1 &&
+      minCPUValue == 0.2 &&
+      maxMemoryValue == 512 &&
+      minMemoryValue == 512
+    ) {
+      this.setState({
+        composeType: 512,
+        defaultType: 512
+      })
+    } else {
+      this.setState({
+        resourceConfig: resourceConfigs,
+        defaultResourceConfig: resourceConfigs
+      })
+
+    }
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
       this.setState({winWidth: '220px'})
       return
     }
-    this.setState({winWidth: '120px'})
+    this.setState({
+      winWidth: '120px',
+    })
   }
   copyDownloadCode(index) {
     //this function for user click the copy btn and copy the download code
@@ -153,38 +235,169 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
-  findPassword(spec) {
-    const length = spec.containers.length
-    for (let i = 0; i < length; i++) {
-      const container = spec.containers[i]
-      if (container.env && container.env.length > 0) {
-        const envLength = container.env.length
-        for (let j = 0; j < envLength; j++) {
-          const env = container.env[j]
-          if (env.name && env.name.indexOf("PASSWORD") !== -1) {
-            return env.value
+  // 修改密码弹出层
+  passwordPanel = () => {
+    const { getFieldProps } = this.props.form
+    const checkPass = (rule, value, callback) => {
+      const { validateFields } = this.props.form;
+      if (value) {
+        validateFields(['rePasswd'], { force: true });
+      }
+      callback();
+    }
+    const checkRepetPass = (rule, value, callback) => {
+      const { getFieldValue } = this.props.form;
+      if (value && value !== getFieldValue('passwd')) {
+        callback('两次输入密码不一致！');
+      } else {
+        callback();
+      }
+    }
+
+    const passwdProps = getFieldProps('passwd', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+        { validator: checkPass },
+      ],
+    })
+    const rePasswdProps = getFieldProps('rePasswd', {
+      rules: [{
+        required: true,
+        whitespace: true,
+        message: '请再次输入密码',
+      }, {
+        validator: checkRepetPass,
+      }],
+    })
+    const confirm = e => {
+      e.preventDefault();
+      this.props.form.validateFields((errors, values) => {
+        if (!!errors) {
+          return;
+        }
+        const { dbName, database } = this.props
+        const { cluster, editDatabaseCluster, updateMysqlPwd, loadDbClusterDetail } = this.props.scope.props
+        // mysql 和 redis修改密码是两种方式
+        if (database === 'mysql') {
+          const body = {
+            root_password: values.passwd
           }
+          updateMysqlPwd(cluster, dbName, body, {
+            success: {
+              func: () => {
+                setTimeout(() => {
+                  loadDbClusterDetail(cluster, dbName, database, true);
+                })
+                this.setState({
+                  pwdModalShow: false
+                })
+              }
+            },
+          })
+        } else if(database === 'redis') {
+          const body = {
+            password: values.passwd
+          }
+          editDatabaseCluster(cluster, database, dbName, body, {
+            success: {
+              func: () => {
+                setTimeout(() => {
+                  loadDbClusterDetail(cluster, dbName, database, true);
+                })
+                this.setState({
+                  pwdModalShow: false
+                })
+              }
+            },
+          })
+        }
+      });
+    }
+    return <Form className="pwdChangeWrapper">
+        <FormItem >
+          <Input {...passwdProps} type="password" placeholder="新密码" style={{width: 205}}/>
+        </FormItem>
+        <FormItem >
+          <Input {...rePasswdProps} type="password" placeholder="两次密码输入保持一致" style={{width: 205}}/>
+        </FormItem>
+        <div className="pwd-btn-group">
+          <Button onClick={() => this.setState({
+            pwdModalShow: false
+          })
+          }>取消</Button>
+          <Button type='primary' onClick={confirm}>确定</Button>
+        </div>
+      </Form>
+
+  }
+  // 修改资源配置的时候将值记录下来
+  recordResouceConfigValue = (values) => {
+    // getResourceByMemory
+    this.setState({
+      resourceConfigValue: values
+    })
+  }
+  // 选择现成的or自定义的资源类型
+  selectComposeType = type => {
+    this.setState({
+      composeType: type,
+    })
+  }
+  // 保存资源配置修改
+  saveResourceConfig = () => {
+    const { dbName, database } = this.props
+    const { cluster, editDatabaseCluster, loadDbClusterDetail } = this.props.scope.props
+    const { resourceConfigValue } = this.state
+    const body = {
+      resources: {
+        limits: {
+          cpu: `${resourceConfigValue.maxCPUValue*1000}m`,
+          memory: `${resourceConfigValue.maxMemoryValue}Mi`,
+        },
+        requests: {
+          cpu: `${resourceConfigValue.minCPUValue*1000}m`,
+          memory: `${resourceConfigValue.minMemoryValue}Mi`
         }
       }
     }
-    return ""
+    editDatabaseCluster(cluster, database, dbName, body, {
+      success: {
+        func: () => {
+          setTimeout(() => {
+            loadDbClusterDetail(cluster, dbName, database, true);
+          })
+          this.setState({
+            resourceConfigEdit: false
+          })
+        }
+      },
+    })
   }
+  // 取消资源配置修改
+  cancelEditResourceConfig = () => {
+    this.refs.resourceConfig.resetFields() // 取消重置自定义中的所有值
+    this.setState({
+      resourceConfigEdit: false,
+      composeType: this.state.defaultType,
+      resourceConfig: Object.assign({}, this.state.defaultResourceConfig)
+    })
+  }
+
   render() {
-    const { bindingIPs, databaseInfo ,dbName } = this.props
+    const { databaseInfo ,dbName, database } = this.props
+    const { resourceConfigEdit, composeType } = this.state
     const parentScope = this.props.scope
     const { billingEnabled } = parentScope.props
     const rootScope = parentScope.props.scope
-    const selfScope = this
-    let podSpec = {}
-    if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
-      podSpec = databaseInfo.podList.pods[0].podSpec
-    }
-    let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    // if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
+    //   podSpec = databaseInfo.podList.pods[0].podSpec
+    // }
+    let storagePrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice && parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
-    const showHourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc), 4)
-    const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
+    // const showHourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc), 4)
+    // const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
 
@@ -200,9 +413,9 @@ class BaseInfo extends Component {
                        /> &nbsp; 个
         </div>
         <div className="modal-li">
-          <span className="spanLeft">存储大小</span>
+          <span className="spanLeft">存储大小</span>·
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={512} step={512} max={20480} disabled={true} value={databaseInfo.volumeInfo.size} /> &nbsp;
+          <InputNumber min={512} step={512} max={20480} disabled={true} value={databaseInfo.storage} /> &nbsp;
         </div>
         {
           billingEnabled &&
@@ -229,28 +442,74 @@ class BaseInfo extends Component {
        }
       </div>
     )
-    const volumeMount = databaseInfo.podList.pods.map((list, index) => {
+
+    const volumeMount = databaseInfo.pods && databaseInfo.pods.map((list, index) => {
       return (
-        <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
-          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={selfScope}/>
+        <Panel header={<VolumeHeader data={list} database={database}/>} key={'volumeMount-' + index}>
+          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={this}/>
         </Panel>
       )
     })
+
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
           {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
-              <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
               <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
-              {this.state.passShow ?
-              <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
-              :
-              <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>}
+              <li>
+                <span className='key'>密码：</span>
+                {
+                  this.state.passShow ?
+                    <span>
+                      <span className='value'>{ databaseInfo.password }</span>
+                      <span className="pasBtn" onClick={() => this.setState({ passShow: false })}>
+                        <i className="fa fa-eye-slash"></i> 隐藏
+                      </span>
+                    </span>
+                    :
+                    <span>
+                      <span className='value'>******</span>
+                      <span className="pasBtn" onClick={() => this.setState({ passShow: true })}>
+                        <i className="fa fa-eye"></i>显示
+                      </span>
+                    </span>
+                }
+                <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                  <Button type="primary" style={{ marginLeft:24 }} onClick={() => this.setState({
+                    pwdModalShow: true
+                  })}>修改密码</Button>
+                </Popover>
+              </li>
             </ul>
           </div>}
-          <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
+          <div className="resourceConfigPart">
+            <div className="themeHeader"><i className="themeBorder"/>资源配置
+              {
+                resourceConfigEdit?
+                  <div className="resource-config-btn">
+                    <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
+                    <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
+                  </div>
+                  :
+                  <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
+              }
+            </div>
+            <div className="tips">
+              Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例, 将进行滚动升级。
+            </div>
+
+            <ResourceConfig
+              ref="resourceConfig"
+              toggleComposeType={this.selectComposeType}
+              composeType={composeType}
+              onValueChange={this.recordResouceConfigValue}
+              value={this.state.resourceConfig}
+              freeze={!resourceConfigEdit}/>
+          </div>
+
+          <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.replicas}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >
@@ -265,6 +524,8 @@ class BaseInfo extends Component {
     )
   }
 }
+
+const FormBaseInfo = Form.create()(BaseInfo)
 
 class VisitTypes extends Component{
   constructor(props) {
@@ -286,8 +547,8 @@ class VisitTypes extends Component{
     }
   }
   componentWillMount() {
-    const { service, getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    const { getProxy, clusterID, databaseInfo } = this.props;
+    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
 
     if(lbinfo == 'none') {
       this.setState({
@@ -342,78 +603,90 @@ class VisitTypes extends Component{
     });
   }
   saveEdit() {
-    const { groupid, initValue } = this.state;
+    const { editDatabaseCluster } = this.props.scope.props
     let value = this.state.value
     if(!value) {
       value = this.state.initValue
     }
-    const { databaseInfo, setServiceProxyGroup, clusterID, form, scope } = this.props;
+    const { databaseInfo, database, dbServiceProxyGroupSave, clusterID, form, scope } = this.props;
     form.validateFields((err, values) => {
       if(err) {
         return
       }
       let groupID = 'none'
+      let body = {
+        annotations: {
+          'system/lbgroup': groupID,
+        }
+      }
+
       if(value == 2) {
         groupID = form.getFieldValue('groupID')
+        body = {
+          annotations: {
+            'system/lbgroup': groupID,
+            'tenxcloud.com/schemaPortname': `${databaseInfo.service.name}/${databaseInfo.service.port.protocol}/${databaseInfo.service.port.port}`
+          }
+        }
       }
+      const success = {
+        func: () => {
+          notification.close()
+          notification.success('出口方式更改成功')
+          const { loadDbClusterDetail } = scope.props
+          setTimeout(() => {
+            loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+          }, 0)
+          this.setState({
+            disabled: true,
+            forEdit:false
+          });
+          if (value ===1) {
+            this.setState({
+              initValue: 1,
+              initSelectDics: true,
+              addrHide: true,
+              isinternal:false,
+              addrhide: false,
+              value: undefined,
+              selectDics: undefined
+            })
+          } else {
+            this.setState({
+              initValue: 2,
+              initGroupID: groupID,
+              initSelectDics: false,
+              addrHide: false,
+              selectDics: undefined,
+              value: undefined,
+              isinternal:true,
+            })
+            form.setFieldsValue({
+              groupID
+            })
+          }
+        },
+        isAsync: false
+      }
+      const failed = {
+        func: (res) => {
+        notification.close()
+        let message = '更改出口方式失败'
+        if(res.message) {
+          message = res.message
+        }
+        if(res.message && res.message.message) {
+          message = res.message.message
+        }
+        notification.error(message)
+      }}
       const notification = new NotificationHandler()
       notification.spin('保存中更改中')
-      setServiceProxyGroup({
-        cluster: clusterID,
-        service: databaseInfo.serviceInfo.externalName,
-        groupID
-      },{
-        success: {
-          func: (res) => {
-            notification.close()
-            notification.success('出口方式更改成功')
-            const { loadDbClusterDetail } = scope.props
-            setTimeout(() => {
-              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, false)
-            }, 0)
-            this.setState({
-              disabled: true,
-              forEdit:false
-            });
-            if (value ===1) {
-              this.setState({
-                initValue: 1,
-                initSelectDics: true,
-                addrHide: true,
-                isinternal:false,
-                addrhide: false,
-                value: undefined,
-                selectDics: undefined
-              })
-            } else {
-              this.setState({
-                initValue: 2,
-                initGroupID: groupID,
-                initSelectDics: false,
-                addrHide: false,
-                selectDics: undefined,
-                value: undefined,
-                isinternal:true,
-              })
-              form.setFieldsValue({
-                groupID
-              })
-            }
-          },
-          isAsync: false
-        },
-        failed: (res) => {
-          notification.close()
-          let message = '更改出口方式失败'
-          if(res.message) {
-            message = res.message
-          }
-          if(res.message && res.message.message) {
-            message = res.message.message
-          }
-          notification.error(message)
-        }
-      })
+      if(database === 'mysql') {
+        dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+      } else if (database === 'redis') {
+        editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+      }
     })
   }
   cancelEdit() {
@@ -454,17 +727,18 @@ class VisitTypes extends Component{
   render() {
     const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
     const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.serviceInfo.annotations[ANNOTATION_LBGROUP_NAME]
+    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let clusterAdd = [];
-    let port = databaseInfo.serviceInfo.ports[0].port;
-    let serviceName = databaseInfo.serviceInfo.name;
-    let portNum = databaseInfo.podList.listMeta.total;
+    let port = databaseInfo.service.port.port;
+    let serviceName = databaseInfo.objectMeta.name;
+    let portNum = databaseInfo.pods && databaseInfo.pods.length;
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
         end:`${serviceName}-${i}.${serviceName}:${port}`
       })
     }
+
     const domainList = clusterAdd && clusterAdd.map((item,index)=>{
       return (
         <dd className="addrList" key={item.start}>
@@ -512,7 +786,8 @@ class VisitTypes extends Component{
       }
       return true
     })
-    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+
+    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
@@ -523,7 +798,7 @@ class VisitTypes extends Component{
     let externalUrl
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
+        externalUrl = databaseInfo.serviceInfo && databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo && databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
       } else {
         externalUrl = bindingIP + ':' + externalPort
       }
@@ -655,6 +930,7 @@ function mapSateToProp(state) {
 
 VisitTypes = connect(mapSateToProp, {
   setServiceProxyGroup,
+  dbServiceProxyGroupSave,
   getProxy
 })(Form.create()(VisitTypes))
 
@@ -662,7 +938,7 @@ class LeasingInfo extends Component {
   constructor(props) {
     super(props)
     this.state ={
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
+      storageValue: this.props.databaseInfo.storage ? parseInt(this.props.databaseInfo.storage) : 0
     }
   }
   render() {
@@ -679,8 +955,8 @@ class LeasingInfo extends Component {
         <div className='configContent'>
           <div className='configHead'>租赁信息</div>
           <div className="containerPrc">
-            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
-            <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.replicas}个</p>
+            <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.replicas}个</p>
           </div>
           <div className="countPrice">
             合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': ' T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
@@ -697,15 +973,16 @@ class ModalDetail extends Component {
     this.state = {
       currentDatabase: null,
       activeTabKey:'#BaseInfo',
-      putModaling: false
+      putModaling: false,
+      startAlertModal: false,
+      stopAlertModal: false,
+      accessMethodData: null
     }
   }
   deleteDatebaseCluster(dbName) {
     //this function for use delete the database
     const { deleteDatabaseCluster, cluster, scope, database } = this.props;
-    const { loadDbClusterDetail } = scope.props;
     const _this = this
-    const clusterTypes = scope.state.clusterTypes
     this.setState({delModal: false})
     let notification = new NotificationHandler()
     _this.setState({ deleteBtn: true })
@@ -716,6 +993,9 @@ class ModalDetail extends Component {
           scope.setState({
             detailModal: false
           });
+          setTimeout(() => {
+            scope.props.loadDbCacheList(cluster, database)
+          })
         }
       },
       failed: {
@@ -730,60 +1010,57 @@ class ModalDetail extends Component {
     });
 
   }
-
   componentWillMount() {
-    const { loadDbClusterDetail, cluster, dbName } = this.props
+    const { loadDbClusterDetail, cluster, dbName, database } = this.props
     const _this = this
     this.setState({
       currentDatabase: dbName,
     });
-    loadDbClusterDetail(cluster, dbName, {
+    loadDbClusterDetail(cluster, dbName, database, true, {
       success: {
         func: (res) => {
           _this.setState({
-            replicas: res.database.podInfo.desired,
-            storageValue: parseInt(res.database.volumeInfo.size)
+            replicas: res.database.replicas,
+            storageValue: parseInt(res.database.storage)
           })
         }
       }
     });
   }
-
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
-    const { loadDbClusterDetail, cluster, dbName } = nextProps;
+    const { loadDbClusterDetail, cluster, dbName, database } = nextProps;
     const _this = this
     if (dbName != this.state.currentDatabase) {
       this.setState({
         currentDatabase: dbName,
         deleteBtn: false
       })
-      loadDbClusterDetail(cluster, nextProps.dbName, {
+      loadDbClusterDetail(cluster, nextProps.dbName, database, true, {
         success: {
           func: (res) => {
-            _this.setState({ replicas: res.database.podInfo.desired })
+            _this.setState({ replicas: 2 })
           }
-        }
+        },
       });
     }
   }
   refurbishDetail() {
-    const { loadDbClusterDetail, cluster, dbName } = this.props
+    const { loadDbClusterDetail, cluster, dbName, database } = this.props
     const _this = this
     this.setState({
       currentDatabase: dbName,
     });
-    loadDbClusterDetail(cluster, dbName, {
+    loadDbClusterDetail(cluster, dbName, database, {
       success: {
         func: (res) => {
-          _this.setState({ replicas: res.database.podInfo.desired })
+          _this.setState({ replicas: res.database.replicas })
         }
       }
     });
   }
-
   putModal() {
     const putVisible = this.props.scope.state.putVisible
     this.props.scope.setState({
@@ -791,47 +1068,42 @@ class ModalDetail extends Component {
     })
   }
   handSave() {
-    const {putDbClusterDetail, cluster, dbName, loadDbCacheList, loadDbClusterDetail} = this.props
+    const {putDbClusterDetail, cluster, database, dbName, editDatabaseCluster, loadDbCacheList, loadDbClusterDetail} = this.props
     const parentScope = this.props.scope
     const _this = this
     const notification = new NotificationHandler()
-
     this.setState({putModaling: true})
-    putDbClusterDetail(cluster, dbName, this.state.replicas, {
+    const body = {replicas: this.state.replicas}
+    editDatabaseCluster(cluster, database, dbName, body, {
       success: {
-        func: (res) => {
+        func: () => {
           notification.success('更新成功')
           parentScope.setState({ detailModal: false })
           _this.setState({putModaling: false})
-          loadDbCacheList(cluster, this.props.database)
-          loadDbClusterDetail(cluster, dbName, {
-            success: {
-              func: (res) => {
-                parentScope.setState({
-                  replicas: res.database.podInfo.desired,
-                  storageValue: parseInt(res.database.volumeInfo.size)
-                })
+          setTimeout(() => {
+            loadDbCacheList(cluster, database)
+            loadDbClusterDetail(cluster, dbName, database, {
+              success: {
+                func: (res) => {
+                  parentScope.setState({
+                    replicas: res.database.replicas,
+                    storageValue: parseInt(res.database.storage)
+                  })
+                }
               }
-            }
-          });
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          parentScope.setState({ detailModal: false })
-          _this.setState({putModaling: false})
-          notification.error('更新失败', res.message.message)
+            });
+          })
         }
-      }
+      },
     })
+
   }
   colseModal() {
-    const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
+    const storageValue = parseInt(this.props.databaseInfo.storage)
     this.putModal()
     this.setState({
       putModaling:false,
-      replicas: this.props.databaseInfo.podInfo.desired,
+      replicas: this.props.databaseInfo.replicas,
       storageValue
     })
   }
@@ -856,20 +1128,84 @@ class ModalDetail extends Component {
     }
     return logoMapping[clusterType]
   }
-  dbStatus(phase) {
-    if (phase.running >0) {
+  dbStatus(status) {
+    if (status === 'Running') {
       return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
     }
-    if (phase.padding >0) {
+    if (status === 'Pending') {
        return (<span className='padding'><i className="fa fa-circle"></i> 启动中 </span>)
     }
-    if (phase.failed >0) {
-       return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
+    if (status === 'Stopping') {
+       return (<span className='padding'><i className="fa fa-circle"></i> 停止中 </span>)
     }
-    return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
+    if (status === 'Stopped') {
+       return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
+    }
+  }
+  stopAlert = () => {
+    this.setState({
+      stopAlertModal: true
+    })
+  }
+  startAlert = () => {
+    this.setState({
+      startAlertModal: true
+    })
+  }
+  stopTheCluster = () => {
+    const { cluster, databaseInfo, database, editDatabaseCluster, dbName, loadDbClusterDetail } = this.props
+    const { name } = databaseInfo.objectMeta
+
+    const body = {onOff: "stop"}
+
+    editDatabaseCluster(cluster, database, name, body, {
+      success: {
+        func: () => {
+          setTimeout(() => {
+            loadDbClusterDetail(cluster, dbName, database, true);
+          })
+          this.setState({
+            stopAlertModal: false
+          })
+        }
+      },
+    })
+  }
+  startTheCluster = () => {
+    const { cluster, databaseInfo, database, editDatabaseCluster, dbName, loadDbClusterDetail } = this.props
+    const { name } = databaseInfo.objectMeta
+    const body = {onOff: "start"}
+    editDatabaseCluster(cluster, database, name, body, {
+      success: {
+        func: () => {
+          setTimeout(() => {
+            loadDbClusterDetail(cluster, dbName, database, true);
+          })
+          this.setState({
+            startAlertModal: false
+          })
+        }
+      }
+    })
+  }
+  clusterBtn = status => {
+    switch (status) {
+      case 'Pending':
+        return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+          <span className="stopIcon"></span>停止
+        </Button>
+      case 'Running':
+        return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+          <span className="stopIcon"></span>停止
+        </Button>
+      case 'Stopped':
+        return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+      case 'Stopping':
+        return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+    }
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
 
     if (isFetching || databaseInfo == null) {
       return (
@@ -878,7 +1214,6 @@ class ModalDetail extends Component {
         </div>
       )
     }
-
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -888,17 +1223,18 @@ class ModalDetail extends Component {
           </div>
           <div className='infoBox'>
             <p className='instanceName'>
-              {databaseInfo.serviceInfo.name}
+              {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.serviceInfo.namespace} / {databaseInfo.serviceInfo.name}</div>
+              <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
               <div> 状态：
-                {this.dbStatus(databaseInfo.podInfo)}
+                {this.dbStatus(databaseInfo.status)}
               </div>
-
             </div>
             <div className='rightBox'>
               <div className='li'>
+                {/*操作按钮*/}
+                {this.clusterBtn(databaseInfo.status)}
                 <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
                   <i className="fa fa-refresh"></i>&nbsp;
                   刷新
@@ -930,12 +1266,31 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                {
+                  this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
+                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                    currentData={this.props.currentData}
+                    databaseInfo={databaseInfo}
+                    storageValue={this.state.storageValue}
+                    database={this.props.database}
+                    dbName={dbName}
+                    scope= {this}
+                  />
+                }
+              </TabPane>
+              <TabPane tab='存储' key='#Storage'>
+                <Storage databaseInfo={databaseInfo} database={this.props.database}/>
+              </TabPane>
+              <TabPane tab='备份' key='#Backup'>
+                <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
+              </TabPane>
+              <TabPane tab='配置管理' key='#ConfigManage'>
+                <ConfigManagement database={database} databaseInfo={databaseInfo}/>
               </TabPane>
               { billingEnabled ?
                 [<TabPane tab='访问方式' key='#VisitType'>
                  <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
-                              databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                             databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                  </TabPane>,
                  <TabPane tab='事件' key='#events'>
                    <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
@@ -955,6 +1310,26 @@ class ModalDetail extends Component {
             </Tabs>
           </div>
         </div>
+        <Modal
+          visible={this.state.stopAlertModal}
+          title="停止数据库与缓存集群"
+          onCancel={() => this.setState({stopAlertModal: false})}
+          onOk={this.stopTheCluster}
+        >
+          <div className="alertContent">
+            <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.objectMeta.name}集群？`}
+          </div>
+        </Modal>
+        <Modal
+          visible={this.state.startAlertModal}
+          title="启动数据库与缓存集群"
+          onCancel={() => this.setState({startAlertModal: false})}
+          onOk={this.startTheCluster}
+        >
+          <div className="alertContent">
+            <Icon type="question-circle-o" />{`是否确定启动${databaseInfo.objectMeta.name}集群？`}
+          </div>
+        </Modal>
       </div>
     )
   }
@@ -979,7 +1354,6 @@ function mapStateToProps(state, props) {
     bindingIPs: cluster.bindingIPs,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice, //storage
-    // podSpec: databaseInfo.pods[0].podSpec
     billingEnabled
   }
 }
@@ -1000,5 +1374,7 @@ export default connect(mapStateToProps, {
   deleteDatabaseCluster,
   putDbClusterDetail,
   loadDbCacheList,
-  parseAmount
+  parseAmount,
+  editDatabaseCluster,
+  updateMysqlPwd,
 })(ModalDetail)
