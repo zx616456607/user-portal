@@ -21,7 +21,8 @@ import { getOperationalTarget } from '../../../../actions/manage_monitor'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
-import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
+import { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../actions/quota'
+import {REG} from "../../../../constants";
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -68,7 +69,7 @@ class MySpace extends Component {
     this.fetchQuotaList()
   }
   fetchQuotaList() {
-    const { getGlobaleQuota, getGlobaleQuotaList, clusterID } = this.props
+    const { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList, clusterID } = this.props
     let query = {
       id: clusterID,
     }
@@ -88,7 +89,18 @@ class MySpace extends Component {
         func: res => {
           if (res.code === 200) {
             this.setState({
-              globaleUseList: res.data
+              globaleUseList: { ...this.state.globaleUseList, ...res.data }
+            })
+          }
+        }
+      }
+    })
+    getDevopsGlobaleQuotaList(query, {
+      success: {
+        func: res => {
+          if (REG.test(res.status)) {
+            this.setState({
+              globaleUseList: { ...this.state.globaleUseList, ...res.result }
             })
           }
         }
@@ -335,12 +347,12 @@ class MySpace extends Component {
     const { isCi, isdeliver } = this.state
     const ciList = [
       {
-        key: 'tenxflow',
-        text: 'TenxFlow(个)',
+        key: 'pipeline',
+        text: '流水线(个)',
       },
       {
-        key: 'subTask',
-        text: '子任务(个)',
+        key: 'flow',
+        text: '阶段(个)',
       },
       {
         key: 'dockerfile',
@@ -852,6 +864,7 @@ export default connect(mapStateToProp, {
   getGlobaleQuota,
   getGlobaleQuotaList,
   getOperationalTarget,
+  getDevopsGlobaleQuotaList,
 })(MySpace)
 
 const menusText = defineMessages({

@@ -121,7 +121,6 @@ class ResourceQuota extends React.Component {
       success: {
         func: res => {
           if(res.code === 200) {
-
             const cluster = res.data.clusterResource
             const global = res.data.globalResource
             const { definitions } = res.data
@@ -142,7 +141,6 @@ class ResourceQuota extends React.Component {
                     }
                   }
                 }
-
               }
               // 格式化数据
               newArr.forEach((v, i) => {
@@ -695,7 +693,6 @@ class ResourceQuota extends React.Component {
     if ( !isProject ) {
       newshowProjectName = { namespace: '我的个人项目' }
     }
-    // console.log('projectDetail', projectDetail)
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
