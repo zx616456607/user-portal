@@ -1784,7 +1784,6 @@ class GlobalConfig extends Component {
   }
 
   componentWillMount() {
-    const compose = (...args) => args.reduce((pre, d) => num => pre(d(num)))
     this.props.loadGlobalConfig(this.props.cluster.clusterID, {
       success: {
         func: (result) => {
