@@ -26,7 +26,7 @@ class Deployment {
       name,
       labels: {
         name
-      }
+      },
     }
     this.spec = {
       replicas: 1,
@@ -759,6 +759,13 @@ class Deployment {
       {},
       this.spec.template.metadata.annotations,
       annotations
+    )
+  }
+  setMetaAnnotations(annotations) {
+    this.metadata.annotations = Object.assign(
+      {},
+      this.metadata.annotations,
+      annotations || {}
     )
   }
 }

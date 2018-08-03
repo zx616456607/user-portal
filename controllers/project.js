@@ -404,3 +404,39 @@ exports.deleteProjectRelatedRoles = function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+// 项目在某个集群下开启或关闭serviceMesh
+exports.updateToggleServiceMesh = function *() {
+  const project = this.request.body;
+  if (!project) {
+    this.status = 400;
+    this.body = {
+      message: 'request body was empty',
+    }
+    return
+  }
+  const loginUser = this.session.loginUser;
+  const projectApi = apiFactory.getApi(loginUser);
+  const response = yield projectApi.projects.updateBy(['label'], null, project);
+  this.status = response.statusCode
+  this.body = response
+}
+
+// 查看某个项目在某个集群下是否开启了serviceMesh
+exports.getCheckProInClusMesh = function *() {
+  const query = this.query;
+  const loginUser = this.session.loginUser;
+  const projectApi = apiFactory.getApi(loginUser);
+  const response = yield projectApi.projects.getBy(['mesh', 'status'], query);
+  this.status = response.statusCode;
+  this.body = response;
+}
+// 查看某个集群是否安装了istio
+exports.getCheckClusterIstio = function *() {
+  const query = this.query;
+  const loginUser = this.session.loginUser;
+  const projectApi = apiFactory.getApi(loginUser);
+  const response = yield projectApi.projects.getBy(['istio', 'check'], query);
+  this.status = response.statusCode;
+  this.body = response;
+}
