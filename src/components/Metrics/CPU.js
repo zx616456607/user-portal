@@ -29,7 +29,7 @@ class CPU extends Component {
 
   render() {
     const option = new EchartsOption('CPU')
-    const { cpu, scope, hideInstantBtn } = this.props
+    const { cpu, scope, hideInstantBtn, isService } = this.props
     const { isFetching, data } = cpu
     const { switchCpu, freshTime, CpuLoading, currentStart, currentCpuStart } = scope.state
     let timeText = switchCpu ? '1分钟' : freshTime
@@ -37,6 +37,7 @@ class CPU extends Component {
       formatter: '{value} %'
     })
     option.setToolTipUnit(' %')
+    option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     data&&data.map((item) => {
       let timeData = []

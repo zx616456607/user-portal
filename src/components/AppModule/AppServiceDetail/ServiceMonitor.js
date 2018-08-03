@@ -320,6 +320,7 @@ class ServiceMonitior extends Component {
             networkTransmitted={showNetworkTrans}
             diskReadIo={showDiskReadIo}
             diskWriteIo={showDiskWriteIo}
+            isService={true}
           />
         </div>
       </div>

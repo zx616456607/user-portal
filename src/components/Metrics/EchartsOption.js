@@ -89,8 +89,8 @@ export default class EchartsOption {
     this.tooltipUnit = unit
   }
 
-  setNexportFlag(flag) {
-    this.isNexport = flag
+  setServiceFlag(flag) {
+    this.isService = flag
   }
 
   setTooltip(key, value) {
@@ -149,7 +149,7 @@ export default class EchartsOption {
       seriesItem.data = data
     }
     if (name) {
-      if (!this.isNexport) {
+      if (this.isService) {
         // 统计类型为服务时，监控面板的图例显示容易重叠，先去掉名称中的数字串
         name = name.split('-')
         name.splice(-2, 1)
@@ -157,7 +157,7 @@ export default class EchartsOption {
       }
       seriesItem.name = name
       let colorString = name.substr(name.lastIndexOf('-') + 1)
-      if (this.isNexport) {
+      if (!this.isService) {
         colorString = name
       }
       seriesItem.itemStyle.normal.color = colorHash.hex(colorString)
