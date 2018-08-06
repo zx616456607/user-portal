@@ -155,6 +155,11 @@ class DnsModal extends React.Component {
     if (!validateK8sResourceForServiceName(value)) {
       return callback('名称由字母、数字、中划线组成')
     }
+    this.props.listData.forEach(item => {
+      if (item.name === value) {
+        return callback('该 DNS 记录已存在，请修改名称')
+      }
+    })
     callback()
   }
 
