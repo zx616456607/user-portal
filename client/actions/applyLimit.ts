@@ -104,7 +104,8 @@ export const UPDATE_RESOURCEQUOTA_REQUEST = 'UPDATE_RESOURCEQUOTA_REQUEST';
 export const UPDATE_RESOURCEQUOTA_SUCCESS = 'UPDATE_RESOURCEQUOTA_SUCCESS';
 export const UPDATE_RESOURCEQUOTA_FAILURE = 'UPDATE_RESOURCEQUOTA_FAILURE';
 
-const fetchUpdateResourcequota = (id: number, body, callback) => {
+const fetchUpdateResourcequota = (id: number, query={}, body, callback) => {
+  const { headers } = query;
   return {
     [FETCH_API]: {
       types: [
@@ -117,14 +118,17 @@ const fetchUpdateResourcequota = (id: number, body, callback) => {
       options: {
         method: 'PUT',
         body,
+        headers: {
+          teamspace: headers,
+        },
       },
     },
     callback,
   };
 };
 
-export const updateResourcequota = ( id: number, body, callback?: function ) =>
-  dispatch => dispatch(fetchUpdateResourcequota(id, body, callback))
+export const updateResourcequota = ( id: number, query,  body, callback?: function ) =>
+  dispatch => dispatch(fetchUpdateResourcequota(id, query, body, callback))
 
 // 查看审批详情
 export const CHECK_RESOURCEQUOTA_DETAIL_REQUEST = 'CHECK_RESOURCEQUOTA_DETAIL_REQUEST';

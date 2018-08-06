@@ -45,11 +45,16 @@ exports.deleteResourcequota = function* () {
 
 // 更新审批状态
 exports.updateResourcequota = function* () {
+  const { teamspace } = this.request.headers
+  let headers
+  if ( teamspace ) {
+    let headers = { teamspace }
+  }
   const loginUser = this.session.loginUser;
   const body = this.request.body;
   const id = this.params.id;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.resourcequota.updateBy(['apply', id], null, body);
+  const result = yield api.resourcequota.updateBy(['apply', id], null, body, headers);
   this.body = result;
 }
 

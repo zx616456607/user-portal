@@ -348,7 +348,7 @@ class ApplyForm extends React.Component {
         if (isEmpty(formValue.applyDetails[indexName])) {
           formValue.applyDetails[indexName] = {}
         }
-        formValue.applyDetails[indexName][value[`resource${key}`]] = indexValue
+        formValue.applyDetails[indexName][value[`resource${key}`]] = parseFloat(indexValue)
       }
       this.setState({ applayLoading: true })
       // console.log('formValue', formValue)
