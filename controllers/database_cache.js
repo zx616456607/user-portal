@@ -329,7 +329,8 @@ exports.expandDatabaseCluster = function* () {
   const name = this.params.name
   const body = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([ clusterId, 'daas', type, name, 'expands' ], null, body)
+  const apiUrl = [ clusterId, 'daas', type, name, 'expands' ]
+  const result = yield api.createBy(apiUrl, null, body)
   this.body = result
 }
 

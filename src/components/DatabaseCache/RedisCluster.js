@@ -91,7 +91,7 @@ let MyComponent = React.createClass({
           }
         case 'Pending':
           return {
-            color: '#ffbf00',
+            color: '#2db7f5',
           }
         case 'Running':
           return {

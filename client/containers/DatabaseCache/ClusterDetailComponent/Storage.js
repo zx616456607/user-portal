@@ -28,10 +28,15 @@ class Storage extends React.Component {
     storage: 0,
   }
   componentDidMount() {
+    let size = this.props.databaseInfo.storage
+    if (size.indexOf('Gi') >= 0) {
+      size = parseInt(size) * 1024
+    }
+
     this.setState({
-      storage: parseInt(this.props.databaseInfo.storage),
-      volumeSizemin: parseInt(this.props.databaseInfo.storage),
-      volumeSize: parseInt(this.props.databaseInfo.storage),
+      storage: parseInt(size) || 0,
+      volumeSizemin: parseInt(size) || 0,
+      volumeSize: parseInt(size) || 0,
     })
   }
   showExtendModal = () => {
@@ -47,12 +52,23 @@ class Storage extends React.Component {
     expendDatabaseCluster(cluster.clusterID, database, databaseInfo.objectMeta.name, data, {
       success: {
         func: res => {
-          this.setState({
-            storage: parseInt(res.data.spec.expandedSize),
-            volumeSizemin: parseInt(res.data.spec.expandedSize),
-            volumeSize: parseInt(res.data.spec.expandedSize),
+          if (database === 'redis') {
+            this.setState({
+              storage: parseInt(res.data.spec.expandedSize),
+              volumeSizemin: parseInt(res.data.spec.expandedSize),
+              volumeSize: parseInt(res.data.spec.expandedSize),
+            })
+          } else if (database === 'mysql') {
+            if (res.data.expandedSize.indexOf('Gi') >= 0) {
+              res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
+            }
+            this.setState({
+              storage: parseInt(res.data.expandedSize),
+              volumeSizemin: parseInt(res.data.expandedSize),
+              volumeSize: parseInt(res.data.expandedSize),
+            })
 
-          })
+          }
           notification.success('扩容成功')
         },
       },
