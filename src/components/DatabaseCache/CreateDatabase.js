@@ -70,11 +70,11 @@ let CreateDatabase = React.createClass({
     // 初始给集群配置赋值
     function formatConfigData(convertedConfig) {
       const configData = {}
-      configData.limits = {
+      configData.requests = {
         cpu: `${convertedConfig.cpu * 1000}m`,
         memory: `${convertedConfig.memory}Mi`,
       }
-      configData.requests = {
+      configData.limits = {
         cpu: `${convertedConfig.limitCpu * 1000}m`,
         memory:`${convertedConfig.limitMemory}Mi`,
       }
@@ -269,7 +269,6 @@ let CreateDatabase = React.createClass({
             values.storageClass,
             `${values.storageSelect}Mi`
           )
-          console.log(newMySqlClusterData);
           // 创建密码
           const pwdCreate = await createMySqlClusterPwd(cluster, values.name, values.password)
           if(pwdCreate.error) {
@@ -315,7 +314,6 @@ let CreateDatabase = React.createClass({
             values.password,
             this.state.advanceConfigContent.trim()
           )
-          console.log(newRedisClusterData);
           const dbCreate = await createDatabaseCluster(cluster, yaml.dump(newRedisClusterData), 'redis')
           if(dbCreate.error) {
             handleError(dbCreate.error)

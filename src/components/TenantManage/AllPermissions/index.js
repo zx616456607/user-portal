@@ -94,6 +94,7 @@ class AllPermissions extends React.Component{
             //   return item.id !== 10000 && item.code !== "SYSTEM_ALL_PRIVILEGES";
             // });
             // temp.push(allp)
+            console.log(data);
             this.setState({
               data: this.RowData(data),
               loading: false
