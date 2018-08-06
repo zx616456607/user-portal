@@ -514,16 +514,17 @@ export function deleteRadisManualBackup(clusterId, type, template, callback) {
 }
 
 
-// 扩容
+// redis扩容
 export const EXPEND_DB_CLUSTER_REQUEST = 'EXPEND_DB_CLUSTER_REQUEST'
 export const EXPEND_DB_CLUSTER_SUCCESS = 'EXPEND_DB_CLUSTER_SUCCESS'
 export const EXPEND_DB_CLUSTER_FAILURE = 'EXPEND_DB_CLUSTER_FAILURE'
 
 function expendDatabaseClusterRequest (clusterId, type, name, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}/expands`
   return {
     [FETCH_API]: {
       types: [EXPEND_DB_CLUSTER_REQUEST, EXPEND_DB_CLUSTER_SUCCESS, EXPEND_DB_CLUSTER_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}/expands`,
+      endpoint,
       schema: {},
       options: {
         method: 'POST',
@@ -539,7 +540,6 @@ export function expendDatabaseCluster(clusterId, type, name, body, callback) {
   }
 }
 
-// 扩容
 export const GET_DB_DETAIL_REQUEST = 'GET_DB_DETAIL_REQUEST'
 export const GET_DB_DETAIL_SUCCESS = 'GET_DB_DETAIL_SUCCESS'
 export const GET_DB_DETAIL_FAILURE = 'GET_DB_DETAIL_FAILURE'

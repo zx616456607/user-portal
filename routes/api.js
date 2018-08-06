@@ -575,8 +575,10 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.updateAutoBackup)
   // 删除自动备份
   router.delete('/clusters/:clusterID/daas/:type/:clusterName/cronbackups', databaseCacheController.deleteAutoBackup)
-  // 创建扩容
+  // redis扩容
   router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
+  // mysql扩容
+  router.post('/clusters/:clusterID/daas/:type/:name/volume/expand', databaseCacheController.expandDatabaseCluster)
   // 回滚
   router.post('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.rollback)
   // 修改集群访问方式
