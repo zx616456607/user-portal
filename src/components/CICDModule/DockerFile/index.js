@@ -28,7 +28,7 @@ const editorOptions = {
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.DockerFile.tooltips',
-    defaultMessage: '云端 Dockerfile: 这里保存您在 TenxFlow 过程中创建的云端 Dockerfile，方便再次查看或使用。（这里的 Dockerfile 对应 TenxFlow 中子项目名称）',
+    defaultMessage: '云端 Dockerfile: 这里保存您在流水线过程中创建的云端 Dockerfile，方便再次查看或使用。（这里的 Dockerfile 对应流水线中子项目名称）',
   },
   show: {
     id: 'CICD.DockerFile.show',

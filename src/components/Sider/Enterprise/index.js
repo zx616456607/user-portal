@@ -1000,7 +1000,7 @@ class Sider extends Component {
                   }
                   {/* <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
-                      <span><div className='sideCircle'></div> TenxFlow</span>
+                      <span><div className='sideCircle'></div> 流水线</span>
                     </Link>
                   </Menu.Item> */}
                   <Menu.Item key='pipelines'>

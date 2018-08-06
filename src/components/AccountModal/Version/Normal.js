@@ -111,7 +111,7 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github）</span>
-                      <span className='commonSpan'>TenxFlow（2个TenxFlow，8个子项目）</span>
+                      <span className='commonSpan'>流水线（2个流水线，8个子项目）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github）</span>
-                      <span className='commonSpan'>TenxFlow（2个TenxFlow，8个子项目）</span>
+                      <span className='commonSpan'>流水线（2个流水线，8个子项目）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>
@@ -311,7 +311,7 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github、GitLab、SVN）</span>
-                      <span className='commonSpan'>TenxFlow（不限）</span>
+                      <span className='commonSpan'>流水线（不限）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>

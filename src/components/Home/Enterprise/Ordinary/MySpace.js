@@ -1218,19 +1218,19 @@ const menusText = defineMessages({
   },
   Flow: {
     id: 'ManageMonitor.operationalAudit.Flow',
-    defaultMessage: 'TenxFlow',
+    defaultMessage: '流水线',
   },
   Stage: {
     id: 'ManageMonitor.operationalAudit.Stage',
-    defaultMessage: 'TenxFlow执行过程',
+    defaultMessage: '流水线执行过程',
   },
   Link: {
     id: 'ManageMonitor.operationalAudit.Link',
-    defaultMessage: 'TenxFlow共享目录',
+    defaultMessage: '流水线共享目录',
   },
   Build: {
     id: 'ManageMonitor.operationalAudit.Build',
-    defaultMessage: 'TenxFlow构建',
+    defaultMessage: '流水线构建',
   },
   CIRule: {
     id: 'ManageMonitor.operationalAudit.CIRule',

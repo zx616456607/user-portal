@@ -1708,7 +1708,7 @@ let Continue = React.createClass({
             <div className='contenttable'>
               <div className='contenttableheader'>
                 <span className='forward'>流水线基础镜像</span>
-                基础镜像是用于流水线任务中，提供任务执行基础环境的容器镜像
+                基础镜像是用于 流水线 任务中，提供任务执行基础环境的容器镜像
               </div>
               <div className='contenttablemain'>
                 <ConIntergration />
