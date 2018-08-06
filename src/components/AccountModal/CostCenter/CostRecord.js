@@ -452,6 +452,7 @@ class CostRecord extends Component{
             standard ?
             <div>
               <svg className='headerteamspace'>
+                {/*cube*/}
                 <use xlinkHref='#headerteamspace' />
               </svg>
               <div className='popTeamSelect'>
@@ -479,6 +480,7 @@ class CostRecord extends Component{
             :
             <div>
               <svg className='headerteamspace'>
+                {/*cube*/}
                 <use xlinkHref='#headerteamspace' />
               </svg>
               项目空间：
@@ -523,6 +525,7 @@ class CostRecord extends Component{
                   </Col>
                   <Col span={10} className="teamCostListTitle">
                     <svg className="headerclusterSvg">
+                      {/*@#cluster*/}
                       <use xlinkHref="#settingbalance"/>
                     </svg>
                     消费金额

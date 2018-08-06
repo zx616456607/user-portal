@@ -198,14 +198,20 @@ class ClusterTabList extends Component {
         <div id='clusterTabList'>
           <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'>
+              {/*@#instrument*/}
+              <use xlinkHref="#resourceoverview"></use>
+            </svg><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
 
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="host">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'>
+              {/*@#hostlists*/}
+              <use xlinkHref="#hostlists"></use>
+            </svg><span className='tablepanespan'>主机列表</span></div>} key="host">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
@@ -215,10 +221,16 @@ class ClusterTabList extends Component {
                 license={license}
               />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'>
+              {/*@#tag-right*/}
+              <use xlinkHref="#managelabels"></use>
+            </svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#networksolutions"></use></svg><span className='tablepanespan'>网络方案</span></div>} key="5">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'>
+              {/*@#network*/}
+              <use xlinkHref="#networksolutions"></use>
+            </svg><span className='tablepanespan'>网络方案</span></div>} key="5">
               <NetworkSolutions
                 clusterID={clusterID}
               />

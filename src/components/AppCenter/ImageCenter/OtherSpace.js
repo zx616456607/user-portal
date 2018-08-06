@@ -176,6 +176,7 @@ class OtherSpace extends Component {
             <div className="imageList">
               <div className="imageBox">
                 <svg className='appcenterlogo'>
+                  {/*@#app-center-logo*/}
                   <use xlinkHref='#appcenterlogo' />
                 </svg>
               </div>

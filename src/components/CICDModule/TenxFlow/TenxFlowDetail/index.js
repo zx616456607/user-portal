@@ -451,6 +451,7 @@ class TenxFlowDetail extends Component {
           <use xlinkHref='#cicdbuildfast' />
         </svg> */}
         <svg className='structure commonImg'>
+          {/*@#structure*/}
           <use xlinkHref="#structure"></use>
         </svg>&nbsp;
         <FormattedMessage {...menusText.deloyStart} />

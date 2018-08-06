@@ -131,6 +131,7 @@ class ImagePart extends React.Component<IProps, IState> {
         return (
           <div>
             <svg className="imgUrl">
+              {/*@#app-center-logo*/}
               <use xlinkHref="#appcenterlogo" />
             </svg>
             <div className="infoBox">

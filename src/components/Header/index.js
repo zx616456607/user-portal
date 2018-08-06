@@ -506,6 +506,7 @@ class Header extends Component {
             <div className="space">
               <div className="spaceTxt">
                 <svg className='headerteamspace'>
+                  {/*cube*/}
                   <use xlinkHref='#headerteamspace' />
                 </svg>
                 <span style={{ marginLeft: 15 }}>{team}</span>
@@ -536,6 +537,7 @@ class Header extends Component {
             <div className="cluster">
               <div className="clusterTxt">
                 <svg className='headercluster'>
+                  {/*@#cluster*/}
                   <use xlinkHref='#headercluster' />
                 </svg>
                 <span style={{ marginLeft: 20 }}>{zone}</span>

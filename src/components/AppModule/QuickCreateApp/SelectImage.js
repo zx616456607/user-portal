@@ -271,6 +271,7 @@ class SelectImage extends Component {
         return (
           <div>
             <svg className='imgUrl'>
+              {/*@#app-center-logo*/}
               <use xlinkHref='#appcenterlogo' />
             </svg>
             <div className="infoBox">

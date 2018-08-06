@@ -1567,6 +1567,7 @@ let EditTenxFlowModal = React.createClass({
       return (
         <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
           <svg className='codeSvg'>
+            {/*@#code-refresh*/}
             <use xlinkHref='#cicdreflash' />
           </svg>
           {currentCodeStore ? [<FormattedMessage {...menusText.selectCode} />] : [<span>选择代码库</span>]}
@@ -1579,6 +1580,7 @@ let EditTenxFlowModal = React.createClass({
     return (
       <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.setUniformRepo}>
         <svg className='codeSvg'>
+          {/*@#code-refresh*/}
           <use xlinkHref='#cicdreflash' />
         </svg>
         使用首个子任务的代码库

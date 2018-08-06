@@ -215,6 +215,7 @@ const MyComponent = React.createClass({
           {item.isPrivate == 1 ?
             <div className="type private">
               <svg className='privateSvg'>
+                {/*@#private*/}
                 <use xlinkHref='#cicdprivate' />
               </svg>
               <span className="margin">private</span>
@@ -226,6 +227,7 @@ const MyComponent = React.createClass({
             :
             <div className='type public'>
               <svg className='publicSvg'>
+                {/*@#public*/}
                 <use xlinkHref='#cicdpublic' />
               </svg>
               <span className="margin">public</span>

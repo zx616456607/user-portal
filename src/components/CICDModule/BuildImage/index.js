@@ -273,6 +273,7 @@ let MyComponent = React.createClass({
         }}
       >
         <svg className='structure commonImg'>
+          {/*@#structure*/}
           <use xlinkHref="#structure"></use>
         </svg> &nbsp;
         <FormattedMessage {...menusText.deloyStart} />

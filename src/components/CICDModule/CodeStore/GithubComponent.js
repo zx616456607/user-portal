@@ -611,6 +611,7 @@ class GithubComponent extends Component {
                         <span className="url">{`${window.location.protocol}//${window.location.host}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
+                            {/*@#copy*/}
                             <use xlinkHref='#appcentercopy' />
                           </svg>
                         </Tooltip>
@@ -620,6 +621,7 @@ class GithubComponent extends Component {
                         <span className="url">{`${window.location.protocol}//${window.location.host+window.location.pathname}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
                           <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
+                            {/*@#copy*/}
                             <use xlinkHref='#appcentercopy' />
                           </svg>
                         </Tooltip>
