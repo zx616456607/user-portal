@@ -29,13 +29,14 @@ class Network extends Component {
 
   render() {
     const option = new EchartsOption('网络')
-    const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn } = this.props
+    const { networkReceived, networkTransmitted ,events, scope, hideInstantBtn, isService } = this.props
     const { switchNetwork, freshTime, NetworkLoading, currentStart, currentNetworkStart } = scope.state
     let timeText = switchNetwork ? '1分钟' : freshTime
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
     option.setToolTipUnit(' KB/s')
+    option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     networkReceived.data && networkReceived.data.map((item) => {
       let dataArr = []

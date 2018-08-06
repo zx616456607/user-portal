@@ -723,7 +723,7 @@ class AppList extends Component {
       },
       failed: {
         func: (err) => {
-          if(isResourcePermissionError(err)){
+          if(isResourcePermissionError(err) || err.statusCode === 402){
             //403 没权限判断 在App/index中统一处理 这里直接返回
             //return;
           }else{

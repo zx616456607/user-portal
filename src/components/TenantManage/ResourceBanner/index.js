@@ -203,6 +203,9 @@ export default class ResourceBanner extends React.Component {
     if (setResource) {
       percent = parseInt((usedResource / setResource) * 100)
     }
+    if (percent > 100) { // fix LOT-1837
+      percent = 100;
+    }
     let link = '404'
     if (projectType === 1) { //我的个人项目
       link = `/account?${toQuerystring({ tabs: 'quota' })}`
