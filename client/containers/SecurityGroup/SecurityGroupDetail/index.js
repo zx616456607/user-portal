@@ -56,7 +56,7 @@ class SecurityGroupDetail extends React.Component {
           <p className="detailTitle">隔离对象的访问白名单</p>
           <WhiteList type="ingress" current={current} />
           <div className="ingressDriver"></div>
-          <WhiteList typpe="egress" current={current} />
+          <WhiteList type="egress" current={current} />
         </Card>
       </QueueAnim>
     </div>

@@ -18,7 +18,7 @@ import IngressAndEgressWhiteList from './components/IngressAndEgressWhiteList'
 import { browserHistory } from 'react-router'
 import Notification from '../../../../src/components/Notification'
 import * as servicesActions from '../../../../src/actions/services'
-import { buildNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
+import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import * as securityActions from '../../../actions/securityGroup'
 
 const notification = new Notification()
@@ -39,7 +39,6 @@ class CreateSecurityGroup extends React.Component {
   state={
     isEdit: false,
     loading: false,
-    current: {},
     policyName: undefined,
     ingLn: undefined,
     egLn: undefined,
@@ -73,107 +72,27 @@ class CreateSecurityGroup extends React.Component {
         },
       },
     }).then(res => {
-      this.setState({
-        current: res.response.result.data,
-      }, () => {
-        const { current } = this.state
-        const { setFieldsValue } = this.props.form
-        const groupName = current.metadata && current.metadata.annotations['policy-name'] || ''
-        const metaName = current.metadata && current.metadata.name || ''
-        const targetArr = current.spec
-                          && current.spec.podSelector.matchExpressions
-                          && current.spec.podSelector.matchExpressions[0].values || []
-        setFieldsValue({
-          name: groupName,
-          target: targetArr,
-        })
-        this.setState({
-          policyName: {
-            groupName,
-            metaName,
-          },
-        })
-        const { ingress, egress } = current.spec && current.spec
-        if (ingress && ingress.length) {
-          const num = ingress[0].from.length
-          this.setState({ ingLn: num })
-          const ingressArr = []
-          for (let i = 0; i < num; i++) {
-            ingressArr.push(i)
-          }
-          setFieldsValue({
-            ingress: ingressArr,
-          })
-          ingress[0].from.map((item, ind) => {
-            switch (Object.keys(item)[0]) {
-              case 'podSelector':
-                switch (Object.keys(item[Object.keys(item)[0]].matchLabels)[0]) {
-                  case 'tenxcloud.com/svcName':
-                    return setFieldsValue({
-                      [`ingress${ind}`]: 'service',
-                      [`ingressservice${ind}`]: item.podSelector.matchLabels['tenxcloud.com/svcName'],
-                    })
-                  case 'tenxcloud.com/lb':
-                    return setFieldsValue({
-                      [`ingress${ind}`]: 'ingress',
-                      [`ingressingress${ind}`]: item.podSelector.matchLabels['tenxcloud.com/lb'],
-                    })
-                  default:
-                    return null
-                }
-              case 'namespaceSelector':
-                return setFieldsValue({
-                  [`ingress${ind}`]: 'namespace',
-                  [`ingressnamespace${ind}`]: item.namespaceSelector.matchLabels['system/namespace'],
-                })
-              case 'ipBlock':
-                return setFieldsValue({
-                  [`ingress${ind}`]: 'cidr',
-                  [`ingressnamespace${ind}`]: item.ipBlock.cidr,
-                })
-              default:
-                return <span>---</span>
-            }
-          })
-        }
-        if (egress && egress.length) {
-          const ln = egress[0].to.length
-          this.setState({ egLn: ln })
-          const egressArr = []
-          for (let i = 0; i < ln; i++) {
-            egressArr.push(i)
-          }
-          setFieldsValue({
-            egress: egressArr,
-          })
-          egress[0].to.map((item, ind) => {
-            switch (Object.keys(item)[0]) {
-              case 'podSelector':
-                switch (Object.keys(item[Object.keys(item)[0]].matchLabels)[0]) {
-                  case 'tenxcloud.com/svcName':
-                    return setFieldsValue({
-                      [`egress${ind}`]: 'service',
-                      [`egressservice${ind}`]: item.podSelector.matchLabels['tenxcloud.com/svcName'],
-                    })
-                  default:
-                    return null
-                }
-              case 'namespaceSelector':
-                return setFieldsValue({
-                  [`egress${ind}`]: 'namespace',
-                  [`egressnamespace${ind}`]: item.namespaceSelector.matchLabels['system/namespace'],
-                })
-              case 'ipBlock':
-                return setFieldsValue({
-                  [`egress${ind}`]: 'cidr',
-                  [`egressnamespace${ind}`]: item.ipBlock.cidr,
-                })
-              default:
-                return null
-            }
-          })
-        }
+      const resData = res.response.result.data
+      const result = parseNetworkPolicy(resData)
+      const { ingress, egress, name, targetServices } = result
+      const { setFieldsValue } = this.props.form
+      const metaName = resData.metadata && resData.metadata.name || ''
+      setFieldsValue({
+        name,
+        target: targetServices,
       })
+      this.setState({
+        policyName: {
+          name,
+          metaName,
+        },
+      })
+      if (ingress && ingress.length) {
+        this.setState({ ingLn: ingress })
+      }
+      if (egress && egress.length) {
+        this.setState({ egLn: egress })
+      }
     })
   }
 
@@ -251,7 +170,7 @@ class CreateSecurityGroup extends React.Component {
         })
       }
       const body = buildNetworkPolicy(name, target, ingList, egList)
-      const isChangeName = policyName && policyName.groupName === name
+      const isChangeName = policyName && policyName.name === name
       if (!isEdit || !isChangeName) {
         if (!isChangeName && isEdit) {
           await deleteSecurityGroup(cluster, policyName.metaName, {

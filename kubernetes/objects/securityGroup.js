@@ -18,10 +18,11 @@ function parseNetworkPolicy(policy) {
     name: policy.metadata && policy.metadata.annotations['policy-name'],
     targetServices: [],
   }
-  if (policy.spec.podSelector
-     && policy.spec.podSelector.matchExpressions
-     && policy.spec.podSelector.matchExpressions.length > 0
-     && policy.spec.podSelector.matchExpressions[0].values) {
+  if (policy.spec
+    && policy.spec.podSelector
+    && policy.spec.podSelector.matchExpressions
+    && policy.spec.podSelector.matchExpressions.length > 0
+    && policy.spec.podSelector.matchExpressions[0].values) {
        result.targetServices = policy.spec.podSelector.matchExpressions[0].values
      }
   if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
@@ -30,18 +31,25 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
       const rule = peerToRule(peer)
-      if (rule) {
+      const hasKeys = Object.keys(rule).length
+      // console.log( hasKeys, rule )
+      if (hasKeys) {
         result.ingress.push(rule)
       }
     }
   }
-  if (policy.spec && policy.spec.egress && policy.spec.egress.length > 0 && policy.spec.egress[0].to) {
+  if (policy.spec
+    && policy.spec.egress
+    && policy.spec.egress.length > 0
+    && policy.spec.egress[0].to) {
     const to = policy.spec.egress[0].to
     result.egress = []
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
       const rule = peerToRule(peer)
-      if (rule) {
+      const hasKeys = Object.keys(rule).length
+      // console.log( hasKeys )
+      if (hasKeys) {
         result.egress.push(rule)
       }
     }

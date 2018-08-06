@@ -49,7 +49,7 @@ class DetailWhiteList extends React.Component {
             <div className="lineColLocal">{item.namespace}</div>
           </div>
         default:
-          return <span>---</span>
+          return null
       }
     })
     return (

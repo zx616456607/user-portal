@@ -24,11 +24,84 @@ class AddWhiteList extends React.Component {
     uuid: 0,
   }
   componentDidMount() {
-    const { ln } = this.props
+    const { ln, type, form } = this.props
+    const { setFieldsValue } = form
     ln && this.setState({
-      uuid: ln,
+      uuid: ln.length,
     })
-
+    if (type === 'ingress' && ln && ln.length) {
+      const num = ln.length
+      const ingressArr = []
+      for (let i = 0; i < num; i++) {
+        ingressArr.push(i)
+      }
+      setFieldsValue({
+        ingress: ingressArr,
+      })
+      ln.map((item, ind) => {
+        switch (item.type) {
+          case 'service':
+            return setFieldsValue({
+              [`ingress${ind}`]: 'service',
+              [`ingressservice${ind}`]: item.serviceName,
+            })
+          case 'namespace':
+            return setFieldsValue({
+              [`ingress${ind}`]: 'namespace',
+              [`ingressnamespace${ind}`]: item.namespace,
+            })
+          case 'cidr':
+            return setFieldsValue({
+              [`ingress${ind}`]: 'cidr',
+              [`ingresscidr${ind}`]: item.cidr,
+              [`ingress${ind}except`]: item.except,
+            })
+          case 'ingress':
+            return setFieldsValue({
+              [`ingress${ind}`]: 'ingress',
+              [`ingressingress${ind}`]: item.ingressId,
+            })
+          case 'haproxy':
+            return setFieldsValue({
+              [`ingress${ind}`]: 'haproxy',
+            })
+          default:
+            return null
+        }
+      })
+    }
+    if (type === 'egress' && ln && ln.length) {
+      const eNum = ln.length
+      const egressArr = []
+      for (let i = 0; i < eNum; i++) {
+        egressArr.push(i)
+      }
+      setFieldsValue({
+        egress: egressArr,
+      })
+      ln.map((item, ind) => {
+        switch (item.type) {
+          case 'service':
+            return setFieldsValue({
+              [`egress${ind}`]: 'service',
+              [`egressservice${ind}`]: item.serviceName,
+            })
+          case 'namespace':
+            return setFieldsValue({
+              [`egress${ind}`]: 'namespace',
+              [`egressnamespace${ind}`]: item.namespace,
+            })
+          case 'cidr':
+            return setFieldsValue({
+              [`egress${ind}`]: 'cidr',
+              [`egresscidr${ind}`]: item.cidr,
+              [`egress${ind}except`]: item.except,
+            })
+          default:
+            return null
+        }
+      })
+    }
   }
 
   remove = k => {
@@ -59,6 +132,10 @@ class AddWhiteList extends React.Component {
       uuid: uuid + 1,
     })
   }
+
+  // checkCidr = () => {
+
+  // }
 
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
@@ -177,7 +254,7 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       default:
-        return
+        return null
     }
   }
 
@@ -240,9 +317,9 @@ class AddWhiteList extends React.Component {
             formItems :
             <Row className="ingress" key={type}>
               <Col span={4}></Col>
-              <Col span={10} className="addCol">
-                <img src={imgurl} alt="无白名单"/>
-                <p className="addCol">{ type } 无白名单，该策略 { type } 隔离不生效</p>
+              <Col span={8}>
+                <div className="addCol"><img src={imgurl} alt="无白名单"/></div>
+                <p>{ type } 无白名单，该策略 { type } 隔离不生效</p>
               </Col>
             </Row>
         }
@@ -257,7 +334,7 @@ class AddWhiteList extends React.Component {
                 添加一个{ isIngress ? '来源' : '目标' }
               </span>
             </Col> :
-            <Col span={10} className="addCol">
+            <Col span={8} className="addCol">
               <span onClick={this.add} className="add">
                 <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
                 添加一个{ isIngress ? '来源' : '目标' }
