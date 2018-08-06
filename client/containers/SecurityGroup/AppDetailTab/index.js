@@ -99,13 +99,13 @@ class SecurityGroupTab extends React.Component {
       if (errors) {
         return
       }
-      const add = _difference(values.target, this.state.targetArr)
-      const remove = _difference(this.state.targetArr, values.target)
-      const addArray = []
-      const removeArray = []
-      add.map(item => {
-        return addArray.push(
-          getfSecurityGroupDetail(cluster, item, {
+      const add = _difference(values.target, this.state.targetArr).map(key => ({ key, type: 'add' }))
+      const remove = _difference(this.state.targetArr, values.target).map(key => ({ key, type: 'remove' }))
+      const changeArray = []
+      const conbineArr = add.concat(remove)
+      conbineArr.forEach(item => {
+        changeArray.push(
+          getfSecurityGroupDetail(cluster, item.key, {
             failed: {
               func: error => {
                 const { message } = error
@@ -117,8 +117,14 @@ class SecurityGroupTab extends React.Component {
             const resData = res.response.result.data
             const result = parseNetworkPolicy(resData)
             const { ingress, egress, name, targetServices } = result
-            targetServices.push(values.name)
-            const body = buildNetworkPolicy(name, targetServices, ingress || [], egress || [])
+            let newArr = []
+            if (item.type === 'add') {
+              targetServices.push(values.name)
+              newArr = targetServices
+            } else if (item.type === 'remove') {
+              newArr = targetServices.filter(el => el !== values.name)
+            }
+            const body = buildNetworkPolicy(name, newArr, ingress || [], egress || [])
             return updateSecurityGroup(cluster, body, {
               failed: {
                 func: error => {
@@ -131,36 +137,7 @@ class SecurityGroupTab extends React.Component {
           })
         )
       })
-      remove.map(item => {
-        return removeArray.push(
-          getfSecurityGroupDetail(cluster, item, {
-            failed: {
-              func: error => {
-                const { message } = error
-                notification.close()
-                notification.warn('获取详情出错', message.message)
-              },
-            },
-          }).then(res => {
-            const resData = res.response.result.data
-            const result = parseNetworkPolicy(resData)
-            const { ingress, egress, name, targetServices } = result
-            const serviceArr = targetServices.filter(el => el !== values.name)
-            const body = buildNetworkPolicy(name, serviceArr, ingress || [], egress || [])
-            return updateSecurityGroup(cluster, body, {
-              failed: {
-                func: error => {
-                  const { message } = error
-                  notification.close()
-                  notification.warn('修改安全组失败', message.message)
-                },
-              },
-            })
-          })
-        )
-      })
-      await Promise.all(addArray)
-      await Promise.all(removeArray)
+      await Promise.all(changeArray)
       this.relatedGroup()
       this.loadListData()
     })

@@ -40,8 +40,7 @@ class CreateSecurityGroup extends React.Component {
     isEdit: false,
     loading: false,
     policyName: undefined,
-    ingLn: undefined,
-    egLn: undefined,
+    result: undefined,
   }
 
   componentDidMount() {
@@ -74,7 +73,7 @@ class CreateSecurityGroup extends React.Component {
     }).then(res => {
       const resData = res.response.result.data
       const result = parseNetworkPolicy(resData)
-      const { ingress, egress, name, targetServices } = result
+      const { name, targetServices } = result
       const { setFieldsValue } = this.props.form
       const metaName = resData.metadata && resData.metadata.name || ''
       setFieldsValue({
@@ -87,12 +86,9 @@ class CreateSecurityGroup extends React.Component {
           metaName,
         },
       })
-      if (ingress && ingress.length) {
-        this.setState({ ingLn: ingress })
-      }
-      if (egress && egress.length) {
-        this.setState({ egLn: egress })
-      }
+      this.setState({
+        result,
+      })
     })
   }
 
@@ -236,7 +232,7 @@ class CreateSecurityGroup extends React.Component {
   }
   render() {
     const { form, serverList } = this.props
-    const { isEdit, loading, ingLn, egLn } = this.state
+    const { isEdit, loading, result } = this.state
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
         {
@@ -261,12 +257,13 @@ class CreateSecurityGroup extends React.Component {
             serverList={serverList}
           />
           <p className="whiteList">隔离对象的访问白名单</p>
-          <IngressAndEgressWhiteList
-            form={form}
-            isEdit={isEdit}
-            ingLn={ingLn}
-            egLn={egLn}
-          />
+          {
+            (!isEdit || (isEdit && result)) &&
+            <IngressAndEgressWhiteList
+              form={form}
+              result={result}
+            />
+          }
           <Row className="submitBtn">
             <Col span={4}></Col>
             <Col span={20}>

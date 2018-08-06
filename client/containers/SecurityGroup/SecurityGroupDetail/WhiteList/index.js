@@ -59,7 +59,7 @@ class DetailWhiteList extends React.Component {
           <p>（{ isIngress ? '入站' : '出站' }）</p>
         </div>
         <div className="listRight">
-          { isolateObj || <div className="lineRow" key={type}>无</div> }
+          { isolateObj.length && isolateObj || <div className="lineRow" key={type}>无</div> }
         </div>
       </div>
     )

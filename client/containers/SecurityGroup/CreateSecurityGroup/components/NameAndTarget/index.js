@@ -30,7 +30,7 @@ class CreateNameAndTarget extends React.Component {
         {...formItemLayout}
       >
         <Input
-          placeholder="请输入安全组名称，如 禁止外访 A 地图 API"
+          placeholder="请输入安全组名称，如放通某业务服务"
           style={{ width: 280 }}
           {...getFieldProps('name', {
             rules: [{
