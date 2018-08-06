@@ -22,6 +22,7 @@ import {
   NO_CLASSIFY,
   CONFIGMAP_CLASSIFY_CONNECTION
  } from '../../../constants'
+import { deploymentLog } from '../../../actions/cicd_flow';
 
 export function getFieldsValues(fields) {
   const values = {}
@@ -101,7 +102,7 @@ export function checkVolumeMountPath(form, index, value, type) {
   return error
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -156,6 +157,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     serviceBottomTag,  // 服务与服务 标签
     advanceSet, // 服务与服务 高级设置
     modelSet,  // 模型集
+    serviceMesh, // 服务网格
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -186,6 +188,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
   // 设置 APM
   if (apm) {
     deployment.setApmServiceLabel('pinpoint')
+  }
+  // 设置服务网格
+  if (serviceMesh) {
+    deployment.setAnnotations({'sidecar.istio.io/inject': "true"});
+    deployment.setMetaAnnotations({'sidecar.istio.io/inject': 'true'});
   }
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
@@ -344,7 +351,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate) 
     // 默认访问方式 集群内
     service.addLBGroupAnnotation('none')
   } else {
-    if (isTemplate) {
+    if (isTemplate && !isTemplateDeploy) {
       service.addLBGroupAnnotation(templateGroup)
     } else {
       service.addLBGroupAnnotation(groupID)
