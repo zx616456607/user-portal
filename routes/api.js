@@ -115,10 +115,6 @@ module.exports = function (Router) {
   router.post('/projects/:name/roles/batch-delete', projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
-  // servicMesh 相关
-  router.put('/projects/label', projectController.updateToggleServiceMesh)
-  router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
-  router.get('/projects/istio/check', projectController.getCheckClusterIstio)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -172,10 +168,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
-
-  // serviceMesh 相关
-  router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
-  router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
@@ -575,10 +567,8 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.updateAutoBackup)
   // 删除自动备份
   router.delete('/clusters/:clusterID/daas/:type/:clusterName/cronbackups', databaseCacheController.deleteAutoBackup)
-  // redis扩容
+  // 创建扩容
   router.post('/clusters/:clusterID/daas/:type/:name/expands', databaseCacheController.expandDatabaseCluster)
-  // mysql扩容
-  router.post('/clusters/:clusterID/daas/:type/:name/volume/expand', databaseCacheController.expandDatabaseCluster)
   // 回滚
   router.post('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.rollback)
   // 修改集群访问方式
