@@ -1419,6 +1419,15 @@ class Ordinary extends Component {
         key: 'redis',
         text: 'Redis集群 (个)'
       },
+/*
+      {
+        key: 'zookeeper',
+        text: 'Zookeeper集群 (个)'
+      }, {
+        key: 'elasticsearch',
+        text: 'ES集群 (个)'
+      },
+*/
       // {
       //   key: 'etcd',
       //   text: 'Etcd集群 (个)'
