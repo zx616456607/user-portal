@@ -15,13 +15,8 @@ const apiFactory = require('../services/api_factory')
 exports.applyResourcequota = function* () {
   const loginUser = this.session.loginUser;
   const body = this.request.body;
-  const { teamspace } = this.request.headers
-  let headers
-  if ( teamspace ) {
-    let headers = { teamspace }
-  }
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.resourcequota.createBy(['apply'], null, body, { headers });
+  const result = yield api.resourcequota.createBy(['apply'], null, body,);
   this.body = result;
 }
 
@@ -49,7 +44,7 @@ exports.updateResourcequota = function* () {
   const body = this.request.body;
   const id = this.params.id;
   const api = apiFactory.getApi(loginUser);
-  const result = yield api.resourcequota.updateBy(['apply', id], null, body);
+  const result = yield api.resourcequota.updateBy(['apply', id], null, body,);
   this.body = result;
 }
 

@@ -28,7 +28,6 @@ const mapStatetoProps = (state) => {
   })
 }
 @connect(mapStatetoProps, {
-  checkAPPInClusMesh: projectActions.checkAPPInClusMesh,
   checkClusterIstio: projectActions.checkClusterIstio,
   ToggleAPPMesh: projectActions.ToggleAPPMesh,
 })
@@ -41,8 +40,8 @@ export default class ServiceMeshSwitch extends React.Component {
     userrole: undefined, // 根据多个条件判断页面显示内容
   }
   componentDidMount = async () => {
-    const { checkAPPInClusMesh, checkClusterIstio, ToggleAPPMesh } = this.props
-    const { msaConfig, clusterId, namespace, userName, serviceName } = this.props
+    const { checkClusterIstio, ToggleAPPMesh, istioFlag = false } = this.props
+    const { msaConfig, clusterId, serviceName } = this.props
     if (!msaConfig) {
       this.setState({ userrole: 1 })
     }
@@ -52,14 +51,14 @@ export default class ServiceMeshSwitch extends React.Component {
       this.setState({ userrole: 2 })
       return
     }
-    const newNameSpace = namespace || userName;
-    const result1 = await checkAPPInClusMesh(clusterId, serviceName, { namespace: newNameSpace });
-    const result1Data = getDeepValue(result1, ['response', 'result',]);
-    if (result1Data.data === true) {
+    // const newNameSpace = namespace || userName;
+    // const result1 = await checkAPPInClusMesh(clusterId, serviceName, { namespace: newNameSpace });
+    // const result1Data = getDeepValue(result1, ['response', 'result',]);
+    if (istioFlag == 'true') {
       this.setState({ switchValue: true, userrole: 5 })
       return
     }
-    if(result1Data.data === false){
+    if(istioFlag === false){
       this.setState({ switchValue: false, userrole: 6 })
     }
   }

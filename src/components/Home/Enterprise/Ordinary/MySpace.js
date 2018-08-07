@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress } from 'antd'
+import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress, Tooltip } from 'antd'
 import './style/MySpace.less'
 import { formatOperationType, formatTypeName, formatResourceName } from '../../../../../client/containers/ManageMonitor/OperationAudit'
 import { connect } from 'react-redux'
@@ -229,14 +229,20 @@ class MySpace extends Component {
     if (useCount > maxCount && maxCount !== -1) {
       overUsed = true
     }
+    const content = <div>
+      <span style={{ color: overUsed ? 'red' : 'white' }}>{useCount}</span>
+      /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
+    </div>
     return (
-      <Row className="number-row">
-        <Col span={left}></Col>
-        <Col span={right} className="number textoverflow">
-          <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
-          /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
-        </Col>
-      </Row>
+      <Tooltip title={content}>
+        <Row className="number-row">
+          <Col span={left}></Col>
+          <Col span={right} className="number textoverflow">
+            <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
+            /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
+          </Col>
+        </Row>
+      </Tooltip>
     )
   }
   filterPercent(value, count) {
@@ -398,7 +404,9 @@ class MySpace extends Component {
                     <div className="info" key={`ci-${index}`}>
                       <Row>
                         <Col className="textoverflow" span={6}>
-                          <span>{item.text}</span>
+                          <Tooltip title={item.text}>
+                            <span>{item.text}</span>
+                          </Tooltip>
                         </Col>
                         <Col span={13}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
@@ -417,7 +425,9 @@ class MySpace extends Component {
                     <div className="info" key={`deliver-${index}`}>
                       <Row>
                         <Col className="textoverflow" span={6}>
-                          <span>{item.text}</span>
+                          <Tooltip title={item.text}>
+                            <span>{item.text}</span>
+                          </Tooltip>
                         </Col>
                         <Col span={16}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
