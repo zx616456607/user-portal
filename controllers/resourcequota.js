@@ -14,6 +14,7 @@ const apiFactory = require('../services/api_factory')
 // 申请资源配额 // post
 exports.applyResourcequota = function* () {
   const loginUser = this.session.loginUser;
+  const body = this.request.body;
   const api = apiFactory.getApi(loginUser);
   const result = yield api.resourcequota.createBy(['apply'], null, body,);
   this.body = result;
