@@ -20,7 +20,7 @@ import './style/index.less'
 import * as securityActions from '../../actions/securityGroup'
 import Notification from '../../../src/components/Notification'
 import * as networkpolicy from '../../../src/actions/app_manage'
-// import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
+import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner/index'
 
 const notification = new Notification()
 
@@ -204,7 +204,7 @@ class SecurityGroup extends React.Component {
           </div>
         </Modal>
         <div className="layout-content-btns">
-          {/* <ResourceBanner resourceType="" /> */}
+          <ResourceBanner resourceType="securityGroup" />
           <Button type="primary" size="large" onClick={() => browserHistory.push('/app_manage/security_group/create')}>
             <i className="fa fa-plus" style={{ marginRight: 8 }}/>
             创建安全组
