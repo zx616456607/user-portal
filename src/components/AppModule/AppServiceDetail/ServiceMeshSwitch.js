@@ -90,7 +90,6 @@ export default class ServiceMeshSwitch extends React.Component {
     let { initialSwitchValue } = this.props;
     const { checked, loading, switchValue, userrole } = this.state;
     initialSwitchValue = false;
-    console.log('userrole', userrole);
     return (
       <div className="ServiceMeshSwitch">
       <Card>
