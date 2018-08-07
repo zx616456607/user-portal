@@ -430,7 +430,7 @@ class ImageCenter extends Component {
               <Tooltip title={<div>
                 <div>镜像仓库组：用于存放镜像仓库，每个镜像仓库由若干个镜像版本组成。</div>
                 <div>第三方仓库：关联第三方仓库后可部署仓库中的镜像。</div>
-                <div>TenxFlow 中构建出来的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中。</div>
+                <div>流水线中构建出来的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中。</div>
               </div>} placement="bottomRight">
                 <Button icon='question-circle-o' style={{margin:'0 10px'}} type='ghost'></Button>
               </Tooltip>

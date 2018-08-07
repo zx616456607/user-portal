@@ -110,7 +110,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD标准版（2 个TenxFlow，8个子项目）代码库（GitHub、GitLab、SVN、Gogs）</span>
+                <span className='infoSpan'>CI/CD标准版（2 个流水线，8个子项目）代码库（GitHub、GitLab、SVN、Gogs）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>

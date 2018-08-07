@@ -20,15 +20,11 @@ export const FETCH_GLOBALE_QUOTA_FAILURE = 'FETCH_GLOBALE_QUOTA_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
   return {
     [FETCH_API]: {
@@ -59,17 +55,12 @@ export const FETCH_GLOBALE_GET_QUOTA_FAILURE = 'FETCH_GLOBALE_GET_QUOTA_FAILURE'
 
 function fetchGlobaleQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota/inuse`
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
-
   return {
     [FETCH_API]: {
       types: [FETCH_GLOBALE_GET_QUOTA_REQUEST, FETCH_GLOBALE_GET_QUOTA_SUCCESS, FETCH_GLOBALE_GET_QUOTA_FAILURE],
@@ -131,15 +122,11 @@ export const UPDATE_GLOBALE_QUOTA_FAILURE = 'UPDATE_GLOBALE_QUOTA_FAILURE'
 function updateGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
   let body = query.body
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
   return {
     [FETCH_API]: {
@@ -199,15 +186,11 @@ export const FETCH_CLUSTER_QUOTA_FAILURE = 'FETCH_CLUSTER_QUOTA_FAILURE'
 
 function fetchClusterQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
   return {
     [FETCH_API]: {
@@ -236,15 +219,11 @@ export const UPDATE_CLUSTER_QUOTA_FAILURE = 'UPDATE_CLUSTER_QUOTA_FAILURE'
 function updateClusterQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
   let body = query.body
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
   return {
     [FETCH_API]: {
@@ -273,15 +252,11 @@ export const FETCH_CLUSTER_GET_FAILURE = 'FETCH_CLUSTER_GET_FAILURE'
 
 function fetchClusterQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota/inuse`
-  let headers
+  let headers = {}
   if (query.header !== undefined) {
-    if (query.header.teamspace) {
-      let teamspace = query.header.teamspace
-      headers = { teamspace }
-    } else {
-      let onbehalfuser = query.header.onbehalfuser
-      headers = { onbehalfuser: '' }
-    }
+    headers = Object.assign({}, headers, query.header, {
+      onbehalfuser: '',
+    })
   }
   return {
     [FETCH_API]: {

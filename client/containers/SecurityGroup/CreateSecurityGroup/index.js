@@ -18,7 +18,7 @@ import IngressAndEgressWhiteList from './components/IngressAndEgressWhiteList'
 import { browserHistory } from 'react-router'
 import Notification from '../../../../src/components/Notification'
 import * as servicesActions from '../../../../src/actions/services'
-import { buildNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
+import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import * as securityActions from '../../../actions/securityGroup'
 
 const notification = new Notification()
@@ -39,7 +39,8 @@ class CreateSecurityGroup extends React.Component {
   state={
     isEdit: false,
     loading: false,
-    current: {},
+    policyName: undefined,
+    result: undefined,
   }
 
   componentDidMount() {
@@ -70,105 +71,32 @@ class CreateSecurityGroup extends React.Component {
         },
       },
     }).then(res => {
+      const resData = res.response.result.data
+      const result = parseNetworkPolicy(resData)
+      const { name, targetServices } = result
+      const { setFieldsValue } = this.props.form
+      const metaName = resData.metadata && resData.metadata.name || ''
+      setFieldsValue({
+        name,
+        target: targetServices,
+      })
       this.setState({
-        current: res.response.result.data,
-      }, () => {
-        const { current } = this.state
-        const { setFieldsValue } = this.props.form
-        const groupName = current.metadata && current.metadata.annotations['policy-name'] || ''
-        const targetArr = current.spec && current.spec.podSelector.matchExpressions[0].values || []
-        setFieldsValue({
-          name: groupName,
-          target: targetArr,
-        })
-        const { ingress, egress } = current.spec && current.spec
-        if (ingress && ingress.length) {
-          const num = ingress[0].from.length
-          const ingressArr = []
-          for (let i = 0; i < num; i++) {
-            ingressArr.push(i)
-          }
-          setFieldsValue({
-            ingress: ingressArr,
-          })
-          ingress[0].from.map((item, ind) => {
-            // console.log( 'key1111', Object.keys(item)[0], item )
-            switch (Object.keys(item)[0]) {
-              case 'podSelector':
-                switch (Object.keys(item[Object.keys(item)[0]].matchLabels)[0]) {
-                  case 'tenxcloud.com/svcName':
-                    return setFieldsValue({
-                      [`ingress${ind}`]: 'service',
-                      [`ingressservice${ind}`]: item.podSelector.matchLabels['tenxcloud.com/svcName'],
-                    })
-                  case 'tenxcloud.com/lb':
-                    return setFieldsValue({
-                      [`ingress${ind}`]: 'ingress',
-                      [`ingressingress${ind}`]: item.podSelector.matchLabels['tenxcloud.com/lb'],
-                    })
-                  default:
-                    return null
-                }
-              case 'namespaceSelector':
-                return setFieldsValue({
-                  [`ingress${ind}`]: 'namespace',
-                  [`ingressnamespace${ind}`]: item.namespaceSelector.matchLabels['system/namespace'],
-                })
-              case 'ipBlock':
-                return setFieldsValue({
-                  [`ingress${ind}`]: 'cidr',
-                  [`ingressnamespace${ind}`]: item.ipBlock.cidr,
-                })
-              default:
-                return <span>---</span>
-            }
-          })
-        }
-        if (egress && egress.length) {
-          const ln = egress[0].to.length
-          const egressArr = []
-          for (let i = 0; i < ln; i++) {
-            egressArr.push(i)
-          }
-          setFieldsValue({
-            egress: egressArr,
-          })
-          egress[0].to.map((item, ind) => {
-            switch (Object.keys(item)[0]) {
-              case 'podSelector':
-                switch (Object.keys(item[Object.keys(item)[0]].matchLabels)[0]) {
-                  case 'tenxcloud.com/svcName':
-                    return setFieldsValue({
-                      [`egress${ind}`]: 'service',
-                      [`egressservice${ind}`]: item.podSelector.matchLabels['tenxcloud.com/svcName'],
-                    })
-                  default:
-                    return null
-                }
-              case 'namespaceSelector':
-                return setFieldsValue({
-                  [`egress${ind}`]: 'namespace',
-                  [`egressnamespace${ind}`]: item.namespaceSelector.matchLabels['system/namespace'],
-                })
-              case 'ipBlock':
-                return setFieldsValue({
-                  [`egress${ind}`]: 'cidr',
-                  [`egressnamespace${ind}`]: item.ipBlock.cidr,
-                })
-              default:
-                return <span>---</span>
-            }
-          })
-        }
+        policyName: {
+          name,
+          metaName,
+        },
+      })
+      this.setState({
+        result,
       })
     })
   }
 
   submit = () => {
-    const { isEdit } = this.state
-    const { form, createSecurityGroup, cluster, updateSecurityGroup } = this.props
-    form.validateFields((errors, values) => {
-      // console.log( '****', values )
+    const { isEdit, policyName } = this.state
+    const { form, createSecurityGroup, cluster,
+      updateSecurityGroup, deleteSecurityGroup } = this.props
+    form.validateFields(async (errors, values) => {
       if (errors) {
         return
       }
@@ -238,14 +166,31 @@ class CreateSecurityGroup extends React.Component {
         })
       }
       const body = buildNetworkPolicy(name, target, ingList, egList)
-      if (!isEdit) {
-        createSecurityGroup(cluster, body, {
+      const isChangeName = policyName && policyName.name === name
+      if (!isEdit || !isChangeName) {
+        if (!isChangeName && isEdit) {
+          await deleteSecurityGroup(cluster, policyName.metaName, {
+            failed: {
+              func: error => {
+                const { message } = error
+                notification.close()
+                notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
+                this.loadData()
+              },
+            },
+          })
+        }
+        await createSecurityGroup(cluster, body, {
           success: {
             func: () => {
               notification.close()
-              notification.success('新建安全组成功')
+              if (isEdit) {
+                notification.success('修改安全组成功')
+              } else {
+                notification.success('新建安全组成功')
+              }
               this.setState({ loading: false })
-              browserHistory.goBack()
+              browserHistory.push('/app_manage/security_group')
             },
             isAsync: true,
           },
@@ -253,22 +198,23 @@ class CreateSecurityGroup extends React.Component {
             func: error => {
               const { message } = error
               notification.close()
-              notification.warn('新建安全组失败', message.message)
+              if (isEdit) {
+                notification.success('修改安全组失败')
+              } else {
+                notification.warn('新建安全组失败', message.message)
+              }
               this.setState({ loading: false })
             },
           },
         })
       } else {
-        // const { metadata } = this.state.current
-        // body.metadata.name = metadata.name
-        // body.metadata.resourceVersion = metadata.resourceVersion
         updateSecurityGroup(cluster, body, {
           success: {
             func: () => {
               notification.close()
               notification.success('修改安全组成功')
               this.setState({ loading: false })
-              browserHistory.goBack()
+              browserHistory.push('/app_manage/security_group')
             },
             isAsync: true,
           },
@@ -286,7 +232,7 @@ class CreateSecurityGroup extends React.Component {
   }
   render() {
     const { form, serverList } = this.props
-    const { isEdit, loading } = this.state
+    const { isEdit, loading, result } = this.state
     return <QueueAnim className="createSecurityGroup">
       <div className="createSecurityPage" key="security">
         {
@@ -311,10 +257,13 @@ class CreateSecurityGroup extends React.Component {
             serverList={serverList}
           />
           <p className="whiteList">隔离对象的访问白名单</p>
-          <IngressAndEgressWhiteList
-            form={form}
-            isEdit={isEdit}
-          />
+          {
+            (!isEdit || (isEdit && result)) &&
+            <IngressAndEgressWhiteList
+              form={form}
+              result={result}
+            />
+          }
           <Row className="submitBtn">
             <Col span={4}></Col>
             <Col span={20}>
@@ -342,4 +291,5 @@ export default connect(mapStateToProps, {
   createSecurityGroup: securityActions.createSecurityGroup,
   getfSecurityGroupDetail: securityActions.getfSecurityGroupDetail,
   updateSecurityGroup: securityActions.updateSecurityGroup,
+  deleteSecurityGroup: securityActions.deleteSecurityGroup,
 })(Form.create()(CreateSecurityGroup))

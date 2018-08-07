@@ -137,7 +137,6 @@ class ConfigManagement extends React.Component {
         })
       },
     })
-
     return <div className="configManagement">
       <div className="title">配置管理</div>
       <div className="content">

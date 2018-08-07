@@ -22,7 +22,7 @@ import './style/CodeStore.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.TenxStorm.tooltips',
-    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态， 以便后续构建TenxFlow时选择可构建的代码项目。注：构建时无权访问已注销代码仓库的代码源，下次重新关联后可正常使用',
+    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态， 以便后续构建流水线时选择可构建的代码项目。注：构建时无权访问已注销代码仓库的代码源，下次重新关联后可正常使用',
   },
   show: {
     id: 'CICD.TenxStorm.show',
@@ -266,7 +266,7 @@ const MyComponent = React.createClass({
           <div>
             <div className="alertRow">
               <p>
-                ① 在激活项目时，TenxFlow 会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
+                ① 在激活项目时，流水线会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
               </p>
               <p>
                 ② 如果激活时提示添加对应资源失败，可以通过『查看公钥』、『Webhook』 获取的信息，手动添加到对应代码项目的配置中。
@@ -291,7 +291,7 @@ const MyComponent = React.createClass({
           <div>
             <div className="alertRow">
               <p>
-                ① 在激活项目时，TenxFlow 会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
+                ① 在激活项目时，流水线会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
               </p>
               <p>
                 ② 如果激活时提示添加对应资源失败，可以通过『查看公钥』、『Webhook』 获取的信息，手动添加到对应代码项目的配置中。

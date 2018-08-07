@@ -21,7 +21,8 @@ import { getOperationalTarget } from '../../../../actions/manage_monitor'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
-import { getGlobaleQuota, getGlobaleQuotaList } from '../../../../actions/quota'
+import { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../actions/quota'
+import {REG} from "../../../../constants";
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -68,7 +69,7 @@ class MySpace extends Component {
     this.fetchQuotaList()
   }
   fetchQuotaList() {
-    const { getGlobaleQuota, getGlobaleQuotaList, clusterID } = this.props
+    const { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList, clusterID } = this.props
     let query = {
       id: clusterID,
     }
@@ -88,7 +89,18 @@ class MySpace extends Component {
         func: res => {
           if (res.code === 200) {
             this.setState({
-              globaleUseList: res.data
+              globaleUseList: { ...this.state.globaleUseList, ...res.data }
+            })
+          }
+        }
+      }
+    })
+    getDevopsGlobaleQuotaList(query, {
+      success: {
+        func: res => {
+          if (REG.test(res.status)) {
+            this.setState({
+              globaleUseList: { ...this.state.globaleUseList, ...res.result }
             })
           }
         }
@@ -187,7 +199,7 @@ class MySpace extends Component {
   }
   maxCount(value) {
     const { globaleList } = this.state
-    let count = 0
+    let count = -1
     if (globaleList) {
       Object.keys(globaleList).forEach((item, index) => {
         if (item === value) {
@@ -212,7 +224,7 @@ class MySpace extends Component {
   renderProcessNumber(key, span = {}) {
     const useCount = this.useCount(key)
     const maxCount = this.maxCount(key)
-    const { left = 9, right = 15 } = span
+    const { left = 5, right = 19 } = span
     let overUsed = false
     if (useCount > maxCount && maxCount !== -1) {
       overUsed = true
@@ -220,7 +232,7 @@ class MySpace extends Component {
     return (
       <Row className="number-row">
         <Col span={left}></Col>
-        <Col span={right} className="number">
+        <Col span={right} className="number textoverflow">
           <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
           /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
         </Col>
@@ -335,12 +347,12 @@ class MySpace extends Component {
     const { isCi, isdeliver } = this.state
     const ciList = [
       {
-        key: 'tenxflow',
-        text: 'TenxFlow(个)',
+        key: 'pipeline',
+        text: '流水线(个)',
       },
       {
-        key: 'subTask',
-        text: '子任务(个)',
+        key: 'flow',
+        text: '阶段(个)',
       },
       {
         key: 'dockerfile',
@@ -385,13 +397,13 @@ class MySpace extends Component {
                   ciList.map((item, index) => (
                     <div className="info" key={`ci-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col className="textoverflow" span={6}>
                           <span>{item.text}</span>
                         </Col>
-                        <Col span={16}>
+                        <Col span={13}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={5}>
                           {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                         </Col>
                       </Row>
@@ -404,7 +416,7 @@ class MySpace extends Component {
                   deliverList.map((item, index) => (
                     <div className="info" key={`deliver-${index}`}>
                       <Row>
-                        <Col span={6}>
+                        <Col className="textoverflow" span={6}>
                           <span>{item.text}</span>
                         </Col>
                         <Col span={16}>
@@ -852,6 +864,7 @@ export default connect(mapStateToProp, {
   getGlobaleQuota,
   getGlobaleQuotaList,
   getOperationalTarget,
+  getDevopsGlobaleQuotaList,
 })(MySpace)
 
 const menusText = defineMessages({
@@ -1205,19 +1218,19 @@ const menusText = defineMessages({
   },
   Flow: {
     id: 'ManageMonitor.operationalAudit.Flow',
-    defaultMessage: 'TenxFlow',
+    defaultMessage: '流水线',
   },
   Stage: {
     id: 'ManageMonitor.operationalAudit.Stage',
-    defaultMessage: 'TenxFlow执行过程',
+    defaultMessage: '流水线执行过程',
   },
   Link: {
     id: 'ManageMonitor.operationalAudit.Link',
-    defaultMessage: 'TenxFlow共享目录',
+    defaultMessage: '流水线共享目录',
   },
   Build: {
     id: 'ManageMonitor.operationalAudit.Build',
-    defaultMessage: 'TenxFlow构建',
+    defaultMessage: '流水线构建',
   },
   CIRule: {
     id: 'ManageMonitor.operationalAudit.CIRule',

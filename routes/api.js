@@ -119,7 +119,7 @@ module.exports = function (Router) {
   router.put('/projects/label', projectController.updateToggleServiceMesh)
   router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
   router.get('/projects/istio/check', projectController.getCheckClusterIstio)
-
+  
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.post('/clusters', clusterController.createCluster)
@@ -172,11 +172,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
-
   // serviceMesh 相关
   router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
   router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
-
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
   router.get('/templates/:templateid', appTemplateController.getTemplate)
@@ -783,6 +781,7 @@ module.exports = function (Router) {
   router.post('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.setIsolationRule)
   router.delete('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.restoreDefault)
   router.post('/cluster/:clusterID/networkpolicy/bypass-namespace-internal', netIsolationController.setEachConnect)
+  router.get('/cluster/:clusterID/networkpolicy/references', netIsolationController.getServiceReferences)
 
   // Apms
   router.get('/clusters/:clusterID/apms', apmController.getApms)

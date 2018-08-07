@@ -29,10 +29,11 @@ class Disk extends Component {
 
   render() {
     const option = new EchartsOption('磁盘')
-    const { diskReadIo, diskWriteIo, events, scope } = this.props
+    const { diskReadIo, diskWriteIo, events, scope, isService } = this.props
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
     let timeText = switchDisk ? '1分钟' : freshTime
     option.setToolTipUnit(' KB/s')
+    option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     let isDataEmpty = false
     diskReadIo.data && diskReadIo.data.map((item) => {
