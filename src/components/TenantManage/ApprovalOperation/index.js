@@ -321,7 +321,6 @@ class ApprovalOperation extends React.Component {
       this.setApprovalState(index)
     }
   }
-  console.log('this.record', record)
     return (
       <Modal
         visible = {visible}
