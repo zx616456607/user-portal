@@ -54,7 +54,6 @@ export default class ServiceMeshSwitch extends React.Component {
     // const newNameSpace = namespace || userName;
     // const result1 = await checkAPPInClusMesh(clusterId, serviceName, { namespace: newNameSpace });
     // const result1Data = getDeepValue(result1, ['response', 'result',]);
-    console.log('istioFlag',typeof  istioFlag);
     if (istioFlag == 'true') {
       this.setState({ switchValue: true, userrole: 5 })
       return
