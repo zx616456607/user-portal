@@ -50,13 +50,13 @@ class YamlModal extends React.Component {
   handleOk = () => {
     const { changeDnsItem, cluster, editItem, loadData } = this.props
     const { appDescYaml, yamlStr } = this.state
-    if (appDescYaml === '') {
-      return notification.info('DNS 不能为空')
+    const body = yaml.safeLoad(appDescYaml)
+    if (!body) {
+      return notification.info('DNS 记录不能为空')
     }
     if (appDescYaml === yamlStr) {
       return notification.info('未修改 DNS 记录')
     }
-    const body = yaml.safeLoad(appDescYaml)
     delete body.status
     delete body.metadata.creationTimestamp
     delete body.metadata.namespace
