@@ -267,6 +267,16 @@ let ProjectManage = React.createClass({
         },
         isAsync: true
       },
+      failed: {
+        func: err => {
+          if (err.statusCode === 500 && err.message === "project balance must not less than zero") {
+            notify.warn('该项目余额为负数，请充正后再试')
+          } else {
+            notify.warn('项目删除失败')
+          }
+        },
+        isAsync: true,
+      },
       finally: {
         func: () => this.setState({ confirmLoading: false })
       }
