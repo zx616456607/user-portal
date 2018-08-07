@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import * as serviceAction from '../../../../src/actions/app_manage'
 import Notification from '../../../../src/components/Notification'
 import * as securityActions from '../../../actions/securityGroup'
-import _difference from 'lodash/difference';
+import _difference from 'lodash/difference'
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 
 const notification = new Notification()
