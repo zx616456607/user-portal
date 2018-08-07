@@ -46,12 +46,16 @@ let MyComponent = React.createClass({
     this.props.setAutoBackup(item)
   },
   render: function () {
-    const { config, isFetching } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin } = this.props;
     const canCreate = this.props.canCreate
     let title = ''
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
+    }
+
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -174,6 +178,9 @@ class RedisDatabase extends Component {
       currentClusterNeedBackup: '',
       aleradySetAuto: [],
       autoBackupSwitch: false,
+      uninstalledPlugin: false, //是否未安装插件
+      plugin: ''
+
     }
   }
 
@@ -201,8 +208,15 @@ class RedisDatabase extends Component {
       },
       failed: {
         func: err => {
-          if (err.statusCode === 500) {
-            notification.error('Redis集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
@@ -221,12 +235,18 @@ class RedisDatabase extends Component {
     loadDbCacheList(cluster, 'redis', {
       failed: {
         func: err => {
-          if (err.statusCode === 500) {
-            notification.error('Redis集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
-
     })
   }
   componentDidMount() {
@@ -291,6 +311,7 @@ class RedisDatabase extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -299,6 +320,9 @@ class RedisDatabase extends Component {
     if (!storageClassType.private) canCreate = false
     if(!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
+    }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
     }
     return (
       <QueueAnim id='redisDatabase' type='right'>
@@ -318,7 +342,16 @@ class RedisDatabase extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} setAutoBackup={this.onAutoBackup} autoBackupList = {this.state.aleradySetAuto} config={databaseList} canCreate={canCreate}/>
+          <MyComponent
+            scope={_this}
+            isFetching={isFetching}
+            setAutoBackup={this.onAutoBackup}
+            autoBackupList = {this.state.aleradySetAuto}
+            config={databaseList}
+            canCreate={canCreate}
+            uninstalledPlugin = {uninstalledPlugin}
+            plugin = {plugin}
+          />
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
