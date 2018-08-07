@@ -121,7 +121,7 @@ const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInu
             resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
           applyLimit: applyDetails[key][resourcekey] || '无限制',
           approvalStatus: approveDetails[key] ?
-            approveDetails[key].indexOf(resourcekey) !== -1 : false,
+            approveDetails[key][resourcekey] !== undefined : false,
         })
         indexKey++
       }

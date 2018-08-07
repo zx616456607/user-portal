@@ -157,7 +157,7 @@ const findClusersName = ({ id, choiceClusters }) => {
             aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
             use: resourceInuse[key][resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
             applyLimit: applyDetails[key][resourcekey] || '无限制',
-            approvalStatus: approveDetails[key] ? approveDetails[key].indexOf(resourcekey) !== -1 : false,
+            approvalStatus: approveDetails[key] ? approveDetails[key][resourcekey] !== -1 : false,
             clusterID: key,
           })
           indexKey++
@@ -175,9 +175,9 @@ const formateUpdateResoure = (tabData, approvalState) => {
   for(const o of tabData) {
     if (approvalState[o.key-1]) {
       if (!body.approveDetails[o.clusterID]) {
-        body.approveDetails[o.clusterID] = ''
+        body.approveDetails[o.clusterID] = {}
       }
-      body.approveDetails[o.clusterID] += `${o.resource},`
+      body.approveDetails[o.clusterID][o.resource] = o.applyLimit;
     }
   }
   if (approvalState.every( o => o === true)) { // 全部同意
@@ -228,11 +228,11 @@ class ApprovalOperation extends React.Component {
     this.setState({ approvalState })
   }
   fetchApprovalResult = (record, e) => {
-    const { updateResourcequota, toggleVisable, tabData, reload } = this.props
+    const { updateResourcequota, toggleVisable, tabData, reload, record: listRecord } = this.props
     const { approvalState } = this.state
     const body = formateUpdateResoure(tabData, approvalState)
     const id = record.id
-    updateResourcequota(record.id, body, {
+    updateResourcequota(record.id, {headers: listRecord.namespace} ,body, {
         success: {
           func: res => {
             toggleVisable(undefined, 'success')
