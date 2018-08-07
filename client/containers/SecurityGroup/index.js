@@ -27,7 +27,7 @@ const notification = new Notification()
 class SecurityGroup extends React.Component {
 
   state = {
-    proStatus: false,
+    isolationStatus: true, // true=>隔离
     search: '',
     currentPage: 1,
     deleteVisible: false,
@@ -40,11 +40,9 @@ class SecurityGroup extends React.Component {
     getNetworkIsolationStatus(cluster, {
       success: {
         func: res => {
-          if (res.defaultDeny) {
-            this.setState({
-              proStatus: true,
-            })
-          }
+          this.setState({
+            isolationStatus: res.defaultDeny,
+          })
         },
       },
     })
@@ -128,7 +126,7 @@ class SecurityGroup extends React.Component {
   }
 
   render() {
-    const { proStatus, search, currentPage, deleteVisible, toDelete } = this.state
+    const { isolationStatus, search, currentPage, deleteVisible, toDelete } = this.state
     const { listData, isFetching } = this.props
     let list = !search ? listData : listData.filter(item => (
       item.name.toUpperCase().indexOf(search.toUpperCase()) > -1
@@ -222,11 +220,17 @@ class SecurityGroup extends React.Component {
             onSearch={this.searchService}
           />
           <span className="showTit">
-            当前项目 <Icon type="swap" /> 其他项目
+            当前项目
             {
-              proStatus ?
-                <span className="proOpen">已开启隔离</span> :
-                <span className="proClose">已关闭隔离</span>
+              isolationStatus ?
+                <span className="proEach"><Icon type="arrow-left" />/<Icon type="arrow-right" /></span> :
+                <span className="proEach"><Icon type="arrow-left" /><Icon type="arrow-right" /></span>
+            }
+            其他项目
+            {
+              isolationStatus ?
+                <span className="proOpen">隔离其他项目访问</span> :
+                <span className="proClose">放通其他项目方案</span>
             }
             <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
               <Icon type="edit"/>修改
