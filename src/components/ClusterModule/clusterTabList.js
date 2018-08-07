@@ -209,7 +209,7 @@ class ClusterTabList extends Component {
 
             </TabPane>
             <TabPane tab={<div className='tablepanediv'><svg className='size select hover'>
-              {/*@#hostlists*/}
+              {/*@#hostlists-o*/}
               <use xlinkHref="#hostlists"></use>
             </svg><span className='tablepanespan'>主机列表</span></div>} key="host">
               <HostList

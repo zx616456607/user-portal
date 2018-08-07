@@ -152,6 +152,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#mirror-image*/}
                       <use xlinkHref="#homeimagecountcolor" />
                     </svg>
                     镜像
@@ -165,6 +166,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#app*/}
                       <use xlinkHref="#homeappcountcolor" />
                     </svg>
                     应用
@@ -176,6 +178,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#puzzle*/}
                       <use xlinkHref="#homelayoutcountcolor" />
                     </svg>
                     编排
@@ -213,6 +216,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#container*/}
                       <use xlinkHref="#homecontainercountcolor" />
                     </svg>
                     容器
@@ -274,6 +278,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         创建应用
@@ -307,6 +312,7 @@ class Admin extends Component{
                      <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         停止应用
@@ -340,6 +346,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         修改应用
@@ -351,6 +358,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         启动应用
@@ -362,6 +370,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         重新部署

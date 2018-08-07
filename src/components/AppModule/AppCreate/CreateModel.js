@@ -171,6 +171,7 @@ class CreateModel extends Component {
                   <span>通过镜像仓库创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
+                  {/*@#selected*/}
                   <use xlinkHref="#appcreatemodelselect" />
                 </svg>
                 <i className="fa fa-check"></i>
@@ -182,6 +183,7 @@ class CreateModel extends Component {
                   <span>通过镜像商店创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
+                  {/*@#selected*/}
                   <use xlinkHref="#appcreatemodelselect" />
                 </svg>
                 <i className="fa fa-check"></i>
@@ -193,6 +195,7 @@ class CreateModel extends Component {
                   <span>通过应用包文件创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
+                  {/*@#selected*/}
                   <use xlinkHref="#appcreatemodelselect" />
                 </svg>
                 <i className="fa fa-check"></i>
@@ -204,6 +207,7 @@ class CreateModel extends Component {
                   <span>通过应用商店创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
+                  {/*@#selected*/}
                   <use xlinkHref="#appcreatemodelselect" />
                 </svg>
                 <i className="fa fa-check"></i>
@@ -217,6 +221,7 @@ class CreateModel extends Component {
                     <span>通过应用模板创建应用</span>
                   </div>
                   <svg className="commonSelectedImg">
+                    {/*@#selected*/}
                     <use xlinkHref="#appcreatemodelselect" />
                   </svg>
                   <i className="fa fa-check"></i>

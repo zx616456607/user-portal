@@ -191,6 +191,7 @@ class AppDetail extends Component {
             <Card className='topCard'>
               <div className='imgBox'>
                 <svg>
+                  {/*@#app*/}
                   <use xlinkHref='#app' />
                 </svg>
               </div>

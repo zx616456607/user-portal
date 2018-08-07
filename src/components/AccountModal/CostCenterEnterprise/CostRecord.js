@@ -515,12 +515,14 @@ class CostRecord extends Component{
                 <Row>
                   <Col span={14} style={{paddingLeft:40}} className="teamCostListTitle">
                     <svg className="headerclusterSvg">
+                      {/*@#setting-cluster*/}
                       <use xlinkHref="#settingcluster"/>
                     </svg>
                     {standard ? '区域' : '集群名称'}
                   </Col>
                   <Col span={10} className="teamCostListTitle">
                     <svg className="headerclusterSvg">
+                      {/*@#money*/}
                       <use xlinkHref="#settingbalance"/>
                     </svg>
                     消费金额

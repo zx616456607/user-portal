@@ -1600,6 +1600,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         创建应用
@@ -1633,6 +1634,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         停止应用
@@ -1666,6 +1668,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         修改应用
@@ -1677,6 +1680,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         启动应用
@@ -1688,6 +1692,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#app-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         重新部署
@@ -1737,6 +1742,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="stateSvg">
+                          {/*@#engine*/}
                           <use xlinkHref="#engine" />
                         </svg>
                         API Server
@@ -1751,6 +1757,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="stateSvg">
+                          {/*lift-card-o*/}
                           <use xlinkHref="#cicd" />
                         </svg>
                         Monitor

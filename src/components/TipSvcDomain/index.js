@@ -125,7 +125,10 @@ class AppTip extends Component {
               <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}>
               </Timeline.Item>
               <Timeline.Item dot={<div></div>}>
-                <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
+                <svg className='branchSvg'>
+                  {/*@#branch*/}
+                  <use xlinkHref='#branch' />
+                </svg>
                 <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
                 <a href={linkURL} target='_blank'>
                   {
@@ -162,7 +165,10 @@ class AppTip extends Component {
                   let linkURL = 'http://' + url.domain
                   return (
                     <Timeline.Item dot={<div></div>}>
-                      <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
+                      <svg className='branchSvg'>
+                        {/*@#branch*/}
+                        <use xlinkHref='#branch' />
+                      </svg>
                       <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>

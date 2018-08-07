@@ -41,6 +41,7 @@ export default class Version extends Component{
                 <Row className="contentTop">
                     <Col span={8}>
                       <svg className="infSvg" style={{marginRight:8}}>
+                        {/*@#syc-name*/}
                         <use xlinkHref="#settingsycname" />
                       </svg>
                       <span className="infSvgTxt">系统名称</span>
@@ -95,6 +96,7 @@ export default class Version extends Component{
             <Row className="versionWrap">
               <div className="versionTitle">
                 <svg className="infSvg" style={{marginRight:8}}>
+                  {/*@#computer*/}
                   <use xlinkHref="#settingbase" />
                 </svg>
                 <span className="infSvgTxt">
@@ -105,6 +107,7 @@ export default class Version extends Component{
                 <Row className="contentTop">
                   <Col span={8}>
                     <svg className="infSvg" style={{marginRight:8}}>
+                      {/*@#syc-name*/}
                       <use xlinkHref="#settingsycname" />
                     </svg>
                     <span className="infSvgTxt">系统名称</span>

@@ -656,6 +656,7 @@ class ResourceQuota extends React.Component {
       case 'CI/CD':
         return <span>
           <svg className='cicd commonImg'>
+            {/*lift-card-o*/}
             <use xlinkHref="#cicd"></use>
           </svg> &nbsp;
         </span>
@@ -663,18 +664,21 @@ class ResourceQuota extends React.Component {
       case '交付中心':
         return <span>
           <svg className='center commonImg'>
+            {/*@#center-o*/}
             <use xlinkHref="#center"></use>
           </svg> &nbsp;
         </span>
       case '应用管理':
         return <span>
           <svg className='app commonImg'>
+            {/*@#app*/}
             <use xlinkHref="#app"></use>
           </svg> &nbsp;
         </span>
       case '数据库与缓存':
         return <span>
           <svg className='database commonImg'>
+            {/*@#database-o*/}
             <use xlinkHref="#database"></use>
           </svg> &nbsp;
         </span>
