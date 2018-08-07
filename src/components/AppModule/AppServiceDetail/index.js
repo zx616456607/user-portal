@@ -458,7 +458,8 @@ class AppServiceDetail extends Component {
               </TabPane>
               {/* TODO: 增加服务治理开关*/}
               <TabPane tab="服务治理开关" key="#serviceMeshSwitch">
-                <ServiceMeshSwitch serviceName={service.metadata.name}/>
+                <ServiceMeshSwitch serviceName={service.metadata.name}
+                istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
               </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
                 <AppServiceAssistSetting
