@@ -177,7 +177,6 @@ const formateUpdateResoure = (tabData, approvalState) => {
       if (!body.approveDetails[o.clusterID]) {
         body.approveDetails[o.clusterID] = {}
       }
-      console.log('o', o);
       body.approveDetails[o.clusterID][o.resource] = o.applyLimit;
     }
   }
@@ -231,7 +230,6 @@ class ApprovalOperation extends React.Component {
   fetchApprovalResult = (record, e) => {
     const { updateResourcequota, toggleVisable, tabData, reload, record: listRecord } = this.props
     const { approvalState } = this.state
-    console.log('tabData', tabData)
     const body = formateUpdateResoure(tabData, approvalState)
     const id = record.id
     updateResourcequota(record.id, {headers: listRecord.namespace} ,body, {
