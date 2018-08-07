@@ -543,20 +543,20 @@ export const GET_NETWORK_ISOLATION_STATUS_REQUEST = 'GET_NETWORK_ISOLATION_STATU
 export const GET_NETWORK_ISOLATION_STATUS_SUCCESS = 'GET_NETWORK_ISOLATION_STATUS_SUCCESS'
 export const GET_NETWORK_ISOLATION_STATUS_FAILURE = 'GET_NETWORK_ISOLATION_STATUS_FAILURE'
 
-function fetchNetworkIsolationStatus(body, callback) {
+function fetchNetworkIsolationStatus(clusterID, callback) {
   return {
     [FETCH_API]: {
       types: [GET_NETWORK_ISOLATION_STATUS_REQUEST, GET_NETWORK_ISOLATION_STATUS_SUCCESS, GET_NETWORK_ISOLATION_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkpolicy/default-deny`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/networkpolicy/default-deny`,
       schema: {},
     },
     callback
   }
 }
 
-export function getNetworkIsolationStatus(body, callback) {
+export function getNetworkIsolationStatus(clusterID, callback) {
   return (dispatch) => {
-    return dispatch(fetchNetworkIsolationStatus(body, callback))
+    return dispatch(fetchNetworkIsolationStatus(clusterID, callback))
   }
 }
 
@@ -564,14 +564,14 @@ export const POST_NETWORK_ISOLATION_REQUEST = 'POST_NETWORK_ISOLATION_REQUEST'
 export const POST_NETWORK_ISOLATION_SUCCESS = 'POST_NETWORK_ISOLATION_SUCCESS'
 export const POST_NETWORK_ISOLATION_FAILURE = 'POST_NETWORK_ISOLATION_FAILURE'
 
-function fetchPostNetworkIsolation(body, callback) {
+function fetchPostNetworkIsolation(clusterID, body, callback) {
   return {
     [FETCH_API]: {
       types: [POST_NETWORK_ISOLATION_REQUEST, POST_NETWORK_ISOLATION_SUCCESS, POST_NETWORK_ISOLATION_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkpolicy/default-deny`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/networkpolicy/default-deny`,
       options: {
         method: 'POST',
-        body: body.body
+        body: body
       },
       schema: {}
     },
@@ -579,9 +579,9 @@ function fetchPostNetworkIsolation(body, callback) {
   }
 }
 
-export function postNetworkIsolation(body, callback) {
+export function postNetworkIsolation(clusterID, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchPostNetworkIsolation(body, callback))
+    return dispatch(fetchPostNetworkIsolation(clusterID, body, callback))
   }
 }
 
@@ -589,11 +589,11 @@ export const DELETE_NETWORK_ISOLATION_REQUEST = 'DELETE_NETWORK_ISOLATION_REQUES
 export const DELETE_NETWORK_ISOLATION_SUCCESS = 'DELETE_NETWORK_ISOLATION_SUCCESS'
 export const DELETE_NETWORK_ISOLATION_FAILURE = 'DELETE_NETWORK_ISOLATION_FAILURE'
 
-function fetchDeleteNetworkIsolation(body, callback) {
+function fetchDeleteNetworkIsolation(clusterID, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_NETWORK_ISOLATION_REQUEST, DELETE_NETWORK_ISOLATION_SUCCESS, DELETE_NETWORK_ISOLATION_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${body.clusterID}/networkpolicy/default-deny`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/networkpolicy/default-deny`,
       options: {
         method: 'DELETE'
       },
@@ -603,8 +603,29 @@ function fetchDeleteNetworkIsolation(body, callback) {
   }
 }
 
-export function deleteNetworkIsolation(body, callback) {
+export function deleteNetworkIsolation(clusterID, callback) {
   return (dispatch) => {
-    return dispatch(fetchDeleteNetworkIsolation(body, callback))
+    return dispatch(fetchDeleteNetworkIsolation(clusterID, callback))
+  }
+}
+
+export const GET_SERVICE_REFERENCES_REQUEST = 'GET_SERVICE_REFERENCES_REQUEST'
+export const GET_SERVICE_REFERENCES_SUCCESS = 'GET_SERVICE_REFERENCES_SUCCESS'
+export const GET_SERVICE_REFERENCES_FAILURE = 'GET_SERVICE_REFERENCES_FAILURE'
+
+function fetchServiceReference(clusterID, query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_REFERENCES_REQUEST, GET_SERVICE_REFERENCES_SUCCESS, GET_SERVICE_REFERENCES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/networkpolicy/references?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getServiceReference(clusterID, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchServiceReference(clusterID, query, callback))
   }
 }

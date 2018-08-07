@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { Icon, Button } from 'antd'
 import { formatDate } from '../../../../../src/common/tools'
 import { browserHistory } from 'react-router'
+import detailImg from '../../../../assets/img/SecurityGroup/detailHeader.png'
 
 class DetailHeader extends React.Component {
   render() {
@@ -25,7 +26,7 @@ class DetailHeader extends React.Component {
       <div className="securityGroupDetailHeader" key="header">
         <div className="left">
           <div className="imgBox">
-            <Icon type="check-circle-o" />
+            <img src={detailImg} alt="详情" />
           </div>
           <div className="nameNStatus">
             <div className="name">安全组名称: { name }</div>
@@ -37,17 +38,17 @@ class DetailHeader extends React.Component {
         </div>
         <div className="right">
           <Button
+            type="ghost"
+            onClick={loadData}>
+            <i className="fa fa-refresh" style={{ marginRight: 5 }}/>
+            刷新
+          </Button>
+          <Button
             type="primary"
             onClick={() => browserHistory.push(`/app_manage/security_group/edit/${metadataName}`)}
           >
             <Icon type="edit" style={{ marginRight: 5 }}/>
             修改
-          </Button>
-          <Button
-            type="ghost"
-            onClick={loadData}>
-            <i className="fa fa-refresh" style={{ marginRight: 5 }}/>
-            刷新
           </Button>
         </div>
       </div>

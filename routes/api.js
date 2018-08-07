@@ -781,6 +781,7 @@ module.exports = function (Router) {
   router.post('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.setIsolationRule)
   router.delete('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.restoreDefault)
   router.post('/cluster/:clusterID/networkpolicy/bypass-namespace-internal', netIsolationController.setEachConnect)
+  router.get('/cluster/:clusterID/networkpolicy/references', netIsolationController.getServiceReferences)
 
   // Apms
   router.get('/clusters/:clusterID/apms', apmController.getApms)
