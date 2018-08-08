@@ -16,9 +16,12 @@ import ReactEcharts from 'echarts-for-react'
 import './style/ImageService.less'
 import harborImg from '../../assets/img/integration/harbor.png'
 import { connect } from 'react-redux'
-import { setClusterHarbor } from '../../actions/cluster'
+import { setClusterHarbor, loadClusterList } from '../../actions/cluster'
+import { getProjectVisibleClusters } from '../../actions/project'
+import { setCurrent } from '../../actions/entities'
 import { URL_REGEX } from '../../../constants/index'
 import NotificationHandler from '../../components/Notification'
+import filter from 'lodash/filter'
 
 const notify = new NotificationHandler()
 
@@ -41,7 +44,9 @@ class ImageService extends React.Component {
     })
   }
   onSubmitClick = () => {
-    const { form: { validateFields }, setClusterHarbor, cluster: { clusterID } } = this.props
+    const { form: { validateFields }, setClusterHarbor, cluster, currClusterID,
+    loadClusterList, setCurrent, projectName, getProjectVisibleClusters } = this.props
+    let clusterID = typeof cluster === 'string' ? cluster : cluster.clusterID
 
     validateFields(['url'], (error, values) => {
       if(error) return
@@ -61,7 +66,19 @@ class ImageService extends React.Component {
                 readonly: false,
                 lastValue: values.url,
               })
-            }
+              loadClusterList({size: 100}, {
+                success: {
+                  func: res => {
+                    if(currClusterID === clusterID){
+                      setCurrent({ cluster: filter(res.data, { clusterID })[0] || cluster })
+                    }
+                    getProjectVisibleClusters(projectName)
+                  },
+                  isAsync: true,
+                }
+              })
+            },
+            isAsync: true,
           },
           failed: {
             func: (err) => {
@@ -109,7 +126,7 @@ class ImageService extends React.Component {
       </div>
       <Form className="harborConfig">
         <Row className="harborTips">
-          <span>配置harbor地址</span>
+          <span>配置 harbor 地址</span>
           <span className={'tips'}>管理集群 Docker 镜像，用于镜像仓库、流水线镜像发布等功能，可以使用默认harbor，也可以配置其它harbor</span>
         </Row>
         <Row>
@@ -151,8 +168,18 @@ class ImageService extends React.Component {
   }
 }
 
-const mapStateToProps = () => ({})
+function mapStateToProps(state, props) {
+  const { projectName } = state.entities.current.space
+  const { clusterID } = state.entities.current.cluster
+  return {
+    projectName,
+    currClusterID: clusterID,
+  }
+}
 
 export default connect(mapStateToProps,  {
   setClusterHarbor,
+  loadClusterList,
+  setCurrent,
+  getProjectVisibleClusters,
 })(Form.create()(ImageService))
