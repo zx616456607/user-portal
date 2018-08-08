@@ -213,7 +213,7 @@ exports.getAlertSetting = function* () {
     let item = {
       type: condition[0],
       operation: rule.annotations.operator,
-      threshold: condition[condition.length - 1],
+      threshold: condition[condition.length - 1].trim(),
       createTime: rule.annotations.createTime,
       recordCount: 0,
       name: rule.alert,

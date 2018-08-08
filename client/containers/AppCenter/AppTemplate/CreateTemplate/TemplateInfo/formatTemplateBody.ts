@@ -38,7 +38,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       Object.assign(serviceOption, {
         chart: {
           name: isDeploy ? value.chartName.value : // 部署模板
-              value.chartName.value ? value.chartName.value : // 编辑模板
+              value.chartName && value.chartName.value ? value.chartName.value : // 编辑模板
             count === fieldsLength ? value.templateName.value : value.templateName.value + `-${count}`, // 创建模板
           // version: value.templateVersion.value,
           version: 'v1',

@@ -12,17 +12,16 @@ import React from 'react'
 import { Modal } from 'antd'
 import yaml from 'js-yaml'
 import { connect } from 'react-redux'
-import YamlEditor from '../../../src/components/Editor/Yaml'
+import Yaml from '../../components/EditorModule'
 import * as dnsRecordActions from '../../actions/dnsRecord'
 import Notification from '../../../src/components/Notification'
 import './style/index.less'
 
 const notification = new Notification()
-const EditOpts = { readOnly: false }
 
 class YamlModal extends React.Component {
   state = {
-    appDescYaml: '',
+    appDescYaml: undefined,
     yamlStr: '',
   }
 
@@ -38,27 +37,26 @@ class YamlModal extends React.Component {
       },
     }).then(res => {
       const appDescYaml = yaml.dump(res.response.result.data)
-      this.setState({
-        appDescYaml,
-        yamlStr: appDescYaml,
-      })
-    })
-  }
-
-  editYamlSetState = val => {
-    // this function for yaml edit callback function
-    this.setState({
-      appDescYaml: val,
+      // 解决光标问题： 动画结束（dom可获取）渲染数据，=> 显示滚动条
+      setTimeout(() => {
+        this.setState({
+          appDescYaml,
+          yamlStr: appDescYaml,
+        })
+      }, 100)
     })
   }
 
   handleOk = () => {
     const { changeDnsItem, cluster, editItem, loadData } = this.props
     const { appDescYaml, yamlStr } = this.state
+    const body = yaml.safeLoad(appDescYaml)
+    if (!body) {
+      return notification.info('DNS 记录不能为空')
+    }
     if (appDescYaml === yamlStr) {
       return notification.info('未修改 DNS 记录')
     }
-    const body = yaml.safeLoad(appDescYaml)
     delete body.status
     delete body.metadata.creationTimestamp
     delete body.metadata.namespace
@@ -85,7 +83,11 @@ class YamlModal extends React.Component {
       },
     })
   }
-
+  onChangeCurrEditorValue = appDescYaml => {
+    this.setState({
+      appDescYaml,
+    })
+  }
   render() {
     const { appDescYaml } = this.state
     const { visible, editItem } = this.props
@@ -96,8 +98,11 @@ class YamlModal extends React.Component {
       confirmLoading={this.state.confirmLoading}
       onCancel={editItem}
       width={600}
+      className="yamlModal"
     >
-      <YamlEditor value={appDescYaml} options={EditOpts} callback={this.editYamlSetState} />
+      <Yaml
+        onChange={this.onChangeCurrEditorValue}
+        value={appDescYaml} />
     </Modal>
   }
 }

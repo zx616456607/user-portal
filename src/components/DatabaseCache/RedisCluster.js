@@ -46,12 +46,16 @@ let MyComponent = React.createClass({
     this.props.setAutoBackup(item)
   },
   render: function () {
-    const { config, isFetching } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin } = this.props;
     const canCreate = this.props.canCreate
     let title = ''
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
+    }
+
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -63,7 +67,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
+          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -174,6 +178,9 @@ class RedisDatabase extends Component {
       currentClusterNeedBackup: '',
       aleradySetAuto: [],
       autoBackupSwitch: false,
+      uninstalledPlugin: false, //是否未安装插件
+      plugin: ''
+
     }
   }
 
@@ -201,8 +208,15 @@ class RedisDatabase extends Component {
       },
       failed: {
         func: err => {
-          if (err.statusCode === 500) {
-            notification.error('Redis集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
@@ -221,12 +235,18 @@ class RedisDatabase extends Component {
     loadDbCacheList(cluster, 'redis', {
       failed: {
         func: err => {
-          if (err.statusCode === 500) {
-            notification.error('Redis集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
-
     })
   }
   componentDidMount() {
@@ -291,6 +311,7 @@ class RedisDatabase extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -300,6 +321,9 @@ class RedisDatabase extends Component {
     if(!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
+    }
     return (
       <QueueAnim id='redisDatabase' type='right'>
         <div className='databaseCol' key='RedisDatabase'>
@@ -307,7 +331,7 @@ class RedisDatabase extends Component {
           <div className='databaseHead'>
           <ResourceBanner resourceType='redis'/>
             { mode === standard ? <div className='alertRow'>您的 Redis 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
-            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
+            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate || uninstalledPlugin}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
             <Button className="button_refresh" size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
@@ -318,7 +342,16 @@ class RedisDatabase extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} setAutoBackup={this.onAutoBackup} autoBackupList = {this.state.aleradySetAuto} config={databaseList} canCreate={canCreate}/>
+          <MyComponent
+            scope={_this}
+            isFetching={isFetching}
+            setAutoBackup={this.onAutoBackup}
+            autoBackupList = {this.state.aleradySetAuto}
+            config={databaseList}
+            canCreate={canCreate}
+            uninstalledPlugin = {uninstalledPlugin}
+            plugin = {plugin}
+          />
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
