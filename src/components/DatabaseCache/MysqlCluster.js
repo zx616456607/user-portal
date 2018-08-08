@@ -47,10 +47,13 @@ let MyComponent = React.createClass({
 
   render: function () {
     const canCreate = this.props.canCreate
-    const { config, isFetching } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin } = this.props;
     let title = ''
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
+    }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
     }
     if (isFetching) {
       return (
@@ -182,7 +185,9 @@ class MysqlCluster extends Component {
       minutes: '0',
       currentClusterNeedBackup: '',
       aleradySetAuto: [],
-      autoBackupSwitch: false
+      autoBackupSwitch: false,
+      uninstalledPlugin: false, //是否未安装插件
+      plugin: ''
     }
   }
   refreshDatabase() {
@@ -209,11 +214,19 @@ class MysqlCluster extends Component {
       },
       failed: {
         func: err => {
-          if (err.statusCode === 404) {
-            notification.error('MySQL集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
+
 
     })
     const { teamCluster } = this.props
@@ -234,8 +247,15 @@ class MysqlCluster extends Component {
     loadDbCacheList(cluster, 'mysql', {
       failed: {
         func: err => {
-          if (err.statusCode === 404) {
-            notification.error('MySQL集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
@@ -319,6 +339,7 @@ class MysqlCluster extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -327,6 +348,10 @@ class MysqlCluster extends Component {
     if(!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
+    if (uninstalledPlugin) {
+      title = `${plugin} 未安装`
+    }
+
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
@@ -346,13 +371,28 @@ class MysqlCluster extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} setAutoBackup={this.onAutoBackup} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent
+            scope={_this}
+            setAutoBackup={this.onAutoBackup}
+            isFetching={isFetching}
+            config={databaseList}
+            canCreate={canCreate}
+            uninstalledPlugin = {uninstalledPlugin}
+            plugin = {plugin}
+          />
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail detailModal={this.state.detailModal} scope={_this}  putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+          <ModalDetail
+            detailModal={this.state.detailModal}
+            scope={_this}
+            putVisible={ _this.state.putVisible }
+            database={this.props.database}
+            currentData={this.state.currentData}
+            dbName={this.state.currentDatabase}
+          />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false} width={600}
