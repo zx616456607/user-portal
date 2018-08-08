@@ -125,6 +125,7 @@ class SecretsConfig extends React.Component {
                       ))}
                       getTooltipContainer={()=> document.getElementById('secrets-config')}
                     >
+                      {/*@#ellipsis*/}
                       <svg className="more"><use xlinkHref="#more"></use></svg>
                     </Popover>
                   }

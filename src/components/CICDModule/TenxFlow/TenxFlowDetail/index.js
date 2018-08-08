@@ -600,6 +600,7 @@ class TenxFlowDetail extends Component {
               }
               <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal} className='titleLogBtn'>
                 <svg className='cicdlog'>
+                  {/*@#execute-log*/}
                   <use xlinkHref='#cicdlog' />
                 </svg>
                 <FormattedMessage {...menusText.deloyLog} />

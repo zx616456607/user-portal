@@ -471,6 +471,7 @@ class ImageSpace extends Component {
               </div>
               <div className="type">
                 <FormattedMessage {...menusText.type} />
+                {/*@#private*/}
                 {row.contributor}
                 {row.isPrivate == "0" ? [
                   <span key={row.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg><FormattedMessage {...menusText.publicType} /></span>]

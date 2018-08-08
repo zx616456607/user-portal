@@ -1612,6 +1612,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#volume-bind*/}
                           <use xlinkHref="#homeservicecount" />
                         </svg>
                         创建服务
@@ -1623,6 +1624,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#storage-volume-o*/}
                           <use xlinkHref="#homesavecount" />
                         </svg>
                         创建存储卷
@@ -1646,6 +1648,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#volume-bind*/}
                           <use xlinkHref="#homeservicecount" />
                         </svg>
                         删除服务
@@ -1657,6 +1660,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#storage-volume-o*/}
                           <use xlinkHref="#homesavecount" />
                         </svg>
                         删除存储卷
@@ -1728,6 +1732,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="stateSvg">
+                          {/*@#www*/}
                           <use xlinkHref="#homewww" />
                         </svg>
                         DNS
@@ -1772,6 +1777,7 @@ class Ordinary extends Component {
                     <tr>
                       <td>
                         <svg className="stateSvg">
+                          {/*@#log*/}
                           <use xlinkHref="#homelogging" />
                         </svg>
                         Logging

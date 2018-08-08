@@ -141,6 +141,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#cube*/}
                       <use xlinkHref="#homespacecountcolor" />
                     </svg>
                     空间
@@ -192,6 +193,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#volume-bind*/}
                       <use xlinkHref="#homeservicecountcolor" />
                     </svg>
                     服务
@@ -203,6 +205,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      {/*@#storage-volume*/}
                       <use xlinkHref="#homesavecountcolor" />
                     </svg>
                     存储卷
@@ -290,6 +293,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#volume-bind*/}
                           <use xlinkHref="#homeservicecount" />
                         </svg>
                         创建服务
@@ -301,6 +305,7 @@ class Admin extends Component{
                      <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#storage-volume-o*/}
                           <use xlinkHref="#homesavecount" />
                         </svg>
                         创建存储卷
@@ -324,6 +329,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#volume-bind*/}
                           <use xlinkHref="#homeservicecount" />
                         </svg>
                         删除服务
@@ -335,6 +341,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
+                          {/*@#storage-volume-o*/}
                           <use xlinkHref="#homesavecount" />
                         </svg>
                         删除存储卷

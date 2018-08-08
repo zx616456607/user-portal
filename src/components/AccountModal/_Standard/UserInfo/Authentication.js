@@ -319,10 +319,14 @@ class Indivduals extends Component {
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
         <div className="auth-status">
+          {/*@#identity-card*/}
           {componstStatus == 4 ?
           <svg className="auth-img" style={{fill:'#4ABE44'}}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img"></use></svg>
           :
-          <svg className="auth-img"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img"></use></svg>
+          <svg className="auth-img">
+            {/*@#identity-card*/}
+            <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img"></use>
+          </svg>
           }
           <span className="auth-text">个人认证</span>
           {formetStatus(componstStatus)}
@@ -475,9 +479,15 @@ class Enterprise extends Component {
         <div className="description">企业用户通过企业认证可获得50元代金券，认证的企业用户的资源配额拥有比未认证的用户更高的配额。请根据您的组织类型选择类型选择认证，企业指领取营业执照的有限责任公司、股份有限公司、非公司企业法人、合伙企业、个人独资企业及其分支机构、来华从事经营的外国（地区）企业，及其他经营单位；其他组织指在中华人民共和国境内依法注册、依法登记的机关、事业单位、社会团体、学校和民办非企业单位和其他机构。</div>
         <div className="auth-status">
           {componstStatus == 4 ?
-          <svg className="auth-img" style={{fill:'#4ABE44'}}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use></svg>
+          <svg className="auth-img" style={{fill:'#4ABE44'}}>
+            {/*@#certifaicate*/}
+            <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use>
+          </svg>
           :
-          <svg className="auth-img"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use></svg>
+          <svg className="auth-img">
+            {/*@#certifaicate*/}
+            <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use>
+          </svg>
           }
           <span className="auth-text">企业认证</span>
           {formetStatus(componstStatus)} {/* status */}

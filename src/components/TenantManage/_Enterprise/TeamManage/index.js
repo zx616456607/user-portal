@@ -770,6 +770,7 @@ class TeamManage extends Component {
               canCreateTeam ?
               <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
                 <svg id="chosenCreator">
+                  {/*@#mouse-point*/}
                   <use xlinkHref='#chosencreator' />
                 </svg> 哪些人可以创建团队
               </Button>

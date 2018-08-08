@@ -406,6 +406,7 @@ const MyComponent = React.createClass({
           dataIndex: 'objectMete',
           render: (objectMeta, item, index) => <div className='alarm'>
             <Tooltip title="查看监控">
+              {/*@#manage-monitor*/}
               <svg className="managemoniter" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"/></svg>
             </Tooltip>
             <Tooltip title="告警设置" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
@@ -1103,6 +1104,7 @@ class hostList extends Component {
           </Tooltip>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
             <svg>
+              {/*@#terminal*/}
               <use xlinkHref='#terminal' />
             </svg>
             <span>终端 | 集群管理</span>

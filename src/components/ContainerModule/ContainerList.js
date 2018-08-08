@@ -451,6 +451,7 @@ let MyComponent = React.createClass({
               overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
               <svg className='terminal'>
+                {/*@#terminal*/}
                 <use xlinkHref='#terminal' />
               </svg>
               <span style={{ marginLeft: '20px' }}>终端</span>

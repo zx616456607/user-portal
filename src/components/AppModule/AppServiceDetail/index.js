@@ -352,6 +352,7 @@ class AppServiceDetail extends Component {
         return (
           <Button className='loginBtn' type='primary' size='large' key={index} onClick={this.openTerminalModal.bind('', item)}>
             <svg className='terminal'>
+              {/*@#terminal*/}
               <use xlinkHref='#terminal'/>
             </svg>
             <span>登录终端</span>
@@ -372,6 +373,7 @@ class AppServiceDetail extends Component {
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>
             <svg>
+              {/*@#gear*/}
               <use xlinkHref='#server' />
             </svg>
           </div>
@@ -407,6 +409,7 @@ class AppServiceDetail extends Component {
                   <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                     <Button className='loginBtn' type='primary' size='large'>
                       <svg className='terminal'>
+                        {/*@#terminal*/}
                         <use xlinkHref='#terminal'/>
                       </svg>
                       <span>登录终端</span>

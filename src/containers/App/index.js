@@ -553,6 +553,7 @@ class App extends Component {
           <div style={{ textAlign: 'center' }}>
             <p>
               <svg>
+                {/*@#lost*/}
                 <use xlinkHref='#lost' />
               </svg>
             </p>

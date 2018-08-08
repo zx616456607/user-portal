@@ -155,21 +155,25 @@ class UserPanel extends Component {
     let menuItems = [
       {
         to: '/account',
+        /*@#log-account*/
         svgHref: '#logaccountinf',
         text: '帐户信息',
       },
       {
         to: '/account#edit_pass',
+        /*@#password-change*/
         svgHref: '#logchangepass',
         text: '修改密码',
       },
       {
         to: '/tenant_manage/team',
+        /*@#team-o*/
         svgHref: '#logteam',
         text: '团队',
       },
       {
         to: `/tenant_manage/project_manage`,
+        /*@#overlap*/
         svgHref: '#project',
         text: '项目',
       }
@@ -178,21 +182,25 @@ class UserPanel extends Component {
       menuItems = [
         {
           to: '/account',
+          /*@#log-account*/
           svgHref: '#logaccountinf',
           text: '我的帐户',
         },
         {
           to: '/account/costCenter#consumptions',
+          /*@#cost-record*/
           svgHref: '#logcostrecord',
           text: '消费记录',
         },
         {
           to: '/account#edit_pass',
+          /*@#password-change*/
           svgHref: '#logchangepass',
           text: '修改密码',
         },
         {
           to: '/tenant_manage/team',
+          /*@#team-o*/
           svgHref: '#logteam',
           text: '我的团队',
         },

@@ -297,6 +297,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
+                        {/*@#volume-bind*/}
                         <use xlinkHref="#homeservicecount" />
                       </svg>
                       创建服务
@@ -308,6 +309,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
+                      {/*@#storage-volume-o*/}
                       <use xlinkHref="#homesavecount" />
                     </svg>
                     创建存储卷
@@ -331,6 +333,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
+                      {/*@#volume-bind*/}
                       <use xlinkHref="#homeservicecount" />
                     </svg>
                     删除服务
@@ -342,6 +345,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
+                      {/*@#storage-volume-o*/}
                       <use xlinkHref="#homesavecount" />
                     </svg>
                     删除存储卷

@@ -54,6 +54,7 @@ class SvcTip extends Component {
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
           <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+            {/*@#copy*/}
             <svg className='tipCopySvg' onClick={this.servercopyCode.bind(this)} onMouseLeave={ this.returnDefaultTooltip.bind(this) } onMouseEnter={this.startCopyCode.bind(this,element.domain)}><use xlinkHref='#appcentercopy' /></svg>
           </Tooltip>
         </li>
@@ -138,6 +139,7 @@ class AppTip extends Component {
                   }
                 </a>
                 <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+                  {/*@#copy*/}
                   <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, item.data[0].domain)}><use xlinkHref='#appcentercopy' /></svg>
                 </Tooltip>
               </Timeline.Item>
@@ -172,6 +174,7 @@ class AppTip extends Component {
                       <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+                        {/*@#copy*/}
                         <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, url)}><use xlinkHref='#appcentercopy' /></svg>
                       </Tooltip>
                     </Timeline.Item>

@@ -579,6 +579,7 @@ const MyComponent = React.createClass({
           <div className="alarm commonData">
             <Tooltip title="查看监控">
             <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
+              {/*@#manage-monitor*/}
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
             </svg>
             </Tooltip>

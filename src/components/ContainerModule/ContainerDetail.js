@@ -157,7 +157,8 @@ class ContainerDetail extends Component {
             <Card className="topCard">
               <div className="imgBox">
                 <svg>
-                  <use xlinkHref='#server' />
+                  {/*@#gear*/}
+                  <use xlinkHref='#server'/>
                 </svg>
               </div>
               <div className="infoBox">
@@ -188,6 +189,7 @@ class ContainerDetail extends Component {
                     <Button type="primary" className="viewBtn" size='large'
                       onClick={(e) => this.openTerminalModal(container, e)}>
                       <svg className="terminal">
+                        {/*@#terminal*/}
                         <use xlinkHref="#terminal" />
                       </svg>
                       登录终端

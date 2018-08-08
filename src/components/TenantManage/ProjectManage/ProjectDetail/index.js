@@ -1669,6 +1669,7 @@ class ProjectDetail extends Component {
                           }
                           <span className="desc">
                             <svg className="permissionIcon">
+                              {/*@#permission*/}
                               <use xlinkHref="#permission" />
                             </svg>
                             授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}

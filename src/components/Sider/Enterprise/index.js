@@ -300,6 +300,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -314,6 +315,7 @@ class Sider extends Component {
       <div className="adminBox">
         <Tooltip title="仅系统管理员可见" placement="right">
           <svg className="start forAdmin">
+            {/*@#star*/}
             <use xlinkHref='#start' />
           </svg>
         </Tooltip>
@@ -328,6 +330,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -361,6 +364,7 @@ class Sider extends Component {
         <div className="usrBox">
           <Tooltip title="仅普通用户可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -396,6 +400,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -415,6 +420,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -429,6 +435,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -444,6 +451,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -465,6 +473,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -484,6 +493,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -498,6 +508,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -525,6 +536,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -539,6 +551,7 @@ class Sider extends Component {
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
             <svg className="start forAdmin">
+              {/*@#star*/}
               <use xlinkHref='#start' />
             </svg>
           </Tooltip>
@@ -698,6 +711,7 @@ class Sider extends Component {
                     getTooltipContainer={() => document.getElementById('siderTooltip')}>
                     <Link to='/integration'>
                       <svg className='system commonImg'>
+                        {/*@puzzle-o*/}
                         <use xlinkHref='#system' />
                       </svg>
                     </Link>
@@ -710,6 +724,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
+                      {/*@#manage-monitor*/}
                       <use xlinkHref='#managemoniter' />
                     </svg>
                   </Link>
@@ -721,6 +736,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
                     <svg className='account commonImg'>
+                      {/*@#user-o*/}
                      <use xlinkHref='#message' />
                     </svg>
                   </Link>
@@ -743,6 +759,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
                     <svg className='setting commonImg'>
+                      {/*@#setting-o*/}
                       <use xlinkHref='#setting' />
                     </svg>
                   </Link>
@@ -755,6 +772,7 @@ class Sider extends Component {
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
                         <svg className='cluster commonImg'>
+                          {/*@#infrastructure*/}
                           <use xlinkHref='#siderinfrastructure' />
                         </svg>
                       </Link>
@@ -956,6 +974,7 @@ class Sider extends Component {
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
+                            {/*@#star*/}
                             <use xlinkHref='#start' />
                           </svg>
                         </Tooltip>
@@ -1157,6 +1176,7 @@ class Sider extends Component {
                   <Link to='/integration'>
                     <span>
                       <svg className='system commonImg'>
+                        {/*@puzzle-o*/}
                         <use xlinkHref='#system' />
                       </svg>
                       <span className='commonSiderSpan'>集成中心</span>
@@ -1170,6 +1190,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='manageMoniter commonImg'>
+                        {/*@#manage-monitor*/}
                         <use xlinkHref='#managemoniter' />
                       </svg>
                       <span className='commonSiderSpan'>管理与监控</span>
@@ -1213,6 +1234,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='account commonImg'>
+                        {/*@#user-o*/}
                         <use xlinkHref='#message' />
                       </svg>
                       <span className='commonSiderSpan'>帐户中心</span>
@@ -1264,6 +1286,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='setting commonImg'>
+                        {/*@#setting-o*/}
                         <use xlinkHref='#setting' />
                       </svg>
                       <span className='commonSiderSpan'>系统设置</span>
@@ -1282,6 +1305,7 @@ class Sider extends Component {
                     title={
                       <span>
                         <svg className='clusterWrapper commonImg'>
+                          {/*@#infrastructure*/}
                           <use xlinkHref='#siderinfrastructure' />
                         </svg>
                         <span className='commonSiderSpan'>基础设施</span>
@@ -1293,6 +1317,7 @@ class Sider extends Component {
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
                         <svg className="start forAdmin">
+                          {/*@#star*/}
                           <use xlinkHref='#start' />
                         </svg>
                       </Tooltip>
@@ -1307,6 +1332,7 @@ class Sider extends Component {
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
+                            {/*@#star*/}
                             <use xlinkHref='#start' />
                           </svg>
                         </Tooltip>
@@ -1321,6 +1347,7 @@ class Sider extends Component {
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
                           <svg className="start forAdmin">
+                            {/*@#star*/}
                             <use xlinkHref='#start' />
                           </svg>
                         </Tooltip>
@@ -1335,6 +1362,7 @@ class Sider extends Component {
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
                         <svg className="start forAdmin">
+                          {/*@#star*/}
                           <use xlinkHref='#start' />
                         </svg>
                       </Tooltip>
@@ -1360,6 +1388,7 @@ class Sider extends Component {
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
                         <svg className="start forAdmin">
+                          {/*@#star*/}
                           <use xlinkHref='#start' />
                         </svg>
                       </Tooltip>

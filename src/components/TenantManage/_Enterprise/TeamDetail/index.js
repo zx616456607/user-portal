@@ -929,6 +929,7 @@ class TeamDetail extends Component {
                         <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>
                           <svg id="transferLeader">
+                            {/*@# transfer-leader*/}
                             <use xlinkHref='#transferleader' />
                           </svg>
                         移交团队</Button>

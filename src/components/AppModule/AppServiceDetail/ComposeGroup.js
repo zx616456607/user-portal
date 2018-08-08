@@ -156,6 +156,7 @@ let MyComponent = React.createClass({
             }
             {item.file.length > 1 ?
             <Popover content={group} getTooltipContainer={()=> document.getElementById('ComposeGroup')}>
+              {/*@#ellipsis*/}
               <svg className="more"><use xlinkHref="#more"></use></svg>
             </Popover>
             :null

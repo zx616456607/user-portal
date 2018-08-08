@@ -191,6 +191,7 @@ class License extends Component {
                                                                            onMouseLeave={() => this.returnDefaultTooltip()}>&nbsp;
                        <Icon type="copy"/></a></Tooltip></div>} title={null}>
               <svg className='svgmore'>
+                {/*@#ellipsis*/}
                 <use xlinkHref='#more'/>
               </svg>
             </Popover>

@@ -446,6 +446,7 @@ class CodeStore extends Component {
                   <a className="ant-dropdown-link" href="#">
                     <FormattedMessage {...menusText.attr} />
                     <svg className='filterSvg'>
+                      {/*@#filter*/}
                       <use xlinkHref='#cicdfilter' />
                     </svg>
                   </a>

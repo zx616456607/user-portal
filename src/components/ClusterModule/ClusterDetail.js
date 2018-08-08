@@ -244,6 +244,7 @@ let HostInfo = React.createClass({
             </div>
 
             <div className="host-list Versionin">
+              {/*@#tag*/}
               <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
               <br />
               <Row className="items versioninformation">
@@ -257,6 +258,7 @@ let HostInfo = React.createClass({
             </div>
 
             <div className="host-list">
+              {/*@#tag-right*/}
               <div className="titles"><svg className='size select'><use xlinkHref="#managelabels"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
               <br />
               <div className='labelContainer'>
