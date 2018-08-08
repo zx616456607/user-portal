@@ -26,8 +26,6 @@ class newRedisCluster {
         },
     }
     this.spec = {
-      repository: 'http://192.168.1.21:8879',
-      chart: 'redis-tenxcloud',
       resources: config,
       advanceSetting: {
         password,

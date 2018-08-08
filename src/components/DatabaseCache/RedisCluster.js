@@ -53,7 +53,7 @@ let MyComponent = React.createClass({
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
 
     if (isFetching) {
@@ -301,8 +301,6 @@ class RedisDatabase extends Component {
     })
   }
   setAutobackupSuccess = () => {
-    const { loadDbCacheList, cluster, database } = this.props
-    loadDbCacheList(cluster, database)
     this.setState({
       autoBackupModalShow: false,
     })
@@ -310,7 +308,7 @@ class RedisDatabase extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
     const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
@@ -322,7 +320,7 @@ class RedisDatabase extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
     return (
       <QueueAnim id='redisDatabase' type='right'>
@@ -355,7 +353,10 @@ class RedisDatabase extends Component {
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
-          onCancel={() => { this.setState({ detailModal: false }) } }
+          onCancel={() => {
+            this.setState({ detailModal: false })
+            loadDbCacheList(cluster, 'redis')
+          } }
           >
           {
             this.state.detailModal && <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
