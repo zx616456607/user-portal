@@ -17,28 +17,60 @@ import MonitorTable from './MonitorTable'
 import MonitorDetail from './MonitorDetail'
 import './style/LoadBalanceConfig.less'
 import Title from '../../Title'
+import TcpUdpDetail from './TcpUdpDetail'
 
 import { getLBDetail, deleteIngress, editLB } from '../../../actions/load_balance'
 
 class LoadBalanceConfig extends React.Component {
   state = {
     tablePart: true,
+    activeKey: 'HTTP',
   }
-  
+
   componentWillMount() {
     const { getLBDetail, clusterID, location } = this.props
     const { name, displayName } = location.query
     getLBDetail(clusterID, name, displayName)
   }
-  togglePart = (flag, data) => {
+  togglePart = (flag, data, type) => {
     this.setState({
       tablePart: flag,
-      currentIngress: data
+      currentIngress: data,
+      activeKey: type,
     })
   }
-  
+
+  renderDetail = () => {
+    const { activeKey, currentIngress } = this.state
+    const { clusterID, location } = this.props
+    switch (activeKey) {
+      case 'HTTP':
+        return <MonitorDetail
+          currentIngress={currentIngress}
+          togglePart={this.togglePart}
+          clusterID={clusterID}
+          location={location}
+        />
+      case 'TCP':
+      case 'UDP':
+        return <TcpUdpDetail
+          currentIngress={currentIngress}
+          type={activeKey}
+          togglePart={this.togglePart}
+        />
+      default:
+        return
+    }
+  }
+
+  changeTabs = activeKey => {
+    this.setState({
+      activeKey,
+    })
+  }
+
   render() {
-    const { tablePart, currentIngress } = this.state
+    const { tablePart, activeKey } = this.state
     const { clusterID, location, lbDetail, deleteIngress, getLBDetail, editLB } = this.props
     return (
       <QueueAnim className="loadBalanceConfig">
@@ -55,8 +87,8 @@ class LoadBalanceConfig extends React.Component {
             配置负载均衡器
           </span>
         </div>
-        <BaseInfo 
-          key="baseInfo" 
+        <BaseInfo
+          key="baseInfo"
           lbDetail={lbDetail}
           clusterID={clusterID}
           getLBDetail={getLBDetail}
@@ -67,20 +99,18 @@ class LoadBalanceConfig extends React.Component {
           {
             tablePart ?
               <MonitorTable
-                lbDetail={lbDetail}
                 togglePart={this.togglePart}
-                deleteIngress={deleteIngress}
-                getLBDetail={getLBDetail}
-                clusterID={clusterID}
-                location={location}
+                changeTabs={this.changeTabs}
+                {...{
+                  lbDetail,
+                  deleteIngress,
+                  getLBDetail,
+                  clusterID,
+                  location,
+                  activeKey
+                }}
               />
-              :
-              <MonitorDetail
-                currentIngress={currentIngress}
-                togglePart={this.togglePart}
-                clusterID={clusterID}
-                location={location}
-              />
+              : this.renderDetail()
           }
         </div>
       </QueueAnim>

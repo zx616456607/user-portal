@@ -125,7 +125,7 @@ class LoadBalanceModal extends React.Component {
       })
       notify.spin(currentBalance ? '修改中' : '创建中')
       const {
-        displayName, useGzip, node, monitorType, description,
+        displayName, useGzip, node, agentType, description,
         DIYMinMemory, DIYMaxMemory, DIYMinCPU, DIYMaxCPU
       } = values
       let resources
@@ -150,12 +150,16 @@ class LoadBalanceModal extends React.Component {
       const body = {
         displayName,
         useGzip: useGzip.toString(),
-        monitorType,
-        nodeName: currentBalance ? currentBalance.metadata.annotations.nodeName : node.split('/')[1],
-        ip: currentBalance ? currentBalance.metadata.annotations.allocatedIP : node.split('/')[0],
+        agentType,
         requests: defaultRequests,
         limits: defaultLimits,
         description
+      }
+      if (agentType === 'outside') {
+        Object.assign(body, {
+          nodeName: currentBalance ? currentBalance.metadata.annotations.nodeName : node.split('/')[1],
+          ip: currentBalance ? currentBalance.metadata.annotations.allocatedIP : node.split('/')[0],
+        })
       }
       if (currentBalance) {
         // 修改负载均衡
@@ -268,23 +272,26 @@ class LoadBalanceModal extends React.Component {
   render() {
     const { composeType, confirmLoading } = this.state
     const { form, ips, visible, currentBalance } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
+    const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 18 }
     }
+    let nodeProps
+    const agentType = getFieldValue('agentType')
+    if (agentType === 'outside') {
+      nodeProps = getFieldProps('node', {
+        rules: [
+          {
+            validator: this.nodeCheck
+          }
+        ],
+        initialValue: currentBalance ? currentBalance.metadata.annotations.nodeName : ''
+      })
+    }
 
-    const nodeProps = getFieldProps('node', {
-      rules: [
-        {
-          validator: this.nodeCheck
-        }
-      ],
-      initialValue: currentBalance ? currentBalance.metadata.annotations.nodeName : ''
-    })
-
-    const monitorTypeProps = getFieldProps('monitorType', {
-      initialValue: 'HTTP'
+    const agentTypeProps = getFieldProps('agentType', {
+      initialValue: 'inside'
     })
 
     const nameProps = getFieldProps('displayName', {
@@ -357,26 +364,29 @@ class LoadBalanceModal extends React.Component {
       >
         <Form form={form}>
           <FormItem
-            label="选择节点"
+            label="代理方式"
             {...formItemLayout}
           >
-            <Select
-              showSearch={true}
-              disabled={currentBalance}
-              {...nodeProps}
-            >
-              {nodesChild}
-            </Select>
-          </FormItem>
-          <FormItem
-            label="监听类型"
-            {...formItemLayout}
-          >
-            <RadioGroup {...monitorTypeProps}>
-              <Radio value="HTTP">HTTP</Radio>
-              <Radio value="TCP/UDP" disabled>TCP/UDP</Radio>
+            <RadioGroup {...agentTypeProps}>
+              <Radio value="inside">集群内代理</Radio>
+              <Radio value="outside">集群外代理</Radio>
             </RadioGroup>
           </FormItem>
+          {
+            agentType === 'outside' &&
+            <FormItem
+              label="选择节点"
+              {...formItemLayout}
+            >
+              <Select
+                showSearch={true}
+                disabled={currentBalance}
+                {...nodeProps}
+              >
+                {nodesChild}
+              </Select>
+            </FormItem>
+          }
           <FormItem
             label="名称"
             {...formItemLayout}
