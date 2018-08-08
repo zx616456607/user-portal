@@ -8,7 +8,6 @@
  * @author zhouhaitao
  */
 'use strict'
-
 class newRedisCluster {
   constructor (name, serverReplicas, lbgroup, config, storageType, size, namespace,  password, configContent) {
     this.apiVersion = 'daas.tenxcloud.com/v1'
