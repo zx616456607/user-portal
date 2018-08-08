@@ -449,7 +449,7 @@ const parseAdvancedEnv = containers => {
  * @return {object}
  */
 
-const parseDeployment = (deployment, chart, isLast) => {
+const parseDeployment = (deployment, chart) => {
   const { name } = chart;
   const { metadata: outerMetadata, spec: outerSpec } = deployment;
   const { template, replicas } = outerSpec;
@@ -465,7 +465,7 @@ const parseDeployment = (deployment, chart, isLast) => {
   }
   const values = {
     serviceName: outerMetadata.name, // 服务名称
-    chartName: isLast ? name : outerMetadata.name, // 默认服务名称
+    chartName: name,
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
     ...parseAppPkgID(annotations), // 应用包
@@ -619,14 +619,15 @@ const parseIngress = ingress => {
  * @return {object} 格式为form表单
  */
 
-export const parseToFields = (templateDetail, chart, isLast) => {
-  const { deployment, service, ingress } = templateDetail;
-  const { name, version, description } = chart;
+export const parseToFields = (templateDetail, wrapperChart) => {
+  const { chart, deployment, service, ingress } = templateDetail;
+  const { version, description } = chart;
+  const { name: templateName } = wrapperChart
   const values = {
-    templateName: name, // 模板名称
+    templateName, // 模板名称
     templateVersion: version, // 模板版本
     templateDesc: description, // 模板描述
-    ...parseDeployment(deployment, chart, isLast),
+    ...parseDeployment(deployment, chart),
     ...parseService(service),
     ...parseIngress(ingress),
   };
