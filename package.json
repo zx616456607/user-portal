@@ -116,7 +116,7 @@
     "@babel/preset-stage-0": "7.0.0-beta.34",
     "@tenx-ui/editor": "^1.0.6",
     "@tenx-ui/icon": "^1.0.10",
-    "@tenx-ui/logs": "^1.1.8",
+    "@tenx-ui/logs": "^1.2.1",
     "@tenx-ui/page": "^1.0.0",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^15.6.14",
