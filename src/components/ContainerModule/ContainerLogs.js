@@ -357,7 +357,6 @@ class ContainerLogs extends Component {
           logs={[<div className='logDetail'>
             <span>loading ...</span>
           </div>]}
-          autoWidth={true}
         />
         {/*<div>
           <div className={logSize == 'big' ? 'bigBox bottomBox' : 'bottomBox'} >
