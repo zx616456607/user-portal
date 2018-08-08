@@ -43,7 +43,7 @@ class YamlModal extends React.Component {
           appDescYaml,
           yamlStr: appDescYaml,
         })
-      }, 100)
+      }, 200)
     })
   }
 
@@ -103,6 +103,7 @@ class YamlModal extends React.Component {
       <Yaml
         onChange={this.onChangeCurrEditorValue}
         value={appDescYaml} />
+      <div className="changePrompt">为确保可见可用，请谨慎编辑列表对应字段</div>
     </Modal>
   }
 }
