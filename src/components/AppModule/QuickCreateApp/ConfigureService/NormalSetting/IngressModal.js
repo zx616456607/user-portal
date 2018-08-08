@@ -178,13 +178,13 @@ class IngressModal extends React.Component {
   }
   portCheck = (rules, value, callback) => {
     if (!value) {
-      return callback('请输入服务端口')
+      return callback('请输入容器端口')
     }
     if (!/^[0-9]*$/.test(value)) {
-      return callback('服务端口必须为数字')
+      return callback('容器端口必须为数字')
     }
     if (+value < 1 || +value > 65535) {
-      return callback('服务端口必须在1-65535之间')
+      return callback('容器端口必须在1-65535之间')
     }
     callback()
   }
@@ -276,6 +276,19 @@ class IngressModal extends React.Component {
             </RadioGroup>
           </FormItem>
           {
+            getFieldValue('lbAlgorithm') !== 'ip_hash' &&
+              <FormItem
+                label="权重"
+                {...formItemLayout}
+              >
+                <InputNumber
+                  style={{ width: '100%' }}
+                  min={0} max={100} placeholder="请输入权重"
+                  {...getFieldProps('weight')}
+                />
+              </FormItem>
+          }
+          {
             getFieldValue('lbAlgorithm') === 'round-robin' &&
             <FormItem
               label="会话保持"
@@ -300,7 +313,7 @@ class IngressModal extends React.Component {
               </Col>
               <Col span={6}>
                 <InputNumber
-                  style={{ marginRight: 0 }} max={100}
+                  style={{ marginRight: 0 }} max={3600}
                   value={getFieldValue('sessionPersistent')} onChange={value => setFieldsValue({sessionPersistent: value})}/> s
               </Col>
             </Row>
@@ -336,10 +349,10 @@ class IngressModal extends React.Component {
             <Input placeholder="请输入访问路径，以 / 开头" {...contextProps}/>
           </FormItem>
           <FormItem
-            label="服务端口"
+            label="容器端口"
             {...formItemLayout}
           >
-            <Input placeholder="输入服务端口" {...portProps}/>
+            <Input placeholder="输入容器端口" {...portProps}/>
           </FormItem>
         </Form>
       </Modal>

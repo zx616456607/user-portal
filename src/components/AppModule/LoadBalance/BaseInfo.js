@@ -22,9 +22,9 @@ const notify = new Notification()
 
 class BaseInfo extends React.Component {
   state = {
-    
+
   }
-  
+
   editLoadBalance = async body => {
     const { editLB, clusterID, lbDetail, getLBDetail } = this.props
     const { name } = lbDetail.deployment.metadata
@@ -44,26 +44,26 @@ class BaseInfo extends React.Component {
     }
     return true
   }
-  
+
   nameCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请输入负载均衡器名称')
     }
     callback()
   }
-  
+
   editName = () => {
     this.setState({
       nameEdit: true
     })
   }
-  
+
   cancelEditName = () => {
     this.setState({
       nameEdit: false
     })
   }
-  
+
   saveName = async () => {
     const { form, location } = this.props
     const { getFieldValue } = form
@@ -83,19 +83,19 @@ class BaseInfo extends React.Component {
       nameEdit: false
     })
   }
-  
+
   editDesc = () => {
     this.setState({
       descEdit: true
     })
   }
-  
+
   cancelEditDesc = () => {
     this.setState({
       descEdit: false
     })
   }
-  
+
   saveDesc = async () => {
     const { form } = this.props
     const { getFieldValue } = form
@@ -112,7 +112,7 @@ class BaseInfo extends React.Component {
       descEdit: false
     })
   }
-  
+
   render() {
     const { nameEdit, descEdit } = this.state
     const { form, lbDetail } = this.props
@@ -122,12 +122,12 @@ class BaseInfo extends React.Component {
       rules: [{
         validator: this.nameCheck
       }],
-      initialValue: deployment && deployment.metadata && 
+      initialValue: deployment && deployment.metadata &&
       deployment.metadata.annotations && deployment.metadata.annotations.displayName
     })
-    
+
     const descProps = getFieldProps('description', {
-      initialValue: deployment && deployment.metadata && 
+      initialValue: deployment && deployment.metadata &&
       deployment.metadata.annotations && deployment.metadata.annotations.description
     })
     return (
@@ -178,19 +178,19 @@ class BaseInfo extends React.Component {
           </Row>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              监听类型：HTTP
+              代理类型：集群内
             </Col>
             <Col span={14}>
               配置：
               {cpuFormat(
                 deployment &&
-                deployment.spec && 
+                deployment.spec &&
                 deployment.spec.template &&
                 deployment.spec.template.spec &&
                 deployment.spec.template.spec.containers[0] &&
                 deployment.spec.template.spec.containers[0].resources &&
                 deployment.spec.template.spec.containers[0].resources.requests &&
-                deployment.spec.template.spec.containers[0].resources.requests.memory, 
+                deployment.spec.template.spec.containers[0].resources.requests.memory,
                 deployment &&
                 deployment.spec &&
                 deployment.spec.template &&

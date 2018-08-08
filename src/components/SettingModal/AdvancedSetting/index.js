@@ -96,6 +96,22 @@ class AdvancedSetting extends Component {
       billingChecked: enabled
     })
   }
+
+  loadbalanceCard = () => {
+    const { lbChecked } = this.state
+    return <div className="content">
+      <Card title="计费功能开关" className="billingCard">
+        <div className='alertRow'>
+          可以设置普通成员是否可以创建集群外应用负载均衡；若关闭，普通成员不能创建集群外负载均衡，只能使用管理员已经创建的
+        </div>
+        <span className="switchLabel" style={{ width: 300 }}>
+          是否允许普通成员创建集群外应用负载均衡
+        </span>
+        <Switch checkedChildren="开" unCheckedChildren="关" checked={lbChecked} onChange={this.handleLoadbalance} className='switchstyle' />
+      </Card>
+    </div>
+  }
+
   // 不同角色成员应该显示哪些内容
   renderContent = () => {
     const { imageProjectRightIsEdit, traditionChecked, billingChecked   } = this.state;
@@ -193,6 +209,7 @@ class AdvancedSetting extends Component {
             </span>
             <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
           </Card>
+          {this.loadbalanceCard()}
         </div>
     );
     const platformAdminContent = () => (
@@ -274,6 +291,7 @@ class AdvancedSetting extends Component {
               </div>
             </div>
           </div>
+          {this.loadbalanceCard()}
         </div>
       );
 
@@ -510,6 +528,36 @@ class AdvancedSetting extends Component {
       }
     })
   }
+
+  /**
+   * 应用负载均衡
+   */
+
+  handleLoadbalance = () => {
+    this.setState({
+      lbVisible: true,
+    })
+  }
+
+  cancelLoadbalance = () => {
+    this.setState({
+      lbVisible: false,
+    })
+  }
+
+  confirmLoadbalance = () => {
+    const { lbChecked } = this.state
+    this.setState({
+      lbLoading: true,
+    })
+    setTimeout(() => {
+      this.setState({
+        lbVisible: false,
+        lbLoading: false,
+        lbChecked: !lbChecked,
+      })
+    }, 500)
+  }
   /**
    * 弹框确定
    */
@@ -741,7 +789,8 @@ class AdvancedSetting extends Component {
       //swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled,
       imageProjectRightIsEdit, billingChecked,
       billingVisible, billingLoading, startEdition,
-      singleCheckBox, classCheckBox,resourceCheckBox, utilizationRate
+      singleCheckBox, classCheckBox,resourceCheckBox, utilizationRate,
+      lbChecked, lbVisible, lbLoading,
     } = this.state
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
@@ -850,6 +899,21 @@ if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_RE
                 </div>
                 <div className='item color'><Icon type="question-circle-o" style={{marginRight:'8px'}}/>确认开启计费功能？</div>
               </div>
+          }
+        </Modal>
+        <Modal
+          title={lbChecked ? '禁止创建' : '允许创建'}
+          visible={lbVisible}
+          maskClosable={false}
+          onCancel={this.cancelLoadbalance}
+          onOk={this.confirmLoadbalance}
+          confirmLoading={lbLoading}
+        >
+          {
+            lbChecked ?
+              '禁止普通成员创建集群外应用负载均衡？'
+              :
+              '是否允许普通成员创建集群外应用负载均衡？'
           }
         </Modal>
     </div>

@@ -143,11 +143,11 @@ class ConfigManagement extends React.Component {
         <Form>
           <FormItem>
             <span>挂载目录</span>
-            <span>/etc/mysql</span>
+            <span>{this.state.path}</span>
           </FormItem>
           <FormItem>
             <span>配置文件</span>
-            <span>mysql.conf</span>
+            <span>{this.state.file}</span>
           </FormItem>
           <FormItem>
 

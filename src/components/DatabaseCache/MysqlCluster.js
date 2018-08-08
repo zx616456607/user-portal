@@ -53,7 +53,7 @@ let MyComponent = React.createClass({
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
     if (isFetching) {
       return (
@@ -239,7 +239,6 @@ class MysqlCluster extends Component {
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
-
       notification.error('请选择集群','invalid cluster ID')
       return
     }
@@ -285,7 +284,6 @@ class MysqlCluster extends Component {
       },100)
     }
   }
-
   componentWillReceiveProps(nextProps) {
     const { current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
@@ -338,7 +336,7 @@ class MysqlCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
     const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
@@ -349,7 +347,7 @@ class MysqlCluster extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
 
     return (
@@ -383,7 +381,10 @@ class MysqlCluster extends Component {
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
-          onCancel={() => { this.setState({ detailModal: false }) } }
+          onCancel={() => {
+            this.setState({ detailModal: false })
+            loadDbCacheList(cluster, 'mysql')
+          } }
           >
           <ModalDetail
             detailModal={this.state.detailModal}
