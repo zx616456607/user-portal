@@ -216,10 +216,10 @@ class LoadBalance extends React.Component {
       width: '10%',
       dataIndex: 'metadata.annotations.allocatedIP',
     }, {
-      title: '监听端口',
+      title: '代理方式',
       dataIndex: 'port',
       width: '10%',
-      render: (_, record) => `http${parseInt(record.metadata.annotations.ingressCount) ? ':80' : ''}`
+      render: () => `集群内`,
     }, {
       title: '监听器数量',
       width: '10%',

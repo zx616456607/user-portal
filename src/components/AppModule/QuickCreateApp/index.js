@@ -358,10 +358,9 @@ class QuickCreateApp extends Component {
     const templateArray = [];
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
-    templateArray.forEach((temp, index, _array) => {
-      const isLast = index === _array.length - 1;
+    templateArray.forEach((temp) => {
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart, isLast);
+      const values = parseToFields(temp, chart);
       setFormFields(id, values);
     });
     let url = '/app_manage/app_create/quick_create'
