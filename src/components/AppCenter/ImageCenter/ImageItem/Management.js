@@ -201,7 +201,7 @@ class Management extends Component {
     const body = {
       role_id: role,
     }
-    updateProjectMember(harbor, registry, id, user.entityId, body, {
+    updateProjectMember(harbor, registry, id, user.id, body, {
       success: {
         func: () => {
           notification.success('切换用户角色成功')
