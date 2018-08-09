@@ -671,7 +671,7 @@ class ResourceQuota extends React.Component {
       case '应用管理':
         return <span>
           <svg className='app commonImg'>
-            {/*@#app*/}
+            {/*@#apps*/}
             <use xlinkHref="#app"></use>
           </svg> &nbsp;
         </span>

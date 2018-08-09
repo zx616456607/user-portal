@@ -414,7 +414,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='app commonImg'>
-                        {/*@#app*/}
+                        {/*@#apps*/}
                         <use xlinkHref='#app' />
                       </svg>
                       <span className='commonSiderSpan'>应用管理</span>

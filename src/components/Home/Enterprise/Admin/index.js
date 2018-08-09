@@ -167,7 +167,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      {/*@#app*/}
+                      {/*@#apps*/}
                       <use xlinkHref="#homeappcountcolor" />
                     </svg>
                     应用
@@ -281,7 +281,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
-                          {/*@#app-o*/}
+                          {/*@#apps-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         创建应用
@@ -317,7 +317,7 @@ class Admin extends Component{
                      <tr>
                       <td>
                         <svg className="teamRecSvg">
-                          {/*@#app-o*/}
+                          {/*@#apps-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         停止应用
@@ -353,7 +353,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
-                          {/*@#app-o*/}
+                          {/*@#apps-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         修改应用
@@ -365,7 +365,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
-                          {/*@#app-o*/}
+                          {/*@#apps-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         启动应用
@@ -377,7 +377,7 @@ class Admin extends Component{
                     <tr>
                       <td>
                         <svg className="teamRecSvg">
-                          {/*@#app-o*/}
+                          {/*@#apps-o*/}
                           <use xlinkHref="#homeappcount" />
                         </svg>
                         重新部署

@@ -652,7 +652,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      {/*@#app*/}
+                      {/*@#apps*/}
                       <use xlinkHref='#app' />
                     </svg>
                   </Link>
@@ -840,10 +840,7 @@ class Sider extends Component {
               >
                 <Menu.Item key='home'>
                   <Link to='/'>
-                    <svg className='home commonImg'>
-                      {/*@#instrument-o*/}
-                      <use xlinkHref='#home' />
-                    </svg>
+                    <TenxIcon type='instrument-o'/>
                     <span>总览</span>
                   </Link>
                 </Menu.Item>
@@ -851,7 +848,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='app commonImg'>
-                        {/*@#app*/}
+                        {/*@#apps*/}
                         <use xlinkHref='#app' />
                       </svg>
                       <span className='commonSiderSpan'>应用管理</span>
@@ -972,12 +969,7 @@ class Sider extends Component {
                   {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            {/*@#star*/}
-                            <use xlinkHref='#start' />
-                          </svg>
-                        </Tooltip>
+                        <TenxIcon type='star' className='star forAdmin'/>
                         <Link to='/app_center/wrap_check'>
                         <span>发布审核</span>
                         </Link>

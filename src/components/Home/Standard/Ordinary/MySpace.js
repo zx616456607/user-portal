@@ -285,7 +285,7 @@ class MySpace extends Component{
                 <tr>
                     <td>
                       <svg className="stateSvg">
-                        {/*@#app-o*/}
+                        {/*@#apps-o*/}
                         <use xlinkHref="#homeappcount" />
                       </svg>
                       创建应用
@@ -321,7 +321,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
-                      {/*@#app-o*/}
+                      {/*@#apps-o*/}
                       <use xlinkHref="#homeappcount" />
                     </svg>
                     停止应用
@@ -357,7 +357,7 @@ class MySpace extends Component{
                 <tr>
                     <td>
                       <svg className="stateSvg">
-                        {/*@#app-o*/}
+                        {/*@#apps-o*/}
                         <use xlinkHref="#homeappcount" />
                       </svg>
                       修改应用
@@ -369,7 +369,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        {/*@#app-o*/}
+                        {/*@#apps-o*/}
                         <use xlinkHref="#homeappcount" />
                       </svg>
                       启动应用
@@ -381,7 +381,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        {/*@#app-o*/}
+                        {/*@#apps-o*/}
                         <use xlinkHref="#homeappcount" />
                       </svg>
                       重新部署

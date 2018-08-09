@@ -695,7 +695,7 @@ class TenxFlowDetailFlowCard extends Component {
                                               <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
                                             </Button>] : null}
                 {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
-                  {/*@#arrow-right*/}
+                  {/*@#line-arrow-right*/}
                   <use xlinkHref='#cicdarrow' />
                 </svg> }
                 {

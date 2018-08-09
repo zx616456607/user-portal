@@ -245,13 +245,25 @@
         }
       }
       a {
+
         width: 100%;
         color: #C4C4C4;
+        i {
+          transition: all 0.3s;
+          float: left;
+          margin-top: 12px;
+          margin-right: 15px;
+          margin-left: 20px;
+          height: 18px;
+          width: 18px;
+          font-size: 18px;
+          color: #a8aeb7;
+        }
         span {
+          float: left;
           .start {
-            use {
-              fill: #C4C4C4 !important;
-            }
+            font-size: 12px;
+            transform: scale(0.9)
           }
           .forAdmin {
             margin: 0 12px 0 -2px;
@@ -259,6 +271,11 @@
         }
       }
       &:hover {
+        a {
+          i {
+            color: #ffffff;
+          }
+        }
         .adminBox {
           .start {
             use {
@@ -294,6 +311,17 @@
           padding-left: 0 !important;
           width: 100%;
           height: 40px;
+          i {
+            transition: all 0.3s;
+            float: left;
+            margin-top: 12px;
+            margin-right: 15px;
+            margin-left: 20px;
+            height: 18px;
+            width: 18px;
+            font-size: 18px;
+            color: #a8aeb7;
+          }
         }
       }
     }
@@ -303,6 +331,9 @@
       }
     }
     .ant-menu-item-selected {
+      i {
+        color: #FFF!important;
+      }
       .adminBox, .usrBox {
         color: #FFF;
         .start {
