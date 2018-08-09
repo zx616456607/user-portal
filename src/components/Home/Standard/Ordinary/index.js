@@ -721,6 +721,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
+                        {/*@#kubernetes*/}
                         <use xlinkHref="#homekubernetes" />
                       </svg>
                       Engine
