@@ -952,14 +952,17 @@ let ProjectManage = React.createClass({
               this.setState({deleteSingleChecked: !deleteSingleChecked})
             }}>选中此框以确认您要删除此项目。</Checkbox>
           </Modal>
-          <Modal title="项目充值" visible={payModal} width={610}
-                 onCancel={() => this.payCancel()}
-                 onOk={() => this.updatePayCharge()}
-          >
-            <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr}
-                      visible={payModal} updatePayCharge={this.updatePayCharge}
-                      updatePayNumber={this.updatePayNumber}/>
-          </Modal>
+          {
+            payModal && <Modal title="项目充值" visible={payModal} width={610}
+                onCancel={() => this.payCancel()}
+                onOk={() => this.updatePayCharge()}
+              >
+                <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr}
+                          visible={payModal} updatePayCharge={this.updatePayCharge}
+                          currentPage={currentPage} ListProjects={this.props.ListProjects}
+                          updatePayNumber={this.updatePayNumber}/>
+              </Modal>
+          }
           <Modal title="项目充值" visible={this.state.paySingle} width={580}
                  onCancel={() => this.paySingleCancel()}
                  onOk={() => this.paySingleOk()}
@@ -1153,13 +1156,17 @@ class PayTable extends Component {
     this.state = {
       selectedRowKeys: [],  // 这里配置默认勾选列
       payNumber: 10,
-      payArr: []
+      payArr: [],
+      currentPage: 1,
+      projectList: [],
+      tableLoading: false,
     }
   }
 
   componentWillMount() {
     const {updatePayNumber} = this.props;
     updatePayNumber(10)
+    this.loadProjectList(1)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1181,13 +1188,13 @@ class PayTable extends Component {
     updatePayArr(selectedRowKeys)
   }
 
-  onRowClick = record => {
+  onRowClick = (record, index) => {
     const { updatePayArr } = this.props
     const { selectedRowKeys } = this.state
     const projectName = record.namespace
     let newKeys = selectedRowKeys.slice(0)
     if (newKeys.includes(projectName)) {
-      newKeys.splice(projectName, 1)
+      newKeys.splice(newKeys.indexOf(projectName), 1)
     } else {
       newKeys.push(projectName)
     }
@@ -1201,9 +1208,59 @@ class PayTable extends Component {
     this.setState({payNumber})
     updatePayNumber(payNumber)
   }
+  loadProjectList(n) {
+    const { ListProjects } = this.props;
+    this.setState({tableLoading: true}, () => {
+      let page = n - 1 || 0
+      let obj = {
+        from: page * 10,
+        size: 10,
+        sort: 'a,name',
+      }
+      ListProjects(obj, {
+        success: {
+          func: (result) => {
+            if (result.statusCode === 200) {
+              if (!result['data']) {
+                this.setState({
+                  projectList: {},
+                  tableLoading: false
+                })
+                return
+              }
+              this.setState({
+                projectList: result.data,
+                tableLoading: false,
+                currentPage: n || 1,
+              })
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            this.setState({
+              projectList: {},
+              tableLoading: false
+            })
+            let notify = new Notification()
+            notify.warn("读取项目列表失败：" + res.message.message)
+          },
+        }
+      })
+    })
+  }
   render() {
-    const {payNumber, selectedRowKeys} = this.state;
-    const {data} = this.props;
+    const {payNumber, selectedRowKeys, currentPage, projectList, tableLoading} = this.state;
+    const pageOption = {
+      simple: true,
+      total: !isEmpty(projectList) && projectList['listMeta'].total || 0,
+      defaultPageSize: 10,
+      defaultCurrent: 1,
+      onChange: (n) => this.loadProjectList(n),
+      current: currentPage,
+    };
+    const data = !isEmpty(projectList) && projectList['projects'];
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -1227,8 +1284,13 @@ class PayTable extends Component {
         <div className="alertRow">
           注：可为项目充值，全选可为项目充值
         </div>
-        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}
-               onRowClick={(recode) => this.onRowClick(recode)} rowKey={record => record.namespace}
+        <div className="tablePagination">
+          { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <Pagination {...pageOption}/>}
+          { !isEmpty(projectList) && projectList.listMeta.total !== 0 && <div className="total">共计 {!isEmpty(projectList) && projectList.listMeta.total || 0} 个</div>}
+          <div style={{ clear: 'both' }}></div>
+        </div>
+        <Table loading={tableLoading} scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}
+               onRowClick={(recode, index) => this.onRowClick(recode, index)} rowKey={record => record.namespace}
                rowClassName={(recode, index) => 'payTableRow'}/>
         <dl className="payBtnBox">
           <dt>充值金额</dt>
