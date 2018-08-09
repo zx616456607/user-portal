@@ -147,6 +147,13 @@ class Project extends Component {
           func: (err) => {
             notification.warn("删除标签 [" + row.name + "] 失败")
           }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              isDelLoading: false,
+            })
+          }
         }
       }))
     })
