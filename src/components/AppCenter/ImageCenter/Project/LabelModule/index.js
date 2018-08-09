@@ -311,9 +311,9 @@ class Project extends Component {
         <Spin spinning={spinning} key="main">
           <div className="topRow">
             <Button type="primary" size="large" onClick={this.add}><i className='fa fa-plus'/>&nbsp;新建标签</Button>
-            <Button type="ghost" size="large" onClick={this.reload}><i className='fa fa-refresh'/>&nbsp;刷新</Button>
-            <Button disabled={btnEditDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编辑</Button>
-            <Button disabled={btnDelDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删除</Button>
+            <Button type="ghost" size="large" onClick={this.reload}><i className='fa fa-refresh'/>&nbsp;刷&nbsp;新</Button>
+            <Button disabled={btnEditDisabled} type="ghost" size="large" onClick={this.edit}><i className='fa fa-edit'/>&nbsp;编&nbsp;辑</Button>
+            <Button disabled={btnDelDisabled} type="ghost" size="large" onClick={this.del}><Icon type="delete" />删&nbsp;除</Button>
             <Input
               placeholder="按标签名称搜索"
               className="search"
