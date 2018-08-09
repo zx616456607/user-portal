@@ -201,7 +201,7 @@ class Management extends Component {
     const body = {
       role_id: role,
     }
-    updateProjectMember(harbor, registry, id, user.entityId, body, {
+    updateProjectMember(harbor, registry, id, user.id, body, {
       success: {
         func: () => {
           notification.success('切换用户角色成功')
@@ -241,9 +241,9 @@ class Management extends Component {
     const doSuccess = () => {
       this.loadData()
       this.setState({deleteUser:false})
-      notification.success(`移除用户 ${user.username} 成功`)
+      notification.success(`移除用户 ${user.entityName} 成功`)
     }
-    deleteProjectMember(harbor, registry, id, user[camelize('user_id')], {
+    deleteProjectMember(harbor, registry, id, user.id, {
       success: {
         func: () => {
           doSuccess()
@@ -257,8 +257,9 @@ class Management extends Component {
             doSuccess()
             return
           }
-          notification.error(`移除用户 ${user.username} 失败`)
+          notification.error(`移除用户 ${user.entityName} 失败`)
         },
+        isAsync: true,
       }
     })
   }
