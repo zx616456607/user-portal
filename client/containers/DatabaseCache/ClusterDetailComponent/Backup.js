@@ -61,7 +61,7 @@ class Backup extends React.Component {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
-            // 当前没有主备份链，不允许从当前备份链上新建差异备份呢
+            // 当前没有主备份链，不允许从当前备份链上新建差异备份
             const chains = res.data.items.filter(v => v.masterBackup)
             if (chains.length === 0) {
               this.setState({
