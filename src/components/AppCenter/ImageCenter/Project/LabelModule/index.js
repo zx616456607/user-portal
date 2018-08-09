@@ -138,6 +138,8 @@ class Project extends Component {
               this.loadData()
               this.setState({
                 delVisible: false,
+                selectedRows: [],
+                current: {},
               })
             }
           },
