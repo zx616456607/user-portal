@@ -356,7 +356,7 @@ class Project extends Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-            <span> {"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
+            <span style={{ wordBreak: 'break-word' }}> {"确定删除 [" + selectedRows.map((row, index, rows) => { return row.name +
             (index !== rows.length-1 ? ", " : "") }) + "] ?"}</span>
           </div>
         </Modal>
