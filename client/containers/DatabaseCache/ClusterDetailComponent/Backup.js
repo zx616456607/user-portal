@@ -61,11 +61,22 @@ class Backup extends React.Component {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
-            this.setState({
-              notAllowDiffBackup: false,
-              backupType: 'diffbackup',
-            })
+            // 当前没有主备份链，不允许从当前备份链上新建差异备份呢
+            const chains = res.data.items.filter(v => v.masterBackup)
+            if (chains.length === 0) {
+              this.setState({
+                notAllowDiffBackup: true,
+                backupType: 'fullbackup',
+              })
+            } else {
+              this.setState({
+                notAllowDiffBackup: false,
+                backupType: 'diffbackup',
+              })
+
+            }
           } else {
+            // 当没有备份链时，新建备份点不能选原备份链上差异备份
             this.setState({
               notAllowDiffBackup: true,
               backupType: 'fullbackup',
