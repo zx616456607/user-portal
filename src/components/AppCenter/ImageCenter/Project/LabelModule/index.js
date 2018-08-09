@@ -76,7 +76,13 @@ class Project extends Component {
       loadLabelList(DEFAULT_REGISTRY, query, {
         success:{
           func: res => {
-            const data = res.data
+            const tempdata = res.data
+            const data = []
+            !!tempdata && tempdata.map(item => {
+              if(item.id !== 1){
+                data.push(item)
+              }
+            })
             if(!!data){
               this.setState({
                 data,
