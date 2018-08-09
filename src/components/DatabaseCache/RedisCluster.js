@@ -53,7 +53,7 @@ let MyComponent = React.createClass({
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
 
     if (isFetching) {
@@ -67,7 +67,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
+          <div>还没有 Redis 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -301,8 +301,6 @@ class RedisDatabase extends Component {
     })
   }
   setAutobackupSuccess = () => {
-    const { loadDbCacheList, cluster, database } = this.props
-    loadDbCacheList(cluster, database)
     this.setState({
       autoBackupModalShow: false,
     })
@@ -310,7 +308,7 @@ class RedisDatabase extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
     const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
@@ -322,7 +320,7 @@ class RedisDatabase extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     if (uninstalledPlugin) {
-      title = `${plugin} 未安装`
+      title = `${plugin} 插件未安装`
     }
     return (
       <QueueAnim id='redisDatabase' type='right'>
@@ -331,7 +329,7 @@ class RedisDatabase extends Component {
           <div className='databaseHead'>
           <ResourceBanner resourceType='redis'/>
             { mode === standard ? <div className='alertRow'>您的 Redis 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
-            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
+            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate || uninstalledPlugin}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
             <Button className="button_refresh" size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
@@ -355,7 +353,10 @@ class RedisDatabase extends Component {
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
-          onCancel={() => { this.setState({ detailModal: false }) } }
+          onCancel={() => {
+            this.setState({ detailModal: false })
+            loadDbCacheList(cluster, 'redis')
+          } }
           >
           {
             this.state.detailModal && <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />

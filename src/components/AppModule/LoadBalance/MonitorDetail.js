@@ -21,6 +21,7 @@ import Notification from '../../Notification'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import './style/MonitorDetail.less'
 import HealthCheckModal from './HealthCheckModal'
+import DetailFooter from './DetailFooter'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
@@ -272,7 +273,7 @@ class MonitorDetail extends React.Component {
 
   goBack = () => {
     const { togglePart } = this.props
-    togglePart(true, null)
+    togglePart(true, null, 'HTTP')
   }
 
   monitorNameCheck = (rules, value, callback) => {
@@ -357,12 +358,12 @@ class MonitorDetail extends React.Component {
     callback()
   }
 
-  agreementCheck = (rules, value, callback) => {
+  /*agreementCheck = (rules, value, callback) => {
     if (!value) {
       return callback('请选择监听协议')
     }
     callback()
-  }
+  }*/
 
   portCheck = (rules, value, callback) => {
     if (!value) {
@@ -453,7 +454,7 @@ class MonitorDetail extends React.Component {
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
-    let validateArr = ['monitorName', 'agreement', 'port', 'lbAlgorithm', 'host', 'context']
+    let validateArr = ['monitorName', 'port', 'lbAlgorithm', 'host', 'context']
     if (keys.length) {
       validateArr = validateArr.concat([
         `service-${endIndexValue}`,
@@ -479,7 +480,7 @@ class MonitorDetail extends React.Component {
         return
       }
 
-      const { monitorName, agreement, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context } = values
+      const { monitorName, port, lbAlgorithm, sessionSticky, sessionPersistent, host, context } = values
       const [hostname, ...path] = (host || '/').split('/')
       let strategy = lbAlgorithm
       // Nginx don't need round-robin to be explicitly specified
@@ -488,7 +489,7 @@ class MonitorDetail extends React.Component {
       }
       const body = {
         displayName: monitorName,
-        agreement,
+        agreement: 'HTTP',
         port,
         lbAlgorithm: strategy,
         host: hostname,
@@ -616,14 +617,14 @@ class MonitorDetail extends React.Component {
       initialValue: currentIngress && currentIngress.displayName
     })
 
-    const agreementProps = getFieldProps('agreement', {
+    /*const agreementProps = getFieldProps('agreement', {
       rules: [
         {
           validator: this.agreementCheck
         }
       ],
       initialValue: 'HTTP'
-    })
+    })*/
 
     const portProps = getFieldProps('port', {
       rules: [
@@ -755,7 +756,7 @@ class MonitorDetail extends React.Component {
       </Row>
     return (
       <Card
-        title={currentIngress ? '编辑监听' : '创建监听'}
+        title={currentIngress ? '编辑 HTTP 监听' : '创建 HTTP 监听'}
         className="monitorDetail"
       >
         {
@@ -776,7 +777,7 @@ class MonitorDetail extends React.Component {
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
-          <Row>
+          {/*<Row>
             <Col span={9}>
               <FormItem
                 label="监听协议"
@@ -798,7 +799,15 @@ class MonitorDetail extends React.Component {
                 </Select>
               </FormItem>
             </Col>
-          </Row>
+          </Row>*/}
+          <FormItem
+            label="监听端口"
+            {...formItemLayout}
+          >
+            <Select {...portProps}>
+              <Option key="80">80</Option>
+            </Select>
+          </FormItem>
           <FormItem
             label="调度算法"
             {...formItemLayout}
@@ -891,10 +900,11 @@ class MonitorDetail extends React.Component {
             </Col>
           </Row>
         </Form>
-        <div className="configFooter">
-          <Button type="ghost" size="large" onClick={this.goBack} disabled={confirmLoading}>取消</Button>
-          <Button type="primary" size="large" onClick={this.handleConfirm} loading={confirmLoading}>确认</Button>
-        </div>
+        <DetailFooter
+          onCancel={this.goBack}
+          onOk={this.handleConfirm}
+          loading={confirmLoading}
+        />
       </Card>
     )
   }

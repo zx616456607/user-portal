@@ -16,6 +16,8 @@ import { connect } from 'react-redux'
 import { loadServiceDetail } from '../../../actions/services'
 import './style/MonitorTable.less'
 import AppServiceEvent from '../AppServiceDetail/AppServiceEvent'
+import TcpUdpTable from './TcpUdpTable'
+
 const TabPane = Tabs.TabPane
 class MonitorTable extends React.Component {
   state = {
@@ -130,7 +132,7 @@ class MonitorTable extends React.Component {
   }
   render() {
     const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
-    const { togglePart, lbDetail } = this.props
+    const { togglePart, lbDetail, changeTabs, activeKey } = this.props
     const { ingress } = lbDetail || { ingress: [] }
     const pagination = {
       simple: true,
@@ -171,7 +173,7 @@ class MonitorTable extends React.Component {
         width: '15%',
         render: (text, row) =>
           <div>
-            <Button type="primary" className="editBtn" onClick={() => togglePart(false, row)}>编辑</Button>
+            <Button type="primary" className="editBtn" onClick={() => togglePart(false, row, 'HTTP')}>编辑</Button>
             <Button type="ghost" onClick={() => this.showDelModal(row)}>删除</Button>
           </div>
       }
@@ -190,13 +192,16 @@ class MonitorTable extends React.Component {
             删除监听器会导致对应服务基于 QPS 的弹性伸缩策略失效，是否确定删除？
           </div>
         </Modal>
-        <Tabs>
-          <TabPane tab="监听器" key="0">
+        <Tabs
+          activeKey={activeKey}
+          onChange={changeTabs}
+        >
+          <TabPane tab="HTTP" key="HTTP">
             <div className="layout-content-btns">
               <Tooltip
                 title="最多支持100条"
               >
-                <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null)}>创建监听</Button>
+                <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null, 'HTTP')}>创建 HTTP 监听</Button>
               </Tooltip>
               {
                 ingress && ingress.length ?
@@ -216,7 +221,19 @@ class MonitorTable extends React.Component {
             />
 
           </TabPane>
-          <TabPane tab="事件" key="1">
+          <TabPane tab="TCP" key="TCP">
+            <TcpUdpTable
+              type="TCP"
+              {...{ togglePart }}
+            />
+          </TabPane>
+          <TabPane tab="UDP" key="UDP">
+            <TcpUdpTable
+              type="UDP"
+              {...{ togglePart }}
+            />
+          </TabPane>
+          <TabPane tab="事件" key="event">
             <AppServiceEvent serviceName={this.props.name} cluster={this.props.clusterID} type={'replicaset'} serviceDetailmodalShow={true}/>
           </TabPane>
         </Tabs>
