@@ -253,7 +253,17 @@ class ContainerLogs extends Component {
       const state = {
         logs,
       }
-      this.setState(state)
+      this.setState(state, () => {
+        const loading = (() => {
+          return <div className='logDetail'>
+            <span>loading ...</span>
+          </div>
+        })()
+        if(!!this.logRef){
+          this.logRef.clearLogs()
+          this.logRef.writeln(this.getLogs(loading))
+        }
+      })
     }
     ws.onCloseExtend = err => {
       // ws.onclose && ws.onclose(err)
