@@ -115,7 +115,9 @@ class App extends Component {
       '/app_center/projects/publish',
       '/app_center/projects/replications',
       '/app_center/projects/other',
-      '/app_center/template/create'
+      '/app_center/template/create',
+      '/manange_monitor/alarm_setting/resource',
+      '/manange_monitor/alarm_setting/log',
     ]
     if(pathname === '/app_manage/app_create/quick_create' &&
       this.props.location.hash === "#configure-service"){
