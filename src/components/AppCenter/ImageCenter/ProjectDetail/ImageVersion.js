@@ -683,7 +683,7 @@ class ImageVersion extends Component {
           items.push(<MenuItem key='unlock'>
             <i className="fa fa-unlock"></i>&nbsp;&nbsp;解锁
           </MenuItem>)
-        items.push(<MenuItem disabled={!isLock} key='del'>
+        items.push(<MenuItem key='del'>
           <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
         </MenuItem>)
 
