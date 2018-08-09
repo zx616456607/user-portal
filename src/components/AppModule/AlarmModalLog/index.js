@@ -64,8 +64,8 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
+    if (!/^[-._a-zA-Z0-9]+$/.test(newValue)){
+      return callback('请输入英文字母,数字,划线,连接符或点号')
     }
     const { cluster,isEdit,data } = this.props
     if (isEdit && newValue == data.strategyName) {
