@@ -98,7 +98,7 @@ class AlarmGroup extends Component {
     // this.setState({
     //   selectedRowKeys: [],
     // })
-    deleteNotifyGroups(this.state.selectedRowKeys, {
+    deleteNotifyGroups(this.state.selectedRowKeys, clusterID,{
       success: {
         func: (result) => {
           this.closeDeleteModal()

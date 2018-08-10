@@ -138,7 +138,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                       return (
                         <Select.OptGroup key={o.resourceName}>
                           {
-                            o.children.map(i =>
+                            (o.children || []).map(i =>
                               <Select.Option key={i.resourceType} value={i.resourceType}>
                                 {i.resourceName}
                               </Select.Option>

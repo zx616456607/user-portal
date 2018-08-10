@@ -55,7 +55,7 @@ class SecyrityCollapse extends React.Component {
         </Row>
       </div>
     )
-    return <div id="securityGroup" key="securityGroup">
+    return <div id="securityGroupModule" key="securityGroup">
       <Collapse onChange={this.handleColl}>
         <Panel header={header}>
           <Row className="securityLine">

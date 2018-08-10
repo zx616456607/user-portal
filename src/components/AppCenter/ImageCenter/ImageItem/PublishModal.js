@@ -58,6 +58,7 @@ class PublishModal extends React.Component {
     })
   }
   componentWillReceiveProps(nextProps) {
+    const { harbor } = nextProps
     const { visible: oldVisible } = this.props
     const {
       visible: newVisible, wrapGroupList,
@@ -72,9 +73,15 @@ class PublishModal extends React.Component {
       form.resetFields()
     }
     if (!oldVisible && newVisible) {
-      const { clusters } = nextProps
+      const { clusters, imgTag } = nextProps
+      const tagArr = []
+      imgTag && imgTag.map( item=>{
+        tagArr.push(item.name)
+      })
       let body = {
-        image: `${server}/${currentImage.name}`
+        image: `${server}/${currentImage.name}`,
+        harbor,
+        // tags: tagArr,
       }
       getImageStatus(body, {
         success: {
@@ -99,6 +106,12 @@ class PublishModal extends React.Component {
               })
             }
           }
+        },
+        failed: {
+          func: () => {
+            notify.warn('获取版本失败')
+          },
+          isAsync: true,
         }
       })
     }
@@ -376,7 +389,7 @@ class PublishModal extends React.Component {
         func: res => {
           if (res.statusCode === 404) {
             notify.close()
-            notify.error('镜像错误', res.message)
+            notify.warn('镜像错误', res.message)
           }
         }
       }
@@ -405,7 +418,7 @@ class PublishModal extends React.Component {
     })
   }
   handleSelectcheckTargetStore(val) {
-    const { getImageStatus, currentImage, imgTag, server } = this.props
+    const { getImageStatus, currentImage, imgTag, server, harbor } = this.props
     const tagArr = []
     imgTag && imgTag.map( item=>{
       tagArr.push(item.name)
@@ -413,9 +426,17 @@ class PublishModal extends React.Component {
     const body = {
       image: `${server}/${currentImage.name}`,
       targetProject: val,
-      tags: tagArr
+      tags: tagArr,
+      harbor,
     }
-    getImageStatus(body)
+    getImageStatus(body, {
+      failed: {
+        func: () => {
+          notify.warn('获取版本失败')
+        },
+        isAsync: true,
+      }
+    })
   }
   handleChangePublishRadio(e) {
     const radioVal = e.target.value

@@ -233,11 +233,12 @@ let ConfigureService = React.createClass({
                 imageTag = location.query.tag
               }
             }
-           setFieldsValue({
-             imageTag: typeof imageTag === 'object' ? imageTag.name : imageTag,
-           })
+            const textImageTag = typeof imageTag === 'object' ? imageTag.name : imageTag
+            setFieldsValue({
+              imageTag: textImageTag,
+            })
            // load image config by tag
-           this.loadImageConfig(other, imageName, imageTag)
+           this.loadImageConfig(other, imageName, textImageTag)
          },
          isAsync: true,
        }

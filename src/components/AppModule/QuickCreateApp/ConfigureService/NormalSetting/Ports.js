@@ -248,7 +248,7 @@ const Ports = React.createClass({
       if (!!errors) {
         return
       }
-      let uid = portsKeys[portsKeys.length - 1].value || 0
+      let uid = portsKeys.length && portsKeys[portsKeys.length - 1].value || 0
       uid ++
       portsKeys = portsKeys.concat({ value: uid })
       setFieldsValue({
