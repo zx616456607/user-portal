@@ -214,7 +214,7 @@ export const APP_IMAGE_STATUS_SUCCESS = 'APP_IMAGE_STATUS_SUCCESS'
 export const APP_IMAGE_STATUS_FAILURE = 'APP_IMAGE_STATUS_FAILURE'
 
 function fetchAppImageStatus(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/app-store/apps/images/status`
+  let endpoint = `${API_URL_PREFIX}/app-store/apps/images/status?harbor=${body.harbor}`
   return {
     [FETCH_API]: {
       types: [APP_IMAGE_STATUS_REQUEST, APP_IMAGE_STATUS_SUCCESS, APP_IMAGE_STATUS_FAILURE],
