@@ -819,7 +819,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='security_group'>
                     <Link to='/app_manage/security_group'>
-                      <span><div className='sideCircle'></div> 安全组</span>
+                      <span><div className='sideCircle'></div> 安全组 (防火墙)</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='load_balance'>
@@ -940,7 +940,7 @@ class Sider extends Component {
                   }
                   {/* <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
-                      <span><div className='sideCircle'></div> TenxFlow</span>
+                      <span><div className='sideCircle'></div> 流水线</span>
                     </Link>
                   </Menu.Item> */}
                   <Menu.Item key='pipelines'>

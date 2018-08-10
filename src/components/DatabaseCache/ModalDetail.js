@@ -1208,7 +1208,6 @@ class ModalDetail extends Component {
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
-
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>

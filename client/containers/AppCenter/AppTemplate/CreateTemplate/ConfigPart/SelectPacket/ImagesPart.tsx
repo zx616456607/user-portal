@@ -233,7 +233,7 @@ const mapStateToProps = (state, props) => {
   const { entities, harbor: stateHarbor, appStore } = state;
   const { clusterID } = entities.current.cluster;
   const { harbor: harbors } = entities.current.cluster;
-  const harbor = harbors[0]
+  const harbor = harbors && harbors[0]
   const { allProject } = stateHarbor;
   const { imagePublishRecord } = appStore;
   const { data: imageStoreList } = imagePublishRecord || { data: {} };

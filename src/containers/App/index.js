@@ -115,7 +115,9 @@ class App extends Component {
       '/app_center/projects/publish',
       '/app_center/projects/replications',
       '/app_center/projects/other',
-      '/app_center/template/create'
+      '/app_center/template/create',
+      '/manange_monitor/alarm_setting/resource',
+      '/manange_monitor/alarm_setting/log',
     ]
     if(pathname === '/app_manage/app_create/quick_create' &&
       this.props.location.hash === "#configure-service"){
@@ -166,6 +168,7 @@ class App extends Component {
     if (!errorMessage) {
       return
     }
+
     let notification = new NotificationHandler()
     const { statusCode, message } = errorMessage.error
     // 登录失效
@@ -236,6 +239,17 @@ class App extends Component {
       this.setState(state);
       return
     }
+    // 未安装插件
+    /*404 + kind 中包含cluster-operator字样那就根据kind中的值，提示xxxx 未安装，*/
+    if (statusCode === 404) {
+      const details = errorMessage.error.message.details
+      const reg = /cluster-operator/g
+      if (details && details.kind && reg.test(details.kind)) {
+        notification.error(`${details.kind} 未安装`)
+        return
+      }
+    }
+
     if (pathname !== this.props.pathname) {
       resetErrorMessage()
     }

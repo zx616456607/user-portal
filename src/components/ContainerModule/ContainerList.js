@@ -222,7 +222,7 @@ let MyComponent = React.createClass({
             callback()
           }
           let imageName = projectName + '/' + exportImageName
-          let imageNameArray = res.data.repository
+          let imageNameArray = res.data.repository || []
           this.setState({
             imageNameEqual: false
           })

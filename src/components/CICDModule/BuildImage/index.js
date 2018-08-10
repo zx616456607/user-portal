@@ -61,7 +61,7 @@ let menusText = defineMessages({
   },
   tooltip: {
     id: 'CICD.Tenxflow.BuildImage.tooltip',
-    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。',
+    defaultMessage: '构建镜像是流水线中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。',
   },
   create: {
     id: 'CICD.Tenxflow.BuildImage.create',
@@ -163,7 +163,7 @@ let MyComponent = React.createClass({
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
     let notification = new NotificationHandler()
-    notification.spin(`删除 TenxFlow ${item.name} 中...`);
+    notification.spin(`删除流水线 ${item.name} 中...`);
     deleteTenxFlowSingle(flowId, {
       success: {
         func: () => {
@@ -746,9 +746,9 @@ class TenxFlowList extends Component {
     const flowList = this.props.flowList || []
     let message = '';
     if (flowList.length < 1 && !searchingFlag) {
-      message = " * 目前还没有添加任何 TenxFlow"
+      message = " * 目前还没有添加任何流水线"
     } else if (flowList.length < 1 && searchingFlag) {
-      message = " * 没有匹配到相关TenxFlow"
+      message = " * 没有匹配到相关流水线"
     }
     return (
       <QueueAnim className='BuildImageList' type='right'>
@@ -798,7 +798,7 @@ class TenxFlowList extends Component {
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
-                <div className='loadingBox'>没有找到匹配的 TenxFlow</div> : null)}
+                <div className='loadingBox'>没有找到匹配的流水线</div> : null)}
           </Card>
         </div>
         <Modal
