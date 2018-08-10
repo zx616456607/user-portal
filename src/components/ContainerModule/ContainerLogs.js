@@ -88,7 +88,7 @@ class ContainerLogs extends Component {
     if (nextProps.containerName !== this.props.containerName) {
       if(!!this.logRef){
         this.logRef.clearLogs()
-        this.logRef.writeln(eventLogs)
+        this.logRef.writelns(eventLogs)
       }
       this.setState({
         logsLoading: false
@@ -240,7 +240,7 @@ class ContainerLogs extends Component {
       // @Todo: Frequent update state, page will be stuck
 
       if(!!this.logRef){
-        this.logRef.writeln(this.getLogs(temp))
+        this.logRef.writelns(this.getLogs(temp))
       }
     }
     ws.onCloseExtend = err => {
