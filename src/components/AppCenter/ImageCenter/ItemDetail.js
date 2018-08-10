@@ -176,15 +176,13 @@ class ItemDetail extends Component {
                 <span>{
                   (() => {
                     let res
-                    console.log("projectDetail", projectDetail.public)
-                    console.log("projectDetail.metadata", !!projectDetail.metadata && projectDetail.metadata.public)
                     if(!isNaN(projectDetail.public)){
                       if (projectDetail.public === 0) {
                         res = '私有仓库组'
                       }else{
                         res = '公开仓库组'
                       }
-                    } else if(!!projectDetail.metadata.public){
+                    } else if(!!projectDetail.metadata && !!projectDetail.metadata.public){
                       if(projectDetail.metadata.public === "true"){
                         res = '公开仓库组'
                       } else {
