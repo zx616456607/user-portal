@@ -16,8 +16,8 @@
  * v0.1 - 2016-09-10
  * @author GaoJian
  */
-import React, { Component, PropTypes } from 'react'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import React, { Component } from 'react'
+import { injectIntl } from 'react-intl'
 import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, Select  } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -28,7 +28,6 @@ import './style/AllService.less'
 import { calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import {
-  addService,
   startServices,
   restartServices,
   stopServices,
@@ -48,7 +47,6 @@ import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import { parseServiceDomain } from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
 import TipSvcDomain from '../TipSvcDomain'
-import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, PAYMENT_REQUIRED_CODE } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
@@ -61,7 +59,7 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
-
+import TenxIcon from '@tenx-ui/icon'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -578,10 +576,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="alarm commonData">
             <Tooltip title="查看监控">
-            <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
-              {/*@#manage-monitor*/}
-              <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
-            </svg>
+              <TenxIcon type="manage-monitor" onClick={()=> this.showMonitoring(item)}/>
             </Tooltip>
             <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
             <Icon type="notification" />
