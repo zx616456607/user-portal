@@ -114,7 +114,7 @@
     "@babel/polyfill": "7.0.0-beta.34",
     "@babel/preset-react": "7.0.0-beta.34",
     "@babel/preset-stage-0": "7.0.0-beta.34",
-    "@tenx-ui/icon": "^1.0.10",
+    "@tenx-ui/icon": "^1.0.11",
     "@tenx-ui/logs": "^1.1.8",
     "@tenx-ui/page": "^1.0.0",
     "@types/prop-types": "^15.5.2",
