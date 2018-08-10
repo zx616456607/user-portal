@@ -136,7 +136,7 @@ let MyComponent = React.createClass({
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
+              <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '-'}</li>
               <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
                 {
                   shoulldAutoBackup || item.cronBackup?
