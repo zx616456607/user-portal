@@ -40,6 +40,7 @@ import LogCollection from './LogCollection'
 import OperationEnv from './OperationEnv'
 import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
+import ServiceMesh from './ServiceMesh'
 import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
 
 const LATEST = 'latest'
@@ -232,11 +233,12 @@ let ConfigureService = React.createClass({
                 imageTag = location.query.tag
               }
             }
-           setFieldsValue({
-             imageTag: typeof imageTag === 'object' ? imageTag.name : imageTag,
-           })
+            const textImageTag = typeof imageTag === 'object' ? imageTag.name : imageTag
+            setFieldsValue({
+              imageTag: textImageTag,
+            })
            // load image config by tag
-           this.loadImageConfig(other, imageName, imageTag)
+           this.loadImageConfig(other, imageName, textImageTag)
          },
          isAsync: true,
        }
@@ -765,6 +767,10 @@ let ConfigureService = React.createClass({
               </FormItem>
             }
               <ApmSetting
+                form={form}
+                formItemLayout={formItemLayout}
+              />
+              <ServiceMesh
                 form={form}
                 formItemLayout={formItemLayout}
               />

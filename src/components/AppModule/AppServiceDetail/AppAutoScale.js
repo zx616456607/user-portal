@@ -414,8 +414,8 @@ class AppAutoScale extends Component {
     if (!value) {
       return callback('请输入最大实例数')
     }
-    if (value > 10) {
-      return callback('最大实例不能超过10个')
+    if (value > 300) {
+      return callback('最大实例不能超过300个')
     }
     if (value <= min) {
       return callback('最大实例数不能等于或者少于最小实例数')

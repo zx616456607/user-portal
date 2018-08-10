@@ -29,7 +29,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
     const serviceOption = {};
     let content: Array = [];
     if (fields.hasOwnProperty(key)) {
-      const json = buildJson(value, current.cluster, loginUser, imageConfig, true);
+      const json = buildJson(value, current.cluster, loginUser, imageConfig, true, isDeploy);
       content.push(yaml.dump(json.deployment));
       content.push(yaml.dump(json.service));
       json.storage.forEach(item => {
@@ -37,8 +37,9 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       });
       Object.assign(serviceOption, {
         chart: {
-          name: isDeploy ? value.chartName.value :
-            count === fieldsLength ? value.templateName.value : value.serviceName.value,
+          name: isDeploy ? value.chartName.value : // 部署模板
+              value.chartName && value.chartName.value ? value.chartName.value : // 编辑模板
+            count === fieldsLength ? value.templateName.value : value.templateName.value + `-${count}`, // 创建模板
           // version: value.templateVersion.value,
           version: 'v1',
           description: value.templateDesc ? value.templateDesc.value : '',

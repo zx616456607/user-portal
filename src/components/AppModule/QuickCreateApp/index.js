@@ -46,6 +46,8 @@ import { parseToFields } from '../../../../client/containers/AppCenter/AppTempla
 import { formatTemplateBody } from '../../../../client/containers/AppCenter/AppTemplate/CreateTemplate/TemplateInfo/formatTemplateBody'
 import Title from '../../Title'
 import ResourceErrorsModal from './ResourceErrorsModal'
+import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client/actions/securityGroup'
+import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -356,10 +358,9 @@ class QuickCreateApp extends Component {
     const templateArray = [];
     formatServiceToArrry(detail, templateArray);
     templateArray.reverse();
-    templateArray.forEach((temp, index, _array) => {
-      const isLast = index === _array.length - 1;
+    templateArray.forEach((temp) => {
       const id = this.genConfigureServiceKey();
-      const values = parseToFields(temp, chart, isLast);
+      const values = parseToFields(temp, chart);
       setFormFields(id, values);
     });
     let url = '/app_manage/app_create/quick_create'
@@ -703,7 +704,7 @@ class QuickCreateApp extends Component {
       return this.createAppOrAddService()
     }
     const { validateFieldsAndScroll } = this.form
-    validateFieldsAndScroll((errors, values) => {
+    validateFieldsAndScroll( async (errors, values) => {
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
@@ -733,6 +734,45 @@ class QuickCreateApp extends Component {
           notification.error('请修改错误表单')
         }
         return
+      }
+      // 更新安全组 (失败就不创建)
+      const { securityGroup } = values
+      if (securityGroup && securityGroup.length) {
+        let isSuccess = true
+        const reqArray = []
+        const { getfSecurityGroupDetail, updateSecurityGroup, cluster } = this.props
+        securityGroup.map(item => {
+          return reqArray.push(
+            getfSecurityGroupDetail(cluster.clusterID, item, {
+              failed: {},
+            }).then(res => {
+              if (res.error) {
+                notification.close()
+                notification.warn('获取安全组数据出错', message.message)
+                isSuccess = false
+                return
+              }
+              const { name, targetServices, ingress, egress } = parseNetworkPolicy(res.response.result.data)
+              targetServices.push(values.serviceName)
+              const body = buildNetworkPolicy(name, targetServices, ingress || [], egress || [])
+              return updateSecurityGroup(cluster.clusterID, body, {
+                failed: {
+                  func: error => {
+                    const { message } = error
+                    notification.close()
+                    notification.warn('修改安全组隔离对象出错', message.message)
+                    isSuccess = false
+                    return
+                  },
+                },
+              })
+            })
+          )
+        })
+        await Promise.all(reqArray)
+        if (!isSuccess) {
+          return
+        }
       }
       const { setFormFields } = this.props
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
@@ -1102,8 +1142,8 @@ class QuickCreateApp extends Component {
     let newPriceHour = 0 // unit: T/￥
     for (let key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
-        const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key])
-        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
+        const { resourceType, DIYMemory, DIYMaxMemory, DIYCPU, DIYMaxCPU, replicas } = getFieldsValues(fields[key])
+        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
         newCpuTotal += cpuShow * replicas
         newMemoryTotal += memoryShow * replicas
         let price = current.cluster.resourcePrice[config]
@@ -1317,5 +1357,7 @@ export default connect(mapStateToProps, {
   appTemplateDeployCheck,
   removeAppTemplateDeployCheck,
   getImageTemplate,
-  getLBList
+  getLBList,
+  getfSecurityGroupDetail,
+  updateSecurityGroup,
 })(QuickCreateApp)

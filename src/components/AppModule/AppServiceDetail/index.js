@@ -45,6 +45,7 @@ import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import Title from '../../Title'
 import { SHOW_BILLING } from '../../../constants'
 import { getServiceStatus } from '../../../common/status_identify'
+import ServiceMeshSwitch from './ServiceMeshSwitch'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -455,6 +456,11 @@ class AppServiceDetail extends Component {
                   name={this.props.name}
                 />
               </TabPane>
+              {/* TODO: 增加服务治理开关*/}
+              <TabPane tab="服务治理开关" key="#serviceMeshSwitch">
+                <ServiceMeshSwitch serviceName={service.metadata.name}
+                istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
+              </TabPane>
               <TabPane tab='辅助设置' key='#setting'>
                 <AppServiceAssistSetting
                   serviceDetail={serviceDetail}
@@ -468,7 +474,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab='安全组' key='#securitygroup'>
+              <TabPane tab='安全组 (防火墙)' key='#securitygroup'>
                 <SecurityGroupTab />
               </TabPane>
               <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>

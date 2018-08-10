@@ -224,7 +224,7 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homebuildcountcolor" />
                     </svg>
-                    TenxFlow
+                    流水线
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.flowCnt} 个

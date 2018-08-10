@@ -110,8 +110,9 @@ class DataTable extends Component {
           if(!isNaN(record.public)){
             if (text === 0) {
               res = '私有'
+            } else {
+              res = '公开'
             }
-            res = '公开'
           } else if(!!record.metadata.public){
             if(record.metadata.public === "true"){
               res = '公开'

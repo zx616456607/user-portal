@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Form, Checkbox, Modal, Button, Spin } from 'antd'
+import { Form, Checkbox, Modal, Button, Spin, Switch } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { loadApms } from '../../../../actions/apm'
@@ -36,8 +36,8 @@ const ApmSetting = React.createClass({
     loadApms(current.cluster.clusterID)
   },
 
-  onApmChange(e) {
-    const value = e.target.checked
+  onApmChange(checked) {
+    const value = checked
     if (value) {
       this.setState({ midSupportModal: true, isOnlyShowSubmitBtn: false })
     }
@@ -56,12 +56,12 @@ const ApmSetting = React.createClass({
     if (!msaUrl) {
       return (
         <span>
-          当前平台未配置微服务治理套件，
-          {
+          当前项目未配置微服务治理套件，请联系基础设施管理员安装
+          {/* {
             loginUser.role === ROLE_SYS_ADMIN
             ? <span>前往设置<Link to="/cluster/globalConfig">全局配置</Link></span>
             : '请联系管理员进行配置'
-          }
+          } */}
         </span>
       )
     }
@@ -72,7 +72,8 @@ const ApmSetting = React.createClass({
     if (!apms || apms.length === 0) {
       return (
         <span>
-          当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a>
+          {/* 当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a> */}
+          当前项目未安装 APM Agent，请联系基础设施管理员安装
         </span>
       )
     }
@@ -82,7 +83,7 @@ const ApmSetting = React.createClass({
       onChange: this.onApmChange
     })
     return [
-      <Checkbox {...apmProps} key="apm-check">立即开通</Checkbox>,
+      <Switch {...apmProps} key="apm-check" checkedChildren="开" unCheckedChildren="关"/>,
       <span
         key="apm-support"
         className="supportSpan"
@@ -142,7 +143,7 @@ const ApmSetting = React.createClass({
     return (
       <FormItem
         {...formItemLayout}
-        label="性能管理"
+        label="启用性能管理"
         key="apm"
         className="apmSetting"
       >

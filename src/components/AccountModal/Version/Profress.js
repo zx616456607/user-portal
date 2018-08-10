@@ -116,7 +116,7 @@ class VersionProfress extends Component {
                 </div>
                 <div className='commonInfo'>
                   <span className='commonSpan'>代码仓库（Github、GitLab、SVN）</span>
-                  <span className='commonSpan'>TenxFlow（不限）</span>
+                  <span className='commonSpan'>流水线（不限）</span>
                   <span className='commonSpan'>Dockerfile</span>
                 </div>
               </div>

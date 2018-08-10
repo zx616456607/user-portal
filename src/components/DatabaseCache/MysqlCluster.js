@@ -47,10 +47,13 @@ let MyComponent = React.createClass({
 
   render: function () {
     const canCreate = this.props.canCreate
-    const { config, isFetching } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin } = this.props;
     let title = ''
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
+    }
+    if (uninstalledPlugin) {
+      title = `${plugin} 插件未安装`
     }
     if (isFetching) {
       return (
@@ -63,7 +66,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
+          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate || uninstalledPlugin}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -91,7 +94,7 @@ let MyComponent = React.createClass({
           }
         case 'Pending':
           return {
-            color: '#ffbf00',
+            color: '#2db7f5',
           }
         case 'Running':
           return {
@@ -182,7 +185,9 @@ class MysqlCluster extends Component {
       minutes: '0',
       currentClusterNeedBackup: '',
       aleradySetAuto: [],
-      autoBackupSwitch: false
+      autoBackupSwitch: false,
+      uninstalledPlugin: false, //是否未安装插件
+      plugin: ''
     }
   }
   refreshDatabase() {
@@ -209,11 +214,19 @@ class MysqlCluster extends Component {
       },
       failed: {
         func: err => {
-          if (err.statusCode === 404) {
-            notification.error('MySQL集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
+
 
     })
     const { teamCluster } = this.props
@@ -226,7 +239,6 @@ class MysqlCluster extends Component {
   componentWillMount() {
     const { loadDbCacheList, cluster, getProxy } = this.props
     if (cluster == undefined) {
-
       notification.error('请选择集群','invalid cluster ID')
       return
     }
@@ -234,8 +246,15 @@ class MysqlCluster extends Component {
     loadDbCacheList(cluster, 'mysql', {
       failed: {
         func: err => {
-          if (err.statusCode === 404) {
-            notification.error('MySQL集群未找到')
+          if (err.statusCode === 404 && err.message.details) {
+            const { kind } = err.message.details
+            const reg = /cluster-operator/g
+            if (reg.test(kind)) {
+              this.setState({
+                uninstalledPlugin: true,
+                plugin: kind
+              })
+            }
           }
         }
       }
@@ -265,7 +284,6 @@ class MysqlCluster extends Component {
       },100)
     }
   }
-
   componentWillReceiveProps(nextProps) {
     const { current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
@@ -318,7 +336,8 @@ class MysqlCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterProxy, storageClassType } = this.props;
+    const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
+    const { uninstalledPlugin, plugin } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -327,6 +346,10 @@ class MysqlCluster extends Component {
     if(!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
     }
+    if (uninstalledPlugin) {
+      title = `${plugin} 插件未安装`
+    }
+
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
@@ -334,7 +357,7 @@ class MysqlCluster extends Component {
           <div className='databaseHead'>
             <ResourceBanner resourceType='mysql'/>
             { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
-            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
+            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate || uninstalledPlugin}>
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
@@ -346,13 +369,31 @@ class MysqlCluster extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} setAutoBackup={this.onAutoBackup} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent
+            scope={_this}
+            setAutoBackup={this.onAutoBackup}
+            isFetching={isFetching}
+            config={databaseList}
+            canCreate={canCreate}
+            uninstalledPlugin = {uninstalledPlugin}
+            plugin = {plugin}
+          />
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
-          onCancel={() => { this.setState({ detailModal: false }) } }
+          onCancel={() => {
+            this.setState({ detailModal: false })
+            loadDbCacheList(cluster, 'mysql')
+          } }
           >
-          <ModalDetail detailModal={this.state.detailModal} scope={_this}  putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
+          <ModalDetail
+            detailModal={this.state.detailModal}
+            scope={_this}
+            putVisible={ _this.state.putVisible }
+            database={this.props.database}
+            currentData={this.state.currentData}
+            dbName={this.state.currentDatabase}
+          />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false} width={600}

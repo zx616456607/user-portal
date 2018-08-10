@@ -384,7 +384,7 @@ class Ordinary extends Component {
   }
   maxClusterCount(value) {
     const { clusterList } = this.state
-    let count = 0
+    let count = -1
     if (clusterList) {
       Object.keys(clusterList).forEach((item, index) => {
         if (item === value) {
@@ -415,15 +415,22 @@ class Ordinary extends Component {
     if (usedCount > maxCount && maxCount !== -1) {
       overUesd = true
     }
+    const content = <div>
+      <span style={{ color: overUesd ? 'red' : 'white' }}>{usedCount}</span>
+      /
+      <span>{maxCount === -1 ? '无限制' : maxCount}</span>
+    </div>
     return (
-      <Row className="number-row" >
-        <Col span={7}></Col>
-        <Col span={17} className="number" >
+      <Tooltip title={content}>
+        <Row className="number-row" >
+          <Col span={2}></Col>
+          <Col span={22} className="number textoverflow" >
           <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
           <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </Tooltip>
     )
   }
   filterPercent(value, count) {
@@ -626,8 +633,8 @@ class Ordinary extends Component {
     const statefulApps = {
       mysql: "MySQL",
       redis: "Redis",
-      zookeeper: "ZooKeeper",
-      elasticsearch: "ElasticSearch",
+      // zookeeper: "ZooKeeper",
+      // elasticsearch: "ElasticSearch",
       //etcd: "Etcd",
     }
     const statefulAppTabMapping = {
@@ -1418,13 +1425,16 @@ class Ordinary extends Component {
       }, {
         key: 'redis',
         text: 'Redis集群 (个)'
-      }, {
+      },
+/*
+      {
         key: 'zookeeper',
         text: 'Zookeeper集群 (个)'
       }, {
         key: 'elasticsearch',
         text: 'ES集群 (个)'
       },
+*/
       // {
       //   key: 'etcd',
       //   text: 'Etcd集群 (个)'
@@ -1543,10 +1553,10 @@ class Ordinary extends Component {
                             <span className="item">{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={16}>
-                          <Progress className="pro" style={{ width: '95%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
+                        <Col span={13}>
+                          <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxClusterCount(item.key), this.useClusterCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={7}>
                           {this.renderProcessNumber(item.key, { left: 6, right: 18})}
                         </Col>
                       </Row>

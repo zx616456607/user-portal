@@ -1234,11 +1234,11 @@ class Ordinary extends Component{
               <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;创建我的第一个容器小应用&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
             </div>
             <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;创建我的第一个 TenxFlow 项目（持续集成、自动部署）&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;创建我的第一个 流水线 项目（持续集成、自动部署）&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
             </div>
             <div className='infoDetail littleInfoDetail'>
               <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;实现代码构建成容器镜像，进而启动镜像为容器小应用；</span><br />
-              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过 TenxFlow 还可以实现开发过程中的更多环节自动化，期待你的发现；</span>
+              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过 流水线 还可以实现开发过程中的更多环节自动化，期待你的发现；</span>
             </div>
             <div className='infoDetail' style={{ marginTop: '20px', marginBottom: '10px' }}>
               <span className='info'>来开启你的的Docker开发者之旅吧！ </span>

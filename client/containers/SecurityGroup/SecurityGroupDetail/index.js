@@ -36,7 +36,7 @@ class SecurityGroupDetail extends React.Component {
         func: error => {
           const { message } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          notification.warn('获取安全组数据出错', message.message)
         },
       },
     }).then(res => this.setState({
@@ -56,7 +56,7 @@ class SecurityGroupDetail extends React.Component {
           <p className="detailTitle">隔离对象的访问白名单</p>
           <WhiteList type="ingress" current={current} />
           <div className="ingressDriver"></div>
-          <WhiteList typpe="egress" current={current} />
+          <WhiteList type="egress" current={current} />
         </Card>
       </QueueAnim>
     </div>
@@ -70,7 +70,8 @@ const mapStateToProps = ({
   const listData = []
   data && data.map(item => listData.push({
     name: item.metadata.annotations.policyName,
-    target: item.spec.podSelector.matchExpressions[0].values,
+    target: item.spec.podSelector.matchExpressions
+              && item.spec.podSelector.matchExpressions[0].values,
     time: item.metadata.creationTimestamp,
     key: item.metadata.name,
   }))

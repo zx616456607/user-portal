@@ -155,7 +155,7 @@ class ManualScaleModal extends Component {
           </Row>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>
-              实际数量
+              实例数量
               {/*<Tooltip title="默认最大10个实例，专业版及企业用户可申请更大配额"><Icon type="question-circle-o" /></Tooltip>*/}
             </Col>
             <Col className="itemBody" span={20}>

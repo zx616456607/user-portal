@@ -62,7 +62,7 @@ export default class ChartComponent extends React.Component {
       formatter: '{value}'
     })
     option.setToolTipUnit(` ${unit}`)
-    option.setNexportFlag(type === 'nexport')
+    option.setServiceFlag(type === 'service')
     option.setTooltip('position', function (pos, params, dom, rect, size) {
       // 鼠标在左侧时 tooltip 显示到右侧，鼠标在右侧时 tooltip 显示到左侧。
       let obj = {top: 60};

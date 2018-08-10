@@ -49,7 +49,8 @@ class VisitType extends Component{
       initGroupID:undefined,
       initSelect: undefined,
       isLbgroupNull: false,
-      activeKey: 'netExport'
+      activeKey: 'netExport',
+      agentValue: 'inside',
     }
   }
   async componentWillMount() {
@@ -525,6 +526,12 @@ class VisitType extends Component{
       }
     })
   }
+
+  agentChange = e => {
+    this.setState({
+      agentValue: e.target.value,
+    })
+  }
   render() {
     const { form, service, currentCluster } = this.props;
     const { getFieldProps } = form;
@@ -536,7 +543,7 @@ class VisitType extends Component{
       value, disabled, forEdit, selectDis, deleteHint,privateNet,
       addrHide, currentProxy, initGroupID, initValue, initSelectDics,
       isLbgroupNull, activeKey, unbindVisible, confirmLoading, currentLB,
-      hasLbDomain
+      hasLbDomain, agentValue
     } = this.state;
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -630,6 +637,10 @@ class VisitType extends Component{
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
+              <RadioGroup value={agentValue} onChange={this.agentChange}>
+                <Radio value="inside">集群内负载均衡</Radio>
+                <Radio value="outside">集群外负载均衡</Radio>
+              </RadioGroup>
               {this.renderIngresses()}
             </div>
           </div>

@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './style/ProjectDetail.less'
 import {
   Row, Col, Button, Input, Table, Collapse, Card, Icon, Modal, Checkbox, Tooltip,
-  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin
+  Transfer, InputNumber, Tree, Alert, Form, Tabs, Popover, Select, Dropdown, Menu, Spin, Switch
  } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
@@ -46,6 +46,9 @@ import { loadClusterList } from '../../../../actions/cluster'
 import {ASYNC_VALIDATOR_TIMEOUT, REG} from '../../../../constants'
 import ResourceModal from './ResourceModal'
 import PermissionOverview from './PermissionOverview'
+import ServiceMeshForm from './ServiceMeshForm';
+import ServiceMeshSwitch from './ServiceMeshSwitch';
+import * as SEMeshActions from '../../../../actions/serviceMesh'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -1001,7 +1004,7 @@ class ProjectDetail extends Component {
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
-      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster
+      filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster,
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
@@ -1061,8 +1064,10 @@ class ProjectDetail extends Component {
           if (item.status === 2) {
             if (flag) {
               return (
-                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`}>
-                  <span>{item.clusterName}</span>
+                <Row>
+                  <Col span={12}>
+                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`} >
+                  <span >{item.clusterName}</span>
                   {this.clusterStatus(item.status, true)}
                   {
                     (isAble || isManager) &&
@@ -1080,11 +1085,19 @@ class ProjectDetail extends Component {
                     </div>
                   </Modal>
                 </div>
+                  </Col>
+                  <Col span={12}>
+                  <div className="gutter-box">
+                        {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
+                        <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={projectDetail}/>
+                    </div>
+                  </Col>
+                </Row>
               )
             }
             return (
-              <dd className="topList" key={item.clusterID}>
-                <span>{item.clusterName}</span>
+              <dd className="topList" key={item.clusterID} >
+                <span >{item.clusterName}</span>
                 <div>
                   {this.clusterStatus(item.status)}
                   {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.clusterID,0)}/>*/}
@@ -1341,6 +1354,49 @@ class ProjectDetail extends Component {
                       </Col>
                     </Row>
                   }
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        项目角色
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        备注
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box ">
+                        <div className="example-input commonBox remark">
+                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment', {
+                            initialValue: comment
+                          }) } />
+                          {
+                            editComment ?
+                              [
+                                <Tooltip title="取消">
+                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelEdit()} />
+                                </Tooltip>,
+                                <Tooltip title="保存">
+                                  <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
+                                </Tooltip>
+                              ] :
+                              (isAble|| isManager) &&
+                              <Tooltip title="编辑">
+                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
+                              </Tooltip>
+                          }
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
                   {/*<Row gutter={16}>*/}
                   {/*<Col className='gutter-row' span={4}>*/}
                   {/*<div className="gutter-box">*/}
@@ -1361,6 +1417,34 @@ class ProjectDetail extends Component {
                   {/*</div>*/}
                   {/*</Col>*/}
                   {/*</Row>*/}
+                </div>
+              </Col>
+              <Col span={12}>
+                <div className="basicInfoRight">
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        创建时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col className='gutter-row' span={4}>
+                      <div className="gutter-box">
+                        更新时间
+                      </div>
+                    </Col>
+                    <Col className='gutter-row' span={20}>
+                      <div className="gutter-box">
+                        {projectDetail && projectDetail.updateTime && formatDate(projectDetail.updateTime)}
+                      </div>
+                    </Col>
+                  </Row>
                   <Row gutter={16}>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
@@ -1408,86 +1492,19 @@ class ProjectDetail extends Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col className='gutter-row' span={19} offset={4}>
+                    <Col className='gutter-row' span={24} >
                       {
                         appliedLenght > 0 &&
                         <div className="clusterWithStatus">
-                          {applying(true)}
+                          <Row>
+                            <Col span={12}><span className="item">已授权集群</span></Col>
+                            <Col span={12}><span className="item">启用服务网格</span></Col>
+                          </Row>
+                          {/* {applying(true)} */}
                           {applied(true)}
-                          {reject(true)}
+                          {/* {reject(true)} */}
                         </div>
                       }
-                    </Col>
-                  </Row>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div className="basicInfoRight">
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        项目角色
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        创建时间
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {projectDetail && projectDetail.createTime && formatDate(projectDetail.createTime)}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        更新时间
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        {projectDetail && projectDetail.updateTime && formatDate(projectDetail.updateTime)}
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col className='gutter-row' span={4}>
-                      <div className="gutter-box">
-                        备注
-                      </div>
-                    </Col>
-                    <Col className='gutter-row' span={20}>
-                      <div className="gutter-box">
-                        <div className="example-input commonBox">
-                          <Input size="large" disabled={editComment ? false : true} type="textarea" placeholder="备注" {...getFieldProps('comment', {
-                            initialValue: comment
-                          }) } />
-                          {
-                            editComment ?
-                              [
-                                <Tooltip title="取消">
-                                  <i className="anticon anticon-minus-circle-o pointer" onClick={() => this.cancelEdit()} />
-                                </Tooltip>,
-                                <Tooltip title="保存">
-                                  <i className="anticon anticon-save pointer" onClick={() => this.saveComment()} />
-                                </Tooltip>
-                              ] :
-                              (isAble|| isManager) &&
-                              <Tooltip title="编辑">
-                                <i className="anticon anticon-edit pointer" onClick={() => this.editComment()} />
-                              </Tooltip>
-                          }
-                        </div>
-                      </div>
                     </Col>
                   </Row>
                 </div>
@@ -1847,5 +1864,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   getGlobaleQuotaList,
   permissionOverview,
   loadClusterList,
-  PermissionResource
+  PermissionResource,
+  ToggleServiceMesh: SEMeshActions.ToggleServiceMesh,
 })(ProjectDetail)

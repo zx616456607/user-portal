@@ -15,7 +15,9 @@ import AddWhiteList from '../AddWhiteList'
 
 export default class IngressWhiteList extends React.Component {
   render() {
-    const { form } = this.props
+    const { form, result } = this.props
+    const ingLn = result && result.ingress
+    const egLn = result && result.egress
     return <div className="whiteListPage">
       <Row className="ingress">
         <Col span={4} className="firstCol">ingress 来源白名单</Col>
@@ -26,6 +28,7 @@ export default class IngressWhiteList extends React.Component {
       <AddWhiteList
         type="ingress"
         form={form}
+        ln={ingLn}
       />
       <div className="egressBorder"></div>
       <Row className="ingress">
@@ -37,6 +40,7 @@ export default class IngressWhiteList extends React.Component {
       <AddWhiteList
         type="egress"
         form={form}
+        ln={egLn}
       />
     </div>
   }

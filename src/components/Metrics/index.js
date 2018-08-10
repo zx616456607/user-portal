@@ -24,42 +24,68 @@ class Metrics extends Component {
   }
 
   render() {
-    const { 
-      cpu, memory, networkReceived, networkTransmitted, 
+    const {
+      cpu, memory, networkReceived, networkTransmitted,
       events, diskReadIo, diskWriteIo, scope, diskHide,
-      tcpListen, tcpEst, tcpClose, tcpTime, showTcp, hideInstantBtn
+      tcpListen, tcpEst, tcpClose, tcpTime, showTcp, hideInstantBtn,
+      isService,
     } = this.props
     return (
       <div className="metrics" style={{marginTop:12}}>
-        <CPU cpu={cpu} events={events} scope={scope} hideInstantBtn={hideInstantBtn}/>
-        <Memory memory={memory} events={events} scope={scope} hideInstantBtn={hideInstantBtn}/>
-        <Network 
-          networkReceived={networkReceived}
-          networkTransmitted={networkTransmitted}
-          events={events}
-          scope={scope}
-          hideInstantBtn={hideInstantBtn}
+        <CPU
+          {...{
+            cpu,
+            events,
+            scope,
+            hideInstantBtn,
+            isService,
+          }}
+        />
+        <Memory
+          {...{
+            memory,
+            events,
+            scope,
+            hideInstantBtn,
+            isService,
+          }}
+        />
+        <Network
+          {...{
+            networkReceived,
+            networkTransmitted,
+            events,
+            scope,
+            hideInstantBtn,
+            isService,
+          }}
         />
         {
           !diskHide &&
             <Disk
-              diskReadIo={diskReadIo}
-              events={events}
-              diskWriteIo={diskWriteIo}
-              scope={scope}
-              hideInstantBtn={hideInstantBtn}
+              {...{
+                diskReadIo,
+                diskWriteIo,
+                events,
+                scope,
+                hideInstantBtn,
+                isService,
+              }}
             />
         }
         {
           showTcp &&
             <Tcp
-              tcpListen={tcpListen}
-              tcpEst={tcpEst}
-              tcpClose={tcpClose}
-              tcpTime={tcpTime}
-              events={events}
-              scope={scope}
-              hideInstantBtn={hideInstantBtn}
+              {...{
+                tcpListen,
+                tcpEst,
+                tcpClose,
+                tcpTime,
+                events,
+                scope,
+                hideInstantBtn,
+                isService,
+              }}
             />
         }
       </div>

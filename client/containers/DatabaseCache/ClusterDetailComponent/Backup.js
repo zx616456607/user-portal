@@ -45,30 +45,38 @@ class Backup extends React.Component {
     delThis: false, // 删除备份链弹框显示隐藏
     backupChain: '', // 当前操作的备份点
     hadSetAutoBackup: false, // 是否已经设置了自动备份
-    currentIndex: '0', // 当前选的第几个备份链
+    currentIndex: '', // 当前选的第几个备份链
     notAllowDiffBackup: false, // 是否允许差异备份
     fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
+    isFetching: false,
   }
   componentDidMount() {
     this.getList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
   }
 
-  getList = (callback, flag) => {
+  getList = () => {
     const { clusterID, database, getbackupChain, databaseInfo } = this.props
     return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
-            if (res.data.items.length === 1 && flag && flag === 'create' && database === 'mysql') {
-              callback && callback()
+            // 当前没有主备份链，不允许从当前备份链上新建差异备份
+            const chains = res.data.items.filter(v => v.masterBackup)
+            if (chains.length === 0) {
+              this.setState({
+                notAllowDiffBackup: true,
+                backupType: 'fullbackup',
+              })
+            } else {
+              this.setState({
+                notAllowDiffBackup: false,
+                backupType: 'diffbackup',
+              })
+
             }
-            this.setState({
-              notAllowDiffBackup: false,
-              backupType: 'diffbackup',
-            })
           } else {
-            callback && callback()
+            // 当没有备份链时，新建备份点不能选原备份链上差异备份
             this.setState({
               notAllowDiffBackup: true,
               backupType: 'fullbackup',
@@ -209,12 +217,9 @@ class Backup extends React.Component {
         success: {
           func: () => {
             notification.success('删除成功')
-            setTimeout(() => this.getList(() => {
-              const parentScope = this.props.scope.props.scope
-              const { loadDbCacheList, clusterID, database } = this.props
-              parentScope.setState({ detailModal: false })
-              setTimeout(() => loadDbCacheList(clusterID, database))
-            }, 'del'))
+            setTimeout(() => {
+              this.getList()
+            })
           },
         },
       })
@@ -430,11 +435,13 @@ class Backup extends React.Component {
     }
     // 提交
     const commitBackup = () => {
-
       this.props.form.validateFields((errors, value) => {
         if (errors) {
           return
         }
+        this.setState({
+          isFetching: true,
+        })
         const {
           createBackupChain,
           databaseInfo,
@@ -449,20 +456,9 @@ class Backup extends React.Component {
               func: () => {
                 this.setState({
                   manualBackupModalShow: false,
-                }, () => {
-                  setTimeout(() => {
-                    this.getList(() => {
-                      const parentScope = this.props.scope.props.scope
-                      const { loadDbCacheList, clusterID, database } = this.props
-                      parentScope.setState({ detailModal: false })
-                      setTimeout(() => loadDbCacheList(clusterID, database))
-                    }, 'create')
-                  })
+                  isFetching: false,
                 })
               },
-            },
-            failed: {
-              func: () => {},
             },
           })
       })
@@ -486,6 +482,7 @@ class Backup extends React.Component {
       onCancel={() => this.setState({
         manualBackupModalShow: false,
       })}
+      confirmLoading = {this.state.isFetching}
       onOk={commitBackup}
     >
       <Form className="dbClusterBackup-manualBackup">
@@ -564,15 +561,19 @@ class Backup extends React.Component {
                           key={k.creationTimestamp}
                           color={this.pointClass(k.status).color}>
                           <Row className="children-chain">
-                            <Col span={7}>{formatDate(k.creationTimestamp)}</Col>
+                            <Col span={6}>{formatDate(k.creationTimestamp)}</Col>
                             <Col span={3}>{(k.size / 1024 / 1024).toFixed(2)} M</Col>
-                            <Col span={4}>{this.convertBackupType(k.backType)}</Col>
-                            <Col span={4}>
+                            <Col span={4} pull={1}>
+                              <Tooltip title={`${k.autoBackup ? '自动' : '手动'} ${this.convertBackupType(k.backType)} (${k.name})`}>
+                                <div className="point-name">{k.autoBackup ? '自动' : '手动'} {this.convertBackupType(k.backType)} ({k.name})</div>
+                              </Tooltip>
+                            </Col>
+                            <Col span={4} push={3}>
                               <span className={ `status ${this.pointClass(k.status).className}` }>
                                 {this.pointStatus(k.status, k)}
                               </span>
                             </Col>
-                            <Col span={6}>
+                            <Col span={6} push={2}>
                               {
                                 k.status === 'Complete' ?
                                   <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
@@ -603,9 +604,10 @@ class Backup extends React.Component {
         {
           chainsData.length !== 0 && chainsData.map((v, i) => {
             return <Row className="redis-list-item-header" ref="header" key={v.name}>
-              <Col span={5} className="name">
+              <Col span={3} className="name">
                 <Tooltip title={v.name}>
                   <span className="backup-point-name">
+                    ({v.chains[0].status.autoBackup ? '自动' : '手动'})
                     {v.name}
                   </span>
                 </Tooltip>
@@ -640,10 +642,6 @@ class Backup extends React.Component {
   }
   // 自动备份设置成功
   setAutobackupSuccess = () => {
-    const parentScope = this.props.scope.props.scope
-    const { loadDbCacheList, clusterID, database } = this.props
-    parentScope.setState({ detailModal: false })
-    loadDbCacheList(clusterID, database)
     this.setState({
       autoBackupModalShow: false,
     })
@@ -685,7 +683,7 @@ class Backup extends React.Component {
               </Button>
           }
           {
-            databaseInfo.status === 'Running' ?
+            databaseInfo.status !== 'Running' ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="运行中的集群支持备份">
@@ -752,6 +750,10 @@ const mapStateToProps = (state, props) => {
           i = chainsData.length
         }
       }
+    }
+    // 备份点排序，全量备份排在最下边
+    for (const v of chainsData) {
+      v.chains.sort((a, b) => Date.parse(b.creationTimestamp) - Date.parse(a.creationTimestamp))
     }
   } else if (database === 'redis') {
     // 排序，最新的放在最上边

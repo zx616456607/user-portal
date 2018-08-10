@@ -202,6 +202,7 @@ class ServiceDiscover extends React.Component {
               visible={visible}
               handleCreate={this.handleCreate}
               loadData={this.loadData}
+              listData={listData}
             />
             : null
         }
