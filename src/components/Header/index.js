@@ -8,8 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal, Popover } from 'antd'
-import { FormattedMessage, defineMessages } from 'react-intl'
+import { Icon, Badge, Modal } from 'antd'
 import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
@@ -27,7 +26,7 @@ import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
-import Airplane from '../../assets/img/quickentry/quick.png'
+import TenxIcon from '@tenx-ui/icon'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -73,41 +72,6 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/cluster\/plugin/,
   ],
 }
-
-const FormItem = Form.Item;
-const createForm = Form.create;
-const Option = Select.Option
-const InputGroup = Input.Group
-const menusText = defineMessages({
-  doc: {
-    id: 'Header.menu.doc',
-    defaultMessage: '文档中心',
-  },
-  user: {
-    id: 'Header.menu.user',
-    defaultMessage: '用户',
-  },
-  team: {
-    id: 'Header.menu.team',
-    defaultMessage: '团队',
-  },
-  space: {
-    id: 'Header.menu.space',
-    defaultMessage: '空间',
-  },
-  logOut: {
-    id: 'Header.menu.user.logOut',
-    defaultMessage: '注销',
-  },
-  userMenu2: {
-    id: 'Header.menu.user.menu2',
-    defaultMessage: '第二个',
-  },
-  userMenu3: {
-    id: 'Header.menu.user.menu3',
-    defaultMessage: '第三个',
-  }
-})
 
 function loadProjects(props, callback) {
   const { ListProjects, loginUser } = props
@@ -505,10 +469,7 @@ class Header extends Component {
           showSpace && (
             <div className="space">
               <div className="spaceTxt">
-                <svg className='headerteamspace'>
-                  {/*cube*/}
-                  <use xlinkHref='#headerteamspace' />
-                </svg>
+                <TenxIcon type="cube"className='headercluster'/>
                 <span style={{ marginLeft: 15 }}>{team}</span>
                 </div>
                 <div className="spaceBtn">
@@ -536,10 +497,7 @@ class Header extends Component {
           showCluster && (
             <div className="cluster">
               <div className="clusterTxt">
-                <svg className='headercluster'>
-                  {/*@#cluster*/}
-                  <use xlinkHref='#headercluster' />
-                </svg>
+                <TenxIcon type="cluster" className='headercluster'/>
                 <span style={{ marginLeft: 20 }}>{zone}</span>
               </div>
               <div className="envirBox">

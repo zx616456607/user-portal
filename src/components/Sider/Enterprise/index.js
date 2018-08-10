@@ -299,45 +299,36 @@ class Sider extends Component {
       <Menu.Item key='cluster_authorization'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/cluster_authorization'>
-                        <span>
-                          集群授权审批
-                        </span>
+            <span>
+              集群授权审批
+            </span>
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='approvalLimit'>
       <div className="adminBox">
         <Tooltip title="仅系统管理员可见" placement="right">
-          <svg className="start forAdmin">
-            {/*@#star*/}
-            <use xlinkHref='#start' />
-          </svg>
+          <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
         <Link to='/tenant_manage/approvalLimit'>
-                        <span>
-                          配额审批
-                        </span>
+          <span>
+            配额审批
+          </span>
         </Link>
       </div>
     </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/ldap'>
-                          <span>
-                            集成企业目录
-                          </span>
+            <span>
+              集成企业目录
+            </span>
           </Link>
         </div>
       </Menu.Item>,
@@ -363,15 +354,12 @@ class Sider extends Component {
       <Menu.Item key='applyLimit'>
         <div className="usrBox">
           <Tooltip title="仅普通用户可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/applyLimit'>
-                          <span>
-                            配额申请
-                          </span>
+              <span>
+                配额申请
+              </span>
           </Link>
         </div>
     </Menu.Item>,
@@ -399,15 +387,12 @@ class Sider extends Component {
       <Menu.Item key='license'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
-                          <span>
-                            授权管理
-                          </span>
+            <span>
+              授权管理
+            </span>
           </Link>
         </div>
       </Menu.Item>,
@@ -419,30 +404,24 @@ class Sider extends Component {
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-                          <span>
-                            高级设置
-                          </span>
+            <span>
+              高级设置
+            </span>
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
-                          <span>
-                            个性外观
-                          </span>
+            <span>
+              个性外观
+            </span>
           </Link>
         </div>
       </Menu.Item>,
@@ -450,15 +429,12 @@ class Sider extends Component {
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
-                          <span>
-                            清理工具
-                          </span>
+            <span>
+              清理工具
+            </span>
           </Link>
         </div>
       </Menu.Item>
@@ -472,15 +448,12 @@ class Sider extends Component {
       <Menu.Item key='license'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
-                            <span>
-                              授权管理
-                            </span>
+            <span>
+              授权管理
+            </span>
           </Link>
         </div>
       </Menu.Item>,
@@ -492,30 +465,24 @@ class Sider extends Component {
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-                              <span>
-                                高级设置
-                              </span>
+            <span>
+              高级设置
+            </span>
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
-                              <span>
-                                个性外观
-                              </span>
+            <span>
+              个性外观
+            </span>
           </Link>
         </div>
       </Menu.Item>,
@@ -535,30 +502,24 @@ class Sider extends Component {
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-                          <span>
-                            高级设置
-                          </span>
+            <span>
+              高级设置
+            </span>
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
           <Tooltip title="仅系统管理员可见" placement="right">
-            <svg className="start forAdmin">
-              {/*@#star*/}
-              <use xlinkHref='#start' />
-            </svg>
+            <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
-                          <span>
-                            清理工具
-                          </span>
+            <span>
+              清理工具
+            </span>
           </Link>
         </div>
       </Menu.Item>
@@ -639,10 +600,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='总览'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/'>
-                    <svg className='home commonImg'>
-                      {/*@#instrument-o*/}
-                      <use xlinkHref='#home' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="instrument-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -651,10 +609,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='应用管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
-                    <svg className='app commonImg'>
-                      {/*@#apps*/}
-                      <use xlinkHref='#app' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="apps-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -663,10 +618,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center/template'>
-                    <svg className='center commonImg'>
-                      {/*@#center-o*/}
-                      <use xlinkHref='#center' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="center-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -675,10 +627,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='CI/CD'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd/overview'>
-                    <svg className='cicd commonImg'>
-                      {/*lift-card-o*/}
-                      <use xlinkHref='#cicd' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="lift-card-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -687,10 +636,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='数据库与缓存'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache/mysql_cluster'>
-                    <svg className='database commonImg'>
-                      {/*@#database-o*/}
-                      <use xlinkHref='#database' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="database-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -710,10 +656,7 @@ class Sider extends Component {
                   <Tooltip placement='right' title='集成中心'
                     getTooltipContainer={() => document.getElementById('siderTooltip')}>
                     <Link to='/integration'>
-                      <svg className='system commonImg'>
-                        {/*@puzzle-o*/}
-                        <use xlinkHref='#system' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="puzzle-o" />
                     </Link>
                   </Tooltip>
                 </li>:''
@@ -723,10 +666,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='管理与监控'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
-                    <svg className='manageMoniter commonImg'>
-                      {/*@#manage-monitor*/}
-                      <use xlinkHref='#managemoniter' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="manage-monitor" />
                   </Link>
                 </Tooltip>
               </li>
@@ -735,10 +675,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='帐户中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
-                    <svg className='account commonImg'>
-                      {/*@#user-o*/}
-                     <use xlinkHref='#message' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="user-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -747,9 +684,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='租户管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
-                    <svg className='commonImg'>
-                     <use xlinkHref='#tenantmanagement' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="user-private" />
                   </Link>
                 </Tooltip>
               </li>
@@ -758,10 +693,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='系统设置'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
-                    <svg className='setting commonImg'>
-                      {/*@#setting-o*/}
-                      <use xlinkHref='#setting' />
-                    </svg>
+                    <TenxIcon className="commonImg" type="setting-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -771,10 +703,7 @@ class Sider extends Component {
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
-                        <svg className='cluster commonImg'>
-                          {/*@#infrastructure*/}
-                          <use xlinkHref='#siderinfrastructure' />
-                        </svg>
+                        <TenxIcon className="commonImg" type="infrastructure" />
                       </Link>
                     </Tooltip>
                   </li>
@@ -847,10 +776,7 @@ class Sider extends Component {
                 <SubMenu key='app_manage'
                   title={
                     <span>
-                      <svg className='app commonImg'>
-                        {/*@#apps*/}
-                        <use xlinkHref='#app' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="apps-o" />
                       <span className='commonSiderSpan'>应用管理</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -927,10 +853,7 @@ class Sider extends Component {
                 <SubMenu key='app_center'
                   title={
                     <span>
-                      <svg className='center commonImg'>
-                        {/*@#center-o*/}
-                        <use xlinkHref='#center' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="center-o" />
                       <span className='commonSiderSpan'>交付中心</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -981,10 +904,7 @@ class Sider extends Component {
                 <SubMenu key='ci_cd'
                   title={
                     <span>
-                      <svg className='center commonImg'>
-                        {/*lift-card-o*/}
-                        <use xlinkHref='#cicd' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="lift-card-o" />
                       <span className='commonSiderSpan'>CI/CD</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1081,10 +1001,7 @@ class Sider extends Component {
                 <SubMenu key='database_cache'
                   title={
                     <span>
-                      <svg className='database commonImg'>
-                        {/*@#database-o*/}
-                        <use xlinkHref='#database' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="database-o" />
                       <span className='commonSiderSpan'>数据库与缓存</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1167,10 +1084,7 @@ class Sider extends Component {
                 <Menu.Item key='integration'>
                   <Link to='/integration'>
                     <span>
-                      <svg className='system commonImg'>
-                        {/*@puzzle-o*/}
-                        <use xlinkHref='#system' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="puzzle-o" />
                       <span className='commonSiderSpan'>集成中心</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1181,10 +1095,7 @@ class Sider extends Component {
                 <SubMenu key='manange_monitor'
                   title={
                     <span>
-                      <svg className='manageMoniter commonImg'>
-                        {/*@#manage-monitor*/}
-                        <use xlinkHref='#managemoniter' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="manage-monitor" />
                       <span className='commonSiderSpan'>管理与监控</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1225,10 +1136,7 @@ class Sider extends Component {
                 <SubMenu key='account'
                   title={
                     <span>
-                      <svg className='account commonImg'>
-                        {/*@#user-o*/}
-                        <use xlinkHref='#message' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="user-o" />
                       <span className='commonSiderSpan'>帐户中心</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1263,9 +1171,7 @@ class Sider extends Component {
                 <SubMenu key='tenant_manage'
                   title={
                     <span>
-                      <svg className='commonImg'>
-                        <use xlinkHref='#tenantmanagement' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="user-private" />
                       <span className='commonSiderSpan'>租户管理</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1277,10 +1183,7 @@ class Sider extends Component {
                 <SubMenu key='setting'
                   title={
                     <span>
-                      <svg className='setting commonImg'>
-                        {/*@#setting-o*/}
-                        <use xlinkHref='#setting' />
-                      </svg>
+                      <TenxIcon className="commonImg" type="setting-o" />
                       <span className='commonSiderSpan'>系统设置</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1296,10 +1199,7 @@ class Sider extends Component {
                   <SubMenu key='cluster'
                     title={
                       <span>
-                        <svg className='clusterWrapper commonImg'>
-                          {/*@#infrastructure*/}
-                          <use xlinkHref='#siderinfrastructure' />
-                        </svg>
+                        <TenxIcon className="commonImg" type="infrastructure" />
                         <span className='commonSiderSpan'>基础设施</span>
                         <div style={{ clear: 'both' }}></div>
                       </span>
@@ -1308,10 +1208,7 @@ class Sider extends Component {
                   <Menu.Item key='cluster_default'>
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          {/*@#star*/}
-                          <use xlinkHref='#start' />
-                        </svg>
+                        <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link to='/cluster'>
                         <span>
@@ -1323,10 +1220,7 @@ class Sider extends Component {
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            {/*@#star*/}
-                            <use xlinkHref='#start' />
-                          </svg>
+                          <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/globalConfig'>
                             <span>
@@ -1338,10 +1232,7 @@ class Sider extends Component {
                   <Menu.Item key='cluster_autoscale'>
                       <div className="adminBox">
                         <Tooltip title="仅系统管理员可见" placement="right">
-                          <svg className="start forAdmin">
-                            {/*@#star*/}
-                            <use xlinkHref='#start' />
-                          </svg>
+                          <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/cluster_autoscale'>
                         <span>
@@ -1353,10 +1244,7 @@ class Sider extends Component {
                   <Menu.Item key='monitor'>
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          {/*@#star*/}
-                          <use xlinkHref='#start' />
-                        </svg>
+                        <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
                         onClick={() => {
@@ -1379,10 +1267,7 @@ class Sider extends Component {
                   <Menu.Item key='backup'>
                     <div className="adminBox">
                       <Tooltip title="仅系统管理员可见" placement="right">
-                        <svg className="start forAdmin">
-                          {/*@#star*/}
-                          <use xlinkHref='#start' />
-                        </svg>
+                        <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
                         onClick={() => {

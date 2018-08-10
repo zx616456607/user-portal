@@ -29,8 +29,8 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { TENX_STORE } from '../../../constants/index'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
+import TenxIcon from '@tenx-ui/icon'
 
-const ButtonGroup = Button.Group
 const confirm = Modal.confirm
 const Option = Select.Option
 
@@ -450,11 +450,8 @@ let MyComponent = React.createClass({
             <Dropdown.Button
               overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
-              <svg className='terminal'>
-                {/*@#terminal*/}
-                <use xlinkHref='#terminal' />
-              </svg>
-              <span style={{ marginLeft: '20px' }}>终端</span>
+              <TenxIcon type="terminal" size={12} className="terminal"/>
+              <span style={{ marginLeft: '10px' }}>终端</span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>

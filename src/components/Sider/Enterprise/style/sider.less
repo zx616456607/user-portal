@@ -69,18 +69,12 @@
       a {
         color: #a8aeb7;
       }
-      use {
-        transition: all 0.3s;
-        fill: #a8aeb7 !important;
-      }
+
     }
     li:hover {
       background-color: #333c47;
       a {
         color: #d6dbea;
-      }
-      use {
-        fill: #d6dbea !important;
       }
     }
   }
@@ -88,16 +82,10 @@
   .selectedLi {
     background-color: #333c47;
     border-right: 3px solid #00afdd;
-    use {
-      fill: #2db7f5 !important;
-    }
   }
   .selectedLi:hover {
     background-color: #333c47;
     border-right: 3px solid #00afdd;
-    use {
-      fill: #2db7f5 !important;
-    }
   }
   //a标签通用样式
   a {
@@ -174,10 +162,6 @@
       width: 18px;
       font-size: 18px;
       color: #a8aeb7;
-      use {
-        transition: all 0.3s;
-        fill: #a8aeb7 !important;
-      }
     }
     .home,
     .add,
@@ -211,19 +195,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      &:hover {
-        a {
-          color: #FFFFFF !important;
-        }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
     .ant-menu-item {
       transition: all 0.3s;
       padding: 0 !important;
@@ -231,11 +202,6 @@
       line-height: 45px !important;
       color: #c4c4c4;
       .adminBox, .usrBox {
-        .start {
-          use {
-            fill: #C4C4C4 !important;
-          }
-        }
         .forAdmin {
           margin: 0 15px 0 -2px;
         }
@@ -245,7 +211,6 @@
         }
       }
       a {
-
         width: 100%;
         color: #C4C4C4;
         i {
@@ -259,16 +224,6 @@
           font-size: 18px;
           color: #a8aeb7;
         }
-        span {
-          float: left;
-          .start {
-            font-size: 12px;
-            transform: scale(0.9)
-          }
-          .forAdmin {
-            margin: 0 12px 0 -2px;
-          }
-        }
       }
       &:hover {
         a {
@@ -276,58 +231,12 @@
             color: #ffffff;
           }
         }
-        .adminBox {
-          .start {
-            use {
-              fill: #FFFFFF !important;
-            }
-          }
-        }
         a {
           color: #FFFFFF !important;
-          .start {
-            use {
-              fill: #FFFFFF !important;
-            }
-          }
-          use {
-            fill: #FFFFFF;
-          }
         }
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-          i {
-            transition: all 0.3s;
-            float: left;
-            margin-top: 12px;
-            margin-right: 15px;
-            margin-left: 20px;
-            height: 18px;
-            width: 18px;
-            font-size: 18px;
-            color: #a8aeb7;
-          }
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -336,11 +245,6 @@
       }
       .adminBox, .usrBox {
         color: #FFF;
-        .start {
-          use {
-            fill: #FFFFFF !important;
-          }
-        }
         a {
           span {
             color: #FFF;
@@ -353,9 +257,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -363,9 +264,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -422,32 +320,19 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor8;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor8;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor8;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -508,10 +393,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -545,18 +426,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
 
     .ant-menu-item {
       transition: all 0.3s;
@@ -575,26 +444,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -606,9 +455,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -616,9 +462,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -673,32 +516,19 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor7;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor7;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor7;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -759,10 +589,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -796,18 +622,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
 
     .ant-menu-item {
       transition: all 0.3s;
@@ -826,26 +640,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -857,9 +651,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -867,9 +658,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -923,32 +711,19 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor6;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor6;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor6;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -1009,10 +784,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -1046,18 +817,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
 
     .ant-menu-item {
       transition: all 0.3s;
@@ -1076,26 +835,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -1107,9 +846,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -1117,9 +853,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -1172,33 +905,20 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor5;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor5;
       border-right: 3px solid #00afdd;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor5;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -1259,10 +979,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -1296,19 +1012,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-
     .ant-menu-item {
       transition: all 0.3s;
       padding: 0 !important;
@@ -1326,26 +1029,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -1357,9 +1040,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -1367,9 +1047,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -1422,33 +1099,20 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor4;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor4;
       border-right: 3px solid #00afdd;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor4;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -1509,10 +1173,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -1546,18 +1206,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
 
     .ant-menu-item {
       transition: all 0.3s;
@@ -1576,26 +1224,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -1607,9 +1235,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -1617,9 +1242,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -1673,33 +1295,20 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor3;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor3;
       border-right: 3px solid #00afdd;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor3;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -1760,10 +1369,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -1797,18 +1402,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
 
     .ant-menu-item {
       transition: all 0.3s;
@@ -1827,26 +1420,6 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
       }
     }
     .ant-menu-item-selected {
@@ -1858,9 +1431,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -1868,9 +1438,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -1924,33 +1491,20 @@
       a {
         color: rgba(255,255,255,0.8);
       }
-      use {
-        transition: all 0.3s;
-        fill: rgba(255,255,255,0.8);
-      }
     }
     li:hover {
       background-color: @shallowColor2;
       a {
         color: #fff;
       }
-      use {
-        fill: #fff;
-      }
     }
     //被选中态
     .selectedLi {
       background-color: @activeColor2;
       border-right: 3px solid #00afdd;
-      use {
-        fill: rgba(255,255,255,0.8);
-      }
     }
     .selectedLi:hover {
       background-color: @shallowColor2;
-      use {
-        fill: #fff;
-      }
     }
   }
   //a标签通用样式
@@ -2011,10 +1565,6 @@
       width: 18px;
       font-size: 18px;
       color: rgba(255, 255, 255, 0.8);
-      use {
-        transition: all 0.3s;
-        fill: rgba(255, 255, 255, 0.8);
-      }
     }
     .home,
     .add,
@@ -2048,19 +1598,6 @@
       overflow-y: auto;
       overflow-x: hidden;
     }
-    .ant-menu-submenu-title {
-      padding-left: 20px !important;
-      height: 45px !important;
-      line-height: 45px !important;
-      color: rgba(255, 255, 255, 0.8);
-      &:hover {
-        color: #FFFFFF;
-        use {
-          fill: #FFFFFF !important;
-        }
-      }
-    }
-
     .ant-menu-item {
       transition: all 0.3s;
       padding: 0 !important;
@@ -2078,28 +1615,9 @@
         .sideCircle {
           background-color: #FFFFFF;
         }
-        use {
-          fill: #FFFFFF !important;
-        }
       }
     }
-    .ant-menu-submenu {
-      .ant-menu-item {
-        padding-left: 30px !important;
-        height: 40px !important;
-        line-height: 40px !important;
-        a {
-          padding-left: 0 !important;
-          width: 100%;
-          height: 40px;
-        }
-      }
-    }
-    .ant-menu-submenu-selected {
-      use {
-        fill: #FFFFFF !important;
-      }
-    }
+
     .ant-menu-item-selected {
       background: @activeColor2;
       color: #FFFFFF;
@@ -2109,9 +1627,6 @@
       .sideCircle {
         background-color: #FFFFFF;
       }
-      use {
-        fill: #FFFFFF !important;
-      }
       &:hover {
         color: #FFFFFF;
         a {
@@ -2119,9 +1634,6 @@
         }
         .sideCircle {
           background-color: #FFFFFF;
-        }
-        use {
-          fill: #FFFFFF !important;
         }
       }
     }
@@ -2151,7 +1663,6 @@
 .oemMenu-drek-8{
   background:@backColor8;
 }
-
 .oemMenu-drek-7{
   background:@backColor7;
 }
@@ -2203,6 +1714,7 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+#sider.oemMenu-drek-1,
 #sider.oemMenu-drek-2,
 #sider.oemMenu-drek-3,
 #sider.oemMenu-drek-4,
@@ -2213,41 +1725,27 @@
 {
   .siderBigger {
     .ant-menu-item {
+      color: #c4c4c4;
+      transition: all 0.3s;
       .adminBox {
         a {
-          color:#fff !important;
+          display: inline-block;
         }
-        .start {
-          use {
-            fill: #fff !important;
-          }
+        .star {
+          font-size: 12px;
+          transform: scale(0.7)
         }
         .forAdmin {
-          margin: 0 15px 0 -2px;
-        }
-        a {
-          display: inline-block;
-          color: #fff;
+          margin: 0 12px 0 -4px;
         }
       }
       &:hover {
-        .adminBox {
-          .start {
-            use {
-              fill: #FFFFFF !important;
-            }
-          }
-        }
+        color: #ffffff;
       }
     }
     .ant-menu-item-selected {
       .adminBox {
         color: #FFF;
-        .start {
-          use {
-            fill: #FFFFFF !important;
-          }
-        }
         a {
           span {
             color: #FFF;
@@ -2256,4 +1754,53 @@
       }
     }
   }
+  .ant-menu-submenu {
+    .ant-menu-item {
+      padding-left: 30px !important;
+      height: 40px !important;
+      line-height: 40px !important;
+      a {
+        padding-left: 0 !important;
+        width: 100%;
+        height: 40px;
+        i {
+          transition: all 0.3s;
+          float: left;
+          margin-top: 12px;
+          margin-right: 15px;
+          margin-left: 20px;
+          height: 18px;
+          width: 18px;
+          font-size: 18px;
+          color: #a8aeb7;
+        }
+
+      }
+    }
+  }
+  .ant-menu-submenu-selected {
+    .ant-menu-submenu-title {
+      color: #ffffff;
+      .commonImg {
+        color: #ffffff;
+      }
+    }
+  }
+  .ant-menu-submenu-title {
+    color: #c4c4c4;
+    padding-left: 20px !important;
+    height: 45px !important;
+    line-height: 45px !important;
+    .commonImg {
+      transition: all 0.3s!important;
+      color: #c4c4c4;
+    }
+    &:hover {
+      color: #ffffff;
+      .commonImg {
+        color: #ffffff;
+      }
+    }
+  }
+
 }

@@ -53,7 +53,6 @@ class Backup extends React.Component {
     this.getList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
   }
-
   getList = (callback, flag) => {
     const { clusterID, database, getbackupChain, databaseInfo } = this.props
     return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
