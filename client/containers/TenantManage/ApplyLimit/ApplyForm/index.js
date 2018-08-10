@@ -138,7 +138,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                       return (
                         <Select.OptGroup key={o.resourceName}>
                           {
-                            o.children.map(i =>
+                            (o.children || []).map(i =>
                               <Select.Option key={i.resourceType} value={i.resourceType}>
                                 {i.resourceName}
                               </Select.Option>
@@ -348,7 +348,7 @@ class ApplyForm extends React.Component {
         if (isEmpty(formValue.applyDetails[indexName])) {
           formValue.applyDetails[indexName] = {}
         }
-        formValue.applyDetails[indexName][value[`resource${key}`]] = indexValue
+        formValue.applyDetails[indexName][value[`resource${key}`]] = parseFloat(indexValue)
       }
       this.setState({ applayLoading: true })
       // console.log('formValue', formValue)

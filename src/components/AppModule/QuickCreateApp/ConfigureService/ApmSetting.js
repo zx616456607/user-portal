@@ -51,31 +51,32 @@ const ApmSetting = React.createClass({
   renderApm() {
     const { form, formItemLayout, loginUser, apmList, openApi } = this.props
     const { apms, isFetching } = apmList
-    // // msa-portal url not configure
-    // const msaUrl = loginUser.msaConfig.url
-    // if (!msaUrl) {
-    //   return (
-    //     <span>
-    //       当前平台未配置微服务治理套件，
-    //       {
-    //         loginUser.role === ROLE_SYS_ADMIN
-    //         ? <span>前往设置<Link to="/cluster/globalConfig">全局配置</Link></span>
-    //         : '请联系管理员进行配置'
-    //       }
-    //     </span>
-    //   )
-    // }
-    // if (isFetching) {
-    //   return <div><Spin /> 加载 apm 中 ...</div>
-    // }
-    // // apm not install
-    // if (!apms || apms.length === 0) {
-    //   return (
-    //     <span>
-    //       当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a>
-    //     </span>
-    //   )
-    // }
+    // msa-portal url not configure
+    const msaUrl = loginUser.msaConfig.url
+    if (!msaUrl) {
+      return (
+        <span>
+          当前项目未配置微服务治理套件，请联系基础设施管理员安装
+          {/* {
+            loginUser.role === ROLE_SYS_ADMIN
+            ? <span>前往设置<Link to="/cluster/globalConfig">全局配置</Link></span>
+            : '请联系管理员进行配置'
+          } */}
+        </span>
+      )
+    }
+    if (isFetching) {
+      return <div><Spin /> 加载 apm 中 ...</div>
+    }
+    // apm not install
+    if (!apms || apms.length === 0) {
+      return (
+        <span>
+          {/* 当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a> */}
+          当前项目未安装 APM Agent，请联系基础设施管理员安装
+        </span>
+      )
+    }
     const { getFieldProps } = form
     const apmProps = getFieldProps('apm', {
       valuePropName: 'checked',

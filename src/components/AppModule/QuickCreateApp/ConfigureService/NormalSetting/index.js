@@ -289,10 +289,12 @@ const Normal = React.createClass({
     const disabledNode = []
     clusterNodes.forEach((item, index) => {
       const { isMaster, schedulable } = item
-      if (isMaster || !schedulable) {
-        disabledNode.push(item)
-      } else {
-        enabledNode.push(item)
+      if (!item.taints) {
+        if (isMaster || !schedulable) {
+          disabledNode.push(item)
+        } else {
+          enabledNode.push(item)
+        }
       }
     })
     const mapArray = enabledNode.concat(disabledNode)

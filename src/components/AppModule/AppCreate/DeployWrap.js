@@ -26,6 +26,7 @@ import Weblogic from './WeblogicConfig'
 import './style/WrapManage.less'
 const notificat = new NotificationHandler()
 import { SHOW_BILLING } from '../../../constants'
+import {getFieldsValues} from "../QuickCreateApp/utils";
 const SERVICE_CONFIG_HASH = '#configure-service'
 const Step = Steps.Step
 const ButtonGroup = Button.Group;
@@ -204,8 +205,8 @@ class WrapManage extends Component {
     let priceHour = 0 // unit: T/￥
     for (let key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
-        const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key])
-        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
+        const { resourceType, DIYMemory, DIYMaxMemory, DIYCPU, DIYMaxCPU, replicas } = getFieldsValues(fields[key])
+        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU)
         cpuTotal += cpuShow
         memoryTotal += memoryShow
         let price = current.cluster.resourcePrice[config]

@@ -39,10 +39,10 @@ class NetworkIsolation extends Component {
       clusterID,
       namespace,
     }
-    getNetworkIsolationStatus(body, {
+    getNetworkIsolationStatus(clusterID, {
       success: {
         func: (res) => {
-          if(res.rule){
+          if(res.defaultDeny){
             this.setState({
               allow: true
             })
@@ -80,22 +80,28 @@ class NetworkIsolation extends Component {
     const { postNetworkIsolation, clusterID, namespace, deleteNetworkIsolation } = this.props
     const { allow } = this.state
     let Noti = new NotificationHandler()
-    let postBody = {
-      clusterID,
-      namespace,
-      body: {
-        "rule": {
-          "policy": "allow",
-          "targets": []
-        }
-      }
+    // let postBody = {
+    //   clusterID,
+    //   namespace,
+    //   body: {
+    //     "rule": {
+    //       "policy": "allow",
+    //       "targets": []
+    //     }
+    //   }
+    // }
+    const body = {
+      rule: {
+        policy: 'allow',
+        targets: [],
+      },
     }
     if(allow){
       let deleteBody = {
         clusterID,
         namespace,
       }
-      deleteNetworkIsolation(deleteBody, {
+      deleteNetworkIsolation(clusterID, {
         success: {
           func: () => {
             Noti.success('关闭网络 inbound 隔离成功')
@@ -127,7 +133,7 @@ class NetworkIsolation extends Component {
       })
       return
     }
-    postNetworkIsolation(postBody, {
+    postNetworkIsolation(clusterID, body, {
       success: {
         func: () => {
           Noti.success('开启网络 inbound 隔离成功')
@@ -190,7 +196,6 @@ class NetworkIsolation extends Component {
           </div>
           <div className="footer">
             <Button
-              type="primary"
               size="large"
               style={{ marginRight: 20 }}
               onClick={() => browserHistory.goBack()}

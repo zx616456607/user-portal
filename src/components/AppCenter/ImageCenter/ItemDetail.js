@@ -173,7 +173,25 @@ class ItemDetail extends Component {
                   <span className="btn-back">返回</span>
                 </span>
                 <span className="itemName">{name || ''}</span>
-                <span>{ projectDetail.metadata ? projectDetail.metadata.public ? '公开仓库组' : '私有仓库组' : "" } </span>
+                <span>{
+                  (() => {
+                    let res
+                    if(!isNaN(projectDetail.public)){
+                      if (projectDetail.public === 0) {
+                        res = '私有仓库组'
+                      }else{
+                        res = '公开仓库组'
+                      }
+                    } else if(!!projectDetail.metadata && !!projectDetail.metadata.public){
+                      if(projectDetail.metadata.public === "true"){
+                        res = '公开仓库组'
+                      } else {
+                        res = '私有仓库组'
+                      }
+                    }
+                    return res
+                  })()
+                } </span>
                 {
                   (currentUserRole > 0) && (
                     <span className="margin">|</span>,

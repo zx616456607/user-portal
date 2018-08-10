@@ -60,7 +60,7 @@ class QuickEntry extends Component {
                   <div className="item image">
                     <img src={ImageImg} alt="" className='img' />
                     <div className='middle'>构建一个镜像</div>
-                    <div>无需创建TenxFlow快速构建一个镜像</div>
+                    <div>无需创建流水线快速构建一个镜像</div>
                   </div>
                 </Link>
               </Col> :
@@ -69,7 +69,7 @@ class QuickEntry extends Component {
                     <div className="item image">
                       <img src={ImageImg} alt="" className='img' />
                       <div className='middle'>构建一个镜像</div>
-                      <div>使用TenxFlow快速构建一个镜像</div>
+                      <div>使用流水线快速构建一个镜像</div>
                     </div>
                   </Link>
                 </Col>

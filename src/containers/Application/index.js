@@ -72,7 +72,7 @@ const menuList_enterprise = [
   },
   {
     url: '/app_manage/security_group',
-    name: '安全组'
+    name: '安全组 (防火墙)'
   },
   {
     url: '/app_manage/load_balance',

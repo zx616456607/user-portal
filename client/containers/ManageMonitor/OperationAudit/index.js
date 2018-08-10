@@ -538,7 +538,7 @@ class OperationalAudit extends React.Component {
                     placeholder="选择操作类型"
                     className="selectionBox"
                     value={this.state.operation}
-                    onChange={this.selectOptionTypye}
+                    onChange={this.selectOptionType}
                     size="large"
                   >
                     {

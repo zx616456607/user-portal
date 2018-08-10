@@ -33,11 +33,11 @@ const defaultEditOpts = {
 const menusText = defineMessages({
   name: {
     id: 'CICD.Tenxflow.CreateTenxFlow.name',
-    defaultMessage: 'TenxFlow名称',
+    defaultMessage: '流水线名称',
   },
   create: {
     id: 'CICD.Tenxflow.CreateTenxFlow.create',
-    defaultMessage: '创建TenxFlow方式',
+    defaultMessage: '创建流水线方式',
   },
   viewDefine: {
     id: 'CICD.Tenxflow.CreateTenxFlow.viewDefine',
@@ -45,7 +45,7 @@ const menusText = defineMessages({
   },
   yamlDefine: {
     id: 'CICD.Tenxflow.CreateTenxFlow.yamlDefine',
-    defaultMessage: 'TenxFlow yaml方式定义',
+    defaultMessage: '流水线 yaml 方式定义',
   },
   email: {
     id: 'CICD.Tenxflow.CreateTenxFlow.email',
@@ -89,7 +89,7 @@ const menusText = defineMessages({
   },
   buildImageToolTip: {
     id: 'CICD.Tenxflow.CreateBuildImage.tooltip',
-    defaultMessage: '创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知 ',
+    defaultMessage: '创建构建镜像任务前需创建一个流水线，请填写流水线名称，可选择邮件通知 ',
   }
 })
 
@@ -230,12 +230,12 @@ let CreateTenxFlow = React.createClass({
     };
     const { flowList } = this.props;
     let flag = false;
-    let errorMsg = appNameCheck(value, 'TenxFlow名称');
+    let errorMsg = appNameCheck(value, '流水线名称');
     if (errorMsg === 'success') {
       flowList.map((item) => {
         if((item.name === value) && (!scope.state.forEdit || (scope.state.forEdit && (item.name !== currentFlow.name)))) {
           flag = true;
-          errorMsg = appNameCheck(value, 'TenxFlow名称', true);
+          errorMsg = appNameCheck(value, '流水线名称', true);
           callback([new Error(errorMsg)]);
         }
       });
@@ -435,7 +435,7 @@ let CreateTenxFlow = React.createClass({
                 if (res.message && res.message.message) {
                   notification.error(res.message.message)
                 } else {
-                  notification.error('数据格式错误，请参考其他TenxFlow详情页面中的YAML定义')
+                  notification.error('数据格式错误，请参考其他流水线详情页面中的YAML定义')
                 }
                 break
               case 403:

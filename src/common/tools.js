@@ -626,9 +626,9 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU, DIYMaxMemory, DIY
       config = '32x'
       break
     case RESOURCES_DIY:
-      memoryShow = Math.ceil(DIYMemory / 1024 * 100) / 100
+      memoryShow = Math.ceil(DIYMaxMemory / 1024 * 100) / 100
       memory = Math.ceil(DIYMemory)
-      cpuShow = DIYCPU
+      cpuShow = DIYMaxCPU
       cpu = DIYCPU
       limitCpu = DIYMaxCPU
       limitMemory = Math.ceil(DIYMaxMemory)
@@ -765,11 +765,12 @@ export function adjustBrowserUrl(location = {}, mergedQuery = {}, isFirstLoad) {
  * @param {array} templateArray
  */
 export function formatServiceToArrry(detail, templateArray) {
-  const { deployment, service, ingress } = detail;
+  const { deployment, service, ingress, chart } = detail;
     templateArray.push({
       deployment,
       service,
       ingress,
+      chart,
     });
     if (!detail.dependencies) {
       return;
