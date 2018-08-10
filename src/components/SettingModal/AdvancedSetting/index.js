@@ -100,7 +100,7 @@ class AdvancedSetting extends Component {
   loadbalanceCard = () => {
     const { lbChecked } = this.state
     return <div className="content">
-      <Card title="计费功能开关" className="billingCard">
+      <Card title="应用负载均衡" className="billingCard">
         <div className='alertRow'>
           可以设置普通成员是否可以创建集群外应用负载均衡；若关闭，普通成员不能创建集群外负载均衡，只能使用管理员已经创建的
         </div>
