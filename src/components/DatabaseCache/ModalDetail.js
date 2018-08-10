@@ -625,7 +625,7 @@ class VisitTypes extends Component{
         body = {
           annotations: {
             'system/lbgroup': groupID,
-            'tenxcloud.com/schemaPortname': `${databaseInfo.service.name}/${databaseInfo.service.port.protocol}/${databaseInfo.service.port.port}`
+            'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
           }
         }
       }
@@ -764,7 +764,7 @@ class VisitTypes extends Component{
       }],
       initialValue: initGroupID
     })
-    const proxyNode = proxyArr.length > 0 ? proxyArr.map((item,index)=>{
+    const proxyNode = proxyArr.length > 0 ? proxyArr.map((item)=>{
       return (
           <Option key={item.id} value={item.id}>{item.type == 'public' ? '公网：' : '内网：'}{item.name}</Option>
       )
@@ -800,9 +800,9 @@ class VisitTypes extends Component{
 
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.serviceInfo && databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo && databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
+        externalUrl = databaseInfo.serviceInfo && databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo && databaseInfo.serviceInfo.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
-        externalUrl = bindingIP + ':' + externalPort
+        externalUrl = bindingIP + ':' + (externalPort || '未知')
       }
     }
     const inClusterLB = `${serviceName}:${port}`

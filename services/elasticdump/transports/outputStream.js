@@ -11,6 +11,7 @@
 
 var endOfLine = require('os').EOL
 var logger = require('../../../utils/logger').getLogger('elasticdump-outputStream')
+var utils = require('../../../utils')
 
 var outputStream = function (parent, file, options) {
   this.options = options
@@ -47,10 +48,18 @@ outputStream.prototype.set = function (data, limit, offset, scope, callback) {
         _log = JSON.stringify(targetElem)
       }
 
-      let lineLog
+      let lineLog = ''
       try {
-        const lineObj = JSON.parse(_log)
-        lineLog = lineObj.log || lineObj._source.log
+        const lineObj = JSON.parse(_log) || {}
+        const podName = lineObj.kubernetes && lineObj.kubernetes.pod_name
+        const timestamp = lineObj.time_nano
+        if (podName) {
+          lineLog += `[${podName}] `
+        }
+        if (timestamp) {
+          lineLog += `[${utils.formatDate(timestamp / 1000000)}] `
+        }
+        lineLog += lineObj.log || lineObj._source.log
       } catch (error) {
         lineLog = _log + endOfLine
       }
