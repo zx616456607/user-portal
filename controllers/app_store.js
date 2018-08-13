@@ -141,7 +141,11 @@ exports.getImageStatus = function* (){
   if ( !this.body.data || this.body.data.length == 0){
     return
   }
-  body.tags = this.body.data
+
+  body.tags = typeof this.body.data[0] === 'object' ? this.body.data.map(item => {
+    return item.name || item.tag //name 新版 harbor tag 旧版harbor
+  }) : this.body.data
+
   const result = yield api.appstore.createBy(['apps','images','status'], null, body)
   if (result.statusCode != 200){
     return

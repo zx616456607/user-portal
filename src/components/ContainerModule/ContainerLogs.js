@@ -75,7 +75,6 @@ class ContainerLogs extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { eventLogs,containerLogs } = nextProps
-    const { logs } = this.state
     // const loading = <div className='logDetail'>
     //   <span>loading ...</span>
     // </div>
@@ -87,19 +86,16 @@ class ContainerLogs extends Component {
     // }
 
     if (nextProps.containerName !== this.props.containerName) {
+      if(!!this.logRef){
+        this.logRef.clearLogs()
+        this.logRef.writelns(eventLogs)
+      }
       this.setState({
-        logs: eventLogs,
         logsLoading: false
       })
       return
     }
     // Set events to logs when logs empty
-    if (logs.length === 0) {
-      this.setState({
-        logs: eventLogs,
-        logsLoading: false
-      })
-    }
     if (location.pathname.indexOf('/app_manage/container/') > -1) {
       this.setState({logDetail: true})
     } else {
@@ -128,27 +124,15 @@ class ContainerLogs extends Component {
     if (bottomBox) {
       bottomBox.style.height = null
     }
-    const loading = (() => {
-      return <div className='logDetail'>
-        <span>loading ...</span>
-      </div>
-    })()
-    setTimeout(() => {
-      if(!!this.logRef){
-        this.logRef.clearLogs()
-        this.logRef.writeln(this.getLogs(loading))
-      }
-    }, 500)
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { logs } = prevState
     const { logsLoading } = this.state
     const _state = this.state
     if (_state.watchStatus === 'pause') {
       return
     }
-    if(!logsLoading && this.state.logs.length){
+    if(!logsLoading){
       const logsBottom = document.getElementById('logsBottom')
       logsBottom && logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
     }
@@ -193,10 +177,11 @@ class ContainerLogs extends Component {
 
   onLogsWebsocketSetup(ws) {
     const _this = this
-    let { logs } = this.state
+    if(!!this.logRef){
+      this.logRef.clearLogs()
+    }
     const initState = {
       logsLoading: true,
-      logs: [], // Clear logs when WebSocket connect
     }
     this.setState(initState)
     const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props
@@ -237,23 +222,26 @@ class ContainerLogs extends Component {
         return
       }
       const logArray = log.split('\n')
+      let logsLen = logArray.length
+      if (logsLen > MAX_LOGS_NUMBER) {
+        logArray.splice(0, (logsLen - MAX_LOGS_NUMBER))
+      }
+      const temp = []
       logArray.map(log => {
-        if (!log) return
-        logs.push({
-          name,
-          log
-        })
+        if(!!log){
+          temp.push({
+            name,
+            log
+          })
+        }
       })
+
       // Delete more then MAX_LOGS_NUMBER parts of logs
       // @Todo: Frequent update state, page will be stuck
-      let logsLen = logs.length
-      if (logsLen > MAX_LOGS_NUMBER) {
-        logs.splice(0, (logsLen - MAX_LOGS_NUMBER))
+
+      if(!!this.logRef){
+        this.logRef.writelns(this.getLogs(temp))
       }
-      const state = {
-        logs,
-      }
-      this.setState(state)
     }
     ws.onCloseExtend = err => {
       // ws.onclose && ws.onclose(err)
@@ -307,8 +295,8 @@ class ContainerLogs extends Component {
     })
   }
 
-  getLogs(loading) {
-    const { logs, logsLoading } = this.state
+  getLogs(logs) {
+    const { logsLoading } = this.state
     if (!logsLoading && logs.length < 1) {
       return (
         <div className='logDetail'>
@@ -316,10 +304,14 @@ class ContainerLogs extends Component {
         </div>
       )
     }
-    return loading && logsLoading ? [
-      logs.map(this.renderLog),
-      loading
-    ] : logs.map(this.renderLog)
+
+    return logs.map(this.renderLog)
+    // logsLoading ? [
+    //   logs.map(this.renderLog),
+    //   <div className='logDetail'>
+    //     <span>loading ...</span>
+    //   </div>
+    // ] : logs.map(this.renderLog)
   }
   closeModal = ()=> {
     this.props.func.closeModal()
