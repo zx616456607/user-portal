@@ -196,10 +196,10 @@ let HostInfo = React.createClass({
                   totalRequestedMemory += parseInt(container.resources.requests.memory.replace("Gi", "")) * 1024 * 1024
                 }
                 if (container.resources.requests.memory.endsWith("M") > 0) {
-                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("M", "")) * 1000
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("M", "")) * 1024
                 }
                 if (container.resources.requests.memory.endsWith("G") > 0) {// Convert to Ki
-                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("G", "")) * 1000 * 1000
+                  totalRequestedMemory += parseInt(container.resources.requests.memory.replace("G", "")) * 1024 * 1024
                 }
               }
               if (container.resources.requests.cpu) {
@@ -214,7 +214,9 @@ let HostInfo = React.createClass({
         })
       })
     }
-    const memTotal = isNaN(hostInfo[camelize('MemoryAllocatable')] /1000) ? '' : Math.floor(hostInfo[camelize('MemoryAllocatable')] / 1000 / 1000 *100) /100
+    const memTotal = isNaN(hostInfo[camelize('MemoryAllocatable')] /1024) ?
+      '' :
+      Math.floor(hostInfo[camelize('MemoryAllocatable')] / 1024 / 1024 *100) /100
     const useMem = (totalRequestedMemory / hostInfo[camelize('MemoryAllocatable')] *100).toFixed(2)
     return (
       <QueueAnim className="ClusterDetail">
