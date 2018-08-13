@@ -19,7 +19,8 @@ import { loadMyStack } from '../../actions/app_center'
 import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
-import CreateDatabase from './CreateDatabase.js'
+// import CreateDatabase from './CreateDatabase.js'
+import CreateStatefulDatabase from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
@@ -63,16 +64,60 @@ let MyComponent = React.createClass({
     scope.setState({
       detailModal: true,
       currentData: database,
-      currentDatabase: database.serivceName
+      currentDatabase: database.objectMeta.name
     })
   },
   render: function () {
-    const { config, isFetching, clusterType } = this.props;
+    const { config, isFetching, clusterType, database } = this.props;
+    const listImg = () => {
+      switch (database) {
+        case 'zookeeper':
+          return zkImg
+        case 'elasticsearch':
+          return esImg
+      }
+    }
     const canCreate = this.props.canCreate
     const literal = clusterTable[clusterType]
     let title = ''
     if (!canCreate) {
       title = '尚未配置块存储集群，暂不能创建'
+    }
+    const statusText = status => {
+      switch(status) {
+        case 'Pending':
+          return '启动中'
+        case 'Stopping':
+          return '停止中'
+        case 'Stopped':
+          return '已停止'
+        case 'Running':
+          return '运行中'
+      }
+    }
+    const style = status => {
+      switch (status) {
+        case 'Stopped':
+          return {
+            color: '#f85a5a',
+          }
+        case 'Stopping':
+          return {
+            color: '#ffbf00',
+          }
+        case 'Pending':
+          return {
+            color: '#2db7f5',
+          }
+        case 'Running':
+          return {
+            color: '#5cb85c',
+          }
+        default:
+          return {
+            color: '#cccccc',
+          }
+      }
     }
     if (isFetching) {
       return (
@@ -94,38 +139,36 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    // 最新创建的在第一个
+    config.sort((a, b) => Date.parse(b.objectMeta.creationTimestamp) - Date.parse(a.objectMeta.creationTimestamp))
     let items = config.map((item, index) => {
-      const storageSize = item.spec.volumeClaimTemplate.spec.resources.requests.storage //存储大小
+      const storageSize = item.storage //存储大小
       return (
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src={mysqlImg} />
+              <img src={listImg()} />
               <div className='detailName'>
-                {item.metadata.name}
+                {item.objectMeta.name}
               </div>
+              <div className="status">
+                <span className='listKey'>状态:</span>
+                <span className='normal' style={style(item.status)}>
+                  <i className="fa fa-circle"></i>
+                  {statusText(item.status)} </span>
+              </div>
+
               <div className='detailName'>
                 <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span>
-                {item.status.phase === 'Pending' ?
-                  <span className='normal'>运行中 </span>
-                  :null
-                }
-                {item.status.phase === 'Success' ?
-                  <span className='normal'>成功 </span>
-                  :null
-                }
-              </li>
-              <li><span className='listKey'>副本数</span>{`${1}/${item.spec.replicas}`}个</li>
+              <li><span className='listKey'>副本数</span>{`${1}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建时间</span>
-                <span>{formatDate(item.metadata.creationTimestamp)}</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{storageSize ? storageSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
-              <li><span className='listKey'>自动备份</span><Switch checkedChildren="开" onChange={this.autoBackupSwitch} unCheckedChildren="关" /></li>
             </ul>
           </div>
         </div>
@@ -238,7 +281,7 @@ class StatefulCluster extends Component {
 
   render() {
     const _this = this;
-    const { isFetching, databaseList, clusterType, clusterProxy, storageClassType } = this.props;
+    const { isFetching, databaseList, clusterType, clusterProxy, storageClassType, database } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -277,7 +320,7 @@ class StatefulCluster extends Component {
               <i className="fa fa-search cursor" onClick={() => this.handSearch()} />
             </span>
             </div>
-            <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate} />
+            <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate} database={database} />
           </div>
           <Modal visible={this.state.detailModal}
                  className='AppServiceDetail' transitionName='move-right'
@@ -295,7 +338,7 @@ class StatefulCluster extends Component {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
           >
-            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+            <CreateStatefulDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
       </QueueAnim>

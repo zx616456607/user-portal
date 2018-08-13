@@ -315,7 +315,7 @@ class Backup extends React.Component {
       }
     } else if (database === 'redis') {
       switch (status) {
-        case '202':
+        case '500':
           return <div style={{ marginTop: -2 }}>
             备份失败
             <Tooltip title={`失败原因：${item.message && item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
@@ -324,7 +324,7 @@ class Backup extends React.Component {
           return '正在备份'
         case '200':
           return '完成备份'
-        case '':
+        case '202':
           return '正在备份'
         default:
           return '未知状态'
@@ -461,6 +461,19 @@ class Backup extends React.Component {
                 })
               },
             },
+            failed: {
+              func: err => {
+                if (err.statusCode === 500) {
+                  const reg = /already exists/g
+                  if (err.message && reg.test(err.message.message)) {
+                    notification.error('名称已存在，请核对后输入')
+                    this.setState({
+                      isFetching: false,
+                    })
+                  }
+                }
+              },
+            },
           })
       })
     }
@@ -482,6 +495,7 @@ class Backup extends React.Component {
       title="创建备份"
       onCancel={() => this.setState({
         manualBackupModalShow: false,
+        isFetching: false,
       })}
       confirmLoading = {this.state.isFetching}
       onOk={commitBackup}
@@ -665,7 +679,7 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           {
-            chainsData.length === 0 && database === 'mysql' ?
+            chainsData.length === 0 ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="无任何备份链，手动备份后，可设置自动备份">

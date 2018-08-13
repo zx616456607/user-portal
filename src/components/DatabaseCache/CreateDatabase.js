@@ -50,40 +50,45 @@ let CreateDatabase = React.createClass({
   },
   componentWillMount() {
     const { ListProjects, cluster, database, getConfigDefault } = this.props
-    if(database === 'mysql') {
+    if(database === 'mysql' || database === 'redis') {
+      if(database === 'mysql') {
+        this.setState({
+          path:'/etc/mysql',
+          file: 'mysql.conf',
+          composeType: 1024,
+        })
+      }
+      getConfigDefault(cluster, database, {
+        success: {
+          func: res => {
+            this.setState({
+              advanceConfigContent: res.data.config
+            })
+          }
+        }
+      })
+      // 初始给集群配置赋值
+      function formatConfigData(convertedConfig) {
+        const configData = {}
+        configData.requests = {
+          cpu: `${convertedConfig.cpu * 1000}m`,
+          memory: `${convertedConfig.memory}Mi`,
+        }
+        configData.limits = {
+          cpu: `${convertedConfig.limitCpu * 1000}m`,
+          memory:`${convertedConfig.limitMemory}Mi`,
+        }
+        return configData
+      }
+      const should4X = database === 'mysql'
+      const convertedConfig = getResourceByMemory(should4X? '1024':'512')
       this.setState({
-        path:'/etc/mysql',
-        file: 'mysql.conf'
+        clusterConfig: formatConfigData(convertedConfig)
       })
     }
-    getConfigDefault(cluster, database, {
-      success: {
-        func: res => {
-          this.setState({
-            advanceConfigContent: res.data.config
-          })
-        }
-      }
-    })
+
     ListProjects({ size: 0 })
     this.loadStorageClassList()
-    // 初始给集群配置赋值
-    function formatConfigData(convertedConfig) {
-      const configData = {}
-      configData.requests = {
-        cpu: `${convertedConfig.cpu * 1000}m`,
-        memory: `${convertedConfig.memory}Mi`,
-      }
-      configData.limits = {
-        cpu: `${convertedConfig.limitCpu * 1000}m`,
-        memory:`${convertedConfig.limitMemory}Mi`,
-      }
-      return configData
-    }
-    const convertedConfig = getResourceByMemory('512')
-    this.setState({
-      clusterConfig: formatConfigData(convertedConfig)
-    })
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
@@ -483,7 +488,7 @@ let CreateDatabase = React.createClass({
 
   render() {
     const { composeType } = this.state
-    const { isFetching, projects, projectVisibleClusters, space } = this.props
+    const { isFetching, projects, projectVisibleClusters, space, database } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
     const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
@@ -582,18 +587,21 @@ let CreateDatabase = React.createClass({
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
-              <div className="commonBox configContent">
-                <div className='title'>
-                  <span>集群配置</span>
-                </div>
-                <div className="rightConfigBox">
-                  <ResourceConfig
-                    toggleComposeType={this.selectComposeType}
-                    composeType={composeType}
-                    onValueChange={this.recordResouceConfigValue}/>
-                </div>
-              </div>
-
+              {
+                (database === 'mysql' || database === 'redis') &&
+                  <div className="commonBox configContent">
+                    <div className='title'>
+                      <span>集群配置</span>
+                    </div>
+                    <div className="rightConfigBox">
+                      <ResourceConfig
+                        database={database}
+                        toggleComposeType={this.selectComposeType}
+                        composeType={composeType}
+                        onValueChange={this.recordResouceConfigValue}/>
+                    </div>
+                  </div>
+              }
               <div className='commonBox accesstype'>
                 <div className='title'>
                   <span>集群访问方式</span>
@@ -699,37 +707,40 @@ let CreateDatabase = React.createClass({
                   </div>
                   <div style={{ clear: 'both' }}></div>
                 </div>}
-              <div className="commonBox advanceConfig">
-                <div className="line"></div>
-                <div className="top" style={{ color: this.state.showAdvanceConfig? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
-                  <Icon type={this.state.showAdvanceConfig? "minus-square" : "plus-square"} />
-                  高级配置
-                </div>
-                {
-                  this.state.showAdvanceConfig &&
-                  <div>
-                    <div className="configTitle">配置管理</div>
-                    <div className="configItem">
-                      <div className="title">配置文件</div>
-                      <div>{this.state.file}</div>
+              {
+                (database === 'mysql' || database === 'redis') &&
+                  <div className="commonBox advanceConfig">
+                    <div className="line"></div>
+                    <div className="top" style={{ color: this.state.showAdvanceConfig? '#2DB7F5' : '#666' }} onClick={() => this.setState({ showAdvanceConfig: !this.state.showAdvanceConfig })}>
+                      <Icon type={this.state.showAdvanceConfig? "minus-square" : "plus-square"} />
+                      高级配置
                     </div>
-                    <div className="configItem">
-                      <div className="title">挂载目录</div>
-                      <div>{this.state.path}</div>
-                    </div>
-                    <div className="configItem content">
-                      <div className="title">内容</div>
-                      <div className="content">
-                        <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
-                          this.setState({
-                            advanceConfigContent: e.target.value
-                          })
-                        }}/>
+                    {
+                      this.state.showAdvanceConfig &&
+                      <div>
+                        <div className="configTitle">配置管理</div>
+                        <div className="configItem">
+                          <div className="title">配置文件</div>
+                          <div>{this.state.file}</div>
+                        </div>
+                        <div className="configItem">
+                          <div className="title">挂载目录</div>
+                          <div>{this.state.path}</div>
+                        </div>
+                        <div className="configItem content">
+                          <div className="title">内容</div>
+                          <div className="content">
+                            <Input type="textarea" rows={6} value={this.state.advanceConfigContent} onChange={e => {
+                              this.setState({
+                                advanceConfigContent: e.target.value
+                              })
+                            }}/>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    }
                   </div>
-                }
-              </div>
+              }
                 <div className="modal-price">
                   <div className="price-left">
                     <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>

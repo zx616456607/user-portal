@@ -310,7 +310,6 @@ class MysqlCluster extends Component {
       setTimeout(() => {
         document.getElementById('name').focus()
       }, 300)
-
     });
   }
   handSearch() {
