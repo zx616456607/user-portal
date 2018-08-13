@@ -71,7 +71,7 @@ const ApmSetting = React.createClass({
     // apm not install
     if (!apms || apms.length === 0) {
       return (
-        <span>
+        <span className="infoText">
           {/* 当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a> */}
           当前项目未安装 APM Agent，请联系基础设施管理员安装
         </span>
