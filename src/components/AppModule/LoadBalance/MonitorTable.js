@@ -221,13 +221,13 @@ class MonitorTable extends React.Component {
             />
 
           </TabPane>
-          <TabPane tab="TCP" key="TCP">
+          <TabPane tab="TCP" key="TCP" disabled>
             <TcpUdpTable
               type="TCP"
               {...{ togglePart }}
             />
           </TabPane>
-          <TabPane tab="UDP" key="UDP">
+          <TabPane tab="UDP" key="UDP" disabled>
             <TcpUdpTable
               type="UDP"
               {...{ togglePart }}

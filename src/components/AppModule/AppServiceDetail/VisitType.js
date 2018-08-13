@@ -50,7 +50,7 @@ class VisitType extends Component{
       initSelect: undefined,
       isLbgroupNull: false,
       activeKey: 'netExport',
-      agentValue: 'inside',
+      agentValue: 'outside',
     }
   }
   async componentWillMount() {
@@ -638,7 +638,7 @@ class VisitType extends Component{
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
-                <Radio value="inside">集群内负载均衡</Radio>
+                <Radio value="inside" disabled>集群内负载均衡</Radio>
                 <Radio value="outside">集群外负载均衡</Radio>
               </RadioGroup>
               {this.renderIngresses()}
