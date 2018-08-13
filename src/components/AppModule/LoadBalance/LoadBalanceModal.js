@@ -286,12 +286,12 @@ class LoadBalanceModal extends React.Component {
             validator: this.nodeCheck
           }
         ],
-        initialValue: currentBalance ? currentBalance.metadata.annotations.nodeName : ''
+        initialValue: currentBalance ? currentBalance.metadata.annotations.allocatedIP : ''
       })
     }
 
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'inside'
+      initialValue: 'outside'
     })
 
     const nameProps = getFieldProps('displayName', {
@@ -370,7 +370,7 @@ class LoadBalanceModal extends React.Component {
             {...formItemLayout}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside">集群内代理</Radio>
+              <Radio value="inside" disabled>集群内代理</Radio>
               <Radio value="outside">集群外代理</Radio>
             </RadioGroup>
           </FormItem>
