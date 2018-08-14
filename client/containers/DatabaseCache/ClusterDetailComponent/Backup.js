@@ -637,7 +637,7 @@ class Backup extends React.Component {
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
               <Col span={5}>
                 {
-                  v.chains[0].status === '202' ?
+                  v.chains[0].status === '500' ?
                     <Button icon="delete" onClick={() => this.delThis(v.chains[0], i)} style={{ width: 95, background: '#fff' }}>
                       删除
                     </Button>
