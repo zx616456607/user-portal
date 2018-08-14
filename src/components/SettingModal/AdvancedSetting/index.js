@@ -107,7 +107,7 @@ class AdvancedSetting extends Component {
         <span className="switchLabel" style={{ width: 300 }}>
           是否允许普通成员创建集群外应用负载均衡
         </span>
-        <Switch checkedChildren="开" unCheckedChildren="关" checked={lbChecked} onChange={this.handleLoadbalance} className='switchstyle' />
+        <Switch checkedChildren="开" unCheckedChildren="关" checked={lbChecked} disabled onChange={this.handleLoadbalance} className='switchstyle' />
       </Card>
     </div>
   }

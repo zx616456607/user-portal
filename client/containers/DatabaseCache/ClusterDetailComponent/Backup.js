@@ -453,6 +453,7 @@ class Backup extends React.Component {
           body, {
             success: {
               func: () => {
+                setTimeout(() => { this.getList() })
                 this.setState({
                   manualBackupModalShow: false,
                   isFetching: false,

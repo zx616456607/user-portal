@@ -219,7 +219,7 @@ class LoadBalance extends React.Component {
       title: '代理方式',
       dataIndex: 'port',
       width: '10%',
-      render: () => `集群内`,
+      render: () => `集群外`,
     }, {
       title: '监听器数量',
       width: '10%',
