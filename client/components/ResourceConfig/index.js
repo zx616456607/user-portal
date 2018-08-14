@@ -41,6 +41,15 @@ class ResourceConfig extends React.Component {
       }
       this.props.onValueChange(value)
     }
+    if (type === 1024) {
+      const value = {
+        maxMemoryValue: 1024,
+        minMemoryValue: 1024,
+        maxCPUValue: 1,
+        minCPUValue: 0.4,
+      }
+      this.props.onValueChange(value)
+    }
     if (type === 'DIY') {
       this.props.onValueChange(this.getCustomValue())
     }
@@ -116,7 +125,8 @@ class ResourceConfig extends React.Component {
     this.props.form.resetFields()
   }
   render() {
-    const { freeze, composeType } = this.props
+    const { freeze, composeType, database } = this.props
+    const should4X = database === 'mysql'
     const { value } = this.props || { value: {} }
     const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = value || {
       maxCPUValue: '',
@@ -124,6 +134,7 @@ class ResourceConfig extends React.Component {
       minCPUValue: '',
       minMemoryValue: '',
     }
+
     const { getFieldProps, getFieldValue } = this.props.form
     // 集群配置相关
     const DIYMinMemoryProps = getFieldProps('DIYMinMemory', {
@@ -132,7 +143,7 @@ class ResourceConfig extends React.Component {
           validator: this.DIYMinMemoryCheck,
         },
       ],
-      initialValue: minMemoryValue || RESOURCES_MEMORY_MIN,
+      initialValue: minMemoryValue || (should4X ? 512 : RESOURCES_MEMORY_MIN),
       onChange: this.DIYMinMemoryChange,
     })
     const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
@@ -141,7 +152,7 @@ class ResourceConfig extends React.Component {
           validator: this.DIYMaxMemoryCheck,
         },
       ],
-      initialValue: maxMemoryValue || RESOURCES_MEMORY_MIN,
+      initialValue: maxMemoryValue || (should4X ? 1024 : RESOURCES_MEMORY_MIN),
       onChange: this.DIYMaxMemoryChange,
     })
     const DIYMinCPUProps = getFieldProps('DIYMinCPU', {
@@ -150,7 +161,7 @@ class ResourceConfig extends React.Component {
           validator: this.DIYMinCPUCheck,
         },
       ],
-      initialValue: minCPUValue || RESOURCES_CPU_DEFAULT,
+      initialValue: minCPUValue || (should4X ? 0.5 : RESOURCES_CPU_DEFAULT),
       onChange: this.DIYMinCPUChange,
     })
     const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
@@ -159,21 +170,21 @@ class ResourceConfig extends React.Component {
           validator: this.DIYMaxCPUCheck,
         },
       ],
-      initialValue: maxCPUValue || RESOURCES_CPU_DEFAULT,
+      initialValue: maxCPUValue || (should4X ? 1 : RESOURCES_CPU_DEFAULT),
       onChange: this.DIYMaxCPUChange,
     })
     const edit = <Col span={18} className="configBox">
       <div className={classNames('configItems DIY', {
-        'btn ant-btn-primary': composeType === 512,
-        'btn ant-btn-ghost': composeType !== 512,
+        'btn ant-btn-primary': composeType === 512 || composeType === 1024,
+        'btn ant-btn-ghost': composeType !== 512 && composeType !== 1024,
       })}
-      onClick={!freeze ? () => this.selectComposeType(512) : () => {}}>
+      onClick={!freeze ? () => this.selectComposeType(should4X ? 1024 : 512) : () => {}}>
         <div className="resourceLimitTitleBox">
-          2X
+          {should4X ? '4X' : '2X'}
         </div>
         <div className="contentBox">
-          <span>512 MB 内存</span><br />
-          <span>0.2-1 核 CPU</span>
+          <span>{should4X ? '1G' : '512 MB'} 内存</span><br />
+          <span>{should4X ? '0.4' : '0.2'}-1 核 CPU</span>
           <div className="triangle"/>
           <Icon type="check" />
         </div>
@@ -194,7 +205,7 @@ class ResourceConfig extends React.Component {
                   {...DIYMinMemoryProps}
                   size="small"
                   step={RESOURCES_MEMORY_STEP}
-                  min={RESOURCES_MEMORY_MIN}
+                  min={should4X ? 512 : RESOURCES_MEMORY_MIN}
                   max={RESOURCES_MEMORY_MAX} />
               </FormItem>
             </Col>
@@ -206,7 +217,7 @@ class ResourceConfig extends React.Component {
                   {...DIYMaxMemoryProps}
                   size="small"
                   step={RESOURCES_MEMORY_STEP}
-                  min={getFieldValue('DIYMinMemory')}
+                  min={should4X ? 1024 : getFieldValue('DIYMinMemory')}
                   max={RESOURCES_MEMORY_MAX} />
               </FormItem>
             </Col>
@@ -220,7 +231,7 @@ class ResourceConfig extends React.Component {
                   {...DIYMinCPUProps}
                   size="small"
                   step={RESOURCES_CPU_STEP}
-                  min={RESOURCES_CPU_MIN}
+                  min={should4X ? 0.5 : RESOURCES_CPU_MIN}
                   max={RESOURCES_CPU_MAX}/>
               </FormItem>
             </Col>
@@ -232,7 +243,7 @@ class ResourceConfig extends React.Component {
                   {...DIYMaxCPUProps}
                   size="small"
                   step={RESOURCES_CPU_STEP}
-                  min={getFieldValue('DIYMinCPU')}
+                  min={should4X ? 1 : getFieldValue('DIYMinCPU')}
                   max={RESOURCES_CPU_MAX}/>
               </FormItem>
             </Col>
@@ -245,15 +256,15 @@ class ResourceConfig extends React.Component {
     </Col>
     const freezed = <Col span={18} className="configBox">
       <div className={classNames('configItems DIY', {
-        'btn ant-btn-primary': composeType === 512,
-        'btn ant-btn-disabled': composeType !== 512,
+        'btn ant-btn-primary': composeType === 512 || composeType === 1024,
+        'btn ant-btn-disabled': composeType !== 512 && composeType !== 1024,
       })}>
         <div className="resourceLimitTitleBox">
-          2X
+          {should4X ? '4X' : '2X'}
         </div>
         <div className="contentBox">
-          <span>512 MB 内存</span><br />
-          <span>0.2-1 核 CPU</span>
+          <span>{should4X ? '1G' : '512 MB'} 内存</span><br />
+          <span>{should4X ? '0.4' : '0.2'}-1 核 CPU</span>
           <div className="triangle"/>
           <Icon type="check" />
         </div>

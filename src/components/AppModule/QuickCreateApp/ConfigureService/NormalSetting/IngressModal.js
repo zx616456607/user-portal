@@ -282,9 +282,12 @@ class IngressModal extends React.Component {
                 {...formItemLayout}
               >
                 <InputNumber
+                  disabled
                   style={{ width: '100%' }}
                   min={0} max={100} placeholder="请输入权重"
-                  {...getFieldProps('weight')}
+                  {...getFieldProps('weight', {
+                    initialValue: 1,
+                  })}
                 />
               </FormItem>
           }

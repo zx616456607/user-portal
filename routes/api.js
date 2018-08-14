@@ -533,7 +533,10 @@ module.exports = function (Router) {
 
   // Petsets - DB service APIs
   router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
+  router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBServiceZkEs)
   router.delete('/clusters/:cluster/daas/:type/:name', databaseCacheController.deleteDBService)
+  // zookeeper 和 es集群请求集群列表
+  router.get('/clusters/:cluster/dbservices', databaseCacheController.dbClusterList)
   // Filter by type
   router.get('/clusters/:cluster/daas/:type', databaseCacheController.listDBService)
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBServiceDetail)

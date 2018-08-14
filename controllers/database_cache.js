@@ -108,6 +108,21 @@ function addServiceAnnotationOfLBGroup(rawYAMLString, groupID) {
 /*
 Remove petset and related resources from k8s cluster
 */
+// 删除es集群和zookeeper集群
+exports.deleteDBServiceZkEs = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const serviceName = this.params.name
+  const query = this.query || {}
+  const api = apiFactory.getK8sApi(loginUser)
+
+  const result = yield api.deleteBy([cluster, 'dbservices', serviceName], query);
+
+  this.body = {
+    result
+  }
+}
+
 exports.deleteDBService = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
@@ -118,6 +133,29 @@ exports.deleteDBService = function* () {
   const result = yield api.deleteBy([cluster, 'daas', type, serviceName], query);
   this.body = {
     result
+  }
+}
+
+//zookeeper 和 es集群请求集群列表
+exports.dbClusterList = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const category = query.type
+
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'dbservices'], { "category": category });
+  const databases = result.data.items || []
+  // remote some data
+  databases.forEach(function (db) {
+    if (db.objectMeta) {
+      delete db.objectMeta.labels
+    }
+    delete db.typeMeta
+  })
+  this.body = {
+    cluster,
+    databaseList: databases,
   }
 }
 /*
@@ -457,6 +495,7 @@ exports.getDBServiceDetail = function* () {
   const database = result.data || []
 
   // Get redis password from init container
+/*
   let initEnv = []
   let isRedis = false
   if (database.petsetSpec.template) {
@@ -514,6 +553,7 @@ exports.getDBServiceDetail = function* () {
     delete database.serviceInfo.labels
     delete database.serviceInfo.selector
   }
+*/
 
   this.body = {
     cluster,

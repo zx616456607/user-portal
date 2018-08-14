@@ -447,10 +447,10 @@ class LoadBalance extends React.Component {
       ]
     })
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'inside'
+      initialValue: 'outside'
     })
     const protocolProps = getFieldProps('protocol', {
-      initialValue: 'TCP',
+      initialValue: 'HTTP',
     })
     const protocolValue = getFieldValue('protocol')
     return (
@@ -482,7 +482,7 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside">集群内负载均衡</Radio>
+              <Radio value="inside" disabled>集群内负载均衡</Radio>
               <Radio value="outside">集群外负载均衡</Radio>
             </RadioGroup>
           </FormItem>
@@ -511,8 +511,8 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...protocolProps}>
-              <Radio value="TCP">TCP</Radio>
-              <Radio value="UDP">UDP</Radio>
+              <Radio value="TCP" disabled>TCP</Radio>
+              <Radio value="UDP" disabled>UDP</Radio>
               <Radio value="HTTP">HTTP</Radio>
             </RadioGroup>
           </FormItem>
