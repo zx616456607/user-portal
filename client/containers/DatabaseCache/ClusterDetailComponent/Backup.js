@@ -204,6 +204,7 @@ class Backup extends React.Component {
     this.setState({
       rollBackAlert: true,
       backupChain: point,
+    }, () => {
     })
   }
   delBackupPointAlert = () => {
@@ -247,7 +248,7 @@ class Backup extends React.Component {
       >
 
         {
-          backupChain.index === 0 && backupChain.backType === 'fullbackup' ?
+          backupChain.index === 0 && backupChain.masterBackup && backupChain.backType === 'fullbackup' ?
             <div className="dbClusterBackup-delPoint">
               <Col span={3} className="alert-icon">
                 <Icon type="exclamation-circle-o" />
@@ -365,10 +366,15 @@ class Backup extends React.Component {
       }
     } else if (database === 'redis') {
       switch (status) {
-        case '202':
+        case '500':
           return {
             className: 'redis-err',
             color: '#f85a5a',
+          }
+        case '202':
+          return {
+            className: 'redis-err',
+            color: '#2db7f5',
           }
         case '0':
           return {
@@ -591,9 +597,9 @@ class Backup extends React.Component {
                             <Col span={6} push={2}>
                               {
                                 k.status === 'Complete' ?
-                                  <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
-                                    <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-                                    <span onClick={() => this.rollBack(k)}>回滚</span>
+                                  <Dropdown.Button onClick={() => this.rollBack(k)} overlay={this.backupPointmenu(k, i)} type="ghost">
+                                    <TenxIcon type="rollback"size={13} style={{ marginRight: 4 }}/>
+                                    <span>回滚</span>
                                   </Dropdown.Button>
                                   :
                                   <Button icon="delete" onClick={() => this.delThis(k, i)} style={{ width: 95, background: '#fff' }}>

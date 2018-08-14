@@ -424,7 +424,7 @@ let CreateStatefulDatabase = React.createClass({
                     hasFeedback
                     help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
-                    <Input {...nameProps} size="large" id="name" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
+                    <Input {...nameProps} size="large" id="name" placeholder="请输入名称" disabled={isFetching}/>
                   </FormItem>
                 </div>
                 <div style={{ clear: 'both' }}></div>

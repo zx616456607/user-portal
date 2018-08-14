@@ -196,7 +196,6 @@ class BaseInfo extends Component {
         // 判断资源类型是自定义类型还是默认类型
         const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
         const should4X = database === 'mysql'
-        console.log(resourceConfigs);
         if (
           maxCPUValue == 1 &&
           (minCPUValue == 0.2 || minCPUValue == 0.4) &&

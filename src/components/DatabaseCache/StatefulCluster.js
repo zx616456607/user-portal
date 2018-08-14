@@ -148,9 +148,11 @@ let MyComponent = React.createClass({
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={listImg()} />
-              <div className='detailName'>
-                {item.objectMeta.name}
-              </div>
+              <Tooltip title={item.objectMeta.name} placement="topLeft">
+                <div className='detailName'>
+                  {item.objectMeta.name}
+                </div>
+              </Tooltip>
               <div className="status">
                 <span className='listKey'>状态:</span>
                 <span className='normal' style={style(item.status)}>
