@@ -1029,9 +1029,6 @@ class ModalDetail extends Component {
           scope.setState({
             detailModal: false
           });
-          setTimeout(() => {
-            scope.props.loadDbCacheList(cluster, database)
-          })
         }
       },
       failed: {

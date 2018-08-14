@@ -577,7 +577,6 @@ let CreateDatabase = React.createClass({
                   <span>名称</span>
                 </div>
                 <div className='inputBox'>
-
                   <FormItem
                     hasFeedback
                     help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}

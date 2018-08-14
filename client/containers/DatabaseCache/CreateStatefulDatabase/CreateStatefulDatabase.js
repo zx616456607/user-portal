@@ -13,16 +13,17 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon, Radio, Spin } from 'antd'
-import { CreateDbCluster } from '../../../../src/actions/database_cache'
+import { CreateDbCluster, checkDbName } from '../../../../src/actions/database_cache'
 import { setCurrent } from '../../../../src/actions/entities'
 import { getProjectVisibleClusters, ListProjects } from '../../../../src/actions/project'
 import { getClusterStorageList } from '../../../../src/actions/cluster'
 import NotificationHandler from '../../../../src/components/Notification'
-import { MY_SPACE } from '../../../../src/constants'
+import { ASYNC_VALIDATOR_TIMEOUT, MY_SPACE } from '../../../../src/constants'
 import { parseAmount } from '../../../../src/common/tools.js'
 import './style/CreateStatefulDatabase.less'
 import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../../src/constants'
 import { camelize } from 'humps'
+import { validateK8sResourceForServiceName } from '../../../../src/common/naming_validation'
 
 const Option = Select.Option;
 const createForm = Form.create;
@@ -111,36 +112,46 @@ let CreateStatefulDatabase = React.createClass({
   },
   databaseExists(rule, value, callback) {
     // this function for check the new database name is exist or not
-    const { databaseNames } = this.props;
-    let existFlag = false;
+    const { checkDbName, cluster } = this.props;
     if (!value) {
       callback();
       return
     }
-    databaseNames.forEach(item => {
-      if (value === item) {
-        callback([ new Error('抱歉，该数据库名称已被占用。') ]);
-        existFlag = true;
-      }
-    });
-
-    if (value.length < 3) {
-      callback([ new Error('数据库名称长度不能少于3位') ]);
-      existFlag = true;
-    }
-    if (value.length > 12) {
-      callback('数据库名称长度不高于12位');
-      existFlag = true;
+    setTimeout(() => {
+      checkDbName(cluster, value, {
+        success: {
+          func: result => {
+            if (result.data) {
+              callback([ new Error('集群名称已存在') ]);
+              return
+            }
+            callback()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            return callback([ new Error('集群名校验失败') ])
+          },
+          isAsync: true,
+        },
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  },
+  dbNameIsLegal(rule, value, callback) {
+    let flag = false;
+    if (!validateK8sResourceForServiceName(value)) {
+      flag = true
+      return callback('名称由3~60 位小写字母、数字、中划线组成')
     }
     const checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
     if (!checkName.test(value)) {
       callback([ new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头') ]);
-      existFlag = true;
+      flag = true;
     }
-    if (!existFlag) {
+    if (!flag) {
       callback();
     }
-
   },
   checkPwd() {
     // this function for user change the password box input type
@@ -203,7 +214,6 @@ let CreateStatefulDatabase = React.createClass({
       }
       let newSpace,
         newCluster
-      console.log(values.namespaceSelect);
       projects.forEach(list => {
         if (list.namespace === values.namespaceSelect) {
           newSpace = list
@@ -341,17 +351,18 @@ let CreateStatefulDatabase = React.createClass({
   render() {
     const { isFetching, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
+    const nameProps = getFieldProps('name', {
+      rules: [
+        { required: true, whitespace: true, message: '请输入名称' },
+        { validator: this.databaseExists },
+        { validator: this.dbNameIsLegal },
+      ],
+    });
     getFieldProps('namespaceSelect', {
       initialValue: space.namespace,
       onChange: this.onChangeNamespace,
     });
 
-    const nameProps = getFieldProps('name', {
-      rules: [
-        { required: true, whitespace: true, message: '请输入名称' },
-        { validator: this.databaseExists },
-      ],
-    });
     const defaultValue = this.getDefaultOutClusterValue()
     const accessTypeProps = getFieldProps('accessType', {
       initialValue: defaultValue ? 'outcluster' : 'none',
@@ -413,7 +424,7 @@ let CreateStatefulDatabase = React.createClass({
                     hasFeedback
                     help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
-                    <Input {...nameProps} size="large" id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
+                    <Input {...nameProps} size="large" id="name" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                   </FormItem>
                 </div>
                 <div style={{ clear: 'both' }}></div>
@@ -617,4 +628,5 @@ export default connect(mapStateToProps, {
   getProjectVisibleClusters,
   ListProjects,
   getClusterStorageList,
+  checkDbName,
 })(CreateStatefulDatabase)
