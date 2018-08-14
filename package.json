@@ -63,6 +63,8 @@
   "dependencies": {
     "@babel/preset-env": "7.0.0-beta.34",
     "@babel/runtime": "7.0.0-beta.34",
+    "@tenx-ui/loader": "0.0.3",
+    "@tenx-ui/relation-chart": "^0.2.1",
     "async": "^2.0.1",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.4.6",
@@ -105,8 +107,8 @@
     "useragent": "^2.1.10",
     "utility": "^1.9.0",
     "uuid": "^3.1.0",
-    "xml2js": "^0.4.17",
-    "ws": "^5.2.1"
+    "ws": "^5.2.1",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.34",
@@ -118,6 +120,7 @@
     "@tenx-ui/icon": "^1.0.10",
     "@tenx-ui/logs": "^1.2.1",
     "@tenx-ui/page": "^1.0.0",
+    "@tenx-ui/relation-chart": "^0.2.2",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^15.6.14",
     "@types/react-dom": "^15.5.7",

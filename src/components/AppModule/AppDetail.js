@@ -29,7 +29,7 @@ import NotificationHandler from '../../components/Notification'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
-import Topology from './AppServiceDetail/Topology'
+import Topology from '../../../client/containers/AppModule/AppServiceDetail/Topology'
 import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
@@ -113,9 +113,9 @@ class AppDetail extends Component {
       pathname,
       hash: activeTabKey
     })
-    if (activeTabKey == '#topology') {
-      setTimeout(()=> window.frames['topology'].postMessage('topology',location.href),500)
-    }
+    // if (activeTabKey == '#topology') {
+    //   setTimeout(()=> window.frames['topology'].postMessage('topology',location.href),500)
+    // }
   }
 
   // For change app status when service list change
