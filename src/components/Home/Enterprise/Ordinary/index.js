@@ -633,8 +633,8 @@ class Ordinary extends Component {
     const statefulApps = {
       mysql: "MySQL",
       redis: "Redis",
-      // zookeeper: "ZooKeeper",
-      // elasticsearch: "ElasticSearch",
+      zookeeper: "ZooKeeper",
+      elasticsearch: "ElasticSearch",
       //etcd: "Etcd",
     }
     const statefulAppTabMapping = {
@@ -1426,7 +1426,6 @@ class Ordinary extends Component {
         key: 'redis',
         text: 'Redis集群 (个)'
       },
-/*
       {
         key: 'zookeeper',
         text: 'Zookeeper集群 (个)'
@@ -1434,7 +1433,6 @@ class Ordinary extends Component {
         key: 'elasticsearch',
         text: 'ES集群 (个)'
       },
-*/
       // {
       //   key: 'etcd',
       //   text: 'Etcd集群 (个)'

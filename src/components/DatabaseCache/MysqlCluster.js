@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Modal, Button, Icon, Row, Col, InputNumber, Input, Spin, Tooltip, Switch } from 'antd'
+import { Modal, Button, Icon, Row, Col, Input, Spin, Tooltip, Switch } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList , searchDbservice } from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -116,9 +116,11 @@ let MyComponent = React.createClass({
           <div className='list-wrap'>
             <div className='detailHead'>
               <img src={mysqlImg} />
-              <div className='detailName'>
-                {item.objectMeta.name}
-              </div>
+              <Tooltip title={item.objectMeta.name} placement="topLeft">
+                <div className='detailName'>
+                  {item.objectMeta.name}
+                </div>
+              </Tooltip>
               <div className="status">
                 <span className='listKey'>状态:</span>
                 <span className='normal' style={style(item.status)}>
@@ -310,7 +312,6 @@ class MysqlCluster extends Component {
       setTimeout(() => {
         document.getElementById('name').focus()
       }, 300)
-
     });
   }
   handSearch() {

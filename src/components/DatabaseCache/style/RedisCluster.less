@@ -57,7 +57,7 @@
         overflow: hidden;
         border-bottom: 1px solid @borderColor;
         .detailName {
-          padding-left: 100px;
+          margin-left: 100px;
           line-height: 18px;
           font-size: 18px;
           color: @activeColor;
@@ -127,5 +127,19 @@
   }
   .cursor {
     cursor: pointer;
+  }
+  @media (max-width: 1640px) {
+    .layoutBox {
+      .List {
+        .detailHead {
+          .detailName {
+            width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
   }
 }
