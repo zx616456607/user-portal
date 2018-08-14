@@ -11,6 +11,7 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var MiniCssExtractPlugin = require("mini-css-extract-plugin");
 var WebpackMd5Hash = require('webpack-md5-hash')
 var tsImportPluginFactory = require('ts-import-plugin')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -55,54 +56,50 @@ module.exports = webpackMerge(webpack_base, {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                minimize: true,
-              },
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              minimize: true,
             },
-            {
-              loader: 'postcss-loader',
-              options: postcssConfig,
-            },
-          ],
-        }),
+          },
+          {
+            loader: 'postcss-loader',
+            options: postcssConfig,
+          },
+        ],
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                minimize: true,
-              },
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              minimize: true,
             },
-            {
-              loader: 'less-loader',
-              options: {
-                modifyVars: {
-                  // "@primary-color": "#2db7f5",
-                  // "@success-color": "#5cb85c",
-                  // "@warning-color": "#ffbf00",
-                  // "@error-color": "#f85a5a",
-                  // "@a-hover-color": "#57cfff",
-                  // "@font-size-base": "12px",
-                  "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
-                  '@tenx-icon-url': "'/font/tenx-icon/iconfont'",
-                }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              modifyVars: {
+                // "@primary-color": "#2db7f5",
+                // "@success-color": "#5cb85c",
+                // "@warning-color": "#ffbf00",
+                // "@error-color": "#f85a5a",
+                // "@a-hover-color": "#57cfff",
+                // "@font-size-base": "12px",
+                "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
+                '@tenx-icon-url': "'/font/tenx-icon/iconfont'",
               }
-            },
-            {
-              loader: 'postcss-loader',
-              options: postcssConfig,
-            },
-          ],
-        }),
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: postcssConfig,
+          },
+        ],
       },
     ]
   },
@@ -158,9 +155,14 @@ module.exports = webpackMerge(webpack_base, {
     //   unused: true,
     //   dead_code: true,
     // }),
-    new ExtractTextPlugin({
+    // new ExtractTextPlugin({
+    //   filename: 'styles.[contenthash:8].css',
+    //   allChunks: true,
+    // }),
+    new MiniCssExtractPlugin({
       filename: 'styles.[contenthash:8].css',
-      allChunks: true,
+      chunkFilename: '[id].css',
+      // allChunks: true,
     }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'vendor',
