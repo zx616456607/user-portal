@@ -36,7 +36,7 @@ const formItemLayoutLarge = {
 const formateResourceDefinitions = (resourceDefinitions = []) => {
   let definitions = {}
   for (const value of resourceDefinitions){
-    for(const child of value.children){
+    for(const child of (value.children || [])){
       definitions[child.resourceType] = child.resourceName
     }
   }
