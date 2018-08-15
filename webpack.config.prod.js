@@ -105,19 +105,19 @@ module.exports = webpackMerge(webpack_base, {
   },
 
   optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          name: "commons",
-          chunks: 'initial',
-          minChunks: 2
-        },
-        vendors: {
-          name: 'vendors',
-          minChunks: Infinity,
-        }
-      }
-    },
+    // splitChunks: {
+    //   cacheGroups: {
+    //     commons: {
+    //       name: "commons",
+    //       chunks: 'initial',
+    //       minChunks: 2
+    //     },
+    //     vendors: {
+    //       name: 'vendors',
+    //       minChunks: Infinity,
+    //     }
+    //   }
+    // },
     minimizer: [
       new UglifyJsPlugin({
         uglifyOptions: {
