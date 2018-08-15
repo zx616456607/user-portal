@@ -148,11 +148,15 @@ class Backup extends React.Component {
   rollBackAlert = () => {
     const confirmRollBack = () => {
       const {
-        postRollback, clusterID, database,
+        postRollback, clusterID, database, databaseInfo,
       } = this.props
       const { name } = this.state.backupChain
+      let urlName = name
+      if (database === 'mysql') {
+        urlName = databaseInfo.objectMeta.name
+      }
       const body = { name }
-      postRollback(clusterID, database, name, body, {
+      postRollback(clusterID, database, urlName, body, {
         success: {
           func: () => {
             notification.success('回滚操作成功')
