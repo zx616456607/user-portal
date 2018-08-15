@@ -26,6 +26,7 @@ import { loadDbCacheList } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon'
 import AutoBackupModal from '../../../components/AutoBackupModal'
+import { validateK8sResourceForServiceName } from '../../../../src/common/naming_validation';
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -377,7 +378,7 @@ class Backup extends React.Component {
           }
         case '202':
           return {
-            className: 'redis-err',
+            className: 'ing',
             color: '#2db7f5',
           }
         case '0':
@@ -397,7 +398,6 @@ class Backup extends React.Component {
           }
       }
     }
-
   }
   // 全量备份点样式
   fullBackupPoint = status => {
@@ -408,6 +408,31 @@ class Backup extends React.Component {
     this.setState({
       autoBackupModalShow: true,
     })
+  }
+  nameIsLegal(rule, value, callback) {
+    let flag = false;
+    const nameReg = name => {
+      if (name.length < 1 || name.length > 23) {
+        return false
+      }
+      const regx = new RegExp('^[a-z][-a-z0-9]{1,58}[a-z0-9]$')
+      if (!regx.test(name)) {
+        return false
+      }
+      return true
+    }
+    if (!nameReg(value)) {
+      flag = true
+      return callback('名称由1~23 位小写字母、数字、中划线组成')
+    }
+    const checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
+    if (!checkName.test(value)) {
+      callback([ new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头') ]);
+      flag = true;
+    }
+    if (!flag) {
+      callback();
+    }
   }
   // 点击弹出手动备份弹出弹框
   menualBackup = (chain, i) => {
@@ -496,8 +521,11 @@ class Backup extends React.Component {
       },
     }
     const { getFieldProps } = this.props.form
+
     const nameCheck = getFieldProps('name', {
-      rules: [{ required: true, message: '请输入备份名称', whitespace: true }],
+      rules: [
+        { required: true, message: '请输入备份名称', whitespace: true },
+        { validator: this.nameIsLegal }],
     })
     return <Modal
       width={650}
@@ -535,7 +563,7 @@ class Backup extends React.Component {
               {...formItemLayout}
               label= "备份名称"
             >
-              <Input placeholder= "请输入备份名称" id="name" {...nameCheck} style={{ width: 200 }}/>
+              <Input placeholder= "请输入备份名称" id="name" {...nameCheck} style={{ width: 300 }}/>
             </FormItem>
           </Col>
         </Row>
