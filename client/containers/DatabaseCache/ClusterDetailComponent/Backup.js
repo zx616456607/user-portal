@@ -26,7 +26,6 @@ import { loadDbCacheList } from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon'
 import AutoBackupModal from '../../../components/AutoBackupModal'
-import { validateK8sResourceForServiceName } from '../../../../src/common/naming_validation';
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
