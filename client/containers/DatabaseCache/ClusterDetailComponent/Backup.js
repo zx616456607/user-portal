@@ -125,8 +125,12 @@ class Backup extends React.Component {
   renderHeader = (v, i) => {
     return (
       <Row className="list-item-header" ref="header" key={v.name} style={ this.state.currentItem === `${v.name}` ? { background: '#fafafa' } : {}}>
-        <Col span={6}>
-          {v.name}
+        <Col span={6} className="name-wrapper">
+          <Tooltip title={v.name} placement="topLeft">
+            <span className="chain-name">
+              {v.name}
+            </span>
+          </Tooltip>
           { (i === 0 && v.masterBackup) && <span style={{ color: '#57c5f7' }}> (当前链)</span> }
         </Col>
         <Col span={4}>{(v.size / 1024 / 1024).toFixed(2)} M</Col>

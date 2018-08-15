@@ -164,6 +164,17 @@
           padding-left: @padding-small;
           height: 48px;
           line-height: 48px;
+          .name-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            .chain-name {
+              display: block;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
         }
       }
       .ant-collapse-content-active {
@@ -298,6 +309,17 @@
           }
         }
       }
+    }
+  }
+
+  @media (max-width: 1670px) {
+    .chain-name {
+      width: 100px !important;
+    }
+  }
+  @media (max-width: 1430px) {
+    .chain-name {
+      width: 60px !important;
     }
   }
 }
