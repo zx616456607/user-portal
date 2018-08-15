@@ -8,17 +8,17 @@
  * @author Zhangpc
  */
 
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var MiniCssExtractPlugin = require("mini-css-extract-plugin");
-var WebpackMd5Hash = require('webpack-md5-hash')
-var tsImportPluginFactory = require('ts-import-plugin')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var postcssConfig = require('./webpack.config.postcss')
-var webpack_base = require('./webpack.config.base')
-var webpackMerge = require('webpack-merge')
-var UglifyJsPlugin=require('uglifyjs-webpack-plugin');
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WebpackMd5Hash = require('webpack-md5-hash')
+const tsImportPluginFactory = require('ts-import-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const postcssConfig = require('./webpack.config.postcss')
+const webpack_base = require('./webpack.config.base')
+const webpackMerge = require('webpack-merge')
+const UglifyJsPlugin=require('uglifyjs-webpack-plugin');
 
 module.exports = webpackMerge(webpack_base, {
   mode: 'production',

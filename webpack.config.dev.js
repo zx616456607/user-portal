@@ -8,18 +8,18 @@
  * @author Zhangpc
  */
 
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var tsImportPluginFactory = require('ts-import-plugin')
-var postcssConfig = require('./webpack.config.postcss')
-var nodeModulesPath = path.join(__dirname, '/node_modules/')
-var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
-var webpack_base = require('./webpack.config.base')
-var webpackMerge = require('webpack-merge')
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const tsImportPluginFactory = require('ts-import-plugin')
+const postcssConfig = require('./webpack.config.postcss')
+const nodeModulesPath = path.join(__dirname, '/node_modules/')
+const hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
+const webpack_base = require('./webpack.config.base')
+const webpackMerge = require('webpack-merge')
 
 console.log('Use development webpack config ...')
-var config = webpackMerge(webpack_base, {
+const config = webpackMerge(webpack_base, {
   mode: 'development',
   devtool: '#cheap-module-eval-source-map',
   entry: {
@@ -124,21 +124,21 @@ var config = webpackMerge(webpack_base, {
       }
     ]
   },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        // commons: {
-        //   name: "commons",
-        //   chunks: 'initial',
-        //   minChunks: 2
-        // },
-        vendors: {
-          name: 'vendors',
-          minChunks: Infinity,
-        }
-      }
-    }
-  },
+  // optimization: {
+  //   splitChunks: {
+  //     cacheGroups: {
+  //       // commons: {
+  //       //   name: "commons",
+  //       //   chunks: 'initial',
+  //       //   minChunks: 2
+  //       // },
+  //       vendors: {
+  //         name: 'vendors',
+  //         minChunks: Infinity,
+  //       }
+  //     }
+  //   }
+  // },
   plugins: [
     new webpack.DllReferencePlugin({
       context: __dirname,
@@ -159,6 +159,4 @@ var config = webpackMerge(webpack_base, {
     new webpack.HotModuleReplacementPlugin(),
   ]
 })
-console.log(webpackMerge)
-console.log(config)
 module.exports = config

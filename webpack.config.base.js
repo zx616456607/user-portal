@@ -9,9 +9,9 @@
  * @author RenSiWei
  */
 
-var path = require('path')
-var webpack = require('webpack')
-var tsImportPluginFactory = require('ts-import-plugin')
+const path = require('path')
+const webpack = require('webpack')
+const tsImportPluginFactory = require('ts-import-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const site = 'tenxcloud.com'
 const env = process.env
