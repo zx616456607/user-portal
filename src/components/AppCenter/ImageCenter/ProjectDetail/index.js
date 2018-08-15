@@ -22,6 +22,7 @@ import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../components/Notification'
 import { camelize } from 'humps'
 import DetailInfo from './DetailInfo'
+import TenxIcon from '@tenx-ui/icon'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -139,8 +140,6 @@ class ImageDetailBox extends Component {
       copySuccess: true
     });
   }
-
-
   returnDefaultTooltip() {
     const scope = this;
     setTimeout(function () {
@@ -271,8 +270,6 @@ class ImageDetailBox extends Component {
       tagVersion: tag
     })
   }
-
-
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.config;
@@ -288,10 +285,7 @@ class ImageDetailBox extends Component {
       <div id="ImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
-            <svg className='appcenterlogo'>
-              {/*@#app-center-logo*/}
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
+            <TenxIcon type='app-center-logo'/>
           </div>
           <div className="infoBox">
             <p className="imageName">
@@ -356,25 +350,16 @@ class ImageDetailBox extends Component {
         </div>
         <div className="downloadBox">
           <div className="code">
-            <svg className='appcenterdownload' >
-              {/*@#download*/}
-              <use xlinkHref='#appcenterdownload' />
-            </svg>
+            <TenxIcon type="download"/>
             <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
             <span className="pullCode textoverflow">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
-              <svg className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}>
-                {/*@#copy*/}
-                <use xlinkHref='#appcentercopy' />
-              </svg>
+              <TenxIcon type="copy" className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}/>
             </Tooltip>
             <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
-            <svg className='appcenterdownload' >
-              {/*@#download*/}
-              <use xlinkHref='#appcenterdownload' />
-            </svg>
+            <TenxIcon type="download"/>
             {imageDetail[camelize('pull_count')]}
           </div>
           <div style={{ clear: "both" }}></div>

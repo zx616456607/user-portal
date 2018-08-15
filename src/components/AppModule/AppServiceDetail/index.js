@@ -402,10 +402,7 @@ class AppServiceDetail extends Component {
                 containerShow.length > 1 ?
                   <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                     <Button className='loginBtn' type='primary' size='large'>
-                      <svg className='terminal'>
-                        {/*@#terminal*/}
-                        <use xlinkHref='#terminal'/>
-                      </svg>
+                      <TenxIcon type="terminal"/>
                       <span>登录终端</span>
                     </Button>
                   </Popover>

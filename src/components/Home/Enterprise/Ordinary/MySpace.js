@@ -23,6 +23,7 @@ import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../actions/quota'
 import {REG} from "../../../../constants";
+import TenxIcon from '@tenx-ui/icon'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -447,10 +448,7 @@ class MySpace extends Component {
                   <tbody>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#apps-o*/}
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         创建应用
                     </td>
                       <td className="trecordNum">
@@ -459,10 +457,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#volume-bind*/}
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
+                        <TenxIcon type="volume-bind" className="icon"/>
                         创建服务
                     </td>
                       <td className="trecordNum">
@@ -471,10 +466,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#storage-volume-o*/}
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
+                        <TenxIcon type="storage-volume-o" className="icon"/>
                         创建存储卷
                   </td>
                       <td className="trecordNum">
@@ -483,10 +475,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#apps-o*/}
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         停止应用
                   </td>
                       <td className="trecordNum">
@@ -495,10 +484,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#volume-bind*/}
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
+                        <TenxIcon type="volume-bind" className="icon"/>
                         删除服务
                   </td>
                       <td className="trecordNum">
@@ -507,10 +493,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#storage-volume-o*/}
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
+                        <TenxIcon type="storage-volume-o" className="icon"/>
                         删除存储卷
                   </td>
                       <td className="trecordNum">
@@ -519,10 +502,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#apps-o*/}
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         修改应用
                     </td>
                       <td className="trecordNum">
@@ -531,10 +511,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#apps-o*/}
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         启动应用
                     </td>
                       <td className="trecordNum">
@@ -543,10 +520,7 @@ class MySpace extends Component {
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          {/*@#apps-o*/}
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         重新部署
                     </td>
                       <td className="trecordNum">

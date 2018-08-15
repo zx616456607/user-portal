@@ -24,6 +24,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { encodeImageFullname } from '../../../common/tools'
 import './style/SelectImage.less'
 import NotificationHandler from '../../../components/Notification'
+import TenxIcon from '@tenx-ui/icon'
 
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
@@ -270,10 +271,9 @@ class SelectImage extends Component {
       render(text, row) {
         return (
           <div>
-            <svg className='imgUrl'>
-              {/*@#app-center-logo*/}
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
+            <div className='imgUrl'>
+              <TenxIcon type="app-center-logo" />
+            </div>
             <div className="infoBox">
               <span className="name">{text}</span> <br />
               <span className="desc">{imageType !== IMAGE_STORE ? row.description : row.versions[0].description}</span>
