@@ -31,7 +31,7 @@ import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
 import AppServerTag from './AppServerTag'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
-import CommmonStatus from '../../CommonStatus'
+import TenxIcon from '@tenx-ui/icon'
 import './style/AppServiceDetail.less'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
@@ -351,10 +351,7 @@ class AppServiceDetail extends Component {
       let onTerminal = containers.map((item, index) => {
         return (
           <Button className='loginBtn' type='primary' size='large' key={index} onClick={this.openTerminalModal.bind('', item)}>
-            <svg className='terminal'>
-              {/*@#terminal*/}
-              <use xlinkHref='#terminal'/>
-            </svg>
+            <TenxIcon type="terminal"/>
             <span>登录终端</span>
           </Button>
           )
@@ -372,10 +369,7 @@ class AppServiceDetail extends Component {
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>
-            <svg>
-              {/*@#gear*/}
-              <use xlinkHref='#server' />
-            </svg>
+            <TenxIcon type="gear" size={80}/>
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

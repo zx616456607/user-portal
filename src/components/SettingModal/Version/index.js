@@ -12,6 +12,7 @@ import { Row, Col, Card, Icon, } from 'antd'
 import './style/Version.less'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 
 export default class Version extends Component{
   constructor(props){
@@ -40,13 +41,11 @@ export default class Version extends Component{
               <div className="versionContent">
                 <Row className="contentTop">
                     <Col span={8}>
-                      <svg className="infSvg" style={{marginRight:8}}>
-                        {/*@#syc-name*/}
-                        <use xlinkHref="#settingsycname" />
-                      </svg>
+                      <TenxIcon type="syc-name" className="sysName"/>
                       <span className="infSvgTxt">系统名称</span>
                     </Col>
                     <Col span={8}>
+                      {/*@#...*/}
                       <svg className="infSvg" style={{marginRight:8}}>
                         <use xlinkHref="#settingtranname" />
                       </svg>
@@ -95,10 +94,8 @@ export default class Version extends Component{
           <Card>
             <Row className="versionWrap">
               <div className="versionTitle">
-                <svg className="infSvg" style={{marginRight:8}}>
-                  {/*@#computer*/}
-                  <use xlinkHref="#settingbase" />
-                </svg>
+                <TenxIcon type="computer"/>
+
                 <span className="infSvgTxt">
                   基础系统版本
                 </span>
@@ -106,10 +103,7 @@ export default class Version extends Component{
               <div className="versionContent">
                 <Row className="contentTop">
                   <Col span={8}>
-                    <svg className="infSvg" style={{marginRight:8}}>
-                      {/*@#syc-name*/}
-                      <use xlinkHref="#settingsycname" />
-                    </svg>
+                    <TenxIcon type="syc-name" className="sysName"/>
                     <span className="infSvgTxt">系统名称</span>
                   </Col>
                   <Col span={8}>

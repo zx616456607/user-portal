@@ -27,6 +27,8 @@ import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
+
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -655,32 +657,21 @@ class ResourceQuota extends React.Component {
     switch (name) {
       case 'CI/CD':
         return <span>
-          <svg className='cicd commonImg'>
-            {/*lift-card-o*/}
-            <use xlinkHref="#cicd"></use>
-          </svg> &nbsp;
+            <TenxIcon type="lift-card-o"/>&nbsp;
         </span>
 
       case '交付中心':
         return <span>
-          <svg className='center commonImg'>
-            {/*@#center-o*/}
-            <use xlinkHref="#center"></use>
-          </svg> &nbsp;
+          <TenxIcon type="center-o"/>
+          &nbsp;
         </span>
       case '应用管理':
         return <span>
-          <svg className='app commonImg'>
-            {/*@#apps*/}
-            <use xlinkHref="#app"></use>
-          </svg> &nbsp;
+            <TenxIcon type="apps"/>&nbsp;
         </span>
       case '数据库与缓存':
         return <span>
-          <svg className='database commonImg'>
-            {/*@#database-o*/}
-            <use xlinkHref="#database"></use>
-          </svg> &nbsp;
+          <TenxIcon type="database-o"/>&nbsp;
         </span>
       default:
         return ''

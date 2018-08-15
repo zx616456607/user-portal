@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Button, Table, Modal, Input, Form, Tooltip, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/TeamDetail.less'
-import { Link, browserHistory } from 'react-router'
+import { browserHistory } from 'react-router'
 import {
   deleteTeam, addTeamusers, removeTeamusers,
   loadTeamUserList, loadAllClustersList,
@@ -26,11 +26,12 @@ import MemberTransfer from '../../../AccountModal/MemberTransfer'
 import NotificationHandler from '../../../../components/Notification'
 import CommonSearchInput from '../../../../components/CommonSearchInput'
 import { TEAM_MANAGE_ROLE_ID, ROLE_SYS_ADMIN } from '../../../../../constants'
-import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
 import { formatDate } from '../../../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -928,10 +929,7 @@ class TeamDetail extends Component {
                         </Button>,
                         <Button key="transferTeamLeader" type="ghost" size="large" className="transferTeamLeader"
                               onClick={this.transferTeamLeader.bind(this)}>
-                          <svg id="transferLeader">
-                            {/*@# transfer-leader*/}
-                            <use xlinkHref='#transferleader' />
-                          </svg>
+                          <TenxIcon type="transfer-leader"/>
                         移交团队</Button>
                       ]
                     }
