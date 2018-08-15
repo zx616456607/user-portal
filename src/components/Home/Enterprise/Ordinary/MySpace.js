@@ -403,7 +403,7 @@ class MySpace extends Component {
                   ciList.map((item, index) => (
                     <div className="info" key={`ci-${index}`}>
                       <Row>
-                        <Col className="textoverflow" span={6}>
+                        <Col className="textoverflow" span={5}>
                           <Tooltip title={item.text}>
                             <span>{item.text}</span>
                           </Tooltip>
@@ -411,7 +411,7 @@ class MySpace extends Component {
                         <Col span={13}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={5}>
+                        <Col span={6}>
                           {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                         </Col>
                       </Row>
@@ -424,15 +424,15 @@ class MySpace extends Component {
                   deliverList.map((item, index) => (
                     <div className="info" key={`deliver-${index}`}>
                       <Row>
-                        <Col className="textoverflow" span={6}>
+                        <Col className="textoverflow" span={5}>
                           <Tooltip title={item.text}>
                             <span>{item.text}</span>
                           </Tooltip>
                         </Col>
-                        <Col span={16}>
+                        <Col span={13}>
                           <Progress className="pro" style={{ width: '90%' }} percent={this.filterPercent(this.maxCount(item.key), this.useCount(item.key))} showInfo={false} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={6}>
                           {this.renderProcessNumber(item.key, { left: 9, rigth: 15 })}
                         </Col>
                       </Row>
