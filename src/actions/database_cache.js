@@ -39,12 +39,15 @@ export const GET_DATABASE_CACHE_ALL_LIST_SUCCESS = 'GET_DATABASE_CACHE_ALL_LIST_
 export const GET_DATABASE_CACHE_ALL_LIST_FAILURE = 'GET_DATABASE_CACHE_ALL_LIST_FAILURE'
 // MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST
 function fetchDbCacheList(cluster, types, callback) {
-  if (!types) types='mysql'
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/dbservices?type=${types}`
+  if (types === 'mysql' || types === 'redis') {
+    endpoint = `${API_URL_PREFIX}/clusters/${cluster}/daas/${types}`
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [GET_DATABASE_CACHE_ALL_LIST_REQUEST, GET_DATABASE_CACHE_ALL_LIST_SUCCESS, GET_DATABASE_CACHE_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${types}`,
+      endpoint,
       schema: {}
     },
     types,
@@ -141,11 +144,15 @@ export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCES
 export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
 
 function getDbClusterDetail(cluster, dbName, type, needLoading, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${dbName}`
+  if(type === 'zookeeper' || type === 'elasticsearch') {
+    endpoint = `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [GET_DATABASE_DETAIL_INFO_REQUEST, GET_DATABASE_DETAIL_INFO_SUCCESS, GET_DATABASE_DETAIL_INFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${dbName}`,
+      endpoint,
       schema: {}
     },
     callback,
@@ -194,11 +201,15 @@ export const DELETE_DATABASE_CACHE_SUCCESS = 'DELETE_DATABASE_CACHE_SUCCESS'
 export const DELETE_DATABASE_CACHE_FAILURE = 'DELETE_DATABASE_CACHE_FAILURE'
 
 function deleteDbCluster(cluster, dbName, clusterTypes ,callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/daas/${clusterTypes}/${dbName}`
+  if(clusterTypes === 'zookeeper' || clusterTypes === 'elasticsearch') {
+    endpoint = `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}?type=${clusterTypes}`
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${clusterTypes}/${dbName}`,
+      endpoint,
       options: {
         method: 'DELETE'
       },
@@ -441,7 +452,6 @@ export function updateMysqlPwd(cluster, name, body, callback) {
     return dispatch(updateMysqlPwdRequest(cluster, name, body, callback))
   }
 }
-
 
 // 创建集群
 export const CREATE_DB_CLUSTER_REQUEST = 'CREATE_DB_CLUSTER_REQUEST'

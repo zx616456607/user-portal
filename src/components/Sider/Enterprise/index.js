@@ -1018,18 +1018,16 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> Redis集群</span>
                     </Link>
                   </Menu.Item>
-                  {/*数据库缓存优化相关，需要隐藏ZooKeeper集群、ElasticSearch集群*/}
-                  {/*<Menu.Item key='zookeeper_cluster'>*/}
-                    {/*<Link to='/database_cache/zookeeper_cluster'>*/}
-                      {/*<span><div className='sideCircle'></div> ZooKeeper集群</span>*/}
-                    {/*</Link>*/}
-                  {/*</Menu.Item>*/}
-
-                  {/*<Menu.Item key='elasticsearch_cluster'>*/}
-                  {/*<Link to='/database_cache/elasticsearch_cluster'>*/}
-                    {/*<span><div className='sideCircle'></div> ElasticSearch集群</span>*/}
-                  {/*</Link>*/}
-                {/*</Menu.Item>*/}
+                  <Menu.Item key='zookeeper_cluster'>
+                    <Link to='/database_cache/zookeeper_cluster'>
+                      <span><div className='sideCircle'></div> ZooKeeper集群</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='elasticsearch_cluster'>
+                  <Link to='/database_cache/elasticsearch_cluster'>
+                    <span><div className='sideCircle'></div> ElasticSearch集群</span>
+                  </Link>
+                </Menu.Item>
 
                 {/* <Menu.Item key='etcd_cluster'>
                   <Link to='/database_cache/etcd_cluster'>

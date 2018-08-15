@@ -171,42 +171,64 @@ class BaseInfo extends Component {
     }
   }
   componentDidMount() {
-    // 将后台请求回的资源数据赋值
-    const resource = this.props.databaseInfo.resources
-    const { limits, requests } = resource
-    const cpuMax = limits.cpu
-    const memoryMax = limits.memory
-    const cpuMin = requests.cpu
-    const memoryMin = requests.memory
-    let resourceConfigs = {
-      maxCPUValue:cpuMax.indexOf('m')<0? cpuMax : parseInt(cpuMax)/1000,
-      maxMemoryValue:memoryMax.indexOf('Gi')>= 0 ? parseInt(memoryMax) * 1000 : parseInt(memoryMax),
-      minCPUValue:cpuMin.indexOf('m')<0? cpuMin : parseInt(cpuMin)/1000,
-      minMemoryValue:memoryMin.indexOf('Gi')>= 0 ? parseInt(memoryMin) * 100 : parseInt(memoryMin)
-    }
-    if(resource.requests.cpu.indexOf('m')<0) {
-      let temp = resourceConfigs.maxCPUValue
-      resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
-      resourceConfigs.minCPUValue = temp
-    }
-    // 判断资源类型是自定义类型还是默认类型
-    const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
-    if (
-      maxCPUValue == 1 &&
-      minCPUValue == 0.2 &&
-      maxMemoryValue == 512 &&
-      minMemoryValue == 512
-    ) {
-      this.setState({
-        composeType: 512,
-        defaultType: 512
-      })
-    } else {
-      this.setState({
-        resourceConfig: resourceConfigs,
-        defaultResourceConfig: resourceConfigs
-      })
+    const { database } = this.props
+    if (database === "mysql" || database === "redis") {
+      // 将后台请求回的资源数据赋值
+      const resource = this.props.databaseInfo.resources
+      if (Object.keys(resource).length !== 0) {
+        const { limits, requests } = resource
+        const cpuMax = limits.cpu
+        const memoryMax = limits.memory
+        const cpuMin = requests.cpu
+        const memoryMin = requests.memory
+        let resourceConfigs = {
+          maxCPUValue:cpuMax.indexOf('m')<0? cpuMax : parseInt(cpuMax)/1000,
+          maxMemoryValue:memoryMax.indexOf('Gi')>= 0 ? (parseInt(memoryMax) + 0.024)* 1000 : parseInt(memoryMax),
+          minCPUValue:cpuMin.indexOf('m')<0? cpuMin : parseInt(cpuMin)/1000,
+          minMemoryValue:memoryMin.indexOf('Gi')>= 0 ? (parseInt(memoryMax) + 0.024)* 1000 : parseInt(memoryMin)
+        }
 
+        if(resource.requests.cpu.indexOf('m')<0) {
+          let temp = resourceConfigs.maxCPUValue
+          resourceConfigs.maxCPUValue = resourceConfigs.minCPUValue
+          resourceConfigs.minCPUValue = temp
+        }
+        // 判断资源类型是自定义类型还是默认类型
+        const { maxCPUValue, maxMemoryValue, minCPUValue, minMemoryValue } = resourceConfigs
+        const should4X = database === 'mysql'
+        if (
+          maxCPUValue == 1 &&
+          (minCPUValue == 0.2 || minCPUValue == 0.4) &&
+          (maxMemoryValue == 512 || maxMemoryValue == 1024) &&
+          (minMemoryValue == 512 || minMemoryValue == 1024)
+        ) {
+          this.setState({
+            composeType: should4X? 1024 : 512,
+            defaultType: should4X? 1024 : 512
+          })
+          if(should4X) {
+            this.setState({
+              resourceConfig: {
+                maxCPUValue: 1,
+                maxMemoryValue: 1024,
+                minCPUValue: 0.5,
+                minMemoryValue: 512
+              },
+              defaultResourceConfig: { //默认的资源配置值
+                maxCPUValue: 1,
+                maxMemoryValue: 1024,
+                minCPUValue: 0.5,
+                minMemoryValue: 512
+              },
+            })
+          }
+        } else {
+          this.setState({
+            resourceConfig: resourceConfigs,
+            defaultResourceConfig: resourceConfigs
+          })
+        }
+      }
     }
     const winWidth = document.body.clientWidth
     if (winWidth > 1440) {
@@ -360,6 +382,7 @@ class BaseInfo extends Component {
         }
       }
     }
+
     editDatabaseCluster(cluster, database, dbName, body, {
       success: {
         func: () => {
@@ -476,39 +499,45 @@ class BaseInfo extends Component {
                       </span>
                     </span>
                 }
-                <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
-                  <Button type="primary" style={{ marginLeft:24 }} onClick={() => this.setState({
-                    pwdModalShow: true
-                  })}>修改密码</Button>
-                </Popover>
+                {
+                  (database === 'redis' || database === 'mysql') &&
+                  <Popover content={this.passwordPanel()} visible={this.state.pwdModalShow} title={null} trigger="click">
+                    <Button type="primary" style={{ marginLeft:24 }} onClick={() => this.setState({
+                      pwdModalShow: true
+                    })}>修改密码</Button>
+                  </Popover>
+                }
               </li>
             </ul>
           </div>}
-          <div className="resourceConfigPart">
-            <div className="themeHeader"><i className="themeBorder"/>资源配置
-              {
-                resourceConfigEdit?
-                  <div className="resource-config-btn">
-                    <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
-                    <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
-                  </div>
-                  :
-                  <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
-              }
-            </div>
-            <div className="tips">
-              Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例, 将进行滚动升级。
-            </div>
+          {
+            (database === 'mysql' || database === 'redis') &&
+              <div className="resourceConfigPart">
+                <div className="themeHeader"><i className="themeBorder"/>资源配置
+                  {
+                    resourceConfigEdit?
+                      <div className="resource-config-btn">
+                        <Button size="large" onClick={() => this.cancelEditResourceConfig()}>取消</Button>
+                        <Button type="primary" size="large" onClick={this.saveResourceConfig}>确定</Button>
+                      </div>
+                      :
+                      <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
+                  }
+                </div>
+                <div className="tips">
+                  Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例, 将进行滚动升级。
+                </div>
 
-            <ResourceConfig
-              ref="resourceConfig"
-              toggleComposeType={this.selectComposeType}
-              composeType={composeType}
-              onValueChange={this.recordResouceConfigValue}
-              value={this.state.resourceConfig}
-              freeze={!resourceConfigEdit}/>
-          </div>
-
+                <ResourceConfig
+                  ref="resourceConfig"
+                  toggleComposeType={this.selectComposeType}
+                  composeType={composeType}
+                  onValueChange={this.recordResouceConfigValue}
+                  value={this.state.resourceConfig}
+                  database={database}
+                  freeze={!resourceConfigEdit}/>
+              </div>
+          }
           <div className="themeHeader"><i className="themeBorder"/>实例副本 <span>{this.props.currentData.replicas}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
@@ -608,7 +637,7 @@ class VisitTypes extends Component{
     if(!value) {
       value = this.state.initValue
     }
-    const { databaseInfo, database, dbServiceProxyGroupSave, clusterID, form, scope } = this.props;
+    const { databaseInfo, database, dbServiceProxyGroupSave, clusterID, form, scope, setServiceProxyGroup } = this.props;
     form.validateFields((err, values) => {
       if(err) {
         return
@@ -686,6 +715,12 @@ class VisitTypes extends Component{
         dbServiceProxyGroupSave(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
       } else if (database === 'redis') {
         editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+      } else {
+        setServiceProxyGroup({
+          cluster: clusterID,
+          service: databaseInfo.service.name,
+          groupID
+        }, { success, failed })
       }
     })
   }
@@ -995,9 +1030,6 @@ class ModalDetail extends Component {
           scope.setState({
             detailModal: false
           });
-          setTimeout(() => {
-            scope.props.loadDbCacheList(cluster, database)
-          })
         }
       },
       failed: {
@@ -1076,28 +1108,61 @@ class ModalDetail extends Component {
     const notification = new NotificationHandler()
     this.setState({putModaling: true})
     const body = {replicas: this.state.replicas}
-    editDatabaseCluster(cluster, database, dbName, body, {
-      success: {
-        func: () => {
-          notification.success('更新成功')
-          parentScope.setState({ detailModal: false })
-          _this.setState({putModaling: false})
-          setTimeout(() => {
-            loadDbCacheList(cluster, database)
-            loadDbClusterDetail(cluster, dbName, database, {
-              success: {
-                func: (res) => {
-                  parentScope.setState({
-                    replicas: res.database.replicas,
-                    storageValue: parseInt(res.database.storage)
-                  })
+    if(database === 'mysql' || database === 'redis') {
+      editDatabaseCluster(cluster, database, dbName, body, {
+        success: {
+          func: () => {
+            notification.success('更新成功')
+            parentScope.setState({ detailModal: false })
+            _this.setState({putModaling: false})
+            setTimeout(() => {
+              loadDbCacheList(cluster, database)
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: (res) => {
+                    parentScope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage)
+                    })
+                  }
                 }
-              }
-            });
-          })
+              });
+            })
+          }
+        },
+      })
+    } else {
+      putDbClusterDetail(cluster, dbName, this.state.replicas, {
+        success: {
+          func: (res) => {
+            notification.success('更新成功')
+            parentScope.setState({ detailModal: false })
+            _this.setState({putModaling: false})
+            setTimeout(() => {
+              loadDbCacheList(cluster, database)
+              loadDbClusterDetail(cluster, dbName, database, {
+                success: {
+                  func: (res) => {
+                    parentScope.setState({
+                      replicas: res.database.replicas,
+                      storageValue: parseInt(res.database.storage)
+                    })
+                  }
+                }
+              });
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            parentScope.setState({ detailModal: false })
+            _this.setState({putModaling: false})
+            notification.error('更新失败', res.message.message)
+          }
         }
-      },
-    })
+      })
+    }
 
   }
   colseModal() {
@@ -1235,7 +1300,10 @@ class ModalDetail extends Component {
             <div className='rightBox'>
               <div className='li'>
                 {/*操作按钮*/}
-                {this.clusterBtn(databaseInfo.status)}
+                {
+                  (database === 'mysql' || database === 'redis') &&
+                  this.clusterBtn(databaseInfo.status)
+                }
                 <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
                   <i className="fa fa-refresh"></i>&nbsp;
                   刷新
@@ -1261,54 +1329,98 @@ class ModalDetail extends Component {
         </Modal>
         <div className='bottomBox'>
           <div className='siderBox'>
-            <Tabs
-              tabPosition='left'
-              onTabClick={(e)=> this.onTabClick(e)}
-              activeKey={this.state.activeTabKey}
-              >
-              <TabPane tab='基础信息' key='#BaseInfo'>
-                {
-                  this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
-                    domainSuffix={domainSuffix} bindingIPs={bindingIPs}
-                    currentData={this.props.currentData}
-                    databaseInfo={databaseInfo}
-                    storageValue={this.state.storageValue}
-                    database={this.props.database}
-                    dbName={dbName}
-                    scope= {this}
-                  />
-                }
-              </TabPane>
-              <TabPane tab='存储' key='#Storage'>
-                <Storage databaseInfo={databaseInfo} database={this.props.database}/>
-              </TabPane>
-              <TabPane tab='备份' key='#Backup'>
-                <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
-              </TabPane>
-              <TabPane tab='配置管理' key='#ConfigManage'>
-                <ConfigManagement database={database} databaseInfo={databaseInfo}/>
-              </TabPane>
-              { billingEnabled ?
-                [<TabPane tab='访问方式' key='#VisitType'>
-                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
-                             databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
-                 </TabPane>,
-                 <TabPane tab='事件' key='#events'>
-                   <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                 </TabPane>,
-                 <TabPane tab='租赁信息' key='#leading'>
-                   <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
-                 </TabPane>]
+            {
+              (database === 'mysql' || database === 'redis') ?
+                <Tabs
+                  tabPosition='left'
+                  onTabClick={(e)=> this.onTabClick(e)}
+                  activeKey={this.state.activeTabKey}
+                >
+                  <TabPane tab='基础信息' key='#BaseInfo'>
+                    {
+                      this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
+                        domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                        currentData={this.props.currentData}
+                        databaseInfo={databaseInfo}
+                        storageValue={this.state.storageValue}
+                        database={this.props.database}
+                        dbName={dbName}
+                        scope= {this}
+                      />
+                    }
+                  </TabPane>
+                  <TabPane tab='存储' key='#Storage'>
+                    <Storage databaseInfo={databaseInfo} database={this.props.database}/>
+                  </TabPane>
+                  <TabPane tab='备份' key='#Backup'>
+                    <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
+                  </TabPane>
+                  <TabPane tab='配置管理' key='#ConfigManage'>
+                    <ConfigManagement database={database} databaseInfo={databaseInfo}/>
+                  </TabPane>
+                  { billingEnabled ?
+                    [<TabPane tab='访问方式' key='#VisitType'>
+                      <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                                  databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                    </TabPane>,
+                      <TabPane tab='事件' key='#events'>
+                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                      </TabPane>,
+                      <TabPane tab='租赁信息' key='#leading'>
+                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                      </TabPane>]
+                    :
+                    [<TabPane tab='访问方式' key='#VisitType'>
+                      <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                                  databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                    </TabPane>,
+                      <TabPane tab='事件' key='#events'>
+                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                      </TabPane>]
+                  }
+                </Tabs>
                 :
-                [<TabPane tab='访问方式' key='#VisitType'>
-                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
-                            databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
-                 </TabPane>,
-                <TabPane tab='事件' key='#events'>
-                  <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
-                </TabPane>]
-              }
-            </Tabs>
+                <Tabs
+                  tabPosition='left'
+                  onTabClick={(e)=> this.onTabClick(e)}
+                  activeKey={this.state.activeTabKey}
+                >
+                  <TabPane tab='基础信息' key='#BaseInfo'>
+                    {
+                      this.state.activeTabKey === '#BaseInfo' && <FormBaseInfo
+                        domainSuffix={domainSuffix} bindingIPs={bindingIPs}
+                        currentData={this.props.currentData}
+                        databaseInfo={databaseInfo}
+                        storageValue={this.state.storageValue}
+                        database={this.props.database}
+                        dbName={dbName}
+                        scope= {this}
+                      />
+                    }
+                  </TabPane>
+                  { billingEnabled ?
+                    [<TabPane tab='访问方式' key='#VisitType'>
+                      <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                                  databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                    </TabPane>,
+                      <TabPane tab='事件' key='#events'>
+                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                      </TabPane>,
+                      <TabPane tab='租赁信息' key='#leading'>
+                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                      </TabPane>]
+                    :
+                    [<TabPane tab='访问方式' key='#VisitType'>
+                      <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                                  databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                    </TabPane>,
+                      <TabPane tab='事件' key='#events'>
+                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                      </TabPane>]
+                  }
+                </Tabs>
+
+            }
           </div>
         </div>
         <Modal

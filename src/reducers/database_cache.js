@@ -76,7 +76,7 @@ function databaseAllList(state = {}, action) {
       const delState = cloneDeep(state)
       const databaseList = delState[clusterType].databaseList
       let findex = findIndex(databaseList, list=> {
-        return action.dbName === list.serivceName
+        return action.dbName === list.objectMeta.name
       })
       databaseList.splice(findex, 1)
       delState[clusterType].bak.splice(findex, 1)

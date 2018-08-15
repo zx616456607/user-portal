@@ -203,6 +203,7 @@ class Backup extends React.Component {
     this.setState({
       rollBackAlert: true,
       backupChain: point,
+    }, () => {
     })
   }
   delBackupPointAlert = () => {
@@ -246,7 +247,7 @@ class Backup extends React.Component {
       >
 
         {
-          backupChain.index === 0 && backupChain.backType === 'fullbackup' ?
+          backupChain.index === 0 && backupChain.masterBackup && backupChain.backType === 'fullbackup' ?
             <div className="dbClusterBackup-delPoint">
               <Col span={3} className="alert-icon">
                 <Icon type="exclamation-circle-o" />
@@ -314,7 +315,7 @@ class Backup extends React.Component {
       }
     } else if (database === 'redis') {
       switch (status) {
-        case '202':
+        case '500':
           return <div style={{ marginTop: -2 }}>
             备份失败
             <Tooltip title={`失败原因：${item.message && item.message}`}><Icon type="question-circle-o" style={{ marginLeft: 5 }} /></Tooltip>
@@ -323,7 +324,7 @@ class Backup extends React.Component {
           return '正在备份'
         case '200':
           return '完成备份'
-        case '':
+        case '202':
           return '正在备份'
         default:
           return '未知状态'
@@ -364,10 +365,15 @@ class Backup extends React.Component {
       }
     } else if (database === 'redis') {
       switch (status) {
-        case '202':
+        case '500':
           return {
             className: 'redis-err',
             color: '#f85a5a',
+          }
+        case '202':
+          return {
+            className: 'redis-err',
+            color: '#2db7f5',
           }
         case '0':
           return {
@@ -460,6 +466,19 @@ class Backup extends React.Component {
                 })
               },
             },
+            failed: {
+              func: err => {
+                if (err.statusCode === 500) {
+                  const reg = /already exists/g
+                  if (err.message && reg.test(err.message.message)) {
+                    notification.error('名称已存在，请核对后输入')
+                    this.setState({
+                      isFetching: false,
+                    })
+                  }
+                }
+              },
+            },
           })
       })
     }
@@ -481,6 +500,7 @@ class Backup extends React.Component {
       title="创建备份"
       onCancel={() => this.setState({
         manualBackupModalShow: false,
+        isFetching: false,
       })}
       confirmLoading = {this.state.isFetching}
       onOk={commitBackup}
@@ -576,9 +596,9 @@ class Backup extends React.Component {
                             <Col span={6} push={2}>
                               {
                                 k.status === 'Complete' ?
-                                  <Dropdown.Button overlay={this.backupPointmenu(k, i)} type="ghost">
-                                    <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-                                    <span onClick={() => this.rollBack(k)}>回滚</span>
+                                  <Dropdown.Button onClick={() => this.rollBack(k)} overlay={this.backupPointmenu(k, i)} type="ghost">
+                                    <TenxIcon type="rollback"size={13} style={{ marginRight: 4 }}/>
+                                    <span>回滚</span>
                                   </Dropdown.Button>
                                   :
                                   <Button icon="delete" onClick={() => this.delThis(k, i)} style={{ width: 95, background: '#fff' }}>
@@ -622,7 +642,7 @@ class Backup extends React.Component {
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
               <Col span={5}>
                 {
-                  v.chains[0].status === '202' ?
+                  v.chains[0].status === '500' ?
                     <Button icon="delete" onClick={() => this.delThis(v.chains[0], i)} style={{ width: 95, background: '#fff' }}>
                       删除
                     </Button>
@@ -664,7 +684,7 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           {
-            chainsData.length === 0 && database === 'mysql' ?
+            chainsData.length === 0 ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
