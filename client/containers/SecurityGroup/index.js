@@ -230,7 +230,7 @@ class SecurityGroup extends React.Component {
             {
               isolationStatus ?
                 <span className="proOpen">隔离其他项目访问</span> :
-                <span className="proClose">放通其他项目方案</span>
+                <span className="proClose">放通其他项目访问</span>
             }
             <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
               <Icon type="edit"/>修改

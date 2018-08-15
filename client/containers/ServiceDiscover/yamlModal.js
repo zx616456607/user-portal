@@ -55,7 +55,7 @@ class YamlModal extends React.Component {
       return notification.info('DNS 记录不能为空')
     }
     if (appDescYaml === yamlStr) {
-      return notification.info('未修改 DNS 记录')
+      return editItem()
     }
     delete body.status
     delete body.metadata.creationTimestamp
