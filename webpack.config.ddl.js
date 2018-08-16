@@ -39,6 +39,7 @@ const vendors = [
 ]
 
 module.exports = {
+  mode: 'production',
   devtool: '#cheap-module-eval-source-map',
   output: {
     path: path.join(__dirname, './static/webpack_dll'),
@@ -48,12 +49,14 @@ module.exports = {
   entry: {
     lib: vendors,
   },
+  optimization: {
+    noEmitOnErrors: true
+  },
   plugins: [
     new webpack.DllPlugin({
       path: path.join(__dirname, './manifest.json'),
       name: '[name]',
       context: __dirname,
     }),
-    new webpack.NoEmitOnErrorsPlugin(),
   ],
 }
