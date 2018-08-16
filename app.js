@@ -279,7 +279,7 @@ app.use(function* pageNotFound(next) {
 ////////////////////////////////////////////////////////////////////////////////
 //////////////// Only add routes for standard mode /////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-if (config.running_mode === constants.STANDARD_MODE) {
+if (process.env.RUNNING_MODE === 'standard') {
   const standardRoutes = require('./routes/_standard/api')
   const standardNoAuthRoutes = require('./routes/_standard/no_auth')
   app.use(standardRoutes(Router))

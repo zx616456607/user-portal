@@ -24,6 +24,11 @@ const utils = require('../utils')
 const securityUtil = require('../utils/security')
 const harbor = require('../controllers/registry_harbor')
 
+let Wechat
+if (process.env.RUNNING_MODE === 'standard') {
+  Wechat = require('../3rd_account/wechat')
+}
+
 /**
  * Set user current config: teamspace, cluster
  * cookie[USER_CURRENT_CONFIG]=`${teamID},${space.namespace},${clusterID},${onbehalfuser}`
@@ -117,7 +122,6 @@ exports.verifyUser = function* (next) {
     data.accountID = accountID
     // Login and bind wechat
     if (body.action === 'bind') {
-      const Wechat = require('../3rd_account/wechat')
       const wechat = new Wechat()
       const access_token = yield wechat.initWechat()
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
