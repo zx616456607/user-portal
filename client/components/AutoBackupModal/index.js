@@ -46,11 +46,7 @@ class AutoBackupModal extends React.Component {
       clusterID,
       databaseInfo,
       onSubmitSuccess,
-      updateAutoBackupSet,
-      autoBackupDetele,
-      autoBackupSet,
     } = this.props
-
     const { hour, minutes, daysConvert } = this.state
     // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
     const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
@@ -59,21 +55,23 @@ class AutoBackupModal extends React.Component {
       // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口
       if (database === 'redis') {
         const postData = { schedule: '' }
-        updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-          success: {
-            func: () => {
-              closeModal()
-              notification.success('关闭自动备份成功')
-              this.setState({ pending: false })
-              setTimeout(() => {
-                onSubmitSuccess()
-              })
-
+        this.props.updateAutoBackupSet(
+          clusterID,
+          database,
+          databaseInfo.objectMeta.name, postData, {
+            success: {
+              func: () => {
+                closeModal()
+                notification.success('关闭自动备份成功')
+                this.setState({ pending: false })
+                setTimeout(() => {
+                  onSubmitSuccess()
+                })
+              },
             },
-          },
-        })
+          })
       } else if (database === 'mysql') {
-        autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
+        this.props.autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
           success: {
             func: () => {
               notification.success('关闭自动备份成功')
@@ -96,22 +94,22 @@ class AutoBackupModal extends React.Component {
       const postData = { schedule }
       // 如果已经设置过自动备份，说明要修改，调用修改接口
       if (this.props.hadSetAutoBackup) {
-        updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-          success: {
-            func: () => {
-              closeModal()
-              notification.success('修改自动备份成功')
-              this.setState({ pending: false })
-              setTimeout(() => {
-                onSubmitSuccess()
-              })
-
+        this.props.updateAutoBackupSet(
+          clusterID, database, databaseInfo.objectMeta.name, postData, {
+            success: {
+              func: () => {
+                closeModal()
+                notification.success('修改自动备份成功')
+                this.setState({ pending: false })
+                setTimeout(() => {
+                  onSubmitSuccess()
+                })
+              },
             },
-          },
-        })
+          })
       } else {
         // 否则是已经关闭了自动备份，需要调用设置接口
-        autoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
+        this.props.autoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
           success: {
             func: () => {
               closeModal()
@@ -166,7 +164,7 @@ class AutoBackupModal extends React.Component {
       }
     }
   }
-  componentWillReceiveProps(nextProps) {
+  getDerivedStateFromProps(nextProps) {
     if (this.props.hadSetAutoBackup !== nextProps.hadSetAutoBackup) {
       this.setState({
         autoBackupSwitch: nextProps.hadSetAutoBackup,

@@ -24,13 +24,13 @@ class ConfigManagement extends React.Component {
     file: 'redis.conf',
   }
   componentDidMount() {
-    const { database, databaseInfo, clusterID, getMySqlConfig } = this.props
+    const { database, databaseInfo, clusterID } = this.props
     if (database === 'mysql') {
       this.setState({
         path: '/etc/mysql',
         file: 'mysql.conf',
       })
-      getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
+      this.props.getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
         success: {
           func: res => {
             this.setState({
@@ -61,31 +61,31 @@ class ConfigManagement extends React.Component {
       if (errors) {
         return
       }
-      const { database, databaseInfo, clusterID, editDatabaseCluster } = this.props
+      const { database, databaseInfo, clusterID } = this.props
       if (database === 'mysql') {
-        const { updateMySqlConfig } = this.props
-        updateMySqlConfig(clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
-          success: {
-            func: res => {
-              this.setState({
-                isEdit: false,
-                configContent: res.data.config,
-                configContentDefault: res.data.config,
-              })
+        this.props.updateMySqlConfig(
+          clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
+            success: {
+              func: res => {
+                this.setState({
+                  isEdit: false,
+                  configContent: res.data.config,
+                  configContentDefault: res.data.config,
+                })
+              },
             },
-          },
-          failed: {
-            func: () => {
-              const notification = new NotificationHandler()
-              notification.warn('更新MySQL配置失败')
+            failed: {
+              func: () => {
+                const notification = new NotificationHandler()
+                notification.warn('更新MySQL配置失败')
+              },
             },
-          },
-        })
+          })
       } else if (database === 'redis') {
         const body = {
           config: this.state.configContent,
         }
-        editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
+        this.props.editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
           success: {
             func: res => {
               this.setState({

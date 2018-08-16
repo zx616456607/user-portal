@@ -56,8 +56,8 @@ class Backup extends React.Component {
   }
 
   getList = () => {
-    const { clusterID, database, getbackupChain, databaseInfo } = this.props
-    return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
+    const { clusterID, database, databaseInfo } = this.props
+    return this.props.getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
@@ -87,8 +87,8 @@ class Backup extends React.Component {
     }) // 获取备份链数据
   }
   checkAutoBackupExist = () => {
-    const { clusterID, database, databaseInfo, checkAutoBackupExist } = this.props
-    checkAutoBackupExist(clusterID, database, databaseInfo.objectMeta.name, {
+    const { clusterID, database, databaseInfo } = this.props
+    this.props.checkAutoBackupExist(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (database === 'redis') {
@@ -152,7 +152,7 @@ class Backup extends React.Component {
   rollBackAlert = () => {
     const confirmRollBack = () => {
       const {
-        postRollback, clusterID, database, databaseInfo,
+        clusterID, database, databaseInfo,
       } = this.props
       const { name } = this.state.backupChain
       let urlName = name
@@ -160,7 +160,7 @@ class Backup extends React.Component {
         urlName = databaseInfo.objectMeta.name
       }
       const body = { name }
-      postRollback(clusterID, database, urlName, body, {
+      this.props.postRollback(clusterID, database, urlName, body, {
         success: {
           func: () => {
             notification.success('回滚操作成功')
@@ -220,18 +220,20 @@ class Backup extends React.Component {
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
     const confirmDel = () => {
       const {
-        deleteManualBackupChain, clusterID, databaseInfo, database,
+        clusterID, databaseInfo, database,
       } = this.props
-      deleteManualBackupChain(clusterID, database, databaseInfo.objectMeta.name, backupChain.name, {
-        success: {
-          func: () => {
-            notification.success('删除成功')
-            setTimeout(() => {
-              this.getList()
-            })
+      this.props.deleteManualBackupChain(
+        clusterID, database,
+        databaseInfo.objectMeta.name, backupChain.name, {
+          success: {
+            func: () => {
+              notification.success('删除成功')
+              setTimeout(() => {
+                this.getList()
+              })
+            },
           },
-        },
-      })
+        })
       this.setState({
         delThis: false,
       })
@@ -481,13 +483,11 @@ class Backup extends React.Component {
           isFetching: true,
         })
         const {
-          createBackupChain,
           databaseInfo,
-          database,
           clusterID } = this.props
         const body = database === 'redis' ? { name: value.name } : { name: value.name, type }
-        createBackupChain(clusterID,
-          database,
+        this.props.createBackupChain(clusterID,
+          this.props.database,
           databaseInfo.objectMeta.name,
           body, {
             success: {
