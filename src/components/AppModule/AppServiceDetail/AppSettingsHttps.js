@@ -463,8 +463,9 @@ class AppSettingsHttps extends Component {
         onCancel={()=> this.setState({deleteModal: false})}
         onOk={()=> this.deleteCertificates()}
         >
-        <div id="StateBtnModal">
-          <div className="confirm"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定删除证书：{this.props.serviceName}</div>
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+          您是否确定删除证书：{this.props.serviceName}？
         </div>
       </Modal>
         <div className="notice">Tips：HTTPS开启后，原有HTTP服务会自动跳转到HTTPS</div>
