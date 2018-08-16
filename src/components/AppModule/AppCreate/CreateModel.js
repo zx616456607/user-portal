@@ -28,6 +28,7 @@ import wrapManage from '../../../assets/img/app/wrapManage.png'
 import stackIcon from '../../../assets/img/app/stackIcon.svg'
 import stackIconHover from '../../../assets/img/app/stackIconHover.svg'
 import { genRandomString, toQuerystring } from '../../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -170,11 +171,7 @@ class CreateModel extends Component {
                   <p>镜像仓库</p>
                   <span>通过镜像仓库创建应用</span>
                 </div>
-                <svg className="commonSelectedImg">
-                  {/*@#selected*/}
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
+                <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "image_store" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "image_store")}>
                 <img src={createModel == "image_store" ? imageStoreHover : imageStore} />
@@ -182,11 +179,7 @@ class CreateModel extends Component {
                   <p>镜像商店</p>
                   <span>通过镜像商店创建应用</span>
                 </div>
-                <svg className="commonSelectedImg">
-                  {/*@#selected*/}
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
+                <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "deploy_wrap" ? "deploy_wrap commonBox selectedBox" : "deploy_wrap commonBox"} onClick={this.selectCreateModel.bind(this, "deploy_wrap")}>
                 <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
@@ -194,11 +187,7 @@ class CreateModel extends Component {
                   <p>应用包部署</p>
                   <span>通过应用包文件创建应用</span>
                 </div>
-                <svg className="commonSelectedImg">
-                  {/*@#selected*/}
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
+                <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "wrap_store" ? " commonBox selectedBox" : " commonBox"} onClick={this.selectCreateModel.bind(this, "wrap_store")}>
                 <img src={createModel == "wrap_store" ? appStoreHover : appStore} />
@@ -206,11 +195,7 @@ class CreateModel extends Component {
                   <p>应用包商店</p>
                   <span>通过应用商店创建应用</span>
                 </div>
-                <svg className="commonSelectedImg">
-                  {/*@#selected*/}
-                  <use xlinkHref="#appcreatemodelselect" />
-                </svg>
-                <i className="fa fa-check"></i>
+                <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <Tooltip title={moreService ? '添加服务暂不支持应用模板' : ''}>
                 <div className={moreService ? "fastCreate disabled" : createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"}
@@ -220,11 +205,7 @@ class CreateModel extends Component {
                     <p>应用模板</p>
                     <span>通过应用模板创建应用</span>
                   </div>
-                  <svg className="commonSelectedImg">
-                    {/*@#selected*/}
-                    <use xlinkHref="#appcreatemodelselect" />
-                  </svg>
-                  <i className="fa fa-check"></i>
+                  <TenxIcon type="selected" className="selectedIcon"/>
                 </div>
               </Tooltip>
             </div>

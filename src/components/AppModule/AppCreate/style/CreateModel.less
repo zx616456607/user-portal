@@ -64,6 +64,11 @@
       .disabled{
         background: #f7f7f7;
       }
+      .commonBox {
+        .selectedIcon {
+          opacity: 0;
+        }
+      }
       .commonBox:hover {
         cursor: pointer;
         border: 2px solid #00a1ea;
@@ -75,6 +80,15 @@
       .selectedBox{
         border: 2px solid #00a1ea;
         color:#00a1ea;
+        position: relative;
+        overflow: hidden;
+        .selectedIcon {
+          opacity: 1 !important;
+          font-size: 30px;
+          position: absolute;
+          bottom: 0;
+          right: 0;
+        }
         use{
           fill: #00a1ea !important;
         }
