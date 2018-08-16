@@ -94,6 +94,17 @@ class Project extends Component {
             }
           },
           isAsync: true,
+        },
+        failed: {
+          func: () => {
+            this.setState({
+              data: [],
+              allData: [],
+              searchInput: "",
+              spinning: false,
+            })
+          },
+          isAsync: true,
         }
       })
     })

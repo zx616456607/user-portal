@@ -1167,9 +1167,9 @@ class hostList extends Component {
         onOk={this.deleteClusterNode}
         onCancel={this.closeDeleteModal}
       >
-        <div style={{ color: '#00a0ea', height: "50px" }}>
-          <Icon type='exclamation-circle-o' />
-          &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+          确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
         </div>
         <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
       </Modal>

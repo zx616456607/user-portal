@@ -571,7 +571,10 @@ class AutoScale extends React.Component {
             className="autoScaleDeleteModal"
             footer={this.renderFooter()}
           >
-            <div className="deleteHint"><i className="fa fa-exclamation-triangle"/>删除策略后无法被找回，是否确认删除？</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              删除策略后无法被找回，是否确认删除？
+            </div>
           </Modal>
           <Table
             className="autoScaleTable"

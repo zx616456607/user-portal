@@ -1323,7 +1323,10 @@ class ModalDetail extends Component {
         <Modal title="删除集群操作" visible={this.state.delModal}
           onOk={()=> this.deleteDatebaseCluster(dbName)} onCancel={()=> this.setState({delModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除数据库 { dbName }?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除数据库 { dbName }?
+          </div>
         </Modal>
         <div className='bottomBox'>
           <div className='siderBox'>
