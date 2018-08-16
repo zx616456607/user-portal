@@ -8,15 +8,16 @@
  * @author GaoJian
  */
 
-import React, { PropTypes } from 'react'
+import React from 'react'
 import QueueAnim from 'rc-queue-anim'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon, Radio, Spin } from 'antd'
-import { CreateDbCluster, checkDbName } from '../../../../src/actions/database_cache'
-import { setCurrent } from '../../../../src/actions/entities'
-import { getProjectVisibleClusters, ListProjects } from '../../../../src/actions/project'
-import { getClusterStorageList } from '../../../../src/actions/cluster'
+import * as databaseCacheActions from '../../../../src/actions/database_cache'
+import * as entitiesActions from '../../../../src/actions/entities'
+import * as projectActions from '../../../../src/actions/project'
+import * as clusterActions from '../../../../src/actions/cluster'
 import NotificationHandler from '../../../../src/components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT, MY_SPACE } from '../../../../src/constants'
 import { parseAmount } from '../../../../src/common/tools.js'
@@ -29,21 +30,21 @@ const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-let CreateStatefulDatabase = React.createClass({
-  getInitialState() {
-    return {
+class CreateStatefulDatabase extends React.Component {
+  state = {
+    currentType: '',
+    showPwd: 'text',
+    firstFocues: true,
+    onselectCluster: true,
+  }
+  componentDidMount() {
+    this.setState({
       currentType: this.props.database,
-      showPwd: 'text',
-      firstFocues: true,
-      onselectCluster: true,
-    }
-  },
-  componentWillMount() {
-    const { ListProjects } = this.props
-    ListProjects({ size: 0 })
+    })
+    this.props.ListProjects({ size: 0 })
     this.loadStorageClassList()
-  },
-  componentWillReceiveProps(nextProps) {
+  }
+  getDerivedStateFromProps(nextProps) {
     // if create box close return default select cluster
     if (!nextProps.scope.state.CreateDatabaseModalShow) {
       this.setState({ onselectCluster: true, loading: false })
@@ -54,8 +55,8 @@ let CreateStatefulDatabase = React.createClass({
     if (this.props.visible !== nextProps.visible && nextProps.visible) {
       this.loadStorageClassList()
     }
-  },
-  onChangeCluster(clusterID) {
+  }
+  onChangeCluster = clusterID => {
     this.setState({ onselectCluster: false })
     const { projectVisibleClusters, form, space, setCurrent } = this.props
     const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
@@ -70,18 +71,18 @@ let CreateStatefulDatabase = React.createClass({
       }
       return true
     })
-  },
-  selectDatabaseType(database) {
+  }
+  selectDatabaseType = database => {
     // this funciton for user select different database
     this.setState({
       currentType: database,
     });
     document.getElementById('dbName').focus()
-  },
-  onChangeNamespace(namespace) {
+  }
+  onChangeNamespace = namespace => {
     // this function for user change the namespace
     // when the namespace is changed, the function would be get all clusters of new namespace
-    const { projects, getProjectVisibleClusters, setCurrent, form } = this.props
+    const { projects, form, setCurrent, getProjectVisibleClusters } = this.props
     projects.every(space => {
       if (space.namespace === namespace) {
         setCurrent({
@@ -109,14 +110,14 @@ let CreateStatefulDatabase = React.createClass({
       }
       return true
     })
-  },
-  databaseExists(rule, value, callback) {
+  }
+  databaseExists = (rule, value, callback) => {
     // this function for check the new database name is exist or not
-    const { checkDbName, cluster } = this.props;
     if (!value) {
       callback();
       return
     }
+    const { cluster, checkDbName } = this.props;
     setTimeout(() => {
       checkDbName(cluster, value, {
         success: {
@@ -137,8 +138,8 @@ let CreateStatefulDatabase = React.createClass({
         },
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
-  },
-  dbNameIsLegal(rule, value, callback) {
+  }
+  dbNameIsLegal = (rule, value, callback) => {
     let flag = false;
     if (!validateK8sResourceForServiceName(value)) {
       flag = true
@@ -152,8 +153,8 @@ let CreateStatefulDatabase = React.createClass({
     if (!flag) {
       callback();
     }
-  },
-  checkPwd() {
+  }
+  checkPwd = () => {
     // this function for user change the password box input type
     // when the type is password and change to the text, user could see the password
     // when the type is text and change to the password, user couldn't see the password
@@ -166,8 +167,8 @@ let CreateStatefulDatabase = React.createClass({
         showPwd: 'password',
       });
     }
-  },
-  setPsswordType() {
+  }
+  setPsswordType = () => {
     if (this.state.firstFocues) {
       this.setState({
         showPwd: 'password',
@@ -175,8 +176,8 @@ let CreateStatefulDatabase = React.createClass({
       });
 
     }
-  },
-  handleReset(e) {
+  }
+  handleReset = e => {
     // this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
@@ -184,13 +185,13 @@ let CreateStatefulDatabase = React.createClass({
     scope.setState({
       CreateDatabaseModalShow: false,
     });
-  },
-  handleSubmit(e) {
+  }
+  handleSubmit = e => {
     // this function for user submit the form
     e.preventDefault();
     const _this = this;
-    const { scope, CreateDbCluster, setCurrent, space } = this.props;
-    const { projects, projectVisibleClusters, form } = this.props;
+    const { scope, space } = this.props;
+    const { projects, projectVisibleClusters, form, CreateDbCluster, setCurrent } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (errors) {
@@ -293,8 +294,8 @@ let CreateStatefulDatabase = React.createClass({
       });
 
     });
-  },
-  getDefaultOutClusterValue() {
+  }
+  getDefaultOutClusterValue = () => {
     const { clusterProxy, cluster } = this.props
     const clusterId = camelize(cluster)
     let defaultValue
@@ -308,8 +309,8 @@ let CreateStatefulDatabase = React.createClass({
       }
     })
     return defaultValue
-  },
-  renderSelectOption() {
+  }
+  renderSelectOption = () => {
     const { clusterProxy, cluster } = this.props
     const clusterId = camelize(cluster)
     if (!clusterProxy ||
@@ -324,12 +325,12 @@ let CreateStatefulDatabase = React.createClass({
       }
       return <Option value={item.id} key={item.address + index}>{name}: {item.name}</Option>
     })
-  },
-  loadStorageClassList() {
-    const { getClusterStorageList, cluster } = this.props
+  }
+  loadStorageClassList = () => {
+    const { cluster, getClusterStorageList } = this.props
     getClusterStorageList(cluster)
-  },
-  renderStorageClassListOption() {
+  }
+  renderStorageClassListOption = () => {
     const { storageClassList } = this.props
     const { isFetching, cephList } = storageClassList
     let option = [ <Option
@@ -347,7 +348,7 @@ let CreateStatefulDatabase = React.createClass({
       })
     }
     return option
-  },
+  }
   render() {
     const { isFetching, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
@@ -566,8 +567,8 @@ let CreateStatefulDatabase = React.createClass({
         </div>
       </QueueAnim>
     )
-  },
-});
+  }
+}
 
 function mapStateToProps(state) {
   const { cluster, space } = state.entities.current
@@ -608,9 +609,9 @@ function mapStateToProps(state) {
 
 }
 
-CreateStatefulDatabase = createForm()(CreateStatefulDatabase);
+let CreateStatefulDatabaseModal = createForm()(CreateStatefulDatabase);
 
-CreateStatefulDatabase.propTypes = {
+CreateStatefulDatabaseModal.propTypes = {
   intl: PropTypes.object.isRequired,
   CreateDbCluster: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
@@ -618,15 +619,15 @@ CreateStatefulDatabase.propTypes = {
   visible: PropTypes.bool.isRequired,
 }
 
-CreateStatefulDatabase = injectIntl(CreateStatefulDatabase, {
+CreateStatefulDatabaseModal = injectIntl(CreateStatefulDatabaseModal, {
   withRef: true,
 })
 
 export default connect(mapStateToProps, {
-  CreateDbCluster,
-  setCurrent,
-  getProjectVisibleClusters,
-  ListProjects,
-  getClusterStorageList,
-  checkDbName,
-})(CreateStatefulDatabase)
+  CreateDbCluster: databaseCacheActions.CreateDbCluster,
+  setCurrent: entitiesActions.setCurrent,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
+  ListProjects: projectActions.ListProjects,
+  getClusterStorageList: clusterActions.getClusterStorageList,
+  checkDbName: databaseCacheActions.checkDbName,
+})(CreateStatefulDatabaseModal)

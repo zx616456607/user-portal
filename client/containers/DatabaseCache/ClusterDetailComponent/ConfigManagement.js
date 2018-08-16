@@ -12,7 +12,7 @@ import React from 'react'
 import './style/configManagement.less'
 import { Form, Input, Button } from 'antd'
 import { connect } from 'react-redux'
-import { getMySqlConfig, updateMySqlConfig, editDatabaseCluster } from '../../../../src/actions/database_cache'
+import * as configManageActions from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 const FormItem = Form.Item
 class ConfigManagement extends React.Component {
@@ -61,26 +61,29 @@ class ConfigManagement extends React.Component {
       if (errors) {
         return
       }
-      const { database, databaseInfo, clusterID, editDatabaseCluster } = this.props
+      const { database,
+        databaseInfo,
+        clusterID,
+        updateMySqlConfig, editDatabaseCluster } = this.props
       if (database === 'mysql') {
-        const { updateMySqlConfig } = this.props
-        updateMySqlConfig(clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
-          success: {
-            func: res => {
-              this.setState({
-                isEdit: false,
-                configContent: res.data.config,
-                configContentDefault: res.data.config,
-              })
+        updateMySqlConfig(
+          clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
+            success: {
+              func: res => {
+                this.setState({
+                  isEdit: false,
+                  configContent: res.data.config,
+                  configContentDefault: res.data.config,
+                })
+              },
             },
-          },
-          failed: {
-            func: () => {
-              const notification = new NotificationHandler()
-              notification.warn('更新MySQL配置失败')
+            failed: {
+              func: () => {
+                const notification = new NotificationHandler()
+                notification.warn('更新MySQL配置失败')
+              },
             },
-          },
-        })
+          })
       } else if (database === 'redis') {
         const body = {
           config: this.state.configContent,
@@ -181,7 +184,7 @@ const mapStateToProps = state => {
 }
 const FormConfigManagement = Form.create()(ConfigManagement)
 export default connect(mapStateToProps, {
-  getMySqlConfig, // 获取mysql集群配置
-  updateMySqlConfig, // 更新mysql集群配置
-  editDatabaseCluster, // 修改集群
+  getMySqlConfig: configManageActions.getMySqlConfig, // 获取mysql集群配置
+  updateMySqlConfig: configManageActions.updateMySqlConfig, // 更新mysql集群配置
+  editDatabaseCluster: configManageActions.editDatabaseCluster, // 修改集群
 })(FormConfigManagement)

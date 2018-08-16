@@ -303,6 +303,8 @@ class RedisDatabase extends Component {
     })
   }
   setAutobackupSuccess = () => {
+    const { loadDbCacheList, cluster, database } = this.props
+    loadDbCacheList(cluster, database)
     this.setState({
       autoBackupModalShow: false,
     })
@@ -371,16 +373,19 @@ class RedisDatabase extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
-        <AutoBackupModal
-          isShow={this.state.autoBackupModalShow}
-          closeModal={() => this.setState({
-            autoBackupModalShow: false,
-          })}
-          hadSetAutoBackup={this.state.hadSetAutoBackup}
-          onSubmitSuccess={this.setAutobackupSuccess}
-          databaseInfo={this.state.currentClusterNeedBackup}
-          database={this.props.database}
-        />
+        {
+          this.state.autoBackupModalShow &&
+            <AutoBackupModal
+              isShow={this.state.autoBackupModalShow}
+              closeModal={() => this.setState({
+                autoBackupModalShow: false,
+              })}
+              hadSetAutoBackup={this.state.hadSetAutoBackup}
+              onSubmitSuccess={this.setAutobackupSuccess}
+              databaseInfo={this.state.currentClusterNeedBackup}
+              database={this.props.database}
+            />
+        }
 
       </QueueAnim>
     )
