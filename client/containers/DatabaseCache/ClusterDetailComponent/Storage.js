@@ -45,39 +45,37 @@ class Storage extends React.Component {
     })
   }
   confirmExtend = () => {
-    const { cluster, databaseInfo, database, expendDatabaseCluster } = this.props
+    const { cluster, databaseInfo, database } = this.props
     const data = {
       expandedSize: `${this.state.volumeSize}Mi`,
     }
-    expendDatabaseCluster(cluster.clusterID, database, databaseInfo.objectMeta.name, data, {
-      success: {
-        func: res => {
-          if (database === 'redis') {
-            this.setState({
-              storage: parseInt(res.data.spec.expandedSize),
-              volumeSizemin: parseInt(res.data.spec.expandedSize),
-              volumeSize: parseInt(res.data.spec.expandedSize),
-            })
-          } else if (database === 'mysql') {
-            if (res.data.expandedSize.indexOf('Gi') >= 0) {
-              res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
+    this.props.expendDatabaseCluster(cluster.clusterID,
+      database, databaseInfo.objectMeta.name, data, {
+        success: {
+          func: res => {
+            if (database === 'redis') {
+              this.setState({
+                storage: parseInt(res.data.spec.expandedSize),
+                volumeSizemin: parseInt(res.data.spec.expandedSize),
+                volumeSize: parseInt(res.data.spec.expandedSize),
+              })
+            } else if (database === 'mysql') {
+              if (res.data.expandedSize.indexOf('Gi') >= 0) {
+                res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
+              }
+              this.setState({
+                storage: parseInt(res.data.expandedSize),
+                volumeSizemin: parseInt(res.data.expandedSize),
+                volumeSize: parseInt(res.data.expandedSize),
+              })
             }
-            this.setState({
-              storage: parseInt(res.data.expandedSize),
-              volumeSizemin: parseInt(res.data.expandedSize),
-              volumeSize: parseInt(res.data.expandedSize),
-            })
-
-          }
-          notification.success('扩容成功')
+            notification.success('扩容成功')
+          },
         },
-      },
-      failed: {
-        func: () => {
-
+        failed: {
+          func: () => {},
         },
-      },
-    })
+      })
     this.setState({
       extendModal: false,
     })

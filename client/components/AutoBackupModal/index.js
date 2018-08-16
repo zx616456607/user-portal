@@ -171,10 +171,10 @@ class AutoBackupModal extends React.Component {
       })
     }
     if (nextProps.hadSetAutoBackup && nextProps.isShow) {
-      const { checkAutoBackupExist, databaseInfo, clusterID, database } = nextProps
+      const { databaseInfo, clusterID, database } = nextProps
       const name = databaseInfo.objectMeta.name
       if (this.state.flag) {
-        checkAutoBackupExist(clusterID, database, name, {
+        this.props.checkAutoBackupExist(clusterID, database, name, {
           success: {
             func: res => {
               this.setState({
