@@ -76,7 +76,9 @@ class Network extends Component {
       option.addSeries(dataArr, `${item.containerName} 上传`)
     })
     option.setXAxisMinAndMax(minValue)
-    option.setGirdForDataNetWork(networkTransmitted.data && networkReceived.data.length + networkReceived.data && networkReceived.data.length, events)
+    if (networkTransmitted.data && networkReceived.data) {
+      option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length, events)
+    }
     return (
       <div className="chartBox">
         <span className="freshTime">

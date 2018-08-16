@@ -8,37 +8,29 @@
  * @author Zhangpc
  */
 
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var WebpackMd5Hash = require('webpack-md5-hash')
-var tsImportPluginFactory = require('ts-import-plugin')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var postcssConfig = require('./webpack.config.postcss')
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WebpackMd5Hash = require('webpack-md5-hash')
+const tsImportPluginFactory = require('ts-import-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const postcssConfig = require('./webpack.config.postcss')
+const webpack_base = require('./webpack.config.base')
+const webpackMerge = require('webpack-merge')
+const UglifyJsPlugin=require('uglifyjs-webpack-plugin');
 
-module.exports = {
+module.exports = webpackMerge(webpack_base, {
+  mode: 'production',
   // devtool: 'cheap-source-map',
   // !入口文件的顺序不能动！
   entry: {
     main: './src/entry/index.js',
     zh: './src/entry/zh.js',
     en: './src/entry/en.js',
-    vendor: [
-      '@babel/polyfill',
-      'echarts',
-      'moment',
-      'js-yaml',
-      'codemirror',
-      'jquery'
-    ],
   },
 
   resolve: {
-    modules: [
-      path.join(__dirname, './src'),
-      'node_modules',
-    ],
-    extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
     alias: {
       '@': path.join(__dirname, './src'),
     },
@@ -55,27 +47,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-            getCustomTransformers: () => ({
-              before: [
-                tsImportPluginFactory({
-                  libraryName: 'antd',
-                  libraryDirectory: 'lib',
-                })
-              ]
-            }),
-            compilerOptions: {
-              module: 'es2015'
-            }
-          },
-        },
-        exclude: /node_modules/
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: [
@@ -84,67 +55,80 @@ module.exports = {
         ]
       },
       {
-  　　　 test: /\.(jpe?g|png|gif|svg)$/,
-        loader: 'url-loader',
-        options: {
-          limit: 5192, // 5KB 以下图片自动转成 base64 码
-          name: 'img/[name].[hash:8].[ext]',
-        },
-  　　 },
-      {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                minimize: true,
-              },
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              minimize: true,
             },
-            {
-              loader: 'postcss-loader',
-              options: postcssConfig,
-            },
-          ],
-        }),
+          },
+          {
+            loader: 'postcss-loader',
+            options: postcssConfig,
+          },
+        ],
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                minimize: true,
-              },
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              minimize: true,
             },
-            {
-              loader: 'less-loader',
-              options: {
-                modifyVars: {
-                  // "@primary-color": "#2db7f5",
-                  // "@success-color": "#5cb85c",
-                  // "@warning-color": "#ffbf00",
-                  // "@error-color": "#f85a5a",
-                  // "@a-hover-color": "#57cfff",
-                  // "@font-size-base": "12px",
-                  "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
-                  '@tenx-icon-url': "'/font/tenx-icon/iconfont'",
-                }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              modifyVars: {
+                // "@primary-color": "#2db7f5",
+                // "@success-color": "#5cb85c",
+                // "@warning-color": "#ffbf00",
+                // "@error-color": "#f85a5a",
+                // "@a-hover-color": "#57cfff",
+                // "@font-size-base": "12px",
+                "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
+                '@tenx-icon-url': "'/font/tenx-icon/iconfont'",
               }
-            },
-            {
-              loader: 'postcss-loader',
-              options: postcssConfig,
-            },
-          ],
-        }),
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: postcssConfig,
+          },
+        ],
       },
     ]
   },
 
+  optimization: {
+    // splitChunks: {
+    //   cacheGroups: {
+    //     commons: {
+    //       name: "commons",
+    //       chunks: 'initial',
+    //       minChunks: 2
+    //     },
+    //     vendors: {
+    //       name: 'vendors',
+    //       minChunks: Infinity,
+    //     }
+    //   }
+    // },
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          sourceMap: true,
+          comments: false,
+          unused: true,
+          dead_code: true,
+        }
+      })
+    ]
+  },
   plugins: [
     new HtmlWebpackPlugin({
       inject: false, // disabled inject
@@ -165,29 +149,32 @@ module.exports = {
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
     new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      comments: false,
-      unused: true,
-      dead_code: true,
-    }),
-    new webpack.NoEmitOnErrorsPlugin(),
-    new ExtractTextPlugin({
+    // new webpack.optimize.UglifyJsPlugin({
+    //   sourceMap: true,
+    //   comments: false,
+    //   unused: true,
+    //   dead_code: true,
+    // }),
+    // new ExtractTextPlugin({
+    //   filename: 'styles.[contenthash:8].css',
+    //   allChunks: true,
+    // }),
+    new MiniCssExtractPlugin({
       filename: 'styles.[contenthash:8].css',
-      allChunks: true,
+      chunkFilename: '[id].css',
+      // allChunks: true,
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      filename: 'vendor.[chunkhash:8].js',
-      // (Give the chunk a different name)
-      minChunks: Infinity,
-      // (with more entries, this ensures that no other module
-      //  goes into the vendor chunk)
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons',
-      filename: 'commons.[hash:8].js',
-    }),
-    new webpack.NoEmitOnErrorsPlugin(),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'vendor',
+    //   filename: 'vendor.[chunkhash:8].js',
+    //   // (Give the chunk a different name)
+    //   minChunks: Infinity,
+    //   // (with more entries, this ensures that no other module
+    //   //  goes into the vendor chunk)
+    // }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'commons',
+    //   filename: 'commons.[hash:8].js',
+    // }),
   ],
-}
+})

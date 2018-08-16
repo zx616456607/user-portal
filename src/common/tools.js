@@ -806,3 +806,16 @@ export const sleep = (time = 50) => {
     setTimeout(resolve, time)
   })
 }
+
+/**
+ * 统计类型为服务时，监控面板的图例显示容易重叠，先去掉名称中的数字串
+ * @param name
+ * @returns {*}
+ */
+export const serviceNameCutForMetric = name => {
+  if (!name) return name
+  name = name.split('-')
+  name.splice(-2, 1)
+  name = name.join('-')
+  return name
+}

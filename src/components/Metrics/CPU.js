@@ -67,7 +67,9 @@ class CPU extends Component {
       option.addSeries(dataArr, item.containerName)
     })
     option.setXAxisMinAndMax(minValue)
-    option.setGirdForDataCommon(data&&data.length)
+    if (data) {
+      option.setGirdForDataCommon(data.length)
+    }
     return (
       <div className="chartBox">
         <span className="freshTime">

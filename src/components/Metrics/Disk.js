@@ -77,8 +77,9 @@ class Disk extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-
-    option.setGirdForDataNetWork(diskReadIo.data && diskReadIo.data.length + diskWriteIo.data.length, events)
+    if (diskReadIo.data && diskWriteIo.data) {
+      option.setGirdForDataNetWork(diskReadIo.data.length + diskWriteIo.data.length, events)
+    }
     return (
       <div className="chartBox">
         <span className="freshTime">
