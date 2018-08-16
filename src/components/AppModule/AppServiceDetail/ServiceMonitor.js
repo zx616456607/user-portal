@@ -279,7 +279,7 @@ class ServiceMonitior extends Component {
           const { data } = res.response.result
           if (!isEmpty(data)) {
             const {cpu} = data[0]
-            const containers = cpu.map(_item => serviceNameCutForMetric(_item.containerName))
+            const containers = cpu.map(_item => ({ name: serviceNameCutForMetric(_item.containerName) }))
             this.setState({
               containers,
             })
@@ -398,9 +398,10 @@ class ServiceMonitior extends Component {
       <div id="ServiceMonitior">
         <div className="serviceInnerMonitor">
           <Row type="flex" align={"middle"} justify={"space-around"}>
-            <Col span={4} id="popover-wrapper" style={{ textAlign: 'right' }}>
+            <Col span={6} id="popover-wrapper" style={{ paddingLeft: 8 }}>
               <Popover
                 content={this.renderContent()}
+                placement={'bottom'}
                 trigger={'click'}
                 visible={visible}
                 overlayClassName="monitor-filter-content"
@@ -412,7 +413,7 @@ class ServiceMonitior extends Component {
                 </span>
               </Popover>
             </Col>
-            <Col span={20}>
+            <Col span={18}>
               <TimeControl onChange={this.handleTimeChange}/>
             </Col>
           </Row>
