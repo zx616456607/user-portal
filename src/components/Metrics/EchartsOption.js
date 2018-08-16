@@ -11,7 +11,7 @@
 
 import ColorHash from 'color-hash'
 const colorHash = new ColorHash()
-import { formatDate, genRandomString } from "../../common/tools";
+import { formatDate, serviceNameCutForMetric } from "../../common/tools";
 
 export default class EchartsOption {
   constructor(text) {
@@ -151,9 +151,7 @@ export default class EchartsOption {
     if (name) {
       if (this.isService) {
         // 统计类型为服务时，监控面板的图例显示容易重叠，先去掉名称中的数字串
-        name = name.split('-')
-        name.splice(-2, 1)
-        name = name.join('-')
+        name = serviceNameCutForMetric(name)
       }
       seriesItem.name = name
       let colorString = name.substr(name.lastIndexOf('-') + 1)

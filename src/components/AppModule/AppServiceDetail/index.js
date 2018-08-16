@@ -526,9 +526,12 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='监控' key='#monitor'>
                 <div className='ServiceMonitor'>
-                  <ServiceMonitor
-                    serviceName={service.metadata.name}
-                    cluster={service.cluster} />
+                  {
+                    serviceDetailmodalShow &&
+                    <ServiceMonitor
+                      serviceName={service.metadata.name}
+                      cluster={service.cluster} />
+                  }
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>

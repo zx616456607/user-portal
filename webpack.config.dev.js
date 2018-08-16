@@ -8,19 +8,20 @@
  * @author Zhangpc
  */
 
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var tsImportPluginFactory = require('ts-import-plugin')
-var postcssConfig = require('./webpack.config.postcss')
-var nodeModulesPath = path.join(__dirname, '/node_modules/')
-var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const tsImportPluginFactory = require('ts-import-plugin')
+const postcssConfig = require('./webpack.config.postcss')
+const nodeModulesPath = path.join(__dirname, '/node_modules/')
+const hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
+const webpack_base = require('./webpack.config.base')
+const webpackMerge = require('webpack-merge')
 
 console.log('Use development webpack config ...')
-
-module.exports = {
+const config = webpackMerge(webpack_base, {
+  mode: 'development',
   devtool: '#cheap-module-eval-source-map',
-
   entry: {
     main: [
       hotMiddleWareConfig,
@@ -29,22 +30,9 @@ module.exports = {
     ],
     en: './src/entry/en.js',
     zh: './src/entry/zh.js',
-    vendor: [
-      '@babel/polyfill',
-      'echarts',
-      'moment',
-      'js-yaml',
-      'codemirror',
-      'jquery'
-    ],
   },
 
   resolve: {
-    modules: [
-      path.join(__dirname, './src'),
-      'node_modules',
-    ],
-    extensions: [ '.js', '.jsx', '.json', '.ts', '.tsx' ],
     // alias: {
     //   '@': path.join(__dirname, './src'),
     // },
@@ -60,27 +48,6 @@ module.exports = {
 
   module: {
     rules: [
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-            getCustomTransformers: () => ({
-              before: [
-                tsImportPluginFactory({
-                  libraryName: 'antd',
-                  libraryDirectory: 'lib',
-                })
-              ]
-            }),
-            compilerOptions: {
-              module: 'es2015'
-            }
-          },
-        },
-        exclude: /node_modules/
-      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -118,14 +85,6 @@ module.exports = {
           'babel-loader',
         ]
       },
-      {
-  　　　 test: /\.(jpe?g|png|gif|svg)$/,
-        loader: 'url-loader',
-        options: {
-          limit: 5192, // 5KB 以下图片自动转成 base64 码
-          name: 'img/[name].[hash:8].[ext]',
-        },
-  　　 },
       {
         test: /\.css$/,
         use: [
@@ -165,25 +124,39 @@ module.exports = {
       }
     ]
   },
-
+  // optimization: {
+  //   splitChunks: {
+  //     cacheGroups: {
+  //       // commons: {
+  //       //   name: "commons",
+  //       //   chunks: 'initial',
+  //       //   minChunks: 2
+  //       // },
+  //       vendors: {
+  //         name: 'vendors',
+  //         minChunks: Infinity,
+  //       }
+  //     }
+  //   }
+  // },
   plugins: [
     new webpack.DllReferencePlugin({
       context: __dirname,
       manifest: require('./manifest.json'),
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      filename: 'vendor.js',
-      // (Give the chunk a different name)
-      minChunks: Infinity,
-      // (with more entries, this ensures that no other module
-      //  goes into the vendor chunk)
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'commons',
-      filename: 'commons.js',
-    }),
-    new webpack.NoEmitOnErrorsPlugin(),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'vendor',
+    //   filename: 'vendor.js',
+    //   // (Give the chunk a different name)
+    //   minChunks: Infinity,
+    //   // (with more entries, this ensures that no other module
+    //   //  goes into the vendor chunk)
+    // }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'commons',
+    //   filename: 'commons.js',
+    // }),
     new webpack.HotModuleReplacementPlugin(),
   ]
-}
+})
+module.exports = config
