@@ -14,10 +14,10 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon, Radio, Spin } from 'antd'
-import { CreateDbCluster, checkDbName } from '../../../../src/actions/database_cache'
-import { setCurrent } from '../../../../src/actions/entities'
-import { getProjectVisibleClusters, ListProjects } from '../../../../src/actions/project'
-import { getClusterStorageList } from '../../../../src/actions/cluster'
+import * as databaseCacheActions from '../../../../src/actions/database_cache'
+import * as entitiesActions from '../../../../src/actions/entities'
+import * as projectActions from '../../../../src/actions/project'
+import * as clusterActions from '../../../../src/actions/cluster'
 import NotificationHandler from '../../../../src/components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT, MY_SPACE } from '../../../../src/constants'
 import { parseAmount } from '../../../../src/common/tools.js'
@@ -58,13 +58,13 @@ class CreateStatefulDatabase extends React.Component {
   }
   onChangeCluster = clusterID => {
     this.setState({ onselectCluster: false })
-    const { projectVisibleClusters, form, space } = this.props
+    const { projectVisibleClusters, form, space, setCurrent } = this.props
     const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
     const projectClusters = projectVisibleClusters[currentNamespace] &&
       projectVisibleClusters[currentNamespace].data || []
     projectClusters.every(cluster => {
       if (cluster.clusterID === clusterID) {
-        this.props.setCurrent({
+        setCurrent({
           cluster,
         })
         return false
@@ -82,16 +82,16 @@ class CreateStatefulDatabase extends React.Component {
   onChangeNamespace = namespace => {
     // this function for user change the namespace
     // when the namespace is changed, the function would be get all clusters of new namespace
-    const { projects, form } = this.props
+    const { projects, form, setCurrent, getProjectVisibleClusters } = this.props
     projects.every(space => {
       if (space.namespace === namespace) {
-        this.props.setCurrent({
+        setCurrent({
           space,
           team: {
             teamID: space.teamID,
           },
         })
-        this.props.getProjectVisibleClusters(namespace, {
+        getProjectVisibleClusters(namespace, {
           success: {
             func: result => {
               const { clusters } = result.data
@@ -117,9 +117,9 @@ class CreateStatefulDatabase extends React.Component {
       callback();
       return
     }
-    const { cluster } = this.props;
+    const { cluster, checkDbName } = this.props;
     setTimeout(() => {
-      this.props.checkDbName(cluster, value, {
+      checkDbName(cluster, value, {
         success: {
           func: result => {
             if (result.data) {
@@ -191,7 +191,7 @@ class CreateStatefulDatabase extends React.Component {
     e.preventDefault();
     const _this = this;
     const { scope, space } = this.props;
-    const { projects, projectVisibleClusters, form } = this.props;
+    const { projects, projectVisibleClusters, form, CreateDbCluster, setCurrent } = this.props;
     const { loadDbCacheList } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (errors) {
@@ -258,12 +258,12 @@ class CreateStatefulDatabase extends React.Component {
         _this.setState({ loading: false })
         return
       }
-      this.props.CreateDbCluster(body, {
+      CreateDbCluster(body, {
         success: {
           func: () => {
             notification.success('创建成功')
             loadDbCacheList(body.cluster, _this.state.currentType)
-            this.props.setCurrent({
+            setCurrent({
               cluster: newCluster,
               space: newSpace,
             })
@@ -327,8 +327,8 @@ class CreateStatefulDatabase extends React.Component {
     })
   }
   loadStorageClassList = () => {
-    const { cluster } = this.props
-    this.props.getClusterStorageList(cluster)
+    const { cluster, getClusterStorageList } = this.props
+    getClusterStorageList(cluster)
   }
   renderStorageClassListOption = () => {
     const { storageClassList } = this.props
@@ -624,10 +624,10 @@ CreateStatefulDatabaseModal = injectIntl(CreateStatefulDatabaseModal, {
 })
 
 export default connect(mapStateToProps, {
-  CreateDbCluster,
-  setCurrent,
-  getProjectVisibleClusters,
-  ListProjects,
-  getClusterStorageList,
-  checkDbName,
+  CreateDbCluster: databaseCacheActions.CreateDbCluster,
+  setCurrent: entitiesActions.setCurrent,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
+  ListProjects: projectActions.ListProjects,
+  getClusterStorageList: clusterActions.getClusterStorageList,
+  checkDbName: databaseCacheActions.checkDbName,
 })(CreateStatefulDatabaseModal)

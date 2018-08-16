@@ -387,14 +387,18 @@ class MysqlCluster extends Component {
             loadDbCacheList(cluster, 'mysql')
           } }
           >
-          <ModalDetail
-            detailModal={this.state.detailModal}
-            scope={_this}
-            putVisible={ _this.state.putVisible }
-            database={this.props.database}
-            currentData={this.state.currentData}
-            dbName={this.state.currentDatabase}
-          />
+          {
+            this.state.detailModal &&
+            <ModalDetail
+              detailModal={this.state.detailModal}
+              scope={_this}
+              putVisible={ _this.state.putVisible }
+              database={this.props.database}
+              currentData={this.state.currentData}
+              dbName={this.state.currentDatabase}
+            />
+          }
+
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false} width={600}
@@ -403,16 +407,20 @@ class MysqlCluster extends Component {
           >
           <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
         </Modal>
-        <AutoBackupModal
-          isShow={this.state.autoBackupModalShow}
-          closeModal={() => this.setState({
-            autoBackupModalShow: false,
-          })}
-          hadSetAutoBackup={this.state.hadSetAutoBackup}
-          onSubmitSuccess={this.setAutobackupSuccess}
-          databaseInfo={this.state.currentClusterNeedBackup}
-          database={this.props.database}
-        />
+        {
+          this.state.autoBackupModalShow &&
+          <AutoBackupModal
+            isShow={this.state.autoBackupModalShow}
+            closeModal={() => this.setState({
+              autoBackupModalShow: false,
+            })}
+            hadSetAutoBackup={this.state.hadSetAutoBackup}
+            onSubmitSuccess={this.setAutobackupSuccess}
+            databaseInfo={this.state.currentClusterNeedBackup}
+            database={this.props.database}
+          />
+        }
+
 
       </QueueAnim>
     )

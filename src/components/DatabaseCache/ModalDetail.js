@@ -5,7 +5,7 @@
  *  Databse Cluster detail
  *
  * v2.0 - 2016-10-11
- * @author Bai Yu
+ * @author Bai YuBackup
  * @change by Gaojian
  */
 import React, { Component, PropTypes } from 'react'
@@ -24,7 +24,8 @@ import { loadDbClusterDetail,
 import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
-import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
+// import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
+import DatabaseEvent from '../../../client/containers/DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
@@ -1362,7 +1363,7 @@ class ModalDetail extends Component {
                                   databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                     </TabPane>,
                       <TabPane tab='事件' key='#events'>
-                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                        <DatabaseEvent database={database} databaseInfo={databaseInfo} cluster={this.props.cluster}/>
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
                         <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
@@ -1373,7 +1374,7 @@ class ModalDetail extends Component {
                                   databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                     </TabPane>,
                       <TabPane tab='事件' key='#events'>
-                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                        <DatabaseEvent database={database} databaseInfo={databaseInfo} cluster={this.props.cluster}/>
                       </TabPane>]
                   }
                 </Tabs>
@@ -1402,7 +1403,7 @@ class ModalDetail extends Component {
                                   databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                     </TabPane>,
                       <TabPane tab='事件' key='#events'>
-                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                        <DatabaseEvent database={database} databaseInfo={databaseInfo} cluster={this.props.cluster}/>
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
                         <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
@@ -1413,7 +1414,7 @@ class ModalDetail extends Component {
                                   databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                     </TabPane>,
                       <TabPane tab='事件' key='#events'>
-                        <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
+                        <DatabaseEvent database={database} databaseInfo={databaseInfo} cluster={this.props.cluster}/>
                       </TabPane>]
                   }
                 </Tabs>

@@ -12,7 +12,7 @@ import React from 'react'
 import './style/configManagement.less'
 import { Form, Input, Button } from 'antd'
 import { connect } from 'react-redux'
-import { getMySqlConfig, updateMySqlConfig, editDatabaseCluster } from '../../../../src/actions/database_cache'
+import * as configManageActions from '../../../../src/actions/database_cache'
 import NotificationHandler from '../../../../src/components/Notification'
 const FormItem = Form.Item
 class ConfigManagement extends React.Component {
@@ -24,13 +24,13 @@ class ConfigManagement extends React.Component {
     file: 'redis.conf',
   }
   componentDidMount() {
-    const { database, databaseInfo, clusterID } = this.props
+    const { database, databaseInfo, clusterID, getMySqlConfig } = this.props
     if (database === 'mysql') {
       this.setState({
         path: '/etc/mysql',
         file: 'mysql.conf',
       })
-      this.props.getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
+      getMySqlConfig(clusterID, databaseInfo.objectMeta.name, {
         success: {
           func: res => {
             this.setState({
@@ -61,9 +61,12 @@ class ConfigManagement extends React.Component {
       if (errors) {
         return
       }
-      const { database, databaseInfo, clusterID } = this.props
+      const { database,
+        databaseInfo,
+        clusterID,
+        updateMySqlConfig, editDatabaseCluster } = this.props
       if (database === 'mysql') {
-        this.props.updateMySqlConfig(
+        updateMySqlConfig(
           clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
             success: {
               func: res => {
@@ -85,7 +88,7 @@ class ConfigManagement extends React.Component {
         const body = {
           config: this.state.configContent,
         }
-        this.props.editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
+        editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
           success: {
             func: res => {
               this.setState({
@@ -181,7 +184,7 @@ const mapStateToProps = state => {
 }
 const FormConfigManagement = Form.create()(ConfigManagement)
 export default connect(mapStateToProps, {
-  getMySqlConfig, // 获取mysql集群配置
-  updateMySqlConfig, // 更新mysql集群配置
-  editDatabaseCluster, // 修改集群
+  getMySqlConfig: configManageActions.getMySqlConfig, // 获取mysql集群配置
+  updateMySqlConfig: configManageActions.updateMySqlConfig, // 更新mysql集群配置
+  editDatabaseCluster: configManageActions.editDatabaseCluster, // 修改集群
 })(FormConfigManagement)

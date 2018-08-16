@@ -12,17 +12,7 @@ import './style/Backup.less'
 import { Button, Row, Col, Collapse, Timeline, Menu, Dropdown, Checkbox, Icon, Modal, Radio, Tooltip, Input, Form } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
-import {
-  getbackupChain,
-  createBackupChain,
-  deleteManualBackupChain,
-  checkAutoBackupExist,
-  autoBackupSet,
-  autoBackupDetele,
-  updateAutoBackupSet,
-  postRollback,
-} from '../../../actions/backupChain'
-import { loadDbCacheList } from '../../../../src/actions/database_cache'
+import * as backupChainActions from '../../../actions/backupChain'
 import NotificationHandler from '../../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon'
 import AutoBackupModal from '../../../components/AutoBackupModal'
@@ -56,8 +46,8 @@ class Backup extends React.Component {
   }
 
   getList = () => {
-    const { clusterID, database, databaseInfo } = this.props
-    return this.props.getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
+    const { clusterID, database, databaseInfo, getbackupChain } = this.props
+    return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (res.data.items && res.data.items.length !== 0) {
@@ -87,8 +77,8 @@ class Backup extends React.Component {
     }) // 获取备份链数据
   }
   checkAutoBackupExist = () => {
-    const { clusterID, database, databaseInfo } = this.props
-    this.props.checkAutoBackupExist(clusterID, database, databaseInfo.objectMeta.name, {
+    const { clusterID, database, databaseInfo, checkAutoBackupExist } = this.props
+    checkAutoBackupExist(clusterID, database, databaseInfo.objectMeta.name, {
       success: {
         func: res => {
           if (database === 'redis') {
@@ -152,15 +142,12 @@ class Backup extends React.Component {
   rollBackAlert = () => {
     const confirmRollBack = () => {
       const {
-        clusterID, database, databaseInfo,
+        clusterID, database, databaseInfo, postRollback,
       } = this.props
       const { name } = this.state.backupChain
-      let urlName = name
-      if (database === 'mysql') {
-        urlName = databaseInfo.objectMeta.name
-      }
+      const urlName = databaseInfo.objectMeta.name
       const body = { name }
-      this.props.postRollback(clusterID, database, urlName, body, {
+      postRollback(clusterID, database, urlName, body, {
         success: {
           func: () => {
             notification.success('回滚操作成功')
@@ -212,7 +199,6 @@ class Backup extends React.Component {
     this.setState({
       rollBackAlert: true,
       backupChain: point,
-    }, () => {
     })
   }
   delBackupPointAlert = () => {
@@ -220,9 +206,9 @@ class Backup extends React.Component {
     // title要根据备份点的类型来判断到底显示什么类型， 获取backupChain即为当前操作的备份点对象
     const confirmDel = () => {
       const {
-        clusterID, databaseInfo, database,
+        clusterID, databaseInfo, database, deleteManualBackupChain,
       } = this.props
-      this.props.deleteManualBackupChain(
+      deleteManualBackupChain(
         clusterID, database,
         databaseInfo.objectMeta.name, backupChain.name, {
           success: {
@@ -254,11 +240,9 @@ class Backup extends React.Component {
           <Button key="cancel" onClick={() => this.setState({ delThis: false })}>取消</Button>,
           <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel} onClick={confirmDel}>确定</Button>,
         ]}
-
       >
-
         {
-          backupChain.index === 0 && backupChain.masterBackup && backupChain.backType === 'fullbackup' ?
+          backupChain.masterBackup && backupChain.backType === 'fullbackup' ?
             <div className="dbClusterBackup-delPoint">
               <Col span={3} className="alert-icon">
                 <Icon type="exclamation-circle-o" />
@@ -416,6 +400,9 @@ class Backup extends React.Component {
   }
   nameIsLegal(rule, value, callback) {
     let flag = false;
+    if (value === '') {
+      return callback('请输入名称')
+    }
     const nameReg = name => {
       if (name.length < 1 || name.length > 23) {
         return false
@@ -483,10 +470,11 @@ class Backup extends React.Component {
           isFetching: true,
         })
         const {
+          createBackupChain,
           databaseInfo,
           clusterID } = this.props
         const body = database === 'redis' ? { name: value.name } : { name: value.name, type }
-        this.props.createBackupChain(clusterID,
+        createBackupChain(clusterID,
           this.props.database,
           databaseInfo.objectMeta.name,
           body, {
@@ -527,7 +515,6 @@ class Backup extends React.Component {
 
     const nameCheck = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入备份名称', whitespace: true },
         { validator: this.nameIsLegal }],
     })
     return <Modal
@@ -543,13 +530,14 @@ class Backup extends React.Component {
     >
       <Form className="dbClusterBackup-manualBackup">
         <Row>
-          <Col span={4} className="title">备份方式</Col>
+          {
+            database !== 'redis' &&
+            <Col span={4} className="title">备份方式</Col>
+          }
           <Col span={20}>
             {
               database === 'redis' ?
-                <RadioGroup defaultValue={0}>
-                  <Radio value={0}>新建备份链</Radio>
-                </RadioGroup>
+                ''
                 :
                 <RadioGroup onChange={selectBackupType}>
                   {
@@ -559,9 +547,12 @@ class Backup extends React.Component {
                 </RadioGroup>
 
             }
-            <div className="tip">
-              {this.state.backupType === 'diffbackup' && database !== 'redis' ? tipText1 : tipText2}
-            </div>
+            {
+              database !== 'redis' &&
+              <div className="tip">
+                {this.state.backupType === 'diffbackup' && database !== 'redis' ? tipText1 : tipText2}
+              </div>
+            }
             <FormItem
               {...formItemLayout}
               label= "备份名称"
@@ -770,16 +761,19 @@ class Backup extends React.Component {
         </div>
       </div>
       {/* 设置自动备份弹框*/}
-      <AutoBackupModal
-        isShow={this.state.autoBackupModalShow}
-        closeModal={() => this.setState({
-          autoBackupModalShow: false,
-        })}
-        hadSetAutoBackup={this.state.hadSetAutoBackup}
-        onSubmitSuccess={this.setAutobackupSuccess}
-        databaseInfo={databaseInfo}
-        database={database}
-      />
+      {
+        this.state.autoBackupModalShow &&
+          <AutoBackupModal
+            isShow={this.state.autoBackupModalShow}
+            closeModal={() => this.setState({
+              autoBackupModalShow: false,
+            })}
+            hadSetAutoBackup={this.state.hadSetAutoBackup}
+            onSubmitSuccess={this.setAutobackupSuccess}
+            databaseInfo={databaseInfo}
+            database={database}
+          />
+      }
       {/* this.autoBackupModal()*/}
       {/* 手动设置自动备份*/}
       {this.manualBackupModal()}
@@ -802,6 +796,9 @@ const mapStateToProps = (state, props) => {
     if (chainsData && chainsData.length !== 0) {
       for (let i = 0; i < chainsData.length; i++) {
         if (chainsData[i].masterBackup) {
+          chainsData[i].chains.forEach(v => {
+            v.masterBackup = true
+          })
           chainsData.unshift(chainsData.splice(i, 1)[0])
           i = chainsData.length
         }
@@ -824,13 +821,12 @@ const mapStateToProps = (state, props) => {
 }
 const BackupForm = Form.create()(Backup)
 export default connect(mapStateToProps, {
-  getbackupChain, // 获取备份链列表
-  deleteManualBackupChain, // 删除手动备份链
-  createBackupChain,
-  checkAutoBackupExist, // 检查是否又自动备份链
-  autoBackupSet, // 设置自动备份
-  autoBackupDetele, // 关闭定时备份
-  updateAutoBackupSet, // 修改定时备份
-  postRollback, // 回滚
-  loadDbCacheList, // 请求集群列表
+  getbackupChain: backupChainActions.getbackupChain, // 获取备份链列表
+  deleteManualBackupChain: backupChainActions.deleteManualBackupChain, // 删除手动备份链
+  createBackupChain: backupChainActions.createBackupChain,
+  checkAutoBackupExist: backupChainActions.checkAutoBackupExist, // 检查是否又自动备份链
+  autoBackupSet: backupChainActions.autoBackupSet, // 设置自动备份
+  autoBackupDetele: backupChainActions.autoBackupDetele, // 关闭定时备份
+  updateAutoBackupSet: backupChainActions.updateAutoBackupSet, // 修改定时备份
+  postRollback: backupChainActions.postRollback, // 回滚
 })(BackupForm)

@@ -16,7 +16,7 @@ import graphStorage from '../../../assets/img/database_cache/storage.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../src/components/Notification'
-import { expendDatabaseCluster } from '../../../../src/actions/database_cache'
+import * as storageActions from '../../../../src/actions/database_cache'
 import TenxIcon from '@tenx-ui/icon'
 const notification = new NotificationHandler()
 
@@ -45,11 +45,11 @@ class Storage extends React.Component {
     })
   }
   confirmExtend = () => {
-    const { cluster, databaseInfo, database } = this.props
+    const { cluster, databaseInfo, database, expendDatabaseCluster } = this.props
     const data = {
       expandedSize: `${this.state.volumeSize}Mi`,
     }
-    this.props.expendDatabaseCluster(cluster.clusterID,
+    expendDatabaseCluster(cluster.clusterID,
       database, databaseInfo.objectMeta.name, data, {
         success: {
           func: res => {
@@ -209,5 +209,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  expendDatabaseCluster,
+  expendDatabaseCluster: storageActions.expendDatabaseCluster,
 })(Storage)
