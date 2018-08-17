@@ -281,8 +281,8 @@ export default class StateBtnModal extends Component{
             return '删除服务，该服务下的自动弹性伸缩策略也会被删除，'
           })()}
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
-          <div>{this.handleWarningTemplate()}</div>
         </div>
+        <div>{this.handleWarningTemplate()}</div>
         {/*<div className="confirm">
           <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           {(() => {
