@@ -599,7 +599,10 @@ class ImageCheckTable extends React.Component {
           onCancel={()=> this.closeDelModal()}
           onOk={() => this.confirmDelModal()}
         >
-          <div className="confirmText">确定要删除该记录？</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            确定要删除该记录？
+          </div>
         </Modal>
         <Modal
           title="拒绝理由"

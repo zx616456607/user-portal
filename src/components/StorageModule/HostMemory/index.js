@@ -233,8 +233,8 @@ class HostMemory extends Component {
             confirmLoading={confirmLoading}
             wrapClassName="delete_host_memory_modal"
           >
-            <div className='warning_tips'>
-              <Icon type="question-circle-o" className='question_icon'/>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
               确定要删出这 {selectedRowKeys.length} 个存储目录吗？
             </div>
           </Modal>

@@ -269,8 +269,8 @@ export default class StateBtnModal extends Component{
             <div></div>
         }
       {this.getDeleteMessage()}
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
           {(() => {
             if(state != 'Delete') {
               return
@@ -283,6 +283,20 @@ export default class StateBtnModal extends Component{
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
           <div>{this.handleWarningTemplate()}</div>
         </div>
+        {/*<div className="confirm">
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+          {(() => {
+            if(state != 'Delete') {
+              return
+            }
+            if (appList) {
+              return '删除应用，该应用下所有服务的自动弹性伸缩策略也会被删除，'
+            }
+            return '删除服务，该服务下的自动弹性伸缩策略也会被删除，'
+          })()}
+          您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
+          <div>{this.handleWarningTemplate()}</div>
+        </div>*/}
       </div>
     )
   }

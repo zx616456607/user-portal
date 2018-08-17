@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import SearchInput from '../../components/SearchInput'
 import { formatDate } from '../../../src/common/tools'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Menu, Dropdown, Card, Pagination, Modal, Icon } from 'antd'
+import { Button, Table, Menu, Dropdown, Card, Pagination, Modal } from 'antd'
 import Title from '../../../src/components/Title'
 import DnsModal from './dnsModal'
 import YamlModal from './yamlModal'
@@ -225,8 +225,8 @@ class ServiceDiscover extends React.Component {
           onCancel={this.deleteItem}
           okText={'确认删除'}
         >
-          <div style={{ color: '#2db7f5' }}>
-            <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
             确认删除该 DNS 记录？
           </div>
         </Modal>

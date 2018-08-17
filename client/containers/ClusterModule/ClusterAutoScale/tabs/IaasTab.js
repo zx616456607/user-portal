@@ -582,7 +582,10 @@ class Tab1 extends React.Component {
           okText="确定"
           maskClosable={false}
         >
-          <div style={{ color: '#00a0ea' }}>确定删除策略 {this.state.currentData.name || ''} ?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            确定删除策略 {this.state.currentData.name || ''} ?
+          </div>
         </Modal>
       </div>
     )

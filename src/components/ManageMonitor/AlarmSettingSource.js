@@ -1169,7 +1169,10 @@ class AlarmSetting extends Component {
             onCancel={() => this.setState({ deleteModal: false, selectStrategy: null })}
             onOk={() => this.deleteRecords()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除策略 {this.getCheckecSettingName()} ？</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              策略删除后将不再发送邮件告警，确认删除策略 {this.getCheckecSettingName()} ？
+            </div>
           </Modal>
           <Modal title={this.state.showStop ? '停用策略':'启用策略'} visible={this.state.showStop || this.state.showStart}
             onCancel={()=> this.handCelcan()}

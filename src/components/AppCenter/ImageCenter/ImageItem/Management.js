@@ -401,7 +401,10 @@ class Management extends Component {
           onCancel={()=> this.setState({deleteUser:false})}
           onOk={()=> this.handDeleteUser()}
         >
-          <div className="confirmText">您确认删除成员 {this.state.userList.map(list=>list.entityName).join(',')}？</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            您确认删除成员 {this.state.userList.map(list=>list.entityName).join(',')}？
+          </div>
         </Modal>
         {/* add user modal */}
         <AddUserModal visible={this.state.addUser} func={func} harbor={harbor} {...this.props}/>

@@ -442,8 +442,8 @@ class AppServerTag extends Component{
         wrapClassName="labelManageModal"
         width="560px"
       >
-        <div className="confirmText">
-          <Icon type="info-circle-o" style={{marginRight:'3px'}}/>
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
           确定要删除当前标签吗？
         </div>
       </Modal>
