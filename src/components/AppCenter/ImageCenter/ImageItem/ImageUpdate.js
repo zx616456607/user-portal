@@ -1219,9 +1219,9 @@ class ImageUpdate extends Component {
           maskClosable={false}
           wrapClassName="switchRulesModal"
         >
-          <div>
-            <div className='tipsone'><Icon type="question-circle-o" className='qusetionIcon'/>{this.handleRulesModalText().text}</div>
-            <div className='tipstwo'>请确认继续。</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            <div className='tipsone'>{this.handleRulesModalText().text}请确认继续。</div>
           </div>
         </Modal>
 

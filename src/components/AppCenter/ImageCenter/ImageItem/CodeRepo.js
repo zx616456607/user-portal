@@ -353,7 +353,10 @@ class CodeRepo extends Component {
           onCancel={()=> this.setState({deleteRepoVisible:false})}
           onOk={()=> this.deleteRepoOk()}
         >
-          <div className="confirmText">您确定要删除镜像 {this.state.selectedRepo} ?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            您确定要删除镜像 {this.state.selectedRepo} ?
+          </div>
         </Modal>
       </div>
     )

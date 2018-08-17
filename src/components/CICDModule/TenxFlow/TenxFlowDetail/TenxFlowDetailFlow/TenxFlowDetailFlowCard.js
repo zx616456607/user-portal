@@ -755,7 +755,10 @@ class TenxFlowDetailFlowCard extends Component {
           <Modal title="删除子任务操作" visible={this.state.delFlowModal}
             onOk={()=> this.delFlowItem()} onCancel={()=> this.setState({delFlowModal: false})}
             >
-            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除子任务 {config.metadata.name} 这项操作?</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              您是否确定要删除子任务 {config.metadata.name} 这项操作?
+            </div>
           </Modal>
         </div>
         {

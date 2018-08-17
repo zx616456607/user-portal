@@ -492,7 +492,10 @@ class WrapListTable extends Component {
           onCancel={() => this.deleteAction(false)}
           onOk={this.deleteVersion}
         >
-          <div className="confirmText">确定要删除所选版本？</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            确定要删除所选版本？
+          </div>
         </Modal>
         <Modal
           title="发布"

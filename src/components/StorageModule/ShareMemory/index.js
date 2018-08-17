@@ -539,8 +539,8 @@ class ShareMemory extends Component {
             confirmLoading={confirmLoading}
             wrapClassName="delete_share_memory_modal"
           >
-            <div className='warning_tips'>
-              <Icon type="question-circle-o" className='question_icon'/>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
               确定要删除这 {selectedRowKeys.length} 个存储吗？
             </div>
           </Modal>

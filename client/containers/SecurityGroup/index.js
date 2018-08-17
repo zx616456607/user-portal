@@ -193,8 +193,8 @@ class SecurityGroup extends React.Component {
           onCancel={this.deleteItem}
           okText={'确认删除'}
         >
-          <div className="securityGroupContent">
-            <i className="fa fa-exclamation-triangle modalIcon" aria-hidden="true"></i>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
             <div>
               <p>删除安全组导致隔离不再生效，且不可恢复，请谨慎操作</p>
               <p>确认删除安全组 {toDelete.name} ？</p>

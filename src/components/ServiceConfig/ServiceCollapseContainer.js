@@ -353,7 +353,10 @@ class CollapseContainer extends Component {
         <Modal title="删除配置文件操作" visible={this.state.delModal}
           onOk={()=> this.deleteConfigFile()} onCancel={()=> this.setState({delModal: false})}
         >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置文件 {this.state.configName}?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除配置文件 {this.state.configName}?
+          </div>
         </Modal>
         {/*              修改配置文件-弹出层-end                */}
       </Row>

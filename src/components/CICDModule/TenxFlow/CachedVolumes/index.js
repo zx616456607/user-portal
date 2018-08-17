@@ -190,8 +190,8 @@ class CachedVolumes extends React.Component {
           onCancel={()=> this.setState({delModal: false})}
           confirmLoading={this.state.delModalBtnLoading}
         >
-          <div className="modalColor">
-            <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
             确定要删除存储 {this.state.currentVolume.volumeName} 吗?
           </div>
         </Modal>

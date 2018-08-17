@@ -627,8 +627,8 @@ class MonitorChartModal extends React.Component {
           onOk={this.deleteConfirm}
           confirmLoading={deleteLoading}
         >
-          <div className="themeColor">
-            <i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}/>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
             确定删除此监控图表？
           </div>
         </Modal>

@@ -293,7 +293,10 @@ class Tab2 extends React.Component {
           title="删除资源池配置"
           okText="确定"
           maskClosable={false} >
-          <div style={{ color: '#00a0ea' }}>是否删除 {this.state.currData.clustername} 集群的 {this.state.currData.iaas} 资源池配置 ?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            是否删除 {this.state.currData.clustername} 集群的 {this.state.currData.iaas} 资源池配置 ?
+          </div>
         </Modal>
       </div>
     )

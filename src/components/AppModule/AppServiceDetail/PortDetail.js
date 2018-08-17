@@ -717,7 +717,10 @@ let MyComponent = React.createClass({
         <Modal title="删除端口操作" visible={this.state.delModal}
           onOk={() => this.deletePort()} onCancel={() => this.setState({ delModal: false })}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您是否确定要删除{this.state.item ? this.state.item.targetPort : ''}端口吗?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除{this.state.item ? this.state.item.targetPort : ''}端口吗?
+          </div>
         </Modal>
       </Card>
     );
