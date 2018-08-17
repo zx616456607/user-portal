@@ -52,6 +52,23 @@ const rulesFormat = message => {
   return rule
 }
 
+// 表单强制验证函数
+const forceVerification = ({ getFieldsValue, validateFields }) => {
+  const newforceUpdateAggregate = []
+  const formVlaue = getFieldsValue()
+  const forceUpdate = formVlaue.keys.map(value => {
+    return `resource${value}`
+  })
+  formVlaue.keys.forEach(valueItem => {
+    if (Object.keys(formVlaue).includes(`aggregate${valueItem}`)) {
+      newforceUpdateAggregate.push(`aggregate${valueItem}`)
+    }
+  })
+  validateFields(forceUpdate, { force: true })
+  if (!isEmpty(newforceUpdateAggregate)) {
+    validateFields(newforceUpdateAggregate, { force: true })
+  }
+}
 
 // 如果当前资源为全局资源则返回ture, 如果不是则返回false
 const findAllresource = (key, globalResource) => {
@@ -245,8 +262,6 @@ class ApplyForm extends React.Component {
   }
   uuid = 0 // id号
   remove = k => {
-    const { validateFields } = this.props.form
-    const { getFieldsValue } = this.props.form
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { form } = this.props
     const { checkResourceKindState } = this.state
@@ -262,23 +277,7 @@ class ApplyForm extends React.Component {
     delete checkResourceKindState[k]
     const newCheckResourceKindState = compact(checkResourceKindState)
     this.setState({ checkResourceKindState: newCheckResourceKindState, currentQuotaList: quota },
-      () => {
-        const newforceUpdateAggregate = []
-        const formVlaue = getFieldsValue()
-        const forceUpdate = formVlaue.keys.map(value => {
-          return `resource${value}`
-        })
-        formVlaue.keys.forEach(value => {
-          if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
-            newforceUpdateAggregate.push(`aggregate${value}`)
-          }
-          // return `aggregate${value}`
-        })
-        validateFields(forceUpdate, { force: true })
-        if (!isEmpty(newforceUpdateAggregate)) {
-          validateFields(newforceUpdateAggregate, { force: true })
-        }
-      }
+      forceVerification(this.props.form)
     )
   }
   add = () => {
@@ -393,7 +392,6 @@ class ApplyForm extends React.Component {
   getClusterQuotaListSelect = (clusterID, k) => {
     // console.log('clusterID', clusterID)
     const { getClusterQuotaList, personNamespace } = this.props
-    const { validateFields, getFieldsValue } = this.props.form
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { getFieldValue } = this.props.form
     let value = getFieldValue('item')
@@ -409,23 +407,7 @@ class ApplyForm extends React.Component {
       success: {
         func: res => {
           Object.assign(currentQuotaList[k], res.data)
-          this.setState({ currentQuotaList }, () => {
-            const newforceUpdateAggregate = []
-            const formVlaue = getFieldsValue()
-            const forceUpdate = formVlaue.keys.map(value => {
-              return `resource${value}`
-            })
-            formVlaue.keys.forEach(valueItem => {
-              if (Object.keys(formVlaue).includes(`aggregate${valueItem}`)) {
-                newforceUpdateAggregate.push(`aggregate${valueItem}`)
-              }
-              // return `aggregate${value}`
-            })
-            validateFields(forceUpdate, { force: true })
-            if (!isEmpty(newforceUpdateAggregate)) {
-              validateFields(newforceUpdateAggregate, { force: true })
-            }
-          })
+          this.setState({ currentQuotaList }, forceVerification(this.props.form))
         },
         isAsync: true,
       },
@@ -475,29 +457,12 @@ class ApplyForm extends React.Component {
     // 如果已经选择了集群, 那么向后端请求集群资源使用量
     const clusterID = getFieldValue(`aggregate${key}`)
     const clusterIDQuery = { id: clusterID }
-    const { validateFields, getFieldsValue } = this.props.form
     if (clusterID) {
       getClusterQuotaList(clusterIDQuery, {
         success: {
           func: res => {
             Object.assign(currentQuotaList[key], res.data)
-            this.setState({ currentQuotaList }, () => { // 当用户重新选择资源时, 也应该强行验证一下
-              const newforceUpdateAggregate = []
-              const formVlaue = getFieldsValue()
-              const forceUpdate = formVlaue.keys.map(value => {
-                return `resource${value}`
-              })
-              formVlaue.keys.forEach(valueItem => {
-                if (Object.keys(formVlaue).includes(`aggregate${valueItem}`)) {
-                  newforceUpdateAggregate.push(`aggregate${valueItem}`)
-                }
-                // return `aggregate${value}`
-              })
-              validateFields(forceUpdate, { force: true })
-              if (!isEmpty(newforceUpdateAggregate)) {
-                validateFields(newforceUpdateAggregate, { force: true })
-              }
-            })
+            this.setState({ currentQuotaList }, forceVerification(this.props.form))
           },
           isAsync: true,
         },
