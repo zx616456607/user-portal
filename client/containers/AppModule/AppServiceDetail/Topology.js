@@ -12,6 +12,7 @@ import React from 'react'
 import RelationChart from '@tenx-ui/relation-chart'
 import { connect } from 'react-redux'
 import * as topologyAction from '../../../actions/appDetailTopology'
+import './styles/Topology.less'
 
 class Topology extends React.Component {
 
@@ -131,14 +132,14 @@ class Topology extends React.Component {
   render() {
     const { config, nodes, edges, loading } = this.state
     return (
-      <div id="Topology">
+      <div id="Topology" className="Topology">
         <RelationChart
           graphConfigs={config}
           nodes={nodes}
           edges={edges}
           loading = {loading}
           onSvgClick = {this.onRelationChartClick}
-          SvgHeight = {'600px'}
+          SvgHeight = {'420px'}
         />
       </div>
     )
