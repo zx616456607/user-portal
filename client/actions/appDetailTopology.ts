@@ -15,6 +15,7 @@ const GET_TOPOLOGY_POD_SUCCESS = 'GET_TOPOLOGY_POD_SUCCESS';
 const GET_TOPOLOGY_POD_FAILURE = 'GET_TOPOLOGY_POD_FAILURE';
 
 const fetchTopologyList = (cluster, appname, callback) => {
+  const newDate = new Date().getTime()
   return {
     [FETCH_API]: {
       types: [
@@ -22,7 +23,7 @@ const fetchTopologyList = (cluster, appname, callback) => {
         GET_TOPOLOGY_POD_SUCCESS,
         GET_TOPOLOGY_POD_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appname}/topology-pods`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appname}/topology-pods?${newDate}`,
       schema: {},
     },
     callback,
@@ -38,6 +39,7 @@ const GET_TOPOLOGY_SERVICE_SUCCESS = 'GET_TOPOLOGY_SERVICE_SUCCESS';
 const GET_TOPOLOGY_SERVICE_FAILURE = 'GET_TOPOLOGY_SERVICE_FAILURE';
 
 const fetchTopologyServiceList = (cluster, appname, callback) => {
+  const newDate = new Date().getTime()
   return {
     [FETCH_API]: {
       types: [
@@ -45,7 +47,7 @@ const fetchTopologyServiceList = (cluster, appname, callback) => {
         GET_TOPOLOGY_SERVICE_SUCCESS,
         GET_TOPOLOGY_SERVICE_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appname}/topology-services`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appname}/topology-services?${newDate}`,
       schema: {},
     },
     callback,
