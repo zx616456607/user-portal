@@ -465,15 +465,15 @@ class ApplyForm extends React.Component {
         success: {
           func: res => {
             Object.assign(currentQuotaList[key], res.data)
-            this.setState({ currentQuotaList }, () => {
+            this.setState({ currentQuotaList }, () => { // 当用户重新选择资源时, 也应该强行验证一下
               const newforceUpdateAggregate = []
               const formVlaue = getFieldsValue()
               const forceUpdate = formVlaue.keys.map(value => {
                 return `resource${value}`
               })
-              formVlaue.keys.forEach(value => {
-                if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
-                  newforceUpdateAggregate.push(`aggregate${value}`)
+              formVlaue.keys.forEach(valueItem => {
+                if (Object.keys(formVlaue).includes(`aggregate${valueItem}`)) {
+                  newforceUpdateAggregate.push(`aggregate${valueItem}`)
                 }
                 // return `aggregate${value}`
               })
@@ -488,26 +488,6 @@ class ApplyForm extends React.Component {
       })
     }
     // this.setState({ currentQuotaList })
-    // // TODO:
-    // const { validateFields } = this.props.form
-    // const { getFieldsValue } = this.props.form
-    // setTimeout(() => {
-    //   const newforceUpdateAggregate = []
-    //   const formVlaue = getFieldsValue()
-    //   const forceUpdate = formVlaue.keys.map(value => {
-    //     return `resource${value}`
-    //   })
-    //   formVlaue.keys.forEach(value => {
-    //     if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
-    //       newforceUpdateAggregate.push(`aggregate${value}`)
-    //     }
-    //     // return `aggregate${value}`
-    //   })
-    //   validateFields(forceUpdate, { force: true })
-    //   if (!isEmpty(newforceUpdateAggregate)) {
-    //     validateFields(newforceUpdateAggregate, { force: true })
-    //   }
-    // }, 0);
   }
   checkPrime = (rule, value, callback, num = 1) => {
     if (value < num) {
