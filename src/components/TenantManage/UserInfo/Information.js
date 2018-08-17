@@ -480,21 +480,27 @@ class Information extends Component {
     let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN &&
       (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) ||
       (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
-    let accountTypeEdit = notAllowChange
-
-    // 平台管理员和基础设施管理员不允许修改用户类型
-    if(loginUser.role === ROLE_PLATFORM_ADMIN || loginUser.role === ROLE_BASE_ADMIN ) {
-      accountTypeEdit = true
-    }
+    let accountTypeEdit = false
+    let editRole = true //是否可以编辑权限
+    const currentPath = this.props.location.pathname
     if(loginUser.userID == this.props.userID && loginUser.role === ROLE_PLATFORM_ADMIN ) {
       notAllowChange = false
     }
-
     // 当前登陆的用户就是详情的用户或者处在我的账户页面，可编辑信息
-    if(loginUser.userID == this.props.userID || this.props.location.pathname === '/account') {
+    if(loginUser.userID == this.props.userID || currentPath === '/account') {
       notAllowChange = false
     }
-
+    if(currentPath === '/account' &&
+      (!loginUser.role || loginUser.role === ROLE_BASE_ADMIN)) {
+      editRole = false
+    }else if(currentPath !== '/account' && loginUser.role === ROLE_PLATFORM_ADMIN) {
+      // 平台管理员不允许修改用户类型
+      accountTypeEdit = true
+      if(userDetail.role === ROLE_USER || userDetail.role === ROLE_BASE_ADMIN || (userDetail.role === ROLE_PLATFORM_ADMIN && loginUser.role !== ROLE_PLATFORM_ADMIN)) {
+        accountTypeEdit = false
+      }} else {
+      accountTypeEdit = false
+    }
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
@@ -577,11 +583,16 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>类型</Col>
             <Col span={13}>{roleName}</Col>
-            <Col span={7}>
-              <Button style={{width: '80px'}} disabled={accountTypeEdit} type="primary" onClick={() => this.changeUserRoleModal()}>
-                修 改
-              </Button>
-            </Col>
+            {
+              editRole?
+                <Col span={7}>
+                  <Button style={{width: '80px'}} disabled={accountTypeEdit} type="primary" onClick={() => this.changeUserRoleModal()}>
+                    修 改
+                  </Button>
+                </Col>
+                :
+                ""
+            }
           </Row>
           <Row className="Item">
             <Col span={4}>权限</Col>
@@ -595,8 +606,9 @@ class Information extends Component {
                 ]}
               />
             </Col>
+
             {
-              userID && userDetail.role != ROLE_SYS_ADMIN &&
+              userID && userDetail.role !== ROLE_SYS_ADMIN &&
               <Col span={7}>
                 <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
