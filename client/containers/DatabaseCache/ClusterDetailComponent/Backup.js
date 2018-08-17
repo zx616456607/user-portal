@@ -44,7 +44,6 @@ class Backup extends React.Component {
     this.getList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
   }
-
   getList = () => {
     const { clusterID, database, databaseInfo, getbackupChain } = this.props
     return getbackupChain(clusterID, database, databaseInfo.objectMeta.name, {
@@ -150,7 +149,7 @@ class Backup extends React.Component {
       postRollback(clusterID, database, urlName, body, {
         success: {
           func: () => {
-            notification.success('回滚操作成功')
+            notification.success(`操作成功,集群数据将回滚至 ${name} 状态`)
             setTimeout(() => this.getList())
           },
         },
@@ -324,7 +323,6 @@ class Backup extends React.Component {
         default:
           return '未知状态'
       }
-
     }
   }
   //  备份点类名
