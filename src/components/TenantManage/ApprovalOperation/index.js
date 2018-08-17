@@ -177,7 +177,13 @@ const formateUpdateResoure = (tabData, approvalState) => {
       if (!body.approveDetails[o.clusterID]) {
         body.approveDetails[o.clusterID] = {}
       }
-      body.approveDetails[o.clusterID][o.resource] = o.applyLimit;
+      let NuApplyLimit
+      if (o.applyLimit === '无限制') {
+        NuApplyLimit = null
+      } else {
+        NuApplyLimit = parseFloat(NuApplyLimit)
+      }
+      body.approveDetails[o.clusterID][o.resource] = NuApplyLimit;
     }
   }
   if (approvalState.every( o => o === true)) { // 全部同意
