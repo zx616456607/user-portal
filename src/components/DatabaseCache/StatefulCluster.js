@@ -11,7 +11,6 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
