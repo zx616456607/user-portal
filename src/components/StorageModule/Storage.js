@@ -1195,7 +1195,12 @@ class Storage extends Component {
                   <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
                 ]}
               >
-                <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>确定要删除这 {this.state.volumeArray.length} 个存储吗?</div>
+                <div className="deleteRow">
+                  <div>
+                    <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+                    确定要删除这 {this.state.volumeArray.length} 个存储吗?
+                  </div>
+                </div>
                 <div>
                   <Form>
                     <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}>了解删除快照风险，确认将存储卷关联快照一并删除。</Checkbox></Form.Item>

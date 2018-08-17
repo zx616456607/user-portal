@@ -271,7 +271,10 @@ class Project extends Component {
               onCancel={()=> this.setState({deleteItem:false})}
               onOk={()=> this.deleteItemOk()}
             >
-              <div className="confirmText">您确认删除 {this.state.selectedRows.map(item=> item.name).join(',')} 仓库组?</div>
+              <div className="deleteRow">
+                <i className="fa fa-exclamation-triangle"/>
+                您确认删除 {this.state.selectedRows.map(item=> item.name).join(',')} 仓库组?
+              </div>
             </Modal>
           </div>
         </QueueAnim>

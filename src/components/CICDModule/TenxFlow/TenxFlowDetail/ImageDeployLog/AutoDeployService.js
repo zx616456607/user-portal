@@ -646,7 +646,10 @@ let AutoDeployService = React.createClass({
           <Modal title="删除自动部署操作" visible={this.state.delAuthModal}
           onOk={()=> this.removeRule()} onCancel={()=> this.setState({delAuthModal: false})}
           >
-            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除自动部署这项操作?</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              您是否确定要删除自动部署这项操作?
+            </div>
           </Modal>
         </div>
       </div>

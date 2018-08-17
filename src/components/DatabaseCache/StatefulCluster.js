@@ -20,7 +20,7 @@ import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 // import CreateDatabase from './CreateDatabase.js'
-import CreateStatefulDatabase from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
+import CreateStatefulDatabaseModal from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
@@ -271,7 +271,7 @@ class StatefulCluster extends Component {
       CreateDatabaseModalShow: true
     });
     setTimeout(function () {
-      document.getElementById('dbName').focus()
+      document.getElementById('name').focus()
     }, 100);
   }
 
@@ -340,7 +340,7 @@ class StatefulCluster extends Component {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
           >
-            <CreateStatefulDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+            <CreateStatefulDatabaseModal scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
       </QueueAnim>

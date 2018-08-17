@@ -500,12 +500,14 @@ let CreateDatabase = React.createClass({
       ],
     });
     let defaultValue = this.getDefaultOutClusterValue()
+
     const accessTypeProps = getFieldProps('accessType',{
       initialValue: defaultValue ? 'outcluster' : 'none',
       rules: [{
         required: true,
         message: '请选择集群访问方式'
-      }]
+      }],
+
     })
     let accessType = getFieldValue('accessType')
     let outClusterProps

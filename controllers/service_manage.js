@@ -526,6 +526,20 @@ exports.getPodsEventByServicementName = function* () {
   }
 }
 
+//获取事件
+exports.getDatabaseEvents = function* () {
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([clusterID, 'daas', type, name, 'events'])
+  this.body = {
+    clusterID,
+    name,
+    data: result.data || []
+  }
+}
+
 // Use services for petset events
 exports.getDbServiceDetailEvents = function* () {
   //this function for user get the events of detail service

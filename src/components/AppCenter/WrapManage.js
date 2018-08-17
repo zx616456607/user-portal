@@ -609,7 +609,10 @@ class WrapManage extends Component {
           onCancel={() => this.deleteAction(false)}
           onOk={this.deleteVersion}
         >
-          <div className="confirmText">确定要删除所选版本？</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            确定要删除所选版本？
+          </div>
         </Modal>
       </QueueAnim>
     )

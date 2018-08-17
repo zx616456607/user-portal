@@ -260,8 +260,9 @@ class Endpoints extends React.Component {
           onOk={this.delTarget}
           confirmLoading={delBtnLoading}
         >
-          <div className="confirmText">
-          确认删除目标 {currentRow.name}？
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            确认删除目标 {currentRow.name}？
           </div>
         </Modal>
         {

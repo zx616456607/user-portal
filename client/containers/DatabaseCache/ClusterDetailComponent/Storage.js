@@ -16,7 +16,7 @@ import graphStorage from '../../../assets/img/database_cache/storage.png'
 import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../src/components/Notification'
-import { expendDatabaseCluster } from '../../../../src/actions/database_cache'
+import * as storageActions from '../../../../src/actions/database_cache'
 import TenxIcon from '@tenx-ui/icon'
 const notification = new NotificationHandler()
 
@@ -49,35 +49,33 @@ class Storage extends React.Component {
     const data = {
       expandedSize: `${this.state.volumeSize}Mi`,
     }
-    expendDatabaseCluster(cluster.clusterID, database, databaseInfo.objectMeta.name, data, {
-      success: {
-        func: res => {
-          if (database === 'redis') {
-            this.setState({
-              storage: parseInt(res.data.spec.expandedSize),
-              volumeSizemin: parseInt(res.data.spec.expandedSize),
-              volumeSize: parseInt(res.data.spec.expandedSize),
-            })
-          } else if (database === 'mysql') {
-            if (res.data.expandedSize.indexOf('Gi') >= 0) {
-              res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
+    expendDatabaseCluster(cluster.clusterID,
+      database, databaseInfo.objectMeta.name, data, {
+        success: {
+          func: res => {
+            if (database === 'redis') {
+              this.setState({
+                storage: parseInt(res.data.spec.expandedSize),
+                volumeSizemin: parseInt(res.data.spec.expandedSize),
+                volumeSize: parseInt(res.data.spec.expandedSize),
+              })
+            } else if (database === 'mysql') {
+              if (res.data.expandedSize.indexOf('Gi') >= 0) {
+                res.data.expandedSize = parseInt(res.data.expandedSize) * 1024
+              }
+              this.setState({
+                storage: parseInt(res.data.expandedSize),
+                volumeSizemin: parseInt(res.data.expandedSize),
+                volumeSize: parseInt(res.data.expandedSize),
+              })
             }
-            this.setState({
-              storage: parseInt(res.data.expandedSize),
-              volumeSizemin: parseInt(res.data.expandedSize),
-              volumeSize: parseInt(res.data.expandedSize),
-            })
-
-          }
-          notification.success('扩容成功')
+            notification.success('扩容成功')
+          },
         },
-      },
-      failed: {
-        func: () => {
-
+        failed: {
+          func: () => {},
         },
-      },
-    })
+      })
     this.setState({
       extendModal: false,
     })
@@ -211,5 +209,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, {
-  expendDatabaseCluster,
+  expendDatabaseCluster: storageActions.expendDatabaseCluster,
 })(Storage)

@@ -149,7 +149,10 @@ class AppTemplate extends React.Component {
             onCancel={()=> this.deleteAction(false)}
             onOk={this.deleteVersion}
             >
-            <div className="alertRow">确定要删除当前模板？</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle"/>
+              确定要删除当前模板？
+            </div>
           </Modal>
         </div>
       </QueueAnim>
