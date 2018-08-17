@@ -295,7 +295,6 @@ class StatefulCluster extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     return (
-      <QueueAnim>
         <div id='mysqlDatabase' key={`${clusterType}DataBase`}>
           <div className='databaseCol' key={literal.displayName}>
             <Title title={literal.displayName} />
@@ -343,7 +342,6 @@ class StatefulCluster extends Component {
             <CreateStatefulDatabaseModal scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
-      </QueueAnim>
     )
   }
 }
