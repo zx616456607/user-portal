@@ -494,11 +494,12 @@ class Information extends Component {
       (!loginUser.role || loginUser.role === ROLE_BASE_ADMIN)) {
       editRole = false
     }else if(currentPath !== '/account' && loginUser.role === ROLE_PLATFORM_ADMIN) {
-      // 平台管理员不允许修改用户类型
+      // 平台管理员不允许修改普通成员和基础设施管理员的用户类型
       accountTypeEdit = true
-      if(userDetail.role === ROLE_USER || userDetail.role === ROLE_BASE_ADMIN || (userDetail.role === ROLE_PLATFORM_ADMIN && loginUser.role !== ROLE_PLATFORM_ADMIN)) {
+      if (loginUser.userID == userID) {
         accountTypeEdit = false
-      }} else {
+      }
+    } else {
       accountTypeEdit = false
     }
     const { billingConfig } = loginUser
@@ -606,9 +607,8 @@ class Information extends Component {
                 ]}
               />
             </Col>
-
             {
-              userID && userDetail.role !== ROLE_SYS_ADMIN &&
+              userDetail.role !== ROLE_SYS_ADMIN &&
               <Col span={7}>
                 <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
