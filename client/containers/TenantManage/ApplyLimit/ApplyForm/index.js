@@ -393,6 +393,7 @@ class ApplyForm extends React.Component {
   getClusterQuotaListSelect = (clusterID, k) => {
     // console.log('clusterID', clusterID)
     const { getClusterQuotaList, personNamespace } = this.props
+    const { validateFields, getFieldsValue } = this.props.form
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { getFieldValue } = this.props.form
     let value = getFieldValue('item')
@@ -408,7 +409,23 @@ class ApplyForm extends React.Component {
       success: {
         func: res => {
           Object.assign(currentQuotaList[k], res.data)
-          this.setState({ currentQuotaList })
+          this.setState({ currentQuotaList }, () => {
+            const newforceUpdateAggregate = []
+            const formVlaue = getFieldsValue()
+            const forceUpdate = formVlaue.keys.map(value => {
+              return `resource${value}`
+            })
+            formVlaue.keys.forEach(valueItem => {
+              if (Object.keys(formVlaue).includes(`aggregate${valueItem}`)) {
+                newforceUpdateAggregate.push(`aggregate${valueItem}`)
+              }
+              // return `aggregate${value}`
+            })
+            validateFields(forceUpdate, { force: true })
+            if (!isEmpty(newforceUpdateAggregate)) {
+              validateFields(newforceUpdateAggregate, { force: true })
+            }
+          })
         },
         isAsync: true,
       },
@@ -458,8 +475,7 @@ class ApplyForm extends React.Component {
     // 如果已经选择了集群, 那么向后端请求集群资源使用量
     const clusterID = getFieldValue(`aggregate${key}`)
     const clusterIDQuery = { id: clusterID }
-    const { validateFields } = this.props.form
-    const { getFieldsValue } = this.props.form
+    const { validateFields, getFieldsValue } = this.props.form
     if (clusterID) {
       getClusterQuotaList(clusterIDQuery, {
         success: {
