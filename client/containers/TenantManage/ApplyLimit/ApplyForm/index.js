@@ -278,7 +278,8 @@ class ApplyForm extends React.Component {
         if (!isEmpty(newforceUpdateAggregate)) {
           validateFields(newforceUpdateAggregate, { force: true })
         }
-      })
+      }
+    )
   }
   add = () => {
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
@@ -457,18 +458,56 @@ class ApplyForm extends React.Component {
     // 如果已经选择了集群, 那么向后端请求集群资源使用量
     const clusterID = getFieldValue(`aggregate${key}`)
     const clusterIDQuery = { id: clusterID }
+    const { validateFields } = this.props.form
+    const { getFieldsValue } = this.props.form
     if (clusterID) {
       getClusterQuotaList(clusterIDQuery, {
         success: {
           func: res => {
             Object.assign(currentQuotaList[key], res.data)
-            this.setState({ currentQuotaList })
+            this.setState({ currentQuotaList }, () => {
+              const newforceUpdateAggregate = []
+              const formVlaue = getFieldsValue()
+              const forceUpdate = formVlaue.keys.map(value => {
+                return `resource${value}`
+              })
+              formVlaue.keys.forEach(value => {
+                if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
+                  newforceUpdateAggregate.push(`aggregate${value}`)
+                }
+                // return `aggregate${value}`
+              })
+              validateFields(forceUpdate, { force: true })
+              if (!isEmpty(newforceUpdateAggregate)) {
+                validateFields(newforceUpdateAggregate, { force: true })
+              }
+            })
           },
           isAsync: true,
         },
       })
     }
     // this.setState({ currentQuotaList })
+    // // TODO:
+    // const { validateFields } = this.props.form
+    // const { getFieldsValue } = this.props.form
+    // setTimeout(() => {
+    //   const newforceUpdateAggregate = []
+    //   const formVlaue = getFieldsValue()
+    //   const forceUpdate = formVlaue.keys.map(value => {
+    //     return `resource${value}`
+    //   })
+    //   formVlaue.keys.forEach(value => {
+    //     if (Object.keys(formVlaue).includes(`aggregate${value}`)) {
+    //       newforceUpdateAggregate.push(`aggregate${value}`)
+    //     }
+    //     // return `aggregate${value}`
+    //   })
+    //   validateFields(forceUpdate, { force: true })
+    //   if (!isEmpty(newforceUpdateAggregate)) {
+    //     validateFields(newforceUpdateAggregate, { force: true })
+    //   }
+    // }, 0);
   }
   checkPrime = (rule, value, callback, num = 1) => {
     if (value < num) {
