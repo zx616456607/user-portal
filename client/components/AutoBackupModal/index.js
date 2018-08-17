@@ -3,12 +3,7 @@ import { Modal, Row, Col, Switch, InputNumber, Icon } from 'antd'
 import BackupStrategy from '../../containers/DatabaseCache/BackupStrategy'
 import NotificationHandler from '../../../src/components/Notification'
 import { connect } from 'react-redux'
-import {
-  autoBackupSet,
-  autoBackupDetele,
-  updateAutoBackupSet,
-  checkAutoBackupExist,
-} from '../../actions/backupChain'
+import * as backupChainActions from '../../actions/backupChain'
 
 const notification = new NotificationHandler()
 
@@ -23,7 +18,70 @@ class AutoBackupModal extends React.Component {
     flag: true,
     notYet: true, // 标识有没有请求回数据
   }
+  componentDidMount() {
+    const { databaseInfo, clusterID, database } = this.props
+    this.setState({
+      autoBackupSwitch: this.props.hadSetAutoBackup,
+    })
+    const name = databaseInfo.objectMeta.name
+    const { checkAutoBackupExist } = this.props
+    checkAutoBackupExist(clusterID, database, name, {
+      success: {
+        func: res => {
+          this.setState({
+            notYet: false,
+          })
+          if (database === 'redis') {
+            // 如果有数据或者数据内的schedule字段不为空,说明开启了自动备份。把控制自动备份开关的state置为true
+            if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
+              const schedule = res.data[0].schedule.split(' ')
+              const { days } = this.state
+              const scheduleDays = schedule[4].split(',')
+              this.differentiation(days, scheduleDays)
+              const newDays = days.splice(0)
+              this.setState({
+                minutes: schedule[0],
+                hour: schedule[1],
+                days: newDays,
+                daysConvert: newDays,
+              })
+              return
+            }
 
+          } else if (database === 'mysql') {
+            if (res.data.schedule !== '') {
+              const schedule = res.data.schedule.split(' ')
+              const { days } = this.state
+              const scheduleDays = schedule[4].split(',')
+              this.differentiation(days, scheduleDays)
+              const newDays = days.splice(0)
+              this.setState({
+                minutes: schedule[0],
+                hour: schedule[1],
+                days: newDays,
+                daysConvert: newDays,
+              })
+              return
+            }
+          }
+        },
+      },
+      failed: {
+        func: () => {
+          notification.warn('检查是否有自动备份失败')
+          this.setState({
+            days: [ '0', '1', '2', '3', '4', '5', '6' ],
+            daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
+            hour: '1',
+            minutes: '0',
+            flag: true,
+            notYet: false,
+          })
+
+        },
+      },
+    }) // 检查是否有自动备份
+  }
   // 获取选择备份周期
   selectPeriod = (week, index) => {
     const { days } = this.state
@@ -50,65 +108,47 @@ class AutoBackupModal extends React.Component {
       autoBackupDetele,
       autoBackupSet,
     } = this.props
-
     const { hour, minutes, daysConvert } = this.state
     // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
     const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
     this.setState({ pending: true })
     if (!this.state.autoBackupSwitch) {
       // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口
-      if (database === 'redis') {
-        const postData = { schedule: '' }
-        updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-          success: {
-            func: () => {
-              closeModal()
-              notification.success('关闭自动备份成功')
-              this.setState({ pending: false })
-              setTimeout(() => {
-                onSubmitSuccess()
-              })
+      autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
+        success: {
+          func: () => {
+            notification.success('关闭自动备份成功')
+            this.setState({ pending: false })
+            setTimeout(() => {
+              onSubmitSuccess()
+            })
 
-            },
           },
-        })
-      } else if (database === 'mysql') {
-        autoBackupDetele(clusterID, database, databaseInfo.objectMeta.name, {
-          success: {
-            func: () => {
-              notification.success('关闭自动备份成功')
-              this.setState({ pending: false })
-              setTimeout(() => {
-                onSubmitSuccess()
-              })
-
-            },
+        },
+        failed: {
+          func: () => {
+            notification.warn('关闭自动备份失败')
+            this.setState({ pending: false })
           },
-          failed: {
-            func: () => {
-              notification.warn('关闭自动备份失败')
-              this.setState({ pending: false })
-            },
-          },
-        })
-      }
+        },
+      })
     } else {
       const postData = { schedule }
       // 如果已经设置过自动备份，说明要修改，调用修改接口
       if (this.props.hadSetAutoBackup) {
-        updateAutoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
-          success: {
-            func: () => {
-              closeModal()
-              notification.success('修改自动备份成功')
-              this.setState({ pending: false })
-              setTimeout(() => {
-                onSubmitSuccess()
-              })
-
+        updateAutoBackupSet(
+          clusterID, database, databaseInfo.objectMeta.name, postData, {
+            success: {
+              func: () => {
+                closeModal()
+                notification.success('修改自动备份成功')
+                this.setState({ pending: false })
+                setTimeout(() => {
+                  onSubmitSuccess()
+                })
+              },
             },
-          },
-        })
+          })
       } else {
         // 否则是已经关闭了自动备份，需要调用设置接口
         autoBackupSet(clusterID, database, databaseInfo.objectMeta.name, postData, {
@@ -164,86 +204,6 @@ class AutoBackupModal extends React.Component {
       if (arr.indexOf(temp[k]) >= 0) {
         arr[arr.indexOf(temp[k])] = false
       }
-    }
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.hadSetAutoBackup !== nextProps.hadSetAutoBackup) {
-      this.setState({
-        autoBackupSwitch: nextProps.hadSetAutoBackup,
-      })
-    }
-    if (nextProps.hadSetAutoBackup && nextProps.isShow) {
-      const { checkAutoBackupExist, databaseInfo, clusterID, database } = nextProps
-      const name = databaseInfo.objectMeta.name
-      if (this.state.flag) {
-        checkAutoBackupExist(clusterID, database, name, {
-          success: {
-            func: res => {
-              this.setState({
-                notYet: false,
-              })
-              if (database === 'redis') {
-                // 如果有数据或者数据内的schedule字段不为空,说明开启了自动备份。把控制自动备份开关的state置为true
-                if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
-                  const schedule = res.data[0].schedule.split(' ')
-                  const { days } = this.state
-                  const scheduleDays = schedule[4].split(',')
-                  this.differentiation(days, scheduleDays)
-                  this.setState({
-                    minutes: schedule[0],
-                    hour: schedule[1],
-                    days: days.splice(0),
-                  })
-
-                  return
-                }
-
-              } else if (database === 'mysql') {
-                if (res.data.schedule !== '') {
-                  const schedule = res.data.schedule.split(' ')
-                  const { days } = this.state
-                  const scheduleDays = schedule[4].split(',')
-                  this.differentiation(days, scheduleDays)
-                  this.setState({
-                    minutes: schedule[0],
-                    hour: schedule[1],
-                    days: days.splice(0),
-                  })
-
-                  return
-                }
-              }
-            },
-          },
-          failed: {
-            func: () => {
-              notification.warn('检查是否有自动备份失败')
-              this.setState({
-                days: [ '0', '1', '2', '3', '4', '5', '6' ],
-                daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
-                hour: '1',
-                minutes: '0',
-                flag: true,
-                notYet: false,
-              })
-
-            },
-          },
-        }) // 检查是否有自动备份
-        this.setState({
-          flag: false,
-        })
-      }
-
-    } else {
-      this.setState({
-        days: [ '0', '1', '2', '3', '4', '5', '6' ],
-        daysConvert: [ '1', '2', '3', '4', '5', '6', '0' ],
-        hour: '1',
-        minutes: '0',
-        flag: true,
-        notYet: false,
-      })
     }
   }
   render() {
@@ -317,8 +277,8 @@ const mapStateToProps = state => {
   }
 }
 export default connect(mapStateToProps, {
-  autoBackupSet,
-  autoBackupDetele,
-  updateAutoBackupSet,
-  checkAutoBackupExist,
+  autoBackupSet: backupChainActions.autoBackupSet,
+  autoBackupDetele: backupChainActions.autoBackupDetele,
+  updateAutoBackupSet: backupChainActions.updateAutoBackupSet,
+  checkAutoBackupExist: backupChainActions.checkAutoBackupExist,
 })(AutoBackupModal)

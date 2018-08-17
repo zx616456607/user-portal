@@ -1224,8 +1224,8 @@ class ProjectDetail extends Component {
             onCancel={() => this.cancelDeleteRole()}
             onOk={() => this.confirmDeleteRole()}
           >
-            <div className="modalColor">
-              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
               是否确定从项目{projectDetail && projectDetail.projectName}中移除角色{currentDeleteRole.roleName}？
             </div>
           </Modal>

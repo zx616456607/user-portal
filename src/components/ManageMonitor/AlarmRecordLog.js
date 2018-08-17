@@ -326,7 +326,9 @@ class AlarmRecord extends Component {
       {
         title: '是否发送邮件',
         dataIndex: 'alertSent',
-        render: val => <div>{ val? '是': '否'}</div>
+        render: (val, record) => {
+          return <div>{ val && record.alertInfo.recipients[0] !== "test@example.com"? '是': '否'}</div>
+        }
       }
     ];
     const filters = this.getFilters()

@@ -103,36 +103,10 @@ module.exports = webpackMerge(webpack_base, {
       },
     ]
   },
-
-  optimization: {
-    // splitChunks: {
-    //   cacheGroups: {
-    //     commons: {
-    //       name: "commons",
-    //       chunks: 'initial',
-    //       minChunks: 2
-    //     },
-    //     vendors: {
-    //       name: 'vendors',
-    //       minChunks: Infinity,
-    //     }
-    //   }
-    // },
-    minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          sourceMap: true,
-          comments: false,
-          unused: true,
-          dead_code: true,
-        }
-      })
-    ]
-  },
   plugins: [
     new HtmlWebpackPlugin({
       inject: false, // disabled inject
-      chunks: ['zh', 'main', 'commons', 'vendor' ],
+      chunks: [ 'zh', 'main', 'commons', 'vendors' ],
       minify: {
         collapseWhitespace: true,
         minifyJS: true,
@@ -149,32 +123,10 @@ module.exports = webpackMerge(webpack_base, {
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
     new webpack.optimize.ModuleConcatenationPlugin(),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   sourceMap: true,
-    //   comments: false,
-    //   unused: true,
-    //   dead_code: true,
-    // }),
-    // new ExtractTextPlugin({
-    //   filename: 'styles.[contenthash:8].css',
-    //   allChunks: true,
-    // }),
     new MiniCssExtractPlugin({
       filename: 'styles.[contenthash:8].css',
-      chunkFilename: '[id].css',
+      chunkFilename: '[id].[contenthash:8].css',
       // allChunks: true,
     }),
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: 'vendor',
-    //   filename: 'vendor.[chunkhash:8].js',
-    //   // (Give the chunk a different name)
-    //   minChunks: Infinity,
-    //   // (with more entries, this ensures that no other module
-    //   //  goes into the vendor chunk)
-    // }),
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: 'commons',
-    //   filename: 'commons.[hash:8].js',
-    // }),
   ],
 })

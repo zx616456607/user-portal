@@ -568,7 +568,10 @@ class ImageSpace extends Component {
           <Modal title="删除镜像操作" visible={this.state.delModal}
             onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
           >
-            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle"/>
+              您确定要删除镜像 {this.state.imageName}?
+            </div>
           </Modal>
           <Modal  title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
             onCancel={this.closeUploadModal} onOk={this.closeUploadModal}

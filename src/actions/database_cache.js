@@ -592,3 +592,28 @@ export function checkDbName(clusterId, name, callback) {
     return dispatch(checkDbNameRequest(clusterId, name, callback))
   }
 }
+
+export const DB_EVENTS_REQUEST = 'DB_EVENTS_REQUEST'
+export const DB_EVENTS_SUCCESS = 'DB_EVENTS_SUCCESS'
+export const DB_EVENTS_FAILURE = 'DB_EVENTS_FAILURE'
+
+// Fetches service list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDbEvents(cluster, type, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DB_EVENTS_REQUEST, DB_EVENTS_SUCCESS, DB_EVENTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/daas/${type}/${name}/events`,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches services list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadDbEvents(cluster, type, name, callback) {
+  return dispatch => {
+    return dispatch(fetchDbEvents(cluster, type, name, callback))
+  }
+}

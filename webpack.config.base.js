@@ -68,8 +68,10 @@ const config =  {
   　　 },
     ]
   },
+  optimization: {
+    noEmitOnErrors: true
+  },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
       'process.env.RUNNING_MODE': JSON.stringify(env.RUNNING_MODE),

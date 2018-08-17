@@ -307,7 +307,10 @@ class AlarmDetail extends Component {
             onCancel={()=> this.setState({deleteModal: false})}
             onOk={()=> this.deleteRecords()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              策略删除后将不再发送邮件告警，是否确定删除？
+            </div>
           </Modal>
 
         </QueueAnim>

@@ -69,7 +69,7 @@ class Monitor extends React.Component {
       {},
       locationQuery,
       {
-        token, username, project, onbehalfuser, onbehalfuserid, hash,
+        token, username, project, onbehalfuser, onbehalfuserid,
       }
     )
     const { windowHeight } = this.state
@@ -85,7 +85,7 @@ class Monitor extends React.Component {
     return <div className="monitor" style={style}>
       <Title title={title} />
 
-      <iframe title="监控与备份" id="monitor" src={`/monitor/#${redirect}?${toQuerystring(query)}`} />
+      <iframe title="监控与备份" id="monitor" src={`/monitor/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }

@@ -11,7 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Radio, } from 'antd'
+import { Row, Col, Popover, Icon } from 'antd'
 import { connect } from 'react-redux'
 import TimeControl from '../../Metrics/TimeControl'
 import Metrics from '../../Metrics'
@@ -24,11 +24,12 @@ import {
   loadServiceMetricsDiskRead,
   loadServiceMetricsDiskWrite,
 } from '../../../actions/metrics'
+import isEmpty from 'lodash/isEmpty'
+import SelectWithCheckbox from '@tenx-ui/select-with-checkbox/lib/index'
+import '@tenx-ui/select-with-checkbox/assets/index.css'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../constants'
 import './style/ServiceMonitor.less'
-import {formatDate} from "../../../common/tools";
-
-const RadioGroup = Radio.Group;
+import { serviceNameCutForMetric } from '../../../common/tools'
 
 const timeFrequency = {
   '1': {
@@ -68,6 +69,7 @@ class ServiceMonitior extends Component {
       switchDisk: false,
       currentStart: this.changeTime('1'),
       currentValue: '1',
+      checkedKeys: [],
     }
   }
 
@@ -205,7 +207,6 @@ class ServiceMonitior extends Component {
   }
 
   handleTimeChange(e) {
-    const { loadServiceAllOfMetrics, cluster, serviceName } = this.props
     const {value} = e.target
     const start = this.changeTime(value)
     const timeDes = timeFrequency[value]['timeDes']
@@ -214,26 +215,19 @@ class ServiceMonitior extends Component {
       freshTime: timeDes,
       currentValue: value
     }, () => {
-      const { currentValue } = this.state
-      loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
       this.setIntervalFunc()
     })
   }
 
   componentWillMount() {
-    const { loadServiceAllOfMetrics, cluster, serviceName } = this.props
-    const { currentValue } = this.state
-    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
-    this.setIntervalFunc()
+    this.setIntervalFunc(true)
   }
 
   componentWillReceiveProps(nextProps) {
-    const { cluster, serviceName, loadServiceAllOfMetrics } = nextProps
-    const { currentValue } = this.state
+    const { serviceName } = nextProps
     if (serviceName === this.props.serviceName) {
       return
     }
-    loadServiceAllOfMetrics(cluster, serviceName, { start: this.changeTime(currentValue), end: new Date().toISOString() })
     this.setIntervalFunc()
   }
 
@@ -247,23 +241,115 @@ class ServiceMonitior extends Component {
     clearInterval(this.diskWriteInterval)
   }
 
-  setIntervalFunc() {
+  setIntervalFunc(isFirst) {
     const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
     const { currentValue } = this.state
+    const query = {
+      start: this.changeTime(currentValue),
+      end: new Date().toISOString(),
+    }
     clearInterval(this.metricsInterval)
+    loadServiceAllOfMetrics(cluster, serviceName, query).then(res => {
+      const { data } = res.response.result
+      if (!isEmpty(data)) {
+        const { cpu } = data[0]
+        const containers = cpu.map(_item => ({ name: serviceNameCutForMetric(_item.containerName) }))
+        this.setState({
+          containers,
+        })
+        if (isFirst) {
+          this.setState({
+            filterContainers: containers,
+          })
+          const checkedContainers = containers.length > 10 ? containers.slice(0, 10) : containers
+          const checkedKeys = checkedContainers.map(_item => _item.name)
+          this.setState({
+            checkedKeys,
+          })
+        }
+      }
+    })
     this.metricsInterval = setInterval(() => {
       this.setState({
         currentStart: this.changeTime(currentValue)
       }, () => {
         const { currentStart } = this.state
         let query = {start: currentStart};
-        loadServiceAllOfMetrics(cluster, serviceName, query)
+        loadServiceAllOfMetrics(cluster, serviceName, query).then(res => {
+          const { data } = res.response.result
+          if (!isEmpty(data)) {
+            const {cpu} = data[0]
+            const containers = cpu.map(_item => ({ name: serviceNameCutForMetric(_item.containerName) }))
+            this.setState({
+              containers,
+            })
+          }
+        })
       })
     }, UPDATE_INTERVAL);
   }
+
+  toggleVisible = () => {
+    this.setState(({ visible }) => ({
+      visible: !visible,
+    }))
+  }
+
+  renderContent = () => {
+    const { checkedKeys, value, filterContainers } = this.state
+    return <SelectWithCheckbox
+      dataSource={filterContainers}
+      nameKey={'name'}
+      checkedKeys={checkedKeys}
+      value={value}
+      onChange={this.monitorFilterOnChange}
+      onCheck={this.monitorFilterOnSelect}
+      onOk={this.monitorFilterConfirm}
+      onReset={this.monitorFilterReset}
+    />
+  }
+
+  monitorFilterOnChange = value => {
+    const { containers } = this.state
+    this.setState({
+      value,
+      filterContainers: containers.filter(_item => _item.name.includes(value))
+    })
+  }
+
+  monitorFilterOnSelect = item => {
+    const { checkedKeys } = this.state
+    let keys = new Set(checkedKeys)
+    if (keys.has(item.name)) {
+      keys.delete(item.name)
+    } else {
+      keys.add(item.name)
+    }
+    this.setState({
+      checkedKeys: [...keys],
+    })
+  }
+
+  monitorFilterConfirm = () => {
+    this.setState({
+      visible: false,
+    })
+  }
+
+  monitorFilterReset = () => {
+    this.setState({
+      checkedKeys: [],
+    })
+  }
+
+  filterMetrics = data => {
+    const { checkedKeys } = this.state
+    return data.filter(_item => checkedKeys.includes(serviceNameCutForMetric(_item.containerName)))
+  }
+
   render() {
     const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allServiceMetrics } = this.props
-    const { intervalStatus, switchCpu, switchMemory, switchNetwork, switchDisk } = this.state
+    const { switchCpu, switchMemory, switchNetwork, switchDisk, visible, checkedKeys } = this.state
     let showCpu = {
       data: [],
       isFetching: false
@@ -289,27 +375,48 @@ class ServiceMonitior extends Component {
       isFetching: false
     }
     if (allServiceMetrics.data.length) {
-      switchCpu ? showCpu = cpu : showCpu.data = allServiceMetrics.data[0].cpu
-      switchMemory ? showMemory = memory: showMemory.data = allServiceMetrics.data[1].memory
+      switchCpu ? showCpu = { isFetching: cpu.isFetching, data: this.filterMetrics(cpu.data) }
+        : showCpu.data = this.filterMetrics(allServiceMetrics.data[0].cpu)
+      switchMemory ? showMemory = { isFetching: memory.isFetching, data: this.filterMetrics(memory.data) }
+        : showMemory.data = this.filterMetrics(allServiceMetrics.data[1].memory)
       if (switchNetwork) {
-        showNetworkRec = networkReceived
-        showNetworkTrans = networkTransmitted
+        showNetworkRec = { isFetching: networkReceived.isFetching, data: this.filterMetrics(networkReceived.data) }
+        showNetworkTrans = { isFetching: networkTransmitted.isFetching, data: this.filterMetrics(networkTransmitted.data) }
       } else {
-        showNetworkRec.data = allServiceMetrics.data[3].networkRec
-        showNetworkTrans.data = allServiceMetrics.data[2].networkTrans;
+        showNetworkRec.data = this.filterMetrics(allServiceMetrics.data[3].networkRec)
+        showNetworkTrans.data = this.filterMetrics(allServiceMetrics.data[2].networkTrans)
       }
       if (switchDisk) {
-        showDiskReadIo = diskReadIo
-        showDiskWriteIo = diskWriteIo
+        showDiskReadIo = { isFetching: diskReadIo.isFetching, data: this.filterMetrics(diskReadIo.data) }
+        showDiskWriteIo = { isFetching: diskWriteIo.isFetching, data: this.filterMetrics(diskWriteIo.data) }
       } else {
-        showDiskReadIo.data = allServiceMetrics.data[4].diskReadIo;
-        showDiskWriteIo.data = allServiceMetrics.data[5].diskWriteIo;
+        showDiskReadIo.data = this.filterMetrics(allServiceMetrics.data[4].diskReadIo)
+        showDiskWriteIo.data = this.filterMetrics(allServiceMetrics.data[5].diskWriteIo)
       }
     }
     return (
       <div id="ServiceMonitior">
         <div className="serviceInnerMonitor">
-          <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
+          <Row type="flex" align={"middle"} justify={"space-around"}>
+            <Col span={6} id="popover-wrapper" style={{ paddingLeft: 8 }}>
+              <Popover
+                content={this.renderContent()}
+                placement={'bottom'}
+                trigger={'click'}
+                visible={visible}
+                overlayClassName="monitor-filter-content"
+                onVisibleChange={this.toggleVisible}
+                getTooltipContainer={() => document.getElementById('popover-wrapper')}
+              >
+                <span className="themeColor pointer">
+                  <Icon type="filter" /> <span>筛选实例（已选 {checkedKeys.length}）</span>
+                </span>
+              </Popover>
+            </Col>
+            <Col span={18}>
+              <TimeControl onChange={this.handleTimeChange}/>
+            </Col>
+          </Row>
           <Metrics
             scope={this}
             diskHide={false}

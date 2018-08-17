@@ -399,7 +399,10 @@ class ContinueIntegration extends Component {
             maskClosable={false}
             onOk={() => this.handledeletecolums()}
           >
-          确认要删除 {this.state.currentName} 基础镜像吗?
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            确认要删除 {this.state.currentName} 基础镜像吗?
+          </div>
         </Modal>
       </div>
     )

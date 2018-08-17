@@ -321,8 +321,8 @@ class OtherSpace extends Component {
           <Modal title="删除第三方镜像操作" visible={this.state.delModal}
             onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
           >
-            <div className="modalColor">
-              <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle"/>
               您是否确定要删除这项操作?
             </div>
           </Modal>

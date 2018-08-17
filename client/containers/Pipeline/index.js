@@ -80,7 +80,7 @@ class Pipeline extends React.Component {
       locationQuery,
       {
         token, username, project, onbehalfuser,
-        onbehalfuserid, hash, billingenabled: billingEnabled ? 1 : 0,
+        onbehalfuserid, billingenabled: billingEnabled ? 1 : 0,
       }
     )
     const { windowHeight } = this.state
@@ -95,7 +95,7 @@ class Pipeline extends React.Component {
     }
     return <div className="pipeline" style={style}>
       <Title title={title} />
-      <iframe title="流水线" id="pipeline" src={`/devops/#${redirect}?${toQuerystring(query)}`} />
+      <iframe title="流水线" id="pipeline" src={`/devops/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
     </div>
   }
 }

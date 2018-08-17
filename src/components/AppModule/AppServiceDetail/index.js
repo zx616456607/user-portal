@@ -364,7 +364,10 @@ class AppServiceDetail extends Component {
           onCancel={()=>this.cancelDeleteModal()}
           onOk={()=>this.okDeleteModal()}
         >
-        删除服务，该服务下的自动弹性伸缩策略也会被删除，确定要删除服务{service.metadata.name}吗？
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            删除服务，该服务下的自动弹性伸缩策略也会被删除，确定要删除服务{service.metadata.name}吗？
+          </div>
         </Modal>
         <div className='titleBox'>
           <Title title={`${service.metadata.name} 服务详情页`} />
@@ -532,9 +535,12 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='监控' key='#monitor'>
                 <div className='ServiceMonitor'>
-                  <ServiceMonitor
-                    serviceName={service.metadata.name}
-                    cluster={service.cluster} />
+                  {
+                    serviceDetailmodalShow &&
+                    <ServiceMonitor
+                      serviceName={service.metadata.name}
+                      cluster={service.cluster} />
+                  }
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>

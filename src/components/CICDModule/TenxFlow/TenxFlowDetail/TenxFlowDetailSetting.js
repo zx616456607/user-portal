@@ -67,7 +67,10 @@ let TenxFlowDetailSetting = React.createClass({
         <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
           onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i> <FormattedMessage {...menusText.deleteConfirm} />?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            <FormattedMessage {...menusText.deleteConfirm} />?
+          </div>
         </Modal>
       </Card>
     )
