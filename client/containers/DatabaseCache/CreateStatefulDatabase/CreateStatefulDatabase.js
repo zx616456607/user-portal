@@ -349,6 +349,19 @@ class CreateStatefulDatabase extends React.Component {
     }
     return option
   }
+  // 选出默认存储
+  defaultStorage = () => {
+    const { storageClassList } = this.props
+    const { cephList } = storageClassList
+    let defaultStorage = ''
+    cephList.forEach(item => {
+      if (item.metadata.labels['system/storageDefault'] && item.metadata.labels['system/storageDefault'] === 'true') {
+        defaultStorage = item.metadata.name
+      }
+    })
+    return defaultStorage
+  }
+
   render() {
     const { isFetching, space, billingEnabled } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
@@ -386,6 +399,7 @@ class CreateStatefulDatabase extends React.Component {
       initialValue: 3,
     });
     const storageClassProps = getFieldProps('storageClass', {
+      initialValue: this.defaultStorage(),
       rules: [{ required: true, message: '块存储名字不能为空' }],
     })
     const zkReplicasProps = getFieldProps('zkReplicas', {
