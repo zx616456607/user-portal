@@ -125,7 +125,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
   const formItem = getFieldValue('keys').map((k, index) => {
     // const clusterID = getFieldValue(`aggregate${k}`)
     const num = self.state.currentQuotaList[k][getFieldValue(`resource${k}`)]
-    // const numWord = getFieldValue(`noLimit${k}`) ? '无限制' : ''
+    const numSet = self.state.currentQuotaSet[k][getFieldValue(`resource${k}`)]
     return (
       // <QueueAnim key={k}>
       <div key={`item${k}`}>
@@ -221,6 +221,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
                             trigger: [ 'onBlur', 'onChange' ],
                           },
                         ],
+                        initialValue: numSet,
                       }
                       ) }
                     />
@@ -231,7 +232,7 @@ const setFormItem = ({ getFieldProps, getFieldValue, removeFunction, checkResour
           <Col span={4}>
             <div className="resource-wrap">
               <FormItem key={k}>
-                <Checkbox {...getFieldProps(`noLimit${k}`, { initialValue: false, valuePropName: 'checked' })}
+                <Checkbox {...getFieldProps(`noLimit${k}`, { initialValue: numSet === null, valuePropName: 'checked' })}
                 >无限制</Checkbox>
               </FormItem>
             </div>
@@ -259,10 +260,13 @@ class ApplyForm extends React.Component {
     globaleDevopsQuotaList: undefined, // 此列表表中的资源是全局资源devops相关
     definitions: undefined, // 此列表显示后台定义的资源列表
     currentQuotaList: [{}], // 当前每个条目的资源使用情况
+    currentQuotaSet: [{}], // 当前每个条目的资源设置量
   }
   uuid = 0 // id号
+  definitionsSet = {} // 初始化所有资源设置量为无限制状态
   remove = k => {
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
     const { form } = this.props
     const { checkResourceKindState } = this.state
     let keys = form.getFieldValue('keys')
@@ -273,15 +277,19 @@ class ApplyForm extends React.Component {
       keys,
     })
     delete currentQuotaList[k]
+    delete currentQuotaSet[k]
     const quota = compact(currentQuotaList)
+    const quotaSet = compact(currentQuotaSet)
     delete checkResourceKindState[k]
     const newCheckResourceKindState = compact(checkResourceKindState)
-    this.setState({ checkResourceKindState: newCheckResourceKindState, currentQuotaList: quota },
-      forceVerification(this.props.form)
+    this.setState({ checkResourceKindState: newCheckResourceKindState, currentQuotaList: quota,
+      currentQuotaSet: quotaSet },
+    forceVerification(this.props.form)
     )
   }
   add = () => {
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
     this.uuid++
     const { form } = this.props
     let keys = form.getFieldValue('keys')
@@ -290,7 +298,8 @@ class ApplyForm extends React.Component {
       keys,
     })
     currentQuotaList[this.uuid] = {}
-    this.setState({ currentQuotaList })
+    currentQuotaSet[this.uuid] = {}
+    this.setState({ currentQuotaList, currentQuotaSet })
   }
   componentDidMount = () => {
     const { displayNameText, displayName } = this.props
@@ -364,6 +373,7 @@ class ApplyForm extends React.Component {
               globalResource: undefined, // 此列表表中的资源是全局资源
               definitions: undefined, // 此列表显示后台定义的资源列表
               currentQuotaList: [{}],
+              currentQuotaSet: [{}],
             })
             this.uuid = 0
             this.setState({
@@ -389,10 +399,11 @@ class ApplyForm extends React.Component {
       })
     })
   }
-  getClusterQuotaListSelect = (clusterID, k) => {
+  getClusterQuotaListSelect = async (clusterID, k) => {
     // console.log('clusterID', clusterID)
-    const { getClusterQuotaList, personNamespace } = this.props
+    const { getClusterQuotaList, personNamespace, getClusterQuota } = this.props
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
+    const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
     const { getFieldValue } = this.props.form
     let value = getFieldValue('item')
     if (value === '我的个人项目') {
@@ -412,13 +423,17 @@ class ApplyForm extends React.Component {
         isAsync: true,
       },
     })
+    // 获取集群资源设置的量
+    const quotaSet = await getClusterQuota(query)
+    Object.assign(currentQuotaSet[k], this.definitionsSet, quotaSet.response.result.data)
+    this.setState({ currentQuotaSet })
   }
-  checkResourceKind = (value, key) => {
+  checkResourceKind = async (value, key) => {
     const { checkResourceKindState, globalResource } = this.state
     // console.log('globalResource', globalResource)
     const currentQuotaList = cloneDeep(this.state.currentQuotaList)
     const { getGlobaleQuotaList, personNamespace, getDevopsGlobaleQuotaList, getClusterQuotaList,
-    } = this.props
+      getGlobaleQuota, getDevopsGlobaleQuotaSet } = this.props
     const { getFieldValue } = this.props.form
     let itemValue = getFieldValue('item')
 
@@ -452,11 +467,23 @@ class ApplyForm extends React.Component {
           isAsync: true,
         },
       })
+      // 获取passApi 中的全局资源
+      // 获取devopsApi 中的全局资源
+      const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
+      const passQuoatSet = await getGlobaleQuota(query)
+      const formatepassQuotaSet = passQuoatSet.response.result.data || {}
+      const devopsQuotaSet = await getDevopsGlobaleQuotaSet(query)
+      const formatedevopsQuotaSet = devopsQuotaSet.response.result.result || {}
+      Object.assign(currentQuotaSet[key], this.definitionsSet, formatepassQuotaSet,
+        formatedevopsQuotaSet)
+      this.setState({ currentQuotaSet })
       return
     }
     // 如果已经选择了集群, 那么向后端请求集群资源使用量
     const clusterID = getFieldValue(`aggregate${key}`)
+    const newQuery = cloneDeep(query)
     const clusterIDQuery = { id: clusterID }
+    Object.assign(clusterIDQuery, newQuery)
     if (clusterID) {
       getClusterQuotaList(clusterIDQuery, {
         success: {
@@ -467,8 +494,13 @@ class ApplyForm extends React.Component {
           isAsync: true,
         },
       })
+      const { getClusterQuota } = this.props
+      const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
+      const passClusterQuotaSet = await getClusterQuota(clusterIDQuery)
+      const formatepassClusterQuotaSet = passClusterQuotaSet.response.result.data || {}
+      Object.assign(currentQuotaSet[key], this.definitionsSet, formatepassClusterQuotaSet)
+      this.setState({ currentQuotaSet })
     }
-    // this.setState({ currentQuotaList })
   }
   checkPrime = (rule, value, callback, num = 1) => {
     if (value < num) {
@@ -477,7 +509,7 @@ class ApplyForm extends React.Component {
       callback()
     }
   }
-  loadResourceDefinitioList = value => {
+  loadResourceDefinitioList = async value => {
     const { getResourceDefinition, getClusterQuotaList, personNamespace, getGlobaleQuotaList,
       getDevopsGlobaleQuotaList, getProjectVisibleClusters } = this.props
     const { checkResourceKindState } = this.state
@@ -488,6 +520,11 @@ class ApplyForm extends React.Component {
       success: {
         func: result => {
           const resourceList = result.data
+          for (const resource of resourceList.definitions) {
+            for (const child of (resource.children || [])) {
+              this.definitionsSet[child.resourceType] = null
+            }
+          }
           this.setState({
             globalResource: resourceList.globalResource,
             definitions: resourceList.definitions,
@@ -525,6 +562,12 @@ class ApplyForm extends React.Component {
             isAsync: true,
           },
         })
+        const { getClusterQuota } = this.props
+        const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
+        const passClusterQuotaSet = await getClusterQuota(clusterIDQuery)
+        const formatepassClusterQuotaSet = passClusterQuotaSet.response.result.data || {}
+        Object.assign(currentQuotaSet[key], this.definitionsSet, formatepassClusterQuotaSet)
+        this.setState({ currentQuotaSet })
       }
       let query = {}
       if (personNamespace !== value) {
@@ -550,6 +593,15 @@ class ApplyForm extends React.Component {
           },
           isAsync: true,
         })
+        const { getGlobaleQuota, getDevopsGlobaleQuotaSet } = this.props
+        const currentQuotaSet = cloneDeep(this.state.currentQuotaSet)
+        const passQuoatSet = await getGlobaleQuota(query)
+        const formatepassQuotaSet = passQuoatSet.response.result.data || {}
+        const devopsQuotaSet = await getDevopsGlobaleQuotaSet(query)
+        const formatedevopsQuotaSet = devopsQuotaSet.response.result.result || {}
+        Object.assign(currentQuotaSet[key], this.definitionsSet, formatepassQuotaSet,
+          formatedevopsQuotaSet)
+        this.setState({ currentQuotaSet })
       }
     }
   }
@@ -567,6 +619,7 @@ class ApplyForm extends React.Component {
         globalResource: undefined, // 此列表表中的资源是全局资源
         definitions: undefined, // 此列表显示后台定义的资源列表
         currentQuotaList: [{}],
+        currentQuotaSet: [{}],
       })
     }
     this.uuid = 0
@@ -643,7 +696,9 @@ class ApplyForm extends React.Component {
     const checkPrime = this.checkPrime
     const getClusterQuotaListSelect = this.getClusterQuotaListSelect
     const self = this
-    // console.log('globalResource', globalResource)
+    // console.log('currentQuotaList', currentQuotaList);
+    // console.log('definitions', definitions);
+    // console.log('this.definitionsSet', this.definitionsSet);
     return (
       <Modal
         visible = {applayVisable}
@@ -748,4 +803,7 @@ export default connect(mapStateToProps, {
   applayResourcequota: applyLimitActions.applayResourcequota,
   getResourceDefinition: quotaActions.getResourceDefinition,
   getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
+  getGlobaleQuota: quotaActions.getGlobaleQuota, // 获取非devops的全局资源设置量
+  getClusterQuota: quotaActions.getClusterQuota, // 获取非devops的集群相关设置量
+  getDevopsGlobaleQuotaSet: quotaActions.getDevopsGlobaleQuotaSet, // 获取devops相关全局资源设置量
 })(createForm()(ApplyForm))
