@@ -182,7 +182,6 @@ class AlarmRecord extends Component {
           ruleName: r.ruleName,
           serviceName: r.serviceName,
           numHits: r.numHits,
-          numMatches: r.numMatches,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
           targetName: r.targetName,
