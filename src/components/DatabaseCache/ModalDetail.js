@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Dropdown, Menu, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
@@ -44,6 +44,8 @@ const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
+const MenuItem = Menu.Item;
+const DropdownButton = Dropdown.Button;
 class VolumeHeader extends Component {
   constructor(props) {
     super(props)
@@ -304,6 +306,7 @@ class BaseInfo extends Component {
         const { dbName, database } = this.props
         const { cluster, editDatabaseCluster, updateMysqlPwd, loadDbClusterDetail } = this.props.scope.props
         // mysql 和 redis修改密码是两种方式
+        const notification = new NotificationHandler()
         if (database === 'mysql') {
           const body = {
             root_password: values.passwd
@@ -311,6 +314,7 @@ class BaseInfo extends Component {
           updateMysqlPwd(cluster, dbName, body, {
             success: {
               func: () => {
+                notification.success('操作成功，重启方能生效')
                 setTimeout(() => {
                   loadDbClusterDetail(cluster, dbName, database, true);
                 })
@@ -327,6 +331,7 @@ class BaseInfo extends Component {
           editDatabaseCluster(cluster, database, dbName, body, {
             success: {
               func: () => {
+                notification.success('操作成功，重启方能生效')
                 setTimeout(() => {
                   loadDbClusterDetail(cluster, dbName, database, true);
                 })
@@ -390,6 +395,8 @@ class BaseInfo extends Component {
     editDatabaseCluster(cluster, database, dbName, body, {
       success: {
         func: () => {
+          const notification = new NotificationHandler()
+          notification.success('操作成功，重启方能生效')
           setTimeout(() => {
             loadDbClusterDetail(cluster, dbName, database, true);
           })
@@ -481,6 +488,9 @@ class BaseInfo extends Component {
     return (
       <div className='modalDetailBox' id="dbClusterDetailInfo">
         <div className='configContent'>
+          <div className="tips">
+            Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
+          </div>
           {this.props.database === 'elasticsearch' || this.props.database === 'etcd' ? null :
           <div><div className='configHead'>参数</div>
             <ul className='parse-list'>
@@ -527,9 +537,6 @@ class BaseInfo extends Component {
                       :
                       <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
                   }
-                </div>
-                <div className="tips">
-                  Tips: 重新编辑配置 , 保存后系统将重启该集群的所有实例, 将进行滚动升级。
                 </div>
 
                 <ResourceConfig
@@ -1224,9 +1231,7 @@ class ModalDetail extends Component {
   stopTheCluster = () => {
     const { cluster, databaseInfo, database, editDatabaseCluster, dbName, loadDbClusterDetail } = this.props
     const { name } = databaseInfo.objectMeta
-
     const body = {onOff: "stop"}
-
     editDatabaseCluster(cluster, database, name, body, {
       success: {
         func: () => {
@@ -1260,18 +1265,21 @@ class ModalDetail extends Component {
   clusterBtn = status => {
     switch (status) {
       case 'Pending':
-        return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+        return <div onClick={this.stopAlert}>
           <span className="stopIcon"></span>停止
-        </Button>
+        </div>
       case 'Running':
-        return <Button type="primary" style={{marginRight:'10px'}} onClick={this.stopAlert}>
+        return <div onClick={this.stopAlert}>
           <span className="stopIcon"></span>停止
-        </Button>
+        </div>
       case 'Stopped':
-        return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+        return <div  onClick={this.startAlert}>启动</div>
       case 'Stopping':
-        return <Button type="primary" icon="caret-right" style={{marginRight:'10px'}} onClick={this.startAlert}>启动</Button>
+        return <div  onClick={this.startAlert}>启动</div>
     }
+  }
+  restart = () => {
+    const { databaseInfo } = this.props
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
@@ -1282,6 +1290,16 @@ class ModalDetail extends Component {
         </div>
       )
     }
+    const operationMenu = () => <Menu>
+      <MenuItem key="del" disabled={this.state.deleteBtn}>
+        <div onClick={()=> this.setState({delModal: true})}>删除集群</div>
+      </MenuItem>
+      <MenuItem key="stop" >
+        {
+          this.clusterBtn(databaseInfo.status)
+        }
+      </MenuItem>
+    </Menu>
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='topBox'>
@@ -1300,26 +1318,42 @@ class ModalDetail extends Component {
               </div>
             </div>
             <div className='rightBox'>
-              <div className='li'>
-                {/*操作按钮*/}
-                {
-                  (database === 'mysql' || database === 'redis') &&
-                  this.clusterBtn(databaseInfo.status)
-                }
-                <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
-                  <i className="fa fa-refresh"></i>&nbsp;
-                  刷新
-                </Button>
-                {this.state.deleteBtn ?
-                  <Button size='large' className='btn-danger' type='ghost' loading={true}>
-                    删除集群
-                </Button>
+              {
+                database === 'mysql' || database === 'redis' ?
+                  <div className='li'>
+                    <Tooltip title="集群配置已更改，重启后生效">
+                      <Button style={{marginRight:'16px'}} className="shinning" onClick={()=> this.restart()}>
+                        重启
+                      </Button>
+                    </Tooltip>
+                    <Button style={{marginRight:'16px'}} onClick={()=> this.refurbishDetail()}>
+                      <i className="fa fa-refresh"></i>&nbsp;
+                      刷新
+                    </Button>
+
+                    {/*操作按钮*/}
+                    <DropdownButton overlay={operationMenu()}>
+                      其他操作
+                    </DropdownButton>
+
+                  </div>
                   :
-                  <Button size='large' className='btn-danger' type='ghost' onClick={()=> this.setState({delModal: true}) }>
-                    <Icon type='delete' />删除集群
-                </Button>
-                }
-              </div>
+                  <div className='li'>
+                    <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
+                      <i className="fa fa-refresh"></i>&nbsp;
+                      刷新
+                    </Button>
+                    {this.state.deleteBtn ?
+                      <Button size='large' className='btn-danger' type='ghost' loading={true}>
+                        删除集群
+                      </Button>
+                      :
+                      <Button size='large' className='btn-danger' type='ghost' onClick={()=> this.setState({delModal: true}) }>
+                        <Icon type='delete' />删除集群
+                      </Button>
+                    }
+                  </div>
+              }
             </div>
           </div>
           <div style={{ clear: 'both' }}></div>
