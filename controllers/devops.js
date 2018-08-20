@@ -1202,3 +1202,12 @@ exports.checkResourceDevopsquotaExist = function* () {
   const result = yield api.getBy(['resourcequota', 'inuse'], null)
   this.body = result
 }
+
+// 获取全局资源设置的量
+exports.getResourceDevopsquotaSet = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(['resourcequota'], null)
+  this.body = result
+}
