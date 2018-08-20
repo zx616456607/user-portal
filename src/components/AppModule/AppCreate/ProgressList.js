@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import './style/ProgressList.less'
 
 export default class ProgressList extends Component {

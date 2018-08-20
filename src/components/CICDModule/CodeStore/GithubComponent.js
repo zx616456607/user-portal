@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Form, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
-import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import { connect } from 'react-redux'
 import { parseQueryStringToObject } from '../../../common/tools'
 import {
@@ -587,7 +587,8 @@ class GithubComponent extends Component {
         return (
           <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
             <Button type="primary" size="large" style={{ width: 196 }} onClick={() => this.showGithubConfig()} disabled = {isFetching}>{isFetching? '加载中...' : '授权、同步 GitHub  代码源'}</Button>
-            <Modal title={'选择代码源'} visible={this.state.githubConfigModal}
+            <Modal title={'选择代码源'}
+                   visible={this.state.githubConfigModal}
                    onCancel={()=> this.setState({githubConfigModal: false}) }
                    footer={[
                      <Button type="default" size="large" key="cancel" onClick={()=> this.setState({githubConfigModal: false})}>取消</Button>,
@@ -607,23 +608,25 @@ class GithubComponent extends Component {
                       <p className="applicationName">Application name: 任何您喜欢的应用名称, 例如 My app</p>
                       <p className="homePageUrl">
                         Homepage URL:
-
                         <span className="url">{`${window.location.protocol}//${window.location.host}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
-                          <svg className='copy' onClick={() => {this.copyHomepageUrl('homePage')}} onMouseLeave={this.returnDefaultTooltip}>
-                            {/*@#copy*/}
-                            <use xlinkHref='#appcentercopy' />
-                          </svg>
+                          <TenxIcon type="copy"
+                            className='copy'
+                            onClick={() => {this.copyHomepageUrl('homePage')}}
+                            onMouseLeave={this.returnDefaultTooltip}
+                          />
                         </Tooltip>
                       </p>
                       <p>Application description: 任何你喜欢的描述，可选</p>
                       <p className="authorizationUrl">Authorization callback URL:
                         <span className="url">{`${window.location.protocol}//${window.location.host+window.location.pathname}`}</span>
                         <Tooltip title={this.state.copySuccess ? "复制成功" : "点击复制"}>
-                          <svg className='copy' onClick={() => {this.copyHomepageUrl('authorization')}} onMouseLeave={this.returnDefaultTooltip}>
-                            {/*@#copy*/}
-                            <use xlinkHref='#appcentercopy' />
-                          </svg>
+                          <TenxIcon
+                            type="copy"
+                            className='copy'
+                            onClick={() => {this.copyHomepageUrl('authorization')}}
+                            onMouseLeave={this.returnDefaultTooltip}
+                          />
                         </Tooltip>
                       </p>
                     </div>

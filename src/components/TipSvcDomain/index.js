@@ -132,7 +132,7 @@ class AppTip extends Component {
               <Timeline.Item dot={<div></div>}>
                 <TenxIcon type="branch"  className='branchSvg'/>
                 <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>
+                <a href={linkURL} target='_blank'>`
                   {
                     lbgroup2Text(item.data[0])
                   }:{
@@ -176,7 +176,6 @@ class AppTip extends Component {
                       <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
-                        {/*@#copy*/}
                         <TenxIcon type="copy"
                           className='tipCopySvg'
                           onClick={this.copyCode}

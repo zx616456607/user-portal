@@ -32,7 +32,7 @@ import {
   LICENSE_EXPRIED_CODE,
   LITE,
 } from '../../constants'
-import { ROLE_SYS_ADMIN } from '../../../constants'
+import TenxIcon from '@tenx-ui/icon'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
@@ -564,12 +564,9 @@ class App extends Component {
             </Link>,
           ]}
         >
-          <div style={{ textAlign: 'center' }}>
-            <p>
-              <svg>
-                {/*@#lost*/}
-                <use xlinkHref='#lost' />
-              </svg>
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
             </p>
             <p>您的登录状态已失效，请登录后继续当前操作</p>
           </div>
