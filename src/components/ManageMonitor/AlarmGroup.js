@@ -402,7 +402,10 @@ class AlarmGroup extends Component {
             onCancel={() => this.closeDeleteModal()}
             onOk={() => this.deleteGroup(rowSelection)}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？
+            </div>
           </Modal>
         </div>
       </QueueAnim>

@@ -187,7 +187,7 @@ class AppDetail extends Component {
           key='demo'
           type='right'
           >
-          <div className='cover'></div>
+          <div key="cb" className='cover'></div>
           <div key='ca' className='AppInfo' id='AppInfo'>
             <Card className='topCard'>
               <div className='imgBox'>

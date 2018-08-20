@@ -393,7 +393,6 @@ let CreateDatabase = React.createClass({
     }
     return option
   },
-
   //获取集群配置的值
   recordResouceConfigValue(values) {
     let configData = {}
@@ -485,7 +484,18 @@ let CreateDatabase = React.createClass({
     }
 
   },
-
+  // 选出默认存储
+  defaultStorage() {
+    const { storageClassList } = this.props
+    const { cephList } = storageClassList
+    let defaultStorage
+    cephList.map(item => {
+      if(item.metadata.labels["system/storageDefault"] && item.metadata.labels["system/storageDefault"] === "true"){
+        defaultStorage = item.metadata.name
+      }
+    })
+    return defaultStorage
+  },
   render() {
     const { composeType } = this.state
     const { isFetching, projects, projectVisibleClusters, space, database } = this.props
@@ -505,7 +515,8 @@ let CreateDatabase = React.createClass({
       rules: [{
         required: true,
         message: '请选择集群访问方式'
-      }]
+      }],
+
     })
     let accessType = getFieldValue('accessType')
     let outClusterProps
@@ -521,6 +532,7 @@ let CreateDatabase = React.createClass({
       initialValue: 3
     });
     const storageClassProps = getFieldProps('storageClass', {
+      initialValue: this.defaultStorage(),
       rules: [{required: true, message: '块存储名字不能为空'}]
     })
     const zkReplicasProps = getFieldProps('zkReplicas', {

@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Provider } from 'react-redux'
 import routes from '../routes'
 import { Router } from 'react-router'
-import { hot } from 'react-hot-loader'
+// import { hot } from 'react-hot-loader'
 // Internationalization
 import { LocaleProvider } from 'antd'
 import { addLocaleData, IntlProvider } from 'react-intl'
@@ -43,4 +43,4 @@ Root.propTypes = {
   history: PropTypes.object.isRequired
 }
 
-export default hot(module)(Root)
+export default Root

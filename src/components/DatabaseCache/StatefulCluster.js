@@ -11,7 +11,6 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
@@ -20,7 +19,7 @@ import { getProxy } from '../../actions/cluster'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 // import CreateDatabase from './CreateDatabase.js'
-import CreateStatefulDatabase from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
+import CreateStatefulDatabaseModal from '../../../client/containers/DatabaseCache/CreateStatefulDatabase/CreateStatefulDatabase'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
@@ -271,7 +270,7 @@ class StatefulCluster extends Component {
       CreateDatabaseModalShow: true
     });
     setTimeout(function () {
-      document.getElementById('dbName').focus()
+      document.getElementById('name').focus()
     }, 100);
   }
 
@@ -295,7 +294,6 @@ class StatefulCluster extends Component {
       title = '尚未配置块存储集群，暂不能创建'
     }
     return (
-      <QueueAnim>
         <div id='mysqlDatabase' key={`${clusterType}DataBase`}>
           <div className='databaseCol' key={literal.displayName}>
             <Title title={literal.displayName} />
@@ -340,10 +338,9 @@ class StatefulCluster extends Component {
                    this.setState({ CreateDatabaseModalShow: false })
                  }}
           >
-            <CreateStatefulDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+            <CreateStatefulDatabaseModal scope={_this} dbservice={this.state.dbservice} database={clusterType} clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
           </Modal>
         </div>
-      </QueueAnim>
     )
   }
 }

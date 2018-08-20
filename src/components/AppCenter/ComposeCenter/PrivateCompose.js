@@ -344,8 +344,8 @@ class PrivateCompose extends Component {
           onOk={()=> this.deleteAction()}
           onCancel={()=> this.setState({delModal: false})}
         >
-          <div className="modalColor">
-            <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
             您确定要删除编排 {this.state.stackItemName ? this.state.stackItemName.key.split('@')[1]: null} ?
           </div>
         </Modal>

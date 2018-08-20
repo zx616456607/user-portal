@@ -468,7 +468,10 @@ let TeamTable = React.createClass({
         <Modal title="删除团队操作" visible={this.state.delTeamModal} wrapClassName="deleteSingleModal"
                onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
         >
-          <div className="deleteTeamHint"><i className="fa fa-exclamation-triangle" aria-hidden="true" style={{marginRight:'8px'}}/>您是否确定要删除团队 {this.state.teamName} ?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除团队 {this.state.teamName} ?
+          </div>
         </Modal>
       </div>
     )

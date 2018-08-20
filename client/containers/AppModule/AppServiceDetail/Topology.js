@@ -4,14 +4,15 @@
  *
  * Topology component
  *
- * v0.1 - 2018-
- * @author
+ * v0.1 - 2018-08-15
+ * @author lvjunfeng
  */
 
 import React from 'react'
 import RelationChart from '@tenx-ui/relation-chart'
 import { connect } from 'react-redux'
 import * as topologyAction from '../../../actions/appDetailTopology'
+import './styles/Topology.less'
 
 class Topology extends React.Component {
 
@@ -19,10 +20,10 @@ class Topology extends React.Component {
     nodes: [],
     edges: [],
     config: {
-      rankdir: 'LR',
-      nodesep: 150,
-      edgesep: 150,
-      ranksep: 300,
+      rankdir: 'TB',
+      // nodesep: 50,
+      // edgesep: 150,
+      // ranksep: 100,
       marginx: 100,
       marginy: 100,
     },
@@ -31,7 +32,6 @@ class Topology extends React.Component {
 
   componentDidMount = async () => {
     const { nodes, edges } = await this.getInitialData()
-    // const { nodes, edges } = formateNodesEdges(this.onClickNode);
     this.setState({
       nodes,
       edges,
@@ -41,68 +41,61 @@ class Topology extends React.Component {
   getInitialData = async () => {
     const { getTopologyPodList, getTopologyServiceList, cluster, appName } = this.props
     const podResult = await getTopologyPodList(cluster, appName)
-    const pod = podResult.response.result.items[0]
+    const pod = podResult.response.result.items
     const nodes = []
     const edges = []
     const servciceResult = await getTopologyServiceList(cluster, appName)
-    const service = servciceResult.response.result.items[0]
-    nodes.push({
-      id: service.metadata.name,
-      label: service.metadata.name,
-      labelMinor: service.spec.clusterIP,
-      width: 100,
-      height: 50,
-      size: 130,
-      // onClick,
-      isAnimated: true,
-      shape: 'square',
-      // TenxNode: TenxNodeFactory(' ', service.metadata.name, service.spec.clusterIP),
-      color: '#5db75d',
-      labelOffset: 10,
+    const service = servciceResult.response.result.items
+    service.forEach(item => {
+      nodes.push({
+        id: item.metadata.name,
+        label: <div title={item.metadata.name}>{item.metadata.name}</div>,
+        labelMinor: item.spec.clusterIP,
+        width: 50,
+        height: 50,
+        size: 80,
+        isAnimated: true,
+        shape: 'square',
+        color: '#5db75d',
+        onClick: this.onClickNode,
+      })
     })
-    nodes.push({
-      id: pod.metadata.name,
-      label: pod.metadata.name,
-      labelMinor: pod.spec.nodeName,
-      width: 50,
-      height: 50,
-      size: 130,
-      // onClick: this.onClick,
-      isAnimated: true,
-      shape: 'square',
-      // TenxNode: TenxNodeFactory(' ', pod.metadata.name, pod.spec.nodeName),
-      color: '#5db75d',
-      labelOffset: 20,
-    })
-    // edges.push({
-    //   source: pod.metadata.name,
-    //   target: service.metadata.name,
-    //   // withArrow: true,
-    //   arrowOffset: 10,
-    //   // label: 'pod',
-    //   isAnimated: true,
-    // })
-    edges.push({
-      source: service.metadata.name,
-      target: pod.metadata.name,
-      // withArrow: true,
-      arrowOffset: 25,
-      // label: 'service',
-      isAnimated: true,
-      // color: '#5db75d',
+    pod.forEach(item => {
+      nodes.push({
+        id: item.metadata.name,
+        label: <div title={item.metadata.name}>{item.metadata.name}</div>,
+        labelMinor: item.spec.nodeName || 'None',
+        width: 50,
+        height: 50,
+        // size: 130,
+        isAnimated: true,
+        shape: 'circle',
+        color: '#5db75d',
+        onClick: this.onClickNode,
+      })
+      edges.push({
+        source: item.metadata.labels.name,
+        target: item.metadata.name,
+        // withArrow: true,
+        // arrowOffset: 38,
+        // label: 'service',
+        isAnimated: true,
+        // color: '#5db75d',
+      })
     })
     return { nodes, edges }
   }
+
   onClickNode = (lname, e) => {
     e.stopPropagation();
     const { nodes } = this.state;
     const newNodes = [ ...nodes ]
     newNodes.forEach(n => {
       if (n.active !== undefined) {
-        delete n.active;
+        delete n.active
       }
       if (n.id === lname) {
-        n.active = true;
+        n.active = true
       }
     })
     this.setState({ nodes: newNodes })
@@ -139,14 +132,14 @@ class Topology extends React.Component {
   render() {
     const { config, nodes, edges, loading } = this.state
     return (
-      <div id="Topology">
+      <div id="Topology" className="Topology">
         <RelationChart
           graphConfigs={config}
           nodes={nodes}
           edges={edges}
           loading = {loading}
           onSvgClick = {this.onRelationChartClick}
-          SvgHeight = {'600px'}
+          SvgHeight = {'420px'}
         />
       </div>
     )

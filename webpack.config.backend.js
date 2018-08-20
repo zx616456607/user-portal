@@ -48,7 +48,7 @@ fs.readdirSync(path.join(__dirname, './node_modules')).filter(x => {
 })
 
 module.exports = {
-  // devtool: 'source-map',
+  mode: 'production',
   entry: [
     './app.js'
   ],
@@ -69,6 +69,9 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.js', '.json' ],
+  },
+  optimization: {
+    noEmitOnErrors: true
   },
   plugins: [
     new webpack.DefinePlugin({

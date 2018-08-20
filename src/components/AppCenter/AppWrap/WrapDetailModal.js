@@ -543,7 +543,10 @@ class WrapDetailModal extends React.Component {
           onOk={() => this.confirmDeleteModal()}
           confirmLoading={deleteLoading}
         >
-          <div className="confirmText">确定要删除所选附件？</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle"/>
+            确定要删除所选附件？
+          </div>
         </Modal>
         <ReleaseAppModal
           currentApp={pkgDetail}

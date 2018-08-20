@@ -14,9 +14,13 @@ const apiFactory = require('./api_factory')
 const constants = require('../constants')
 const logger = require('../utils/logger').getLogger('services/user_3rd_account')
 
+let Wechat
+if (process.env.RUNNING_MODE === 'standard') {
+  Wechat = require('../3rd_account/wechat')
+}
+
 exports.sendTemplateToWechatLoginUser = function (user) {
-  const wechatApi = require('../3rd_account/wechat')
-  const wechat = new wechatApi()
+  const wechat = new Wechat()
   const method = 'sendTemplateToWechatLoginUser'
   const TEMPLATE_ID = 'IgjIeRv2j-ApC5CN9dPGxoh5toMToPhHhXkwvQeqesg'
   const color = '#586C95'

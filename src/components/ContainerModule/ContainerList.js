@@ -945,8 +945,8 @@ class ContainerList extends Component {
             onOk={() => this.handleOk({force: true})}
             onCancel={() => this.setState({forceDeleteVisble: false})}
           >
-            <div className="confirm" style={{color: 'red'}}>
-              <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
+            <div className="deleteRow" style={{ color: 'red' }}>
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
               您是否确定要强制删除
               {
                 this.state.checkedContainerList.length === 1

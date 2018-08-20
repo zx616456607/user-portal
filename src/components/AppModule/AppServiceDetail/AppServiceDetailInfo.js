@@ -459,7 +459,10 @@ class MyComponent extends Component {
             </Button>,
           ]}
         >
-          <div className='ModalColor'><i className="anticon anticon-question-circle-o modali"></i>你是否确定删除 [<span>{DeletingEnvName}</span>] 环境变量</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            你是否确定删除 [<span>{DeletingEnvName}</span>] 环境变量
+          </div>
         </Modal>
       </div>
     )
@@ -1458,8 +1461,8 @@ class AppServiceDetailInfo extends Component {
           maskClosable={ false }
           wrapClassName="delete_container_calalogue"
         >
-          <div className='tips'>
-            <Icon type="question-circle-o" className='question_icon'/>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
             确定移除当前的容器目录吗？
           </div>
         </Modal>

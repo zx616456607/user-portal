@@ -145,7 +145,10 @@ class CollapseHeader extends Component {
           <Modal title="删除配置组操作" visible={this.state.delModal}
                  onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >
-            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置组 {collapseHeader.name} ?</div>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              您是否确定要删除配置组 {collapseHeader.name} ?
+            </div>
           </Modal>
         </Col>
       </Row>

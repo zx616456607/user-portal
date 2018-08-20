@@ -491,8 +491,10 @@ let TenantDetail = React.createClass({
             </div>
           </div>
           <Modal title="删除角色" visible={this.state.Removerol} onOk={() => this.handleOk()} onCancel={() => this.handleCloseRole()} >
-            <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true">
-            </i>从项目{this.state.record.projectName}中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目{this.state.record.projectName}中移除该角色？</div></p>
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+              从项目{this.state.record.projectName}中移除该角色后与该角色相关联的所有成员及团队将从项目中移除，确定从项目{this.state.record.projectName}中移除该角色？
+            </div>
           </Modal>
           <Modal title="移除权限"
             visible={this.state.Removepermis}

@@ -416,9 +416,10 @@ class ServiceSecretsConfig extends React.Component {
           onCancel={() => this.setState({ deleteServiceGroupModalVisible: false })}
           confirmLoading={deleteServiceGroupModalConfrimLoading}
         >
-          <div className="modalColor">
-          <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>
-          您是否确定要删除配置组 {checkedList.join('，')} ?</div>
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            您是否确定要删除配置组 {checkedList.join('，')} ?
+          </div>
         </Modal>
         {/* 添加加密对象-弹出层-*/}
         {

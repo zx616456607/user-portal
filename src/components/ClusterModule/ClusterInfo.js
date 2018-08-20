@@ -478,9 +478,9 @@ let ClusterInfo = React.createClass ({
           visible={this.state.deleteClusterModal}
           onOk={this.confirmDeleteCluster}
           onCancel={() => this.setState({deleteClusterModal: false})}>
-          <div style={{ color: '#00a0ea', height: "50px" }}>
-            <Icon type='exclamation-circle-o' />
-            &nbsp;&nbsp;&nbsp;确定要删除“{clusterName}”？
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+            确定要删除“{clusterName}”？
           </div>
           {
             this.clusterListLength().length == 1

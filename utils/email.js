@@ -22,6 +22,11 @@ const fs = require('fs')
 const EMAIL_TEMPLATES_DIR = `${__root__dirname}/templates/email`
 const SendCloud = require('sendcloud')
 
+let standardConfigs
+if (process.env.RUNNING_MODE === 'standard') {
+  standardConfigs = require('../configs/_standard')
+}
+
 /**
  * Send email use SMTP
  *
@@ -97,7 +102,7 @@ exports.sendEmail = sendEmail
 function sendEmailBySendcloud(mailOptions) {
   // Standard mode use condfigs/_standard
   if (config.running_mode === constants.STANDARD_MODE) {
-    config.sendcloud = require('../configs/_standard').sendcloud
+    config.sendcloud = standardConfigs.sendcloud
   }
   const sendcloudConfig = config.sendcloud
   let apiUser
