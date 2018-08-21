@@ -45,10 +45,7 @@ export default class Version extends Component{
                       <span className="infSvgTxt">系统名称</span>
                     </Col>
                     <Col span={8}>
-                      {/*@#...*/}
-                      <svg className="infSvg" style={{marginRight:8}}>
-                        <use xlinkHref="#settingtranname" />
-                      </svg>
+                      <TenxIcon type="setting-tran-name" className="sysName"/>
                       <span className="infSvgTxt">对应名称</span>
                     </Col>
                     <Col span={8}>

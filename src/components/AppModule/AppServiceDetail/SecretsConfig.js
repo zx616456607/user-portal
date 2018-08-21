@@ -13,9 +13,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import find from 'lodash/find'
-import { Link } from 'react-router'
+import TenxIcon from '@tenx-ui/icon'
 import {
-  Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip
+  Card, Modal ,Input , Button, Popover, Tooltip
 } from 'antd'
 import { getSecrets } from '../../../actions/secrets'
 import './style/SecretsConfig.less'
@@ -125,8 +125,7 @@ class SecretsConfig extends React.Component {
                       ))}
                       getTooltipContainer={()=> document.getElementById('secrets-config')}
                     >
-                      {/*@#ellipsis*/}
-                      <svg className="more"><use xlinkHref="#more"></use></svg>
+                      <TenxIcon type="ellipsis" className="more"/>
                     </Popover>
                   }
                 </div>
