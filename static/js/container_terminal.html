@@ -100,7 +100,15 @@
           // console.log('error', event)
         })
         ws.addEventListener('message', function (message) {
-          if (b64_to_utf8(message.data) === '[403 resource permission error] This operation has no permissions') {
+          const msg = b64_to_utf8(message.data)
+          // 终端 exit
+          if (encodeURI(msg) === '%0D%0Aexit%0D%0A') {
+            term.destroy()
+            term = null
+            termCallback(data['pod'], 'exit')
+            return
+          }
+          if (msg === '[403 resource permission error] This operation has no permissions') {
             const error = {
               statusCode: 403,
               message: {
@@ -140,14 +148,6 @@
               ws.send("0" + utf8_to_b64(_data));
             }
             if (_data == '\r' || _data == '\n') {
-              if (inputCmd.trim() == 'exit') {
-                // timeout for websocket send message
-                setTimeout(function() {
-                  term.destroy()
-                  term = null
-                }, 100);
-                termCallback(data['pod'], 'exit')
-              }
               inputCmd = ''
             }
           });
