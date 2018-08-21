@@ -831,39 +831,46 @@ class ImageVersion extends Component {
                 <Icon type="question-circle-o" style={{cursor: 'pointer'}} />
               </Tooltip>）
               {
-                !isEditMaxTag &&
-                <Tooltip title="编辑">
-                  <Icon
-                    type="edit"
-                    style={{ cursor: 'pointer', marginLeft: 8 }}
-                    onClick={() => {
-                      this.max_tags_count = max_tags_count
-                      this.setState({ isEditMaxTag: true })
-                    }}
-                  />
-                </Tooltip>
-              }
-              {
-                isEditMaxTag && [
-                  <Tooltip title="取消">
-                    <Icon
-                      key="cancel"
-                      type="cross"
-                      style={{ cursor: 'pointer', marginLeft: 8 }}
-                      onClick={() => {
-                        this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
-                      }}
-                    />
-                  </Tooltip>,
-                  <Tooltip title="保存">
-                    <Icon
-                      key="save"
-                      type="save"
-                      style={{ cursor: 'pointer', marginLeft: 16 }}
-                      onClick={this.onConfirmOk}
-                    />
-                  </Tooltip>
-                ]
+                isAdminAndHarbor ?
+                  <span>
+                    {
+                      !isEditMaxTag &&
+                      <Tooltip title="编辑">
+                        <Icon
+                          type="edit"
+                          style={{ cursor: 'pointer', marginLeft: 8 }}
+                          onClick={() => {
+                            this.max_tags_count = max_tags_count
+                            this.setState({ isEditMaxTag: true })
+                          }}
+                        />
+                      </Tooltip>
+                    }
+                    {
+                      isEditMaxTag && [
+                        <Tooltip title="取消">
+                          <Icon
+                            key="cancel"
+                            type="cross"
+                            style={{ cursor: 'pointer', marginLeft: 8 }}
+                            onClick={() => {
+                              this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
+                            }}
+                          />
+                        </Tooltip>,
+                        <Tooltip title="保存">
+                          <Icon
+                            key="save"
+                            type="save"
+                            style={{ cursor: 'pointer', marginLeft: 16 }}
+                            onClick={this.onConfirmOk}
+                          />
+                        </Tooltip>
+                      ]
+                    }
+                  </span>
+                  :
+                  null
               }
             </span>
             {/* <div className='SearchInput' style={{ width: 280 }}>
