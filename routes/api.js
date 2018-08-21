@@ -336,6 +336,7 @@ module.exports = function (Router) {
 
   router.post('/registries/:registry/projects', harborController.createProject)
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
+  router.put('/registries/:registry/projects/:project_id', harborController.updateProject)
   router.del('/registries/:registry/projects/:project_id', harborController.deleteProject)
   router.put('/registries/:registry/projects/:project_id/publicity', harborController.updateProjectPublicity)
   router.get('/registries/:registry/projects/:project_id/members', harborController.getProjectMembers)

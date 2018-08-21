@@ -612,13 +612,42 @@ export function loadRepositoriesTagConfigInfo(harbor, registry, imageName, tag, 
   }
 }
 
+export const UPDATE_HARBOR_PROJECT_PUBLIC_REQUEST = 'UPDATE_HARBOR_PROJECT_PUBLIC_REQUEST'
+export const UPDATE_HARBOR_PROJECT_PUBLIC_SUCCESS = 'UPDATE_HARBOR_PROJECT_PUBLIC_SUCCESS'
+export const UPDATE_HARBOR_PROJECT_PUBLIC_FAILURE = 'UPDATE_HARBOR_PROJECT_PUBLIC_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectPublicity(harbor, registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}/publicity?harbor=${harbor}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ UPDATE_HARBOR_PROJECT_PUBLIC_REQUEST, UPDATE_HARBOR_PROJECT_PUBLIC_SUCCESS, UPDATE_HARBOR_PROJECT_PUBLIC_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateProjectPublicity(harbor, registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProjectPublicity(harbor, registry, id, body, callback))
+  }
+}
+
 export const UPDATE_HARBOR_PROJECT_REQUEST = 'UPDATE_HARBOR_PROJECT_REQUEST'
 export const UPDATE_HARBOR_PROJECT_SUCCESS = 'UPDATE_HARBOR_PROJECT_SUCCESS'
 export const UPDATE_HARBOR_PROJECT_FAILURE = 'UPDATE_HARBOR_PROJECT_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateProject(harbor, registry, id, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}/publicity?harbor=${harbor}`
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}?harbor=${harbor}`
   return {
     registry,
     [FETCH_API]: {
