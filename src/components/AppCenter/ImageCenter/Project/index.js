@@ -16,7 +16,7 @@ import '../style/Project.less'
 import DataTable from './DataTable'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
-import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
+import { loadProjectList, createProject, deleteProject, updateProject, updateProjectPublicity, loadSysteminfo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
 import { DEFAULT_REGISTRY, SEARCH } from '../../../../constants'
 
@@ -219,13 +219,14 @@ class Project extends Component {
   }
   render() {
     const { getFieldProps } = this.props.form
-    const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser, harbor } = this.props
+    const { harborProjects, harborSysteminfo, createProject, updateProject, updateProjectPublicity, loginUser, harbor } = this.props
     const { currentPage } = this.state
     const func = {
       scope: this,
       loadData: this.loadData,
       createProject,
       updateProject,
+      updateProjectPublicity,
     }
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     const isShowCreateBtn = harborSysteminfo[camelize('project_creation_restriction')] === 'everyone' || isAdmin
@@ -305,5 +306,6 @@ export default connect(mapStateToProps, {
   createProject,
   deleteProject,
   updateProject,
+  updateProjectPublicity,
   loadSysteminfo,
 })(Project)

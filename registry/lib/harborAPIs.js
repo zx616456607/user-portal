@@ -415,6 +415,12 @@ HarborAPIs.prototype.deleteProject = function (id, callback) {
   this.sendRequest(url, 'DELETE', null, callback)
 }
 
+// [PUT] /projects/:project_id
+HarborAPIs.prototype.updateProject = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
 // [PUT] /projects/:project_id/publicity
 HarborAPIs.prototype.updateProjectPublicity = function (id, body, callback) {
   const url = `${this.getAPIPrefix()}/projects/${id}/publicity`
