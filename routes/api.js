@@ -808,6 +808,7 @@ module.exports = function (Router) {
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
   router.get('/devops/resourcequota/inuse', devopsController.checkResourceDevopsquotaExist)
+  router.get('/devops/resourcequota', devopsController.getResourceDevopsquotaSet) // 获取设置中的量
 
   //clean
   router.put('/cleaner/settings', cleanController.startCleaner)
