@@ -10,18 +10,9 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, Popover, Spin, Modal } from 'antd'
 import './style/PersonalResource.less'
-import { browserHistory } from 'react-router'
-import { setCurrent } from '../../../actions/entities'
-import { connect } from 'react-redux'
-import PopContent from '../../PopSelect/Content'
-import NotificationHandler from '../../../components/Notification'
-import { parseAmount } from '../../../common/tools'
 import servicenumberImg from '../../../../static/img/servicenumber.svg'
 import applicationnumberImg from '../../../../static/img/applicationnumber.svg'
 import containercountImg from '../../../../static/img/containercount.svg'
-import SpaceRecharge from '../_Enterprise/Recharge/SpaceRecharge'
-import { ROLE_SYS_ADMIN } from '../../../../constants'
-
 
 let PersonalSpace = React.createClass({
   getInitialState() {
