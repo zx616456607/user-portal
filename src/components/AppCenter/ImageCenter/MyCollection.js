@@ -291,7 +291,7 @@ class MyCollection extends Component {
       dataIndex: 'description',
       key: 'description',
       width:'40%',
-      render:(text, row) => {1
+      render:(text, row) => {
         return (
           <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{server}/{row.name}</div>
         )
