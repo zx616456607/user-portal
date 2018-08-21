@@ -70,10 +70,15 @@ class ConfigManagement extends React.Component {
           clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
             success: {
               func: res => {
+                const notification = new NotificationHandler()
+                notification.success('保存成功，需重启后生效')
                 this.setState({
                   isEdit: false,
                   configContent: res.data.config,
                   configContentDefault: res.data.config,
+                })
+                setTimeout(() => {
+                  this.props.onEditConfigOk()
                 })
               },
             },
@@ -91,10 +96,15 @@ class ConfigManagement extends React.Component {
         editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
           success: {
             func: res => {
+              const notification = new NotificationHandler()
+              notification.success('保存成功，需重启后生效')
               this.setState({
                 isEdit: false,
                 configContent: res.data.spec.advanceSetting.master,
                 configContentDefault: res.data.spec.advanceSetting.master,
+              })
+              setTimeout(() => {
+                this.props.onEditConfigOk()
               })
             },
           },

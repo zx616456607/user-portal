@@ -1328,6 +1328,11 @@ class ModalDetail extends Component {
       </div>
     </Modal>
   }
+  editConfigOk = () => {
+    const { database, loadDbClusterDetail, dbName, cluster } = this.props
+    loadDbClusterDetail(cluster, dbName, database, true);
+
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
     if (isFetching || databaseInfo == null) {
@@ -1370,14 +1375,14 @@ class ModalDetail extends Component {
                 database === 'mysql' || database === 'redis' ?
                   <div className='li'>
                     {
-                      needReboot === 'enable'?
+                      needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
                           <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} onClick={() => {this.setState({rebootClusterModal: true})}}>
+                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {this.setState({rebootClusterModal: true})}}>
                           重启
                         </Button>
                     }
@@ -1451,7 +1456,7 @@ class ModalDetail extends Component {
                     <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
                   </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
-                    <ConfigManagement database={database} databaseInfo={databaseInfo}/>
+                    <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
                   </TabPane>
                   { billingEnabled ?
                     [<TabPane tab='访问方式' key='#VisitType'>
