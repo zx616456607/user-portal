@@ -19,8 +19,8 @@ const path = require('path')
 const prikeyfile = path.join(__root__dirname, './configs/3rd_account/saml2_sslkey/private.pem')
 const certfile = path.join(__root__dirname, './configs/3rd_account/saml2_sslkey/rsacert.crt')
 const sslkeys = {
-  private: fs.readFileSync(prikeyfile),
-  cert: fs.readFileSync(certfile)
+  private: fs.readFileSync(prikeyfile).toString(),
+  cert: fs.readFileSync(certfile).toString()
 }
 
 exports.getOptions = function () {
