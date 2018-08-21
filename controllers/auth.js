@@ -19,8 +19,10 @@ const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const emailUtil = require("../utils/email")
 const security = require("../utils/security")
 const cas = require('../3rd_account/cas')
+const saml2 = require('../3rd_account/saml2')
 
 const isCasMode = !!process.env.CAS_SSO_BASE
+const isSAML2Mode = !!process.env.SAML2_SSO_BASE
 
 exports.login = function* () {
   let method = 'login'
@@ -47,10 +49,19 @@ exports.login = function* () {
     return this.redirect('/cas/login')
   }
 
+  // SAML2
+  if (isSAML2Mode) {
+    return this.redirect('/saml2/login')
+  }
+
   yield this.render(global.indexHtml, { title, body: '' })
 }
 
 exports.logout = function* () {
+  if (isSAML2Mode) {
+    return yield saml2.logoutRedirect.apply(this)
+  }
+
   delete this.session.loginUser
   this.session = null
 
