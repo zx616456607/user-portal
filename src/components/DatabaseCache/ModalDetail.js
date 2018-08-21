@@ -20,7 +20,9 @@ import { loadDbClusterDetail,
   putDbClusterDetail,
   loadDbCacheList,
   editDatabaseCluster,
-  updateMysqlPwd,} from '../../actions/database_cache'
+  updateMysqlPwd,
+  rebootCluster,
+} from '../../actions/database_cache'
 import { setServiceProxyGroup, dbServiceProxyGroupSave } from '../../actions/services'
 import { getProxy } from '../../actions/cluster'
 import './style/ModalDetail.less'
@@ -1022,7 +1024,9 @@ class ModalDetail extends Component {
       putModaling: false,
       startAlertModal: false,
       stopAlertModal: false,
-      accessMethodData: null
+      accessMethodData: null,
+      rebootClusterModal: false,
+      rebootLoading: false
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1051,7 +1055,6 @@ class ModalDetail extends Component {
         }
       }
     });
-
   }
   componentWillMount() {
     const { loadDbClusterDetail, cluster, dbName, database } = this.props
@@ -1212,7 +1215,7 @@ class ModalDetail extends Component {
        return (<span className='padding'><i className="fa fa-circle"></i> 启动中 </span>)
     }
     if (status === 'Stopping') {
-       return (<span className='padding'><i className="fa fa-circle"></i> 停止中 </span>)
+       return (<span className='stopping'><i className="fa fa-circle"></i> 停止中 </span>)
     }
     if (status === 'Stopped') {
        return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
@@ -1278,8 +1281,52 @@ class ModalDetail extends Component {
         return <div  onClick={this.startAlert}>启动</div>
     }
   }
-  restart = () => {
-    const { databaseInfo } = this.props
+  reboot = () => {
+    const confirm = () => {
+      const { database, loadDbClusterDetail, dbName, cluster, rebootCluster } = this.props
+      this.setState({
+        rebootLoading: true
+      })
+      rebootCluster(cluster, dbName, database, {
+        success: {
+          func: () => {
+            this.setState({
+              rebootClusterModal: false,
+              rebootLoading: false
+            })
+            setTimeout(() => {
+              loadDbClusterDetail(cluster, dbName, database, true);
+            })
+          }
+        },
+        failed: {
+          func: () => {
+            const notification = new NotificationHandler()
+            notification.error('重启失败')
+            this.setState({
+              rebootClusterModal: false,
+              rebootLoading: false
+            })
+          }
+        }
+      })
+    }
+    return <Modal
+      title="重启集群"
+      onOk={confirm}
+      confirmLoading={this.state.rebootLoading}
+      onCancel={() => {
+        this.setState({
+          rebootClusterModal: false,
+          rebootLoading: false
+        })
+      }}
+      visible={this.state.rebootClusterModal}
+    >
+      <div>
+        确认重启集群吗？
+      </div>
+    </Modal>
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
@@ -1290,6 +1337,7 @@ class ModalDetail extends Component {
         </div>
       )
     }
+    const needReboot = databaseInfo.objectMeta.annotations['system/daasReboot']
     const operationMenu = () => <Menu>
       <MenuItem key="del" disabled={this.state.deleteBtn}>
         <div onClick={()=> this.setState({delModal: true})}>删除集群</div>
@@ -1321,11 +1369,19 @@ class ModalDetail extends Component {
               {
                 database === 'mysql' || database === 'redis' ?
                   <div className='li'>
-                    <Tooltip title="集群配置已更改，重启后生效">
-                      <Button style={{marginRight:'16px'}} className="shinning" onClick={()=> this.restart()}>
-                        重启
-                      </Button>
-                    </Tooltip>
+                    {
+                      needReboot === 'enable'?
+                        <Tooltip title="集群配置已更改，重启后生效">
+                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {this.setState({rebootClusterModal: true})}}>
+                            重启
+                          </Button>
+                        </Tooltip>
+                        :
+                        <Button style={{marginRight:'16px'}} onClick={() => {this.setState({rebootClusterModal: true})}}>
+                          重启
+                        </Button>
+                    }
+                    {this.reboot()}
                     <Button style={{marginRight:'16px'}} onClick={()=> this.refurbishDetail()}>
                       <i className="fa fa-refresh"></i>&nbsp;
                       刷新
@@ -1549,4 +1605,5 @@ export default connect(mapStateToProps, {
   parseAmount,
   editDatabaseCluster,
   updateMysqlPwd,
+  rebootCluster,
 })(ModalDetail)
