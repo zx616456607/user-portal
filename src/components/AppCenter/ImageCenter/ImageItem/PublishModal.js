@@ -304,7 +304,7 @@ class PublishModal extends React.Component {
           Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
         }
       } else {
-        const { select_version, target_store, commit_msg } = values
+        const { select_version, target_store, commit_msg, targetCluster } = values
         body = {
           origin_id: `${server}/${currentImage.name}:${select_version}`,
           targetProject: target_store,
@@ -450,6 +450,9 @@ class PublishModal extends React.Component {
   }
   onClusterChange = (value) => {
     const { radioVal } = this.state
+    this.props.form.setFieldsValue({
+      target_store: undefined,
+    })
     this.getProjects(radioVal, value)
   }
   getProjects = (radioVal, clusterID) => {

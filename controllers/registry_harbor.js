@@ -201,6 +201,10 @@ function _formatConfig(configInfo) {
 exports.getProjectDetail = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectDetail(ctx.params.project_id, callback))
 
+// [PUT] /projects/:project_id
+exports.updateProject = harborHandler(
+  (harbor, ctx, callback) => harbor.updateProject(ctx.params.project_id, ctx.request.body, callback))
+
 // [DELETE] /projects/:project_id
 exports.deleteProject = harborHandler(
   (harbor, ctx, callback) => harbor.deleteProject(ctx.params.project_id, callback))

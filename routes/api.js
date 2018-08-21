@@ -336,6 +336,7 @@ module.exports = function (Router) {
 
   router.post('/registries/:registry/projects', harborController.createProject)
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
+  router.put('/registries/:registry/projects/:project_id', harborController.updateProject)
   router.del('/registries/:registry/projects/:project_id', harborController.deleteProject)
   router.put('/registries/:registry/projects/:project_id/publicity', harborController.updateProjectPublicity)
   router.get('/registries/:registry/projects/:project_id/members', harborController.getProjectMembers)
@@ -806,6 +807,7 @@ module.exports = function (Router) {
   router.put('/resourcequota', quotaController.update)
   router.get('/resourcequota/inuse', quotaController.list)
   router.get('/devops/resourcequota/inuse', devopsController.checkResourceDevopsquotaExist)
+  router.get('/devops/resourcequota', devopsController.getResourceDevopsquotaSet) // 获取设置中的量
 
   //clean
   router.put('/cleaner/settings', cleanController.startCleaner)

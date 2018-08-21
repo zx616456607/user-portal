@@ -182,12 +182,12 @@ class AlarmRecord extends Component {
           ruleName: r.ruleName,
           serviceName: r.serviceName,
           numHits: r.numHits,
-          numMatches: r.numMatches,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
           targetName: r.targetName,
           triggerValue: r.triggerValue,
           triggerRule: r.triggerRule,
+          regex: r.regex,
           status: r.status,
           strategyID: r.strategyID,
           alertSent: r.alertSent
@@ -319,10 +319,11 @@ class AlarmRecord extends Component {
         title: '告警当前值',
         dataIndex: 'numHits',
       },
-      // {
-      //   title: '告警规则',
-      //   dataIndex: 'numMatches',
-      // },
+      {
+        title: '告警规则',
+        dataIndex: 'regx',
+        render: (val, record) => <div>{record.regex ? record.regex : '已删除'}</div>
+      },
       {
         title: '是否发送邮件',
         dataIndex: 'alertSent',

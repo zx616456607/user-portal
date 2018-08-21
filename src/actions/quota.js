@@ -112,6 +112,36 @@ export function getDevopsGlobaleQuotaList(query, callback) {
   }
 }
 
+// 这里请求的是devops中的全局资源使用量
+export const FETCH_DEVOPS_GLOBALE_QUOTA_SET_REQUEST = 'FETCH_DEVOPS_GLOBALE_QUOTA_SET_REQUEST'
+export const FETCH_DEVOPS_GLOBALE_QUOTA_SET_SUCCESS = 'FETCH_DEVOPS_GLOBALE_QUOTA_SET_SUCCESS'
+export const FETCH_DEVOPS_GLOBALE_QUOTA_SET_FAILURE = 'FETCH_DEVOPS_GLOBALE_QUOTA_SET_FAILURE'
+
+function fetchDevopsGlobaleQuotaSet(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/devops/resourcequota`
+  let newheaders
+  if (query.header !== undefined) {
+    newheaders = query.header
+  }
+  return {
+    [FETCH_API]: {
+      types: [FETCH_DEVOPS_GLOBALE_QUOTA_SET_REQUEST, FETCH_DEVOPS_GLOBALE_QUOTA_SET_SUCCESS, FETCH_DEVOPS_GLOBALE_QUOTA_SET_FAILURE],
+      endpoint,
+      options: {
+        headers: newheaders,
+        method: 'GET',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getDevopsGlobaleQuotaSet(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDevopsGlobaleQuotaSet(query, callback))
+  }
+}
 
 
 

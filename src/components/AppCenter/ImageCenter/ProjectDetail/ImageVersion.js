@@ -733,7 +733,7 @@ class ImageVersion extends Component {
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
-              <span><Icon type="eye-o" />查看详情</span>
+              <span><Icon type="eye-o" /> 查看详情</span>
             </Button>
             <Dropdown
               visible={typeof this.state.dropdownVisible[name] === "boolean" ? this.state.dropdownVisible[name] : this.dropdownVisible[name]}
@@ -747,13 +747,13 @@ class ImageVersion extends Component {
                     isAdminAndHarbor ?
                       items
                       :
-                      ""
+                      <Menu.Item style={{ display: 'none' }}></Menu.Item>
                   }
                   {
                     !isAdminAndHarbor && (currentUserRole === 1 || currentUserRole === 2)?
                       labelMenu
                       :
-                      ""
+                      <Menu.Item style={{ display: 'none' }}></Menu.Item>
                   }
                 </Menu>
               }>
