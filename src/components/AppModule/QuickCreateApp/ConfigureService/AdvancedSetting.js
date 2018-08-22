@@ -146,11 +146,7 @@ const AdvancedSetting = React.createClass({
           type === 'secret' && this.loadSecrets()
       },
     })
-    const envValueProps = getFieldProps(envValueKey, {
-       rules: [
-         { required: true, message: '请填写值' }
-       ],
-    })
+    const envValueProps = getFieldProps(envValueKey)
     const envValueType = getFieldValue(envValueTypeKey)
     const envValueInputClass = classNames({
       hide: envValueType !== 'normal',
