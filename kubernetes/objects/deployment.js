@@ -262,9 +262,7 @@ class Deployment {
       }
       const envObj = {
         name,
-      }
-      if (value) {
-        envObj.value = value
+        value,
       }
       if (valueFrom) {
         envObj.valueFrom = valueFrom
