@@ -836,6 +836,9 @@ class VisitTypes extends Component{
     })
 
     let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+    if(databaseInfo.service.annotations['system/lbgroup'] === 'none') {
+      portAnnotation = ''
+    }
     let externalPort = ''
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
@@ -846,7 +849,7 @@ class VisitTypes extends Component{
     let externalUrl
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.serviceInfo && databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo && databaseInfo.serviceInfo.namespace + '.' + domain + ':' + (externalPort || '未知')
+        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
         externalUrl = bindingIP + ':' + (externalPort || '未知')
       }
