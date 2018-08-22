@@ -11,7 +11,8 @@ import React, { Component } from 'react'
 import { Card, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import './style/sider.less'
+//import './style/sider.less'
+import './style/index.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
@@ -377,7 +378,6 @@ class Sider extends Component {
           return tenantMenu_user
       }
     };
-
     const settingMenu_admin = [
       <Menu.Item key='version'>
         <Link to='/setting/version'>
@@ -769,8 +769,11 @@ class Sider extends Component {
               >
                 <Menu.Item key='home'>
                   <Link to='/'>
-                    <TenxIcon type='instrument-o'/>
-                    <span>总览</span>
+                    <span>
+                      <TenxIcon className="commonImg" type='instrument-o'/>
+                      <span className='commonSiderSpan'>总览</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
                   </Link>
                 </Menu.Item>
                 <SubMenu key='app_manage'
