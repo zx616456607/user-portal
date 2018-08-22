@@ -97,7 +97,7 @@ class ImageCheckTable extends React.Component {
       type: 2,
       status,
       imageTagName: `${record.image}:${record.tag}`,
-      targetCluster: record.CurrentCluster || "",
+      targetCluster: record.TargetCluster || "",
     }
     if (status === 2) {
       Object.assign(body, { origin_id: record.originID })
