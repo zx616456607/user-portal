@@ -732,7 +732,7 @@ class ResourceQuota extends React.Component {
               </Link>
             </div> : ''
           }
-          { ( roleNameArr && ( !roleNameArr.length || roleNameArr.length === 1 && roleNameArr[0] === '项目访客' ))
+          { ( roleNameArr && ( !roleNameArr.length || (roleNameArr.length === 1 && roleNameArr[0] === '项目访客')))
             && <div className="alertTips">Tips: 可联系项目管理员申请配额</div> }
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
