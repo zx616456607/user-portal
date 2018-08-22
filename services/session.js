@@ -85,3 +85,18 @@ function removeKeyByUserID(userID) {
 }
 
 exports.removeKeyByUserID = removeKeyByUserID
+
+function removeKeyByOptionKeyValue(key, value) {
+  return getAllSessions().then(sessions => {
+    let delTargetKeys = []
+    sessions.forEach(session => {
+      const sessionUser = session.loginUser || {}
+      if (value === sessionUser[key]) {
+        delTargetKeys.push(delKey(session._key))
+      }
+    })
+    return delTargetKeys
+  })
+}
+
+exports.removeKeyByOptionKeyValue = removeKeyByOptionKeyValue

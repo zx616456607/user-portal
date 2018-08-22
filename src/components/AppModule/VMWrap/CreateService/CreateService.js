@@ -24,7 +24,7 @@ const Panel = Collapse.Panel;
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { checkServiceExists, createVMservice, checkVMUser } from '../../../../actions/vm_wrap'
-import { validateK8sResourceForServiceName } from '../../../../common/naming_validation'
+import { vmWrapNameValidation } from '../../../../common/naming_validation'
 
 class VMServiceCreate extends React.Component {
   constructor(props) {
@@ -57,13 +57,9 @@ class VMServiceCreate extends React.Component {
   }
   serviceNameCheck(rules,value,callback) {
     const { checkServiceExists } = this.props;
-    let newValue = value
-    if (!Boolean(newValue)) {
-      callback('请输入传统应用名称')
-      return
-    }
-    if (!validateK8sResourceForServiceName(newValue)) {
-      return callback('应用名称可由3~63位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+    const message = vmWrapNameValidation(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     clearTimeout(this.projectNameCheckTimeout)
     this.projectNameCheckTimeout = setTimeout(()=>{

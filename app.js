@@ -307,6 +307,10 @@ app.use(vsettan(Router))
 const cas = require('./routes/3rd_account/cas/no_auth')
 app.use(cas(Router))
 
+// 3rd_account saml2
+const saml2 = require('./routes/3rd_account/saml2/no_auth')
+app.use(saml2(Router))
+
 // Serve static files
 app.use(function* (next){
   try {

@@ -105,12 +105,12 @@ class ResourceQuota extends React.Component {
         }
       }
     }
-    // 如果是个人账户页面，teamspace传default
-    if(window.location.pathname === '/account') {
+    // 查看配额，若是用户中心或租户管理-成员管理详情，teamspace应该是该用户的用户名，去获取用户对应的数据
+    if(userName) {
       query = {
         id: key ? key : clusterID,
         header: {
-          teamspace: 'default'
+          teamspace: userName
         }
       }
     }

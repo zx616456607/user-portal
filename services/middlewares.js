@@ -127,7 +127,8 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
-  } else if(body.accountType == 'vsettan' || body.accountType == 'cas') {
+  } else if(body.accountType == 'vsettan' || body.accountType == 'cas' ||
+    body.accountType == 'saml2') {
     data.accountType = body.accountType
     data.accountID = body.accountID
     data.userName = body.userName
@@ -182,8 +183,9 @@ exports.verifyUser = function* (next) {
   }
   // These message(and watchToken etc.) will be save to session
   let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
-  if (body.accountType == 'vsettan' || body.accountType == 'cas') {
-    // Use accountName and accountID for authority check
+  if (body.accountType === 'vsettan' || body.accountType === 'cas' ||
+    body.accountType === 'saml2') {
+    // Use accountName and accountID for authority checknameIDFormat
     registryAuth =  Buffer(result.namespace + ':' + body.accountID).toString('base64');
   }
   const loginUser = {
@@ -250,6 +252,11 @@ exports.verifyUser = function* (next) {
       // Save to session for redirect when user refresh page
       loginUser[NO_CLUSTER_FLAG] = true
     }
+  }
+  if (body.IDPClientId) {
+    loginUser.IDPClientId = body.IDPClientId
+    loginUser.nameIDFormat = body.nameIDFormat
+    loginUser.nameID = body.nameID
   }
 
   this.session.loginUser = loginUser
