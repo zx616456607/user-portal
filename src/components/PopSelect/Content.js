@@ -16,6 +16,7 @@ import classNames from 'classnames'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 const Panel = Collapse.Panel
+import uuid from 'uuid'
 
 class PopSelect extends Component {
   constructor(props) {
@@ -23,6 +24,8 @@ class PopSelect extends Component {
     this.handleSearchInput = this.handleSearchInput.bind(this)
     this.handleSearchUserInput = this.handleSearchUserInput.bind(this)
     const { list, allUsers } = props
+    this.userListId = uuid.v4()
+    this.searchListId = uuid.v4()
     this.state = {
       list,
       userSearchList: allUsers,
@@ -78,7 +81,7 @@ class PopSelect extends Component {
       -- newList
     }
 
-    const searchList = document.getElementById('userList')
+    const searchList = document.getElementById(this.userListId)
     this.setState({ userListIndex: newList },()=> {
       searchList.scrollTop = (newList-1) * 30;
     })
@@ -117,7 +120,7 @@ class PopSelect extends Component {
       -- newList
     }
 
-    const searchList = document.getElementById('searchList')
+    const searchList = document.getElementById(this.searchListId)
     this.setState({ listIndex: newList },()=> {
       searchList.scrollTop = (newList-1) * 30;
     })
@@ -233,7 +236,7 @@ class PopSelect extends Component {
             />
             <Icon type="search" className='titleicon' onClick={this.handleSearchUserInput}/>
           </span>
-          <ul className="searchList" id="userList">
+          <ul className="searchList" id={this.userListId}>
             {
               userSearchList.length === 0
                 ? <div className='loadingBox'>结果为空</div>
@@ -285,7 +288,7 @@ class PopSelect extends Component {
                 </span>
               )
             }
-            <ul className="searchList" id="searchList">
+            <ul className="searchList" id={this.searchListId}>
               {searchList}
             </ul>
           </div>
@@ -320,7 +323,7 @@ class PopSelect extends Component {
                 </span>
               )
             }
-            <ul className="searchList" id="searchList">
+            <ul className="searchList" id={this.searchListId}>
               {searchList}
             </ul>
           </Panel>
