@@ -23,6 +23,8 @@ class PopSelect extends Component {
     this.handleSearchInput = this.handleSearchInput.bind(this)
     this.handleSearchUserInput = this.handleSearchUserInput.bind(this)
     const { list, allUsers } = props
+    this.userListId = 'user_' +(Math.random() *10).toString(16)
+    this.searchListId = 'search_' + (Math.random() *10).toString(16)
     this.state = {
       list,
       userSearchList: allUsers,
@@ -44,7 +46,84 @@ class PopSelect extends Component {
       userSearchList: allUsers,
     })
   }
+  userKeyCode(e) {
+    const { userSearchList,userListIndex  } = this.state
+    switch(e.keyCode) {
+      case 38:{// up
+        this.userListIndexSelect(userSearchList.length -1,'-')
+        return;
+      }
+      case 40:{// down
+        this.userListIndexSelect(userSearchList.length -1,'+')
+        return;
+      }
+      case 13: {// enter
+        this.props.onChange(userSearchList[userListIndex])
+        return
+      }
+      default: this.setState({userListIndex: 0});
+    }
+  }
+  userListIndexSelect(num, mark) {
+    const { userListIndex = 0 } = this.state
+    let newList = userListIndex
 
+    if (mark == '+') {
+      if (userListIndex >= num) {
+        newList = -1
+      }
+      ++ newList
+    } else {
+      if (userListIndex <= 0) {
+        newList = ++ num
+      }
+      -- newList
+    }
+
+    const searchList = document.getElementById(this.userListId)
+    this.setState({ userListIndex: newList },()=> {
+      searchList.scrollTop = (newList-1) * 30;
+    })
+  }
+  changeKeyCode(e) {
+    const { list, listIndex } = this.state
+    switch(e.keyCode) {
+      case 38:{// up
+        this.listIndexSelect(list.length -1,'-')
+        return;
+      }
+      case 40:{// down
+        this.listIndexSelect(list.length -1,'+')
+        return;
+      }
+      case 13: {// enter
+        this.props.onChange(list[listIndex])
+        return
+      }
+      default: this.setState({listIndex: 0});
+    }
+  }
+  listIndexSelect(num, mark) {
+    const { listIndex=0 } = this.state
+    let newList = listIndex
+
+    if (mark == '+') {
+      if (listIndex >= num) {
+        newList = -1
+      }
+      ++ newList
+    } else {
+      if (listIndex <= 0) {
+        newList = ++ num
+      }
+      -- newList
+    }
+
+    const searchList = document.getElementById(this.searchListId)
+    this.setState({ listIndex: newList },()=> {
+      searchList.scrollTop = (newList-1) * 30;
+    })
+  }
   handleSearchInput() {
     const searchItem = this.refs.titleInput.refs.input.value
     const { list } = this.props
@@ -108,12 +187,12 @@ class PopSelect extends Component {
       onChange, loading, special, popTeamSelect, Search,
       isSysAdmin, allUsers, collapseDefaultActiveKey
     } = this.props
-    const { list, userSearchList } = this.state
+    const { list, userSearchList, listIndex, userListIndex } = this.state
     let searchList = (
       list.length === 0 ?
         <div className='loadingBox'>结果为空</div>
         :
-        list.map((item) => {
+        list.map((item, index) => {
           let { name, disabled, isOk } = item
           // Only for clusters
           if (disabled === undefined && isOk !== undefined) {
@@ -123,7 +202,8 @@ class PopSelect extends Component {
             key: name,
             className: classNames({
               searchItem: true,
-              itemDisabled: disabled
+              itemDisabled: disabled,
+              selectItem: listIndex == index
             })
           }
           if (!disabled) {
@@ -151,19 +231,30 @@ class PopSelect extends Component {
               size="large"
               onChange={this.handleSearchUserInput}
               onPressEnter={this.handleSearchUserInput}
+              onKeyUp={(e)=> this.userKeyCode(e)}
             />
             <Icon type="search" className='titleicon' onClick={this.handleSearchUserInput}/>
           </span>
-          <ul className="searchList">
+          <ul className="searchList" id={this.userListId}>
             {
               userSearchList.length === 0
                 ? <div className='loadingBox'>结果为空</div>
                 :
-                userSearchList.map((user, index) => (
-                  <li className="searchItem" key={user.namespace + index} onClick={onChange.bind(this, user)}>
+                userSearchList.map((user, index) => {
+
+                  let liProps = {
+                    key: user.namespace + index,
+                    className: classNames({
+                      searchItem: true,
+                      selectItem: userListIndex == index
+                    })
+                  }
+                  return(
+                    <li {...liProps}  onClick={onChange.bind(this, user)}>
                     {user.userName}
-                  </li>
-                ))
+                    </li>
+                  )
+                })
             }
           </ul>
         </div>
@@ -190,12 +281,13 @@ class PopSelect extends Component {
                     id='titleInput'
                     onChange={this.handleSearchInput}
                     onPressEnter={this.handleSearchInput}
+                    onKeyUp={(e)=> this.changeKeyCode(e)}
                   />
                   <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
                 </span>
               )
             }
-            <ul className="searchList">
+            <ul className="searchList" id={this.searchListId}>
               {searchList}
             </ul>
           </div>
@@ -224,12 +316,13 @@ class PopSelect extends Component {
                     id='titleInput'
                     onChange={this.handleSearchInput}
                     onPressEnter={this.handleSearchInput}
+                    onKeyUp={(e)=> this.changeKeyCode(e)}
                   />
                   <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
                 </span>
               )
             }
-            <ul className="searchList">
+            <ul className="searchList" id={this.searchListId}>
               {searchList}
             </ul>
           </Panel>
