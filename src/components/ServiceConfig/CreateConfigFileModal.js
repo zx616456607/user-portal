@@ -19,6 +19,7 @@ import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
 import {CheckProjects} from "../../actions/project"
 import filter from 'lodash/filter'
+import ConfigFileContent from './ConfigFileContent'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -160,7 +161,7 @@ let CreateConfigFileModal = React.createClass({
     })
   },
   beforeUpload(file) {
-    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
+    const fileInput = this.configFileContent.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
     if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
@@ -209,6 +210,7 @@ let CreateConfigFileModal = React.createClass({
     const { type, form } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
     const parentScope = this.props.scope
+    const { filePath } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -250,15 +252,6 @@ let CreateConfigFileModal = React.createClass({
             }
           </div>
           <Form horizontal>
-            <FormItem>
-              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
-                <Button type="ghost" style={{marginLeft: '5px'}} disabled={this.state.disableUpload}>
-                  <Icon type="upload" /> 读取文件内容
-                </Button>
-              </Upload>
-              <span style={{width: '100%', display:'block', textAlign: 'left', lineHeight:'20px', color:'#c1c1c1',marginLeft:40, marginTop:10}} >{this.state.filePath}</span>
-
-            </FormItem>
             <FormItem  {...formItemLayout} label="名称">
               <Input
                 type="text"
@@ -273,7 +266,11 @@ let CreateConfigFileModal = React.createClass({
               />
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
+              <ConfigFileContent
+                ref={ref => this.configFileContent = ref}
+                beforeUpload={this.beforeUpload}
+                filePath={filePath}
+                descProps={descProps} />
             </FormItem>
           </Form>
         </div>

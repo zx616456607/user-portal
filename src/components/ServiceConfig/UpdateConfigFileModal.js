@@ -13,6 +13,7 @@
 import React from 'react'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import NotificationHandler from '../../components/Notification'
+import ConfigFileContent from './ConfigFileContent'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -148,7 +149,7 @@ let UpdateConfigFileModal = React.createClass({
               <Input type="text" disabled value={parentScope.state.configName}/>
             </FormItem>
             <FormItem>
-              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
+              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} ref={(instance) => this.uploadInput = instance}>
                 <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
                 <Button type="ghost" style={{marginLeft: '10px'}} disabled={this.state.disableUpload}>
                   <Icon type="upload" /> 读取文件内容
@@ -156,7 +157,8 @@ let UpdateConfigFileModal = React.createClass({
               </Upload>
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
+              <ConfigFileContent
+                descProps={descProps} />
             </FormItem>
           </Form>
         </div>
