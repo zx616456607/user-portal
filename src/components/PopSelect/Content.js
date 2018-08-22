@@ -16,7 +16,6 @@ import classNames from 'classnames'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 const Panel = Collapse.Panel
-import uuid from 'uuid'
 
 class PopSelect extends Component {
   constructor(props) {
@@ -24,8 +23,8 @@ class PopSelect extends Component {
     this.handleSearchInput = this.handleSearchInput.bind(this)
     this.handleSearchUserInput = this.handleSearchUserInput.bind(this)
     const { list, allUsers } = props
-    this.userListId = uuid.v4()
-    this.searchListId = uuid.v4()
+    this.userListId = 'user_' +(Math.random() *10).toString(16)
+    this.searchListId = 'search_' + (Math.random() *10).toString(16)
     this.state = {
       list,
       userSearchList: allUsers,
