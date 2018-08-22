@@ -5,6 +5,18 @@
   background: #fff;
   border-radius: @border-radius-base;
   border: 1px solid @border-color-split;
+  .tips {
+    width: 100%;
+    padding: @padding-base;
+    margin-left: -@padding-base;
+    margin-bottom: @padding-medium;
+    margin-top: 16px;
+    border: 1px dashed #2db7f5;
+    background: #e5f2fa;
+    color: #2db7f5;
+    font-size: 12px;
+    border-radius: @border-radius-base;
+  }
   .title {
     position: relative;
     font-size: @font-size-medium;
@@ -39,11 +51,13 @@
       vertical-align: top;
       margin-bottom: @padding-base;
       display: inline-block;
+      width: 80%;
       button {
         margin-right: @padding-base;
       }
       .inputWrapper {
         margin-top: @padding-small;
+        width: 100%;
       }
       .tip {
         font-size: 12px;

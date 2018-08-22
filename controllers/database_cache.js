@@ -396,16 +396,24 @@ exports.updateAccessMethod = function* () {
   this.body = result
 }
 
+//重启集群
+exports.rebootCluster = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([clusterID, 'daas', type, name, 'reboot'])
+  this.body = result
+}
 exports.scaleDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const serviceName = this.params.name
   // {"replicas": 3}
   const body = this.request.body
-
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.patchBy([cluster, 'dbservices', serviceName], null, body);
-
   this.body = {
     result
   }

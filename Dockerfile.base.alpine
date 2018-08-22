@@ -8,9 +8,10 @@ RUN apk add --no-cache bash git openssh
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+# ENV NODE_ENV production
+
 # Install dependencies modules
 RUN npm cache clean --force
 COPY package.json /usr/src/app/
-COPY package-lock.json /usr/src/app/
 RUN npm set registry http://192.168.1.3:4873
 RUN npm install && rm -f package.json

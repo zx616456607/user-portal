@@ -1792,7 +1792,7 @@ class ProjectDetail extends Component {
                 <ResourceQuota isProject={true} projectName={projectDetail.projectName}
                 outlineRoles={projectDetail.outlineRoles}
                 showProjectName={ { displayName: projectDetail.displayName,
-                namespace: projectDetail.namespace } } />
+                namespace: projectDetail.namespace } } roleNameArr={roleNameArr} />
               </TabPane>
             </Tabs>
 

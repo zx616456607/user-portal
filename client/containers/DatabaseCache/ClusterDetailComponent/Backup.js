@@ -161,7 +161,6 @@ class Backup extends React.Component {
       })
       this.setState({ rollBackAlert: false })
     }
-
     const onChange = e => {
       this.setState({
         notYetConfirm: !e.target.checked,

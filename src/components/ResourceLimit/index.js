@@ -682,7 +682,7 @@ class ResourceQuota extends React.Component {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
     const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
-       showProjectName
+       showProjectName, roleNameArr
      } = this.props
     let newshowProjectName = showProjectName
     if ( !isProject ) {
@@ -727,6 +727,8 @@ class ResourceQuota extends React.Component {
               </Link>
             </div> : ''
           }
+          { ( roleNameArr && ( !roleNameArr.length || (roleNameArr.length === 1 && roleNameArr[0] === '项目访客')))
+            && <div className="alertTips">Tips: 可联系项目管理员申请配额</div> }
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
         {
