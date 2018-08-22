@@ -365,7 +365,7 @@ let InstanceModal = React.createClass({
     let value = e.target.value;
     let tempList = [];
     instance.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.metadata.name.indexOf(value) > -1) {
         tempList.push(item)
       }
     });

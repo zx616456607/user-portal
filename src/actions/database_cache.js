@@ -593,6 +593,31 @@ export function checkDbName(clusterId, name, callback) {
   }
 }
 
+// 重启集群
+export const DB_CLUSTER_REBOOT_REQUEST = 'DB_CLUSTER_REBOOT_REQUEST'
+export const DB_CLUSTER_REBOOT_SUCCESS = 'DB_CLUSTER_REBOOT_SUCCESS'
+export const DB_CLUSTER_REBOOT_FAILURE = 'DB_CLUSTER_REBOOT_FAILURE'
+
+function rebootRequest(clusterId, name, type, callback) {
+
+  return {
+    [FETCH_API]: {
+      types: [DB_CLUSTER_REBOOT_REQUEST, DB_CLUSTER_REBOOT_SUCCESS, DB_CLUSTER_REBOOT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${name}/reboot`,
+      schema: {},
+      options: {
+        method: 'PUT'
+      }
+    },
+    callback
+  }
+}
+export function rebootCluster(clusterId, name, type, callback) {
+  return (dispatch) => {
+    return dispatch(rebootRequest(clusterId, name, type, callback))
+  }
+}
+
 export const DB_EVENTS_REQUEST = 'DB_EVENTS_REQUEST'
 export const DB_EVENTS_SUCCESS = 'DB_EVENTS_SUCCESS'
 export const DB_EVENTS_FAILURE = 'DB_EVENTS_FAILURE'

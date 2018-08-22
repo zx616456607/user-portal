@@ -79,6 +79,8 @@ let MyComponent = React.createClass({
           return '启动成功'
         case 'Running':
           return '运行中'
+        case 'Stopping':
+          return '停止中'
         case 'Stopped':
           return '已停止'
       }
