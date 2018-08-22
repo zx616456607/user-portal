@@ -286,7 +286,7 @@ HarborAPIs.prototype.getLogs = function(query, callback) {
 HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback) {
   const method = 'getProjectLogs'
   logger.debug(method, `Get project logs`)
-  let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs/filter`
+  let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs`
   if(typeof projectID != 'string') {
     const err = new Error('project is require')
     return callback(err)
