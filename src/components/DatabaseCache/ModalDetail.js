@@ -1465,7 +1465,7 @@ class ModalDetail extends Component {
                     </TabPane>,
                       <TabPane tab='事件' key='#events'>
                         {
-                          database !== "mysql"?
+                          database !== "mysql" && database !== "redis" ?
                             <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
                             :
                             <DatabaseEvent database={database} databaseInfo={databaseInfo} cluster={this.props.cluster}/>
