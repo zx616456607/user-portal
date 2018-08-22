@@ -50,6 +50,9 @@ build_user_portal_backend() {
       cp ${outputPath}/app.js ${tmp}/app.js
       cp -rf static ${tmp}/
       cp index.html ${tmp}/index.html
+      # keep sslkeys for saml2
+      mkdir -p ${tmp}/configs/3rd_account
+      mv configs/3rd_account/saml2_sslkey ${tmp}/configs/3rd_account/
       cp package.json ${tmp}/package.json
       # rm all source files
       ls | grep -v ${tmp} | grep -v node_modules | grep -v templates | xargs rm -rf
