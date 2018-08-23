@@ -21,6 +21,7 @@ import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
 import PublishModal from './PublishModal'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import TenxIcon from '@tenx-ui/icon'
 
 const notification = new NotificationHandler()
 
@@ -183,9 +184,9 @@ class CodeRepo extends Component {
           return (
             <div className="imageList">
               <div className="imageBox">
-                <svg className='appcenterlogo'>
-                  <use xlinkHref='#appcenterlogo' />
-                </svg>
+                <div className="appcenterlogo">
+                  <TenxIcon type="app-center-logo"/>
+                </div>
               </div>
               <div className="contentBox">
                 <span className="title" onClick={()=> this.showImageDetail(row)}>

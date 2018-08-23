@@ -119,7 +119,7 @@ module.exports = function (Router) {
   router.put('/projects/label', projectController.updateToggleServiceMesh)
   router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
   router.get('/projects/istio/check', projectController.getCheckClusterIstio)
-
+  
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.post('/clusters', clusterController.createCluster)
@@ -336,6 +336,7 @@ module.exports = function (Router) {
 
   router.post('/registries/:registry/projects', harborController.createProject)
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
+  router.put('/registries/:registry/projects/:project_id', harborController.updateProject)
   router.del('/registries/:registry/projects/:project_id', harborController.deleteProject)
   router.put('/registries/:registry/projects/:project_id/publicity', harborController.updateProjectPublicity)
   router.get('/registries/:registry/projects/:project_id/members', harborController.getProjectMembers)
@@ -584,6 +585,8 @@ module.exports = function (Router) {
   router.put('/clusters/:clusterID/daas/:type/:name/service', databaseCacheController.updateAccessMethod)
   // 获取事件
   router.get('/clusters/:clusterID/daas/:type/:name/events', serviceController.getDatabaseEvents)
+  // 重启集群
+  router.put('/clusters/:clusterID/daas/:type/:name/reboot', databaseCacheController.rebootCluster)
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)

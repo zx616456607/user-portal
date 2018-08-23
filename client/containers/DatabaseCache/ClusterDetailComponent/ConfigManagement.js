@@ -70,10 +70,15 @@ class ConfigManagement extends React.Component {
           clusterID, databaseInfo.objectMeta.name, this.state.configContent, {
             success: {
               func: res => {
+                const notification = new NotificationHandler()
+                notification.success('保存成功，需重启后生效')
                 this.setState({
                   isEdit: false,
                   configContent: res.data.config,
                   configContentDefault: res.data.config,
+                })
+                setTimeout(() => {
+                  this.props.onEditConfigOk()
                 })
               },
             },
@@ -91,10 +96,15 @@ class ConfigManagement extends React.Component {
         editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, {
           success: {
             func: res => {
+              const notification = new NotificationHandler()
+              notification.success('保存成功，需重启后生效')
               this.setState({
                 isEdit: false,
                 configContent: res.data.spec.advanceSetting.master,
                 configContentDefault: res.data.spec.advanceSetting.master,
+              })
+              setTimeout(() => {
+                this.props.onEditConfigOk()
               })
             },
           },
@@ -141,6 +151,9 @@ class ConfigManagement extends React.Component {
       },
     })
     return <div className="configManagement">
+      <div className="tips">
+        Tips: 修改密码或修改资源配置后，需要重启集群才能生效。
+      </div>
       <div className="title">配置管理</div>
       <div className="content">
         <Form>
@@ -165,7 +178,6 @@ class ConfigManagement extends React.Component {
                     <Button type="primary" onClick={this.submitChange}>保存</Button>
                   </span>
               }
-              <span className="tip">重新编辑配置文件后，系统将重启该集群的所有实例，将进行滚动升级</span>
               <div className="inputWrapper">
                 <Input type="textarea" {...configContent} disabled={!this.state.isEdit} value={this.state.configContent} rows={6}/>
               </div>

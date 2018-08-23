@@ -22,6 +22,7 @@ import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEmpty from 'lodash/isEmpty'
+import TenxIcon from '@tenx-ui/icon'
 
 const MASTER = 'Master'
 const SLAVE = 'Slave'
@@ -285,12 +286,12 @@ const MyComponent = React.createClass({
       if (record.objectMeta.annotations.maintenance === 'true') {
         message = '维护中'
         classname = 'themeColor'
+        if (maintainStatus === 'processing') {
+          message = '服务迁移中'
+        }
       } else if (record.objectMeta.annotations.maintenance === 'failed') {
         message = '迁移失败'
         classname = 'errorSpan'
-      } else if (maintainStatus === 'processing') {
-        message = '服务迁移中'
-        classname = 'themeColor'
       } else {
         message = '运行中'
         classname = 'runningSpan'
@@ -406,7 +407,10 @@ const MyComponent = React.createClass({
           dataIndex: 'objectMete',
           render: (objectMeta, item, index) => <div className='alarm'>
             <Tooltip title="查看监控">
-              <svg className="managemoniter" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"/></svg>
+
+              <TenxIcon type="manage-monitor"
+                        className="managemoniter"
+                        onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}/>
             </Tooltip>
             <Tooltip title="告警设置" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
               <Icon type="notification" />
@@ -1102,9 +1106,7 @@ class hostList extends Component {
             </Button>
           </Tooltip>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
-            <svg>
-              <use xlinkHref='#terminal' />
-            </svg>
+            <TenxIcon type="terminal"/>
             <span>终端 | 集群管理</span>
           </Button>
           <Button type='ghost' size='large' className="refreshBtn" onClick={() => this.loadData()}>

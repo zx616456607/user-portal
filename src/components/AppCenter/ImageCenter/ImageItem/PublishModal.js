@@ -82,6 +82,7 @@ class PublishModal extends React.Component {
         image: `${server}/${currentImage.name}`,
         harbor,
         // tags: tagArr,
+        targetCluster: form.getFieldValue("targetCluster") || "",
       }
       getImageStatus(body, {
         success: {
@@ -418,7 +419,7 @@ class PublishModal extends React.Component {
     })
   }
   handleSelectcheckTargetStore(val) {
-    const { getImageStatus, currentImage, imgTag, server, harbor } = this.props
+    const { getImageStatus, currentImage, imgTag, server, harbor, form } = this.props
     const tagArr = []
     imgTag && imgTag.map( item=>{
       tagArr.push(item.name)
@@ -428,6 +429,7 @@ class PublishModal extends React.Component {
       targetProject: val,
       tags: tagArr,
       harbor,
+      targetCluster: form.getFieldValue("targetCluster") || "",
     }
     getImageStatus(body, {
       failed: {
@@ -477,7 +479,7 @@ class PublishModal extends React.Component {
   }
   render() {
     const { visible, pkgIcon, successModal, privateData, clusters } = this.state
-    const { space, form, currentImage, imgTag, wrapGroupList, publishName, description, classify_name } = this.props
+    const { space, form, currentImage, imgTag, wrapGroupList, publishName, description, classify_name, cluster } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue  } = form
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -561,6 +563,7 @@ class PublishModal extends React.Component {
         }
       ],
       onChange: this.onClusterChange,
+      initialValue: cluster.clusterID,
     })
     const commitMsg = getFieldProps('commit_msg', {
       rules: [
@@ -788,18 +791,6 @@ class PublishModal extends React.Component {
 
               <FormItem
                 {...formItemLayout}
-                label="选择版本"
-              >
-                <Select
-                  showSearch
-                  {...selectVersion}
-                  placeholder="请选择版本"
-                >
-                  {selectVsionChildren}
-                </Select>
-              </FormItem>
-              <FormItem
-                {...formItemLayout}
                 label="目标仓库组"
               >
                 <Select
@@ -808,6 +799,18 @@ class PublishModal extends React.Component {
                   placeholder="请选择目标仓库组"
                 >
                   {targetStoreChildren}
+                </Select>
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                label="选择版本"
+              >
+                <Select
+                  showSearch
+                  {...selectVersion}
+                  placeholder="请选择版本"
+                >
+                  {selectVsionChildren}
                 </Select>
               </FormItem>
 

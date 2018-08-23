@@ -733,7 +733,7 @@ class ImageVersion extends Component {
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
-              <span><Icon type="eye-o" />查看详情</span>
+              <span><Icon type="eye-o" /> 查看详情</span>
             </Button>
             <Dropdown
               visible={typeof this.state.dropdownVisible[name] === "boolean" ? this.state.dropdownVisible[name] : this.dropdownVisible[name]}
@@ -747,13 +747,13 @@ class ImageVersion extends Component {
                     isAdminAndHarbor ?
                       items
                       :
-                      ""
+                      <Menu.Item style={{ display: 'none' }}></Menu.Item>
                   }
                   {
                     !isAdminAndHarbor && (currentUserRole === 1 || currentUserRole === 2)?
                       labelMenu
                       :
-                      ""
+                      <Menu.Item style={{ display: 'none' }}></Menu.Item>
                   }
                 </Menu>
               }>
@@ -831,39 +831,46 @@ class ImageVersion extends Component {
                 <Icon type="question-circle-o" style={{cursor: 'pointer'}} />
               </Tooltip>）
               {
-                !isEditMaxTag &&
-                <Tooltip title="编辑">
-                  <Icon
-                    type="edit"
-                    style={{ cursor: 'pointer', marginLeft: 8 }}
-                    onClick={() => {
-                      this.max_tags_count = max_tags_count
-                      this.setState({ isEditMaxTag: true })
-                    }}
-                  />
-                </Tooltip>
-              }
-              {
-                isEditMaxTag && [
-                  <Tooltip title="取消">
-                    <Icon
-                      key="cancel"
-                      type="cross"
-                      style={{ cursor: 'pointer', marginLeft: 8 }}
-                      onClick={() => {
-                        this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
-                      }}
-                    />
-                  </Tooltip>,
-                  <Tooltip title="保存">
-                    <Icon
-                      key="save"
-                      type="save"
-                      style={{ cursor: 'pointer', marginLeft: 16 }}
-                      onClick={this.onConfirmOk}
-                    />
-                  </Tooltip>
-                ]
+                isAdminAndHarbor ?
+                  <span>
+                    {
+                      !isEditMaxTag &&
+                      <Tooltip title="编辑">
+                        <Icon
+                          type="edit"
+                          style={{ cursor: 'pointer', marginLeft: 8 }}
+                          onClick={() => {
+                            this.max_tags_count = max_tags_count
+                            this.setState({ isEditMaxTag: true })
+                          }}
+                        />
+                      </Tooltip>
+                    }
+                    {
+                      isEditMaxTag && [
+                        <Tooltip title="取消">
+                          <Icon
+                            key="cancel"
+                            type="cross"
+                            style={{ cursor: 'pointer', marginLeft: 8 }}
+                            onClick={() => {
+                              this.setState({ isEditMaxTag: false, max_tags_count: this.max_tags_count })
+                            }}
+                          />
+                        </Tooltip>,
+                        <Tooltip title="保存">
+                          <Icon
+                            key="save"
+                            type="save"
+                            style={{ cursor: 'pointer', marginLeft: 16 }}
+                            onClick={this.onConfirmOk}
+                          />
+                        </Tooltip>
+                      ]
+                    }
+                  </span>
+                  :
+                  null
               }
             </span>
             {/* <div className='SearchInput' style={{ width: 280 }}>

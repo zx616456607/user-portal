@@ -46,6 +46,7 @@ class PrivateComponent extends Component {
       return (
         <div className="list" key={`private-`+list.name}>
           <svg className="imgUrl">
+            {/*@#gear*/}
             <use xlinkHref='#server' />
           </svg>
           <div className="infoBox">
@@ -103,6 +104,7 @@ class PublicComponent extends Component {
       return (
         <div className="list" key={`public`+ list.name}>
           <svg className="imgUrl">
+            {/*@#gear*/}
             <use xlinkHref='#server' />
           </svg>
           <div className="infoBox">{list.name}</div>

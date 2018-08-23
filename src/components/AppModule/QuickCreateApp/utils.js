@@ -472,7 +472,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
         const keyValue = key.value
         const envName = fieldsValues[`envName${keyValue}`]
         const envValueType = fieldsValues[`envValueType${keyValue}`]
-        const envValue = fieldsValues[`envValue${keyValue}`]
+        const envValue = fieldsValues[`envValue${keyValue}`] || '' // 环境变量值可以为空
         if (envName && envValue !== envObj[envName]) {
           if (envValueType === 'secret') {
             const valueFrom = {

@@ -37,23 +37,46 @@ class DataTable extends Component {
   setProjectPublic() {
     const { currentProject } = this.state
     const { func, harbor } = this.props
-    const body = {
-      public: Math.abs(currentProject.public - 1)
+    const succ = () => {
+      func.loadData()
+      this.setState({ publicModalVisible: false })
     }
-    func.updateProject(harbor, DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
-      success: {
-        func: () => {
-          func.loadData()
-          this.setState({ publicModalVisible: false })
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          notification.error(`更新仓库组 ${currentProject.name} 失败`)
-        },
+    const failed = err => {
+      notification.error(`更新仓库组 ${currentProject.name} 失败`)
+    }
+    if(!!currentProject.metadata){
+      const body = {
+        metadata: {
+          public: this.getIsPublicText(currentProject, "false", "true"),
+          enable_content_trust: currentProject.metadata.enableContentTrust,
+          prevent_vul: currentProject.metadata.preventVul,
+          severity: currentProject.metadata.severity,
+          auto_scan: currentProject.metadata.autoScan,
+        }
       }
-    })
+      console.log(body)
+      func.updateProject(harbor, DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
+        success: {
+          func: succ,
+          isAsync: true,
+        },
+        failed: {
+          func:failed,
+        }
+      })
+    } else {
+      func.updateProjectPublicity(harbor, DEFAULT_REGISTRY, currentProject[camelize('project_id')], {
+        public: this.getIsPublicText(currentProject, 0, 1),
+      }, {
+        success: {
+          func: succ,
+          isAsync: true,
+        },
+        failed: {
+          func:failed,
+        }
+      })
+    }
   }
 
   handleChange(pagination, filters, sorter) {
@@ -81,6 +104,23 @@ class DataTable extends Component {
     }
     return <Link to={`/app_center/projects/detail/${record[camelize('project_id')]}`}>{text}</Link>
   }
+  getIsPublicText = (curr, ispublicText, isprivateText) => {
+    let res = ""
+    if(!isNaN(curr.public)){
+      if (curr.public === 0) {
+        res = isprivateText
+      } else {
+        res = ispublicText
+      }
+    } else if(!!curr.metadata && !!curr.metadata.public){
+      if(curr.metadata.public === "true"){
+        res = ispublicText
+      } else {
+        res = isprivateText
+      }
+    }
+    return res
+  }
   render() {
     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
@@ -105,23 +145,7 @@ class DataTable extends Component {
         //],
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
-        render: (text, record) => {
-          let res = ""
-          if(!isNaN(record.public)){
-            if (text === 0) {
-              res = '私有'
-            } else {
-              res = '公开'
-            }
-          } else if(!!record.metadata.public){
-            if(record.metadata.public === "true"){
-              res = '公开'
-            } else {
-              res = '私有'
-            }
-          }
-          return res
-        }
+        render: (text, record) => this.getIsPublicText(record, "公开", "私有")
       },
       {
         title: '我的角色',
@@ -182,7 +206,9 @@ class DataTable extends Component {
                   type="primary"
                   onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
                 >
-                  {row.public == 1 ? '设为私有' : '设为公开'}
+                  {
+                    this.getIsPublicText(row, '设为私有', '设为公开')
+                  }
                 </Button>
                 <Button disabled={row.name === 'tenx_store'} type="ghost" onClick={()=>{
                   if(row.name !== 'tenx_store'){
@@ -204,7 +230,9 @@ class DataTable extends Component {
           return (
             <div className="action">
               <Button disabled={true} type="primary">
-                {row.public == 1 ? '设为私有' : '设为公开'}
+                {
+                  this.getIsPublicText(row, '设为私有', '设为公开')
+                }
               </Button>
               <Button disabled={true} type="ghost">删除</Button>
             </div>
@@ -241,8 +269,9 @@ class DataTable extends Component {
         current: currentPage,
       })
     }
-    const setPublicValue = Math.abs(this.state.currentProject.public - 1)
-    const publicModalTitle = `设为${setPublicValue == 1 ? '公开' : '私有'}`
+    const { currentProject } = this.state
+    let isPublic = this.getIsPublicText(currentProject, true, false)
+    const publicModalTitle = `设为${!isPublic ? '公开' : '私有'}`
     return (
       <div>
         <Table className="myImage"
@@ -262,12 +291,13 @@ class DataTable extends Component {
         >
           <div className="confirmText">
             {
-              setPublicValue == 1
-              ? <div>
+              !isPublic ?
+                <div>
                   <p>① 当仓库组设为公开后，任何人都可查看仓库组内镜像；</p>
                   <p>② 命令行操作下无需 <code>docker login</code> 即可拉取此仓库组内的所有镜像。</p>
                 </div>
-              : <div>
+                :
+                <div>
                   <p>① 当仓库组设为私有后，仅仓库组成员可查看仓库组内镜像；</p>
                   <p>② 命令行操作下需 <code>docker login</code> 方可拉取此仓库组内的镜像。</p>
                 </div>

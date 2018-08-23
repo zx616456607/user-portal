@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Card, Spin, Modal ,Input , Button, Popover, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import filter from 'lodash/filter'
 import classNames from 'classnames'
 import { loadConfigName, loadConfigGroup } from '../../../actions/configs.js'
@@ -156,7 +156,7 @@ let MyComponent = React.createClass({
             }
             {item.file.length > 1 ?
             <Popover content={group} getTooltipContainer={()=> document.getElementById('ComposeGroup')}>
-              <svg className="more"><use xlinkHref="#more"></use></svg>
+              <TenxIcon type="ellipsis" className="more"/>
             </Popover>
             :null
             }

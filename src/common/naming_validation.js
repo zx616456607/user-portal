@@ -463,3 +463,17 @@ export function lbNameCheck(value) {
   }
    return 'success'
  }
+
+ export function vmWrapNameValidation(value) {
+   if (!value) {
+     return '请输入传统应用名称'
+   }
+   if (value.length < 3 || value.length > 63) {
+     return '传统应用名称需在3-63之间'
+   }
+   let regx = new RegExp('^[a-zA-Z][-a-zA-Z0-9]{1,58}[a-zA-Z0-9]$')
+   if (!regx.test(value)) {
+     return '字母、数字、中划线组成，以字母开头，字母或者数字结尾'
+   }
+   return 'success'
+ }

@@ -630,12 +630,14 @@ class TenxFlowDetailFlowCard extends Component {
                         }
                         <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
                           <svg className='cicdlogSvg'>
+                            {/*@#execute-log*/}
                             <use xlinkHref='#cicdlog' />
                           </svg>
                           <FormattedMessage {...menusText.logBtn} />
                         </Button>
                         {this.props.isBuildImage ? <Button size='large' type='ghost' className='logBtn' onClick={this.editFlow}>
                           <svg className='cicdlogSvg'>
+                            {/*@#edit*/}
                             <use xlinkHref='#cicdedit' />
                           </svg>
                           <FormattedMessage {...menusText.editBtn} />
@@ -644,6 +646,7 @@ class TenxFlowDetailFlowCard extends Component {
                           <Dropdown.Button overlay={dropdown} type='ghost' size='large'
                           className='editBtn' onClick={this.editFlow} disabled={buildButtonCheck(config.lastBuildStatus)}>
                           <svg className='cicdlogSvg'>
+                            {/*@#edit*/}
                             <use xlinkHref='#cicdedit' />
                           </svg>
                           <FormattedMessage {...menusText.editBtn} />
@@ -692,6 +695,7 @@ class TenxFlowDetailFlowCard extends Component {
                                               <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
                                             </Button>] : null}
                 {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
+                  {/*@#line-arrow-right*/}
                   <use xlinkHref='#cicdarrow' />
                 </svg> }
                 {

@@ -27,6 +27,8 @@ import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
+
 const FormItem = Form.Item
 const createForm = Form.create
 
@@ -655,28 +657,21 @@ class ResourceQuota extends React.Component {
     switch (name) {
       case 'CI/CD':
         return <span>
-          <svg className='cicd commonImg'>
-            <use xlinkHref="#cicd"></use>
-          </svg> &nbsp;
+            <TenxIcon type="lift-card-o"/>&nbsp;
         </span>
 
       case '交付中心':
         return <span>
-          <svg className='center commonImg'>
-            <use xlinkHref="#center"></use>
-          </svg> &nbsp;
+          <TenxIcon type="center-o"/>
+          &nbsp;
         </span>
       case '应用管理':
         return <span>
-          <svg className='app commonImg'>
-            <use xlinkHref="#app"></use>
-          </svg> &nbsp;
+            <TenxIcon type="apps"/>&nbsp;
         </span>
       case '数据库与缓存':
         return <span>
-          <svg className='database commonImg'>
-            <use xlinkHref="#database"></use>
-          </svg> &nbsp;
+          <TenxIcon type="database-o"/>&nbsp;
         </span>
       default:
         return ''
@@ -687,7 +682,7 @@ class ResourceQuota extends React.Component {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
     const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
-       showProjectName
+       showProjectName, roleNameArr
      } = this.props
     let newshowProjectName = showProjectName
     if ( !isProject ) {
@@ -732,6 +727,8 @@ class ResourceQuota extends React.Component {
               </Link>
             </div> : ''
           }
+          { ( roleNameArr && ( !roleNameArr.length || (roleNameArr.length === 1 && roleNameArr[0] === '项目访客')))
+            && <div className="alertTips">Tips: 可联系项目管理员申请配额</div> }
           <div className="titles"><span>项目全局资源配额</span></div>
         </div>
         {

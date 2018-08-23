@@ -286,7 +286,7 @@ HarborAPIs.prototype.getLogs = function(query, callback) {
 HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback) {
   const method = 'getProjectLogs'
   logger.debug(method, `Get project logs`)
-  let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs/filter`
+  let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs`
   if(typeof projectID != 'string') {
     const err = new Error('project is require')
     return callback(err)
@@ -413,6 +413,12 @@ HarborAPIs.prototype.getProjectDetail = function (id, callback) {
 HarborAPIs.prototype.deleteProject = function (id, callback) {
   const url = `${this.getAPIPrefix()}/projects/${id}`
   this.sendRequest(url, 'DELETE', null, callback)
+}
+
+// [PUT] /projects/:project_id
+HarborAPIs.prototype.updateProject = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'PUT', body, callback)
 }
 
 // [PUT] /projects/:project_id/publicity
