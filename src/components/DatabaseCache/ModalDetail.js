@@ -778,12 +778,12 @@ class VisitTypes extends Component{
     const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let clusterAdd = [];
     let port = databaseInfo.service.port.port;
-    let serviceName = databaseInfo.objectMeta.name;
+    let serviceName = databaseInfo.service.name;
     let portNum = databaseInfo.pods && databaseInfo.pods.length;
     for (let i = 0; i < portNum; i++) {
       clusterAdd.push({
         start:`${serviceName}-${i}`,
-        end:`${serviceName}-${i}.${serviceName}:${port}`
+        end:`${databaseInfo.objectMeta.name}:${port}`
       })
     }
 
