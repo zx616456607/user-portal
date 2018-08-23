@@ -42,7 +42,7 @@ exports.getClusterNodes = function* () {
     const { objectMeta, schedulable } = node
     const { annotations } = objectMeta
     // 服务迁移中
-    if (schedulable && annotations.maintenance && (annotations.maintenance === 'true')) {
+    if (!schedulable && annotations.maintenance && (annotations.maintenance === 'true')) {
       isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']).then(result => {
         return Object({}, result, { name: node.objectMeta.name })
       }))
