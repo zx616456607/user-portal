@@ -16,12 +16,11 @@ import { connect } from 'react-redux'
 import { ListProjects } from '../../../actions/project'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
-import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate, parseAmount } from '../../../common/tools'
 import moment from 'moment'
 import {getCostBar} from './getCostBar'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import TenxIcon from '@tenx-ui/icon'
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
@@ -450,6 +449,7 @@ class CostRecord extends Component{
             standard ?
             <div>
               <svg className='headerteamspace'>
+                {/*cube*/}
                 <use xlinkHref='#headerteamspace' />
               </svg>
               <div className='popTeamSelect'>
@@ -476,9 +476,7 @@ class CostRecord extends Component{
             </div>
             :
             <div>
-              <svg className='headerteamspace'>
-                <use xlinkHref='#headerteamspace' />
-              </svg>
+              <TenxIcon type="cube" style={{marginRight: 8}}/>
               项目：
               <div className='popSelect'>
                 <PopSelect
@@ -512,15 +510,11 @@ class CostRecord extends Component{
               <Col span={14} className='teamCostList'>
                 <Row>
                   <Col span={14} style={{paddingLeft:40}} className="teamCostListTitle">
-                    <svg className="headerclusterSvg">
-                      <use xlinkHref="#settingcluster"/>
-                    </svg>
+                    <TenxIcon type="setting-cluster"/>
                     {standard ? '区域' : '集群名称'}
                   </Col>
                   <Col span={10} className="teamCostListTitle">
-                    <svg className="headerclusterSvg">
-                      <use xlinkHref="#settingbalance"/>
-                    </svg>
+                    <TenxIcon type="money"/>
                     消费金额
                   </Col>
                 </Row>

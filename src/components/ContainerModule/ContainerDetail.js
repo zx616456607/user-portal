@@ -8,8 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Card, Menu, Button, Spin, Modal } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerDetailInfo from "./ContainerDetailInfo.js"
@@ -24,13 +23,10 @@ import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../components/Notification'
-import serverSVG from '../../assets/img/app.png'
 import Title from '../Title'
+import TenxIcon from '@tenx-ui/icon'
 
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
-const ButtonGroup = Button.Group
 const confirm = Modal.confirm
 const DEFAULT_TAB = '#configs'
 
@@ -156,9 +152,7 @@ class ContainerDetail extends Component {
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">
               <div className="imgBox">
-                <svg>
-                  <use xlinkHref='#server' />
-                </svg>
+                <TenxIcon type='gear'/>
               </div>
               <div className="infoBox">
                 <p className="appTitle">
@@ -183,13 +177,12 @@ class ContainerDetail extends Component {
                       更新：{container.metadata.creationTimestamp}
                     </div>*/}
                 </div>
+
                 <div className="rightInfo">
                   <div className="actionBox commonData">
                     <Button type="primary" className="viewBtn" size='large'
                       onClick={(e) => this.openTerminalModal(container, e)}>
-                      <svg className="terminal">
-                        <use xlinkHref="#terminal" />
-                      </svg>
+                      <TenxIcon type='terminal'/>
                       登录终端
                     </Button>
                     <Button

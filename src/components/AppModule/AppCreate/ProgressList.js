@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import './style/ProgressList.less'
 
 export default class ProgressList extends Component {
@@ -31,27 +32,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="a">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择模板</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>配置服务</span>
                 </div>
               </div>
@@ -62,27 +53,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="a">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择镜像</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>配置服务</span>
                 </div>
               </div>
@@ -93,27 +74,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="a">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择镜像</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>配置服务</span>
                 </div>
               </div>
@@ -124,27 +95,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="b">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择应用</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>编排文件</span>
                 </div>
               </div>
@@ -155,27 +116,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="c">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择应用</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>配置服务</span>
                 </div>
               </div>
@@ -186,27 +137,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="d">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择运行环境</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>配置服务</span>
                 </div>
               </div>
@@ -216,27 +157,17 @@ export default class ProgressList extends Component {
             <QueueAnim className="ProgressList" type="left">
               <div key="d">
                 <div className="firstStep step">
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>部署方式</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
-                  <svg className="commonLine">
-                    <use xlinkHref="#stepline" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
+                  <TenxIcon type='dashed'className="commonLine"/>
                   <span>选择应用</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
-                  <svg className="commonCircle">
-                    <use xlinkHref="#step" />
-                  </svg>
+                  <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <span>编排文件</span>
                 </div>
               </div>

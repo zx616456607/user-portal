@@ -30,6 +30,7 @@ import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import Title from '../../../Title'
 import { formatDate } from '../../../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -772,9 +773,8 @@ class TeamManage extends Component {
             {
               canCreateTeam ?
               <Button type="ghost" size="large" className="manageBtn" onClick={()=> this.openRightModal()}>
-                <svg id="chosenCreator">
-                  <use xlinkHref='#chosencreator' />
-                </svg> 哪些人可以创建团队
+                <TenxIcon type="mouse-point"/>
+                 哪些人可以创建团队
               </Button>
                 :
                 ""

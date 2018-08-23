@@ -8,17 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Tooltip,  Row, Col, Tabs } from 'antd'
-import { Link ,browserHistory} from 'react-router'
+import { Modal, Tabs } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import ClusterResourcesOverview from './clsuterResourcesOverview'
 import HostList from './hostList'
 import ClusterLabelManage from './clusterLabelManage'
-import ClusterPlugin from './clusterPlugin'
 import NetworkSolutions from './NetworkSolutions'
 import ClusterStorage from './ClusterStorage'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import {
   changeClusterNodeSchedule,
   deleteClusterNode,
@@ -29,18 +27,14 @@ import {
 } from '../../actions/cluster_node'
 import { getClusterSummary } from '../../actions/cluster'
 import { addTerminal } from '../../actions/terminal'
-import { NOT_AVAILABLE } from '../../constants'
 import './style/clusterTabList.less'
 import NotificationHandler from '../../components/Notification'
-import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
+import TenxIcon from '@tenx-ui/icon'
 
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
-const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
 
 class ClusterTabList extends Component {
@@ -198,14 +192,18 @@ class ClusterTabList extends Component {
         <div id='clusterTabList'>
           <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
+            <TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="instrument-o"/>
+              <span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
 
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="host">
+            <TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="hostlists-o"/>
+              <span className='tablepanespan'>主机列表</span></div>} key="host">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
@@ -215,10 +213,14 @@ class ClusterTabList extends Component {
                 license={license}
               />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
+            <TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="tag-right"/>
+              <span className='tablepanespan'>标签管理</span></div>} key="labels">
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select hover'><use xlinkHref="#networksolutions"></use></svg><span className='tablepanespan'>网络方案</span></div>} key="5">
+            <TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="network"/>
+              <span className='tablepanespan'>网络方案</span></div>} key="5">
               <NetworkSolutions
                 clusterID={clusterID}
               />

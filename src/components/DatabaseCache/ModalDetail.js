@@ -840,6 +840,7 @@ class VisitTypes extends Component{
       portAnnotation = ''
     }
     let externalPort = ''
+
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
       if (externalPort && externalPort.length > 1) {
@@ -847,6 +848,7 @@ class VisitTypes extends Component{
       }
     }
     let externalUrl
+
     if (externalPort != '') {
       if (domain) {
         externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')

@@ -228,8 +228,6 @@ class MysqlCluster extends Component {
           }
         }
       }
-
-
     })
     const { teamCluster } = this.props
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){

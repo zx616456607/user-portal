@@ -31,8 +31,8 @@ import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import ManageLabelModal from './MangeLabelModal'
 import Title from '../Title'
-import Resourcequota from '../../../static/img/Resourcequota.svg'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
+import TenxIcon from '@tenx-ui/icon'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -224,7 +224,9 @@ let HostInfo = React.createClass({
           <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
           <div className="wrapRow">
             <div className="host-list">
-              <div className="titles"><div className="quotaimg"><img style={{width:'100%'}} src={Resourcequota}/></div> 资源配额（可分配）</div>
+              <div className="titles"><div className="quotaimg">
+                <TenxIcon type="resource-quota" size={14} style={{marginRight: 4}}/>
+              </div> 资源配额（可分配）</div>
               <br />
               <Row className="items">
                 <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{ hostInfo.cPUAllocatable }m（{ hostInfo.cPUAllocatable / 1000}核）</span></Col>
@@ -246,7 +248,9 @@ let HostInfo = React.createClass({
             </div>
 
             <div className="host-list Versionin">
-              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
+              <div className="titles">
+                <TenxIcon className="svg-icon" type="tag-right" size={14} style={{marginRight: 4}}/>
+                版本信息</div>
               <br />
               <Row className="items versioninformation">
                 <Col span={12} className='col_style'>内核版本： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
@@ -259,7 +263,9 @@ let HostInfo = React.createClass({
             </div>
 
             <div className="host-list">
-              <div className="titles"><svg className='size select'><use xlinkHref="#managelabels"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+              <div className="titles">
+                <TenxIcon className="size select" type="tag-right" size={14} style={{marginRight: 4}}/>
+                标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
               <br />
               <div className='labelContainer'>
                 {this.formTagContainer()}

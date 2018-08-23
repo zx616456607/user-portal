@@ -33,6 +33,7 @@ import Topology from '../../../client/containers/AppModule/AppServiceDetail/Topo
 import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
+import TenxIcon from '@tenx-ui/icon'
 import { SHOW_BILLING } from '../../constants'
 
 const DEFAULT_TAB = '#service'
@@ -190,9 +191,7 @@ class AppDetail extends Component {
           <div key='ca' className='AppInfo' id='AppInfo'>
             <Card className='topCard'>
               <div className='imgBox'>
-                <svg>
-                  <use xlinkHref='#app' />
-                </svg>
+                <TenxIcon type="apps-o"/>
               </div>
               <div className='infoBox'>
                 <p className='appTitle'>
