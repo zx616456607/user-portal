@@ -285,12 +285,12 @@ const MyComponent = React.createClass({
       if (record.objectMeta.annotations.maintenance === 'true') {
         message = '维护中'
         classname = 'themeColor'
+        if (maintainStatus === 'processing') {
+          message = '服务迁移中'
+        }
       } else if (record.objectMeta.annotations.maintenance === 'failed') {
         message = '迁移失败'
         classname = 'errorSpan'
-      } else if (maintainStatus === 'processing') {
-        message = '服务迁移中'
-        classname = 'themeColor'
       } else {
         message = '运行中'
         classname = 'runningSpan'

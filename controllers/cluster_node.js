@@ -13,6 +13,7 @@
 
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
+const isEmpty = require('lodash/isEmpty')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -38,17 +39,30 @@ exports.getClusterNodes = function* () {
   const isMaintainingReqArr = []
   clusters.nodes.nodes.forEach(node => {
     node.objectMeta.labels = JSON.stringify(node.objectMeta.labels)
-    isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']))
-  })
-  const isMaintainingResult = yield isMaintainingReqArr
-  clusters.nodes.nodes.forEach((node, index) => {
-    let { current, total } = isMaintainingResult[index].data
-    if (current < total && current !== 0) {
-      node.objectMeta.annotations.maintainStatus = 'processing'
-      node.objectMeta.annotations.current = current
-      node.objectMeta.annotations.total = total
+    const { objectMeta, schedulable } = node
+    const { annotations } = objectMeta
+    // 服务迁移中
+    if (schedulable && annotations.maintenance && (annotations.maintenance === 'true')) {
+      isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']).then(result => {
+        return Object({}, result, { name: node.objectMeta.name })
+      }))
     }
   })
+  let isMaintainingResult
+  if (!isEmpty(isMaintainingReqArr)) {
+    isMaintainingResult = yield isMaintainingReqArr
+  }
+  if (!isEmpty(isMaintainingResult)) {
+    clusters.nodes.nodes.forEach(node => {
+      const currentResult = isMaintainingResult.filter(res => res.data.name === node.objectMeta.name)[0]
+      let { current, total } = currentResult
+      if (current < total && current !== 0) {
+        node.objectMeta.annotations.maintainStatus = 'processing'
+        node.objectMeta.annotations.current = current
+        node.objectMeta.annotations.total = total
+      }
+    })
+  }
   this.body = {
     data: {
       clusters,
