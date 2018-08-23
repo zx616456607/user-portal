@@ -21,6 +21,7 @@ import { camelize } from 'humps'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import QRCode from 'qrcode.react'
+import TenxIcon from '@tenx-ui/icon'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -190,9 +191,7 @@ class License extends Component {
                        title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyLicenseCode(index)}
                                                                            onMouseLeave={() => this.returnDefaultTooltip()}>&nbsp;
                        <Icon type="copy"/></a></Tooltip></div>} title={null}>
-              <svg className='svgmore'>
-                <use xlinkHref='#more'/>
-              </svg>
+              <TenxIcon type="ellipsis" className="ellipsisIcon"/>
             </Popover>
             <input style={{position: 'absolute', opacity: '0'}} className="licenseMoreInput"
                    defaultValue={list.licenseUid}/>

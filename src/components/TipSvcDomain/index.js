@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 import { genRandomString } from '../../common/tools'
-
+import TenxIcon from '@tenx-ui/icon'
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
@@ -54,7 +54,12 @@ class SvcTip extends Component {
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
           <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
-            <svg className='tipCopySvg' onClick={this.servercopyCode.bind(this)} onMouseLeave={ this.returnDefaultTooltip.bind(this) } onMouseEnter={this.startCopyCode.bind(this,element.domain)}><use xlinkHref='#appcentercopy' /></svg>
+            <TenxIcon type="copy"
+                      onClick={this.servercopyCode.bind(this)}
+                      onMouseLeave={ this.returnDefaultTooltip.bind(this) }
+                      onMouseEnter={this.startCopyCode.bind(this,element.domain)}
+                      className='tipCopySvg'
+            />
           </Tooltip>
         </li>
       )
@@ -125,9 +130,9 @@ class AppTip extends Component {
               <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}>
               </Timeline.Item>
               <Timeline.Item dot={<div></div>}>
-                <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
+                <TenxIcon type="branch"  className='branchSvg'/>
                 <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>
+                <a href={linkURL} target='_blank'>`
                   {
                     lbgroup2Text(item.data[0])
                   }:{
@@ -135,7 +140,12 @@ class AppTip extends Component {
                   }
                 </a>
                 <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
-                  <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, item.data[0].domain)}><use xlinkHref='#appcentercopy' /></svg>
+                  <TenxIcon type="copy"
+                            onClick={this.copyCode}
+                            onMouseLeave={ this.returnDefaultTooltip }
+                            onMouseEnter={this.startCopyCode.bind(this, item.data[0].domain)}
+                            className='tipCopySvg'
+                  />
                 </Tooltip>
               </Timeline.Item>
             </Timeline>
@@ -162,11 +172,16 @@ class AppTip extends Component {
                   let linkURL = 'http://' + url.domain
                   return (
                     <Timeline.Item dot={<div></div>}>
-                      <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
+                      <TenxIcon type="branch" className='branchSvg'/>
                       <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
                       <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
-                        <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, url)}><use xlinkHref='#appcentercopy' /></svg>
+                        <TenxIcon type="copy"
+                          className='tipCopySvg'
+                          onClick={this.copyCode}
+                          onMouseLeave={this.returnDefaultTooltip}
+                          onMouseEnter={this.startCopyCode.bind(this, url)}
+                        />
                       </Tooltip>
                     </Timeline.Item>
                   )

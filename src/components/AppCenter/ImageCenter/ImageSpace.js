@@ -461,6 +461,7 @@ class ImageSpace extends Component {
           <div className="imageList">
             <div className="imageBox">
               <svg className='appcenterlogo'>
+                {/*@#app-center-logo*/}
                 <use xlinkHref='#appcenterlogo' />
               </svg>
             </div>
@@ -470,6 +471,7 @@ class ImageSpace extends Component {
               </div>
               <div className="type">
                 <FormattedMessage {...menusText.type} />
+                {/*@#private*/}
                 {row.contributor}
                 {row.isPrivate == "0" ? [
                   <span key={row.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg><FormattedMessage {...menusText.publicType} /></span>]
@@ -538,12 +540,14 @@ class ImageSpace extends Component {
               <div className="operaBox">
                 <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
                   <svg className='appcenterupload'>
+                    {/*@#upload*/}
                     <use xlinkHref='#appcenterupload' />
                   </svg>
                   <FormattedMessage {...menusText.uploadImage} />
                 </Button>
                 <Button className="downloadBtn" size="large" type="ghost" onClick={this.openDownloadModal}>
                   <svg className='appcenterdownload'>
+                    {/*@#download*/}
                     <use xlinkHref='#appcenterdownload' />
                   </svg>
                   <FormattedMessage {...menusText.downloadImage} />

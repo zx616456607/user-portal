@@ -310,6 +310,7 @@ class TerminalModal extends Component {
     const operaBox = (
       <div className='operaBox'>
         <svg onClick={this.resizeXterm} >
+          {/*@#line rectangle*/}
           <use xlinkHref={resize === 'normal' ? '#minwindow' : '#maxwindow'} />
         </svg>
         <Icon type='cross' onClick={this.closeXterm} />

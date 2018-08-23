@@ -49,6 +49,7 @@ import PermissionOverview from './PermissionOverview'
 import ServiceMeshForm from './ServiceMeshForm';
 import ServiceMeshSwitch from './ServiceMeshSwitch';
 import * as SEMeshActions from '../../../../actions/serviceMesh'
+import TenxIcon from '@tenx-ui/icon'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -1646,9 +1647,7 @@ class ProjectDetail extends Component {
                         <div className="titleContainer">
                           <span className="title">该角色权限</span>
                           <span className="clusterTitle">
-                            <svg className="clusterSvg" fill="#999">
-                              <use xlinkHref="#headercluster" />
-                            </svg>
+                            <TenxIcon type="cluster"/>
                             集群
                           </span>
                           {
@@ -1667,9 +1666,7 @@ class ProjectDetail extends Component {
                             </Dropdown>
                           }
                           <span className="desc">
-                            <svg className="permissionIcon">
-                              <use xlinkHref="#permission" />
-                            </svg>
+                            <TenxIcon type="permission"/>
                             授权方式：{this.state.currpermissionPolicyType === 1 ? "所有资源统一授权" : "指定资源授权"}
                           </span>
                         </div>

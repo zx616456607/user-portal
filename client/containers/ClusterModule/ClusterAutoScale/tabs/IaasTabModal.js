@@ -548,6 +548,7 @@ export default connect(mapStateToProps, {
                       <div className="icon"></div>
                       <div className="name">vmware</div>
                       <svg className="commonSelectedImg">
+                        {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
                       </svg>
                       <i className="fa fa-check"></i>
@@ -556,6 +557,7 @@ export default connect(mapStateToProps, {
                       <div className="icon"></div>
                       <div className="name">aws</div>
                       <svg className="commonSelectedImg">
+                        {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
                       </svg>
                       <i className="fa fa-check"></i>
@@ -564,6 +566,7 @@ export default connect(mapStateToProps, {
                       <div className="icon"></div>
                       <div className="name">azure</div>
                       <svg className="commonSelectedImg">
+                        {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
                       </svg>
                       <i className="fa fa-check"></i>
@@ -572,6 +575,7 @@ export default connect(mapStateToProps, {
                       <div className="icon"></div>
                       <div className="name">aliyun</div>
                       <svg className="commonSelectedImg">
+                        {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
                       </svg>
                       <i className="fa fa-check"></i>
