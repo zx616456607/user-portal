@@ -285,6 +285,7 @@ class RechargeRecord extends Component {
             standard ?
               <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
+                  {/*cube*/}
                   <use xlinkHref='#headerteamspace' />
                 </svg>
                 <div className='popTeamSelect'>
@@ -314,6 +315,7 @@ class RechargeRecord extends Component {
               :
               <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
+                  {/*cube*/}
                   <use xlinkHref='#headerteamspace' />
                 </svg>
                 项目空间：

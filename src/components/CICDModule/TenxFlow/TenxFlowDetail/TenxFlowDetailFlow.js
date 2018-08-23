@@ -455,6 +455,7 @@ class TenxFlowDetailFlow extends Component {
                   ? <QueueAnim key='createCardAnimate'>
                     <div className='createInfo' key='createCard'>
                       <svg className='addIcon'>
+                        {/*@#create*/}
                         <use xlinkHref='#cicdcreate' />
                       </svg>
                       <p>

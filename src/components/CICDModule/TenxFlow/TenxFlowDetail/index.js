@@ -451,6 +451,7 @@ class TenxFlowDetail extends Component {
           <use xlinkHref='#cicdbuildfast' />
         </svg> */}
         <svg className='structure commonImg'>
+          {/*@#structure*/}
           <use xlinkHref="#structure"></use>
         </svg>&nbsp;
         <FormattedMessage {...menusText.deloyStart} />
@@ -599,6 +600,7 @@ class TenxFlowDetail extends Component {
               }
               <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal} className='titleLogBtn'>
                 <svg className='cicdlog'>
+                  {/*@#execute-log*/}
                   <use xlinkHref='#cicdlog' />
                 </svg>
                 <FormattedMessage {...menusText.deloyLog} />

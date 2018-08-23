@@ -32,12 +32,14 @@ const BeginnerGuidance = () => {
                     </div>
                     <div className="tagInfo">
                       <svg className="team commonImg">
+                        {/* @#team*/}
                         <use xlinkHref="#team"></use>
                       </svg> &nbsp;
                       <span>团队：由n个成员组成</span>
                     </div>
                     <div className="tagInfo">
                       <svg className="authority commonImg">
+                        {/* @#authority*/}
                         <use xlinkHref="#authority"></use>
                       </svg> &nbsp;
                       <span>权限：平台上每个功能模块权限的细粒度划分</span>

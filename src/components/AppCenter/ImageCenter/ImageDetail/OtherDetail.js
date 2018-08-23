@@ -112,6 +112,7 @@ class OtherDetail extends Component {
         <div className="headerBox">
           <div className="imgBox">
             <svg className='appcenterlogo'>
+              {/*@#app-center-logo*/}
               <use xlinkHref='#appcenterlogo' />
             </svg>
           </div>
@@ -129,12 +130,14 @@ class OtherDetail extends Component {
         <div className="downloadBox">
           <div className="code">
             <svg className='appcenterdownload' >
+              {/*@#download*/}
               <use xlinkHref='#appcenterdownload' />
             </svg>
             <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
             <span className="pullCode textoverflow">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
               <svg className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}>
+                {/*@#copy*/}
                 <use xlinkHref='#appcentercopy' />
               </svg>
             </Tooltip>
@@ -144,6 +147,7 @@ class OtherDetail extends Component {
             pullCount &&
             <div className="times">
               <svg className='appcenterdownload' >
+                {/*@#download*/}
                 <use xlinkHref='#appcenterdownload' />
               </svg>
               {pullCount}

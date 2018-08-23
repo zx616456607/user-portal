@@ -14,6 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
 import { parseAmount } from '../../../../common/tools'
+import TenxIcon from '@tenx-ui/icon'
 
 function getOption(cost, rest) {
   return {
@@ -140,7 +141,7 @@ class Admin extends Component{
               <Row className="teamInfItem" gutter={16}>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <Icon type="team" style={{color: '#46ADF4', margin: '0 5px',fontSize: '14px'}}/>
+                    <Icon type="team" style={{color: '#46ADF4', margin: '0 5px 0 0',fontSize: '14px'}}/>
                     成员
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
@@ -149,9 +150,7 @@ class Admin extends Component{
                 </Col>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homeimagecountcolor" />
-                    </svg>
+                    <TenxIcon type="mirror-image-o" className="teamIcon"/>
                     镜像
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
@@ -162,9 +161,7 @@ class Admin extends Component{
               <Row className="teamInfItem" gutter={16}>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homeappcountcolor" />
-                    </svg>
+                    <TenxIcon type="apps-o" className="teamIcon"/>
                     应用
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
@@ -173,9 +170,7 @@ class Admin extends Component{
                 </Col>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homelayoutcountcolor" />
-                    </svg>
+                    <TenxIcon type="puzzle-o" className="teamIcon"/>
                     编排
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
@@ -186,9 +181,7 @@ class Admin extends Component{
               <Row className="teamInfItem" gutter={16}>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homeservicecountcolor" />
-                    </svg>
+                    <TenxIcon type="volume-bind" className="teamIcon"/>
                     服务
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
@@ -197,9 +190,7 @@ class Admin extends Component{
                 </Col>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homesavecountcolor" />
-                    </svg>
+                    <TenxIcon type="storage-volume-o" className="teamIcon"/>
                     存储卷
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
@@ -210,9 +201,7 @@ class Admin extends Component{
               <Row className="teamInfItem" gutter={16}>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homecontainercountcolor" />
-                    </svg>
+                    <TenxIcon type="container-o" className="teamIcon"/>
                     容器
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
@@ -221,10 +210,8 @@ class Admin extends Component{
                 </Col>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homebuildcountcolor" />
-                    </svg>
-                    流水线
+                    <TenxIcon type="cluster" className="teamIcon"/>
+                    TenxFlow
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.flowCnt} 个
@@ -271,9 +258,7 @@ class Admin extends Component{
                   <tbody>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         创建应用
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -282,9 +267,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
+                        <TenxIcon type="volume-bind" className="icon"/>
                         创建服务
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -293,9 +276,7 @@ class Admin extends Component{
                     </tr>
                      <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
+                        <TenxIcon type="storage-volume-o" className="icon"/>
                         创建存储卷
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -304,9 +285,7 @@ class Admin extends Component{
                     </tr>
                      <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         停止应用
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -315,9 +294,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeservicecount" />
-                        </svg>
+                        <TenxIcon type="volume-bind" className="icon"/>
                         删除服务
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -326,9 +303,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
+                        <TenxIcon type="storage-volume-o" className="icon"/>
                         删除存储卷
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -337,9 +312,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         修改应用
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -348,9 +321,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         启动应用
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
@@ -359,9 +330,7 @@ class Admin extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
+                        <TenxIcon type="apps-o" className="icon"/>
                         重新部署
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>

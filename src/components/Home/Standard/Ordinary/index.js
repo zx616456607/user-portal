@@ -25,6 +25,7 @@ import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
+import TenxIcon from '@tenx-ui/icon'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -720,9 +721,8 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homekubernetes" />
-                      </svg>
+                      <TenxIcon />
+                      <TenxIcon type="kubernetes" className="icon"/>
                       Engine
                     </td>
                     <td>
@@ -731,9 +731,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homewww" />
-                      </svg>
+                      <TenxIcon type="www" className="icon"/>
                       DNS
                     </td>
                     <td>
@@ -742,9 +740,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeapiservice" />
-                      </svg>
+                      <TenxIcon type="api-service" className="icon"/>
                       API Server
                     </td>
                     <td>
@@ -753,9 +749,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#engine" />
-                      </svg>
+                      <TenxIcon type="engine" className="icon"/>
                       Monitor
                     </td>
                     <td>
@@ -764,9 +758,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homelogging" />
-                      </svg>
+                      <TenxIcon type="log" className="icon"/>
                       Logging
                     </td>
                     <td>
@@ -1054,9 +1046,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
+                      <TenxIcon type="apps-o" className="icon"/>
                       创建应用
                     </td>
                     <td className="recordNum">
@@ -1065,9 +1055,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
+                      <TenxIcon type="volume-bind" className="icon"/>
                       创建服务
                     </td>
                     <td className="recordNum">
@@ -1076,9 +1064,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
+                      <TenxIcon type="storage-volume-o" className="icon"/>
                       创建存储卷
                     </td>
                     <td className="recordNum">
@@ -1087,9 +1073,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
+                      <TenxIcon type="apps-o" className="icon"/>
                       停止应用
                     </td>
                     <td className="recordNum">
@@ -1098,9 +1082,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
+                      <TenxIcon type="volume-bind" className="icon"/>
                       删除服务
                     </td>
                     <td className="recordNum">
@@ -1109,9 +1091,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
+                      <TenxIcon type="storage-volume-o" className="icon"/>
                       删除存储卷
                     </td>
                     <td className="recordNum">
@@ -1120,9 +1100,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
+                      <TenxIcon type="apps-o" className="icon"/>
                       修改应用
                     </td>
                     <td className="recordNum">
@@ -1131,9 +1109,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
+                      <TenxIcon type="apps-o" className="icon"/>
                       启动应用
                     </td>
                     <td className="recordNum">
@@ -1142,9 +1118,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
+                      <TenxIcon type="apps-o" className="icon"/>
                       重新部署
                     </td>
                     <td className="recordNum">

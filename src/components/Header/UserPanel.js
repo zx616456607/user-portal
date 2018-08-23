@@ -19,6 +19,7 @@ import { AVATAR_HOST } from '../../constants'
 import { parseAmount } from '../../common/tools'
 import proIcon from '../../assets/img/version/proIcon.png'
 import proIconGray from '../../assets/img/version/proIcon-gray.png'
+import TenxIcon from '@tenx-ui/icon'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -136,9 +137,7 @@ class UserPanel extends Component {
     return (
       <td key={`menu${index}`}>
         <Link to={menu.to} onClick={this.handleVisibleChange}>
-          <svg className='logMenuSvg'>
-            <use xlinkHref={menu.svgHref} />
-          </svg>
+          <TenxIcon type={menu.iconType} className="userIcon"/>
           <div>{menu.text}</div>
         </Link>
       </td>
@@ -155,22 +154,22 @@ class UserPanel extends Component {
     let menuItems = [
       {
         to: '/account',
-        svgHref: '#logaccountinf',
+        iconType: 'log-account',
         text: '帐户信息',
       },
       {
         to: '/account#edit_pass',
-        svgHref: '#logchangepass',
+        iconType: 'password-change',
         text: '修改密码',
       },
       {
         to: '/tenant_manage/team',
-        svgHref: '#logteam',
+        iconType: 'team-o',
         text: '团队',
       },
       {
         to: `/tenant_manage/project_manage`,
-        svgHref: '#project',
+        iconType: 'backup',
         text: '项目',
       }
     ]
@@ -178,22 +177,22 @@ class UserPanel extends Component {
       menuItems = [
         {
           to: '/account',
-          svgHref: '#logaccountinf',
+          iconType: 'log-account',
           text: '我的帐户',
         },
         {
           to: '/account/costCenter#consumptions',
-          svgHref: '#logcostrecord',
+          iconType: 'cost-record',
           text: '消费记录',
         },
         {
           to: '/account#edit_pass',
-          svgHref: '#logchangepass',
+          iconType: 'password-change',
           text: '修改密码',
         },
         {
           to: '/tenant_manage/team',
-          svgHref: '#logteam',
+          iconType: 'team-o',
           text: '我的团队',
         },
       ]

@@ -283,6 +283,7 @@ class Sider extends Component {
               <li className='logoItem'>
                 <Link to='/'>
                   <svg className='logo'>
+                    {/*@#logo*/}
                     <use xlinkHref='#sidernewlogo' />
                   </svg>
                 </Link>
@@ -291,6 +292,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='总览' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/'>
                     <svg className='home commonImg'>
+                      {/*@#instrument instrument-o*/}
                       {currentKey == 'home' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
                     </svg>
                   </Link>
@@ -309,6 +311,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='交付中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center'>
                     <svg className='center commonImg'>
+                      {/*@#center*/}
                       {currentKey == 'app_center' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
                     </svg>
                   </Link>
@@ -318,6 +321,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
                     <svg className='cicd commonImg'>
+                      {/*@#lift-card  lift-card-o*/}
                       {currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
                     </svg>
                   </Link>
@@ -327,6 +331,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache/mysql_cluster'>
                     <svg className='database commonImg'>
+                      {/*@#database database-o*/}
                       {currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
                   </Link>
@@ -336,6 +341,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/integration'>
                     <svg className='system commonImg'>
+                      {/*@#puzzle puzzle-o*/}
                       {currentKey == 'integration' ? [<use xlinkHref='#systemselected' />] : [<use xlinkHref='#system' />]}
                     </svg>
                   </Link>
@@ -345,6 +351,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='管理与监控' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
+                      {/*@#manage-monitor*/}
                       {currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />]}
                     </svg>
                   </Link>
@@ -354,6 +361,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='帐户中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
                     <svg className='account commonImg'>
+                      {/*@#user user-o*/}
                       {currentKey == 'account' ? [<use xlinkHref='#messageselected' />] : [<use xlinkHref='#message' />]}
                     </svg>
                   </Link>
@@ -396,6 +404,7 @@ class Sider extends Component {
                 <Menu.Item key='home'>
                   <Link to='/'>
                     <svg className='home commonImg'>
+                      {/*@#instrument-o*/}
                       <use xlinkHref='#home' />
                     </svg>
                     <span>总览</span>
@@ -405,6 +414,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='app commonImg'>
+                        {/*@#apps*/}
                         <use xlinkHref='#app' />
                       </svg>
                       <span className='commonSiderSpan'>应用管理</span>
@@ -443,6 +453,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='center commonImg'>
+                        {/*@#center-o*/}
                         <use xlinkHref='#center' />
                       </svg>
                       <span className='commonSiderSpan'>交付中心</span>
@@ -471,6 +482,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='center commonImg'>
+                        {/*lift-card-o*/}
                         <use xlinkHref='#cicd' />
                       </svg>
                       <span className='commonSiderSpan'>CI/CD</span>
@@ -504,6 +516,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='database commonImg'>
+                        {/*@#database-o*/}
                         <use xlinkHref='#database' />
                       </svg>
                       <span className='commonSiderSpan'>数据库与缓存</span>
@@ -547,6 +560,7 @@ class Sider extends Component {
                   <Link to='/integration'>
                     <span>
                       <svg className='system commonImg'>
+                        {/*@puzzle-o*/}
                         <use xlinkHref='#system' />
                       </svg>
                       <span className='commonSiderSpan'>集成中心</span>
@@ -558,6 +572,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='manageMoniter commonImg'>
+                        {/*@#manage-monitor*/}
                         <use xlinkHref='#managemoniter' />
                       </svg>
                       <span className='commonSiderSpan'>管理与监控</span>
@@ -597,6 +612,7 @@ class Sider extends Component {
                   title={
                     <span>
                       <svg className='account commonImg'>
+                        {/*@#user-o*/}
                         <use xlinkHref='#message' />
                       </svg>
                       <span className='commonSiderSpan'>帐户中心</span>
@@ -658,6 +674,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title='新版引导'getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <div className='miniNavBtn' onClick={this.openNavModal}>
                     <svg>
+                      {/*@#send*/}
                       <use xlinkHref='#navbtn' />
                     </svg>
                   </div>
@@ -665,6 +682,7 @@ class Sider extends Component {
               ] : [
                 <div className='navBtn' onClick={this.openNavModal}>
                   <svg>
+                    {/*@#send*/}
                     <use xlinkHref='#navbtn' />
                   </svg>
                   <span>新版引导</span>

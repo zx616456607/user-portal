@@ -819,3 +819,19 @@ export const serviceNameCutForMetric = name => {
   name = name.join('-')
   return name
 }
+
+/**
+ * 解析镜像地址和版本
+ * @param image
+ * @returns {{imageUrl: string, imageTag: string}}
+ */
+export const parseImageUrl = image => {
+  const lastIndex = image.lastIndexOf(':')
+  const imageTag = image.substring(lastIndex + 1)
+  const imageHost = image.substring(0, lastIndex)
+  let imageUrl = imageHost
+  if (imageHost.includes('//')) {
+    imageUrl = imageHost.split('//')[1]
+  }
+  return { imageUrl, imageTag }
+}

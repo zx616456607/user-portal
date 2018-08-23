@@ -12,7 +12,7 @@
 
 import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
-import { parseCpuToNumber } from '../../../../../src/common/tools';
+import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools';
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
   DEFAULT_ALGORITHM,
@@ -456,13 +456,8 @@ const parseDeployment = (deployment, chart) => {
   const { spec: innerSpec, metadata: innerMetadata } = template;
   const { containers, volumes } = innerSpec;
   const { labels, annotations } = innerMetadata;
-  const imageArray = containers[0].image.split(':');
-  let imageUrl: string = imageArray[0];
-  let imageTag: string = imageArray[1];
-  if (imageArray.length > 2) {
-    imageUrl = imageArray[1].split('//')[1];
-    imageTag = imageArray[2];
-  }
+  const image = containers[0].image;
+  const { imageUrl, imageTag } = parseImageUrl(image)
   const values = {
     serviceName: outerMetadata.name, // 服务名称
     chartName: name,
