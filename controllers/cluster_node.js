@@ -44,7 +44,7 @@ exports.getClusterNodes = function* () {
     // 服务迁移中
     if (!schedulable && annotations.maintenance && (annotations.maintenance === 'true')) {
       isMaintainingReqArr.push(api.clusters.getBy([cluster, 'nodes', node.objectMeta.name, 'drain', 'podmetric']).then(result => {
-        return Object({}, result, { name: node.objectMeta.name })
+        return Object({}, result.data, { name: node.objectMeta.name })
       }))
     }
   })
@@ -54,7 +54,7 @@ exports.getClusterNodes = function* () {
   }
   if (!isEmpty(isMaintainingResult)) {
     clusters.nodes.nodes.forEach(node => {
-      const currentResult = isMaintainingResult.filter(res => res.data.name === node.objectMeta.name)[0]
+      const currentResult = isMaintainingResult.filter(res => res.name === node.objectMeta.name)[0]
       let { current, total } = currentResult
       if (current < total && current !== 0) {
         node.objectMeta.annotations.maintainStatus = 'processing'
