@@ -93,6 +93,7 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
     } else if (policy.spec.policyTypes.findIndex(t => t === 'Ingress') === -1) {
       policy.spec.policyTypes.push('Ingress')
     }
+    const from = policy.spec.ingress[0].from
     for (let i = 0; i < ingress.length; ++i) {
       const rule = ingress[i]
       const peer = ruleToPeer(rule)

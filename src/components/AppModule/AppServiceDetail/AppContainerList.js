@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Button, Card, Menu, Spin, Tooltip, Tag } from 'antd'
+import { Checkbox, Button, Card, Menu, Spin, Tooltip, Tag, Icon } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import './style/AppContainerList.less'
 import { calcuDate } from '../../../common/tools'
 import { loadServiceContainerList } from '../../../actions/services'
 import ContainerStatus from '../../TenxStatus/ContainerStatus'
+import ContainerHeader from '../../../../client/containers/AppModule/AppServiceDetail/containerHeader'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -92,6 +93,12 @@ const MyComponent = React.createClass({
         const image = currentImages[0] && currentImages[0].to || ''
         isNew = image === imageArray[0]
       }
+      const ipv4Arr = item.metadata.annotations.hasOwnProperty(['cni.projectcalico.org/ipv4pools'])
+        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+      let lockItem = null
+      ipv4Arr && ipv4Arr.forEach(item => {
+        if (item === status.podIP) lockItem = true
+      })
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
@@ -119,7 +126,15 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="address commonData">
-            <span>内&nbsp;:&nbsp;{status.podIP}</span>
+            <span>内&nbsp;:&nbsp;{status.podIP}&nbsp;&nbsp;
+            {
+              lockItem ?
+                <Tooltip placement="top" title="固定实例 IP，保持 IP 不变">
+                  <Icon type="lock" />
+                </Tooltip>
+                : null
+            }
+            </span>
           </div>
           <div className="createTime commonData">
             {calcuDate(item.metadata.creationTimestamp || '')}
@@ -201,6 +216,13 @@ class AppContainerList extends Component {
           </div>
           <div style={{ clear:"both" }}></div>
         </div>)*/}
+          {
+            serviceDetail.spec
+              && <ContainerHeader
+              serviceDetail={serviceDetail}
+              onTabClick={this.props.onTabClick}
+            />
+          }
           <Card className="dataBox">
             <div className="titleBox">
               {/*(<div className="selectIconTitle commonData">

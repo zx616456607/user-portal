@@ -55,6 +55,7 @@ const sendEmailOpt = [{
   text: '不发送邮件'
 }]
 const thresholdKey = ['cpu', 'memory', 'qps']
+let maxInstance = null
 
 class AppAutoScale extends Component {
   constructor() {
@@ -414,6 +415,9 @@ class AppAutoScale extends Component {
     if (!value) {
       return callback('请输入最大实例数')
     }
+    if (maxInstance && value > maxInstance) {
+      return callback('服务开启了固定实例 IP，实例数量最多为 IP 数量')
+    }
     if (value > 300) {
       return callback('最大实例不能超过300个')
     }
@@ -546,7 +550,8 @@ class AppAutoScale extends Component {
   }
   render() {
     const { isEdit, scaleDetail, switchOpen, btnLoading, activeKey, thresholdArr, cpuAndMemory } = this.state
-    const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab } = this.props
+    const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab,
+      serviceDetail } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     const formItemLargeLayout = {
@@ -664,6 +669,18 @@ class AppAutoScale extends Component {
         </div>
       )
     })
+    const currentService = serviceDetail[cluster]
+      && serviceDetail[cluster][serviceName]
+      && serviceDetail[cluster][serviceName].service
+      || null
+    const annotations = currentService
+      && currentService.spec
+      && currentService.spec.template.metadata.annotations
+      || null
+    const isFexed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools') || false
+    maxInstance = annotations
+      && annotations['cni.projectcalico.org/ipv4pools']
+      && JSON.parse(annotations['cni.projectcalico.org/ipv4pools']).length
     return(
       <div id="AppAutoScale">
         <div className="autoScaleSwitch">
@@ -710,10 +727,21 @@ class AppAutoScale extends Component {
                     <InputNumber disabled={!isEdit} {...minReplicas}/> 个
                   </FormItem>
                   <FormItem
-                    {...formItemSmallLayout}
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 20 }}
                     label="最大实例数"
                   >
                     <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
+                    {
+                      isFexed ?
+                        <span className="maxInstance">
+                          <Icon
+                            type="info-circle-o"
+                          />
+                          服务开启了固定实例 IP，实例数量最多为 IP 数量
+                        </span>
+                        : null
+                    }
                   </FormItem>
                   {thresholdItem}
                   <FormItem
@@ -813,8 +841,11 @@ function mapStateToProps(state, props) {
   const {groups} = state.alert || {groups: {}}
   const {result} = groups || {result: {}}
   const {data: alertList} = result || {data: []}
+  const { services } = state || {}
+  const { serviceDetail } = services
   return {
-    alertList
+    alertList,
+    serviceDetail
   }
 }
 

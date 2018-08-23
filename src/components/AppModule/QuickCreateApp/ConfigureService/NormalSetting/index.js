@@ -34,6 +34,7 @@ import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
+import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -548,7 +549,7 @@ const Normal = React.createClass({
     const { query } = location
     const { listNodes } = currentCluster
     const { replicasInputDisabled, memoryMin, cpuMin } = this.state
-    const { getFieldProps, setFieldsValue } = form
+    const { getFieldProps, setFieldsValue, getFieldValue } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
     const replicasProps = getFieldProps('replicas', {
@@ -649,7 +650,7 @@ const Normal = React.createClass({
             isTemplate={isTemplate}
             {...{location}}
           />
-          <FormItem
+          {/* <FormItem
             {...formItemLayout}
             wrapperCol={{ span: 3 }}
             label="实例数量"
@@ -664,7 +665,44 @@ const Normal = React.createClass({
               disabled={replicasInputDisabled}
             />
             <div className="unit">个</div>
-          </FormItem>
+
+          </FormItem> */}
+          <Row key="replicas">
+            <Col span={4} className="formItemLabel label"> 实例数量 </Col>
+            <Col span={3}>
+              <FormItem className="replicasFormItem">
+                <InputNumber
+                  size="large"
+                  min={1}
+                  max={10}
+                  {...replicasProps}
+                  disabled={replicasInputDisabled}
+                />
+                <div className="unit"> 个</div>
+              </FormItem>
+            </Col>
+            <Col span={5} style={{ paddingLeft: 30 }}>
+              <FormItem>
+                <Checkbox
+                  {
+                    ...getFieldProps('replicasCheck', {
+                      initialValue: false,
+                      valuePropName: 'checked',
+                    })
+                  }
+                >
+                  固定实例 IP
+                </Checkbox>
+              </FormItem>
+            </Col>
+          </Row>
+          {
+            (getFieldValue('replicasCheck') && getFieldValue('replicas'))
+              &&　<ReplicasRestrictIP
+                form={form}
+              />
+              || null
+          }
           <AccessMethod
             formItemLayout={formItemLayout}
             fields={fields}
