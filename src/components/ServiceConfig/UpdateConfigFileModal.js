@@ -21,7 +21,8 @@ const createForm = Form.create
 let UpdateConfigFileModal = React.createClass({
   getInitialState() {
     return {
-      filePath: '请上传文件或直接输入内容'
+      filePath: '请上传文件或直接输入内容',
+      tempConfigDesc: '',
     }
   },
   editConfigFile(group) {
@@ -78,7 +79,7 @@ let UpdateConfigFileModal = React.createClass({
     })
   },
   beforeUpload(file) {
-    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
+    const fileInput = this.configFileContent.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
     if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
@@ -106,17 +107,22 @@ let UpdateConfigFileModal = React.createClass({
       })
       notify.close()
       notify.success('文件内容读取完成')
+      const configDesc = fileReader.result.replace(/\r\n/g, '\n')
       self.props.form.setFieldsValue({
-        configDesc: fileReader.result.replace(/\r\n/g, '\n')
+        configDesc,
+      })
+      this.setState({
+        tempConfigDesc: configDesc
       })
     }
     fileReader.readAsText(file)
     return false
   },
   render() {
-    const { type, form } = this.props
+    const { type, form, scope } = this.props
     const { getFieldProps } = form
-    const parentScope = this.props.scope
+    const { filePath, tempConfigDesc } = this.state
+    const parentScope = scope
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     const descProps = getFieldProps('configDesc', {
       rules: [
@@ -146,18 +152,16 @@ let UpdateConfigFileModal = React.createClass({
           </div>
           <Form horizontal>
             <FormItem  {...formItemLayout} label="名称">
-              <Input type="text" disabled value={parentScope.state.configName}/>
-            </FormItem>
-            <FormItem>
-              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} ref={(instance) => this.uploadInput = instance}>
-                <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
-                <Button type="ghost" style={{marginLeft: '10px'}} disabled={this.state.disableUpload}>
-                  <Icon type="upload" /> 读取文件内容
-                </Button>
-              </Upload>
+              <Input
+                className="configName" type="text" disabled value={parentScope.state.configName}/>
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
+                ref={ref => this.configFileContent = ref}
+                beforeUpload={this.beforeUpload}
+                filePath={filePath}
+                form={form}
+                tempConfigDesc={tempConfigDesc}
                 descProps={descProps} />
             </FormItem>
           </Form>

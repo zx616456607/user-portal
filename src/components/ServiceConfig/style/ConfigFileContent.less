@@ -1,0 +1,41 @@
+@import '../../../assets/style/site/core.less';
+.configFileContent{
+  .formItem{
+    margin-bottom: 0px !important;
+  }
+  .importStatus{
+    text-align: center;
+    position: absolute;
+    right: -20px;
+    .primary{
+      color: @primary-color;
+    }
+    .succ{
+      color: @success-color;
+    }
+    .failed{
+      color: @error-color;
+    }
+  }
+  .filepath{
+    width: 100%;
+    display:block;
+    text-align: left;
+    line-height:20px;
+    color:#c1c1c1;
+    margin: 10px 0;
+  }
+  .alertRow{
+    padding: 5px 15px;
+    margin-top: 10px;
+    .fa-exclamation-triangle{
+      margin-right: 8px;
+    }
+  }
+  .importRow{
+    margin-bottom: 10px;
+    .selBranch, .path{
+      width: 95%;
+    }
+  }
+}

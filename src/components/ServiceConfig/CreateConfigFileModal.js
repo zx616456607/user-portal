@@ -30,7 +30,8 @@ let CreateConfigFileModal = React.createClass({
       filePath: (<span style={{width:'100%'}}>
                   <div>请上传文件或直接输入内容</div>
                   <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
-                </span>)
+                </span>),
+      tempConfigDesc: "", // 缓存 便于切换之后回写
     }
   },
   componentDidMount() {
@@ -50,11 +51,11 @@ let CreateConfigFileModal = React.createClass({
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
       return
     }
     if (!validateServiceConfigFile(value)) {
-      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
       return
     }
     clearTimeout(this.checkNameTimer)
@@ -189,9 +190,13 @@ let CreateConfigFileModal = React.createClass({
       })
       notify.close()
       notify.success('文件内容读取完成')
+      const configDesc = fileReader.result.replace(/\r\n/g, '\n')
       self.props.form.setFieldsValue({
-        configDesc: fileReader.result.replace(/\r\n/g, '\n'),
+        configDesc,
         configName: fileName,// .split('.')[0]
+      })
+      this.setState({
+        tempConfigDesc: configDesc
       })
     }
     fileReader.readAsText(file)
@@ -205,12 +210,16 @@ let CreateConfigFileModal = React.createClass({
     this.props.form.resetFields()
     parentScope.createConfigModal(e, false)
   },
-
+  onConfigChange(tempConfigDesc) {
+    this.setState({
+      tempConfigDesc
+    })
+  },
   render() {
     const { type, form } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
     const parentScope = this.props.scope
-    const { filePath } = this.state
+    const { filePath, tempConfigDesc } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -230,7 +239,8 @@ let CreateConfigFileModal = React.createClass({
     const descProps = getFieldProps('configDesc', {
       rules: [
         { validator: this.configDescExists },
-      ]
+      ],
+      onChange:this.onConfigChange
     });
     return(
       <Modal
@@ -254,6 +264,7 @@ let CreateConfigFileModal = React.createClass({
           <Form horizontal>
             <FormItem  {...formItemLayout} label="名称">
               <Input
+                className="configName"
                 type="text"
                 {...nameProps}
                 className="nameInput"
@@ -270,6 +281,8 @@ let CreateConfigFileModal = React.createClass({
                 ref={ref => this.configFileContent = ref}
                 beforeUpload={this.beforeUpload}
                 filePath={filePath}
+                form={form}
+                tempConfigDesc={tempConfigDesc}
                 descProps={descProps} />
             </FormItem>
           </Form>
