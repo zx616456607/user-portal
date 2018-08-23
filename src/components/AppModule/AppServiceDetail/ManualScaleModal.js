@@ -17,6 +17,7 @@ import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 
+let maxInstance = null
 class ManualScaleModal extends Component {
   constructor(props) {
     super(props)
@@ -112,6 +113,9 @@ class ManualScaleModal extends Component {
 
   render() {
     const { service, visible } = this.props
+    const annotations = service && service.spec.template.metadata.annotations
+    const isFixed = service && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+    maxInstance = isFixed && JSON.parse(annotations['cni.projectcalico.org/ipv4pools']).length || null
     if (!visible) {
       return null
     }
@@ -163,7 +167,7 @@ class ManualScaleModal extends Component {
                 <Col span={12}>
                   <Slider
                     min={1}
-                    max={INSTANCE_MAX_NUM}
+                    max={ isFixed ? maxInstance : INSTANCE_MAX_NUM }
                     defaultValue={service.spec.replicas}
                     onChange={this.handleRealNum}
                     value={realNum} />
@@ -171,7 +175,7 @@ class ManualScaleModal extends Component {
                 <Col span={12}>
                   <InputNumber
                     min={1}
-                    max={INSTANCE_MAX_NUM}
+                    max={ isFixed ? maxInstance : INSTANCE_MAX_NUM }
                     style={{ marginLeft: '16px' }}
                     value={realNum}
                     onChange={this.handleRealNum}
@@ -180,6 +184,19 @@ class ManualScaleModal extends Component {
               </Row>
             </Col>
           </Row>
+          {
+            isFixed ?
+              <Row className="cardItemPrompt">
+                <Col span={4}></Col>
+                <Col span={20} className="cardItemText">
+                  <Icon
+                    type="info-circle-o"
+                  />
+                  服务开启了固定实例 IP，实例数量最多为 IP 数量
+                </Col>
+              </Row>
+              : null
+          }
         </div>
       </Modal>
     )

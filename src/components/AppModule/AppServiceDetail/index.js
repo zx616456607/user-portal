@@ -441,6 +441,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   containerList={containers}
                   loading={isContainersFetching}
+                  onTabClick={this.onTabClick}
                   />
               </TabPane>
               <TabPane tab='基础信息' key='#basic'>

@@ -158,6 +158,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     advanceSet, // 服务与服务 高级设置
     modelSet,  // 模型集
     serviceMesh, // 服务网格
+    replicasCheck, // 实例数量/固定IP
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -326,6 +327,18 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   // 设置实例数量
   deployment.setReplicas(replicas)
+  if (replicasCheck) {
+    const { keys } = fieldsValues
+    const replicasIPArr = []
+    keys.forEach(item => {
+      replicasIPArr.push(fieldsValues[`replicasIP${item}`])
+    })
+    const replicasIPStr = JSON.stringify(replicasIPArr)
+    deployment.setAnnotations({
+      ['cni.projectcalico.org/ipv4pools']: replicasIPStr,
+    })
+
+  }
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
