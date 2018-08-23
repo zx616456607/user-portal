@@ -17,7 +17,7 @@ import { getProjectList, removeProject, searchProject, filterProject } from '../
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import './style/CodeStore.less'
-
+import TenxIcon from '@tenx-ui/icon'
 
 const menusText = defineMessages({
   tooltips: {
@@ -214,9 +214,7 @@ const MyComponent = React.createClass({
           </div>
           {item.isPrivate == 1 ?
             <div className="type private">
-              <svg className='privateSvg'>
-                <use xlinkHref='#cicdprivate' />
-              </svg>
+              <TenxIcon type="private" className='privateSvg'/>
               <span className="margin">private</span>
               {item.repoType != 'svn' ?
               <Button type="ghost" style={{ marginLeft: '10px' }} onClick={() => this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
@@ -225,9 +223,7 @@ const MyComponent = React.createClass({
             </div>
             :
             <div className='type public'>
-              <svg className='publicSvg'>
-                <use xlinkHref='#cicdpublic' />
-              </svg>
+              <TenxIcon type="public" className='privateSvg'/>
               <span className="margin">public</span>
             </div>
           }
@@ -443,9 +439,7 @@ class CodeStore extends Component {
                 <Dropdown overlay={menu} trigger={['click']}>
                   <a className="ant-dropdown-link" href="#">
                     <FormattedMessage {...menusText.attr} />
-                    <svg className='filterSvg'>
-                      <use xlinkHref='#cicdfilter' />
-                    </svg>
+                    <TenxIcon type="filter" className='filterSvg'/>
                   </a>
                 </Dropdown>
               </div>

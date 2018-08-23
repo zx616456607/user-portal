@@ -732,21 +732,15 @@ class TenantManage extends React.Component {
                   </div>
                   <div className="tagDesc">
                     <div className="tagInfo">
-                      <svg className='member commonImg'>
-                        <use xlinkHref="#member"></use>
-                      </svg> &nbsp;
+                      <TenxIcon type="user" size={14}/> &nbsp;
                       <span>成员：平台上的成员</span>
                     </div>
                     <div className="tagInfo">
-                      <svg className='team commonImg'>
-                        <use xlinkHref="#team"></use>
-                      </svg> &nbsp;
+                      <TenxIcon type="team" size={14}/> &nbsp;
                       <span>团队：由n个成员组成</span>
                     </div>
                     <div className="tagInfo">
-                      <svg className='authority commonImg'>
-                        <use xlinkHref="#authority"></use>
-                      </svg> &nbsp;
+                      <TenxIcon type="authority" size={14}/> &nbsp;
                       <span>权限：平台上每个功能模块权限的细粒度划分</span>
                     </div>
                     <div className="tagInfo">

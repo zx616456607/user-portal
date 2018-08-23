@@ -12,7 +12,7 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Table, Radio, Row, Col, Pagination, Button } from 'antd';
+import { Table, Radio, Button } from 'antd';
 import CommonSearchInput from '../../../../../../components/SearchInput';
 import * as harborActions from '../../../../../../../src/actions/harbor';
 import * as AppStoreActions from '../../../../../../../src/actions/app_store';
@@ -22,6 +22,7 @@ import { encodeImageFullname } from '../../../../../../../src/common/tools';
 import NotificationHandler from '../../../../../../../src/components/Notification';
 import './style/ImagePart.less';
 import isEmpty from 'lodash/isEmpty';
+import TenxIcon from '@tenx-ui/icon'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -130,9 +131,9 @@ class ImagePart extends React.Component<IProps, IState> {
       render(text, row) {
         return (
           <div>
-            <svg className="imgUrl">
-              <use xlinkHref="#appcenterlogo" />
-            </svg>
+            <div className="imgUrl">
+              <TenxIcon type="app-center-logo"/>
+            </div>
             <div className="infoBox">
               <span className="name">{text}</span> <br />
               <span className="desc">{imageType !== IMAGE_STORE ? row.description : row.versions[0].description}</span>
