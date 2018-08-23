@@ -17,6 +17,7 @@ class ContainerInstanceHeader extends React.Component {
     isCheckIP: false,
     isFixed: false,
     notFixed: false,
+    isSee: false,
   }
 
   componentDidMount() {
@@ -31,24 +32,32 @@ class ContainerInstanceHeader extends React.Component {
     if (e.target.checked) {
       this.setState({
         isFixed: true,
+        isCheckIP: true,
       })
     } else if (!e.target.checked) {
       this.setState({
         notFixed: true,
+        isCheckIP: false,
       })
     }
   }
 
-  onChangeVisible = v => {
+  onChangeVisible = () => {
     this.setState({
       isFixed: false,
       notFixed: false,
+      isSee: false,
+    })
+  }
+
+  onHandleCanleIp = v => {
+    this.setState({
       isCheckIP: v,
     })
   }
 
   render() {
-    const { isFixed, notFixed } = this.state
+    const { isFixed, notFixed, isCheckIP, isSee } = this.state
     const { serviceDetail } = this.props
     return (
       <div className="instanceHeader">
@@ -60,13 +69,21 @@ class ContainerInstanceHeader extends React.Component {
         >
           固定实例IP
         </Checkbox>
-        <span>查看配置的IP</span>
+        <span
+          className="seeConfig"
+          onClick={() => this.setState({ isFixed: true, isSee: true })}
+        >
+          查看配置的IP
+        </span>
         {
           (isFixed || notFixed) && <ContainerInstance
             configIP = {isFixed}
             notConfigIP = {notFixed}
             onChangeVisible = {this.onChangeVisible}
+            onHandleCanleIp = {this.onHandleCanleIp}
             serviceDetail = {serviceDetail}
+            isCheckIP={isCheckIP}
+            isSee = {isSee}
           />
         }
       </div>
