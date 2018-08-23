@@ -476,6 +476,7 @@ class OperationalAudit extends React.Component {
       {
         dataIndex: 'targetAndType',
         title: '对象及类型',
+        width: 500,
         render: (val, row) => {
 
           try {
