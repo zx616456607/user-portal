@@ -360,6 +360,10 @@ const MyComponent = React.createClass({
 
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
+      const ipv4 = item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools']
+        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+        || null
+      const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
           {
@@ -401,16 +405,22 @@ const MyComponent = React.createClass({
             删除
           </Menu.Item>
           <Menu.Divider key="baseline1" />
-          <Menu.Item key="rollingUpdate">
+          <Menu.Item
+            key="rollingUpdate"
+            disabled={isDisabled}
+          >
             滚动发布
           </Menu.Item>
-          <Menu.Item key="grayscaleUpgrade">
+          <Menu.Item
+            key="grayscaleUpgrade"
+            disabled={isDisabled}
+          >
             灰度发布
           </Menu.Item>
           <SubMenu title="扩展">
             <Menu.Item
               key="manualScale" style={{width:'102px'}}
-              disabled={isRollingUpdateOrScrollRelease}
+              disabled={isRollingUpdateOrScrollRelease || isDisabled}
               title={
                 isRollingUpdateOrScrollRelease &&
                 `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''
@@ -419,7 +429,7 @@ const MyComponent = React.createClass({
               水平扩展
             </Menu.Item>
             <Menu.Item
-              key="autoScale" disabled={isRollingUpdateOrScrollRelease}
+              key="autoScale" disabled={isRollingUpdateOrScrollRelease || isDisabled}
               title={
                 isRollingUpdateOrScrollRelease &&
                 `请在${isRollingUpdate ? '灰度升级完成或回滚' : '滚动升级'}后操作` || ''

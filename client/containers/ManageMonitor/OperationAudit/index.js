@@ -461,21 +461,25 @@ class OperationalAudit extends React.Component {
       {
         dataIndex: 'time',
         title: '时间',
+        width: '10%',
         render: val => <span className="time">{formatDate(val)}</span>,
       },
       {
         dataIndex: 'duration',
         title: '持续时间',
+        width: '10%',
         render: val => <span>{duringTimeFormat(val)}</span>,
       },
       {
         dataIndex: 'operationType',
         title: '操作类型',
+        width: '10%',
         render: val => <span>{val === 0 ? '未知' : formatOperationType(val, filterData)}</span>,
       },
       {
         dataIndex: 'targetAndType',
         title: '对象及类型',
+        width: '30%',
         render: (val, row) => {
 
           try {
@@ -496,20 +500,24 @@ class OperationalAudit extends React.Component {
       {
         dataIndex: 'namespace',
         title: '项目',
+        width: '10%',
       },
       {
         dataIndex: 'clusterName',
         title: '集群名',
+        width: '10%',
         render: val => <span>{ val ? val : '-' }</span>,
       },
       {
         dataIndex: 'status',
         title: '状态',
+        width: '10%',
         render: (val, row) => <span className="status">{statusFormat(val, row.createTime)}</span>,
       },
       {
         dataIndex: 'operator',
         title: '发起者',
+        width: '10%',
         render: val => <span className="user">
           <i className="fa fa-user-o" />
           <span className="commonSpan">{val}</span>

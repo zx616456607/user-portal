@@ -11,12 +11,26 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Form, Input, Select } from 'antd'
-
+import * as securityActions from '../../../../../actions/securityGroup'
 
 const FormItem = Form.Item
 const Option = Select.Option
 
 class CreateNameAndTarget extends React.Component {
+
+  componentDidMount() {
+    const { getSecurityGroupList, cluster } = this.props
+    getSecurityGroupList(cluster)
+  }
+
+  checkName = (rule, value, callback) => {
+    this.props.listData.forEach(item => {
+      if (item.name === value) {
+        return callback('该安全组已存在，请修改名称')
+      }
+    })
+    callback()
+  }
 
   render() {
     const { form, formItemLayout, serverList } = this.props
@@ -36,6 +50,8 @@ class CreateNameAndTarget extends React.Component {
             rules: [{
               required: true,
               message: '请输入安全组名称',
+            }, {
+              validator: this.checkName,
             }],
           })}
         />
@@ -62,4 +78,22 @@ class CreateNameAndTarget extends React.Component {
     </div>
   }
 }
-export default connect()(CreateNameAndTarget)
+
+const mapStateToProps = ({
+  entities: { current },
+  securityGroup: { getSecurityGroupList: { data } },
+}) => {
+  const listData = []
+  data && data.map(item => listData.push({
+    name: item.metadata.annotations['policy-name'],
+    key: item.metadata.name,
+  }))
+  return {
+    cluster: current.cluster.clusterID,
+    listData,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getSecurityGroupList: securityActions.getSecurityGroupList,
+})(CreateNameAndTarget)

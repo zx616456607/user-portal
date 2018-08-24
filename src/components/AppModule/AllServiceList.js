@@ -385,6 +385,10 @@ const MyComponent = React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
+      const ipv4 = item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools']
+        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+        || null
+      const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
           {
@@ -423,17 +427,21 @@ const MyComponent = React.createClass({
             删除
           </Menu.Item>
           <Menu.Divider key="baseline1" />
-          <Menu.Item key="rollingUpdate" >
+          <Menu.Item key="rollingUpdate"
+            disabled={isDisabled}
+            >
             滚动发布
           </Menu.Item>
-          <Menu.Item key="grayscaleUpgrade">
+          <Menu.Item key="grayscaleUpgrade"
+            disabled={isDisabled}
+            >
              灰度发布
           </Menu.Item>
-          <SubMenu title="扩展">
-            <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+          <SubMenu title="扩展" >
+            <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
               水平扩展
             </Menu.Item>
-            <Menu.Item key="autoScale" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
+            <Menu.Item key="autoScale" disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
               自动伸缩
             </Menu.Item>
           </SubMenu>
