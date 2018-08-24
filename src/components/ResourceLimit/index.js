@@ -114,7 +114,7 @@ class ResourceQuota extends React.Component {
     /**
      * 获取资源定义，目的为了让资源配额管理支持后台动态设置
      */
-    console.log(query);
+
     getResourceDefinition({
       success: {
         func: res => {
