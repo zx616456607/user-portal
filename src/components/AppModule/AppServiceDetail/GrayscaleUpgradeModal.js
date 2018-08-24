@@ -23,6 +23,9 @@ import { loadRepositoriesTags } from '../../../actions/harbor'
 import { rollingUpdateService, rollbackUpdateService } from '../../../actions/services'
 import NotificationHandler from '../../Notification'
 import './style/GrayscaleUpgradeModal.less'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
+import { formateStorage } from '../../../actions/storage';
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -93,14 +96,15 @@ class GrayscaleUpgradeModal extends React.Component {
   }
 
   componentDidMount() {
+    const { formatMessage } = this.props.intl
     const { service, onCancel } = this.props
     const replicas = service.spec.replicas
     const isPrivateVolume = this.isPrivateVolume()
     let title
     if (isPrivateVolume) {
-      title = '服务已挂载独享型存储，不能做灰度发布操作'
+      title = formatMessage(AppServiceDetailIntl.servicePrivateCache)
     } else if (replicas < 2) {
-      title = '服务只有 1 个实例，不能做灰度发布操作'
+      title = formatMessage(AppServiceDetailIntl.serviceOneInstance)
     }
     if (title) {
       onCancel()
@@ -113,6 +117,7 @@ class GrayscaleUpgradeModal extends React.Component {
   }
 
   handleSubmit = () => {
+    const { formatMessage } = this.props.intl
     const {
       form, rollingUpdateService, cluster, service, loadServiceList,
       onCancel, appName, rollbackUpdateService,
@@ -141,17 +146,19 @@ class GrayscaleUpgradeModal extends React.Component {
       }
       const notification = new NotificationHandler()
       let action = rollingUpdateService.bind(this, cluster, serviceName, body)
-      let msg = '灰度发布'
+      let msg = formatMessage(AppServiceDetailIntl.greyPublish)
       if (newCount === 0) {
         action = rollbackUpdateService.bind(this, cluster, serviceName)
-        msg = '发布回滚'
+        msg = formatMessage(AppServiceDetailIntl.publishreroll)
       }
       action({
         success: {
           func: () => {
             loadServiceList(cluster, appName)
             setTimeout(function () {
-              notification.success(`服务 ${serviceName} ${msg}已成功开启`)
+              notification.success(formatMessage(AppServiceDetailIntl.openServiceSuccess, {
+                serviceName, msg
+              }))
             }, 300)
             onCancel()
           },
@@ -160,7 +167,9 @@ class GrayscaleUpgradeModal extends React.Component {
         failed: {
           func: () => {
             setTimeout(function () {
-              notification.error(`服务 ${serviceName} 开启${msg}失败`)
+              notification.error(formatMessage(AppServiceDetailIntl.openServiceFailure, {
+                serviceName, msg
+              }))
             }, 300)
           }
         },
@@ -189,6 +198,7 @@ class GrayscaleUpgradeModal extends React.Component {
   }
 
   render() {
+    const { formatMessage } = this.props.intl
     const { onCancel, cluster, service, form, imageTags } = this.props
     const { containers, newCount, isRollingUpdate, targetTag, confirmLoading } = this.state
     const { getFieldProps, setFieldsValue } = form
@@ -199,13 +209,13 @@ class GrayscaleUpgradeModal extends React.Component {
     const targetTagProps = getFieldProps('targetTag', {
       initialValue: targetTag,
       rules: [
-        { required: true, message: '请选择目标版本' },
+        { required: true, message: formatMessage(AppServiceDetailIntl.pleaseChoiceVersion)  },
       ],
     })
     const newCountProps = getFieldProps('newCount', {
       initialValue: newCount,
       rules: [
-        { required: true, message: '请选择目标版本数量' }
+        { required: true, message: formatMessage(AppServiceDetailIntl.pleaseChoiceVersionNumber) }
       ],
       onChange: value => {
         if (isRollingUpdate && value < this.newCount) {
@@ -220,7 +230,7 @@ class GrayscaleUpgradeModal extends React.Component {
     const intervalProps = getFieldProps('interval', {
       initialValue: 10,
       rules: [
-        { required: true, message: '请填写更新间隔' }
+        { required: true, message: formatMessage(AppServiceDetailIntl.writeUpdateTimeInterval) }
       ],
     })
     const currentContainer = containers[0]
@@ -230,15 +240,15 @@ class GrayscaleUpgradeModal extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
     }
-    let okText = '确 定'
+    let okText = formatMessage(ServiceCommonIntl.confirm)
     if (isRollingUpdate && newCount === 0) {
-      okText = '确认发布回滚'
+      okText = formatMessage(AppServiceDetailIntl.confirmPublishreRool)
     } else if (isRollingUpdate && newCount === replicas) {
-      okText = '确认发布完成'
+      okText = formatMessage(AppServiceDetailIntl.confirmPublishfinish)
     }
     return (
       <Modal
-        title="灰度发布"
+        title={formatMessage(AppServiceDetailIntl.greyPublish)}
         visible={true}
         onCancel={onCancel}
         onOk={this.handleSubmit}
@@ -262,32 +272,32 @@ class GrayscaleUpgradeModal extends React.Component {
         ]}
       >
         <div className="alertRow">
-          灰度发布，应用新老版本之间的平滑过渡，发布新版本时不直接替换旧版本，经过一段时间的版本共存来灰度验证。
-          <strong>选择灰度发布后，在「灰度发布」期间不能进行「滚动发布」</strong>。
+          {formatMessage(AppServiceDetailIntl.greyPublishInfo)}。
+          <strong>{formatMessage(AppServiceDetailIntl.greyPublishInfoStrong)}</strong>。
         </div>
         <Form horizontal>
           <FormItem
             {...formItemLayout}
-            label="服务名称"
+            label={formatMessage(AppServiceDetailIntl.serviceName)}
           >
             {service.metadata.name}
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="镜像版本"
+            label={formatMessage(AppServiceDetailIntl.mirrorVersion)}
           >
             {currentContainer.imageObj.image}
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="总实例数"
+            label={formatMessage(AppServiceDetailIntl.allObjectNumber)}
           >
             {/* <InputNumber placeholder="总实例数" />&nbsp;个 */}
-            {replicas} 个 {newCount > 0 && newCount != replicas ? <span style={{color:"#bbb9b9"}}>(+1 个过渡实例) <Tooltip title="在灰度过程中，会有一个当前版本的过渡实例存在，灰度完成或回滚将删除该过渡实例"><Icon type="question-circle-o" /></Tooltip></span>: ""}
+            {replicas} 个 {newCount > 0 && newCount != replicas ? <span style={{color:"#bbb9b9"}}>({formatMessage(AppServiceDetailIntl.plusOneObject)}) <Tooltip title={formatMessage(AppServiceDetailIntl.greyPublishingInfo)}><Icon type="question-circle-o" /></Tooltip></span>: ""}
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="当前版本"
+            label={formatMessage(AppServiceDetailIntl.currentVersion)}
           >
             <Row>
               <Col span={15}>
@@ -305,18 +315,18 @@ class GrayscaleUpgradeModal extends React.Component {
             label={<span></span>}>
             <div>
               <span className="rollback_tip">
-                <Icon type="exclamation-circle-o" className="tips_icon"/>目标版本实例减少，回滚只确保最终状态为该比例，期间当前版本实例会删除重建
+                <Icon type="exclamation-circle-o" className="tips_icon"/>{formatMessage(AppServiceDetailIntl.reRollReBuild)}
               </span>
             </div></FormItem>
           }
           <Row className="target-tag">
-            <Col span={4}>目标版本</Col>
+            <Col span={4}>{formatMessage(AppServiceDetailIntl.targetVersion)}</Col>
             <Col span={20}>
               <Row>
                 <Col span={15}>
                   <Tag className="new-tag">new</Tag>
                   <FormItem className="">
-                    <Select placeholder="选择灰度版本" {...targetTagProps} disabled={isRollingUpdate}>
+                    <Select placeholder={formatMessage(AppServiceDetailIntl.choicegreyVersion)} {...targetTagProps} disabled={isRollingUpdate}>
                       {
                         currentImageTags.map(tag => {
                           let disabled = false
@@ -356,14 +366,14 @@ class GrayscaleUpgradeModal extends React.Component {
             {...formItemLayout}
             label={
               <span>
-                更新间隔&nbsp;
-                <Tooltip title="容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级">
+                {formatMessage(AppServiceDetailIntl.updateInterval)}&nbsp;
+                <Tooltip title={formatMessage(AppServiceDetailIntl.upgradeObjectInfo)}>
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
             }
           >
-            <InputNumber min={10} placeholder="建议 2~60s" {...intervalProps} />
+            <InputNumber min={10} placeholder={formatMessage(AppServiceDetailIntl.suggest260s)} {...intervalProps} />
           </FormItem>
 
         </Form>
@@ -388,8 +398,8 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadRepositoriesTags,
   rollingUpdateService,
   rollbackUpdateService
-})(Form.create()(GrayscaleUpgradeModal))
+})(Form.create()(GrayscaleUpgradeModal)), { withRef: true, })
