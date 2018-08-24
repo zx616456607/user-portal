@@ -54,17 +54,19 @@ let NoClusterStepOne = React.createClass({
   },
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     if (!value) {
-      callback([new Error('请填写镜像服务地址')])
+      callback([new Error(formatMessage(intlMsg.plsInputImgServerAddress))])
       return
     }
     // if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
     if (!(/^http:|^https:/).test(value)) {
-      return callback('请填入合法的镜像服务地址')
+      return callback(formatMessage(intlMsg.plsInputRightImgServerAddress))
     }
     callback()
   },
   addRegistry() {
+    const { intl: { formatMessage } } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
@@ -73,7 +75,7 @@ let NoClusterStepOne = React.createClass({
         addRegistryBtnLoading: true,
       })
       const notification = new NotificationHandler()
-      notification.spin('保存镜像服务配置中')
+      notification.spin(formatMessage(intlMsg.savingImgServerConfig))
       const {
         updateGlobalConfig, isValidConfig, saveGlobalConfig,
         goNoClusterStep, loadGlobalConfig, getAddClusterCMD,
@@ -105,7 +107,7 @@ let NoClusterStepOne = React.createClass({
           func: (result) => {
             if (!result.data || result.data !== 'success') {
               notification.close()
-              notification.error('镜像服务地址不可用')
+              notification.error(formatMessage(intlMsg.imgServerAddressNotAvailable))
               return
             }
             let saveOrUpdate
@@ -114,7 +116,7 @@ let NoClusterStepOne = React.createClass({
                 func: (result) => {
                   getAddClusterCMD()
                   notification.close()
-                  notification.success('镜像服务配置保存成功')
+                  notification.success(formatMessage(intlMsg.imgServerSaveSuccess))
                   self.setState({
                     addRegistryBtnLoading: false,
                   })
@@ -134,7 +136,7 @@ let NoClusterStepOne = React.createClass({
                   } else {
                     msg = err.message
                   }
-                  notification.error('镜像服务配置保存失败', msg)
+                  notification.error(formatMessage(intlMsg.imgServerSaveFail), msg)
                   self.setState({
                     addRegistryBtnLoading: false,
                   })
@@ -153,7 +155,7 @@ let NoClusterStepOne = React.createClass({
         failed: {
           func: () => {
             notification.close()
-            notification.error('镜像服务地址不可用')
+            notification.error(formatMessage(intlMsg.imgServerAddressNotAvailable))
             self.setState({
               addRegistryBtnLoading: false,
             })
@@ -204,10 +206,10 @@ let NoClusterStepOne = React.createClass({
     })
     return (
       <div className="noClusterStepOne">
-        <div className="titlle">该镜像仓库用途：</div>
+        <div className="titlle"><FormattedMessage {...intlMsg.imgRepoUseFor} /></div>
         <div className="desc">
-          <p>① 默认『系统组件』的容器镜像将从该仓库拉取，如可访问公网可略过</p>
-          <p>② 该仓库会作为平台 DevOps 的镜像仓库（交付中心、CI/CD 模块中使用）</p>
+          <p><FormattedMessage {...intlMsg.imgRepoUseFor1} /></p>
+          <p><FormattedMessage {...intlMsg.imgRepoUseFor2} /></p>
         </div>
         <Form horizontal>
           {/*<Form.Item>
@@ -219,22 +221,24 @@ let NoClusterStepOne = React.createClass({
             <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" size="large" />
           </Form.Item>*/}
           <Form.Item>
-            <span className="itemKey">镜像服务地址</span>
+            <span className="itemKey"><FormattedMessage {...intlMsg.imgServerAddress} /></span>
             <Input {...mirrorProps} placeholder="如：http://192.168.1.113" ref={urlInput => this.urlInput = urlInput} />
           </Form.Item>
         </Form>
         <div className="footer">
           <Button key="previous" style={{marginRight: 8}} type="ghost" size="large" onClick={() => goNoClusterStep(2)}>
-            可访问公网，暂不配置
+            <FormattedMessage {...intlMsg.canAccessPublicNetwork} />
           </Button>
-          <a style={{marginRight: 8}} className="ant-btn ant-btn-ghost ant-btn-lg" href='/logout'>注销登录</a>
+          <a style={{marginRight: 8}} className="ant-btn ant-btn-ghost ant-btn-lg" href='/logout'>
+            <FormattedMessage {...intlMsg.logout} />
+          </a>
           <Button
             key="submit"
             type="primary"
             size="large"
             loading={addRegistryBtnLoading}
             onClick={this.addRegistry}>
-            完成并下一步
+            <FormattedMessage {...intlMsg.finishNNext} />
           </Button>
         </div>
       </div>
@@ -254,7 +258,7 @@ let CreateClusterModal = React.createClass({
   },
   handleSubmit(e) {
     e && e.preventDefault()
-    const { funcs, parentScope, form, current } = this.props
+    const { funcs, parentScope, form, current, intl: { formatMessage } } = this.props
     const {
       createCluster,
       loadClusterList,
@@ -282,7 +286,7 @@ let CreateClusterModal = React.createClass({
             loadClusterList({size: 100}, {
               finally: {
                 func: () => {
-                  notification.success(`添加集群 ${values.clusterName} 成功`)
+                  notification.success(formatMessage(intlMsg.addClusterNameSuccess, { clusterName: values.clusterName }))
                   parentScope.setState({
                     createModal: false,
                   })
@@ -300,7 +304,7 @@ let CreateClusterModal = React.createClass({
         failed: {
           func: err => {
             let _message = err.message.message || ''
-            notification.error(`添加集群 "${values.clusterName}" 失败`, _message)
+            notification.error(formatMessage(intlMsg.addClusterFail, { clusterName: values.clusterName }), _message)
             this.setState({
               submitBtnLoading: false
             })
@@ -316,7 +320,7 @@ let CreateClusterModal = React.createClass({
       return
     }
     if (!URL_REGEX.test(value)) {
-      callback([new Error('API Host 由协议 + API server 地址 + 端口号 组成')])
+      callback([new Error(this.props.intl.formatMessage(intlMsg.apiHostValidatorErr))])
       return
     }
     callback()
@@ -327,7 +331,7 @@ let CreateClusterModal = React.createClass({
     form.resetFields()
   },
   checkClusters() {
-    const { funcs, parentScope } = this.props
+    const { funcs, parentScope, intl: { formatMessage } } = this.props
     const { loadClusterList, loadLoginUserDetail } = funcs
     const notification = new NotificationHandler()
     this.setState({
@@ -338,10 +342,10 @@ let CreateClusterModal = React.createClass({
         func: result => {
           let clusters = result.data || []
           if (clusters.length < 1) {
-            notification.warn('您还未添加集群，请添加')
+            notification.warn(formatMessage(intlMsg.hasNoClusterAdd))
             return
           }
-          notification.success('添加集群成功')
+          notification.success(formatMessage(intlMsg.addClusterSuccess))
           loadLoginUserDetail()
           parentScope.setState({
             createModal: false
@@ -351,7 +355,7 @@ let CreateClusterModal = React.createClass({
       },
       failed: {
         func: error => {
-          notification.error('检测集群时发生错误，请重试')
+          notification.error(formatMessage(intlMsg.checkClusterErr))
         }
       },
       finally: {
@@ -443,7 +447,7 @@ let CreateClusterModal = React.createClass({
             noCluster &&
             <div className="footer">
               <Button key="previous" style={{marginRight: 8}} type="ghost" size="large" onClick={() => this.goNoClusterStep(1)}>
-                上一步
+                <FormattedMessage {...intlMsg.previewStep} />
               </Button>
               <a style={{marginRight: 8}} className="ant-btn ant-btn-ghost ant-btn-lg" href='/logout'>
                 <FormattedMessage {...intlMsg.logout} />
@@ -458,21 +462,21 @@ let CreateClusterModal = React.createClass({
           <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
             <br/>
             <Form.Item>
-              <span className="itemKey">集群名称</span>
+              <span className="itemKey"><FormattedMessage {...intlMsg.clusterName} /></span>
               <Input {...clusterNamePorps} size="large" />
             </Form.Item>
             <Form.Item>
               <span className="itemKey">API Host</span>
               <Input
                 {...apiHostPorps}
-                placeholder="协议 + API server 地址 + 端口号" />
+                placeholder={formatMessage(intlMsg.apiHostPlaceholder)} />
             </Form.Item>
             <Form.Item>
               <span className="itemKey">API Token</span>
               <Input {...apiTokenPorps} />
             </Form.Item>
             <Form.Item>
-              <span className="itemKey">服务出口 IP</span>
+              <span className="itemKey"><FormattedMessage {...intlMsg.serverOutIp} /></span>
               <Input
                 {...bindingIPsPorps}
                 placeholder={formatMessage(intlMsg.inputServerOutIp)} />
@@ -548,6 +552,7 @@ let CreateClusterModal = React.createClass({
       {
         (noCluster && noClusterStep === 1) && (
           <NoClusterStepOne
+            intl={this.props.intl}
             globalConfig={globalConfig}
             loadGlobalConfig={loadGlobalConfig}
             updateGlobalConfig={updateGlobalConfig}

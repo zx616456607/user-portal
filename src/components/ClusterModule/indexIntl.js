@@ -13,10 +13,12 @@
 */
 
 import { defineIntlMessages } from "../../common/tools"
+import React from "react";
 
 export const mapData = {
   prefix: 'ClusterModule',
   data: {
+    previewStep: '上一步',
     title: '基础设施',
     addClusterHelp: '基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。',
     addCluster: '添加集群',
@@ -45,6 +47,27 @@ export const mapData = {
     logout: '注销登录',
     finishAddCluster: '完成集群添加',
     addExistCluster: '添加已有集群',
+    clusterName: '集群名称',
+    apiHostPlaceholder: '协议 + API server 地址 + 端口号',
+    serverOutIp: '服务出口 IP',
+    addClusterNameSuccess: '添加集群 {clusterName} 成功',
+    addClusterFail: '添加集群 {clusterName} 失败',
+    apiHostValidatorErr: 'API Host 由协议 + API server 地址 + 端口号 组成',
+    hasNoClusterAdd: '您还未添加集群，请添加',
+    addClusterSuccess: '添加集群成功',
+    checkClusterErr: '检测集群时发生错误，请重试',
+    finishNNext: '完成并下一步',
+    canAccessPublicNetwork: '可访问公网，暂不配置',
+    imgServerAddress: '镜像服务地址',
+    imgRepoUseFor: '该镜像仓库用途：',
+    imgRepoUseFor1: '① 默认『系统组件』的容器镜像将从该仓库拉取，如可访问公网可略过',
+    imgRepoUseFor2: '② 该仓库会作为平台 DevOps 的镜像仓库（交付中心、CI/CD 模块中使用）',
+    savingImgServerConfig: '保存镜像服务配置中',
+    imgServerAddressNotAvailable: '镜像服务地址不可用',
+    imgServerSaveSuccess: '镜像服务配置保存成功',
+    imgServerSaveFail: '镜像服务配置保存失败',
+    plsInputRightImgServerAddress: '请填入合法的镜像服务地址',
+    plsInputImgServerAddress: '请填写镜像服务地址',
   }
 }
 
