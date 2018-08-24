@@ -17,19 +17,19 @@ import './style/cluster.less'
 let menuList = [
   {
     url: '/cluster',
-    name: '集群管理'
+    name: 'clusterManage'
   },
   {
     url: '/cluster/globalConfig',
-    name: '全局配置'
+    name: 'globalConfig'
   },
   {
     url: '/cluster/cluster_autoscale',
-    name: '集群伸缩策略'
+    name: 'clusterAutoscale'
   },
   {
     url: '/cluster/monitor',
-    name: '系统服务监控',
+    name: 'clusterMonitor',
     onClick: () => {
       try {
         browserHistory.push('/cluster/monitor')
@@ -43,7 +43,7 @@ let menuList = [
   },
   {
     url: '/cluster/backup',
-    name: '平台数据备份',
+    name: 'clusterBackup',
     onClick: () => {
       try {
         browserHistory.push('/cluster/backup')

@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Menu, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import "./style/SecondSider.less"
+import { FormattedMessage } from 'react-intl'
+import IntelMessages from '../Sider/Enterprise/Intl'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -122,14 +124,16 @@ export default class SecondSider extends Component {
         return (
           <Menu.Item key={'secondSider' + index}>
             <div onClick={item.onClick}>
-            {item.name}
+            <FormattedMessage {...IntelMessages[item.name]} />
             </div>
           </Menu.Item>
         )
       }
       return (
         <Menu.Item key={'secondSider' + index}>
-          <Link to={item.url}>{item.name}</Link>
+          <Link to={item.url}>
+            <FormattedMessage {...IntelMessages[item.name]} />
+          </Link>
         </Menu.Item>
       )
     })
@@ -143,7 +147,7 @@ export default class SecondSider extends Component {
             { menuShow }
           </Menu>
           <div className={ this.state.currentSiderStyle == 'normal' ? 'siderBtnBox' : 'hideBtnBox siderBtnBox' } onClick={this.changeSiderStyle}>
-            { this.state.currentSiderStyle == 'normal' ? [<i key='fa-step-backward' className='fa fa-step-backward'></i>] : [<i key='fa-step-forward' className='fa fa-step-forward'></i>] }
+            { this.state.currentSiderStyle == 'normal' ? <i key='fa-step-backward' className='fa fa-step-backward'></i> : <i key='fa-step-forward' className='fa fa-step-forward'></i> }
             <div className='btnBack'></div>
           </div>
         </div>
