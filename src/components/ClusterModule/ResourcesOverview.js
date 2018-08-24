@@ -21,6 +21,9 @@ import hostImg from '../../assets/img/integration/host.png'
 import memoryImg from '../../assets/img/integration/memory.png'
 import { connect } from 'react-redux'
 import { getClusterSummary } from '../../actions/cluster'
+import intlMsg from './ResourcesOverviewIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import {ClusterInfo} from "./ClusterInfo";
 
 class ResourcesOverview extends React.Component {
   state = {
@@ -111,7 +114,7 @@ class ResourcesOverview extends React.Component {
   }
 
   render() {
-    const { clusterSummary } = this.props
+    const { clusterSummary, intl: { formatMessage } } = this.props
     const { node = {}, pod, resource } = clusterSummary.static || {}
     const { useRate } = clusterSummary.dynamic || {}
     // container
@@ -126,10 +129,10 @@ class ResourcesOverview extends React.Component {
       ],
     })
     const cardTitle = <div>
-      集群资源分配情况
+      <FormattedMessage {...intlMsg.resourceAllocation}/>
       <Checkbox onChange={this.onCheckChange} disabled={this.state.loading}>
-        仅显示计算节点&nbsp;
-        <Tooltip title="集群内节点分为计算节点、其他节点（添加了 taint 用以专门用途的 node 节点）">
+        <FormattedMessage {...intlMsg.onlyComputedNode}/>&nbsp;
+        <Tooltip title={formatMessage(intlMsg.nodeType)}>
           <Icon type="question-circle-o" />
         </Tooltip>
       </Checkbox>
@@ -137,38 +140,38 @@ class ResourcesOverview extends React.Component {
     return <Card title={cardTitle} className="resources-overview">
       <Row gutter={16}>
         <Col span={6}>
-          <div className="title">主机状态</div>
+          <div className="title"><FormattedMessage {...intlMsg.hostStatus}/></div>
           <div className="listImg">
             <img src={hostImg}/>
           </div>
           <ul className="listText">
             <li>
-              <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
-              <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey primary">{formatMessage(intlMsg.total)}</span>
+              <span>{node ? `${node.nodeSum} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey ready">可调度数</span>
-              <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey ready"><FormattedMessage {...intlMsg.adjustableDegree}/></span>
+              <span>{node ? `${node.schedulable} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey success">正常运行</span>
-              <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey success"><FormattedMessage {...intlMsg.normalOperation}/></span>
+              <span>{node ? `${node.nodeRunning} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
           </ul>
         </Col>
         <Col span={6}>
-          <div className="title">CPU 分配</div>
+          <div className="title"><FormattedMessage {...intlMsg.CPUDistribution}/></div>
           <div className="listImg">
             <img src={cpuImg}/>
           </div>
           <ul className="listText">
             <li>
-              <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
-              <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
+              <span className="itemKey primary"><FormattedMessage {...intlMsg.total}/></span>
+              <span>{resource ? `${resource.cupSum} ${formatMessage(intlMsg.core)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
               <span className="itemKey ready">已分配数</span>
-              <span>{resource ? `${resource.allocatedCPU.toFixed(2)} 核` : NOT_AVAILABLE}</span>
+              <span>{resource ? `${resource.allocatedCPU.toFixed(2)} ${formatMessage(intlMsg.core)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
               <span className="itemKey success">实际使用</span>
@@ -214,4 +217,6 @@ const mapStateToProps = () => ({})
 
 export default connect(mapStateToProps,  {
   getClusterSummary,
-})(ResourcesOverview)
+})(injectIntl(ResourcesOverview, {
+  withRef: true,
+}))
