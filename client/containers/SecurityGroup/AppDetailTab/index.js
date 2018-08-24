@@ -76,9 +76,11 @@ class SecurityGroupTab extends React.Component {
       },
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取安全组列表数据出错', message.message)
+          if (!statusCode === 403) {
+            notification.warn('获取安全组列表数据出错', message.message)
+          }
         },
       },
     })
@@ -108,9 +110,11 @@ class SecurityGroupTab extends React.Component {
           getfSecurityGroupDetail(cluster, item.key, {
             failed: {
               func: error => {
-                const { message } = error
+                const { message, statusCode } = error
                 notification.close()
-                notification.warn('获取详情出错', message.message)
+                if (!statusCode === 403) {
+                  notification.warn('获取详情出错', message.message)
+                }
               },
             },
           }).then(res => {
@@ -128,9 +132,11 @@ class SecurityGroupTab extends React.Component {
             return updateSecurityGroup(cluster, body, {
               failed: {
                 func: error => {
-                  const { message } = error
+                  const { message, statusCode } = error
                   notification.close()
-                  notification.warn('修改安全组失败', message.message)
+                  if (!statusCode === 403) {
+                    notification.warn('修改安全组失败', message.message)
+                  }
                 },
               },
             })
@@ -150,9 +156,11 @@ class SecurityGroupTab extends React.Component {
     getfSecurityGroupDetail(cluster, current.metaName, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取详情出错', message.message)
+          if (!statusCode === 403) {
+            notification.warn('获取详情出错', message.message)
+          }
         },
       },
     }).then(res => {
@@ -171,9 +179,11 @@ class SecurityGroupTab extends React.Component {
         },
         failed: {
           func: error => {
-            const { message } = error
+            const { message, statusCode } = error
             notification.close()
-            notification.warn('移除关联安全组失败', message.message)
+            if (!statusCode === 403) {
+              notification.warn('移除关联安全组失败', message.message)
+            }
           },
         },
       })
