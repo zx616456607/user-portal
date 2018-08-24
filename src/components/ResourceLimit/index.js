@@ -1031,7 +1031,7 @@ class ResourceQuota extends React.Component {
                                   valuePropName: 'checked'
                                 })
                                 const checkValue = getFieldValue(checkKey)
-                                const inputProps = getFieldProps(k.id, {
+                                const inputProps = getFieldProps(k.name, {
                                   // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
                                   //   {
                                   //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
