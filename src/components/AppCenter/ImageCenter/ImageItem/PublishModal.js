@@ -452,10 +452,50 @@ class PublishModal extends React.Component {
   }
   onClusterChange = (value) => {
     const { radioVal } = this.state
-    this.props.form.setFieldsValue({
+    const { form } = this.props
+    form.setFieldsValue({
       target_store: undefined,
     })
     this.getProjects(radioVal, value)
+    if(radioVal === 'market'){
+      const { server, currentImage, harbor, getImageStatus } = this.props
+      let body = {
+        image: `${server}/${currentImage.name}`,
+        harbor,
+        targetCluster: value || "",
+      }
+      getImageStatus(body, {
+        success: {
+          func: res => {
+            let flag = false
+            if (res.data) {
+              flag = res.data.every(item => {
+                return [1, 2].includes(item.status)
+              })
+            }
+            if (res.icon > 0) {
+              this.setState({
+                pkgIcon: `${res.icon}?${+new Date()}`
+              })
+            }
+            if (flag) {
+              form.setFields({
+                tagsName: {
+                  errors: ['无可发布版本'],
+                  value: ''
+                }
+              })
+            }
+          }
+        },
+        failed: {
+          func: () => {
+            notify.warn('获取版本失败')
+          },
+          isAsync: true,
+        }
+      })
+    }
   }
   getProjects = (radioVal, clusterID) => {
     if(radioVal === 'store' && !!clusterID){
