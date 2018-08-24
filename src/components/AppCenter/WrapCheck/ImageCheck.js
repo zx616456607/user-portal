@@ -91,7 +91,6 @@ class ImageCheckTable extends React.Component {
   }
   checkImageStatus(record, status, message) {
     const { appStoreApprove, getImagePublishList } = this.props
-    console.log(record)
     let notify = new NotificationHandler()
     const body = {
       id: record.id,
