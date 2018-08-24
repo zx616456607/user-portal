@@ -535,7 +535,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
           configMapSubPathValues.map(value => {
             volumeMounts.push({
               name: volumeName,
-              mountPath: configMapMountPath + '/' + value,
+              mountPath: configMapMountPath +
+              (configMapMountPath.split('')[configMapMountPath.length - 1] === '/' ? '' : '/') + value,
               subPath: value,
             })
           })
