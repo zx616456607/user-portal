@@ -16,6 +16,8 @@ import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
+import repoGroupListIntl from './intl/image-center-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const notification = new NotificationHandler()
 
@@ -36,13 +38,14 @@ class DataTable extends Component {
 
   setProjectPublic() {
     const { currentProject } = this.state
-    const { func, harbor } = this.props
+    const { func, harbor, intl } = this.props
+    const { formatMessage } = intl
     const succ = () => {
       func.loadData()
       this.setState({ publicModalVisible: false })
     }
     const failed = err => {
-      notification.error(`更新仓库组 ${currentProject.name} 失败`)
+      notification.error(formatMessage(repoGroupListIntl.updateFailed, {repoName: currentProject.name}))
     }
     if(!!currentProject.metadata){
       const body = {
@@ -54,7 +57,6 @@ class DataTable extends Component {
           auto_scan: currentProject.metadata.autoScan,
         }
       }
-      console.log(body)
       func.updateProject(harbor, DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
         success: {
           func: succ,
@@ -125,18 +127,19 @@ class DataTable extends Component {
     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const { dataSource, func, loginUser, from } = this.props
+    const { dataSource, func, loginUser, from, intl } = this.props
+    const { formatMessage } = intl
     const scope = func.scope
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     const defaultColumns = [
       {
-        title: '仓库组名称',
+        title: formatMessage(repoGroupListIntl.repoGroupName),
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => this.handleListDataItem(text, record)
       },
       {
-        title: '访问级别',
+        title: formatMessage(repoGroupListIntl.accessLevel),
         dataIndex: 'public',
         key: 'public',
         //filters: [
@@ -145,10 +148,10 @@ class DataTable extends Component {
         //],
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
-        render: (text, record) => this.getIsPublicText(record, "公开", "私有")
+        render: (text, record) => this.getIsPublicText(record, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
       },
       {
-        title: '我的角色',
+        title: formatMessage(repoGroupListIntl.myRole),
         dataIndex: camelize('current_user_role_id'),
         key: camelize('current_user_role_id'),
         //filters: [
@@ -160,26 +163,26 @@ class DataTable extends Component {
         //onFilter: (value, record) => record[camelize('current_user_role_id')] == value,
         render: text => {
           if (text == 1) {
-            return '管理员'
+            return formatMessage(repoGroupListIntl.admin)
           }
           if (text == 2) {
-            return '开发人员'
+            return formatMessage(repoGroupListIntl.developer)
           }
           if (text == 3) {
-            return '访客'
+            return formatMessage(repoGroupListIntl.visitor)
           }
           return ''
         }
       },
       {
-        title: '镜像数',
+        title: formatMessage(repoGroupListIntl.countOfImage),
         dataIndex: camelize('repo_count'),
         key: camelize('repo_count'),
         sorter: (a, b) => a[camelize('repo_count')] - b[camelize('repo_count')],
         sortOrder: sortedInfo.columnKey === camelize('repo_count') && sortedInfo.order
       },
       {
-        title: '更新时间',
+        title: formatMessage(repoGroupListIntl.updateTime),
         dataIndex: camelize('creation_time'),
         key: camelize('creation_time'),
         render: text => formatDate(text),
@@ -187,7 +190,7 @@ class DataTable extends Component {
         sortOrder: sortedInfo.columnKey === camelize('creation_time') && sortedInfo.order
       },
       {
-        title: '创建时间',
+        title: formatMessage(repoGroupListIntl.creationTime),
         dataIndex: camelize('update_time'),
         key: camelize('update_time'),
         render: text => formatDate(text),
@@ -195,7 +198,7 @@ class DataTable extends Component {
         sortOrder: sortedInfo.columnKey === camelize('update_time') && sortedInfo.order
       },
       {
-        title: '操作',
+        title: formatMessage(repoGroupListIntl.option),
         dataIndex: 'action',
         key: 'action',
         render: (text, row) => {
@@ -207,7 +210,7 @@ class DataTable extends Component {
                   onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
                 >
                   {
-                    this.getIsPublicText(row, '设为私有', '设为公开')
+                    this.getIsPublicText(row, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
                   }
                 </Button>
                 <Button disabled={row.name === 'tenx_store'} type="ghost" onClick={()=>{
@@ -215,11 +218,11 @@ class DataTable extends Component {
                     scope.setState({deleteItem:true,selectedRows:[row]})
                   }
                 }}>
-                  删除
+                  {formatMessage(repoGroupListIntl.deleteThis)}
                 </Button>
                 {
                   row.name === 'tenx_store' && (
-                    <Tooltip placement="top" title="应用商店对应仓库组，系统创建不可删除">
+                    <Tooltip placement="top" title={formatMessage(repoGroupListIntl.deleteThisAlertMsg)}>
                       <Icon type="info-circle-o" />
                     </Tooltip>
                   )
@@ -231,10 +234,10 @@ class DataTable extends Component {
             <div className="action">
               <Button disabled={true} type="primary">
                 {
-                  this.getIsPublicText(row, '设为私有', '设为公开')
+                  this.getIsPublicText(row, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
                 }
               </Button>
-              <Button disabled={true} type="ghost">删除</Button>
+              <Button disabled={true} type="ghost"> {formatMessage(repoGroupListIntl.deleteThis)}</Button>
             </div>
           )
         }
@@ -259,7 +262,7 @@ class DataTable extends Component {
       pageSize: 10,
       total: dataSource.total,
       onChange: current => func.loadData({ page: current }),
-      showTotal: total => `共计： ${total} 条`,
+      showTotal: total => `${formatMessage(repoGroupListIntl.total)}： ${total} ${formatMessage(repoGroupListIntl.item)}`,
       simple: true,
     }
     if (from === "private") {
@@ -271,7 +274,7 @@ class DataTable extends Component {
     }
     const { currentProject } = this.state
     let isPublic = this.getIsPublicText(currentProject, true, false)
-    const publicModalTitle = `设为${!isPublic ? '公开' : '私有'}`
+    const publicModalTitle = !isPublic ?formatMessage(repoGroupListIntl.setToPrivate): formatMessage(repoGroupListIntl.setToPublic)
     return (
       <div>
         <Table className="myImage"
@@ -281,7 +284,7 @@ class DataTable extends Component {
           pagination={paginationOpts}
           onChange={this.handleChange}
         />
-        { dataSource && dataSource.total !== 0 && <span className='total_num_style'>共 {dataSource.total} 条</span>}
+        { dataSource && dataSource.total !== 0 && <span className='total_num_style'>{formatMessage(repoGroupListIntl.total)} {dataSource.total} {formatMessage(repoGroupListIntl.item)}</span>}
         {/* 设置仓库组 公共/私有 属性 */}
         <Modal
           title={publicModalTitle}
@@ -290,25 +293,25 @@ class DataTable extends Component {
           onOk={this.setProjectPublic}
         >
           <div className="confirmText">
-            {
-              !isPublic ?
-                <div>
-                  <p>① 当仓库组设为公开后，任何人都可查看仓库组内镜像；</p>
-                  <p>② 命令行操作下无需 <code>docker login</code> 即可拉取此仓库组内的所有镜像。</p>
-                </div>
-                :
-                <div>
-                  <p>① 当仓库组设为私有后，仅仓库组成员可查看仓库组内镜像；</p>
-                  <p>② 命令行操作下需 <code>docker login</code> 方可拉取此仓库组内的镜像。</p>
-                </div>
-            }
+            <div>
+              <p>
+                {
+                  !isPublic ? formatMessage(repoGroupListIntl.setToPublicContent1) : formatMessage(repoGroupListIntl.setToPrivateContent)
+                }
+              </p>
+              <p>② {formatMessage(repoGroupListIntl.setToPublicContent2)} <code>docker login</code> {formatMessage(repoGroupListIntl.setToPublicContent3)}</p>
+            </div>
           </div>
           <br/>
-          <div className="confirmText"><Icon type="question-circle-o" style={{ marginRight: '10px' }} />您确认将项目 {this.state.currentProject.name} {publicModalTitle}吗?</div>
+          <div className="confirmText"><Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+            {/*您确认将项目...吗？*/}
+            {formatMessage(repoGroupListIntl.setToPrivateConfirm)} {this.state.currentProject.name} {publicModalTitle}吗?</div>
         </Modal>
       </div>
     )
   }
 }
 
-export default DataTable
+export default injectIntl(DataTable, {
+  withRef: true
+})

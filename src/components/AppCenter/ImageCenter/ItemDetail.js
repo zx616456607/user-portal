@@ -8,7 +8,6 @@
  * @author Baiyu
  */
 
-
 import React, { Component } from 'react'
 import { Modal, Tabs, Table, Icon, Button, Card, Input } from 'antd'
 import { connect } from 'react-redux'
@@ -27,11 +26,13 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 import { camelize } from 'humps'
 import NotificationHandler from '../../../components/Notification'
 import find from 'lodash/find'
+import imageDetailIntl from './intl/image-detail'
+import { injectIntl } from 'react-intl'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
 
-class ItemDetail extends Component {
+class PageItemDetail extends Component {
   constructor(props) {
     super()
     this.state = {
@@ -71,7 +72,8 @@ class ItemDetail extends Component {
     clusterId ? this.handleClusterChange() : this.fetchData()
   }
   fetchData = () => {
-    const { loadProjectDetail, loadProjectMembers, params, harbor } = this.props
+    const { loadProjectDetail, loadProjectMembers, params, harbor, intl } = this.props
+    const { formatMessage } = intl
     loadProjectDetail(harbor, DEFAULT_REGISTRY, params.id)
     loadProjectMembers(DEFAULT_REGISTRY,  params.id, { harbor }, {
       failed: {
@@ -81,22 +83,23 @@ class ItemDetail extends Component {
           if (statusCode === 403) {
             return
           }
-          notification.error(`获取成员失败`)
+          notification.error(formatMessage(imageDetailIntl.fetchMemberFailure))
         }
       }
     })
   }
 
   renderRole(role) {
+    const { formatMessage } = this.props.intl
     switch (role) {
       case 0:
-        return '未知'
+        return formatMessage(imageDetailIntl.unknown)
       case 1:
-        return '管理员'
+        return formatMessage(imageDetailIntl.admin)
       case 2:
-        return '开发人员'
+        return formatMessage(imageDetailIntl.developer)
       case 3:
-        return '访客'
+        return formatMessage(imageDetailIntl.visitor)
       default:
         break;
     }
@@ -104,7 +107,8 @@ class ItemDetail extends Component {
 
   render() {
     if (this.state.isSettingCurrent) return <div></div>
-    const { projectDetail, params, projectMembers, loginUser, registry, location, role } = this.props
+    const { projectDetail, params, projectMembers, loginUser, registry, location, role, intl } = this.props
+    const { formatMessage } = intl
     const { name, projectId } = projectDetail
     const members = projectMembers.list || []
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
@@ -124,14 +128,14 @@ class ItemDetail extends Component {
     const currentUserRole = currentMember[camelize('role_id')]
     let isAdminAndHarbor = (isAdmin && role === ROLE_SYS_ADMIN) || (currentUserRole === 1)
     const tabPanels = [
-      <TabPane tab="镜像仓库" key="repo">
+      <TabPane tab={formatMessage(imageDetailIntl.imageRepo)} key="repo">
         <CodeRepo currentUserRole={currentUserRole} registry={DEFAULT_REGISTRY} {...this.props} isAdminAndHarbor={isAdminAndHarbor}/>
       </TabPane>,
     ]
     if (currentUserRole > 0 || isAdmin) {
-      tabPanels.push(<TabPane tab="审计日志" key="log"><Logs params={this.props.params}/></TabPane>)
+      tabPanels.push(<TabPane tab={formatMessage(imageDetailIntl.auditLog)} key="log"><Logs params={this.props.params}/></TabPane>)
       tabPanels.push(
-        <TabPane tab="权限管理" key="role">
+        <TabPane tab={formatMessage(imageDetailIntl.authorityManagement)} key="role">
           <Management
             {...params}
             registry={DEFAULT_REGISTRY}
@@ -143,7 +147,7 @@ class ItemDetail extends Component {
     }
     if (isAdmin) {
       tabPanels.push(
-        <TabPane tab="镜像同步" key="sync">
+        <TabPane tab={formatMessage(imageDetailIntl.imageAsync)} key="sync">
           <ImageUpdate
             registry={registry}
             location={location}
@@ -153,7 +157,7 @@ class ItemDetail extends Component {
     }
     if (currentUserRole === 1 || isAdmin) {
       tabPanels.push(
-        <TabPane tab="标签管理" key="tag">
+        <TabPane tab={formatMessage(imageDetailIntl.tagManagement)} key="tag">
           <LabelModule
             scope="p"
             projectId={projectId}
@@ -170,7 +174,7 @@ class ItemDetail extends Component {
               <div className="topNav">
                 <span className="back" onClick={() => browserHistory.goBack()}>
                   <span className="backjia"></span>
-                  <span className="btn-back">返回</span>
+                  <span className="btn-back">{formatMessage(imageDetailIntl.returnTxt)}</span>
                 </span>
                 <span className="itemName">{name || ''}</span>
                 <span>{
@@ -178,15 +182,15 @@ class ItemDetail extends Component {
                     let res
                     if(!isNaN(projectDetail.public)){
                       if (projectDetail.public === 0) {
-                        res = '私有仓库组'
+                        res = formatMessage(imageDetailIntl.privateRepoGroup)
                       }else{
-                        res = '公开仓库组'
+                        res = formatMessage(imageDetailIntl.publicRepoGroup)
                       }
                     } else if(!!projectDetail.metadata && !!projectDetail.metadata.public){
                       if(projectDetail.metadata.public === "true"){
-                        res = '公开仓库组'
+                        res = formatMessage(imageDetailIntl.privateRepoGroup)
                       } else {
-                        res = '私有仓库组'
+                        res = formatMessage(imageDetailIntl.publicRepoGroup)
                       }
                     }
                     return res
@@ -197,7 +201,7 @@ class ItemDetail extends Component {
                     <span className="margin">|</span>,
                     <span className="role">
                       <span className="role-key">
-                        我的角色&nbsp;
+                        {formatMessage(imageDetailIntl.myRole)}&nbsp;
                       </span>
                       {this.renderRole(currentUserRole)}
                     </span>
@@ -215,7 +219,9 @@ class ItemDetail extends Component {
     )
   }
 }
-
+const ItemDetail = injectIntl(PageItemDetail, {
+  withRef: true
+})
 function mapStateToProps(state, props) {
   const { harbor: stateHarbor, entities, projectAuthority } = state
   const { location } = props

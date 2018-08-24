@@ -25,6 +25,8 @@ import Title from '../Title'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
+import itemIntl from './intl/item-intl'
+import { injectIntl } from 'react-intl'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -76,32 +78,34 @@ let MyComponent = React.createClass({
     });
   },
   regnameExists(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      callback([new Error('请输入仓库名称')])
+      callback([new Error(formatMessage(itemIntl.repoNameVerifyMsg1))])
       return
     }
     if (value.length < 3) {
-      callback([new Error('仓库名称不能少于3位')])
+      callback([new Error(formatMessage(itemIntl.repoNameVerifyMsg2))])
       return
     }
     if (value.length > 63) {
-      callback([new Error('仓库名称过长，名称不能超过63位')])
+      callback([new Error(formatMessage(itemIntl.repoNameVerifyMsg3))])
       return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]+$/.test(value)) {
-      callback([new Error('仓库名称只能由中英文、数字等组成')])
+      callback([new Error(formatMessage(itemIntl.repoNameVerifyMsg4))])
       return
     }
     callback()
     return
   },
   urlExists(rule, values, callback) {
+    const { formatMessage } = this.props.intl
     if (!values) {
-      callback([new Error('请输入仓库地址')])
+      callback([new Error(formatMessage(itemIntl.repoUrlVerifyMsg1))])
       return
     }
     if (values.indexOf('http') < 0) {
-      callback('地址以http或者https开头')
+      callback(formatMessage(itemIntl.repoUrlVerifyMsg2))
       return
     }
     callback()
@@ -184,13 +188,14 @@ let MyComponent = React.createClass({
   },
   render() {
     const scope = this.props.scope;
+    const { formatMessage } = this.props.intl
     const {
       getFieldProps, getFieldError, setFieldsValue, isFieldValidating,
       getFieldValue,
     } = this.props.form;
     const registryTypeProps = getFieldProps('type', {
       initialValue: '3rdparty-registry',
-      rules: [{ required: true, message: '请选择接入类型' }],
+      rules: [{ required: true, message: formatMessage(itemIntl.accessTypeRequired) }],
       onChange: e => {
         let url
         if (e.target.value === 'dockerhub') {
@@ -213,8 +218,8 @@ let MyComponent = React.createClass({
       rules: [
         {
           required: false,
-          message: '请输入用户名',
-          validator: this.requiredCheck.bind(this, '请输入用户名')
+          message: formatMessage(itemIntl.userNameRequired),
+          validator: this.requiredCheck.bind(this, formatMessage(itemIntl.userNameRequired))
         }
       ],
     });
@@ -222,8 +227,8 @@ let MyComponent = React.createClass({
       rules: [
         {
           required: false,
-          message: '请输入密码',
-          validator: this.requiredCheck.bind(this, '请输入密码')
+          message: formatMessage(itemIntl.pwdRequired),
+          validator: this.requiredCheck.bind(this, formatMessage(itemIntl.pwdRequired))
         },
       ],
     });
@@ -234,38 +239,38 @@ let MyComponent = React.createClass({
     return (
       <div className='modalBox'>
         <div className='alertRow'>
-        第三方仓库接入，支持标准 Docker Registry 和 hub.docker.com 接口（平台默认 registry 为 Harbor，第三方接口无需再次接入）。
+          {formatMessage(itemIntl.tipMsg)}
         </div>
         <Form className='addForm' horizontal>
-          <FormItem label="接入类型" {...formItemLayout}>
+          <FormItem label={formatMessage(itemIntl.accessType)} {...formItemLayout}>
             <RadioGroup {...registryTypeProps}>
               <Radio value="3rdparty-registry">Docker Registry</Radio>
               <Radio value="dockerhub">hub.docker.com</Radio>
             </RadioGroup>
           </FormItem>
-          <FormItem label="仓库名" {...formItemLayout}>
-            <Input {...registryProps} placeholder="自定义仓库名" />
+          <FormItem label={formatMessage(itemIntl.repoName)} {...formItemLayout}>
+            <Input {...registryProps} placeholder={formatMessage(itemIntl.repoNameCustom)} />
           </FormItem>
-          <FormItem label="地址" {...formItemLayout}>
+          <FormItem label={formatMessage(itemIntl.repoUrl)} {...formItemLayout}>
             <Input
               {...urlProps}
-              placeholder="仓库地址"
+              placeholder={formatMessage(itemIntl.repoUrlPlaceholder)}
               disabled={getFieldValue('type') === 'dockerhub'}
             />
           </FormItem>
-          <Alert message="私有仓库需要填写用户名和密码" type="info" showIcon />
-          <FormItem label="用户名" {...formItemLayout}>
+          <Alert message={formatMessage(itemIntl.alertMessage)} type="info" showIcon />
+          <FormItem label={formatMessage(itemIntl.userName)} {...formItemLayout}>
             <Input
               {...nameProps}
               placeholder={
-                `仓库用户名${getFieldValue('type') === 'dockerhub' && '（暂不支持邮箱）' || ''}`
+                `${formatMessage(itemIntl.repoUserName)} ${getFieldValue('type') === 'dockerhub' && `${formatMessage(itemIntl.notSupportEmail)}` || ''}`
               }
             />
           </FormItem>
-          <FormItem label="密码" {...formItemLayout}>
+          <FormItem label={formatMessage(itemIntl.pwd)} {...formItemLayout}>
             <Input
               {...passwdProps}
-              placeholder="仓库密码"
+              placeholder={formatMessage(itemIntl.repoPwd)}
               type="password"
               autoComplete="new-password"
               readOnly={!!this.state.readOnly}
@@ -281,10 +286,10 @@ let MyComponent = React.createClass({
               loading={this.state.btnLoading}
               onClick={this.handleSubmit}
             >
-            确定
+              {formatMessage(itemIntl.confirm)}
             </Button>
             &nbsp;&nbsp;
-            <Button size='large' onClick={this.handleReset}>取消</Button>
+            <Button size='large' onClick={this.handleReset}>{formatMessage(itemIntl.cancel)}</Button>
           </div>
         </Form>
       </div>
@@ -293,8 +298,11 @@ let MyComponent = React.createClass({
 });
 
 MyComponent = createForm()(MyComponent);
+MyComponent = injectIntl(MyComponent, {
+  withRef: true
+});
 
-class ImageCenter extends Component {
+class PageImageCenter extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -376,7 +384,8 @@ class ImageCenter extends Component {
     }
   }
   render() {
-    const { children, loginUser } = this.props
+    const { children, loginUser, intl } = this.props
+    const { formatMessage } = intl
     const { otherImageHead, other, itemType } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
@@ -396,7 +405,7 @@ class ImageCenter extends Component {
       )
     })
     if (OtherItem.length >0) {
-      OtherItem.unshift(<span className="otherName">第三方仓库：</span>)
+      OtherItem.unshift(<span className="otherName">{formatMessage(itemIntl.thirdPartyRepo)}：</span>)
     }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
@@ -413,24 +422,24 @@ class ImageCenter extends Component {
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
-          <Title title="镜像仓库" />
+          <Title title={formatMessage(itemIntl.imageRepo)} />
           <div className="ImageCenterTabs">
-           <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
-            <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
-            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>发布记录</span>
+           <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>{formatMessage(itemIntl.privateRepoGroup)}</span>
+            <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>{formatMessage(itemIntl.publicRepoGroup)}</span>
+            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>{formatMessage(itemIntl.releaseRecord)}</span>
             {
               isAuth &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
-              仓库管理
+                {formatMessage(itemIntl.repoManage)}
               </span>
             }
             {OtherItem}
             <span style={{display:'inline-block',float:'right'}}>
-              <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;添加第三方</Button>
+              <Button type="primary" size="large" onClick={()=> this.setState({createModalShow:true})}><i className='fa fa-plus'/>&nbsp;{formatMessage(itemIntl.addThirdParty)}</Button>
               <Tooltip title={<div>
-                <div>镜像仓库组：用于存放镜像仓库，每个镜像仓库由若干个镜像版本组成。</div>
-                <div>第三方仓库：关联第三方仓库后可部署仓库中的镜像。</div>
-                <div>流水线中构建出来的镜像可发布到镜像仓库（所选仓库组）或第三方镜像仓库中。</div>
+                <div>{formatMessage(itemIntl.thirdPartyHelpMsg0)}</div>
+                <div>{formatMessage(itemIntl.thirdPartyHelpMsg1)}</div>
+                <div>{formatMessage(itemIntl.thirdPartyHelpMsg2)}</div>
               </div>} placement="bottomRight">
                 <Button icon='question-circle-o' style={{margin:'0 10px'}} type='ghost'></Button>
               </Tooltip>
@@ -448,7 +457,7 @@ class ImageCenter extends Component {
           }
 
 
-          <Modal title='添加第三方' className='addOtherSpaceModal' footer={null} onCancel={()=> this.setState({createModalShow:false})} visible={this.state.createModalShow}>
+          <Modal title={formatMessage(itemIntl.addThirdParty)} className='addOtherSpaceModal' footer={null} onCancel={()=> this.setState({createModalShow:false})} visible={this.state.createModalShow}>
             <MyComponent scope={this} addOtherStore={this.props.addOtherStore} />
           </Modal>
         </div>
@@ -480,7 +489,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps,{
+const ImageCenter = injectIntl(PageImageCenter, {
+  withRef: true
+})
+export default connect(mapStateToProps, {
   addOtherStore,
   LoadOtherImage,
 })(ImageCenter)
