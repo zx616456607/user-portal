@@ -171,7 +171,7 @@ class Project extends Component {
     searchInput && searchInput.focus()
   }
   searchProjects() {
-    this.loadData({ project_name: this.state.searchInput.replace(SEARCH,"") })
+    this.loadData({ name: this.state.searchInput.replace(SEARCH,"") })
   }
 
   deleteItemOk() {
