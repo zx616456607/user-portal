@@ -1022,3 +1022,29 @@ export function dbServiceProxyGroupSave(clusterID, type, name, body, callback){
     return dispatch(fetchDBServiceProxyGroup(clusterID, type, name, body, callback))
   }
 }
+
+// 修改服务的annotation
+const UPDATE_ANNOTATION_REQUEST = 'UPDATE_ANNOTATION_REQUEST'
+const UPDATE_ANNOTATION_SUCCESS = 'UPDATE_ANNOTATION_SUCCESS'
+const UPDATE_ANNOTATION_FAILURE = 'UPDATE_ANNOTATION_FAILURE'
+
+function fetchUpdateAnnotation(cluster, service, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_ANNOTATION_REQUEST, UPDATE_ANNOTATION_SUCCESS, UPDATE_ANNOTATION_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/annotation`,
+      options: {
+        method: 'PUT',
+        body,
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function UpdateServiceAnnotation(cluster, service, body, callback){
+  return (dispatch) => {
+    return dispatch(fetchUpdateAnnotation(cluster, service, body, callback))
+  }
+}
