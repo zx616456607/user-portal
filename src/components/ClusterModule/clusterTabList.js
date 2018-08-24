@@ -255,7 +255,7 @@ class ClusterTabList extends Component {
             <CreateAlarm funcs={modalFunc}/>
           </Modal>
           {/* 通知组 */}
-          <Modal title={formatMessage(intlMsg.formatMessage(intlMsg.createNewNotiGroup))} visible={this.state.createGroup}
+          <Modal title={formatMessage(intlMsg.createNewNotiGroup)} visible={this.state.createGroup}
             width={560}
             maskClosable={false}
             wrapClassName="AlarmModal"
