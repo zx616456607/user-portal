@@ -1,48 +1,29 @@
-import { defineMessages } from 'react-intl'
+import {defineIntlMessages} from '../../../common/tools'
 import AllServiceListIntl from './AllServiceListIntl'
 import AppServiceDetailIntl from './AppServiceDetailIntl'
 
 export { AllServiceListIntl, AppServiceDetailIntl }
+export const mapData = {
+  prefix: 'ServiceCommon',
+  data: {
+    start: '启动',
+    stop: '停止',
+    refresh: '刷新',
+    delete: '删除',
+    reboot: '重启',
+    common: '共',
+    page: '条',
+    moreOperation: '更多操作',
+    status: '状态',
+    operation: '操作',
+    cancel: '取消',
+    save: '保存',
+    confirm: '确定',
+    memory: '内存',
+    userDefined: '自定义',
+    core: '核',
+    cases: '颗',
+  }
+}
 
-export default  defineMessages({
-  start: {
-    id: 'ServiceCommon.start',
-    defaultMessage: '启动'
-  },
-  stop: {
-    id: 'ServiceCommon.stop',
-    defaultMessage: '停止'
-  },
-  refresh: {
-    id: 'ServiceCommon.refresh',
-    defaultMessage: '刷新'
-  },
-  delete: {
-    id: 'ServiceCommon.delete',
-    defaultMessage: '删除'
-  },
-  reboot: {
-    id: 'ServiceCommon.reboot',
-    defaultMessage: '重启'
-  },
-  common: {
-    id: 'ServiceCommon.common',
-    defaultMessage: '共'
-  },
-  page: {
-    id: 'ServiceCommon.page',
-    defaultMessage: '条'
-  },
-  moreOperation: {
-    id: 'ServiceCommon.moreOperation',
-    defaultMessage: '更多操作'
-  },
-  status: {
-    id: 'ServiceCommon.status',
-    defaultMessage: '状态'
-  },
-  operation: {
-    id: 'ServiceCommon.operation',
-    defaultMessage: '操作'
-  },
-})
+export default defineIntlMessages(mapData)
