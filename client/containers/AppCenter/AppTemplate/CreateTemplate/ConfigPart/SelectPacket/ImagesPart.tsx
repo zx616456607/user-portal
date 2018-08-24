@@ -23,6 +23,8 @@ import NotificationHandler from '../../../../../../../src/components/Notificatio
 import './style/ImagePart.less';
 import isEmpty from 'lodash/isEmpty';
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../../../src/containers/Application/intl'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -49,7 +51,7 @@ class ImagePart extends React.Component<IProps, IState> {
   }
 
   loadImage = async () => {
-    const { loadAllProject, clusterID, images, harbor } = this.props;
+    const { loadAllProject, clusterID, images, harbor, intl } = this.props;
     const { searchValue, imageType, currentPage } = this.state;
     const notify = new NotificationHandler();
     const query = {
@@ -61,14 +63,14 @@ class ImagePart extends React.Component<IProps, IState> {
     const result = await loadAllProject(DEFAULT_REGISTRY, query);
     if (result.error) {
       if (result.error.statusCode === 500) {
-        notify.warn('请求错误', '镜像仓库暂时无法访问，请联系管理员');
+        notify.warn(intl.formatMessage(IntlMessage.requestFailure), intl.formatMessage(IntlMessage.imageStoreError));
       }
       return;
     }
   }
 
   loadImageStore() {
-    const { getAppsList } = this.props;
+    const { getAppsList, intl } = this.props;
     const { searchValue, currentPage } = this.state;
     const notify = new NotificationHandler();
     let filter = 'type,2,publish_status,2';
@@ -84,7 +86,8 @@ class ImagePart extends React.Component<IProps, IState> {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
-            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员');
+            notify.warn(intl.formatMessage(IntlMessage.requestFailure),
+                intl.formatMessage(IntlMessage.imageStoreError));
           }
         },
       },
@@ -125,7 +128,7 @@ class ImagePart extends React.Component<IProps, IState> {
       imageList = imageStoreList && imageStoreList.apps;
     }
     const columns = [{
-      title: '镜像名称',
+      title: <FormattedMessage {...IntlMessage.imageName} />,
       dataIndex: imageType === IMAGE_STORE ? 'appName' : 'repositoryName',
       key: imageType === IMAGE_STORE ? 'appName' : 'repositoryName',
       render(text, row) {
@@ -142,7 +145,7 @@ class ImagePart extends React.Component<IProps, IState> {
         );
       },
     }, {
-      title: '部署',
+      title: <FormattedMessage {...IntlMessage.deploy} />,
       dataIndex: 'deploy',
       key: 'deploy',
       width: '10%',
@@ -161,7 +164,7 @@ class ImagePart extends React.Component<IProps, IState> {
               size="large"
               onClick={() => this.addImage(row)}
             >
-              添加&nbsp;
+                <FormattedMessage {...IntlMessage.add} />&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
             </Button>
           </div>
@@ -189,7 +192,7 @@ class ImagePart extends React.Component<IProps, IState> {
   }
   render() {
     const { searchValue, imageType } = this.state;
-    const { images, imageStoreList } = this.props;
+    const { images, imageStoreList, intl } = this.props;
     let total = 0;
     if (imageType !== IMAGE_STORE) {
       total = images[imageType] ? images[imageType].length : 0;
@@ -199,26 +202,26 @@ class ImagePart extends React.Component<IProps, IState> {
     return (
       <div className="imagePart layout-content">
         <div className="imageHeader layout-content-btns">
-          <span>选择镜像</span>
+          <span><FormattedMessage {...IntlMessage.selectImage} /></span>
           <span >
             <RadioGroup onChange={this.radioChange} size="large" value={imageType}>
-              <RadioButton value={PUBLIC_IMAGES}>公有</RadioButton>
-              <RadioButton value={PRIVATE_IMAGES}>私有</RadioButton>
-              <RadioButton value={IMAGE_STORE}>镜像商店</RadioButton>
+              <RadioButton value={PUBLIC_IMAGES}><FormattedMessage {...IntlMessage.public} /></RadioButton>
+              <RadioButton value={PRIVATE_IMAGES}><FormattedMessage {...IntlMessage.private} /></RadioButton>
+              <RadioButton value={IMAGE_STORE}><FormattedMessage {...IntlMessage.imageStore} /></RadioButton>
             </RadioGroup>
           </span>
           <span >
             <CommonSearchInput
               value={searchValue}
               onChange={value => this.setState({ searchValue: value })}
-              placeholder="请输入镜像名称搜索"
+              placeholder={intl.formatMessage(IntlMessage.imagePlaceholder)}
               size="large"
               style={{ width: 200 }}
               onSearch={() => imageType !== IMAGE_STORE ? this.loadImage() : this.loadImageStore()}
             />
           </span>
           <div className="page-box pageBox">
-            <span className="total">共 {total} 条</span>
+            <span className="total"><FormattedMessage {...IntlMessage.total} values={{ total }} /></span>
           </div>
         </div>
         <div style={{ clear: 'both' }}/>
@@ -248,4 +251,4 @@ const mapStateToProps = (state, props) => {
 export default connect(mapStateToProps, {
   loadAllProject: harborActions.loadAllProject,
   getAppsList: AppStoreActions.getAppsList,
-})(ImagePart);
+})(injectIntl(ImagePart, { withRef: true }));

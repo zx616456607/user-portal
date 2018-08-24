@@ -24,6 +24,8 @@ import * as templateActions from '../../../../../actions/template';
 import './style/index.less';
 import NotificationHandler from '../../../../../../src/components/Notification';
 import { formatTemplateBody } from './formatTemplateBody';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../../src/containers/Application/intl'
 
 const FormItem = Form.Item;
 
@@ -112,17 +114,25 @@ class TemplateInfo extends React.Component<any> {
       if (unit === '￥') {
         return (
           <div className="price">
-            合计：
-            <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
-            <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+              <FormattedMessage {...IntlMessage.totalPrice}/>：
+            <span className="hourPrice">
+                <FormattedMessage {...IntlMessage.priceHour} values={{ RMB: '￥', priceHour, unit: '' }}/>
+            </span>
+            <span className="monthPrice">
+                （<FormattedMessage {...IntlMessage.priceMonth} values={{ RMB: '￥', priceMonth, unit: '' }}/>）
+            </span>
           </div>
         );
       }
       return (
         <div className="price">
-          合计：
-          <span className="hourPrice">{priceHour} {unit}/小时</span>
-          <span className="monthPrice">（合 {priceMonth} {unit}/月）</span>
+            <FormattedMessage {...IntlMessage.totalPrice}/>：
+          <span className="hourPrice">
+              <FormattedMessage {...IntlMessage.priceHour} values={{ RMB: '', priceHour, unit }}/>
+          </span>
+          <span className="monthPrice">
+              （<FormattedMessage {...IntlMessage.priceMonth} values={{ RMB: '', priceMonth, unit }}/>）
+          </span>
         </div>
       );
     }
@@ -132,7 +142,7 @@ class TemplateInfo extends React.Component<any> {
     return (
       <div className="resourcePrice">
         <div className="resource">
-          计算资源：
+            <FormattedMessage {...IntlMessage.calculateResource}/>：
           <span>{resource}</span>
         </div>
         {renderTotalPrice()}
@@ -141,17 +151,17 @@ class TemplateInfo extends React.Component<any> {
   }
 
   confirmTemplate = async () => {
-    const { loginUser, createTemplate, current, form, imageConfig } = this.props;
+    const { loginUser, createTemplate, current, form, imageConfig, intl } = this.props;
     const { clusterID } = current.cluster;
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200);
     form.validateFields(async (errors, values) => {
       if (!!errors) {
-        notify.warn('表单信息有误');
+        notify.warn(intl.formatMessage(IntlMessage.formsError));
         return;
       }
       const body = formatTemplateBody(this.props, imageConfig);
-      notify.spin('模板创建中');
+      notify.spin(intl.formatMessage(IntlMessage.appTemplateCreating));
       this.setState({
         confirmLoading: true,
       });
@@ -161,10 +171,12 @@ class TemplateInfo extends React.Component<any> {
         this.setState({
           confirmLoading: false,
         });
-        return notify.warn('创建失败', result.error.message.message || result.error.message);
+        return notify.warn(
+            intl.formatMessage(IntlMessage.appTemplateCreateFailure),
+            result.error.message.message || result.error.message);
       }
       notify.close();
-      notify.success('模板创建成功');
+      notify.success(intl.formatMessage(IntlMessage.appTemplateCreateSuccess));
       this.setState({
         confirmLoading: false,
       });
@@ -192,7 +204,12 @@ class TemplateInfo extends React.Component<any> {
         onClick={cancelTemplate}
         disabled={currentStep === 1 && hash === TEMPLATE_EDIT_HASH}
       >
-        {currentStep === 0 || configureMode === 'edit' ? '取消' : '上一步'}
+        {
+          currentStep === 0 || configureMode === 'edit' ?
+              <FormattedMessage {...IntlMessage.cancel}/>
+              :
+              <FormattedMessage {...IntlMessage.previous}/>
+        }
       </Button>
     );
   }
@@ -209,24 +226,24 @@ class TemplateInfo extends React.Component<any> {
     }
     return (
       <div className="templateInfo">
-        <div className="tempInfoHeader">信息总览</div>
+        <div className="tempInfoHeader"><FormattedMessage {...IntlMessage.overview}/></div>
         <div className="tempInfoBody">
           <div className="customizeItem hidden">
-            <div className="label">模板名称</div>
+            <div className="label"><FormattedMessage {...IntlMessage.appTemplateName}/></div>
             <Input size="large" readOnly value={this.getTemplateInfo('templateName')}/>
           </div>
           <div className="customizeItem hidden">
-            <div className="label">模板版本</div>
+            <div className="label"><FormattedMessage {...IntlMessage.appTemplateVersion}/></div>
             <Input size="large" readOnly value={this.getTemplateInfo('templateVersion')}/>
           </div>
           <div className="customizeItem hidden">
-            <div className="label">模板描述</div>
+            <div className="label"><FormattedMessage {...IntlMessage.appTemplateDesc}/></div>
             <Input size="large" type="textarea" readOnly value={this.getTemplateInfo('templateDesc')}/>
           </div>
           <div className="serviceBox">
             <Row className={classNames('serviceHeader', { 'hidden': !showAddBtn })} type="flex" justify="space-between">
-              <Col>服务</Col>
-              <Col>操作</Col>
+              <Col><FormattedMessage {...IntlMessage.service}/></Col>
+              <Col><FormattedMessage {...IntlMessage.operation}/></Col>
             </Row>
             {this.renderServices()}
             <Button
@@ -235,7 +252,7 @@ class TemplateInfo extends React.Component<any> {
               className={classNames('addServiceBtn', { 'hidden': !showAddBtn || currentStep === 0 })}
               onClick={() => saveService()}
             >
-              <i className="fa fa-plus" /> 继续添加服务
+              <i className="fa fa-plus" /> <FormattedMessage {...IntlMessage.keepAddService}/>
             </Button>
           </div>
           {this.renderResourcePrice()}
@@ -243,7 +260,7 @@ class TemplateInfo extends React.Component<any> {
         <Row className="tempInfoFooter" type="flex" align="middle" justify="center">
           <Col>{this.renderCancelBtn()}</Col>
           <Col>
-            <Tooltip title={!showAddBtn ? '至少添加一个服务' : ''}>
+            <Tooltip title={!showAddBtn ? <FormattedMessage {...IntlMessage.serviceTooltip}/> : ''}>
               <Button
                 type="primary"
                 loading={confirmLoading}
@@ -251,7 +268,11 @@ class TemplateInfo extends React.Component<any> {
                 disabled={!showAddBtn}
                 onClick={this.confirmTemplate}
               >
-                {configureMode === 'edit' ? '保存' : '创建'}
+                {configureMode === 'edit' ?
+                    <FormattedMessage {...IntlMessage.save}/>
+                    :
+                    <FormattedMessage {...IntlMessage.create}/>
+                }
               </Button>
             </Tooltip>
           </Col>
@@ -280,4 +301,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   createTemplate: templateActions.createTemplate,
-})(TemplateInfo);
+})(injectIntl(TemplateInfo, { withRef: true }));

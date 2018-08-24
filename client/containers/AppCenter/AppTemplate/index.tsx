@@ -30,6 +30,8 @@ import defaultApp from '../../../assets/img/AppCenter/app_template.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
 
 const notify = new NotificationHandler();
 
@@ -48,7 +50,7 @@ class TemplateList extends React.Component<any> {
   }
 
   loadTemplateList = (query: any) => {
-    const { getAppTemplateList } = this.props;
+    const { getAppTemplateList, intl } = this.props;
     const newQuery = {
       size: DEFAULT_SIZE,
       from: 0,
@@ -66,7 +68,7 @@ class TemplateList extends React.Component<any> {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
-            notify.warn('chat repo连接失败');
+            notify.warn(intl.formatMessage(AppCenterMessage.chartRepoConnectFailure));
           }
         },
       },
@@ -91,16 +93,16 @@ class TemplateList extends React.Component<any> {
   }
 
   confirmDelModal = async () => {
-    const { deleteAppTemplate } = this.props;
+    const { deleteAppTemplate, intl } = this.props;
     const { selectedTemp } = this.state;
     this.setState({
       deleteLoading: true,
     });
-    notify.spin('模板删除中');
+    notify.spin(intl.formatMessage(AppCenterMessage.deteting));
     const result = await deleteAppTemplate(selectedTemp.name, selectedTemp.versions[0].version);
     if (result.error) {
-      notify.close();
-      notify.warn('删除失败', result.error.message.message || result.error.message);
+      notify.close(intl.formatMessage(AppCenterMessage.deleteFailure));
+      notify.warn(intl, result.error.message.message || result.error.message);
       this.setState({
         deleteLoading: false,
       });
@@ -108,7 +110,7 @@ class TemplateList extends React.Component<any> {
     }
     this.loadTemplateList();
     notify.close();
-    notify.success('删除成功');
+    notify.success(intl.formatMessage(AppCenterMessage.deleteSuccess));
     this.setState({
       deleteVisible: false,
       deleteLoading: false,
@@ -171,7 +173,7 @@ class TemplateList extends React.Component<any> {
   }
 
   renderTemplateList = () => {
-    const { templateList, isFetching } = this.props;
+    const { templateList, isFetching, intl } = this.props;
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -183,8 +185,10 @@ class TemplateList extends React.Component<any> {
       return [
         <div className="noTemplateData" key="noTemplateData"/>,
         <div className="noTemplateText" key="noTemplateText">
-          您还没有应用模板，创建一个吧!
-          <Button type="primary" size="large" onClick={this.createTemplate}>创建</Button>
+          <FormattedMessage {...AppCenterMessage.emptyTip} />
+          <Button type="primary" size="large" onClick={this.createTemplate}>
+            <FormattedMessage {...AppCenterMessage.create} />
+          </Button>
         </div>,
       ];
     }
@@ -192,8 +196,12 @@ class TemplateList extends React.Component<any> {
       const content = (
         <div className="templateInnerPopover">
           {/* <div key="clone" className="pointer">克隆</div> */}
-          <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>修改</div>
-          <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>删除</div>
+          <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>
+            <FormattedMessage {...AppCenterMessage.edit} />
+          </div>
+          <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>
+            <FormattedMessage {...AppCenterMessage.delete} />
+          </div>
         </div>
       );
       return (
@@ -220,11 +228,16 @@ class TemplateList extends React.Component<any> {
           <div className="templateFooter">
             <div className="templateCreated">
               <Icon type="clock-circle-o" />
-              <Tooltip title={`更新于${calcuDate(temp.versions[0].created)}`}>
+              <Tooltip
+                  title={
+                    intl.formatMessage(AppCenterMessage.updateOn, { date: calcuDate(temp.versions[0].created) })}
+              >
                 <span>{calcuDate(temp.versions[0].created)}</span>
               </Tooltip>
             </div>
-            <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>部署</Button>
+            <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>
+              <FormattedMessage {...AppCenterMessage.deploy}/>
+            </Button>
           </div>
         </div>
       );
@@ -232,7 +245,8 @@ class TemplateList extends React.Component<any> {
   }
   render() {
     const { deleteVisible, releaseVisible, deleteLoading, searchValue, current } = this.state;
-    const { total } = this.props;
+    const { total, intl } = this.props;
+    const { formatMessage } = intl
     const pagination = {
       simple: true,
       current,
@@ -242,20 +256,24 @@ class TemplateList extends React.Component<any> {
     };
     return (
       <QueueAnim className="templateWrapper layout-content">
-        <Title title="应用模板"/>
+        <Title title={formatMessage(AppCenterMessage.appTemplate)}/>
         <div className="layout-content-btns" key="btns">
-          <Button type="primary" size="large" onClick={this.createTemplate}><i className="fa fa-plus" /> 创建模板</Button>
-          <Button type="ghost" size="large" onClick={this.loadTemplateList}><i className="fa fa-refresh"/> 刷新</Button>
+          <Button type="primary" size="large" onClick={this.createTemplate}>
+              <i className="fa fa-plus" /> <FormattedMessage {...AppCenterMessage.create} />
+          </Button>
+          <Button type="ghost" size="large" onClick={this.loadTemplateList}>
+              <i className="fa fa-refresh"/> <FormattedMessage {...AppCenterMessage.refresh} />
+          </Button>
           <SearchInput
             size="large"
-            placeholder="请输入模板名称搜索"
+            placeholder={formatMessage(AppCenterMessage.placeholder)}
             style={{ width: 200 }}
             value={searchValue}
             onChange={value => this.setState({ searchValue: value })}
             onSearch={() => this.loadTemplateList({ search: searchValue })}
           />
           <div className={classNames('page-box', { 'hidden': !total })}>
-            <span className="total">共 {total} 条</span>
+            <span className="total">{<FormattedMessage {...AppCenterMessage.total} values={{ total }} />}</span>
             <Pagination {...pagination}/>
           </div>
         </div>
@@ -263,7 +281,7 @@ class TemplateList extends React.Component<any> {
           {this.renderTemplateList()}
         </div>
         <Modal
-          title="删除应用模板"
+          title={formatMessage(AppCenterMessage.deleteTemplate)}
           visible={deleteVisible}
           confirmLoading={deleteLoading}
           onCancel={this.cancelDelModal}
@@ -271,7 +289,7 @@ class TemplateList extends React.Component<any> {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-            删除模板后，基于此模板创建的应用不受影响，但删除后无法恢复，是否确定删除？
+              <FormattedMessage {...AppCenterMessage.deleteTip} />
           </div>
         </Modal>
         <ReleaseModal
@@ -301,4 +319,4 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
-})(TemplateList);
+})(injectIntl(TemplateList, { withRef: true }));
