@@ -32,6 +32,7 @@ import { calcuDate } from '../../common/tools'
 import Title from '../Title'
 import classNames from 'classnames'
 import foundationApplicationModle from './FoundationApplicationModle'
+import intlMsg from './indexIntl'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -740,12 +741,12 @@ class ClusterList extends Component {
                         type='primary'
                         onClick={() => this.setState({ createModal: true })}>
                         <i className="fa fa-plus" aria-hidden="true"/>&nbsp;
-                        添加集群
+                          {formatMessage(intlMsg.addCluster)}
                       </Button>
                     </span>
                   </Tooltip>,
                 <Tooltip
-                  title={'基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。'}
+                  title={formatMessage(intlMsg.addClusterHelp)}
                   placement="topLeft"
                 >
                   <Button
