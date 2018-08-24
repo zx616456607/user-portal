@@ -18,6 +18,7 @@ import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
+import { AppServiceDetailIntl } from '../ServiceIntl'
 
 const Option = Select.Option
 

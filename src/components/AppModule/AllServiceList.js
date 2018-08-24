@@ -60,7 +60,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon'
-import ServiceCommonIntl, { AllServiceListIntl } from './intl'
+import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup

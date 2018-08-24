@@ -1,7 +1,8 @@
 import { defineMessages } from 'react-intl'
 import AllServiceListIntl from './AllServiceListIntl'
+import AppServiceDetailIntl from './AppServiceDetailIntl'
 
-export { AllServiceListIntl }
+export { AllServiceListIntl, AppServiceDetailIntl }
 
 export default  defineMessages({
   start: {
