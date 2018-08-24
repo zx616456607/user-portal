@@ -26,6 +26,7 @@ import {
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 import isEmpty from 'lodash/isEmpty'
+import { defineMessages } from 'react-intl'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
@@ -838,7 +839,7 @@ export const parseImageUrl = image => {
 
 /**
  * 定义国际化时, 将简单对象格式化为defineMessages()方法需要的形式
- * @param obj Object 需要格式化的对象 eg: { login: '登录', tips: '点击登录' }
+ * @param data Object 需要格式化的对象 eg: { login: '登录', tips: '点击登录' }
  * @param prefix String 前缀, 结尾无需加. eg: 'Login'
  * @returns Object eg:
  * {
@@ -846,13 +847,13 @@ export const parseImageUrl = image => {
  *  tips: { id: 'Login.tips', defaultMessage: '点击登录' },
  * }
  */
-export const formatIntlMsg = (obj, prefix) => {
-  const data = {}
-  for(let [k, v] of Object.entries(obj)) {
-    data[k] = {
+export const defineIntlMessages = ({ data, prefix }) => {
+  const rtn = {}
+  for(let [k, v] of Object.entries(data)) {
+    rtn[k] = {
       id: `${prefix}.${k}`,
       defaultMessage: v,
     }
   }
-  return data
+  return defineMessages(rtn)
 }
