@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 // import QueueAnim from 'rc-queue-anim'
 import { Form, Input, Icon, Row, Col, Button, Tooltip } from 'antd'
 import './style/ReplicasRestrictIP.less'
+import * as podAction from '../../../../../src/actions/app_manage'
 // import DetailHeader from './DetailHeader'
 // import IsolatedObj from './IsolatedObj'
 // import WhiteList from './WhiteList'
@@ -29,7 +30,9 @@ class ReplicasRestrictIP extends React.Component {
   }
 
   componentDidMount() {
-    const { getFieldValue, setFieldsValue } = this.props.form
+    const { form } = this.props
+    // cluster, getPodNetworkSegment,
+    const { getFieldValue, setFieldsValue } = form
     const num = getFieldValue('replicas')
     for (let i = 0; i < num; i++) {
       let keys = getFieldValue('keys')
@@ -41,6 +44,7 @@ class ReplicasRestrictIP extends React.Component {
     this.setState({
       uuid: num,
     })
+    // getPodNetworkSegment(cluster).then(res => console.log('res', res))
   }
 
   remove = k => {
@@ -149,5 +153,5 @@ const mapStateToProps = ({
 }
 
 export default connect(mapStateToProps, {
-  // getfSecurityGroupDetail: securityActions.getfSecurityGroupDetail,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(ReplicasRestrictIP)

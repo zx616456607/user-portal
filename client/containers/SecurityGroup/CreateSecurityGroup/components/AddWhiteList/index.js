@@ -54,7 +54,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'cidr',
               [`ingresscidr${ind}`]: item.cidr,
-              [`ingress${ind}except`]: item.except,
+              [`ingresscidr${ind}except`]: item.except[0] || null,
             })
           case 'ingress':
             return setFieldsValue({
@@ -95,7 +95,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`egress${ind}`]: 'cidr',
               [`egresscidr${ind}`]: item.cidr,
-              [`egress${ind}except`]: item.except,
+              [`egresscidr${ind}except`]: item.except[0] || null,
             })
           default:
             return null
