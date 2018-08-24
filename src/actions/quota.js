@@ -22,9 +22,7 @@ function fetchGlobaleQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota`
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
@@ -57,9 +55,7 @@ function fetchGlobaleQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/resourcequota/inuse`
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
@@ -154,9 +150,7 @@ function updateGlobaleQuota(query, callback) {
   let body = query.body
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
@@ -218,9 +212,7 @@ function fetchClusterQuota(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota`
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
@@ -251,9 +243,7 @@ function updateClusterQuota(query, callback) {
   let body = query.body
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
@@ -284,9 +274,7 @@ function fetchClusterQuotaList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${query.id}/resourcequota/inuse`
   let headers = {}
   if (query.header !== undefined) {
-    headers = Object.assign({}, headers, query.header, {
-      onbehalfuser: '',
-    })
+    headers = Object.assign({}, headers, query.header)
   }
   return {
     [FETCH_API]: {
