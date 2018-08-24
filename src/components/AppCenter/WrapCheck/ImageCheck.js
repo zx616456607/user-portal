@@ -91,13 +91,14 @@ class ImageCheckTable extends React.Component {
   }
   checkImageStatus(record, status, message) {
     const { appStoreApprove, getImagePublishList } = this.props
+    console.log(record)
     let notify = new NotificationHandler()
     const body = {
       id: record.id,
       type: 2,
       status,
       imageTagName: `${record.image}:${record.tag}`,
-      targetCluster: record.TargetCluster || "",
+      targetCluster: record.targetCluster || record.TargetCluster || "",
     }
     if (status === 2) {
       Object.assign(body, { origin_id: record.originID })
