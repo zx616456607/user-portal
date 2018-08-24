@@ -678,7 +678,7 @@ class ClusterList extends Component {
         <Tooltip title={cluster.clusterName}>
           <span className={clusterNameClass}>{cluster.clusterName}</span>
         </Tooltip>
-          { cluster.isBuilder && <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> }
+          { cluster.isBuilder && <Tooltip title={formatMessage(intlMsg.buildEnv)}><img src={CI} className='clusterImg'/></Tooltip> }
         </div>
       if (cluster.clusterID) {
         ImageTabList.push(

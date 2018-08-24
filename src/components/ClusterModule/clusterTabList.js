@@ -16,7 +16,7 @@ import HostList from './hostList'
 import ClusterLabelManage from './clusterLabelManage'
 import NetworkSolutions from './NetworkSolutions'
 import ClusterStorage from './ClusterStorage'
-import { injectIntl } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import {
   changeClusterNodeSchedule,
   deleteClusterNode,
@@ -34,6 +34,7 @@ import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import TenxIcon from '@tenx-ui/icon'
+import intlMsg from './indexIntl'
 
 const TabPane = Tabs.TabPane;
 
@@ -116,7 +117,7 @@ class ClusterTabList extends Component {
   }
 
   openTerminalModal() {
-    const { kubectlsPods, addTerminal, clusterID } = this.props
+    const { kubectlsPods, addTerminal, clusterID, intl: { formatMessage } } = this.props
     let { currentContainer } = this.state;
     let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
@@ -125,7 +126,7 @@ class ClusterTabList extends Component {
     }
     const { namespace, pods } = kubectlsPods
     if (!pods || pods.length === 0) {
-      notification.warn('没有可用终端节点，请联系管理员')
+      notification.warn(formatMessage(intlMsg.noAvailableTermNode))
       return
     }
     let randomPodNum = Math.ceil(Math.random() * pods.length)
@@ -194,7 +195,7 @@ class ClusterTabList extends Component {
 
             <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="instrument-o"/>
-              <span className='tablepanespan'>资源总览</span></div>} key="1">
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.sourceOverview}/></span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
@@ -203,7 +204,7 @@ class ClusterTabList extends Component {
             </TabPane>
             <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="hostlists-o"/>
-              <span className='tablepanespan'>主机列表</span></div>} key="host">
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.hostList}/></span></div>} key="host">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
@@ -215,12 +216,12 @@ class ClusterTabList extends Component {
             </TabPane>
             <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="tag-right"/>
-              <span className='tablepanespan'>标签管理</span></div>} key="labels">
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.labelManage}/></span></div>} key="labels">
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
             <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="network"/>
-              <span className='tablepanespan'>网络方案</span></div>} key="5">
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.networkSolution}/></span></div>} key="5">
               <NetworkSolutions
                 clusterID={clusterID}
               />
@@ -228,7 +229,7 @@ class ClusterTabList extends Component {
             <TabPane
               tab={<div className='tablepanediv'>
                 <i className="fa fa-hdd-o size" aria-hidden="true"/>
-                <span className="tablepanespan">集群存储</span>
+                <span className="tablepanespan"><FormattedMessage {...intlMsg.clusterStorage}/></span>
               </div>}
               key="cluster_storage"
             >
@@ -239,13 +240,13 @@ class ClusterTabList extends Component {
           </Tabs>
 
           <AddClusterOrNodeModal
-            title="添加主机节点"
+            title={formatMessage(intlMsg.addHostNode)}
             visible={this.state.addClusterOrNodeModalVisible}
             closeModal={() => this.setState({addClusterOrNodeModalVisible: false})}
             CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
-            bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
+            bottomContent={<p><FormattedMessage {...intlMsg.addClusterOrNodeNote}/></p>} />
 
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+          <Modal title={formatMessage(intlMsg.createAlarmStrategy)} visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
@@ -254,7 +255,7 @@ class ClusterTabList extends Component {
             <CreateAlarm funcs={modalFunc}/>
           </Modal>
           {/* 通知组 */}
-          <Modal title="创建新通知组" visible={this.state.createGroup}
+          <Modal title={formatMessage(intlMsg.formatMessage(intlMsg.createNewNotiGroup))} visible={this.state.createGroup}
             width={560}
             maskClosable={false}
             wrapClassName="AlarmModal"

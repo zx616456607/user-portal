@@ -14,7 +14,7 @@
 
 import { defineIntlMessages } from "../../common/tools"
 import React from "react";
-
+// data for index, clusterTabList
 export const mapData = {
   prefix: 'ClusterModule',
   data: {
@@ -68,6 +68,17 @@ export const mapData = {
     imgServerSaveFail: '镜像服务配置保存失败',
     plsInputRightImgServerAddress: '请填入合法的镜像服务地址',
     plsInputImgServerAddress: '请填写镜像服务地址',
+    buildEnv: '构建环境',
+    sourceOverview: '资源总览',
+    hostList: '主机列表',
+    labelManage: '标签管理',
+    networkSolution: '网络方案',
+    clusterStorage: '集群存储',
+    addHostNode: '添加主机节点',
+    createAlarmStrategy: '创建告警策略',
+    createNewNotiGroup: '创建新通知组',
+    addClusterOrNodeNote: '注意：新添加的主机需要与 Master 节点同一内网，可互通',
+    noAvailableTermNode: '没有可用终端节点，请联系管理员',
   }
 }
 
