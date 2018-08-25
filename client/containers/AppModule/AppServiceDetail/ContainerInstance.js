@@ -90,8 +90,22 @@ class ContainerInstance extends React.Component {
   handleOk = () => {
     // keys 为空[]时, return
     // this.props.form.validateFields((err, values) => { console.log( values ) })
-    this.props.onChangeVisible(true)
+    const { onChangeVisible, onHandleCanleIp } = this.props
+    onChangeVisible()
+    onHandleCanleIp(true)
   }
+
+  handleCandle = v => {
+    const { isSee, onChangeVisible, onHandleCanleIp, isCheckIP } = this.props
+    if (isSee) {
+      onChangeVisible()
+      onHandleCanleIp(isCheckIP)
+      return
+    }
+    onChangeVisible()
+    onHandleCanleIp(v)
+  }
+
   render() {
     const { oldIP } = this.state
     const { form, configIP, notConfigIP } = this.props
@@ -101,7 +115,7 @@ class ContainerInstance extends React.Component {
     })
     const formItems = getFieldValue('keys').map((k, index) => {
       let use = null
-      oldIP.forEach(ele => {
+      oldIP && oldIP.forEach(ele => {
         if (ele === getFieldValue(`replicasIP${k}`)) {
           use = <span className="useStatus isUsed">已使用</span>
         }
@@ -141,7 +155,7 @@ class ContainerInstance extends React.Component {
           title="配置固定 IP"
           visible={configIP}
           onOk={this.handleOk}
-          onCancel={() => this.props.onChangeVisible(false)}
+          onCancel={() => this.handleCandle(false)}
           okText={'重启服务,应用更改'}
           // okButtonProps={{ disabled: formItems.length === 0 }}
           className="containerInstanceModal"
@@ -152,22 +166,6 @@ class ContainerInstance extends React.Component {
               {...formItemLayout}>
               <span>{ '12' }</span>
             </FormItem>
-
-            {/* <FormItem
-              label="配置固定 IP"
-              {...formItemLayout}
-            >
-              <Input
-                style={{ width: 300 }}
-                {...getFieldProps('target', {
-                  rules: [{
-                    required: true,
-                    message: '请输入...',
-                  }],
-                })}
-              />
-            </FormItem> */}
-
             {formItems}
             <Row className="addInstance">
               <Col span={5}></Col>
@@ -184,7 +182,7 @@ class ContainerInstance extends React.Component {
           title="不再固定实例 IP"
           visible={notConfigIP}
           onOk={() => this.props.onChangeVisible(false)}
-          onCancel={() => this.props.onChangeVisible(true)}
+          onCancel={() => this.handleCandle(true)}
           okText={'确认释放 IP'}
         >
           <div className="securityGroupContent">

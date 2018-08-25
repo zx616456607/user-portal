@@ -530,6 +530,28 @@ export function getPodProcess(cluster, name, query) {
   }
 }
 
+const GET_POD_NETWORK_REQUEST = 'GET_POD_NETWORK_REQUEST'
+const GET_POD_NETWORK_SUCCESS = 'GET_POD_NETWORK_SUCCESS'
+const GET_POD_NETWORK_FAILURE = 'GET_POD_NETWORK_FAILURE'
+
+function fetchPodNetworkSegment(cluster, callback) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/nodes/podcidr`
+  return {
+    [FETCH_API]: {
+      types: [GET_POD_NETWORK_REQUEST, GET_POD_NETWORK_SUCCESS, GET_POD_NETWORK_FAILURE],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getPodNetworkSegment(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchPodNetworkSegment(cluster, callback))
+  }
+}
+
 export const SET_LOGSIZE_STYLE = 'SET_LOGSIZE_STYLE'
 // @baiyu set log bigBox
 export function setTingLogs(logSize) {

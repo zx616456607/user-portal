@@ -119,7 +119,7 @@ module.exports = function (Router) {
   router.put('/projects/label', projectController.updateToggleServiceMesh)
   router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
   router.get('/projects/istio/check', projectController.getCheckClusterIstio)
-  
+
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.post('/clusters', clusterController.createCluster)
@@ -302,6 +302,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
   router.post('/clusters/:cluster/containers/:name/export', containerController.exportContainers)
+  router.get('/clusters/${cluster}/nodes/podcidr',  containerController.getPodNetworkSegment)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)

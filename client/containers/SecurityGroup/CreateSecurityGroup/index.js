@@ -109,10 +109,17 @@ class CreateSecurityGroup extends React.Component {
           const type = values[`ingress${el}`]
           switch (type) {
             case 'cidr':
+              if (!values[`ingress${type}${el}except`]) {
+                return ingList.push({
+                  type: 'cidr',
+                  cidr: values[`ingress${type}${el}`],
+                  except: null,
+                })
+              }
               return ingList.push({
                 type: 'cidr',
                 cidr: values[`ingress${type}${el}`],
-                except: [ `ingress${type}${el}except` ],
+                except: [ values[`ingress${type}${el}except`] ],
               })
             case 'service':
               return ingList.push({
@@ -143,10 +150,17 @@ class CreateSecurityGroup extends React.Component {
           const type = values[`egress${el}`]
           switch (type) {
             case 'cidr':
+              if (!values[`egress${type}${el}except`]) {
+                return egList.push({
+                  type: 'cidr',
+                  cidr: values[`egress${type}${el}`],
+                  except: null,
+                })
+              }
               return egList.push({
                 type: 'cidr',
                 cidr: values[`egress${type}${el}`],
-                except: [ `egress${type}${el}except` ],
+                except: [ values[`egress${type}${el}except`] ],
               })
             case 'service':
             case 'mysql':

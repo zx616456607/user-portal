@@ -54,7 +54,7 @@ class PublicProject extends Component {
   }
 
   searchProjects() {
-    this.loadData({ project_name: this.state.searchInput })
+    this.loadData({ name: this.state.searchInput })
   }
 
   componentWillMount() {
