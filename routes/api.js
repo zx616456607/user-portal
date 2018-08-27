@@ -228,6 +228,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
 
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
+  router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -302,7 +303,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
   router.post('/clusters/:cluster/containers/:name/export', containerController.exportContainers)
-  router.get('/clusters/${cluster}/nodes/podcidr',  containerController.getPodNetworkSegment)
+  router.get('/clusters/:cluster/nodes/podcidr',  containerController.getPodNetworkSegment)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)

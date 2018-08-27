@@ -741,3 +741,12 @@ exports.podTopology = function* () {
   this.status = response.code
   this.body = response.data
 }
+
+exports.updateAnnotation = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.updateBy([cluster, 'services', service, 'annotation'], null, body)
+  this.body = response
+}

@@ -30,9 +30,10 @@ class ReplicasRestrictIP extends React.Component {
   }
 
   componentDidMount() {
-    const { form } = this.props
-    // cluster, getPodNetworkSegment,
+    const { cluster, getPodNetworkSegment, form } = this.props
     const { getFieldValue, setFieldsValue } = form
+    getPodNetworkSegment(cluster)
+    // .then(res => console.log('res', res))
     const num = getFieldValue('replicas')
     for (let i = 0; i < num; i++) {
       let keys = getFieldValue('keys')
@@ -44,7 +45,6 @@ class ReplicasRestrictIP extends React.Component {
     this.setState({
       uuid: num,
     })
-    // getPodNetworkSegment(cluster).then(res => console.log('res', res))
   }
 
   remove = k => {

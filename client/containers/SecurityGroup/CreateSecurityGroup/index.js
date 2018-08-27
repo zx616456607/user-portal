@@ -65,9 +65,11 @@ class CreateSecurityGroup extends React.Component {
     getfSecurityGroupDetail(cluster, params.name, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          if (!statusCode === 403) {
+            notification.warn('获取列表数据出错', message.message)
+          }
         },
       },
     }).then(res => {
@@ -186,10 +188,11 @@ class CreateSecurityGroup extends React.Component {
           await deleteSecurityGroup(cluster, policyName.metaName, {
             failed: {
               func: error => {
-                const { message } = error
+                const { message, statusCode } = error
                 notification.close()
-                notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
-                this.loadData()
+                if (!statusCode === 403) {
+                  notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
+                }
               },
             },
           })
@@ -210,12 +213,14 @@ class CreateSecurityGroup extends React.Component {
           },
           failed: {
             func: error => {
-              const { message } = error
+              const { message, statusCode } = error
               notification.close()
-              if (isEdit) {
-                notification.success('修改安全组失败')
-              } else {
-                notification.warn('新建安全组失败', message.message)
+              if (!statusCode === 403) {
+                if (isEdit) {
+                  notification.success('修改安全组失败')
+                } else {
+                  notification.warn('新建安全组失败', message.message)
+                }
               }
               this.setState({ loading: false })
             },
@@ -234,9 +239,11 @@ class CreateSecurityGroup extends React.Component {
           },
           failed: {
             func: error => {
-              const { message } = error
+              const { message, statusCode } = error
               notification.close()
-              notification.warn('修改安全组失败', message.message)
+              if (!statusCode === 403) {
+                notification.warn('修改安全组失败', message.message)
+              }
               this.setState({ loading: false })
             },
           },

@@ -12,10 +12,8 @@ import React from 'react'
 import './styles/ContainerInstance.less'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Row, Col, Button, Icon } from 'antd'
-// import QueueAnim from 'rc-queue-anim'
-// import * as serviceAction from '../../../../src/actions/app_manage'
 // import Notification from '../../../../src/components/Notification'
-// import * as securityActions from '../../../actions/securityGroup'
+import * as serviceActions from '../../../../src/actions/services'
 
 // const notification = new Notification()
 const FormItem = Form.Item
@@ -43,15 +41,17 @@ class ContainerInstance extends React.Component {
   }
 
   componentDidMount() {
-    setTimeout(
+    const { isSee } = this.props
+    isSee && setTimeout(
       this.setInitaialStatus(),
       150
     )
   }
 
   setInitaialStatus = () => {
-    const annotations = this.props.serviceDetail.spec.template.metadata.annotations
-    const ipv4 = annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+    const annotations = this.props.serviceDetail.spec
+      && this.props.serviceDetail.spec.template.metadata.annotations
+    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
       && annotations['cni.projectcalico.org/ipv4pools']
     if (ipv4) {
       const { setFieldsValue, getFieldValue } = this.props.form
@@ -88,11 +88,56 @@ class ContainerInstance extends React.Component {
   }
 
   handleOk = () => {
-    // keys 为空[]时, return
-    // this.props.form.validateFields((err, values) => { console.log( values ) })
-    const { onChangeVisible, onHandleCanleIp } = this.props
-    onChangeVisible()
-    onHandleCanleIp(true)
+    this.props.form.validateFields((err, values) => {
+      // console.log( values )
+      if (!values.keys.length) return
+      const { UpdateServiceAnnotation, cluster, serviceDetail } = this.props
+      const server = Object.keys(serviceDetail[cluster])[0]
+      const { keys } = values
+      const ipArr = []
+      keys.forEach(el => {
+        ipArr.push(values[`replicasIP${el}`])
+      })
+      const ipStr = JSON.stringify(ipArr)
+      const annotations = serviceDetail[cluster][server].service.spec.template.metadata.annotations
+      Object.assign(annotations, {
+        'cni.projectcalico.org/ipv4pools': ipStr,
+      })
+      // console.log( annotations, '****' )
+      UpdateServiceAnnotation(cluster, server, annotations, {
+        success: {
+          func: () => {
+            // notification.close()
+            // 提示
+            const { onChangeVisible, onHandleCanleIp } = this.props
+            onChangeVisible()
+            onHandleCanleIp(true)
+          },
+          isAsync: true,
+        },
+      })
+
+    })
+  }
+
+  handleNotFix = () => {
+    const { UpdateServiceAnnotation, onChangeVisible, cluster, serviceDetail } = this.props
+    const server = Object.keys(serviceDetail[cluster])[0]
+    const annotations = serviceDetail[cluster][server].service.spec.template.metadata.annotations
+    Object.assign(annotations, {
+      'cni.projectcalico.org/ipv4pools': '',
+    })
+    delete annotations['cni.projectcalico.org/ipv4pools']
+    UpdateServiceAnnotation(cluster, server, annotations, {
+      success: {
+        func: () => {
+          // notification.close()
+          // 提示
+          onChangeVisible()
+        },
+        isAsync: true,
+      },
+    })
   }
 
   handleCandle = v => {
@@ -181,7 +226,7 @@ class ContainerInstance extends React.Component {
         <Modal
           title="不再固定实例 IP"
           visible={notConfigIP}
-          onOk={() => this.props.onChangeVisible(false)}
+          onOk={this.handleNotFix}//  () => this.props.onChangeVisible(false)}
           onCancel={() => this.handleCandle(true)}
           okText={'确认释放 IP'}
         >
@@ -200,14 +245,14 @@ class ContainerInstance extends React.Component {
 
 const mapStateToProps = ({
   entities: { current },
-  // services: { serviceDetail },
+  services: { serviceDetail },
 }) => {
   return {
     cluster: current.cluster.clusterID,
-    // serviceDetail,
+    serviceDetail,
   }
 }
 
 export default connect(mapStateToProps, {
-
+  UpdateServiceAnnotation: serviceActions.UpdateServiceAnnotation,
 })(Form.create()(ContainerInstance))
