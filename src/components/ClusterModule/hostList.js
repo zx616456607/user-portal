@@ -1194,9 +1194,9 @@ class hostList extends Component {
         <br/>
         <div><FormattedMessage {...intlMsg.applicableScene}/>：</div>
         <div className="sceneBox">
-          <p className="maintainScene"><span>1</span><FormattedMessage {...intlMsg.nodeCoreUpdate}/></p>
-          <p className="maintainScene"><span>2</span><FormattedMessage {...intlMsg.hardSysMaintain}/></p>
-          <p className="maintainScene"><span>3</span><FormattedMessage {...intlMsg.replaceClusterNode}/></p>
+          <p className="maintainScene"><span>1</span>{formatMessage(intlMsg.nodeCoreUpdate)}</p>
+          <p className="maintainScene"><span>2</span>{formatMessage(intlMsg.hardSysMaintain)}</p>
+          <p className="maintainScene"><span>3</span>{formatMessage(intlMsg.replaceClusterNode)}</p>
         </div>
         {this.renderInfo()}
       </Modal>
