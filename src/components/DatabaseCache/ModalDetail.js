@@ -13,7 +13,26 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Dropdown, Menu, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { Table,
+  Button,
+  Icon,
+  Spin,
+  Modal,
+  Collapse,
+  Row,
+  Col,
+  Popover,
+  Input,
+  Dropdown,
+  Menu,
+  Timeline,
+  InputNumber,
+  Tabs,
+  Tooltip,
+  Radio,
+  Select,
+  Form,
+  Checkbox} from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
@@ -585,7 +604,9 @@ class VisitTypes extends Component{
       proxyArr: [],
       currentProxy: [],
       groupID:'',
-      selectValue: ''
+      selectValue: '',
+      readOnly: false,
+      isEditAccessAddress: false
     }
   }
   componentWillMount() {
@@ -772,9 +793,26 @@ class VisitTypes extends Component{
       copyStatus: false
     })
   }
+  // 编辑访问地址
+  editAccessAddress = () => {
+    console.log(this);
+    this.setState({
+      isEditAccessAddress: true
+    })
+  }
+  editAccessAddressSave = () => {
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
+  editAccessAddressCancel = () => {
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
   render() {
-    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
+    const { bindingIPs, domainSuffix, databaseInfo, form, database } = this.props
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics,isEditAccessAddress } = this.state;
     const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let clusterAdd = [];
     let port = databaseInfo.service.port.port;
@@ -893,10 +931,22 @@ class VisitTypes extends Component{
                   externalUrl
                   ? (
                     <div>
-                      <span className="domain">{externalUrl}</span>
-                      <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                        <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
-                      </Tooltip>
+                      <div>
+                        <span className="domain">{externalUrl}</span>
+                        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
+                        </Tooltip>
+                      </div>
+                      {
+                        isEditAccessAddress &&
+                        <div>
+                          <span className="domain">{externalUrl}</span>
+                          <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
+                          </Tooltip>
+                        </div>
+
+                      }
                     </div>
                   )
                   : '-'
@@ -909,10 +959,21 @@ class VisitTypes extends Component{
           }
           return (
             <div>
-              <span className="domain">{inClusterLB}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
+              <div>
+                <span className="domain">{inClusterLB}</span>
+                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </div>
+              {
+                isEditAccessAddress &&
+                <div>
+                  <span className="domain">{inClusterLB}</span>
+                  <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
+                  </Tooltip>
+                </div>
+              }
             </div>
           )
         }
@@ -955,6 +1016,29 @@ class VisitTypes extends Component{
         </div>
         <div className="visitTypeBottomBox configContent">
           <div className="visitTypeTitle configHead">访问地址</div>
+          {
+            database === 'redis' &&
+            <div className="redisEdit">
+              {
+                isEditAccessAddress?
+                  [
+                    <Button type="default" style={{marginRight: 10}} onClick={this.editAccessAddressSave}>取消</Button>,
+                    <Button type="primary" onClick={this.editAccessAddressCancel}>保存</Button>
+                  ]
+                  :
+                  <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
+              }
+
+              <div className="readOnlySwitch">
+                <Checkbox checked={this.state.readOnly} disabled={!isEditAccessAddress} onChange={e => {
+                  this.setState({readOnly: e.target.checked})
+                }}>
+                  开启只读地址
+                </Checkbox>
+              </div>
+              <div className="readOnlyTip">开启只读地址后，使用只读地址执行读请求，可将所有的读请求分摊到所有备节点</div>
+            </div>
+          }
           <div className="visitAddrInnerBox">
           <input type="text" className="copyTest" style={{opacity:0}}/>
             <Table
@@ -1370,7 +1454,8 @@ class ModalDetail extends Component {
               {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div className="dbDesc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div>集群模式：一主多从</div>
               <div> 状态：
                 {this.dbStatus(databaseInfo.status)}
               </div>

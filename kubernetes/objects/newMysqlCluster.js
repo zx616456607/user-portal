@@ -11,7 +11,7 @@
 
 
  class newMysqlCluster {
-   constructor (name, replicas, lbgroup, config, storageCluster, size) {
+   constructor (name, replicas, lbgroup, multiMaster, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
      this.kind = 'MySQLCluster'
      this.metadata =  {
@@ -28,6 +28,7 @@
      this.spec = {
        proxy: true,
        replicas,
+       multiMaster,
        resources: config,
        configRef: {
          name: `${name}-config`

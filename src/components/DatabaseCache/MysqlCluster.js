@@ -403,7 +403,10 @@ class MysqlCluster extends Component {
           title='创建MySQL集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+          {
+            this.state.CreateDatabaseModalShow &&
+            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+          }
         </Modal>
         {
           this.state.autoBackupModalShow &&
