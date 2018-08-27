@@ -22,7 +22,7 @@ import ProjectDetail from '../ProjectDetail'
 import PublishModal from './PublishModal'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import TenxIcon from '@tenx-ui/icon'
-import codeRepoIntl from './intl/code-repo-intl'
+import codeRepoIntl from './intl/codeRepoIntl'
 import { injectIntl } from 'react-intl'
 
 const notification = new NotificationHandler()

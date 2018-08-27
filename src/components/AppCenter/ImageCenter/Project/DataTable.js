@@ -16,8 +16,8 @@ import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
-import repoGroupListIntl from './intl/image-center-intl'
-import { injectIntl, FormattedMessage } from 'react-intl'
+import repoGroupListIntl from './intl/imageCenterIntl'
+import { injectIntl } from 'react-intl'
 
 const notification = new NotificationHandler()
 

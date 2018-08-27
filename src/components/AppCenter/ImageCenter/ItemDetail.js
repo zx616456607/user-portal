@@ -26,7 +26,7 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 import { camelize } from 'humps'
 import NotificationHandler from '../../../components/Notification'
 import find from 'lodash/find'
-import imageDetailIntl from './intl/image-detail'
+import imageDetailIntl from './intl/imageDetail'
 import { injectIntl } from 'react-intl'
 
 const notification = new NotificationHandler()

@@ -25,7 +25,7 @@ import Title from '../Title'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
-import itemIntl from './intl/item-intl'
+import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
 
 const createForm = Form.create;
