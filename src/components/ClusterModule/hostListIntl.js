@@ -138,6 +138,9 @@ export const mapData = {
     operationSuccess: '操作成功！',
     operationFail: '操作失败！',
     addAGroupLabel: '添加一组标签',
+    addLabelFail: '添加标签失败！',
+    or: '或',
+    newLabel: '新建标签',
   }
 }
 

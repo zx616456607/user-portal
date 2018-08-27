@@ -207,18 +207,18 @@ class ManageLabelModal extends Component {
     //   _this.setState({userCreateLabel:{}})
     // },500)
   }
-  checkKey(rule, value, callback) {
+  checkKey(rule, value, callback, formatMessage) {
     if (!Boolean(value)){
-      callback(new Error('请输入标签键'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelKey)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.keyLength364)))
       return
     }
     if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.keyAlphaNumStart)))
       return
     }
     for (let item of this.props.labels) {
@@ -231,24 +231,24 @@ class ManageLabelModal extends Component {
     }
     callback()
   }
-  checkValue(rule, value, callback) {
+  checkValue(rule, value, callback, formatMessage) {
     const { sameKey } = this.state
     if (!Boolean(value)){
-      callback(new Error('请输入标签值'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelValue)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签值长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.valueLength364)))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.valueAlphaNumbStart)))
       return
     }
     for (let item of this.props.labels) {
       if ((item.value === value) && (item.key === sameKey)) {
-        callback(new Error('标签值已存在'))
+        callback(new Error(formatMessage(intlMsg.labelHasExist)))
         return
       }
     }
@@ -256,7 +256,7 @@ class ManageLabelModal extends Component {
   }
 
   handleAddLabel() {
-   const { form, addLabels, clusterID, getClusterLabel } = this.props
+   const { form, addLabels, clusterID, getClusterLabel, intl: { formatMessage } } = this.props
    const _this = this
    form.validateFields((errors,values)=> {
      if (errors) {
@@ -277,7 +277,7 @@ class ManageLabelModal extends Component {
        },
        failed: {
          func:(res)=> {
-          new NotificationHandler().error('添加标签失败！')
+          new NotificationHandler().error(formatMessage(intlMsg.addLabelFail))
          }
        }
      })
@@ -331,7 +331,7 @@ class ManageLabelModal extends Component {
     return(
       <div>
         <Modal
-          title="管理标签"
+          title={formatMessage(intlMsg.manageLabel)}
           visible={this.state.manageLabelModalVisible}
           onOk={this.handleManageLabelOk}
           onCancel={this.handleManageLabelCancel}
@@ -347,7 +347,7 @@ class ManageLabelModal extends Component {
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
             <TagDropdown scope={this} clusterID={this.props.clusterID} labels={this.props.labels} isManage={true} width={'120px'} context={"Modal"}/>
           </span>
-            <span className='item'>或</span>
+            <span className='item'><FormattedMessage {...intlMsg.or}/></span>
             <Form
               inline
               horizontal={true}
@@ -358,21 +358,21 @@ class ManageLabelModal extends Component {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkKey
+                    validator: (rule, value, callback) => this.checkKey(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="标签键"  />
+                })} placeholder={formatMessage(intlMsg.labelKey)}  />
               </Form.Item>
               <Form.Item className='itemkey'>
                 <Input {...getFieldProps(`value`, {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkValue
+                    validator: (rule, value, callback) => this.checkValue(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="标签值"/>
+                })} placeholder={formatMessage(intlMsg.labelValue)}/>
               </Form.Item>
             </Form>
-            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={()=> this.handleAddLabel()}>新建标签</Button>
+            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={()=> this.handleAddLabel()}><FormattedMessage {...intlMsg.newLabel}/></Button>
           </div>
         </Modal>
       </div>
