@@ -104,27 +104,35 @@ export function getServiceStatus(_service) {
   if (phase && phase !== 'Running') {
     return status
   }
-  if (observedGeneration >= metadata.generation && replicas === updatedReplicas && readyReplicas > 0) {
-    status.availableReplicas = readyReplicas
-    status.phase = 'Running'
-  } else if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
-    status.phase = 'Pending'
-  } else if (specReplicas > 0 && availableReplicas < 1) {
-    status.unavailableReplicas = specReplicas
-    status.phase = 'Pending'
-  } else if (updatedReplicas && unavailableReplicas) {
-    status.phase = 'Deploying'
-    status.progress = { status: false }
-  } else if (availableReplicas < 1) {
-    status.phase = 'Stopped'
-  } else {
-    status.phase = 'Running'
-  }
   // For issue #CRYSTAL-2478
   // Add spec.replicas analyzing conditions
   if (specReplicas === 0 && availableReplicas > 0) {
     status.phase = 'Stopping'
+    return status
   }
+  if (observedGeneration >= metadata.generation && replicas === updatedReplicas && readyReplicas > 0) {
+    status.availableReplicas = readyReplicas
+    status.phase = 'Running'
+    return status
+  }
+  /* if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
+    status.phase = 'Pending'
+  } */
+  if (specReplicas > 0 && availableReplicas < 1) {
+    status.unavailableReplicas = specReplicas
+    status.phase = 'Pending'
+    return status
+  }
+  if (updatedReplicas && unavailableReplicas) {
+    status.phase = 'Deploying'
+    status.progress = { status: false }
+    return status
+  }
+  if (availableReplicas < 1) {
+    status.phase = 'Stopped'
+    return status
+  }
+  status.phase = 'Running'
   return status
 }
 
