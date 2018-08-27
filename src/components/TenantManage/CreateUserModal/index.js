@@ -26,7 +26,7 @@ const CheckboxGroup = Checkbox.Group
 let CreateUserModal = React.createClass({
   getInitialState() {
     return {
-      disabled: false,
+      disabled: false
     }
   },
   componentDidMount() {
@@ -228,7 +228,7 @@ let CreateUserModal = React.createClass({
              style={{ top: 30 }}
              onOk={this.handleOk} onCancel={this.handleCancel}
              wrapClassName="NewMemberForm"
-             width="500px" maskClosable={true}
+             width="500px" maskClosable={false}
              footer={[
                <Button
                  key="back"
@@ -248,8 +248,6 @@ let CreateUserModal = React.createClass({
                  提 交
                </Button>,
              ]}>
-        <div>
-
           <Form horizontal>
 
             <FormItem
@@ -363,8 +361,6 @@ let CreateUserModal = React.createClass({
               )
             }
           </Form>
-        </div>
-
       </Modal>
     )
   }
