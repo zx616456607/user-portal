@@ -23,6 +23,18 @@ export const mapData = {
     userDefined: '自定义',
     core: '核',
     cases: '颗',
+    requestError: '请求错误',
+    name: '名称',
+    type: '类型',
+    nextStep: '下一步',
+    lastStep: '上一步',
+    fiveMinutes: '5分钟',
+    thirtyMinutes: '30分钟',
+    oneHour: '一小时',
+    units: '个',
+    yes: '是',
+    no: '否',
+    submit: '提交'
   }
 }
 

@@ -14,6 +14,8 @@ import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotify
 import { connect } from 'react-redux'
 import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
+import { injectIntl,  } from 'react-intl'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
@@ -24,9 +26,10 @@ let mid = 0
 let phoneUuid = 0
 let CreateAlarmGroup = React.createClass({
   getInitialState() {
+    const { formatMessage } = this.props.intl
     return {
       isAddEmail: 1,
-      transitionTime1:'验证邮件'
+      transitionTime1:formatMessage(AppServiceDetailIntl.validateEmail)
     }
   },
   componentWillMount() {
@@ -102,7 +105,8 @@ let CreateAlarmGroup = React.createClass({
     });
     this.setState({isAddEmail: false})
   },
-  addRuleEmail(rule, value, callback) {
+  addRuleEmail(rule, value, callback){
+    const { formatMessage } = this.props.intl
     let newValue = value.trim()
     let isAddEmail= true
     if(!Boolean(newValue)) {
@@ -111,7 +115,7 @@ let CreateAlarmGroup = React.createClass({
       // isAddEmail = false
     }
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newValue)) {
-      callback(new Error('请输入正确的邮箱地址'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.inputCorrectEmailAddress)))
       isAddEmail = false
     }
     callback()
@@ -119,7 +123,7 @@ let CreateAlarmGroup = React.createClass({
   },
   ruleEmail(k) {
     // send rule email
-
+    const { formatMessage } = this.props.intl
     const _this = this
     let time = 60
     const { getFieldValue } = this.props.form
@@ -135,20 +139,20 @@ let CreateAlarmGroup = React.createClass({
           func: (result) => {
             _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
             _this.getEmailStatusText(k,time)
-            notification.success(`向 ${email} 发送邮件邀请成功`)
+            notification.success(formatMessage(AppServiceDetailIntl.sendEmailSuccess, { email }))
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
-            notification.error(`向 ${email} 发送邮件邀请失败`)
+            notification.error(formatMessage(AppServiceDetailIntl.sendEmailFailure, { email }))
           }
         }
       })
     }
     if (email) {
       this.setState({
-        ['transitionTime'+[k]]:'验证中...',
+        ['transitionTime'+[k]]: formatMessage(AppServiceDetailIntl.validating),
         ['transitionEnble'+[k]]: true,
       })
       // check if email already accept invitation
@@ -158,7 +162,7 @@ let CreateAlarmGroup = React.createClass({
             if (email in result.data && result.data[email] === 1) {
               this.setState({
                 [`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED,
-                ['transitionTime'+[k]]:'已接收邀请',
+                ['transitionTime'+[k]]: formatMessage(AppServiceDetailIntl.receiveInvitation),
                 ['transitionEnble'+[k]]:true
               })
             } else {
@@ -169,7 +173,7 @@ let CreateAlarmGroup = React.createClass({
         },
         failed: {
           func: (err) => {
-            notification.error(`向 ${email} 发送邮件邀请失败`)
+            notification.error(formatMessage(AppServiceDetailIntl.sendEmailFailure, { email }))
           }
         }
       })
@@ -179,17 +183,18 @@ let CreateAlarmGroup = React.createClass({
   },
   groupName(rule, value, callback) {
     // top email rule name
+    const {formatMessage } = this.props.intl
     let newValue = value.trim()
     if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.inputName)))
       return
     }
     if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error('请输入3~21个字符'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInput321character)))
       return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
+      return callback(formatMessage(AppServiceDetailIntl.verificationNameInfo))
     }
     callback()
   },
@@ -213,6 +218,7 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   okModal() {
+    const {formatMessage } = this.props.intl
     const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
     const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
@@ -222,7 +228,7 @@ let CreateAlarmGroup = React.createClass({
       }
       // have one email at least
       if (values.keys.length === 0) {
-        notification.error('请至少添加一个邮箱')
+        notification.error(formatMessage(AppServiceDetailIntl.leastOneEmail))
         return
       }
       let body = {
@@ -265,9 +271,10 @@ let CreateAlarmGroup = React.createClass({
                 'transitionEnble0': false,
               })
               if (err.message.code === 409) {
-                notification.error('创建通知组失败', `通知组名字已存在，请修改后重试`)
+                notification.error(formatMessage(AppServiceDetailIntl.createNotificationGroupFailure),
+                formatMessage(AppServiceDetailIntl.GroupNameExistInfo))
               } else {
-                notification.error(`创建通知组失败`, err.message.message)
+                notification.error(formatMessage(AppServiceDetailIntl.createNotificationGroupFailure), err.message.message)
               }
             },
             isAsync: true
@@ -293,7 +300,7 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.error(`修改通知组失败`, err.message.message)
+              notification.error(formatMessage(AppServiceDetailIntl.changeGroupFailure), err.message.message)
             }
           }
         })
@@ -301,7 +308,8 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   getEmailStatusText(k,time) {
-    let text = '验证邮件'
+    const { formatMessage } = this.props.intl
+    let text = formatMessage(AppServiceDetailIntl.validateEmail)
     let enble= true
     switch (this.state[`emailStatus${k}`]) {
       case EMAIL_STATUS_WAIT_ACCEPT:{
@@ -319,9 +327,9 @@ let CreateAlarmGroup = React.createClass({
             clearInterval(timefunc)
           }
           time--
-          text = time +'秒后重新验证'
+          text = formatMessage(AppServiceDetailIntl.reValidateEmail, {time})
           this.setState({
-            ['transitionTime'+[k]]:time ==0?'验证邮件':text,
+            ['transitionTime'+[k]]:time ==0? formatMessage(AllServiceListIntl.validateEmail) :text,
             ['transitionEnble'+[k]]:enble
           })
         },1000)
@@ -329,7 +337,7 @@ let CreateAlarmGroup = React.createClass({
       }
       case EMAIL_STATUS_ACCEPTED:
         this.setState({
-          ['transitionTime'+[k]]:'已接收邀请',
+          ['transitionTime'+[k]]: formatMessage(AllServiceListIntl.receiveInvitation),
           ['transitionEnble'+[k]]:enble
         })
         return
@@ -361,6 +369,7 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   render() {
+    const { formatMessage } = this.props.intl
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 21 },
@@ -391,7 +400,7 @@ let CreateAlarmGroup = React.createClass({
           />
         </Form.Item>
         <Form.Item style={{float:'left'}}>
-          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
+          <Input placeholder={formatMessage(AppServiceDetailIntl.remark)} size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
         </Form.Item>
         <Button
           type="primary"
@@ -403,10 +412,10 @@ let CreateAlarmGroup = React.createClass({
           {
             this.state[`transitionEnble${k}`]
             ? this.state[`transitionTime${k}`]
-            :'验证邮件'
+            : formatMessage(AppServiceDetailIntl.validateEmail)
           }
         </Button>
-        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}>取消</Button>
+        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
       </div>
       );
     });
@@ -434,36 +443,36 @@ let CreateAlarmGroup = React.createClass({
             style={{padding:5}}
             size="large"
           >
-            验证手机
+            {formatMessage(AppServiceDetailIntl.validatePhone)}
           </Button>
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}>
-            取消
+            {formatMessage(AppServiceDetailIntl.cancel)}
           </Button>
         </div>
       );
     });
     return (
       <Form className="alarmAction" form={this.props.form}>
-        <Form.Item label="名称" {...formItemLayout} >
-          <Input placeholder="请输入名称" {...getFieldProps(`groupName`, {
+        <Form.Item label={formatMessage(ServiceCommonIntl.name)} {...formItemLayout} >
+          <Input placeholder={formatMessage(AppServiceDetailIntl.inputName)} {...getFieldProps(`groupName`, {
           rules: [
             { validator: this.groupName}
           ],
           initialValue: this.props.isModify ? this.props.data.name : '',}) }
           disabled={!!this.props.isModify}/>
         </Form.Item>
-        <Form.Item label="描述" {...formItemLayout} >
+        <Form.Item label={formatMessage(AppServiceDetailIntl.description)} {...formItemLayout} >
           <Input type="textarea" {...getFieldProps(`groupDesc`, {
           initialValue: this.props.isModify ? this.props.data.desc : '',
           }) }/>
         </Form.Item>
         <div className="lables">
           <div className="keys">
-            邮箱
+            {formatMessage(AppServiceDetailIntl.email)}
           </div>
           <div className="emaillItem" >
             {formItems}
-            <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
+            <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" />{formatMessage(AppServiceDetailIntl.addEmail)}</a></div>
           </div>
         </div>
 
@@ -497,11 +506,11 @@ let CreateAlarmGroup = React.createClass({
         </div> */}
 
         <div className="ant-modal-footer" style={{margin:'0 -30px'}}>
-          <Button type="ghost" size="large" onClick={()=> this.handCancel()}>取消</Button>
-          <Button type="primary" size="large" onClick={()=> this.okModal()}>保存</Button>
+          <Button type="ghost" size="large" onClick={()=> this.handCancel()}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
+          <Button type="primary" size="large" onClick={()=> this.okModal()}>{formatMessage(ServiceCommonIntl.save)}</Button>
         </div>
         <Modal
-          title="扫描二维码绑定微信"
+          title={formatMessage(AppServiceDetailIntl.scanQRbindWChat)}
           footer={null}
           visible={this.state.QRCodeVisible}
           onCancel={() => this.setState({ QRCodeVisible: false })}
@@ -522,10 +531,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   sendAlertNotifyInvitation,
   getAlertNotifyInvitationStatus,
   createNotifyGroup,
   modifyNotifyGroup,
   loadNotifyGroups
-})(CreateAlarmGroup)
+})(CreateAlarmGroup), { withRef: true, })

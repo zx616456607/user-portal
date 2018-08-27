@@ -20,6 +20,9 @@ import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../../AppModule/ServiceIntl'
+import { injectIntl  } from 'react-intl'
+import { formatResourceName } from '../../../../client/containers/ManageMonitor/OperationAudit';
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -52,18 +55,19 @@ let FistStop = React.createClass({
     const { resetFields } = this.props
     setTimeout(resetFields, 0)
   },
-  fistStopName(rule, value, callback) {
+  fistStopName(rule, value, callback){
+    const { formatMessage } = this.props.intl
     let newValue = value && value.trim()
     if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'));
+      callback(new Error(formatMessage(AppServiceDetailIntl.inputName)));
       return
     }
     if (newValue.length <3 || newValue.length > 40) {
-       callback(new Error('请输入3~40位字符'))
+       callback(new Error(formatMessage(AppServiceDetailIntl.input340character)))
        return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
+      return callback(formatMessage(AppServiceDetailIntl.verificationNameInfo))
     }
     const { cluster,isEdit,data } = this.props
     if (isEdit && newValue == data.strategyName) {
@@ -75,7 +79,7 @@ let FistStop = React.createClass({
         func:(res)=> {
           if (res.data[newValue]) {
             this.setState({checkName:'error'})
-            callback('策略名称重复')
+            callback(formatMessage(AppServiceDetailIntl.strategyNameRepect))
             return
           }
           this.setState({checkName:'success'})
@@ -86,7 +90,7 @@ let FistStop = React.createClass({
         func:(err)=> {
           if (err.statusCode === 400) {
             this.setState({checkName:'warning'})
-            callback('名称包含非法字符')
+            callback(formatMessage(AppServiceDetailIntl.includeIllegalcharacter))
             return
           }
           this.setState({checkName:'warning'})
@@ -96,25 +100,28 @@ let FistStop = React.createClass({
     })
   },
   fistStopType(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!Boolean(value)) {
-      callback(new Error('请选择类型'));
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceType)));
       return
     }
     callback()
   },
   fistStopApply(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!Boolean(value)) {
       const { getFieldValue } = this.props.form
       if (getFieldValue('type') == 'node') {
-        return callback(new Error('请选择节点'));
+        return callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceNode)));
       }
-      return callback(new Error('请选择应用'))
+      return callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceApp)))
     }
     callback()
   },
   fistStopServer(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!Boolean(value)) {
-      callback(new Error('请选择服务'));
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceService)));
       return
     }
     callback()
@@ -202,14 +209,16 @@ let FistStop = React.createClass({
     })
   },
   getTargetType() {
+    const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [<Option value="node" key="node">节点</Option>,
-      <Option value="service" key="service">服务</Option>]
+      return [<Option value="node" key="node">{formatMessage(AppServiceDetailIntl.node)}</Option>,
+      <Option value="service" key="service">{formatMessage(AppServiceDetailIntl.service)}</Option>]
     }
-    return <Option value="service" key="service">服务</Option>
+    return <Option value="service" key="service">{formatMessage(AppServiceDetailIntl.service)}</Option>
   },
   render: function () {
+    const { formatMessage } = this.props.intl
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode } = this.props
     const formItemLayout = {
@@ -261,7 +270,7 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: '请选择监控周期' }
+          { message: formatMessage(AppServiceDetailIntl.pleaseHCoiceMonitorInterval) }
         ],
         initialValue: data.repeatInterval.toString()
       })
@@ -315,7 +324,7 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: '请选择监控周期' }
+          { message: formatMessage(AppServiceDetailIntl.pleaseHCoiceMonitorInterval) }
         ],
         initialValue: '300'
       })
@@ -324,36 +333,37 @@ let FistStop = React.createClass({
     const typevalue = this.props.form.getFieldValue("type")
     return (
       <Form className="paramsSetting">
-        <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
-          <Input {...nameProps} placeholder="请输入名称"/>
+        <Form.Item label={formatMessage(ServiceCommonIntl.name)} {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
+          <Input {...nameProps} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputName)}/>
         </Form.Item>
         <Row>
           <Col span="12">
-        <Form.Item label="类型" {...formItemLayout}>
-        <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
+        <Form.Item label={formatMessage(ServiceCommonIntl.type)} {...formItemLayout}>
+        <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceType)} {...typeProps} disabled={currentApp || currentService}>
              { this.getTargetType()}
           </Select>
         </Form.Item>
         </Col>
         <Col span="12">
-         <Form.Item label="监控周期" {...formItemLayout} >
+         <Form.Item label={formatMessage(AppServiceDetailIntl.monitorInterval)} {...formItemLayout} >
           <Select {...repeatInterval}>
-            <Option value="300">5分钟</Option>
-            <Option value="1800">30分钟</Option>
-            <Option value="3600">一小时</Option>
+            <Option value="300">{formatMessage(ServiceCommonIntl.fiveMinutes)}</Option>
+            <Option value="1800">{formatMessage(ServiceCommonIntl.thirtyMinutes)}</Option>
+            <Option value="3600">{formatMessage(ServiceCommonIntl.oneHour)}</Option>
           </Select>
         </Form.Item>
         </Col>
         </Row>
-         <Form.Item label="监控对象" {...ItemLayout}>
-         <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
+         <Form.Item label={formatMessage(AppServiceDetailIntl.monitorObject)} {...ItemLayout}>
+         <Select placeholder={isNode ? formatMessage(AppServiceDetailIntl.pleaseChoiceNode) :
+          formatMessage(AppServiceDetailIntl.pleaseChoiceApp)} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
 
        {typevalue == 'service' ?
-        <Form.Item label="监控服务" {...ItemLayout}>
-          <Select placeholder="请选择服务" {...serverProps} >
+        <Form.Item label={formatMessage(AppServiceDetailIntl.monitorService)} {...ItemLayout}>
+          <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceService)} {...serverProps} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
@@ -361,8 +371,8 @@ let FistStop = React.createClass({
         }
 
         <div className="wrapFooter">
-          <Button size="large" onClick={() => funcs.cancelModal()}>取消</Button>
-          <Button size="large" onClick={() => this.firstForm()} type="primary">下一步</Button>
+          <Button size="large" onClick={() => funcs.cancelModal()}>{ formatMessage(ServiceCommonIntl.cancel) }</Button>
+          <Button size="large" onClick={() => this.firstForm()} type="primary">{formatMessage(ServiceCommonIntl.nextStep)}</Button>
         </div>
       </Form>
     )
@@ -408,12 +418,12 @@ function mapStateToProp(state, prop) {
   }
 }
 
-FistStop = connect(mapStateToProp, {
+FistStop =  injectIntl(connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
   getAlertSettingExistence,
-})(Form.create()(FistStop))
+})(Form.create()(FistStop)), { withRef: true, })
 
 // two step in cpu add rule
 let uuid = 0;
@@ -460,10 +470,11 @@ let TwoStop = React.createClass({
     }
   },
   removeRule(k) {
+    const { formatMessage } = this.props.intl
     const { form } = this.props;
     let cpu = form.getFieldValue('cpu');
     if (cpu.length == 1) {
-      new NotificationHandler().info('至少得有一项规则')
+      new NotificationHandler().info(formatMessage(AppServiceDetailIntl.leastOneRule))
       return
     }
     // can use data-binding to get
@@ -554,6 +565,7 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
+    const { formatMessage } = this.props.intl
     let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
@@ -565,34 +577,37 @@ let TwoStop = React.createClass({
       return
     }
     if (tcpArr.includes(type)) {
-      this.setState({ [typeProps]: '个' })
+      this.setState({ [typeProps]: formatMessage(ServiceCommonIntl.units) })
       return
     }
     this.setState({ [typeProps]: '%' })
   },
   usedRule(rule, value, callback, key) {
-    if (!value) return callback('请选择运算符')
+    const { formatMessage } = this.props.intl
+    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceOperation))
     this.valieAllField(key, 'used_rule')
     if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback(formatMessage(AppServiceDetailIntl.monitorRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedName(rule, value, callback, key) {
-    if (!value) return callback('请选择类型')
+    const { formatMessage } = this.props.intl
+    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceType))
     this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback(formatMessage(AppServiceDetailIntl.monitorRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedData(rule, value, callback, key) {
-    if (!value) return callback('请填写数值')
-    if (parseInt(value) <= 0) return callback('此数值需大于1')
+    const { formatMessage } = this.props.intl
+    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseInputNumber))
+    if (parseInt(value) <= 0) return callback(formatMessage(AppServiceDetailIntl.theNumberGreaterOne))
     this.valieAllField(key, 'used_data')
     return callback()
     // if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
@@ -706,6 +721,7 @@ let TwoStop = React.createClass({
     }
   },
   switchSymbol(type) {
+    const { formatMessage } = this.props.intl
     type = type.trim()
     switch (type) {
       case 'CPU利用率':
@@ -722,7 +738,7 @@ let TwoStop = React.createClass({
       case 'tcp established连接数':
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
-        return '个'
+        return formatMessage(ServiceCommonIntl.units)
       default:
         return '%'
     }
@@ -763,15 +779,16 @@ let TwoStop = React.createClass({
     }
   },
   renderAlarmRulesOption(){
+    const { formatMessage } = this.props.intl
     const { alarmType } = this.props
     const optionArray = [
-      <Option key="1" value="cpu/usage_rate">CPU利用率</Option>,
-      <Option key="2" value="memory/usage">内存使用</Option>,
-      <Option key="3" value="network/tx_rate">上传流量</Option>,
-      <Option key="4" value="network/rx_rate">下载流量</Option>
+      <Option key="1" value="cpu/usage_rate">{formatMessage(AppServiceDetailIntl.CPUuseRatio)}</Option>,
+      <Option key="2" value="memory/usage">{formatMessage(AppServiceDetailIntl.MemoryUsage)}</Option>,
+      <Option key="3" value="network/tx_rate">{formatMessage(AppServiceDetailIntl.upLoadFlow)}</Option>,
+      <Option key="4" value="network/rx_rate">{formatMessage(AppServiceDetailIntl.downLoadFlow)}</Option>
     ]
     if(alarmType == 'node') {
-      optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
+      optionArray.push(<Option key="5" value="disk/usage">{formatMessage(AppServiceDetailIntl.diskUsage)}</Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">TCP listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
       optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
@@ -780,6 +797,7 @@ let TwoStop = React.createClass({
     return optionArray
   },
   render() {
+    const { formatMessage } = this.props.intl
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs, data, isEdit, alarmType } = this.props
     let cpuItems
@@ -940,20 +958,22 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
-           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
+           <Icon type="exclamation-circle-o" /><a>{formatMessage(AppServiceDetailIntl.CPUuseRatio)}</a>
+           {formatMessage(AppServiceDetailIntl.containerObjectUseRadio)}
+           <div><a style={{ marginLeft: 16 }}>{formatMessage(AppServiceDetailIntl.MemoryUsage)}</a>
+           {formatMessage(AppServiceDetailIntl.containerObjectUseRadioNum)}</div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
-          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">上一步</Button>
-          <Button size="large" onClick={() => this.hnadRule()} type="primary">下一步</Button>
+          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">{formatMessage(ServiceCommonIntl.nextStep)}</Button>
+          <Button size="large" onClick={() => this.hnadRule()} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
         </div>
       </Form>
     )
   }
 })
 
-TwoStop = Form.create()(TwoStop)
+TwoStop = injectIntl(Form.create()(TwoStop), {  withRef: true })
 
 class AlarmModal extends Component {
   constructor(props) {
@@ -1022,7 +1042,8 @@ class AlarmModal extends Component {
       }
     }
   }
-  submitRule() {
+  submitRule = () => {
+    const {formatMessage} = this.props.intl
     const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
     const { scope } = funcs
     form.validateFields((error, values) => {
@@ -1086,7 +1107,7 @@ class AlarmModal extends Component {
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
-        notification.spin('告警策略更新中')
+        notification.spin(formatMessage(AppServiceDetailIntl.alarmStrategyUpdating))
         let clusterID = cluster.clusterID
         if (startsWith(pathname, '/cluster') && activeCluster) {
           clusterID = activeCluster
@@ -1095,7 +1116,7 @@ class AlarmModal extends Component {
           success: {
             func: () => {
               notification.close()
-              notification.success('告警策略更新成功')
+              notification.success(formatMessage(AppServiceDetailIntl.alarmStrategyUpdateSuccess))
               const { funcs } = this.props
               funcs.cancelModal()
               form.resetFields()
@@ -1115,7 +1136,7 @@ class AlarmModal extends Component {
           failed: {
             func: (result) => {
               notification.close()
-              let message = '告警策略更新失败'
+              let message = formatMessage(AppServiceDetailIntl.alarmStrategyUpdateFailure)
               if (result.message.message) {
                 message = result.message.message
               } else if (result.message) {
@@ -1127,7 +1148,7 @@ class AlarmModal extends Component {
         })
       } else {
          // create
-        notification.spin('告警策略创建中')
+        notification.spin(formatMessage(AppServiceDetailIntl.alarmStrategyCreating))
         let clusterID = cluster.clusterID
         if (startsWith(pathname, '/cluster') && activeCluster) {
           clusterID = activeCluster
@@ -1136,7 +1157,7 @@ class AlarmModal extends Component {
           success: {
             func: () => {
               notification.close()
-                notification.success('告警策略创建成功')
+                notification.success(formatMessage(AppServiceDetailIntl.alarmStrategyCreateSuccess))
               const { funcs } = this.props
               funcs.cancelModal()
               form.resetFields()
@@ -1161,7 +1182,7 @@ class AlarmModal extends Component {
           failed: {
             func: (result) => {
               notification.close()
-              let message = '告警策略创建失败'
+              let message = formatMessage(AppServiceDetailIntl.alarmStrategyCreateFailure)
               if (result.message.message) {
                 message = result.message.message
               } else if (result.message) {
@@ -1202,9 +1223,10 @@ class AlarmModal extends Component {
     }
     loadNotifyGroups("", clusterID)
   }
-  notifyGroup(rule, value, callback) {
+  notifyGroup = (rule, value, callback) => {
+    const {formatMessage} = this.props.intl
     if (!value) {
-      return callback('请选择告警通知组')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup))
     }
     return callback()
   }
@@ -1234,6 +1256,7 @@ class AlarmModal extends Component {
     },500)
   }
   render() {
+    const { formatMessage } = this.props.intl
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -1272,9 +1295,9 @@ class AlarmModal extends Component {
     return (
       <div className="AlarmModal">
         <div className="topStep">
-          <span className={funcs.scope.state.step >= 1 ? 'step active' : 'step'}><span className="number">1</span> 参数设置</span>
-          <span className={funcs.scope.state.step > 1 ? 'step active' : 'step'}><span className="number">2</span> 告警规则</span>
-          <span className={funcs.scope.state.step == 3 ? 'step active' : 'step'}><span className="number">3</span> 告警行为</span>
+          <span className={funcs.scope.state.step >= 1 ? 'step active' : 'step'}><span className="number">1</span>{formatMessage(AppServiceDetailIntl.argumentConfig)}</span>
+          <span className={funcs.scope.state.step > 1 ? 'step active' : 'step'}><span className="number">2</span> {formatMessage(AppServiceDetailIntl.monitorRules)}</span>
+          <span className={funcs.scope.state.step == 3 ? 'step active' : 'step'}><span className="number">3</span>{formatMessage(AppServiceDetailIntl.monitorBehavior)}</span>
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
@@ -1288,25 +1311,25 @@ class AlarmModal extends Component {
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
-              <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
+              <Form.Item label={formatMessage(AppServiceDetailIntl.sendMessage)} {...formItemLayout} style={{ margin: 0 }}>
                 <RadioGroup defaultValue={this.state.isSendEmail} value={this.state.isSendEmail} onChange={(e) => this.sendMail(e)}>
-                  <Radio key="a" value={1}>是</Radio>
-                  <Radio key="b" value={0}>否</Radio>
+                  <Radio key="a" value={1}>{formatMessage(ServiceCommonIntl.yes)}</Radio>
+                  <Radio key="b" value={0}>{ formatMessage(ServiceCommonIntl.no) }</Radio>
                 </RadioGroup>
               </Form.Item>
-              <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
-                <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
+              <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" />{formatMessage(AppServiceDetailIntl.monitorMessagesChoiceInfo)}</div>
+              <Form.Item label={formatMessage(AppServiceDetailIntl.monitorGroup)} {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
+                <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup)} style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">{formatMessage(AppServiceDetailIntl.newGroup)}</Button>
                 </div>
               </Form.Item>
             </Form>
             <div className="wrapFooter">
-              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">上一步</Button>
-              <Button size="large" onClick={() => this.submitRule()} type="primary">提交</Button>
+              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">{formatMessage(ServiceCommonIntl.submit)}</Button>
+              <Button size="large" onClick={() => this.submitRule()} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
             </div>
           </div>
         </div>
@@ -1352,12 +1375,12 @@ function alarmModalMapStateToProp(state, porp) {
     space
   }
 }
-AlarmModal = connect(alarmModalMapStateToProp, {
+AlarmModal = injectIntl(connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting,
   updateAlertSetting,
   getAlertSetting
-})(Form.create()(AlarmModal))
+})(Form.create()(AlarmModal)), { withRef: true, })
 
 
 export default AlarmModal
