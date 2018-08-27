@@ -1041,7 +1041,7 @@ let NetworkConfiguration = React.createClass ({
            wrapClassName="settingDefalut"
          >
            <div>
-             <div className='alertRow'>设置一个默认的网络出口，当创建服务或数据库与缓存时，默认选择该网络出口作为服务访问方式</div>
+             <div className='alertRow'><FormattedMessage {...intlMsg.setOneDefaultNetOut}/></div>
            </div>
            <Form.Item
              label={formatMessage(intlMsg.defaultNetOut)}
