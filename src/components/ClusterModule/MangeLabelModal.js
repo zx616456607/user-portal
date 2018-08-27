@@ -17,8 +17,8 @@ import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels,checkLablesTo
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../components/Notification'
-
-
+import intlMsg from './hostListIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 class ManageLabelModal extends Component {
   constructor(props){
@@ -110,7 +110,7 @@ class ManageLabelModal extends Component {
           if (ret.affectedPods.length !== 0 ) {
             Modal.confirm({
               width:460,
-              title: <span style={{fontWeight:500}}>下列服务依赖此标签调度，从此主机删除此标签可能导致服务无法启动</span>,
+              title: <span style={{fontWeight:500}}><FormattedMessage {...intlMsg.deleteLabelTip}/></span>,
               content: this.formetTable(ret.affectedPods),
               onOk() {
                 _this.beforeCloseLabel(key,value)
@@ -134,14 +134,15 @@ class ManageLabelModal extends Component {
     const list = (
       [<div key="1" className="ant-table ant-table-small ant-table-without-column-header ant-table-scroll-position-left">
         <div className="ant-table-content">
-          <div class="ant-table-body"><table><thead className="ant-table-thead"><tr><th>用户</th><th ><span>应用</span></th><th><span>服务</span></th></tr></thead>
+          <div class="ant-table-body"><table><thead className="ant-table-thead"><tr>
+            <th><FormattedMessage {...intlMsg.user}/></th><th ><span><FormattedMessage {...intlMsg.app}/></span></th><th><span><FormattedMessage {...intlMsg.server}/></span></th></tr></thead>
           <tbody className="ant-table-tbody">
             {tbody}
           </tbody></table>
           </div>
         </div>
       </div>,
-      <div key="2" style={{marginTop:15,fontSize:14}}>确定要删除这个标签吗？</div>]
+      <div key="2" style={{marginTop:15,fontSize:14}}><FormattedMessage {...intlMsg.confirmDeleteLabel}/></div>]
     )
     return list
   }
@@ -162,7 +163,7 @@ class ManageLabelModal extends Component {
   }
 
   handleManageLabelOk(){
-    const { callback, labels, editNodeLabels, clusterID, nodeName, form } = this.props
+    const { callback, labels, editNodeLabels, clusterID, nodeName, intl: { formatMessage } } = this.props
     const { userCreateLabel } = this.state
     const _this = this
     const body ={
@@ -175,7 +176,7 @@ class ManageLabelModal extends Component {
       success:{
         func:(ret)=> {
           // _this.setState({userCreateLabel:ret})
-          notificat.success('操作成功！')
+          notificat.success(formatMessage(intlMsg.operationSuccess))
           _this.loadNodeLabels(_this.props)
           callback(false)
         },
@@ -183,7 +184,7 @@ class ManageLabelModal extends Component {
       },
       failed: {
         func:(ret)=> {
-          notificat.error('操作失败！',ret.message.message || ret.message)
+          notificat.error(formatMessage(intlMsg.operationFail),ret.message.message || ret.message)
         }
       }
     })
@@ -285,6 +286,7 @@ class ManageLabelModal extends Component {
   render(){
     const { userCreateLabel } = this.state
     const { getFieldProps } = this.props.form
+    const { intl: { formatMessage } } = this.props
     const createLabel = ()=> {
       const label = []
       const labels = this.props.labels || []
@@ -403,4 +405,6 @@ export default connect(mapStateToProps, {
   addLabels,
   editNodeLabels,
   getNodeLabels
-})(ManageLabelModal)
+})(injectIntl(ManageLabelModal, {
+  withRef: true,
+}))
