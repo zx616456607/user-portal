@@ -26,7 +26,7 @@ const CheckboxGroup = Checkbox.Group
 let CreateUserModal = React.createClass({
   getInitialState() {
     return {
-      disabled: false
+      disabled: false,
     }
   },
   componentDidMount() {
@@ -141,6 +141,12 @@ let CreateUserModal = React.createClass({
   },
   handleCancel(e) {
     const { scope, form } = this.props
+    if(scope.state.manageRange) {
+      scope.setState({
+        manageRange: false,
+      })
+      return
+    }
     e.preventDefault()
     form.resetFields()
     scope.setState({
@@ -222,7 +228,7 @@ let CreateUserModal = React.createClass({
              style={{ top: 30 }}
              onOk={this.handleOk} onCancel={this.handleCancel}
              wrapClassName="NewMemberForm"
-             width="500px" maskClosable={false}
+             width="500px" maskClosable={true}
              footer={[
                <Button
                  key="back"
@@ -242,118 +248,123 @@ let CreateUserModal = React.createClass({
                  提 交
                </Button>,
              ]}>
-        <Form horizontal>
-          <FormItem
-            {...formItemLayout}
-            label="名称"
-            hasFeedback
-            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-          >
-            {/*   not browser autoComplete    */}
-            <Input type="text" id="autoname" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
-            <Input type="password" id="autopassword" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+        <div>
 
-            <Input {...nameProps} placeholder="新成员名称" id="newUser"/>
-          </FormItem>
+          <Form horizontal>
 
-          <FormItem
-            {...formItemLayout}
-            label="类型"
-          >
-            <Radio.Group  {...roleProps} defaultValue="0">
-              <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
-              {
-                loginUser.role === ROLE_PLATFORM_ADMIN?
-                  ""
-                  :
-                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
-                    <Tooltip title="点击查看平台管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
-                    </Tooltip>
-                  </Radio>
-              }
-              {
-                loginUser.role === ROLE_PLATFORM_ADMIN?
-                  ""
-                  :
-                  <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
-                    <Tooltip title="点击查看基础设施管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
-                    </Tooltip>
-                  </Radio>
+            <FormItem
+              {...formItemLayout}
+              label="名称"
+              hasFeedback
+              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            >
+              {/*   not browser autoComplete    */}
+              <Input type="text" id="autoname" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+              <Input type="password" id="autopassword" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
 
-              }
-            </Radio.Group>
-          </FormItem>
+              <Input {...nameProps} placeholder="新成员名称" id="newUser"/>
+            </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label="权限管理"
-          >
-            <CheckboxGroup
-              {...authorityProps}
-              disabled={getFieldValue('role') === ROLE_PLATFORM_ADMIN || getFieldValue('role') === ROLE_BASE_ADMIN}
-              options={[
-                { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
-                { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
-              ]}
-            />
-          </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="类型"
+            >
+              <Radio.Group  {...roleProps} defaultValue="0">
+                <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
+                {
+                  loginUser.role === ROLE_PLATFORM_ADMIN?
+                    ""
+                    :
+                    <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                      <Tooltip title="点击查看平台管理员权限">
+                        <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
+                      </Tooltip>
+                    </Radio>
+                }
+                {
+                  loginUser.role === ROLE_PLATFORM_ADMIN?
+                    ""
+                    :
+                    <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
+                      <Tooltip title="点击查看基础设施管理员权限">
+                        <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
+                      </Tooltip>
+                    </Radio>
 
-          <FormItem
-            {...formItemLayout}
-            label="密码"
-            hasFeedback
-          >
-            <Input {...passwdProps} type="password" autoComplete="off"
-                   placeholder="新成员名称登录密码"
-            />
-          </FormItem>
+                }
+              </Radio.Group>
+            </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label="确认密码"
-            hasFeedback
-          >
-            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
-          </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="权限管理"
+            >
+              <CheckboxGroup
+                {...authorityProps}
+                disabled={getFieldValue('role') === ROLE_PLATFORM_ADMIN || getFieldValue('role') === ROLE_BASE_ADMIN}
+                options={[
+                  { label: '可创建项目', value: CREATE_PROJECTS_ROLE_ID },
+                  { label: '可创建团队', value: CREATE_TEAMS_ROLE_ID },
+                ]}
+              />
+            </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label="需要重置密码"
-          >
-            <Checkbox {...resetPasswdProps}>用户必须在首次登录时创建新密码</Checkbox>
-          </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="密码"
+              hasFeedback
+            >
+              <Input {...passwdProps} type="password" autoComplete="off"
+                     placeholder="新成员名称登录密码"
+              />
+            </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label="手机"
-            hasFeedback
-          >
-            <Input {...telProps} type="text" placeholder="新成员手机" />
-          </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="确认密码"
+              hasFeedback
+            >
+              <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
+            </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label="邮箱"
-            hasFeedback
-          >
-            <Input {...emailProps} type="email" placeholder="新成员邮箱帐号" />
-          </FormItem>
+            <FormItem
+              {...formItemLayout}
+              label="需要重置密码"
+            >
+              <Checkbox {...resetPasswdProps}>用户必须在首次登录时创建新密码</Checkbox>
+            </FormItem>
 
-          {
-            loginUser.emailConfiged && (
-              <FormItem
-                {...formItemLayout}
-                label="需要发送密码"
-              >
-                <Checkbox  {...checkProps}>
-                  创建完成后，密码帐户名发送至该邮箱
-                </Checkbox>
-              </FormItem>
-            )
-          }
-        </Form>
+            <FormItem
+              {...formItemLayout}
+              label="手机"
+              hasFeedback
+            >
+              <Input {...telProps} type="text" placeholder="新成员手机" />
+            </FormItem>
+
+            <FormItem
+              {...formItemLayout}
+              label="邮箱"
+              hasFeedback
+            >
+              <Input {...emailProps} type="email" placeholder="新成员邮箱帐号" />
+            </FormItem>
+
+            {
+              loginUser.emailConfiged && (
+                <FormItem
+                  {...formItemLayout}
+                  label="需要发送密码"
+                >
+                  <Checkbox  {...checkProps}>
+                    创建完成后，密码帐户名发送至该邮箱
+                  </Checkbox>
+                </FormItem>
+              )
+            }
+          </Form>
+        </div>
+
       </Modal>
     )
   }
