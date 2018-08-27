@@ -141,6 +141,12 @@ let CreateUserModal = React.createClass({
   },
   handleCancel(e) {
     const { scope, form } = this.props
+    if(scope.state.manageRange) {
+      scope.setState({
+        manageRange: false,
+      })
+      return
+    }
     e.preventDefault()
     form.resetFields()
     scope.setState({
