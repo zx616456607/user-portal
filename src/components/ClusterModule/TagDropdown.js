@@ -15,6 +15,9 @@ import { KubernetesValidator } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import './style/TagDropdown.less'
 import cloneDeep from 'lodash/cloneDeep'
+import intlMsg from './hostListIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+
 const FormItem = Form.Item
 const SubMenu = Menu.SubMenu;
 let uuid=0
@@ -113,7 +116,7 @@ class TagDropdown extends Component {
       result = arr.map((item, index) => {
         return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
           <Menu.Item className='selectMenutitle' key="tagvalue">
-            标签值
+            <FormattedMessage {...intlMsg.labelValue}/>
           </Menu.Item>
           {tagvalue[index]}
         </SubMenu>
@@ -121,13 +124,13 @@ class TagDropdown extends Component {
       //neirong
 
     } else {
-      result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
+      result =  <Menu.Item className='notag'><FormattedMessage {...intlMsg.noLabel}/></Menu.Item>
     }
 
     return (
       <Menu>
         <Menu.Item className='selectMenutitle' key="labelKey">
-          标签键 <Icon type="cross" style={{marginLeft:'80px'}}/>
+          <FormattedMessage {...intlMsg.labelKey}/> <Icon type="cross" style={{marginLeft:'80px'}}/>
         </Menu.Item>
         <Menu.Divider key="baseline1" />
         {result}
@@ -140,18 +143,18 @@ class TagDropdown extends Component {
     switch (context) {
       case 'Modal':
         return <span>
-          选择已有节点
+          <FormattedMessage {...intlMsg.selectHasNode}/>
           <Icon type="down" style={{ marginLeft: '5px' }} />
         </span>
       case 'hostlist':
       case 'app':
         return <span>
           <i className="fa fa-tag" aria-hidden="true"></i>&nbsp;
-          标签
+          <FormattedMessage {...intlMsg.label}/>
           <Icon type="down" style={{ marginLeft: '12px' }} />
         </span>
       default:
-        return <span>请输入要显示的文字</span>
+        return <span><FormattedMessage {...intlMsg.inputTextForShow}/></span>
     }
   }
 

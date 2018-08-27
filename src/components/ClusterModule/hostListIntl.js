@@ -108,6 +108,13 @@ export const mapData = {
     maintainStatusCaution: '进入维护状态，会迁移容器，将会导致服务中断，请谨慎操作！',
     maintainStatusCautionAgain: '强制维护会强制迁移节点上所有容器资源，迁移过程会导致服务中断，请谨慎操作!',
     exitMaintainNote: '退出维护将恢复调度，允许调度新的容器到该节点上，请先确认是否完成维护工作，避免出现不必要的错误，影响您的使用体验，是否确定退出？',
+    //TagDropDown.js
+    labelValue: '标签值',
+    noLabel: '暂无标签',
+    labelKey: '标签键',
+    selectHasNode: '选择已有节点',
+    label: '标签',
+    inputTextForShow: '请输入要显示的文字',
   }
 }
 
