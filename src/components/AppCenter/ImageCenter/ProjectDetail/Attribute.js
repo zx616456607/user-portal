@@ -10,19 +10,10 @@
 
 import React, { Component } from 'react'
 import { Card , Spin ,Icon} from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl } from 'react-intl'
+import attributeIntl from './intl/attributeIntl'
 import { formatDate, isValidateDate } from '../../../../common/tools'
 
-const menusText = defineMessages({
-  favouriteNumber: {
-    id: 'AppCenter.ImageCenter.ImageDetail.favouriteNumber',
-    defaultMessage: '收藏数',
-  },
-  creationTime: {
-    id: 'AppCenter.ImageCenter.ImageDetail.creationTime',
-    defaultMessage: '创建时间',
-  }
-})
 class Attribute extends Component {
   constructor(props) {
     super(props);
@@ -37,15 +28,18 @@ class Attribute extends Component {
         </Card>
       )
     }
+    const { formatMessage } = this.props.intl
     return (
       <Card className="attr">
         <ul id="attribute">
           <li className="leftKey"><Icon type="clock-circle-o" />
-            <FormattedMessage {...menusText.creationTime} />： &nbsp;
+            &nbsp;&nbsp;
+            {formatMessage(attributeIntl.creationTime)}： &nbsp;
             {formatDate(detailInfo.creationTime)}
           </li>
           <li className="leftKey"><Icon type="clock-circle-o" />
-            <span>更新时间</span>： &nbsp;
+            &nbsp;&nbsp;
+            {formatMessage(attributeIntl.updateTime)}： &nbsp;
             {
               isValidateDate(detailInfo.updateTime)
               ? formatDate(detailInfo.updateTime)

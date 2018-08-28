@@ -175,7 +175,7 @@ class PageLogs extends Component {
       this.state.pageSize,
       total: total ? total : 0,
       current: this.state.currentPage,
-      showTotal: total => `${formatMessage(logIntl.total)}： ${total} ${formatMessage(logIntl.item)}`,
+      showTotal: total => `${formatMessage(logIntl.total, {total})}`,
     }
 
     return (

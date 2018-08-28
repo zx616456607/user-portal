@@ -12,14 +12,13 @@
  */
 import { defineIntlMessages } from "../../../../../common/tools"
 
-const mapData = {
+export const mapData = {
   prefix: 'AppCenter.ImageCenter.Detail.CodeRepo',
   data: {
     uploadImage: '上传镜像',
     downloadImage: '下载镜像',
     searchPlaceholder: '按镜像名称搜索',
-    total: '共计',
-    items: '条',
+    total: '共计 {total} 条',
     imageUrl: '镜像地址',
     versionNumber: '版本数',
     downloadCount: '下载次数',
@@ -28,8 +27,8 @@ const mapData = {
     delThis: '删除',
     delImageTitle: '删除镜像',
     delMessage: '镜像 {repo} 删除成功',
-    delImageConfirm: '您没有权限删除该镜像',
-    cannotDelMessage: '您确定要删除镜像 {image}',
+    cannotDelMessage: '您没有权限删除该镜像',
+    delImageConfirm: '您确定要删除镜像 {image}',
     delFailedMessage: '镜像删除失败',
     uploadImageStep1: '在本地 docker 环境中输入以下命令进行登录',
     uploadImageStep2: '然后，对本地需要 push 的 image 进行标记，比如：',

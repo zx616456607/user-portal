@@ -262,7 +262,7 @@ class DataTable extends Component {
       pageSize: 10,
       total: dataSource.total,
       onChange: current => func.loadData({ page: current }),
-      showTotal: total => `${formatMessage(repoGroupListIntl.total)}： ${total} ${formatMessage(repoGroupListIntl.item)}`,
+      showTotal: total => `${formatMessage(repoGroupListIntl.total, {total})}`,
       simple: true,
     }
     if (from === "private") {
@@ -284,7 +284,7 @@ class DataTable extends Component {
           pagination={paginationOpts}
           onChange={this.handleChange}
         />
-        { dataSource && dataSource.total !== 0 && <span className='total_num_style'>{formatMessage(repoGroupListIntl.total)} {dataSource.total} {formatMessage(repoGroupListIntl.item)}</span>}
+        { dataSource && dataSource.total !== 0 && <span className='total_num_style'>{formatMessage(repoGroupListIntl.total, {total: dataSource.total})}</span>}
         {/* 设置仓库组 公共/私有 属性 */}
         <Modal
           title={publicModalTitle}

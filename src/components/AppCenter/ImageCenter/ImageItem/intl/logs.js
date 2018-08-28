@@ -5,14 +5,14 @@
 
 /**
  *
- * intl for coderepo
+ * intl for logs
  *
  * @author zhouhaitao
  *
  */
 import { defineIntlMessages } from "../../../../../common/tools"
 
-const mapData = {
+export const mapData = {
   prefix: 'AppCenter.ImageCenter.Detail.AuditLog',
   data: {
     memberName: '成员名',
@@ -23,7 +23,7 @@ const mapData = {
     timestamp: '时间戳',
     noData: '暂无数据',
     other: '其他',
-    total: '共计',
+    total: '共计{total}条',
     reset: '重置',
     confirm: '确定',
   }

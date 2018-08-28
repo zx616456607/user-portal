@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, Tooltip } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import ReactEcharts from 'echarts-for-react'
 import './style/MirrorSafetyBug.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../components/Notification'
 import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
+import mirrorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -1028,7 +1029,7 @@ function mapStateToProps(state,props){
 export default connect(mapStateToProps, {
   loadMirrorSafetyScan,
   loadMirrorSafetyChairinfo
-})(MirrorSafetyBug)
+})(injectIntl(MirrorSafetyBug, {withRef: true}))
 
 //    {/*/!*<div className="safetybugmirrortitleright">*!/*/}
 //    {/*/!*<Checkbox style={{float: 'left', width: '120px', marginTop: '6px'}}>只显示可修复</Checkbox>*!/*/}

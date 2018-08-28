@@ -12,7 +12,7 @@
  */
 import { defineIntlMessages } from "../../../../../common/tools"
 
-const mapData = {
+export const mapData = {
   prefix: 'AppCenter.ImageCenter.Publish',
   data: {
     title: '发布',

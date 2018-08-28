@@ -274,7 +274,7 @@ class PageCodeRepo extends Component {
       pageSize: this.DEFAULT_QUERY.page_size,
       total: total,
       onChange: current => this.loadRepos({ page: current }),
-      showTotal: total => `${formatMessage(codeRepoIntl.total)}： ${total} ${formatMessage(codeRepoIntl.items)}`,
+      showTotal: total => `${formatMessage(codeRepoIntl.total, { total: total })}`,
     }
 
     return (

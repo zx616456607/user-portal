@@ -5,7 +5,7 @@
 
 /**
  *
- * intl for image-center
+ * intl for src/components/AppCenter/ImageCenter/Project/DataTable.js
  *
  * @author zhouhaitao
  *
@@ -32,8 +32,7 @@ export const mapData = {
     setToPublic: '设为公开',
     deleteThis: '删除',
     deleteThisAlertMsg: '应用商店对应仓库组，系统创建不可删除',
-    total: '共',
-    item: '条',
+    total: '共 {total} 条',
     noData: '暂无数据',
     setToPrivateTitle: '设为私有',
     setToPrivateContent: '当仓库组设为私有后，仅仓库组成员可查看仓库组内镜像；',
