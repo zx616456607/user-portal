@@ -123,7 +123,6 @@ let CreateAlarmGroup = React.createClass({
   },
   ruleEmail(k) {
     // send rule email
-    const { formatMessage } = this.props.intl
     const _this = this
     const { intl: { formatMessage } } = this.props
     let time = 60
@@ -185,7 +184,6 @@ let CreateAlarmGroup = React.createClass({
   groupName(rule, value, callback) {
     const { intl: { formatMessage } } = this.props
     // top email rule name
-    const {formatMessage } = this.props.intl
     let newValue = value.trim()
     if (!Boolean(newValue)) {
       callback(new Error(formatMessage(intlMsg.plsInputName)))
@@ -369,7 +367,6 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   render() {
-    const { formatMessage } = this.props.intl
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 21 },
@@ -531,7 +528,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default injectIntl(connect(mapStateToProps, {
+export default connect(mapStateToProps, {
   sendAlertNotifyInvitation,
   getAlertNotifyInvitationStatus,
   createNotifyGroup,
@@ -540,4 +537,3 @@ export default injectIntl(connect(mapStateToProps, {
 })(injectIntl(CreateAlarmGroup, {
   withRef: true,
 }))
-

@@ -1,9 +1,11 @@
 import {defineIntlMessages} from '../../../common/tools'
 import AllServiceListIntl from './AllServiceListIntl'
+import {mapData as AllServiceListIntlmapData} from './AllServiceListIntl'
 import AppServiceDetailIntl from './AppServiceDetailIntl'
+import { mapData as AppServiceDetailIntl } from './AppServiceDetailIntl'
 
 export { AllServiceListIntl, AppServiceDetailIntl }
-export const mapData = {
+const mapData = {
   prefix: 'ServiceCommon',
   data: {
     start: '启动',
@@ -42,5 +44,23 @@ export const mapData = {
     content: '内容',
   }
 }
+
+const mapIntlDataToJson = mapDatList => {
+  const d = {}
+  mapDatList.map(({ data, prefix }) => {
+    // l.prefix l.data
+    for (let [ k,v ] of Object.entries(data)) {
+      d[`${prefix}.${k}`] = v
+    }
+  })
+  return JSON.stringify(d, null, 2)
+}
+
+export function printJson() {
+  console.log(
+    mapIntlDataToJson([ AllServiceListIntlmapData, AppServiceDetailIntl, mapData ])
+  )
+}
+
 
 export default defineIntlMessages(mapData)

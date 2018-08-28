@@ -61,6 +61,7 @@ import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
+import { printJson } from './ServiceIntl'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -767,6 +768,7 @@ class ServiceList extends Component {
     handleStateOfServiceList(this, serviceList)
   }
   componentDidMount() {
+    printJson()
     const { serName } = this.props
     this.loadServices().then(() => {
       if (serName) {
