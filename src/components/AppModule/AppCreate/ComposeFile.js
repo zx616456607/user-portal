@@ -24,6 +24,7 @@ import NotificationHandler from '../../../components/Notification'
 import { ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
+import IntlMessage from '../../../containers/Application/intl'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -75,7 +76,7 @@ class ComposeFile extends Component {
   }
   componentWillMount() {
     const { templateid } = this.props.location.query
-    const { externalIPs, loginUser } = this.props
+    const { externalIPs, loginUser, intl } = this.props
     const self = this
     if (templateid) {
       this.props.loadStackDetail(templateid, {
@@ -105,7 +106,7 @@ class ComposeFile extends Component {
                   }
                 } catch(error) {
                   let notification = new NotificationHandler()
-                  notification.error("加载编排文件失败，请检查后重试.")
+                  notification.error(intl.formatMessage(IntlMessage.loadLayoutFileFailed))
                   return
                 }
               })
@@ -129,7 +130,7 @@ class ComposeFile extends Component {
   }
   subApp() {
     const { appName, appDescYaml, remark } = this.state
-    const { cluster } = this.props
+    const { cluster, intl } = this.props
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -143,7 +144,7 @@ class ComposeFile extends Component {
       }
       let self = this
       if (appConfig.template == '') {
-        notification.error('请选择编排文件')
+        notification.error(intl.formatMessage(IntlMessage.pleaseSelectLayoutFile))
         return
       }
       this.setState({
@@ -195,16 +196,18 @@ class ComposeFile extends Component {
               function formatMemoryFromKbToG(memory) {
                 return Math.ceil(memory / 1024 / 1024 * 10) / 10
               }
-              notification.error('创建应用失败', '集群资源不足')
+              notification.error(
+                intl.formatMessage(IntlMessage.createAppFailed),
+                intl.formatMessage(IntlMessage.clusterResourceInsufficient))
               return
             }
             if (err && err.statusCode === 409) {
-              notification.error('相关资源已经存在，请修改后重试')
+              notification.error(intl.formatMessage(IntlMessage.resourceExist))
               return
             }
             const { message } = err
             if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-              notification.error('创建应用失败', message.message)
+              notification.error(intl.formatMessage(IntlMessage.createAppFailed), message.message)
             }
           },
           isAsync: true
@@ -239,14 +242,14 @@ class ComposeFile extends Component {
   }
   appNameCheck(rule, value, callback) {
     // const { needAppName} = this.state
-    const { cluster, checkAppName } = this.props
+    const { cluster, checkAppName, intl } = this.props
     const self = this
     /*if (!value || needAppName) {
       callback([new Error('请输入应用名称')])
       // validateAppName
       return
     }*/
-    let errorMsg = appNameCheck(value, '应用名称')
+    let errorMsg = appNameCheck(value, intl.formatMessage(IntlMessage.appName))
     if (errorMsg != 'success') {
       return callback([new Error(errorMsg)])
     }
@@ -262,7 +265,7 @@ class ComposeFile extends Component {
               createDisabled: false,
             })
             if (result.data) {
-              errorMsg = appNameCheck(value, '应用名称', true)
+              errorMsg = appNameCheck(value, intl.formatMessage(IntlMessage.appName), true)
               callback([new Error(errorMsg)])
               return
             }
@@ -330,6 +333,7 @@ class ComposeFile extends Component {
   }
   render() {
     const { appDescYaml, remark, createDisabled } = this.state
+    const { intl } = this.props
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
     const appNameFormCheck = getFieldProps('appNameFormCheck', {
       rules: [
@@ -351,13 +355,17 @@ class ComposeFile extends Component {
         <Form horizontal>
           <div className="ComposeFile" key="ComposeFile">
             <div className="nameBox">
-              <span>应用名称</span>
+              <span><FormattedMessage {...IntlMessage.appName}/></span>
               <FormItem
                 hasFeedback
-                help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}
+                help={isFieldValidating('appNameFormCheck') ?
+                  `${intl.formatMessage(IntlMessage.checking)}...` :
+                  (getFieldError('appNameFormCheck') || []).join(', ')}
                 >
                 <Input size="large"
-                  placeholder="请输入应用名称"
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.appName)
+                  })}
                   autoComplete="off"
                   {...appNameFormCheck}
                   ref={(ref) => { this.appNameInput = ref; }}/>
@@ -365,10 +373,14 @@ class ComposeFile extends Component {
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="introBox">
-              <span>应用描述</span>
+              <span><FormattedMessage {...IntlMessage.appDesc}/></span>
               <FormItem hasFeedback>
                 <Input size="large"
-                  placeholder="请输入应用描述"
+                  placeholder={
+                    intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: intl.formatMessage(IntlMessage.appDesc)
+                    })
+                  }
                   {...remarkFormCheck}
                   value={remark} />
               </FormItem>
@@ -378,17 +390,17 @@ class ComposeFile extends Component {
               {this.state.stackType ?
 
                 <div className="topBox">
-                  <span>编排文件</span>
+                  <span><FormattedMessage {...IntlMessage.layoutFile}/></span>
                   <span>{this.state.templateName}</span>
                   <Button size="large" type="primary" onClick={() => this.selectStack()}>
-                    选择编排
+                    <FormattedMessage {...IntlMessage.selectLayoutFile}/>
                 </Button>
 
                 </div>
                 : null
               }
               <div className="bottomBox">
-                <span className='titleSpan'>编排内容</span>
+                <span className='titleSpan'><FormattedMessage {...IntlMessage.layoutContent}/></span>
                 <div className="textareaBox">
                   <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState} />
                 </div>
@@ -396,30 +408,30 @@ class ComposeFile extends Component {
               </div>
             </div>
             <div className="btnBox">
-              <Popconfirm title="返回上一步,改动将丢失"
-                okText="确认"
-                cancelText="取消"
+              <Popconfirm title={intl.formatMessage(IntlMessage.layoutReturnTip)}
+                okText={intl.formatMessage(IntlMessage.confirm)}
+                cancelText={intl.formatMessage(IntlMessage.cancel)}
                 onVisibleChange={this.handleVisibleChange}
                 onConfirm={this.confirm}
                 onCancel={this.cancel}
                 visible={this.state.visible}>
                 <Button size="large" type="primary" className="lastBtn" onClick={() => this.cacheAppName()}>
-                  上一步
+                  <FormattedMessage {...IntlMessage.previous}/>
                   </Button>
               </Popconfirm>
               <Button disabled={createDisabled} size="large" type="primary" className="createBtn" onClick={this.subApp}>
-                创建
+                <FormattedMessage {...IntlMessage.create}/>
               </Button>
             </div>
           </div>
         </Form>
-        <Modal title="选择编排文件"
+        <Modal title={intl.formatMessage(IntlMessage.selectLayoutFile)}
           visible={this.state.modalShow}
           className="AddStackModal"
           width="650px"
           onCancel={() => this.closeModal()}
           footer={
-            <Button size="large" onClick={()=> this.closeModal()}>关闭</Button>
+            <Button size="large" onClick={()=> this.closeModal()}><FormattedMessage {...IntlMessage.shutDown}/></Button>
           }
           >
           <AppAddStackModal scope={this} />

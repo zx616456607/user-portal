@@ -70,6 +70,18 @@ const menusText = defineMessages({
     id: 'Editor.Error.Tooltip',
     defaultMessage: '多个Yaml文件请使用 --- 做分隔符',
   },
+  readOnly: {
+    id: 'Editor.Error.readOnly',
+    defaultMessage: '只读',
+  },
+  readAndWrite: {
+    id: 'Editor.Error.readAndWrite',
+    defaultMessage: '读写',
+  },
+  theme: {
+    id: 'Editor.Error.theme',
+    defaultMessage: '主题',
+  }
 })
 
 const themeList = [
@@ -226,7 +238,16 @@ class Editor extends Component {
     return (
       <div id='CodeMirror' className={ matchClass(currentBox, options) }>
         <div className='editOperaBox'>
-          <span className='title'>{title}<span style={{ marginLeft: '15px' }}>{ options.readOnly ? [<span key='readonly'>（只读）</span>] : [<span key='readwrite'>（读写）</span>] }</span></span>
+          <span className='title'>
+            {title}
+            <span style={{ marginLeft: '15px' }}>
+            {
+              options.readOnly ?
+                [<span key='readonly'>（<FormattedMessage {...menusText.readOnly} />）</span>] :
+              [<span key='readwrite'>（<FormattedMessage {...menusText.readAndWrite} />）</span>]
+            }
+            </span>
+          </span>
           <div className='operaBtn'>
             { currentBox == 'normal' ? [<Icon type='arrow-salt' key='arrow-salt' onClick={this.changeBoxSize.bind(this)}/>] : [<Icon type='shrink' key='shrink' onClick={this.changeBoxSize.bind(this)} />] }
             { title == 'Yaml' ? [
@@ -237,7 +258,7 @@ class Editor extends Component {
               </Tooltip>
               ] : null
             }
-            <span style={{ float: 'left', color: '#16B9FE', marginRight: '10px' }}>主题：</span>
+            <span style={{ float: 'left', color: '#16B9FE', marginRight: '10px' }}><FormattedMessage {...menusText.theme} />：</span>
             <Select
               style={{ width: '170px', float: 'left', marginTop: '10.5px', marginRight: '20px' }}
               defaultValue={currentTheme}

@@ -11,6 +11,8 @@ import React from 'react'
 import { Input,Form, Checkbox } from 'antd'
 import { IP_REGEX } from '../../../../constants/index'
 import { calcuDate } from '../../../common/tools';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 class Weblogic extends React.Component {
   constructor() {
@@ -24,7 +26,7 @@ class Weblogic extends React.Component {
       DB_checked: true,
     })
   }
-  formCheckecd() {
+  formCheckecd = () => {
     const { form } = this.props
     let callback= null
     form.validateFields((errors,values)=> {
@@ -40,45 +42,48 @@ class Weblogic extends React.Component {
     delete callback.isRAC
     return callback
   }
-  checkUrl(rule,value,callback) {
+  checkUrl = (rule,value,callback) => {
+    const { intl } = this.props
     if (!value) {
-      return callback('请输入地址')
+      return callback(intl.formatMessage(IntlMessage.enterAddress))
     }
     if(!IP_REGEX.test(value)) {
-      return callback('请输入正确的地址')
+      return callback(intl.formatMessage(IntlMessage.enterCorrectAddress))
     }
     return callback()
   }
-  checkUser(rule, value,callback) {
+  checkUser = (rule, value,callback) => {
+    const { intl } = this.props
     let message = null
     switch(rule.field) {
       case 'isRAC': {
-        message = '此项'
+        message = intl.formatMessage(IntlMessage.thisItem)
         break
       }
-      default: message = '用户名'
+      default: message = intl.formatMessage(IntlMessage.username)
 
     }
     if (!value) {
-      return callback(`请输入${message}`)
+      return callback(`${intl.formatMessage(IntlMessage.pleaseEnter, { item: message })}`)
     }
     if (value.length > 64) {
-      return '输入过长'
+      return callback(intl.formatMessage(IntlMessage.maxLength))
     }
     if (!/^[A-Za-z0-9_.-]+$/.test(value)) {
-      return callback('请输入英文字母、数字、下划线')
+      return callback(intl.formatMessage(IntlMessage.usernameReg))
     }
     return callback()
   }
-  checkPort(rule,value, callback) {
+  checkPort = (rule,value, callback) => {
+    const { intl } = this.props
     if (!value) {
-      return callback('请输入端口')
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.port) }))
     }
     if (!/^[\d]+$/.test(value)) {
-      return callback('请输入数字')
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.number) }))
     }
     if (value[0] <1 || value > 65535) {
-      return callback('端口范围1 ~ 65535')
+      return callback(intl.formatMessage(IntlMessage.portRange))
     }
     return callback()
   }
@@ -87,7 +92,7 @@ class Weblogic extends React.Component {
       labelCol: { span: 2},
       wrapperCol: { span:10 },
     }
-    const { form } = this.props
+    const { form, intl } = this.props
     const urlProps = form.getFieldProps('DB_HOST',{
       rules: [{ validator: this.checkUrl }]
     })
@@ -98,13 +103,16 @@ class Weblogic extends React.Component {
       rules: [{ validator: this.checkUser}]
     })
     const psdProps = form.getFieldProps('DB_PASSWORD',{
-      rules: [{required: true ,message:'请输入密码'}]
+      rules: [{
+        required: true,
+        message: intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.password) })
+      }]
     })
     const racProps = form.getFieldProps('isRAC',{
       rules: [{ validator: this.checkUser }]
     })
     const instanes = form.getFieldProps('JNDI_NAME',{
-      rules: [{ required: true, max:128, message:'请输入JNDI名，最多可输入128位字符'}]
+      rules: [{ required: true, max:128, message:intl.formatMessage(IntlMessage.enterJndiName)}]
     })
     const checkedProps = form.getFieldProps('DB_checked',{
       valuePropName: 'checked',
@@ -116,36 +124,48 @@ class Weblogic extends React.Component {
     // [DB_TYPE,DB_HOST,DB_PORT,DB_USER,DB_PASSWORD,isRAC,JNDI_NAME]
     return (
       <Form form={form} style={{position:'relative'}}>
-        <Form.Item {...formItemLayout} label="数据库类型">
+        <Form.Item {...formItemLayout} label={intl.formatMessage(IntlMessage.databaseType)}>
           <Checkbox {...checkedProps} /> RAC
           <Input type="hidden" {...typeProps}/>
         </Form.Item>
-        <Form.Item {...formItemLayout} label="地址">
-          <Input size="large" {...urlProps} placeholder="请输入数据库地址 (所在主机IP)" />
+        <Form.Item {...formItemLayout} label={intl.formatMessage(IntlMessage.address)}>
+          <Input size="large" {...urlProps} placeholder={intl.formatMessage(IntlMessage.dbAddressPlaceholder)} />
         </Form.Item>
         <Form.Item {...formItemLayout} style={{position:'absolute',left:'60%',top:'55px',width:'300px'}}>
-          <Input size="large" {...portProps} placeholder="请输入端口" />
+          <Input
+            size="large" {...portProps}
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.port) })}
+          />
         </Form.Item>
         <Form.Item {...formItemLayout} label="用户名">
-          <Input size="large" {...userNameProps} autoComplete="off" placeholder="请输入用户名" />
+          <Input
+            size="large" {...userNameProps} autoComplete="off"
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.username) })}
+          />
         </Form.Item>
-        <Form.Item {...formItemLayout} label="密码">
+        <Form.Item {...formItemLayout} label={intl.formatMessage(IntlMessage.password)}>
           <Input size="large"
             autoComplete="off"
             readOnly={this.state.readOnly}
             onFocus={() => this.setState({ readOnly: false })}
             onBlur={() => this.setState({ readOnly: true })}
-            type="password" {...psdProps} placeholder="请输入密码"
+            type="password"
+            {...psdProps}
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.password) })}
           />
         </Form.Item>
-        <Form.Item {...formItemLayout} label={isRac ? '服务名称':'SID'}>
-          <Input size="large" {...racProps} placeholder={`请输入${isRac ? '服务名称':'SID'}`} />
+        <Form.Item {...formItemLayout} label={isRac ? intl.formatMessage(IntlMessage.serviceName):'SID'}>
+          <Input
+            size="large" {...racProps}
+            placeholder={`${intl.formatMessage(IntlMessage.pleaseEnter, { item: isRac ? intl.formatMessage(IntlMessage.serviceName):'SID'})}`} />
         </Form.Item>
-        <Form.Item {...formItemLayout} label="JNDI名">
-          <Input size="large" {...instanes} placeholder="请输入连接的实例名" />
+        <Form.Item {...formItemLayout} label={intl.formatMessage(IntlMessage.jndiName)}>
+          <Input size="large" {...instanes} placeholder={intl.formatMessage(IntlMessage.jndiPlaceholder)} />
         </Form.Item>
       </Form>
     )
   }
 }
-export default Weblogic
+export default injectIntl(Weblogic, {
+  withRef: true,
+})
