@@ -29,6 +29,8 @@ import stackIcon from '../../../assets/img/app/stackIcon.svg'
 import stackIconHover from '../../../assets/img/app/stackIconHover.svg'
 import { genRandomString, toQuerystring } from '../../../common/tools'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -156,6 +158,7 @@ class CreateModel extends Component {
   }
 
   render() {
+    const { intl } = this.props
     const { createModel, linkUrl, moreService} = this.state
     return (
       <QueueAnim
@@ -168,42 +171,42 @@ class CreateModel extends Component {
               <div className={createModel == "quick" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "quick")}>
                 <img src={createModel == "quick" ? imageHover : image} />
                 <div className="infoBox">
-                  <p>镜像仓库</p>
-                  <span>通过镜像仓库创建应用</span>
+                  <p><FormattedMessage {...IntlMessage.imageWarehouse}/></p>
+                  <span><FormattedMessage {...IntlMessage.createAppByWarehouse}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "image_store" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "image_store")}>
                 <img src={createModel == "image_store" ? imageStoreHover : imageStore} />
                 <div className="infoBox">
-                  <p>镜像商店</p>
-                  <span>通过镜像商店创建应用</span>
+                  <p><FormattedMessage {...IntlMessage.imageStore}/></p>
+                  <span><FormattedMessage {...IntlMessage.createAppByImageStore}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "deploy_wrap" ? "deploy_wrap commonBox selectedBox" : "deploy_wrap commonBox"} onClick={this.selectCreateModel.bind(this, "deploy_wrap")}>
                 <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
                 <div className="infoBox">
-                  <p>应用包部署</p>
-                  <span>通过应用包文件创建应用</span>
+                  <p><FormattedMessage {...IntlMessage.wrapDeploy}/></p>
+                  <span><FormattedMessage {...IntlMessage.createAppByWrap}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
               <div className={createModel == "wrap_store" ? " commonBox selectedBox" : " commonBox"} onClick={this.selectCreateModel.bind(this, "wrap_store")}>
                 <img src={createModel == "wrap_store" ? appStoreHover : appStore} />
                 <div className="infoBox">
-                  <p>应用包商店</p>
-                  <span>通过应用商店创建应用</span>
+                  <p><FormattedMessage {...IntlMessage.wrapStore}/></p>
+                  <span><FormattedMessage {...IntlMessage.createAppByWrapStore}/></span>
                 </div>
                 <TenxIcon type="selected" className="selectedIcon"/>
               </div>
-              <Tooltip title={moreService ? '添加服务暂不支持应用模板' : ''}>
+              <Tooltip title={moreService ? intl.formatMessage(IntlMessage.notSupportAppTemplate) : ''}>
                 <div className={moreService ? "fastCreate disabled" : createModel == "template" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"}
                   onClick={moreService ? () => false : this.selectCreateModel.bind(this, "template")}>
                   <img src={createModel == "template" ? appTemplateHover : appTemplate} />
                   <div className="infoBox">
-                    <p>应用模板</p>
-                    <span>通过应用模板创建应用</span>
+                    <p><FormattedMessage {...IntlMessage.appTemplate}/></p>
+                    <span><FormattedMessage {...IntlMessage.createAppByAppTemplate}/></span>
                   </div>
                   <TenxIcon type="selected" className="selectedIcon"/>
                 </div>
@@ -211,30 +214,30 @@ class CreateModel extends Component {
             </div>
             <Button type={createModel=='AI' ? 'primary':'ghost'} className='AI' onClick={()=> this.selectCreateModel('AI')}>
               <img src={createModel == 'AI' ? stackIconHover : stackIcon} className="stackIcon" />
-              AI 模型应用
+              <FormattedMessage {...IntlMessage.aiModelApp}/>
             </Button>
             {moreService ?
-              <Tooltip title='添加服务暂不支持编排文件方式'>
+              <Tooltip title={intl.formatMessage(IntlMessage.notSupportLayoutFile)}>
                 <div className='otherStack'>
                   <img src={stackIcon} className="stackIcon" />
-                  编排文件
+                  <FormattedMessage {...IntlMessage.layoutFile}/>
                 </div>
               </Tooltip>
               :
               <Button type={createModel=='layout' ? 'primary':'ghost'} className='stack' onClick={()=> this.selectCreateModel('layout')}>
                 <img src={createModel == 'layout' ? stackIconHover : stackIcon} className="stackIcon" />
-                编排文件
+                <FormattedMessage {...IntlMessage.layoutFile}/>
               </Button>
             }
           </div>
           <div className="bottomBox">
             <Link to="/app_manage">
               <Button size="large">
-                取消
+                <FormattedMessage {...IntlMessage.cancel}/>
               </Button>
             </Link>
             <Button onClick={this.handleNextStep.bind(this, linkUrl)} size="large" type="primary" disabled={this.state.disabled}>
-              下一步
+              <FormattedMessage {...IntlMessage.nextStep}/>
             </Button>
           </div>
         </div>
@@ -257,4 +260,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   //
-})(CreateModel)
+})(injectIntl(CreateModel, {
+  withRef: true,
+}))
