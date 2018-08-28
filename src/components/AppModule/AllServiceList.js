@@ -385,8 +385,8 @@ const MyComponent = React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+      const ipv4 = item.metadata.annotations['cni.projectcalico.org/ipv4pools']
+        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipv4pools'])
         || null
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (

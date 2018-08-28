@@ -674,8 +674,8 @@ class AppAutoScale extends Component {
       && serviceDetail[cluster][serviceName].service
       || null
     const annotations = currentService
-      && currentService.spec
-      && currentService.spec.template.metadata.annotations
+      && currentService.metadata
+      && currentService.metadata.annotations
       || null
     const isFexed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools') || false
     maxInstance = annotations
