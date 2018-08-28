@@ -11,8 +11,10 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon'
 import './style/ProgressList.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
-export default class ProgressList extends Component {
+class ProgressList extends Component {
   constructor(props) {
     super(props);
   }
@@ -34,16 +36,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择模板</span>
+                  <FormattedMessage {...IntlMessage.selectTemplate}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>配置服务</span>
+                  <FormattedMessage {...IntlMessage.configService}/>
                 </div>
               </div>
             </QueueAnim>
@@ -55,16 +57,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择镜像</span>
+                  <FormattedMessage {...IntlMessage.selectImage}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>配置服务</span>
+                  <FormattedMessage {...IntlMessage.configService}/>
                 </div>
               </div>
             </QueueAnim>
@@ -76,16 +78,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择镜像</span>
+                  <FormattedMessage {...IntlMessage.selectImage}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>配置服务</span>
+                  <FormattedMessage {...IntlMessage.configService}/>
                 </div>
               </div>
             </QueueAnim>
@@ -97,16 +99,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择应用</span>
+                  <FormattedMessage {...IntlMessage.selectApp}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>编排文件</span>
+                  <FormattedMessage {...IntlMessage.layoutFile}/>
                 </div>
               </div>
             </QueueAnim>
@@ -118,16 +120,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择应用</span>
+                  <FormattedMessage {...IntlMessage.selectApp}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>配置服务</span>
+                  <FormattedMessage {...IntlMessage.configService}/>
                 </div>
               </div>
             </QueueAnim>
@@ -139,16 +141,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择运行环境</span>
+                  <FormattedMessage {...IntlMessage.selectOperatingEnv}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>配置服务</span>
+                  <FormattedMessage {...IntlMessage.configService}/>
                 </div>
               </div>
             </QueueAnim>
@@ -159,16 +161,16 @@ export default class ProgressList extends Component {
                 <div className="firstStep step">
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>部署方式</span>
+                  <FormattedMessage {...IntlMessage.deployMethod}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "second") ? "currentStep secondStep step" : "secondStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
                   <TenxIcon type='dashed'className="commonLine"/>
-                  <span>选择应用</span>
+                  <FormattedMessage {...IntlMessage.selectApp}/>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <TenxIcon type='circle-down-o'className="commonCircle"/>
-                  <span>编排文件</span>
+                  <FormattedMessage {...IntlMessage.layoutFile}/>
                 </div>
               </div>
             </QueueAnim>
@@ -202,3 +204,6 @@ function currentShowSecondStep(pathname, step) {
   }
 }
 
+export default injectIntl(ProgressList, {
+  withRef: true,
+})

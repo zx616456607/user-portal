@@ -21,80 +21,85 @@ import hostImg from '../../assets/img/integration/host.png'
 import memoryImg from '../../assets/img/integration/memory.png'
 import { connect } from 'react-redux'
 import { getClusterSummary } from '../../actions/cluster'
+import intlMsg from './ResourcesOverviewIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 class ResourcesOverview extends React.Component {
   state = {
     loading: false,
   }
 
-  getEchartsOptions = ({ data, tooltip, color, unit }) => ({
-    tooltip: tooltip || {
-      trigger: 'item',
-      formatter: `{b} : {c} ${unit || '个'} ({d}%)`
-    },
-    legend: {
-      orient : 'vertical',
-      left : '50%',
-      top : 'middle',
-      data: data.map(({ name }) => ({ name })),
-      formatter: function (name) {
-        for (const item of data) {
-          if (item.name === name) {
-            return `${name}  ${item.value} ${unit || '个'}`
+  getEchartsOptions = ({ data, tooltip, color, unit }) => {
+    const { intl: { formatMessage } } = this.props
+    return ({
+      tooltip: tooltip || {
+        trigger: 'item',
+        formatter: `{b} : {c} ${unit || formatMessage(intlMsg.a)} ({d}%)`
+      },
+      legend: {
+        orient : 'vertical',
+        left : '50%',
+        top : 'middle',
+        data: data.map(({ name }) => ({ name })),
+        formatter: function (name) {
+          for (const item of data) {
+            if (item.name === name) {
+              return `${name}  ${item.value} ${unit || formatMessage(intlMsg.a)}`
+            }
           }
-        }
-      },
-      textStyle: {
-        fontSize: 13,
-        color: '#666'
-      },
-      itemGap: 15,
-      itemWidth: 10,
-      itemHeight: 10,
-    },
-    color: color || ['#46b3f8','#2abe84','#f6575e'],
-    series: {
-      type:'pie',
-      selectedMode: 'single',
-      avoidLabelOverlap: false,
-      hoverAnimation: false,
-      selectedOffset: 0,
-      radius: ['32', '45'],
-      center: ['25%', '50%'],
-      data,
-      label: {
-        normal: {
-          position: 'center',
-          show: false,
         },
-        emphasis: {
-          // formatter: '{b}:{c}<br/>({d}%)',
-          show: true,
-          position: 'center',
-          formatter: function (param) {
-            return param.percent.toFixed(0) + '%';
+        textStyle: {
+          fontSize: 13,
+          color: '#666'
+        },
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      color: color || ['#46b3f8','#2abe84','#f6575e'],
+      series: {
+        type:'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['32', '45'],
+        center: ['25%', '50%'],
+        data,
+        label: {
+          normal: {
+            position: 'center',
+            show: false,
           },
-          textStyle: {
-            fontSize: '13',
-            color: '#666',
-            fontWeight: 'normal'
+          emphasis: {
+            // formatter: '{b}:{c}<br/>({d}%)',
+            show: true,
+            position: 'center',
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '13',
+              color: '#666',
+              fontWeight: 'normal'
+            }
           }
-        }
-      },
-      itemStyle: {
-        normal: {
-          borderWidth: 2,
-          borderColor: '#ffffff',
         },
-        emphasis: {
-          borderWidth: 0,
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
       },
-    },
-  })
+    })
+  }
 
   onCheckChange = async (e) => {
     this.setState({ loading: true })
@@ -111,7 +116,7 @@ class ResourcesOverview extends React.Component {
   }
 
   render() {
-    const { clusterSummary } = this.props
+    const { clusterSummary, intl: { formatMessage } } = this.props
     const { node = {}, pod, resource } = clusterSummary.static || {}
     const { useRate } = clusterSummary.dynamic || {}
     // container
@@ -120,16 +125,16 @@ class ResourcesOverview extends React.Component {
     const podUnNormal = (pod && pod.unNormal) ? pod.unNormal : 0
     const containerOption = this.getEchartsOptions({
       data: [
-        { value: podRunning, name:'运行中' },
-        { value: podPending, name:'操作中' },
-        { value: podUnNormal, name:'异   常', selected:true },
+        { value: podRunning, name: formatMessage(intlMsg.running) },
+        { value: podPending, name:formatMessage(intlMsg.inOperation) },
+        { value: podUnNormal, name: formatMessage(intlMsg.abnormal), selected:true },
       ],
     })
     const cardTitle = <div>
-      集群资源分配情况
+      <FormattedMessage {...intlMsg.resourceAllocation}/>
       <Checkbox onChange={this.onCheckChange} disabled={this.state.loading}>
-        仅显示计算节点&nbsp;
-        <Tooltip title="集群内节点分为计算节点、其他节点（添加了 taint 用以专门用途的 node 节点）">
+        <FormattedMessage {...intlMsg.onlyComputedNode}/>&nbsp;
+        <Tooltip title={formatMessage(intlMsg.nodeType)}>
           <Icon type="question-circle-o" />
         </Tooltip>
       </Checkbox>
@@ -137,67 +142,67 @@ class ResourcesOverview extends React.Component {
     return <Card title={cardTitle} className="resources-overview">
       <Row gutter={16}>
         <Col span={6}>
-          <div className="title">主机状态</div>
+          <div className="title"><FormattedMessage {...intlMsg.hostStatus}/></div>
           <div className="listImg">
             <img src={hostImg}/>
           </div>
           <ul className="listText">
             <li>
-              <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
-              <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey primary justify">{formatMessage(intlMsg.total)}</span>
+              <span>{node ? `${node.nodeSum} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey ready">可调度数</span>
-              <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey ready"><FormattedMessage {...intlMsg.adjustableDegree}/></span>
+              <span>{node ? `${node.schedulable} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey success">正常运行</span>
-              <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
+              <span className="itemKey success"><FormattedMessage {...intlMsg.normalOperation}/></span>
+              <span>{node ? `${node.nodeRunning} ${formatMessage(intlMsg.a)}` : NOT_AVAILABLE}</span>
             </li>
           </ul>
         </Col>
         <Col span={6}>
-          <div className="title">CPU 分配</div>
+          <div className="title"><FormattedMessage {...intlMsg.CPUDistribution}/></div>
           <div className="listImg">
             <img src={cpuImg}/>
           </div>
           <ul className="listText">
             <li>
-              <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数</span>
-              <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
+              <span className="itemKey primary justify"><FormattedMessage {...intlMsg.total}/></span>
+              <span>{resource ? `${resource.cupSum} ${formatMessage(intlMsg.core)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey ready">已分配数</span>
-              <span>{resource ? `${resource.allocatedCPU.toFixed(2)} 核` : NOT_AVAILABLE}</span>
+              <span className="itemKey ready"><FormattedMessage {...intlMsg.allocatedNumber}/></span>
+              <span>{resource ? `${resource.allocatedCPU.toFixed(2)} ${formatMessage(intlMsg.core)}` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey success">实际使用</span>
+              <span className="itemKey success"><FormattedMessage {...intlMsg.actualUsage}/></span>
               <span>{useRate ? `${(useRate.cpu).toFixed(2)} %` : NOT_AVAILABLE}</span>
             </li>
           </ul>
         </Col>
         <Col span={6}>
-          <div className="title">内存分配</div>
+          <div className="title"><FormattedMessage {...intlMsg.memoryAllocated}/></div>
           <div className="listImg">
             <img src={memoryImg}/>
           </div>
           <ul className="listText">
             <li>
-              <span className="itemKey primary">总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;量</span>
+              <span className="itemKey primary justify"><FormattedMessage {...intlMsg.totalAmount}/></span>
               <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey ready">已分配量</span>
+              <span className="itemKey ready"><FormattedMessage {...intlMsg.allocatedAmount}/></span>
               <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
             </li>
             <li>
-              <span className="itemKey success">实际使用</span>
+              <span className="itemKey success"><FormattedMessage {...intlMsg.actualUsage}/></span>
               <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100} G` : NOT_AVAILABLE}</span>
             </li>
           </ul>
         </Col>
         <Col span={6}>
-          <div className="title">容器</div>
+          <div className="title"><FormattedMessage {...intlMsg.container}/></div>
           <ReactEcharts
             notMerge={true}
             option={containerOption}
@@ -214,4 +219,6 @@ const mapStateToProps = () => ({})
 
 export default connect(mapStateToProps,  {
   getClusterSummary,
-})(ResourcesOverview)
+})(injectIntl(ResourcesOverview, {
+  withRef: true,
+}))

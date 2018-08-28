@@ -20,6 +20,8 @@ import SearchInput from '../../../components/SearchInput';
 import { formatDate } from '../../../../src/common/tools';
 import defaultApp from '../../../../static/img/appstore/defaultapp.png';
 import './style/SelectTemplate.less';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../src/containers/Application/intl'
 
 interface IState {
 
@@ -62,7 +64,7 @@ class TemplateTable extends React.Component<IState, IProps> {
 
   render() {
     const { current, searchValue } = this.state;
-    const { total, templateList, isFetching } = this.props;
+    const { total, templateList, isFetching, intl } = this.props;
     const pagination = {
       simple: true,
       current,
@@ -83,27 +85,29 @@ class TemplateTable extends React.Component<IState, IProps> {
       {
         dataIndex: 'versions[0].lastUpdate',
         width: '40%',
-        render: text => <div>修改时间：{formatDate(text)}</div>,
+        render: text => <div><FormattedMessage {...IntlMessage.lastModified}/>：{formatDate(text)}</div>,
       },
       {
         render: (_, record) =>
-          <Button type="primary" size="large" onClick={() => this.selectTemplate(record)}>选择</Button>,
+          <Button type="primary" size="large" onClick={() => this.selectTemplate(record)}>
+              <FormattedMessage {...IntlMessage.select}/>
+          </Button>,
       },
     ];
     return(
       <div className="tamplateBox layout-content">
         <div className="layout-content-btns">
-          <span>选择应用模板</span>
+          <span><FormattedMessage {...IntlMessage.selectAppTemplate}/></span>
           <SearchInput
             size="large"
-            placeholder="输入模板名称搜索"
+            placeholder={intl.formatMessage(IntlMessage.appTemplatePlaceholder)}
             value={searchValue}
             style={{ width: 180 }}
             onChange={value => this.setState({ searchValue: value })}
             onSearch={() => this.loadTemplateList({ search: searchValue })}
           />
           <div className={classNames('page-box', { 'hidden': !total })}>
-            <span className="total">共 {total} 条</span>
+            <span className="total"><FormattedMessage {...IntlMessage.total} values={{ total }}/></span>
             <Pagination {...pagination}/>
           </div>
         </div>
@@ -134,4 +138,6 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   getAppTemplateList: TemplateActions.getTemplateList,
-})(TemplateTable);
+})(injectIntl(TemplateTable, {
+  withRef: true,
+}));

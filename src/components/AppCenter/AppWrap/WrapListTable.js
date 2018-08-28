@@ -23,6 +23,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import ReleaseAppModal from './ReleaseAppModal'
 import WrapDetailModal from './WrapDetailModal'
 import WrapDocsModal from './WrapDocsModal'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 import { wrapManageList, deleteWrapManage, auditWrap, getWrapStoreList, publishWrap } from '../../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -101,7 +103,7 @@ class WrapListTable extends Component {
   deleteVersion = () => {
     // const notificat = new NotificationHandler()
     const { currentApp, page } = this.state
-    const { wrapList, callbackRowKeys } = this.props
+    const { wrapList, callbackRowKeys, intl } = this.props
     callbackRowKeys()
     let id = [currentApp.id]
     let body = {
@@ -111,7 +113,7 @@ class WrapListTable extends Component {
     this.props.deleteWrapManage(body, {
       success: {
         func: () => {
-          notificat.success('删除成功')
+          notificat.success(intl.formatMessage(IntlMessage.deleteSuccess))
           let newPage = Math.floor((wrapList.total - id.length) / DEFAULT_PAGE_SIZE)
           if (newPage < page) {
             this.loadData(page - 1)
@@ -122,7 +124,7 @@ class WrapListTable extends Component {
       },
       failed: {
         func: (err) => {
-          notificat.error('删除失败', err.message.message || err.message)
+          notificat.error(intl.formatMessage(IntlMessage.deleteFailure), err.message.message || err.message)
         }
       },
       finally: {
@@ -133,15 +135,16 @@ class WrapListTable extends Component {
     })
   }
   deleteHint() {
+    const { intl } = this.props
     Modal.info({
-      title: '只有未发布、已拒绝、已下架的应用包可被删除'
+      title: intl.formatMessage(IntlMessage.wrapDeleteTip)
     })
   }
   publishAction(id) {
-    const { publishWrap } = this.props
+    const { publishWrap, intl } = this.props
     const { currentApp } = this.state
     let notify = new NotificationHandler()
-    notify.spin('发布中')
+    notify.spin(intl.formatMessage(IntlMessage.publishing))
     const body = {
       filePkgName: currentApp.fileName
     }
@@ -149,7 +152,7 @@ class WrapListTable extends Component {
       success: {
         func: () => {
           notify.close()
-          notify.success('发布成功')
+          notify.success(intl.formatMessage(IntlMessage.publishSuccess))
           this.loadData()
         },
         isAsync: true
@@ -158,9 +161,9 @@ class WrapListTable extends Component {
         func: res => {
           notify.close()
           if (res.statusCode < 500) {
-            notify.warn('发布失败', res.message.message)
+            notify.warn(intl.formatMessage(IntlMessage.publishFailure), res.message.message)
           } else {
-            notify.error('发布失败', res.message.message)
+            notify.error(intl.formatMessage(IntlMessage.publishFailure), res.message.message)
           }
         }
       },
@@ -242,7 +245,7 @@ class WrapListTable extends Component {
           type="primary"
           key="1"
         >
-          选择
+          <FormattedMessage {...IntlMessage.select}/>
         </Button>
       )
     }
@@ -251,28 +254,30 @@ class WrapListTable extends Component {
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, row)} style={{ width: 110 }}>
         {enabled ? <Menu.Item key="vm">
-          传统部署
+          <FormattedMessage {...IntlMessage.traditionalDeploy}/>
         </Menu.Item> : <Menu.Item key="node" style={{ display: 'none' }} />}
         <Menu.Item key="audit" disabled={[1, 2, 8].includes(row.publishStatus)}>
-          提交审核
+          <FormattedMessage {...IntlMessage.submitReview}/>
         </Menu.Item>
         <Menu.Item key="docs">
-          上传附件
+          <FormattedMessage {...IntlMessage.uploadAttachment}/>
         </Menu.Item>
         <Menu.Item key="publish" disabled={![2].includes(row.publishStatus)}>
-          发布
+          <FormattedMessage {...IntlMessage.publish}/>
         </Menu.Item>
         <Menu.Item key="download">
-          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>下载</a>
+          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>
+            <FormattedMessage {...IntlMessage.download}/>
+          </a>
         </Menu.Item>
         <Menu.Item key="delete">
-          删除
+          <FormattedMessage {...IntlMessage.delete}/>
         </Menu.Item>
       </Menu>
     )
     return (
       <Dropdown.Button onClick={() => this.handleButtonClick(row, func)} overlay={menu} type="ghost" className="dropDownBox">
-        <span><Icon type="appstore-o" /> 容器部署</span>
+        <span><Icon type="appstore-o" /> <FormattedMessage {...IntlMessage.containerDeploy}/></span>
       </Dropdown.Button>
     )
   }
@@ -368,25 +373,25 @@ class WrapListTable extends Component {
   render() {
     // jar war ,tar.gz zip
     const { func, rowCheckbox, wrapList, wrapStoreList, currentType, isWrapManage, isRefresh,
-      callbackRow, callbackRowSelection } = this.props
+      callbackRow, callbackRowSelection, intl } = this.props
     const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
     const classifyName = {
-      title: '分类名称',
+      title: <FormattedMessage {...IntlMessage.classifyName}/>,
       dataIndex: 'classifyName',
       key: 'classifyName',
       width: '10%',
       render: text => text ? text : '-'
     }
     const fileNickName = {
-      title: '发布名称',
+      title: <FormattedMessage {...IntlMessage.publishName}/>,
       dataIndex: 'fileNickName',
       key: 'fileNickName',
       width: currentType === 'store' ? '20%' : '10%',
       render: text => text ? text : '-'
     }
     const publishStatus = {
-      title: '状态',
+      title: <FormattedMessage {...IntlMessage.status}/>,
       dataIndex: 'publishStatus',
       key: 'publishStatus',
       width: '10%',
@@ -394,29 +399,29 @@ class WrapListTable extends Component {
     }
     const columns = [
       {
-        title: '应用包名称',
+        title: <FormattedMessage {...IntlMessage.wrapName}/>,
         dataIndex: 'fileName',
         key: 'name',
         width: isWrapManage ? '10%' : '20%',
         render: (text, row) => <span className="pointer themeColor" onClick={(e) => this.openDetailModal(e, row)}>{text}</span>
       }, {
-        title: '版本标签',
+        title: <FormattedMessage {...IntlMessage.tag}/>,
         dataIndex: 'fileTag',
         key: 'tag',
         width: isWrapManage ? '10%' : '20%',
       }, {
-        title: '包类型',
+        title: <FormattedMessage {...IntlMessage.wrapType}/>,
         dataIndex: 'fileType',
         key: 'fileType',
         width: isWrapManage ? '10%' : '20%',
       }, {
-        title: '上传时间',
+        title: <FormattedMessage {...IntlMessage.uploadTime}/>,
         dataIndex: 'creationTime',
         key: 'creationTime',
         width: '20%',
         render: text => formatDate(text)
       }, {
-        title: '操作',
+        title: <FormattedMessage {...IntlMessage.operation}/>,
         dataIndex: 'actions',
         key: 'actions',
         width: '20%',
@@ -485,26 +490,27 @@ class WrapListTable extends Component {
         }
         <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource && dataSource.pkgs} columns={columns} pagination={paginationOpts} onRowClick={this.rowClick} />
         {dataSource && dataSource.total && dataSource.total > 0 ?
-          <span className="pageCount" style={{ position: 'absolute', right: '160px', top: '-55px' }}>共计 {dataSource.total} 条</span>
+          <span className="pageCount" style={{ position: 'absolute', right: '160px', top: '-55px' }}>
+            <FormattedMessage {...IntlMessage.total} values={{ total: dataSource.total }}/></span>
           : null
         }
-        <Modal title="删除操作" visible={this.state.delAll}
+        <Modal title={intl.formatMessage(IntlMessage.delete)} visible={this.state.delAll}
           onCancel={() => this.deleteAction(false)}
           onOk={this.deleteVersion}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
-            确定要删除所选版本？
+            <FormattedMessage {...IntlMessage.deleteTagTip}/>
           </div>
         </Modal>
         <Modal
-          title="发布"
+          title={<FormattedMessage {...IntlMessage.publish}/>}
           visible={publishModal}
           onCancel={() => this.cancelPublishModal()}
           onOk={() => this.confirmPublishModal()}
         >
           <div className="confirmText">
-            <Icon type="question-circle-o" /> 该应用包已通过管理员审核，点击确认即可发布到应用包商店，确认发布？
+            <Icon type="question-circle-o" /> <FormattedMessage {...IntlMessage.publishTip}/>
           </div>
         </Modal>
       </div>
@@ -549,4 +555,6 @@ export default connect(mapStateToProps, {
   auditWrap,
   getWrapStoreList,
   publishWrap
-})(WrapListTable)
+})(injectIntl(WrapListTable, {
+  withRef: true
+}))
