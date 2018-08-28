@@ -20,6 +20,8 @@ import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './Intl'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -53,17 +55,18 @@ let FistStop = React.createClass({
     setTimeout(resetFields, 0)
   },
   fistStopName(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     let newValue = value && value.trim()
     if (!Boolean(newValue)) {
-      callback(new Error('请输入名称'));
+      callback(new Error(formatMessage(intlMsg.plsInputName)));
       return
     }
     if (newValue.length <3 || newValue.length > 40) {
-       callback(new Error('请输入3~40位字符'))
+       callback(new Error(formatMessage(intlMsg.plsInput340)))
        return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback('请输入中文、英文字母或数字开头，中间可下划线、连接符')
+      return callback(formatMessage(intlMsg.plsInputCnEnNum))
     }
     const { cluster,isEdit,data } = this.props
     if (isEdit && newValue == data.strategyName) {
@@ -75,7 +78,7 @@ let FistStop = React.createClass({
         func:(res)=> {
           if (res.data[newValue]) {
             this.setState({checkName:'error'})
-            callback('策略名称重复')
+            callback(formatMessage(intlMsg.stgNameRepeat))
             return
           }
           this.setState({checkName:'success'})
@@ -86,7 +89,7 @@ let FistStop = React.createClass({
         func:(err)=> {
           if (err.statusCode === 400) {
             this.setState({checkName:'warning'})
-            callback('名称包含非法字符')
+            callback(formatMessage(intlMsg.nameIllegal))
             return
           }
           this.setState({checkName:'warning'})
@@ -96,25 +99,28 @@ let FistStop = React.createClass({
     })
   },
   fistStopType(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
-      callback(new Error('请选择类型'));
+      callback(new Error(formatMessage(intlMsg.plsSlcType)));
       return
     }
     callback()
   },
   fistStopApply(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
       const { getFieldValue } = this.props.form
       if (getFieldValue('type') == 'node') {
-        return callback(new Error('请选择节点'));
+        return callback(new Error(formatMessage(intlMsg.plsSlcNode)));
       }
-      return callback(new Error('请选择应用'))
+      return callback(new Error(formatMessage(intlMsg.plsSlcApp)))
     }
     callback()
   },
   fistStopServer(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
-      callback(new Error('请选择服务'));
+      callback(new Error(formatMessage(intlMsg.plsSlcServer)));
       return
     }
     callback()
@@ -204,14 +210,14 @@ let FistStop = React.createClass({
   getTargetType() {
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [<Option value="node" key="node">节点</Option>,
-      <Option value="service" key="service">服务</Option>]
+      return [<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
+      <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
     }
-    return <Option value="service" key="service">服务</Option>
+    return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
-    const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode } = this.props
+    const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode, intl: { formatMessage } } = this.props
     const formItemLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 16 }
@@ -229,14 +235,14 @@ let FistStop = React.createClass({
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName }
+          { validator: this.fistStopName.bind(this) }
         ],
         initialValue: data.strategyName
       });
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType }
+          { validator: this.fistStopType.bind(this) }
         ],
         onChange: this.resetType,
         initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
@@ -245,7 +251,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply }
+          { validator: this.fistStopApply.bind(this) }
         ],
         onChange: this.resetService,
         initialValue: isNode ? data.targetName : data.appName
@@ -253,7 +259,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer }
+          { validator: isNode ? '' : this.fistStopServer.bind(this) }
         ],
         initialValue: data.targetName
       });
@@ -261,14 +267,14 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: '请选择监控周期' }
+          { message: formatMessage(intlMsg.slcMonitorCycle) }
         ],
         initialValue: data.repeatInterval.toString()
       })
     } else {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName }
+          { validator: this.fistStopName.bind(this) }
         ],
         initialValue: ''
       });
@@ -279,7 +285,7 @@ let FistStop = React.createClass({
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType }
+          { validator: this.fistStopType.bind(this) }
         ],
         onChange: this.resetType,
         initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
@@ -297,7 +303,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply }
+          { validator: this.fistStopApply.bind(this) }
         ],
         onChange: this.resetService,
         // initialValue: initAppName
@@ -307,7 +313,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer }
+          { validator: isNode ? '' : this.fistStopServer.bind(this) }
         ],
         initialValue: initService
       });
@@ -315,7 +321,7 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: '请选择监控周期' }
+          { message: formatMessage(intlMsg.slcMonitorCycle) }
         ],
         initialValue: '300'
       })
@@ -324,36 +330,36 @@ let FistStop = React.createClass({
     const typevalue = this.props.form.getFieldValue("type")
     return (
       <Form className="paramsSetting">
-        <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
-          <Input {...nameProps} placeholder="请输入名称"/>
+        <Form.Item label={formatMessage(intlMsg.name)} {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
+          <Input {...nameProps} placeholder={formatMessage(intlMsg.plsInputName)}/>
         </Form.Item>
         <Row>
           <Col span="12">
-        <Form.Item label="类型" {...formItemLayout}>
-        <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
+        <Form.Item label={formatMessage(intlMsg.type)} {...formItemLayout}>
+        <Select placeholder={formatMessage(intlMsg.plsSlcType)} {...typeProps} disabled={currentApp || currentService}>
              { this.getTargetType()}
           </Select>
         </Form.Item>
         </Col>
         <Col span="12">
-         <Form.Item label="监控周期" {...formItemLayout} >
+         <Form.Item label={formatMessage(intlMsg.monitorCycle)} {...formItemLayout} >
           <Select {...repeatInterval}>
-            <Option value="300">5分钟</Option>
-            <Option value="1800">30分钟</Option>
-            <Option value="3600">一小时</Option>
+            <Option value="300"><FormattedMessage {...intlMsg.min5}/></Option>
+            <Option value="1800"><FormattedMessage {...intlMsg.min30}/></Option>
+            <Option value="3600"><FormattedMessage {...intlMsg.hour1}/></Option>
           </Select>
         </Form.Item>
         </Col>
         </Row>
-         <Form.Item label="监控对象" {...ItemLayout}>
-         <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
+         <Form.Item label={formatMessage(intlMsg.monitorObj)} {...ItemLayout}>
+         <Select placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
 
        {typevalue == 'service' ?
-        <Form.Item label="监控服务" {...ItemLayout}>
-          <Select placeholder="请选择服务" {...serverProps} >
+        <Form.Item label={formatMessage(intlMsg.monitorServer)} {...ItemLayout}>
+          <Select placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
@@ -413,7 +419,9 @@ FistStop = connect(mapStateToProp, {
   loadAppList,
   getAllClusterNodes,
   getAlertSettingExistence,
-})(Form.create()(FistStop))
+})(Form.create()(injectIntl(FistStop, {
+  withRef: true,
+})))
 
 // two step in cpu add rule
 let uuid = 0;
@@ -432,7 +440,7 @@ let TwoStop = React.createClass({
       secondForm: this.props.form
     })
     data.forEach((item, index) => {
-      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
     })
     this.setState({
       firstMount: true
@@ -454,16 +462,16 @@ let TwoStop = React.createClass({
       const { isEdit } = nextProps
       if (isEdit) {
         data.forEach((item, index) => {
-          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
         })
       }
     }
   },
   removeRule(k) {
-    const { form } = this.props;
+    const { form, intl: { formatMessage } } = this.props;
     let cpu = form.getFieldValue('cpu');
     if (cpu.length == 1) {
-      new NotificationHandler().info('至少得有一项规则')
+      new NotificationHandler().info(formatMessage(intlMsg.atLeastOneRule))
       return
     }
     // can use data-binding to get
@@ -554,6 +562,7 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
+    const { intl: { formatMessage } } = this.props
     let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
@@ -565,34 +574,37 @@ let TwoStop = React.createClass({
       return
     }
     if (tcpArr.includes(type)) {
-      this.setState({ [typeProps]: '个' })
+      this.setState({ [typeProps]: formatMessage(intlMsg.a) })
       return
     }
     this.setState({ [typeProps]: '%' })
   },
   usedRule(rule, value, callback, key) {
-    if (!value) return callback('请选择运算符')
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsSlcOperator))
     this.valieAllField(key, 'used_rule')
     if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback(formatMessage(intlMsg.alarmSettingRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedName(rule, value, callback, key) {
-    if (!value) return callback('请选择类型')
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsSlcType))
     this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
-      return callback('告警设置填写重复')
+      return callback(formatMessage(intlMsg.alarmSettingRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedData(rule, value, callback, key) {
-    if (!value) return callback('请填写数值')
-    if (parseInt(value) <= 0) return callback('此数值需大于1')
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsInputNum))
+    if (parseInt(value) <= 0) return callback(formatMessage(intlMsg.valueBig1))
     this.valieAllField(key, 'used_data')
     return callback()
     // if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
@@ -705,7 +717,8 @@ let TwoStop = React.createClass({
         return 'cpu/usage_rate'
     }
   },
-  switchSymbol(type) {
+  switchSymbol(type, that) {
+    const { intl: { formatMessage } } = that.props
     type = type.trim()
     switch (type) {
       case 'CPU利用率':
@@ -722,7 +735,7 @@ let TwoStop = React.createClass({
       case 'tcp established连接数':
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
-        return '个'
+        return formatMessage(intlMsg.a)
       default:
         return '%'
     }
@@ -765,13 +778,13 @@ let TwoStop = React.createClass({
   renderAlarmRulesOption(){
     const { alarmType } = this.props
     const optionArray = [
-      <Option key="1" value="cpu/usage_rate">CPU利用率</Option>,
-      <Option key="2" value="memory/usage">内存使用</Option>,
-      <Option key="3" value="network/tx_rate">上传流量</Option>,
-      <Option key="4" value="network/rx_rate">下载流量</Option>
+      <Option key="1" value="cpu/usage_rate"><FormattedMessage {...intlMsg.cpuUseRate}/></Option>,
+      <Option key="2" value="memory/usage"><FormattedMessage {...intlMsg.memoryUse}/></Option>,
+      <Option key="3" value="network/tx_rate"><FormattedMessage {...intlMsg.uploadFlow}/></Option>,
+      <Option key="4" value="network/rx_rate"><FormattedMessage {...intlMsg.downloadFlow}/></Option>
     ]
     if(alarmType == 'node') {
-      optionArray.push(<Option key="5" value="disk/usage">磁盘利用率</Option>)
+      optionArray.push(<Option key="5" value="disk/usage"><FormattedMessage {...intlMsg.diskUseRate}/></Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">TCP listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
       optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
@@ -940,20 +953,22 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
-           <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
+           <Icon type="exclamation-circle-o" /><a> <FormattedMessage {...intlMsg.cpuUseRate}/></a>= <FormattedMessage {...intlMsg.cpuRateFormula}/>
+           <div><a style={{ marginLeft: 16 }}><FormattedMessage {...intlMsg.memoryUse}/></a>= <FormattedMessage {...intlMsg.memoryRateFormula}/></div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
-          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">上一步</Button>
-          <Button size="large" onClick={() => this.hnadRule()} type="primary">下一步</Button>
+          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary"><FormattedMessage {...intlMsg.upStep}/></Button>
+          <Button size="large" onClick={() => this.hnadRule()} type="primary"><FormattedMessage {...intlMsg.nextStep}/></Button>
         </div>
       </Form>
     )
   }
 })
 
-TwoStop = Form.create()(TwoStop)
+TwoStop = Form.create()(injectIntl(TwoStop, {
+  withRef: true,
+}))
 
 class AlarmModal extends Component {
   constructor(props) {
@@ -1268,7 +1283,7 @@ class AlarmModal extends Component {
         initialValue: initreceiver
       })
     }
-    const { funcs } = this.props
+    const { funcs, intl: { formatMessage } } = this.props
     return (
       <div className="AlarmModal">
         <div className="topStep">
@@ -1357,7 +1372,9 @@ AlarmModal = connect(alarmModalMapStateToProp, {
   addAlertSetting,
   updateAlertSetting,
   getAlertSetting
-})(Form.create()(AlarmModal))
+})(Form.create()(injectIntl(AlarmModal, {
+  withRef: true,
+})))
 
 
 export default AlarmModal
