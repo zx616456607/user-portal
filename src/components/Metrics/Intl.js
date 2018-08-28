@@ -30,6 +30,8 @@ export const mapData = {
     realTimeSwitch: '实时开关',
     on: '开',
     off: '关',
+    // Memory.js
+    memory: '内存',
   }
 }
 
