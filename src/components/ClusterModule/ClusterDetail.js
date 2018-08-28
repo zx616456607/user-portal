@@ -33,10 +33,10 @@ import ManageLabelModal from './MangeLabelModal'
 import Title from '../Title'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './ClusterDetailIntl'
 
 const TabPane = Tabs.TabPane
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
 
 let HostInfo = React.createClass({
   getInitialState(){
@@ -56,12 +56,12 @@ let HostInfo = React.createClass({
     })
   },
   reloadList() {
-    const { scope } = this.props
+    const { scope, intl: { formatMessage } } = this.props
     const { clusterID, clusterName } = scope.props
     scope.props.getNodesPodeList({ clusterID, clusterName }, {
       success: {
         func: (ret) => {
-          new NotificationHandler().success('刷新成功')
+          new NotificationHandler().success(formatMessage(intlMsg.refreshSuccess))
           scope.setState({ foreverPodNumber: ret.pods.length})
         }
       }
@@ -70,16 +70,16 @@ let HostInfo = React.createClass({
   checkedState(type) {
     switch (type) {
       case 'Succeeded': {
-        return <div style={{ color: '#33b867' }}><i className="fa fa-circle"></i> 运行中</div>
+        return <div style={{ color: '#33b867' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.running}/></div>
       }
       case 'Running': {
-        return <div style={{ color: '#33b867' }}><i className="fa fa-circle"></i> 运行中</div>
+        return <div style={{ color: '#33b867' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.running}/></div>
       }
       case 'Failed': {
-        return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> 失败</div>
+        return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.fail}/></div>
       }
       default: {
-        return <div style={{ color: '#0b9eeb' }}><i className="fa fa-circle"></i> 启动中</div>
+        return <div style={{ color: '#0b9eeb' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.booting}/></div>
       }
     }
   },
@@ -128,23 +128,24 @@ let HostInfo = React.createClass({
     })
   },
   render() {
+    const { intl: { formatMessage } } = this.props
     const columns = [{
-        title: '容器名称',
+        title: formatMessage(intlMsg.containerName),
         dataIndex: 'objectMeta.name',
         key: 'name',
         width:'200px',
       }, {
-        title: '状态',
+        title: formatMessage(intlMsg.status),
         dataIndex: 'podPhase',
         width:'8%',
         key: 'success',
         render: (text) => this.checkedState(text)
       }, {
-        title: '命名空间',
+        title: formatMessage(intlMsg.namespace),
         dataIndex: 'objectMeta.namespace',
         key: 'address',
       }, {
-        title: '所属应用',
+        title: formatMessage(intlMsg.belongApp),
         dataIndex: `objectMeta.labels`,
         width:'70px',
         key: 'apply',
@@ -156,14 +157,14 @@ let HostInfo = React.createClass({
         }
       },
       {
-        title: '镜像',
+        title: formatMessage(intlMsg.iamge),
         dataIndex: 'podSpec.containers',
         width:'25%',
         key: 'container',
         render: (data) => data[0].image
       },
       {
-        title: '访问地址',
+        title: formatMessage(intlMsg.accessAddress),
         dataIndex: 'podIP',
         key: 'url',
         render: (text) => {
@@ -174,7 +175,7 @@ let HostInfo = React.createClass({
         }
       },
       {
-        title: '创建时间',
+        title: formatMessage(intlMsg.createTime),
         dataIndex: 'objectMeta.creationTimestamp',
         render: (text) => formatDate(text)
       }
@@ -221,28 +222,30 @@ let HostInfo = React.createClass({
     return (
       <QueueAnim className="ClusterDetail">
         <div className="hostInfo" key="ClusterDetail">
-          <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
+          <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}><FormattedMessage {...intlMsg.hostInfo}/></div>
           <div className="wrapRow">
             <div className="host-list">
               <div className="titles"><div className="quotaimg">
                 <TenxIcon type="resource-quota" size={14} style={{marginRight: 4}}/>
-              </div> 资源配额（可分配）</div>
+              </div> <FormattedMessage {...intlMsg.resourceQuota}/></div>
               <br />
               <Row className="items">
-                <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{ hostInfo.cPUAllocatable }m（{ hostInfo.cPUAllocatable / 1000}核）</span></Col>
+                <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{ hostInfo.cPUAllocatable }m（{ hostInfo.cPUAllocatable / 1000}<FormattedMessage {...intlMsg.CPUCore}/>）</span></Col>
                 <Col span={10}><Progress percent={ Math.min(totalRequestedCPU * 100 /hostInfo.cPUAllocatable, 100) } showInfo={false} strokeWidth={8} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { (totalRequestedCPU * 100 /hostInfo.cPUAllocatable|| 0).toFixed(2) } %</Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; <FormattedMessage {...intlMsg.assigned}/> { (totalRequestedCPU * 100 /hostInfo.cPUAllocatable|| 0).toFixed(2) } %</Col>
               </Row>
               <Row className="items">
-                <Col span={8}><span className="keys resources">内存：</span><span className="valus">{ memTotal } GB</span></Col>
+                <Col span={8}><span className="keys resources"><FormattedMessage {...intlMsg.memory}/>：</span><span className="valus">{ memTotal } GB</span></Col>
                 <Col span={10}><Progress percent={ Math.min(useMem, 100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { useMem } %</Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; <FormattedMessage {...intlMsg.assigned}/> { useMem } %</Col>
 
               </Row>
               <Row className="items">
-                <Col span={8}><span className="keys resources">容器：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
+                <Col span={8}><span className="keys resources"><FormattedMessage {...intlMsg.container}/>：</span><span className="valus">
+                  <FormattedMessage {...intlMsg.podCap} values={{ podCap: hostInfo.podCap }}/>
+                </span></Col>
                 <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已分配 { foreverPodNumber} 个</Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; <FormattedMessage {...intlMsg.foreverPodNumber} values={{ foreverPodNumber }}/></Col>
 
               </Row>
             </div>
@@ -250,14 +253,14 @@ let HostInfo = React.createClass({
             <div className="host-list Versionin">
               <div className="titles">
                 <TenxIcon className="svg-icon" type="tag-right" size={14} style={{marginRight: 4}}/>
-                版本信息</div>
+                <FormattedMessage {...intlMsg.versionInfo}/></div>
               <br />
               <Row className="items versioninformation">
-                <Col span={12} className='col_style'>内核版本： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
-                <Col span={12} className='col_style'>kubelet 版本： {hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
+                <Col span={12} className='col_style'><FormattedMessage {...intlMsg.coreVersion}/>： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
+                <Col span={12} className='col_style'><FormattedMessage {...intlMsg.kubeletVersion}/>： {hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
               </Row>
               <Row className="items versioninformation">
-                <Col span={12} className='col_style'>Docker 版本： {hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
+                <Col span={12} className='col_style'><FormattedMessage {...intlMsg.dockerVersion}/>： {hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
                 <Col span={12} className='col_style'>kube-proxy： {hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
               </Row>
             </div>
@@ -265,7 +268,7 @@ let HostInfo = React.createClass({
             <div className="host-list">
               <div className="titles">
                 <TenxIcon className="size select" type="tag-right" size={14} style={{marginRight: 4}}/>
-                标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+                <FormattedMessage {...intlMsg.labelInfo}/> <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" /><FormattedMessage {...intlMsg.manageLabel}/></Button></div>
               <br />
               <div className='labelContainer'>
                 {this.formTagContainer()}
@@ -283,11 +286,11 @@ let HostInfo = React.createClass({
               footer={false}
             />
           </div>
-          <div className="topTitle">容器详情</div>
+          <div className="topTitle"><FormattedMessage {...intlMsg.containerDetail}/></div>
           <div className="containers">
-            <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"></i> 刷新</Button>
+            <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"></i> <FormattedMessage {...intlMsg.refresh}/></Button>
             <span className="inputGroup">
-              <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
+              <Input placeholder={formatMessage(intlMsg.search)} size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
               <Icon type="search" onClick={()=> this.handSearch()} />
             </span>
             <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.length }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
@@ -298,27 +301,30 @@ let HostInfo = React.createClass({
   }
 })
 
-const timeFrequency = {
-  '1': {
-    'second': 1000 * 60,
-    'timeDes': '1分钟'
-  },
-  '6': {
-    'second': 1000 * 60 * 5,
-    'timeDes': '5分钟'
-  },
-  '24': {
-    'second': 1000 * 60 * 20,
-    'timeDes': '20分钟'
-  },
-  '168': {
-    'second': 1000 * 60 * 60 * 2,
-    'timeDes': '2小时'
-  },
-  '720': {
-    'second': 1000 * 60 * 60 * 6,
-    'timeDes': '6小时'
+const timeFrequency = (formatMessage, value, time) => {
+  const obj = {
+    '1': {
+      'second': 1000 * 60,
+      'timeDes': formatMessage(intlMsg.oneMinute)
+    },
+    '6': {
+      'second': 1000 * 60 * 5,
+      'timeDes': formatMessage(intlMsg.fiveMinutes)
+    },
+    '24': {
+      'second': 1000 * 60 * 20,
+      'timeDes': formatMessage(intlMsg.twentyMinutes)
+    },
+    '168': {
+      'second': 1000 * 60 * 60 * 2,
+      'timeDes': formatMessage(intlMsg.twoHours)
+    },
+    '720': {
+      'second': 1000 * 60 * 60 * 6,
+      'timeDes': formatMessage(intlMsg.sixHours)
+    }
   }
+  return obj[value][time]
 }
 
 class ClusterDetail extends Component {
@@ -326,12 +332,13 @@ class ClusterDetail extends Component {
     super(props)
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
+    const { intl: { formatMessage } } = this.props
     this.state = {
       schedulable: false,
       foreverPodNumber: 0,
       activeTabKey: 'info',
       alarmOpen: false,
-      freshTime: '1分钟',
+      freshTime: formatMessage(intlMsg.oneMinute),
       switchCpu: false,
       switchMemory: false,
       switchNetwork: false,
@@ -403,14 +410,14 @@ class ClusterDetail extends Component {
 
   changeSchedulable(node, e) {
     //this function for change node schedulable
-    const { clusterID, changeClusterNodeSchedule } = this.props;
+    const { clusterID, changeClusterNodeSchedule, intl: { formatMessage } } = this.props;
     const _this = this
     let notification = new NotificationHandler()
     changeClusterNodeSchedule(clusterID, node, e, {
       success: {
         func: ()=> {
           // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
-          notification.success(e ? '开启调度成功' : '关闭调度成功');
+          notification.success(e ? formatMessage(intlMsg.openDispatchSuccess) : formatMessage(intlMsg.closeDispatchSuccess));
           _this.setState({
             schedulable: e
           })
@@ -420,7 +427,7 @@ class ClusterDetail extends Component {
       failed:{
         func: (ret)=> {
           let message = ret.message.message ? ret.message.message: ret.message
-          notification.error(e ? '开启调度失败' : '关闭调度失败', message);
+          notification.error(e ? formatMessage(intlMsg.openDispatchFail) : formatMessage(intlMsg.closeDispatchFail), message);
 
           _this.setState({
             schedulable: !e
@@ -578,8 +585,9 @@ class ClusterDetail extends Component {
 
   handleTimeChange(e) {
     const { value } = e.target
-    const intervalTime = timeFrequency[value]['second']
-    const timeDes = timeFrequency[value]['timeDes']
+    const { intl: { formatMessage } } = this.props
+    // const timeDes = timeFrequency[value]['timeDes']
+    const timeDes = timeFrequency(formatMessage, value, 'timeDes')
     const start = this.changeTime(value)
     this.setState({
       currentStart: start,
@@ -610,21 +618,22 @@ class ClusterDetail extends Component {
   }
 
   renderStatus(hostInfo){
+    const { intl: { formatMessage } } = this.props
     const { maintainStatus, current, total } = hostInfo.objectMeta.annotations || { maintainStatus: 'fetching', current: 0, total: 0 }
-    let message = '异常'
+    let message = formatMessage(intlMsg.abnormal)
     let classname = 'errorSpan'
     if (hostInfo.ready === 'True') {
       if (hostInfo.objectMeta.annotations.maintenance === 'true') {
-        message = '维护中'
+        message = formatMessage(intlMsg.maintaining)
         classname = 'themeColor'
       } else if (hostInfo.objectMeta.annotations.maintenance === 'failed') {
-        message = '迁移失败'
+        message = formatMessage(intlMsg.migrateFail)
         classname = 'errorSpan'
       } else if (maintainStatus === 'processing') {
-        message = '服务迁移中'
+        message = formatMessage(intlMsg.serverMigrating)
         classname = 'themeColor'
       } else {
-        message = '运行中'
+        message = formatMessage(intlMsg.running)
         classname = 'runningSpan'
       }
     }
@@ -635,7 +644,7 @@ class ClusterDetail extends Component {
           {
             maintainStatus === 'processing' &&
             <Tooltip
-              title="服务迁移过程最好不要进行其他操作，避免发生未知错误！"
+              title={formatMessage(intlMsg.notActWhenMigrating)}
             >
               <Icon type="exclamation-circle-o" />
             </Tooltip>
@@ -660,7 +669,7 @@ class ClusterDetail extends Component {
       clusterName, cpu, hostCpu, memory, hostMemory,
       networkReceived, hostNetworkRx, networkTransmitted, hostNetworkTx,
       diskReadIo, diskWriteIo, hostDiskReadIo, hostDiskWriteIo,
-      tcpListen, tcpEst, tcpClose, tcpTime
+      tcpListen, tcpEst, tcpClose, tcpTime, intl: { formatMessage },
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
@@ -685,10 +694,12 @@ class ClusterDetail extends Component {
     const isMaintaining = hostInfo.objectMeta.annotations && ['true', 'failed'].includes(hostInfo.objectMeta.annotations.maintenance)
     return (
       <div id="clusterDetail">
-        <Title title="基础设施"/>
+        <Title title={formatMessage(intlMsg.infrastructure)}/>
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
-          <span className="back" onClick={() => {browserHistory.push(`/cluster?clusterID=${fetchApi.clusterID}&from=clusterDetail`)}}><span className="backjia"></span><span className="btn-back">返回</span></span>
-          <span className="title">主机详情 （{this.props.clusterName}）</span>
+          <span className="back" onClick={() => {browserHistory.push(`/cluster?clusterID=${fetchApi.clusterID}&from=clusterDetail`)}}><span className="backjia"></span><span className="btn-back">
+            <FormattedMessage {...intlMsg.back}/>
+          </span></span>
+          <span className="title"><FormattedMessage {...intlMsg.hostDetail}/> （{this.props.clusterName}）</span>
         </div>
         <Card className="ClusterInfo" bordered={false}>
           <div className="imgBox" style={{ padding: '30px 24px' }}>
@@ -697,24 +708,24 @@ class ClusterDetail extends Component {
           <div className="clusterTable" style={{ paddingTop: '30px' }}>
             <div className="formItem">
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
-              <div className="list">运行状态：{this.renderStatus(hostInfo)}</div>
-              <div className="list">节点角色：<span className="role">{hostInfo.isMaster ? MASTER : SLAVE}</span></div>
+              <div className="list"><FormattedMessage {...intlMsg.runningStatus}/>：{this.renderStatus(hostInfo)}</div>
+              <div className="list"><FormattedMessage {...intlMsg.nodeRole}/>：<span className="role">{hostInfo.isMaster ? formatMessage(intlMsg.masterNode) : formatMessage(intlMsg.computedNode)}</span></div>
             </div>
             <div className="formItem">
               <div className="h2"></div>
-              <div className="list">创建时间：<span className="status">{formatDate(hostInfo.objectMeta ? hostInfo.objectMeta.creationTimestamp : '')}</span></div>
-              <div className="list">运行时间：<span className="role">{runningtime}</span></div>
+              <div className="list"><FormattedMessage {...intlMsg.createTime}/>：<span className="status">{formatDate(hostInfo.objectMeta ? hostInfo.objectMeta.creationTimestamp : '')}</span></div>
+              <div className="list"><FormattedMessage {...intlMsg.runningTime}/>：<span className="role">{runningtime}</span></div>
             </div>
             <div className="formItem">
               <div className="h2"></div>
-              <div className="list">调度状态：
+              <div className="list"><FormattedMessage {...intlMsg.dispatchStatus}/>：
                 <span className="role">
-                  <Tooltip title={isMaintaining ? '维护状态禁止使用调度开关' : ''}>
+                  <Tooltip title={isMaintaining ? formatMessage(intlMsg.maintainingNoDispatch) : ''}>
                     <Switch checked={ this.state.schedulable }
                             onChange={
                               isMaintaining ? () => null :
                               this.changeSchedulable.bind(this, this.props.clusterName)}
-                            checkedChildren="开" unCheckedChildren="关" />
+                            checkedChildren={formatMessage(intlMsg.on)} unCheckedChildren={formatMessage(intlMsg.off)} />
                   </Tooltip>
                 </span>
               </div>
@@ -725,10 +736,10 @@ class ClusterDetail extends Component {
         <Card className="infoTabs" bordered={false}>
           <div className="h3"></div>
           <Tabs defaultActiveKey={this.state.activeTabKey}>
-            <TabPane tab="详情" key="info">
-              <HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} hostInfo={hostInfo} func={fetchApi} scope={this} />
+            <TabPane tab={formatMessage(intlMsg.detail)} key="info">
+              <HostInfo intl={this.props.intl} foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} hostInfo={hostInfo} func={fetchApi} scope={this} />
             </TabPane>
-            <TabPane tab="监控" key="monitoring">
+            <TabPane tab={formatMessage(intlMsg.monitor)} key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
                 scope={this}
@@ -747,7 +758,7 @@ class ClusterDetail extends Component {
                 showTcp={true}
               />
             </TabPane>
-            <TabPane tab="告警策略" key="alarm">
+            <TabPane tab={formatMessage(intlMsg.alarmStrategy)} key="alarm">
               <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
             </TabPane>
           </Tabs>
@@ -883,4 +894,6 @@ export default connect(mapStateToProps, {
   loadHostTxrate,
   loadHostDiskReadIo,
   loadHostDiskWriteIo
-})(ClusterDetail)
+})(injectIntl(ClusterDetail, {
+  withRef: true,
+}))

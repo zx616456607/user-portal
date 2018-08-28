@@ -24,6 +24,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import Dock from 'react-dock'
 import Logs from '../ContainerModule/ContainerLogs'
 import './style/Xterm.less'
+import intlMsg from './Intl'
 
 const TabPane = Tabs.TabPane
 const TERM_TIPS_DISABLED = 'term_tips_disabled'
@@ -233,7 +234,7 @@ class TerminalModal extends Component {
     if (this.isSafariBrower) {
       return (
         <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
-          <span>暂不支持 Safari 浏览器</span>
+          <span><FormattedMessage {...intlMsg.notSupportSafari}/></span>
         </div>
       )
     }
@@ -241,12 +242,12 @@ class TerminalModal extends Component {
       if (!(disableTips.indexOf(serviceName) > -1)) {
         return (
           <div className="tips">
-            <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
-            <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
+            <Icon type="info-circle-o" /> <FormattedMessage {...intlMsg.containerStateless}/>
+            <span className="important"><FormattedMessage {...intlMsg.suggestNotEditContainer}/></span>
             <div className="btns">
-              <Button key="back" type="primary" onClick={() => this.closeTip(serviceName)}>知道了</Button>
+              <Button key="back" type="primary" onClick={() => this.closeTip(serviceName)}><FormattedMessage {...intlMsg.iKnow}/></Button>
               <Button key="submit" onClick={() => this.disabledTermTips(serviceName)}>
-                不再提醒
+                <FormattedMessage {...intlMsg.neverMind}/>
               </Button>
             </div>
           </div>
@@ -257,7 +258,7 @@ class TerminalModal extends Component {
     if (terminalStatus == 'timeout') {
       return (
         <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
-          <span>连接超时了</span>
+          <span><FormattedMessage {...intlMsg.connectTimeout}/></span>
         </div>
       )
     }
@@ -266,7 +267,7 @@ class TerminalModal extends Component {
         <span className='terIcon'></span>
         <span className='terIcon'></span>
         <span className='terIcon'></span>
-        <span>终端链接中...</span>
+        <span><FormattedMessage {...intlMsg.termConnecting}/></span>
       </div>
     )
   }
@@ -333,7 +334,7 @@ class TerminalModal extends Component {
                 <span className="service-name">{name}</span>
                 {
                   location.pathname !== '/cluster' &&
-                  <Button icon="file-text" type="primary" onClick={()=> this.openLogs(item)} >日志</Button>
+                  <Button icon="file-text" type="primary" onClick={()=> this.openLogs(item)} ><FormattedMessage {...intlMsg.log}/></Button>
                 }
                 <span>&nbsp;&nbsp;</span>
                 <Button icon='cross' type="ghost" className="closeBtn" onClick={()=> this.closeTerminalItem(item)}></Button>
