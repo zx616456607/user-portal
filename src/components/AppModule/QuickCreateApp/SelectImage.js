@@ -25,6 +25,8 @@ import { encodeImageFullname } from '../../../common/tools'
 import './style/SelectImage.less'
 import NotificationHandler from '../../../components/Notification'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
@@ -72,7 +74,7 @@ class SelectImage extends Component {
     //   serverType = 'all'
     // }
     // loadPublicImageList(registry, serverType, callback)
-    const { registry, loadAllProject, cluster, harbor } = props
+    const { registry, loadAllProject, cluster, harbor, intl } = props
     let notify = new NotificationHandler()
     if (!callback) {
       callback = {
@@ -91,7 +93,8 @@ class SelectImage extends Component {
         failed: {
           func: res => {
             if (res.statusCode === 500) {
-              notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+              notify.warn(intl.formatMessage(IntlMessage.requestFailure),
+                intl.formatMessage(IntlMessage.imageStoreError))
             }
           }
         }
@@ -170,7 +173,7 @@ class SelectImage extends Component {
     // }
   }
   loadImageStore() {
-    const { getAppsList, cluster } = this.props
+    const { getAppsList, cluster, intl } = this.props
     const { searchInputValue, currentPage } = this.state
     let notify = new NotificationHandler()
     // const harbor = cluster.harbor && cluster.harbor[0] ? cluster.harbor[0] : ""
@@ -188,7 +191,8 @@ class SelectImage extends Component {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
-            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+            notify.warn(intl.formatMessage(IntlMessage.requestFailure),
+              intl.formatMessage(IntlMessage.imageStoreError))
           }
         }
       }
@@ -265,7 +269,7 @@ class SelectImage extends Component {
       imageList = imageStoreList && imageStoreList.apps
     }
     const columns = [{
-      title: '镜像名称',
+      title: <FormattedMessage {...IntlMessage.imageName}/>,
       dataIndex: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
       key: imageType === IMAGE_STORE ? 'resourceName' : 'repositoryName',
       render(text, row) {
@@ -282,7 +286,7 @@ class SelectImage extends Component {
         )
       }
     }, {
-      title: '部署',
+      title: <FormattedMessage {...IntlMessage.deploy}/>,
       dataIndex: 'deploy',
       key: 'deploy',
       width: '10%',
@@ -300,7 +304,7 @@ class SelectImage extends Component {
               type="primary" size="large"
               onClick={this.onDeploy.bind(this, str, server)}
             >
-              部署&nbsp;
+              <FormattedMessage {...IntlMessage.deploy}/>&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
             </Button>
           </div>
@@ -327,7 +331,7 @@ class SelectImage extends Component {
   }
 
   render() {
-    const { images, registry } = this.props
+    const { images, registry, intl } = this.props
     const { imageType, imageFilter, searchInputValue } = this.state
     const noTabimageList = (
       <div>
@@ -338,12 +342,12 @@ class SelectImage extends Component {
     return(
       <div id="quickCreateAppSelectImage">
         <div className="selectImage">
-          选择镜像
+          <FormattedMessage {...IntlMessage.selectImage}/>
           <span className="imageType">
             <RadioGroup size="large" onChange={this.imageTypeChange} value={imageType}>
-              <Radio prefixCls="ant-radio-button" value={PUBLIC_IMAGES}>公有</Radio>
-              <Radio prefixCls="ant-radio-button" value="privateImages">私有</Radio>
-              <Radio prefixCls="ant-radio-button" value="imageStore">镜像商店</Radio>
+              <Radio prefixCls="ant-radio-button" value={PUBLIC_IMAGES}><FormattedMessage {...IntlMessage.public}/></Radio>
+              <Radio prefixCls="ant-radio-button" value="privateImages"><FormattedMessage {...IntlMessage.private}/></Radio>
+              <Radio prefixCls="ant-radio-button" value="imageStore"><FormattedMessage {...IntlMessage.imageStore}/></Radio>
               { /*<Radio value="fockImages">收藏</Radio> */ }
             </RadioGroup>
           </span>
@@ -351,7 +355,7 @@ class SelectImage extends Component {
             <Input
               value={searchInputValue}
               size="large"
-              placeholder="按镜像名称搜索"
+              placeholder={intl.formatMessage(IntlMessage.imagePlaceholder)}
               id="searchImages"
               onPressEnter={this.searchImages}
               onChange={e => {
@@ -368,18 +372,18 @@ class SelectImage extends Component {
             (standardFlag && imageType === PUBLIC_IMAGES)
             ? (
               <Tabs type="card" onChange={this.onTabChange}>
-                <TabPane tab="官方镜像" key="local">
+                <TabPane tab={intl.formatMessage(IntlMessage.officialImage)} key="local">
                   <RadioGroup onChange={this.imageFilterChange} value={imageFilter}>
-                    <Radio prefixCls="ant-radio-button" value="all">全部</Radio>
-                    <Radio prefixCls="ant-radio-button" value="runtime">运行环境</Radio>
-                    <Radio prefixCls="ant-radio-button" value="server">Web服务器</Radio>
-                    <Radio prefixCls="ant-radio-button" value="database">数据库与缓存</Radio>
-                    <Radio prefixCls="ant-radio-button" value="os">操作系统</Radio>
-                    <Radio prefixCls="ant-radio-button" value="others">中间件与其他</Radio>
+                    <Radio prefixCls="ant-radio-button" value="all"><FormattedMessage {...IntlMessage.all}/></Radio>
+                    <Radio prefixCls="ant-radio-button" value="runtime"><FormattedMessage {...IntlMessage.operatingEnv}/></Radio>
+                    <Radio prefixCls="ant-radio-button" value="server"><FormattedMessage {...IntlMessage.webServer}/></Radio>
+                    <Radio prefixCls="ant-radio-button" value="database"><FormattedMessage {...IntlMessage.databaseAndCache}/></Radio>
+                    <Radio prefixCls="ant-radio-button" value="os"><FormattedMessage {...IntlMessage.operatingSystem}/></Radio>
+                    <Radio prefixCls="ant-radio-button" value="others"><FormattedMessage {...IntlMessage.middlewareAndOther}/></Radio>
                   </RadioGroup>
                   {this.renderImageList(imageData)}
                 </TabPane>
-                <TabPane tab={`镜像广场 | ${this.props.productName}`} key="hub">
+                <TabPane tab={`${intl.formatMessage(IntlMessage.imageSquare)} | ${this.props.productName}`} key="hub">
                   {noTabimageList}
                 </TabPane>
               </Tabs>
@@ -429,4 +433,6 @@ export default connect(mapStateToProps, {
   publicFilterServer,
   loadAllProject,
   getAppsList
-})(SelectImage)
+})(injectIntl(SelectImage, {
+  withRef: true,
+}))

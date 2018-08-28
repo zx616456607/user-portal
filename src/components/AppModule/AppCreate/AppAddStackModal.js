@@ -14,6 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadMyStack, loadStack, searchStack, loadStackDetail } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddStackModal.less'
+import IntlMessage from '../../../containers/Application/intl'
 
 const TabPane = Tabs.TabPane
 
@@ -36,7 +37,7 @@ class PrivateComponent extends Component {
     })
   }
   render() {
-    const { data, scope, isFetching } = this.props
+    const { data, scope, isFetching, intl } = this.props
     if (isFetching) {
       return <div className="loadingBox">
         <Spin size="large"/>
@@ -50,12 +51,12 @@ class PrivateComponent extends Component {
             <use xlinkHref='#server' />
           </svg>
           <div className="infoBox">
-            <div className="textoverflow">名称：{list.name} </div>
-            <div className="textoverflow">描述：{list.description}</div>
+            <div className="textoverflow">{intl.formatMessage(IntlMessage.name)}：{list.name} </div>
+            <div className="textoverflow">{intl.formatMessage(IntlMessage.description)}：{list.description}</div>
           </div>
           <div className="deployBtn">
             <Button type="primary" onClick={()=> this.deployStack(list)}>
-              部署
+              <FormattedMessage {...IntlMessage.deploy}/>
               &nbsp;&nbsp;
               <i className="fa fa-arrow-circle-o-right"></i>
             </Button>
@@ -110,7 +111,7 @@ class PublicComponent extends Component {
           <div className="infoBox">{list.name}</div>
           <div className="deployBtn">
             <Button type="primary" onClick={() => this.deployStack(list)}>
-              部署
+              <FormattedMessage {...IntlMessage.deploy}/>
               &nbsp;
               <i className="fa fa-arrow-circle-o-right"></i>
             </Button>
@@ -186,6 +187,7 @@ class AppAddStackModal extends Component {
   }
   render() {
     const parentScope = this.props.scope
+    const { intl } = this.props
     return (
       <div id="AppAddStackModal" key="AppAddStackModal">
         <div className="operaBox">
@@ -202,15 +204,19 @@ class AppAddStackModal extends Component {
           </div>
         </div>
         <Tabs defaultActiveKey="1" onChange={(e) => this.changeType(e)}>
-          <TabPane tab='私有' key="private-stack">
-            <PrivateComponent scope={this}
+          <TabPane tab={intl.formatMessage(IntlMessage.private)} key="private-stack">
+            <PrivateComponent
+              scope={this}
+              intl={intl}
               parentScope= { parentScope }
               data={this.state.privateStack}
               isFetching={this.props.isFetching}
             />
           </TabPane>
-          <TabPane tab="公有" key="public-stack">
-            <PublicComponent scope={this}
+          <TabPane tab={intl.formatMessage(IntlMessage.public)} key="public-stack">
+            <PublicComponent
+              scope={this}
+              intl={intl}
               parentScope= { parentScope }
               stackList={this.props.stackList.templates || []}
               isFetching={this.props.isFetching}

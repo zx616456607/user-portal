@@ -24,6 +24,8 @@ import { toQuerystring, encodeImageFullname, genRandomString } from '../../../..
 import ConfigureTemplate from '../../../../../../src/components/AppModule/QuickCreateApp/ConfigureService';
 import * as appCenterActions from '../../../../../../src/actions/app_center';
 import { DEFAULT_REGISTRY } from '../../../../../../src/constants';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../../src/containers/Application/intl'
 
 const Step = Steps.Step;
 
@@ -34,13 +36,13 @@ interface IState {
 
 const tabsOpts = [{
   key: 'image',
-  text: '镜像仓库',
+  text: <FormattedMessage {...IntlMessage.imageWarehouse}/>,
 }, {
   key: 'wrap',
-  text: '应用包管理',
+  text: <FormattedMessage {...IntlMessage.wrapManage}/>,
 }];
 
-export default class ConfigPart extends React.Component<any, IState> {
+class ConfigPart extends React.Component<any, IState> {
   constructor(props) {
     this.state = {
       activeKey: 'image',
@@ -156,12 +158,12 @@ export default class ConfigPart extends React.Component<any, IState> {
     );
   }
   render() {
-    const { currentStep } = this.props;
+    const { currentStep, intl } = this.props;
     return (
       <div className="configPart">
         <Steps className="configStep" size="small" current={currentStep}>
-          <Step title="添加服务" />
-          <Step title="服务配置" />
+          <Step title={intl.formatMessage(IntlMessage.addService)} />
+          <Step title={intl.formatMessage(IntlMessage.serviceConfig)} />
         </Steps>
         <div className="configWrapper">
           {this.renderStep()}
@@ -170,3 +172,5 @@ export default class ConfigPart extends React.Component<any, IState> {
     );
   }
 }
+
+export default injectIntl(ConfigPart, { withRef: true })
