@@ -40,6 +40,8 @@ export const mapData = {
     disk: '磁盘',
     read: '读取',
     write: '写入',
+    // Tcp.js
+    a: '个',
   }
 }
 
