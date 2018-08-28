@@ -14,7 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
-import { injectIntl, FormattedMessage } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import intlMsg from './Intl'
 
 function formatGrid(count) {

@@ -36,6 +36,10 @@ export const mapData = {
     network: '网络',
     download: '下载',
     upload: '上传',
+    // Disk.js
+    disk: '磁盘',
+    read: '读取',
+    write: '写入',
   }
 }
 
