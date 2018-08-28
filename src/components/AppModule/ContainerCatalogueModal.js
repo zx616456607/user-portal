@@ -40,7 +40,7 @@ let ContainerCatalogueModal = React.createClass({
       isResetComponent: false,
       confirmLoading: false,
       type_1Value: 'nfs',
-      loading: true,
+      // loading: true,
     }
   },
 
@@ -442,7 +442,7 @@ let ContainerCatalogueModal = React.createClass({
   resetState(){
     setTimeout(() => {
       this.setState({
-        loading: true, //选择存储loading 状态
+        // loading: true, //选择存储loading 状态
         type_1Value: "nfs"
       })
     },1000);
@@ -632,11 +632,11 @@ let ContainerCatalogueModal = React.createClass({
       volumeWidth = 175
       volumeSpan = 12
     }
-    setTimeout(() => {
-      this.setState({
-        loading: false, //选择存储loading 状态
-      })
-    },1000);
+    // setTimeout(() => {
+    //   this.setState({
+    //     loading: false, //选择存储loading 状态
+    //   })
+    // },1000);
     let init_storageClassName
     let tempList = []
     if (!!type_1) {
@@ -718,7 +718,7 @@ let ContainerCatalogueModal = React.createClass({
                 >
                 <Row>
                   <Col span={volumeSpan}>
-                    <Spin spinning={this.state.loading} >
+                    {/* <Spin spinning={this.state.loading} > */}
                       <FormItem style={{ width: volumeWidth }}>
                         <Select
                           placeholder="请选择存储卷"
@@ -728,7 +728,7 @@ let ContainerCatalogueModal = React.createClass({
                           {this.renderVolumesOptions()}
                         </Select>
                       </FormItem>
-                    </Spin>
+                    {/* </Spin> */}
                   </Col>
                   { volume === 'create' &&  <Col span={12}>
                     <FormItem className='not_host_type'>
