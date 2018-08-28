@@ -610,9 +610,11 @@ class VisitTypes extends Component{
     }
   }
   componentWillMount() {
-    const { getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
-
+    const { getProxy, clusterID, databaseInfo, database } = this.props;
+    const annotationLbgroupName = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationLbgroupName]
+    const annotations = databaseInfo.service.annotations;
+    this.setReadOnlyCheck(this.props)
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
@@ -641,6 +643,21 @@ class VisitTypes extends Component{
     if ((!detailModal && this.props.detailModal != nextProps.detailModal) || (!isCurrentTab && isCurrentTab != this.props.isCurrentTab)) {
       this.cancelEdit()
     }
+    this.setReadOnlyCheck(nextProps)
+  }
+  //设置开启只读地址回显
+  setReadOnlyCheck = whichProps => {
+    const annotations = whichProps.databaseInfo.service.annotations;
+    if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+      this.setState({
+        readOnly: true
+      })
+    }else {
+      this.setState({
+        readOnly: false
+      })
+    }
+
   }
   onChange(e) {
     let value = e.target.value;
@@ -688,10 +705,20 @@ class VisitTypes extends Component{
         body = {
           annotations: {
             'system/lbgroup': groupID,
-            'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
           }
         }
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              'master.system/lbgroup': groupID,
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            }
+          }
+        }
+
       }
+
       const success = {
         func: () => {
           notification.close()
@@ -795,12 +822,52 @@ class VisitTypes extends Component{
   }
   // 编辑访问地址
   editAccessAddress = () => {
-    console.log(this);
     this.setState({
       isEditAccessAddress: true
     })
   }
   editAccessAddressSave = () => {
+    const notification = new NotificationHandler()
+    notification.spin('保存中更改中')
+    const { editDatabaseCluster } = this.props.scope.props
+    const { databaseInfo, database, clusterID } = this.props
+    const success = {
+      func: () => {
+        notification.close()
+        notification.success('保存成功')
+        const { loadDbClusterDetail } = this.props.scope.props
+        setTimeout(() => {
+          loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+        }, 0)
+        this.setState({
+          disabled: true,
+          forEdit:false
+        });
+      },
+      isAsync: false
+    }
+    const failed = {
+      func: (res) => {
+        notification.close()
+        let message = '更改出口方式失败'
+        if(res.message) {
+          message = res.message
+        }
+        if(res.message && res.message.message) {
+          message = res.message.message
+        }
+        notification.error(message)
+    }}
+    const groupID = databaseInfo.objectMeta.annotations['master.system/lbgroup']
+    const { readOnly } = this.state
+    const body = {
+      annotations: {
+        'master.system/lbgroup': groupID,
+        'slave.system/lbgroup': readOnly? groupID : 'none',
+      }
+    }
+    console.log(body);
+    editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
     this.setState({
       isEditAccessAddress: false
     })
@@ -872,9 +939,14 @@ class VisitTypes extends Component{
       }
       return true
     })
-
-    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    if(databaseInfo.service.annotations['system/lbgroup'] === 'none') {
+    const annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+    const systemLbgroup = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    // 是否开启只读
+    const enableReadOnly = database === 'redis' &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
+    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    if(databaseInfo.service.annotations[systemLbgroup] === 'none') {
       portAnnotation = ''
     }
     let externalPort = ''
@@ -938,14 +1010,13 @@ class VisitTypes extends Component{
                         </Tooltip>
                       </div>
                       {
-                        isEditAccessAddress &&
+                        enableReadOnly &&
                         <div>
                           <span className="domain">{externalUrl}</span>
                           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
                             <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
                           </Tooltip>
                         </div>
-
                       }
                     </div>
                   )
@@ -966,7 +1037,7 @@ class VisitTypes extends Component{
                 </Tooltip>
               </div>
               {
-                isEditAccessAddress &&
+                enableReadOnly &&
                 <div>
                   <span className="domain">{inClusterLB}</span>
                   <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
@@ -1022,8 +1093,8 @@ class VisitTypes extends Component{
               {
                 isEditAccessAddress?
                   [
-                    <Button type="default" style={{marginRight: 10}} onClick={this.editAccessAddressSave}>取消</Button>,
-                    <Button type="primary" onClick={this.editAccessAddressCancel}>保存</Button>
+                    <Button type="default" style={{marginRight: 10}} onClick={this.editAccessAddressCancel}>取消</Button>,
+                    <Button type="primary" onClick={this.editAccessAddressSave}>保存</Button>
                   ]
                   :
                   <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
