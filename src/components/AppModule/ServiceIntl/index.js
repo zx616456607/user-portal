@@ -34,7 +34,12 @@ export const mapData = {
     units: '个',
     yes: '是',
     no: '否',
-    submit: '提交'
+    submit: '提交',
+    image: '镜像',
+    address: '地址',
+    edit: '编辑',
+    loading: '加载中',
+    content: '内容',
   }
 }
 
