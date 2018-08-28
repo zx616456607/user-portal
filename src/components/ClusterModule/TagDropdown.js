@@ -15,6 +15,9 @@ import { KubernetesValidator } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import './style/TagDropdown.less'
 import cloneDeep from 'lodash/cloneDeep'
+import intlMsg from './hostListIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+
 const FormItem = Form.Item
 const SubMenu = Menu.SubMenu;
 let uuid=0
@@ -113,7 +116,7 @@ class TagDropdown extends Component {
       result = arr.map((item, index) => {
         return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
           <Menu.Item className='selectMenutitle' key="tagvalue">
-            标签值
+            <FormattedMessage {...intlMsg.labelValue}/>
           </Menu.Item>
           {tagvalue[index]}
         </SubMenu>
@@ -121,13 +124,13 @@ class TagDropdown extends Component {
       //neirong
 
     } else {
-      result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
+      result =  <Menu.Item className='notag'><FormattedMessage {...intlMsg.noLabel}/></Menu.Item>
     }
 
     return (
       <Menu>
         <Menu.Item className='selectMenutitle' key="labelKey">
-          标签键 <Icon type="cross" style={{marginLeft:'80px'}}/>
+          <FormattedMessage {...intlMsg.labelKey}/> <Icon type="cross" style={{marginLeft:'80px'}}/>
         </Menu.Item>
         <Menu.Divider key="baseline1" />
         {result}
@@ -140,18 +143,18 @@ class TagDropdown extends Component {
     switch (context) {
       case 'Modal':
         return <span>
-          选择已有节点
+          <FormattedMessage {...intlMsg.selectHasNode}/>
           <Icon type="down" style={{ marginLeft: '5px' }} />
         </span>
       case 'hostlist':
       case 'app':
         return <span>
           <i className="fa fa-tag" aria-hidden="true"></i>&nbsp;
-          标签
+          <FormattedMessage {...intlMsg.label}/>
           <Icon type="down" style={{ marginLeft: '12px' }} />
         </span>
       default:
-        return <span>请输入要显示的文字</span>
+        return <span><FormattedMessage {...intlMsg.inputTextForShow}/></span>
     }
   }
 
@@ -232,7 +235,7 @@ class ManageTagModal extends Component {
   }
 
   handleCreateLabelModal() {
-    const { form, addLabels,clusterID, getClusterLabel } = this.props
+    const { form, addLabels,clusterID, getClusterLabel, intl: { formatMessage } } = this.props
     form.validateFields((errors, values) => {
       if (errors) {
         return
@@ -247,13 +250,13 @@ class ManageTagModal extends Component {
           clusterID,
         })
       })
-      notificat.spin('添加中...')
+      notificat.spin(formatMessage(intlMsg.adding))
       addLabels(labels,clusterID,{
         success: {
           func:(ret)=> {
             getClusterLabel(clusterID)
             notificat.close()
-            notificat.success('添加成功！')
+            notificat.success(formatMessage(intlMsg.addSuccess))
             this.setState({
               createLabelModal: false,
             })
@@ -263,7 +266,7 @@ class ManageTagModal extends Component {
         failed:{
           func:(ret)=> {
             notificat.close()
-            notificat.error('添加失败！')
+            notificat.error(formatMessage(intlMsg.addFail))
           }
         },
         finally: {
@@ -412,34 +415,34 @@ class ManageTagModal extends Component {
 
     });
   }
-  checkKey(rule, value, callback) {
+  checkKey(rule, value, callback, formatMessage) {
     if (!Boolean(value)){
-      callback(new Error('请输入标签键'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelKey)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.keyLength364)))
       return
     }
     if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.keyAlphaNumStart)))
       return
     }
     callback()
   }
-  checkValue(rule, value, callback) {
+  checkValue(rule, value, callback, formatMessage) {
     if (!Boolean(value)){
-      callback(new Error('请输入标签值'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelValue)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.valueLength364)))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.valueAlphaNumbStart)))
       return
     }
     const { form, labels } = this.props
@@ -447,16 +450,17 @@ class ManageTagModal extends Component {
     if (range(0, uuid).filter(
         id => form.getFieldValue(`key${id}`) === key
         && form.getFieldValue(`value${id}`) === value).length > 0) {
-      callback(new Error('标签已重复添加'))
+      callback(new Error(formatMessage(intlMsg.labelHasRepeat)))
     }
     if (labels.filter(label =>  label.key === key && label.value === value).length > 0) {
-      callback(new Error('标签已经存在'))
+      callback(new Error(formatMessage(intlMsg.labelHasExist)))
       return
     }
     callback()
   }
   render() {
     const { getFieldProps, getFieldValue } = this.props.form
+    const { intl: { formatMessage } } = this.props
     getFieldProps('keys', {
       initialValue: [0],
     });
@@ -468,9 +472,9 @@ class ManageTagModal extends Component {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkKey
+                    validator: (rule, value, callback) => this.checkKey(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="请填写标签键"
+                })} placeholder={formatMessage(intlMsg.plsWriteLabelKey)}
                 />
               </FormItem>
               <FormItem className='inputlabelvalue'>
@@ -478,9 +482,9 @@ class ManageTagModal extends Component {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkValue
+                    validator: (rule, value, callback) => this.checkValue(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="请填写标签值"
+                })} placeholder={formatMessage(intlMsg.plsWriteLabelValue)}
                 />
               </FormItem>
               <span className='inputhandle' onClick={() => this.removeRow(k)}>
@@ -503,7 +507,7 @@ class ManageTagModal extends Component {
         />
 
         <Modal
-          title="创建标签"
+          title={formatMessage(intlMsg.createLabel)}
           visible={this.state.createLabelModal}
           onOk={this.handleCreateLabelModal}
           onCancel={() => this.setState({createLabelModal: false})}
@@ -512,16 +516,16 @@ class ManageTagModal extends Component {
           maskClosable={false}
         >
           <div className='title'>
-            <div className='labelkey'>标签键</div>
-            <div className='labelvalue'>标签值</div>
-            <div className='handle'>操作</div>
+            <div className='labelkey'><FormattedMessage {...intlMsg.labelKey}/></div>
+            <div className='labelvalue'><FormattedMessage {...intlMsg.labelValue}/></div>
+            <div className='handle'><FormattedMessage {...intlMsg.operation}/></div>
           </div>
           <Form inline>
             <div className='body'>
               { formItems }
             </div>
             <div style={{clear:'both'}}>
-              <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" /> 添加一组标签</span>
+              <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addAGroupLabel}/></span>
             </div>
 
           </Form>
@@ -541,4 +545,6 @@ function mapStateToProps(state,props) {
 
 export default connect(mapStateToProps,{
   addLabels
-})(ManageTagModal)
+})(injectIntl(ManageTagModal, {
+  withRef: true,
+}))

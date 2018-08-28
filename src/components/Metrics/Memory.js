@@ -14,6 +14,8 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import {injectIntl} from "react-intl";
+import intlMsg from './Intl'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -28,11 +30,11 @@ class Memory extends Component {
   }
 
   render() {
-    const option = new EchartsOption('内存')
-    const { memory, scope, hideInstantBtn, isService } = this.props
+    const { memory, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
+    const option = new EchartsOption(formatMessage(intlMsg.memory))
     const { isFetching, data } = memory
     const { switchMemory, freshTime, MemoryLoading, currentStart, currentMemoryStart } = scope.state
-    let timeText = switchMemory ? '1分钟' : freshTime
+    let timeText = switchMemory ? formatMessage(intlMsg.min1) : freshTime
     option.addYAxis('value', {
       formatter: '{value} M'
     })
@@ -67,12 +69,12 @@ class Memory extends Component {
     return (
       <div className="chartBox">
         <span className="freshTime">
-          {`时间间隔：${timeText}`}
+          {`${formatMessage(intlMsg.timeSpace)}：${timeText}`}
         </span>
         {
           !hideInstantBtn &&
-          <Tooltip title="实时开关">
-            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren="开" unCheckedChildren="关"/>
+          <Tooltip title={formatMessage(intlMsg.realTimeSwitch)}>
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Memory')} checkedChildren={formatMessage(intlMsg.on)} unCheckedChildren={formatMessage(intlMsg.off)}/>
           </Tooltip>
         }
         <ReactEcharts
@@ -97,4 +99,6 @@ Memory.defaultProps = {
   }
 }
 
-export default Memory
+export default injectIntl(Memory, {
+  withRef: true,
+})

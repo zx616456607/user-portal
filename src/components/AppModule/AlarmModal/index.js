@@ -20,9 +20,8 @@ import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
-import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../../AppModule/ServiceIntl'
-import { injectIntl  } from 'react-intl'
-import { formatResourceName } from '../../../../client/containers/ManageMonitor/OperationAudit';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './Intl'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -55,19 +54,19 @@ let FistStop = React.createClass({
     const { resetFields } = this.props
     setTimeout(resetFields, 0)
   },
-  fistStopName(rule, value, callback){
-    const { formatMessage } = this.props.intl
+  fistStopName(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     let newValue = value && value.trim()
     if (!Boolean(newValue)) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.inputName)));
+      callback(new Error(formatMessage(intlMsg.plsInputName)));
       return
     }
     if (newValue.length <3 || newValue.length > 40) {
-       callback(new Error(formatMessage(AppServiceDetailIntl.input340character)))
+       callback(new Error(formatMessage(intlMsg.plsInput340)))
        return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback(formatMessage(AppServiceDetailIntl.verificationNameInfo))
+      return callback(formatMessage(intlMsg.plsInputCnEnNum))
     }
     const { cluster,isEdit,data } = this.props
     if (isEdit && newValue == data.strategyName) {
@@ -79,7 +78,7 @@ let FistStop = React.createClass({
         func:(res)=> {
           if (res.data[newValue]) {
             this.setState({checkName:'error'})
-            callback(formatMessage(AppServiceDetailIntl.strategyNameRepect))
+            callback(formatMessage(intlMsg.stgNameRepeat))
             return
           }
           this.setState({checkName:'success'})
@@ -90,7 +89,7 @@ let FistStop = React.createClass({
         func:(err)=> {
           if (err.statusCode === 400) {
             this.setState({checkName:'warning'})
-            callback(formatMessage(AppServiceDetailIntl.includeIllegalcharacter))
+            callback(formatMessage(intlMsg.nameIllegal))
             return
           }
           this.setState({checkName:'warning'})
@@ -100,28 +99,28 @@ let FistStop = React.createClass({
     })
   },
   fistStopType(rule, value, callback) {
-    const { formatMessage } = this.props.intl
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceType)));
+      callback(new Error(formatMessage(intlMsg.plsSlcType)));
       return
     }
     callback()
   },
   fistStopApply(rule, value, callback) {
-    const { formatMessage } = this.props.intl
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
       const { getFieldValue } = this.props.form
       if (getFieldValue('type') == 'node') {
-        return callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceNode)));
+        return callback(new Error(formatMessage(intlMsg.plsSlcNode)));
       }
-      return callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceApp)))
+      return callback(new Error(formatMessage(intlMsg.plsSlcApp)))
     }
     callback()
   },
   fistStopServer(rule, value, callback) {
-    const { formatMessage } = this.props.intl
+    const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseChoiceService)));
+      callback(new Error(formatMessage(intlMsg.plsSlcServer)));
       return
     }
     callback()
@@ -212,15 +211,15 @@ let FistStop = React.createClass({
     const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
-      return [<Option value="node" key="node">{formatMessage(AppServiceDetailIntl.node)}</Option>,
-      <Option value="service" key="service">{formatMessage(AppServiceDetailIntl.service)}</Option>]
+      return [<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
+      <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>]
     }
-    return <Option value="service" key="service">{formatMessage(AppServiceDetailIntl.service)}</Option>
+    return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
   render: function () {
     const { formatMessage } = this.props.intl
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
-    const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode } = this.props
+    const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode, intl: { formatMessage } } = this.props
     const formItemLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 16 }
@@ -238,14 +237,14 @@ let FistStop = React.createClass({
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName }
+          { validator: this.fistStopName.bind(this) }
         ],
         initialValue: data.strategyName
       });
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType }
+          { validator: this.fistStopType.bind(this) }
         ],
         onChange: this.resetType,
         initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
@@ -254,7 +253,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply }
+          { validator: this.fistStopApply.bind(this) }
         ],
         onChange: this.resetService,
         initialValue: isNode ? data.targetName : data.appName
@@ -262,7 +261,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer }
+          { validator: isNode ? '' : this.fistStopServer.bind(this) }
         ],
         initialValue: data.targetName
       });
@@ -270,14 +269,14 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: formatMessage(AppServiceDetailIntl.pleaseHCoiceMonitorInterval) }
+          { message: formatMessage(intlMsg.slcMonitorCycle) }
         ],
         initialValue: data.repeatInterval.toString()
       })
     } else {
       nameProps = getFieldProps('name', {
         rules: [
-          { validator: this.fistStopName }
+          { validator: this.fistStopName.bind(this) }
         ],
         initialValue: ''
       });
@@ -288,7 +287,7 @@ let FistStop = React.createClass({
       typeProps = getFieldProps('type', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopType }
+          { validator: this.fistStopType.bind(this) }
         ],
         onChange: this.resetType,
         initialValue: loginUser.info.role == ROLE_SYS_ADMIN ? initiaValue : 'service'
@@ -306,7 +305,7 @@ let FistStop = React.createClass({
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
-          { validator: this.fistStopApply }
+          { validator: this.fistStopApply.bind(this) }
         ],
         onChange: this.resetService,
         // initialValue: initAppName
@@ -316,7 +315,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer }
+          { validator: isNode ? '' : this.fistStopServer.bind(this) }
         ],
         initialValue: initService
       });
@@ -324,7 +323,7 @@ let FistStop = React.createClass({
         rules: [
           { require: true },
           { whitespace: true },
-          { message: formatMessage(AppServiceDetailIntl.pleaseHCoiceMonitorInterval) }
+          { message: formatMessage(intlMsg.slcMonitorCycle) }
         ],
         initialValue: '300'
       })
@@ -333,37 +332,36 @@ let FistStop = React.createClass({
     const typevalue = this.props.form.getFieldValue("type")
     return (
       <Form className="paramsSetting">
-        <Form.Item label={formatMessage(ServiceCommonIntl.name)} {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
-          <Input {...nameProps} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputName)}/>
+        <Form.Item label={formatMessage(intlMsg.name)} {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
+          <Input {...nameProps} placeholder={formatMessage(intlMsg.plsInputName)}/>
         </Form.Item>
         <Row>
           <Col span="12">
-        <Form.Item label={formatMessage(ServiceCommonIntl.type)} {...formItemLayout}>
-        <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceType)} {...typeProps} disabled={currentApp || currentService}>
+        <Form.Item label={formatMessage(intlMsg.type)} {...formItemLayout}>
+        <Select placeholder={formatMessage(intlMsg.plsSlcType)} {...typeProps} disabled={currentApp || currentService}>
              { this.getTargetType()}
           </Select>
         </Form.Item>
         </Col>
         <Col span="12">
-         <Form.Item label={formatMessage(AppServiceDetailIntl.monitorInterval)} {...formItemLayout} >
+         <Form.Item label={formatMessage(intlMsg.monitorCycle)} {...formItemLayout} >
           <Select {...repeatInterval}>
-            <Option value="300">{formatMessage(ServiceCommonIntl.fiveMinutes)}</Option>
-            <Option value="1800">{formatMessage(ServiceCommonIntl.thirtyMinutes)}</Option>
-            <Option value="3600">{formatMessage(ServiceCommonIntl.oneHour)}</Option>
+            <Option value="300"><FormattedMessage {...intlMsg.min5}/></Option>
+            <Option value="1800"><FormattedMessage {...intlMsg.min30}/></Option>
+            <Option value="3600"><FormattedMessage {...intlMsg.hour1}/></Option>
           </Select>
         </Form.Item>
         </Col>
         </Row>
-         <Form.Item label={formatMessage(AppServiceDetailIntl.monitorObject)} {...ItemLayout}>
-         <Select placeholder={isNode ? formatMessage(AppServiceDetailIntl.pleaseChoiceNode) :
-          formatMessage(AppServiceDetailIntl.pleaseChoiceApp)} {...applyProps} >
+         <Form.Item label={formatMessage(intlMsg.monitorObj)} {...ItemLayout}>
+         <Select placeholder={isNode ? formatMessage(intlMsg.plsSlcNode) : formatMessage(intlMsg.plsSlcApp)} {...applyProps} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
 
        {typevalue == 'service' ?
-        <Form.Item label={formatMessage(AppServiceDetailIntl.monitorService)} {...ItemLayout}>
-          <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceService)} {...serverProps} >
+        <Form.Item label={formatMessage(intlMsg.monitorServer)} {...ItemLayout}>
+          <Select placeholder={formatMessage(intlMsg.plsSlcServer)} {...serverProps} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
@@ -423,7 +421,9 @@ FistStop =  injectIntl(connect(mapStateToProp, {
   loadAppList,
   getAllClusterNodes,
   getAlertSettingExistence,
-})(Form.create()(FistStop)), { withRef: true, })
+})(Form.create()(injectIntl(FistStop, {
+  withRef: true,
+})))
 
 // two step in cpu add rule
 let uuid = 0;
@@ -442,7 +442,7 @@ let TwoStop = React.createClass({
       secondForm: this.props.form
     })
     data.forEach((item, index) => {
-      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
     })
     this.setState({
       firstMount: true
@@ -464,17 +464,16 @@ let TwoStop = React.createClass({
       const { isEdit } = nextProps
       if (isEdit) {
         data.forEach((item, index) => {
-          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type, this) })
         })
       }
     }
   },
   removeRule(k) {
-    const { formatMessage } = this.props.intl
-    const { form } = this.props;
+    const { form, intl: { formatMessage } } = this.props;
     let cpu = form.getFieldValue('cpu');
     if (cpu.length == 1) {
-      new NotificationHandler().info(formatMessage(AppServiceDetailIntl.leastOneRule))
+      new NotificationHandler().info(formatMessage(intlMsg.atLeastOneRule))
       return
     }
     // can use data-binding to get
@@ -565,7 +564,7 @@ let TwoStop = React.createClass({
     })
   },
   changeType(key, type) {
-    const { formatMessage } = this.props.intl
+    const { intl: { formatMessage } } = this.props
     let tcpArr = ['tcp/listen_state', 'tcp/est_state', 'tcp/close_wait_state', 'tcp/time_wait_state']
     let typeProps = `typeProps_${key}`
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
@@ -577,37 +576,37 @@ let TwoStop = React.createClass({
       return
     }
     if (tcpArr.includes(type)) {
-      this.setState({ [typeProps]: formatMessage(ServiceCommonIntl.units) })
+      this.setState({ [typeProps]: formatMessage(intlMsg.a) })
       return
     }
     this.setState({ [typeProps]: '%' })
   },
   usedRule(rule, value, callback, key) {
-    const { formatMessage } = this.props.intl
-    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceOperation))
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsSlcOperator))
     this.valieAllField(key, 'used_rule')
     if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
-      return callback(formatMessage(AppServiceDetailIntl.monitorRepeat))
+      return callback(formatMessage(intlMsg.alarmSettingRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedName(rule, value, callback, key) {
-    const { formatMessage } = this.props.intl
-    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceType))
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsSlcType))
     this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
-      return callback(formatMessage(AppServiceDetailIntl.monitorRepeat))
+      return callback(formatMessage(intlMsg.alarmSettingRepeat))
     } else {
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
   },
   usedData(rule, value, callback, key) {
-    const { formatMessage } = this.props.intl
-    if (!value) return callback(formatMessage(AppServiceDetailIntl.pleaseInputNumber))
-    if (parseInt(value) <= 0) return callback(formatMessage(AppServiceDetailIntl.theNumberGreaterOne))
+    const { intl: { formatMessage } } = this.props
+    if (!value) return callback(formatMessage(intlMsg.plsInputNum))
+    if (parseInt(value) <= 0) return callback(formatMessage(intlMsg.valueBig1))
     this.valieAllField(key, 'used_data')
     return callback()
     // if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
@@ -720,8 +719,8 @@ let TwoStop = React.createClass({
         return 'cpu/usage_rate'
     }
   },
-  switchSymbol(type) {
-    const { formatMessage } = this.props.intl
+  switchSymbol(type, that) {
+    const { intl: { formatMessage } } = that.props
     type = type.trim()
     switch (type) {
       case 'CPU利用率':
@@ -738,7 +737,7 @@ let TwoStop = React.createClass({
       case 'tcp established连接数':
       case 'tcp close_wait连接数':
       case 'tcp time_wait连接数':
-        return formatMessage(ServiceCommonIntl.units)
+        return formatMessage(intlMsg.a)
       default:
         return '%'
     }
@@ -782,13 +781,13 @@ let TwoStop = React.createClass({
     const { formatMessage } = this.props.intl
     const { alarmType } = this.props
     const optionArray = [
-      <Option key="1" value="cpu/usage_rate">{formatMessage(AppServiceDetailIntl.CPUuseRatio)}</Option>,
-      <Option key="2" value="memory/usage">{formatMessage(AppServiceDetailIntl.MemoryUsage)}</Option>,
-      <Option key="3" value="network/tx_rate">{formatMessage(AppServiceDetailIntl.upLoadFlow)}</Option>,
-      <Option key="4" value="network/rx_rate">{formatMessage(AppServiceDetailIntl.downLoadFlow)}</Option>
+      <Option key="1" value="cpu/usage_rate"><FormattedMessage {...intlMsg.cpuUseRate}/></Option>,
+      <Option key="2" value="memory/usage"><FormattedMessage {...intlMsg.memoryUse}/></Option>,
+      <Option key="3" value="network/tx_rate"><FormattedMessage {...intlMsg.uploadFlow}/></Option>,
+      <Option key="4" value="network/rx_rate"><FormattedMessage {...intlMsg.downloadFlow}/></Option>
     ]
     if(alarmType == 'node') {
-      optionArray.push(<Option key="5" value="disk/usage">{formatMessage(AppServiceDetailIntl.diskUsage)}</Option>)
+      optionArray.push(<Option key="5" value="disk/usage"><FormattedMessage {...intlMsg.diskUseRate}/></Option>)
       optionArray.push(<Option key="6" value="tcp/listen_state">TCP listen</Option>)
       optionArray.push(<Option key="7" value="tcp/est_state">TCP established</Option>)
       optionArray.push(<Option key="8" value="tcp/close_wait_state">TCP close_wait</Option>)
@@ -958,22 +957,22 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-           <Icon type="exclamation-circle-o" /><a>{formatMessage(AppServiceDetailIntl.CPUuseRatio)}</a>
-           {formatMessage(AppServiceDetailIntl.containerObjectUseRadio)}
-           <div><a style={{ marginLeft: 16 }}>{formatMessage(AppServiceDetailIntl.MemoryUsage)}</a>
-           {formatMessage(AppServiceDetailIntl.containerObjectUseRadioNum)}</div>
+           <Icon type="exclamation-circle-o" /><a> <FormattedMessage {...intlMsg.cpuUseRate}/></a>= <FormattedMessage {...intlMsg.cpuRateFormula}/>
+           <div><a style={{ marginLeft: 16 }}><FormattedMessage {...intlMsg.memoryUse}/></a>= <FormattedMessage {...intlMsg.memoryRateFormula}/></div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
-          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary">{formatMessage(ServiceCommonIntl.nextStep)}</Button>
-          <Button size="large" onClick={() => this.hnadRule()} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
+          <Button size="large" onClick={() => funcs.nextStep(1)} type="primary"><FormattedMessage {...intlMsg.upStep}/></Button>
+          <Button size="large" onClick={() => this.hnadRule()} type="primary"><FormattedMessage {...intlMsg.nextStep}/></Button>
         </div>
       </Form>
     )
   }
 })
 
-TwoStop = injectIntl(Form.create()(TwoStop), {  withRef: true })
+TwoStop = Form.create()(injectIntl(TwoStop, {
+  withRef: true,
+}))
 
 class AlarmModal extends Component {
   constructor(props) {
@@ -1291,7 +1290,7 @@ class AlarmModal extends Component {
         initialValue: initreceiver
       })
     }
-    const { funcs } = this.props
+    const { funcs, intl: { formatMessage } } = this.props
     return (
       <div className="AlarmModal">
         <div className="topStep">
@@ -1375,12 +1374,13 @@ function alarmModalMapStateToProp(state, porp) {
     space
   }
 }
-AlarmModal = injectIntl(connect(alarmModalMapStateToProp, {
+
+export default injectIntl(connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting,
   updateAlertSetting,
   getAlertSetting
-})(Form.create()(AlarmModal)), { withRef: true, })
+})(Form.create()(injectIntl(AlarmModal, {
+  withRef: true,
+})))
 
-
-export default AlarmModal

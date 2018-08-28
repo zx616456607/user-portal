@@ -22,6 +22,8 @@ import './style/NetworkConfiguration.less'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
+import intlMsg from './NetworkConfigurationIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -116,14 +118,14 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   getSelectItem() {
-    const { nodeList, cluster } = this.props
+    const { nodeList, cluster, intl: { formatMessage } } = this.props
     const clusterID = cluster.clusterID
     if(!nodeList) {
       return <Option key="none"/>
     }
     if(nodeList[clusterID].isFetching) {
       return <Card key="Network" id="Network" className='header'>
-        <div className="h3">网络配置</div>
+        <div className="h3"><FormattedMessage {...intlMsg.networkConfig}/></div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>
     }
@@ -255,7 +257,7 @@ let NetworkConfiguration = React.createClass ({
     },200)
   },
   updateCluster() {
-    const { form, cluster, updateProxy, getProxy, changeClusterIPsAndDomains } = this.props
+    const { form, cluster, updateProxy, getProxy, changeClusterIPsAndDomains, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     validing = true
     this.setState({
@@ -276,7 +278,7 @@ let NetworkConfiguration = React.createClass ({
           this.setState({
             saveBtnDisabled: false
           })
-          notify.error('请填入一组代理出口')
+          notify.error(formatMessage(intlMsg.inputProxyOut))
           return
         }
       })
@@ -315,12 +317,12 @@ let NetworkConfiguration = React.createClass ({
       //    address: getFieldValue(`nodeIP${item}`)
       //  })
       //})
-      notify.spin('更新代理出口中')
+      notify.spin(formatMessage(intlMsg.updatingProxyOut))
       updateProxy(cluster.clusterID, body, {
         success: {
           func: () => {
             notify.close()
-            notify.success('代理出口更新成功')
+            notify.success(formatMessage(intlMsg.updateProxyOutSuccess))
             setTimeout(() => changeClusterIPsAndDomains(entity.bindingIPs ? `["${entity.bindingIPs}"]` : '', entity.bindingDomains ? `["${entity.bindingDomains}"]` : ''),0)
             this.loadData(false)
             this.setState({
@@ -333,7 +335,7 @@ let NetworkConfiguration = React.createClass ({
         failed: {
           func: () => {
             notify.close()
-            notify.error('代理出口更新失败，请重试')
+            notify.error(formatMessage(intlMsg.updateProxyOutFail))
             this.setState({
               saveBtnDisabled: false,
               editCluster: true
@@ -417,7 +419,7 @@ let NetworkConfiguration = React.createClass ({
     }, 100)
   },
   getItems(config) {
-    const { cluster, form, clusterProxy } = this.props
+    const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form;
     const { editCluster, saveBtnLoading } = this.state
     let {bindingIPs} = cluster
@@ -449,18 +451,18 @@ let NetworkConfiguration = React.createClass ({
                   rules: [{
                     validator: (rule, value, callback) => {
                       if(!value) {
-                        return callback('请选择节点')
+                        return callback(formatMessage(intlMsg.plsSelectNode))
                       }
                       this.validAllField('node')
                       if(this.isExistRepeat('node', config, item).nodeResult) {
-                        return callback('代理节点重复')
+                        return callback(formatMessage(intlMsg.proxyNodeRepeat))
                       }
                       callback()
                     }
                   }],
                   onChange:(value) => this.nodeChange(value, networkKey, item)
                   })}
-                  placeholder="选择服务节点"
+                  placeholder={formatMessage(intlMsg.selectServiceNode)}
                   disabled={!editCluster}
                 >
                   {this.getSelectItem()}
@@ -476,21 +478,21 @@ let NetworkConfiguration = React.createClass ({
                     {
                       validator: (rule, value, callback) => {
                         if(!value) {
-                          return callback('请填写网卡 IP')
+                          return callback(formatMessage(intlMsg.inputNetworkCardIp))
                         }
                         if (!IP_REGEX.test(value)) {
-                          return callback([new Error('请填写正确的网卡 IP')])
+                          return callback([new Error(formatMessage(intlMsg.inputRightNetworkIp))])
                         }
                         this.validAllField('IP')
                         if(this.isExistRepeat('IP', config, item).IPResult) {
-                          return callback('节点网卡重复')
+                          return callback(formatMessage(intlMsg.nodeNetworkCardRepeat))
                         }
                         callback()
                       }
                     }
                   ]
                 })}
-                placeholder="输入服务出口 IP"
+                placeholder={formatMessage(intlMsg.inputServiceOutIp)}
                 disabled={!editCluster}
               />
             </Form.Item>
@@ -618,10 +620,10 @@ let NetworkConfiguration = React.createClass ({
   },
   networkTypeText(type){
     if(type == "public"){
-      return <span>公网</span>
+      return <span><FormattedMessage {...intlMsg.publicNet}/></span>
     }
     if(type == 'private'){
-      return <span>内网</span>
+      return <span><FormattedMessage {...intlMsg.intranet}/></span>
     }
     return <span></span>
   },
@@ -643,7 +645,7 @@ let NetworkConfiguration = React.createClass ({
   selectOption(){
     const { clusterProxy, cluster, form } = this.props
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
-      return <Option value="none" key="none">暂无出口</Option>
+      return <Option value="none" key="none"><FormattedMessage {...intlMsg.noOutForNow}/></Option>
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
     let networkConfigArray = form.getFieldValue('networkConfigArray')
@@ -664,7 +666,7 @@ let NetworkConfiguration = React.createClass ({
   },
   confirmSet(){
     const { defaultSetting } = this.state
-    const { setDefaultGroup, cluster, form } = this.props
+    const { setDefaultGroup, cluster, form, intl: { formatMessage } } = this.props
     let Noti = new NotificationHandler()
     this.setState({
       settingDefalutLoading: true
@@ -673,7 +675,7 @@ let NetworkConfiguration = React.createClass ({
       this.setState({
         settingDefalutLoading: false
       })
-      return Noti.error('默认网络出口不能为空')
+      return Noti.error(formatMessage(intlMsg.defaultNetOutNotNull))
     }
     const clusterID = cluster.clusterID
     const groupID = defaultSetting
@@ -685,7 +687,7 @@ let NetworkConfiguration = React.createClass ({
             settingDefalut: false,
           })
           this.props.form.resetFields(['defaultSetting'])
-          Noti.success('设置默认网络出口成功')
+          Noti.success(formatMessage(intlMsg.setDefaultNetOutSuccess))
           this.loadData()
         },
         isAsync: true
@@ -695,7 +697,7 @@ let NetworkConfiguration = React.createClass ({
           this.setState({
             settingDefalutLoading: false
           })
-          Noti.error('设置默认网络出口失败')
+          Noti.error(formatMessage(intlMsg.setDefaultNetOutFail))
         }
       }
     })
@@ -717,12 +719,13 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   serverDomainValidator(rule, value, cb) {
+    const { intl: { formatMessage } } = this.props
     const pattern = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
-    if (value && !pattern.test(value)) cb('请输入正确的域名') // 域名可以为空
+    if (value && !pattern.test(value)) cb(formatMessage(intlMsg.inputRightDomain)) // 域名可以为空
     cb()
   },
   renderDomainWarningStatus(data, item) {
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { editCluster } = this.state
     const { getFieldValue } = form
     const initialValue = data[item.key] && data[item.key].domain ? data[item.key].domain : undefined
@@ -734,7 +737,7 @@ let NetworkConfiguration = React.createClass ({
     if (editCluster && initialValue && !currentValue.length) {
       status = {
         status: 'warning',
-        message: '若清空域名，使用该网络出口的服务的 http 协议将无法正常使用'
+        message: formatMessage(intlMsg.clearDomainHttpError)
       }
       return status
     }
@@ -748,27 +751,27 @@ let NetworkConfiguration = React.createClass ({
     return status
   },
   render (){
-    const { cluster, form, clusterProxy } = this.props
+    const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
     const { editCluster, saveBtnLoading, sketchshow } = this.state
     const { getFieldProps, getFieldValue, setFieldsValue } = form
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
       return  <Card id="Network">
-        <div className="header">网络配置</div>
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
     if(!proxy) {
       return  <Card id="Network">
-        <div className="header">网络配置</div>
-        <div className="loadingBox" style={{height:'100px'}}>暂无代理</div>
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
       </Card>
     }
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     if(!networkConfigArray) {
       return  <Card id="Network">
-        <div className="header">网络配置</div>
-        <div className="loadingBox" style={{height:'100px'}}>暂无代理</div>
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
       </Card>
     }
     let dataList = proxy.data
@@ -782,7 +785,7 @@ let NetworkConfiguration = React.createClass ({
     if(!networkConfigArray.length){
       networkConfigList = [
         <div className='nodata'>
-          暂无配置，请添加
+          <FormattedMessage {...intlMsg.noConfigPlsAdd}/>
         </div>
       ]
     } else {
@@ -807,11 +810,11 @@ let NetworkConfiguration = React.createClass ({
           rules:[{
             validator: (rule, value, callback) => {
               if(!value) {
-                return callback('网络代理不能为空')
+                return callback(formatMessage(intlMsg.netProxyNotNull))
               }
               this.valiadAllGroupNameField()
               if(this.isNameRepeat(item.key)) {
-                return callback('网络代理重复')
+                return callback(formatMessage(intlMsg.netProxyRepeat))
               }
               return callback()
             }
@@ -819,9 +822,9 @@ let NetworkConfiguration = React.createClass ({
         })
         let addressProps = getFieldProps(`address${item.key}`,{
           initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
-          rules:[{required: true, message: '服务出口不能为空'}, {
+          rules:[{required: true, message: formatMessage(intlMsg.serviceOutNotNull)}, {
             pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-            message: '请输入正确的ip地址'
+            message: formatMessage(intlMsg.inputRightIp)
           }]
         })
         let domainProps  = getFieldProps(`domain${item.key}`,{
@@ -846,19 +849,19 @@ let NetworkConfiguration = React.createClass ({
           />
           {
             data[item.key] && data[item.key].isDefault
-              ? <div className='dafaultGroup'>默认</div>
+              ? <div className='dafaultGroup'><FormattedMessage {...intlMsg.defaultStr}/></div>
               : null
           }
           <Col xs={{span:10}}>
             <div className="formItem inner-mesh">
               <Row className='innerItemTitle'>
-                <Col xs={{span:11}}>代理节点</Col>
-                <Col xs={{span:13}}>节点的网卡IP(多网卡时请确认)</Col>
+                <Col xs={{span:11}}><FormattedMessage {...intlMsg.proxyNode}/></Col>
+                <Col xs={{span:13}}><FormattedMessage {...intlMsg.nodeNetIpConfirm}/></Col>
               </Row>
               {this.getItems(item)}
               {editCluster ?
                 <Form.Item className="increase">
-                  <span onClick={() => this.add(item)}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
+                  <span onClick={() => this.add(item)}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addIntranetProxy}/></span>
                 </Form.Item>
                 :
                 null
@@ -875,10 +878,10 @@ let NetworkConfiguration = React.createClass ({
               {
                 data[item.key] && data[item.key].id
                 ? <Row style={{marginBottom: '20px'}}>
-                    <Col span="7">出口ID</Col>
+                    <Col span="7"><FormattedMessage {...intlMsg.outId}/></Col>
                     <Col span="17">
                       {data[item.key].id}
-                      <Tooltip title={this.state.copyCMDSuccess ? '复制成功': '点击复制'}>
+                      <Tooltip title={this.state.copyCMDSuccess ? formatMessage(intlMsg.copySuccess): formatMessage(intlMsg.clickCopy)}>
                         <a
                           className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
                           onClick={() => this.copyOrder(data[item.key].id)}
@@ -897,9 +900,9 @@ let NetworkConfiguration = React.createClass ({
                 : null
               }
               <FormItem
-                label={<span> 类型
+                label={<span> <FormattedMessage {...intlMsg.type}/>
                   <span style={{color: 'red'}}>*</span>
-                  <Tooltip title='该类型决定该网络出口在创建服务时出现在哪种服务访问方式中'>
+                  <Tooltip title={formatMessage(intlMsg.typeNetOutService)}>
                     <Icon type="question-circle-o" className='qustionIcon'/>
                   </Tooltip>
                   { this.typeIcon(networkType)}
@@ -909,50 +912,50 @@ let NetworkConfiguration = React.createClass ({
                 <Select
                   {...getFieldProps(`networkType${item.key}`,{
                     initialValue: data[item.key] && data[item.key].type ? data[item.key].type : undefined,
-                    rules:[{required: true, message: '网络类型不能为空'}]
+                    rules:[{required: true, message: formatMessage(intlMsg.netTypeNotNull)}]
                   })}
                   disabled={!editCluster}
                 >
-                  <Option value="public" key="public">公网</Option>
-                  <Option value="private" key="private">内网</Option>
+                  <Option value="public" key="public"><FormattedMessage {...intlMsg.publicNet}/></Option>
+                  <Option value="private" key="private"><FormattedMessage {...intlMsg.intranet}/></Option>
                   {/*<Option value="incluster" key="incluster">不填写</Option>*/}
                 </Select>
               </FormItem>
               <FormItem
-                label={<span> 名称
+                label={<span> <FormattedMessage {...intlMsg.name}/>
                   <span style={{color: 'red'}}>*</span>
-                  <Tooltip title='建议名称能体现出内网或公网，供创建服务时选择服务访问类型用'>
+                  <Tooltip title={formatMessage(intlMsg.suggestPublicOrIntranet)}>
                     <Icon type="question-circle-o" className='qustionIcon'/>
                   </Tooltip>
                 </span>}
                 {...formItemLayout}
               >
                 <Input
-                  placeholder='填写网络代理名称'
+                  placeholder={formatMessage(intlMsg.inputNetProxyName)}
                   {...nameProps}
                   disabled={!editCluster || networkType == 'incluster'}
                 />
               </FormItem>
               <FormItem
-                label={<span> 服务出口 IP
+                label={<span> <FormattedMessage {...intlMsg.serviceOutIp}/>
                   <span style={{color: 'red'}}>*</span>
                 </span>}
                 {...formItemLayout}
               >
                 <Input
-                  placeholder={ networkType == 'incluster' ? '无需填写' : '可访问服务的内网IP'}
+                  placeholder={ networkType == 'incluster' ? formatMessage(intlMsg.noNeedInput) : formatMessage(intlMsg.intranetIpAccessService)}
                   {...addressProps}
                   disabled={networkType == 'incluster' || !editCluster}
                 />
               </FormItem>
               <FormItem
-                label={<span>服务域名配置</span>}
+                label={<span><FormattedMessage {...intlMsg.serviceDomainConfig}/></span>}
                 {...formItemLayout}
                 validateStatus={domainWarningStatus.status}
                 extra={domainWarningStatus.message}
               >
                 <Input
-                  placeholder='服务访问地址的域名(可选)'
+                  placeholder={formatMessage(intlMsg.serviceAddressDomain)}
                   {...domainProps}
                   disabled={networkType == 'incluster' || !editCluster}
                 />
@@ -965,49 +968,49 @@ let NetworkConfiguration = React.createClass ({
 
     return (
       <Card id="Network" >
-        <div className="header">网络配置
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/>
           {!editCluster?
            <Button type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
-              编辑配置
+             <FormattedMessage {...intlMsg.editConfig}/>
               </Button>
             :
             <div style={{float:'right'}}>
               <Button
                 onClick={()=> this.cancleEdit()}>
-                取消
+                <FormattedMessage {...intlMsg.cancel}/>
               </Button>
               <Button
                 loading={saveBtnLoading}
                 disabled={this.state.saveBtnDisabled}
                 type="primary" style={{marginLeft:'8px'}}
                 onClick={this.updateCluster}>
-                保存
+                <FormattedMessage {...intlMsg.save}/>
               </Button>
             </div>
           }
         </div>
         <Row className='title'>
           <Col span="14">
-            服务内网代理
-            <Tooltip title='服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；'>
+            <FormattedMessage {...intlMsg.serviceIntranetProxy}/>
+            <Tooltip title={formatMessage(intlMsg.serviceIntranetIpShow)}>
               <Icon type="question-circle-o" className='qustionIcon'/>
             </Tooltip>
           </Col>
           <Col span="10">
-            服务出口
-            <Tooltip title='服务出口 IP 显示在『应用管理→服务地址：外网IP』处，服务内网 IP 地址所映射的代理或网关等性质的产品，平台暂无法自动获取，需手动填写，如OpenStack 的浮动 IP、节点绑定的负载均衡器、平台出口高可用的虚拟 IP 等'>
+            <FormattedMessage {...intlMsg.serviceOut}/>
+            <Tooltip title={formatMessage(intlMsg.serviceOutIpShow)}>
               <Icon type="question-circle-o" className='qustionIcon'/>
             </Tooltip>
-            <span className="sketchMap" onClick={()=> this.setState({visible:true})}>查看示意图</span>
+            <span className="sketchMap" onClick={()=> this.setState({visible:true})}><FormattedMessage {...intlMsg.checkPic}/></span>
             {
               editCluster
-              ? <Tooltip title='设置默认网络'>
+              ? <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
                 <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}/>
               </Tooltip>
               : <Button icon="setting" className='settingDefalut' disabled/>
             }
 
-            <Button type="primary" className='addPublick' disabled={!editCluster} onClick={this.addPublic}>添加网络出口</Button>
+            <Button type="primary" className='addPublick' disabled={!editCluster} onClick={this.addPublic}><FormattedMessage {...intlMsg.addNetOut}/></Button>
           </Col>
         </Row>
 
@@ -1017,14 +1020,17 @@ let NetworkConfiguration = React.createClass ({
 
 
 
-        <Modal wrapClassName="vertical-center-modal" width='75%' title="示意图" footer={<Button type="primary" onClick={()=> this.setState({visible:false})}>知道了</Button>} visible={this.state.visible} onCancel={()=> this.setState({visible:false})}>
+        <Modal wrapClassName="vertical-center-modal" width='75%' title={formatMessage(intlMsg.Schematic)}
+               footer={<Button type="primary" onClick={()=> this.setState({visible:false})}>
+                 <FormattedMessage {...intlMsg.iKnow}/></Button>}
+               visible={this.state.visible} onCancel={()=> this.setState({visible:false})}>
           <div className="imgBox">
             <img style={{width:'100%',height:'100%'}} src={sketchImg}/>
           </div>
         </Modal>
 
          <Modal
-           title="设置默认网络出口"
+           title={formatMessage(intlMsg.setDefaultNetOut)}
            visible={this.state.settingDefalut}
            closable={true}
            onOk={this.confirmSet}
@@ -1035,17 +1041,17 @@ let NetworkConfiguration = React.createClass ({
            wrapClassName="settingDefalut"
          >
            <div>
-             <div className='alertRow'>设置一个默认的网络出口，当创建服务或数据库与缓存时，默认选择该网络出口作为服务访问方式</div>
+             <div className='alertRow'><FormattedMessage {...intlMsg.setOneDefaultNetOut}/></div>
            </div>
            <Form.Item
-             label="默认网络出口"
+             label={formatMessage(intlMsg.defaultNetOut)}
              labelCol={{span: 5}}
              wrapperCol={{span: 19}}
            >
              <Select
                style={{width:'180px'}}
-               placeholder='选择默认网络出口'
-               notFoundContent="暂无出口"
+               placeholder={formatMessage(intlMsg.selectDefaultNetOut)}
+               notFoundContent={formatMessage(intlMsg.noOut)}
                {...getFieldProps('defaultSetting',{
                  initialValue: this.state.defaultGroup,
                  onChange: this.selectSettingChange
@@ -1058,7 +1064,7 @@ let NetworkConfiguration = React.createClass ({
 
 
         <Modal
-          title="删除网络出口"
+          title={formatMessage(intlMsg.deleteNetOut)}
           visible={this.state.deleteDefaultGroup}
           closable={true}
           onOk={() => this.deletePublic(this.state.currentItem, 'confirm')}
@@ -1075,17 +1081,17 @@ let NetworkConfiguration = React.createClass ({
               ? <span>1、</span>
               : null
             }
-              删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问</div>
+              <FormattedMessage {...intlMsg.deleteNetOutTip}/></div>
             {
               this.state.currentGroup
-              ? <div>2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认</div>
+              ? <div><FormattedMessage {...intlMsg.deleteNetOutTip2}/></div>
               : null
             }
           </div>
 
           <div className='message'>
             <Icon type="question-circle-o questionIcon" />
-            是否确定删除 { this.state.currentName } 网络出口?
+            <FormattedMessage {...intlMsg.deleteNetOutConfirm } values={{ currentName: this.state.currentName }}/>
           </div>
         </Modal>
       </Card>
@@ -1117,4 +1123,6 @@ export default connect(mapStateToProps, {
   getAllClusterNodes,
   changeClusterIPsAndDomains,
   setDefaultGroup
-})(Form.create()(NetworkConfiguration))
+})(Form.create()(injectIntl(NetworkConfiguration, {
+  withRef: true,
+})))

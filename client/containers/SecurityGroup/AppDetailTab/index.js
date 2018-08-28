@@ -81,7 +81,8 @@ class SecurityGroupTab extends React.Component {
         func: error => {
           const { message } = error
           notification.close()
-          notification.warn(formatMessage(AppServiceDetailIntl.getSecurityGroupErrorInfo), message.message)
+          notification.warn(formatMessage(AppServiceDetailIntl.getSecurityGroupErrorInfo),
+            message.message)
         },
       },
     })
@@ -114,7 +115,8 @@ class SecurityGroupTab extends React.Component {
               func: error => {
                 const { message } = error
                 notification.close()
-                notification.warn(formatMessage(AppServiceDetailIntl.getDetailErrorInfo), message.message)
+                notification.warn(formatMessage(AppServiceDetailIntl.getDetailErrorInfo),
+                  message.message)
               },
             },
           }).then(res => {
@@ -134,7 +136,8 @@ class SecurityGroupTab extends React.Component {
                 func: error => {
                   const { message } = error
                   notification.close()
-                  notification.warn(formatMessage(AppServiceDetailIntl.changeSecurityGroupFailure), message.message)
+                  notification.warn(formatMessage(AppServiceDetailIntl.changeSecurityGroupFailure),
+                    message.message)
                 },
               },
             })
@@ -266,12 +269,15 @@ class SecurityGroupTab extends React.Component {
             <i className="fa fa-exclamation-triangle modalIcon" aria-hidden="true"></i>
             <div>
               <p>{formatMessage(AppServiceDetailIntl.removeRelationRecurityGroupInfo)}</p>
-              <p>{formatMessage(AppServiceDetailIntl.confirmRmoveSecurityGroup, { name: current.name })}</p>
+              <p>{formatMessage(AppServiceDetailIntl.confirmRmoveSecurityGroup,
+                { name: current.name })}</p>
             </div>
           </div>
         </Modal>
         <QueueAnim>
-          <div className="securityTit" key="securityTit">{formatMessage(AppServiceDetailIntl.fireWall)}</div>
+          <div className="securityTit" key="securityTit">
+            {formatMessage(AppServiceDetailIntl.fireWall)}
+          </div>
           <div className="securityCont" key="securityCont">
             <div className="securityText">
               <p >

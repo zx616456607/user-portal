@@ -14,8 +14,8 @@ import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotify
 import { connect } from 'react-redux'
 import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
-import { injectIntl,  } from 'react-intl'
-import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './Intl'
 
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
@@ -105,8 +105,8 @@ let CreateAlarmGroup = React.createClass({
     });
     this.setState({isAddEmail: false})
   },
-  addRuleEmail(rule, value, callback){
-    const { formatMessage } = this.props.intl
+  addRuleEmail(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     let newValue = value.trim()
     let isAddEmail= true
     if(!Boolean(newValue)) {
@@ -115,7 +115,7 @@ let CreateAlarmGroup = React.createClass({
       // isAddEmail = false
     }
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newValue)) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.inputCorrectEmailAddress)))
+      callback(new Error(formatMessage(intlMsg.plsInputRightEmail)))
       isAddEmail = false
     }
     callback()
@@ -125,6 +125,7 @@ let CreateAlarmGroup = React.createClass({
     // send rule email
     const { formatMessage } = this.props.intl
     const _this = this
+    const { intl: { formatMessage } } = this.props
     let time = 60
     const { getFieldValue } = this.props.form
     const {
@@ -139,20 +140,20 @@ let CreateAlarmGroup = React.createClass({
           func: (result) => {
             _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
             _this.getEmailStatusText(k,time)
-            notification.success(formatMessage(AppServiceDetailIntl.sendEmailSuccess, { email }))
+            notification.success(formatMessage(intlMsg.sendEmailScs, { email }))
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
-            notification.error(formatMessage(AppServiceDetailIntl.sendEmailFailure, { email }))
+            notification.error(formatMessage(intlMsg.sendEmailFail, { email }))
           }
         }
       })
     }
     if (email) {
       this.setState({
-        ['transitionTime'+[k]]: formatMessage(AppServiceDetailIntl.validating),
+        ['transitionTime'+[k]]: formatMessage(intlMsg.validating),
         ['transitionEnble'+[k]]: true,
       })
       // check if email already accept invitation
@@ -162,7 +163,7 @@ let CreateAlarmGroup = React.createClass({
             if (email in result.data && result.data[email] === 1) {
               this.setState({
                 [`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED,
-                ['transitionTime'+[k]]: formatMessage(AppServiceDetailIntl.receiveInvitation),
+                ['transitionTime'+[k]]: formatMessage(intlMsg.receiveInvite),
                 ['transitionEnble'+[k]]:true
               })
             } else {
@@ -173,7 +174,7 @@ let CreateAlarmGroup = React.createClass({
         },
         failed: {
           func: (err) => {
-            notification.error(formatMessage(AppServiceDetailIntl.sendEmailFailure, { email }))
+            notification.error(formatMessage(intlMsg.sendEmailFail, { email }))
           }
         }
       })
@@ -182,19 +183,20 @@ let CreateAlarmGroup = React.createClass({
     }
   },
   groupName(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
     // top email rule name
     const {formatMessage } = this.props.intl
     let newValue = value.trim()
     if (!Boolean(newValue)) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.inputName)))
+      callback(new Error(formatMessage(intlMsg.plsInputName)))
       return
     }
     if (newValue.length < 3 || newValue.length > 21) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInput321character)))
+      callback(new Error(formatMessage(intlMsg.plsInput321)))
       return
     }
     if (!/^[a-zA-Z0-9\u4e00-\u9fa5]{1}[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/.test(newValue)){
-      return callback(formatMessage(AppServiceDetailIntl.verificationNameInfo))
+      return callback(formatMessage(intlMsg.plsInputCnEnNum))
     }
     callback()
   },
@@ -218,8 +220,7 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   okModal() {
-    const {formatMessage } = this.props.intl
-    const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
+    const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup, intl: { formatMessage } } = this.props
     const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
     form.validateFields((error, values) => {
@@ -228,7 +229,7 @@ let CreateAlarmGroup = React.createClass({
       }
       // have one email at least
       if (values.keys.length === 0) {
-        notification.error(formatMessage(AppServiceDetailIntl.leastOneEmail))
+        notification.error(formatMessage(intlMsg.atLeastOneEmail))
         return
       }
       let body = {
@@ -271,10 +272,9 @@ let CreateAlarmGroup = React.createClass({
                 'transitionEnble0': false,
               })
               if (err.message.code === 409) {
-                notification.error(formatMessage(AppServiceDetailIntl.createNotificationGroupFailure),
-                formatMessage(AppServiceDetailIntl.GroupNameExistInfo))
+                notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
-                notification.error(formatMessage(AppServiceDetailIntl.createNotificationGroupFailure), err.message.message)
+                notification.error(formatMessage(intlMsg.createGroupFail), err.message.message)
               }
             },
             isAsync: true
@@ -300,7 +300,7 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.error(formatMessage(AppServiceDetailIntl.changeGroupFailure), err.message.message)
+              notification.error(formatMessage(intlMsg.editGroupFail), err.message.message)
             }
           }
         })
@@ -308,8 +308,8 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   getEmailStatusText(k,time) {
-    const { formatMessage } = this.props.intl
-    let text = formatMessage(AppServiceDetailIntl.validateEmail)
+    const { intl: { formatMessage } } = this.props
+    let text = formatMessage(intlMsg.validatorEmail)
     let enble= true
     switch (this.state[`emailStatus${k}`]) {
       case EMAIL_STATUS_WAIT_ACCEPT:{
@@ -327,9 +327,9 @@ let CreateAlarmGroup = React.createClass({
             clearInterval(timefunc)
           }
           time--
-          text = formatMessage(AppServiceDetailIntl.reValidateEmail, {time})
+          text = time +formatMessage(intlMsg.secondsAfter)
           this.setState({
-            ['transitionTime'+[k]]:time ==0? formatMessage(AllServiceListIntl.validateEmail) :text,
+            ['transitionTime'+[k]]:time ==0?formatMessage(intlMsg.validatorEmail):text,
             ['transitionEnble'+[k]]:enble
           })
         },1000)
@@ -337,7 +337,7 @@ let CreateAlarmGroup = React.createClass({
       }
       case EMAIL_STATUS_ACCEPTED:
         this.setState({
-          ['transitionTime'+[k]]: formatMessage(AllServiceListIntl.receiveInvitation),
+          ['transitionTime'+[k]]:formatMessage(intlMsg.receiveInvite),
           ['transitionEnble'+[k]]:enble
         })
         return
@@ -379,7 +379,7 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('keys', {
       initialValue: [0],
     });
-    const { isModify,data } = this.props
+    const { isModify,data, intl: { formatMessage } } = this.props
     const formItems = getFieldValue('keys').map((k) => {
       let indexed = Math.max(0,k-1)
       let initAddrValue = ''
@@ -393,14 +393,14 @@ let CreateAlarmGroup = React.createClass({
         <Form.Item style={{float:'left'}}>
           <Input {...getFieldProps(`email${k}`, {
             rules: [
-            {validator: this.addRuleEmail}
+            {validator: this.addRuleEmail.bind(this)}
             ],
             initialValue: initAddrValue,
           }) } style={{ width: '150px', marginRight: 8 }}
           />
         </Form.Item>
         <Form.Item style={{float:'left'}}>
-          <Input placeholder={formatMessage(AppServiceDetailIntl.remark)} size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
+          <Input placeholder={formatMessage(intlMsg.remarks)} size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
         </Form.Item>
         <Button
           type="primary"
@@ -412,10 +412,10 @@ let CreateAlarmGroup = React.createClass({
           {
             this.state[`transitionEnble${k}`]
             ? this.state[`transitionTime${k}`]
-            : formatMessage(AppServiceDetailIntl.validateEmail)
+            :formatMessage(intlMsg.validatorEmail)
           }
         </Button>
-        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
+        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}><FormattedMessage {...intlMsg.cancel}/></Button>
       </div>
       );
     });
@@ -436,43 +436,43 @@ let CreateAlarmGroup = React.createClass({
             <Input style={{ width: '150px', marginRight: 8 }} />
           </Form.Item>
           <Form.Item style={{float:'left'}}>
-            <Input placeholder="备注" size="large" style={{ width: 80,  marginRight: 8 }} />
+            <Input placeholder={formatMessage(intlMsg.remarks)} size="large" style={{ width: 80,  marginRight: 8 }} />
           </Form.Item>
           <Button
             type="primary"
             style={{padding:5}}
             size="large"
           >
-            {formatMessage(AppServiceDetailIntl.validatePhone)}
+            <FormattedMessage {...intlMsg.validatorPhone}/>
           </Button>
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}>
-            {formatMessage(AppServiceDetailIntl.cancel)}
+            <FormattedMessage {...intlMsg.cancel}/>
           </Button>
         </div>
       );
     });
     return (
       <Form className="alarmAction" form={this.props.form}>
-        <Form.Item label={formatMessage(ServiceCommonIntl.name)} {...formItemLayout} >
-          <Input placeholder={formatMessage(AppServiceDetailIntl.inputName)} {...getFieldProps(`groupName`, {
+        <Form.Item label={formatMessage(intlMsg.name)} {...formItemLayout} >
+          <Input placeholder={formatMessage(intlMsg.plsInputName)} {...getFieldProps(`groupName`, {
           rules: [
-            { validator: this.groupName}
+            { validator: this.groupName.bind(this)}
           ],
           initialValue: this.props.isModify ? this.props.data.name : '',}) }
           disabled={!!this.props.isModify}/>
         </Form.Item>
-        <Form.Item label={formatMessage(AppServiceDetailIntl.description)} {...formItemLayout} >
+        <Form.Item label={formatMessage(intlMsg.description)} {...formItemLayout} >
           <Input type="textarea" {...getFieldProps(`groupDesc`, {
           initialValue: this.props.isModify ? this.props.data.desc : '',
           }) }/>
         </Form.Item>
         <div className="lables">
           <div className="keys">
-            {formatMessage(AppServiceDetailIntl.email)}
+            <FormattedMessage {...intlMsg.email}/>
           </div>
           <div className="emaillItem" >
             {formItems}
-            <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" />{formatMessage(AppServiceDetailIntl.addEmail)}</a></div>
+            <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addEmail}/></a></div>
           </div>
         </div>
 
@@ -506,11 +506,11 @@ let CreateAlarmGroup = React.createClass({
         </div> */}
 
         <div className="ant-modal-footer" style={{margin:'0 -30px'}}>
-          <Button type="ghost" size="large" onClick={()=> this.handCancel()}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
-          <Button type="primary" size="large" onClick={()=> this.okModal()}>{formatMessage(ServiceCommonIntl.save)}</Button>
+          <Button type="ghost" size="large" onClick={()=> this.handCancel()}><FormattedMessage {...intlMsg.cancel}/></Button>
+          <Button type="primary" size="large" onClick={()=> this.okModal()}><FormattedMessage {...intlMsg.save}/></Button>
         </div>
         <Modal
-          title={formatMessage(AppServiceDetailIntl.scanQRbindWChat)}
+          title={formatMessage(intlMsg.scanCodeWechat)}
           footer={null}
           visible={this.state.QRCodeVisible}
           onCancel={() => this.setState({ QRCodeVisible: false })}
@@ -537,4 +537,7 @@ export default injectIntl(connect(mapStateToProps, {
   createNotifyGroup,
   modifyNotifyGroup,
   loadNotifyGroups
-})(CreateAlarmGroup), { withRef: true, })
+})(injectIntl(CreateAlarmGroup, {
+  withRef: true,
+}))
+
