@@ -189,6 +189,7 @@ class AppContainerList extends Component {
   render() {
     const parentScope = this;
     const { containerList, loading, serviceName, serviceDetail } = this.props
+    const containerNum = containerList && containerList.length
     return (
       <div id="AppContainerList">
         <QueueAnim className="demo-content"
@@ -221,6 +222,7 @@ class AppContainerList extends Component {
               && <ContainerHeader
               serviceDetail={serviceDetail}
               onTabClick={this.props.onTabClick}
+              containerNum={containerNum}
             />
           }
           <Card className="dataBox">

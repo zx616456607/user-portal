@@ -327,14 +327,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   // 设置实例数量
   deployment.setReplicas(replicas)
+  // 设置固定 IP
   if (replicasCheck) {
-    const { keys } = fieldsValues
+    const { ipKeys } = fieldsValues
     const replicasIPArr = []
-    keys.forEach(item => {
+    ipKeys.forEach(item => {
       replicasIPArr.push(fieldsValues[`replicasIP${item}`])
     })
     const replicasIPStr = JSON.stringify(replicasIPArr)
-    deployment.setAnnotations({
+    deployment.setMetaAnnotations({
       ['cni.projectcalico.org/ipv4pools']: replicasIPStr,
     })
 

@@ -166,6 +166,7 @@ exports.getPodNetworkSegment = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'nodes', 'podcidr'], null)
   this.body = {
-    data: result
+    data: result.data,
+    statusCode: result.statusCode
   }
 }
