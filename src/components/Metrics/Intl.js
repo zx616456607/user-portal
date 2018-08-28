@@ -32,6 +32,10 @@ export const mapData = {
     off: '关',
     // Memory.js
     memory: '内存',
+    // Network.js
+    network: '网络',
+    download: '下载',
+    upload: '上传',
   }
 }
 
