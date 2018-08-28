@@ -5,7 +5,7 @@
 
 /**
  *
- * intl for login page
+ * intl for Sider
  * v0.1 - 2018-08-24
  *
  * @author zhangpc
@@ -98,7 +98,7 @@ export const mapData = {
     clusterBackup: '平台数据备份',
     outdentMenu: '展开导航栏',
     indentMenu: '收起',
-  }
+  },
 }
 
 export default defineIntlMessages(mapData)
