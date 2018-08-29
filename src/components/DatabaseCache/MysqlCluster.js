@@ -140,18 +140,19 @@ let MyComponent = React.createClass({
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '-'}</li>
               <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
-                {
-                  shoulldAutoBackup || item.cronBackup?
-                    <div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>
-                    :
-                    <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
-                      <div className="opacity-switch banned"></div>
-                    </Tooltip>
-                }
-                  <Switch checkedChildren="开"
-                          unCheckedChildren="关"
-                          checked={item.cronBackup}
-                  />
+                <span>{item.cronBackup? '开启': '关闭'}</span>
+                {/*{*/}
+                  {/*shoulldAutoBackup || item.cronBackup?*/}
+                    {/*<div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>*/}
+                    {/*:*/}
+                    {/*<Tooltip title="无任何备份链，手动备份后，可设置自动备份">*/}
+                      {/*<div className="opacity-switch banned"></div>*/}
+                    {/*</Tooltip>*/}
+                {/*}*/}
+                  {/*<Switch checkedChildren="开"*/}
+                          {/*unCheckedChildren="关"*/}
+                          {/*checked={item.cronBackup}*/}
+                  {/*/>*/}
               </li>
             </ul>
           </div>
