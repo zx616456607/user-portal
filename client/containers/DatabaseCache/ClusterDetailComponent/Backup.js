@@ -708,7 +708,7 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           {
-            chainsData.length === 0 ?
+            chainsData.length === 0 && database !== 'redis' ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
