@@ -12,10 +12,10 @@ import React from 'react'
 import './styles/ContainerInstance.less'
 import { connect } from 'react-redux'
 import { Modal, Form, Input, Row, Col, Button, Icon } from 'antd'
-// import Notification from '../../../../src/components/Notification'
+import Notification from '../../../../src/components/Notification'
 import * as serviceActions from '../../../../src/actions/services'
 
-// const notification = new Notification()
+const notification = new Notification()
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -49,8 +49,9 @@ class ContainerInstance extends React.Component {
   }
 
   setInitaialStatus = () => {
-    const annotations = this.props.serviceDetail.spec
-      && this.props.serviceDetail.spec.template.metadata.annotations
+    const { serviceDetail, cluster } = this.props
+    const service = Object.keys(serviceDetail[cluster])[0]
+    const annotations = serviceDetail[cluster][service].service.metadata.annotations
     const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
       && annotations['cni.projectcalico.org/ipv4pools']
     if (ipv4) {
@@ -89,7 +90,7 @@ class ContainerInstance extends React.Component {
 
   handleOk = () => {
     this.props.form.validateFields((err, values) => {
-      // console.log( values )
+      // console.log( values, 'vvvv' )
       if (!values.keys.length) return
       const { UpdateServiceAnnotation, cluster, serviceDetail } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
@@ -99,21 +100,27 @@ class ContainerInstance extends React.Component {
         ipArr.push(values[`replicasIP${el}`])
       })
       const ipStr = JSON.stringify(ipArr)
-      const annotations = serviceDetail[cluster][server].service.spec.template.metadata.annotations
+      const annotations = serviceDetail[cluster][server].service.metadata.annotations
       Object.assign(annotations, {
         'cni.projectcalico.org/ipv4pools': ipStr,
       })
-      // console.log( annotations, '****' )
+      notification.spin()
       UpdateServiceAnnotation(cluster, server, annotations, {
         success: {
           func: () => {
-            // notification.close()
-            // 提示
+            notification.close()
             const { onChangeVisible, onHandleCanleIp } = this.props
             onChangeVisible()
             onHandleCanleIp(true)
+            notification.success('已固定 IP')
           },
           isAsync: true,
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            notification.warn('固定 IP 操作失败')
+          },
         },
       })
 
@@ -123,19 +130,25 @@ class ContainerInstance extends React.Component {
   handleNotFix = () => {
     const { UpdateServiceAnnotation, onChangeVisible, cluster, serviceDetail } = this.props
     const server = Object.keys(serviceDetail[cluster])[0]
-    const annotations = serviceDetail[cluster][server].service.spec.template.metadata.annotations
+    const annotations = serviceDetail[cluster][server].service.metadata.annotations
     Object.assign(annotations, {
       'cni.projectcalico.org/ipv4pools': '',
     })
-    delete annotations['cni.projectcalico.org/ipv4pools']
+    notification.spin()
     UpdateServiceAnnotation(cluster, server, annotations, {
       success: {
         func: () => {
-          // notification.close()
-          // 提示
+          notification.close()
           onChangeVisible()
+          notification.success('释放 IP 成功')
         },
         isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.warn('释放 IP 失败')
+        },
       },
     })
   }
@@ -153,7 +166,7 @@ class ContainerInstance extends React.Component {
 
   render() {
     const { oldIP } = this.state
-    const { form, configIP, notConfigIP } = this.props
+    const { form, configIP, notConfigIP, containerNum } = this.props
     const { getFieldProps, getFieldValue } = form
     getFieldProps('keys', {
       initialValue: [ ],
@@ -209,7 +222,7 @@ class ContainerInstance extends React.Component {
             <FormItem
               label="容器实例数量"
               {...formItemLayout}>
-              <span>{ '12' }</span>
+              <span>{containerNum}</span>
             </FormItem>
             {formItems}
             <Row className="addInstance">

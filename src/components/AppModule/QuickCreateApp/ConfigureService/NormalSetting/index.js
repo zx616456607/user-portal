@@ -697,11 +697,9 @@ const Normal = React.createClass({
             </Col>
           </Row>
           {
-            (getFieldValue('replicasCheck') && getFieldValue('replicas'))
-              &&　<ReplicasRestrictIP
-                form={form}
-              />
-              || null
+            getFieldValue('replicasCheck')
+              ? <ReplicasRestrictIP form={form} />
+              : null
           }
           <AccessMethod
             formItemLayout={formItemLayout}
