@@ -26,9 +26,10 @@ let mid = 0
 let phoneUuid = 0
 let CreateAlarmGroup = React.createClass({
   getInitialState() {
+    const { formatMessage } = this.props.intl
     return {
       isAddEmail: 1,
-      transitionTime1:'验证邮件'
+      transitionTime1:formatMessage(AppServiceDetailIntl.validateEmail)
     }
   },
   componentWillMount() {
@@ -122,7 +123,6 @@ let CreateAlarmGroup = React.createClass({
   },
   ruleEmail(k) {
     // send rule email
-
     const _this = this
     const { intl: { formatMessage } } = this.props
     let time = 60
