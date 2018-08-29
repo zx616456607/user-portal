@@ -30,6 +30,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import yaml from 'js-yaml'
 import { HARBOR_ALL_PROJECT_FAILURE } from '../../../actions/harbor';
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -129,7 +131,7 @@ class MyComponent extends Component {
   }
   editServiceConfirm(){
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { serviceDetail, cluster, editServiceEnv } = this.props
+    const { serviceDetail, cluster, editServiceEnv, formatMessage } = this.props
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
     /* if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
@@ -145,7 +147,7 @@ class MyComponent extends Component {
     editServiceEnv(body,{
       success : {
         func : () => {
-          Notification.success('环境变量修改成功！')
+          Notification.success(formatMessage(AppServiceDetailIntl.envChangeSuccess))
           this.setState({
             rowDisableArray,
             dataArray,
@@ -158,7 +160,7 @@ class MyComponent extends Component {
       },
       failed : {
         func : () => {
-          Notification.error('环境变量修改失败！')
+          Notification.error(formatMessage(AppServiceDetailIntl.envChangeFailure))
           this.setState({
             rowDisableArray,
             saveBtnLoadingArray,
@@ -171,13 +173,13 @@ class MyComponent extends Component {
   }
   handleSaveEdit(index){
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { form } = this.props
+    const { form, formatMessage } = this.props
     const { getFieldValue } = form
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
     if(name == '' || value == '' || name == undefined || value == undefined){
-      Notification.error('变量名和变量值均不能为空')
+      Notification.error(formatMessage(AppServiceDetailIntl.variableNameValueNotEmpty))
       return
     }
     for(let i=0; i<dataArray.length; i++ ){
@@ -185,7 +187,7 @@ class MyComponent extends Component {
         if(dataArray[index].edit == true){
           break
         }
-        Notification.error('变量名已经存在，请修改！')
+        Notification.error(formatMessage(AppServiceDetailIntl.variableNameExist))
         return
       }
     }
@@ -220,9 +222,10 @@ class MyComponent extends Component {
   }
 
   addNewEnv(){
+    const {  formatMessage} = this.props
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
     if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
-      new NotificationHandler().error("请先保存新增的环境变量")
+      new NotificationHandler().error(formatMessage(AppServiceDetailIntl.saveNewEnv))
       return
     }
     rowDisableArray.push({disable : true})
@@ -275,14 +278,15 @@ class MyComponent extends Component {
 
   envNameCheck(rule, value, callback) {
     const { dataArray } = this.state
+    const { formatMessage } = this.props
     let flag = false
-    let errorMsg = appEnvCheck(value, '环境变量');
+    let errorMsg = appEnvCheck(value, formatMessage(AppServiceDetailIntl.envVariable));
     if(value == ''){
-      callback(new Error('变量名不能为空！'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.VariableNameCanNotEmpty)))
     }
     for(let i=0; i<dataArray.length; i++ ){
       if(dataArray[i].name == value){
-        callback(new Error('变量名已存在！'))
+        callback(new Error(formatMessage(AppServiceDetailIntl.variableNameExist)))
       }
     }
     if(errorMsg == 'success') {
@@ -293,15 +297,16 @@ class MyComponent extends Component {
   }
 
   templateTable(dataArray,rowDisableArray) {
+    const { formatMessage } = this.props
     if(dataArray.length == 0) {
-      return <div className='noData'>暂无环境变量</div>
+      return <div className='noData'>{formatMessage(AppServiceDetailIntl.NoEnvVariable)}</div>
     }
     const { form, secretsOptions } = this.props
     const { getFieldProps, getFieldValue, resetFields } = form
     const ele = []
     dataArray.forEach((env,index) => {
       const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(index)}>
-        <Menu.Item key="1"><Icon type="edit" />&nbsp;编辑</Menu.Item>
+        <Menu.Item key="1"><Icon type="edit" />&nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
       </Menu>
       let value = env.value
       if (env.valueFrom && env.valueFrom.secretKeyRef) {
@@ -328,8 +333,8 @@ class MyComponent extends Component {
           style={{ width: 80 }}
           size="default"
         >
-          <Option value="normal">普通变量</Option>
-          <Option value="secret">加密变量</Option>
+          <Option value="normal">{formatMessage(AppServiceDetailIntl.commonVariable)}</Option>
+          <Option value="secret">{formatMessage(AppServiceDetailIntl.encryptionVariable)}</Option>
         </Select>
       )
 
@@ -356,7 +361,7 @@ class MyComponent extends Component {
                 <span className={envValueInputClass}>
                   <Input
                     size="default"
-                    placeholder="请填写值"
+                    placeholder={formatMessage(AppServiceDetailIntl.pleaseInputValue)}
                     {...envValueProps}
                     addonBefore={selectBefore}
                   />
@@ -367,7 +372,7 @@ class MyComponent extends Component {
                   </span>
                   <Cascader
                     {...envValueProps}
-                    placeholder="请选择加密对象"
+                    placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceEncryptionObject)}
                     options={secretsOptions}
                   />
                 </span>
@@ -376,7 +381,7 @@ class MyComponent extends Component {
                 {
                   Array.isArray(value) &&
                   <a>
-                    <Tooltip title="加密变量" placement="top">
+                    <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
                       <i className="fa fa-key" />
                     </Tooltip>
                   </a>
@@ -392,11 +397,11 @@ class MyComponent extends Component {
             {
               rowDisableArray[index].disable
               ? <div>
-                <Button type='primary' className='saveBtn' onClick={() => this.handleSaveEdit(index)} loading={this.state.saveBtnLoadingArray[index].loading}>保存</Button>
-                <Button onClick={() => this.handleCancleEdit(index)}>取消</Button>
+                <Button type='primary' className='saveBtn' onClick={() => this.handleSaveEdit(index)} loading={this.state.saveBtnLoadingArray[index].loading}>{formatMessage(ServiceCommonIntl.save)}</Button>
+                <Button onClick={() => this.handleCancleEdit(index)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
               </div>
               : <Dropdown.Button type="ghost" overlay={editMenu} className='editButton' onClick={() => this.handleDelete(index,env.name)}>
-                  <Icon type="delete" />删除
+                  <Icon type="delete" />{formatMessage(ServiceCommonIntl.delete)}
                 </Dropdown.Button>
             }
           </div>
@@ -408,22 +413,23 @@ class MyComponent extends Component {
   }
   render(){
     const { DeletingEnvName } = this.state
+    const { formatMessage } = this.props
     return (
       <div className='DetailInfo__MyComponent commonBox'>
-          <span className="titleSpan">环境变量</span>
-          <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>修改尚未更新，请点击"应用修改"使之生效</div>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.envVariable)}</span>
+          <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
         <div className='save_box'>
-          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>应用修改</Button>
+          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>{formatMessage(AppServiceDetailIntl.appChange)}</Button>
         </div>
           <div className="titleBox">
             <div className="commonTitle">
-              变量名
+              {formatMessage(AppServiceDetailIntl.variableName)}
             </div>
             <div className="commonTitle">
-              变量值
+              {formatMessage(AppServiceDetailIntl.variableValue)}
             </div>
             <div className="commonTitle">
-              操作
+              {formatMessage(ServiceCommonIntl.operation)}
             </div>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -433,10 +439,10 @@ class MyComponent extends Component {
           </Form>
         </div>
         <div className="pushRow">
-          <a onClick={this.addNewEnv}><Icon type="plus" />添加环境变量</a>
+          <a onClick={this.addNewEnv}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.addEnvVariable)}</a>
         </div>
         <Modal
-          title="删除环境变量操作"
+          title={formatMessage(AppServiceDetailIntl.deleteEnvVariableOperation)}
           wrapClassName="ModalDeleteInfo"
           visible={this.state.ModalDeleteVisible}
           onOk={this.ModalDeleteOk}
@@ -447,7 +453,7 @@ class MyComponent extends Component {
               type="ghost"
               size="large"
               onClick={this.ModalDeleteCancel}>
-              取 消
+              {formatMessage(ServiceCommonIntl.cancel)}
             </Button>,
             <Button
               key="submit"
@@ -455,13 +461,13 @@ class MyComponent extends Component {
               size="large"
               loading={this.state.buttonLoading}
               onClick={this.ModalDeleteOk}>
-              确 定
+              {formatMessage(ServiceCommonIntl.confirm)}
             </Button>,
           ]}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            你是否确定删除 [<span>{DeletingEnvName}</span>] 环境变量
+            {formatMessage(AppServiceDetailIntl.deleteEnvVariableInfo, { DeletingEnvName })}
           </div>
         </Modal>
       </div>
@@ -762,18 +768,18 @@ class BindNodes extends Component {
     </span>
   }
   template() {
-    const { serviceDetail } = this.props
+    const { serviceDetail, formatMessage } = this.props
     let bindNodesData = this.getSchedulingPolicy(serviceDetail)
     switch (bindNodesData.type) {
       case "ScheduleBySystem":
         return <span>
           <div className="commonTitle">--</div>
-          <div>系统默认调度</div>
+          <div>{formatMessage(AppServiceDetailIntl.systemDefaultDispatch)}</div>
         </span>
       case 'all':
         return <span>
           <div className="pointManage">
-            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonTitle">{formatMessage(AppServiceDetailIntl.serviceNodeTag)}</div>
             <div className="commonCont">
             {
               this.showServiceNodeLabels( bindNodesData.data )
@@ -781,7 +787,7 @@ class BindNodes extends Component {
             </div>
           </div>
           <div className="pointManage">
-            <div className="commonTitle">服务与服务标签</div>
+            <div className="commonTitle">{formatMessage(AppServiceDetailIntl.serviceAndServiceTag)}</div>
             <div className="commonCont">
               {
                 this.showServicePodAffinityLabel( bindNodesData.data )
@@ -792,7 +798,7 @@ class BindNodes extends Component {
       case 'node':
         return <span>
           <div className="pointManage">
-            <div className="commonTitle">服务与节点标签</div>
+            <div className="commonTitle">{formatMessage(AppServiceDetailIntl.serviceNodeTag)}</div>
             <div className="commonCont">
             {
               this.showServiceNodeLabels( bindNodesData.data )
@@ -803,7 +809,7 @@ class BindNodes extends Component {
       case 'pod':
         return <span>
           <div className="pointManage">
-            <div className="commonTitle">服务与服务标签</div>
+            <div className="commonTitle">{formatMessage(AppServiceDetailIntl.serviceAndServiceTag)}</div>
             <div className="commonCont">
               {
                 this.showServicePodAffinityLabel( bindNodesData.data )
@@ -813,13 +819,13 @@ class BindNodes extends Component {
       </span>
       case "ScheduleByHostNameOrIP":
         return <span>
-          <div className="commonTitle">主机名及 IP </div>
+          <div className="commonTitle">{formatMessage(AppServiceDetailIntl.HostNameAndIp)}</div>
           <div>{bindNodesData.node}</div>
         </span>
       case "ScheduleByLabels":
         return <span>
           <div>
-            <div className="commonTitle bindnodeTitle">主机标签</div>
+            <div className="commonTitle bindnodeTitle">{formatMessage(AppServiceDetailIntl.HostTag)}</div>
             <div>{this.labelsTemplate(bindNodesData.labels)}</div>
           </div>
         </span>
@@ -833,14 +839,15 @@ class BindNodes extends Component {
   }
 
   render() {
+    const { formatMessage } = this.props
     return <div className='commonBox bindNodes'>
-      <span className="titleSpan">节点调度</span>
+      <span className="titleSpan">{formatMessage(AppServiceDetailIntl.NodeDispatch)}</span>
       <div className="titleBox">
         <div className="commonTitle">
-          绑定方式
+          {formatMessage(AppServiceDetailIntl.bindPatter)}
         </div>
         <div className="commonTitle">
-          绑定对象
+          {formatMessage(AppServiceDetailIntl.bindObject)}
         </div>
         <div style={{ clear: 'both' }}></div>
       </div>
@@ -1097,21 +1104,22 @@ class AppServiceDetailInfo extends Component {
   }
 
   formatVolumeType(type, type_1){
+    const { formatMessage } = this.props.intl
     switch(type){
       case 'private':
-        return <span>独享型（rbd）</span>
+        return <span>{formatMessage(AppServiceDetailIntl.privateCache)}</span>
       case 'share':
         if(!!type_1 && type_1 === 'glusterfs')
         {
-          return <span>共享型（GlusterFS）</span>
+          return <span>{formatMessage(AppServiceDetailIntl.privateCacheNFS)}</span>
         }
         else{
-          return <span>共享型（NFS）</span>
+          return <span>{formatMessage(AppServiceDetailIntl.shareCacheNFS)}</span>
         }
       case 'host':
-        return <span>本地存储</span>
+        return <span>{formatMessage(AppServiceDetailIntl.localStorage)}</span>
       default:
-        return <span>未知</span>
+        return <span>{formatMessage(AppServiceDetailIntl.unknown)}</span>
     }
   }
 
@@ -1127,9 +1135,10 @@ class AppServiceDetailInfo extends Component {
 
   getMount() {
     const { volumeList } = this.state
+    const { formatMessage } = this.props.intl
     let ele = []
     if(!Object.keys(volumeList).length){
-      return <div style={{ textAlign: 'center'}}>暂无存储卷</div>
+      return <div style={{ textAlign: 'center'}}>{formatMessage(AppServiceDetailIntl.noCacheVolume)}</div>
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
@@ -1137,7 +1146,7 @@ class AppServiceDetailInfo extends Component {
         <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
         <Col span="7">
-          <Checkbox checked={item.readOnly} disabled>只读</Checkbox>
+          <Checkbox checked={item.readOnly} disabled>{formatMessage(AppServiceDetailIntl.readOnly)}</Checkbox>
           <Button
             type="dashed"
             icon="edit"
@@ -1224,7 +1233,7 @@ class AppServiceDetailInfo extends Component {
       this.setState({
         loading: false,
       })
-      let message = '修改服务存储卷失败，请重试'
+      let message = formatMessage(AppServiceDetailIntl.changeServiceVolumeFailureInfo)
       if(editResult.error.message){
         message = editResult.error.message
       }
@@ -1237,7 +1246,7 @@ class AppServiceDetailInfo extends Component {
     })
     this.getServiceDetail(cluster, serviceName)
     this.loadServiceList()
-    notification.success('修改服务存储卷成功')
+    notification.success(formatMessage(AppServiceDetailIntl.changeServiceVolumeSuccess))
   }
 
   callbackFields(info){
@@ -1297,6 +1306,7 @@ class AppServiceDetailInfo extends Component {
 
   render() {
     const { isFetching, serviceDetail, cluster, volumes } = this.props
+    const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
       return ( <div className="loadingBox">
@@ -1314,16 +1324,16 @@ class AppServiceDetailInfo extends Component {
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">
-          <span className="titleSpan">基本信息</span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.basicsMessage)}</span>
           <div className="titleBox">
             <div className="commonTitle">
-              名称
+              {formatMessage(ServiceCommonIntl.name)}
           </div>
             <div className="commonTitle">
-              镜像名称
+              {formatMessage(AppServiceDetailIntl.mirrorName)}
           </div>
             <div className="commonTitle">
-              创建时间
+              {formatMessage(AppServiceDetailIntl.createTime)}
           </div>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -1343,14 +1353,14 @@ class AppServiceDetailInfo extends Component {
         {
           annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
           <div className="compose commonBox">
-            <span className="titleSpan">模型信息</span>
+            <span className="titleSpan">{formatMessage(AppServiceDetailIntl.modelMessage)}</span>
             <Row className="titleBox">
-              <Col span={6} >绑定模型集</Col>
+              <Col span={6} >{formatMessage(AppServiceDetailIntl.bindModelAssembly)}</Col>
               <Col span={18}>
               <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
                 <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
               </Select>
-              <div style={{ color: '#999', fontSize: 12 }}>模型集将映射到 用户目录/model/[模型集名称] 目录</div>
+              <div style={{ color: '#999', fontSize: 12 }}>{formatMessage(AppServiceDetailIntl.modelGroupMapToUserCatalogue)}</div>
               </Col>
             </Row>
           </div>
@@ -1358,16 +1368,16 @@ class AppServiceDetailInfo extends Component {
         }
 
         <div className="compose commonBox">
-          <span className="titleSpan">资源配置</span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
           <div className="titleBox">
             <div className="commonTitle">
               CPU
           </div>
             <div className="commonTitle">
-              内存
+              {formatMessage(AppServiceDetailIntl.memory)}
           </div>
             <div className="commonTitle">
-              系统盘
+              {formatMessage(AppServiceDetailIntl.systemDisk)}
           </div>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -1384,17 +1394,18 @@ class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
-        <BindNodes serviceDetail={serviceDetail}/>
+        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
         <MyComponent
           ref="envComponent"
           serviceDetail={serviceDetail}
           cluster={cluster}
+          formatMessage={formatMessage}
         />
         <div className="storage commonBox">
-          <span className="titleSpan">存储卷</span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
           {
             !nouseEditing &&  <span className='editTip'>
-              修改尚未更新，请点击"应用修改"使之生效
+              {formatMessage(AppServiceDetailIntl.changeNoEffect)}
             </span>
           }
           <div className='save_box'>
@@ -1406,15 +1417,15 @@ class AppServiceDetailInfo extends Component {
               disabled={nouseEditing}
               loading={loading}
             >
-              应用修改
+              {formatMessage(AppServiceDetailIntl.appChange)}
             </Button>
           </div>
           <div className="titleBox">
             <Row className='volume_row_style'>
-              <Col span="6">存储类型</Col>
-              <Col span="6">存储</Col>
-              <Col span="5">容器目录</Col>
-              <Col span="7">操作</Col>
+              <Col span="6">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
+              <Col span="6">{formatMessage(AppServiceDetailIntl.cache)}</Col>
+              <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
+              <Col span="7">{formatMessage(ServiceCommonIntl.operation)}</Col>
             </Row>
           </div>
           <div className="dataBox">
@@ -1425,12 +1436,12 @@ class AppServiceDetailInfo extends Component {
               className='add_button'
               onClick={() => this.addContainerCatalogue()}
             >
-              <Icon type="plus" />添加一个容器目录
+              <Icon type="plus" />{formatMessage(AppServiceDetailIntl.addContainerDir)}
             </span>
           </div>
         </div>
         <Modal
-          title={ isEdit ? '编辑容器目录': '添加容器目录' }
+          title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }
           visible={ containerCatalogueVisible }
           closable={ true }
           onCancel={ () => this.setState({containerCatalogueVisible:false}) }
@@ -1452,7 +1463,7 @@ class AppServiceDetailInfo extends Component {
           />
         </Modal>
         <Modal
-          title="删除容器目录"
+          title={formatMessage(AppServiceDetailIntl.deleteContainerDir)}
           visible={ this.state.deleteVisible }
           closable={ true }
           onOk={ () => this.deleteContainerCatalogue() }
@@ -1463,7 +1474,7 @@ class AppServiceDetailInfo extends Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            确定移除当前的容器目录吗？
+            {formatMessage(AppServiceDetailIntl.makeSureRemoveContainerDir)}
           </div>
         </Modal>
       </Card>
@@ -1481,10 +1492,10 @@ function mapStateToPropsInfo(state, props) {
   }
 }
 
-export default connect(mapStateToPropsInfo, {
+export default injectIntl(connect(mapStateToPropsInfo, {
   loadAutoScale,
   createStorage,
   editServiceVolume,
   loadAllServices,
   loadServiceDetail,
-})(AppServiceDetailInfo)
+})(AppServiceDetailInfo), { withRef: true, })

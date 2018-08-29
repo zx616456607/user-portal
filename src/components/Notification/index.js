@@ -15,6 +15,8 @@ import { genRandomString } from '../../common/tools'
 import { connect } from 'react-redux'
 import { camelize } from  'humps'
 import Header from './Header'
+import { FormattedMessage } from 'react-intl';
+import ServiceCommonIntl from '../AppModule/ServiceIntl'
 
 let store
 const DEFAULT_CONFIG = {
@@ -174,7 +176,7 @@ export default class Notification {
       message = message.message
     }
     if (typeof message !== 'string') {
-      message = '请求错误'
+      message = <FormattedMessage {...ServiceCommonIntl.requestError }/>
     }
     if (this.check(message, description)) {
       return
