@@ -22,6 +22,7 @@ import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -217,7 +218,6 @@ let FistStop = React.createClass({
     return <Option value="service" key="service"><FormattedMessage {...intlMsg.server}/></Option>
   },
   render: function () {
-    const { formatMessage } = this.props.intl
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode, intl: { formatMessage } } = this.props
     const formItemLayout = {
@@ -416,7 +416,7 @@ function mapStateToProp(state, prop) {
   }
 }
 
-FistStop =  injectIntl(connect(mapStateToProp, {
+FistStop =  connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
@@ -1255,7 +1255,6 @@ class AlarmModal extends Component {
     },500)
   }
   render() {
-    const { formatMessage } = this.props.intl
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -1375,7 +1374,7 @@ function alarmModalMapStateToProp(state, porp) {
   }
 }
 
-export default injectIntl(connect(alarmModalMapStateToProp, {
+export default connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting,
   updateAlertSetting,

@@ -2,7 +2,7 @@ import {defineIntlMessages} from '../../../common/tools'
 import AllServiceListIntl from './AllServiceListIntl'
 import {mapData as AllServiceListIntlmapData} from './AllServiceListIntl'
 import AppServiceDetailIntl from './AppServiceDetailIntl'
-import { mapData as AppServiceDetailIntl } from './AppServiceDetailIntl'
+import { mapData as AppServiceDetailIntlmapData } from './AppServiceDetailIntl'
 
 export { AllServiceListIntl, AppServiceDetailIntl }
 const mapData = {
@@ -58,7 +58,7 @@ const mapIntlDataToJson = mapDatList => {
 
 export function printJson() {
   console.log(
-    mapIntlDataToJson([ AllServiceListIntlmapData, AppServiceDetailIntl, mapData ])
+    mapIntlDataToJson([ AllServiceListIntlmapData, AppServiceDetailIntlmapData, mapData ])
   )
 }
 
