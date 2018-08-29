@@ -963,8 +963,8 @@ class VisitTypes extends Component{
     const annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
     const name = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
     const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
-    const serviceName = name.split('/')[0];
-    const serviceNameReadOnly = nameReadonly.split('/')[0];
+    const serviceName = name && name.split('/')[0];
+    const serviceNameReadOnly = nameReadonly && nameReadonly.split('/')[0];
     const url = `${serviceName}:${port}`
     const readOnlyUrl = `${serviceNameReadOnly}:${port}`
     return {url, readOnlyUrl}
