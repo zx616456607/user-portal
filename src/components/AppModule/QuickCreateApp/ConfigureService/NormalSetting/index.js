@@ -539,6 +539,10 @@ const Normal = React.createClass({
       })
     }
   },
+  handleReplicas(v) {
+    this.props.form.getFieldValue('replicasCheck')
+      && Events.emit('changeReplics', v)
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -557,6 +561,7 @@ const Normal = React.createClass({
         { required: true, message: '实例数量为 1~10 之间' },
         { validator: this.checkReplicas }
       ],
+      onChange: this.handleReplicas
     })
     const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
@@ -698,7 +703,10 @@ const Normal = React.createClass({
           </Row>
           {
             getFieldValue('replicasCheck')
-              ? <ReplicasRestrictIP form={form} />
+              ? <ReplicasRestrictIP
+                  form={form}
+                  Events={Events}
+                />
               : null
           }
           <AccessMethod
@@ -769,6 +777,16 @@ function mapStateToProps(state, props) {
     clusterNodes: clusterNodes[cluster.clusterID] || [],
     labels,
     nodes,
+  }
+}
+
+const Events = {
+  fn: {},
+  on: function(ev, cb) {
+    this.fn[ev] = cb
+  },
+  emit: function(ev, params) {
+    this.fn[ev](params)
   }
 }
 

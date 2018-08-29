@@ -55,6 +55,21 @@ class ReplicasRestrictIP extends React.Component {
         },
       },
     })
+    this.props.Events.on('changeReplics', v => {
+      const ipNum = getFieldValue('ipKeys').length
+      if (v > ipNum) {
+        let oldKey = getFieldValue('ipKeys')
+        let uuNum = this.state.uuid
+        for (let i = ipNum; i < v; i++) {
+          oldKey = oldKey.concat(uuNum)
+          uuNum = ++uuNum
+        }
+        setFieldsValue({
+          ipKeys: oldKey,
+        })
+        this.setState({ uuid: uuNum })
+      }
+    })
   }
 
   componentWillUnmount() {
@@ -94,40 +109,12 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   console.log( nextProps )
-  // }
-  // // 使用 onchange 的 setform, 不使用下面方法
-  // setform = () => {
-  //   let num = this.state.uuid
-  //   console.log( "num", num )
-  //   const { getFieldValue, setFieldsValue } = this.props.form
-  //   const ln = getFieldValue('replicas')
-  //   const keyLn = getFieldValue('ipKeys').length
-  //   if (ln <= keyLn) return
-  //   let ipKeys = getFieldValue('ipKeys')
-  //   console.log( keyLn, ipKeys, ln )
-  //   // for (let i = keyLn; i < ln; i++) {
-  //   //   ipKeys = ipKeys.concat(num)
-  //   //   console.log( 'new', ipKeys)
-  //   //   num++
-  //   // }
-  //   // setFieldsValue({
-  //   //   ipKeys,
-  //   // })
-  //   // this.setState({ uuid: num })
-  // }
-
   render() {
     const { NetSegment } = this.state
     const { getFieldProps, getFieldValue } = this.props.form
     getFieldProps('ipKeys', {
       initialValue: [ ],
     })
-    // if (getFieldValue('replicas') > getFieldValue('ipKeys').length) {
-    //   console.log( 'set' )
-    //   this.setform()
-    // }
     const isdelete = getFieldValue('replicas')
       && getFieldValue('replicas') >= getFieldValue('ipKeys').length
       || false
