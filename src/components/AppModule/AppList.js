@@ -31,7 +31,6 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../components/Notification'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
-import DeployEnvModal from '../DeployEnvModal'
 import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
@@ -1323,12 +1322,6 @@ class AppList extends Component {
           >
             <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
           </Modal>
-          <DeployEnvModal
-            title={formatMessage(intlMsg.slcDeployEnv)}
-            visible={this.state.deployEnvModalVisible}
-            onCancel={() => this.setState({ deployEnvModalVisible: false })}
-            onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
-          />
         </div>
       </QueueAnim>
     )
