@@ -937,7 +937,7 @@ class VisitTypes extends Component{
     const { copyStatus } = this.state
     const clusterAdd = [];
     let port = databaseInfo.service.port.port;
-    let serviceName = databaseInfo.service.name;
+    let serviceName = databaseInfo.objectMeta.name;
     const pods = databaseInfo.pods
     if(pods) {
       for (const v of pods) {
