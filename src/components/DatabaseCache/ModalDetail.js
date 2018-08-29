@@ -13,7 +13,26 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Dropdown, Menu, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { Table,
+  Button,
+  Icon,
+  Spin,
+  Modal,
+  Collapse,
+  Row,
+  Col,
+  Popover,
+  Input,
+  Dropdown,
+  Menu,
+  Timeline,
+  InputNumber,
+  Tabs,
+  Tooltip,
+  Radio,
+  Select,
+  Form,
+  Checkbox} from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
@@ -436,7 +455,6 @@ class BaseInfo extends Component {
     // const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
-
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -445,7 +463,7 @@ class BaseInfo extends Component {
           <span className="spanLeft">实例副本</span>
           <InputNumber onChange={(e) => parentScope.setState({ replicas: e })}
                        value={parentScope.state.replicas}
-                       min={ this.props.database == 'zookeeper' ? 3 : 1 }
+                       min={ this.props.database === 'elasticsearch' ? 1 : 3 }
                        /> &nbsp; 个
         </div>
         <div className="modal-li">
@@ -585,22 +603,28 @@ class VisitTypes extends Component{
       proxyArr: [],
       currentProxy: [],
       groupID:'',
-      selectValue: ''
+      selectValue: '',
+      readOnly: false,
+      isEditAccessAddress: false
     }
   }
   componentWillMount() {
-    const { getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
-
-    if(lbinfo == 'none') {
+    const { getProxy, clusterID, databaseInfo, database } = this.props;
+    const annotationLbgroupName = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const externalId = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationLbgroupName]
+    const annotations = databaseInfo.service.annotations;
+    this.setReadOnlyCheck(this.props)
+    if(!externalId) {
       this.setState({
         initValue: 1,
+        value: 1,
         initSelectDics: true
       })
     } else {
       this.setState({
         initValue: 2,
-        initGroupID: lbinfo,
+        value: 2,
+        initGroupID: externalId,
         initSelectDics: false,
       })
     }
@@ -620,6 +644,21 @@ class VisitTypes extends Component{
     if ((!detailModal && this.props.detailModal != nextProps.detailModal) || (!isCurrentTab && isCurrentTab != this.props.isCurrentTab)) {
       this.cancelEdit()
     }
+    this.setReadOnlyCheck(nextProps)
+  }
+  //设置开启只读地址回显
+  setReadOnlyCheck = whichProps => {
+    const annotations = whichProps.databaseInfo.service.annotations;
+    if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+      this.setState({
+        readOnly: true
+      })
+    }else {
+      this.setState({
+        readOnly: false
+      })
+    }
+
   }
   onChange(e) {
     let value = e.target.value;
@@ -667,10 +706,20 @@ class VisitTypes extends Component{
         body = {
           annotations: {
             'system/lbgroup': groupID,
-            'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
           }
         }
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              'master.system/lbgroup': groupID,
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            }
+          }
+        }
+
       }
+
       const success = {
         func: () => {
           notification.close()
@@ -772,31 +821,158 @@ class VisitTypes extends Component{
       copyStatus: false
     })
   }
-  render() {
-    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
-    let clusterAdd = [];
-    let port = databaseInfo.service.port.port;
-    let serviceName = databaseInfo.service.name;
-    let portNum = databaseInfo.pods && databaseInfo.pods.length;
-    for (let i = 0; i < portNum; i++) {
-      clusterAdd.push({
-        start:`${serviceName}-${i}`,
-        end:`${databaseInfo.objectMeta.name}:${port}`
-      })
+  // 编辑访问地址
+  editAccessAddress = () => {
+    this.setState({
+      isEditAccessAddress: true
+    })
+  }
+  editAccessAddressSave = () => {
+    const notification = new NotificationHandler()
+    notification.spin('保存中更改中')
+    const { editDatabaseCluster } = this.props.scope.props
+    const { databaseInfo, database, clusterID } = this.props
+    const success = {
+      func: () => {
+        notification.close()
+        notification.success('保存成功')
+        const { loadDbClusterDetail } = this.props.scope.props
+        setTimeout(() => {
+          loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+        }, 0)
+        this.setState({
+          disabled: true,
+          forEdit:false
+        });
+      },
+      isAsync: false
     }
+    const failed = {
+      func: (res) => {
+        notification.close()
+        let message = '更改出口方式失败'
+        if(res.message) {
+          message = res.message
+        }
+        if(res.message && res.message.message) {
+          message = res.message.message
+        }
+        notification.error(message)
+    }}
+    const groupID = databaseInfo.objectMeta.annotations['master.system/lbgroup']
+    const { readOnly } = this.state
+    const body = {
+      annotations: {
+        'master.system/lbgroup': groupID,
+        'slave.system/lbgroup': readOnly? groupID : 'none',
+      }
+    }
+    editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
+  editAccessAddressCancel = () => {
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
+  // 是否开启只读
+  readOnlyEnable = () => {
+    const { database, databaseInfo } = this.props
+    const enableReadOnly = database === 'redis' &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
+    return enableReadOnly
+  }
+  // 出口地址
+  externalUrl = () => {
+    const { database, databaseInfo, domainSuffix, bindingIPs } = this.props
+    const { proxyArr } = this.state
+    let annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
 
-    const domainList = clusterAdd && clusterAdd.map((item,index)=>{
+    const systemLbgroup = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
+    const externalIpId = databaseInfo.service.annotations && databaseInfo.service.annotations[systemLbgroup]
+    if(!externalIpId || externalIpId === 'none') {
+      return null
+    }
+    let domain = ''
+    let externalIp = ''
+    proxyArr && proxyArr.every(proxy => {
+      if (proxy.id === externalIpId) {
+        domain = proxy.domain
+        externalIp = proxy.address
+        return false
+      }
+      return true
+    })
+    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    // 普通的出口端口
+    let externalPort = portAnnotation && portAnnotation.split('/')
+    if (externalPort && externalPort.length > 1) {
+      externalPort = externalPort[2]
+    }
+    // redis开启只读时的出口端口
+    let readOnlyExternalPort = readOnlyportAnnotation && readOnlyportAnnotation.split('/')[2]
+    let readOnlyExternalUrl
+    if(readOnlyExternalPort) {
+      readOnlyExternalUrl = externalIp + ':' + readOnlyExternalPort
+    }
+    let externalUrl
+    if (externalPort != '') {
+      if (domain) {
+        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+      } else {
+        externalUrl = externalIp + ':' + (externalPort || '未知')
+      }
+    }
+    return {externalUrl,readOnlyExternalUrl}
+  }
+  // 集群内实例访问地址
+  inClusterUrl = () => {
+    const { databaseInfo } = this.props
+    const { copyStatus } = this.state
+    const clusterAdd = [];
+    let port = databaseInfo.service.port.port;
+    let serviceName = databaseInfo.objectMeta.name;
+    const pods = databaseInfo.pods
+    if(pods) {
+      for (const v of pods) {
+        const url = `${v.name}.${serviceName}:${port}`
+        clusterAdd.push(url)
+      }
+    }
+    const domainList = clusterAdd && clusterAdd.map(item=>{
       return (
-        <dd className="addrList" key={item.start}>
-          <span className="domain">{item.end}</span>
+        <dd className="addrList" key={item}>
+          <span className="domain">{item}</span>
           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
+            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item)} onClick={this.copyTest.bind(this)}/>
           </Tooltip>
         </dd>
       )
     })
+    return domainList
+  }
+  // 集群内负载均衡地址
+  loadBalancing = () => {
+    const { databaseInfo, database } = this.props
+    const port = databaseInfo.service.port.port;
+    const annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+    const name = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    const serviceName = name.split('/')[0];
+    const serviceNameReadOnly = nameReadonly.split('/')[0];
+    const url = `${serviceName}:${port}`
+    const readOnlyUrl = `${serviceNameReadOnly}:${port}`
+    return {url, readOnlyUrl}
+  }
+  render() {
+    const { databaseInfo, form, database } = this.props
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, proxyArr, initValue, initGroupID, initSelectDics,isEditAccessAddress } = this.state;
+    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
       validator = (rule, value, callback) => {
@@ -817,46 +993,7 @@ class VisitTypes extends Component{
           <Option key={item.id} value={item.id}>{item.type == 'public' ? '公网：' : '内网：'}{item.name}</Option>
       )
     }):null
-    let domain = ''
-    if (domainSuffix) {
-      domain = eval(domainSuffix)[0]
-    }
-    let bindingIP = ''
-    if (bindingIPs) {
-      bindingIP = eval(bindingIPs)[0]
-    }
-    // get domain, ip from lbgroup
-    proxyArr && proxyArr.every(proxy => {
-      if (proxy.id === lbinfo) {
-        domain = proxy.domain
-        bindingIP = proxy.address
-        return false
-      }
-      return true
-    })
 
-    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    if(databaseInfo.service.annotations['system/lbgroup'] === 'none') {
-      portAnnotation = ''
-    }
-    let externalPort = ''
-
-    if (portAnnotation) {
-      externalPort = portAnnotation.split('/')
-      if (externalPort && externalPort.length > 1) {
-        externalPort = externalPort[2]
-      }
-    }
-    let externalUrl
-
-    if (externalPort != '') {
-      if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
-      } else {
-        externalUrl = bindingIP + ':' + (externalPort || '未知')
-      }
-    }
-    const inClusterLB = `${serviceName}:${port}`
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
     const dataSource = [
@@ -890,13 +1027,24 @@ class VisitTypes extends Component{
             return (
               <div>
                 {
-                  externalUrl
+                  this.externalUrl()
                   ? (
                     <div>
-                      <span className="domain">{externalUrl}</span>
-                      <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                        <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
-                      </Tooltip>
+                      <div>
+                        <span className="domain">{this.externalUrl().externalUrl}</span>
+                        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
+                        </Tooltip>
+                      </div>
+                      {
+                        this.readOnlyEnable() &&
+                        <div>
+                          <span className="domain">{this.externalUrl().readOnlyExternalUrl}</span>
+                          <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.externalUrl().readOnlyExternalUrl)} onClick={this.copyTest.bind(this)}/>
+                          </Tooltip>
+                        </div>
+                      }
                     </div>
                   )
                   : '-'
@@ -905,14 +1053,25 @@ class VisitTypes extends Component{
             )
           }
           if (key === 'inClusterUrls') {
-            return domainList
+            return this.inClusterUrl()
           }
           return (
             <div>
-              <span className="domain">{inClusterLB}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
+              <div>
+                <span className="domain">{this.loadBalancing().url}</span>
+                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.loadBalancing().url)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </div>
+              {
+                this.readOnlyEnable() &&
+                <div>
+                  <span className="domain">{this.loadBalancing().readOnlyUrl}</span>
+                  <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.loadBalancing().readOnlyUrl)} onClick={this.copyTest.bind(this)}/>
+                  </Tooltip>
+                </div>
+              }
             </div>
           )
         }
@@ -955,6 +1114,29 @@ class VisitTypes extends Component{
         </div>
         <div className="visitTypeBottomBox configContent">
           <div className="visitTypeTitle configHead">访问地址</div>
+          {
+            database === 'redis' &&
+            <div className="redisEdit">
+              {
+                isEditAccessAddress?
+                  [
+                    <Button type="default" style={{marginRight: 10}} onClick={this.editAccessAddressCancel}>取消</Button>,
+                    <Button type="primary" onClick={this.editAccessAddressSave}>保存</Button>
+                  ]
+                  :
+                  <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
+              }
+
+              <div className="readOnlySwitch">
+                <Checkbox checked={this.state.readOnly} disabled={!isEditAccessAddress} onChange={e => {
+                  this.setState({readOnly: e.target.checked})
+                }}>
+                  开启只读地址
+                </Checkbox>
+              </div>
+              <div className="readOnlyTip">开启只读地址后，使用只读地址执行读请求，可将所有的读请求分摊到所有备节点</div>
+            </div>
+          }
           <div className="visitAddrInnerBox">
           <input type="text" className="copyTest" style={{opacity:0}}/>
             <Table
@@ -1370,7 +1552,8 @@ class ModalDetail extends Component {
               {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div className="dbDesc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div>集群模式：{databaseInfo.multiMaster === true? '多主': '一主多从' }</div>
               <div> 状态：
                 {this.dbStatus(databaseInfo.status)}
               </div>
