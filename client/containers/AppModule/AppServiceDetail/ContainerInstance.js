@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { Modal, Form, Input, Row, Col, Button, Icon } from 'antd'
 import Notification from '../../../../src/components/Notification'
 import * as serviceActions from '../../../../src/actions/services'
+import * as podAction from '../../../../src/actions/app_manage'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -38,14 +39,39 @@ let uuid = 0
 class ContainerInstance extends React.Component {
   state = {
     oldIP: undefined,
+    NetSegment: undefined,
   }
 
   componentDidMount() {
-    const { isSee } = this.props
+    const { isSee, configIP, getPodNetworkSegment, cluster } = this.props
+    getPodNetworkSegment(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            NetSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.warn('获取 Pod 网段数据失败')
+        },
+      },
+    })
     isSee && setTimeout(
       this.setInitaialStatus(),
       150
     )
+    !isSee && configIP && this.nowNoneAndSetOneItem()
+  }
+
+  nowNoneAndSetOneItem = () => {
+    const keys = []
+    this.props.form.setFieldsValue({
+      keys: keys.concat(uuid),
+    })
+    uuid++
   }
 
   setInitaialStatus = () => {
@@ -54,19 +80,22 @@ class ContainerInstance extends React.Component {
     const annotations = serviceDetail[cluster][service].service.metadata.annotations
     const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
       && annotations['cni.projectcalico.org/ipv4pools']
+    const { setFieldsValue } = this.props.form
     if (ipv4) {
-      const { setFieldsValue, getFieldValue } = this.props.form
       const ipv4Arr = JSON.parse(ipv4)
-      ipv4Arr.forEach((item, ind) => {
-        const keys = getFieldValue('keys')
-        const nextKeys = keys.concat(ind)
+      const keys = []
+      ipv4Arr.forEach(item => {
+        const nextKeys = keys.concat(uuid)
         setFieldsValue({
-          [`replicasIP${ind}`]: item,
+          [`replicasIP${uuid}`]: item,
           keys: nextKeys,
         })
-        uuid = ind + 1
+        uuid++
       })
       this.setState({ oldIP: ipv4Arr })
+    }
+    if (!ipv4) {
+      this.nowNoneAndSetOneItem()
     }
   }
 
@@ -90,8 +119,7 @@ class ContainerInstance extends React.Component {
 
   handleOk = () => {
     this.props.form.validateFields((err, values) => {
-      // console.log( values, 'vvvv' )
-      if (!values.keys.length) return
+      if (err) return
       const { UpdateServiceAnnotation, cluster, serviceDetail } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
       const { keys } = values
@@ -104,7 +132,7 @@ class ContainerInstance extends React.Component {
       Object.assign(annotations, {
         'cni.projectcalico.org/ipv4pools': ipStr,
       })
-      notification.spin()
+      notification.spin('更改中...')
       UpdateServiceAnnotation(cluster, server, annotations, {
         success: {
           func: () => {
@@ -134,7 +162,7 @@ class ContainerInstance extends React.Component {
     Object.assign(annotations, {
       'cni.projectcalico.org/ipv4pools': '',
     })
-    notification.spin()
+    notification.spin('释放中...')
     UpdateServiceAnnotation(cluster, server, annotations, {
       success: {
         func: () => {
@@ -165,7 +193,7 @@ class ContainerInstance extends React.Component {
   }
 
   render() {
-    const { oldIP } = this.state
+    const { oldIP, NetSegment } = this.state
     const { form, configIP, notConfigIP, containerNum } = this.props
     const { getFieldProps, getFieldValue } = form
     getFieldProps('keys', {
@@ -190,11 +218,11 @@ class ContainerInstance extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: '请填写实例 IP（需属于 172.168.0.0/16）',
+              message: `请填写实例 IP（需属于 ${NetSegment}）`,
             }],
           })}
           style={{ width: 280 }}
-          placeholder="请填写实例 IP（需属于 172.168.0.0/16）"
+          placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
           />
           { use || <span className="useStatus shouldUse">未使用</span> }
           <Button
@@ -268,4 +296,5 @@ const mapStateToProps = ({
 
 export default connect(mapStateToProps, {
   UpdateServiceAnnotation: serviceActions.UpdateServiceAnnotation,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(Form.create()(ContainerInstance))
