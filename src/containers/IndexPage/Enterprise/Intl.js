@@ -1,0 +1,90 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ *
+ * intl for IndexPage
+ * v0.1 - 2018-08-28
+ *
+ * @author zhangpc
+ *
+ */
+
+import { defineIntlMessages } from '../../../common/tools'
+
+export const mapData = {
+  prefix: 'IndexPage',
+  data: {
+    overview: '总览',
+    noAuth: '暂无总览查看权限，联系平台管理员授权',
+    noData: '没有数据',
+    running: '运行中',
+    stopped: '已停止',
+    operating: '操作中',
+    abnormal: '异   常  ',
+    one: ' 个',
+    memory: '内存',
+    storage: '磁盘',
+    apps: '应用 (个)',
+    service: '服务 (个)',
+    container: '容器 (个)',
+    volume: '存储 (个)',
+    snapshot: '快照 (个)',
+    configuration: '服务配置 (个)',
+    mysql: 'MySQL集群 (个)',
+    redis: 'Redis集群 (个)',
+    zookeeper: 'Zookeeper集群 (个)',
+    elasticsearch: 'ES集群 (个)',
+    sharedProject: '共享项目',
+    personalProject: '个人项目',
+    projectInfo: '项目信息',
+    projectDetail: '项目详情',
+    projectName: '项目名称：',
+    shared: '共享',
+    personal: '个人',
+    projecRoles: '项目角色：',
+    personalProjectNoRoles: '个人项目无角色',
+    myBalance: '我的余额：',
+    projectBalance: '项目余额：',
+    todayConsumption: '今日消费：',
+    allClusters: '全区域',
+    go: '去查看',
+    accountInfo: '账户信息',
+    resourceQuotaOverview: '项目&集群相关资源配额',
+    setQuota: '设置配额',
+    seeDetails: '查看详情',
+    computingResource: '计算资源',
+    appManage: '应用管理',
+    dbAndCache: '数据库&缓存',
+    todayClusterInfo: '今日该集群记录',
+    createApp: '创建应用',
+    createService: '创建服务',
+    createVolume: '创建存储卷',
+    stopApp: '停止应用',
+    delService: '删除服务',
+    delVolume: '删除存储卷',
+    updateApp: '修改应用',
+    startApp: '启动应用',
+    redeploy: '重新部署',
+    sysStatus: '系统状态',
+    app: '应用',
+    service: '服务',
+    container: '容器',
+    storageAndSnapshot: '存储与快照',
+    sharedStorage: '共享型存储',
+    rbdStorage: '独享型存储',
+    hostStorage: '本地存储',
+    rbdStorageSnapshot: '独享存储快照',
+    computingResourceUsage: '计算资源使用率',
+    computingResourceUsageTip: '显示使用率前三的节点',
+    showMasterNode: '显示 Master 节点',
+    nodeStatus: '主机状态',
+    nodesSum: '主机总数',
+    healthyNodesSum: '健康主机数',
+    notEnabledNodesSum: '未启用主机数',
+  },
+}
+
+export default defineIntlMessages(mapData)

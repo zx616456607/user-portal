@@ -22,10 +22,12 @@ import ProjectDetail from '../ProjectDetail'
 import PublishModal from './PublishModal'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import TenxIcon from '@tenx-ui/icon'
+import codeRepoIntl from './intl/codeRepoIntl'
+import { injectIntl } from 'react-intl'
 
 const notification = new NotificationHandler()
 
-class CodeRepo extends Component {
+class PageCodeRepo extends Component {
   constructor(props) {
     super()
     this.state = {
@@ -88,10 +90,11 @@ class CodeRepo extends Component {
   }
 
   deleteRepoOk() {
-    const { deleteRepo, harbor } = this.props
+    const { deleteRepo, harbor, intl } = this.props
+    const { formatMessage } = intl
     const { selectedRepo } = this.state
     const doSuccess = () => {
-      notification.success(`镜像 ${selectedRepo} 删除成功`)
+      notification.success(formatMessage(codeRepoIntl.delMessage, {name: selectedRepo}))
       this.setState({
         deleteRepoVisible: false,
       })
@@ -113,13 +116,13 @@ class CodeRepo extends Component {
             return
           }
           if (statusCode === 403) {
-            notification.warn(`您没有权限删除该镜像`)
+            notification.warn(formatMessage(codeRepoIntl.cannotDelMessage))
             this.setState({
               deleteRepoVisible: false,
             })
             return
           }
-          notification.error(`镜像删除失败`)
+          notification.error(formatMessage(codeRepoIntl.delFailedMessage))
         },
       }
     })
@@ -158,8 +161,9 @@ class CodeRepo extends Component {
   }
 
   render() {
-    const { repos, projectDetail, isAdminAndHarbor, location, user, members, currentUserRole } = this.props
+    const { repos, projectDetail, isAdminAndHarbor, location, user, members, currentUserRole, intl } = this.props
     const { publishModal, currentImage } = this.state
+    const { formatMessage } = intl
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
@@ -203,7 +207,7 @@ class CodeRepo extends Component {
         width:'33%',
         render: (text, row) => {
           return (
-            <div className="imgurl">镜像地址：{server}/{row.name}</div>
+            <div className="imgurl">{formatMessage(codeRepoIntl.imageUrl)}：{server}/{row.name}</div>
           )
         }
       }, {
@@ -212,7 +216,7 @@ class CodeRepo extends Component {
         key: 'count',
         render: (text, row) => {
           return (
-            <div className="imgurl">版本数：{row.tagsCount}</div>
+            <div className="imgurl">{formatMessage(codeRepoIntl.versionNumber)}：{row.tagsCount}</div>
           )
         }
       }, {
@@ -222,7 +226,7 @@ class CodeRepo extends Component {
         width:'14%',
         render: text => {
           return (
-            <div>下载次数：{text}</div>
+            <div>{formatMessage(codeRepoIntl.downloadCount)}：{text}</div>
           )
         }
       }, {
@@ -249,16 +253,16 @@ class CodeRepo extends Component {
               style={{ width: "100px" }}
             >
               <Menu.Item key="publish">
-                发布
+                {formatMessage(codeRepoIntl.publish)}
               </Menu.Item>
               <Menu.Item key="delete" disabled={!isAbleToDel && !user.role}>
-                删除
+                {formatMessage(codeRepoIntl.delThis)}
               </Menu.Item>
             </Menu>
           );
           return (
             <Dropdown.Button overlay={dropdown} type="ghost" onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
-              部署服务
+              {formatMessage(codeRepoIntl.DeployService)}
             </Dropdown.Button>
           )
         }
@@ -270,17 +274,17 @@ class CodeRepo extends Component {
       pageSize: this.DEFAULT_QUERY.page_size,
       total: total,
       onChange: current => this.loadRepos({ page: current }),
-      showTotal: total => `共计： ${total} 条`,
+      showTotal: total => `${formatMessage(codeRepoIntl.total, { total: total })}`,
     }
 
     return (
       <div id="codeRepo">
         <div className="topRow">
-          <Button type="primary" size="large" icon="cloud-upload-o" onClick={()=> this.showUpload(true)}>上传镜像</Button>
-          <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>下载镜像</Button>
+          <Button type="primary" size="large" icon="cloud-upload-o" onClick={()=> this.showUpload(true)}>{formatMessage(codeRepoIntl.uploadImage)}</Button>
+          <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>{formatMessage(codeRepoIntl.downloadImage)}</Button>
 
           <Input
-            placeholder="按镜像名称搜索"
+            placeholder={formatMessage(codeRepoIntl.searchPlaceholder)}
             className="search"
             size="large"
             value={this.state.searchInput}
@@ -298,6 +302,7 @@ class CodeRepo extends Component {
           className="myImage_item"
           dataSource={list}
           columns={columns}
+          locale={{emptyText: formatMessage(codeRepoIntl.noData)}}
           pagination={paginationOpts}
           loading={isFetching}
         />
@@ -307,18 +312,18 @@ class CodeRepo extends Component {
           currentImage={currentImage}
           callback={this.confirmPublishModal}
         />
-        <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"
+        <Modal title={formatMessage(codeRepoIntl.uploadImage)} className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"
           onCancel={()=> this.showUpload(false)} onOk={()=> this.showUpload(false)}
          >
-          <p>1.&nbsp;&nbsp;在本地 docker 环境中输入以下命令进行登录</p>
+          <p>1.&nbsp;&nbsp;{formatMessage(codeRepoIntl.uploadImageStep1)}</p>
           <pre className="codeSpan">
             sudo docker login {server}
           </pre>
-          <p>2.&nbsp;&nbsp; 然后，对本地需要 push 的 image 进行标记，比如：</p>
+          <p>2.&nbsp;&nbsp; {formatMessage(codeRepoIntl.uploadImageStep2)}</p>
           <pre className="codeSpan">
             {`sudo docker tag ubuntu:latest ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
-          <p>3.&nbsp;&nbsp;最后在命令行输入如下命令，就可以 push 这个 image 到镜像仓库中了</p>
+          <p>3.&nbsp;&nbsp;{formatMessage(codeRepoIntl.uploadImageStep3)}</p>
           <pre className="codeSpan">
             {`sudo docker push ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
@@ -326,12 +331,12 @@ class CodeRepo extends Component {
         <Modal title="下载镜像" className="uploadImageModal" visible={this.state.downloadModalVisible} width="800px"
           onCancel={()=> this.showDownload(false)} onOk={()=> this.showDownload(false)}
         >
-          <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
-          <p><i className="fa fa-exclamation-triangle"></i>&nbsp;私有镜像需要先 login 后才能拉取</p>
+          <p>{formatMessage(codeRepoIntl.downloadImageStep1)}</p>
+          <p><i className="fa fa-exclamation-triangle"></i>&nbsp;{formatMessage(codeRepoIntl.downloadImageStep2)}</p>
           <pre className="codeSpan">
             {`sudo docker pull ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
-          <p><i className="fa fa-exclamation-triangle"></i>&nbsp;为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
+          <p><i className="fa fa-exclamation-triangle"></i>&nbsp;{formatMessage(codeRepoIntl.downloadImageStep3)}</p>
           <pre className="codeSpan">
             sudo docker tag  {server}/{projectDetail.name}/hello-world:latest {projectDetail.name}/hello-world:latest
             </pre>
@@ -350,20 +355,22 @@ class CodeRepo extends Component {
           null
         }
         {/* 删除镜像 Modal */}
-        <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
+        <Modal title={formatMessage(codeRepoIntl.delImageTitle)} visible={this.state.deleteRepoVisible}
           onCancel={()=> this.setState({deleteRepoVisible:false})}
           onOk={()=> this.deleteRepoOk()}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
-            您确定要删除镜像 {this.state.selectedRepo} ?
+            {formatMessage(codeRepoIntl.delImageConfirm, {image: this.state.selectedRepo})}?
           </div>
         </Modal>
       </div>
     )
   }
 }
-
+const CodeRepo = injectIntl(PageCodeRepo, {
+  withRef: true
+})
 function mapStateToProps(state, props) {
   const { harbor: stateHarbor, entities } = state
   const { loginUser } = entities

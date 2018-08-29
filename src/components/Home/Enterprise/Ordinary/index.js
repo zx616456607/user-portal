@@ -31,6 +31,8 @@ import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
 import TenxIcon from '@tenx-ui/icon'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
@@ -467,9 +469,14 @@ class Ordinary extends Component {
   }
 
   render() {
-    const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, clusterName, clusterUseList, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser, current } = this.props
+    const {
+      clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
+      clusterNodeSummary, clusterDbServices, clusterName, clusterUseList,
+      clusterNodeSpaceConsumption, clusterSummary, volumeSummary,
+      clusterStaticSummary, isFetching, loginUser, current, intl,
+    } = this.props
     const { space } = current
+    const { formatMessage } = intl
     const { userName, email, avatar, certInfos, billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig || { enabled: false }
     let boxPos = 0
@@ -516,7 +523,7 @@ class Ordinary extends Component {
         CPUUsedArr.push(item.used)
       })
     } else {
-      CPUUsedArr = ['没有数据']
+      CPUUsedArr = [ formatMessage(IntlMessages.noData) ]
     }
     //内存
     let memoryNameArr = []
@@ -531,7 +538,7 @@ class Ordinary extends Component {
         memoryUsedArr.push(item.used)
       })
     } else {
-      memoryUsedArr = ['没有数据']
+      memoryUsedArr = [ formatMessage(IntlMessages.noData) ]
     }
     //磁盘
     let diskNameArr = []
@@ -544,7 +551,7 @@ class Ordinary extends Component {
         diskUsedArr.push((item.used))
       })
     } else {
-      diskUsedArr = ['没有数据']
+      diskUsedArr = [ formatMessage(IntlMessages.noData) ]
     }
     //数据库与缓存
     //MySQL
@@ -728,11 +735,14 @@ class Ordinary extends Component {
         data: [{ name: '运行中' }, { name: '已停止' }, { name: '操作中' }],
         formatter: function (name) {
           if (name === '运行中') {
-            return name + '  ' + appRunning + ' 个'
+            return formatMessage(IntlMessages.running) + '  ' + appRunning
+            + formatMessage(IntlMessages.one)
           } else if (name === '已停止') {
-            return name + '  ' + appStopped + ' 个'
+            return formatMessage(IntlMessages.stopped) + '  ' + appStopped
+            + formatMessage(IntlMessages.one)
           } else if (name === '操作中') {
-            return name + '  ' + appOthers + ' 个'
+            return formatMessage(IntlMessages.operating) + '  ' + appOthers
+            + formatMessage(IntlMessages.one)
           }
         },
         textStyle: {
@@ -803,11 +813,14 @@ class Ordinary extends Component {
         // data: legendData,
         formatter: function (name) {
           if (name === '运行中') {
-            return name + '  ' + svcRunning + ' 个'
+            return formatMessage(IntlMessages.running) + '  ' + svcRunning
+            + formatMessage(IntlMessages.one)
           } else if (name === '已停止') {
-            return name + '  ' + svcStopped + ' 个'
+            return formatMessage(IntlMessages.stopped) + '  ' + svcStopped
+            + formatMessage(IntlMessages.one)
           } else if (name === '操作中') {
-            return name + '  ' + svcOthers + ' 个'
+            return formatMessage(IntlMessages.operating) + '  ' + svcOthers
+            + formatMessage(IntlMessages.one)
           }
         },
         textStyle: {
@@ -878,11 +891,14 @@ class Ordinary extends Component {
         data: [{ name: '运行中' }, { name: '异常' }, { name: '操作中' }],
         formatter: function (name) {
           if (name === '运行中') {
-            return name + '  ' + conRunning + '个'
+            return formatMessage(IntlMessages.running) + '  ' + conRunning
+            + formatMessage(IntlMessages.one)
           } else if (name === '异常') {
-            return '异   常  ' + conFailed + ' 个'
+            return formatMessage(IntlMessages.abnormal) + conFailed
+            + formatMessage(IntlMessages.one)
           } else if (name === '操作中') {
-            return name + '  ' + conOthers + ' 个'
+            return formatMessage(IntlMessages.operating) + '  ' + conOthers
+            + formatMessage(IntlMessages.one)
           }
         },
         textStyle: {
@@ -968,7 +984,7 @@ class Ordinary extends Component {
           for (let i = 0, key = {}; i < params.length; i++) {
             key = params[i];
             if (typeof key.value === 'undefined' || key.value === '-')
-              key.value = '暂无';
+              key.value = formatMessage(IntlMessages.noData);
             content += key.seriesName + " : " + key.value + "%";
           }
           content += '</div>';
@@ -1026,7 +1042,7 @@ class Ordinary extends Component {
     }
     let memoryOption = {
       title: {
-        text: '内存',
+        text: formatMessage(IntlMessages.memory),
         top: '15px',
         left: 'center',
         textStyle: {
@@ -1052,7 +1068,7 @@ class Ordinary extends Component {
           for (let i = 0, key = {}; i < params.length; i++) {
             key = params[i];
             if (typeof key.value === 'undefined' || key.value === '-')
-              key.value = '暂无';
+              key.value = formatMessage(IntlMessages.noData);
             content += key.seriesName + " : " + key.value + "%";
           }
           content += '</div>';
@@ -1177,7 +1193,7 @@ class Ordinary extends Component {
         }
       ]
     }
-    let statusOption = {
+    /* let statusOption = {
       tooltip: {
         trigger: 'item',
         formatter: '{b} : ({d}%)' //function (obj) {
@@ -1385,7 +1401,7 @@ class Ordinary extends Component {
           }
         }
       }]
-    }
+    } */
     const img = userName.substr(0, 1).toUpperCase()
     const { isComputing, isApplication, isService, roleNameArr } = this.state
     const computeList = [
@@ -1394,45 +1410,45 @@ class Ordinary extends Component {
         text: 'CPU(C)',
       }, {
         key: 'memory',
-        text: '内存(GB)',
+        text: `${formatMessage(IntlMessages.memory)}(GB)`,
       }, {
         key: 'storage',
-        text: '磁盘(GB)',
+        text: `${formatMessage(IntlMessages.storage)}(GB)`,
       }]
     const platformList = [
       {
         key: 'application',
-        text: '应用 (个)'
+        text: formatMessage(IntlMessages.apps),
       }, {
         key: 'service',
-        text: '服务 (个)'
+        text: formatMessage(IntlMessages.service),
       }, {
         key: 'container',
-        text: '容器 (个)'
+        text: formatMessage(IntlMessages.container),
       }, {
         key: 'volume',
-        text: '存储 (个)'
+        text: formatMessage(IntlMessages.volume),
       }, {
         key: 'snapshot',
-        text: '快照 (个)'
+        text: formatMessage(IntlMessages.snapshot),
       }, {
         key: 'configuration',
-        text: '服务配置 (个)'
+        text: formatMessage(IntlMessages.configuration),
       }]
     const serviceList = [
       {
         key: 'mysql',
-        text: 'MySQL集群 (个)'
+        text: formatMessage(IntlMessages.mysql),
       }, {
         key: 'redis',
-        text: 'Redis集群 (个)'
+        text: formatMessage(IntlMessages.redis),
       },
       {
         key: 'zookeeper',
-        text: 'Zookeeper集群 (个)'
+        text: formatMessage(IntlMessages.zookeeper),
       }, {
         key: 'elasticsearch',
-        text: 'ES集群 (个)'
+        text: formatMessage(IntlMessages.elasticsearch),
       },
       // {
       //   key: 'etcd',
@@ -1442,30 +1458,65 @@ class Ordinary extends Component {
     const spaceName = space.name || space.userName
     return (
       <div id='Ordinary'>
-        <Row className="title">{this.props.userID === undefined ? spaceName === '我的个人项目' ? '' : '共享项目 - ' : '个人项目 - '}{spaceName} - {clusterName}</Row>
+        <Row className="title">
+          {
+            this.props.userID === undefined
+              ? spaceName === '我的个人项目'
+                ? ''
+                : `${formatMessage(IntlMessages.sharedProject)} - `
+              : `${formatMessage(IntlMessages.personalProject)} - `
+          }
+          {spaceName} - {clusterName}
+        </Row>
         <Row className="content" gutter={16}>
           {SHOW_BILLING ?
             <Col span={6} className='clusterCost'>
-              <Card title="项目信息" bordered={false} bodyStyle={{ height: 220, padding: '30px 24px' }}
-                extra={spaceName !== '我的个人项目' ? this.props.userID === undefined ?
-                  <Link to={`/tenant_manage/project_manage/project_detail?name=${this.props.projectName}`}>
-                    <Button type="primary" size="small">项目详情</Button></Link> : '' : ''}>
+              <Card
+                title={formatMessage(IntlMessages.projectInfo)}
+                bordered={false}
+                bodyStyle={{ height: 220, padding: '30px 24px' }}
+                extra={
+                  spaceName !== '我的个人项目'
+                    ? this.props.userID === undefined
+                      ? <Link to={`/tenant_manage/project_manage/project_detail?name=${this.props.projectName}`}>
+                        <Button type="primary" size="small">
+                          <FormattedMessage {...IntlMessages.projectDetail} />
+                        </Button>
+                      </Link>
+                      : ''
+                    : ''
+                }
+              >
                 <div className='costInfo'>
                   <div className="projectUser">
-                    <span className="project">项目名称：</span>
+                    <span className="project">
+                      <FormattedMessage {...IntlMessages.projectName} />
+                    </span>
                     <span>{spaceName}</span>
                     {
-                      spaceName === '我的个人项目' ?
-                        <span className="desc">个人</span> : this.props.userID === undefined ?
-                          <span className="public">共享</span> : <span className="desc">个人</span>
+                      spaceName === '我的个人项目'
+                        ? <span className="desc">
+                          <FormattedMessage {...IntlMessages.personal} />
+                        </span>
+                        : this.props.userID === undefined
+                          ? <span className="public">
+                            <FormattedMessage {...IntlMessages.shared} />
+                          </span>
+                          : <span className="desc">
+                            <FormattedMessage {...IntlMessages.personal} />
+                          </span>
                     }
                   </div>
                   <div className="projectRole">
-                    <span className="project">项目角色：</span>
+                    <span className="project">
+                      <FormattedMessage {...IntlMessages.projecRoles} />
+                    </span>
                     {
-                      spaceName === '我的个人项目' || this.props.userID !== undefined ?
-                        <span className="projectDesc">个人项目无角色</span> :
-                        <Tooltip title={roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}>
+                      spaceName === '我的个人项目' || this.props.userID !== undefined
+                        ? <span className="projectDesc">
+                          <FormattedMessage {...IntlMessages.personalProjectNoRoles} />
+                        </span>
+                        : <Tooltip title={roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}>
                           <div className="projectName">{roleNameArr.length === 0 ? '- -' : roleNameArr.join('/ ')}</div>
                         </Tooltip>
                     }
@@ -1476,7 +1527,11 @@ class Ordinary extends Component {
                       <div className='userCost'>
                         <div className="project">
                           {/* <i style={{ backgroundColor: '#46b2fa' }}></i> */}
-                          {this.state.isTeam ? '项目余额' : '我的余额'}：
+                          {
+                            this.state.isTeam
+                              ? <FormattedMessage {...IntlMessages.projectBalance} />
+                              : <FormattedMessage {...IntlMessages.myBalance} />
+                          }
                         </div>
                         <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
@@ -1488,16 +1543,20 @@ class Ordinary extends Component {
                       <div className='userCost'>
                         <div className="project">
                           {/* <i style={{ backgroundColor: '#28bd83' }}></i> */}
-                          今日消费：
+                          <FormattedMessage {...IntlMessages.todayConsumption} />
                         </div>
                         <span className='costNum'>
                         <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
                           <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                         </Tooltip>
                           &nbsp;
-                          <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                        <Tooltip title={<FormattedMessage {...IntlMessages.allClusters} />}>
+                          <Icon type="question-circle-o" />
+                        </Tooltip>
                       </span>
-                        <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+                        <Link to='/account/costCenter#consumptions' className="ant-btn ant-btn-primary">
+                          <FormattedMessage {...IntlMessages.go} />
+                        </Link>
                       </div>
                     </div>
                   }
@@ -1506,7 +1565,11 @@ class Ordinary extends Component {
             </Col>
             :
             <Col span={6} className='clusterCost'>
-              <Card title="帐户信息" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
+              <Card
+                title={formatMessage(IntlMessages.accountInfo)}
+                bordered={false}
+                bodyStyle={{ height: 220, padding: '36px 24px' }}
+              >
                 <div className='loginUser'>
                   <div className='logAvatar' style={{ float: 'none', margin: '0 auto' }}>
                     <Link to='/account'>
@@ -1530,16 +1593,40 @@ class Ordinary extends Component {
             </Col>
           }
           <Col span={6} className='quota'>
-            <Card title="项目&集群相关资源配额" bordered={false} bodyStyle={{ height: 220 }}
-              extra={<Link to={spaceName === '我的个人项目' ? this.props.loginUser.role !== 2 ?
-                '/account?tabs=quota' : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota` :
-                this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota` :
-                  `/tenant_manage/user/${this.props.userID}?tabs=quota`}><Button type="primary" size="small">{this.props.loginUser.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
+            <Card
+              title={formatMessage(IntlMessages.resourceQuotaOverview)}
+              bordered={false}
+              bodyStyle={{ height: 220 }}
+              extra={
+                <Link to={spaceName === '我的个人项目'
+                  ? this.props.loginUser.role !== 2
+                    ? '/account?tabs=quota'
+                    : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota`
+                  : this.props.userID === undefined
+                    ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
+                    : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
+                >
+                  <Button type="primary" size="small">
+                    {
+                      this.props.loginUser.role === 2
+                        ? <FormattedMessage {...IntlMessages.setQuota} />
+                        : <FormattedMessage {...IntlMessages.seeDetails} />
+                    }
+                  </Button>
+                </Link>
+              }
+            >
               <Row className="radios">
                 <RadioGroup size="small" onChange={(e) => this.onChange(e)} defaultValue="computing">
-                  <Radio prefixCls="ant-radio-button" value="computing">计算资源</Radio>
-                  <Radio prefixCls="ant-radio-button" value="application">应用管理</Radio>
-                  <Radio prefixCls="ant-radio-button" value="service">数据库&缓存</Radio>
+                  <Radio prefixCls="ant-radio-button" value="computing">
+                    <FormattedMessage {...IntlMessages.computingResource} />
+                  </Radio>
+                  <Radio prefixCls="ant-radio-button" value="application">
+                    <FormattedMessage {...IntlMessages.appManage} />
+                  </Radio>
+                  <Radio prefixCls="ant-radio-button" value="service">
+                    <FormattedMessage {...IntlMessages.dbAndCache} />
+                  </Radio>
                 </RadioGroup>
               </Row>
               <div className="calculation" style={{ display: isComputing ? 'block' : 'none' }}>
@@ -1608,89 +1695,102 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6} className='clusterRecord'>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{ height: 220 }}>
+            <Card
+              title={formatMessage(IntlMessages.todayClusterInfo)}
+              bordered={false}
+              bodyStyle={{ height: 220 }}
+            >
               <div style={{ overflowY: 'auto', height: '172px' }}>
                 <table>
                   <tbody>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        创建应用
+                        <FormattedMessage {...IntlMessages.createApp} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.appCreate} 个
+                        {clusterOperations.appCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="volume-bind" className="icon"/>
-                        创建服务
+                        <FormattedMessage {...IntlMessages.createService} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.svcCreate} 个
+                        {clusterOperations.svcCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="storage-volume-o" className="icon"/>
-                        创建存储卷
+                        <FormattedMessage {...IntlMessages.createVolume} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.volumeCreate} 个
+                        {clusterOperations.volumeCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        停止应用
+                        <FormattedMessage {...IntlMessages.stopApp} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.appStop} 个
+                        {clusterOperations.appStop}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="volume-bind" className="icon"/>
-                        删除服务
+                        <FormattedMessage {...IntlMessages.delService} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.svcDelete} 个
+                        {clusterOperations.svcDelete}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="storage-volume-o" className="icon"/>
-                        删除存储卷
+                        <FormattedMessage {...IntlMessages.delVolume} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.volumeDelete} 个
+                        {clusterOperations.volumeDelete}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        修改应用
+                        <FormattedMessage {...IntlMessages.updateApp} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.appModify} 个
+                        {clusterOperations.appModify}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        启动应用
+                        <FormattedMessage {...IntlMessages.startApp} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.appStart} 个
+                        {clusterOperations.appStart}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        重新部署
+                        <FormattedMessage {...IntlMessages.redeploy} />
                     </td>
                       <td className="recordNum">
-                        {clusterOperations.appRedeploy} 个
+                        {clusterOperations.appRedeploy}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                   </tbody>
@@ -1700,7 +1800,11 @@ class Ordinary extends Component {
           </Col>
           <Col span={6} className='sysState'>
             <Spin spinning={isFetching}>
-              <Card title="系统状态" bordered={false} bodyStyle={{ height: 220 }}>
+              <Card
+                title={formatMessage(IntlMessages.sysStatus)}
+                bordered={false}
+                bodyStyle={{ height: 220 }}
+              >
                 <table>
                   <tbody>
                     <tr>
@@ -1771,7 +1875,11 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card
+              title={formatMessage(IntlMessages.app)}
+              bordered={false}
+              bodyStyle={{ height: 180, padding: '0px' }}
+            >
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
@@ -1781,7 +1889,11 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card
+              title={formatMessage(IntlMessages.service)}
+              bordered={false}
+              bodyStyle={{ height: 180, padding: '0px' }}
+            >
               <ReactEcharts
                 notMerge={true}
                 option={serviceOption}
@@ -1791,7 +1903,11 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
+            <Card
+              title={formatMessage(IntlMessages.container)}
+              bordered={false}
+              bodyStyle={{ height: 180, padding: '0px' }}
+            >
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
@@ -1801,7 +1917,11 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储与快照" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
+            <Card
+              title={formatMessage(IntlMessages.storageAndSnapshot)}
+              bordered={false}
+              bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}
+            >
               {/* <ProgressBox boxPos={boxPos} /> */}
               <Col span={10} className="storageImg">
                 <img src={snapshot} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
@@ -1809,20 +1929,40 @@ class Ordinary extends Component {
               <Col span={14} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={14}>共享型存储</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.publicCount} 个</Col>
+                    <Col span={14}>
+                      <FormattedMessage {...IntlMessages.sharedStorage} />
+                    </Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>
+                      {this.state.publicCount}
+                      <FormattedMessage {...IntlMessages.one} />
+                    </Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>独享型存储</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.memoryCount} 个</Col>
+                    <Col span={14}>
+                      <FormattedMessage {...IntlMessages.rbdStorage} />
+                    </Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>
+                      {this.state.memoryCount}
+                      <FormattedMessage {...IntlMessages.one} />
+                    </Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>本地存储</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.hostCount} 个</Col>
+                    <Col span={14}>
+                      <FormattedMessage {...IntlMessages.hostStorage} />
+                    </Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>
+                      {this.state.hostCount}
+                      <FormattedMessage {...IntlMessages.one} />
+                    </Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={14}>独享存储快照</Col>
-                    <Col span={8} style={{ textAlign: 'right' }}>{this.state.storageCount} 个</Col>
+                    <Col span={14}>
+                      <FormattedMessage {...IntlMessages.rbdStorageSnapshot} />
+                    </Col>
+                    <Col span={8} style={{ textAlign: 'right' }}>
+                      {this.state.storageCount}
+                      <FormattedMessage {...IntlMessages.one} />
+                    </Col>
                   </Row>
                 </div>
               </Col>
@@ -1831,7 +1971,11 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='dataBase'>
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200 }}>
+            <Card
+              title={formatMessage(IntlMessages.dbAndCache)}
+              bordered={false}
+              bodyStyle={{ height: 200 }}
+            >
               {statefulAppMenus}
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
@@ -1843,28 +1987,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {mySQLRunning} 个
+                          {mySQLRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {mySQLStopped} 个
+                          {mySQLStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {mySQLOthers} 个
+                          {mySQLOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -1881,28 +2028,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {mongoRunning} 个
+                          {mongoRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {mongoStopped} 个
+                          {mongoStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {mongoOthers} 个
+                          {mongoOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -1919,28 +2069,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {redisRunning} 个
+                          {redisRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {redisStopped} 个
+                          {redisStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {redisOthers} 个
+                          {redisOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -1957,28 +2110,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {zookeeperRunning} 个
+                          {zookeeperRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {zookeeperStopped} 个
+                          {zookeeperStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {zookeeperOthers} 个
+                          {zookeeperOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -1995,28 +2151,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {elasticSearchRunning} 个
+                          {elasticSearchRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {elasticSearchStopped} 个
+                          {elasticSearchStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {elasticSearchOthers} 个
+                          {elasticSearchOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -2033,28 +2192,31 @@ class Ordinary extends Component {
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
-                          运行中
+                          <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {etcdRunning} 个
+                          {etcdRunning}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
-                          已停止
+                          <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {etcdStopped} 个
+                          {etcdStopped}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          操作中
+                          <FormattedMessage {...IntlMessages.operating} />
                       </td>
                         <td className="dbNum">
-                          {etcdOthers} 个
+                          {etcdOthers}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -2065,7 +2227,13 @@ class Ordinary extends Component {
           </Col>
           <Col span={18} className="hostState">
             <Card title={
-              <span>计算资源使用率<div style={{ width: 30, display: 'inline-block' }}></div><span style={{ fontSize: '12px', color: '#666' }}>Tips：显示使用率前三的节点</span></span>
+              <span>
+                <FormattedMessage {...IntlMessages.computingResourceUsage} />
+                <div style={{ width: 30, display: 'inline-block' }}></div>
+                <span style={{ fontSize: '12px', color: '#666' }}>
+                Tips：<FormattedMessage {...IntlMessages.computingResourceUsageTip} />
+                </span>
+              </span>
             } bordered={false} bodyStyle={{ height: 200, padding: '0px 20px' }}>
               <Row gutter={16} style={{ height: 200 }}>
                 <Col span={8}>
@@ -2079,7 +2247,7 @@ class Ordinary extends Component {
                 <Col span={8}>
                   <div className="minvisible">
                     <Checkbox checked={!this.state.minvisible} onChange={this.handleMinVisible}>
-                      显示 Master 节点
+                      <FormattedMessage {...IntlMessages.showMasterNode} />
                     </Checkbox>
                   </div>
                   <ReactEcharts
@@ -2090,34 +2258,39 @@ class Ordinary extends Component {
                   />
                 </Col>
                 <Col span={8} style={{ borderLeft: '1px solid #e2e2e2', height: '200px' }}>
-                  <Row style={{ fontSize: '14px', textAlign: 'center', height: 60, lineHeight: '60px' }}>主机状态</Row>
+                  <Row style={{ fontSize: '14px', textAlign: 'center', height: 60, lineHeight: '60px' }}>
+                    <FormattedMessage {...IntlMessages.nodeStatus} />
+                  </Row>
                   <table>
                     <tbody>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#43b4f6' }}></div>
-                          主机总数
+                          <FormattedMessage {...IntlMessages.nodesSum} />
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.total : 0}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#2abe84' }}></div>
-                          健康主机数
+                          <FormattedMessage {...IntlMessages.healthyNodesSum} />
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.health : 0}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className="stateDot" style={{ backgroundColor: '#a2d8fa' }}></div>
-                          未启用主机数
+                          <FormattedMessage {...IntlMessages.notEnabledNodesSum} />
                       </td>
                         <td className="hostNum">
-                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused : 0} 个
+                          {clusterNodeSummary.nodeInfo ? clusterNodeSummary.nodeInfo.unused : 0}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>

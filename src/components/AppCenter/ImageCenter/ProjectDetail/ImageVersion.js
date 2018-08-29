@@ -25,6 +25,8 @@ import { formatDate } from '../../../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import filter from 'lodash/filter'
 import remove from 'lodash/remove'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import imageVersionIntl from './intl/imageVersionIntl'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
@@ -45,6 +47,7 @@ let MyComponent = React.createClass({
   },
   render() {
     const { loading } = this.props;
+    const { formatMessage } = this.props.intl
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -55,7 +58,7 @@ let MyComponent = React.createClass({
     let tagList = this.props.config
     if (!tagList || tagList.length == 0) {
       return (
-        <div>镜像版本不存在</div>
+        <div>{formatMessage(imageVersionIntl.versionNotExist)}</div>
       )
     }
     const fullname = this.props.fullname
@@ -72,7 +75,7 @@ let MyComponent = React.createClass({
     )
   }
 })
-
+MyComponent = injectIntl(MyComponent, { withRef: true })
 class ImageVersion extends Component {
   constructor(props) {
     super(props)
@@ -108,7 +111,9 @@ class ImageVersion extends Component {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor, loadProjectMaxTagCount,
       config: imageDetail, loadLabelList,
     } = this.props
+    const { formatMessage } = this.props.intl
     const project_id = ""
+
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
       processedName,
@@ -130,7 +135,7 @@ class ImageVersion extends Component {
       failed:{
         func: err => {
           if(err.statusCode === 404){
-            notification.warn("对象不存在, 请求无法完成")
+            notification.warn(formatMessage(imageVersionIntl.objectNotExist))
           }
         },
         isAsync: true,
@@ -272,6 +277,7 @@ class ImageVersion extends Component {
 
   handleOk() {
     const { deleteAlone, scopeDetail, loadRepositoriesTags, config, isWrapStore, harbor } = this.props
+    const { formatMessage } = this.props.intl
     const { aryName, delValue, isBatchDel, deleteAll } = this.state
     let notify = new NotificationHandler()
     if (isWrapStore) {
@@ -289,9 +295,9 @@ class ImageVersion extends Component {
       success: {
         func: res => {
           if (isBatchDel) {
-            notify.success(`批量删除成功`)
+            notify.success(formatMessage(imageVersionIntl.deleteInBatchesSuccess))
           } else {
-            notify.success(`删除 ${config.name} 成功`)
+            notify.success(formatMessage(imageVersionIntl.deleteSuccess, {name: config.name}))
           }
           this.setState({
             deleteVisible: false,
@@ -313,9 +319,9 @@ class ImageVersion extends Component {
       }, failed: {
         func: err => {
           if (isBatchDel) {
-            notify.error(`批量删除失败`)
+            notify.error(formatMessage(imageVersionIntl.deleteInBatchesFailure))
           } else {
-            notify.error(`删除 ${config.name} 失败`)
+            notify.error(formatMessage(imageVersionIntl.deleteFailure, {name: config.name}))
           }
         },
         isAsync: true
@@ -326,6 +332,7 @@ class ImageVersion extends Component {
   offShelfImage() {
     const { appStoreApprove, config, scopeDetail, loadRepositoriesTags } = this.props
     const { delValue } = this.state
+    const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     let offshelfId
     let versions = config.versions
@@ -344,7 +351,7 @@ class ImageVersion extends Component {
     appStoreApprove(body, {
       success: {
         func: () => {
-          notify.success('删除成功')
+          notify.success(formatMessage(imageVersionIntl.delSuccess))
           scopeDetail.setState({
             imageDetailModalShow: false,
           })
@@ -366,7 +373,7 @@ class ImageVersion extends Component {
       },
       failed: {
         func: () => {
-          notify.error('删除失败')
+          notify.error(formatMessage(imageVersionIntl.delFailure))
         }
       }
     })
@@ -422,6 +429,7 @@ class ImageVersion extends Component {
   }
   lockFunc = () => {
     const { imageName, harbor } = this.props
+    const { formatMessage } = this.props.intl
     const { max_tags_count, currentEdition } = this.state
     const query = {
       registry: DEFAULT_REGISTRY,
@@ -430,7 +438,7 @@ class ImageVersion extends Component {
       id: 1,
       tagName: currentEdition,
     }
-    this.setLabel(query, { succ: "锁定成功", failed: "锁定失败" }, this.lockCb)
+    this.setLabel(query, { succ: formatMessage(imageVersionIntl.lockSuccess), failed: formatMessage(imageVersionIntl.lockFailure) }, this.lockCb)
   }
   lockState = (record, lockType) => {
     this.setState({
@@ -464,6 +472,7 @@ class ImageVersion extends Component {
   unLockFunc = () => {
     const { imageName, harbor } = this.props
     const { max_tags_count, currentEdition } = this.state
+    const { formatMessage } = this.props.intl
     const query = {
       registry: DEFAULT_REGISTRY,
       name: imageName,
@@ -471,7 +480,7 @@ class ImageVersion extends Component {
       id: 1,
       tagName: currentEdition,
     }
-    this.delLabel(query, { succ: '解锁成功', failed: '解锁失败' }, this.lockCb)
+    this.delLabel(query, { succ: formatMessage(imageVersionIntl.unLockSuccess), failed: formatMessage(imageVersionIntl.unLockFailure) }, this.lockCb)
   }
   delLabel = (query, { succ, failed }, _cb) => {
     this.props.delRepositoriesTagLabel(query, {
@@ -498,6 +507,7 @@ class ImageVersion extends Component {
 
   onCheckboxChange = (flag, label, record, _cb) => {
     const { imageName: name, harbor }= this.props
+    const { formatMessage } = this.props.intl
     const query = {
       registry: DEFAULT_REGISTRY,
       name,
@@ -506,9 +516,9 @@ class ImageVersion extends Component {
       tagName: record.edition,
     }
     if(flag){
-      this.setLabel(query, { succ: '添加标签成功', failed: '添加标签失败' }, _cb)
+      this.setLabel(query, { succ: formatMessage(imageVersionIntl.addTagSuccess), failed: formatMessage(imageVersionIntl.addTagFailure) }, _cb)
     }else{
-      this.delLabel(query, { succ: '删除标签成功', failed: '删除标签失败' }, _cb)
+      this.delLabel(query, { succ: formatMessage(imageVersionIntl.removeTagSuccess), failed: formatMessage(imageVersionIntl.removeTagFailure) }, _cb)
     }
   }
 
@@ -549,6 +559,7 @@ class ImageVersion extends Component {
   onConfirmOk = () => {
     const { imageName, harbor, updateProjectMaxTagCount } = this.props
     const { max_tags_count } = this.state
+    const { formatMessage } = this.props.intl
     const query = {
       registry: DEFAULT_REGISTRY,
       name: imageName,
@@ -558,7 +569,7 @@ class ImageVersion extends Component {
     updateProjectMaxTagCount(query, {
       success: {
         func: res => {
-          notification.success("修改成功")
+          notification.success(formatMessage(imageVersionIntl.editSuccess))
           this.setState({
             isEditMaxTag: false,
           }, () => {
@@ -578,9 +589,9 @@ class ImageVersion extends Component {
                 lastCount: current_tag_total,
               })
             }
-            notification.warn("版本最多个数，需不小于（≥）当前版本数" + (current_tag_total && "，当前版本数为：" + current_tag_total))
+            notification.warn(formatMessage(imageVersionIntl.editWarnning, {total: current_tag_total}))
           } else {
-            notification.warn("修改失败")
+            notification.warn(formatMessage(imageVersionIntl.editFailure))
           }
         }
       }
@@ -612,9 +623,10 @@ class ImageVersion extends Component {
     const rowSelection = {
       onChange: this.onSelectChange,
     }
+    const { formatMessage } = this.props.intl
     const columns = [{
       id: 'id',
-      title: '版本',
+      title: formatMessage(imageVersionIntl.version),
       dataIndex: 'edition',
       key: 'edition',
       width: '19%',
@@ -631,14 +643,14 @@ class ImageVersion extends Component {
       }
     },{
       id: 'push_time',
-      title: '推送时间',
+      title: formatMessage(imageVersionIntl.pushTime),
       dataIndex: 'push_time',
       key: 'push_time',
       width: '25%',
       render: text => { return text ? formatDate(text) : "" }
     }, {
       id: 'labels',
-      title: '标签',
+      title: formatMessage(imageVersionIntl.labels),
       dataIndex: 'labels',
       key: 'labels',
       width: '25%',
@@ -646,7 +658,7 @@ class ImageVersion extends Component {
         const tempLabels = remove(cloneDeep(labels), label => {
           return label.id !== 1
         })
-        if(!tempLabels.length) return "无标签"
+        if(!tempLabels.length) return formatMessage(imageVersionIntl.noLabel)
         const label = tempLabels[0] || {}
         const otherTags = tempLabels.slice(1).map((o, i) => {
           return (
@@ -670,21 +682,21 @@ class ImageVersion extends Component {
         )
       }
     }, {
-      title: '操作',
+      title: formatMessage(imageVersionIntl.operation),
       dataIndex: 'comment',
       render: (text, record) => {
         const items = []
         const isLock = !!!filter(record.labels, { id: 1 })[0]
         isLock ?
           items.push(<MenuItem key='lock'>
-            <i className="fa fa-lock"></i>&nbsp;&nbsp;锁定
+            <i className="fa fa-lock"></i>&nbsp;&nbsp;{formatMessage(imageVersionIntl.lock)}
           </MenuItem>)
           :
           items.push(<MenuItem key='unlock'>
-            <i className="fa fa-unlock"></i>&nbsp;&nbsp;解锁
+            <i className="fa fa-unlock"></i>&nbsp;&nbsp;{formatMessage(imageVersionIntl.unlock)}
           </MenuItem>)
         items.push(<MenuItem key='del'>
-          <Icon type="delete" /> {isWrapStore ? '下架（删除）' : '删除'}
+          <Icon type="delete" /> {isWrapStore ? formatMessage(imageVersionIntl.remove) : formatMessage(imageVersionIntl.del)}
         </MenuItem>)
 
         const name = record.edition
@@ -726,14 +738,14 @@ class ImageVersion extends Component {
           className="rowContainer"
           onMouseover={() => overOut(true, name)}
           onMouseout={() => overOut(false, name)}
-          title={<span><Icon type="tags" /> 配置标签</span>}>
+          title={<span><Icon type="tags" /> {formatMessage(imageVersionIntl.configTags)}</span>}>
           {subItems}
         </SubMenu>
         items.unshift(labelMenu)
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
-              <span><Icon type="eye-o" /> 查看详情</span>
+              <span><Icon type="eye-o" /> {formatMessage(imageVersionIntl.viewDetails)}</span>
             </Button>
             <Dropdown
               visible={typeof this.state.dropdownVisible[name] === "boolean" ? this.state.dropdownVisible[name] : this.dropdownVisible[name]}
@@ -741,7 +753,7 @@ class ImageVersion extends Component {
               overlay={
                 <Menu defaultOpenKeys={['subMenu']} openKeys={['subMenu']} className="imageVersionDropdownMenu" style={{ width: '115px' }} onClick={this.handleMenu.bind(this, record)} >
                   <MenuItem key='deploy'>
-                    <span><i className="anticon anticon-appstore-o"></i> 部署镜像</span>
+                    <span><i className="anticon anticon-appstore-o"></i> {formatMessage(imageVersionIntl.deployImage)}</span>
                   </MenuItem>
                   {
                     isAdminAndHarbor ?
@@ -787,14 +799,15 @@ class ImageVersion extends Component {
 
     const selectBefore = (
       <Select defaultValue="全部版本" style={{ width: 100 }}>
-        <Option value="全部版本">全部版本</Option>
-        <Option value="已代码分支名命名">已代码分支名命名</Option>
-        <Option value="已时间数命名">已时间数命名</Option>
-        <Option value="自定义版本名">自定义版本名</Option>
+        <Option value="全部版本">{formatMessage(imageVersionIntl.allVersions)}</Option>
+        <Option value="已代码分支名命名">{formatMessage(imageVersionIntl.nameInBranchs)}</Option>
+        <Option value="已时间数命名">{formatMessage(imageVersionIntl.nameInTimestamp)}</Option>
+        <Option value="自定义版本名">{formatMessage(imageVersionIntl.nameInCustomVersion)}</Option>
       </Select>)
     const pageOption = {
       simple: true,
     }
+    const { formatHTMLMessage } = this.props.intl
     return (
       <Card className="ImageVersion" >
         {/* {<MyComponent loading={isFetching} config={imageDetailTag} fullname={imageDetail.name ? imageDetail.name : imageDetail} />} */}
@@ -802,9 +815,9 @@ class ImageVersion extends Component {
           <div className="top">
             {
               isAdminAndHarbor && !isWrapStore ?
-                <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />删除</Button> : ''
+                <Button className="delete" disabled={!selectedRowKeys.length} onClick={this.handleBatchDel.bind(this)} ><Icon type="delete" />{formatMessage(imageVersionIntl.delText)}</Button> : ''
             }
-            <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;刷新</Button>
+            <Button className="refresh" onClick={this.handleRefresh.bind(this)}><i className='fa fa-refresh' /> &nbsp;{formatMessage(imageVersionIntl.refresh)}</Button>
             {/*<span style={{ marginLeft: 10 }}>
               保留版本最多
               <Input onChange={ e => this.setState({ max_tags_count: e.target.value })} value={max_tags_count} style={{width: 50}} onPressEnter={this.onPressEnter} />
@@ -813,21 +826,25 @@ class ImageVersion extends Component {
                 <Icon type="question-circle" style={{cursor: 'pointer'}} />
               </Tooltip>
             </span>*/}
-            <span style={{ marginLeft: 16 }}>&nbsp;保留版本最多&nbsp;
-              {
-                isEditMaxTag
-                ? <InputNumber
-                  min={0}
-                  step={1}
-                  value={max_tags_count === -1 ? "" : max_tags_count}
-                  placeholder="无上限"
-                  onChange={max_tags_count => {
-                    this.setState({ max_tags_count: isNaN(max_tags_count) ? -1 : max_tags_count })
-                  }}
-                />
-                : max_tags_count === -1 ? "无上限" : max_tags_count
-              }
-              &nbsp;个（自动清理旧版本 <Tooltip placement="top" title="最旧版本，即时间按照（推送时间）倒叙排列，最早推送的未锁定版本">
+            <span style={{ marginLeft: 16 }}>&nbsp;
+              <FormattedMessage
+                defaultMessage={imageVersionIntl.keepVersion.defaultMessage}
+                id={imageVersionIntl.keepVersion.id}
+                values={{
+                  total: isEditMaxTag
+                    ? <InputNumber
+                      min={0}
+                      step={1}
+                      value={max_tags_count === -1 ? "" : max_tags_count}
+                      placeholder="无上限"
+                      onChange={max_tags_count => {
+                        this.setState({ max_tags_count: isNaN(max_tags_count) ? -1 : max_tags_count })
+                      }}
+                    />
+                    : max_tags_count === -1 ? "无上限" : max_tags_count
+                }}
+              />
+              （{formatMessage(imageVersionIntl.autoClear)} <Tooltip placement="top" title={formatMessage(imageVersionIntl.helpTxt)}>
                 <Icon type="question-circle-o" style={{cursor: 'pointer'}} />
               </Tooltip>）
               {
@@ -835,7 +852,7 @@ class ImageVersion extends Component {
                   <span>
                     {
                       !isEditMaxTag &&
-                      <Tooltip title="编辑">
+                      <Tooltip title={formatMessage(imageVersionIntl.edit)}>
                         <Icon
                           type="edit"
                           style={{ cursor: 'pointer', marginLeft: 8 }}
@@ -848,7 +865,7 @@ class ImageVersion extends Component {
                     }
                     {
                       isEditMaxTag && [
-                        <Tooltip title="取消">
+                        <Tooltip title={formatMessage(imageVersionIntl.cancelText)}>
                           <Icon
                             key="cancel"
                             type="cross"
@@ -858,7 +875,7 @@ class ImageVersion extends Component {
                             }}
                           />
                         </Tooltip>,
-                        <Tooltip title="保存">
+                        <Tooltip title={formatMessage(imageVersionIntl.okText)}>
                           <Icon
                             key="save"
                             type="save"
@@ -888,7 +905,7 @@ class ImageVersion extends Component {
               </div>
             </div> */}
             <div className="right">
-              <span style={{ verticalAlign: 'super' }}>共计 {dataAry.length} 条</span>
+              <span style={{ verticalAlign: 'super', display: 'inline-block', width: 50 }}>{formatMessage(imageVersionIntl.totalItems, { total: dataAry.length})}</span>
               {/* <Pagination className="pag" {...pageOption} /> */}
             </div>
           </div>
@@ -898,27 +915,28 @@ class ImageVersion extends Component {
               dataSource={dataAry}
               loading={isFetching}
               pagination={pageOption}
+              locale={{emptyText: formatMessage(imageVersionIntl.noDataTxt)}}
               rowSelection={isWrapStore ? null : rowSelection}
             />
           </div>
         </div>
-        <Modal title="镜像版本详情" visible={this.state.detailVisible} style={{ paddingRight: 5, top: 40 }}
+        <Modal title={formatMessage(imageVersionIntl.imageVersionDetail)} visible={this.state.detailVisible} style={{ paddingRight: 5, top: 40 }}
           onCancel={this.handleClose.bind(this)}
           wrapClassName="image-detail-modal"
           width="600"
           footer={[
-            <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>知道了</Button>,
+            <Button key="back" type="primary" size="large" onClick={this.handleClose.bind(this)}>{formatMessage(imageVersionIntl.gotIt)}</Button>,
           ]}>
           <ServiceAPI imageTags={edition} fullname={imageDetail.name ? imageDetail.name : imageDetail} />
         </Modal>
-        <Modal title="删除版本" visible={this.state.deleteVisible}
+        <Modal title={formatMessage(imageVersionIntl.deleteVersion)} visible={this.state.deleteVisible}
           onCancel={this.handleDelClose.bind(this)}
           onOk={this.handleOk.bind(this)}>
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
             {
-              deleteAll ? <p>该仓库中仅剩最后一个镜像版本，删除后整个{aryName}镜像仓库将被删除。</p> :
-                <span>确认要删除镜像版本 {isBatchDel ? aryName : delValue} ？</span>
+              deleteAll ? <p>{formatMessage(imageVersionIntl.deleteAllAlert, {name: aryName})}</p> :
+                <span>{formatMessage(imageVersionIntl.deleteThis, {name: isBatchDel ? aryName : delValue})} ？</span>
             }
           </div>
         </Modal>
@@ -927,9 +945,9 @@ class ImageVersion extends Component {
             <Modal
               className="lockModal"
               visible={isShowLockModel}
-              title={lockType === "lock" ? "锁定" : "解锁"}
+              title={lockType === "lock" ? formatMessage(imageVersionIntl.lock) : formatMessage(imageVersionIntl.unlock)}
               onOk={lockType === "lock" ? this.lockFunc : this.unLockFunc}
-              okText={lockType === "lock" ? "确认锁定（不被清理)" : "确认解锁（允许清理)"}
+              okText={lockType === "lock" ? formatMessage(imageVersionIntl.confirmLock) : formatMessage(imageVersionIntl.confirmUnlock)}
               onCancel={() => this.setState({ isShowLockModel: false })}
             >
               {
@@ -938,10 +956,9 @@ class ImageVersion extends Component {
                     <div>
                       <div className="left"><i className="fa fa-lock"></i></div>
                       <div className="right">
-                        <div>锁定版本后，将不受自动清理旧版本功能影响！
-                        一般为版本为稳定、常用版本时，保留备份使用！
-                        <span className="hint">注：锁定版本的推送更新、手动删除不受锁定限制</span></div>
-                        <div>确定锁定该版本，不被清理？</div>
+                        <div>{formatMessage(imageVersionIntl.lockTips1)}
+                        <span className="hint">{formatMessage(imageVersionIntl.lockTips2)}</span></div>
+                        <div>{formatMessage(imageVersionIntl.lockTips3)}</div>
                       </div>
                       <div className="clear"></div>
                     </div>
@@ -952,9 +969,8 @@ class ImageVersion extends Component {
                     <div>
                       <div className="left"><i className="fa fa-unlock"></i></div>
                       <div className="right">
-                        <div>解锁版本后，将受自动清理旧版本功能影响！
-                        若超镜像版本数量上限，且该版本为最旧，其将被优先清理！</div>
-                        <div>确定解锁该版本？</div>
+                        <div>{formatMessage(imageVersionIntl.unlockTips1)}</div>
+                        <div>{formatMessage(imageVersionIntl.unlockTips2)}</div>
                       </div>
                       <div className="clear"></div>
                     </div>
@@ -1011,4 +1027,4 @@ export default connect(mapStateToProps, {
   setRepositoriesTagLabel,
   delRepositoriesTagLabel,
   loadLabelList,
-})(ImageVersion)
+})(injectIntl(ImageVersion, { withRef: true }))

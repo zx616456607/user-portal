@@ -55,15 +55,15 @@ const menuList_standard = [
 const menuList_enterprise_admin = [
   {
     url: '/account',
-    name: '我的帐户'
+    name: 'myAccount'
   },
   {
     url: '/account/costCenter#consumptions',
-    name: '消费记录'
+    name: 'consumptions'
   },
   {
     url: '/account/costCenter#payments',
-    name: '充值记录'
+    name: 'payments'
   }
 ]
 
@@ -72,15 +72,15 @@ const menuList_enterprise_sys_admin = []
 const menuList_enterprise_user = [
   {
     url: '/account',
-    name: '我的帐户'
+    name: 'myAccount'
   },
   {
     url: '/account/costCenter#consumptions',
-    name: '消费记录'
+    name: 'consumptions'
   },
   {
     url: '/account/costCenter#payments',
-    name: '充值记录'
+    name: 'payments'
   },
 ]
 

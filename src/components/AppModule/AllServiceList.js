@@ -1353,6 +1353,7 @@ class ServiceList extends Component {
     }
   }
   handleSearchNameOrLabel(value) {
+    const {formatMessage} = this.props.intl
     const serviceName = formatMessage(AllServiceListIntl.serviceName)
     const serviceTagButton = formatMessage(AllServiceListIntl.serviceTagButton)
     switch (value) {
