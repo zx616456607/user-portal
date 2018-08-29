@@ -49,6 +49,7 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../client/containers/DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
+import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
@@ -558,7 +559,6 @@ class BaseInfo extends Component {
                       <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
                   }
                 </div>
-
                 <ResourceConfig
                   ref="resourceConfig"
                   toggleComposeType={this.selectComposeType}
@@ -636,7 +636,7 @@ class VisitTypes extends Component{
           }, () =>{
             const { proxyArr } = this.state
             this.setState({
-              deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0
+              deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId
             })
 
           })
@@ -1238,7 +1238,10 @@ class ModalDetail extends Component {
       stopAlertModal: false,
       accessMethodData: null,
       rebootClusterModal: false,
-      rebootLoading: false
+      rebootLoading: false,
+      checkingBackupStatus: false,
+      backupPending: false,
+      backupChecking: false,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1303,6 +1306,33 @@ class ModalDetail extends Component {
           }
         },
       });
+    }
+  }
+  getBackupList = () => {
+    const { cluster, dbName, database, getbackupChain } = this.props
+    this.setState({
+      checkingBackupStatus: true,
+    })
+    if (database === 'redis' || database === 'mysql') {
+      getbackupChain(cluster, database, dbName, {
+        success: {
+          func: res => {
+            this.setState({
+              checkingBackupStatus: false,
+            })
+            let chains = []
+            res.data.items.forEach(v => {chains = chains.concat(v.chains)})
+            chains.forEach(v => {
+              if (v.status === 'Scheduled' ||  v.status === 'Started' || v.status === '202') {
+                this.setState({
+                  backupPending: true
+                })
+                return
+              }
+            } )
+          },
+        },
+      })
     }
   }
   refurbishDetail() {
@@ -1434,6 +1464,7 @@ class ModalDetail extends Component {
     }
   }
   stopAlert = () => {
+    this.getBackupList()
     this.setState({
       stopAlertModal: true
     })
@@ -1526,17 +1557,28 @@ class ModalDetail extends Component {
     return <Modal
       title="重启集群"
       onOk={confirm}
-      confirmLoading={this.state.rebootLoading}
+      confirmLoading={this.state.checkingBackupStatus || this.state.rebootLoading}
       onCancel={() => {
         this.setState({
           rebootClusterModal: false,
-          rebootLoading: false
+          rebootLoading: false,
+          checkingBackupStatus: false
         })
       }}
       visible={this.state.rebootClusterModal}
     >
-      <div>
-        确认重启集群吗？
+      <div className="appServiceDetailRebootAlert">
+        <div>
+          <Icon type="question-circle-o" className="question" />
+          确认重启集群吗？
+        </div>
+        {this.state.backupPending &&
+          <div className="attention">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+            集群存在正在备份状态备份点，重启集群可能导致备份失败，为保证备份数据完整性建议备份完成后再重启集群
+          </div>
+        }
+
       </div>
     </Modal>
   }
@@ -1590,12 +1632,16 @@ class ModalDetail extends Component {
                     {
                       needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
-                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {this.setState({rebootClusterModal: true})}}>
+                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {
+                            this.getBackupList()
+                            this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {this.setState({rebootClusterModal: true})}}>
+                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {
+                          this.getBackupList()
+                          this.setState({rebootClusterModal: true})}}>
                           重启
                         </Button>
                     }
@@ -1759,11 +1805,22 @@ class ModalDetail extends Component {
         <Modal
           visible={this.state.stopAlertModal}
           title="停止数据库与缓存集群"
-          onCancel={() => this.setState({stopAlertModal: false})}
+          onCancel={() => this.setState({
+            stopAlertModal: false,
+            checkingBackupStatus: false,
+          })}
           onOk={this.stopTheCluster}
+          confirmLoading={this.state.checkingBackupStatus}
         >
           <div className="alertContent">
             <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.objectMeta.name}集群？`}
+            {this.state.backupPending &&
+            <div className="attention">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              集群存在正在备份状态备份点，停止集群可能导致备份失败，为保证备份数据完整性建议备份完成后再停止集群
+            </div>
+            }
+
           </div>
         </Modal>
         <Modal
@@ -1824,4 +1881,5 @@ export default connect(mapStateToProps, {
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
+  getbackupChain,
 })(ModalDetail)
