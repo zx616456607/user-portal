@@ -227,7 +227,7 @@ class Backup extends React.Component {
         fullBackupPointDel: !e.target.checked,
       })
     }
-    const isCurrentFullBackup = backupChain.index === 0 && backupChain.backType === 'fullbackup'
+    const isCurrentFullBackup = backupChain.backType === 'fullbackup'
     return (
       <Modal
         visible={this.state.delThis}
@@ -236,7 +236,7 @@ class Backup extends React.Component {
         title= {isCurrentFullBackup ? '删除全量备份点' : '删除备份点'}
         footer={[
           <Button key="cancel" onClick={() => this.setState({ delThis: false })}>取消</Button>,
-          <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel} onClick={confirmDel}>确定</Button>,
+          <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel && backupChain.masterBackup} onClick={confirmDel}>确定</Button>,
         ]}
       >
         {
