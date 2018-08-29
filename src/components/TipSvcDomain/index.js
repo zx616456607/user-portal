@@ -12,6 +12,9 @@ import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 import { genRandomString } from '../../common/tools'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import intlMsg from './Intl'
+
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
@@ -44,7 +47,7 @@ class SvcTip extends Component {
     code.value = url
   }
   render() {
-    const { svcDomain } = this.props
+    const { svcDomain, intl: { formatMessage } } = this.props
     const scope = this
     let item = svcDomain.map((element, index) => {
       let linkURL = 'http://' + element.domain
@@ -52,8 +55,8 @@ class SvcTip extends Component {
         <li key={element.domain + element.interPort}>
           <a href="javascript:void(0)" > 容器端口:{element.interPort}</a>
           &nbsp;&nbsp;
-          <a href={linkURL} target='_blank'>{lbgroup2Text(element)}:{element.domain}</a>
-          <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+          <a href={linkURL} target='_blank'>{lbgroup2Text(element, formatMessage)}:{element.domain}</a>
+          <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(intlMsg.copyScs) : formatMessage(intlMsg.clickCopy)}>
             <TenxIcon type="copy"
                       onClick={this.servercopyCode.bind(this)}
                       onMouseLeave={ this.returnDefaultTooltip.bind(this) }
@@ -76,7 +79,7 @@ class SvcTip extends Component {
 }
 
 // app card port content
-class AppTip extends Component {
+class AppTipComponent extends Component {
   constructor(props) {
     super(props)
     this.copyCode = this.copyCode.bind(this)
@@ -110,7 +113,7 @@ class AppTip extends Component {
     }
   }
   render() {
-    const { appDomain, scope } = this.props
+    const { appDomain, scope, intl: { formatMessage } } = this.props
     let item = appDomain.map((item, index) => {
       if (item.data.length === 0) {
         return (
@@ -131,15 +134,15 @@ class AppTip extends Component {
               </Timeline.Item>
               <Timeline.Item dot={<div></div>}>
                 <TenxIcon type="branch"  className='branchSvg'/>
-                <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>`
+                <a href="javascript:void(0)"><FormattedMessage {...intlMsg.containerPort}/>:{item.data[0].interPort}</a>&nbsp;&nbsp;
+                <a href={linkURL} target='_blank'>
                   {
-                    lbgroup2Text(item.data[0])
+                    lbgroup2Text(item.data[0], formatMessage)
                   }:{
                     item.data[0].domain
                   }
                 </a>
-                <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+                <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(intlMsg.copyScs) : formatMessage(intlMsg.clickCopy)}>
                   <TenxIcon type="copy"
                             onClick={this.copyCode}
                             onMouseLeave={ this.returnDefaultTooltip }
@@ -173,9 +176,9 @@ class AppTip extends Component {
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>
-                      <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
-                      <a href={linkURL} target='_blank'>{lbgroup2Text(url)}:{url.domain}</a>
-                      <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+                      <a href="javascript:void(0)"><FormattedMessage {...intlMsg.containerPort}/>:{url.interPort}</a>&nbsp;&nbsp;
+                      <a href={linkURL} target='_blank'>{lbgroup2Text(url, formatMessage)}:{url.domain}</a>
+                      <Tooltip placement='top' title={scope.state.copyStatus ? formatMessage(intlMsg.copyScs) : formatMessage(intlMsg.clickCopy)}>
                         <TenxIcon type="copy"
                           className='tipCopySvg'
                           onClick={this.copyCode}
@@ -201,27 +204,31 @@ class AppTip extends Component {
   }
 }
 
-function lbgroup2Text(item) {
+const AppTip = injectIntl(AppTipComponent, {
+  withRef: true,
+})
+
+function lbgroup2Text(item, formatMessage) {
   const { isInternal, lbgroup, isLb } = item
-  let before = '集群内'
-  let after = '外网'
+  let before = formatMessage(intlMsg.clusterIn)
+  let after = formatMessage(intlMsg.outNet)
   if (lbgroup) {
-    before = '集群内'
+    before = formatMessage(intlMsg.clusterIn)
     const { type, id } = lbgroup
     if (type === 'public') {
-      after = '公网'
+      after = formatMessage(intlMsg.outNet)
     }
     if (type === 'private') {
-      after = '内网'
+      after = formatMessage(intlMsg.inNet)
     }
   }
   if (isLb) {
-    return '应用负载均衡'
+    return formatMessage(intlMsg.appLoadBalance)
   }
   return isInternal ? before : after
 }
 
-export default class TipSvcDomain extends Component {
+class TipSvcDomain extends Component {
   constructor(props) {
     super(props)
     this.showPop = this.showPop.bind(this)
@@ -237,9 +244,9 @@ export default class TipSvcDomain extends Component {
     })
   }
   getIconHtml() {
-    const { icon } = this.props
+    const { icon, intl: { formatMessage } } = this.props
     if (icon === 'https') {
-      return (<Tooltip title='HTTPS模式'><svg className='https' ><use xlinkHref='#https' /></svg></Tooltip>)
+      return (<Tooltip title={formatMessage(intlMsg.httpsMode)}><svg className='https' ><use xlinkHref='#https' /></svg></Tooltip>)
     }
     else {
       return null
@@ -262,7 +269,7 @@ export default class TipSvcDomain extends Component {
               <a target='_blank' href={linkURL}>{this.getIconHtml()}{svcDomain[0].domain}</a>
             </span>
             <Popover placement='right'
-              content={<SvcTip svcDomain={svcDomain} />}
+              content={<SvcTip intl={this.props.intl} svcDomain={svcDomain} />}
               trigger='click'
               onVisibleChange={this.showPop}
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
@@ -341,3 +348,7 @@ export default class TipSvcDomain extends Component {
     return <span>-</span>
   }
 }
+
+export default injectIntl(TipSvcDomain, {
+  withRef: true,
+})
