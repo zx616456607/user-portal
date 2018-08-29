@@ -455,7 +455,6 @@ class BaseInfo extends Component {
     // const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
-
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -464,7 +463,7 @@ class BaseInfo extends Component {
           <span className="spanLeft">实例副本</span>
           <InputNumber onChange={(e) => parentScope.setState({ replicas: e })}
                        value={parentScope.state.replicas}
-                       min={ this.props.database == 'zookeeper' ? 3 : 1 }
+                       min={ this.props.database === 'elasticsearch' ? 1 : 3 }
                        /> &nbsp; 个
         </div>
         <div className="modal-li">
