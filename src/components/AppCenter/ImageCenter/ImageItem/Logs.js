@@ -17,9 +17,11 @@ import { loadProjectLogs } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY,  } from '../../../../constants'
 import { formatDate } from '../../../../common/tools'
 import SearchInput from '../../../SearchInput'
+import { injectIntl } from 'react-intl'
+import logIntl from './intl/logs'
 const Option = Select.Option
 
-class Logs extends Component {
+class PageLogs extends Component {
   constructor(props) {
     super()
     this.state = {
@@ -39,9 +41,10 @@ class Logs extends Component {
       page: this.state.currentPage,
       page_size: this.state.pageSize
     })
+    const { formatMessage } = this.props.intl
     this.select = <Select style={{width: '90px'}} defaultValue="username" onChange={(e) => this.searchType(e)}>
-      <Option key="username">成员名</Option>
-      <Option key="repo_name">镜像名称</Option>
+      <Option key="username">{formatMessage(logIntl.memberName)}</Option>
+      <Option key="repo_name">{formatMessage(logIntl.imageName)}</Option>
     </Select>
   }
   componentDidUpdate() {
@@ -114,28 +117,29 @@ class Logs extends Component {
     }, postBody)
   }
   render() {
-    const { projectLogs } = this.props
+    const { projectLogs, intl } = this.props
+    const { formatMessage } = intl
     const { isFetching, list, total } = projectLogs
     let filterKey = [
       { text: 'Pull', value: 'pull' },
       { text: 'Push', value: 'push' },
       { text: 'Create', value: 'create' },
       { text: 'Delete', value: 'Delete' },
-      { text: '其他', value: 'other' },
+      { text: formatMessage(logIntl.other), value: 'other' },
     ]
     const columns = [
       {
-        title: '成员名',
+        title: formatMessage(logIntl.memberName),
         dataIndex: 'username',
         key: 'username',
         width: '20%',
       }, {
-        title: '镜像名称',
+        title: formatMessage(logIntl.imageName),
         dataIndex: 'repoName',
         key: 'repoName',
         width: '30%',
       }, {
-        title: '标签',
+        title: formatMessage(logIntl.tag),
         dataIndex: 'repoTag',
         key: 'repoTag',
         width: '10%',
@@ -146,13 +150,13 @@ class Logs extends Component {
           return value
         }
       },{
-        title: '操作',
+        title: formatMessage(logIntl.option),
         dataIndex: 'operation',
         filters: filterKey,
         key: 'operation',
         width: '10%',
       }, {
-        title: '时间戳',
+        title: formatMessage(logIntl.timestamp),
         dataIndex: 'opTime',
         key: 'opTime',
         width: '30%',
@@ -171,7 +175,7 @@ class Logs extends Component {
       this.state.pageSize,
       total: total ? total : 0,
       current: this.state.currentPage,
-      showTotal: total => `共计： ${total} 条`,
+      showTotal: total => `${formatMessage(logIntl.total, {total})}`,
     }
 
     return (
@@ -180,7 +184,7 @@ class Logs extends Component {
           <i className='fa fa-search' onClick={this.searchLogs.bind(this, this.state.Name)} />
         </div>
         <div className="topRow">
-          <Input addonBefore={this.select} placeholder="搜索" onChange={(e) => {this.setState({Name: e.target.value})}} className="search" id="logSearch" size='large' onPressEnter={(e) => this.searchLogs(e.target.value)} />
+          <Input addonBefore={this.select} placeholder={formatMessage(logIntl.searchPlaceholder)} onChange={(e) => {this.setState({Name: e.target.value})}} className="search" id="logSearch" size='large' onPressEnter={(e) => this.searchLogs(e.target.value)} />
           {/*{total >0 ?
             <span className="totalPage">共计：{total} 条</span>
           :null
@@ -189,6 +193,11 @@ class Logs extends Component {
         <Table style={{ marginTop: '20px' }} className="myImage"
           dataSource={list}
           columns={columns}
+          locale={{
+            emptyText: formatMessage(logIntl.noData),
+            filterConfirm:  formatMessage(logIntl.confirm),
+            filterReset:  formatMessage(logIntl.reset)
+          }}
           pagination={pagination}
           onChange={(pagination, filter, sort) => this.filter(pagination, filter, sort)}
           loading={isFetching} />
@@ -196,7 +205,9 @@ class Logs extends Component {
     )
   }
 }
-
+const Logs = injectIntl(PageLogs, {
+  withRef: true
+})
 function mapStateToProps(state, props) {
   const defaultProjectLogs = {
     isFetching: false,

@@ -16,6 +16,8 @@ import NotificationHandler from '../../../../components/Notification'
 import { getImageDetailInfo, putEditImageDetailInfo } from '../../../../actions/harbor'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
+import { injectIntl } from 'react-intl'
+import detailInfoIntl from './intl/detailInfo'
 
 class DetailInfo extends Component {
   constructor(props) {
@@ -77,7 +79,8 @@ class DetailInfo extends Component {
   }
 
   updateImageInfo() {
-    const { putEditImageDetailInfo, registry, imageName, harbor } = this.props
+    const { putEditImageDetailInfo, registry, imageName, harbor, intl } = this.props
+    const { formatMessage } = intl
     const { detailInfo } = this.state
     let notification = new NotificationHandler()
     const name = encodeURIComponent(imageName)
@@ -92,12 +95,12 @@ class DetailInfo extends Component {
     this.setState({
       loading: true,
     })
-    notification.spin(`更新镜像 ${nameArray[1]} 信息中...`)
+    notification.spin(formatMessage(detailInfoIntl.inUpdate, {name: nameArray[1]}))
     putEditImageDetailInfo(harbor, config, {
       success: {
         func: () => {
           notification.close()
-          notification.success(`更新镜像 ${nameArray[1]} 信息成功`)
+          notification.success(formatMessage(detailInfoIntl.updateSuccess, {name: nameArray[1]}))
           this.loadImageDetailInfo()
           this.setState({
             editor: false
@@ -108,7 +111,7 @@ class DetailInfo extends Component {
       failed: {
         func: () => {
           notification.close()
-          notification.error(`更新镜像 ${nameArray[1]} 信息失败`)
+          notification.error(formatMessage(detailInfoIntl.updateFailure, {name: nameArray[1]}))
         }
       },
       finally: {
@@ -122,6 +125,7 @@ class DetailInfo extends Component {
   }
 
   render() {
+    const { formatMessage } = this.props.intl
     const { markdownValue, loading } = this.state
     const { currnetImageInfo, projectMembers, loginUser } = this.props
     const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
@@ -139,7 +143,7 @@ class DetailInfo extends Component {
       return true
     })
     const currentUserRole = currentMember[camelize('role_id')]
-    let htmlValue = '<p>还没有添加详细信息</p>'
+    let htmlValue = `<p>${formatMessage(detailInfoIntl.hasNotBeenAddInfoYet)}</p>`
     if (htmlData) {
       htmlValue = htmlData
     }
@@ -159,16 +163,16 @@ class DetailInfo extends Component {
               onClick={() => this.handEdit()}
               icon="edit"
             >
-              编辑
+              {formatMessage(detailInfoIntl.edit)}
             </Button></div>
             : null
         }
         {
           this.state.editor
             ? <div className="editInfo">
-              <div className="edit-tips">注：基本信息支持 markdown 语法编辑</div>
+              <div className="edit-tips">{formatMessage(detailInfoIntl.markdownSupport)}</div>
               <MarkdownEditor
-                title="基本信息"
+                title={formatMessage(detailInfoIntl.baseInfo)}
                 value={markdownValue}
                 callback={this.onChangeDockerFile.bind(this)}
                 options={editorOptions}
@@ -180,7 +184,7 @@ class DetailInfo extends Component {
                   onClick={() => this.setState({ editor: false })}
                   style={{ marginRight: '10px' }}
                 >
-                  取消
+                  {formatMessage(detailInfoIntl.cancelText)}
                 </Button>
                 <Button
                   size="large"
@@ -188,7 +192,7 @@ class DetailInfo extends Component {
                   onClick={() => this.updateImageInfo()}
                   loading={loading}
                 >
-                  确定
+                  {formatMessage(detailInfoIntl.okText)}
                 </Button>
               </div>
             </div>
@@ -231,4 +235,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getImageDetailInfo,
   putEditImageDetailInfo,
-})(DetailInfo)
+})(injectIntl(DetailInfo,{ withRef: true }))

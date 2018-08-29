@@ -8,8 +8,8 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Icon, Select, Tabs, Button } from 'antd'
+import { injectIntl } from 'react-intl'
 import MirrorLayered from './MirrorLayered'
 import MirrorSafetyBug from './MirrorSafetyBug'
 import SoftwarePackage from './SoftwarePackage'
@@ -22,6 +22,7 @@ import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { browserHistory } from 'react-router'
+import mirrorsafetyIntl from './intl/mirrorsafetyIntl'
 
 const TabPane = Tabs.TabPane
 const Option = Select.Option
@@ -47,7 +48,6 @@ class MirrorSafety extends Component {
       inherwidth: 1
     }
   }
-
   componentWillMount() {
     const { registry, imageName, loadRepositoriesTags, tagVersion, envEdition, harbor } = this.props
     const standard = require('../../../../../configs/constants').STANDARD_MODE
@@ -64,7 +64,6 @@ class MirrorSafety extends Component {
       })
     }
   }
-
   componentWillReceiveProps(nextPorps) {
     const { registry, loadRepositoriesTags, harbor } = this.props
     const imageName = nextPorps.imageName
@@ -91,10 +90,11 @@ class MirrorSafety extends Component {
     }
   }
   formatErrorMessage(body) {
+    const { formatMessage } = this.props.intl
     const mapping = {
-      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
-      'no non-empty layer': "版本为空镜像，无法对空镜像进行扫描",
-      "The connection could not be established": '版本无法连接到安全服务',
+      'jobalreadyexist': formatMessage(mirrorsafetyIntl.jobalreadyexist),
+      'no non-empty layer': formatMessage(mirrorsafetyIntl.noNonEmptyLayer),
+      "The connection could not be established":formatMessage(mirrorsafetyIntl.couldNotBeEstablished),
     }
     const message = body.message
     if (!(message in mapping)) {
@@ -119,6 +119,7 @@ class MirrorSafety extends Component {
     const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, cluster_id, loadMirrorSafetyChairinfo, loadMirrorSafetyLyinsinfo, mirrorSafetyScan, mirrorScanUrl } = this.props
     const notificationHandler = new NotificationHandler()
     this.setState({tag})
+    const { formatMessage } = this.props.intl
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
@@ -181,7 +182,7 @@ class MirrorSafety extends Component {
       failed:{
         func: (res) => {
           this.setState({TabsDisabled : true})
-          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + this.formatErrorMessage(res))
+          notificationHandler.error(formatMessage(mirrorsafetyIntl.errMsg, {name: imageName, tag, msg: this.formatErrorMessage(res)}))
         }
       }
     })
@@ -219,25 +220,26 @@ class MirrorSafety extends Component {
   render() {
     const { imgTag, imageName, envEdition, imageType } = this.props
     const { TabsDisabled, LayerCommandParameters } = this.state
+    const { formatMessage } = this.props.intl
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
     return (
       <div id='mirrorsafety'>
         { (mode === standard && envEdition == 0) ?
           <div className='envEdition'>
-            此服务仅支持『专业版』，去查看『时速云|专业版』功能优势
-            <Button className='envEditionButton' onClick={this.handleUpgrade}>点击查看</Button>
+            {formatMessage(mirrorsafetyIntl.envEdition)}
+            <Button className='envEditionButton' onClick={this.handleUpgrade}>{formatMessage(mirrorsafetyIntl.goToCheck)}</Button>
           </div>:
           <div>
             <div className='safetyselect'>
               <Select showSearch
                 className='safetyselectson'
-                placeholder='选择镜像版本，查看安全报告'
-                value={this.state.tag ? this.state.tag : '选择镜像版本，查看安全报告'}
+                placeholder={formatMessage(mirrorsafetyIntl.selectImageVersionPlaceholder)}
+                value={this.state.tag ? this.state.tag : formatMessage(mirrorsafetyIntl.selectImageVersionPlaceholder)}
                 onChange={this.handleSelectVesion}
                 VersionOption={imgTag}
                 optionFilterProp="children"
-                notFoundContent="无法找到"
+                notFoundContent={formatMessage(mirrorsafetyIntl.notFoundContent)}
               >
                 {this.TemplateSelectOption()}
               </Select>
@@ -246,16 +248,16 @@ class MirrorSafety extends Component {
               <div className='safetytabcontainer'>
                 <div className="safetytabbox">
                   <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
-                    <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
+                    <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.bugScan)}</span>} key="1" disabled={false} >
                       <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
+                    <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.imageLayered)}</span>} key="2" disabled={false}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
+                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>{formatMessage(mirrorsafetyIntl.softWarePackage)}</span></span>} key="3" disabled={false}>
                       <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
+                    <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.baseScan)}</span>} key="4" disabled={false}>
                       <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                   </Tabs>
@@ -315,4 +317,4 @@ export default connect(mapStateToProps, {
   loadMirrorSafetyScan,
   loadMirrorSafetyScanStatus,
   loadRepositoriesTags
-})(MirrorSafety)
+})(injectIntl(MirrorSafety, {withRef: true}))
