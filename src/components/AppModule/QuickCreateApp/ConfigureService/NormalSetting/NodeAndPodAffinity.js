@@ -635,23 +635,23 @@ class PodAffinity extends Component {
               initialValue: '最好',
             })}
           >
-            <Select.Option value="最好" key="maybedo">最好</Select.Option>
-            <Select.Option value="最好不" key="donotmust">最好不</Select.Option>
-            <Select.Option value="必须" key="maybedo">必须</Select.Option>
-            <Select.Option value="必须不" key="mustnot">必须不</Select.Option>
+            <Select.Option value="最好" key="maybedo"><FormattedMessage {...IntlMessage.theBest}/></Select.Option>
+            <Select.Option value="最好不" key="donotmust"><FormattedMessage {...IntlMessage.bestNot}/></Select.Option>
+            <Select.Option value="必须" key="maybedo"><FormattedMessage {...IntlMessage.must}/></Select.Option>
+            <Select.Option value="必须不" key="mustnot"><FormattedMessage {...IntlMessage.mustNot}/></Select.Option>
           </Select>
         </FormItem>
-          <span className="serverText"> 与服务（  </span>
+          <span className="serverText"> {intl.formatMessage(IntlMessage.withService)}（  </span>
           <FormItem
               id="control-input"
               wrapperCol={{ span: 14 }}
             >
-              <Input id="control-input" placeholder="服务标签键" style={{ width: 120 }}
+              <Input id="control-input" placeholder={intl.formatMessage(IntlMessage.serviceLabelKey)} style={{ width: 120 }}
                 {...getFieldProps('serverBottomKey',{
                   rules: [
                     {
                       required: true,
-                      message: "“必填信息"
+                      message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                     },{
                       validator: this.checkServiceKey
                     }
@@ -664,12 +664,12 @@ class PodAffinity extends Component {
           wrapperCol={{ span: 2 }}
         >
           <Select id="select" size="large" style={{ width: 120 }}
-              placeholder = '操作符'
+              placeholder = {intl.formatMessage(IntlMessage.operator)}
             {...getFieldProps('serverBottomMark',{
               rules: [
                 {
                   required: true,
-                  message: "“必填信息"
+                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ]
             })}
@@ -685,9 +685,11 @@ class PodAffinity extends Component {
           this.changeServiceBetweenSelectShow()
         }
         <span className="serverText">)</span>
-        <span className="serverText"> 在同一拓扑域</span>
-        <span className="serverText"> (具有相同的主机标签键) </span>
-        <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">添加</Button>
+        <span className="serverText"> {intl.formatMessage(IntlMessage.sameTopologyDomain)}</span>
+        <span className="serverText"> ({intl.formatMessage(IntlMessage.sameHostLabelKey)}) </span>
+        <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">
+          <FormattedMessage {...IntlMessage.add}/>
+        </Button>
         </div>
         <div className="serverTag">
           {
@@ -705,7 +707,7 @@ class PodAffinity extends Component {
             onChange: this.handleAdvance
           })}
           >
-          高级设置：『当前服务』中的容器实例必须『分散』在不同的节点上
+          {intl.formatMessage(IntlMessage.advancedSettings)}：{intl.formatMessage(IntlMessage.affinityAdvancedSettingsTip)}
         </Checkbox>
       </FormItem>
       </div>

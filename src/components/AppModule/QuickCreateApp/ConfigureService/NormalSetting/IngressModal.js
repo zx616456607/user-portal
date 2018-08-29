@@ -17,6 +17,8 @@ import classNames from 'classnames'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 import HealthCheckModal from '../../../LoadBalance/HealthCheckModal'
 import {ingressContextCheck, ingressNameCheck, ingressRelayRuleCheck} from '../../../../../common/naming_validation'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -107,7 +109,7 @@ class IngressModal extends React.Component {
   }
 
   monitorNameCheck = (rules, value, callback) => {
-    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress } = this.props
+    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress, intl } = this.props
     if (currentIngress && (currentIngress.monitorName === value)) {
       return callback()
     }
@@ -129,7 +131,7 @@ class IngressModal extends React.Component {
         failed: {
           func: res => {
             if (res.statusCode === 409) {
-              return callback('监听器名称已经存在')
+              return callback(intl.formatMessage(IntlMessage.monitorNameExist))
             }
             callback(res.message.message || res.message)
           }
@@ -139,7 +141,7 @@ class IngressModal extends React.Component {
   }
 
   hostCheck = (rules, value, callback) => {
-    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress } = this.props
+    const { checkIngressNameAndHost, clusterID, lbname, form, currentIngress, intl } = this.props
     if (currentIngress && (currentIngress.host === value)) {
       return callback()
     }
@@ -161,7 +163,7 @@ class IngressModal extends React.Component {
         failed: {
           func: res => {
             if (res.statusCode === 409) {
-              return callback('校验规则已经存在')
+              return callback(intl.formatMessage(IntlMessage.verRuleExist))
             }
             callback(res.message.message || res.message)
           }
@@ -177,20 +179,24 @@ class IngressModal extends React.Component {
     callback()
   }
   portCheck = (rules, value, callback) => {
+    const { intl } = this.props
     if (!value) {
-      return callback('请输入容器端口')
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.containerPort),
+        end: ''
+      }))
     }
     if (!/^[0-9]*$/.test(value)) {
-      return callback('容器端口必须为数字')
+      return callback(intl.formatMessage(IntlMessage.containerPortRegMsg))
     }
     if (+value < 1 || +value > 65535) {
-      return callback('容器端口必须在1-65535之间')
+      return callback(intl.formatMessage(IntlMessage.containerPortRangeMsg))
     }
     callback()
   }
   render() {
     const { confirmLoading, checkVisible, healthOptions, healthCheck } = this.state
-    const { visible, form, currentIngress } = this.props
+    const { visible, form, currentIngress, intl } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue, getFieldError, isFieldValidating } = form
 
     const formItemLayout = {
@@ -240,7 +246,7 @@ class IngressModal extends React.Component {
     const showSlider = getFieldValue('sessionSticky') && (getFieldValue('lbAlgorithm') === 'round-robin')
     return (
       <Modal
-        title="配置监听器"
+        title={intl.formatMessage(IntlMessage.configIngress)}
         width={560}
         visible={visible}
         onCancel={this.cancelModal}
@@ -363,4 +369,6 @@ class IngressModal extends React.Component {
   }
 }
 
-export default Form.create()(IngressModal)
+export default Form.create()(injectIntl(IngressModal, {
+  withRef: true,
+}))

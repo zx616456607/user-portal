@@ -68,6 +68,7 @@ class ServiceMesh extends React.Component {
   }
   renderMesh() {
     const { userrole, checked } = this.state
+    const { intl } = this.props
     const form = this.props.form
     const { getFieldProps } = form;
     const checkedmeshProps = getFieldProps('serviceMesh', {
