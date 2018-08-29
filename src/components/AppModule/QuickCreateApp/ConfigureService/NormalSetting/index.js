@@ -34,6 +34,8 @@ import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -142,15 +144,15 @@ const Normal = React.createClass({
     }
   },
   showServicePointAffinity() {
-    const { currentCluster, fields } = this.props
+    const { currentCluster, fields, intl } = this.props
     const { form } = this.props
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     getFieldProps('serviceTag')
     const serviceTag = getFieldValue('serviceTag')
     return <div>
-      <Title title="应用列表" />
+      <Title title={intl.formatMessage(IntlMessage.appList)} />
       <div className="title">
-        服务与节点亲和
+        <FormattedMessage {...IntlMessage.serviceAndNodeAffinity}/>
         <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
           <Icon type="question-circle-o" />
         </Tooltip>
@@ -741,6 +743,8 @@ export default connect(mapStateToProps, {
   getClusterLabel,
   addLabels,
   getNodeLabels
-})(Normal)
+})(injectIntl(Normal, {
+  withRef: true,
+}))
 
 
