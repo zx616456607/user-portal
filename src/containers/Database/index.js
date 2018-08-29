@@ -17,20 +17,20 @@ import './style/database.less'
 const menuList = [
   {
     url: '/database_cache/mysql_cluster',
-    name: 'MySQL集群'
+    name: 'mysqlCluster'
   },
   {
     url: '/database_cache/redis_cluster',
-    name: 'Redis集群'
+    name: 'redisCluster'
   },
   {
     url: '/database_cache/zookeeper_cluster',
-    name: 'ZooKeeper集群'
+    name: 'zookeeperCluster'
   },
 
   {
     url: '/database_cache/elasticsearch_cluster',
-    name: 'ES集群'
+    name: 'elasticsearchCluster'
   },
 
   //{

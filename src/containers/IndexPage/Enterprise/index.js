@@ -1,3 +1,12 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ *
+ * IndexPage
+ *
+ * v0.1 - 2018-08-28
+ */
+
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Breadcrumb, Spin } from 'antd'
@@ -11,6 +20,8 @@ import Footer from '../../../components/Home/Footer'
 import Title from '../../../components/Title'
 import noPermission from '../../../assets/img/noPermission.png'
 import { isResourcePermissionError } from '../../../common/tools'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './Intl'
 
 class IndexPage extends Component {
   constructor(props) {
@@ -67,28 +78,18 @@ class IndexPage extends Component {
         <div className="loading">
           <div className="noPermission">
             <img src={noPermission} />
-            <div className="hint">暂无总览查看权限，联系平台管理员授权</div>
+            <div className="hint">
+              <FormattedMessage {...IntlMessages.noAuth} />
+            </div>
           </div>
         </div>
       )
     }
-    const { loginUser,current } = this.props
-    if(current.space.spaceName){
-      if((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && current.space.namespace !== 'default'){
-        return (
-          <div id="IndexPage">
-            <Title title="总览" />
-            <Admin spaceName={current.space.spaceName}/>
-            <Ordinary clusterName={current.cluster.clusterName}/>
-            <Footer />
-          </div>
-        )
-      }
-    }
+    const { current, intl } = this.props
     return (
       <div id="IndexPage">
-        <Title title="总览" />
-        <Ordinary clusterName={current.cluster.clusterName}/>
+        <Title title={intl.formatMessage(IntlMessages.overview)} />
+        <Ordinary clusterName={current.cluster.clusterName} intl={intl} />
         <Footer />
       </div>
     )
@@ -106,11 +107,13 @@ function mapStateToProps(state,props) {
     loginUser,
   }
 }
-export default connect (mapStateToProps,{
+export default injectIntl(connect(mapStateToProps,{
   setCurrent,
   loadLoginUserDetail,
   GetPrivilege,
-})(IndexPage)
+})(IndexPage), {
+  withRef: true,
+})
 /*function mapStateToProps(state, props) {
   const { login, name } = props.params
   const {

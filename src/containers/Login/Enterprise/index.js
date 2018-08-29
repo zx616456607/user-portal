@@ -22,6 +22,8 @@ import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
 import { camelize } from 'humps'
 import { getPersonalized } from '../../../actions/personalized'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './Intl'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -73,6 +75,7 @@ let Login = React.createClass({
       } else {
         body.username = values.name
       }
+      const { intl } = this.props
       login(body, {
         success: {
           func: (result) => {
@@ -82,11 +85,11 @@ let Login = React.createClass({
             })
             // If no cluster found, redirect to CLUSTER_PAGE
             if (result.user[camelize(NO_CLUSTER_FLAG)] === true) {
-              message.warning(`请先进行初始化配置`, 10)
+              message.warning(intl.formatMessage(IntlMessages.tipsFailedInit), 10)
               browserHistory.push(CLUSTER_PAGE)
               return
             }
-            message.success(`用户 ${values.name} 登录成功`)
+            message.success(intl.formatMessage(IntlMessages.tipsSuccess, { username: values.name }))
             browserHistory.push(redirect || '/')
           },
           isAsync: true
@@ -96,19 +99,19 @@ let Login = React.createClass({
             let msg = err.message.message || err.message
             let outdated = false
             if (err.statusCode == 406) {
-              message.warn('由于安全管理需要，首次登录需设置新密码')
+              message.warn(intl.formatMessage(IntlMessages.tipsFailedChangePwd))
               const { email, verifyCode } = err.message.data
               browserHistory.push(`/rpw?email=${email}&code=${verifyCode}&from=login`)
               return
             }
             if (err.statusCode == 401) {
-              msg = "登录名或者密码错误"
+              msg = intl.formatMessage(IntlMessages.tipsFailed)
             }
             if (err.statusCode == 403
               && err.message
               && err.message.message === 'user was not activated'
             ) {
-              msg = "该账号已被停用"
+              msg = intl.formatMessage(IntlMessages.tipsFailedBlock)
             }
             if (err.statusCode == 451) {
               msg = null,
@@ -132,13 +135,14 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
-      callback([new Error('请填写用户名')])
+      callback([new Error(intl.formatMessage(IntlMessages.inputTipsUser))])
       return
     }
     if (value.indexOf('@') > -1) {
       if (!EMAIL_REG_EXP.test(value)) {
-        callback([new Error('邮箱地址填写错误')])
+        callback([new Error(intl.formatMessage(IntlMessages.inputTipsEmail))])
         return
       }
       callback()
@@ -148,14 +152,15 @@ let Login = React.createClass({
   },
 
   checkPass(rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback([new Error(intl.formatMessage(IntlMessages.inputTipsPassword))])
       return
     }
     callback()
   },
 
-  checkCaptcha(rule, value, callback) {
+  /* checkCaptcha(rule, value, callback) {
     if (!value) {
       callback()
       return
@@ -183,9 +188,9 @@ let Login = React.createClass({
         isAsync: true
       },
     })
-  },
+  }, */
 
-  changeCaptcha() {
+  /* changeCaptcha() {
     const { resetFields, getFieldProps } = this.props.form
     const captcha = getFieldProps('captcha').value
     if (captcha) {
@@ -194,7 +199,7 @@ let Login = React.createClass({
     this.setState({
       random: genRandomString(),
     })
-  },
+  }, */
 
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -301,7 +306,8 @@ let Login = React.createClass({
       },
       failed: {
         func: () => {
-          message.warning('服务不可用', 10)
+          const { intl } = this.props
+          message.warning(intl.formatMessage(IntlMessages.serviceUnavailable), 10)
           setTimeout(function(){
             const intName = _this.refs.intName.refs.input
             intName.focus()
@@ -373,13 +379,21 @@ let Login = React.createClass({
         <Top loginLogo={info.loginLogo} />
         <div className="login">
           {this.state.outdated ?
-            <div className="errorText">许可证已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入许可证 </span>以使用平台</div>
+            <div className="errorText">
+              <FormattedMessage {...IntlMessages.licenseExpired} />
+              <span className="goActive" onClick={()=> browserHistory.push("/activation")}>
+                <FormattedMessage {...IntlMessages.licenseInputRequired} />
+              </span>
+              <FormattedMessage {...IntlMessages.licenseExplore} />
+            </div>
           : null
           }
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-              <div className='logTitle'>登&nbsp;&nbsp;录</div>
+              <div className='logTitle'>
+                <FormattedMessage {...IntlMessages.login} />
+              </div>
             </span>
           </Row>
           <Card className="loginForm" bordered={false}>
@@ -396,7 +410,12 @@ let Login = React.createClass({
                 help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                 className="formItemName"
                 >
-                <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
+                <div
+                  className={this.state.intNameFocus ? "intName intOnFocus" : "intName"}
+                  onClick={this.intOnFocus.bind(this, 'name')}
+                >
+                  <FormattedMessage {...IntlMessages.usernameOrEmail} />
+                </div>
 
                 <Input {...nameProps}
                   autoComplete="on"
@@ -412,7 +431,12 @@ let Login = React.createClass({
                 hasFeedback
                 className="formItemName"
                 >
-                <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
+                <div
+                  className={this.state.intPassFocus ? "intName intOnFocus" : "intName"}
+                  onClick={this.intOnFocus.bind(this, 'pass')}
+                >
+                  <FormattedMessage {...IntlMessages.password} />
+                </div>
                 <Input {...passwdProps} autoComplete="on" type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
@@ -444,8 +468,9 @@ let Login = React.createClass({
                     type="primary"
                     onClick={()=> browserHistory.push('activation')}
                     {...submitProps}
-                    className="subBtn">
-                    去激活
+                    className="subBtn"
+                  >
+                    <FormattedMessage {...IntlMessages.licenseGoaActivate} />
                   </Button>
                 :
                 <Button
@@ -454,8 +479,9 @@ let Login = React.createClass({
                   onClick={this.handleSubmit}
                   loading={submitting}
                   {...submitProps}
-                  className="subBtn">
-                  {submitting ? '登录中...' : '登录'}
+                  className="subBtn"
+                >
+                  <FormattedMessage {...IntlMessages.login} />
                 </Button>
                 }
               </FormItem>
@@ -491,4 +517,6 @@ Login = connect(mapStateToProps, {
   getPersonalized
 })(Login)
 
-export default Login
+export default injectIntl(Login, {
+  withRef: true,
+})

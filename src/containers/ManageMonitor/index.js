@@ -17,27 +17,27 @@ import './style/ManageMonitor.less'
 const menuList = [
   {
     url: '/manange_monitor/audit',
-    name: '操作审计'
+    name: 'audit'
   },
   {
     url: '/manange_monitor/query_log',
-    name: '日志查询'
+    name: 'queryLog'
   },
   {
     url: '/manange_monitor/panel',
-    name: '监控面板'
+    name: 'monitorPanel'
   },
   {
     url: '/manange_monitor/alarm_setting',
-    name:'告警设置'
+    name:'alarmSetting'
   },
   {
     url: '/manange_monitor/alarm_record',
-    name: '告警记录'
+    name: 'alarmRecord'
   },
    {
     url: '/manange_monitor/alarm_group',
-    name: '告警通知组'
+    name: 'alarmGroup'
   },
 ]
 
