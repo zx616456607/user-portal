@@ -1554,7 +1554,7 @@ class ModalDetail extends Component {
             </p>
             <div className='leftBox TenxStatus'>
               <div className="dbDesc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
-              <div>集群模式：一主多从</div>
+              <div>集群模式：{databaseInfo.multiMaster === true? '多主': '一主多从' }</div>
               <div> 状态：
                 {this.dbStatus(databaseInfo.status)}
               </div>
