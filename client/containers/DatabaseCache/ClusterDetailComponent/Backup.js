@@ -691,6 +691,43 @@ class Backup extends React.Component {
     })
     this.checkAutoBackupExist()
   }
+  // 检测所有备份链的全量备份是否都成功
+  checkAllFullbackupFailure = () => {
+    const { chainsData, database } = this.props
+    let returnData = {
+      msg: '',
+      disabled: false,
+    }
+
+    if (database === 'mysql') {
+      if (chainsData.length === 0) {
+        return {
+          msg: '无任何备份链，手动备份后，可设置自动备份',
+          disabled: true,
+        }
+      }
+      let data = []
+      chainsData.forEach(v => {
+        data = data.concat(v.chains)
+      })
+
+      data.forEach(k => {
+        if (k.backType === 'fullbackup' && k.status !== 'Failed') {
+          returnData = {
+            msg: '',
+            disabled: false,
+          }
+          return
+        }
+        returnData = {
+          msg: '无备份成功的全量备份点，无法设置自动备份',
+          disabled: true,
+        }
+      })
+      return returnData
+    }
+    return returnData
+  }
   render() {
     const { chainsData, database, databaseInfo } = this.props
     return <div className="dbClusterBackup">
@@ -708,10 +745,10 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           {
-            chainsData.length === 0 && database !== 'redis' ?
+            this.checkAllFullbackupFailure().disabled ?
               <div className="btn-wrapper">
                 <div className="fake">
-                  <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
+                  <Tooltip title={this.checkAllFullbackupFailure().msg}>
                     <div className="mask"></div>
                   </Tooltip>
                 </div>
