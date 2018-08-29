@@ -44,6 +44,12 @@ export const mapData = {
     createNotiGroup: '创建新通知组',
     slcDeployEnv: '选择部署环境',
     noOperationApp: '没有可以操作的应用',
+    tip: '提示',
+    noServerNoAlarm: '当前应用下还未添加服务，添加服务后可为服务创建告警策略',
+    noDataYet: '暂无数据',
+    checkLayout: '查看编排',
+    alarmSetting: '告警设置',
+    lookTopology: '查看拓扑图',
   }
 }
 

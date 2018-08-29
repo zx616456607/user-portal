@@ -269,11 +269,12 @@ let MyComponent = React.createClass({
     e.stopPropagation()
     browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
-  showAlert(item) {
+  showAlert(item, that) {
+    const { intl: { formatMessage } } = that.props
     if(!item.services.length){
       Modal.info({
-        title: '提示',
-        content: <div style={{color:'#2db7f5'}}>当前应用下还未添加服务，添加服务后可为服务创建告警策略</div>,
+        title: formatMessage(intlMsg.tip),
+        content: <div style={{color:'#2db7f5'}}><FormattedMessage {...intlMsg.noServerNoAlarm}/></div>,
         onOk() {},
       });
       return
@@ -285,7 +286,7 @@ let MyComponent = React.createClass({
     },500)
   },
   render: function () {
-    const { config, loading, bindingDomains, bindingIPs, parentScope } = this.props
+    const { config, loading, bindingDomains, bindingIPs, parentScope, intl: { formatMessage } } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -296,7 +297,7 @@ let MyComponent = React.createClass({
     if (config.length < 1) {
       return (
         <div className='loadingBox'>
-          <Icon type="frown"/>&nbsp;暂无数据
+          <Icon type="frown"/>&nbsp;<FormattedMessage {...intlMsg.noDataYet}/>
         </div>
       )
     }
@@ -306,18 +307,18 @@ let MyComponent = React.createClass({
           style={{ width: '100px' }}
           >
           <Menu.Item key='stopApp' disabled={item.status.phase === 'Stopped'}>
-            <span>停止</span>
+            <span><FormattedMessage {...intlMsg.stop}/></span>
           </Menu.Item>
           <Menu.Item key='deleteApp'>
-            <span>删除</span>
+            <span><FormattedMessage {...intlMsg.delete}/></span>
           </Menu.Item>
           <Menu.Item key='stack'>
-            <span>查看编排</span>
+            <span><FormattedMessage {...intlMsg.checkLayout}/></span>
           </Menu.Item>
           <Menu.Item key='restartApp'
             disabled={item.status.phase === 'Stopped'}
             onClick={(e) => this.restartApp(e, item.name)}>
-            <span>重新部署</span>
+            <span><FormattedMessage {...intlMsg.reDeploy}/></span>
           </Menu.Item>
         </Menu>
       );
@@ -346,7 +347,7 @@ let MyComponent = React.createClass({
             {/* <Tooltip title="查看监控">
             <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
             </Tooltip> */}
-            <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
+            <Tooltip title={formatMessage(intlMsg.alarmSetting)} onClick={()=> this.showAlert(item, this)}>
               <Icon type="notification" />
             </Tooltip>
           </div>
@@ -362,7 +363,7 @@ let MyComponent = React.createClass({
             <Dropdown.Button
               overlay={dropdown} type='ghost'
               onClick={this.goTologoly.bind(this, item.name)}>
-              查看拓扑图
+              <FormattedMessage {...intlMsg.lookTopology}/>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
@@ -1301,6 +1302,7 @@ class AppList extends Component {
               funcs={funcs}
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
+              intl={this.props.intl}
             />
           </Card>
           <Modal title={formatMessage(intlMsg.createAlarmStg)} visible={this.state.alarmModal} width={580}
