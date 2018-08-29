@@ -36,6 +36,7 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
+import intlMsg from './AppListIntl'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -427,7 +428,7 @@ class AppList extends Component {
     const {
       loadAppList, cluster, page,
       size, name, sortOrder,
-      sortBy
+      sortBy, intl: { formatMessage },
     } = nextProps || this.props
     const query = { page, size, name, sortOrder, sortBy }
     query.customizeOpts = options
@@ -703,7 +704,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的应用')
+      noti.error(formatMessage(intlMsg.noOperationApp))
       return
     }
     self.setState({
@@ -760,7 +761,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的应用')
+      noti.error(formatMessage(intlMsg.noOperationApp))
       return
     }
     self.setState({
@@ -801,7 +802,7 @@ class AppList extends Component {
   }
   handleRestarAppsOk() {
     const self = this
-    const { cluster, restartApps, appList, intl, removeTerminal, terminalList } = this.props
+    const { cluster, restartApps, appList, intl, removeTerminal, terminalList, intl: { formatMessage } } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
     let runningApps = []
 
@@ -832,7 +833,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的应用')
+      noti.error(formatMessage(intlMsg.noOperationApp))
       return
     }
     self.setState({
@@ -968,7 +969,8 @@ class AppList extends Component {
   }
   render() {
     const scope = this
-    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps, SettingListfromserviceorapp } = this.props
+    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps,
+      intl: { formatMessage }, SettingListfromserviceorapp } = this.props
     const { appList, searchInputValue, searchInputDisabled, runBtn, stopBtn, restartBtn } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
@@ -993,23 +995,23 @@ class AppList extends Component {
     const dropdownb = (
       <Menu className="Moreoperations">
         <Menu.Item key="0" disabled={!isChecked}>
-          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> 删除</span>
+          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> <FormattedMessage {...intlMsg.delete}/></span>
         </Menu.Item>
         <Menu.Item key="1" disabled={!restartBtn}>
-          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> 重新部署</span>
+          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> <FormattedMessage {...intlMsg.reDeploy}/></span>
         </Menu.Item>
       </Menu>
     );
     const dropdownc = (
       <Menu className="Moreoperations">
         <Menu.Item key="0">
-          <span onClick={() => this.loadData(this.props)}><i className='fa fa-refresh' /> 刷新</span>
+          <span onClick={() => this.loadData(this.props)}><i className='fa fa-refresh' /> <FormattedMessage {...intlMsg.refresh}/></span>
         </Menu.Item>
         <Menu.Item key="1" disabled={!isChecked}>
-          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> 删除</span>
+          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> <FormattedMessage {...intlMsg.delete}/></span>
         </Menu.Item>
         <Menu.Item key="2" disabled={!restartBtn}>
-          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> 重新部署</span>
+          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> <FormattedMessage {...intlMsg.reDeploy}/></span>
         </Menu.Item>
       </Menu>
     );
@@ -1032,10 +1034,10 @@ class AppList extends Component {
       return prefix + toggle
     }
     let linkUrl = '/app_manage/app_create'
-    let createBtn = '创建应用'
+    let createBtn = formatMessage(intlMsg.createApp)
     if (pathname === '/ai-deep-learning/ai-model-service') {
       linkUrl = '/app_manage/app_create/quick_create?addAI=true'
-      createBtn = 'AI 模型应用'
+      createBtn = formatMessage(intlMsg.aiModalApp)
     }
     const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push(linkUrl)}>
         <i className="fa fa-plus" /> { createBtn }
@@ -1046,7 +1048,7 @@ class AppList extends Component {
         className='AppList'
         type='right'
         >
-        <Title title="应用列表"/>
+        <Title title={formatMessage(intlMsg.appList)}/>
         <div id='AppList' key='AppList'>
           <ResourceBanner resourceType='application'/>
           <div className='operationBox operationBoxa'>
@@ -1059,36 +1061,36 @@ class AppList extends Component {
                 快速创建
               </Button>*/}
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
-                <i className='fa fa-play' />启动
+                <i className='fa fa-play' /><FormattedMessage {...intlMsg.boot}/>
               </Button>
-              <Modal title="启动操作" visible={this.state.startAppsModal}
+              <Modal title={formatMessage(intlMsg.bootOperation)} visible={this.state.startAppsModal}
                 onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
                 >
                 <StateBtnModal appList={appList} state='Running' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
-                <i className='fa fa-stop' />停止
+                <i className='fa fa-stop' /><FormattedMessage {...intlMsg.stop}/>
               </Button>
-              <Modal title="停止操作" visible={this.state.stopAppsModal}
+              <Modal title={formatMessage(intlMsg.stopOperation)} visible={this.state.stopAppsModal}
                 onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
                 >
                 <StateBtnModal appList={appList} state='Stopped' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
-                <i className='fa fa-refresh' />刷新
+                <i className='fa fa-refresh' /><FormattedMessage {...intlMsg.refresh}/>
               </Button>
               <Button type='ghost' size='large' onClick={() => this.batchDeleteApps()} disabled={!isChecked}>
-                <i className='fa fa-trash-o' />删除
+                <i className='fa fa-trash-o' /><FormattedMessage {...intlMsg.delete}/>
               </Button>
-              <Modal title="删除操作" visible={this.state.deleteAppsModal}
+              <Modal title={formatMessage(intlMsg.deleteOperation)} visible={this.state.deleteAppsModal}
                 onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
                 >
                <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule} settingList={SettingListfromserviceorapp} callback={this.handleCheckboxvalue}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchRestartApps()} disabled={!restartBtn}>
-                <i className='fa fa-undo' />重新部署
+                <i className='fa fa-undo' /><FormattedMessage {...intlMsg.reDeploy}/>
               </Button>
-              <Modal title="重新部署操作" visible={this.state.restarAppsModal}
+              <Modal title={formatMessage(intlMsg.reDeployOperation)} visible={this.state.restarAppsModal}
                 onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
                 >
                 <StateBtnModal appList={appList} state='Restart' />
@@ -1107,14 +1109,14 @@ class AppList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder={formatMessage(intlMsg.searchByAppName)}
                   style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'><FormattedMessage {...intlMsg.allItems} values={{ total }}/></span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -1139,17 +1141,17 @@ class AppList extends Component {
                 快速创建
               </Button>*/}
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
-                <i className='fa fa-play' />启动
+                <i className='fa fa-play' /><FormattedMessage {...intlMsg.boot}/>
               </Button>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
-                <i className='fa fa-stop' />停止
+                <i className='fa fa-stop' /><FormattedMessage {...intlMsg.stop}/>
               </Button>
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
-                <i className='fa fa-refresh' />刷新
+                <i className='fa fa-refresh' /><FormattedMessage {...intlMsg.refresh}/>
               </Button>
               <Dropdown overlay={dropdownb} trigger={['click']}>
                 <Button size="large" >
-                  更多操作<i className="fa fa-caret-down Arrow"></i>
+                  <FormattedMessage {...intlMsg.moreOperation}/><i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1166,14 +1168,14 @@ class AppList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder={formatMessage(intlMsg.searchByAppName)}
                   style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'><FormattedMessage {...intlMsg.allItems} values={{ total }}/></span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -1198,14 +1200,14 @@ class AppList extends Component {
                 快速创建
               </Button>*/}
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
-                <i className='fa fa-play' />启动
+                <i className='fa fa-play' /><FormattedMessage {...intlMsg.boot}/>
               </Button>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
-                <i className='fa fa-stop' />停止
+                <i className='fa fa-stop' /><FormattedMessage {...intlMsg.stop}/>
               </Button>
               <Dropdown overlay={dropdownc} trigger={['click']}>
                 <Button size="large" >
-                  更多操作<i className="fa fa-caret-down Arrow"></i>
+                  <FormattedMessage {...intlMsg.moreOperation}/><i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1222,14 +1224,14 @@ class AppList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder={formatMessage(intlMsg.searchByAppName)}
                   style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'><FormattedMessage {...intlMsg.allItems} values={{ total }}/></span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -1250,17 +1252,17 @@ class AppList extends Component {
                 <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={appList.length < 1} />
               </div>
               <div className='appName commonTitle'>
-                应用名称
+                <FormattedMessage {...intlMsg.appName}/>
               </div>
               <div className='appStatus commonTitle'>
-                状态
+                <FormattedMessage {...intlMsg.status}/>
               </div>
               {/*<div className='serviceNum commonTitle'>
                 服务数量
                 <i className='fa fa-sort'></i>
               </div>*/}
               <div className='containerNum commonTitle' onClick={() => this.sortApps('instance_count')}>
-                容器数量
+                <FormattedMessage {...intlMsg.containerNum}/>
                   <div className="ant-table-column-sorter">
                   <span className={spliceSortClassName('asc', 'instance_count', sortOrder, sortBy)} title="↑">
                     <i className="anticon anticon-caret-up" />
@@ -1271,13 +1273,13 @@ class AppList extends Component {
                 </div>
               </div>
               <div className="alarm commonTitle">
-                告警
+                <FormattedMessage {...intlMsg.alarm}/>
               </div>
               <div className='visitIp commonTitle'>
-                访问地址
+                <FormattedMessage {...intlMsg.accessAddress}/>
               </div>
               <div className='createTime commonTitle' onClick={() => this.sortApps('create_time')}>
-                创建时间
+                <FormattedMessage {...intlMsg.createTime}/>
                   <div className="ant-table-column-sorter">
                   <span className={spliceSortClassName('asc', 'create_time', sortOrder, sortBy)} title="↑">
                     <i className="anticon anticon-caret-up" />
@@ -1288,7 +1290,7 @@ class AppList extends Component {
                 </div>
               </div>
               <div className='actionBox commonTitle'>
-                操作
+                <FormattedMessage {...intlMsg.operation}/>
               </div>
             </div>
             <MyComponent
@@ -1301,7 +1303,7 @@ class AppList extends Component {
               bindingIPs={this.props.bindingIPs}
             />
           </Card>
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+          <Modal title={formatMessage(intlMsg.createAlarmStg)} visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.cancelModal()}
             maskClosable={false}
@@ -1310,7 +1312,7 @@ class AppList extends Component {
             <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp} isShow={this.state.alarmModal}/>
           </Modal>
           {/* 通知组 */}
-          <Modal title="创建新通知组" visible={this.state.createGroup}
+          <Modal title={formatMessage(intlMsg.createNotiGroup)} visible={this.state.createGroup}
             width={560}
             maskClosable={false}
             wrapClassName="AlarmModal"
@@ -1320,7 +1322,7 @@ class AppList extends Component {
             <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
           </Modal>
           <DeployEnvModal
-            title="选择部署环境"
+            title={formatMessage(intlMsg.slcDeployEnv)}
             visible={this.state.deployEnvModalVisible}
             onCancel={() => this.setState({ deployEnvModalVisible: false })}
             onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
