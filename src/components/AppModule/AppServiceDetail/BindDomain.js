@@ -19,9 +19,11 @@ import { serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadService
 import NotificationHandler from '../../../components/Notification'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl,FormattedMessage  } from 'react-intl'
 
 const InputGroup = Input.Group
-const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
+const CName_Default_Message = <FormattedMessage {...AppServiceDetailIntl.tipsaddDomainInfo}/>
 let canAddDomain = true
 
 class BindDomain extends Component {
@@ -121,7 +123,8 @@ class BindDomain extends Component {
       })
    }
   }
-  addDomain() {
+  addDomain = () => {
+    const { formatMessage } = this.props.intl
     if(!canAddDomain) return
     canAddDomain = false
     const serviceName = this.props.serviceName
@@ -131,30 +134,30 @@ class BindDomain extends Component {
     let notification = new NotificationHandler()
     if(this.state.domainList.length >= 10) {
       canAddDomain = true
-      notification.error('最多绑定10个域名')
+      notification.error(formatMessage(AppServiceDetailIntl.atMost10DomainName))
       return
     }
     if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
       canAddDomain = true
-      notification.error('请填写正确的域名')
+      notification.error(formatMessage(AppServiceDetailIntl.pleaseInputCorrectDomain))
       return
     }
     if (/:[0-9]+/.test(domain)) {
-      notification.error('请填写正确的域名')
+      notification.error(formatMessage(AppServiceDetailIntl.pleaseInputCorrectDomain))
       canAddDomain = true
       return
     }
     let isExists = this.state.domainList.some(item => {
       let d = item.props.children[0].props.value
       if (d === domain) {
-        notification.error('已经绑定过该域名')
+        notification.error(formatMessage(AppServiceDetailIntl.alreadyBindTheDomain))
         canAddDomain = true
         return true
       }
       return false
     })
     if (isExists) return
-    notification.spin('保存域名信息中...')
+    notification.spin(formatMessage(AppServiceDetailIntl.saveDomaining))
     const scope = this;
     this.props.bindDomain(cluster, serviceName, {
       port: parseInt(port),
@@ -187,7 +190,7 @@ class BindDomain extends Component {
               cnameNotice: cname
             });
             notification.close()
-            notification.success('添加域名绑定成功')
+            notification.success(formatMessage(AppServiceDetailIntl.addDomainbindSuccess))
           }
         },
         failed: {
@@ -195,16 +198,17 @@ class BindDomain extends Component {
             notification.close()
             canAddDomain = true
             if(error.message === 'Internal error occurred: domain is already bound') {
-              notification.warn('此域名已被绑定')
+              notification.warn(formatMessage(AppServiceDetailIntl.alreadyBindTheDomain))
               return
             }
-            notification.error('添加域名绑定失败')
+            notification.error(formatMessage(AppServiceDetailIntl.addDomainbindFailure))
           }
         }
       })
   }
   getCName(service) {
-    let cname = '该集群未定义域名，不能提供CNAME地址'
+    const { formatMessage } = this.props.intl
+    let cname = formatMessage(AppServiceDetailIntl.noProvideCNAMEinfo)
     if(!service) service = this.props.service
     if (this.props.bindingDomains) {
       let currentDomain = []
@@ -221,6 +225,7 @@ class BindDomain extends Component {
   }
   deleteDomain(domainName, port, index) {
     //this function for user delete domain name
+    const { formatMessage } = this.props.intl
     let newList = this.state.domainList;
 
     // reserve at least one port if https opened
@@ -228,13 +233,13 @@ class BindDomain extends Component {
     if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
       if (newList.length <= 1) {
         let notification = new NotificationHandler()
-        notification.error('请先关闭HTTPS后再删除绑定的域名')
+        notification.error(formatMessage(AppServiceDetailIntl.priorityCloseHTTP))
         return
       }
     }
     const self = this
     let notification = new NotificationHandler()
-    notification.spin('删除绑定域名中...')
+    notification.spin(formatMessage(AppServiceDetailIntl.deleteBindDomain))
     this.props.deleteServiceDomain(this.props.cluster, this.props.serviceName, {
       domain: domainName,
       port: parseInt(port)
@@ -257,13 +262,13 @@ class BindDomain extends Component {
               })
             }
             notification.close()
-            notification.success('删除绑定域名成功')
+            notification.success(formatMessage(AppServiceDetailIntl.deleteBindDomainSuccess))
           },
         },
         failed: {
           func: () => {
             notification.close()
-            notification.error('删除绑定域名失败')
+            notification.error(formatMessage(AppServiceDetailIntl.deleteBindDomainFailure))
           }
         }
       })
@@ -288,18 +293,19 @@ class BindDomain extends Component {
   }
   render() {
     const parentScope = this;
+    const { formatMessage } = this.props.intl
     return (
       <div id="bindDomain">
-        <Alert message='Tips：添加域名绑定后，需要在域名服务器上，将指定域名的CNAME指向下面表格中系统生成的"CNAME地址"' type="info" />
+        <Alert message={formatMessage(AppServiceDetailIntl.afterBindDomainInfo)} type="info" />
         <div className="titleBox">
           <div className="protocol commonTitle">
-            <span>服务端口</span>
+            <span>{formatMessage(AppServiceDetailIntl.servicePort)}</span>
           </div>
           <div className="domain commonTitle">
-            <span>域名</span>
+            <span>{formatMessage(AppServiceDetailIntl.domain)}</span>
           </div>
           <div className="tooltip commonTitle">
-            <span>CNAME地址</span>
+            <span>{formatMessage(AppServiceDetailIntl.CNAMEaddress)}</span>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -372,4 +378,4 @@ BindDomain = connect(mapStateToProp, {
   loadK8sService: loadK8sService,
 })(BindDomain)
 
-export default BindDomain
+export default injectIntl(BindDomain, { withRef: true })

@@ -22,6 +22,7 @@ import startsWith from 'lodash/startsWith'
 import cloneDeep from 'lodash/cloneDeep'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -208,6 +209,7 @@ let FistStop = React.createClass({
     })
   },
   getTargetType() {
+    const { formatMessage } = this.props.intl
     const { loginUser } = this.props
     if (loginUser.info.role === ROLE_SYS_ADMIN || loginUser.info.role === ROLE_BASE_ADMIN) {
       return [<Option value="node" key="node"><FormattedMessage {...intlMsg.node}/></Option>,
@@ -367,8 +369,8 @@ let FistStop = React.createClass({
         }
 
         <div className="wrapFooter">
-          <Button size="large" onClick={() => funcs.cancelModal()}>取消</Button>
-          <Button size="large" onClick={() => this.firstForm()} type="primary">下一步</Button>
+          <Button size="large" onClick={() => funcs.cancelModal()}>{ formatMessage(ServiceCommonIntl.cancel) }</Button>
+          <Button size="large" onClick={() => this.firstForm()} type="primary">{formatMessage(ServiceCommonIntl.nextStep)}</Button>
         </div>
       </Form>
     )
@@ -414,7 +416,7 @@ function mapStateToProp(state, prop) {
   }
 }
 
-FistStop = connect(mapStateToProp, {
+FistStop =  connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
@@ -776,6 +778,7 @@ let TwoStop = React.createClass({
     }
   },
   renderAlarmRulesOption(){
+    const { formatMessage } = this.props.intl
     const { alarmType } = this.props
     const optionArray = [
       <Option key="1" value="cpu/usage_rate"><FormattedMessage {...intlMsg.cpuUseRate}/></Option>,
@@ -793,6 +796,7 @@ let TwoStop = React.createClass({
     return optionArray
   },
   render() {
+    const { formatMessage } = this.props.intl
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs, data, isEdit, alarmType } = this.props
     let cpuItems
@@ -1037,7 +1041,8 @@ class AlarmModal extends Component {
       }
     }
   }
-  submitRule() {
+  submitRule = () => {
+    const {formatMessage} = this.props.intl
     const { form, getSettingList, pathname, activeCluster, loadData, funcs } = this.props;
     const { scope } = funcs
     form.validateFields((error, values) => {
@@ -1101,7 +1106,7 @@ class AlarmModal extends Component {
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
-        notification.spin('告警策略更新中')
+        notification.spin(formatMessage(AppServiceDetailIntl.alarmStrategyUpdating))
         let clusterID = cluster.clusterID
         if (startsWith(pathname, '/cluster') && activeCluster) {
           clusterID = activeCluster
@@ -1110,7 +1115,7 @@ class AlarmModal extends Component {
           success: {
             func: () => {
               notification.close()
-              notification.success('告警策略更新成功')
+              notification.success(formatMessage(AppServiceDetailIntl.alarmStrategyUpdateSuccess))
               const { funcs } = this.props
               funcs.cancelModal()
               form.resetFields()
@@ -1130,7 +1135,7 @@ class AlarmModal extends Component {
           failed: {
             func: (result) => {
               notification.close()
-              let message = '告警策略更新失败'
+              let message = formatMessage(AppServiceDetailIntl.alarmStrategyUpdateFailure)
               if (result.message.message) {
                 message = result.message.message
               } else if (result.message) {
@@ -1142,7 +1147,7 @@ class AlarmModal extends Component {
         })
       } else {
          // create
-        notification.spin('告警策略创建中')
+        notification.spin(formatMessage(AppServiceDetailIntl.alarmStrategyCreating))
         let clusterID = cluster.clusterID
         if (startsWith(pathname, '/cluster') && activeCluster) {
           clusterID = activeCluster
@@ -1151,7 +1156,7 @@ class AlarmModal extends Component {
           success: {
             func: () => {
               notification.close()
-                notification.success('告警策略创建成功')
+                notification.success(formatMessage(AppServiceDetailIntl.alarmStrategyCreateSuccess))
               const { funcs } = this.props
               funcs.cancelModal()
               form.resetFields()
@@ -1176,7 +1181,7 @@ class AlarmModal extends Component {
           failed: {
             func: (result) => {
               notification.close()
-              let message = '告警策略创建失败'
+              let message = formatMessage(AppServiceDetailIntl.alarmStrategyCreateFailure)
               if (result.message.message) {
                 message = result.message.message
               } else if (result.message) {
@@ -1217,9 +1222,10 @@ class AlarmModal extends Component {
     }
     loadNotifyGroups("", clusterID)
   }
-  notifyGroup(rule, value, callback) {
+  notifyGroup = (rule, value, callback) => {
+    const {formatMessage} = this.props.intl
     if (!value) {
-      return callback('请选择告警通知组')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup))
     }
     return callback()
   }
@@ -1287,9 +1293,9 @@ class AlarmModal extends Component {
     return (
       <div className="AlarmModal">
         <div className="topStep">
-          <span className={funcs.scope.state.step >= 1 ? 'step active' : 'step'}><span className="number">1</span> 参数设置</span>
-          <span className={funcs.scope.state.step > 1 ? 'step active' : 'step'}><span className="number">2</span> 告警规则</span>
-          <span className={funcs.scope.state.step == 3 ? 'step active' : 'step'}><span className="number">3</span> 告警行为</span>
+          <span className={funcs.scope.state.step >= 1 ? 'step active' : 'step'}><span className="number">1</span>{formatMessage(AppServiceDetailIntl.argumentConfig)}</span>
+          <span className={funcs.scope.state.step > 1 ? 'step active' : 'step'}><span className="number">2</span> {formatMessage(AppServiceDetailIntl.monitorRules)}</span>
+          <span className={funcs.scope.state.step == 3 ? 'step active' : 'step'}><span className="number">3</span>{formatMessage(AppServiceDetailIntl.monitorBehavior)}</span>
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
@@ -1303,25 +1309,25 @@ class AlarmModal extends Component {
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
-              <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
+              <Form.Item label={formatMessage(AppServiceDetailIntl.sendMessage)} {...formItemLayout} style={{ margin: 0 }}>
                 <RadioGroup defaultValue={this.state.isSendEmail} value={this.state.isSendEmail} onChange={(e) => this.sendMail(e)}>
-                  <Radio key="a" value={1}>是</Radio>
-                  <Radio key="b" value={0}>否</Radio>
+                  <Radio key="a" value={1}>{formatMessage(ServiceCommonIntl.yes)}</Radio>
+                  <Radio key="b" value={0}>{ formatMessage(ServiceCommonIntl.no) }</Radio>
                 </RadioGroup>
               </Form.Item>
-              <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
-                <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
+              <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" />{formatMessage(AppServiceDetailIntl.monitorMessagesChoiceInfo)}</div>
+              <Form.Item label={formatMessage(AppServiceDetailIntl.monitorGroup)} {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
+                <Select placeholder={formatMessage(AppServiceDetailIntl.pleaseChoicemonitorGroup)} style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">{formatMessage(AppServiceDetailIntl.newGroup)}</Button>
                 </div>
               </Form.Item>
             </Form>
             <div className="wrapFooter">
-              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">上一步</Button>
-              <Button size="large" onClick={() => this.submitRule()} type="primary">提交</Button>
+              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">{formatMessage(ServiceCommonIntl.submit)}</Button>
+              <Button size="large" onClick={() => this.submitRule()} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
             </div>
           </div>
         </div>
@@ -1367,7 +1373,8 @@ function alarmModalMapStateToProp(state, porp) {
     space
   }
 }
-AlarmModal = connect(alarmModalMapStateToProp, {
+
+export default connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting,
   updateAlertSetting,
@@ -1376,5 +1383,3 @@ AlarmModal = connect(alarmModalMapStateToProp, {
   withRef: true,
 })))
 
-
-export default AlarmModal
