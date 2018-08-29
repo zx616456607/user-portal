@@ -595,7 +595,7 @@ class VisitTypes extends Component{
       disabled:true,
       forEdit: false,
       selectDis: undefined,
-      deleteHint: true,
+      deleteHint: false,
       svcDomain: [],
       copyStatus: false,
       isInternal: false,
@@ -605,7 +605,7 @@ class VisitTypes extends Component{
       groupID:'',
       selectValue: '',
       readOnly: false,
-      isEditAccessAddress: false
+      isEditAccessAddress: false,
     }
   }
   componentWillMount() {
@@ -633,6 +633,12 @@ class VisitTypes extends Component{
         func: (res) => {
           this.setState({
             proxyArr:res[camelize(clusterID)].data
+          }, () =>{
+            const { proxyArr } = this.state
+            this.setState({
+              deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0
+            })
+
           })
         },
         isAsync: true
@@ -712,12 +718,22 @@ class VisitTypes extends Component{
         if (database === 'redis') {
           body = {
             annotations: {
-              'master.system/lbgroup': groupID,
               // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `${groupID}`,
+              'slave.system/lbgroup': `${groupID}`,
             }
           }
         }
-
+      }else {
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `none`,
+              'slave.system/lbgroup': `none`,
+            }
+          }
+        }
       }
 
       const success = {
@@ -863,8 +879,8 @@ class VisitTypes extends Component{
     const { readOnly } = this.state
     const body = {
       annotations: {
-        'master.system/lbgroup': groupID,
-        'slave.system/lbgroup': readOnly? groupID : 'none',
+        'master.system/lbgroup': `${groupID}`,
+        'slave.system/lbgroup': readOnly? `${groupID}` : 'none',
       }
     }
     editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
@@ -899,7 +915,7 @@ class VisitTypes extends Component{
     }
     let domain = ''
     let externalIp = ''
-    proxyArr && proxyArr.every(proxy => {
+    proxyArr.length!== 0 && proxyArr.every(proxy => {
       if (proxy.id === externalIpId) {
         domain = proxy.domain
         externalIp = proxy.address
@@ -907,6 +923,11 @@ class VisitTypes extends Component{
       }
       return true
     })
+    // 出口没匹配到，出口被管理员删除了
+    if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
+      return null
+    }
+
     let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
     let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
     // 普通的出口端口
@@ -923,7 +944,8 @@ class VisitTypes extends Component{
     let externalUrl
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+        externalUrl = databaseInfo.service && databaseInfo.service.name + '-'
+          + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
         externalUrl = externalIp + ':' + (externalPort || '未知')
       }
@@ -946,12 +968,12 @@ class VisitTypes extends Component{
     }
     const domainList = clusterAdd && clusterAdd.map(item=>{
       return (
-        <dd className="addrList" key={item}>
+        <div className="addrList" key={item}>
           <span className="domain">{item}</span>
           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
             <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item)} onClick={this.copyTest.bind(this)}/>
           </Tooltip>
-        </dd>
+        </div>
       )
     })
     return domainList
@@ -1108,7 +1130,10 @@ class VisitTypes extends Component{
                 </Select>
                </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
+              {
+                this.state.deleteHint &&
+                <div className={classNames("inlineBlock deleteHint")}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+              }
             </div>
           </div>
         </div>
