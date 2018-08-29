@@ -36,6 +36,7 @@ export const mapData = {
     rentInfo: '租赁信息',
     alarmStg: '告警策略',
     topology: '拓扑图',
+    none: '无',
   }
 }
 
