@@ -42,6 +42,15 @@ const mapData = {
     edit: '编辑',
     loading: '加载中',
     content: '内容',
+    // 18-8-29 开始加的
+    open: '开',
+    close: '关',
+    message: '消息',
+    share: '共享',
+    amount: '数量',
+    price: '单价',
+    open: '开启',
+    close: '关闭',
   }
 }
 

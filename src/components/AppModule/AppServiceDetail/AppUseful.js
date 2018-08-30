@@ -17,6 +17,8 @@ import "./style/AppUseful.less"
 import { changeServiceAvailability } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 const InputGroup = Input.Group;
 const Option = Select.Option;
@@ -158,27 +160,28 @@ class AppUseful extends Component {
   }
 
   confirmSet() {
+    const { formatMessage } = this.props.intl
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
     let notification = new NotificationHandler()
     if (!submitInfo.info.port) {
-      notification.error('请填写端口')
+      notification.error(formatMessage(AppServiceDetailIntl.pleaseAddPort))
       return
     }
     if (submitInfo.info.port < 1 || submitInfo.info.port > 65535) {
-      notification.error('端口只允许填写1~65535之间的数字')
+      notification.error(formatMessage(AppServiceDetailIntl.portOnlyInput165535Number))
       return
     }
     if (submitInfo.initialDelaySeconds && submitInfo.initialDelaySeconds < 0) {
-      notification.error('首次检查延时不能为负')
+      notification.error(formatMessage(AppServiceDetailIntl.firstCheckNoNegative))
       return
     }
     if (submitInfo.timeoutSeconds && submitInfo.timeoutSeconds < 1) {
-      notification.error('检查超时不能小于1')
+      notification.error(formatMessage(AppServiceDetailIntl.checkTimeOutNoLessThanOne))
       return
     }
     if (submitInfo.periodSeconds && submitInfo.periodSeconds < 1) {
-      notification.error('检查间隔不能小于1')
+      notification.error(formatMessage(AppServiceDetailIntl.checkIntervalNoLessThanOne))
       return
     }
     // if(this.state.checkType === 'http') {
@@ -256,6 +259,7 @@ class AppUseful extends Component {
   }
   render() {
     const { service } = this.props
+    const { formatMessage } = this.props.intl
     if (!service || !service.spec) {
       return (<div id="AppUseful"></div>)
     }
@@ -265,31 +269,36 @@ class AppUseful extends Component {
     return (
       <div id="AppUseful">
         <div className="operaBox">
-          <span>设置高可用</span>
+          <span>{formatMessage(AppServiceDetailIntl.SetHighAvailability)}</span>
           <span style={{marginLeft:'40px'}}>
-            <Switch value={this.state.currentUseful} checkedChildren="开" unCheckedChildren="关" className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
-            <span className="tips">{false ? "（因挂载存储卷，不能进行滚动更新，服务可能会有短暂不可用时间！）" : ""}</span>
+            <Switch value={this.state.currentUseful}
+              checkedChildren={formatMessage(ServiceCommonIntl.open)}
+              unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
+              className="switch"
+              defaultChecked={this.state.currentUseful}
+              onChange={this.changeCheckType} disabled={this.state.switchDisable} />
+            <span className="tips">{false ? formatMessage(AppServiceDetailIntl.mountStorageServiceInfo) : ""}</span>
           </span>
         </div>
         <div className="settingBox">
-          <span className="titleSpan">配置信息</span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.configMessage)}</span>
           {this.state.editFlag ? (
             <div className="editBtn" onClick={this.startEdit}>
               <i className="fa fa-pencil-square-o"></i>
-              <span className="editTitle">编辑</span>
+              <span className="editTitle">{formatMessage(ServiceCommonIntl.edit)}</span>
               <div style={{ clear: "both" }}></div>
             </div>
           ) : null}
           <div style={{ clear: "both" }}></div>
           <Card className="setting" >
             <div className="title">
-              <span>容器实例：&nbsp;&nbsp;{this.props.serviceName}</span>
+              <span>{formatMessage(AppServiceDetailIntl.containerObject)}：&nbsp;&nbsp;{this.props.serviceName}</span>
             </div>
             <div className="select">
-              <span>重启检查项：&nbsp;&nbsp;</span>
+              <span>{formatMessage(AppServiceDetailIntl.rebootCheckItem)}:&nbsp;&nbsp;</span>
               <Select className="checkType" size="large" defaultValue={protocol} style={{ width: 80 }}
                 onChange={this.onChange} disabled={this.state.editFlag} value={this.state.checkType}>
-                <Option value="null">无</Option>
+                <Option value="null">{formatMessage(AppServiceDetailIntl.empty)}</Option>
                 <Option value="http">HTTP</Option>
                 <Option value="tcp">TCP</Option>
               </Select>
@@ -298,16 +307,16 @@ class AppUseful extends Component {
               <div className="http">
                 <div className="title">
                   <div className="httpcommonTitle">
-                    <span>端口</span>
+                    <span>{formatMessage(AppServiceDetailIntl.port)}</span>
                   </div>
                   <div className="httpcommonTitle">
-                    <span>首次检查延时</span>
+                    <span>{formatMessage(AppServiceDetailIntl.firstCheckTimeout)}</span>
                   </div>
                   <div className="httpcommonTitle">
-                    <span>检查超时</span>
+                    <span>{formatMessage(AppServiceDetailIntl.checkTimeOut)}</span>
                   </div>
                   <div className="httpcommonTitle">
-                    <span>检查间隔</span>
+                    <span>{formatMessage(AppServiceDetailIntl.checkInterval)}</span>
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -328,7 +337,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="title">
                   <div className="httpcommonTitle">
-                    <span>Path路径</span>
+                    <span>{formatMessage(AppServiceDetailIntl.Path)}</span>
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -347,16 +356,16 @@ class AppUseful extends Component {
               <div className="tcp">
                 <div className="title">
                   <div className="tcpcommonTitle">
-                    <span>端口</span>
+                    <span>{formatMessage(AppServiceDetailIntl.port)}</span>
                   </div>
                   <div className="tcpcommonTitle">
-                    <span>首次检查延时</span>
+                    <span>{formatMessage(AppServiceDetailIntl.firstCheckTimeout)}</span>
                   </div>
                   <div className="tcpcommonTitle">
-                    <span>检查超时</span>
+                    <span>{formatMessage(AppServiceDetailIntl.checkTimeOut)}</span>
                   </div>
                   <div className="tcpcommonTitle">
-                    <span>检查间隔</span>
+                    <span>{formatMessage(AppServiceDetailIntl.checkInterval)}</span>
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -381,10 +390,10 @@ class AppUseful extends Component {
           {!this.state.editFlag ? [
             <div className="btnBox">
               <Button size="large" type="ghost" onClick={this.cancelSet}>
-                取消
+                {formatMessage(ServiceCommonIntl.cancel)}
              </Button>
               <Button size="large" type="primary" onClick={this.confirmSet}>
-                确认
+                {formatMessage(ServiceCommonIntl.confirm)}
              </Button>
             </div>
           ] : null}
@@ -402,6 +411,6 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   changeServiceAvailability
-})(AppUseful)
+})(AppUseful), { withRef: true, })

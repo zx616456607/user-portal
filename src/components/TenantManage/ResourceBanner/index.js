@@ -244,7 +244,7 @@ class ResourceBanner extends React.Component {
           </div>
           {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
-            <div><Link to={link}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.noLimit)}</Link></div> :
+            <div><Link to={link}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.eidtQuota)}</Link></div> :
             <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.applyIncreaseQuota)}</Link></div>
           }
           </div> : null

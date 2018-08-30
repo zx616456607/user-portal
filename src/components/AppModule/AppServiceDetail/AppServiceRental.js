@@ -12,14 +12,15 @@ import { Card, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, parseAmount} from '../../../common/tools.js'
 import './style/AppServiceDetailInfo.less'
-import { injectIntl, FormattedMessage } from 'react-intl'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 import intlMsg from './AppServiceRentalIntl'
-
 class AppServiceRental extends Component {
   constructor(props) {
     super(props);
   }
-  formetCpuMemory(memory, formatMessage) {
+  formetCpuMemory(memory) {
+    const { formatMessage } = this.props.intl
     if(Boolean(memory)) {
       switch(memory) {
         case '1Gi':
@@ -33,7 +34,7 @@ class AppServiceRental extends Component {
         case '16Gi':
           return '2CPU/16G';
         default:
-          return `1CPU（${formatMessage(intlMsg.allShare)}）/512Mi`;
+          return `1CPU（${formatMessage(ServiceCommonIntl.share)}）/512Mi`;
       }
     } else {
       return '-';
@@ -69,7 +70,8 @@ class AppServiceRental extends Component {
     return price
   }
   render() {
-    const { serviceDetail, resourcePrice, intl: { formatMessage } } = this.props
+    const { serviceDetail, resourcePrice } = this.props
+    const { formatMessage } = this.props.intl
     if (!resourcePrice) {
       return (
         <div className='loadingBox'>
@@ -80,7 +82,7 @@ class AppServiceRental extends Component {
     if (!serviceDetail[0] || !serviceDetail[0].spec){
       return(
         <div className='loadingBox' style={{clear:'both',background:'white'}}>
-          <FormattedMessage {...intlMsg.none}/>
+        {formatMessage(AppServiceDetailIntl.empty)}
         </div>
         )
       }
@@ -95,7 +97,7 @@ class AppServiceRental extends Component {
             <td>{list.metadata.name}</td>
             <td>{this.formetCpuMemory(memory, formatMessage)}</td>
             <td>{list.spec.replicas}</td>
-            <td>{this.formetPrice(memory) /10000 } {countPrice.unit == '￥' ? formatMessage(intlMsg.rmbYuan): ' T'}/{formatMessage(intlMsg.hour)}</td>
+            <td>{this.formetPrice(memory) /10000 } {countPrice.unit == '￥' ? formatMessage(AppServiceDetailIntl.yuan) : ' T'}/{formatMessage(AppServiceDetailIntl.hour)}</td>
           </tr>
         )
     })
@@ -103,7 +105,7 @@ class AppServiceRental extends Component {
     return (
       <div id="AppServiceDetailInfo" className="ant-card AppServiceRental">
         <div className="info">
-          <span className="titleSpan"><FormattedMessage {...intlMsg.rentInfo}/></span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.rentMessage)}</span>
           {/*<div className="starts">
             <p><Icon type="clock-circle-o" /> 开始计费：2016.12.12. 15：50</p>
             <p><Icon type="clock-circle-o" /> 停止计费：2016.12.22. 15：50</p>
@@ -111,7 +113,7 @@ class AppServiceRental extends Component {
           </div>
           */}
           <div className="dataBox">
-            <div className="priceCount"><FormattedMessage {...intlMsg.allPrice}/>：
+            <div className="priceCount">{formatMessage(AppServiceDetailIntl.totalPrice)}：
               <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
               <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': ' T' }/{formatMessage(intlMsg.hour)}</span>
               <span className="unit" style={{marginLeft:'10px'}}>（{formatMessage(intlMsg.aboutPrice, { price: countPrice.fullAmount })}）</span>
@@ -119,10 +121,10 @@ class AppServiceRental extends Component {
             <table className="table">
               <thead>
                 <tr>
-                  <th><FormattedMessage {...intlMsg.name}/></th>
-                  <th><FormattedMessage {...intlMsg.computeCpuMemory}/></th>
-                  <th><FormattedMessage {...intlMsg.number}/></th>
-                  <th><FormattedMessage {...intlMsg.perPrice}/></th>
+                  <th>{formatMessage(ServiceCommonIntl.name)}</th>
+                  <th>{formatMessage(AppServiceDetailIntl.calculateInfo)}</th>
+                  <th>{formatMessage(ServiceCommonIntl.amount)}</th>
+                  <th>{formatMessage(ServiceCommonIntl.price)}</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,6 +149,4 @@ function mapStateToProps(state) {
    }
 }
 
-export default connect(mapStateToProps)(injectIntl(AppServiceRental, {
-  withRef: true,
-}))
+export default injectIntl(connect(mapStateToProps)(AppServiceRental), { withRef: true, })

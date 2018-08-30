@@ -18,6 +18,9 @@ import {  getAllServiceTag, addServiceTag, delteServiceTag, updataServiceTag } f
 import cloneDeep from 'lodash/cloneDeep'
 import { KubernetesValidator } from '../../../common/naming_validation'
 import { calcuDate } from '../../../common/tools'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+
 const FormItem = Form.Item
 let uuid = 0
 
@@ -92,15 +95,16 @@ class AppServerTag extends Component{
   handleDelteOkModal(){
     const { deleteLabelNum } = this.state
     const { result, clusterID, serviceName, delteServiceTag } = this.props
+    const { formatMessage } = this.props.intl
     const notificat = new NotificationHandler()
     result.map((item,index)=>{
       if( item.id === deleteLabelNum ) {
-        notificat.spin('删除中')
+        notificat.spin(formatMessage(AppServiceDetailIntl.deleting))
         delteServiceTag(item.key ,clusterID, serviceName, {
           success: {
             func: () => {
               notificat.close()
-              notificat.success('删除标签成功！')
+              notificat.success(formatMessage(AppServiceDetailIntl.deleteTagSuccess))
               this.props.loadDataAllData()
             },
             isAsync: true
@@ -108,7 +112,7 @@ class AppServerTag extends Component{
           failed: {
               func: (ret) => {
                 notificat.close()
-                notificat.error('删除标签失败！',ret.message.message || ret.message)
+                notificat.error(formatMessage(AppServiceDetailIntl.deleteTagFailure),ret.message.message || ret.message)
               }
             }
         })
@@ -149,42 +153,44 @@ class AppServerTag extends Component{
     });
   }
   checkKey(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!this.state.create) {
       callback()
     }
     if (!Boolean(value)){
-      callback(new Error('请输入标签键'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputTagKey)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyLength)))
       return
     }
     if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyNameRule)))
       return
     }
     const { form, result } = this.props
     const key = form.getFieldValue(`key${uuid}`)
     if (result.filter(label =>  label.key === key).length > 0) {
-      callback(new Error('标签键已经存在'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.tagKeyExist)))
       return
     }
     callback()
   }
   checkValue(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!Boolean(value)){
-      callback(new Error('请输入标签值'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputTagKey)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyLength)))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyNameRule)))
       return
     }
     const { form, result } = this.props
@@ -192,15 +198,16 @@ class AppServerTag extends Component{
     if (range(0, uuid).filter(
       id => form.getFieldValue(`key${id}`) === key
         && form.getFieldValue(`value${id}`) === value).length > 0) {
-      callback(new Error('标签已重复添加'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.tagKeyAlreadyRepeatAdd)))
     }
     if (result.filter(label =>  label.key === key && label.value === value).length > 0) {
-      callback(new Error('标签已经存在'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.tagKeyAlreadyExist)))
       return
     }
     callback()
   }
   handleEditOkModal(){
+    const { formatMessage } = this.props.intl
     const { addLabels, editLabels, clusterID, form,serviceName, addServiceTag, getAllServiceTag, updataServiceTag } = this.props
     const _this = this
     const notificat = new NotificationHandler()
@@ -211,7 +218,7 @@ class AppServerTag extends Component{
         }
         if (!values.keys.length) {
           notificat.close()
-          return notificat.error('请添加正确标签')
+          return notificat.error(formatMessage(AppServiceDetailIntl.pleaseAddCorrectTag))
         }
         let labels = {}
         this.handleEditCancelModal()
@@ -222,7 +229,7 @@ class AppServerTag extends Component{
           success: {
             func:(ret)=>{
               notificat.close()
-              notificat.success('添加成功！')
+              notificat.success(formatMessage(AppServiceDetailIntl.addSuccess))
               this.props.loadDataAllData()
             },
             isAsync:true
@@ -230,7 +237,7 @@ class AppServerTag extends Component{
           failed:{
             func:(ret)=> {
               notificat.close()
-              notificat.error('添加失败！')
+              notificat.error(formatMessage(AppServiceDetailIntl.addFailure))
             }
           }
         })
@@ -246,7 +253,7 @@ class AppServerTag extends Component{
           value: values.value0
         }
         if (targets.key == labels.key && targets.value == labels.value) {
-          notificat.info('未作更改，无需更新！')
+          notificat.info(formatMessage(AppServiceDetailIntl.noChangeNoUpdate))
           uuid = 0
           return
         }
@@ -255,12 +262,12 @@ class AppServerTag extends Component{
         }
         body = JSON.stringify(body)
         this.handleEditCancelModal()
-        notificat.spin('修改中...')
+        notificat.spin(formatMessage(AppServiceDetailIntl.changing))
         updataServiceTag( body, clusterID, serviceName, {
           success: {
             func: ()=> {
               notificat.close()
-              notificat.success('修改成功！')
+              notificat.success(formatMessage(AppServiceDetailIntl.changeSuccess))
               this.props.loadDataAllData()
             },
             isAsync: true
@@ -268,7 +275,7 @@ class AppServerTag extends Component{
           failed: {
             func:()=> {
               notificat.close()
-              notificat.error('修改失败！')
+              notificat.error(formatMessage(AppServiceDetailIntl.changeFailure))
             }
           },
           finally: {
@@ -287,10 +294,11 @@ class AppServerTag extends Component{
   render(){
     const { form,  result } = this.props   //isFetching
     const { getFieldProps, getFieldValue } = form
+    const { formatMessage } = this.props.intl
     const { targets } = this.state
     const labelcolumns = [
       {
-        title:'类型',
+        title:formatMessage(ServiceCommonIntl.type),
         key:'2',
         dataIndex:'attribute',
         width:'20%',
@@ -300,29 +308,29 @@ class AppServerTag extends Component{
           const regName = new RegExp(/^name(.*)/g)
           if (reg.test(row.key) || regS.test(row.key) ||regName.test(row.key)) {
             return (
-              <div>系统创建</div>
+              <div>{formatMessage(AppServiceDetailIntl.systemCreate)}</div>
             )
           }
           return (
-            <div>自定义</div>
+            <div>{formatMessage(AppServiceDetailIntl.custom)}</div>
           )
         }
       },
       {
-        title:'键',
+        title: formatMessage(AppServiceDetailIntl.key),
         key:'keys',
         dataIndex:'key',
         width:'30%',
         sorter: (a, b) => a.key.localeCompare(b.key),
         // render: text => <Tooltip title={text}><div className="textoverflow" style={{ width: '99%'}}>{text}</div></Tooltip>
       },{
-        title:'值',
+        title: formatMessage(AppServiceDetailIntl.value),
         key:'value',
         dataIndex:'value',
         width:'20%',
         sorter: (a, b) => a.value.localeCompare(b.value)
       },{
-        title:'操作',
+        title: formatMessage(ServiceCommonIntl.operation),
         key:'actions',
         dataIndex:'handle',
         width:'30%',
@@ -333,14 +341,14 @@ class AppServerTag extends Component{
           const regName = new RegExp(/^name(.*)/g)
           if ( !reg.test(row.key) && !regS.test(row.key) && !regName.test(row.key) ) {
             return (<div>
-              <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row)}>修改</Button>
-              <Button className='deletebutton' onClick={() => this.handleDeleteButton(row)}>删除</Button>
+              <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row)}>{formatMessage(AppServiceDetailIntl.change)}</Button>
+              <Button className='deletebutton' onClick={() => this.handleDeleteButton(row)}>{formatMessage(ServiceCommonIntl.delete)}</Button>
             </div>)
           }
           return (
             <span className='systemmessage'>
               <Icon type="info-circle-o" className='handleicon'/>
-              系统创建，不可操作
+              {formatMessage(AppServiceDetailIntl.systemCreatingNoOperation)}
             </span>
           )
         }
@@ -364,7 +372,7 @@ class AppServerTag extends Component{
                     validator: this.checkKey
                   }],
                   initialValue: targets.key ? targets.key : undefined
-                })} placeholder="请填写标签键"
+                })} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputTagKey)}
                 />
               </FormItem>
             </div>
@@ -377,7 +385,7 @@ class AppServerTag extends Component{
                     validator: this.checkValue
                   }],
                   initialValue: targets.value ? targets.value : undefined
-                })} placeholder="请填写标签值"
+                })} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputTagKey)}
                 />
               </FormItem>
             </div>
@@ -394,9 +402,11 @@ class AppServerTag extends Component{
       <div className='labelmanage__title'>
         <Button type="primary" onClick={()=> this.createModal()} size="large" className='titlebutton'>
           <Icon type="plus" />
-          创建标签
+          {formatMessage(AppServiceDetailIntl.createTag)}
         </Button>
-        { result && result.length !== 0 && <span className='titlenum'>共计 <span>{result ? result.length:0}</span> 条</span>}
+        { result && result.length !== 0 && <span className='titlenum'>{formatMessage(AppServiceDetailIntl.total)}<span>{result ? result.length:0}
+        </span>{formatMessage(AppServiceDetailIntl.tiao)}</span>
+      }
       </div>
       <Table
         rowKey={record => 'row-'+ record.key + record.value}
@@ -407,7 +417,11 @@ class AppServerTag extends Component{
         // loading={isFetching}
       />
       <Modal
-        title={this.state.create ? '创建标签':'修改标签'}
+        title={this.state.create ?
+          formatMessage(AppServiceDetailIntl.createTag)
+          :
+          formatMessage(AppServiceDetailIntl.changeTag)
+        }
         visible={this.state.editVisible}
         onOk={this.handleEditOkModal}
         onCancel={this.handleEditCancelModal}
@@ -416,10 +430,10 @@ class AppServerTag extends Component{
         >
         <Form className='labelManageForm'>
           <div className="formlabelkey">
-            <div className='top'>标签键</div>
+            <div className='top'>{formatMessage(AppServiceDetailIntl.tagKey)}</div>
           </div>
           <div className="formlabelvalue">
-            <div className='top'>标签值</div>
+            <div className='top'>{formatMessage(AppServiceDetailIntl.tagKey)}</div>
           </div>
           <div style={{clear:'both'}}></div>
           {/* create form  item or edit form item view */}
@@ -427,7 +441,7 @@ class AppServerTag extends Component{
         </Form>
         { this.state.create ?
           <div style={{clear:'both'}}>
-            <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" /> 添加一组标签</span>
+            <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" />{formatMessage(AppServiceDetailIntl.addAnGroupTag)}</span>
           </div>
           :
           <div style={{clear:'both'}}></div>
@@ -435,7 +449,7 @@ class AppServerTag extends Component{
       </Modal>
 
       <Modal
-        title="删除标签"
+        title={formatMessage(AppServiceDetailIntl.deleteTag)}
         visible={this.state.deleteVisible}
         onOk={this.handleDelteOkModal}
         onCancel={this.handleDelteCancelModal}
@@ -444,7 +458,7 @@ class AppServerTag extends Component{
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-          确定要删除当前标签吗？
+          {formatMessage(AppServiceDetailIntl.makeSureCurrentTag)}
         </div>
       </Modal>
     </div>
@@ -474,9 +488,9 @@ function mapStateToProps(state,props) {
 
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   getAllServiceTag,
   addServiceTag,
   delteServiceTag,
   updataServiceTag
-})(AppServerTag)
+})(AppServerTag), { withRef: true })

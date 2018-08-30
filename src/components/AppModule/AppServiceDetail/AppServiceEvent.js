@@ -17,8 +17,11 @@ import { calcuDate } from '../../../common/tools.js'
 import CommonStatus from '../../CommonStatus'
 import NotificationHandler from '../../../components/Notification'
 import './style/AppServiceEvent.less'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 function loadData(props) {
+  const { formatMessage } = props.intl
   const notification = new NotificationHandler()
   const { cluster, serviceName, type } = props;
 
@@ -26,7 +29,7 @@ function loadData(props) {
     failed: {
       func: err => {
         if (err.message && err.message.code === 404) {
-          notification.warn('服务正在启动中')
+          notification.warn(formatMessage(AppServiceDetailIntl.serviceStarting))
         }
       }
     }
@@ -40,6 +43,7 @@ var MyComponent = React.createClass({
     isFetching: React.PropTypes.bool,
   },
   getContainerEvent(message) {
+    const { formatMessage } = this.props
     let podname = message.replace('Created pod: ', '')
     const { containersAllEvent } = this.props
     const result = []
@@ -58,7 +62,7 @@ var MyComponent = React.createClass({
                 </span>
               </div>
               <div className='message'>
-                消息&nbsp;:&nbsp;{event.message}
+                {formatMessage(ServiceCommonIntl.message)}&nbsp;:&nbsp;{event.message}
               </div>
               <div className='createTime'>
                 <span className='commonSpan'>
@@ -75,6 +79,7 @@ var MyComponent = React.createClass({
   },
   render: function () {
     const { isFetching, config } = this.props;
+    const { formatMessage } = this.props
     if (isFetching || this.props.containersAllEvent.isFetching) {
       return (
         <div className='loadingBox'>
@@ -85,7 +90,7 @@ var MyComponent = React.createClass({
     if (config.length == 0 || !!!config) {
       return (
         <div className='loadingBox'>
-          暂无数据
+          {formatMessage(AppServiceDetailIntl.noData)}
         </div>
       )
     }
@@ -103,7 +108,7 @@ var MyComponent = React.createClass({
               </span>
             </div>
             <div className='message'>
-              消息&nbsp;:&nbsp;{item.message}
+              {formatMessage(ServiceCommonIntl.message)}&nbsp;:&nbsp;{item.message}
             </div>
             <div className='createTime'>
               <span className='commonSpan'>
@@ -141,9 +146,15 @@ class AppServiceEvent extends Component {
 
   render() {
     const { isFetching, eventList, containersAllEvent } = this.props;
+    const { formatMessage } = this.props.intl
     return (
       <Card id='AppServiceEvent'>
-        <MyComponent isFetching={isFetching} config={eventList} containersAllEvent={containersAllEvent}/>
+        <MyComponent
+        isFetching={isFetching}
+        config={eventList}
+        containersAllEvent={containersAllEvent}
+        formatMessage={formatMessage}
+        />
       </Card>
     )
   }
@@ -177,7 +188,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadServiceDetailEvents,
   loadContainersAllEvents
-})(AppServiceEvent)
+})(AppServiceEvent), { withRef: true, })
