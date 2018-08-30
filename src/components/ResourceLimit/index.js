@@ -154,10 +154,8 @@ class ResourceQuota extends React.Component {
                     id: v.resourceType,
                     name: v.resourceName,
                   }
-                  v.children = [children]
                 }
               })
-
               return newArr
             }
             const quotas = {
@@ -376,7 +374,6 @@ class ResourceQuota extends React.Component {
       for (const v of this.state.clusterUnlimited) {
         body[v] = null
       }
-
       for(let k in value) {
         if(typeof value[k] === 'string') {
           body[k] = Number(parseFloat(value[k]).toFixed(2))
@@ -967,7 +964,7 @@ class ResourceQuota extends React.Component {
                                             </Col>
                                             <Col span={7} style={{ height: 'auto' }}>
                                               <FormItem>
-                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" id={item.id || 'id'} style={{ width: '100%' }} />
                                               </FormItem>
                                             </Col>
                                             <Col span={3}>
@@ -1031,7 +1028,8 @@ class ResourceQuota extends React.Component {
                                   valuePropName: 'checked'
                                 })
                                 const checkValue = getFieldValue(checkKey)
-                                const inputProps = getFieldProps(k.name, {
+                                let id = k.id? k.id : 'id'
+                                const inputProps = getFieldProps(id, {
                                   // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
                                   //   {
                                   //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
@@ -1054,7 +1052,7 @@ class ResourceQuota extends React.Component {
                                     </Col>
                                     <Col span={7} style={{ height: 'auto' }}>
                                       <FormItem>
-                                        <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                        <Input {...inputProps} id={k.id || 'id'} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
                                       </FormItem>
                                     </Col>
                                     <Col span={3} style={{ height: 'auto' }}>
