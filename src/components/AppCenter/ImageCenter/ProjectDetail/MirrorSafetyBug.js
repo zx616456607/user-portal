@@ -18,6 +18,7 @@ import { connect } from 'react-redux'
 import NotificationHandler from '../../../../components/Notification'
 import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 import mirrorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
+import detailIndexIntl from './intl/detailIndexIntl'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -905,7 +906,7 @@ class MirrorSafetyBug extends Component {
       failed:{
         func: (res) => {
           this.setState({clairFailed : false})
-          new NotificationHandler().error(formatMessage(mirrorSafetyBugIntl.errMsg, {name: imageName, tag: tag, msg: formatErrorMessage(res)}))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag: tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync: true

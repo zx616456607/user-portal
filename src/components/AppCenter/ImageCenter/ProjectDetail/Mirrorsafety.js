@@ -23,6 +23,8 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import { browserHistory } from 'react-router'
 import mirrorsafetyIntl from './intl/mirrorsafetyIntl'
+import mirrorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
+import detailIndexIntl from './intl/detailIndexIntl'
 
 const TabPane = Tabs.TabPane
 const Option = Select.Option
@@ -182,7 +184,7 @@ class MirrorSafety extends Component {
       failed:{
         func: (res) => {
           this.setState({TabsDisabled : true})
-          notificationHandler.error(formatMessage(mirrorsafetyIntl.errMsg, {name: imageName, tag, msg: this.formatErrorMessage(res)}))
+          notificationHandler.error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag, msg: this.formatErrorMessage(res)}))
         }
       }
     })
@@ -254,7 +256,7 @@ class MirrorSafety extends Component {
                     <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.imageLayered)}</span>} key="2" disabled={false}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>{formatMessage(mirrorsafetyIntl.softWarePackage)}</span></span>} key="3" disabled={false}>
+                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>{formatMessage(mirrorSafetyBugIntl.softwarePackage)}</span></span>} key="3" disabled={false}>
                       <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.baseScan)}</span>} key="4" disabled={false}>

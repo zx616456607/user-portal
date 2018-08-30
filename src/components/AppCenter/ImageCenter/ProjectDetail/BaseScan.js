@@ -11,6 +11,9 @@ import React, { Component } from 'react'
 import { Spin, Button, Table } from 'antd'
 import { injectIntl } from 'react-intl'
 import baseScanIntl from './intl/baseScanIntl'
+import mirrorSafetyBug from './intl/mirrorSafetyBugIntl'
+import softwarePackage from './intl/softwarePackage'
+import detailIndexIntl from './intl/detailIndexIntl'
 import './style/BaseScan.less'
 import { connect } from 'react-redux'
 import { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
@@ -183,7 +186,7 @@ class BaseScan extends Component {
       failed: {
         func : (res) => {
           this.setState({basescanFailed : false})
-          new NotificationHandler().error(formatMessage(baseScanIntl.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync : true
@@ -216,14 +219,14 @@ class BaseScan extends Component {
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
-            <div className='top'>{formatMessge(baseScanIntl.scanningFailure)}</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(baseScanIntl.reload)}</Button>
+            <div className='top'>{formatMessge(softwarePackage.scanningFailure)}</div>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(softwarePackage.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed">
-            <div className="top">{formatMessge(baseScanIntl.hasNotBeenScanned)}</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(baseScanIntl.clickToScan)}</Button>
+            <div className="top">{formatMessge(softwarePackage.hasNotBeenScanned)}</div>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(softwarePackage.clickToScan)}</Button>
           </div>
       }
     }
@@ -270,11 +273,11 @@ class BaseScan extends Component {
     const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>{formatMessage(baseScanIntl.hasNotAndReload)}</span>
+        return <span>{formatMessage(softwarePackage.hasNotAndReload)}</span>
       case 'different':
-        return <span>{formatMessage(baseScanIntl.differentResult)}</span>
+        return <span>{formatMessage(softwarePackage.differentResult)}</span>
       case 'failed':
-        return <span>{formatMessage(baseScanIntl.scanningFailure)}</span>
+        return <span>{formatMessage(mirrorSafetyBug.scanFailure)}</span>
       default:
         return <span></span>
     }
@@ -292,7 +295,7 @@ class BaseScan extends Component {
         return (
           <div className='BaseScanFailed' data-status="scanstatusnosult">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.severScanLyins}>{formatMessage(baseScanIntl.clickToScan)}</Button>
+            <Button onClick={this.severScanLyins}>{formatMessage(mirrorSafetyBug.toScan)}</Button>
           </div>
         )
       }else{

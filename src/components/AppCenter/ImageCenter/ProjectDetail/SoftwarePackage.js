@@ -12,6 +12,8 @@ import { Spin, Select, Button, Table, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import ReactEcharts from 'echarts-for-react'
 import softwarePackage from './intl/softwarePackage'
+import mirriorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
+import detailIndexIntl from './intl/detailIndexIntl'
 import './style/SoftwarePackage.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -751,15 +753,15 @@ class TableTemplate extends Component{
       switch (str.length) {
         case 1:
         default:
-          return formatMessage(softwarePackage.echartsGapTemplateHigh)
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateHigh)
         case 2:
-          return formatMessage(softwarePackage.echartsGapTemplateMedium)
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateMedium)
         case 3:
-          return formatMessage(softwarePackage.echartsGapTemplateLow)
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateLow)
         case 4:
-          return formatMessage(softwarePackage.echartsGapTemplateNegligible)
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateNegligible)
         case 5:
-          return formatMessage(softwarePackage.echartsGapTemplateUnknown)
+          return formatMessage(mirriorSafetyBugIntl.echartsGapTemplateUnknown)
       }
     }
     let softwareOption = {
@@ -777,12 +779,12 @@ class TableTemplate extends Component{
         height: 'auto',
         left: '45%',
         top: '30%',
-        data: [formatMessage(softwarePackage.high),
-          formatMessage(softwarePackage.medium),
-          formatMessage(softwarePackage.low),
-          formatMessage(softwarePackage.negligible),
-          formatMessage(softwarePackage.unknown),
-          formatMessage(softwarePackage.noBug)],
+        data: [formatMessage(mirriorSafetyBugIntl.high),
+          formatMessage(mirriorSafetyBugIntl.medium),
+          formatMessage(mirriorSafetyBugIntl.low),
+          formatMessage(mirriorSafetyBugIntl.negligible),
+          formatMessage(mirriorSafetyBugIntl.unknown),
+          formatMessage(mirriorSafetyBugIntl.noBug)],
         formatter: function (name) {
           if (name == formatMessage(softwarePackage.high)) {
             return EchartsGapTemplate(High) + name
@@ -933,22 +935,22 @@ class SoftwarePackage extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning' data-status="running">
-            <div className="top">{formatMessage(softwarePackage.scanning)}</div>
+            <div className="top">{formatMessage(mirriorSafetyBugIntl.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>{formatMessage(softwarePackage.reload)}</Button></div>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>{formatMessage(mirriorSafetyBugIntl.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag} callback={this.handleGetBackLayer}/>
         case 'failed':
           return <div className="BaseScanFailed" data-status="filed">
-            <div className='top'>{formatMessage(softwarePackage.scanningFailure)}</div>
+            <div className='top'>{formatMessage(mirriorSafetyBugIntl.scanFailure)}</div>
             <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed" data-status="nojob">
-            <div className="top">{formatMessage(softwarePackage.hasNotBeenScanned)}</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.clickToScan)}</Button>
+            <div className="top">{formatMessage(mirriorSafetyBugIntl.hasNotBeenScanned)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(mirriorSafetyBugIntl.toScan)}</Button>
           </div>
       }
     }
@@ -1043,7 +1045,7 @@ class SoftwarePackage extends Component {
         func : (res) => {
           this.setState({softpackageFailed : false})
 
-          new NotificationHandler().error(formatMessage(softwarePackage.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync: true
@@ -1055,11 +1057,11 @@ class SoftwarePackage extends Component {
     const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>{formatMessage(softwarePackage.hasNotAndReload)}</span>
+        return <span>{formatMessage(mirriorSafetyBugIntl.hasNotAndReload)}</span>
       case 'different':
-        return <span>{formatMessage(softwarePackage.differentResult)}</span>
+        return <span>{formatMessage(mirriorSafetyBugIntl.differentResult)}</span>
       case 'failed':
-        return <span>{formatMessage(softwarePackage.scanningFailure)}</span>
+        return <span>{formatMessage(mirriorSafetyBugIntl.scanFailure)}</span>
       default:
         return <span></span>
     }
@@ -1084,7 +1086,7 @@ class SoftwarePackage extends Component {
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.clickToScan)}</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(mirriorSafetyBugIntl.toScan)}</Button>
           </div>
         )
       }else{
