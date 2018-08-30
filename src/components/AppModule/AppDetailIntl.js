@@ -37,6 +37,19 @@ export const mapData = {
     alarmStg: '告警策略',
     topology: '拓扑图',
     none: '无',
+    createApp: '创建应用',
+    editApp: '修改应用',
+    createServer: '创建服务',
+    deleteServer: '删除服务',
+    stopApp: '停止应用',
+    startApp: '启动应用',
+    rebootApp: '重启应用',
+    deleteApp: '删除应用',
+    reDeployServer: '重新部署服务',
+    stopServer: '停止服务',
+    startServer: '启动服务',
+    scs: '成功',
+    fail: '失败',
   }
 }
 
