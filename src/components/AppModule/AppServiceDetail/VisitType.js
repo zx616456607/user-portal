@@ -24,6 +24,9 @@ import { parseServiceDomain } from '../../parseDomain'
 import Ports from '../QuickCreateApp/ConfigureService/NormalSetting/Ports'
 import {isResourcePermissionError} from "../../../common/tools";
 import findIndex from "lodash/findIndex";
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const notification = new NotificationHandler()
@@ -297,6 +300,7 @@ class VisitType extends Component{
   }
   saveEdit() {
     const { value } = this.state;
+    const { formatMessage } = this.props.intl
     const { service, setServiceProxyGroup, cluster, form, loadAllServices, loadServiceDetail } = this.props;
 
     let val = value
@@ -311,10 +315,10 @@ class VisitType extends Component{
       if(val !== 3) {
         groupID = values.groupID;
         if (groupID === undefined) {
-          return notification.info('请选择网络出口')
+          return notification.info(formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort))
         }
       }
-      notification.spin('保存更改中')
+      notification.spin(formatMessage(AppServiceDetailIntl.saveChanging))
       setServiceProxyGroup({
         cluster,
         service: service.metadata.name,
@@ -329,7 +333,7 @@ class VisitType extends Component{
             loadServiceDetail(cluster, service.metadata.name)
             this.updatePorts()
             notification.close()
-            notification.success('出口方式更改成功')
+            notification.success(formatMessage(AppServiceDetailIntl.outputTypeChange))
             this.setState({
               disabled: true,
               forEdit:false,
@@ -356,7 +360,7 @@ class VisitType extends Component{
         failed: {
           func: res => {
             notification.close()
-            notification.warn('更改出口方式失败', res.message.message || res.message)
+            notification.warn(formatMessage(AppServiceDetailIntl.changeOutputTypeFailure), res.message.message || res.message)
           }
         }
       })
@@ -365,6 +369,7 @@ class VisitType extends Component{
   }
   updatePorts = async () => {
     const {form, updateServicePort, cluster, service} = this.props
+    const { formatMessage } = this.props.intl
     const {getFieldValue} = form
     const portsKeys = getFieldValue('portsKeys')
     const body = []
@@ -393,7 +398,7 @@ class VisitType extends Component{
       return
     }
     notification.close()
-    notification.success('端口更新成功')
+    notification.success(formatMessage(AppServiceDetailIntl.PortChangeSuccess))
   }
   cancelEdit() {
     const { initValue, initSelect } = this.state;
@@ -423,19 +428,23 @@ class VisitType extends Component{
     })
   }
   info() {
+    const { formatMessage } = this.props.intl
     Modal.info({
-      title: <div className="deleteHintTitle">请注意若将访问方式切换为【仅在集群内访问】，已映射的服务端口将会被释放</div>,
+      title: <div className="deleteHintTitle">{formatMessage(AppServiceDetailIntl.pleaseAttentionPortWillRelease)}</div>,
       width: 460,
       onOk() {},
     });
   }
   domainComponent = (index, item) => {
     const { copyStatus } = this.state;
+    const { formatMessage } = this.props.intl
     return (
       <dd key={index} className="addrList">
-        容器端口：{item.interPort}
+        {formatMessage(AppServiceDetailIntl.containerPort)}：{item.interPort}
         <span className="domain">{item.domain}</span>
-        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+        <Tooltip placement='top' title={copyStatus ? formatMessage(AppServiceDetailIntl.copySuccess)
+          :
+          formatMessage(AppServiceDetailIntl.clickCopy)}>
           <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this, item.domain)} onClick={this.copyTest.bind(this)}/>
         </Tooltip>
       </dd>
@@ -462,8 +471,9 @@ class VisitType extends Component{
 
   renderIngresses = () => {
     const { LBList } = this.props
+    const { formatMessage } = this.props.intl
     if (!LBList || !LBList.length) {
-      return <div className="hintColor noLB">未绑定负载均衡器</div>
+      return <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
     }
     return LBList.map(item => {
       return (
@@ -471,10 +481,12 @@ class VisitType extends Component{
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
           <Col span={4}>
             <Button type="primary" onClick={() => this.openModal(item)}>
-              解绑负载均衡
+              {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
             </Button>
           </Col>
-          <Col span={4}><Link to={`app_manage/load_balance/balance_config?name=${item.name}&displayName=${item.displayName}`}>前往修改监听</Link></Col>
+          <Col span={4}><Link to={`app_manage/load_balance/balance_config?name=${item.name}&displayName=${item.displayName}`}>
+          {formatMessage(AppServiceDetailIntl.gotoModifyMonitor)}
+          </Link></Col>
         </Row>
       )
     })
@@ -496,18 +508,19 @@ class VisitType extends Component{
 
   confirmModal = () => {
     const { unbindIngressService, getServiceLBList, cluster, service } = this.props
+    const { formatMessage } = this.props.intl
     const { currentLB } = this.state
     let notify = new NotificationHandler()
     this.setState({
       confirmLoading: true
     })
-    notify.spin('解绑中')
+    notify.spin(formatMessage(AppServiceDetailIntl.removing))
     unbindIngressService(cluster, currentLB.name, service.metadata.name, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)
           notify.close()
-          notify.success('解绑成功')
+          notify.success(formatMessage(AppServiceDetailIntl.removeSuccess))
           this.setState({
             confirmLoading: false,
             unbindVisible: false
@@ -518,7 +531,7 @@ class VisitType extends Component{
       failed: {
         func: res => {
           notify.close()
-          notify.warn('解绑失败', res.message.message || res.message)
+          notify.warn(formatMessage(AppServiceDetailIntl.removeFailure), res.message.message || res.message)
           this.setState({
             confirmLoading: false,
           })
@@ -535,6 +548,7 @@ class VisitType extends Component{
   render() {
     const { form, service, currentCluster } = this.props;
     const { getFieldProps } = form;
+    const { formatMessage } = this.props.intl
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
@@ -555,7 +569,7 @@ class VisitType extends Component{
     })
     const selectGroup = getFieldProps("groupID", {
       rules:[
-        { required: deleteHint && value !== 3 ? true : false, message: "请选择网络出口" }
+        { required: deleteHint && value !== 3 ? true : false, message: formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort) }
       ],
       initialValue: initGroupID
     })
@@ -567,7 +581,7 @@ class VisitType extends Component{
     return (
       <Card id="visitTypePage">
         <Modal
-          title='解绑负载均衡'
+          title={formatMessage(AppServiceDetailIntl.removeLoadBalance)}
           visible={unbindVisible}
           onCancle={this.cancelModal}
           onOk={this.confirmModal}
@@ -575,60 +589,63 @@ class VisitType extends Component{
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-            <span> {`确定要将服务${service.metadata.name}从负载均衡器${currentLB && currentLB.displayName}上解绑？`}</span>
+            <span>{formatMessage(AppServiceDetailIntl.makeSureRemoveLoadBalance,
+               { name: service.metadata.name, displayName: currentLB && currentLB.displayName })}</span>
           </div>
         </Modal>
         <div className="visitTypeTopBox">
-          <div className="visitTypeTitle">服务访问方式</div>
+          <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.ServiceVisitManner)}</div>
           <div className="visitTypeInnerBox">
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
                   onClick={this.tabChange.bind(this, "netExport")}
               >
-                集群网络出口
+                {formatMessage(AppServiceDetailIntl.clusterNerOutput)}
               </li>
               <li className={appComposeStyle}
                   onClick={this.tabChange.bind(this, "loadBalance")}
               >
-                应用负载均衡
+                {formatMessage(AppServiceDetailIntl.appLoadBalance)}
               </li>
             </ul>
             <div className={classNames("radioBox", {'hide': activeKey === 'loadBalance'})}>
               <div className="btnBox">
                 {
                   forEdit ? [
-                      <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>取消</Button>,
-                      <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>保存</Button>
+                      <Button key="cancel" size="large" onClick={this.cancelEdit.bind(this)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>,
+                      <Button key="save" type="primary" size="large" onClick={this.saveEdit.bind(this)}>{formatMessage(ServiceCommonIntl.save)}</Button>
                     ] :
-                    <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>编辑</Button>
+                    <Button type="primary" size="large" onClick={this.toggleDisabled.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
                 }
               </div>
               <RadioGroup onChange={this.onChange.bind(this)} value={value || initValue}>
-                <Radio key="a" value={1} disabled={disabled}>可公网访问</Radio>
-                <Radio key="b" value={2} disabled={disabled}>内网访问</Radio>
-                <Radio key="c" value={3} disabled={disabled}>仅在集群内访问</Radio>
+                <Radio key="a" value={1} disabled={disabled}>{formatMessage(AppServiceDetailIntl.publicNetWorkVisit)}</Radio>
+                <Radio key="b" value={2} disabled={disabled}>{formatMessage(AppServiceDetailIntl.intranetVisit)}</Radio>
+                <Radio key="c" value={3} disabled={disabled}>{formatMessage(AppServiceDetailIntl.onlyClusterVisit)}</Radio>
               </RadioGroup>
               <p className="typeHint">
                 {
-                  value === 1 ? '服务可通过公网访问，选择一个网络出口；':''
+                  value === 1 ? formatMessage(AppServiceDetailIntl.visitServiceByPublicNetWork):''
                 }
                 {
-                  value === 2 ? '服务可通过内网访问，选择一个网络出口；':''
+                  value === 2 ? formatMessage(AppServiceDetailIntl.visitServiceByIntranet):''
                 }
                 {
-                  value === 3 ? '服务仅提供给集群内其他服务访问；':''
+                  value === 3 ? formatMessage(AppServiceDetailIntl.ServiceProvideOtherServiceVisit):''
                 }
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': selectDis || initSelectDics})}>
                 <Form.Item>
-                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled} placeholder='选择网络出口'
+                  <Select size="large" style={{ width: 180 }} {...selectGroup} disabled={disabled} placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort)}
                           getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]}
                   >
                     {proxyNode}
                   </Select>
                 </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+              <div className={classNames("inlineBlock deleteHint",{'hide': !isLbgroupNull})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+                {formatMessage(AppServiceDetailIntl.deleteByAdminPleaseChoiceOtherManner)}
+              </div>
               <Ports
                 {...{form, formItemLayout, currentCluster}}
                 isTemplate={false}
@@ -638,27 +655,34 @@ class VisitType extends Component{
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
-                <Radio value="inside" disabled>集群内负载均衡</Radio>
-                <Radio value="outside">集群外负载均衡</Radio>
+                <Radio value="inside" disabled>{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
+                <Radio value="outside">{formatMessage(AppServiceDetailIntl.loadBalanceOutCluster)}</Radio>
               </RadioGroup>
               {this.renderIngresses()}
             </div>
           </div>
         </div>
         <div className="visitTypeBottomBox">
-          <div className="visitTypeTitle">访问地址</div>
+          <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.visitAddress)}</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
             <dl className={classNames("addrListBox",{'hide':addrHide})}>
-              <dt className="addrListTitle"><Icon type="link"/>{privateNet ? '内网' : '公网'}地址</dt>
+              <dt className="addrListTitle"><Icon type="link"/>
+                {privateNet ?
+                formatMessage(AppServiceDetailIntl.intranet)
+                :
+                formatMessage(AppServiceDetailIntl.publicNetWork)
+                }
+                {formatMessage(AppServiceDetailIntl.address)}
+              </dt>
               {this.domainList(false)}
             </dl>
             <dl className="addrListBox">
-              <dt className="addrListTitle"><Icon type="link"/>集群内访问地址</dt>
+              <dt className="addrListTitle"><Icon type="link"/>{formatMessage(AppServiceDetailIntl.visitAddressInCluster)}</dt>
               {this.domainList(true)}
             </dl>
             <dl className={classNames("addrListBox", { hide: !hasLbDomain })}>
-              <dt className="addrListTitle"><Icon type="link"/>负载均衡器访问地址</dt>
+              <dt className="addrListTitle"><Icon type="link"/>{formatMessage(AppServiceDetailIntl.loadBalanceVisitAddress)}</dt>
               {this.domainList(false, true)}
             </dl>
           </div>
@@ -693,4 +717,4 @@ VisitType = connect(mapSateToProp, {
   updateServicePort,
   loadK8sService
 })(Form.create()(VisitType))
-export default VisitType;
+export default injectIntl(VisitType,{withRef: true,});

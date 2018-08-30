@@ -883,6 +883,7 @@ let ConfigureService = React.createClass({
           AdvancedSettingKey={AdvancedSettingKey}
           form={form}
           formItemLayout={formItemLayout}
+          intl={this.props.intl}
           key="advanced"
         />
       </QueueAnim>

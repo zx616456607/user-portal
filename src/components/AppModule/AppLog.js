@@ -8,46 +8,45 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Checkbox, Dropdown, Button, Card, Menu, Icon } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import "./style/AppLog.less"
 import { appLogs } from '../../actions/app_manage'
+import { FormattedMessage } from 'react-intl'
+import intlMsg from './AppDetailIntl'
 
 function formatOperation(opera) {
   //this function for format opera
   switch(opera) {
     case 'create app':
-      return (<span>创建应用</span>)
+      return (<span><FormattedMessage {...intlMsg.createApp}/></span>)
       break;
     case 'modify app':
-      return (<span>修改应用</span>)
+      return (<span><FormattedMessage {...intlMsg.editApp}/></span>)
       break;
     case 'add service':
-      return (<span>创建服务</span>)
+      return (<span><FormattedMessage {...intlMsg.createServer}/></span>)
       break;
     case 'delete service':
-      return (<span>删除服务</span>)
+      return (<span><FormattedMessage {...intlMsg.deleteServer}/></span>)
       break;
     case 'stop app':
-      return (<span>停止应用</span>)
+      return (<span><FormattedMessage {...intlMsg.stopApp}/></span>)
       break;
     case 'start app':
-      return (<span>启动应用</span>)
+      return (<span><FormattedMessage {...intlMsg.startApp}/></span>)
       break;
     case 'restart app':
-      return (<span>重启应用</span>)
+      return (<span><FormattedMessage {...intlMsg.rebootApp}/></span>)
       break;
     case 'delete app':
-      return (<span>删除应用</span>)
+      return (<span><FormattedMessage {...intlMsg.deleteApp}/></span>)
       break;
     case 'redeploy service':
-      return (<span>重新部署服务</span>)
+      return (<span><FormattedMessage {...intlMsg.reDeployServer}/></span>)
     case 'stop service':
-      return (<span>停止服务</span>)
+      return (<span><FormattedMessage {...intlMsg.stopServer}/></span>)
     case 'start service':
-      return (<span>启动服务</span>)
+      return (<span><FormattedMessage {...intlMsg.startServer}/></span>)
   }
 }
 
@@ -55,10 +54,10 @@ function formatResult(result) {
   //this function for format result
   switch(result) {
     case 'success':
-      return (<span>成功</span>);
+      return (<span><FormattedMessage {...intlMsg.scs}/></span>);
       break;
     case 'fail':
-      return (<span>失败</span>)
+      return (<span><FormattedMessage {...intlMsg.fail}/></span>)
   }
 }
 
