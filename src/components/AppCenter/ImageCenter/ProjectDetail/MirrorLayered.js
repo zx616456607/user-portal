@@ -14,6 +14,7 @@ import './style/MirrorLayered.less'
 import { loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
 import { connect } from 'react-redux'
 import mirrorLayered from './intl/mirrorLayered'
+import serviceApiIntl from './intl/serviceApiIntl'
 
 const Step = Steps.Step
 
@@ -59,7 +60,7 @@ class MirrorLayered extends Component {
     if(!mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result){
       return (<div style={{textAlign:'center'}}>
         <div style={{marginTop:'10px'}}>{formatMessage(mirrorLayered.noLayered)}</div>
-        <Button onClick={this.APIGetLayerInfo} style={{marginTop:'10px'}} loading={this.state.APIloading}>{formatMessage(mirrorLayered.clickToScan)}</Button>
+        <Button onClick={this.APIGetLayerInfo} style={{marginTop:'10px'}} loading={this.state.APIloading}>{formatMessage(serviceApiIntl.toScan)}</Button>
       </div>)
     }
     const mirrorLayeredStep = mirrorLayeredinfo[imageName][tag].result.map((item, index) =>{

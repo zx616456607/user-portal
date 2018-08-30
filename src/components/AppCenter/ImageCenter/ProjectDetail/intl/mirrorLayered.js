@@ -16,7 +16,6 @@ export const mapData = {
   prefix: 'AppCenter.ImageCenter.MirrorLayered',
   data: {
     noLayered: '暂未扫描到镜像分层信息',
-    clickToScan: '点击扫描'
   }
 }
 

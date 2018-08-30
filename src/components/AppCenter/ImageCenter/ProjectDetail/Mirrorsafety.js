@@ -250,16 +250,16 @@ class MirrorSafety extends Component {
               <div className='safetytabcontainer'>
                 <div className="safetytabbox">
                   <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
-                    <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.bugScan)}</span>} key="1" disabled={false} >
+                    <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.bugScan)}</span>} key="1" disabled={this.state.TabsDisabled} >
                       <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.imageLayered)}</span>} key="2" disabled={false}>
+                    <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.imageLayered)}</span>} key="2" disabled={this.state.TabsDisabled}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>{formatMessage(mirrorSafetyBugIntl.softwarePackage)}</span></span>} key="3" disabled={false}>
+                    <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>{formatMessage(mirrorSafetyBugIntl.softwarePackage)}</span></span>} key="3" disabled={this.state.TabsDisabled}>
                       <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
-                    <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.baseScan)}</span>} key="4" disabled={false}>
+                    <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>{formatMessage(mirrorsafetyIntl.baseScan)}</span>} key="4" disabled={this.state.TabsDisabled}>
                       <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                   </Tabs>

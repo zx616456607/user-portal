@@ -22,6 +22,25 @@ import { DEFAULT_REGISTRY, SEARCH } from '../../../../constants'
 import indexIntl from './intl/index'
 import { injectIntl } from 'react-intl'
 
+import { mapData as data1 } from './intl/publicProjectIntl'
+import { mapData as data2 } from '../ProjectDetail/intl/baseScanIntl'
+import { mapData as data3 } from '../ProjectDetail/intl/mirrorSafetyBugIntl'
+import { mapData as data4 } from '../ProjectDetail/intl/mirrorLayered'
+import { mapData as data5 } from '../ProjectDetail/intl/softwarePackage'
+
+const mapIntlDataToJson = mapDatList => {
+  const d = {}
+  mapDatList.map(({ data, prefix }) => {
+    // l.prefix l.data
+    for (let [ k,v ] of Object.entries(data)) {
+      d[`${prefix}.${k}`] = v
+    }
+  })
+  return JSON.stringify(d, null, 2)
+}
+console.log(
+  mapIntlDataToJson([ data1, data2, data3, data4, data5 ])
+)
 const RadioGroup = Radio.Group
 const notification = new NotificationHandler()
 const DEFAULT_QUERY = {
