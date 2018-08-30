@@ -121,7 +121,7 @@ class CreateItem extends Component {
           <Form.Item label={formatMessage(indexIntl.repoGroupName)} {...formItemLayout} className="createForm">
             <Input placeholder={formatMessage(indexIntl.placeholder)} {...itemName}/>
           </Form.Item>
-          <Form.Item label="仓库组类型" {...formItemLayout} className="createForm">
+          <Form.Item label={formatMessage(indexIntl.repoGroupType)} {...formItemLayout} className="createForm">
             <RadioGroup {...projectPublic}>
               <Radio value={0}>{formatMessage(indexIntl.privateType)}</Radio>
               <Radio value={1}>{formatMessage(indexIntl.publicType)}</Radio>

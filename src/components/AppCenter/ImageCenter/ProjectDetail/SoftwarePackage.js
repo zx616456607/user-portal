@@ -293,7 +293,7 @@ class TableTemplate extends Component{
         if (bugcell.length >= 2) {
           bugcellSlice = bugcell.slice(4)
           if (bugcellSlice[0].sortNum == 0 && bugcellSlice[1].sortNum == 0) {
-            bugcellValue.nameOne = '暂无数据'
+            bugcellValue.nameOne = formatMessage(softwarePackage.noDataText)
           } else {
             delete bugcellSlice[0].sortNum
             delete bugcellSlice[1].sortNum
@@ -537,10 +537,11 @@ class TableTemplate extends Component{
       }
 
       //取出漏洞状态的前两位，准备传入table中
+      const { formatMessage } = this.props.intl
       if (bugcell.length >= 2) {
         bugcellSlice = bugcell.slice(4)
         if (bugcellSlice[0].sortNum == 0 && bugcellSlice[1].sortNum == 0) {
-          bugcellValue.nameOne = '暂无数据'
+          bugcellValue.nameOne = formatMessage(softwarePackage.noDataText)
         } else {
           delete bugcellSlice[0].sortNum
           delete bugcellSlice[1].sortNum
@@ -678,25 +679,26 @@ class TableTemplate extends Component{
   render(){
     const { Unknown, Negligible, Low, Medium, High, None, echarts } = this.state
     const { mirrorsafetyClair, imageName, tag } = this.props
+    const { formatMessage } = this.props.intl
     function softwarenameSort(a,b){
       return a.localeCompare(b)
     }
     const softwareColumns = [
       {
-        title: '包名称',
+        title: formatMessage(softwarePackage.packageName),
         dataIndex: 'softwarename',
         key: 'softwarename',
         width: '13%',
         sorter: (a,b) => softwarenameSort(a.softwarename,b.softwarename)
       },
       {
-        title: '包版本',
+        title: formatMessage(softwarePackage.packageVersion),
         dataIndex: 'softwareversions',
         key: 'softwareversions',
         width: "14%",
       },
       {
-        title: '漏洞',
+        title: formatMessage(softwarePackage.bug),
         dataIndex: 'softwarebug',
         key: 'softwarebug',
         width: "13%",
@@ -710,7 +712,7 @@ class TableTemplate extends Component{
           </div>)
       },
       {
-        title: '升级后的剩余',
+        title: formatMessage(softwarePackage.remain),
         dataIndex: 'softwareremain',
         key: 'softwareremain',
         width: '17%',
@@ -718,7 +720,7 @@ class TableTemplate extends Component{
         sorter:  (a,b) => a.softwareremain - b.softwareremain
       },
       {
-        title: '升级的影响',
+        title: formatMessage(softwarePackage.impact),
         dataIndex: 'softwareimpact',
         key: 'softwareimpact',
         width: '17%',
@@ -730,7 +732,7 @@ class TableTemplate extends Component{
         sorter:(a,b) => a.softwareimpact.impactSorterNum - b.softwareimpact.impactSorterNum
       },
       {
-        title: '引入镜像层',
+        title: formatMessage(softwarePackage.picture),
         dataIndex: 'softwarepicture',
         key: 'softwarepicture',
         width: '20%',
@@ -749,21 +751,20 @@ class TableTemplate extends Component{
       switch (str.length) {
         case 1:
         default:
-          return '   ' + '        ' + num + '  封装' + '      '
+          return formatMessage(softwarePackage.echartsGapTemplateHigh)
         case 2:
-          return '   ' + '      ' + num + '  封装' + '      '
+          return formatMessage(softwarePackage.echartsGapTemplateMedium)
         case 3:
-          return '   ' + '    ' + num + '  封装' + '      '
+          return formatMessage(softwarePackage.echartsGapTemplateLow)
         case 4:
-          return '   ' + '  ' + num + '  封装' + '      '
+          return formatMessage(softwarePackage.echartsGapTemplateNegligible)
         case 5:
-          return '   ' + num + '  封装' + '      '
+          return formatMessage(softwarePackage.echartsGapTemplateUnknown)
       }
     }
-
     let softwareOption = {
       title: {
-        text: '镜像安全扫描器已经认识 ' + this.state.Total + ' 包',
+        text: formatMessage(softwarePackage.hasKnown, {total: this.state.Total}),
         textStyle: {
           fontWeight: 'normal'
         },
@@ -776,24 +777,29 @@ class TableTemplate extends Component{
         height: 'auto',
         left: '45%',
         top: '30%',
-        data: ['高级别安全漏洞', '中级别安全漏洞', '低级别安全漏洞', '可忽略级别漏洞', '未知的漏洞', '没有漏洞'],
+        data: [formatMessage(softwarePackage.high),
+          formatMessage(softwarePackage.medium),
+          formatMessage(softwarePackage.low),
+          formatMessage(softwarePackage.negligible),
+          formatMessage(softwarePackage.unknown),
+          formatMessage(softwarePackage.noBug)],
         formatter: function (name) {
-          if (name == '高级别安全漏洞') {
+          if (name == formatMessage(softwarePackage.high)) {
             return EchartsGapTemplate(High) + name
           }
-          if (name == '中级别安全漏洞') {
+          if (name == formatMessage(softwarePackage.medium)) {
             return EchartsGapTemplate(Medium) + name
           }
-          if (name == '低级别安全漏洞') {
+          if (name == formatMessage(softwarePackage.low)) {
             return EchartsGapTemplate(Low) + name
           }
-          if (name == '可忽略级别漏洞') {
+          if (name == formatMessage(softwarePackage.negligible)) {
             return EchartsGapTemplate(Negligible) + name
           }
-          if (name == '未知的漏洞') {
+          if (name == formatMessage(softwarePackage.unknown)) {
             return EchartsGapTemplate(Unknown) + name
           }
-          if (name == '没有漏洞') {
+          if (name == formatMessage(softwarePackage.noBug)) {
             return EchartsGapTemplate(None) + name
           }
         },
@@ -815,12 +821,12 @@ class TableTemplate extends Component{
         center: ['25%', '50%'],
         minAngle: '5',
         data: [
-          { value: this.state.High, name: '高级别安全漏洞', selected: true },
-          { value: this.state.Medium, name: '中级别安全漏洞' },
-          { value: this.state.Low, name: '低级别安全漏洞' },
-          { value: this.state.Negligible, name: '可忽略级别漏洞' },
-          { value: this.state.Unknown, name: '未知的漏洞' },
-          { value: this.state.None, name: '没有漏洞' }
+          { value: this.state.High, name: formatMessage(softwarePackage.high), selected: true },
+          { value: this.state.Medium, name: formatMessage(softwarePackage.medium) },
+          { value: this.state.Low, name: formatMessage(softwarePackage.low) },
+          { value: this.state.Negligible, name: formatMessage(softwarePackage.negligible) },
+          { value: this.state.Unknown, name: formatMessage(softwarePackage.unknown) },
+          { value: this.state.None, name: formatMessage(softwarePackage.noBug) }
         ],
         label: {
           normal: {
@@ -862,7 +868,7 @@ class TableTemplate extends Component{
     }
 
     if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
-      return <div className='message'>暂未扫描到任何软件</div>
+      return <div className='message'>{formatMessage(softwarePackage.noSoftWare)}</div>
     }
 
     return(<div>
@@ -879,7 +885,7 @@ class TableTemplate extends Component{
         </div>
         <div className='softwarePackageTable'>
           <div className='softwarePackageTableTitle'>
-            <div className='softwarePackageTableTitleleft'>镜像所含软件包</div>
+            <div className='softwarePackageTableTitleleft'>{formatMessage(softwarePackage.softWarePackage)}</div>
           </div>
           <div className='softwarePackageTableContent'>
             <Table
@@ -919,6 +925,7 @@ class SoftwarePackage extends Component {
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    const { formatMessage } = this.props.intl
     if(statusCode && statusCode == 500){
       return <div>{message}</div>
     }
@@ -926,22 +933,22 @@ class SoftwarePackage extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning' data-status="running">
-            <div className="top">正在扫描尚未结束</div>
+            <div className="top">{formatMessage(softwarePackage.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>{formatMessage(softwarePackage.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag} callback={this.handleGetBackLayer}/>
         case 'failed':
           return <div className="BaseScanFailed" data-status="filed">
-            <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击重新获取</Button>
+            <div className='top'>{formatMessage(softwarePackage.scanningFailure)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed" data-status="nojob">
-            <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击扫描</Button>
+            <div className="top">{formatMessage(softwarePackage.hasNotBeenScanned)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.clickToScan)}</Button>
           </div>
       }
     }
@@ -987,6 +994,7 @@ class SoftwarePackage extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
+    const { formatMessage } = this.props.intl
     const config = {
       cluster_id,
       imageName,
@@ -1034,7 +1042,8 @@ class SoftwarePackage extends Component {
       failed : {
         func : (res) => {
           this.setState({softpackageFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+
+          new NotificationHandler().error(formatMessage(softwarePackage.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync: true
@@ -1043,19 +1052,21 @@ class SoftwarePackage extends Component {
   }
 
   handlemirrorScanstatusSatus(status){
+    const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>镜像没有被扫描过，请点击扫描</span>
+        return <span>{formatMessage(softwarePackage.hasNotAndReload)}</span>
       case 'different':
-        return <span>镜像扫描结果与上次扫描结果不同</span>
+        return <span>{formatMessage(softwarePackage.differentResult)}</span>
       case 'failed':
-        return <span>扫描失败，请重新扫描</span>
+        return <span>{formatMessage(softwarePackage.scanningFailure)}</span>
       default:
         return <span></span>
     }
   }
 
   render() {
+    const { formatMessage } = this.props.intl
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair } = this.props
     let statusCode = 200
     let status = ''
@@ -1073,7 +1084,7 @@ class SoftwarePackage extends Component {
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击扫描</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>{formatMessage(softwarePackage.clickToScan)}</Button>
           </div>
         )
       }else{
