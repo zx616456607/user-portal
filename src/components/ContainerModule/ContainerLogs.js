@@ -21,6 +21,8 @@ import './style/ContainerLogs.less'
 import { loadContainerDetailEvents,setTingLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 import { MAX_LOGS_NUMBER } from '../../constants'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerDetailIntl'
 
 const RETRY_TIMTEOUT = 5000
 
@@ -319,6 +321,7 @@ class ContainerLogs extends Component {
   }
   render() {
     const { containerName, serviceName,func } = this.props
+    const { formatMessage } = this.props.intl
     const { logSize, watchStatus, logsLoading } = this.state
     const iconType = this.loopWatchStatus()
     const header = (() => {
@@ -326,7 +329,7 @@ class ContainerLogs extends Component {
         <span>
           {this.state.logDetail?
           <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
-            历史日志
+            <FormattedMessage {...IntlMessages.historyLogs} />
           </Link>
           : <Button icon="cross" onClick={this.closeModal} className="closeBtn"></Button>
           }
@@ -335,7 +338,7 @@ class ContainerLogs extends Component {
           <Tooltip
             placement='left'
             getTooltipContainer={() => document.getElementById('ContainerLogs')}
-            title={`最多保留 ${MAX_LOGS_NUMBER} 条日志`}>
+            title={formatMessage(IntlMessages.maxLogsTip, { maxLogNum: MAX_LOGS_NUMBER })}>
             <Icon type='question-circle-o' />
           </Tooltip>
         </span>
