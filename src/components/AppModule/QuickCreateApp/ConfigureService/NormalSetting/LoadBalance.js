@@ -20,6 +20,8 @@ import './style/LoadBalance.less'
 import IngressModal from './IngressModal'
 import TcpUdpModal from './TcpUdpModal'
 import { getLBList, checkIngressNameAndHost } from '../../../../../actions/load_balance'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -55,6 +57,7 @@ class LoadBalance extends React.Component {
   }
 
   checkLoadBalance = (rule, value, callback) => {
+    const { intl } = this.props
     const { getFieldValue, setFieldsValue } = this.props.form
     if (getFieldValue('loadBalance') !== value) {
       setFieldsValue({
@@ -62,14 +65,16 @@ class LoadBalance extends React.Component {
       })
     }
     if (!value) {
-      return callback('请选择负载均衡')
+      return callback(intl.formatMessage(IntlMessage.pleaseSelect, {
+        item: intl.formatMessage(IntlMessage.loadBalance)
+      }))
     }
     callback()
   }
 
   addItem = configs => {
     const { editKey } = this.state
-    const { form } = this.props
+    const { form, intl } = this.props
     const { getFieldValue, setFieldsValue } = form
     const currentKeys = getFieldValue('lbKeys')
     const copyKey = editKey || uidd
@@ -103,9 +108,11 @@ class LoadBalance extends React.Component {
       [`ingress-${copyKey}`]: body,
       [`displayName-${copyKey}`]: configs.monitorName,
       [`lbAlgorithm-${copyKey}`]: configs.lbAlgorithm,
-      [`weight-${copyKey}`]: configs.weight ? configs.weight : '未启用',
-      [`sessionPersistent-${copyKey}`]: configs.sessionSticky ? `已启用（${configs.sessionPersistent}s）` : '未启用',
-      [`host-${copyKey}`]: configs.host || '未启用',
+      [`weight-${copyKey}`]: configs.weight ? configs.weight : intl.formatMessage(IntlMessage.notEnabled),
+      [`sessionPersistent-${copyKey}`]: configs.sessionSticky ?
+        `${intl.formatMessage(IntlMessage.activated)}（${configs.sessionPersistent}s）` :
+        intl.formatMessage(IntlMessage.notEnabled),
+      [`host-${copyKey}`]: configs.host || intl.formatMessage(IntlMessage.notEnabled),
       [`port-${copyKey}`]: configs.port
     })
     if (!editKey && (editKey !== 0)) {
@@ -258,7 +265,7 @@ class LoadBalance extends React.Component {
   }
 
   renderIngressHeader = () => {
-    const { location, isTemplate, form } = this.props
+    const { location, isTemplate, form, intl } = this.props
     const { getFieldValue } = form
     const protocolValue = getFieldValue('protocol')
     const templateDeploy = location.query.template && !isTemplate
@@ -266,23 +273,23 @@ class LoadBalance extends React.Component {
       {
         protocolValue === 'HTTP' &&
         [
-          <Col key="name" span={4}>名称</Col>,
-          <Col key="algorithm" span={4}>调度算法</Col>,
-          <Col key="weight" span={2}>权重</Col>,
-          <Col key="sessionSticky" span={4}>会话保持</Col>,
-          <Col key="host" span={4}>服务位置</Col>,
+          <Col key="name" span={4}>{intl.formatMessage(IntlMessage.name)}</Col>,
+          <Col key="algorithm" span={4}>{intl.formatMessage(IntlMessage.schedulingAlgorithm)}</Col>,
+          <Col key="weight" span={2}>{intl.formatMessage(IntlMessage.weights)}</Col>,
+          <Col key="sessionSticky" span={4}>{intl.formatMessage(IntlMessage.sessionSticky)}</Col>,
+          <Col key="host" span={4}>{intl.formatMessage(IntlMessage.serviceLocation)}</Col>,
         ]
       }
-      <Col span={protocolValue === 'HTTP' ? 2 : 4}>容器端口</Col>
+      <Col span={protocolValue === 'HTTP' ? 2 : 4}>{intl.formatMessage(IntlMessage.containerPort)}</Col>
       {
         protocolValue !== 'HTTP' &&
         <Col span={4}>
-          监听端口
+          {intl.formatMessage(IntlMessage.listeningPort)}
         </Col>
       }
       {
         !templateDeploy &&
-        <Col span={4}>操作</Col>
+        <Col span={4}>{intl.formatMessage(IntlMessage.operate)}</Col>
       }
     </Row>
   }
@@ -413,8 +420,9 @@ class LoadBalance extends React.Component {
   }
 
   noneIngress = () => {
+    const { intl } = this.props
     return <Row className="serviceList hintColor noneService" type="flex" align="middle" justify="center">
-      暂无监听配置
+      {intl.formatMessage(IntlMessage.noListenConfig)}
     </Row>
   }
 
@@ -482,8 +490,8 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>集群内负载均衡</Radio>
-              <Radio value="outside">集群外负载均衡</Radio>
+              <Radio value="inside" disabled>{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
+              <Radio value="outside">{intl.formatMessage(IntlMessage.outerClusterLB)}</Radio>
             </RadioGroup>
           </FormItem>
           <Row>
@@ -491,7 +499,12 @@ class LoadBalance extends React.Component {
               <FormItem
                 wrapperCol={{ span: 22 }}
               >
-                <Select placeholder="选择应用负载均衡" {...lbSelectProps}>
+                <Select
+                  placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                    item: intl.formatMessage(IntlMessage.loadBalance)
+                  })}
+                  {...lbSelectProps}
+                >
                   {
                     (loadBalanceList || []).map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
@@ -502,10 +515,14 @@ class LoadBalance extends React.Component {
             </Col>
             <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
               {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
-            <Col span={3}><Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>创建负载均衡</Button></Col>
+            <Col span={3}>
+              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>
+                {intl.formatMessage(IntlMessage.createLB)}
+              </Button>
+            </Col>
           </Row>
           <Row>
-            <Col>监听规则</Col>
+            <Col>{intl.formatMessage(IntlMessage.listeningRule)}</Col>
           </Row>
           <FormItem
             wrapperCol={{ span: 22 }}
@@ -518,7 +535,11 @@ class LoadBalance extends React.Component {
           </FormItem>
           {
             !templateDeploy && getFieldValue('loadBalance') &&
-            <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal()}>{`添加 ${protocolValue} 监听器`}</Button>
+              <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal()}>
+                {intl.formatMessage(IntlMessage.addIngress, {
+                  item: protocolValue,
+                })}
+              </Button>
           }
           {
             (getFieldValue('loadBalance') || templateDeploy) && this.renderIngressHeader()
@@ -544,4 +565,6 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   getLBList,
   checkIngressNameAndHost
-})(LoadBalance)
+})(injectIntl(LoadBalance, {
+  withRef: true,
+}))

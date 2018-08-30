@@ -12,34 +12,60 @@
 import React from 'react'
 import { Modal, Timeline } from 'antd'
 import isEmpty from "lodash/isEmpty";
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
-export default class ResourceErrorsModal extends React.Component {
+class ResourceErrorsModal extends React.Component {
   formatErrorType = record => {
     switch (record.type) {
       case 0:
-        return <span>nfs集群 <span className="themeColor">{record.resourceName}</span> 不存在</span>
+        return <span>nfs<FormattedMessage {...IntlMessage.cluster}/>
+          <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.notExist}/>
+        </span>
       case 1:
-        return <span>ceph集群 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
+        return <span>ceph<FormattedMessage {...IntlMessage.cluster}/>
+          <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.notExist}/>
+        </span>
       case 2:
-        return <span>应用负载均衡器 <span className="themeColor">{record.resourceName}</span> 不存在</span>
+        return <span><FormattedMessage {...IntlMessage.loadBalance}/>
+          <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.notExist}/>
+        </span>
       case 3:
-        return <span>集群未添加公网出口</span>
+        return <span><FormattedMessage {...IntlMessage.clusterNoPublicNexport}/></span>
       case 4:
-        return <span>集群未添加内网出口</span>
+        return <span><FormattedMessage {...IntlMessage.clusterNoInternalNexport}/></span>
       case 5:
-        return <span>配置组 <span  className="themeColor">{record.resourceName}</span> 名称重复</span>
+        return <span><FormattedMessage {...IntlMessage.configurationGroup}/>
+          <span  className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.nameExisted}/>
+        </span>
       case 6:
-        return <span>加密配置 <span  className="themeColor">{record.resourceName}</span> 不存在</span>
+        return <span>
+          <FormattedMessage {...IntlMessage.secretConfiguration}/> <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.notExist}/>
+        </span>
       case 7:
-        return <span>集群禁用本地（host）存储</span>
+        return <span><FormattedMessage {...IntlMessage.clusterDisableHostStorage}/></span>
       case 8:
-        return <span>没有安装amp</span>
+        return <span><FormattedMessage {...IntlMessage.noApmInstalled}/></span>
       case 9:
-        return <span>加密变量 <span className="themeColor">{record.resourceName}</span> 不存在</span>
+        return <span>
+          <FormattedMessage {...IntlMessage.secretVariable}/> <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.nameExisted}/>
+        </span>
       case 10:
-        return <span>监听器 <span className="themeColor">{record.resourceName}</span> 名称重复</span>
+        return <span>
+          <FormattedMessage {...IntlMessage.listener}/> <span className="themeColor">{record.resourceName}</span>
+          <FormattedMessage {...IntlMessage.nameExisted}/>
+        </span>
       case 11:
-        return <span>转发规则 <span className="themeColor">{record.subResourceName}</span> 重复</span>
+        return <span>
+          <FormattedMessage {...IntlMessage.forwardingRules}/> <span className="themeColor">{record.subResourceName}</span>
+          <FormattedMessage {...IntlMessage.existed}/>
+        </span>
       default:
         return
       }
@@ -70,23 +96,23 @@ export default class ResourceErrorsModal extends React.Component {
     })
     return (
       <div>
-        <div className="resourceHint">以下模板引用资源不存在或不可用，您可以点击放弃，待解决资源故障后再行创建应用；或点击继续，手动修改服务配置，然后创建应用</div>
+        <div className="resourceHint"><FormattedMessage {...IntlMessage.appTemplateResourceErrorTip}/></div>
         {children}
       </div>
     )
   }
 
   render() {
-    const { visible, closeModal, confirmModal } = this.props
+    const { visible, closeModal, confirmModal, intl } = this.props
     return (
       <Modal
         className="resourceErrorModal"
-        title="资源故障"
+        title={intl.formatMessage(IntlMessage.resourceFailure)}
         visible={visible}
         onCancel={closeModal}
         onOk={confirmModal}
-        okText="继续"
-        cancelText="放弃"
+        okText={intl.formatMessage(IntlMessage.continue)}
+        cancelText={intl.formatMessage(IntlMessage.abandon)}
         maskClosable={false}
       >
         {this.renderResourceError()}
@@ -94,3 +120,7 @@ export default class ResourceErrorsModal extends React.Component {
     )
   }
 }
+
+export default injectIntl(ResourceErrorsModal, {
+  withRef: true,
+})

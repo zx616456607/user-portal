@@ -13,6 +13,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Modal, Form, InputNumber, Select, Input } from 'antd'
 import { sleep } from "../../../../../common/tools";
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -49,14 +51,15 @@ class TcpUdpModal extends React.PureComponent{
   }
 
   containerPortCheck = (rules, value, callback) => {
+    const { intl } = this.props
     if (value.length > 1) {
-      return callback('容器端口不支持多选')
+      return callback(intl.formatMessage(IntlMessage.containerPortSingleSlt))
     }
     callback()
   }
 
   render() {
-    const { form ,type, visible, currentIngress, closeModal } = this.props
+    const { form ,type, visible, currentIngress, closeModal, intl } = this.props
     const { getFieldProps } = form
     const formItemLayout = {
       labelCol: { span: 5 },
@@ -80,19 +83,24 @@ class TcpUdpModal extends React.PureComponent{
     })
     return (
       <Modal
-        title={`配置 ${type} 监听器`}
+        title={intl.formatMessage(IntlMessage.configMonitor, {
+          item: type,
+        })}
         visible={visible}
         onCancel={closeModal}
         onOk={this.handleConfirm}
       >
         <FormItem
-          label="容器端口"
+          label={intl.formatMessage(IntlMessage.containerPort)}
           {...formItemLayout}
         >
           <Select
             tags
             style={{ width: '100%' }}
-            placeholder="请输入容器端口"
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.containerPort),
+              end: '',
+            })}
             {...containerPortProps}
           >
             <Option key="80">80</Option>
@@ -100,7 +108,7 @@ class TcpUdpModal extends React.PureComponent{
           </Select>
         </FormItem>
         <FormItem
-          label="监听端口"
+          label={intl.formatMessage(IntlMessage.listeningPort)}
           {...formItemLayout}
         >
           <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="1-65535" {...monitorPortProps}/>
@@ -110,4 +118,6 @@ class TcpUdpModal extends React.PureComponent{
   }
 }
 
-export default Form.create()(TcpUdpModal)
+export default Form.create()(injectIntl(TcpUdpModal, {
+  withRef: true,
+}))

@@ -19,6 +19,8 @@ import { serviceNameCheck } from '../../common/naming_validation'
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import './style/ContainerCatalogueModal.less'
 import { checkVolumeMountPath } from './QuickCreateApp/utils'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -138,8 +140,8 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   checkVolumeName(rule, value, callback) {
-    const { getCheckVolumeNameExist, clusterID } = this.props
-    let msg = serviceNameCheck(value, '存储名称')
+    const { getCheckVolumeNameExist, clusterID, intl } = this.props
+    let msg = serviceNameCheck(value, intl.formatMessage(IntlMessage.storageName))
     if (msg !== 'success') {
       return callback(msg)
     }
@@ -161,7 +163,7 @@ let ContainerCatalogueModal = React.createClass({
     // 判断新增的存储卷是否在当前服务列表中重名
     for(let i = 0; i < volumeNameArray.length; i++){
       if(value == volumeNameArray[i]){
-        return callback('存储名称已存在！')
+        return callback(intl.formatMessage(IntlMessage.storageNameExist))
       }
     }
     // 判断新增的存储卷是否与数据库与的存储卷重名
@@ -177,7 +179,7 @@ let ContainerCatalogueModal = React.createClass({
         failed: {
           func: (res) => {
             if(res.statusCode == 409){
-              msg = serviceNameCheck(value, '存储名称', true)
+              msg = serviceNameCheck(value, intl.formatMessage(IntlMessage.storageName), true)
               return callback(msg)
             }
           },
@@ -188,7 +190,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderDifferentType(type, volume) {
-    const { isTemplate } = this.props;
+    const { isTemplate, intl } = this.props;
     if(type == 'host' ) {
       return this.renderHostType()
     }
@@ -204,7 +206,7 @@ let ContainerCatalogueModal = React.createClass({
       }
       return (
         <FormItem
-          label="存储卷设置"
+          label={intl.formatMessage(IntlMessage.storageVolumeSetting)}
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           className='volume_setting'
@@ -215,7 +217,10 @@ let ContainerCatalogueModal = React.createClass({
               <div style={{ width : this.state.type_1Value === 'glusterfs' ? 175 : '100%'}}>
                 <FormItem className={this.state.type_1Value === 'glusterfs' ? 'glusterfsName name' : 'name'} style={{width: this.state.type_1Value !== 'glusterfs' ? width : "100%"}}>
                   <Input
-                    placeholder="请输入存储名称"
+                    placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: intl.formatMessage(IntlMessage.storageName),
+                      end: '',
+                    })}
                     {...getFieldProps('name', {
                       rules: [{
                         validator: this.checkVolumeName
@@ -230,7 +235,11 @@ let ContainerCatalogueModal = React.createClass({
                   <FormItem style={{ width: 175 }} className="inputNumWid">
                     <InputNumber
                         className="inputNum"
-                        placeholder="请输入存储大小" min={1} max={20}
+                        placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                          item: intl.formatMessage(IntlMessage.storageSize),
+                          end: '',
+                        })}
+                        min={1} max={20}
                         {...getFieldProps('storage', {
                           initialValue: 1,
                           onChange: this.onSliderChange,
@@ -262,7 +271,7 @@ let ContainerCatalogueModal = React.createClass({
                       rules: [{
                         validator: (rule, value, callback) => {
                           if (!value) {
-                            return callback('不能为空')
+                            return callback(intl.formatMessage(IntlMessage.canNotBeEmpty))
                           }
                           return callback()
                         }
@@ -293,36 +302,42 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderHostType() {
-    const { form, fieldsList, currentIndex, isBindNode } = this.props
+    const { form, fieldsList, currentIndex, isBindNode, intl } = this.props
     const { getFieldProps } = form
     return <div>
       <Row className='host_node_row'>
-        <Col span="4">绑定节点</Col>
+        <Col span="4">{intl.formatMessage(IntlMessage.bindingNode)}</Col>
         <Col span="17">
           {
             isBindNode
-              ? <span>已绑定</span>
-              : <span>未绑定</span>
+              ? <span>{intl.formatMessage(IntlMessage.bindings)}</span>
+              : <span>{intl.formatMessage(IntlMessage.unbound)}</span>
           }
         </Col>
       </Row>
       <FormItem
-        label="宿主机目录"
+        label={intl.formatMessage(IntlMessage.hostDirectory)}
         key="host_path"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 17 }}
       >
         <Input
-          placeholder='请输入宿主机目录'
+          placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.hostDirectory),
+            end: '',
+          })}
           {...getFieldProps('hostPath', {
             initialValue: undefined,
             rules: [{
               validator: (rule, value, callback) => {
                 if(!value){
-                  return callback('宿主机目录不能为空')
+                  return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.hostDirectory),
+                    end: '',
+                  }))
                 }
                 if (!PATH_REG.test(value)) {
-                  return callback('请输入正确的路径')
+                  return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
                 }
                 // if (value.lastIndexOf('/') > 0) {
                 //   return callback('本地存储不支持挂载多级目录')
@@ -490,7 +505,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   renderVolumesOptions() {
-    const { avaliableVolume, fieldsList, currentIndex } = this.props
+    const { avaliableVolume, fieldsList, currentIndex, intl } = this.props
     const { volumes, isFetching } = avaliableVolume
     if (isFetching) {
       return (
@@ -503,7 +518,7 @@ let ContainerCatalogueModal = React.createClass({
       )
     }
     const options = [
-      <Option key="create" value="create">动态生成一个存储卷</Option>,
+      <Option key="create" value="create">{intl.formatMessage(IntlMessage.dynGenerateStorageVolume)}</Option>,
     ]
     const list = cloneDeep(fieldsList)
     list.splice(currentIndex, 1)
@@ -566,7 +581,7 @@ let ContainerCatalogueModal = React.createClass({
     })
   },
   render() {
-    const { storageClassType } = this.props
+    const { storageClassType, intl } = this.props
     const {
       form, replicas, isAutoScale,
       volumes, from, storageList,
@@ -585,7 +600,9 @@ let ContainerCatalogueModal = React.createClass({
     const typeProps = getFieldProps('type', {
       rules: [{
         required: true,
-        message: '存储类型不能为空'
+        message: intl.formatMessage(IntlMessage.pleaseSelect, {
+          item: intl.formatMessage(IntlMessage.storageType)
+        })
       }],
       onChange: this.typeChange
     })
@@ -606,7 +623,9 @@ let ContainerCatalogueModal = React.createClass({
       volumeProps = getFieldProps('volume', {
         rules: [{
           required: true,
-          message: '存储卷不能为空'
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.storageVolume)
+          })
         }],
         initialValue: isTemplate ? 'create' : '',
         onChange: this.onVolumeChange,
@@ -659,27 +678,36 @@ let ContainerCatalogueModal = React.createClass({
         <div className="body">
           {
             from !== 'createApp' && <div className='alertRow'>
-              服务中含有以下设置不能添加 <span style={{ fontWeight: 'bold' }}>独享型：</span><br />
-              1.服务中的容器数量大于1个（不含1）；<br />
-              2.开启自动伸缩的服务；
+              {intl.formatMessage(IntlMessage.storageInstructions)} <span style={{ fontWeight: 'bold' }}>
+              {intl.formatMessage(IntlMessage.exclusiveType)}：</span><br />
+              {intl.formatMessage(IntlMessage.storageInstructionsFirst)}<br />
+              {intl.formatMessage(IntlMessage.storageInstructionsSecond)}
             </div>
           }
           <Form>
             <FormItem
-              label="存储类型"
+              label={intl.formatMessage(IntlMessage.storageType)}
               {...formItemLayout}
             >
               <Row>
                 <Col span={typeSpan}>
                   <FormItem style={{ width: typeWidth}}>
                     <Select
-                      placeholder="请选择存储类型"
+                      placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                        item: intl.formatMessage(IntlMessage.storageType)
+                      })}
                       {...typeProps}
                       disabled={isEdit && fieldsList[currentIndex].oldVolume}
                     >
-                      <Option key="private" value="private" disabled={unableToChangeType || !storageClassType.private}>独享型</Option>
-                      <Option key="share" value="share" disabled={!storageClassType.share}>共享型</Option>
-                      <Option key="host" value="host" disabled={!storageClassType.host}>本地存储</Option>
+                      <Option key="private" value="private" disabled={unableToChangeType || !storageClassType.private}>
+                        {intl.formatMessage(IntlMessage.exclusiveType)}
+                      </Option>
+                      <Option key="share" value="share" disabled={!storageClassType.share}>
+                        {intl.formatMessage(IntlMessage.sharedType)}
+                      </Option>
+                      <Option key="host" value="host" disabled={!storageClassType.host}>
+                        {intl.formatMessage(IntlMessage.localStorage)}
+                      </Option>
                     </Select>
                   </FormItem>
                 </Col>
@@ -688,19 +716,19 @@ let ContainerCatalogueModal = React.createClass({
                     ? <Col span={12}>
                       <FormItem className='not_host_type'>
                         <Select
-                          placeholder="请选择"
+                          placeholder={intl.formatMessage(IntlMessage.pleaseSelect, { item: '' })}
                           disabled={isEdit && fieldsList[ currentIndex ].oldVolume}
                           {...getFieldProps('type_1', {
                             rules: [ {
                               required: true,
-                              message: '不能为空'
+                              message: intl.formatMessage(IntlMessage.canNotBeEmpty)
                             } ],
                             onChange: this.type_1Change
                           })}
                         >
                           {
                             type === 'private'
-                              ? <Option type="rbd" value="rbd">块存储（rbd）</Option>
+                              ? <Option type="rbd" value="rbd">{intl.formatMessage(IntlMessage.blockStorage)}（rbd）</Option>
                               : [<Option type="nfs" value="nfs">NFS</Option>,<Option type="glusterfs" value="glusterfs">GlusterFS</Option>]
                           }
                         </Select>
@@ -713,7 +741,7 @@ let ContainerCatalogueModal = React.createClass({
             {
               type === 'private' || type === "share"
                 ? <FormItem
-                  label="选择存储"
+                  label={intl.formatMessage(IntlMessage.selectStorage)}
                   {...formItemLayout}
                 >
                 <Row>
@@ -721,7 +749,9 @@ let ContainerCatalogueModal = React.createClass({
                     <Spin spinning={this.state.loading} >
                       <FormItem style={{ width: volumeWidth }}>
                         <Select
-                          placeholder="请选择存储卷"
+                          placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                            item: intl.formatMessage(IntlMessage.storageVolume)
+                          })}
                           {...volumeProps}
                           disabled={isTemplate || isEdit && fieldsList[currentIndex].oldVolume}
                         >
@@ -733,14 +763,16 @@ let ContainerCatalogueModal = React.createClass({
                   { volume === 'create' &&  <Col span={12}>
                     <FormItem className='not_host_type'>
                       <Select
-                        placeholder="请选择一个存储集群"
+                        placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                          item: intl.formatMessage(IntlMessage.storageCluster)
+                        })}
                         disabled={isEdit && fieldsList[currentIndex].oldVolume}
                         {...getFieldProps('storageClassName', {
                           initialValue: init_storageClassName,
                           rules: [{
                             validator: (rule, value, callback) => {
                               if (!value) {
-                                return callback('server 不能为空')
+                                return callback(`server ${intl.formatMessage(IntlMessage.canNotBeEmpty)}`)
                               }
                               return callback()
                             }
@@ -796,27 +828,30 @@ let ContainerCatalogueModal = React.createClass({
               )
             */}
             <FormItem
-              label="容器目录"
+              label={intl.formatMessage(IntlMessage.containerDirectory)}
               {...formItemLayout}
             >
               <Input
-                placeholder="请输入容器目录"
+                placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                  item: intl.formatMessage(IntlMessage.containerDirectory),
+                  end: '',
+                })}
                 {...getFieldProps('mountPath', {
                   rules: [{
                     whitespace: false,
                     validator: (rule, value, callback) => {
                       if (!value) {
-                        return callback('容器目录不能为空')
+                        return callback(intl.formatMessage(IntlMessage.containerDirIsRequired))
                       }
                       if (!PATH_REG.test(value)) {
-                        return callback('请输入正确的路径')
+                        return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
                       }
                       if (!parentForm) {
                         const list = cloneDeep(fieldsList)
                         list.splice(currentIndex, 1)
                         for (let i = 0; i < list.length; i++) {
                           if (value === list[i].mountPath) {
-                            return callback('已填写过该路径')
+                            return callback(intl.formatMessage(IntlMessage.pathExist))
                           }
                         }
                         return callback()
@@ -828,7 +863,7 @@ let ContainerCatalogueModal = React.createClass({
               />
             </FormItem>
             <FormItem
-              label="读写权限"
+              label={intl.formatMessage(IntlMessage.readWritePermission)}
               {...formItemLayout}
               className='form_item_bottom'
             >
@@ -837,8 +872,8 @@ let ContainerCatalogueModal = React.createClass({
                   initialValue: false,
                 }) }
               >
-                <Radio key="yes" value={false}>可读可写</Radio>
-                <Radio key="no" value={true}>只读</Radio>
+                <Radio key="yes" value={false}>{intl.formatMessage(IntlMessage.readWrite)}</Radio>
+                <Radio key="no" value={true}>{intl.formatMessage(IntlMessage.readOnly)}</Radio>
               </Radio.Group>
             </FormItem>
           </Form>
@@ -849,7 +884,7 @@ let ContainerCatalogueModal = React.createClass({
             style={{ marginRight: 12 }}
             onClick={this.addOrEditFields.bind(this, 'cancel')}
           >
-            取消
+            {intl.formatMessage(IntlMessage.cancel)}
           </Button>
           <Button
             size="large"
@@ -857,7 +892,7 @@ let ContainerCatalogueModal = React.createClass({
             onClick={this.addOrEditFields.bind(this, 'confirm')}
             loading={this.state.confirmLoading}
           >
-            确定
+            {intl.formatMessage(IntlMessage.confirm)}
           </Button>
         </div>
       </div>
@@ -901,4 +936,6 @@ export default connect(mapStateToProp, {
   getClusterStorageList,
   loadFreeVolume,
   getCheckVolumeNameExist,
-})(ContainerCatalogueModal)
+})(injectIntl(ContainerCatalogueModal, {
+  withRef: true,
+}))

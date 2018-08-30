@@ -17,6 +17,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import Weblogic from '../../AppCreate/WeblogicConfig';
 import classNames from 'classnames';
 import './style/OperationEnv.less';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -87,7 +89,8 @@ class OperationEnv extends React.Component {
             }
             </span>
           </div>
-          <div className="template_version">最新版本：{item.version[0]}</div>
+          <div className="template_version">
+            <FormattedMessage {...IntlMessage.theLatestVersion}/>：{item.version[0]}</div>
         </Button>
       )
     })
@@ -96,15 +99,20 @@ class OperationEnv extends React.Component {
 
   highLevelConfig = () => {
     const { templateIndex, weblogicChecked, configShow } = this.state;
-    const { form } = this.props;
+    const { form, intl } = this.props;
     if (templateIndex < 2 || !configShow) {
       return
     }
     return (
       <div className="reset_form_item_label_style weblogicBox">
         <div className="oracleBox">
-          <span className="wrap_key">连接Oracle </span>
-          <Switch checked={weblogicChecked} onChange={(e)=> this.setState({weblogicChecked: e})} checkedChildren="开" unCheckedChildren="关" />
+          <span className="wrap_key">{intl.formatMessage(IntlMessage.connectToOracle)} </span>
+          <Switch
+            checked={weblogicChecked}
+            onChange={(e)=> this.setState({weblogicChecked: e})}
+            checkedChildren={intl.formatMessage(IntlMessage.open)}
+            unCheckedChildren={intl.formatMessage(IntlMessage.close)}
+          />
         </div>
         {
           weblogicChecked &&
@@ -123,13 +131,13 @@ class OperationEnv extends React.Component {
   }
   render() {
     const { templateIndex, version, configShow } = this.state;
-    const { formItemLayout, template, fileType, currentFields } = this.props;
+    const { formItemLayout, template, fileType, currentFields, intl } = this.props;
     return (
       <div className="operationEnv">
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">运行环境</span>
+            <span className="title">{intl.formatMessage(IntlMessage.operatingEnv)}</span>
           </Col>
         </Row>
         <Row className="operationEnvBody">
@@ -137,12 +145,13 @@ class OperationEnv extends React.Component {
             <div className="templateBox">
               {this.renderTemplate()}
             </div>
-            <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
+            <div className="wrap_hint"><Icon type="exclamation-circle-o"/> {intl.formatMessage(IntlMessage.operatingEnvTip)}</div>
             <div className="configBtnBox">
-              <Icon type={configShow ? "plus-square" : "minus-square"} className="configBtn themeColor pointer" onClick={this.toggleConfig}/> 高级设置
+              <Icon type={configShow ? "plus-square" : "minus-square"} className="configBtn themeColor pointer" onClick={this.toggleConfig}/>
+              <FormattedMessage {...IntlMessage.advancedSettings}/>
             </div>
             <div className={classNames("selectBox", { 'hidden': !configShow})}>
-              <span className="selectLabel">选择版本</span>
+              <span className="selectLabel"><FormattedMessage {...IntlMessage.selectVersion}/></span>
               <Select style={{ width: 180 }} size="large" value={version}
                 onChange={e => this.setState({ version: e })}
               >
@@ -167,4 +176,6 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
 
-})(OperationEnv)
+})(injectIntl(OperationEnv, {
+  withRef: true,
+}))

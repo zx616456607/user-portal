@@ -19,6 +19,8 @@ import './style/LivenessSetting.less'
 const Panel = Collapse.Panel
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const LivenessSetting = React.createClass({
   changeType(e) {
@@ -29,7 +31,7 @@ const LivenessSetting = React.createClass({
     }
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     const livenessProtocolProps = getFieldProps('livenessProtocol', {
       rules: [
@@ -46,26 +48,58 @@ const LivenessSetting = React.createClass({
     if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {
       livenessPortProps = getFieldProps('livenessPort', {
         rules: [
-          { required: true, message: '请填写端口' }
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.port),
+              end: '',
+            })
+          }
         ],
       })
       livenessInitialDelaySecondsProps = getFieldProps('livenessInitialDelaySeconds', {
         rules: [
-          { required: true, message: '请填写首次检查延时' }
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.firstCheckDelay),
+              end: '',
+            })
+          }
         ],
       })
       livenessTimeoutSecondsProps = getFieldProps('livenessTimeoutSeconds', {
         rules: [
-          { required: true, message: '请填写检查超时' }
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.checkTimeout),
+              end: '',
+            })
+          }
         ],
       })
       livenessPeriodSecondsProps = getFieldProps('livenessPeriodSeconds', {
-        rules: [{ required: true, message: '请填写检查间隔' }],
+        rules: [
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.checkInterval),
+              end: '',
+            })
+          }
+        ],
       })
       if (livenessProtocol === 'HTTP') {
         livenessPathProps = getFieldProps('livenessPath', {
           rules: [
-            { required: true, message: '请填写 Path 路径' }
+            {
+              required: true,
+              message: intl.formatMessage(IntlMessage.pleaseEnter, {
+                item: intl.formatMessage(IntlMessage.path),
+                end: '',
+              })
+            }
           ],
         })
       }
@@ -75,10 +109,10 @@ const LivenessSetting = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">高可用</span>
+            <span className="title">{intl.formatMessage(IntlMessage.highAvailability)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">设置重启检查项目，如遇到检查项不满足，为自动保证服务高可用，将自动重启该服务</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.highAvailabilityTip)}</div>
           </Col>
         </Row>
       </div>
@@ -94,39 +128,39 @@ const LivenessSetting = React.createClass({
               key="type"
             >
               <RadioGroup {...livenessProtocolProps}>
-                <Radio value="none">无</Radio>
-                <Radio value="HTTP">HTTP（推荐）</Radio>
+                <Radio value="none">{intl.formatMessage(IntlMessage.no)}</Radio>
+                <Radio value="HTTP">HTTP（{intl.formatMessage(IntlMessage.recommend)}）</Radio>
                 <Radio value="TCP">TCP</Radio>
               </RadioGroup>
               <div className="tips">
                 {
-                  livenessProtocol === 'HTTP' &&
-                  '通过 HTTP GET 请求进行健康检查。如果响应状态码小于 400，则认为容器健康'
+                  livenessProtocol === 'HTTP' && intl.formatMessage(IntlMessage.httpTip)
                 }
                 {
-                  livenessProtocol === 'TCP' &&
-                  '检测端口是否为打开状态，若端口为关闭或进程停止关闭状态，则健康检查不通过'
+                  livenessProtocol === 'TCP' && intl.formatMessage(IntlMessage.tcpTip)
                 }
               </div>
             </FormItem>
             {
               (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') && (
                 <Row className="configRow">
-                  <Col span={formItemLayout.labelCol.span} className="configCol">配置</Col>
+                  <Col span={formItemLayout.labelCol.span} className="configCol">
+                    {intl.formatMessage(IntlMessage.configuration)}
+                    </Col>
                   <Col span={formItemLayout.wrapperCol.span}>
                     <div className="livenessConfig">
                       <Row className="configHeader">
                         <Col span={6}>
-                          端口
+                          {intl.formatMessage(IntlMessage.port)}
                         </Col>
                         <Col span={6}>
-                          首次检查延时
+                          {intl.formatMessage(IntlMessage.firstCheckDelay)}
                         </Col>
                         <Col span={6}>
-                          检查超时
+                          {intl.formatMessage(IntlMessage.checkTimeout)}
                         </Col>
                         <Col span={6}>
-                          检查间隔
+                          {intl.formatMessage(IntlMessage.checkInterval)}
                         </Col>
                       </Row>
                       <Row className="configBody">
@@ -181,7 +215,7 @@ const LivenessSetting = React.createClass({
                         livenessPathProps && [
                           <Row className="configHeader" key="configHeader">
                             <Col span={6}>
-                              Path 路径
+                              {intl.formatMessage(IntlMessage.path)}
                             </Col>
                           </Row>,
                           <Row className="configBody" key="configBody">
@@ -208,4 +242,6 @@ const LivenessSetting = React.createClass({
   }
 })
 
-export default LivenessSetting
+export default injectIntl(LivenessSetting, {
+  withRef: true,
+})
