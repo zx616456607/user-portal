@@ -8,14 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Spin, Form, Input, Button, Icon } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Card, Spin, Form, Input, Button, Icon } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceList from './AppServiceList'
 import AppGraph from './AppGraph'
 import AppLog from './AppLog'
-//import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { formatDate } from '../../common/tools'
 import { updateAppDesc, loadAppDetail } from '../../actions/app_manage'
@@ -24,9 +22,7 @@ import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
-import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../components/Notification'
-import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import Topology from '../../../client/containers/AppModule/AppServiceDetail/Topology'
@@ -34,14 +30,10 @@ import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
 import TenxIcon from '@tenx-ui/icon'
-import { SHOW_BILLING } from '../../constants'
 import intlMsg from './AppDetailIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 
 const DEFAULT_TAB = '#service'
-
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -164,7 +156,7 @@ class AppDetail extends Component {
   }
 
   render() {
-    const { children, appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled, intl: { formatMessage } } = this.props
+    const { appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled, intl: { formatMessage } } = this.props
     const { activeTabKey, serviceList, availableReplicas, total, k8sServiceList } = this.state
     if (isFetching || !app) {
       return (
