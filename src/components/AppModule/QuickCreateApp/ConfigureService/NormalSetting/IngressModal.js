@@ -264,33 +264,39 @@ class IngressModal extends React.Component {
         }
         <Form form={form}>
           <FormItem
-            label="监听器名称"
+            label={intl.formatMessage(IntlMessage.ingressName)}
             {...formItemLayout}
             hasFeedback={!!getFieldValue('monitorName')}
-            help={isFieldValidating('monitorName') ? '校验中...' : (getFieldError('monitorName') || []).join(', ')}
+            help={isFieldValidating('monitorName') ?
+              `${intl.formatMessage(IntlMessage.validating)}...` :
+              (getFieldError('monitorName') || []).join(', ')}
           >
             <Input {...monitorNameProps} placeholder="请输入监听器名称"/>
           </FormItem>
           <FormItem
-            label="调度算法"
+            label={intl.formatMessage(IntlMessage.schedulingAlgorithm)}
             {...formItemLayout}
           >
             <RadioGroup {...lbAlgorithmProps}>
-              <Radio value="round-robin">加权轮询</Radio>
-              <Radio value="least_conn">最小连接数</Radio>
-              <Radio value="ip_hash">源地址散列IP_HASH</Radio>
+              <Radio value="round-robin">{intl.formatMessage(IntlMessage.roundRobin)}</Radio>
+              <Radio value="least_conn">{intl.formatMessage(IntlMessage.leastConnect)}</Radio>
+              <Radio value="ip_hash">{intl.formatMessage(IntlMessage.ipHash)}</Radio>
             </RadioGroup>
           </FormItem>
           {
             getFieldValue('lbAlgorithm') !== 'ip_hash' &&
               <FormItem
-                label="权重"
+                label={intl.formatMessage(IntlMessage.weights)}
                 {...formItemLayout}
               >
                 <InputNumber
                   disabled
                   style={{ width: '100%' }}
-                  min={0} max={100} placeholder="请输入权重"
+                  min={0} max={100}
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.weights),
+                    end: '',
+                  })}
                   {...getFieldProps('weight', {
                     initialValue: 1,
                   })}
@@ -300,10 +306,10 @@ class IngressModal extends React.Component {
           {
             getFieldValue('lbAlgorithm') === 'round-robin' &&
             <FormItem
-              label="会话保持"
+              label={intl.formatMessage(IntlMessage.sessionSticky)}
               {...formItemLayout}
             >
-              <Checkbox {...sessionProps}>启用会话</Checkbox>
+              <Checkbox {...sessionProps}>{intl.formatMessage(IntlMessage.enableSession)}</Checkbox>
             </FormItem>
           }
           {
@@ -311,7 +317,7 @@ class IngressModal extends React.Component {
             <Row>
               <Col span={16}>
                 <FormItem
-                  label="保持时间"
+                  label={intl.formatMessage(IntlMessage.holdTime)}
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
                 >
@@ -328,40 +334,52 @@ class IngressModal extends React.Component {
             </Row>
           }
           <FormItem
-            label="健康检查"
+            label={intl.formatMessage(IntlMessage.healthCheck)}
             {...formItemLayout}
           >
             <p className="ant-form-text">
-              <span className={classNames("successColor", { 'hintColor': !healthCheck })}>{healthCheck ? '已开启' : '未开启'}</span>&nbsp;
+              <span className={classNames("successColor", { 'hintColor': !healthCheck })}>
+                {healthCheck ? intl.formatMessage(IntlMessage.turnedOn) : intl.formatMessage(IntlMessage.unopened)}
+                </span>&nbsp;
               <i className="fa fa-pencil-square-o pointer" aria-hidden="true" onClick={this.openCheckModal}/>
             </p>
           </FormItem>
           <FormItem
-            label="添加 HTTP头 "
+            label={intl.formatMessage(IntlMessage.addHttpHeader)}
             {...formItemLayout}
           >
-            <p className="ant-form-text">已开启客户端真实 IP<span className="hintColor">（通过 X-Forwarded-For 头字段获取）</span></p>
-            <p className="ant-form-text">已开启负载均衡监听协议<span className="hintColor">（通过 X-Forwarded-Proto 头字段获取）</span></p>
+            <p className="ant-form-text">{intl.formatMessage(IntlMessage.clientIPEnabled)}
+            <span className="hintColor">（{intl.formatMessage(IntlMessage.throughXForwardedFor)}）</span></p>
+            <p className="ant-form-text">{intl.formatMessage(IntlMessage.lbEnabled)}
+            <span className="hintColor">（{intl.formatMessage(IntlMessage.throughXForwardedProto)}）</span></p>
           </FormItem>
           <FormItem
-            label="服务位置"
+            label={intl.formatMessage(IntlMessage.serviceLocation)}
             {...formItemLayout}
             hasFeedback={!!getFieldValue('host')}
-            help={isFieldValidating('host') ? '校验中...' : (getFieldError('host') || []).join(', ')}
+            help={isFieldValidating('host') ?
+              `${intl.formatMessage(IntlMessage.validating)}...` :
+              (getFieldError('host') || []).join(', ')}
           >
-            <Input placeholder="请输入服务位置，例如 www.tenxcloud.com/www/index.html" {...relayRuleProps}/>
+            <Input placeholder={intl.formatMessage(IntlMessage.serviceLocationPlaceholder)} {...relayRuleProps}/>
           </FormItem>
           <FormItem
-            label="访问路径"
+            label={intl.formatMessage(IntlMessage.accessPath)}
             {...formItemLayout}
           >
-            <Input placeholder="请输入访问路径，以 / 开头" {...contextProps}/>
+            <Input placeholder={intl.formatMessage(IntlMessage.accessPathPlaceholder)} {...contextProps}/>
           </FormItem>
           <FormItem
-            label="容器端口"
+            label={intl.formatMessage(IntlMessage.containerPort)}
             {...formItemLayout}
           >
-            <Input placeholder="输入容器端口" {...portProps}/>
+            <Input
+              placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                item: intl.formatMessage(IntlMessage.containerPort),
+                end: '',
+              })}
+              {...portProps}
+            />
           </FormItem>
         </Form>
       </Modal>

@@ -490,8 +490,8 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>集群内负载均衡</Radio>
-              <Radio value="outside">集群外负载均衡</Radio>
+              <Radio value="inside" disabled>{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
+              <Radio value="outside">{intl.formatMessage(IntlMessage.outerClusterLB)}</Radio>
             </RadioGroup>
           </FormItem>
           <Row>
@@ -499,7 +499,12 @@ class LoadBalance extends React.Component {
               <FormItem
                 wrapperCol={{ span: 22 }}
               >
-                <Select placeholder="选择应用负载均衡" {...lbSelectProps}>
+                <Select
+                  placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                    item: intl.formatMessage(IntlMessage.loadBalance)
+                  })}
+                  {...lbSelectProps}
+                >
                   {
                     (loadBalanceList || []).map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
@@ -510,10 +515,14 @@ class LoadBalance extends React.Component {
             </Col>
             <Col span={2}><Button type="ghost" size="large" onClick={this.reloadLB}>
               {lbLoading ? <Icon type="loading" /> : <Icon type="reload" />}</Button></Col>
-            <Col span={3}><Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>创建负载均衡</Button></Col>
+            <Col span={3}>
+              <Button type="primary" size="large" onClick={() => window.open('/app_manage/load_balance') }>
+                {intl.formatMessage(IntlMessage.createLB)}
+              </Button>
+            </Col>
           </Row>
           <Row>
-            <Col>监听规则</Col>
+            <Col>{intl.formatMessage(IntlMessage.listeningRule)}</Col>
           </Row>
           <FormItem
             wrapperCol={{ span: 22 }}
@@ -526,7 +535,11 @@ class LoadBalance extends React.Component {
           </FormItem>
           {
             !templateDeploy && getFieldValue('loadBalance') &&
-            <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal()}>{`添加 ${protocolValue} 监听器`}</Button>
+              <Button className="addConfig" type="ghost" icon="plus" onClick={() => this.openIngressModal()}>
+                {intl.formatMessage(IntlMessage.addIngress, {
+                  item: protocolValue,
+                })}
+              </Button>
           }
           {
             (getFieldValue('loadBalance') || templateDeploy) && this.renderIngressHeader()

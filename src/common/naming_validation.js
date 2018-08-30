@@ -9,7 +9,7 @@
 Validation for k8s resource, including service, deployment, ...
 */
 import ServiceConfigIntl from '../containers/Application/ServiceConfigIntl'
-const formatMessage  = window._intl && window._intl.formatMessage
+
 export function validateK8sResource(name) {
   if (!name) {
     return false
@@ -108,6 +108,7 @@ export function appNameCheck(name, itemName, existNameFlag) {
   //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
+  const formatMessage = window._intl.formatMessage
   if (!name || name.length == 0) {
     errorMsg = formatMessage(ServiceConfigIntl.pleaseEnter, {
       item: itemName, end: '',
@@ -396,6 +397,7 @@ export function autoScaleNameCheck(value) {
  */
 
 export function ingressNameCheck(value) {
+  const formatMessage = window._intl.formatMessage
   if (!value) {
     return formatMessage(ServiceConfigIntl.pleaseEnter, {
       item: formatMessage(ServiceConfigIntl.ingressName),
@@ -425,6 +427,7 @@ export function ingressRelayRuleCheck(value) {
  */
 
 export function ingressContextCheck(value) {
+  const formatMessage = window._intl.formatMessage
   if (!value) {
     return formatMessage(ServiceConfigIntl.pleaseEnter, {
       item: formatMessage(ServiceConfigIntl.accessPath),
@@ -450,6 +453,7 @@ export function lbNameCheck(value) {
  */
 
  export function templateNameCheck(value) {
+  const formatMessage = window._intl.formatMessage
    if (!value) {
      return formatMessage(ServiceConfigIntl.pleaseEnter, {
        item: formatMessage(ServiceConfigIntl.appTemplate),
