@@ -30,27 +30,29 @@ import '@tenx-ui/select-with-checkbox/assets/index.css'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../../constants'
 import './style/ServiceMonitor.less'
 import { serviceNameCutForMetric } from '../../../common/tools'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const timeFrequency = {
   '1': {
     'second': 1000 * 60,
-    'timeDes': '1分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.oneMinute}/>
   },
   '6': {
     'second': 1000 * 60 * 5,
-    'timeDes': '5分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.fiveMinute}/>
   },
   '24': {
     'second': 1000 * 60 * 20,
-    'timeDes': '20分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twentyMinute}/>
   },
   '168': {
     'second': 1000 * 60 * 60 * 2,
-    'timeDes': '2小时'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twoHour}/>
   },
   '720': {
     'second': 1000 * 60 * 60 * 6,
-    'timeDes': '6小时'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.sixHour}/>
   }
 }
 
@@ -60,9 +62,10 @@ class ServiceMonitior extends Component {
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
     this.setIntervalFunc = this.setIntervalFunc.bind(this)
+    const { formatMessage } = this.props.intl
     this.state = {
       intervalStatus: false,
-      freshTime: '1分钟',
+      freshTime: formatMessage(AppServiceDetailIntl.oneMinute),
       switchCpu: false,
       switchMemory: false,
       switchNetwork: false,
@@ -350,6 +353,7 @@ class ServiceMonitior extends Component {
   render() {
     const { cpu, memory, networkReceived, networkTransmitted, diskReadIo, diskWriteIo, allServiceMetrics } = this.props
     const { switchCpu, switchMemory, switchNetwork, switchDisk, visible, checkedKeys } = this.state
+    const { formatMessage } = this.props.intl
     let showCpu = {
       data: [],
       isFetching: false
@@ -409,7 +413,7 @@ class ServiceMonitior extends Component {
                 getTooltipContainer={() => document.getElementById('popover-wrapper')}
               >
                 <span className="themeColor pointer">
-                  <Icon type="filter" /> <span>筛选实例（已选 {checkedKeys.length}）</span>
+                  <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject)}</span>
                 </span>
               </Popover>
             </Col>
@@ -510,7 +514,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadServiceMetricsCPU,
   loadServiceMetricsMemory,
   loadServiceMetricsNetworkReceived,
@@ -518,4 +522,4 @@ export default connect(mapStateToProps, {
   loadServiceAllOfMetrics,
   loadServiceMetricsDiskRead,
   loadServiceMetricsDiskWrite,
-})(ServiceMonitior)
+})(ServiceMonitior), { withRef: true, })
