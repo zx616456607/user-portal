@@ -8,20 +8,25 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Spin, Button, Table } from 'antd'
+import { injectIntl } from 'react-intl'
+import baseScanIntl from './intl/baseScanIntl'
+import mirrorSafetyBug from './intl/mirrorSafetyBugIntl'
+import softwarePackage from './intl/softwarePackage'
+import detailIndexIntl from './intl/detailIndexIntl'
 import './style/BaseScan.less'
 import { connect } from 'react-redux'
 import { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 
-const BaseScanDescription = React.createClass({
+let BaseScanDescription = React.createClass({
   render: function () {
     const dataObj = this.props.description;
+    const { formatMessage } = this.props.intl
     let dataStr = ''
     if (Object.keys(dataObj).length == 0) {
-      dataStr = ' <div class="basicscantableSubOne"><i class="fa fa-minus" aria-hidden="true" style="margin-right: 8px"></i><span class="noneInfo">暂无信息</span></div>'
+      dataStr = ' <div class="basicscantableSubOne"><i class="fa fa-minus" aria-hidden="true" style="margin-right: 8px"></i><span class="noneInfo">{formatMessage(baseScanIntl.noDataText)}</span></div>'
       return (
         <div className='basicscantableSub' dangerouslySetInnerHTML={{ __html: dataStr }}></div>
       )
@@ -35,8 +40,9 @@ const BaseScanDescription = React.createClass({
     }
   }
 });
+BaseScanDescription = injectIntl(BaseScanDescription, {withRef: true})
 
-const TableTemplate = React.createClass({
+let TableTemplate = React.createClass({
   TableDataSource() {
     const { mirrorsafetyLyins, imageName, tag } = this.props
     if (!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag] || !mirrorsafetyLyins[imageName][tag].result) {
@@ -84,7 +90,7 @@ const TableTemplate = React.createClass({
     )
   }
 });
-
+TableTemplate = injectIntl(TableTemplate, {withRef: true})
 class BaseScan extends Component {
   constructor(props) {
     super(props)
@@ -141,6 +147,7 @@ class BaseScan extends Component {
     }
     this.setState({basescanFailed : true})
     if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
+      const { formatMessage } = this.props.intl
       return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
         success:{
           func: () => {
@@ -179,7 +186,7 @@ class BaseScan extends Component {
       failed: {
         func : (res) => {
           this.setState({basescanFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync : true
@@ -196,6 +203,7 @@ class BaseScan extends Component {
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    const { formatMessge } = this.props.intl
     if(statusCode && statusCode == 500){
       return <div>{message}</div>
     }
@@ -203,22 +211,22 @@ class BaseScan extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning'>
-            <div className="top">正在扫描尚未结束</div>
+            <div className="top">{formatMessge(baseScanIntl.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>{formatMessge(baseScanIntl.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
-            <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>点击重新获取</Button>
+            <div className='top'>{formatMessge(softwarePackage.scanningFailure)}</div>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(softwarePackage.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed">
-            <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>点击扫描</Button>
+            <div className="top">{formatMessge(softwarePackage.hasNotBeenScanned)}</div>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(softwarePackage.clickToScan)}</Button>
           </div>
       }
     }
@@ -262,13 +270,14 @@ class BaseScan extends Component {
   }
 
   handlemirrorScanstatusSatus(status){
+    const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>镜像没有被扫描过，请点击扫描</span>
+        return <span>{formatMessage(softwarePackage.hasNotAndReload)}</span>
       case 'different':
-        return <span>镜像扫描结果与上次扫描结果不同</span>
+        return <span>{formatMessage(softwarePackage.differentResult)}</span>
       case 'failed':
-        return <span>扫描失败，请重新扫描</span>
+        return <span>{formatMessage(mirrorSafetyBug.scanFailure)}</span>
       default:
         return <span></span>
     }
@@ -280,12 +289,13 @@ class BaseScan extends Component {
     if(mirrorScanstatus[imageName][tag].result.status){
       status = mirrorScanstatus[imageName][tag].result.status
     }
+    const { formatMessage } = this.props.intl
     if(status == 'failed' || status == 'different'){
       if(!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag]){
         return (
           <div className='BaseScanFailed' data-status="scanstatusnosult">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.severScanLyins}>点击扫描</Button>
+            <Button onClick={this.severScanLyins}>{formatMessage(mirrorSafetyBug.toScan)}</Button>
           </div>
         )
       }else{
@@ -302,6 +312,7 @@ class BaseScan extends Component {
 
   render() {
     const { imageName, tag, mirrorScanstatus } = this.props
+    const { formatMessage } = this.props.intl
     let statusCode = 200
     let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
@@ -316,11 +327,11 @@ class BaseScan extends Component {
     return (
       <div id="BaseScan">
         <div className='basicscantitle alertRow'>
-          镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
+          {formatMessage(baseScanIntl.alert)}
         </div>
         <div className="basicscanmain">
           <div className='basicscanmaintitle'>
-            <span className='basicscanmaintitleitem'>基础扫描结果</span>
+            <span className='basicscanmaintitleitem'>{formatMessage(baseScanIntl.baseScanRes)}</span>
           </div>
           <div className='basicscanmaintable'>
             {statusCode == 200 ? this.handlemirrorScanstatus() : this.handlemirrorScanstatusFialed()}
@@ -354,4 +365,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadMirrorSafetyScan,
   loadMirrorSafetyLyinsinfo
-})(BaseScan)
+})(injectIntl(BaseScan, {withRef: true}))

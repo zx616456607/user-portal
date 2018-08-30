@@ -16,6 +16,8 @@ import './style/LogCollection.less'
 const Panel = Collapse.Panel
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 class LogCollection extends Component {
   constructor(props) {
@@ -27,11 +29,12 @@ class LogCollection extends Component {
   }
 
   checkPath = (rule, value, callback) => {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if(/\/{2,}/.test(value) || !/^\/(.+)*$/.test(value) || value.length !== 1 && /\/$/.test(value)){
-      return callback('请输入正确的日志目录')
+      return callback(intl.formatMessage(IntlMessage.plsEntLogDir))
     }
     const { form } = this.props
     const { getFieldValue } = form
@@ -40,7 +43,7 @@ class LogCollection extends Component {
     storageKeys.every(key => {
       const mountPath = getFieldValue(`mountPath${key}`)
       if (value === mountPath) {
-        error = '日志收集目录不能与存储挂载目录相同'
+        error = intl.formatMessage(IntlMessage.logDirDiffStorageDir)
         return false
       }
       return true
@@ -49,22 +52,26 @@ class LogCollection extends Component {
   }
 
   validateRule(rule, value, callback) {
+    const { intl } = this.props
     if (value === '') {
-      callback(new Error('请填写采集文件规则'))
+      callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.collectingFileRules),
+        end: '',
+      })))
       return
     }
     // Check if it's valid regex expression
     try {
       new RegExp(value, "ig")
     } catch (e) {
-      callback(new Error('请输入合法的正则表达式规则'))
+      callback(intl.formatMessage(IntlMessage.plsEntRegRule))
       return
     }
     callback()
   }
 
   directoryTemplate(sourceType){
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     let pathProps
     let inregexProps
@@ -72,7 +79,13 @@ class LogCollection extends Component {
     if(sourceType == 'directory'){
       pathProps = getFieldProps('path',{
         rules: [
-          { required: true, message: '请填写日志目录' },
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.logDir),
+              end: '',
+            })
+          },
           { validator: this.checkPath }
         ],
       })
@@ -90,7 +103,7 @@ class LogCollection extends Component {
                 try {
                   const reg = new RegExp(value)
                 } catch(e) {
-                  return callback('请输入合法的正则表达式规则')
+                  return callback(intl.formatMessage(IntlMessage.plsEntRegRule))
                 }
               }
               callback()
@@ -103,24 +116,24 @@ class LogCollection extends Component {
         <FormItem
           {...formItemLayout}
           wrapperCol={{ span: 6 }}
-          label="日志目录"
+          label={intl.formatMessage(IntlMessage.logDir)}
           key="sourceLogDirectory"
         >
           <Input
             size="large"
-            placeholder="例如:/var/log"
+            placeholder={intl.formatMessage(IntlMessage.logDirPlaceholder)}
             autoComplete="off"
             className='standard'
             {...pathProps}
           />
-          <Tooltip title='输入要采集日志的目录'>
+          <Tooltip title={intl.formatMessage(IntlMessage.logDirTooltip)}>
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
         <FormItem
           {...formItemLayout}
           wrapperCol={{ span: 6 }}
-          label="采集规则"
+          label={intl.formatMessage(IntlMessage.collectionRule)}
           key="collectFieldRules"
         >
           <Input
@@ -130,24 +143,24 @@ class LogCollection extends Component {
             className='standard'
             {...inregexProps}
           />
-          <Tooltip title="匹配正则表达式的文件将会被监控">
+          <Tooltip title={intl.formatMessage(IntlMessage.collectionRuleTooltip)}>
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
         <FormItem
           {...formItemLayout}
           wrapperCol={{ span: 6 }}
-          label="排除规则"
+          label={intl.formatMessage(IntlMessage.exclusionRule)}
           key="eliminateFieldRules"
         >
           <Input
             size="large"
-            placeholder="例如:^access\.temp\.[0-9\-]{10}$"
+            placeholder={intl.formatMessage(IntlMessage.exclusionRulePlaceholder)}
             autoComplete="off"
             className='standard'
             {...exregexProps}
           />
-          <Tooltip title="匹配正则表达式的文件将不会被监控">
+          <Tooltip title={intl.formatMessage(IntlMessage.exclusionRuleTooltip)}>
             <Icon type="question-circle-o" className='questionIcon'/>
           </Tooltip>
         </FormItem>
@@ -184,7 +197,7 @@ class LogCollection extends Component {
     })
   }
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     getFieldProps('sourceType', {
       rules: [
@@ -206,10 +219,10 @@ class LogCollection extends Component {
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title" style={{paddingLeft: '8px'}}>日志采集</span>
+            <span className="title" style={{paddingLeft: '8px'}}>{intl.formatMessage(IntlMessage.logCollection)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">采集应用的运行日志，结合平台的日志查询功能提供托管式、一站式日志采集、查询服务</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.logCollectionTip)}</div>
           </Col>
         </Row>
       </div>
@@ -221,16 +234,16 @@ class LogCollection extends Component {
             <FormItem
               {...formItemLayout}
               className="sourceTypeLabel"
-              label="来源类型"
+              label={intl.formatMessage(IntlMessage.sourceType)}
             >
-              仅采集容器标准日志
+              {intl.formatMessage(IntlMessage.collectContainerStandardLog)}
             </FormItem>
             <FormItem
               {...formItemLayout}
               className="sourceType"
               label={' '}
             >
-              <Checkbox {...sourceTypeCheckboxProps}>同时进行目录内日志采集</Checkbox>
+              <Checkbox {...sourceTypeCheckboxProps}>{intl.formatMessage(IntlMessage.collectDirLog)}</Checkbox>
             </FormItem>
             <div className='logCollectionConfig'>
               { this.directoryTemplate(sourceType) }
@@ -251,4 +264,6 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
 
-})(LogCollection)
+})(injectIntl(LogCollection, {
+  withRef: true,
+}))

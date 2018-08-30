@@ -148,7 +148,7 @@ class DataTable extends Component {
         //],
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
-        render: (text, record) => this.getIsPublicText(record, formatMessage(repoGroupListIntl.setToPrivate), formatMessage(repoGroupListIntl.setToPublic))
+        render: (text, record) => this.getIsPublicText(record, formatMessage(repoGroupListIntl.privateType), formatMessage(repoGroupListIntl.publicType))
       },
       {
         title: formatMessage(repoGroupListIntl.myRole),
@@ -305,7 +305,7 @@ class DataTable extends Component {
           <br/>
           <div className="confirmText"><Icon type="question-circle-o" style={{ marginRight: '10px' }} />
             {/*您确认将项目...吗？*/}
-            {formatMessage(repoGroupListIntl.setToPrivateConfirm)} {this.state.currentProject.name} {publicModalTitle}吗?</div>
+            {formatMessage(repoGroupListIntl.setToPrivateConfirm)} {this.state.currentProject.name} {publicModalTitle}?</div>
         </Modal>
       </div>
     )

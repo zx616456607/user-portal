@@ -18,6 +18,8 @@ import { Switch,Form } from 'antd';
 import "./style/ServiceMesh.less"
 import { getDeepValue } from '../../../../../client/util/util'
 import * as projectActions from '../../../../actions/serviceMesh'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 
@@ -35,7 +37,7 @@ const mapStateToprops = (state) => {
   checkProInClusMesh: projectActions.checkProInClusMesh,
   checkClusterIstio: projectActions.checkClusterIstio,
 })
-export default class ServiceMesh extends React.Component {
+class ServiceMesh extends React.Component {
   state = {
     userrole: undefined,
     checked: false,
@@ -66,6 +68,7 @@ export default class ServiceMesh extends React.Component {
   }
   renderMesh() {
     const { userrole, checked } = this.state
+    const { intl } = this.props
     const form = this.props.form
     const { getFieldProps } = form;
     const checkedmeshProps = getFieldProps('serviceMesh', {
@@ -73,22 +76,26 @@ export default class ServiceMesh extends React.Component {
       initialValue: checked,
     })
     if (userrole === 1){
-      return <span className="infoText">当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
+      return <span className="infoText"><FormattedMessage {...IntlMessage.noMsaSuiteTip}/></span>
 
     }
     if (userrole === 2) {
-      return <span className="infoText">当前集群未安装 istio，请联系基础设施管理员安装</span>
+      return <span className="infoText"><FormattedMessage {...IntlMessage.noIstioTip}/></span>
     }
     if (userrole === 3 || userrole === 4) {
       return [
-        <Switch {...checkedmeshProps} checkedChildren="开" unCheckedChildren="关" key="switch" disabled={checked}/>,
+        <Switch
+          {...checkedmeshProps}
+          checkedChildren={intl.formatMessage(IntlMessage.open)}
+          unCheckedChildren={intl.formatMessage(IntlMessage.close)}
+          key="switch" disabled={checked}
+        />,
         <span key="span" className="infoText">
         {
           checked ?
-          <span>当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心
-          提供的治理功能</span>
+          <FormattedMessage {...IntlMessage.serviceMeshCheckedTip}/>
           :
-          <span>开通后, 此服务将由服务网格代理, 使用微服务中心提供的治理功能</span>
+            <FormattedMessage {...IntlMessage.serviceMeshUncheckTip}/>
         }
         </span>
       ]
@@ -97,11 +104,11 @@ export default class ServiceMesh extends React.Component {
 
   }
   render () {
-    const { formItemLayout } = this.props;
+    const { formItemLayout, intl } = this.props;
     return (
       <FormItem
         {...formItemLayout}
-        label="启用服务网格"
+        label={intl.formatMessage(IntlMessage.enableServiceMesh)}
         key="serviceMesh"
         className="serviceMesh"
       >
@@ -110,3 +117,7 @@ export default class ServiceMesh extends React.Component {
     )
   }
 }
+
+export default injectIntl(ServiceMesh, {
+  withRef: true,
+})
