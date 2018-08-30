@@ -294,7 +294,7 @@ class Header extends Component {
       loginUser,
       getProjectVisibleClusters,
     } = this.props
-    const config = getCookie(USER_CURRENT_CONFIG)
+    const config = getCookie(USER_CURRENT_CONFIG) || ''
     const [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
     setCurrent({
       team: { teamID },
