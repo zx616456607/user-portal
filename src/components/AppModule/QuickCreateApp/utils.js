@@ -336,7 +336,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
     const replicasIPStr = JSON.stringify(replicasIPArr)
     deployment.setMetaAnnotations({
-      ['cni.projectcalico.org/ipv4pools']: replicasIPStr,
+      ['cni.projectcalico.org/ipAddrs']: replicasIPStr,
     })
 
   }
