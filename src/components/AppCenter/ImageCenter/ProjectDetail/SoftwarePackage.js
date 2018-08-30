@@ -8,11 +8,12 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, Tooltip } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Spin, Select, Button, Table, Tooltip } from 'antd'
+import { injectIntl } from 'react-intl'
 import ReactEcharts from 'echarts-for-react'
+import softwarePackage from './intl/softwarePackage'
 import './style/SoftwarePackage.less'
-import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
+import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
 import SignalFourRed from '../../../../assets/img/appCenter/mirrorSafety/signal4red.svg'
@@ -28,8 +29,6 @@ import SignalOneRed from '../../../../assets/img/appCenter/mirrorSafety/signal1r
 import SignalOneyellow from '../../../../assets/img/appCenter/mirrorSafety/signal1yellow.svg'
 import SignalOnegreen from '../../../../assets/img/appCenter/mirrorSafety/signal1green.svg'
 import NotificationHandler from '../../../../components/Notification'
-
-const Option = Select.Option
 
 class TableTemplate extends Component{
   constructor(props){
@@ -70,6 +69,7 @@ class TableTemplate extends Component{
   componentWillReceiveProps(nextProps){
     const mirrorsafetyClair = nextProps.mirrorsafetyClair
     const imageName = nextProps.imageName
+    const { formatMessage } = this.props.intl
     const tag = nextProps.tag
     if(tag !== this.props.tag || nextProps.inherwidth !== 3){
       this.setState({
@@ -1117,7 +1117,7 @@ function mapStateToProps(state,props){
 export default connect(mapStateToProps, {
   loadMirrorSafetyScan,
   loadMirrorSafetyChairinfo
-})(SoftwarePackage)
+})(injectIntl(SoftwarePackage, {withRef: true}))
 
 //  {/*<div className='softwarePackageTableTitleright'>*/}
 //{/*<Input.Group style={{ width: '200px', marginRight: '35px' }}>*/}

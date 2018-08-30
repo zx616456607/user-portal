@@ -59,7 +59,17 @@ export const mapData = {
     revision: '当前版本',
     layerInfo: '位于镜像层',
     thereIsNoBug: '暂未扫描出任何漏洞',
-    imageBug: '镜像漏洞'
+    imageBug: '镜像漏洞',
+    foundBug: '镜像安全扫描检测到 {total} 个漏洞，补丁为 {patchTotal} 个漏洞',
+    errMsg: '[ {name} ] 镜像的 [ {tag} ] {msg}',
+    scanning: '正在扫描尚未结束',
+    reload: '点击重新获取',
+    scanFailure: '扫描失败，请重新扫描',
+    hasNotBeenScanned: '镜像没有被扫描过',
+    toScan: '点击扫描',
+    hasNotAndReload: '镜像没有被扫描过，请点击扫描',
+    differentResult: '镜像扫描结果与上次扫描结果不同',
+    reScan: '重新扫描'
   }
 }
 
