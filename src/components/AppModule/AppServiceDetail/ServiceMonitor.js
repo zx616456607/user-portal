@@ -413,7 +413,9 @@ class ServiceMonitior extends Component {
                 getTooltipContainer={() => document.getElementById('popover-wrapper')}
               >
                 <span className="themeColor pointer">
-                  <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject)}</span>
+                  <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject, {
+                    length: 'checkedKeys.length'
+                  })}</span>
                 </span>
               </Popover>
             </Col>
