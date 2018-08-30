@@ -20,6 +20,8 @@ import classNames from 'classnames'
 import { appEnvCheck } from '../../../../common/naming_validation'
 import { getSecrets } from '../../../../actions/secrets'
 import './style/AdvancedSetting.less'
+import intlMsg from './AdvancedSettingIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -93,10 +95,10 @@ const AdvancedSetting = React.createClass({
     if (!value) {
       return callback()
     }
-    const { form } = this.props
+    const { form, intl: { formatMessage } } = this.props
     const { setFieldsValue, getFieldValue } = form
     const envKeys = getFieldValue('envKeys') || []
-    let errorMsg = appEnvCheck(value, '环境变量')
+    let errorMsg = appEnvCheck(value, formatMessage(intlMsg.envVar))
     if (this.existKey && this.existKey.value !== currentKey.value) {
       form.validateFields([ `envName${this.existKey.value}` ], { force: true })
       this.existKey = null
@@ -117,7 +119,7 @@ const AdvancedSetting = React.createClass({
       })
       if (isExist) {
         this.existKey = currentKey
-        return callback(`键 ${value} 已存在`)
+        return callback(formatMessage(intlMsg.keyExist, { value }))
       }
       return callback()
     }
@@ -127,7 +129,7 @@ const AdvancedSetting = React.createClass({
     if (key.deleted) {
       return
     }
-    const { form, secretsOptions } = this.props
+    const { form, secretsOptions, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue, resetFields } = form
     const keyValue = key.value
     const envNameKey = `envName${keyValue}`
@@ -135,7 +137,7 @@ const AdvancedSetting = React.createClass({
     const envValueKey = `envValue${keyValue}`
     const envNameProps = getFieldProps(envNameKey, {
       rules: [
-        { required: true, message: '请填写键' },
+        { required: true, message: formatMessage(intlMsg.plsIptKey) },
         { validator: this.checkEnv.bind(this, key) },
       ],
     })
@@ -160,15 +162,15 @@ const AdvancedSetting = React.createClass({
         style={{ width: 80 }}
         size="default"
       >
-        <Option value="normal">普通变量</Option>
-        <Option value="secret">加密变量</Option>
+        <Option value="normal"><FormattedMessage {...intlMsg.normalVar}/></Option>
+        <Option value="secret"><FormattedMessage {...intlMsg.cryptographicVar}/></Option>
       </Select>
     )
     return (
       <Row className="configItem" key={`configItem${keyValue}`}>
         <Col span={8}>
           <FormItem>
-            <Input size="default" disabled={key.disabled} placeholder="请填写键" {...envNameProps} />
+            <Input size="default" disabled={key.disabled} placeholder={formatMessage(intlMsg.plsIptKey)} {...envNameProps} />
           </FormItem>
         </Col>
         <Col span={12}>
@@ -176,7 +178,7 @@ const AdvancedSetting = React.createClass({
             <Input
               size="default"
               disabled={key.disabled}
-              placeholder="请填写值"
+              placeholder={formatMessage(intlMsg.plsIptValue)}
               {...envValueProps}
               addonBefore={selectBefore}
             />
@@ -189,14 +191,14 @@ const AdvancedSetting = React.createClass({
               <Cascader
                 size="default"
                 {...envValueProps}
-                placeholder="请选择加密对象"
+                placeholder={formatMessage(intlMsg.plsSlcCryptoObj)}
                 options={secretsOptions}
               />
             </FormItem>
           </span>
         </Col>
         <Col span={4}>
-          <Tooltip title="删除">
+          <Tooltip title={formatMessage(intlMsg.delete)}>
             <Button
               className="deleteBtn"
               type="dashed"
@@ -216,7 +218,7 @@ const AdvancedSetting = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, intl: { formatMessage } } = this.props
     const { getFieldValue } = form
     const envKeys = getFieldValue('envKeys') || []
     const header = (
@@ -224,10 +226,10 @@ const AdvancedSetting = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">环境变量</span>
+            <span className="title"><FormattedMessage {...intlMsg.envVar}/></span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">您可以在这里修改环境变量配置</div>
+            <div className="desc"><FormattedMessage {...intlMsg.uEditEnvVar}/></div>
           </Col>
         </Row>
       </div>
@@ -238,11 +240,11 @@ const AdvancedSetting = React.createClass({
           <Panel header={header} key="1">
             <Row>
               <Col span={formItemLayout.labelCol.span} className="formItemLabel">
-                环境变量
+                <FormattedMessage {...intlMsg.envVar}/>
                 <div className="tips">
-                  加密变量&nbsp;
+                  <FormattedMessage {...intlMsg.cryptographicVar}/>&nbsp;
                   <a>
-                    <Tooltip title="加密变量将通过读取加密配置 Secret 的方式，将需要加密的变量映射至对应键，如：变量键为 DB_PASSWD 值选择加密变量 Token/passwd 则映射结果为 DB_PASSWD:[Token/passwd 的值]">
+                    <Tooltip title={formatMessage(intlMsg.cryptographicVarTip)}>
                       <Icon type="question-circle-o" />
                     </Tooltip>
                   </a>
@@ -252,20 +254,20 @@ const AdvancedSetting = React.createClass({
                 <div className="envConfig">
                   <Row className="configHeader">
                     <Col span={8}>
-                      键
+                      <FormattedMessage {...intlMsg.key}/>
                     </Col>
                     <Col span={12}>
-                      值
+                      <FormattedMessage {...intlMsg.value}/>
                     </Col>
                     <Col span={4}>
-                      操作
+                      <FormattedMessage {...intlMsg.act}/>
                     </Col>
                   </Row>
                   <div className="configBody">
                     {envKeys.map(this.renderEnvItem)}
                     <span className="addEnv" onClick={this.addEnvKey}>
                       <Icon type="plus-circle-o" />
-                      <span>添加环境变量</span>
+                      <span><FormattedMessage {...intlMsg.addEnvVar}/></span>
                     </span>
                   </div>
                 </div>
@@ -279,6 +281,7 @@ const AdvancedSetting = React.createClass({
 })
 
 function mapStateToProps(state, props) {
+  console.log('mmmm', props)
   const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
@@ -298,7 +301,7 @@ function mapStateToProps(state, props) {
   if (secretsOptions.length === 0) {
     secretsOptions.push({
       value: 'empty',
-      label: '无加密对象',
+      label: props.intl.formatMessage(intlMsg.noCryptoObj),
       disabled: true,
     })
   }
@@ -311,4 +314,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getSecrets,
-})(AdvancedSetting)
+})(injectIntl(AdvancedSetting, {
+  withRef: true,
+}))

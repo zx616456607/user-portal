@@ -42,6 +42,7 @@ import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
 import ServiceMesh from './ServiceMesh'
 import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
+import { injectIntl } from 'react-intl'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -835,6 +836,7 @@ let ConfigureService = React.createClass({
           AdvancedSettingKey={AdvancedSettingKey}
           form={form}
           formItemLayout={formItemLayout}
+          intl={this.props.intl}
           key="advanced"
         />
       </QueueAnim>
@@ -914,4 +916,6 @@ ConfigureService = connect(mapStateToProps, {
   appTemplateNameCheck
 })(ConfigureService)
 
-export default ConfigureService
+export default injectIntl(ConfigureService, {
+  withRef: true,
+})
