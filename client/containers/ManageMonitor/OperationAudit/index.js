@@ -209,6 +209,7 @@ const formatResourceName = (resourceName, resourceId) => {
 }
 // 转换对象及类型中的类型
 const formatTypeName = (code, data) => {
+
   for (const v of data) {
     if (code === v.id) {
       return v.name
@@ -223,7 +224,6 @@ const formatTypeName = (code, data) => {
             if (code === j.id) {
               return j.name
             }
-
           }
         }
       }
@@ -481,18 +481,18 @@ class OperationalAudit extends React.Component {
         title: '对象及类型',
         width: '30%',
         render: (val, row) => {
-
+          let resourceConfig
           try {
             JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.operationType)
+            resourceConfig = JSON.parse(row.resourceConfig)
           } catch (e) {
-
             row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }
           return <div>
             <div>类型：{formatTypeName(row.resourceType, filterData)}</div>
-            <div>对象：{row.resourceName}</div>
+            <div>对象：{row.resourceName || resourceConfig && resourceConfig.origin_id}</div>
           </div>
         },
 

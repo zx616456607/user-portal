@@ -125,8 +125,10 @@ class MySpace extends Component {
     logs.logs.records.forEach(item => {
       if (!item.operationType) return
       if (index > 5) return
+      let resourceConfig
       try {
         item.resourceName = formatResourceName(item.resourceName, item.resourceId)
+        resourceConfig = JSON.parse(item.resourceConfig)
       } catch (e) {
         // do nothing
       }
@@ -135,7 +137,8 @@ class MySpace extends Component {
         return ele.push(
           <Timeline.Item>
             <div className="logItem">
-              <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
+              <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''}
+              ${item.resourceName || resourceConfig && resourceConfig.origin_id}`}</div>
               <div className="logInf">
                 {calcuDate(item.time)}
                 <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
