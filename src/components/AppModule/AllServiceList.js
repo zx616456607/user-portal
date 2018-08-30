@@ -335,6 +335,7 @@ const MyComponent =  injectIntl(React.createClass({
     },500)
   },
   renderGroupIcon(group){
+    const { formatMessage } = this.props.intl
     if(!group || !group.id || group.type == 'none'){
       return <span></span>
     }
@@ -358,6 +359,7 @@ const MyComponent =  injectIntl(React.createClass({
     }
   },
   renderLBIcon() {
+    const { formatMessage } = this.props.intl
     return (
       <Tooltip title={formatMessage(AllServiceListIntl.serviceloadBalance)}>
         <span className='standrand privateColor'>lb</span>

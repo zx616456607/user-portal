@@ -23,6 +23,8 @@ import { STANDARD_MODE } from '../../../../configs/constants'
 import moment from 'moment'
 import merge from 'lodash/merge'
 import NotificationHandler from '../../../components/Notification'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -45,10 +47,11 @@ class AppServiceLog extends Component {
   }
   componentWillMount() {
     const { cluster, serviceName, loggingEnabled } = this.props
+    const { formatMessage } = this.props.intl
     const self = this
     if (!loggingEnabled) {
       let notification = new NotificationHandler()
-      notification.warn('尚未安装日志服务，无法查看日志')
+      notification.warn(formatMessage(AppServiceDetailIntl.noInstallLogService))
       return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
@@ -125,6 +128,7 @@ class AppServiceLog extends Component {
      this.changeCurrentDate(new Date(), true, nextProps.cluster, nextProps.serviceName)
   }
   moutseRollLoadLogs() {
+    const { formatMessage } = this.props.intl
     if (!this.state.useGetLogs) return
     if (this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
     this.setState({
@@ -136,7 +140,7 @@ class AppServiceLog extends Component {
     const scrollBottom = this.infoBox.scrollBottom
     if (!this.props.loggingEnabled) {
       let notification = new NotificationHandler()
-      notification.warn('尚未安装日志服务，无法查看日志')
+      notification.warn(formatMessage(AppServiceDetailIntl.noInstallLogService))
       return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
@@ -176,6 +180,7 @@ class AppServiceLog extends Component {
     })
   }
   changeCurrentDate(date, refresh, tcluster, tserviceName) {
+    const { formatMessage } = this.props.intl
     if (!date) return
     const cluster = tcluster || this.props.cluster
     const serviceName = tserviceName || this.props.serviceName
@@ -192,7 +197,7 @@ class AppServiceLog extends Component {
     this.props.clearServiceLogs(cluster, serviceName)
     if (!this.props.loggingEnabled) {
       let notification = new NotificationHandler()
-      notification.warn('尚未安装日志服务，无法查看日志')
+      notification.warn(formatMessage(AppServiceDetailIntl.formatMessage))
       return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
@@ -240,19 +245,20 @@ class AppServiceLog extends Component {
   }
   getLogs() {
     const { cluster } = this.props
+    const { formatMessage } = this.props.intl
     const { serviceLogs } = this.state
     const clusterLogs = serviceLogs[cluster]
     if (!clusterLogs ) {
-      return '无日志'
+      return formatMessage(AppServiceDetailIntl.noLog)
     }
     if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     if(!clusterLogs.logs){
-      return '无日志'
+      return formatMessage(AppServiceDetailIntl.noLog)
     }
     const logs = clusterLogs.logs.data
-    if (!logs || logs.length <= 0) return '无日志'
+    if (!logs || logs.length <= 0) return formatMessage(AppServiceDetailIntl.noLog)
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
     function spellTimeLogs(time, log) {
@@ -327,6 +333,7 @@ class AppServiceLog extends Component {
   }
    collectLogsTemplate(){
     const { serviceDetail, serviceName } = this.props
+    const { formatMessage } = this.props.intl
     let applog = {}
     let url = ''
     if(serviceDetail &&　serviceDetail.spec &&　serviceDetail.spec.template && serviceDetail.spec.template.metadata && serviceDetail.spec.template.metadata.annotations && serviceDetail.spec.template.metadata.annotations.applogs){
@@ -339,19 +346,19 @@ class AppServiceLog extends Component {
     return <div>
       <div className='info'>
         <Row className='rowStyle'>
-          <Col span={6}>来源类型</Col>
-          <Col span={18}>{applog.path ? '目录' : '不采集'}</Col>
+          <Col span={6}>{formatMessage(AppServiceDetailIntl.sourceType)}</Col>
+          <Col span={18}>{applog.path ? formatMessage(AppServiceDetailIntl.catalogue) : formatMessage(AppServiceDetailIntl.gather)}</Col>
         </Row>
         <Row className='rowStyle'>
-          <Col span={6}>日志目录</Col>
+          <Col span={6}>{formatMessage(AppServiceDetailIntl.logCatalogue)}</Col>
           <Col span={18}>{applog.path || '--'}</Col>
         </Row>
         <Row className='rowStyle'>
-          <Col span={6}>采集规则</Col>
+          <Col span={6}>{formatMessage(AppServiceDetailIntl.gatherRule)}</Col>
           <Col span={18}>{applog.inregex || '--'}</Col>
         </Row>
         <Row className='rowStyle'>
-          <Col span={6}>排除规则</Col>
+          <Col span={6}>{formatMessage(AppServiceDetailIntl.exclusiveRule)}</Col>
           <Col span={18}>{applog.exregex || '--'}</Col>
         </Row>
       </div>
@@ -359,7 +366,7 @@ class AppServiceLog extends Component {
         applog.path
           ? <div className="footer">
             <span onClick={() => browserHistory.push(url)}>
-              日志查询>>
+              {formatMessage(AppServiceDetailIntl.logSearch)}>>
             </span>
         </div>
           : null
@@ -367,11 +374,12 @@ class AppServiceLog extends Component {
     </div>
   }
   render() {
+    const { formatMessage } = this.props.intl
     return (
       <div id="AppServiceLog">
         <div className='body'>
           <Tabs type="card" className='logTabs'>
-            <TabPane key="0" tab="标准日志">
+            <TabPane key="0" tab={formatMessage(AppServiceDetailIntl.standardLog)}>
               <div className={ this.state.logSize == 'large' ? "largeBox bottomBox" : "bottomBox"}>
                 <div className="introBox">
                   <div className="operaBox">
@@ -391,7 +399,7 @@ class AppServiceLog extends Component {
                 <div style={{ clear: "both" }}></div>
               </div>
             </TabPane>
-            <TabPane key="1" tab="采集日志">
+            <TabPane key="1" tab={formatMessage(AppServiceDetailIntl.gatherLog)}>
               <div className='collectLogs'>
                 { this.collectLogsTemplate() }
               </div>
@@ -451,11 +459,11 @@ function mapStateToProps(state, props) {
     loggingEnabled: loggingEnabled
   }
 }
-AppServiceLog = connect(mapStateToProps, {
+AppServiceLog = injectIntl(connect(mapStateToProps, {
   loadServiceLogs,
   clearServiceLogs,
   throwError,
   loadContainerDetailEvents,
-})(AppServiceLog)
+})(AppServiceLog), { withRef: true, })
 
 export default AppServiceLog

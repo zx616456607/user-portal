@@ -2300,7 +2300,7 @@ class Ordinary extends Component {
             </Card>
           </Col>
         </Row>
-        <MySpace spaceName={spaceName} />
+        <MySpace intl={intl} spaceName={spaceName} />
       </div>
     )
   }

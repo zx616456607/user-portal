@@ -19,7 +19,7 @@ export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
 function _setCurrent(current, callback, _current) {
   current = Object.assign({}, cloneDeep(_current), current)
-  const config = getCookie(USER_CURRENT_CONFIG)
+  const config = getCookie(USER_CURRENT_CONFIG) || ''
   let [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
   if (current.team) {
     teamID = current.team.teamID

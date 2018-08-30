@@ -626,7 +626,7 @@ let MyComponent = React.createClass({
       if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
       const dropdown = (
         <Menu style={{width:'100px'}} onClick={()=> this.editPort(item, index)}>
-          <Menu.Item key="1"><Icon type="edit" /> &nbsp;{formatMessage(ServiceCommonIntl.eidt)}</Menu.Item>
+          <Menu.Item key="1"><Icon type="edit" /> &nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
         </Menu>
       )
       const actionText = (
