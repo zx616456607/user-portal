@@ -12,12 +12,14 @@ import { Card, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, parseAmount} from '../../../common/tools.js'
 import './style/AppServiceDetailInfo.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './AppServiceRentalIntl'
 
 class AppServiceRental extends Component {
   constructor(props) {
     super(props);
   }
-  formetCpuMemory(memory) {
+  formetCpuMemory(memory, formatMessage) {
     if(Boolean(memory)) {
       switch(memory) {
         case '1Gi':
@@ -31,7 +33,7 @@ class AppServiceRental extends Component {
         case '16Gi':
           return '2CPU/16G';
         default:
-          return '1CPU（共享）/512Mi';
+          return `1CPU（${formatMessage(intlMsg.allShare)}）/512Mi`;
       }
     } else {
       return '-';
@@ -67,7 +69,7 @@ class AppServiceRental extends Component {
     return price
   }
   render() {
-    const { serviceDetail, resourcePrice } = this.props
+    const { serviceDetail, resourcePrice, intl: { formatMessage } } = this.props
     if (!resourcePrice) {
       return (
         <div className='loadingBox'>
@@ -78,7 +80,7 @@ class AppServiceRental extends Component {
     if (!serviceDetail[0] || !serviceDetail[0].spec){
       return(
         <div className='loadingBox' style={{clear:'both',background:'white'}}>
-        无
+          <FormattedMessage {...intlMsg.none}/>
         </div>
         )
       }
@@ -91,9 +93,9 @@ class AppServiceRental extends Component {
         return(
           <tr key={index}>
             <td>{list.metadata.name}</td>
-            <td>{this.formetCpuMemory(memory)}</td>
+            <td>{this.formetCpuMemory(memory, formatMessage)}</td>
             <td>{list.spec.replicas}</td>
-            <td>{this.formetPrice(memory) /10000 } {countPrice.unit == '￥' ? '元': ' T'}/小时</td>
+            <td>{this.formetPrice(memory) /10000 } {countPrice.unit == '￥' ? formatMessage(intlMsg.rmbYuan): ' T'}/{formatMessage(intlMsg.hour)}</td>
           </tr>
         )
     })
@@ -101,7 +103,7 @@ class AppServiceRental extends Component {
     return (
       <div id="AppServiceDetailInfo" className="ant-card AppServiceRental">
         <div className="info">
-          <span className="titleSpan">租赁信息</span>
+          <span className="titleSpan"><FormattedMessage {...intlMsg.rentInfo}/></span>
           {/*<div className="starts">
             <p><Icon type="clock-circle-o" /> 开始计费：2016.12.12. 15：50</p>
             <p><Icon type="clock-circle-o" /> 停止计费：2016.12.22. 15：50</p>
@@ -109,18 +111,18 @@ class AppServiceRental extends Component {
           </div>
           */}
           <div className="dataBox">
-            <div className="priceCount">合计价格：
+            <div className="priceCount"><FormattedMessage {...intlMsg.allPrice}/>：
               <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
-              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': ' T' }/小时</span>
-              <span className="unit" style={{marginLeft:'10px'}}>（约：{ countPrice.fullAmount }/月）</span>
+              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': ' T' }/{formatMessage(intlMsg.hour)}</span>
+              <span className="unit" style={{marginLeft:'10px'}}>（{formatMessage(intlMsg.aboutPrice, { price: countPrice.fullAmount })}）</span>
             </div>
             <table className="table">
               <thead>
                 <tr>
-                  <th>名称</th>
-                  <th>计算（CPU/内存）</th>
-                  <th>数量</th>
-                  <th>单价</th>
+                  <th><FormattedMessage {...intlMsg.name}/></th>
+                  <th><FormattedMessage {...intlMsg.computeCpuMemory}/></th>
+                  <th><FormattedMessage {...intlMsg.number}/></th>
+                  <th><FormattedMessage {...intlMsg.perPrice}/></th>
                 </tr>
               </thead>
               <tbody>
@@ -145,4 +147,6 @@ function mapStateToProps(state) {
    }
 }
 
-export default connect(mapStateToProps)(AppServiceRental)
+export default connect(mapStateToProps)(injectIntl(AppServiceRental, {
+  withRef: true,
+}))
