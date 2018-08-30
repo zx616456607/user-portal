@@ -18,6 +18,7 @@ import { connect } from 'react-redux'
 import NotificationHandler from '../../../../components/Notification'
 import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 import mirrorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
+import detailIndexIntl from './intl/detailIndexIntl'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -800,7 +801,7 @@ class TableTemplate extends Component{
     )
   }
 }
-
+TableTemplate = injectIntl(TableTemplate, {withRef: true})
 class MirrorSafetyBug extends Component {
   constructor(props){
     super(props)
@@ -822,7 +823,6 @@ class MirrorSafetyBug extends Component {
       clairFailed: false
     }
   }
-
   NodataTemplateSafetyBug(){
     const { mirrorScanstatus, imageName, tag } = this.props
     return (
@@ -858,6 +858,7 @@ class MirrorSafetyBug extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
+    const { formatMessage } = this.props.intl
     const config = {
       cluster_id,
       imageName,
@@ -905,7 +906,7 @@ class MirrorSafetyBug extends Component {
       failed:{
         func: (res) => {
           this.setState({clairFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag: tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync: true
@@ -927,6 +928,7 @@ class MirrorSafetyBug extends Component {
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    const { formatMessage } = this.props.intl
     if(statusCode && statusCode == 500){
       return <div>{message}</div>
     }
@@ -934,35 +936,36 @@ class MirrorSafetyBug extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning' data-status="running">
-            <div className="top">正在扫描尚未结束</div>
+            <div className="top">{formatMessage(mirrorSafetyBugIntl.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.loading}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.loading}>{formatMessage(mirrorSafetyBugIntl.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} callback={this.sendObjectToTop} tag={tag} inherwidth={inherwidth}/>
         case 'failed':
           return <div className="BaseScanFailed" data-status="clair">
-            <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击重新获取</Button>
+            <div className='top'>{formatMessage(mirrorSafetyBugIntl.scanFailure)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed" data-status="nojob">
-            <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击扫描</Button>
+            <div className="top">{formatMessage(mirrorSafetyBugIntl.hasNotBeenScanned)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.toScan)}</Button>
           </div>
       }
     }
   }
 
   handlemirrorScanstatusSatus(status){
+    const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>镜像没有被扫描过，请点击扫描</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.hasNotAndReload)}</span>
       case 'different':
-        return <span>镜像扫描结果与上次扫描结果不同</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.differentResult)}</span>
       case 'failed':
-        return <span>扫描失败，请重新扫描</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.scanFailure)}</span>
       default:
         return <span></span>
     }
@@ -970,6 +973,7 @@ class MirrorSafetyBug extends Component {
 
   render(){
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair} = this.props
+    const { formatMessage } = this.props.intl
     let statusCode = 200
     let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
@@ -986,7 +990,7 @@ class MirrorSafetyBug extends Component {
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>重新扫描</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.reScan)}</Button>
           </div>
         )
       }else{
