@@ -93,8 +93,8 @@ const MyComponent = React.createClass({
         const image = currentImages[0] && currentImages[0].to || ''
         isNew = image === imageArray[0]
       }
-      const ipv4Arr = item.metadata.annotations.hasOwnProperty(['cni.projectcalico.org/ipv4pools'])
-        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+      const ipv4Arr = item.metadata.annotations.hasOwnProperty(['cni.projectcalico.org/ipAddrs'])
+        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipAddrs'])
       let lockItem = null
       ipv4Arr && ipv4Arr.forEach(item => {
         if (item === status.podIP) lockItem = true
