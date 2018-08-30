@@ -281,7 +281,6 @@ const AdvancedSetting = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  console.log('mmmm', props)
   const { entities, secrets } = state
   const { current } = entities
   const { cluster } = current
