@@ -2416,5 +2416,20 @@
   "AppModule.AppServiceDetail.AppServiceRental.number": "数量",
   "AppModule.AppServiceDetail.AppServiceRental.perPrice": "单价",
   "AppModule.AppServiceDetail.AppServiceRental.rmbYuan": "元",
-  "AppModule.AppServiceDetail.AppServiceRental.none": "无"
+  "AppModule.AppServiceDetail.AppServiceRental.none": "无",
+  "AppModule.QuickCreateApp.AdvanceSetting.envVar": "环境变量",
+  "AppModule.QuickCreateApp.AdvanceSetting.uEditEnvVar": "您可以在这里修改环境变量配置",
+  "AppModule.QuickCreateApp.AdvanceSetting.cryptographicVar": "加密变量",
+  "AppModule.QuickCreateApp.AdvanceSetting.cryptographicVarTip": "加密变量将通过读取加密配置 Secret 的方式，将需要加密的变量映射至对应键，如：变量键为 DB_PASSWD 值选择加密变量 Token/passwd 则映射结果为 DB_PASSWD:[Token/passwd 的值]",
+  "AppModule.QuickCreateApp.AdvanceSetting.key": "键",
+  "AppModule.QuickCreateApp.AdvanceSetting.value": "值",
+  "AppModule.QuickCreateApp.AdvanceSetting.act": "操作",
+  "AppModule.QuickCreateApp.AdvanceSetting.addEnvVar": "添加环境变量",
+  "AppModule.QuickCreateApp.AdvanceSetting.plsIptKey": "请填写键",
+  "AppModule.QuickCreateApp.AdvanceSetting.normalVar": "普通变量",
+  "AppModule.QuickCreateApp.AdvanceSetting.plsIptValue": "请填写值",
+  "AppModule.QuickCreateApp.AdvanceSetting.plsSlcCryptoObj": "请选择加密对象",
+  "AppModule.QuickCreateApp.AdvanceSetting.delete": "删除",
+  "AppModule.QuickCreateApp.AdvanceSetting.keyExist": "键 {value} 已存在",
+  "AppModule.QuickCreateApp.AdvanceSetting.noCryptoObj": "无加密对象"
 }
