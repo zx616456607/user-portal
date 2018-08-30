@@ -49,6 +49,7 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../client/containers/DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
+import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
@@ -558,7 +559,6 @@ class BaseInfo extends Component {
                       <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
                   }
                 </div>
-
                 <ResourceConfig
                   ref="resourceConfig"
                   toggleComposeType={this.selectComposeType}
@@ -595,7 +595,7 @@ class VisitTypes extends Component{
       disabled:true,
       forEdit: false,
       selectDis: undefined,
-      deleteHint: true,
+      deleteHint: false,
       svcDomain: [],
       copyStatus: false,
       isInternal: false,
@@ -605,7 +605,7 @@ class VisitTypes extends Component{
       groupID:'',
       selectValue: '',
       readOnly: false,
-      isEditAccessAddress: false
+      isEditAccessAddress: false,
     }
   }
   componentWillMount() {
@@ -633,6 +633,12 @@ class VisitTypes extends Component{
         func: (res) => {
           this.setState({
             proxyArr:res[camelize(clusterID)].data
+          }, () =>{
+            const { proxyArr } = this.state
+            this.setState({
+              deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId
+            })
+
           })
         },
         isAsync: true
@@ -712,12 +718,22 @@ class VisitTypes extends Component{
         if (database === 'redis') {
           body = {
             annotations: {
-              'master.system/lbgroup': groupID,
               // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `${groupID}`,
+              'slave.system/lbgroup': `${groupID}`,
             }
           }
         }
-
+      }else {
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `none`,
+              'slave.system/lbgroup': `none`,
+            }
+          }
+        }
       }
 
       const success = {
@@ -863,8 +879,8 @@ class VisitTypes extends Component{
     const { readOnly } = this.state
     const body = {
       annotations: {
-        'master.system/lbgroup': groupID,
-        'slave.system/lbgroup': readOnly? groupID : 'none',
+        'master.system/lbgroup': `${groupID}`,
+        'slave.system/lbgroup': readOnly? `${groupID}` : 'none',
       }
     }
     editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
@@ -899,7 +915,7 @@ class VisitTypes extends Component{
     }
     let domain = ''
     let externalIp = ''
-    proxyArr && proxyArr.every(proxy => {
+    proxyArr.length!== 0 && proxyArr.every(proxy => {
       if (proxy.id === externalIpId) {
         domain = proxy.domain
         externalIp = proxy.address
@@ -907,6 +923,11 @@ class VisitTypes extends Component{
       }
       return true
     })
+    // 出口没匹配到，出口被管理员删除了
+    if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
+      return null
+    }
+
     let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
     let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
     // 普通的出口端口
@@ -923,7 +944,8 @@ class VisitTypes extends Component{
     let externalUrl
     if (externalPort != '') {
       if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+        externalUrl = databaseInfo.service && databaseInfo.service.name + '-'
+          + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
       } else {
         externalUrl = externalIp + ':' + (externalPort || '未知')
       }
@@ -946,12 +968,12 @@ class VisitTypes extends Component{
     }
     const domainList = clusterAdd && clusterAdd.map(item=>{
       return (
-        <dd className="addrList" key={item}>
+        <div className="addrList" key={item}>
           <span className="domain">{item}</span>
           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
             <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item)} onClick={this.copyTest.bind(this)}/>
           </Tooltip>
-        </dd>
+        </div>
       )
     })
     return domainList
@@ -963,8 +985,8 @@ class VisitTypes extends Component{
     const annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
     const name = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
     const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
-    const serviceName = name.split('/')[0];
-    const serviceNameReadOnly = nameReadonly.split('/')[0];
+    const serviceName = name && name.split('/')[0];
+    const serviceNameReadOnly = nameReadonly && nameReadonly.split('/')[0];
     const url = `${serviceName}:${port}`
     const readOnlyUrl = `${serviceNameReadOnly}:${port}`
     return {url, readOnlyUrl}
@@ -1108,7 +1130,10 @@ class VisitTypes extends Component{
                 </Select>
                </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
+              {
+                this.state.deleteHint &&
+                <div className={classNames("inlineBlock deleteHint")}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+              }
             </div>
           </div>
         </div>
@@ -1213,7 +1238,10 @@ class ModalDetail extends Component {
       stopAlertModal: false,
       accessMethodData: null,
       rebootClusterModal: false,
-      rebootLoading: false
+      rebootLoading: false,
+      checkingBackupStatus: false,
+      backupPending: false,
+      backupChecking: false,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1278,6 +1306,33 @@ class ModalDetail extends Component {
           }
         },
       });
+    }
+  }
+  getBackupList = () => {
+    const { cluster, dbName, database, getbackupChain } = this.props
+    this.setState({
+      checkingBackupStatus: true,
+    })
+    if (database === 'redis' || database === 'mysql') {
+      getbackupChain(cluster, database, dbName, {
+        success: {
+          func: res => {
+            this.setState({
+              checkingBackupStatus: false,
+            })
+            let chains = []
+            res.data.items.forEach(v => {chains = chains.concat(v.chains)})
+            chains.forEach(v => {
+              if (v.status === 'Scheduled' ||  v.status === 'Started' || v.status === '202') {
+                this.setState({
+                  backupPending: true
+                })
+                return
+              }
+            } )
+          },
+        },
+      })
     }
   }
   refurbishDetail() {
@@ -1409,6 +1464,7 @@ class ModalDetail extends Component {
     }
   }
   stopAlert = () => {
+    this.getBackupList()
     this.setState({
       stopAlertModal: true
     })
@@ -1501,17 +1557,28 @@ class ModalDetail extends Component {
     return <Modal
       title="重启集群"
       onOk={confirm}
-      confirmLoading={this.state.rebootLoading}
+      confirmLoading={this.state.checkingBackupStatus || this.state.rebootLoading}
       onCancel={() => {
         this.setState({
           rebootClusterModal: false,
-          rebootLoading: false
+          rebootLoading: false,
+          checkingBackupStatus: false
         })
       }}
       visible={this.state.rebootClusterModal}
     >
-      <div>
-        确认重启集群吗？
+      <div className="appServiceDetailRebootAlert">
+        <div>
+          <Icon type="question-circle-o" className="question" />
+          确认重启集群吗？
+        </div>
+        {this.state.backupPending &&
+          <div className="attention">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+            集群存在正在备份状态备份点，重启集群可能导致备份失败，为保证备份数据完整性建议备份完成后再重启集群
+          </div>
+        }
+
       </div>
     </Modal>
   }
@@ -1565,12 +1632,16 @@ class ModalDetail extends Component {
                     {
                       needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
-                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {this.setState({rebootClusterModal: true})}}>
+                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {
+                            this.getBackupList()
+                            this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {this.setState({rebootClusterModal: true})}}>
+                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {
+                          this.getBackupList()
+                          this.setState({rebootClusterModal: true})}}>
                           重启
                         </Button>
                     }
@@ -1734,11 +1805,22 @@ class ModalDetail extends Component {
         <Modal
           visible={this.state.stopAlertModal}
           title="停止数据库与缓存集群"
-          onCancel={() => this.setState({stopAlertModal: false})}
+          onCancel={() => this.setState({
+            stopAlertModal: false,
+            checkingBackupStatus: false,
+          })}
           onOk={this.stopTheCluster}
+          confirmLoading={this.state.checkingBackupStatus}
         >
           <div className="alertContent">
             <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.objectMeta.name}集群？`}
+            {this.state.backupPending &&
+            <div className="attention">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              集群存在正在备份状态备份点，停止集群可能导致备份失败，为保证备份数据完整性建议备份完成后再停止集群
+            </div>
+            }
+
           </div>
         </Modal>
         <Modal
@@ -1799,4 +1881,5 @@ export default connect(mapStateToProps, {
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
+  getbackupChain,
 })(ModalDetail)

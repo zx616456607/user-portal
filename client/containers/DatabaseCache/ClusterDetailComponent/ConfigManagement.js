@@ -136,6 +136,7 @@ class ConfigManagement extends React.Component {
     }
     const { getFieldProps } = this.props.form
     const configContent = getFieldProps('config', {
+      initialValue: this.state.configContent,
       rules: [{
         required: true,
         message: '配置不能为空',
