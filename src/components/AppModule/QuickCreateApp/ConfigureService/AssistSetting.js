@@ -16,6 +16,8 @@ import {
   Tooltip, Button,
 } from 'antd'
 import './style/AssistSetting.less'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -87,7 +89,7 @@ const AssistSetting = React.createClass({
   },
   renderArgs() {
     // const { argsType } = this.state
-    const { form, formItemLayout } = this.props
+    const { form, formItemLayout, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     const argsKeys = getFieldValue('argsKeys') || []
     const argsType = getFieldValue('argsType')
@@ -98,7 +100,13 @@ const AssistSetting = React.createClass({
       const keyValue = key.value
       const argsProps = getFieldProps(`args${keyValue}`, {
         rules: [
-          { required: true, message: '请填写启动命令' },
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.startCommand),
+              end: '',
+            })
+          },
         ],
       })
       return (
@@ -112,7 +120,7 @@ const AssistSetting = React.createClass({
           {
             (argsType !== 'default' && index > 0) && (
               <Col span={3} className="deleteArgs">
-                <Tooltip title="删除">
+                <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
                   <Button
                     type="dashed"
                     size="small"
@@ -138,7 +146,7 @@ const AssistSetting = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form } = this.props
+    const { formItemLayout, form, intl } = this.props
     const { argsType } = this.state
     const { getFieldProps } = form
     const commandProps = getFieldProps('command')
@@ -149,7 +157,10 @@ const AssistSetting = React.createClass({
     const imagePullPolicyProps = getFieldProps('imagePullPolicy', {
       initialValue: 'always',
       rules: [
-        { required: true, message: '请选择重新部署拉取镜像方式' }
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.plsSltImagePullPolicy)
+        }
       ],
     })
     const timeZoneProps = getFieldProps('timeZone', {
@@ -160,10 +171,10 @@ const AssistSetting = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">辅助设置</span>
+            <span className="title">{intl.formatMessage(IntlMessage.assistSetting)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">一些常用的辅助设置：①容器进入点，②启动执行命令，③重新部署所用镜像，④容器时区设置</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.assistSettingTip)}</div>
           </Col>
         </Row>
       </div>
@@ -175,20 +186,23 @@ const AssistSetting = React.createClass({
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 6 }}
-              label="进入点"
+              label={intl.formatMessage(IntlMessage.entryPoint)}
               key="command"
             >
-              <Input {...commandProps} size="large" placeholder="配置容器启动后执行的命令" />
+              <Input
+                {...commandProps} size="large"
+                placeholder={intl.formatMessage(IntlMessage.entryPointPlaceholder)}
+              />
             </FormItem>
             <div className="args">
               <FormItem
                 {...formItemLayout}
-                label="启动命令"
+                label={intl.formatMessage(IntlMessage.startCommand)}
                 key="args"
               >
                 <RadioGroup {...argsTypePorps}>
-                  <Radio value="default">镜像默认</Radio>
-                  <Radio value="DIY">自定义</Radio>
+                  <Radio value="default">{intl.formatMessage(IntlMessage.imageDefault)}</Radio>
+                  <Radio value="DIY">{intl.formatMessage(IntlMessage.customize)}</Radio>
                 </RadioGroup>
               </FormItem>
               <div className="argsList">
@@ -200,7 +214,7 @@ const AssistSetting = React.createClass({
                       <Col>
                         <span onClick={this.addArgs}>
                           <Icon type="plus-circle-o" />
-                          <span>添加一个启动命令</span>
+                          <span>{intl.formatMessage(IntlMessage.addStartCommand)}</span>
                         </span>
                       </Col>
                     </Row>
@@ -210,22 +224,22 @@ const AssistSetting = React.createClass({
             </div>
             <FormItem
               {...formItemLayout}
-              label="重新部署"
+              label={intl.formatMessage(IntlMessage.redeploy)}
               key="imagePullPolicy"
             >
               <RadioGroup {...imagePullPolicyProps}>
-                <Radio value="IfNotPresent">优先使用本地镜像</Radio>
-                <Radio value="Always">始终拉取云端该版本镜像</Radio>
+                <Radio value="IfNotPresent">{intl.formatMessage(IntlMessage.prioritizeLocalImage)}</Radio>
+                <Radio value="Always">{intl.formatMessage(IntlMessage.pullCloudImage)}</Radio>
               </RadioGroup>
             </FormItem>
             <FormItem
               {...formItemLayout}
-              label="时区设置"
+              label={intl.formatMessage(IntlMessage.timeZoneSetting)}
               key="timeZone"
               className="lastFormItem"
             >
-              <Checkbox {...timeZoneProps}>使用所在主机节点的时区</Checkbox>
-              <div className="tips">选中后，可以保证容器始终与其所在的主机节点保持一致</div>
+              <Checkbox {...timeZoneProps}>{intl.formatMessage(IntlMessage.useHostTimeZone)}</Checkbox>
+              <div className="tips">{intl.formatMessage(IntlMessage.timeZoneTip)}</div>
             </FormItem>
           </Panel>
         </Collapse>
@@ -234,4 +248,6 @@ const AssistSetting = React.createClass({
   }
 })
 
-export default AssistSetting
+export default injectIntl(AssistSetting, {
+  withRef: true,
+})

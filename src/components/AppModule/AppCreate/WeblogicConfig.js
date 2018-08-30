@@ -137,7 +137,7 @@ class Weblogic extends React.Component {
             placeholder={intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.port) })}
           />
         </Form.Item>
-        <Form.Item {...formItemLayout} label="用户名">
+        <Form.Item {...formItemLayout} label={intl.formatMessage(IntlMessage.username)}>
           <Input
             size="large" {...userNameProps} autoComplete="off"
             placeholder={intl.formatMessage(IntlMessage.pleaseEnter, { item: intl.formatMessage(IntlMessage.username) })}
