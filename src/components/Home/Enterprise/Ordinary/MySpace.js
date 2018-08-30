@@ -149,7 +149,8 @@ class MySpace extends Component {
       }
       ele.push(<Timeline.Item >
         <div className="logItem">
-          <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''} ${item.resourceName}`}</div>
+          <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''}
+           ${item.resourceName || resourceConfig && resourceConfig.origin_id}`}</div>
           <div className="logInf">
             {calcuDate(item.time)}
             <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
