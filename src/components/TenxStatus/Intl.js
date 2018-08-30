@@ -17,7 +17,7 @@ import { defineIntlMessages } from "../../common/tools"
 export const mapData = {
   prefix: 'TenxStatus',
   data: {
-    AppReplicasMsg: '共{total}个~~~服务',
+    AppReplicasMsg: '共{total}个服务',
   }
 }
 
