@@ -16,6 +16,8 @@ import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../client/util/util'
 import * as projectActions from '../../../actions/serviceMesh'
 import './style/ServiceMeshSwitch.less'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const mapStatetoProps = (state) => {
   // const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
@@ -27,11 +29,7 @@ const mapStatetoProps = (state) => {
     msaConfig, clusterId, namespace, userName
   })
 }
-@connect(mapStatetoProps, {
-  checkClusterIstio: projectActions.checkClusterIstio,
-  ToggleAPPMesh: projectActions.ToggleAPPMesh,
-})
-export default class ServiceMeshSwitch extends React.Component {
+class ServiceMeshSwitch extends React.Component {
   state = {
     ServiceMeshSwitch: false,
     checked: false,
@@ -78,11 +76,12 @@ export default class ServiceMeshSwitch extends React.Component {
   }
   renderMesh() {
     const { userrole } = this.state
+    const { formatMessage } = this.props.intl
     if (userrole === 1){
-      return <span className="infoText">当前平台未配置微服务治理套件，请联系基础设施管理员配置</span>
+      return <span className="infoText">{formatMessage(AppServiceDetailIntl.currentPlatformNoConfigInfo)}</span>
     }
     if (userrole === 2) {
-      return <span className="infoText">当前集群未安装 istio，请联系基础设施管理员安装</span>
+      return <span className="infoText">{formatMessage(AppServiceDetailIntl.currentPlatformNoInstallIstio)}</span>
     }
     return null;
   }
@@ -90,28 +89,32 @@ export default class ServiceMeshSwitch extends React.Component {
     let { initialSwitchValue } = this.props;
     const { checked, loading, switchValue, userrole } = this.state;
     initialSwitchValue = false;
+    const { formatMessage } = this.props.intl
     return (
       <div className="ServiceMeshSwitch">
       <Card>
         <TenxPage>
-          <div className="titleSpan">服务网格</div>
+          <div className="titleSpan">{formatMessage(AppServiceDetailIntl.serviceMesh)}</div>
           {this.renderMesh()}
           { (userrole === 6 || userrole === 5) &&
           <div>
-            <div className={classNames("editTip",{'hide' : !checked})}>修改尚未更新，请点击"应用修改"使之生效</div>
+            <div className={classNames("editTip",{'hide' : !checked})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
             <div className="operationWrap">
               <Button type="primary" disabled={!checked} onClick={this.buttonClick} loading={loading}>
-                应用修改
+                {formatMessage(AppServiceDetailIntl.appChange)}
               </Button>
               <div style={{ display: 'flex' }}>
               <div style={{ width: '50px'}}>
-              <Switch checkedChildren="开" unCheckedChildren="关" key="switch" checked={switchValue}
+              <Switch
+                checkedChildren={formatMessage(ServiceCommonIntl.open)}
+                unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
+                key="switch" checked={switchValue}
                 onChange={this.onChange}/>
               </div>
               {
                 switchValue === false ?
-                <span style={{ lineHeight: '24px' }}>开通后， 此服务将由服务网格代理，使用微服务中心提供的治理功能</span> :
-                <span style={{ lineHeight: '24px'}}>当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能</span>
+                <span style={{ lineHeight: '24px' }}>{formatMessage(AppServiceDetailIntl.afterOpenServiceInfo)}</span> :
+                <span style={{ lineHeight: '24px'}}>{formatMessage(AppServiceDetailIntl.projectOpenServiceMeshInfo)}</span>
               }
               </div>
             </div>
@@ -123,3 +126,8 @@ export default class ServiceMeshSwitch extends React.Component {
     )
   }
 }
+
+export default injectIntl(connect(mapStatetoProps, {
+  checkClusterIstio: projectActions.checkClusterIstio,
+  ToggleAPPMesh: projectActions.ToggleAPPMesh,
+})(ServiceMeshSwitch), { withRef: true, })
