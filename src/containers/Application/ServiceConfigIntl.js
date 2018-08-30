@@ -327,17 +327,5 @@ const messageObj = {
     secretFile: '加密对象',
   }
 }
-const mapIntlDataToJson = mapDatList => {
-  const d = {}
-  mapDatList.map(({ data, prefix }) => {
-    // l.prefix l.data
-    for (let [ k,v ] of Object.entries(data)) {
-      d[`${prefix}.${k}`] = v
-    }
-  })
-  return JSON.stringify(d, null, 2)
-}
-console.log(
-  mapIntlDataToJson([ messageObj ])
-)
+
 export default defineIntlMessages(messageObj)
