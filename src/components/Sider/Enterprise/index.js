@@ -1128,7 +1128,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='alarm_group'>
                     <Link to='/manange_monitor/alarm_group'>
-                      <div className='sideCircle'></div> 告警通知组
+                      <span><div className='sideCircle'></div> 告警通知组</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
