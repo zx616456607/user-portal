@@ -16,6 +16,7 @@ export const mapData = {
   prefix: 'AppCenter.ImageCenter.ServiceApi',
   data: {
     noRevision: '暂无修正版',
+    revisionTxt: '修正版',
     accessVectorArr1: '',
     accessVectorArr2: '网络',
     accessVectorArr3: '相邻网络',
