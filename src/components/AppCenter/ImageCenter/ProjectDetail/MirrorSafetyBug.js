@@ -18,6 +18,7 @@ import { connect } from 'react-redux'
 import NotificationHandler from '../../../../components/Notification'
 import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 import mirrorSafetyBugIntl from './intl/mirrorSafetyBugIntl'
+import detailIndexIntl from './intl/detailIndexIntl'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -175,6 +176,7 @@ class TableTemplate extends Component{
 
   tableDatasource(){
     const { mirrorsafetyClair, mirrorLayeredinfo, imageName, tag } = this.props
+    const { formatMessage } = this.props.intl
     let tabledatasource = []
     if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorLayeredinfo[imageName][tag].result){
       return tabledatasource = []
@@ -223,7 +225,7 @@ class TableTemplate extends Component{
 
           // 修正版
           if(!clairFixedIn){
-            RVersion = '暂无修正版'
+            RVersion = formatMessage(mirrorSafetyBugIntl.noRevision)
           }else{
             for(let keyFix in clairFixedIn){
               let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
@@ -233,7 +235,7 @@ class TableTemplate extends Component{
                 break
               }
               if(RVersion == '' ){
-                RVersion = '暂无修正版'
+                RVersion = formatMessage(mirrorSafetyBugIntl.noRevision)
               }
             }
           }
@@ -297,7 +299,7 @@ class TableTemplate extends Component{
 
           // 修正版
           if(!clairFixedIn){
-            RVersion = '暂无修正版'
+            RVersion = formatMessage(mirrorSafetyBugIntl.noRevision)
           }else{
             for(let keyFix in clairFixedIn){
               let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
@@ -307,7 +309,7 @@ class TableTemplate extends Component{
                 break
               }
               if(RVersion == '' ){
-                RVersion = '暂无修正版'
+                RVersion = formatMessage(mirrorSafetyBugIntl.noRevision)
               }
             }
           }
@@ -411,36 +413,35 @@ class TableTemplate extends Component{
 
   tableSub(object){
     const data = object || {}
-
-    const accessVectorArr = ['','网络','相邻网络','本地']
+    const { formatMessage } = this.props.intl
+    const accessVectorArr = ['',formatMessage(mirrorSafetyBugIntl.accessVectorArr2),formatMessage(mirrorSafetyBugIntl.accessVectorArr3),formatMessage(mirrorSafetyBugIntl.accessVectorArr4)]
     function accessVectorFun(data,text){
       if(Object.keys(data).length !== 0){
         const value = accessVectorArr[data.accessVector]
-        if( value == '网络' && value == text){
+        if( value == formatMessage(mirrorSafetyBugIntl.accessVectorArr2) && value == text){
           return 'red'
         }
-        if(value == '相邻网络' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.accessVectorArr3) && value == text){
           return 'orange'
         }
-        if(value == '本地' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.accessVectorArr4) && value == text){
           return 'green'
         }else{
           return 'grey'
         }
       }
     }
-
-    const accessComplexityArr = ['','低','中','高']
+    const accessComplexityArr = ['',formatMessage(mirrorSafetyBugIntl.accessComplexityArr2),formatMessage(mirrorSafetyBugIntl.accessComplexityArr3),formatMessage(mirrorSafetyBugIntl.accessComplexityArr4)]
     function accessComplexityFun(data,text){
       if(Object.keys(data).length !== 0){
         const value = accessComplexityArr[data.accessComplexity]
-        if( value == '低' && value == text){
+        if( value == formatMessage(mirrorSafetyBugIntl.accessComplexityArr2) && value == text){
           return 'red'
         }
-        if(value == '中' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.accessComplexityArr3) && value == text){
           return 'orange'
         }
-        if(value == '高' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.accessComplexityArr4) && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -448,17 +449,17 @@ class TableTemplate extends Component{
       }
     }
 
-    const authenticationArr = ['','没有','单','多']
+    const authenticationArr = ['',formatMessage(mirrorSafetyBugIntl.authenticationArr2),formatMessage(mirrorSafetyBugIntl.authenticationArr3),formatMessage(mirrorSafetyBugIntl.authenticationArr4)]
     function authenticationFun(data,text){
       if(Object.keys(data).length !== 0){
         const value = authenticationArr[data.authentication]
-        if( value == '没有' && value == text){
+        if( value == formatMessage(mirrorSafetyBugIntl.authenticationArr2) && value == text){
           return 'red'
         }
-        if(value == '单' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.authenticationArr3) && value == text){
           return 'orange'
         }
-        if(value == '多' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.authenticationArr4) && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -466,17 +467,19 @@ class TableTemplate extends Component{
       }
     }
 
-    const confidentialityImpactArr = ['','完成','局部','没有']
+    const confidentialityImpactArr = ['',formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2),
+      formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3),
+      formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4)]
     function confidentialityImpactFun(data,text){
       if(Object.keys(data).length !== 0){
         const value = confidentialityImpactArr[data.confidentialityImpact]
-        if( value == '完成' && value == text){
+        if( value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2) && value == text){
           return 'red'
         }
-        if(value == '局部' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3) && value == text){
           return 'orange'
         }
-        if(value == '没有' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4) && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -484,17 +487,17 @@ class TableTemplate extends Component{
       }
     }
 
-    const integrityImpactArr = ['','完成','局部','没有']
+    const integrityImpactArr = ['',formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2),formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3),formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4)]
     function integrityImpactFun(data,text){
       if(Object.keys(data).length !== 0){
         const value = integrityImpactArr[data.integrityImpact]
-        if( value == '完成' && value == text){
+        if( value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2) && value == text){
           return 'red'
         }
-        if(value == '局部' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3) && value == text){
           return 'orange'
         }
-        if(value == '没有' && value == text){
+        if(value == formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4) && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -502,31 +505,31 @@ class TableTemplate extends Component{
       }
     }
     const columns1 = [{
-      title: '访问向量',
+      title: formatMessage(mirrorSafetyBugIntl.visit),
       dataIndex: 'name',
       key: 'name',
       width: '18%',
       render: text => (<span style={{color:accessVectorFun(data,text)}}><i className="fa fa-circle" aria-hidden="true" style={{marginRight: '6px'}}></i><span >{text}</span></span>)
     }, {
-      title: '访问的复杂性',
+      title: formatMessage(mirrorSafetyBugIntl.complex),
       dataIndex: 'age',
       width: '18%',
       key: 'age',
       render: text => (<span style={{color: accessComplexityFun(data,text)}}><i className="fa fa-circle" aria-hidden="true" style={{marginRight: '6px'}}></i><span >{text}</span></span>)
     }, {
-      title: '认证',
+      title: formatMessage(mirrorSafetyBugIntl.authentication),
       dataIndex: 'address',
       width: '15%',
       key: 'address',
       render: text => (<span style={{color:authenticationFun(data,text)}}><i className="fa fa-circle" aria-hidden="true" style={{marginRight: '6px'}}></i><span>{text}</span></span>)
     }, {
-      title: '保密性的影响',
+      title: formatMessage(mirrorSafetyBugIntl.privacy),
       dataIndex: 'address1',
       width: '21%',
       key: 'address1',
       render: text => (<span style={{color:confidentialityImpactFun(data,text)}}><i className="fa fa-circle" aria-hidden="true" style={{marginRight: '6px'}}></i><span>{text}</span></span>)
     }, {
-      title: '完整性的影响',
+      title: formatMessage(mirrorSafetyBugIntl.completeness),
       dataIndex: 'address2',
       key: 'address2',
       width: '21%',
@@ -536,30 +539,30 @@ class TableTemplate extends Component{
     // 表格数据
     const dataSource1 = [{
       key: '1',
-      name: '网络',
-      age: '低',
-      address: '没有',
-      address1: '完成',
-      address2: '完成',
+      name: formatMessage(mirrorSafetyBugIntl.accessVectorArr2),
+      age: formatMessage(mirrorSafetyBugIntl.accessComplexityArr2),
+      address: formatMessage(mirrorSafetyBugIntl.authenticationArr2),
+      address1:  formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2),
+      address2:  formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr2),
     }, {
       key: '2',
-      name: '相邻网络',
-      age: '中',
-      address: '单',
-      address1: '局部',
-      address2: '局部',
+      name: formatMessage(mirrorSafetyBugIntl.accessVectorArr3),
+      age: formatMessage(mirrorSafetyBugIntl.accessComplexityArr3),
+      address: formatMessage(mirrorSafetyBugIntl.authenticationArr3),
+      address1: formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3),
+      address2: formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr3),
     }, {
       key: '3',
-      name: '本地',
-      age: '高',
-      address: '多',
-      address1: '没有',
-      address2: '没有',
+      name: formatMessage(mirrorSafetyBugIntl.accessVectorArr4),
+      age: formatMessage(mirrorSafetyBugIntl.accessComplexityArr4),
+      address: formatMessage(mirrorSafetyBugIntl.authenticationArr4),
+      address1:formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4),
+      address2:formatMessage(mirrorSafetyBugIntl.confidentialityImpactArr4),
     }]
 
     return (
       <div className='tablesub'>
-        <div className='tablesubtitle'>矢量<span style={{marginLeft:'8px',fontSize:'12px'}}>当前分数{data.score}</span></div>
+        <div className='tablesubtitle'>{formatMessage(mirrorSafetyBugIntl.vector)}<span style={{marginLeft:'8px',fontSize:'12px'}}>{formatMessage(mirrorSafetyBugIntl.currentScore, {score: data.score})}</span></div>
         <div className='tablesubbody'>
           <Table
             columns={columns1}
@@ -569,7 +572,7 @@ class TableTemplate extends Component{
           >
           </Table>
         </div>
-        <div className='tablesubtitlefooter'>描述</div>
+        <div className='tablesubtitlefooter'>{formatMessage(mirrorSafetyBugIntl.describe)}</div>
         <div className='tablesubtitlefooteritem'>
           {data.des}
         </div>
@@ -587,6 +590,7 @@ class TableTemplate extends Component{
   }
 
   render(){
+    const { formatMessage } = this.props.intl
     const { Unknown, Negligible, Low, Medium, High, echarts }=this.state
     const { mirrorsafetyClair, imageName, tag } = this.props
     function EchartsGapTemplate(num){
@@ -594,21 +598,21 @@ class TableTemplate extends Component{
       switch(str.length){
         case 1:
         default:
-          return '   ' + '        ' + num + '  封装' + '      '
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateHigh, {num})
         case 2:
-          return '   ' + '      ' + num + '  封装' + '      '
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateMedium, {num})
         case 3:
-          return '   ' + '    ' + num + '  封装' + '      '
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateLow, {num})
         case 4:
-          return '   ' + '  ' + num + '  封装' + '      '
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateNegligible, {num})
         case 5:
-          return '   ' + num + '  封装' + '      '
+          return formatMessage(mirrorSafetyBugIntl.echartsGapTemplateUnknown, {num})
       }
     }
 
     let safetybugOption = {
       title: {
-        text: '镜像安全扫描检测到 ' + this.state.Total + ' 个漏洞，补丁为 '+this.state.PatchTotal+' 个漏洞',
+        text: formatMessage(mirrorSafetyBugIntl.foundBug, {total: this.state.Total,patchTotal: this.state.PatchTotal}),
         textStyle: {
           fontWeight: 'normal'
         },
@@ -621,21 +625,26 @@ class TableTemplate extends Component{
         height: 'auto',
         left: '45%',
         top: '30%',
-          data: ['高级别安全漏洞', '中级别安全漏洞', '低级别安全漏洞', '可忽略级别的漏洞', '未知的漏洞'],
+          data: [formatMessage(mirrorSafetyBugIntl.high),
+            formatMessage(mirrorSafetyBugIntl.medium),
+            formatMessage(mirrorSafetyBugIntl.low),
+            formatMessage(mirrorSafetyBugIntl.negligible),
+            formatMessage(mirrorSafetyBugIntl.unknown)]
+        ,
           formatter: function (name) {
-            if (name == '高级别安全漏洞') {
+            if (name == formatMessage(mirrorSafetyBugIntl.high)) {
               return EchartsGapTemplate(High) + name
             }
-            if (name == '中级别安全漏洞') {
+            if (name == formatMessage(mirrorSafetyBugIntl.medium)) {
               return EchartsGapTemplate(Medium) + name
             }
-            if (name == '低级别安全漏洞') {
+            if (name == formatMessage(mirrorSafetyBugIntl.low)) {
               return EchartsGapTemplate(Low) + name
             }
-            if (name == '可忽略级别的漏洞') {
+            if (name == formatMessage(mirrorSafetyBugIntl.negligible)) {
               return EchartsGapTemplate(Negligible) + name
             }
-            if (name == '未知的漏洞') {
+            if (name == formatMessage(mirrorSafetyBugIntl.unknown)) {
               return EchartsGapTemplate(Unknown) + name
             }
         },
@@ -657,11 +666,11 @@ class TableTemplate extends Component{
         center: ['25%', '50%'],
         minAngle:'5',
         data: [
-          {value: this.state.High, name: '高级别安全漏洞', selected: true},
-          {value: this.state.Medium, name: '中级别安全漏洞'},
-          {value: this.state.Low, name: '低级别安全漏洞'},
-          {value: this.state.Negligible, name: '可忽略级别的漏洞'},
-          {value: this.state.Unknown, name: '未知的漏洞' }
+          {value: this.state.High, name: formatMessage(mirrorSafetyBugIntl.high), selected: true},
+          {value: this.state.Medium, name: formatMessage(mirrorSafetyBugIntl.medium)},
+          {value: this.state.Low, name: formatMessage(mirrorSafetyBugIntl.low)},
+          {value: this.state.Negligible, name: formatMessage(mirrorSafetyBugIntl.negligible)},
+          {value: this.state.Unknown, name: formatMessage(mirrorSafetyBugIntl.unknown) }
         ],
         label: {
           normal: {
@@ -725,31 +734,31 @@ class TableTemplate extends Component{
       render: text => (
         <span className='CVE'><span className='CVEspan'>{text.name}</span><a href={text.link} target="_blank"><i className="fa fa-link CVEi" aria-hidden="true"></i></a></span>)
     }, {
-      title: '严重',
+      title: formatMessage(mirrorSafetyBugIntl.critical),
       width: '13%',
       dataIndex: 'severity',
       key: 'severity',
       render: text => (<span className={this.tableSeverityColor(text)}><i className="fa fa-exclamation-triangle severityi" aria-hidden="true"></i><span>{text}</span></span>),
       sorter: (a, b) => severitySort(a.severity) - severitySort(b.severity),
     }, {
-      title: '软件包',
+      title: formatMessage(mirrorSafetyBugIntl.softwarePackage),
       width: '11%',
       dataIndex: 'software',
       key: 'software',
       sorter:(a, b) => softwareSort(a.software, b.software)
     }, {
-      title: '当前版本',
+      title: formatMessage(mirrorSafetyBugIntl.currentVersion),
       width: '15%',
       dataIndex: 'currentVersion',
       key: 'currentVersion',
     }, {
-      title: '修正版',
+      title:  formatMessage(mirrorSafetyBugIntl.revision),
       width: '15%',
       dataIndex: 'reversion',
       key: 'reversion',
-      render: text => (<span className='reversion' style={{color: text == '暂无修正版' ? 'red' : '#5bcea3' }}><i className="fa fa-arrow-circle-right reversioni" aria-hidden="true"></i>{text}</span>),
+      render: text => (<span className='reversion' style={{color: text == formatMessage(mirrorSafetyBugIntl.noRevision) ? 'red' : '#5bcea3' }}><i className="fa fa-arrow-circle-right reversioni" aria-hidden="true"></i>{text}</span>),
     }, {
-      title: '位于镜像层',
+      title: formatMessage(mirrorSafetyBugIntl.layerInfo),
       width: '27%',
       dataIndex: 'layerInfo',
       key: 'layerInfo',
@@ -764,7 +773,7 @@ class TableTemplate extends Component{
     if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorsafetyClair[imageName][tag].result.report.vulnerabilities){
       return <div className='message'>
         <img src={safetyBugImg}/>
-        <div>暂未扫描出任何漏洞</div>
+        <div>{formatMessage(mirrorSafetyBugIntl.thereIsNoBug)}</div>
       </div>
     }
 
@@ -784,7 +793,7 @@ class TableTemplate extends Component{
         </div>
         <div className='safetybugmirror'>
           <div className='safetybugmirrortitle'>
-            <div className='safetybugmirrortitleleft'>镜像漏洞</div>
+            <div className='safetybugmirrortitleleft'>{formatMessage(mirrorSafetyBugIntl.imageBug)}</div>
           </div>
           <div className="safetybugtable">
             <Table
@@ -800,7 +809,7 @@ class TableTemplate extends Component{
     )
   }
 }
-
+TableTemplate = injectIntl(TableTemplate, {withRef: true})
 class MirrorSafetyBug extends Component {
   constructor(props){
     super(props)
@@ -822,7 +831,6 @@ class MirrorSafetyBug extends Component {
       clairFailed: false
     }
   }
-
   NodataTemplateSafetyBug(){
     const { mirrorScanstatus, imageName, tag } = this.props
     return (
@@ -858,6 +866,7 @@ class MirrorSafetyBug extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
+    const { formatMessage } = this.props.intl
     const config = {
       cluster_id,
       imageName,
@@ -905,7 +914,7 @@ class MirrorSafetyBug extends Component {
       failed:{
         func: (res) => {
           this.setState({clairFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          new NotificationHandler().error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag: tag, msg: formatErrorMessage(res)}))
           //scanFailed('failed')
         },
         isAsync: true
@@ -927,6 +936,7 @@ class MirrorSafetyBug extends Component {
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    const { formatMessage } = this.props.intl
     if(statusCode && statusCode == 500){
       return <div>{message}</div>
     }
@@ -934,35 +944,36 @@ class MirrorSafetyBug extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning' data-status="running">
-            <div className="top">正在扫描尚未结束</div>
+            <div className="top">{formatMessage(mirrorSafetyBugIntl.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.loading}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.loading}>{formatMessage(mirrorSafetyBugIntl.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} callback={this.sendObjectToTop} tag={tag} inherwidth={inherwidth}/>
         case 'failed':
           return <div className="BaseScanFailed" data-status="clair">
-            <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击重新获取</Button>
+            <div className='top'>{formatMessage(mirrorSafetyBugIntl.scanFailure)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.reload)}</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed" data-status="nojob">
-            <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击扫描</Button>
+            <div className="top">{formatMessage(mirrorSafetyBugIntl.hasNotBeenScanned)}</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.toScan)}</Button>
           </div>
       }
     }
   }
 
   handlemirrorScanstatusSatus(status){
+    const { formatMessage } = this.props.intl
     switch(status){
       case 'noresult':
-        return <span>镜像没有被扫描过，请点击扫描</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.hasNotAndReload)}</span>
       case 'different':
-        return <span>镜像扫描结果与上次扫描结果不同</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.differentResult)}</span>
       case 'failed':
-        return <span>扫描失败，请重新扫描</span>
+        return <span>{formatMessage(mirrorSafetyBugIntl.scanFailure)}</span>
       default:
         return <span></span>
     }
@@ -970,6 +981,7 @@ class MirrorSafetyBug extends Component {
 
   render(){
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair} = this.props
+    const { formatMessage } = this.props.intl
     let statusCode = 200
     let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
@@ -986,7 +998,7 @@ class MirrorSafetyBug extends Component {
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>重新扫描</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>{formatMessage(mirrorSafetyBugIntl.reScan)}</Button>
           </div>
         )
       }else{

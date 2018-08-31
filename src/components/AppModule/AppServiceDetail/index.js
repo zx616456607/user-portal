@@ -476,7 +476,12 @@ class AppServiceDetail extends Component {
               <TabPane tab={formatMessage(AppServiceDetailIntl.fireWall)} key='#securitygroup'>
                 <SecurityGroupTab />
               </TabPane>
-              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? formatMessage(AppServiceDetailIntl.unsupportbindDomain):''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>
+              <TabPane tab={
+                  <Tooltip placement="right" title={isKubeNode ? formatMessage(AppServiceDetailIntl.unsupportbindDomain):''}>
+                    <span>{formatMessage(AllServiceListIntl.bundDomin)}</span>
+                  </Tooltip>
+                }
+                disabled={isKubeNode} key='#binddomain'>
                 <BindDomain
                   cluster={service.cluster}
                   serviceName={service.metadata.name}

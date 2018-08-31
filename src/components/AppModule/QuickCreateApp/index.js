@@ -48,6 +48,8 @@ import Title from '../../Title'
 import ResourceErrorsModal from './ResourceErrorsModal'
 import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client/actions/securityGroup'
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -268,14 +270,14 @@ class QuickCreateApp extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { location } = nextProps
-    const { hash, query } = location
+    const { hash, query, template } = location
     if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
       this.setConfig(nextProps)
     }
     if (query.imageName) {
       this.setState({imageName:query.imageName})
     }
-    if (query.key && !this.props.location.query.key) {
+    if (query.key && !this.props.location.query.key && template) {
       this.deployCheck(nextProps)
     }
   }
@@ -546,7 +548,7 @@ class QuickCreateApp extends Component {
     const {
       fields, current, loginUser,
       createApp, addService,location,
-      createAppIngress
+      createAppIngress, intl
     } = this.props
     if (location.query.template) {
       this.createAppByTemplate()
@@ -620,9 +622,9 @@ class QuickCreateApp extends Component {
           })
           let msgObj
           if (this.action === 'addService') {
-            msgObj = '添加服务'
+            msgObj = intl.formatMessage(IntlMessage.addServer)
           } else {
-            msgObj = '创建应用'
+            msgObj = intl.formatMessage(IntlMessage.createApp)
           }
           if (err.statusCode == 403 && !isResourcePermissionError(err)) {
             const { data } = err.message
@@ -651,12 +653,16 @@ class QuickCreateApp extends Component {
             function formatMemoryFromKbToG(memory) {
               return Math.ceil(memory / 1024 / 1024 * 10) / 10
             }
-            notification.error(`${msgObj}失败`, '集群资源不足')
+            notification.error(
+              `${msgObj}${intl.formatMessage(IntlMessage.failure)}`,
+              intl.formatMessage(IntlMessage.clusterResourceInsufficient))
             return
           }
           if (err.statusCode == 409) {
             if (err.message.message.indexOf('ip_port') > 0) {
-              notification.error(`${msgObj}失败`, '端口冲突，请检查服务端口')
+              notification.error(
+                `${msgObj}${intl.formatMessage(IntlMessage.failure)}`,
+                intl.formatMessage(IntlMessage.portConflict))
               return
             }
           }
@@ -665,7 +671,7 @@ class QuickCreateApp extends Component {
           }
           if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE && !isResourcePermissionError(err)){
             const { message } = err
-            notification.error(`${msgObj}失败`, message.message)
+            notification.error(`${msgObj}${intl.formatMessage(IntlMessage.failure)}`, message.message)
           }
         }
       },
@@ -698,6 +704,7 @@ class QuickCreateApp extends Component {
   }
 
   async onCreateAppOrAddServiceClick(isValidateFields) {
+    const { intl } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
     if (!isValidateFields) {
@@ -722,16 +729,19 @@ class QuickCreateApp extends Component {
           return false
         })
         if (errors.appName){
-          notification.error('应用名称不正确')
+          notification.warn(intl.formatMessage(IntlMessage.incorrect,
+            { item: intl.formatMessage(IntlMessage.appName) }))
         } else if (errors.serviceName) {
-          notification.error('服务名称不正确')
+          notification.warn(intl.formatMessage(IntlMessage.incorrect,
+            { item: intl.formatMessage(IntlMessage.serviceName) }))
         } else if (envNameErrors.length || envValueErrors.length) {
-          notification.error('环境变量不正确')
+          notification.warn(intl.formatMessage(IntlMessage.incorrect,
+            { item: intl.formatMessage(IntlMessage.env) }))
           this.setState({
             AdvancedSettingKey: 1
           })
         } else {
-          notification.error('请修改错误表单')
+          notification.warn(intl.formatMessage(IntlMessage.formsError))
         }
         return
       }
@@ -748,7 +758,7 @@ class QuickCreateApp extends Component {
             }).then(res => {
               if (res.error) {
                 notification.close()
-                notification.warn('获取安全组数据出错', message.message)
+                notification.warn(intl.formatMessage(IntlMessage.loadSecurityGroupFailure), message.message)
                 isSuccess = false
                 return
               }
@@ -760,7 +770,7 @@ class QuickCreateApp extends Component {
                   func: error => {
                     const { message } = error
                     notification.close()
-                    notification.warn('修改安全组隔离对象出错', message.message)
+                    notification.warn(intl.formatMessage(IntlMessage.editSecurityGroupFailure), message.message)
                     isSuccess = false
                     return
                   },
@@ -833,9 +843,9 @@ class QuickCreateApp extends Component {
 
   renderCreateBtnText() {
     if (this.action === 'addService') {
-      return '完成添加服务'
+      return <FormattedMessage {...IntlMessage.finishAddServices}/>
     }
-    return <span>&nbsp;创建&nbsp;</span>
+    return <span>&nbsp;<FormattedMessage {...IntlMessage.create}/>&nbsp;</span>
   }
 
   /* nextStep() {
@@ -882,13 +892,14 @@ class QuickCreateApp extends Component {
   } */
 
   deployAINextStep = () => {
+    const { intl } = this.props
     const { runAIImage, modelSet, modelSetVolumeConfig } = this.state
     if (!runAIImage) {
-      notification.warn('请选择运行环境')
+      notification.warn(intl.formatMessage(IntlMessage.pleaseSelectOperatingEnv))
       return
     }
     if (!modelSet) {
-      notification.warn('请绑定模型集')
+      notification.warn(intl.formatMessage(IntlMessage.pleaseBindModelSet))
       return
     }
     const { loginUser } = this.props
@@ -911,10 +922,12 @@ class QuickCreateApp extends Component {
         <div className="footerSteps">
           <div className="configureSteps">
             <div className={classNames("left", {'hidden': template})}>
-              继续添加：
+              <FormattedMessage {...IntlMessage.keepAdding}/>：
               <Button.Group>
-                <Button size="large" onClick={this.saveService}>容器镜像</Button>
-                <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">应用包</Button>
+                <Button size="large" onClick={this.saveService}><FormattedMessage {...IntlMessage.containerImage}/></Button>
+                <Button size="large" onClick={()=> this.saveService({addWrap: true})} type="primary">
+                  <FormattedMessage {...IntlMessage.wrap}/>
+                </Button>
               </Button.Group>
             </div>
             <div className="right">
@@ -923,7 +936,7 @@ class QuickCreateApp extends Component {
                 onClick={this.goSelectImage}
                 disabled={!template && this.configureMode === 'edit'}
               >
-                上一步
+                <FormattedMessage {...IntlMessage.previous}/>
               </Button>
               <Button size="large" type="primary" onClick={this.onCreateAppOrAddServiceClick}>
                 { this.renderCreateBtnText() }
@@ -940,12 +953,12 @@ class QuickCreateApp extends Component {
             size="large"
             onClick={this.goSelectCreateAppMode}
           >
-            上一步
+            <FormattedMessage {...IntlMessage.previous}/>
           </Button>
           {
             query.addAI && query.addAI === 'true' &&
             <Button size="large" style={{marginLeft:10}} onClick={()=> this.deployAINextStep()}>
-            下一步
+              <FormattedMessage {...IntlMessage.nextStep}/>
             </Button>
           }
         </div>
@@ -953,7 +966,7 @@ class QuickCreateApp extends Component {
   }
 
   editService = (key) => {
-    const { location, fields, template } = this.props
+    const { location, fields, template, intl } = this.props
     const { hash, query: oldQuery } = location
     const query = { key }
     const currentFields = fields[key]
@@ -986,10 +999,10 @@ class QuickCreateApp extends Component {
       const { validateFieldsAndScroll } = this.form
       validateFieldsAndScroll((errors, values) => {
         if (!!errors) {
-          let message = '请先修改错误的表单'
+          let message = intl.formatMessage(IntlMessage.pleaseCorrectWrongForm)
           // 如果未填写服务名称，提示填写服务名称
           if (errors.serviceName) {
-            message = '请先填写服务名称'
+            message = intl.formatMessage(IntlMessage.pleaseFillInServiceName)
           }
           notification.warn(message)
           return
@@ -1016,9 +1029,10 @@ class QuickCreateApp extends Component {
   }
 
   deleteService(key) {
-    const { removeFormFields } = this.props
+    const { removeFormFields, intl } = this.props
     if (this.configureMode === 'edit' && this.editServiceKey === key) {
-      notification.warn('删除失败，请您先取消编辑')
+      notification.warn(`${intl.formatMessage(IntlMessage.deleteFailure)}，
+        ${intl.formatMessage(IntlMessage.pleaseCancelEdit)}`)
       return
     }
     removeFormFields(key, {
@@ -1062,7 +1076,7 @@ class QuickCreateApp extends Component {
   }
 
   renderServiceList() {
-    const { fields, location } = this.props
+    const { fields, location, intl } = this.props
     const { serviceList } = this.state
     const { template } = location.query
     let newServiceList = []
@@ -1096,7 +1110,7 @@ class QuickCreateApp extends Component {
                 {
                   !template && (currentStep === 1 || !isRowActive) && (
                     <div>
-                      <Tooltip title="修改">
+                      <Tooltip title={intl.formatMessage(IntlMessage.modify)}>
                         <Button
                           type="dashed"
                           size="small"
@@ -1105,7 +1119,7 @@ class QuickCreateApp extends Component {
                           <Icon type="edit" />
                         </Button>
                       </Tooltip>
-                      <Tooltip title="删除">
+                      <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
                         <Button
                           type="dashed"
                           size="small"
@@ -1127,7 +1141,7 @@ class QuickCreateApp extends Component {
     this.serviceNameList = _serviceNameList
     if (newServiceList.length < 1) {
       return (
-        <div className="noService">本应用中暂无任何服务</div>
+        <div className="noService"><FormattedMessage {...IntlMessage.noServiceTip}/></div>
       )
     }
     return newServiceList
@@ -1178,7 +1192,7 @@ class QuickCreateApp extends Component {
   }
 
   render() {
-    const { current, location, billingEnabled } = this.props
+    const { current, location, billingEnabled, intl } = this.props
     const {
       confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp,
       stepStatus, resourceError
@@ -1186,9 +1200,9 @@ class QuickCreateApp extends Component {
     const { template } = location.query
     const steps = (
       <Steps size="small" className="steps" status={stepStatus} current={this.getStepsCurrent()}>
-        <Step title="部署方式" />
-        <Step title={template ? '选择模板' : "选择镜像"} />
-        <Step title="配置服务" />
+        <Step title={intl.formatMessage(IntlMessage.deployMethod)} />
+        <Step title={template ? intl.formatMessage(IntlMessage.selectTemplate) : intl.formatMessage(IntlMessage.selectImage)} />
+        <Step title={intl.formatMessage(IntlMessage.configService)} />
       </Steps>
     )
     const { resource, priceHour, priceMonth } = this.getAppResources()
@@ -1209,7 +1223,7 @@ class QuickCreateApp extends Component {
         {
           isCreatingApp && <Spin />
         }
-        <Title title="应用列表" />
+        <Title title={intl.formatMessage(IntlMessage.appList)} />
         <div className={quickCreateAppContentClass}>
           <Row gutter={16}>
             <Col span={showprice}>
@@ -1223,8 +1237,8 @@ class QuickCreateApp extends Component {
                 className="rightCard"
                 title={
                   <Row className="title">
-                    <Col span={16}>已添加服务</Col>
-                    <Col span={8} className="textAlignRight">操作</Col>
+                    <Col span={16}><FormattedMessage {...IntlMessage.addedService}/></Col>
+                    <Col span={8} className="textAlignRight"><FormattedMessage {...IntlMessage.operation}/></Col>
                   </Row>
                 }
               >
@@ -1235,23 +1249,43 @@ class QuickCreateApp extends Component {
                   billingEnabled &&
                   <div className="resourcePrice">
                     <div className="resource">
-                      计算资源：
+                      <FormattedMessage {...IntlMessage.calculateResource}/>：
                       <span>{resource}</span>
                     </div>
                     {
                       current.unit === '¥'
                         ? (
                           <div className="price">
-                            合计：
-                            <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
-                            <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+                            <FormattedMessage {...IntlMessage.totalPrice}/>：
+                            <span className="hourPrice">
+                              <FormattedMessage
+                                {...IntlMessage.priceHour}
+                                values={{ RMB: '￥', priceHour, unit: '' }}
+                              />
+                            </span>
+                            <span className="monthPrice">
+                              (<FormattedMessage
+                                {...IntlMessage.priceMonth}
+                                values={{ RMB: '￥', priceMonth, unit: '' }}
+                              />)
+                            </span>
                           </div>
                         )
                         : (
                           <div className="price">
-                            合计：
-                            <span className="hourPrice">{priceHour} {current.unit}/小时</span>
-                            <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                            <FormattedMessage {...IntlMessage.totalPrice}/>：
+                            <span className="hourPrice">
+                              <FormattedMessage
+                                {...IntlMessage.priceHour}
+                                values={{ RMB: '', priceHour, unit: current.unit }}
+                              />
+                            </span>
+                            <span className="monthPrice">
+                              (<FormattedMessage
+                                {...IntlMessage.priceMonth}
+                                values={{ RMB: '', priceMonth, unit: current.unit }}
+                              />)
+                            </span>
                           </div>
                         )
                     }
@@ -1270,26 +1304,29 @@ class QuickCreateApp extends Component {
             </Col>
           </Row>
           <Modal
-            title="返回上一步"
+            title={intl.formatMessage(IntlMessage.returnToPrevious)}
             visible={confirmGoBackModalVisible}
             onCancel={() => this.setState({confirmGoBackModalVisible: false})}
             onOk={this.confirmGoBack.bind(this)}
           >
-            是否确定返回“上一步”？确定后已添加的服务 {this.serviceNameList.join(', ')} 将不被保留
+            <FormattedMessage
+              {...IntlMessage.confirmReturnToPreviousTip}
+              values={{ services: this.serviceNameList.join(', ') }}
+            />
           </Modal>
           <Modal
-            title="返回上一步"
+            title={intl.formatMessage(IntlMessage.returnToPrevious)}
             visible={confirmSaveModalVisible}
             onCancel={() => this.setState({ confirmSaveModalVisible: false })}
             onOk={this.confirmSave}
             footer={[
-              <Button key="back" type="ghost" size="large" onClick={this.cancelSave}>取 消</Button>,
+              <Button key="back" type="ghost" size="large" onClick={this.cancelSave}><FormattedMessage {...IntlMessage.cancel}/></Button>,
               <Button key="submit" type="primary" size="large" onClick={this.confirmSave}>
-                确 定
+                <FormattedMessage {...IntlMessage.confirm}/>
               </Button>,
             ]}
           >
-            是否确定保存该服务？
+            <FormattedMessage {...IntlMessage.confirmSaveService}/>
           </Modal>
 
           <ResourceQuotaModal
@@ -1360,4 +1397,6 @@ export default connect(mapStateToProps, {
   getLBList,
   getfSecurityGroupDetail,
   updateSecurityGroup,
-})(QuickCreateApp)
+})(injectIntl(QuickCreateApp, {
+  withRef: true,
+}))

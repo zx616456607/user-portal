@@ -11,14 +11,16 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Form, Switch, Input, Slider, InputNumber, Checkbox } from 'antd'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 
 class HealthCheckModal extends React.Component {
   state = {
-    
+
   }
-  
+
   componentWillMount() {
     const { healthOptions, form } = this.props
     if (healthOptions) {
@@ -48,7 +50,7 @@ class HealthCheckModal extends React.Component {
     closeModal()
     form.resetFields()
   }
-  
+
   confirmModal = () => {
     const { closeModal, form, callback } = this.props
     this.setState({
@@ -63,23 +65,23 @@ class HealthCheckModal extends React.Component {
       form.resetFields()
     }, 500)
   }
-  
+
   switchChange = checked => {
     const { form } = this.props
     if (!checked) {
       form.resetFields()
     }
   }
-  
+
   render() {
     const { confirmLoading } = this.state
-    const { form, visible } = this.props
+    const { form, visible, intl } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue, setFieldsValue } = form
     const formItemLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 16 }
     }
-    
+
     const switchProps = getFieldProps('isCheck', {
       valuePropName: 'checked',
       onChange: this.switchChange
@@ -96,7 +98,7 @@ class HealthCheckModal extends React.Component {
     })
     return (
       <Modal
-        title="健康检查"
+        title={intl.formatMessage(IntlMessage.healthCheck)}
         visible={visible}
         onCancel={this.cancelModal}
         onOk={this.confirmModal}
@@ -104,21 +106,28 @@ class HealthCheckModal extends React.Component {
       >
         <Form form={form}>
           <FormItem
-            label="健康检查"
+            label={intl.formatMessage(IntlMessage.healthCheck)}
             {...formItemLayout}
           >
-            <Switch {...switchProps} checkedChildren="开" unCheckedChildren="关" />
+            <Switch
+              {...switchProps}
+              checkedChildren={intl.formatMessage(IntlMessage.open)}
+              unCheckedChildren={intl.formatMessage(IntlMessage.close)}
+            />
           </FormItem>
           <FormItem
-            label="检测目录"
+            label={intl.formatMessage(IntlMessage.checkDirectory)}
             {...formItemLayout}
           >
-            <Input placeholder="不填写则默认检查 / 根目录" {...directoryProps}/>
+            <Input
+              placeholder={intl.formatMessage(IntlMessage.ingressDirPlaceholder)}
+              {...directoryProps}
+            />
           </FormItem>
           <Row>
             <Col span={18}>
               <FormItem
-                label="检测间隔"
+                label={intl.formatMessage(IntlMessage.checkInterval)}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
               >
@@ -134,7 +143,7 @@ class HealthCheckModal extends React.Component {
           <Row>
             <Col span={18}>
               <FormItem
-                label="不健康阈值"
+                label={intl.formatMessage(IntlMessage.unhealthyThreshold)}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
               >
@@ -143,14 +152,18 @@ class HealthCheckModal extends React.Component {
             </Col>
             <Col span={6}>
               <FormItem>
-                <InputNumber max={10} value={getFieldValue('fall')} onChange={value => setFieldsValue({fall: value})}/> 次
+                <InputNumber
+                  max={10}
+                  value={getFieldValue('fall')}
+                  onChange={value => setFieldsValue({fall: value})}
+                /> {intl.formatMessage(IntlMessage.times)}
               </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span={18}>
               <FormItem
-                label="健康阈值"
+                label={intl.formatMessage(IntlMessage.healthyThreshold)}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
               >
@@ -159,12 +172,16 @@ class HealthCheckModal extends React.Component {
             </Col>
             <Col span={6}>
               <FormItem>
-                <InputNumber max={10} value={getFieldValue('rise')} onChange={value => setFieldsValue({rise: value})}/> 次
+                <InputNumber
+                  max={10}
+                  value={getFieldValue('rise')}
+                  onChange={value => setFieldsValue({rise: value})}
+                /> {intl.formatMessage(IntlMessage.times)}
               </FormItem>
             </Col>
           </Row>
           <FormItem
-            label="HTTP 状态码检测"
+            label={intl.formatMessage(IntlMessage.httpStatueCodeCheck)}
             {...formItemLayout}
           >
             {/* <Checkbox style={{ marginLeft: 8 }} {...getFieldProps('http_1xx', {valuePropName: 'checked'})}>http_1xx</Checkbox> */}
@@ -172,7 +189,8 @@ class HealthCheckModal extends React.Component {
             <Checkbox {...getFieldProps('http_3xx', {valuePropName: 'checked', initialValue: true})}>http_3xx</Checkbox>
             <Checkbox {...getFieldProps('http_4xx', {valuePropName: 'checked'})}>http_4xx</Checkbox>
             <Checkbox {...getFieldProps('http_5xx', {valuePropName: 'checked'})}>http_5xx</Checkbox>
-            <p className="ant-form-text hintColor" style={{ paddingLeft: 8 }}>当状态码为以上值时，认为后端服务存活</p>
+            <p className="ant-form-text hintColor" style={{ paddingLeft: 8 }}>
+              {intl.formatMessage(IntlMessage.ingressHttpTip)}</p>
           </FormItem>
         </Form>
       </Modal>
@@ -189,4 +207,6 @@ HealthCheckModal.PropTypes = {
   healthOptions: PropTypes.object
 }
 
-export default HealthCheckModal
+export default injectIntl(HealthCheckModal, {
+  withRef: true,
+})

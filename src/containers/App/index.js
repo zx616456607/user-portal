@@ -75,7 +75,7 @@ class App extends Component {
 
   componentWillMount() {
     const self = this
-    const { loginUser, loadLoginUserDetail } = this.props
+    const { loginUser, loadLoginUserDetail, intl } = this.props
     // load user info
     if (isEmptyObject(loginUser)) {
       loadLoginUserDetail({
@@ -90,6 +90,7 @@ class App extends Component {
         }
       })
     }
+    window._intl = intl
   }
 
   setSwitchSpaceOrCluster() {

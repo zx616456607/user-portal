@@ -17,6 +17,8 @@ import { getProxy } from '../../../../../actions/cluster'
 import { camelize } from 'humps'
 import { genRandomString } from '../../../../../common/tools'
 import LoadBalance from './LoadBalance'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const Option = Select.Option
 
@@ -104,22 +106,26 @@ class AccessMethod extends Component {
   }
 
   accessMethodTips = type => {
+    const { intl } = this.props
     if (type == 'PublicNetwork') {
-      return <span>服务可通过公网访问，选择一个网络出口；</span>
+      return <span>{intl.formatMessage(IntlMessage.publicNetTip)}</span>
     }
     if (type == 'InternalNetwork') {
-      return <span>服务可通过内网访问，选择一个网络出口；</span>
+      return <span>{intl.formatMessage(IntlMessage.interNetTip)}</span>
     }
-    return <span>服务仅提供给集群内其他服务访问；</span>
+    return <span>{intl.formatMessage(IntlMessage.clusterTip)}</span>
   }
 
   selectOption = nodeType => {
+    const { intl } = this.props
     let OptionArray = this.formatGroupArray(nodeType)
     let OptionList = OptionArray.map((item, index) => {
       return <Option value={item.id} key={'node' + index}>{item.name}</Option>
     })
     if (!OptionList.length) {
-      OptionList = <Option value="none" key="noAddress" disabled={true}><span>暂无此类网络出口</span></Option>
+      OptionList = <Option value="none" key="noAddress" disabled={true}>
+        <span>{intl.formatMessage(IntlMessage.noNexportTip)}</span>
+      </Option>
     }
     return OptionList
   }
@@ -161,10 +167,11 @@ class AccessMethod extends Component {
   }
 
   renderID = () => {
+    const { intl } = this.props
     const { lbgroup } = this.state
     return <span>
-      出口ID
-      <Tooltip title="出口ID用于编辑编排文件">
+      {intl.formatMessage(IntlMessage.exportID)}
+      <Tooltip title={intl.formatMessage(IntlMessage.exportIDTip)}>
         <Icon type="question-circle-o" className='lbgroup_icon'/>
       </Tooltip>
       ：{lbgroup}
@@ -172,7 +179,11 @@ class AccessMethod extends Component {
         lbgroup == '暂无'
         ? null
         : <span>
-            <Tooltip title={this.state.copyCMDSuccess ? '复制成功': '点击复制'}>
+            <Tooltip title={
+              this.state.copyCMDSuccess ?
+                intl.formatMessage(IntlMessage.copySuccess):
+                intl.formatMessage(IntlMessage.clickToCopy)}
+            >
             <a
               className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
               onClick={this.copyOrder}
@@ -198,7 +209,7 @@ class AccessMethod extends Component {
   }
 
   accessMethodContent = type => {
-    const { form } = this.props
+    const { form, intl } = this.props
     const { getFieldProps } = form
     let OptionArray = this.formatGroupArray(type)
     let defaultGroup = ''
@@ -213,7 +224,7 @@ class AccessMethod extends Component {
     if (type == 'PublicNetwork') {
       PublicNetworkProps = getFieldProps('publicNetwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true, message: '请选择一个网络出口' }],
+        rules: [{ required: true, message: intl.formatMessage(IntlMessage.plsSltNexport) }],
         onChange: this.lbgroupChange,
       })
       return <Row>
@@ -222,7 +233,9 @@ class AccessMethod extends Component {
           <Form.Item>
             <Select
               {...PublicNetworkProps}
-              placeholder='选择网络出口'
+              placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                item: intl.formatMessage(IntlMessage.nexport)
+              })}
             >
               {this.selectOption('PublicNetwork')}
             </Select>
@@ -236,7 +249,7 @@ class AccessMethod extends Component {
     if (type == 'InternalNetwork') {
       internaletworkProps = getFieldProps('internaletwork', {
         initialValue: defaultGroup || undefined,
-        rules: [{ required: true, message: '请选择一个网络出口' }],
+        rules: [{ required: true, message: intl.formatMessage(IntlMessage.plsSltNexport) }],
         onChange: this.lbgroupChange,
       })
       return <Row>
@@ -245,7 +258,9 @@ class AccessMethod extends Component {
           <Form.Item>
           <Select
             {...internaletworkProps}
-            placeholder='选择网络出口'
+            placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+              item: intl.formatMessage(IntlMessage.nexport)
+            })}
           >
             {this.selectOption('InternalNetwork')}
           </Select>
@@ -312,10 +327,10 @@ class AccessMethod extends Component {
     return defaultValue
   }
   tabChange = activeKey => {
-    const { form, isTemplate, location } = this.props
+    const { form, isTemplate, location, intl } = this.props
     if (!isTemplate && location.query.template) {
       Modal.info({
-        title: '部署时只能使用模板中配置的访问方式'
+        title: intl.formatMessage(IntlMessage.accessMethodTabTip)
       })
       return
     }
@@ -328,7 +343,7 @@ class AccessMethod extends Component {
   }
   render() {
     const { activeKey } = this.state
-    const { formItemLayout, form, clusterID, isTemplate, location } = this.props
+    const { formItemLayout, form, clusterID, isTemplate, location, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     const imageComposeStyle = classNames({
       'tabs_item_style': true,
@@ -347,7 +362,7 @@ class AccessMethod extends Component {
       <div id='accessMethod'>
         <Form.Item
           {...formItemLayout}
-          label="访问方式"
+          label={intl.formatMessage(IntlMessage.accessMethod)}
           className='radioBox'
         >
 
@@ -355,20 +370,26 @@ class AccessMethod extends Component {
             <li className={imageComposeStyle}
                 onClick={this.tabChange.bind(this, "netExport")}
             >
-              集群网络出口
+              {intl.formatMessage(IntlMessage.clusterNexport)}
             </li>
             <li className={appComposeStyle}
                 onClick={this.tabChange.bind(this, "loadBalance")}
             >
-              应用负载均衡
+              {intl.formatMessage(IntlMessage.loadBalance)}
             </li>
           </ul>
           {
             activeKey === 'netExport' &&
             <Radio.Group {...accessMethodProps}>
-              <Radio value="PublicNetwork" key="PublicNetwork">可公网访问</Radio>
-              <Radio value="InternalNetwork" key="InternalNetwork">内网访问</Radio>
-              <Radio value="Cluster" key="Cluster">仅在集群内访问</Radio>
+              <Radio value="PublicNetwork" key="PublicNetwork">
+                {intl.formatMessage(IntlMessage.publicNetAccess)}
+                </Radio>
+              <Radio value="InternalNetwork" key="InternalNetwork">
+                {intl.formatMessage(IntlMessage.intranetAccess)}
+                </Radio>
+              <Radio value="Cluster" key="Cluster">
+                {intl.formatMessage(IntlMessage.clusterAccess)}
+              </Radio>
             </Radio.Group>
           }
         </Form.Item>
@@ -383,7 +404,7 @@ class AccessMethod extends Component {
                 :
                 <div className="themeColor">
                   <Icon type="info-circle-o" />&nbsp;
-                  模板中只需选择网络出口类型，部署应用时，会自动选择对应类型网络出口！
+                  {intl.formatMessage(IntlMessage.loadBalanceTip)}
                 </div>
             }
             </Col>
@@ -412,4 +433,6 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
   getProxy,
-})(AccessMethod)
+})(injectIntl(AccessMethod, {
+  withRef: true,
+}))

@@ -434,7 +434,7 @@ const MyComponent =  injectIntl(React.createClass({
           <Menu.Item key="grayscaleUpgrade">
             {formatMessage(AllServiceListIntl.grayPublish)}
           </Menu.Item>
-          <SubMenu title="扩展">
+          <SubMenu title={formatMessage(AllServiceListIntl.extend)}>
             <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
               {formatMessage(AllServiceListIntl.standardExtend)}
             </Menu.Item>

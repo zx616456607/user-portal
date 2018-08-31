@@ -55,6 +55,7 @@ export const mapData = {
     setHTTPS: '设置HTTPS',
     serviceTag: '服务标签',
     moreSet: '更多设置',
+    extend: '扩展',
   }
 }
 

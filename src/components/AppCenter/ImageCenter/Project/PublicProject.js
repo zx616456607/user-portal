@@ -19,6 +19,8 @@ import { connect } from 'react-redux'
 import { loadProjectList } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
+import { injectIntl } from 'react-intl'
+import publicProjectIntl from './intl/publicProjectIntl'
 
 const DEFAULT_QUERY = {
   page: 1,
@@ -40,13 +42,14 @@ class PublicProject extends Component {
     inputSearch && inputSearch.focus()
   }
   loadData(query) {
+    const { formatMessage } = this.props.intl
     const { loadProjectList, harbor } = this.props
     let notify = new NotificationHandler()
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query, { harbor }), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
-            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+            notify.error(formatMessage(publicProjectIntl.errMsg))
           }
         }
       }
@@ -65,6 +68,7 @@ class PublicProject extends Component {
 
   render() {
     const { harborProjects, loginUser } = this.props
+    const { formatMessage } = this.props.intl
     const func = {
       scope: this,
       loadData: this.loadData
@@ -78,7 +82,7 @@ class PublicProject extends Component {
             <Card className="project">
               <div className="topRow">
                 <Input
-                  placeholder="按仓库组名称搜索"
+                  placeholder={formatMessage(publicProjectIntl.searchPlaceholder)}
                   className="search"
                   size="large"
                   onChange={e => this.setState({ searchInput: e.target.value })}
@@ -117,4 +121,4 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadProjectList,
-})(PublicProject)
+})(injectIntl(PublicProject,{withRef: true}))

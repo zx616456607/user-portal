@@ -30,6 +30,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import { TENX_STORE } from '../../../constants/index'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import TenxIcon from '@tenx-ui/icon'
+import ContainerListIntl from './ContainerListIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const confirm = Modal.confirm
 const Option = Select.Option
@@ -106,6 +108,7 @@ let MyComponent = React.createClass({
     })
   },
   apiInstanceExport(values){
+    const { formatMessage } = this.props
     const { instanceExport, clusterID } = this.props
     const { exportContainerName } = this.state
     let Notification = new NotificationHandler()
@@ -122,7 +125,7 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           if(res.statusCode && res.statusCode == 204){
-            Notification.error('导出镜像失败！当前平台镜像仓库不完整')
+            Notification.error(formatMessage(ContainerListIntl.exportImageFailure))
             this.setState({
               exportImageModalVisible: false,
               exportContainerName: '',
@@ -141,10 +144,10 @@ let MyComponent = React.createClass({
       failed: {
         func: (res) => {
           if(res.message && res.message.message == "The exportInstance operation against timeout could not be completed at this time, please try again."){
-            Notification.error('导出镜像超时，请重试！')
+            Notification.error(formatMessage(ContainerListIntl.exportImageTimeOut))
             return
           }
-          Notification.error('导出镜像失败！')
+          Notification.error(formatMessage(ContainerListIntl.exportImageFailure))
           this.setState({
             exportImageModalVisible: false,
             exportContainerName: '',
@@ -179,8 +182,9 @@ let MyComponent = React.createClass({
   },
   formatImageInfo(){
     const { form } = this.props
+    const { formatMessage } = this.props
     const { getFieldValue } = form
-    let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : '镜像名称'
+    let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : formatMessage(ContainerListIntl.imageName)
     let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'latest'
     return {
       imageName,
@@ -256,16 +260,17 @@ let MyComponent = React.createClass({
     })
   },
   checkImageName(rule, value, callback){
+    const { formatMessage } = this.props
     const { form } = this.props
     let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
     if(!value){
-      return callback('请输入镜像地址')
+      return callback(formatMessage(ContainerListIntl.pleaseInputImageAddress))
     }
     if(!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
-      return callback('由小写字母或数字组成')
+      return callback(formatMessage(ContainerListIntl.consistOfLowercaseAndNum))
     }
     if(value.length > 128){
-      return callback('最多只能为128个字符')
+      return callback(formatMessage(ContainerListIntl.atMost128Character))
     }
     if(projectName){
       return this.checkImageNameEqual(value, callback)
@@ -275,13 +280,13 @@ let MyComponent = React.createClass({
   checkImageVersion(rule, value, callback){
     const { loadRepositoriesTags, form, harbor } = this.props
     if(!value){
-      return callback('请输入镜像版本')
+      return callback(formatMessage(ContainerListIntl.pleaseInputImageVersion))
     }
     if(!/^([\w][\w.-]*)?$/.test(value)){
-      return callback('由小写字母或数字组成')
+      return callback(formatMessage(ContainerListIntl.consistOfLowercaseAndNum))
     }
     if(value.length > 128){
-      return callback('最多只能为128个字符')
+      return callback(formatMessage(ContainerListIntl.atMost128Character))
     }
     if(this.state.imageNameEqual){
       let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
@@ -370,6 +375,7 @@ let MyComponent = React.createClass({
   render: function () {
     const { scope, config, loading, form, exportimageUrl } = this.props
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
+    const { formatMessage } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -380,7 +386,7 @@ let MyComponent = React.createClass({
     if (config.length < 1) {
       return (
         <div className='loadingBox'>
-          <Icon type="frown"/>&nbsp;暂无数据
+          <Icon type="frown"/>&nbsp;{formatMessage(ContainerListIntl.noData)}
         </div>
       )
     }
@@ -390,13 +396,13 @@ let MyComponent = React.createClass({
           style={{ width: '100px' }}
           >
           <Menu.Item key='exportImage'>
-            <span>导出镜像</span>
+            <span>{formatMessage(ContainerListIntl.exportImage)}</span>
           </Menu.Item>
           <Menu.Item key='forceDelete'>
-            <span>强制删除</span>
+            <span>{formatMessage(ContainerListIntl.forceDelete)}</span>
           </Menu.Item>
           <Menu.Item key='deleteContainer'>
-            <span>重新分配</span>
+            <span>{formatMessage(ContainerListIntl.reDistribution)}</span>
           </Menu.Item>
         </Menu>
       );
@@ -451,7 +457,7 @@ let MyComponent = React.createClass({
               overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
               <TenxIcon type="terminal" size={12} className="terminal"/>
-              <span style={{ marginLeft: '10px' }}>终端</span>
+              <span style={{ marginLeft: '10px' }}>{formatMessage(ContainerListIntl.Terminal)}</span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
@@ -460,7 +466,7 @@ let MyComponent = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: true },
+        { message: formatMessage(ContainerListIntl.pleaseChoiceHarbor), required: true },
       ],
       initialValue:'',
       onChange: this.selectChange
@@ -480,25 +486,25 @@ let MyComponent = React.createClass({
       <div className='dataBox'>
         {items}
         <Modal
-          title="导出镜像"
+          title={formatMessage(ContainerListIntl.exportImage)}
           visible={this.state.exportImageModalVisible}
           width="570px"
           maskClosable={false}
           wrapClassName="exportImage"
-          okText="导出镜像到仓库"
+          okText={formatMessage(ContainerListIntl.exportImageToHarbor)}
           footer={[
-            <Button key="cancel" size='large' onClick={this.hanldeCancleExportImage}>取消</Button>,
-            <Button key="ok" type="primary" size="large" onClick={this.handleConfirmExportImage} loading={this.state.ModalLoadidng}>导出到镜像仓库</Button>
+            <Button key="cancel" size='large' onClick={this.hanldeCancleExportImage}>{formatMessage(ContainerListIntl.cancel)}</Button>,
+            <Button key="ok" type="primary" size="large" onClick={this.handleConfirmExportImage} loading={this.state.ModalLoadidng}>{formatMessage(ContainerListIntl.exportToImageHarbor)}</Button>
           ]}
           onOk={this.handleConfirmExportImage}
           onCancel={this.hanldeCancleExportImage}
         >
           <div className='alertRow'>
-            选择仓库组并输入镜像地址，导出的镜像将推送到相应的镜像仓库中
+            {formatMessage(ContainerListIntl.choiceHarborAndInputImageAddress)}
           </div>
           <div className='header'>
             <Form>
-              <div className='float imagename'>选择仓库组</div>
+              <div className='float imagename'>{formatMessage(ContainerListIntl.choiceHarborGroup)}</div>
               <div className='float imageAddress'>
                 <Form.Item>
                   <Select showSearch {...harborProjectProps} size='large'>
@@ -507,7 +513,7 @@ let MyComponent = React.createClass({
                         const currentRoleId = project[camelize('current_user_role_id')]
                         return (
                           <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3 || project.name === TENX_STORE}>
-                            {project.name} {currentRoleId == 3 && '（访客）'}
+                            {project.name} {currentRoleId == 3 && formatMessage(ContainerListIntl.visitor)}
                           </Option>
                         )}
                       )
@@ -516,29 +522,29 @@ let MyComponent = React.createClass({
                 </Form.Item>
               </div>
               <div style={{clear: 'both', height: '15px'}}></div>
-              <div className='float imagename'>镜像名称&nbsp;&nbsp;&nbsp;&nbsp;</div>
+              <div className='float imagename'>{formatMessage(ContainerListIntl.imageName)}&nbsp;&nbsp;&nbsp;&nbsp;</div>
               <div className='float imageAddress'>
                 <Form.Item
-                  help={isFieldValidating('exportImageName') ? '校验中...' : (getFieldError('exportImageName') || []).join(', ')}
+                  help={isFieldValidating('exportImageName') ? formatMessage(ContainerListIntl.verifying) : (getFieldError('exportImageName') || []).join(', ')}
                 >
-                  <Input {...exportImageName} placeholder='请填写镜像名称'  />
+                  <Input {...exportImageName} placeholder={formatMessage(ContainerListIntl.inputImageName)}  />
                 </Form.Item>
               </div>
               <div className='float point'>:</div>
               <div className='float previewImageAddress'>
                 <Form.Item>
-                  <Input {...exportImageVersion} placeholder='请填写标签'/>
+                  <Input {...exportImageVersion} placeholder={formatMessage(ContainerListIntl.pleaseInputTag)}/>
                 </Form.Item>
               </div>
             </Form>
           </div>
           <div className="main">
-            <div className='preview'>预览：</div>
+            <div className='preview'>{formatMessage(ContainerListIntl.preview)}：</div>
             <div className='address'>
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server.substring(exportimageUrl.registryConfig.server.indexOf('://') + 3)}/{getFieldValue('harborProjectName').split('/detail/')[0] || '仓库组名称'}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server.substring(exportimageUrl.registryConfig.server.indexOf('://') + 3)}/{getFieldValue('harborProjectName').split('/detail/')[0] || formatMessage(ContainerListIntl.HarborGroupName)}/</span>
                   : <Spin></Spin>
                 }
               </span>
@@ -546,23 +552,23 @@ let MyComponent = React.createClass({
               <span>:</span>
               <span className='imagecolor'>{this.formatImageInfo().imageTag}</span><br/>
               {
-                this.state.imageNameEqual && this.state.imageTagEqual && <div className='tips'><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>镜像已存在，继续使用会覆盖已有镜像</div>
+                this.state.imageNameEqual && this.state.imageTagEqual && <div className='tips'><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>{formatMessage(ContainerListIntl.nameAlreadyExistCoverImage)}</div>
               }
             </div>
           </div>
           <div className='footer'>
-            <div className='item'>当前容器有映射 Volume 目录，此次导出的镜像<span className='color'>不包含 Volume 的存储目录</span></div>
+            <div className='item'>{formatMessage(ContainerListIntl.currentContainerMapVolume)}<span className='color'>{formatMessage(ContainerListIntl.excludeVolumeStorage)}</span></div>
           </div>
         </Modal>
 
         <Modal
-          title='导出镜像'
+          title={formatMessage(ContainerListIntl.exportImage)}
           visible={this.state.exportImageModalSuccess}
           width="570px"
           maskClosable={false}
           wrapClassName="exportImageSuccess"
-          okText="查看镜像仓库"
-          cancelText="关闭"
+          okText={formatMessage(ContainerListIntl.checkImageHarbor)}
+          cancelText={formatMessage(ContainerListIntl.close)}
           onOk={this.handleViewImageStore}
           onCancel={this.hanldeClose}
         >
@@ -572,29 +578,31 @@ let MyComponent = React.createClass({
                 <Icon type="check-circle-o" className='icon'/>
               </div>
               <div className='tips'>
-                操作成功
+                {formatMessage(ContainerListIntl.operationSuccess)}
               </div>
             </div>
             <div className='footer'>
               <div className='lineone'>
-                正在推送 <span>{this.state.exportImageName}</span> 到镜像仓库
+                {formatMessage(ContainerListIntl.pushingToImage, { exportImageName: this.state.exportImageName })}
               </div>
-              <div>可能会花一些时间，请稍后至<span className='item'>『交付中心→镜像仓库』</span>查看</div>
+              <div>{formatMessage(ContainerListIntl.maybeSpentSomeTime)}<span className='item'>『{formatMessage(ContainerListIntl.deliveryCenter)}→{formatMessage(ContainerListIntl.imageHarbor)}』</span>
+              {formatMessage(ContainerListIntl.check)}
+              </div>
             </div>
           </div>
         </Modal>
 
         <Modal
-          title='提示'
+          title={formatMessage(ContainerListIntl.prompt)}
           visible={this.state.containerErrorModal}
           width="570px"
           maskClosable={true}
           wrapClassName="WarningModal"
           onOk={this.handleInfoOK}
           onCancel={this.handleInfoCancel}
-          okText="知道了"
+          okText={formatMessage(ContainerListIntl.gotIt)}
         >
-         <div><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>容器为非运行中状态，不能导出镜像</div>
+         <div><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>{formatMessage(ContainerListIntl.containerNoExportImage)}</div>
         </Modal>
       </div>
     );
@@ -835,6 +843,7 @@ class ContainerList extends Component {
 
   render() {
     const parentScope = this
+    const { formatMessage } = this.props.intl
     const {
       name, page, size,
       sortOrder, total, cluster,
@@ -862,7 +871,7 @@ class ContainerList extends Component {
         className='ContainerList'
         type='right'
         >
-        <Title title="容器列表"/>
+        <Title title={formatMessage(ContainerListIntl.containList)}/>
         <div id='ContainerList' key='ContainerList'>
           <div className='operationBox'>
             <ResourceBanner resourceType='container'/>
@@ -872,7 +881,7 @@ class ContainerList extends Component {
                 disabled={!isChecked}
                 onClick={this.batchDeleteContainers}>
                 <i className='fa fa-undo' />
-                重新分配
+                {formatMessage(ContainerListIntl.reDistribution)}
               </Button>
               <Button
                 size="large"
@@ -882,14 +891,14 @@ class ContainerList extends Component {
                 onClick={() => this.batchDeleteContainers('force')}
               >
                 <i className='fa fa-trash-o'></i>
-                强制删除
+                {formatMessage(ContainerListIntl.forceDelete)}
               </Button>
               <Button
                 size='large'
                 className="refresh"
                 onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh'></i>
-                刷新
+                {formatMessage(ContainerListIntl.refresh)}
               </Button>
             </div>
             <div className='rightBox'>
@@ -905,14 +914,14 @@ class ContainerList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='按容器名称搜索'
+                  placeholder={formatMessage(ContainerListIntl.searchByContainerName)}
                   style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'>{formatMessage(ContainerListIntl.totals, { total })}</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -926,20 +935,20 @@ class ContainerList extends Component {
             </div>}
             <div className='clearDiv'></div>
           </div>
-          <Modal title="重新分配操作" visible={this.state.Relocating}
+          <Modal title={formatMessage(ContainerListIntl.reDistributionOperation)} visible={this.state.Relocating}
             onOk={()=> this.handleOk()} onCancel={()=> this.setState({Relocating: false})} >
             <div className="confirm" style={{color: '#00a0ea'}}>
               <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
-              您是否确定要重新分配
+              {formatMessage(ContainerListIntl.makeSureDistribution)}
               {
                 this.state.checkedContainerList.length === 1
-                ? `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
-                : `这${this.state.checkedContainerList.length}个容器？`
+                ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
+                : formatMessage(ContainerListIntl.thisNumContainer)
               }
            </div>
           </Modal>
           <Modal
-            title="强制删除操作"
+            title={formatMessage(ContainerListIntl.forceDeleteOperation)}
             visible={forceDeleteVisble}
             closable={true}
             onOk={() => this.handleOk({force: true})}
@@ -947,11 +956,11 @@ class ContainerList extends Component {
           >
             <div className="deleteRow" style={{ color: 'red' }}>
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              您是否确定要强制删除
+              {formatMessage(ContainerListIntl.makeSureForceDelete)}
               {
                 this.state.checkedContainerList.length === 1
-                  ? `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
-                  : `这${this.state.checkedContainerList.length}个容器？`
+                  ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
+                  : formatMessage(ContainerListIntl.thisNumContainer)
               }
             </div>
           </Modal>
@@ -964,22 +973,22 @@ class ContainerList extends Component {
                   disabled={containerList.length < 1} />
               </div>
               <div className='containerName commonTitle'>
-                容器名称
+                {formatMessage(ContainerListIntl.container)}
               </div>
               <div className='containerStatus commonTitle'>
-                状态
+                {formatMessage(ContainerListIntl.state)}
               </div>
               <div className='serviceName commonTitle'>
-                所属应用
+                {formatMessage(ContainerListIntl.belongApp)}
               </div>
               <div className='imageName commonTitle'>
-                镜像
+                {formatMessage(ContainerListIntl.image)}
               </div>
               <div className='visitIp commonTitle'>
-                访问地址
+                {formatMessage(ContainerListIntl.visitAddress)}
               </div>
               <div className='createTime commonTitle' onClick={this.sortCreateTime}>
-                创建时间
+                {formatMessage(ContainerListIntl.createTime)}
                 <div className="ant-table-column-sorter">
                   <span className={sortOrder == 'asc' ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                     <i className="anticon anticon-caret-up" />
@@ -990,7 +999,7 @@ class ContainerList extends Component {
                 </div>
               </div>
               <div className='actionBox commonTitle'>
-                操作
+                {formatMessage(ContainerListIntl.operation)}
               </div>
             </div>
             <MyComponent
@@ -1006,6 +1015,7 @@ class ContainerList extends Component {
               loadAllProject={loadAllProject}
               loadRepositoriesTags={loadRepositoriesTags}
               harbor={harbor}
+              formatMessage={formatMessage}
             />
           </Card>
         </div>
@@ -1092,7 +1102,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadContainerList,
   deleteContainers,
   updateContainerList,
@@ -1102,4 +1112,4 @@ export default connect(mapStateToProps, {
   loadAllProject,
   loadRepositoriesTags,
   removeTerminal,
-})(ContainerList)
+})(ContainerList),  { withRef: true })

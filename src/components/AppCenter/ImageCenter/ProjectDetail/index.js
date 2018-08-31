@@ -251,7 +251,7 @@ class ImageDetailBox extends Component {
                   {formatMessage(detailIndexIntl.deployImage)}
                 </Button>
               </div>
-              {/* 说扫描 */}
+              {/* 扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>{formatMessage(detailIndexIntl.securityScan)}</Button>
                 <Modal title={formatMessage(detailIndexIntl.securityScan)} visible={this.state.safetyscanVisible} closable={true}
@@ -272,7 +272,7 @@ class ImageDetailBox extends Component {
                       loading={this.state.safetyscanLoading}
                       disabled={this.state.disable}
                       onClick={()=> this.safetyscanhandleOk()}>
-
+                      {formatMessage(detailIndexIntl.okText)}
                     </Button>,
                   ]}>
                   <div>
