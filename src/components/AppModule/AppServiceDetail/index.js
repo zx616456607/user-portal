@@ -99,6 +99,7 @@ class AppServiceDetail extends Component {
       loadServiceDetail,
       loadK8sService,
       loadServiceContainerList,
+      projectName
     } = nextProps || this.props
     const query = {}
     loadServiceDetail(cluster, serviceName).then( res => {
@@ -124,7 +125,7 @@ class AppServiceDetail extends Component {
         isAsync: true
       }
     })
-    loadServiceContainerList(cluster, serviceName, null, {
+    loadServiceContainerList(cluster, serviceName, {projectName}, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -616,6 +617,7 @@ function mapStateToProps(state, props) {
   const  cluster = currentShowInstance && currentShowInstance.cluster
   const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
+  const { projectName } = state.entities.current.space
   const defaultService = {
     isFetching: false,
     cluster,
@@ -666,6 +668,7 @@ function mapStateToProps(state, props) {
     isContainersFetching: targetContainers.isFetching,
     k8sService: k8sServiceData,
     serviceList: services || [],
+    projectName
   }
 }
 

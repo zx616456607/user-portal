@@ -240,15 +240,6 @@ class App extends Component {
       return
     }
     // 未安装插件
-    /*404 + kind 中包含cluster-operator字样那就根据kind中的值，提示xxxx 未安装，*/
-    if (statusCode === 404) {
-      const details = errorMessage.error.message.details
-      const reg = /cluster-operator/g
-      if (details && details.kind && reg.test(details.kind)) {
-        notification.error(`${details.kind} 未安装`)
-        return
-      }
-    }
 
     if (pathname !== this.props.pathname) {
       resetErrorMessage()
