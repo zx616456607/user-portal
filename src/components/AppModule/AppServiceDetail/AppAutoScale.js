@@ -36,6 +36,8 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { autoScaleNameCheck } from '../../../common/naming_validation'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -43,16 +45,16 @@ const TabPane = Tabs.TabPane;
 
 const sendEmailOpt = [{
   type: 'SendEmailWhenScale',
-  text: '伸缩时发送邮件'
+  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScale}/>
 }, {
   type: 'SendEmailWhenScaleUp',
-  text: '扩展时发送邮件'
+  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWhenScaleUp}/>
 }, {
   type: 'SendEmailWHenScaleDown',
-  text: '收缩时发送邮件'
+  text: <FormattedMessage {...AppServiceDetailIntl.SendEmailWHenScaleDown}/>
 }, {
   type: 'SendNoEmail',
-  text: '不发送邮件'
+  text: <FormattedMessage {...AppServiceDetailIntl.SendNoEmail}/>
 }]
 const thresholdKey = ['cpu', 'memory', 'qps']
 let maxInstance = null
@@ -210,10 +212,11 @@ class AppAutoScale extends Component {
     })
   }
   startEdit() {
+    const { formatMessage } = this.props.intl
     const { isPrivate } = this.state
     if (isPrivate) {
       let notify = new NotificationHandler()
-      notify.info('挂载独享型存储的服务不支持自动伸缩')
+      notify.info(formatMessage(AppServiceDetailIntl.MountPrivateStorageNoAutoScale))
       return
     }
     this.setState({
@@ -232,6 +235,7 @@ class AppAutoScale extends Component {
     const { form, updateAutoScale, cluster } = this.props
     const { scaleDetail, switchOpen, thresholdArr } = this.state
     const { validateFields, resetFields, getFieldValue } = form
+    const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     validateFields((errors, values) => {
       if (!!errors) {
@@ -247,7 +251,8 @@ class AppAutoScale extends Component {
       this.setState({
         btnLoading: true
       })
-      const msgSpin = isEmpty(scaleDetail) ? '创建中...' : '修改中'
+      const msgSpin = isEmpty(scaleDetail) ? formatMessage(AppServiceDetailIntl.creating) :
+      formatMessage(AppServiceDetailIntl.changing)
       notify.spin(msgSpin)
       const { strategyName, serviceName, min, max, alert_strategy, alert_group} = values
       let body = { scale_strategy_name: strategyName, min, max, ...opt, alert_strategy, alert_group, type: switchOpen ? 1 : 0 }
@@ -263,7 +268,7 @@ class AppAutoScale extends Component {
             })
             this.loadData(this.props)
             notify.close()
-            notify.success('操作成功')
+            notify.success(formatMessage(AppServiceDetailIntl.operationSuccess))
             resetFields()
           },
           isAsync: true
@@ -275,7 +280,7 @@ class AppAutoScale extends Component {
               isEdit: false,
             })
             notify.close()
-            notify.error('操作失败')
+            notify.error(formatMessage(AppServiceDetailIntl.operationFailure))
             resetFields()
           }
         }
@@ -285,16 +290,17 @@ class AppAutoScale extends Component {
   updateScaleStatus = () => {
     const { updateAutoScaleStatus, cluster, serviceName } = this.props
     const { switchOpen, scaleDetail, isPrivate } = this.state
+    const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     if (isPrivate) {
-      notify.info('挂载独享型存储的服务不支持自动伸缩')
+      notify.info(formatMessage(AppServiceDetailIntl.MountPrivateStorageNoAutoScale))
       return
     }
-    let msg = switchOpen ? '关闭' : '开启'
-    notify.spin(`${msg}中...`)
+    let msg = switchOpen ? formatMessage(ServiceCommonIntl.close) : formatMessage(ServiceCommonIntl.open)
+    notify.spin(formatMessage(AppServiceDetailIntl.Xin, { msg}))
     if (isEmpty(scaleDetail)) {
       notify.close()
-      notify.error(`${msg}失败，请编辑伸缩策略`)
+      notify.error(formatMessage(AppServiceDetailIntl.XFailureEditStrategy, { msg }))
       return
     }
     this.setState({
@@ -308,14 +314,14 @@ class AppAutoScale extends Component {
           func: () => {
             this.loadData(this.props)
             notify.close()
-            notify.success(`${msg}成功`)
+            notify.success(formatMessage(AppServiceDetailIntl.XSuccess, { msg }))
           },
           isAsync: true
         },
         failed: {
           func: () => {
             notify.close()
-            notify.error(`${msg}失败`)
+            notify.error(formatMessage(AppServiceDetailIntl.XFailure, { msg }))
             this.setState({
               switchOpen
             })
@@ -328,6 +334,7 @@ class AppAutoScale extends Component {
     const { checkAutoScaleName, cluster, form } = this.props
     const { isEdit, scaleDetail } = this.state
     const { getFieldValue } = form
+    const { formatMessage } = this.props.intl
     let message = autoScaleNameCheck(value)
     if (message !== 'success') {
       return callback(message)
@@ -353,7 +360,7 @@ class AppAutoScale extends Component {
         failed: {
           func: res => {
             if (res.statusCode === 400) {
-              callback('该策略名称已经存在')
+              callback(formatMessage(AppServiceDetailIntl.ThisStrategyIsExist))
             }
             callback()
           },
@@ -366,11 +373,12 @@ class AppAutoScale extends Component {
     const { isEdit } = this.state
     const { checkAutoScaleName, cluster, form } = this.props
     const { getFieldValue } = form
+    const { formatMessage } = this.props.intl
     if (!isEdit) {
       return callback()
     }
     if (!value) {
-      callback('请选择服务')
+      callback(formatMessage(AppServiceDetailIntl.pleaseChoiceService))
     }
     const strategy_name = getFieldValue('scale_strategy_name') || ''
     clearTimeout(this.checkSerivceNameExist)
@@ -387,7 +395,7 @@ class AppAutoScale extends Component {
         failed: {
           func: res => {
             if (res.statusCode === 400) {
-              callback('该服务已经关联弹性伸缩策略')
+              callback(formatMessage(AppServiceDetailIntl.thisServiceLinkAutoScale))
             }
             callback()
           }
@@ -397,55 +405,60 @@ class AppAutoScale extends Component {
   }
   checkMin = (rule, value, callback) => {
     const { getFieldValue } = this.props.form
+    const { formatMessage } = this.props.intl
     const max = getFieldValue('max')
     if (!value) {
-      return callback('请输入最小实例数')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseInputLeastContainerNum))
     }
     if (value < 1) {
-      return callback('最小实例不能少于1个')
+      return callback(formatMessage(AppServiceDetailIntl.leastContainerMoreThanOne))
     }
     if (value >= max) {
-      return callback('最小实例数不能等于或者超过最大实例数')
+      return callback(formatMessage(AppServiceDetailIntl.containerLeastMaxNum))
     }
     callback()
   }
   checkMax = (rule, value, callback) => {
     const { getFieldValue } = this.props.form
+    const { formatMessage } = this.props.intl
     const min = getFieldValue('min')
     if (!value) {
-      return callback('请输入最大实例数')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseInputMaxContainerNum))
     }
     if (maxInstance && value > maxInstance) {
       return callback('服务开启了固定实例 IP，实例数量最多为 IP 数量')
     }
     if (value > 300) {
-      return callback('最大实例不能超过300个')
+      return callback(formatMessage(AppServiceDetailIntl.maxContainerLeast300))
     }
     if (value <= min) {
-      return callback('最大实例数不能等于或者少于最小实例数')
+      return callback(formatMessage(AppServiceDetailIntl.maxContainerNoLeastMinContainer))
     }
     callback()
   }
   checkEmail = (rule, value, callback) => {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请选择邮件发送方式')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceSendEmailWay))
     }
     callback()
   }
   checkAlert = (rule, value, callback) => {
     const { getFieldValue } = this.props.form
+    const { formatMessage } = this.props.intl
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
     if (!value && !isGroupHide) {
-      return callback('请选择告警通知组')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceGroup))
     }
     callback()
   }
   checkType = (rule, value, callback, key) => {
     const { form, getServiceLBList, cluster } = this.props
     const { getFieldValue, getFieldError } = form
+    const { formatMessage } = this.props.intl
     const { thresholdArr } = this.state
     if (!value) {
-      return callback('请选择类型')
+      return callback(formatMessage(AppServiceDetailIntl.pleaseChoiceType))
     }
     let newValue = getFieldValue(`type${key}`)
     const result = thresholdArr.some(item => {
@@ -458,7 +471,7 @@ class AppAutoScale extends Component {
       }
     })
     if (result) {
-      return callback('阈值类型重复')
+      return callback(formatMessage(AppServiceDetailIntl.limitTypeRepeat))
     }
     const serviceName = form.getFieldValue('serviceName')
     if (!serviceName || value !== 'qps') return callback()
@@ -469,7 +482,7 @@ class AppAutoScale extends Component {
         success: {
           func: res => {
             if (isEmpty(res.data)) {
-              return callback('该服务未绑定任何【负载均衡】，无法基于 QPS 创建伸缩策略')
+              return callback(formatMessage(AppServiceDetailIntl.serviceNoBindAnyLoadBalance))
             } else {
               callback()
             }
@@ -480,17 +493,18 @@ class AppAutoScale extends Component {
     }, ASYNC_VALIDATOR_TIMEOUT)
   }
   checkValue = (rule, value, callback, type) => {
+    const { formatMessage } = this.props.intl
     if (!value && value !== 0) {
-      return callback(`请输入${type}阈值`)
+      return callback(formatMessage(AppServiceDetailIntl.pleaseInputLimit, { type }))
     }
     if (type === 'qps') {
       if (value < 1 || value > 1000000) {
-        return callback(`${type}阈值范围为1至1000000`)
+        return callback(formatMessage(AppServiceDetailIntl.limitIs1100000, { type }))
       }
       return callback()
     }
     if (value < 1 || value > 99) {
-      return callback(`${type}阈值范围为1至99`)
+      return callback(formatMessage(AppServiceDetailIntl.limitIs199, { type }))
     }
     callback()
   }
@@ -513,13 +527,14 @@ class AppAutoScale extends Component {
     })
   }
   delRule = (key) => {
+    const { formatMessage } = this.props.intl
     const { form } = this.props
     const { setFields, getFieldValue } = form
     const { thresholdArr } = this.state
     let copyThreshold = thresholdArr.slice(0)
     let notify = new NotificationHandler()
     if (copyThreshold.length === 1) {
-      notify.info('至少得有一项规则')
+      notify.info(formatMessage(AppServiceDetailIntl.leastOneRule))
       return
     }
     copyThreshold = copyThreshold.filter(item => key !== item)
@@ -549,6 +564,7 @@ class AppAutoScale extends Component {
     })
   }
   render() {
+    const { formatMessage } = this.props.intl
     const { isEdit, scaleDetail, switchOpen, btnLoading, activeKey, thresholdArr, cpuAndMemory } = this.state
     const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab,
       serviceDetail } = this.props
@@ -599,7 +615,7 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     let thresholdItem
-    let message = '所有实例平均使用率超过阈值自动扩展，n-1个实例平均值低于阈值自动收缩'
+    let message = formatMessage(AppServiceDetailIntl.allContainerExceedInfo)
     thresholdItem = thresholdArr.map((key) => {
       let optItem = cpuAndMemory[key] || { 'cpu': 80 }
       return (
@@ -608,7 +624,7 @@ class AppAutoScale extends Component {
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right'}}>
               {
                 thresholdArr.indexOf(key) === 0
-                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip><span style={{ margin: '0 8px 0 2px' }}>:</span></div>
+                  ? <div>{formatMessage(AppServiceDetailIntl.limitValue)}<Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip><span style={{ margin: '0 8px 0 2px' }}>:</span></div>
                   : ''
               }
             </Col>
@@ -624,9 +640,9 @@ class AppAutoScale extends Component {
                     initialValue: Object.keys(optItem)[0]
                   }) }
                 >
-                  <Option value="cpu">CPU阈值</Option>
-                  <Option value="memory">内存阈值</Option>
-                  <Option value="qps">QPS阈值</Option>
+                  <Option value="cpu">{formatMessage(AppServiceDetailIntl.CPULimitValue)}</Option>
+                  <Option value="memory">{formatMessage(AppServiceDetailIntl.memoryLimitValue)}</Option>
+                  <Option value="qps">{formatMessage(AppServiceDetailIntl.QPSLimitValue)}</Option>
                 </Select>
               </FormItem>
             </Col>
@@ -651,9 +667,9 @@ class AppAutoScale extends Component {
               {
                 scaleDetail && scaleDetail.qpsValid === 'false' && getFieldValue(`type${key}`) === 'qps' &&
                 <Tooltip
-                  title="服务绑定LB被删除"
+                  title={formatMessage(AppServiceDetailIntl.bindServiceLBDelete)}
                 >
-                  <span className="failedColor">【失效】</span>
+                  <span className="failedColor">{formatMessage(AppServiceDetailIntl.loseEfficacy)}</span>
                 </Tooltip>
               }
             </Col>
@@ -662,7 +678,7 @@ class AppAutoScale extends Component {
             getFieldValue(`type${key}`) === 'qps' &&
             <Row style={{margin: '0 0 20px'}}>
               <Col offset={4} span={20}>
-                <Icon type="exclamation-circle-o"/> 该阈值统计该服务通过【负载均衡】的 QPS，若绑定了多个 LB，则统计为 QPS 之和
+                <Icon type="exclamation-circle-o"/>{formatMessage(AppServiceDetailIntl.thisLimitValueBindLB)}
               </Col>
             </Row>
           }
@@ -684,36 +700,39 @@ class AppAutoScale extends Component {
     return(
       <div id="AppAutoScale">
         <div className="autoScaleSwitch">
-          <span>自动弹性伸缩</span>
-          <Switch checked={switchOpen} onChange={this.updateScaleStatus} checkedChildren="开" unCheckedChildren="关" />
+          <span>{formatMessage(AppServiceDetailIntl.autoScale)}</span>
+          <Switch checked={switchOpen} onChange={this.updateScaleStatus}
+            checkedChildren={formatMessage(ServiceCommonIntl.open)}
+            unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
+          />
         </div>
         <Tabs activeKey={activeKey} onChange={activeKey => this.setState({activeKey})} type="card" id="autoScaleTabs">
-          <TabPane tab="伸缩策略" key="autoScaleForm">
+          <TabPane tab={formatMessage(AppServiceDetailIntl.scaleStrategy)} key="autoScaleForm">
             <div className="autoScaleFormBox">
               <div className="alertRow">
-                任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩
+                {formatMessage(AppServiceDetailIntl.anyIndexExceedLimitValue)}
               </div>
               <div className="autoScaleInnerBox">
                 <Form form={form} className="autoScaleForm">
                   <FormItem
                     {...formItemLargeLayout}
-                    label="策略名称"
+                    label={formatMessage(AppServiceDetailIntl.strategyName)}
                     hasFeedback
-                    help={isFieldValidating('strategyName') ? '校验中...' : (getFieldError('strategyName') || []).join(', ')}
+                    help={isFieldValidating('strategyName') ? formatMessage(AppServiceDetailIntl.verifying) : (getFieldError('strategyName') || []).join(', ')}
                   >
-                    <Input disabled={!isEdit} type="text" {...scaleName} placeholder="请输入策略名称"/>
+                    <Input disabled={!isEdit} type="text" {...scaleName} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputstrategyName)}/>
                   </FormItem>
                   <FormItem
                     {...formItemLargeLayout}
-                    label="选择服务"
+                    label={formatMessage(AppServiceDetailIntl.choiceService)}
                   >
                     <Select
                       showSearch
                       disabled={true}
                       optionFilterProp="children"
-                      notFoundContent="没有未关联的服务"
+                      notFoundContent={formatMessage(AppServiceDetailIntl.NoLinkService)}
                       {...selectService}
-                      placeholder="请选择服务">
+                      placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceService)}>
                       {
                         services && services.length && services.map(item =>
                           <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
@@ -722,14 +741,14 @@ class AppAutoScale extends Component {
                   </FormItem>
                   <FormItem
                     {...formItemSmallLayout}
-                    label="最小实例数"
+                    label={formatMessage(AppServiceDetailIntl.leastContainerNum)}
                   >
                     <InputNumber disabled={!isEdit} {...minReplicas}/> 个
                   </FormItem>
                   <FormItem
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 20 }}
-                    label="最大实例数"
+                    label={formatMessage(AppServiceDetailIntl.moreContainerNum)}
                   >
                     <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
                     {
@@ -746,15 +765,15 @@ class AppAutoScale extends Component {
                   {thresholdItem}
                   <FormItem
                     {...formItemLargeLayout}
-                    label="发送邮件"
+                    label={formatMessage(AppServiceDetailIntl.sendEmail)}
                   >
                     <Select
                       disabled={!isEdit}
                       {...selectEmailSendType}
-                      placeholder="请选择邮件发送方式"
+                      placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceSendEmailManner)}
                       showSearch
                       optionFilterProp="children"
-                      notFoundContent="无法找到">
+                      notFoundContent={formatMessage(AppServiceDetailIntl.noFind)}>
                       {
                         sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
                       }
@@ -765,16 +784,16 @@ class AppAutoScale extends Component {
                       [
                         <FormItem
                           {...formItemLargeLayout}
-                          label="告警通知组"
+                          label={formatMessage(AppServiceDetailIntl.monitorGroup)}
                           key="alertGroup"
                         >
                           <Select
                             disabled={!isEdit}
                             {...selectAlertGroup}
-                            placeholder="请选择告警通知组"
+                            placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceGroup)}
                             showSearch
                             optionFilterProp="children"
-                            notFoundContent="没有告警通知组">
+                            notFoundContent={formatMessage(AppServiceDetailIntl.noMonitorGroup)}>
                             {
                               alertList && alertList.length ? alertList.map(item =>
                                 <Option key={item.name} value={item.groupID}>{item.name}</Option>
@@ -785,13 +804,14 @@ class AppAutoScale extends Component {
                         <Row key="groupHint">
                           <Col span={4}/>
                           <Col span={20} className="hintBox">
-                            <Icon type="exclamation-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
+                            <Icon type="exclamation-circle-o" />
+                            {formatMessage(AppServiceDetailIntl.autoScaleSendEmail)}
                           </Col>
                         </Row>,
                         <Row style={{margin: '-10px 0 10px'}} key="createGroup">
                           <Col span={4}/>
                           <Col span={16}>
-                            没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
+                            {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
                           </Col>
                         </Row>
                       ]
@@ -802,11 +822,11 @@ class AppAutoScale extends Component {
                     {
                       !isEdit
                         ?
-                        <Button key="edit" size="large" type="primary" onClick={this.startEdit.bind(this)}>编辑</Button>
+                        <Button key="edit" size="large" type="primary" onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
                         :
                         [
-                          <Button key="cancel" size="large" onClick={this.cancelEdit}>取消</Button>,
-                          <Button type="primary" key="save" size="large" loading={btnLoading} onClick={this.saveEdit}>保存</Button>
+                          <Button key="cancel" size="large" onClick={this.cancelEdit}>{formatMessage(ServiceCommonIntl.cancel)}</Button>,
+                          <Button type="primary" key="save" size="large" loading={btnLoading} onClick={this.saveEdit}>{formatMessage(ServiceCommonIntl.save)}</Button>
                         ]
                     }
 
@@ -815,7 +835,7 @@ class AppAutoScale extends Component {
               </div>
             </div>
           </TabPane>
-          <TabPane tab="伸缩日志" key="autoScaleLogs">
+          <TabPane tab={formatMessage(AppServiceDetailIntl.scaleLog)} key="autoScaleLogs">
             <AppAutoScaleLogs
               getAutoScaleLogs={getAutoScaleLogs}
               cluster={cluster}
@@ -849,7 +869,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadAutoScale,
   updateAutoScale,
   updateAutoScaleStatus,
@@ -858,4 +878,4 @@ export default connect(mapStateToProps, {
   loadNotifyGroups,
   loadServiceDetail,
   getServiceLBList
-})(Form.create()(AppAutoScale))
+})(Form.create()(AppAutoScale)), { withRef: true, })

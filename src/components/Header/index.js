@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Icon, Badge, Modal } from 'antd'
+import { Icon, Badge, Modal, Menu, Dropdown } from 'antd'
 import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
@@ -19,22 +19,26 @@ import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getStorageClassType } from '../../actions/storage'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
-import { getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring } from '../../common/tools'
-import { USER_CURRENT_CONFIG, ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN } from '../../../constants'
+import {
+  getCookie, isEmptyObject, getVersion, getPortalRealMode, toQuerystring,
+  setCookie,
+} from '../../common/tools'
+import {
+  USER_CURRENT_CONFIG, ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN, INTL_COOKIE_NAME,
+} from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE, API_URL_PREFIX } from '../../constants'
 import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './Intl'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = standard === mode
-const team = mode === standard ? '团队' : '项目'
-const zone = mode === standard ? '区域' : '集群'
-const selectTeam = mode === standard ? '选择团队' : '选择项目'
-const selectZone = mode === standard ? '选择区域' : '选择集群'
+const SubMenu = Menu.SubMenu
 
 // The following routes RegExp will show select space or select cluster
 const SPACE_CLUSTER_PATHNAME_MAP = {
@@ -119,7 +123,13 @@ class Header extends Component {
       allUsers: [],
       collapseDefaultActiveKey: null,
     }
+    const { formatMessage } = this.props.intl
+    this.team = mode === standard ? '团队' : formatMessage(IntlMessages.project)
+    this.zone = mode === standard ? '区域' : formatMessage(IntlMessages.cluster)
+    this.selectTeam = mode === standard ? '选择团队' : formatMessage(IntlMessages.selectProject)
+    this.selectZone = mode === standard ? '选择区域' : formatMessage(IntlMessages.selectCluster)
     this.isSysAdmin = props.loginUser.role === ROLE_SYS_ADMIN || props.loginUser.role === ROLE_PLATFORM_ADMIN
+    this.locale = getCookie(INTL_COOKIE_NAME)
   }
 
   handleDocVisible(){
@@ -193,6 +203,7 @@ class Header extends Component {
       spacesVisible: false,
       clustersVisible: true,
     })
+    const { formatMessage } = this.props.intl
     getProjectVisibleClusters(project.projectName, {
       success: {
         func: clustersRes => {
@@ -206,7 +217,12 @@ class Header extends Component {
             return cluster
           })
           if (!clusters || clusters.length < 1) {
-            notification.warn(`${team} [${project.projectName}] 的${zone}列表为空，请重新选择${team}`)
+            const msg = formatMessage(IntlMessages.emptyClustersTip, {
+              project: this.team,
+              projectName: project.projectName,
+              cluster: this.zone,
+            })
+            notification.warn(msg)
             this.setState({
               spacesVisible: true,
               clustersVisible: false,
@@ -253,14 +269,15 @@ class Header extends Component {
       && cluster.clusterID === current.cluster.clusterID) {
       return
     }
+    const { formatMessage } = this.props.intl
     cluster.namespace = current.space.namespace
     // get  storageType
     this.loadStorageClassType(cluster)
     this.props.setSwitchSpaceOrCluster()
-    let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
+    let msg = `${this.zone} ${formatMessage(IntlMessages.switchSuccessfully)} [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
       const teamName = current.space.userName ||current.space. name || current.space.namespace
-      msg = `${team}已成功切换到 [${teamName}]，${msg}`
+      msg = `${this.team} ${formatMessage(IntlMessages.switchSuccessfully)} [${teamName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
@@ -284,7 +301,7 @@ class Header extends Component {
       loginUser,
       getProjectVisibleClusters,
     } = this.props
-    const config = getCookie(USER_CURRENT_CONFIG)
+    const config = getCookie(USER_CURRENT_CONFIG) || ''
     const [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
     setCurrent({
       team: { teamID },
@@ -351,6 +368,7 @@ class Header extends Component {
     setHideDot()
   }
 
+  // 公有云部分，不做国际化
   renderCheckVersionContent() {
     const { checkVersionContent, isCheckVersion } = this.props
     const { checkVersionErr } = this.state
@@ -401,6 +419,11 @@ class Header extends Component {
     }
   }
 
+  changeLang(lang) {
+    setCookie(INTL_COOKIE_NAME, lang)
+    location.reload()
+  }
+
   render() {
     const {
       current,
@@ -435,32 +458,32 @@ class Header extends Component {
       ? current.space.name
       : (current.space.name || current.space.userName)
     let Search = true
-    const content = (
-      <div className='container'>
-        {
-          type === LITE &&
-          <div>
-            {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
-            {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
-          </div>
-        }
-        {
-          standardFlag &&
-          <div>
-            {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
-            {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
-          </div>
-        }
-        {
-          type !== LITE && !standardFlag &&
-          <div>
-            <div className='item'><a href={docUrl} target="_blank">文档中心</a></div>
-            <div className='item'><a href={faqUrl} target="_blank">常见问题</a></div>
-          </div>
-        }
-        <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
-      </div>
-    );
+    // const content = (
+    //   <div className='container'>
+    //     {
+    //       type === LITE &&
+    //       <div>
+    //         {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
+    //         {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
+    //       </div>
+    //     }
+    //     {
+    //       standardFlag &&
+    //       <div>
+    //         {/* <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div> */}
+    //         {/* <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div> */}
+    //       </div>
+    //     }
+    //     {
+    //       type !== LITE && !standardFlag &&
+    //       <div>
+    //         <div className='item'><a href={docUrl} target="_blank">文档中心</a></div>
+    //         <div className='item'><a href={faqUrl} target="_blank">常见问题</a></div>
+    //       </div>
+    //     }
+    //     <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
+    //   </div>
+    // );
     const roleShowSpace = loginUser.role == ROLE_SYS_ADMIN || loginUser.role == ROLE_PLATFORM_ADMIN
     return (
       <div id="header">
@@ -470,14 +493,14 @@ class Header extends Component {
             <div className="space">
               <div className="spaceTxt">
                 <TenxIcon type="cube"className='headercluster'/>
-                <span style={{ marginLeft: 15 }}>{team}</span>
+                <span style={{ marginLeft: 15 }}>{this.team}</span>
                 </div>
                 <div className="spaceBtn">
                   <PopSelect
                     allUsers={allUsers}
                     isSysAdmin={this.isSysAdmin}
                     Search={Search}
-                    title={selectTeam}
+                    title={this.selectTeam}
                     btnStyle={false}
                     special={true}
                     visible={spacesVisible}
@@ -498,11 +521,11 @@ class Header extends Component {
             <div className="cluster">
               <div className="clusterTxt">
                 <TenxIcon type="cluster" className='headercluster'/>
-                <span style={{ marginLeft: 20 }}>{zone}</span>
+                <span style={{ marginLeft: 20 }}>{this.zone}</span>
               </div>
               <div className="envirBox">
                 <PopSelect
-                  title={selectZone}
+                  title={this.selectZone}
                   btnStyle={false}
                   visible={clustersVisible}
                   list={projectClusters}
@@ -528,9 +551,9 @@ class Header extends Component {
         */}
           {
             msaUrl && (
-              <div className="docBtn quickentry border">
+              <div className="docBtn quickentry">
                 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: msaUrl })}`}>
-                微服务入口
+                  <FormattedMessage {...IntlMessages.msaPortal} />
                 </a>
               </div>
             )
@@ -554,18 +577,34 @@ class Header extends Component {
               <div className='doc'><Icon type="file-text" className='docicon'/>帮助文档<Icon type="down" className={rotate} style={{marginLeft:'4px'}}/></div>
             </Popover>
           </div> */}
-        {
-          type === LITE &&
-          <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
-            <div className='imgBox'>
-              <img src={backOldBtn} />
+          {
+            // 公有云部分，不做国际化
+            type === LITE &&
+            <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
+              <div className='imgBox'>
+                <img src={backOldBtn} />
+              </div>
+              <span className='backText'>
+                <Badge dot={!hideDot && isLatest === false}>升级版本</Badge>
+              </span>
             </div>
-            <span className='backText'>
-              <Badge dot={!hideDot && isLatest === false}>升级版本</Badge>
-            </span>
-          </div>
-        }
+          }
+          <Dropdown
+            overlay={
+              <Menu mode="horizontal" onClick={ ({ key }) => this.changeLang(key) }>
+                <Menu.Item key={this.locale === 'zh' ? 'en' : 'zh'}>
+                  { this.locale === 'zh' ? 'English' : '简体中文' }
+                </Menu.Item>
+              </Menu>
+            }
+            trigger={[ 'click' ]}
+          >
+            <div className="docBtn langSwitch border">
+              { this.locale === 'zh' ? '中文' : 'EN' }
+            </div>
+          </Dropdown>
           <UserPanel loginUser={loginUser}/>
+          {/* 公有云部分，不做国际化 */}
           <Modal
             title='升级版本'
             className='upgradeVersionModal'
@@ -620,7 +659,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadTeamClustersList,
   setCurrent,
   loadLoginUserDetail,
@@ -629,4 +668,6 @@ export default connect(mapStateToProps, {
   ListProjects,
   getProjectVisibleClusters,
   getStorageClassType,
-})(Header)
+})(Header), {
+  withRef: true,
+})

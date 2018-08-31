@@ -27,6 +27,8 @@ import NotificationHandler from '../../../../../components/Notification'
 import classNames from 'classnames'
 import './style/Storage.less'
 import ContainerCatalogueModal from '../../../ContainerCatalogueModal'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -127,13 +129,14 @@ const Storage = React.createClass({
     })
   },
   renderServiceType(serviceType) {
+    const { intl } = this.props
     const serviceTypeValue = serviceType && serviceType.value
     let descContent
     if (!serviceTypeValue) {
-      descContent = '无状态服务'
+      descContent = intl.formatMessage(IntlMessage.statelessService)
     } else {
       descContent = [
-        <div className="floatRight" key="service">有状态服务</div>,
+        <div className="floatRight" key="service">{intl.formatMessage(IntlMessage.statefulService)}</div>,
       ]
     }
     return (
@@ -165,7 +168,7 @@ const Storage = React.createClass({
     this.setState({ volumeSize: value })
   },
   renderStorageList() {
-    const { form, isTemplate, location } = this.props
+    const { form, isTemplate, location, intl } = this.props
     const { getFieldValue, getFieldProps } = form
     const { template } = location.query
     const storageListProps = getFieldProps('storageList')
@@ -196,9 +199,9 @@ const Storage = React.createClass({
           }
           if(type == 'host'){
             if(this.getServiceIsBindNode()){
-              volumeName = '已绑定'
+              volumeName = intl.formatMessage(IntlMessage.bindings)
             } else {
-              volumeName = '未绑定'
+              volumeName = intl.formatMessage(IntlMessage.unbound)
             }
             if (isTemplate) {
               volumeName = '-'
@@ -214,9 +217,9 @@ const Storage = React.createClass({
           }
           if(type == 'host'){
             if(this.getServiceIsBindNode()){
-              volumeName = '已绑定'
+              volumeName = intl.formatMessage(IntlMessage.bindings)
             } else {
-              volumeName = '未绑定'
+              volumeName = intl.formatMessage(IntlMessage.unbound)
             }
           }
         }
@@ -227,7 +230,7 @@ const Storage = React.createClass({
         let finallyName = volumeName || '-'
         if (templateStorage.includes(name)) {
           if (type !== 'host') {
-            finallyName = '动态生成'
+            finallyName = intl.formatMessage(IntlMessage.dynamicGeneration)
           } else {
             finallyName = '-'
           }
@@ -251,7 +254,7 @@ const Storage = React.createClass({
             }
           </Col>*/}
           <Col span="3" className='read_only'>
-            <Checkbox checked={readOnly} disabled>只读</Checkbox>
+            <Checkbox checked={readOnly} disabled>{intl.formatMessage(IntlMessage.readOnly)}</Checkbox>
           </Col>
           <Col span="4">
             <Button
@@ -297,7 +300,7 @@ const Storage = React.createClass({
     )
   },
   renderConfigure() {
-    const { avaliableVolume, form } = this.props
+    const { avaliableVolume, form, intl } = this.props
     const { isFetching } = avaliableVolume
     const { getFieldValue } = form
     const storageList = getFieldValue('storageList') || []
@@ -321,7 +324,7 @@ const Storage = React.createClass({
             })}
           >
             <Icon type="plus-circle-o" />
-            <span>添加一个容器目录</span>
+            <span>{intl.formatMessage(IntlMessage.addContainer)}</span>
           </span>
         </div>
       </div>
@@ -371,16 +374,16 @@ const Storage = React.createClass({
   formatType(type, type_1) {
     switch (type) {
       case 'host':
-        return <span>本地存储</span>
+        return <span>{intl.formatMessage(IntlMessage.localStorage)}</span>
       case 'private':
-        return <span>独享型（rbd）</span>
+        return <span>{intl.formatMessage(IntlMessage.exclusiveType)}（rbd）</span>
       case 'share':
         if(!!type_1 && type_1 === "glusterfs"){
-          return <span>共享型（GlusterFS）</span>
+          return <span>{intl.formatMessage(IntlMessage.sharedType)}（GlusterFS）</span>
         }
-        return <span>共享型（NFS）</span>
+        return <span>{intl.formatMessage(IntlMessage.sharedType)}（NFS）</span>
       default:
-        return <span>未知</span>
+        return <span>{intl.formatMessage(IntlMessage.unknown)}</span>
     }
   },
   editStorage(index) {
@@ -469,7 +472,7 @@ const Storage = React.createClass({
     const {
       formItemLayout, form, isCanCreateVolume,
       fields, avaliableVolume, currentFields,
-      isTemplate
+      isTemplate, intl,
     } = this.props
     const { getFieldProps, getFieldValue } = form
     const { serviceType } = fields || {}
@@ -490,9 +493,9 @@ const Storage = React.createClass({
       <Row className="storageConfigureService">
         <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
           <div>
-            服务类型&nbsp;
+            {intl.formatMessage(IntlMessage.serviceType)}&nbsp;
             {/* <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"> */}
-              <Tooltip title="若需数据持久化，请使用有状态服务">
+              <Tooltip title={intl.formatMessage(IntlMessage.dataPersistenceTip)}>
                 <Icon type="question-circle-o" />
               </Tooltip>
             {/* </a> */}
@@ -508,7 +511,7 @@ const Storage = React.createClass({
             {
               !isCanCreateVolume && (
                 <span className="noVolumeServiceSpan">
-                  <Tooltip title="无存储服务可用, 请配置存储服务">
+                  <Tooltip title={intl.formatMessage(IntlMessage.noStorageServiceTip)}>
                     <Icon type="question-circle-o" />
                   </Tooltip>
                 </span>
@@ -521,15 +524,15 @@ const Storage = React.createClass({
                   <div className='tips_container'>
                     <div className='item'>
                       <span className='icon'>。</span>
-                      独享型存储，仅支持一个容器实例读写操作；
+                      {intl.formatMessage(IntlMessage.exclusiveTypeTip)}
                     </div>
                     <div className='item'>
                       <span className='icon'>。</span>
-                      共享型支持多个容器实例同时对同一个存储卷读写操作；
+                      {intl.formatMessage(IntlMessage.sharedTypeTip)}
                     </div>
                     <div className='item'>
                       <span className='icon'>。</span>
-                      本地存储支持在宿主机节点上保存数据。
+                      {intl.formatMessage(IntlMessage.localStorageTip)}
                     </div>
                   </div>
                   <Spin className={volumeSpinClass} />
@@ -540,7 +543,7 @@ const Storage = React.createClass({
           </FormItem>
         </Col>
         <Modal
-          title="添加容器目录"
+          title={intl.formatMessage(IntlMessage.storageModalTitle)}
           visible={this.state.addContainerPathModal}
           closable={true}
           onCancel={this.cancelAddContainerPath}
@@ -598,4 +601,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadFreeVolume,
-})(Storage)
+})(injectIntl(Storage, {
+  withRef: true,
+}))

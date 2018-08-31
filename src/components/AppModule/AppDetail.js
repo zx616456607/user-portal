@@ -8,14 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Spin, Form, Input, Button, Icon } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Card, Spin, Form, Input, Button, Icon } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceList from './AppServiceList'
 import AppGraph from './AppGraph'
 import AppLog from './AppLog'
-//import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { formatDate } from '../../common/tools'
 import { updateAppDesc, loadAppDetail } from '../../actions/app_manage'
@@ -24,9 +22,7 @@ import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
-import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../components/Notification'
-import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import Topology from '../../../client/containers/AppModule/AppServiceDetail/Topology'
@@ -34,12 +30,10 @@ import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
 import TenxIcon from '@tenx-ui/icon'
-import { SHOW_BILLING } from '../../constants'
+import intlMsg from './AppDetailIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const DEFAULT_TAB = '#service'
-
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -129,7 +123,7 @@ class AppDetail extends Component {
   }
 
   modifyDesc () {
-    const { appName, cluster } = this.props
+    const { appName, cluster, intl: { formatMessage } } = this.props
     this.props.form.validateFields((errors, data) => {
       data.name = appName,
       data.cluster = cluster
@@ -137,7 +131,7 @@ class AppDetail extends Component {
       this.props.updateAppDesc(data, {
         success: {
           func: () => {
-            notification.success('应用描述修改成功')
+            notification.success(formatMessage(intlMsg.appDescriptionScs))
             this.setState({
               editDesc: false,
               desc: data.desc
@@ -147,7 +141,7 @@ class AppDetail extends Component {
         },
         failed: {
           func: (err) => {
-            notification.error('应用描述修改失败')
+            notification.error(formatMessage(intlMsg.appDescriptionFail))
           },
           isAsync: true
         }
@@ -162,7 +156,7 @@ class AppDetail extends Component {
   }
 
   render() {
-    const { children, appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled } = this.props
+    const { appName, app, isFetching, location, bindingDomains, bindingIPs, billingEnabled, intl: { formatMessage } } = this.props
     const { activeTabKey, serviceList, availableReplicas, total, k8sServiceList } = this.state
     if (isFetching || !app) {
       return (
@@ -182,7 +176,7 @@ class AppDetail extends Component {
     currentApp.name = appName
     return (
       <div id='AppDetail'>
-        <Title title={`应用 ${appName} 详情`} />
+        <Title title={formatMessage(intlMsg.appNameDetail, { appName })} />
         <QueueAnim className='demo-content'
           key='demo'
           type='right'
@@ -199,7 +193,7 @@ class AppDetail extends Component {
                 </p>
                 <div className='leftInfo'>
                   <div className='status'>
-                    状态：
+                    <FormattedMessage {...intlMsg.status}/>：
                     <div style={{ display: 'inline-block', position: 'relative' }}>
                       <AppStatus
                         app={
@@ -211,44 +205,44 @@ class AppDetail extends Component {
                     </div>
                   </div>
                   <div className='address appDetailDomain'>
-                    <span className='title'>地址：</span>
+                    <span className='title'><FormattedMessage {...intlMsg.address}/>：</span>
                     <div className='addressRight'>
                       <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain' />
                     </div>
                   </div>
                   <div className='service'>
-                    服务：
+                    <FormattedMessage {...intlMsg.server}/>：
                     {`${availableReplicas} / ${total}`}
                   </div>
                 </div>
                 <div className='middleInfo'>
                   <div className='createDate'>
-                    创建：{formatDate(app.createTime || '')}
+                    <FormattedMessage {...intlMsg.create}/>：{formatDate(app.createTime || '')}
                   </div>
                   <div className='updateDate'>
-                    更新：{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
+                    <FormattedMessage {...intlMsg.update}/>：{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
                   </div>
                 </div>
                 <div className='rightInfo'>
                   <Form horizontal>
                     <div className='introduction' style={{ height: '115px'}}>
                     <FormItem hasFeedback style={{ marginBottom: '0px'}}>
-                      描述：
+                      <FormattedMessage {...intlMsg.description}/>：
                       {this.state.editDesc ? null :
                         <Button size="default" type="ghost" style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
-                          <Icon type="edit" />编辑
+                          <Icon type="edit" /><FormattedMessage {...intlMsg.edit}/>
                         </Button>}
                       <br/>
                       <Input
                         type="textarea"
-                        placeholder="请输入应用描述"
+                        placeholder={formatMessage(intlMsg.plsIptAppDesc)}
                         {...descProps}
                         disabled={!this.state.editDesc}/>
                       {this.state.editDesc ?
                         <div className="editInfo">
                           <div style={{ lineHeight: '50px' }} className="text-center">
-                            <Button type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}>取消</Button>
-                            <Button type="primary" onClick={() => this.modifyDesc()}>确定</Button>
+                            <Button type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}><FormattedMessage {...intlMsg.cancel}/></Button>
+                            <Button type="primary" onClick={() => this.modifyDesc()}><FormattedMessage {...intlMsg.save}/></Button>
                           </div>
                         </div>: null}
                     </FormItem>
@@ -266,7 +260,7 @@ class AppDetail extends Component {
                 onTabClick={this.onTabClick}
                 activeKey={activeTabKey}
                 >
-                <TabPane tab='服务实例' key={DEFAULT_TAB} >
+                <TabPane tab={formatMessage(intlMsg.serverInstance)} key={DEFAULT_TAB} >
                   <AppServiceList
                     location={location}
                     k8sServiceList={k8sServiceList}
@@ -275,9 +269,9 @@ class AppDetail extends Component {
                     appName={appName} />
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
-                <TabPane tab='编排文件' key='#stack' >
+                <TabPane tab={formatMessage(intlMsg.layoutFile)} key='#stack' >
                   <AppGraph key='AppGraph' cluster={this.props.cluster} appName={appName} /></TabPane>
-                <TabPane tab='审计日志' key='#logs' >
+                <TabPane tab={formatMessage(intlMsg.auditLog)} key='#logs' >
                   <AppLog key='AppLog'
                     cluster={this.props.cluster}
                     appName={appName} />
@@ -288,20 +282,20 @@ class AppDetail extends Component {
                     {/*appName={appName} />*/}
                 {/*</TabPane>*/}
                 { billingEnabled ?
-                  [<TabPane tab="租赁信息" key="#rentalInfo">
+                  [<TabPane tab={formatMessage(intlMsg.rentInfo)} key="#rentalInfo">
                     <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                   </TabPane>,
-                  <TabPane tab="告警策略" key="#strategy">
+                  <TabPane tab={formatMessage(intlMsg.alarmStg)} key="#strategy">
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
-                  <TabPane tab="拓扑图" key="#topology">
+                  <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
                     <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
                   </TabPane>]
                 :
-                  [<TabPane tab="告警策略" key="#strategy">
+                  [<TabPane tab={formatMessage(intlMsg.alarmStg)} key="#strategy">
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
-                  <TabPane tab="拓扑图" key="#topology">
+                  <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
                     <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
                   </TabPane>]
                 }
@@ -314,7 +308,9 @@ class AppDetail extends Component {
   }
 }
 
-AppDetail = createForm()(AppDetail);
+AppDetail = createForm()(injectIntl(AppDetail, {
+  withRef: true,
+}));
 
 AppDetail.propTypes = {
   // Injected by React Redux

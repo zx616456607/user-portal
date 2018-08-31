@@ -16,6 +16,8 @@ import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 let maxInstance = null
 class ManualScaleModal extends Component {
@@ -49,6 +51,7 @@ class ManualScaleModal extends Component {
   }
 
   handleModalOK() {
+    const { formatMessage }= this.props.intl
     const {
       parentScope,
       manualScaleService,
@@ -60,7 +63,7 @@ class ManualScaleModal extends Component {
     const { realNum } = this.state
     const serviceName = service.metadata.name
     let notification = new NotificationHandler()
-    notification.spin(`服务 ${serviceName} 伸缩中...`)
+    notification.spin(formatMessage(AppServiceDetailIntl.serviceflex, { serviceName }))
     manualScaleService(cluster, serviceName, { num: realNum }, {
       success: {
         func: () => {
@@ -75,7 +78,7 @@ class ManualScaleModal extends Component {
             serviceList
           })
           notification.close()
-          notification.success(`服务 ${serviceName} 已成功伸缩到 ${realNum} 个实例`)
+          notification.success(formatMessage(AppServiceDetailIntl.serviceflexObject, { serviceName, realNum }))
           loadServiceList(cluster, appName)
         },
         isAsync: true
@@ -84,7 +87,7 @@ class ManualScaleModal extends Component {
         func: err => {
           notification.close()
           if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-            notification.error(`服务 ${serviceName} 伸缩失败`)
+            notification.error(formatMessage(AppServiceDetailIntl.serviceflexFailure, { serviceName }))
           }
         }
       }
@@ -113,6 +116,7 @@ class ManualScaleModal extends Component {
 
   render() {
     const { service, visible } = this.props
+    const { formatMessage }= this.props.intl
     const annotations = service && service.metadata && service.metadata.annotations
     const isFixed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     maxInstance = isFixed && JSON.parse(annotations['cni.projectcalico.org/ipAddrs']).length || null
@@ -130,27 +134,27 @@ class ManualScaleModal extends Component {
       <Button
         key="back" type="ghost" size="large"
         onClick={this.handleModalCancel}>
-        取 消
+        {formatMessage(ServiceCommonIntl.cancel)}
       </Button>,
       <Button
         key="submit" type="primary"
         size="large" loading={this.state.loading}
         disabled={incloudPrivate || this.props.disableScale}
         onClick={this.handleModalOK} >
-        保 存
+        {formatMessage(ServiceCommonIntl.save)}
       </Button>
     ]
     return (
       <Modal
         visible={visible}
-        title="手动水平扩展"
+        title={formatMessage(AppServiceDetailIntl.manualScale)}
         footer={modalFooter}
         onCancel={this.handleModalCancel} >
         <div id="ManualScaleModal">
           <Row>
             <Col className='alertRow'>
-              Tips： {!incloudPrivate ? '实例数量调整，保存后系统将调整实例数量至设置预期。（若自动伸缩开启，则无法手动扩展）' :
-              '挂载独享型存储的服务不支持水平扩展'}
+              Tips： {!incloudPrivate ? formatMessage(AppServiceDetailIntl.changeObjectNumInfo) :
+              formatMessage(AppServiceDetailIntl.independenceNoScale)}
             </Col>
           </Row>
           <Row className="cardItem">
@@ -159,7 +163,7 @@ class ManualScaleModal extends Component {
           </Row>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>
-              实例数量
+              {formatMessage(AppServiceDetailIntl.obejctNum)}
               {/*<Tooltip title="默认最大10个实例，专业版及企业用户可申请更大配额"><Icon type="question-circle-o" /></Tooltip>*/}
             </Col>
             <Col className="itemBody" span={20}>
@@ -226,6 +230,6 @@ function mapStateToProps(state, props) {
   return props
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   manualScaleService,
-})(ManualScaleModal)
+})(ManualScaleModal), { withRef: true, })

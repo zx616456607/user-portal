@@ -21,76 +21,76 @@ let menuList = []
 const menuList_standard  = [
   {
     url: '/app_manage',
-    name: '应用'
+    name: 'apps'
   },
   {
     url: '/app_manage/service',
-    name: '服务'
+    name: 'services'
   },
   {
     url: '/app_manage/container',
-    name: '容器'
+    name: 'containers'
   },
   {
     url: '/app_manage/storage',
-    name: '存储'
+    name: 'storage'
   },
   {
     url: '/app_manage/configs',
-    name: '服务配置'
+    name: 'configs'
   }
 ]
 
 const menuList_enterprise = [
   {
     url: '/app_manage',
-    name: '应用'
+    name: 'apps'
   },
   {
     url: '/app_manage/service',
-    name: '服务'
+    name: 'services'
   },
   {
     url: '/app_manage/container',
-    name: '容器'
+    name: 'containers'
   },
   {
     url: '/app_manage/storage',
-    name: '存储'
+    name: 'storage'
   },
   {
     url: '/app_manage/snapshot',
-    name: '独享存储快照'
+    name: 'snapshot'
   },
   {
     url: '/app_manage/configs',
-    name: '服务配置'
+    name: 'configs'
   },
   {
     url: '/app_manage/discover',
-    name: '服务发现'
+    name: 'discover'
   },
   {
     url: '/app_manage/security_group',
-    name: '安全组 (防火墙)'
+    name: 'securityGroup'
   },
   {
     url: '/app_manage/load_balance',
-    name: '应用负载均衡'
+    name: 'loadBalance'
   },
   {
     url: '/app_manage/auto_scale',
-    name: '自动伸缩策略'
+    name: 'autoScale'
   },
 ]
 const vmWrapMenu = [
   {
     url: '/app_manage/vm_wrap',
-    name: '传统应用'
+    name: 'vmWrap'
   },
   {
     url: '/app_manage/vm_list',
-    name: '传统应用环境'
+    name: 'vmList'
   },
 ]
 

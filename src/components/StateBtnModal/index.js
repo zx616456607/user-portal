@@ -9,9 +9,11 @@
  */
 import React, { Component } from 'react'
 import { Alert, Icon, Spin, Table, Checkbox } from 'antd'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../AppModule/ServiceIntl'
+import { injectIntl  } from 'react-intl'
 import './style/StateBtnModal.less'
 
-export default class StateBtnModal extends Component{
+class StateBtnModal extends Component{
   constructor(props){
     super(props)
     this.handlecallback = this.handlecallback.bind(this)
@@ -29,6 +31,7 @@ export default class StateBtnModal extends Component{
     }
   }
   getDeleteMessage() {
+    const { formatMessage }= this.props.intl
     const { state, appList, cdRule, serviceList } = this.props
     if(state != 'Delete') return ''
     let rule = []
@@ -73,30 +76,30 @@ export default class StateBtnModal extends Component{
       })
 
       const columns = [{
-        title: '应用名称',
+        title: formatMessage(AppServiceDetailIntl.appName),
         dataIndex: 'appname',
         key: 'appname',
       }, {
-        title: '服务名称',
+        title: formatMessage(AppServiceDetailIntl.serviceName),
         dataIndex: 'servicename',
         key: 'servicename',
       }, {
-        title: '自动部署',
+        title: formatMessage(AppServiceDetailIntl.autoDeploy),
         dataIndex: 'cdrule',
         key: 'cdrule',
         render: (text, record, index) => {
           if(text == '1') return <Icon style={{color: 'green', fontSize: '15px'}} type="check-circle" />
-          return '未设置'
+          return formatMessage(AppServiceDetailIntl.NotSet)
         }
       }];
 
       return <div className="confirm"><Table pagination={false}  style={{marginBottom: '20px'}} dataSource={dataSource} columns={columns} />
-           <span style={{color: 'red' }}>注意：删除已设置自动部署的应用或服务，将自动删除其对应的自动部署规则</span></div>
+           <span style={{color: 'red' }}>{formatMessage(AppServiceDetailIntl.deleteServiceInfo)}</span></div>
       const messages = keys.map(key => {
-        return <div>{`应用${key}中, 服务${appRule[key].join(',')}已设置自动部署`}</div>
+        return <div>{formatMessage(AppServiceDetailIntl.AppSetAutoDeploy, {key,appRule:appRule[key].join(',')})}</div>
       })
       if(messages.length > 0) {
-        messages.push(<div>删除应用后，将自动删除对应对应自动部署规则</div>)
+        messages.push(<div>{formatMessage(AppServiceDetailIntl.deleteAppInfo)}</div>)
       }
       return messages
     } else {
@@ -119,20 +122,20 @@ export default class StateBtnModal extends Component{
         dataSource.push(obj)
       })
       const columns = [{
-        title: '服务名称',
+        title: formatMessage(AppServiceDetailIntl.servicename),
         dataIndex: 'servicename',
         key: 'servicename',
       }, {
-        title: '自动部署',
+        title: formatMessage(AppServiceDetailIntl.autoDeploy),
         dataIndex: 'cdrule',
         key: 'cdrule',
         render: (text, record, index) => {
           if(text == '1') return <Icon style={{color: 'green', fontSize: '15px'}} type="check-circle" />
-            return '未设置'
+            return formatMessage(AppServiceDetailIntl.NotSet)
         }
       }];
       return <div className="confirm"><Table pagination={false}  style={{marginBottom: '20px'}} dataSource={dataSource} columns={columns} />
-        <span style={{color: 'red' }}>注意：删除已设置自动部署的应用或服务，将自动删除其对应的自动部署规则</span></div>
+        <span style={{color: 'red' }}>{formatMessage(AppServiceDetailIntl.deleteServiceInfo)}</span></div>
     }
   }
   handlecallback(){
@@ -154,6 +157,7 @@ export default class StateBtnModal extends Component{
   }
   render(){
     const { state, appList, serviceList, scope, cdRule } = this.props
+    const { formatMessage }= this.props.intl
     let rule = []
     const appRule = {}
     if(state == 'Delete') {
@@ -168,36 +172,36 @@ export default class StateBtnModal extends Component{
     let stateText = ''
     switch (state) {
       case 'Running' :
-        alertText = '已经是运行中状态, 不需再启动'
-        tip = '运行中状态的应用不需再次启动'
-        tbInf = '为运行中状态'
-        opt = '启动'
-        stateText = '已停止'
+        alertText = formatMessage(AppServiceDetailIntl.runingNotstart)
+        tip = formatMessage(AppServiceDetailIntl.runingNotstartTip)
+        tbInf = formatMessage(AppServiceDetailIntl.runningStatus)
+        opt = formatMessage(ServiceCommonIntl.start)
+        stateText = formatMessage(AppServiceDetailIntl.stoped)
         break
       case 'Stopped' :
-        alertText = '已经是已停止状态, 不需再停止'
-        tip = '已停止状态的应用不需再次停止'
-        tbInf = '为已停止状态'
-        opt = '停止'
-        stateText = '运行中'
+        alertText = formatMessage(AppServiceDetailIntl.stoppedText)
+        tip = formatMessage(AppServiceDetailIntl.stoppedtip)
+        tbInf = formatMessage(AppServiceDetailIntl.stoppedtbInf)
+        opt = formatMessage(ServiceCommonIntl.stop)
+        stateText = formatMessage(AppServiceDetailIntl.runing)
         break
       case 'Restart' :
-        alertText = '是已停止状态, 不能做重新部署'
-        tip = '运行状态时应用才可以重新部署'
-        tbInf = '为已停止状态'
-        opt = '重新部署'
-        stateText = '可以重新部署'
+        alertText = formatMessage(AppServiceDetailIntl.RestartalertText)
+        tip = formatMessage(AppServiceDetailIntl.Restarttip)
+        tbInf = formatMessage(AppServiceDetailIntl.RestarttbInf)
+        opt = formatMessage(AppServiceDetailIntl.redeploy)
+        stateText = formatMessage(AppServiceDetailIntl.RestartstateText)
         break
       case 'QuickRestar' :
-        alertText = '是已停止状态, 不能快速重启'
-        tip = '运行状态时服务才可以快速重启'
-        tbInf = '为已停止状态'
-        opt = '快速重启'
-        stateText = '可以快速重启'
+        alertText = formatMessage(AppServiceDetailIntl.QuickRestaralertText)
+        tip = formatMessage(AppServiceDetailIntl.QuickRestartip)
+        tbInf = formatMessage(AppServiceDetailIntl.QuickRestartbInf)
+        opt = formatMessage(AppServiceDetailIntl.QuickRestaropt)
+        stateText = formatMessage(AppServiceDetailIntl.QuickRestarstateText)
         break
       case 'Delete' :
-        opt = '删除'
-        stateText = '可以删除'
+        opt = formatMessage(ServiceCommonIntl.delete)
+        stateText = formatMessage(AppServiceDetailIntl.sureDelete)
         break
       default :
         alertText = ''
@@ -242,20 +246,27 @@ export default class StateBtnModal extends Component{
         <tr>
           <td>{index + 1}</td>
           <td>{appList?item.name:item.metadata.name}</td>
-          <td style={{ color: '#f85958' }}>{appList?'应用':'服务'}{ tbInf }</td>
+          <td style={{ color: '#f85958' }}>{appList?formatMessage(AppServiceDetailIntl.app):formatMessage(AppServiceDetailIntl.service)}{ tbInf }</td>
         </tr>
       )
     })
+    const appOrService =  appList ? formatMessage(AppServiceDetailIntl.app):formatMessage(AppServiceDetailIntl.service)
+
     return (
       <div id="StateBtnModal">
         {
           disableArr.length !== 0 ?
             <div>
               <Alert message={
-                <span>你选择的{checkedList.length}个{appList?'应用':'服务'}中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{disableArr.length}个</span>
-                  { alertText }
-                </span>
+                <span>{
+                  formatMessage(AppServiceDetailIntl.youChoiceinfo,
+                     {
+                      checkedList: checkedList.length,
+                      appOrService,
+                      disableArr: <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{disableArr.length}</span>,
+                      alertText,
+                     })
+                }</span>
               } type="warning" showIcon />
               <div style={{ height: 26 }}>Tip: { tip }</div>
               <div className="tableWarp">
@@ -276,11 +287,12 @@ export default class StateBtnModal extends Component{
               return
             }
             if (appList) {
-              return '删除应用，该应用下所有服务的自动弹性伸缩策略也会被删除，'
+              return formatMessage(AppServiceDetailIntl.deleteAppinfo)
             }
-            return '删除服务，该服务下的自动弹性伸缩策略也会被删除，'
+            return formatMessage(AppServiceDetailIntl.deleteAppstrategyinfo)
           })()}
-          您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
+          {formatMessage(AppServiceDetailIntl.youconfirmApp, { opt, length: (checkedList.length - disableArr.length),
+          stateText, appOrService })}
         </div>
         <div>{this.handleWarningTemplate()}</div>
         {/*<div className="confirm">
@@ -301,3 +313,5 @@ export default class StateBtnModal extends Component{
     )
   }
 }
+
+export default injectIntl(StateBtnModal, {  withRef: true, })

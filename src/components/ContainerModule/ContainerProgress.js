@@ -14,6 +14,8 @@ import { connect } from 'react-redux'
 import { getPodProcess } from '../../actions/app_manage'
 import { formatDate } from '../../common/tools'
 import moment from 'moment'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerDetailIntl'
 
 class ContainerProgress extends Component{
   constructor(props){
@@ -71,46 +73,47 @@ class ContainerProgress extends Component{
     }
   }
   renderStatus (text) {
+    const { formatMessage } = this.props.intl
     let status = text
     let IconColor = '#999'
     switch (text) {
       case 'R' :
-        status = 'R (运行)'
+        status = formatMessage(IntlMessages.pRunning)
         IconColor = '#2fba66'
         break
       case 'S' :
-        status = 'S (休眠)'
+        status = formatMessage(IntlMessages.pSleeping)
         IconColor = '#4cb3f7'
         break
       case 'D' :
-        status = 'D (不可中断)'
+        status = formatMessage(IntlMessages.pUninterruptible)
         IconColor = '#666'
         break
       case 'Z' :
-        status = 'Z (僵死)'
+        status = formatMessage(IntlMessages.pDead)
         IconColor = '#fcb25c'
         break
       case 'T' :
-        status = 'T (停止或追踪停止)'
+        status = formatMessage(IntlMessages.pStop)
         IconColor = '#f85a59'
         break
       case 't' :
-        status = 't (追踪停止)'
+        status = formatMessage(IntlMessages.pTrackStop)
         IconColor = '#f85a59'
         break
       case 'W' :
-        status = 'W (进入内存交换)'
+        status = formatMessage(IntlMessages.pMemorySwap)
         break
       case 'X' :
-        status = 'X (退出)'
+        status = formatMessage(IntlMessages.pExit)
         IconColor = '#7272fb'
         break
       case 'x' :
-        status = 'x (退出)'
+        status = formatMessage(IntlMessages.pLowerExit)
         IconColor = '#7272fb'
         break
       default :
-        status = '其他'
+        status = formatMessage(IntlMessages.pOther)
         IconColor = '#999'
         break
     }
@@ -135,9 +138,10 @@ class ContainerProgress extends Component{
   }
 
   render(){
+    const { formatMessage } = this.props.intl
     const columns = [
       {
-        title: '用户',
+        title: formatMessage(IntlMessages.pUser),
         dataIndex: 'userName',
         key: 'userName',
         width:'7%',
@@ -155,38 +159,38 @@ class ContainerProgress extends Component{
         width:'7%'
       },
       {
-        title: '虚拟内存',
+        title: formatMessage(IntlMessages.virtualMemory),
         dataIndex: 'vmSize',
         key: 'vmSize',
         width:'11%'
       },
       {
-        title: '物理内存',
+        title: formatMessage(IntlMessages.physicalMemory),
         dataIndex: 'vmRSS',
         key: 'vmRSS',
         width:'11%'
       },
       {
-        title: '状态',
+        title: formatMessage(IntlMessages.pStatus),
         dataIndex: 'status',
         key: 'status',
         render: (text,record,index) => this.renderStatus(text),
         width:'13%'
       },
       {
-        title: '启动时间',
+        title: formatMessage(IntlMessages.pStartTime),
         dataIndex: 'startTime',
         key: 'startTime',
         width:'140px',
       },
       {
-        title: 'CPU时间',
+        title: formatMessage(IntlMessages.pCpuTime),
         dataIndex: 'cpuTime',
         key: 'cpuTime',
         width:'12%'
       },
       {
-        title: '命令行',
+        title: formatMessage(IntlMessages.pCmd),
         dataIndex: 'cmd',
         key: 'cmd',
         width: '18%',
@@ -196,7 +200,9 @@ class ContainerProgress extends Component{
     const { processList, isFetching } = this.props
     return (
       <div id='ContainerProgress'>
-        <span className="titleSpan">进程信息</span>
+        <span className="titleSpan">
+          <FormattedMessage {...IntlMessages.pInfo} />
+        </span>
         <Table
           columns={columns}
           dataSource={this.getDataSource(processList)}

@@ -9,8 +9,8 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl'
-import { Icon, Menu, Modal, Button, Spin, } from 'antd'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
@@ -37,6 +37,7 @@ import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
 import Xterm from '../../components/TerminalModal/Xterm'
+import IntlMessages from './Intl'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -56,6 +57,7 @@ class App extends Component {
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
     this.setSwitchSpaceOrCluster = this.setSwitchSpaceOrCluster.bind(this)
+    this.quotaSuffix = this.quotaSuffix.bind(this)
     this.state = {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
@@ -73,7 +75,7 @@ class App extends Component {
 
   componentWillMount() {
     const self = this
-    const { loginUser, loadLoginUserDetail } = this.props
+    const { loginUser, loadLoginUserDetail, intl } = this.props
     // load user info
     if (isEmptyObject(loginUser)) {
       loadLoginUserDetail({
@@ -88,6 +90,7 @@ class App extends Component {
         }
       })
     }
+    window._intl = intl
   }
 
   setSwitchSpaceOrCluster() {
@@ -139,6 +142,7 @@ class App extends Component {
       sockets,
       current: oldCurrent,
     } = this.props
+    const { formatMessage } = this.props.intl
     const { statusWatchWs } = sockets
     const { space: newSpace, cluster: newCluster } = newCurrent
     const { space: oldSpace, cluster: oldCluster } = oldCurrent
@@ -178,16 +182,15 @@ class App extends Component {
     }
     // 余额不足
     if (statusCode === PAYMENT_REQUIRED_CODE) {
-      let msg = '余额不足，请充值后重试'
+      let msg = formatMessage(IntlMessages.insufficientBalance)
       if (newSpace.namespace !== 'default') {
         if (standardFlag) {
-          msg = '团队余额不足，请充值后重试'
-        }
-        else {
-          msg = '项目余额不足，请充值后重试'
+          msg = formatMessage(IntlMessages.teamInsufficientBalance)
+        } else {
+          msg = formatMessage(IntlMessages.projectInsufficientBalance)
         }
       }
-      notification.warn('操作失败', msg, null)
+      notification.warn(formatMessage(IntlMessages.operationFailed), msg, null)
       return
     }
 
@@ -222,7 +225,7 @@ class App extends Component {
     }
     // license 过期
     if (statusCode === LICENSE_EXPRIED_CODE) {
-      notification.error('许可证已过期，请在登录界面激活')
+      notification.error(formatMessage(IntlMessages.licenseExpired))
       window.location.href = '/logout'
       return
     }
@@ -239,8 +242,6 @@ class App extends Component {
       this.setState(state);
       return
     }
-    // 未安装插件
-
     if (pathname !== this.props.pathname) {
       resetErrorMessage()
     }
@@ -369,21 +370,21 @@ class App extends Component {
       if (!current.space.projectName) {
         return (
           <div className="loading">
-            <Spin size="large" /> 初始化中...
+            <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
           </div>
         )
       }
       if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
         return (
           <div className="loading">
-            <Spin size="large" /> 获取集群信息中...
+            <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
           </div>
         )
       }
       if (switchSpaceOrCluster) {
         return (
           <div className="loading">
-            <Spin size="large" /> 切换项目/集群中...
+            <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
           </div>
         )
       }
@@ -470,6 +471,7 @@ class App extends Component {
     })
   }
   quotaSuffix(type) {
+    const { formatMessage } = this.props.intl
     let suffix = ''
     switch (type) {
       case 'cpu':
@@ -479,7 +481,7 @@ class App extends Component {
       case 'storage':
         return suffix = 'GB'
       default:
-        return suffix = '个'
+        return suffix = formatMessage(IntlMessages.one)
     }
   }
   quotaEn(type) {
@@ -502,6 +504,7 @@ class App extends Component {
       UpgradeModal,
       License
     } = this.props
+    const { formatMessage } = this.props.intl
     const hashTag = '#'
     const hashTagReg = new RegExp(hashTag, 'g')
     redirectUrl = redirectUrl.replace(hashTagReg, encodeURIComponent(hashTag))
@@ -541,7 +544,7 @@ class App extends Component {
 
         <Modal
           visible={loginModalVisible}
-          title="登录失效"
+          title={formatMessage(IntlMessages.loginExpired)}
           onCancel={this.handleLoginModalCancel}
           footer={[
             <Link to={`/login?redirect=${redirectUrl}`}>
@@ -549,8 +552,9 @@ class App extends Component {
                 key="submit"
                 type="primary"
                 size="large"
-                onClick={this.handleLoginModalCancel}>
-                去登录
+                onClick={this.handleLoginModalCancel}
+              >
+                <FormattedMessage {...IntlMessages.goLogin} />
               </Button>
             </Link>,
           ]}
@@ -559,7 +563,7 @@ class App extends Component {
             <p style={{ marginBottom: 16 }}>
               <TenxIcon type="lost" size={120}/>
             </p>
-            <p>您的登录状态已失效，请登录后继续当前操作</p>
+            <p><FormattedMessage {...IntlMessages.loginExpiredTip} /></p>
           </div>
         </Modal>
         {this.getStatusWatchWs()}
@@ -574,7 +578,7 @@ class App extends Component {
         <Xterm />
         <Modal
           width="550px"
-          title="当前操作未被授权"
+          title={formatMessage(IntlMessages.notAuthorized)}
           visible={resourcePermissionModal}
           maskClosable={false}
           onCancel={() => this.setState({ resourcePermissionModal: false })}
@@ -586,15 +590,20 @@ class App extends Component {
               size="large"
               onClick={() => this.setState({ resourcePermissionModal: false })}
             >
-              知道了
+              <FormattedMessage {...IntlMessages.gotIt} />
             </Button>
           ]}
         >
           <div>
             <Icon type="cross-circle" />
-            <span>
-              当前操作未被授权{!!this.state.message403 ? ('"' + this.state.message403 + '"') : "" }，请联系管理员进行授权后，再进行操作
-            </span>
+            <FormattedMessage
+              {...IntlMessages.notAuthorizedTip}
+              values={{
+                operation: !!this.state.message403
+                  ? `"${this.state.message403}"`
+                  : ''
+              }}
+            />
           </div>
         </Modal>
         <Modal
@@ -609,28 +618,31 @@ class App extends Component {
               size="large"
               onClick={() => this.setState({ resourcequotaModal: false })}
             >
-              知道了
+              <FormattedMessage {...IntlMessages.gotIt} />
             </Button>
           ]}
         >
           <div className="alert_content">
             <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
             <div className="alert_text">
-              超过配额，你目前只剩下
-              <a>
-              {
-                resourcequotaMessage.available >= 0
-                ? this.quotaSuffix(resourcequotaMessage.type) === '个'
-                  ? resourcequotaMessage.available.toFixed(0)
-                  : resourcequotaMessage.available.toFixed(2)
-                : 0
-              }
-              {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)}
-              </a>
-              配额
+              <FormattedMessage
+                {...IntlMessages.resourceQuotaTip1}
+                values={{
+                  leftResource: <a>
+                    {
+                      resourcequotaMessage.available >= 0
+                      ? this.quotaSuffix(resourcequotaMessage.type) === formatMessage(IntlMessages.one)
+                        ? resourcequotaMessage.available.toFixed(0)
+                        : resourcequotaMessage.available.toFixed(2)
+                      : 0
+                    }
+                    {this.quotaSuffix(resourcequotaMessage.type)} {this.quotaEn(resourcequotaMessage.type)}
+                  </a>,
+                }}
+              />
             </div>
             <div>
-              您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额。
+              <FormattedMessage {...IntlMessages.resourceQuotaTip2} />
             </div>
           </div>
         </Modal>

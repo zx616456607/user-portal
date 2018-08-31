@@ -18,74 +18,74 @@ import { connect } from 'react-redux'
 const menuList_platform = [
   {
     url: '/setting/version',
-    name: '平台版本'
+    name: 'version'
   },
   {
     url: '/setting/license',
-    name: '授权管理'
+    name: 'license'
   },
   {
     url: '/setting/API',
-    name: '开放 API'
+    name: 'openApi'
   },
   {
     url: '/setting/advancedSetting',
-    name: '高级设置'
+    name: 'advancedSetting'
   },{
     url:'/setting/personalized',
-    name:'个性外观'
+    name:'personalized'
   }
 ]
 const menuList_base = [
   {
     url: '/setting/version',
-    name: '平台版本'
+    name: 'version'
   },
 
   {
     url: '/setting/API',
-    name: '开放 API'
+    name: 'openApi'
   },
   {
     url: '/setting/advancedSetting',
-    name: '高级设置'
+    name: 'advancedSetting'
   },
   {
     url:'/setting/cleaningTool',
-    name:'清理工具'
+    name:'cleaningTool'
   }
 ]
 const menuList_sysAdmin = [
   {
     url: '/setting/version',
-    name: '平台版本'
+    name: 'version'
   },
   {
     url: '/setting/license',
-    name: '授权管理'
+    name: 'license'
   },
   {
     url: '/setting/API',
-    name: '开放 API'
+    name: 'openApi'
   },{
     url: '/setting/advancedSetting',
-    name: '高级设置'
+    name: 'advancedSetting'
   },{
     url:'/setting/personalized',
-    name:'个性外观'
+    name:'personalized'
   },{
     url:'/setting/cleaningTool',
-    name:'清理工具'
+    name:'cleaningTool'
   }
 ]
 const menuList_normal = [
   {
     url: '/setting/version',
-    name: '平台版本'
+    name: 'version'
   },
   {
     url: '/setting/API',
-    name: '开放 API'
+    name: 'openApi'
   }
 ]
 

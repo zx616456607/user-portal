@@ -21,6 +21,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
 import { isResourcePermissionError } from '../../../common/tools'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl,FormattedMessage  } from 'react-intl'
 
 let uuid=0
 let ob = {}
@@ -39,7 +41,7 @@ function validatePortNumber(proxyType, portNumber) {
     maximumPort = 32766
   }
   if( portNumber < minimumPort || portNumber > maximumPort ) {
-    return '端口范围' +  minimumPort + ' ~ ' + maximumPort
+    return <FormattedMessage { ...AppServiceDetailIntl.portRange } values={{minimumPort,maximumPort }}/>
   } else {
     return
   }
@@ -149,6 +151,7 @@ let MyComponent = React.createClass({
     })
   },
   checkPort(rule, value, callback, index){
+    const { formatMessage } = this.props
     if(!value) return callback()
     const { form, loginUser } = this.props
     const { getFieldValue } = form
@@ -158,7 +161,7 @@ let MyComponent = React.createClass({
       }
     }
     if(!/^[0-9]+$/.test(value.trim())) {
-      callback(new Error('请填入数字'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputNumber)))
       return
     }
     const port = parseInt(value.trim())
@@ -168,7 +171,7 @@ let MyComponent = React.createClass({
       return
     }
     if(allPort.indexOf(port) >= 0) {
-      callback(new Error('该端口已被使用'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.ThisPortAlreadyUsed)))
       return
     }
     return callback()
@@ -176,21 +179,22 @@ let MyComponent = React.createClass({
   checkContainerPort(rule, value, callback) {
     if (!value) return callback()
     if (!/^[0-9]+$/.test(value.trim())) {
-      callback(new Error('请填入数字'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputNumber)))
       return
     }
     const port = parseInt(value.trim())
     if (port < 1 || port > 65535) {
-      callback(new Error('请填入1~65535'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInput165535)))
       return
     }
     if (allPort.indexOf(port) >= 0) {
-      callback(new Error('该端口已被占用'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.ThisPortAlreadyOccupy)))
       return
     }
     return callback()
   },
   checkInputPort(rule, value, callback) {
+    const { formatMessage } = this.props
     const { form } = this.props
     const { getFieldValue } = form
     const keys = getFieldValue('newKeys')
@@ -198,7 +202,7 @@ let MyComponent = React.createClass({
     if (getFieldValue(`newssl${lastOne}`) == 'HTTP') return callback()
     if (!value) return callback()
     if (!/^[0-9]+$/.test(value.trim())) {
-      callback(new Error('请填入数字'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputNumber)))
       return
     }
     const port = parseInt(value.trim())
@@ -209,21 +213,21 @@ let MyComponent = React.createClass({
       return
     }
     if (allUsedPort.indexOf(value.trim()) >= 0) {
-      callback(new Error('该端口已被占用'))
+      callback(new Error(formatMessage(AppServiceDetailIntl.ThisPortAlreadyOccupy)))
       return
     }
     return callback()
   },
   editPort(item, index) {
-    const { bindHttpsStatus } = this.props
+    const { bindHttpsStatus, formatMessage } = this.props
     const { newselectType } = this.state
     const { port } = item
     const { bindingPort, https } = bindHttpsStatus
     if (https && port == bindingPort) {
-      return notificationHandler.info('请先关闭HTTPS后再编辑此端口')
+      return notificationHandler.info(formatMessage(AppServiceDetailIntl.closeHTTPEditThisPort))
     }
     if (newselectType) {
-      return notificationHandler.info('请保存正在编辑的端口后再编辑的端口')
+      return notificationHandler.info(formatMessage(AppServiceDetailIntl.saveEditPortThenEdit))
     }
     const openPort = {[index]: true}
     this.setState({
@@ -233,7 +237,7 @@ let MyComponent = React.createClass({
     })
   },
   showModal(item, i) {
-    const { form, k8sService, serviceName } = this.props
+    const { form, k8sService, serviceName, formatMessage } = this.props
     const { getFieldValue } = form
     let keys = getFieldValue('keys')
     const port = getFieldValue(`port${keys[i]}`)
@@ -243,7 +247,7 @@ let MyComponent = React.createClass({
     }
     if (k8sService.data[camelize(serviceName)].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(port) === parseInt(bindingPort)) {
       const notification = new NotificationHandler()
-      notification.error('请先关闭HTTPS后再删除此端口')
+      notification.error(formatMessage(AppServiceDetailIntl.closeHTTPSThenDeletePort))
       return
     }
     this.setState({
@@ -254,12 +258,12 @@ let MyComponent = React.createClass({
   },
   deletePort() {
     const i = this.state.index
-    const { form } = this.props
+    const { form, formatMessage } = this.props
     const { getFieldValue, setFieldsValue } = form
     let keys = getFieldValue('keys')
     if(keys.length <= 1) {
       const notification = new NotificationHandler()
-      notification.warn('端口至少需要保留一个')
+      notification.warn(formatMessage(AppServiceDetailIntl.leastOnePort))
       return
     }
     const index = keys.indexOf(i+1)
@@ -294,9 +298,10 @@ let MyComponent = React.createClass({
     })
   },
   add() {
+    const { formatMessage } = this.props
     const { newselectType } = this.state
     if(newselectType) {
-      return notificationHandler.info('请保存正在编辑的端口后再添加新的端口')
+      return notificationHandler.info(formatMessage(AppServiceDetailIntl.saveEditPortThenAdd))
     }
     uuid++;
     const { form } = this.props;
@@ -316,7 +321,7 @@ let MyComponent = React.createClass({
     })
   },
   save(index) {
-    const { form, k8sService, loadServiceDetail } = this.props
+    const { form, k8sService, loadServiceDetail, formatMessage } = this.props
     const keys = form.getFieldValue('keys')
     const body = []
     const self = this
@@ -330,7 +335,7 @@ let MyComponent = React.createClass({
       }
       if (k8sService.data[camelize(serviceName)].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(modifyPort) === parseInt(bindingPort) && newProtocol.toUpperCase() !== 'HTTP') {
         const notification = new NotificationHandler()
-        notification.error('请先关闭HTTPS后再修改此端口协议')
+        notification.error(formatMessage(AppServiceDetailIntl.closeHTTPSEditProtocol))
         return
       }
     }
@@ -366,7 +371,7 @@ let MyComponent = React.createClass({
         })
         const { cluster, serviceName } = self.props
         const notification = new NotificationHandler()
-        notification.spin('端口更新中')
+        notification.spin(formatMessage(AppServiceDetailIntl.portUpdating))
         updateServicePort(cluster, serviceName, body, {
           success: {
             func: (res) => {
@@ -396,7 +401,7 @@ let MyComponent = React.createClass({
                 },
               })
               notification.close()
-              notification.success('端口更新成功')
+              notification.success(formatMessage(AppServiceDetailIntl.portUpdateSuccess))
             },
             isAsync: true
           },
@@ -492,7 +497,7 @@ let MyComponent = React.createClass({
     }
   },
   render: function () {
-    const { k8sService } = this.props
+    const { k8sService, formatMessage } = this.props
     const { disableHTTP } = this.state
     const { getFieldProps, getFieldValue, resetFields } = this.props.form
     const self = this
@@ -505,20 +510,20 @@ let MyComponent = React.createClass({
     }
     if (!k8sService.data) {
       return (<div className='loadingBox'>
-        无端口
+        {formatMessage(AppServiceDetailIntl.noPort)}
       </div>)
     }
     let property = Object.getOwnPropertyNames(k8sService.data)
     if (property.length === 0) {
       return (<div className='loadingBox'>
-        无端口
+        {formatMessage(AppServiceDetailIntl.noPort)}
       </div>)
     }
     const service = k8sService.data[property[0]]
     if (!service.spec) {
       return (
         <div className='loadingBox'>
-          无端口
+          {formatMessage(AppServiceDetailIntl.noPort)}
         </div>
       )
     }
@@ -534,7 +539,7 @@ let MyComponent = React.createClass({
     if (ports.length < 1) {
       return (
         <div className='loadingBox'>
-          无端口
+          {formatMessage(AppServiceDetailIntl.noPort)}
         </div>
       )
     }
@@ -548,7 +553,7 @@ let MyComponent = React.createClass({
         rules = {
           required: true,
           whitespace: true,
-          message: '请输入端口'
+          message: formatMessage(AppServiceDetailIntl.pleaseInputPort)
         }
       }
       formItems.push(
@@ -560,7 +565,7 @@ let MyComponent = React.createClass({
                 rules: [{
                   required: true,
                   whitespace: true,
-                  message: '输入容器端口',
+                  message: formatMessage(AppServiceDetailIntl.pleaseInputContainerPort),
                 }, {validator: this.checkContainerPort}],
               })}  style={{ width: '80%', marginRight: 8 }}
               />
@@ -572,7 +577,7 @@ let MyComponent = React.createClass({
                 rules: [{
                   required: true,
                   whitespace: true,
-                  message: '请选择协议类型',
+                  message: formatMessage(AppServiceDetailIntl.pleaseChoiceProtocolType),
                 }],
                 initialValue: (disableHTTP ? 'TCP' : 'HTTP'),
                 onChange: (e) => self.newInputPort(k, e)
@@ -589,10 +594,10 @@ let MyComponent = React.createClass({
                   whitespace: true,
                 }],
                 onChange: (e) => self.newChangeType(e, k),
-                initialValue: '动态生成'
+                initialValue: formatMessage(AppServiceDetailIntl.dynamicGeneration)
               })} >
-              <Select.Option key="1">动态生成</Select.Option>
-              <Select.Option key="2">指定端口</Select.Option>
+              <Select.Option key="1">{formatMessage(AppServiceDetailIntl.dynamicGeneration)}</Select.Option>
+              <Select.Option key="2">{formatMessage(AppServiceDetailIntl.designatedPort)}</Select.Option>
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
           </div>
@@ -602,8 +607,8 @@ let MyComponent = React.createClass({
             </Form.Item>
           </div>
           <div className="commonData span3">
-            <Button type="primary" onClick={this.save}>保存</Button>
-            <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
+            <Button type="primary" onClick={this.save}>{formatMessage(ServiceCommonIntl.save)}</Button>
+            <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -621,12 +626,12 @@ let MyComponent = React.createClass({
       if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
       const dropdown = (
         <Menu style={{width:'100px'}} onClick={()=> this.editPort(item, index)}>
-          <Menu.Item key="1"><Icon type="edit" /> &nbsp;编辑</Menu.Item>
+          <Menu.Item key="1"><Icon type="edit" /> &nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
         </Menu>
       )
       const actionText = (
         <Menu style={{width:'100px'}} onClick={()=> this.handCancel(index)}>
-          <Menu.Item key="1"><Icon type="minus-circle-o" /> &nbsp;取消</Menu.Item>
+          <Menu.Item key="1"><Icon type="minus-circle-o" /> &nbsp;{formatMessage(ServiceCommonIntl.cancel)}</Menu.Item>
         </Menu>
       )
       allUsedPort.push(target[2])
@@ -662,9 +667,9 @@ let MyComponent = React.createClass({
 
             { this.state.openPort && this.state.openPort[index] ?
               getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
-              <Select defaultValue='动态生成' style={{width:'90px'}} onChange={(e)=> this.changeType(e, index + 1)}>
-                <Select.Option key="1">动态生成</Select.Option>
-                <Select.Option key="2">指定端口</Select.Option>
+              <Select defaultValue={formatMessage(AppServiceDetailIntl.dynamicGeneration)} style={{width:'90px'}} onChange={(e)=> this.changeType(e, index + 1)}>
+                <Select.Option key="1">{formatMessage(AppServiceDetailIntl.dynamicGeneration)}</Select.Option>
+                <Select.Option key="2">{formatMessage(AppServiceDetailIntl.designatedPort)}</Select.Option>
               </Select>
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
@@ -690,11 +695,11 @@ let MyComponent = React.createClass({
           <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
-                  <Icon type="save" /> 保存
+                  <Icon type="save" /> {formatMessage(ServiceCommonIntl.save)}
               </Dropdown.Button>
               :
               <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=> this.showModal(item, index)} style={{width:'100px'}}>
-                <Icon type="delete" />删除
+                <Icon type="delete" />{formatMessage(ServiceCommonIntl.delete)}
               </Dropdown.Button >
             }
           </div>
@@ -712,14 +717,15 @@ let MyComponent = React.createClass({
         {items}
         { formItems }
         <div className="pushRow">
-         <a onClick={()=> this.add()}> <Icon type="plus" /> 添加端口映射</a>
+         <a onClick={()=> this.add()}> <Icon type="plus" />{formatMessage(AppServiceDetailIntl.addPortMap)}</a>
         </div>
         <Modal title="删除端口操作" visible={this.state.delModal}
           onOk={() => this.deletePort()} onCancel={() => this.setState({ delModal: false })}
           >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            您是否确定要删除{this.state.item ? this.state.item.targetPort : ''}端口吗?
+            {formatMessage(AppServiceDetailIntl.makeSureDeletePort,
+              { targetPort: this.state.item ? this.state.item.targetPort : '' })}
           </div>
         </Modal>
       </Card>
@@ -750,23 +756,24 @@ class PortDetail extends Component {
 
   render() {
     const { containerList, loading, currentCluster, bindHttpsStatus } = this.props
+    const { formatMessage } = this.props.intl
     return (
       <div id="PortDetail">
-        <Alert message='Tips：若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用' type="info" />
+        <Alert message={formatMessage(AppServiceDetailIntl.portDetailInfo)} type="info" />
         <div className="titleBox">
           <div className="commonTitle">
-            容器端口
+            {formatMessage(AppServiceDetailIntl.conatinerPort)}
           </div>
           <div className="commonTitle">
-            协议 <Tooltip title="若该服务在访问方式中使用的网络出口没有在『基础设施』-『网络配置』中配置网络出口域名,则该服务的 http 协议无法正常使用">
+            {formatMessage(AppServiceDetailIntl.protocol)}<Tooltip title={formatMessage(AppServiceDetailIntl.commonTitleInfo)}>
               <Icon type="question-circle-o" />
             </Tooltip>
           </div>
           <div className="commonTitle span4">
-            服务端口
+            {formatMessage(AppServiceDetailIntl.servicePort)}
           </div>
           <div className="commonTitle span2">
-            操作
+            {formatMessage(ServiceCommonIntl.operation)}
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -779,7 +786,9 @@ class PortDetail extends Component {
           loadData = {this.props.loadData}
           serviceDetailmodalShow={this.props.serviceDetailmodalShow}
           bindHttpsStatus={bindHttpsStatus}
-          isCurrentTab={this.props.isCurrentTab} />
+          isCurrentTab={this.props.isCurrentTab}
+          formatMessage={formatMessage}
+          />
       </div>
     )
   }
@@ -792,4 +801,4 @@ PortDetail.propTypes = {
   loading: PropTypes.bool.isRequired,
 }
 
-export default PortDetail
+export default injectIntl(PortDetail, { withRef: true })

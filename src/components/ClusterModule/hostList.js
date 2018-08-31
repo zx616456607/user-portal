@@ -23,6 +23,7 @@ import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon'
+import intlMsg from './hostListIntl'
 
 const MASTER = 'Master'
 const SLAVE = 'Slave'
@@ -142,7 +143,7 @@ const MyComponent = React.createClass({
   },
   changeSchedulable(node, e) {
     //this function for change node schedulable
-    const { scope } = this.props;
+    const { scope, intl: { formatMessage } } = this.props;
     const { clusterID, changeClusterNodeSchedule } = scope.props;
     let { nodeList } = scope.state;
     let notification = new NotificationHandler()
@@ -150,7 +151,7 @@ const MyComponent = React.createClass({
       success: {
         func: () => {
           // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
-          notification.success(e ? '开启调度成功' : '关闭调度成功');
+          notification.success(e ? formatMessage(intlMsg.openDispatchSuccess) : formatMessage(intlMsg.closeDispatchSuccess));
           nodeList.map((item) => {
             if (item.objectMeta.name == node) {
               item.schedulable = e;
@@ -236,7 +237,7 @@ const MyComponent = React.createClass({
     })
   },
   async nodeIsMigrate(currentNode) {
-    const { getNotMigratedPodCount, clusterID, scope } = this.props
+    const { getNotMigratedPodCount, clusterID, scope, intl: { formatMessage } } = this.props
     const result = await getNotMigratedPodCount(clusterID, currentNode.objectMeta.name)
     const res = result.response.result.data
     const { current } = res[Object.keys(res)[0]]
@@ -247,27 +248,28 @@ const MyComponent = React.createClass({
       })
     } else {
       Modal.info({
-        content: '容器迁移未完成，无法退出维护状态',
+        content: formatMessage(intlMsg.migrateUnfinishedNotExit),
       });
     }
   },
   getDiskStatus(node) {
+    const { intl: { formatMessage } } = this.props
     const conditions = node.conditions || []
     let color = 'green'
-    let text = '健康'
+    let text = formatMessage(intlMsg.health)
     conditions.forEach(condition => {
       const { type, status } = condition
       switch (type) {
         case 'DiskPressure':
           if (status !== 'False' && status !== 'Unknown') {
             color = 'yellow'
-            text = '不足'
+            text = formatMessage(intlMsg.notEnough)
           }
           break
         case 'OutOfDisk':
           if (status !== 'False' && status !== 'Unknown') {
             color = 'red'
-            text = '告警'
+            text = formatMessage(intlMsg.alarm)
           }
           break
         default:
@@ -279,21 +281,22 @@ const MyComponent = React.createClass({
     )
   },
   renderStatus(text, record) {
+    const { intl: { formatMessage } } = this.props
     const { maintainStatus, current, total } = record.objectMeta.annotations || { maintainStatus: 'fetching', current: 0, total: 0 }
-    let message = '异常'
+    let message = formatMessage(intlMsg.abnormal)
     let classname = 'errorSpan'
     if (text === 'True') {
       if (record.objectMeta.annotations.maintenance === 'true') {
-        message = '维护中'
+        message = formatMessage(intlMsg.inMaintenance)
         classname = 'themeColor'
         if (maintainStatus === 'processing') {
           message = '服务迁移中'
         }
       } else if (record.objectMeta.annotations.maintenance === 'failed') {
-        message = '迁移失败'
+        message = formatMessage(intlMsg.migrateFail)
         classname = 'errorSpan'
       } else {
-        message = '运行中'
+        message = formatMessage(intlMsg.running)
         classname = 'runningSpan'
       }
     }
@@ -304,14 +307,14 @@ const MyComponent = React.createClass({
           {
             maintainStatus === 'processing' &&
             <Tooltip
-              title="服务迁移过程最好不要进行其他操作，避免发生未知错误！"
+              title={formatMessage(intlMsg.notDoWhenMigratingTip)}
             >
               <Icon type="exclamation-circle-o" />
             </Tooltip>
           }
         </span>
         {
-          maintainStatus === 'processing' && <div>已迁移服务 <span>{total - current}</span>/{total}</div>
+          maintainStatus === 'processing' && <div><FormattedMessage {...intlMsg.hasMigratedServer}/> <span>{total - current}</span>/{total}</div>
         }
       </div>
     )
@@ -319,34 +322,34 @@ const MyComponent = React.createClass({
   render: function () {
     const {
       isFetching, nodeList, cpuMetric, memoryMetric, clusterID,
-      resourceConsumption, license, podCount ,
+      resourceConsumption, license, podCount , intl: { formatMessage },
     } = this.props
     const root = this
     let dropdown
     let maxNodes
     let column = [
       {
-        title: '名称/IP'
+        title: formatMessage(intlMsg.nameOrIp)
       },{
-        title: '状态'
+        title: formatMessage(intlMsg.status)
       },{
-        title: '角色'
+        title: formatMessage(intlMsg.role)
       },{
-        title: '监控告警'
+        title: formatMessage(intlMsg.monitorAlert)
       },{
-        title: '容器'
+        title: formatMessage(intlMsg.container)
       },{
         title: 'CPU'
       },{
-        title: '内存'
+        title: formatMessage(intlMsg.memory)
       },{
-        title: '调度状态'
+        title: formatMessage(intlMsg.dispatchStatus)
       },{
-        title: '磁盘情况'
+        title: formatMessage(intlMsg.diskCondition)
       },{
-        title: '加入集群时间'
+        title: formatMessage(intlMsg.joinClusterTime)
       }, {
-        title: '操作'
+        title: formatMessage(intlMsg.operation)
       }
     ]
     if(nodeList && nodeList.length !== 0){
@@ -358,20 +361,20 @@ const MyComponent = React.createClass({
             style={{ width: '100px' }}
           >
             <Menu.Item key={'manage/'+item.address}>
-              <span>管理标签</span>
+              <span><FormattedMessage {...intlMsg.manageLabel}/></span>
             </Menu.Item>
             <Menu.Item key={'delete/'+item.address}>
-              <span>删除节点</span>
+              <span><FormattedMessage {...intlMsg.deleteNode}/></span>
             </Menu.Item>
             {
               ['true', 'failed'].includes(item.objectMeta.annotations.maintenance)
                 ?
                 <Menu.Item key={'exitMaintain/'+item.address}>
-                  <span>退出维护</span>
+                  <span><FormattedMessage {...intlMsg.exitMaintain}/></span>
                 </Menu.Item>
                 :
                 <Menu.Item key={'maintain/'+item.address}>
-                  <span>节点维护</span>
+                  <span><FormattedMessage {...intlMsg.nodeMaintain}/></span>
                 </Menu.Item>
             }
           </Menu>
@@ -379,7 +382,7 @@ const MyComponent = React.createClass({
       })
       column = [
         {
-          title: '名称/IP',
+          title: formatMessage(intlMsg.nameOrIp),
           dataIndex: 'objectMeta.name',
           render: (text, item, index) => <div onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }} className='nameIP '>
             <div className="hostname">
@@ -389,12 +392,12 @@ const MyComponent = React.createClass({
           </div>,
           sorter: (a, b) => (a.objectMeta.name).localeCompare(b.objectMeta.name)
         },{
-          title: '状态',
+          title: formatMessage(intlMsg.status),
           dataIndex: 'ready',
           render: (text, record) => this.renderStatus(text, record),
           sorter: (a, b) => readySorter(a.ready) - readySorter(b.ready)
         },{
-          title: '角色',
+          title: formatMessage(intlMsg.role),
           dataIndex: 'isMaster',
           render: (isMaster) => <div>
             <Tooltip title={isMaster ? MASTER : SLAVE}>
@@ -403,21 +406,21 @@ const MyComponent = React.createClass({
           </div>,
           sorter: (a, b) => isMasterSorter(a.isMaster) - isMasterSorter(b.isMaster)
         },{
-          title: '监控告警',
+          title: formatMessage(intlMsg.monitorAlert),
           dataIndex: 'objectMete',
           render: (objectMeta, item, index) => <div className='alarm'>
-            <Tooltip title="查看监控">
+            <Tooltip title={formatMessage(intlMsg.checkMonitor)}>
 
               <TenxIcon type="manage-monitor"
                         className="managemoniter"
                         onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}/>
             </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
+            <Tooltip title={formatMessage(intlMsg.alertSetting)} onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
               <Icon type="notification" />
             </Tooltip>
           </div>
         },{
-          title: '容器',
+          title: formatMessage(intlMsg.container),
           dataIndex: 'objectMeta',
           render: (objectMeta) => <div>
             <span>{getContainerNum(objectMeta.name, podCount)}</span>
@@ -430,15 +433,15 @@ const MyComponent = React.createClass({
             const cpuUsedObj = cpuUsed(record[camelize('cpu_total')], cpuMetric, record.objectMeta.name)
             return <div>
               <div>
-                <span className="justify">总量</span>：
+                <span className="justify"><FormattedMessage {...intlMsg.amount}/></span>：
                 <code>{record[camelize('cpu_total')]}m</code>
               </div>
               <div className={cpuRS.class}>
-                <span className="justify">已分配</span>：
+                <span className="justify"><FormattedMessage {...intlMsg.assigned}/></span>：
                 <code>{cpuRS.number}{cpuRS.unit}</code>
               </div>
               <div className={cpuUsedObj.class}>
-                <span className="justify">使用</span>：
+                <span className="justify"><FormattedMessage {...intlMsg.use}/></span>：
                 <code>
                   {cpuUsedObj.number}{cpuUsedObj.unit}
                 </code>
@@ -446,21 +449,21 @@ const MyComponent = React.createClass({
             </div>
           }
         },{
-          title: '内存',
+          title: formatMessage(intlMsg.memory),
           render: (text, item, index) => {
             const { memory: memoryRS } = getRS(resourceConsumption, item)
             const memoryUsedObj = memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)
             return <div>
             <div>
-              <span className="justify">总量</span>：
+              <span className="justify"><FormattedMessage {...intlMsg.amount}/></span>：
               <code>{diskFormat(item[camelize('memory_total_kb')])}</code>
               </div>
               <div className={memoryRS.class}>
-                <span className="justify">已分配</span>：
+                <span className="justify"><FormattedMessage {...intlMsg.assigned}/></span>：
                 <code>{memoryRS.number}{memoryRS.unit}</code>
               </div>
               <div className={memoryUsedObj.class}>
-                <span className="justify">使用</span>：
+                <span className="justify"><FormattedMessage {...intlMsg.use}/></span>：
                 <code>
                   {memoryUsedObj.number}{memoryUsedObj.unit}
                 </code>
@@ -470,20 +473,20 @@ const MyComponent = React.createClass({
             </div>
           }
         },{
-          title: '调度状态',
+          title: formatMessage(intlMsg.dispatchStatus),
           dataIndex: 'schedulable',
           render: (text, item, index) => {
             const isMaintaining = ['true', 'failed'].includes(item.objectMeta.annotations.maintenance)
             return (
               <div>
                 <Tooltip
-                  title={isMaintaining ? '维护状态禁止使用调度开关' : ''}
+                  title={isMaintaining ? formatMessage(intlMsg.maintainNoDispatchSwitch) : ''}
                 >
                   <Switch
                     className='switchBox'
                     checked={item.schedulable || false}
-                    checkedChildren='开'
-                    unCheckedChildren='关'
+                    checkedChildren={formatMessage(intlMsg.on)}
+                    unCheckedChildren={formatMessage(intlMsg.off)}
                     disabled={index >= maxNodes}
                     onChange={
                       isMaintaining ? () => null :
@@ -495,14 +498,14 @@ const MyComponent = React.createClass({
                   {
                     item.schedulable
                       ? <span>
-                        正常调度&nbsp;
-                        <Tooltip title={`允许分配${item.isMaster ? '系统' : '新'}容器`}>
+                        <FormattedMessage {...intlMsg.normalDispatch}/>&nbsp;
+                        <Tooltip title={formatMessage(item.isMaster ? intlMsg.allowSysContainer : intlMsg.allowNewContainer)}>
                           <Icon type="question-circle-o" />
                         </Tooltip>
                       </span>
                       : <span>
-                        暂停调度&nbsp;
-                        <Tooltip title={`不允许分配${item.isMaster ? '系统' : '新'}容器，正常运行的不受影响`}>
+                        <FormattedMessage {...intlMsg.pauseDispatch}/>&nbsp;
+                        <Tooltip title={formatMessage(item.isMaster ? intlMsg.notAllowSysContainer : intlMsg.notAllowNewContainer)}>
                           <Icon type="question-circle-o" />
                         </Tooltip>
                       </span>
@@ -513,12 +516,12 @@ const MyComponent = React.createClass({
           },
           sorter: (a, b) => isMasterSorter(a.schedulable) - isMasterSorter(b.schedulable)
         },{
-          title: '磁盘情况',
+          title: formatMessage(intlMsg.diskCondition),
           dataIndex: 'conditions',
           render: (text, item, index) => <div>{this.getDiskStatus(item)}</div>,
           sorter: (a, b) => diskSorter(a.conditions) - diskSorter(b.conditions)
         },{
-          title: '加入集群时间',
+          title: formatMessage(intlMsg.joinClusterTime),
           dataIndex: 'objectMeta.creationTimestamp',
           render: (text, item, index) => <div>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
@@ -527,10 +530,10 @@ const MyComponent = React.createClass({
           </div>,
           sorter: (a, b) => soterCreateTime(a.objectMeta.creationTimestamp, b.objectMeta.creationTimestamp)
         },{
-          title: '操作',
+          title: formatMessage(intlMsg.operation),
           render: (text, item, index) => <div>
             <Dropdown.Button type="ghost" overlay={dropdown[index]} onClick={() => browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
-              主机详情
+              <FormattedMessage {...intlMsg.hostDetail}/>
             </Dropdown.Button>
           </div>
         }
@@ -622,7 +625,7 @@ class hostList extends Component {
 
   loadData(e) {
     const {
-      clusterID, getClusterNodesMetrics, getAllClusterNodes,
+      clusterID, getClusterNodesMetrics, getAllClusterNodes, intl: { formatMessage },
       getKubectlsPods, summary, getClusterResourceConsumption,
     } = this.props
     const notification = new NotificationHandler()
@@ -663,14 +666,14 @@ class hostList extends Component {
             getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
               failed: {
                 func: err => {
-                  notification.error('获取节点监控数据失败')
+                  notification.error(formatMessage(intlMsg.getNodeMonitorFail))
                 }
               }
             })
             getClusterResourceConsumption(clusterID, null, {
               failed: {
                 func: err => {
-                  notification.error('获取节点资源数据失败')
+                  notification.error(formatMessage(intlMsg.getNodeSourceFail))
                 }
               }
             })
@@ -737,7 +740,7 @@ class hostList extends Component {
     }
     const { namespace, pods } = kubectlsPods.result
     if (!pods || pods.length === 0) {
-      notification.warn('没有可用终端节点，请联系管理员')
+      notification.warn(formatMessage(intlMsg.noTermNode))
       return
     }
     let randomPodNum = Math.ceil(Math.random() * pods.length)
@@ -825,6 +828,7 @@ class hostList extends Component {
   }
 
   deleteClusterNode(){
+    const { intl: { formatMessage } } = this.props
     //this function for delete cluster node
     let notification = new NotificationHandler()
     const {
@@ -834,7 +838,7 @@ class hostList extends Component {
     const {deleteNode} = this.state;
     const _this = this;
     if(deleteNode.isMaster){
-      notification.warn(`不能删除${MASTER}`)
+      notification.warn(`${formatMessage(intlMsg.canNotDelete)}${MASTER}`)
       return
     }
     deleteClusterNode(clusterID, deleteNode.objectMeta.name, {
@@ -844,7 +848,7 @@ class hostList extends Component {
             success: {
               func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
-                notification.success('主机节点删除成功');
+                notification.success(formatMessage(intlMsg.hostNodeDeleteSuccess));
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
@@ -860,14 +864,14 @@ class hostList extends Component {
                   getClusterNodesMetrics(clusterID, { pods: nodeList.map(node => node.objectMeta.name) }, {
                     failed: {
                       func: err => {
-                        notification.error('获取节点监控数据失败')
+                        notification.error(formatMessage(intlMsg.getNodeMonitorFail))
                       }
                     }
                   })
                   getClusterResourceConsumption(clusterID, null, {
                     failed: {
                       func: err => {
-                        notification.error('获取节点资源数据失败')
+                        notification.error(formatMessage(intlMsg.getNodeSourceFail))
                       }
                     }
                   })
@@ -913,24 +917,24 @@ class hostList extends Component {
     const { canMaintain } = this.state
     if (canMaintain) {
       return [
-        <Button key="cancel" type="ghost" onClick={this.maintainCancel}>取消</Button>,
-        <Button key="confirm" type="primary" onClick={this.maintainConfirm}>确定</Button>,
+        <Button key="cancel" type="ghost" onClick={this.maintainCancel}><FormattedMessage {...intlMsg.cancel}/></Button>,
+        <Button key="confirm" type="primary" onClick={this.maintainConfirm}><FormattedMessage {...intlMsg.confirm}/></Button>,
       ]
     }
     return [
-      <Button type="ghost" onClick={() => this.setState({ maintainModal: false })}>取消</Button>,
-      <Button type="primary" onClick={() => this.setState({ forceModal: true, maintainModal: false })}>删除问题资源，强制维护</Button>
+      <Button type="ghost" onClick={() => this.setState({ maintainModal: false })}><FormattedMessage {...intlMsg.cancel}/></Button>,
+      <Button type="primary" onClick={() => this.setState({ forceModal: true, maintainModal: false })}><FormattedMessage {...intlMsg.deleteErrForceMaintain}/></Button>
     ]
   }
 
   doubleConfirm = async (isForce) => {
     const { deleteNode, forceBody } = this.state
-    const { maintainNode, clusterID } = this.props
+    const { maintainNode, clusterID, intl: { formatMessage } } = this.props
     let notify = new NotificationHandler()
     this.setState({
       [isForce ? 'forceLoading' : 'doubleConfirmLoading']: true
     })
-    notify.spin('节点维护开启中')
+    notify.spin(formatMessage(intlMsg.nodeMaintainOpen))
     const res = await maintainNode(clusterID, deleteNode.objectMeta.name, forceBody, {
       failed: {
         func: () => null
@@ -944,15 +948,15 @@ class hostList extends Component {
       let errorMessage = res.error.message.message || res.error.message;
       if (res.error.statusCode === 409) {
         const { namespace, resourceName } = res.error.message.data;
-        errorMessage = `用户${namespace}的节点${resourceName}违反了自己的pdb策略`
+        errorMessage = formatMessage(intlMsg.userViolatedPdb, { namespace, resourceName })
         this.loadData()
-        notify.warn('容器迁移失败', errorMessage)
+        notify.warn(formatMessage(intlMsg.containerMigrateFail), errorMessage)
         this.setState({
           forceModal: false
         })
         return
       }
-      notify.warn('节点维护开启失败', errorMessage)
+      notify.warn(formatMessage(intlMsg.nodeMaintainFail), errorMessage)
       this.setState({
         forceModal: false
       })
@@ -967,7 +971,7 @@ class hostList extends Component {
       forceBody: null
     })
     notify.close()
-    notify.success('节点维护开启成功')
+    notify.success(formatMessage(intlMsg.nodeMaintainSuccess))
   }
 
   doubleCancel = () => {
@@ -985,20 +989,20 @@ class hostList extends Component {
 
 
   exitMaintainConfirm = async () => {
-    const { exitMaintainNode, clusterID } = this.props
+    const { exitMaintainNode, clusterID, intl: { formatMessage } } = this.props
     const { deleteNode } = this.state
     let notify = new NotificationHandler()
     const result = await exitMaintainNode(clusterID, deleteNode.objectMeta.name)
     this.setState({
       exitMaintainLoading: true
     })
-    notify.spin('退出节点维护中')
+    notify.spin(formatMessage(intlMsg.exitNodeMaintain))
     if (result.error) {
       this.setState({
         exitMaintainLoading: false
       })
       notify.close()
-      notify.warn('退出节点维护失败', result.error.message.message || result.error.message)
+      notify.warn(formatMessage(intlMsg.exitNodeMaintainFail), result.error.message.message || result.error.message)
       return
     }
     this.loadData()
@@ -1007,16 +1011,17 @@ class hostList extends Component {
       exitMaintainModal: false
     })
     notify.close()
-    notify.success('退出节点维护成功')
+    notify.success(formatMessage(intlMsg.exitNodeMaintainSuccess))
   }
   formatType = type => {
+    const { intl: { formatMessage } } = this.props
     switch (type) {
       case 0:
-        return 'host 存储'
+        return formatMessage(intlMsg.hostStorage)
       case 1:
-        return '绑定标签'
+        return formatMessage(intlMsg.bindLabel)
       case 2:
-        return '绑定节点'
+        return formatMessage(intlMsg.bindNode)
       default:
         return
     }
@@ -1024,25 +1029,25 @@ class hostList extends Component {
 
   renderInfo = () => {
     const { canMaintain } = this.state
-    const { nodeInfo } = this.props
+    const { nodeInfo, intl: { formatMessage } } = this.props
     const { pod, node } = nodeInfo || { pod: [], node: [] }
     if (canMaintain) { return }
     const column = [
       {
-        title: '问题',
+        title: formatMessage(intlMsg.question),
         dataIndex: 'msgType',
         width: '15%',
         render: text => this.formatType(text)
       }, {
-        title: '对象',
+        title: formatMessage(intlMsg.object),
         dataIndex: 'podName',
         width: '50%'
       }, {
-        title: '所属项目',
+        title: formatMessage(intlMsg.belongProject),
         dataIndex: 'namespace',
         width: '15%'
       }, {
-        title: '所属服务',
+        title: formatMessage(intlMsg.belongServer),
         dataIndex: 'svcName',
         width: '15%'
       }
@@ -1050,21 +1055,23 @@ class hostList extends Component {
     return (
       <div className="extraInfo">
         <div className="errorInfo">
-          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 该节点存在以下问题，部分容器有迁移风险
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> <FormattedMessage {...intlMsg.nodeErrorMigrateRisk}/>
         </div>
         <div className="container">
-          <div className="titleLabel">全局问题</div>
+          <div className="titleLabel"><FormattedMessage {...intlMsg.globalQuestion}/></div>
           {
             (node || []).map(item => {
               if (item.resourceKind === 'loadbalance') {
-                return <div className="globalList"><i/>{`该节点被 ${item.namespace} 项目 ${item.resourceName} 负载均衡占用`}</div>
+                return <div className="globalList"><i/>
+                  <FormattedMessage {...intlMsg.nodeUseLoadBalance} values={{ namespace: item.namespace, resourceName: item.resourceName }}/>
+                </div>
               }
-              return <div className="globalList"><i/>该节点被设为集群网络出口</div>
+              return <div className="globalList"><i/><FormattedMessage {...intlMsg.nodeUseClusterNet}/></div>
             })
           }
         </div>
         <div className="container">
-          <div className="titleLabel">容器问题</div>
+          <div className="titleLabel"><FormattedMessage {...intlMsg.containerQuestion}/></div>
           <Table
             className="podTable"
             columns={column}
@@ -1076,7 +1083,7 @@ class hostList extends Component {
     )
   }
   render() {
-    const { addNodeCMD, labels, license } = this.props
+    const { addNodeCMD, labels, license, intl: { formatMessage } } = this.props
     const {
       deleteNode, podCount, summary, nodeList,
       maintainModal, confirmModal, doubleConfirmLoading,
@@ -1093,7 +1100,7 @@ class hostList extends Component {
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
-          <Tooltip title={`当前许可证单个集群最多支持 ${maxNodes || '-'} 个节点（目前已添加 ${nodeSum} 个）`}>
+          <Tooltip title={formatMessage(intlMsg.licenseSupportNode, { maxNodes: maxNodes || '-', nodeSum })}>
             <Button
               className='addPodBtn'
               size='large'
@@ -1102,18 +1109,18 @@ class hostList extends Component {
               disabled={addNodeBtnDisabled}
             >
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
-              <span>添加主机节点</span>
+              <span><FormattedMessage {...intlMsg.addHostNode}/></span>
             </Button>
           </Tooltip>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
             <TenxIcon type="terminal"/>
-            <span>终端 | 集群管理</span>
+            <span><FormattedMessage {...intlMsg.termOrClusterManage}/></span>
           </Button>
           <Button type='ghost' size='large' className="refreshBtn" onClick={() => this.loadData()}>
-            <i className='fa fa-refresh' /> 刷 新
+            <i className='fa fa-refresh' /> <FormattedMessage {...intlMsg.refresh}/>
           </Button>
           <span className='searchBox'>
-            <Input className='searchInput' onChange={e => this.setState({search: e.target.value})} size='large' placeholder='搜索' type='text' onPressEnter={(e) => this.searchNodes()} />
+            <Input className='searchInput' onChange={e => this.setState({search: e.target.value})} size='large' placeholder={formatMessage(intlMsg.search)} type='text' onPressEnter={(e) => this.searchNodes()} />
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
@@ -1128,7 +1135,7 @@ class hostList extends Component {
           </span>
           {
             nodeList && nodeList.length
-            ? <div className='totle_num'>共 <span>{nodeList.length}</span> 条</div>
+            ? <div className='totle_num'><FormattedMessage {...intlMsg.totalNumber} values={{ number: nodeList.length }}/></div>
             : null
           }
 
@@ -1148,11 +1155,11 @@ class hostList extends Component {
       </Card>
 
       <AddClusterOrNodeModal
-        title="添加主机节点"
+        title={formatMessage(intlMsg.addHostNode)}
         visible={this.state.addClusterOrNodeModalVisible}
         closeModal={() => this.setState({addClusterOrNodeModalVisible: false})}
         CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
-        bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
+        bottomContent={<p><FormattedMessage {...intlMsg.addHostNodeNote}/></p>} />
 
       <ManageLabelModal
         manageLabelModal={this.state.manageLabelModal}
@@ -1163,7 +1170,7 @@ class hostList extends Component {
       />
 
       <Modal
-        title='删除主机节点'
+        title={formatMessage(intlMsg.deleteHostNode)}
         className='deleteClusterNodeModal'
         visible={this.state.deleteNodeModal}
         onOk={this.deleteClusterNode}
@@ -1171,52 +1178,52 @@ class hostList extends Component {
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-          确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
+          <FormattedMessage {...intlMsg.confirmDeleteHostNode} values={{ nodeName: deleteNode ? deleteNode.objectMeta.name : '' }}/>
         </div>
-        <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
+        <div className="note"><FormattedMessage {...intlMsg.deleteHostNodeNote}/></div>
       </Modal>
       <Modal
-        title="节点维护"
+        title={formatMessage(intlMsg.nodeMaintain)}
         className="maintainModal"
         visible={maintainModal}
         onOk={this.maintainConfirm}
         onCancel={this.maintainCancel}
         footer={this.renderFooter()}
       >
-        <div>进入维护状态之后，节点调度状态将会关闭，节点上容器将会被随机迁移到其它可调度节点上；点击确定后进入维护状态，容器迁移完成后，才能退出维护状态</div>
+        <div><FormattedMessage {...intlMsg.nodeMaintainNote}/></div>
         <br/>
-        <div>适用场景：</div>
+        <div><FormattedMessage {...intlMsg.applicableScene}/>：</div>
         <div className="sceneBox">
-          <p className="maintainScene"><span>1</span>节点内核升级</p>
-          <p className="maintainScene"><span>2</span>硬件系统维护</p>
-          <p className="maintainScene"><span>3</span>替换集群节点</p>
+          <p className="maintainScene"><span>1</span>{formatMessage(intlMsg.nodeCoreUpdate)}</p>
+          <p className="maintainScene"><span>2</span>{formatMessage(intlMsg.hardSysMaintain)}</p>
+          <p className="maintainScene"><span>3</span>{formatMessage(intlMsg.replaceClusterNode)}</p>
         </div>
         {this.renderInfo()}
       </Modal>
       <Modal
-        title="再次确认"
+        title={formatMessage(intlMsg.confirmAgain)}
         visible={confirmModal}
         onOk={this.doubleConfirm}
         onCancel={this.doubleCancel}
         confirmLoading={doubleConfirmLoading}
       >
         <div className="deleteRow">
-          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 进入维护状态，会迁移容器，将会导致服务中断，请谨慎操作！
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> <FormattedMessage {...intlMsg.maintainStatusCaution}/>
         </div>
       </Modal>
       <Modal
-        title="再次确认"
+        title={formatMessage(intlMsg.confirmAgain)}
         visible={forceModal}
         onCancel={this.forceCancel}
         onOk={this.doubleConfirm.bind(this, true)}
         confirmLoading={forceLoading}
       >
         <div className="deleteRow">
-          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> 强制维护会强制迁移节点上所有容器资源，迁移过程会导致服务中断，请谨慎操作!
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/> <FormattedMessage {...intlMsg.maintainStatusCautionAgain}/>
         </div>
       </Modal>
       <Modal
-        title="退出维护"
+        title={formatMessage(intlMsg.exitMaintain)}
         visible={exitMaintainModal}
         onCancel={() => this.setState({ exitMaintainModal: false })}
         onOk={this.exitMaintainConfirm}
@@ -1224,7 +1231,7 @@ class hostList extends Component {
       >
         <div className="deleteRow">
           <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-          退出维护将恢复调度，允许调度新的容器到该节点上，请先确认是否完成维护工作，避免出现不必要的错误，影响您的使用体验，是否确定退出？
+          <FormattedMessage {...intlMsg.exitMaintainNote}/>
         </div>
       </Modal>
     </div>

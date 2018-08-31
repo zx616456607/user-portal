@@ -18,7 +18,7 @@ import { NEED_BUILD_IMAGE } from '../../constants'
 let menuList = [
   {
     url: '/ci_cd/overview',
-    name: '概览',
+    name: 'cicdOverview',
     onClick: () => {
       try {
         browserHistory.push('/ci_cd/overview')
@@ -32,21 +32,21 @@ let menuList = [
   },
   {
     url: '/ci_cd',
-    name: '代码仓库'
+    name: 'cicdCodeRepos'
   }
 ]
 
 if (NEED_BUILD_IMAGE) {
   menuList.push({
     url: '/ci_cd/build_image',
-    name: '构建镜像'
+    name: 'buildImage'
   })
 }
 
 menuList = menuList.concat(
   {
     url: '/ci_cd/pipelines',
-    name: '流水线',
+    name: 'pipelines',
     onClick: () => {
       try {
         browserHistory.push('/ci_cd/pipelines')
@@ -64,7 +64,7 @@ menuList = menuList.concat(
   },
   {
     url: '/ci_cd/cached_volumes',
-    name: '缓存卷',
+    name: 'cachedVolumes',
     onClick: () => {
       try {
         browserHistory.push('/ci_cd/cached_volumes')
@@ -78,7 +78,7 @@ menuList = menuList.concat(
   },
   {
     url: '/ci_cd/thirdparty',
-    name: '第三方工具',
+    name: 'thirdparty',
     onClick: () => {
       try {
         browserHistory.push('/ci_cd/thirdparty')
@@ -91,8 +91,6 @@ menuList = menuList.concat(
     }
   }
 )
-
-
 
 export default class CICD extends Component {
   constructor(props) {

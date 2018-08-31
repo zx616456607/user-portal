@@ -15,6 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
 import $ from 'jquery'
 import './style/TerminalModal.less'
+import intlMsg from './Intl'
 
 const TabPane = Tabs.TabPane;
 const TERM_TIPS_DISABLED = 'term_tips_disabled'
@@ -278,7 +279,7 @@ class TerminalModal extends Component {
   }
 
   render() {
-    const { scope } = this.props;
+    const { scope, intl: { formatMessage } } = this.props;
     let config = this.state.terminalList;
     const _this = this;
     const operaBox = (
@@ -310,12 +311,12 @@ class TerminalModal extends Component {
                   {
                     (item.terminalStatus === 'success' && this.state.tipsVisible) &&
                     <div className="tips">
-                      <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
-                      <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
+                      <Icon type="info-circle-o" /> <FormattedMessage {...intlMsg.containerStateless}/>
+                      <span className="important"><FormattedMessage {...intlMsg.suggestNotEditContainer}/></span>
                       <div className="btns">
-                        <Button key="back" type="primary" onClick={this.closeTip}>知道了</Button>
+                        <Button key="back" type="primary" onClick={this.closeTip}><FormattedMessage {...intlMsg.iKnow}/></Button>
                         <Button key="submit" onClick={this.disabledTermTips}>
-                          不再提醒
+                          <FormattedMessage {...intlMsg.neverMind}/>
                         </Button>
                       </div>
                     </div>
@@ -326,7 +327,7 @@ class TerminalModal extends Component {
                         <span className='terIcon'></span>
                         <span className='terIcon'></span>
                         <span className='terIcon'></span>
-                        <span>终端链接中...</span>
+                        <span><FormattedMessage {...intlMsg.termConnecting}/></span>
                       </div>
                     ] : null
                   }
@@ -335,7 +336,7 @@ class TerminalModal extends Component {
                   {
                     item.terminalStatus == 'timeout' ? [
                       <div className='webLoadingBox' key={'webLoadingBox' + index}>
-                        <span>连接超时了</span>
+                        <span><FormattedMessage {...intlMsg.connectTimeout}/></span>
                       </div>
                     ] : null
                   }
@@ -352,16 +353,16 @@ class TerminalModal extends Component {
         <div className='cover'></div>
         {tabsShow}
         {/* close all modal */}
-        <Modal title="关闭终端链接操作" visible={this.state.closeModal}
+        <Modal title={formatMessage(intlMsg.closeTermAct)} visible={this.state.closeModal}
           onOk={()=> this.closeWindowAction()} onCancel={()=> this.setState({closeModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要关闭所有终端链接么?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i><FormattedMessage {...intlMsg.confirmCloseAll}/></div>
         </Modal>
         {/* close only modal */}
-        <Modal title="关闭终端链接操作" visible={this.state.onlyModal}
+        <Modal title={formatMessage(intlMsg.closeTermAct)} visible={this.state.onlyModal}
           onOk={()=> this.closeTerminal()} onCancel={()=> this.setState({onlyModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要关闭此终端链接?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i><FormattedMessage {...intlMsg.confirmClose}/></div>
         </Modal>
       </div>
     )

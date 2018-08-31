@@ -18,6 +18,8 @@ import { calcuDate } from '../../../common/tools'
 import { loadServiceContainerList } from '../../../actions/services'
 import ContainerStatus from '../../TenxStatus/ContainerStatus'
 import ContainerHeader from '../../../../client/containers/AppModule/AppServiceDetail/containerHeader'
+import { injectIntl,  } from 'react-intl'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -55,7 +57,7 @@ const MyComponent = React.createClass({
     return images
   },
   render: function () {
-    const { config, loading, serviceName } = this.props
+    const { config, loading, serviceName, formatMessage } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -66,7 +68,7 @@ const MyComponent = React.createClass({
     if (config.length < 1) {
       return (
         <div className='loadingBox' style={{clear:'both'}}>
-          无容器实例
+          {formatMessage(AppServiceDetailIntl.noContainerObjec)}
         </div>
       )
     }
@@ -187,6 +189,7 @@ class AppContainerList extends Component {
   }
 
   render() {
+    const { formatMessage } = this.props.intl
     const parentScope = this;
     const { containerList, loading, serviceName, serviceDetail } = this.props
     const containerNum = containerList && containerList.length
@@ -231,19 +234,19 @@ class AppContainerList extends Component {
               <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
               </div>)*/}
               <div className="name commonData" style={{ marginLeft: 24 }} >
-                名称
+                {formatMessage(ServiceCommonIntl.name)}
               </div>
               <div className="status commonData">
-                状态
+                {formatMessage(ServiceCommonIntl.status)}
               </div>
               <div className="image commonData">
-                镜像
+                {formatMessage(ServiceCommonIntl.image)}
               </div>
               <div className="address commonData">
-                地址
+                {formatMessage(ServiceCommonIntl.address)}
               </div>
               <div className="createTime commonData">
-                创建时间
+                {formatMessage(AppServiceDetailIntl.createTime)}
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
@@ -253,6 +256,7 @@ class AppContainerList extends Component {
               loading={loading}
               serviceName={serviceName}
               serviceDetail={serviceDetail}
+              formatMessage={formatMessage}
             />
           </Card>
         </QueueAnim>
@@ -268,4 +272,4 @@ AppContainerList.propTypes = {
   loading: PropTypes.bool.isRequired,
 }
 
-export default AppContainerList
+export default injectIntl(AppContainerList, { withRef: true, })

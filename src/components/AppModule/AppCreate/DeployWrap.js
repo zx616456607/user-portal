@@ -30,6 +30,8 @@ import {getFieldsValues} from "../QuickCreateApp/utils";
 const SERVICE_CONFIG_HASH = '#configure-service'
 const Step = Steps.Step
 const ButtonGroup = Button.Group;
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../containers/Application/intl'
 
 class WrapManage extends Component {
   constructor(props) {
@@ -255,7 +257,7 @@ class WrapManage extends Component {
             }
             </span>
         </div>
-        <div className="template_version">最新版本：{item.version[0]}</div>
+        <div className="template_version"><FormattedMessage {...IntlMessage.latestVersion}/>：{item.version[0]}</div>
         </Button>
       )
 
@@ -264,15 +266,16 @@ class WrapManage extends Component {
   templateVersion() {
     const { defaultTemplate, template } = this.state
     if (defaultTemplate === null) {
-      return <Select.Option key="none">请先选择应用包</Select.Option>
+      return <Select.Option key="none"><FormattedMessage {...IntlMessage.selectWrapTip}/></Select.Option>
     }
     return template[defaultTemplate].version.map(item=> {
       return <Select.Option key={item}>{item}</Select.Option>
     })
   }
   goDeploy = (row)=> {
+    const { intl } = this.props
     if (!row) {
-      notificat.info('请先选择应用包')
+      notificat.info(intl.formatMessage(IntlMessage.selectWrapTip))
       return
     }
     if (this.state.weblogicChecked) {
@@ -285,7 +288,7 @@ class WrapManage extends Component {
     const { wrapList, location, wrapStoreList } = this.props
     const { from } = location.query
     if(row.appRegistryMap && Object.keys(row.appRegistryMap).length > 0 && location.query.entryPkgID) {
-      notificat.error('应用下已有设置entryPkgID的服务')
+      notificat.error(intl.formatMessage(IntlMessage.serviceRepeatTip))
       return
     }
     // /app_manage/app_create/quick_create#configure-service
@@ -307,11 +310,12 @@ class WrapManage extends Component {
       tag = template[defaultTemplate].version[0]
     }
     if (!registry) {
-      notificat.error('镜像地址获取失败','尝试刷新后重试')
+      notificat.error(intl.formatMessage(IntlMessage.imageAddressAcquisitionFailed),
+        intl.formatMessage(IntlMessage.refreshTip))
       return
     }
     if (template[defaultTemplate].version.indexOf(tag) == -1) {
-      notificat.info('版本有误，请重新选择版本')
+      notificat.info(intl.formatMessage(IntlMessage.versionWrong))
       return
     }
     const { appName, action} = location.query
@@ -334,8 +338,13 @@ class WrapManage extends Component {
         return (
           <div className="reset_form_item_label_style">
             <div className="list_row">
-              <span className="wrap_key">连接Oracle </span>
-              <Switch checked={this.state.weblogicChecked} onChange={(e)=> this.setState({weblogicChecked: e})} checkedChildren="开" unCheckedChildren="关" />
+              <span className="wrap_key"><FormattedMessage {...IntlMessage.connectToOracle}/> </span>
+              <Switch
+                checked={this.state.weblogicChecked}
+                onChange={(e)=> this.setState({weblogicChecked: e})}
+                checkedChildren={<FormattedMessage {...IntlMessage.open}/>}
+                unCheckedChildren={<FormattedMessage {...IntlMessage.close}/>}
+              />
             </div>
             <Weblogic form={this.props.form} ref="Weblogic" />
           </div>
@@ -343,8 +352,13 @@ class WrapManage extends Component {
       }
       return (
         <div className="list_row">
-          <span className="wrap_key">连接Oracle </span>
-          <Switch checked={this.state.weblogicChecked} onChange={(e)=> this.setState({weblogicChecked: e})} checkedChildren="开" unCheckedChildren="关" />
+          <span className="wrap_key"><FormattedMessage {...IntlMessage.connectToOracle}/> </span>
+          <Switch
+            checked={this.state.weblogicChecked}
+            onChange={(e)=> this.setState({weblogicChecked: e})}
+            checkedChildren={<FormattedMessage {...IntlMessage.open}/>}
+            unCheckedChildren={<FormattedMessage {...IntlMessage.close}/>}
+          />
         </div>
       )
     }
@@ -352,7 +366,7 @@ class WrapManage extends Component {
   }
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
-    const { current, quick_create, location, childrenSteps } = this.props
+    const { current, quick_create, location, childrenSteps, intl } = this.props
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const funcCallback = {
       goDeploy: this.goDeploy,
@@ -366,46 +380,58 @@ class WrapManage extends Component {
     let steps = null
     if (!childrenSteps) {
       steps = (<Steps size="small" className="steps" status={this.state.stepStatus} current={this.getStepsCurrent()}>
-      <Step title="部署方式" />
-      <Step title="选择基础镜像" />
-      <Step title="配置服务" />
+      <Step title={<FormattedMessage {...IntlMessage.deployMethod}/>} />
+      <Step title={<FormattedMessage {...IntlMessage.selectBaseImage}/>} />
+      <Step title={<FormattedMessage {...IntlMessage.configService}/>} />
     </Steps>)
     }
     const header = (
-      <div>高级设置
-      </div>
+      <div><FormattedMessage {...IntlMessage.advancedSettings}/></div>
     )
     if (quick_create) {
       return (
         <QueueAnim id="deploy_wrap">
           <div className="wrap_manage" >
             <div className="list_row">
-              <span className="wrap_key">选择应用包</span>
+              <span className="wrap_key"><FormattedMessage {...IntlMessage.selectWrap}/></span>
               <span className="searchInput">
-                <Input size="large" onPressEnter={(e) => this.searchData(e)} placeholder={currentType === 'trad' ? '请输入包名称搜索' : '请输入包名称或发布名称搜索'} />
-                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">去上传部署包</Button>
+                <Input
+                  size="large" onPressEnter={(e) => this.searchData(e)}
+                  placeholder={
+                    currentType === 'trad' ?
+                      intl.formatMessage(IntlMessage.wrapPlaceholder) :
+                      intl.formatMessage(IntlMessage.wrapStorePlaceholder)
+                  }
+                />
+                <Button type="primary" onClick={() => browserHistory.push('/app_center/wrap_manage')} size="large">
+                  <FormattedMessage {...IntlMessage.uploadWrap}/>
+                </Button>
 
               </span>
             </div>
             <div style={{ marginBottom: 20 }}>
               <ButtonGroup>
-                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
-                <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
+                <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>
+                  <FormattedMessage {...IntlMessage.wrap}/>
+                </Button>
+                <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>
+                  <FormattedMessage {...IntlMessage.wrapStore}/>
+                </Button>
               </ButtonGroup>
             </div>
             <WrapListTable currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
             <br />
             <div className="list_row" style={{ height: 'auto' }}>
-              <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
+              <span className="wrap_key" style={{ float: 'left' }}><FormattedMessage {...IntlMessage.operatingEnv}/></span>
               <div className="template_list">
                 {this.templateList()}
               </div>
-              <div className="wrap_hint"><Icon type="exclamation-circle-o"/> 设置 JAVA_OPTS：在下一步『配置服务』页面，配置环境变量中修改 JAVA_OPTS 键对应的值</div>
+              <div className="wrap_hint"><Icon type="exclamation-circle-o"/> <FormattedMessage {...IntlMessage.operatingEnvTip}/></div>
             </div>
             <Collapse>
               <Collapse.Panel header={header}>
               <div className="list_row">
-                <span className="wrap_key">选择版本</span>
+                <span className="wrap_key"><FormattedMessage {...IntlMessage.selectVersion}/></span>
                 <Select style={{width:180}} size="large" value={version || template[defaultTemplate].version[0]} onChange={(e)=> {this.setState({version: e});window.version = e}}>
                   { this.templateVersion() }
                 </Select>
@@ -414,8 +440,12 @@ class WrapManage extends Component {
               </Collapse.Panel>
             </Collapse>
             <div className="footerBtn">
-              <Button size="large" onClick={() => browserHistory.push('/app_manage/app_create')}>上一步</Button>
-              <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>下一步</Button>
+              <Button size="large" onClick={() => browserHistory.push('/app_manage/app_create')}>
+                <FormattedMessage {...IntlMessage.previous}/>
+              </Button>
+              <Button size="large" style={{marginLeft:10}} onClick={() => this.goDeploy(window.WrapListTable)}>
+                <FormattedMessage {...IntlMessage.nextStep}/>
+              </Button>
             </div>
           </div>
         </QueueAnim>
@@ -545,4 +575,6 @@ export default connect(mapStateToProps, {
   wrapManageList,
   getImageTemplate,
   getWrapStoreList
-})(WrapManage)
+})(injectIntl(WrapManage, {
+  withRef: true,
+}))

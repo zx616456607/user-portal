@@ -14,7 +14,8 @@ import { loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/ServiceAPI.less'
 import {encodeImageFullname} from "../../../../common/tools";
-
+import { injectIntl } from 'react-intl'
+import serviceApiIntl from './intl/serviceApiIntl'
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -33,17 +34,18 @@ let MyComponent = React.createClass({
     return newList;
   },
   render: function () {
+    const { formatMessage } = this.props.intl
     let config = this.props.config;
     let showList = []
     if (!!config) {
       showList = this.formatEnv(config);
     }
     const columns = [{
-      title: '变量名',
+      title: formatMessage(serviceApiIntl.variableName),
       dataIndex: 'envName',
       width: '30%'
     }, {
-      title: '默认值',
+      title: formatMessage(serviceApiIntl.defaultValue),
       dataIndex: 'envData',
       width: '70%'
     }]
@@ -57,6 +59,9 @@ let MyComponent = React.createClass({
     );
   }
 });
+MyComponent = injectIntl(MyComponent, {
+  withRef: true
+})
 
 class ServiceAPI extends Component {
   constructor(props) {
@@ -80,6 +85,7 @@ class ServiceAPI extends Component {
     }
   }
   render() {
+    const { formatMessage } = this.props.intl
     const { isFetching, configList } = this.props
     if (isFetching) {
       return (
@@ -90,7 +96,7 @@ class ServiceAPI extends Component {
     }
     if (!configList) {
       return (
-        <div style={{lineHeight:'50px'}}>没有加载到该版本的配置信息</div>
+        <div style={{lineHeight:'50px'}}>{formatMessage(serviceApiIntl.noDataTxt)}</div>
       )
     }
 
@@ -146,23 +152,23 @@ class ServiceAPI extends Component {
       <div className="imageServiceAPI" key='imageserviceapi'>
         <Row>
           <Col span={6}>
-            服务端口
+            {formatMessage(serviceApiIntl.servicePort)}
           </Col>
           <Col span={18}>
-            {portsShow ? portsShow:"该镜像无端口定义"}
+            {portsShow ? portsShow:formatMessage(serviceApiIntl.portUndefined)}
           </Col>
         </Row>
         <Row>
           <Col span={6}>
-            存储卷
+            {formatMessage(serviceApiIntl.storage)}
           </Col>
           <Col span={18}>
-            {dataStorageShow.length ? dataStorageShow :  '该镜像无存储卷定义'}
+            {dataStorageShow.length ? dataStorageShow :formatMessage(serviceApiIntl.storageUndefined)}
           </Col>
         </Row>
         <Row>
           <Col span={6}>
-            运行命令及参数
+            {formatMessage(serviceApiIntl.runCommandsAndParameters)}
           </Col>
           <Col span={18}>
             {entrypointShow}&nbsp;{cmdShow}
@@ -170,13 +176,13 @@ class ServiceAPI extends Component {
         </Row>
         <Row>
           <Col span={6}>
-            大小
+            {formatMessage(serviceApiIntl.size)}
           </Col>
           <Col span={18}>
-            {(size > 0) ? size + unit : '未知'}
+            {(size > 0) ? size + unit : formatMessage(serviceApiIntl.unknown)}
           </Col>
         </Row>
-        <Row>环境变量定义</Row>
+        <Row>{formatMessage(serviceApiIntl.definitionOfEnv)}</Row>
         <MyComponent config={defaultEnv} />
       </div>
     )
@@ -217,4 +223,4 @@ ServiceAPI.propTypes = {
 
 export default connect(mapStateToProps, {
   loadRepositoriesTagConfigInfo
-})(ServiceAPI);
+})(injectIntl(ServiceAPI, { withRef: true }));

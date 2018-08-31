@@ -28,6 +28,8 @@ import { DEFAULT_REGISTRY } from '../../../../../src/constants';
 import NotificationHandler from '../../../../../src/components/Notification';
 import './style/index.less';
 import { parseToFields } from './parseToFields';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../src/containers/Application/intl'
 
 const TEMPLATE_EDIT_HASH = '#edit-template';
 
@@ -192,7 +194,7 @@ class AppTemplate extends React.Component<IProps, IState> {
 
   saveService = (key: string, isWrap: boolean) => {
     const { currentStep } = this.state;
-    const { fields, template, getImageTemplate } = this.props;
+    const { fields, template, getImageTemplate, intl } = this.props;
     const { validateFieldsAndScroll } = this.form;
     const notify = new NotificationHandler();
     const query = {
@@ -203,7 +205,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     let url = `/app_center/template/create`;
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        notify.warn('请先修改错误的表单');
+        notify.warn(intl.formatMessage(IntlMessage.formsError));
         return;
       }
       // if query has key that mean edit template
@@ -282,13 +284,13 @@ class AppTemplate extends React.Component<IProps, IState> {
   }
 
   confirmDelete = () => {
-    const { removeFormFields, fields } = this.props;
+    const { removeFormFields, fields, intl } = this.props;
     const { deleteKey, currentStep } = this.state;
     const serviceLength = Object.keys(fields).length;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const notify = new NotificationHandler();
     if (serviceLength === 1) {
-      notify.warn('删除错误', '至少保留一个服务');
+      notify.warn(intl.formatMessage(IntlMessage.deleteFailure), intl.formatMessage(IntlMessage.deleteTooltip));
       return;
     }
     // 删除的是当前的服务
@@ -353,7 +355,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     } = this.state;
     const {
       location, removeFormFields, removeAllFormFields, setFormFields, fields,
-      getImageTemplate, template,
+      getImageTemplate, template, intl,
      } = this.props;
     const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey;
     const parentProps = {
@@ -377,7 +379,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     return (
       <QueueAnim>
         <Row className="appTemplate" key="appTemplate" gutter={16}>
-          <Title title="应用模板"/>
+          <Title title={intl.formatMessage(IntlMessage.appTemplate)}/>
           <Col span={18}>
             <ConfigPart
               fields={fields}
@@ -401,25 +403,25 @@ class AppTemplate extends React.Component<IProps, IState> {
           </Col>
         </Row>
         <Modal
-          title="删除服务"
+          title={<FormattedMessage {...IntlMessage.deleteService}/>}
           visible={deleteVisible}
           onCancel={this.cancelDelete}
           onOk={this.confirmDelete}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-            删除服务无法恢复，是否确认删除？
+              <FormattedMessage {...IntlMessage.deleteServiceTip}/>
           </div>
         </Modal>
         <Modal
-          title="返回上一步"
+          title={<FormattedMessage {...IntlMessage.returnToPrevious}/>}
           visible={goBackVisible}
           onCancel={this.cancelGoBack}
           onOk={this.confirmGoBack}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
-            返回上一步，将会放弃当前正在编辑的配置信息，本次编辑的信息将不会保留，是否返回上一步？
+              <FormattedMessage {...IntlMessage.returnToPreviousTip}/>
           </div>
         </Modal>
       </QueueAnim>
@@ -443,4 +445,4 @@ export default connect(mapStateToProps, {
   setFormFields: QuickCreateAppActions.setFormFields,
   getAppTemplateDetail: templateActions.getAppTemplateDetail,
   getImageTemplate: appCenterActions.getImageTemplate,
-})(AppTemplate);
+})(injectIntl(AppTemplate, { withRef: true }));
