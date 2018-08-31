@@ -705,7 +705,6 @@ class QuickCreateApp extends Component {
     }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll( async (errors, values) => {
-      console.log( 'values', values )
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {

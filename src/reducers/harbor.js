@@ -302,38 +302,6 @@ function members(state = {}, action) {
   }
 }
 
-function projectLogs(state = {}, action) {
-  const { registry } = action
-  const defaultState = {
-    [registry]: {
-      isFetching: false, logs: []
-    }
-  }
-  switch (action.type) {
-  case ActionTypes.HARBOR_PROJECT_LOGS_REQUEST:
-    return merge({}, defaultState, state, {
-      [registry]: {
-        isFetching: true
-      }
-    })
-  case ActionTypes.HARBOR_PROJECT_LOGS_SUCCESS:
-    return Object.assign({}, state, {
-      [registry]: {
-        isFetching: false,
-        server: action.response.result.server,
-        list: action.response.result.data,
-        total: action.response.result.total
-      }
-    })
-  case ActionTypes.HARBOR_PROJECT_LOGS_FAILURE:
-    return merge({}, defaultState, state, {
-      [registry]: { isFetching: false }
-    })
-  default:
-    return state
-  }
-}
-
 function repositoriesTagConfigInfo(state = {}, action) {
   const { registry, imageName, tag } = action
   const defaultState = {

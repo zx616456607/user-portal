@@ -225,7 +225,6 @@ export default class ResourceBanner extends React.Component {
     return(
       <QueueAnim>
         {
-          setResource !== undefined && projectId !== undefined?
           <div className="ResourceBanner" key="ResourceBanner">
             <div>
               <span>{`「${projectText}」项目`}</span>
@@ -244,7 +243,7 @@ export default class ResourceBanner extends React.Component {
             <div><Link to={link}><Icon type="plus" />编辑配额</Link></div> :
             <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />申请增加配额</Link></div>
           }
-          </div> : null
+          </div>
         }
       </QueueAnim>
 

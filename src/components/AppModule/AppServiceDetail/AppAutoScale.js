@@ -677,10 +677,10 @@ class AppAutoScale extends Component {
       && currentService.metadata
       && currentService.metadata.annotations
       || null
-    const isFexed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools') || false
+    const isFexed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs') || false
     maxInstance = annotations
-      && annotations['cni.projectcalico.org/ipv4pools']
-      && JSON.parse(annotations['cni.projectcalico.org/ipv4pools']).length
+      && annotations['cni.projectcalico.org/ipAddrs']
+      && JSON.parse(annotations['cni.projectcalico.org/ipAddrs']).length
     return(
       <div id="AppAutoScale">
         <div className="autoScaleSwitch">

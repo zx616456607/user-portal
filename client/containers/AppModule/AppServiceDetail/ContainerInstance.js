@@ -78,17 +78,17 @@ class ContainerInstance extends React.Component {
     const { serviceDetail, cluster } = this.props
     const service = Object.keys(serviceDetail[cluster])[0]
     const annotations = serviceDetail[cluster][service].service.metadata.annotations
-    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
-      && annotations['cni.projectcalico.org/ipv4pools']
+    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+      && annotations['cni.projectcalico.org/ipAddrs']
     const { setFieldsValue } = this.props.form
     if (ipv4) {
       const ipv4Arr = JSON.parse(ipv4)
       const keys = []
       ipv4Arr.forEach(item => {
-        const nextKeys = keys.concat(uuid)
+        keys.push(uuid)
         setFieldsValue({
           [`replicasIP${uuid}`]: item,
-          keys: nextKeys,
+          keys,
         })
         uuid++
       })
@@ -130,7 +130,7 @@ class ContainerInstance extends React.Component {
       const ipStr = JSON.stringify(ipArr)
       const annotations = serviceDetail[cluster][server].service.metadata.annotations
       Object.assign(annotations, {
-        'cni.projectcalico.org/ipv4pools': ipStr,
+        'cni.projectcalico.org/ipAddrs': ipStr,
       })
       notification.spin('更改中...')
       UpdateServiceAnnotation(cluster, server, annotations, {
@@ -160,7 +160,7 @@ class ContainerInstance extends React.Component {
     const server = Object.keys(serviceDetail[cluster])[0]
     const annotations = serviceDetail[cluster][server].service.metadata.annotations
     Object.assign(annotations, {
-      'cni.projectcalico.org/ipv4pools': '',
+      'cni.projectcalico.org/ipAddrs': '',
     })
     notification.spin('释放中...')
     UpdateServiceAnnotation(cluster, server, annotations, {

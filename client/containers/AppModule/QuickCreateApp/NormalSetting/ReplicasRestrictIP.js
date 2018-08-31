@@ -131,13 +131,15 @@ class ReplicasRestrictIP extends React.Component {
           style={{ width: 300, marginRight: 15 }}
           placeholder= {`请填写实例 IP（需属于 ${NetSegment}）`}
           />
-          <Button
-            className="delBtn"
-            disabled={isdelete}
-            onClick={() => this.remove(k)}
-          >
-            <Icon type="delete" />
-          </Button>
+          <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
+            <Button
+              className="delBtn"
+              disabled={isdelete}
+              onClick={() => this.remove(k)}
+            >
+              <Icon type="delete" />
+            </Button>
+          </Tooltip>
         </FormItem>
       )
     })

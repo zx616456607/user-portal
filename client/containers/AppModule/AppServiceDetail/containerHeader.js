@@ -22,7 +22,7 @@ class ContainerInstanceHeader extends React.Component {
 
   componentDidMount() {
     const annotations = this.props.serviceDetail.metadata.annotations || {}
-    annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+    annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     && this.setState({ isCheckIP: true })
   }
 
