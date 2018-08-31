@@ -671,8 +671,8 @@ class Backup extends React.Component {
                       删除
                     </Button>
                     :
-                    <Dropdown.Button overlay={this.backupPointmenu(v)} type="ghost">
-                      <div onClick={() => this.rollBack(v)}>
+                    <Dropdown.Button onClick={() => this.rollBack(v)} overlay={this.backupPointmenu(v)} type="ghost">
+                      <div>
                         <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
                         回滚
                       </div>
