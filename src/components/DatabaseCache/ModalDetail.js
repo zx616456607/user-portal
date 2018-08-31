@@ -614,7 +614,7 @@ class VisitTypes extends Component{
     const externalId = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationLbgroupName]
     const annotations = databaseInfo.service.annotations;
     this.setReadOnlyCheck(this.props)
-    if(!externalId) {
+    if(!externalId || externalId === 'none') {
       this.setState({
         initValue: 1,
         value: 1,
@@ -635,9 +635,12 @@ class VisitTypes extends Component{
             proxyArr:res[camelize(clusterID)].data
           }, () =>{
             const { proxyArr } = this.state
-            this.setState({
-              deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId
-            })
+            if (externalId && externalId !== 'none') {
+              this.setState({
+                deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId
+              })
+
+            }
 
           })
         },
@@ -655,14 +658,30 @@ class VisitTypes extends Component{
   //设置开启只读地址回显
   setReadOnlyCheck = whichProps => {
     const annotations = whichProps.databaseInfo.service.annotations;
-    if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
-      this.setState({
-        readOnly: true
-      })
+    const visitType = annotations['master.system/lbgroup']
+
+    if(visitType !== 'none') {
+      //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
+      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+        this.setState({
+          readOnly: true
+        })
+      }else {
+        this.setState({
+          readOnly: false
+        })
+      }
     }else {
-      this.setState({
-        readOnly: false
-      })
+      // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
+      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
+        this.setState({
+          readOnly: true
+        })
+      }else {
+        this.setState({
+          readOnly: false
+        })
+      }
     }
 
   }
@@ -846,6 +865,8 @@ class VisitTypes extends Component{
   editAccessAddressSave = () => {
     const notification = new NotificationHandler()
     notification.spin('保存中更改中')
+    const annotations = this.props.databaseInfo.service.annotations;
+    const visitType = annotations['master.system/lbgroup']
     const { editDatabaseCluster } = this.props.scope.props
     const { databaseInfo, database, clusterID } = this.props
     const success = {
@@ -877,10 +898,20 @@ class VisitTypes extends Component{
     }}
     const groupID = databaseInfo.objectMeta.annotations['master.system/lbgroup']
     const { readOnly } = this.state
-    const body = {
-      annotations: {
-        'master.system/lbgroup': `${groupID}`,
-        'slave.system/lbgroup': readOnly? `${groupID}` : 'none',
+    let body
+    if (visitType === 'none') {
+      body = {
+        annotations: {
+          'master.system/lbgroup': `${groupID}`,
+          'slave.system/lbgroup': readOnly? 'none' : '',
+        }
+      }
+    }else {
+      body = {
+        annotations: {
+          'master.system/lbgroup': `${groupID}`,
+          'slave.system/lbgroup': readOnly? `${groupID}` : 'none',
+        }
       }
     }
     editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
@@ -1118,7 +1149,7 @@ class VisitTypes extends Component{
               </RadioGroup>
               <p className="typeHint">
                 {
-                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；': '数据库与缓存可提供集群外访问，选择一个网络出口；'
+                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问': '数据库与缓存可提供集群外访问，选择一个网络出口'
                 }
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
@@ -1132,7 +1163,10 @@ class VisitTypes extends Component{
               </div>
               {
                 this.state.deleteHint &&
-                <div className={classNames("inlineBlock deleteHint")}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>已选网络出口已被管理员删除，请选择其他网络出口或访问方式</div>
+                <div className={classNames("inlineBlock deleteHint")}>
+                  <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+                  已选网络出口已被管理员删除，请选择其他网络出口或访问方式
+                </div>
               }
             </div>
           </div>
@@ -1203,9 +1237,9 @@ class LeasingInfo extends Component {
   }
   render() {
     const parentScope = this.props.scope
-    const { databaseInfo } = this.props
+    const { databaseInfo, database } = this.props
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice[database === 'mysql'? '4x':'2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
@@ -1731,7 +1765,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>
@@ -1781,7 +1815,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>

@@ -572,8 +572,9 @@ let CreateDatabase = React.createClass({
         <Option key={item.clusterID}>{item.clusterName}</Option>
       )
     })
-    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
-    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const configParam = database === 'mysql'? '4x': '2x'
+    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice[configParam])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice[configParam])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const statefulApps = {
       mysql: 'MySQL',
       redis: 'Redis',
@@ -794,7 +795,7 @@ let CreateDatabase = React.createClass({
               }
                 <div className="modal-price">
                   <div className="price-left">
-                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice[configParam] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
                     <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
                   </div>
                   <div className="price-unit">
