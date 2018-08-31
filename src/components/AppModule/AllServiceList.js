@@ -580,10 +580,10 @@ const MyComponent =  injectIntl(React.createClass({
             </Tooltip>
           </div>
           <div className="alarm commonData">
-            <Tooltip title="查看监控">
+            <Tooltip title={formatMessage(AllServiceListIntl.checkMonitor)}>
               <TenxIcon type="manage-monitor" onClick={()=> this.showMonitoring(item)}/>
             </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
+            <Tooltip title={formatMessage(AllServiceListIntl.alarmSet)} onClick={()=> this.showAlert(item)}>
             <Icon type="notification" />
             </Tooltip>
           </div>
@@ -605,7 +605,7 @@ const MyComponent =  injectIntl(React.createClass({
               trigger={['hover']}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
-              <span>查看</span>
+              <span>{formatMessage(AllServiceListIntl.check)}</span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: "both" }}></div>
