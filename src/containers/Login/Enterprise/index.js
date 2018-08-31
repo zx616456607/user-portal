@@ -14,11 +14,11 @@ import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
-import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../../constants'
+import { NO_CLUSTER_FLAG, CLUSTER_PAGE, INTL_COOKIE_NAME } from '../../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet } from '../../../actions/admin'
 import { browserHistory } from 'react-router'
-import { genRandomString, clearSessionStorage } from '../../../common/tools'
+import { genRandomString, clearSessionStorage, setCookie } from '../../../common/tools'
 import Top from '../../../components/Top'
 import { camelize } from 'humps'
 import { getPersonalized } from '../../../actions/personalized'
@@ -350,6 +350,10 @@ let Login = React.createClass({
     }
     return
   },
+  changeLang(lang) {
+    setCookie(INTL_COOKIE_NAME, lang)
+    location.reload()
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -489,9 +493,20 @@ let Login = React.createClass({
           </Card>
         </div>
         </div>
-        <div className="footer">
-          {this.copyright(info)}
-        </div>
+        <Row className="footer">
+          <span className="copyright" span={12}>
+            {this.copyright(info)}
+          </span>
+          <span className="langSwitch" span={12}>
+            <span className="lang" onClick={() => this.changeLang('zh')}>
+            简体中文
+            </span>
+            <span>∙</span>
+            <span className="lang" onClick={() => this.changeLang('en')}>
+            English
+            </span>
+          </span>
+        </Row>
       </div>
     )
   }
