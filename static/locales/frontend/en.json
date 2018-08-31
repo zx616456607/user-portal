@@ -1943,7 +1943,7 @@
   "AppModule.AppServiceDetailIntl.myPersonalItem": "My personal project",
   "AppModule.AppServiceDetailIntl.projectTextItem": "「 { projectText } 」project",
   "AppModule.AppServiceDetailIntl.inCluserName": "in { clusterName }",
-  "AppModule.AppServiceDetailIntl.inQuotauseCondition": "中「{ resourceName }」quota usage",
+  "AppModule.AppServiceDetailIntl.inQuotauseCondition": "in「{ resourceName }」quota usage",
   "AppModule.AppServiceDetailIntl.noLimit": "Unlimited",
   "AppModule.AppServiceDetailIntl.eidtQuota": "Edit",
   "AppModule.AppServiceDetailIntl.applyIncreaseQuota": "Apply for an increase in quota",
