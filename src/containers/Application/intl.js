@@ -12,7 +12,7 @@
 import { defineIntlMessages } from '../../common/tools'
 
 const messageObj = {
-  prefix: 'AppCreate.',
+  prefix: 'AppCreate',
   data: {
     requestFailure: '请求错误',
     imageStoreError: '镜像仓库暂时无法访问，请联系管理员',
