@@ -141,8 +141,9 @@ class SecurityGroupTab extends React.Component {
                   const { message, statusCode } = error
                   notification.close()
                   if (!statusCode === 403) {
-                    notification.warn(formatMessage(AppServiceDetailIntl.changeSecurityGroupFailure),
-                    message.message)
+                    notification.warn(
+                      formatMessage(AppServiceDetailIntl.changeSecurityGroupFailure),
+                      message.message)
                   }
                 },
               },
@@ -167,7 +168,9 @@ class SecurityGroupTab extends React.Component {
           const { message, statusCode } = error
           notification.close()
           if (!statusCode === 403) {
-            notification.warn(formatMessage(AppServiceDetailIntl.getDetailErrorInfo), message.message)
+            notification.warn(
+              formatMessage(AppServiceDetailIntl.getDetailErrorInfo),
+              message.message)
           }
         },
       },
