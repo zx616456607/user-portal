@@ -112,7 +112,7 @@ class ResourcesOverview extends React.Component {
 
   render() {
     const { clusterSummary } = this.props
-    const { node = {}, pod, resource } = clusterSummary.static || {}
+    const { node, pod, resource } = clusterSummary.static || {}
     const { useRate } = clusterSummary.dynamic || {}
     // container
     const podPending = pod ? pod[camelize('Pending')] : NOT_AVAILABLE
