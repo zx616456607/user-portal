@@ -433,7 +433,7 @@ class LoadBalance extends React.Component {
   }
   render() {
     const { ingressVisible, currentIngress, lbLoading, tcpUdpVisible } = this.state
-    const { form, loadBalanceList, checkIngressNameAndHost, clusterID, location, isTemplate } = this.props
+    const { form, loadBalanceList, checkIngressNameAndHost, clusterID, location, isTemplate, intl } = this.props
     const { getFieldProps, getFieldValue } = form
 
     const templateDeploy = location.query.template && !isTemplate
