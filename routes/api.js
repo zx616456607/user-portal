@@ -350,7 +350,7 @@ module.exports = function (Router) {
   router.put('/registries/:registry/repositories/:name', harborController.updateRepository)
 
   router.get('/registries/:registry/logs', harborController.getLogs)
-  router.post('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
+  router.get('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
   router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
   router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
   router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)

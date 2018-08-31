@@ -303,7 +303,7 @@ HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback)
     requestUrl += `?${queryString.stringify(query)}`
   }
   logger.debug(method, `Request url: ${requestUrl}`)
-  this.sendRequest(requestUrl, 'POST', data, callback)
+  this.sendRequest(requestUrl, 'GET', data, callback)
 }
 
 /*----------------log end---------------*/
