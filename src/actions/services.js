@@ -270,6 +270,7 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
     delete query.projectName
     delete query.userName
   }
+
   let headers = {
     teamspace: projectName || 'default',
   }
