@@ -23,29 +23,31 @@ import {
   loadContainerAllOfMetrics,
 } from '../../actions/metrics'
 import { UPDATE_INTERVAL, LOAD_INSTANT_INTERVAL } from '../../constants'
+import { FormattedMessage } from 'react-intl'
+import { AppServiceDetailIntl } from '../AppModule/ServiceIntl'
 
 const RadioGroup = Radio.Group;
 
 const timeFrequency = {
   '1': {
     'second': 1000 * 60,
-    'timeDes': '1分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.oneMinute}/>
   },
   '6': {
     'second': 1000 * 60 * 5,
-    'timeDes': '5分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.fiveMinute}/>
   },
   '24': {
     'second': 1000 * 60 * 20,
-    'timeDes': '20分钟'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twentyMinute}/>
   },
   '168': {
     'second': 1000 * 60 * 60 * 2,
-    'timeDes': '2小时'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twoHour}/>
   },
   '720': {
     'second': 1000 * 60 * 60 * 6,
-    'timeDes': '6小时'
+    'timeDes': <FormattedMessage {...AppServiceDetailIntl.sixHour}/>
   }
 }
 
@@ -56,9 +58,10 @@ class ContainerMonitior extends Component {
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
     this.setIntervalFunc = this.setIntervalFunc.bind(this)
+    const { formatMessage } = this.props.intl
     this.state = {
       intervalStatus: false,
-      freshTime: '1分钟',
+      freshTime: formatMessage(AppServiceDetailIntl.oneMinute),
       switchCpu: false,
       switchMemory: false,
       switchNetwork: false,
@@ -204,6 +207,29 @@ class ContainerMonitior extends Component {
     const { loadContainerAllOfMetrics, cluster, containerName } = this.props
     const {value} = e.target
     const start = this.changeTime(value)
+    const { formatMessage } = this.props.intl
+    const timeFrequency = {
+      '1': {
+        'second': 1000 * 60,
+        'timeDes': formatMessage(AppServiceDetailIntl.oneMinute)
+      },
+      '6': {
+        'second': 1000 * 60 * 5,
+        'timeDes': formatMessage(AppServiceDetailIntl.fiveMinute)
+      },
+      '24': {
+        'second': 1000 * 60 * 20,
+        'timeDes': formatMessage(AppServiceDetailIntl.twentyMinute)
+      },
+      '168': {
+        'second': 1000 * 60 * 60 * 2,
+        'timeDes': formatMessage(AppServiceDetailIntl.twoHour)
+      },
+      '720': {
+        'second': 1000 * 60 * 60 * 6,
+        'timeDes': formatMessage(AppServiceDetailIntl.sixHour)
+      }
+    }
     const timeDes = timeFrequency[value]['timeDes']
     this.setState({
       currentStart: start,

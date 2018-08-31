@@ -33,29 +33,6 @@ import { serviceNameCutForMetric } from '../../../common/tools'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 
-const timeFrequency = {
-  '1': {
-    'second': 1000 * 60,
-    'timeDes': <FormattedMessage {...AppServiceDetailIntl.oneMinute}/>
-  },
-  '6': {
-    'second': 1000 * 60 * 5,
-    'timeDes': <FormattedMessage {...AppServiceDetailIntl.fiveMinute}/>
-  },
-  '24': {
-    'second': 1000 * 60 * 20,
-    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twentyMinute}/>
-  },
-  '168': {
-    'second': 1000 * 60 * 60 * 2,
-    'timeDes': <FormattedMessage {...AppServiceDetailIntl.twoHour}/>
-  },
-  '720': {
-    'second': 1000 * 60 * 60 * 6,
-    'timeDes': <FormattedMessage {...AppServiceDetailIntl.sixHour}/>
-  }
-}
-
 class ServiceMonitior extends Component {
   constructor(props) {
     super(props)
@@ -212,6 +189,29 @@ class ServiceMonitior extends Component {
   handleTimeChange(e) {
     const {value} = e.target
     const start = this.changeTime(value)
+    const { formatMessage } = this.props.intl
+    const timeFrequency = {
+      '1': {
+        'second': 1000 * 60,
+        'timeDes': formatMessage(AppServiceDetailIntl.oneMinute)
+      },
+      '6': {
+        'second': 1000 * 60 * 5,
+        'timeDes': formatMessage(AppServiceDetailIntl.fiveMinute)
+      },
+      '24': {
+        'second': 1000 * 60 * 20,
+        'timeDes': formatMessage(AppServiceDetailIntl.twentyMinute)
+      },
+      '168': {
+        'second': 1000 * 60 * 60 * 2,
+        'timeDes': formatMessage(AppServiceDetailIntl.twoHour)
+      },
+      '720': {
+        'second': 1000 * 60 * 60 * 6,
+        'timeDes': formatMessage(AppServiceDetailIntl.sixHour)
+      }
+    }
     const timeDes = timeFrequency[value]['timeDes']
     this.setState({
       currentStart: start,

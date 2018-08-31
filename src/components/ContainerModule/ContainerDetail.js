@@ -25,6 +25,8 @@ import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerDetailIntl'
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
@@ -73,17 +75,18 @@ class ContainerDetail extends Component {
 
   deleteContainer() {
     const { containerName, cluster, deleteContainers } = this.props
+    const { formatMessage } = this.props.intl
     confirm({
-      title: `您是否确认要重新分配 ${containerName} 这个容器`,
+      title: formatMessage(IntlMessages.delContainerConfirm, { containerName }),
       onOk() {
         return new Promise((resolve) => {
           let notification = new NotificationHandler()
-          notification.spin(`容器 ${containerName} 重新分配中...`)
+          notification.spin(formatMessage(IntlMessages.containerDeleting, { containerName }))
           deleteContainers(cluster, [containerName], {}, {
             success: {
               func: () => {
                 notification.close()
-                notification.success(`容器 ${containerName} 已成功重新分配`)
+                notification.success(formatMessage(IntlMessages.containerDeleted, { containerName }))
                 browserHistory.push('/app_manage/container')
               },
               isAsync: true
@@ -91,7 +94,7 @@ class ContainerDetail extends Component {
             failed: {
               func: () => {
                 notification.close()
-                notification.error(`容器 ${containerName} 重新分配失败`)
+                notification.error(formatMessage(IntlMessages.containerDeleteFailed, { containerName }))
               }
             }
           })
@@ -121,8 +124,8 @@ class ContainerDetail extends Component {
 
   render() {
     const parentScope = this
-    const { containerName, isFetching, container, cluster } = this.props
-    const { children } = this.props
+    const { containerName, isFetching, container, cluster, intl, children } = this.props
+    const { formatMessage } = intl
     const { activeTabKey } = this.state
     if (isFetching || !!!container || !!!container.metadata) {
       return (
@@ -137,7 +140,8 @@ class ContainerDetail extends Component {
     const operaMenu = (
       <Menu>
         <Menu.Item key="0" disabled={true}>
-          <i className="fa fa-stop" style={{ marginRight: "10px" }}></i>停止
+          <i className="fa fa-stop" style={{ marginRight: "10px" }}></i>
+          <FormattedMessage {...IntlMessages.stop} />
         </Menu.Item>
       </Menu>
     );
@@ -147,7 +151,7 @@ class ContainerDetail extends Component {
           key="demo"
           type="right"
           >
-          <Title title={`容器 ${containerName}`} />
+          <Title title={formatMessage(IntlMessages.title, { containerName })} />
           <div className="cover"></div>
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">
@@ -160,18 +164,20 @@ class ContainerDetail extends Component {
                 </p>
                 <div className="leftInfo">
                   <div className="status">
-                    状态：
+                    <FormattedMessage {...IntlMessages.status} />
                     <span style={{ position: 'relative' }}>
                       <ContainerStatus container={container} smart={true} />
                     </span>
                   </div>
                   <div className="address">
-                    地址： {container.status.podIP}
+                    <FormattedMessage {...IntlMessages.address} />
+                    {container.status.podIP}
                   </div>
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建： {formatDate(container.metadata.creationTimestamp || '')}
+                    <FormattedMessage {...IntlMessages.createTime} />
+                    {formatDate(container.metadata.creationTimestamp || '')}
                   </div>
                   {/*<div className="updateDate">
                       更新：{container.metadata.creationTimestamp}
@@ -183,11 +189,12 @@ class ContainerDetail extends Component {
                     <Button type="primary" className="viewBtn" size='large'
                       onClick={(e) => this.openTerminalModal(container, e)}>
                       <TenxIcon type='terminal'/>
-                      登录终端
+                      <FormattedMessage {...IntlMessages.loginTerminal} />
                     </Button>
                     <Button
                       onClick={this.deleteContainer} size='large' type="ghost">
-                      <i className='fa fa-undo' />&nbsp;重新分配
+                      <i className='fa fa-undo' />&nbsp;
+                      <FormattedMessage {...IntlMessages.deleteContainer} />
                     </Button>
                   </div>
                 </div>
@@ -202,26 +209,42 @@ class ContainerDetail extends Component {
                 activeKey={activeTabKey}
                 onTabClick={this.onTabClick}
                 >
-                <TabPane tab="配置" key="#configs" >
-                  <ContainerDetailInfo key="#configs" container={container} />
+                <TabPane
+                  tab={<FormattedMessage {...IntlMessages.configs} />}
+                  key="#configs"
+                >
+                  <ContainerDetailInfo key="#configs" container={container} intl={intl} />
                 </TabPane>
-                <TabPane tab="监控" key="#monitor" >
-                  <ContainerMonitior key="#monitor" containerName={containerName} cluster={cluster} />
+                <TabPane
+                  tab={<FormattedMessage {...IntlMessages.monitor} />}
+                  key="#monitor"
+                >
+                  <ContainerMonitior key="#monitor" containerName={containerName} cluster={cluster} intl={intl} />
                 </TabPane>
-                <TabPane tab="日志" key="#logs" >
+                <TabPane
+                  tab={<FormattedMessage {...IntlMessages.logs} />}
+                  key="#logs"
+                >
                   <ContainerLogs
                     key="#logs"
                     containerName={containerName}
                     serviceName={container.metadata.labels.name}
                     cluster={cluster}
                     tabKey="#logs"
+                    intl={intl}
                     activeTabKey={activeTabKey} />
                 </TabPane>
-                <TabPane tab="事件" key="#events" >
-                  <ContainerEvents key="#events" containerName={containerName} cluster={cluster} />
+                <TabPane
+                  tab={<FormattedMessage {...IntlMessages.events} />}
+                  key="#events"
+                >
+                  <ContainerEvents key="#events" containerName={containerName} cluster={cluster} intl={intl} />
                 </TabPane>
-                <TabPane tab="进程" key="#progress" >
-                  <ContainerProgress key="#progress" containerName={containerName} container={container} cluster={cluster} />
+                <TabPane
+                  tab={<FormattedMessage {...IntlMessages.progress} />}
+                  key="#progress"
+                >
+                  <ContainerProgress key="#progress" containerName={containerName} container={container} cluster={cluster} intl={intl} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -267,8 +290,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadContainerDetail,
   deleteContainers,
   addTerminal,
-})(ContainerDetail)
+})(ContainerDetail), {
+  withRef: true,
+})
