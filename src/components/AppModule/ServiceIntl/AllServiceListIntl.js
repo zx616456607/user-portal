@@ -56,6 +56,9 @@ export const mapData = {
     serviceTag: '服务标签',
     moreSet: '更多设置',
     extend: '扩展',
+    check: '查看',
+    checkMonitor: '查看监控',
+    alarmSet :'告警设置'
   }
 }
 

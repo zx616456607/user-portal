@@ -414,7 +414,7 @@ class ServiceMonitior extends Component {
               >
                 <span className="themeColor pointer">
                   <Icon type="filter" /> <span>{formatMessage(AppServiceDetailIntl.filterObject, {
-                    length: 'checkedKeys.length'
+                    length: checkedKeys.length
                   })}</span>
                 </span>
               </Popover>
