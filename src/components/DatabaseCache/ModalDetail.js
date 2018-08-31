@@ -1237,9 +1237,9 @@ class LeasingInfo extends Component {
   }
   render() {
     const parentScope = this.props.scope
-    const { databaseInfo } = this.props
+    const { databaseInfo, database } = this.props
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice[database === 'mysql'? '4x':'2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
@@ -1765,7 +1765,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>
@@ -1815,7 +1815,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>
