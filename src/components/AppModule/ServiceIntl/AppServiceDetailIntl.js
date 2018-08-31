@@ -525,6 +525,12 @@ export const mapData = {
     addAnGroupTag: '添加一组标签',
     deleteTag: '删除标签',
     makeSureCurrentTag: '确定要删除当前标签吗？',
+    //2018-08-30
+    currentPlatformNoConfigInfo: '当前平台未配置微服务治理套件，请联系基础设施管理员配置',
+    currentPlatformNoInstallIstio: '当前集群未安装 istio，请联系基础设施管理员安装',
+    serviceMesh: '服务网格',
+    afterOpenServiceInfo: '开通后， 此服务将由服务网格代理，使用微服务中心提供的治理功能',
+    projectOpenServiceMeshInfo: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能'
     }
 }
 
