@@ -33,7 +33,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
-import { createAppIngress, getLBList } from '../../../actions/load_balance'
+import { createAppIngress, getLBList, createTcpUdpIngress } from '../../../actions/load_balance'
 import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, removeAppTemplateDeployCheck } from '../../../../client/actions/template'
 import { getImageTemplate } from '../../../actions/app_center'
 import {
@@ -548,7 +548,7 @@ class QuickCreateApp extends Component {
     const {
       fields, current, loginUser,
       createApp, addService,location,
-      createAppIngress, intl
+      createAppIngress, intl, createTcpUdpIngress
     } = this.props
     if (location.query.template) {
       this.createAppByTemplate()
@@ -560,7 +560,10 @@ class QuickCreateApp extends Component {
     let accessType = ''
     let lbName = ''
     let lbBody = []
-
+    let tcpUdpBody = {
+      tcp: [],
+      udp: []
+    }
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
@@ -572,15 +575,17 @@ class QuickCreateApp extends Component {
         if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
           accessType = fields[key].accessType.value
           lbName = fields[key].loadBalance.value
-          let lbKeys = fields[key].lbKeys.value
-          lbKeys.forEach(item => {
+          const lbKeys = fields[key].lbKeys.value
+          const tcpKeys = fields[key].tcpKeys.value
+          const udpKeys = fields[key].udpKeys.value
+          !isEmpty(lbKeys) && lbKeys.forEach(item => {
             const items = []
             const { host } = fields[key][`ingress-${item}`].value
             const [hostname, ...path] = host.split('/')
             items.push({
               serviceName: fields[key].serviceName.value,
               servicePort: parseInt(fields[key][`port-${item}`].value),
-              weight: 1
+              weight: parseInt(fields[key][`weight-${item}`].value)
             })
             const body = {
               host: hostname,
@@ -588,6 +593,26 @@ class QuickCreateApp extends Component {
               items
             }
             lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
+          })
+          !isEmpty(tcpKeys) && tcpKeys.forEach(item => {
+            const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
+            const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
+            const serviceName = fields[key].serviceName.value
+            tcpUdpBody.tcp.push({
+              exportPort,
+              servicePort,
+              serviceName,
+            })
+          })
+          !isEmpty(udpKeys) && udpKeys.forEach(item => {
+            const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
+            const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
+            const serviceName = fields[key].serviceName.value
+            tcpUdpBody.udp.push({
+              exportPort,
+              servicePort,
+              serviceName,
+            })
           })
         }
         if (fields[key].appPkgID) {
@@ -600,7 +625,12 @@ class QuickCreateApp extends Component {
       success: {
         func: res => {
           if (accessType === 'loadBalance') {
-            createAppIngress(clusterID, lbName, {data: lbBody})
+            if (!isEmpty(lbBody)) {
+              createAppIngress(clusterID, lbName, {data: lbBody})
+            }
+            if (!isEmpty(tcpUdpBody.tcp) || isEmpty(tcpUdpBody.udp)) {
+              createTcpUdpIngress(clusterID, lbName, tcpUdpBody)
+            }
           }
           this.setState({
             stepStatus: 'finish',

@@ -134,6 +134,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     internaletwork, //内网出口
     portsKeys, // 端口的 keys(数组)
     lbKeys, // 访问方式为负载均衡时的端口(数组)
+    tcpKeys,
+    udpKeys,
     argsType,
     command, // 进入点
     argsKeys, // 启动命令的 keys(数组)
@@ -356,11 +358,23 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
-    lbKeys && lbKeys.forEach(key => {
+    !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
       const name = `${serviceName}-${key}`
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, null, port, port)
+    })
+    !isEmpty(tcpKeys) && tcpKeys.forEach(key => {
+      const port = parseInt(fieldsValues[`tcp-servicePort-${key}`])
+      const name = `${serviceName}-tcp-${key}`
+      deployment.addContainerPort(serviceName, port)
+      service.addPort(proxyType, name, 'TCP', port, port)
+    })
+    !isEmpty(udpKeys) && tcpKeys.forEach(key => {
+      const port = parseInt(fieldsValues[`udp-servicePort-${key}`])
+      const name = `${serviceName}-udp-${key}`
+      deployment.addContainerPort(serviceName, port)
+      service.addPort(proxyType, name, 'UDP', port, port)
     })
     // 默认访问方式 集群内
     service.addLBGroupAnnotation('none')

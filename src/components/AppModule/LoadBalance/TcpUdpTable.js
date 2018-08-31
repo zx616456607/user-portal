@@ -11,26 +11,121 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Table, Button, Pagination } from 'antd'
+import { connect } from 'react-redux'
+import { Table, Button, Pagination, Modal } from 'antd'
 import TenxPage from '@tenx-ui/page'
+import * as lbActions from '../../../actions/load_balance'
+import { getDeepValue } from '../../../../client/util/util'
+import Notification from '../../Notification'
+
+const PAGE_SIZE = 5
+
+const notify = new Notification()
+
+const mapStateToProps = (state, props) => {
+  const { type } = props
+  const lowerType = type.toLowerCase()
+  const ingressData = getDeepValue(state, ['loadBalance', 'tcpUdpIngress', lowerType])
+  return {
+    ingressData,
+  }
+}
+
+@connect(mapStateToProps, {
+  getTcpUdpIngress: lbActions.getTcpUdpIngress,
+  deleteTcpUdpIngress: lbActions.deleteTcpUdpIngress,
+})
 
 export default class TcpUdpTable extends React.PureComponent{
   static propTypes = {
     type: PropTypes.oneOf(['TCP', 'UDP']).isRequired,
+    clusterID: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
   }
+
+  state = {
+    current: 1,
+    copyIngress: [],
+  }
+
+  componentDidMount() {
+    this.loadIngressList()
+  }
+
+  loadIngressList = async () => {
+    const { current } = this.state
+    const { getTcpUdpIngress, type, clusterID, name } = this.props
+    const lowerType = type.toLowerCase()
+    await getTcpUdpIngress(clusterID, name, lowerType)
+    const { ingressData } = this.props
+    this.setState({
+      copyIngress: ingressData.data.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
+    })
+  }
+
+  handlePage = current => {
+    const { ingressData } = this.props
+    this.setState({
+      current,
+      copyIngress: ingressData.data.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
+    })
+  }
+
+  handleDelete = row => {
+    this.setState({
+      deleteRow: row,
+      deleteVisible: true,
+    })
+  }
+
+  cancelDelete = () => {
+    this.setState({
+      deleteVisible: false,
+    })
+  }
+
+  confirmDelete = async () => {
+    const { deleteTcpUdpIngress, clusterID, name, type } = this.props
+    const { deleteRow } = this.state
+    this.setState({
+      confirmLoading: true,
+    })
+    notify.spin('删除中...')
+    const lowerType = type.toLowerCase()
+    const { exportPort } = deleteRow
+    const result = await deleteTcpUdpIngress(clusterID, name, lowerType, exportPort)
+    if (result.error) {
+      notify.close()
+      notify.warn('删除失败')
+      this.setState({
+        confirmLoading: false,
+      })
+      return
+    }
+    notify.close()
+    notify.success('删除成功')
+    await this.loadIngressList()
+    this.setState({
+      confirmLoading: false,
+      deleteVisible: false,
+    })
+  }
+
   render() {
-    const { type, togglePart } = this.props
+    const { current, copyIngress, deleteVisible, confirmLoading } = this.state
+    const { type, togglePart, ingressData } = this.props
+    const { data, isFetching } = ingressData || { data: [] }
     const pagination = {
       simple: true,
-      total: 10,
-      pageSize: 5,
-      current: 1,
-      // onChange: this.handlePage
+      total: data.length,
+      pageSize: PAGE_SIZE,
+      current,
+      onChange: this.handlePage
     }
     const columns = [
       {
         title: '监听端口',
-        dataIndex: 'monitorPort',
+        dataIndex: 'exportPort',
         width: '25%',
       },
       {
@@ -40,7 +135,7 @@ export default class TcpUdpTable extends React.PureComponent{
       },
       {
         title: '服务端口',
-        dataIndex: 'port',
+        dataIndex: 'servicePort',
         width: '25%',
       },
       {
@@ -49,31 +144,43 @@ export default class TcpUdpTable extends React.PureComponent{
         render: (text, row) =>
           <div>
             <Button type="primary" className="editBtn" onClick={() => togglePart(false, row, type)}>编辑</Button>
-            <Button type="ghost">删除</Button>
+            <Button type="ghost" onClick={() => this.handleDelete(row)}>删除</Button>
           </div>
       }
     ]
-    const data = [{
-      monitorPort: 233,
-      serviceName: 'hahaha',
-      port: '8080'
-    }]
     return (
       <TenxPage inner>
+        <Modal
+          title={`删除监听`}
+          visible={deleteVisible}
+          confirmLoading={confirmLoading}
+          onCancel={this.cancelDelete}
+          onOk={this.confirmDelete}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+            删除监听，将会导致原有转发失败，是否删除？
+          </div>
+        </Modal>
         <div className="layout-content-btns">
           <Button type="primary" size="large" icon="plus" onClick={() => togglePart(false, null, type)}>
             {`创建 ${type} 监听`}
           </Button>
-          <div className="page-box">
-            <span className="total">共计 10 条</span>
-            <Pagination {...pagination}/>
-          </div>
+          {
+            data.length ?
+              <div className="page-box">
+                <span className="total">共计 {data.length} 条</span>
+                <Pagination {...pagination}/>
+              </div>
+              : null
+          }
         </div>
         <Table
           className="reset_antd_table_header"
           columns={columns}
-          dataSource={data}
+          dataSource={copyIngress}
           pagination={false}
+          loading={isFetching}
         />
       </TenxPage>
     )

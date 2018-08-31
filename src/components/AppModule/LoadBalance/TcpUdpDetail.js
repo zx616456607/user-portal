@@ -13,11 +13,17 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Form, InputNumber, Select, Card } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import DetailFooter from './DetailFooter'
-import { sleep } from "../../../common/tools";
+import Notification from '../../Notification'
+import * as lbActions from '../../../actions/load_balance'
+import * as serviceActions from '../../../actions/services'
+import { getDeepValue } from '../../../../client/util/util'
+
 
 const FormItem = Form.Item
 const Option = Select.Option
+const notify = new Notification()
 
 class TcpUdpDetail extends React.PureComponent{
   static propTypes = {
@@ -27,28 +33,113 @@ class TcpUdpDetail extends React.PureComponent{
 
   state = {}
 
+  componentDidMount() {
+    const { loadAllServices, clusterID, getTcpUdpIngress, type, location, currentIngress } = this.props
+    const { name } = location.query
+    if (!currentIngress) {
+      const lowerType = type.toLowerCase()
+      getTcpUdpIngress(clusterID, name, lowerType)
+    }
+    loadAllServices(clusterID, {
+      pageIndex: 1,
+      pageSize: 100,
+    })
+  }
+
   goBack = () => {
     const { togglePart, type } = this.props
     togglePart(true, null, type)
   }
 
   handelConfirm = async () => {
-    this.setState({
-      confirmLoading: true,
+    const {
+      currentIngress, updateTcpUdpIngress, clusterID,
+      createTcpUdpIngress, location, form, type
+    } = this.props
+    const { name } = location.query
+    form.validateFields(async (errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        confirmLoading: true,
+      })
+      const lowerType = type.toLowerCase()
+      const body = {
+        [lowerType]: [{
+          exportPort: values.exportPort.toString(),
+          serviceName: values.serviceName,
+          servicePort: values.servicePort.toString()
+        }]
+      }
+
+      if (!currentIngress) {
+        notify.spin('创建中...')
+        const result = await createTcpUdpIngress(clusterID, name, body)
+        if (result.error) {
+          notify.close()
+          notify.warn('创建失败')
+          this.setState({
+            confirmLoading: false,
+          })
+          return
+        }
+        notify.close()
+        notify.success('创建成功')
+        this.setState({
+          confirmLoading: false,
+        })
+        this.goBack()
+        return
+      }
+      notify.spin('修改中...')
+      const res = await updateTcpUdpIngress(clusterID, name, body)
+      if (res.error) {
+        notify.close()
+        notify.warn('修改失败')
+        this.setState({
+          confirmLoading: false,
+        })
+        return
+      }
+      notify.close()
+      notify.success('修改成功')
+      this.setState({
+        confirmLoading: false,
+      })
+      this.goBack()
     })
-    await sleep(200)
-    this.setState({
-      confirmLoading: false,
-    })
-    this.goBack()
   }
 
   containerPortCheck = (rules, value, callback) => {
-    if (value.length > 1) {
-      return callback('容器端口不支持多选')
+    if (!value) {
+      return callback('容器端口不能为空')
     }
     callback()
   }
+
+  exportPortCheck = (rules, value, callback) => {
+    const { currentIngress, ingressData } = this.props
+    const { data } = ingressData || { data: [] }
+    if (!value) {
+      return callback('监听端口不能为空')
+    }
+    if (!currentIngress && !isEmpty(data)) {
+      const result = data.some(item => item.exportPort === value.toString())
+      if (result) {
+        return callback('监听端口已存在')
+      }
+    }
+    callback()
+  }
+
+  serviceOptions = () => {
+    const { services } = this.props
+    return (services || []).map(item =>
+      <Option key={item.metadata.name}>{item.metadata.name}</Option>
+    )
+  }
+
   render() {
     const { confirmLoading } = this.state
     const { form ,currentIngress, type } = this.props
@@ -57,16 +148,19 @@ class TcpUdpDetail extends React.PureComponent{
       labelCol: { span: 3 },
       wrapperCol: { span: 6 }
     }
-    const monitorPortProps = getFieldProps('monitorPort', {
+    const monitorPortProps = getFieldProps('exportPort', {
       rules: [
         {
           required: true,
           message: '监听端口不能为空',
+        },
+        {
+          validator: this.exportPortCheck,
         }
       ],
-      initialValue: currentIngress ? currentIngress.monitorPort : '',
+      initialValue: currentIngress ? currentIngress.exportPort : '',
     })
-    const serviceProps = getFieldProps('service', {
+    const serviceProps = getFieldProps('serviceName', {
       rules: [
         {
           required: true,
@@ -75,7 +169,7 @@ class TcpUdpDetail extends React.PureComponent{
       ],
       initialValue: currentIngress ? currentIngress.serviceName : '',
     })
-    const containerPortProps = getFieldProps('containerPort', {
+    const containerPortProps = getFieldProps('servicePort', {
       rules: [
         {
           required: true,
@@ -84,7 +178,7 @@ class TcpUdpDetail extends React.PureComponent{
           validator: this.containerPortCheck,
         }
       ],
-      initialValue: currentIngress ? [currentIngress.port] : [],
+      initialValue: currentIngress ? currentIngress.servicePort : '',
     })
     return (
       <Card
@@ -95,7 +189,13 @@ class TcpUdpDetail extends React.PureComponent{
             label="监听端口"
             {...formItemLayout}
           >
-            <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="1-65535" {...monitorPortProps}/>
+            <InputNumber
+              disabled={!!currentIngress}
+              style={{ width: '100%' }}
+              min={10000} max={65535}
+              placeholder="监听端口10000-65535"
+              {...monitorPortProps}
+            />
           </FormItem>
           <FormItem
             label="后端服务"
@@ -105,22 +205,19 @@ class TcpUdpDetail extends React.PureComponent{
               placeholder="请选择服务"
               {...serviceProps}
             >
-              <Option key="service1">service1</Option>
-              <Option key="service2">service2</Option>
+              {this.serviceOptions()}
             </Select>
           </FormItem>
           <FormItem
             label="容器端口"
             {...formItemLayout}
           >
-            <Select
-              tags
-              placeholder="请输入容器端口"
+            <InputNumber
+              style={{ width: '100%' }}
+              min={1} max={65536}
+              placeholder="容器端口1~65535"
               {...containerPortProps}
-            >
-              <Option key="port1">80</Option>
-              <Option key="port2">90</Option>
-            </Select>
+            />
           </FormItem>
         </Form>
         <DetailFooter
@@ -135,4 +232,20 @@ class TcpUdpDetail extends React.PureComponent{
 
 TcpUdpDetail = Form.create()(TcpUdpDetail)
 
-export default connect()(TcpUdpDetail)
+const mapStateToProps = (state, props) => {
+  const { type } = props
+  const lowerType = type.toLowerCase()
+  const services = getDeepValue(state, ['services', 'serviceList', 'services'])
+  const ingressData = getDeepValue(state, ['loadBalance', 'tcpUdpIngress', lowerType])
+  return {
+    services,
+    ingressData,
+  }
+}
+
+export default connect(mapStateToProps, {
+  createTcpUdpIngress: lbActions.createTcpUdpIngress,
+  updateTcpUdpIngress: lbActions.updateTcpUdpIngress,
+  loadAllServices: serviceActions.loadAllServices,
+  getTcpUdpIngress: lbActions.getTcpUdpIngress,
+})(TcpUdpDetail)
