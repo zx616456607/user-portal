@@ -370,10 +370,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, 'TCP', port, port)
     })
-    !isEmpty(udpKeys) && tcpKeys.forEach(key => {
+    !isEmpty(udpKeys) && udpKeys.forEach(key => {
       const port = parseInt(fieldsValues[`udp-servicePort-${key}`])
       const name = `${serviceName}-udp-${key}`
-      deployment.addContainerPort(serviceName, port)
+      deployment.addContainerPort(serviceName, port, 'UDP')
       service.addPort(proxyType, name, 'UDP', port, port)
     })
     // 默认访问方式 集群内

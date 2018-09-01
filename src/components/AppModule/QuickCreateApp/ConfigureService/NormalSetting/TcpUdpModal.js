@@ -101,9 +101,10 @@ class TcpUdpModal extends React.PureComponent{
   }
 
   exportPortCheck = (rules, value, callback) => {
+    const { intl } = this.props
     const { existPorts } = this.state
     if (value && !isEmpty(existPorts) && existPorts.includes(value.toString())) {
-      return callback('监听端口已使用')
+      return callback(intl.formatMessage(IntlMessage.listeningPortBeUsed))
     }
     callback()
   }

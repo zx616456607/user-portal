@@ -560,10 +560,7 @@ class QuickCreateApp extends Component {
     let accessType = ''
     let lbName = ''
     let lbBody = []
-    let tcpUdpBody = {
-      tcp: [],
-      udp: []
-    }
+    let tcpUdpBody = {}
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
@@ -594,26 +591,32 @@ class QuickCreateApp extends Component {
             }
             lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
           })
-          !isEmpty(tcpKeys) && tcpKeys.forEach(item => {
-            const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
-            const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
-            const serviceName = fields[key].serviceName.value
-            tcpUdpBody.tcp.push({
-              exportPort,
-              servicePort,
-              serviceName,
+          if (!isEmpty(tcpKeys)) {
+            tcpUdpBody.tcp = []
+            tcpKeys.forEach(item => {
+              const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
+              const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
+              const serviceName = fields[key].serviceName.value
+              tcpUdpBody.tcp.push({
+                exportPort,
+                servicePort,
+                serviceName,
+              })
             })
-          })
-          !isEmpty(udpKeys) && udpKeys.forEach(item => {
-            const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
-            const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
-            const serviceName = fields[key].serviceName.value
-            tcpUdpBody.udp.push({
-              exportPort,
-              servicePort,
-              serviceName,
+          }
+          if (!isEmpty(udpKeys)) {
+            tcpUdpBody.udp = []
+            udpKeys.forEach(item => {
+              const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
+              const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
+              const serviceName = fields[key].serviceName.value
+              tcpUdpBody.udp.push({
+                exportPort,
+                servicePort,
+                serviceName,
+              })
             })
-          })
+          }
         }
         if (fields[key].appPkgID) {
           let serviceName = fields[key].serviceName.value
@@ -628,7 +631,7 @@ class QuickCreateApp extends Component {
             if (!isEmpty(lbBody)) {
               createAppIngress(clusterID, lbName, {data: lbBody})
             }
-            if (!isEmpty(tcpUdpBody.tcp) || isEmpty(tcpUdpBody.udp)) {
+            if (!isEmpty(tcpUdpBody.tcp) || !isEmpty(tcpUdpBody.udp)) {
               createTcpUdpIngress(clusterID, lbName, tcpUdpBody)
             }
           }
@@ -1427,6 +1430,7 @@ export default connect(mapStateToProps, {
   getLBList,
   getfSecurityGroupDetail,
   updateSecurityGroup,
+  createTcpUdpIngress,
 })(injectIntl(QuickCreateApp, {
   withRef: true,
 }))
