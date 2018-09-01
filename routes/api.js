@@ -853,6 +853,10 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
+  router.post('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.createTcpUdpIngress)
+  router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)

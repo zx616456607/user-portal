@@ -46,6 +46,28 @@ class SvcTip extends Component {
     let code = document.getElementById(this.state.inputID);
     code.value = url
   }
+
+  renderProtocolIcon = element => {
+    if (!element.isLb) {
+      return null
+    }
+    let protocolText = ''
+    switch (element.protocol) {
+      case 'tcp':
+        protocolText = 'T'
+        break
+      case 'udp':
+        protocolText = 'U'
+        break
+      case 'http':
+        protocolText = 'H'
+        break
+      default:
+        break
+    }
+    return <span className="protocolBox">{protocolText}</span>
+  }
+
   render() {
     const { formatMessage } = this.props
     const { svcDomain } = this.props
@@ -69,6 +91,7 @@ class SvcTip extends Component {
                       className='tipCopySvg'
             />
           </Tooltip>
+          {this.renderProtocolIcon(element)}
         </li>
       )
     })
@@ -117,6 +140,28 @@ class AppTipComponent extends Component {
       code[index].value = url.domain;
     }
   }
+
+  renderProtocolIcon = element => {
+    if (!element.isLb) {
+      return null
+    }
+    let protocolText = ''
+    switch (element.protocol) {
+      case 'tcp':
+        protocolText = 'T'
+        break
+      case 'udp':
+        protocolText = 'U'
+        break
+      case 'http':
+        protocolText = 'H'
+        break
+      default:
+        break
+    }
+    return <span className="protocolBox">{protocolText}</span>
+  }
+
   render() {
     const { appDomain, scope } = this.props
     const { formatMessage } = this.props
@@ -160,6 +205,7 @@ class AppTipComponent extends Component {
                             className='tipCopySvg'
                   />
                 </Tooltip>
+                {this.renderProtocolIcon(item.data[0].domain)}
               </Timeline.Item>
             </Timeline>
           </div>
@@ -199,6 +245,7 @@ class AppTipComponent extends Component {
                           onMouseEnter={this.startCopyCode.bind(this, url)}
                         />
                       </Tooltip>
+                      {this.renderProtocolIcon(url)}
                     </Timeline.Item>
                   )
                 })

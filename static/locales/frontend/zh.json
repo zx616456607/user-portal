@@ -3116,6 +3116,7 @@
   "ServiceConfig.secretConfig": "加密配置",
   "ServiceConfig.secretConfigTooltip": "加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd",
   "ServiceConfig.secretFile": "加密对象",
+  "ServiceConfig.listeningPortBeUsed": "监听端口已使用",
   "this.is.an.commnent": "/------------------------AppCenter (ImageCenter) 镜像仓库-交付中心 后续部分-----------------------/",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "按仓库组名称搜索",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "仓库组名称",

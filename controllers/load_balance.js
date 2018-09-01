@@ -58,11 +58,11 @@ exports.getLBList = function* () {
     if (query.creationTime) {
       switch (query.creationTime) {
         case 'd':
-          data.sort((a, b) => 
+          data.sort((a, b) =>
             new Date(b.metadata.creationTimestamp).getTime() - new Date(a.metadata.creationTimestamp).getTime())
           break
         case 'a':
-          data.sort((a, b) => 
+          data.sort((a, b) =>
             new Date(a.metadata.creationTimestamp).getTime() - new Date(b.metadata.creationTimestamp).getTime())
           break
         default:
@@ -78,7 +78,7 @@ exports.getLBList = function* () {
     }
     result.data = data
   }
-  
+
   this.body = result
 }
 
@@ -183,4 +183,45 @@ function getRegistryURL() {
   }
   // Default registry url
   return "localhost"
+}
+
+exports.createTcpUdpIngress = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  this.body = result
+}
+
+exports.getTcpUdpIngress = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const type = this.params.type
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type])
+  this.body = result
+}
+
+exports.updateTcpUdpIngress = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  this.body = result
+}
+
+exports.deleteTcpUdpIngress = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const type = this.params.type
+  const ports = this.params.ports
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports])
+  this.body = result
 }

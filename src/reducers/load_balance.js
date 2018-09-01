@@ -46,7 +46,7 @@ function loadBalanceList(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
       })
-    default: 
+    default:
       return state
   }
 }
@@ -90,6 +90,38 @@ function serviceLoadBalances(state = {}, action) {
       return state
   }
 }
+
+function tcpUdpIngress(state = {}, action) {
+  const { type, ingressType } = action
+  switch (type) {
+    case ActionTypes.GET_TCP_UDP_INGRESS_REQUEST:
+      return {
+        ...state,
+        [ingressType]: Object.assign({}, state[ingressType], {
+          isFetching: false,
+          data: [],
+        })
+      }
+    case ActionTypes.GET_TCP_UDP_INGRESS_SUCCESS:
+      return {
+        ...state,
+        [ingressType]: Object.assign({}, state[ingressType], {
+          isFetching: false,
+          data: action.response.result.data,
+        })
+      }
+    case ActionTypes.GET_TCP_UDP_INGRESS_FAILURE:
+      return {
+        ...state,
+        [ingressType]: Object.assign({}, state[ingressType], {
+          isFetching: false,
+          data: [],
+        })
+      }
+    default:
+      return state
+  }
+}
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -98,6 +130,7 @@ export default function loadBalance (state = {
     loadBalanceIPList: loadBalanceIPList(state.loadBalanceIPList, action),
     loadBalanceList: loadBalanceList(state.loadBalanceList, action),
     loadBalanceDetail: loadBalanceDetail(state.loadBalanceDetail, action),
-    serviceLoadBalances: serviceLoadBalances(state.serviceLoadBalances, action)
+    serviceLoadBalances: serviceLoadBalances(state.serviceLoadBalances, action),
+    tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action)
   }
 }
