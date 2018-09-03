@@ -1093,6 +1093,58 @@ export function getTasklogs(harbor, registry, id, callback) {
   }
 }
 
+export const GET_CURRENT_RULE_TASK_REQUEST = 'GET_CURRENT_RULE_TASK_REQUEST'
+export const GET_CURRENT_RULE_TASK_SUCCESS = 'GET_CURRENT_RULE_TASK_SUCCESS'
+export const GET_CURRENT_RULE_TASK_FAILURE = 'GET_CURRENT_RULE_TASK_FAILURE'
+
+function fetchGetCurrentRuleTask(harbor, registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/jobs/replication?harbor=${harbor}&policy_id=${id}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ GET_CURRENT_RULE_TASK_REQUEST, GET_CURRENT_RULE_TASK_SUCCESS, GET_CURRENT_RULE_TASK_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// 获取当前选中的规则的任务list
+export function getCurrentRuleTask(harbor, registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetCurrentRuleTask(harbor, registry, id, callback))
+  }
+}
+
+const STOP_CURRENT_TASK_REQUEST = 'STOP_CURRENT_TASK_REQUEST'
+const STOP_CURRENT_TASK_SUCCESS = 'STOP_CURRENT_TASK_SUCCESS'
+const STOP_CURRENT_TASK_FAILURE = 'STOP_CURRENT_TASK_FAILURE'
+
+function fetchUpdateCurrentTask(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/jobs/replication?harbor=${harbor}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ STOP_CURRENT_TASK_REQUEST, STOP_CURRENT_TASK_SUCCESS, STOP_CURRENT_TASK_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// 停止任务
+export function updateCurrentTask(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateCurrentTask(harbor, registry, body, callback))
+  }
+}
+
 export const GET_TARGETS_REQUEST = 'GET_TARGETS_REQUEST'
 export const GET_TARGETS_SUCCESS = 'GET_TARGETS_SUCCESS'
 export const GET_TARGETS_FAILURE = 'GET_TARGETS_FAILURE'
@@ -1258,5 +1310,34 @@ export function putEditImageDetailInfo(harbor, obj, callback) {
       schema: {},
     },
     callback
+  }
+}
+
+export const COPY_CURRENT_RULE_REQUEST = 'COPY_CURRENT_RULE_REQUEST'
+export const COPY_CURRENT_RULE_SUCCESS = 'COPY_CURRENT_RULE_SUCCESS'
+export const COPY_CURRENT_RULE_FAILURE = 'COPY_CURRENT_RULE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCopyCurrentRule(harbor, registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/replications?harbor=${harbor}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ COPY_CURRENT_RULE_REQUEST, COPY_CURRENT_RULE_SUCCESS, COPY_CURRENT_RULE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+// 复制当前规则
+export function copyCurrentRule(harbor, registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCopyCurrentRule(harbor, registry, body, callback))
   }
 }
