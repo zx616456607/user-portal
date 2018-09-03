@@ -372,6 +372,7 @@ const Storage = React.createClass({
     }
   },
   formatType(type, type_1) {
+    const { intl } = this.props
     switch (type) {
       case 'host':
         return <span>{intl.formatMessage(IntlMessage.localStorage)}</span>
