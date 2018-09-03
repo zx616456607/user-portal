@@ -20,7 +20,7 @@ const config = {
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
   port: env.DASHBOARD_PORT || 8003,
   url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
-  intl_cookie_name: 'intl_locale',
+  intl_cookie_name: globalConstants.INTL_COOKIE_NAME,
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
