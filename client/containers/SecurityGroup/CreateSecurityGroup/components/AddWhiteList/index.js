@@ -144,6 +144,22 @@ class AddWhiteList extends React.Component {
     callback()
   }
 
+  checkExceptCidr = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+
+    if (value) {
+      const cidrArr = value.split(',')
+      cidrArr.forEach(item => {
+        if (!isCidr(item)) {
+          return callback('请输入正确的 cidr')
+        }
+      })
+    }
+    callback()
+  }
+
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
     const target = isIngress ? '来源' : '目标'
@@ -171,7 +187,7 @@ class AddWhiteList extends React.Component {
             <Input
               {...getFieldProps(`${type}${option}${k}except`, {
                 rules: [{
-                  validator: this.checkCidr,
+                  validator: this.checkExceptCidr,
                 }],
               })}
               style={{ width: 212 }}

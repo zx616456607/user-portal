@@ -81,7 +81,7 @@ class SecurityGroupTab extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn(formatMessage(AppServiceDetailIntl.getSecurityGroupErrorInfo),
               message.message)
           }
@@ -117,7 +117,7 @@ class SecurityGroupTab extends React.Component {
               func: error => {
                 const { message, statusCode } = error
                 notification.close()
-                if (!statusCode === 403) {
+                if (statusCode !== 403) {
                   notification.warn(formatMessage(AppServiceDetailIntl.getDetailErrorInfo),
                     message.message)
                 }
@@ -140,7 +140,7 @@ class SecurityGroupTab extends React.Component {
                 func: error => {
                   const { message, statusCode } = error
                   notification.close()
-                  if (!statusCode === 403) {
+                  if (statusCode !== 403) {
                     notification.warn(
                       formatMessage(AppServiceDetailIntl.changeSecurityGroupFailure),
                       message.message)
@@ -167,7 +167,7 @@ class SecurityGroupTab extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn(
               formatMessage(AppServiceDetailIntl.getDetailErrorInfo),
               message.message)
@@ -192,7 +192,7 @@ class SecurityGroupTab extends React.Component {
           func: error => {
             const { message, statusCode } = error
             notification.close()
-            if (!statusCode === 403) {
+            if (statusCode !== 403) {
               notification.warn(
                 formatMessage(AppServiceDetailIntl.removeRelactionSecurityGroupFailure),
                 message.message
