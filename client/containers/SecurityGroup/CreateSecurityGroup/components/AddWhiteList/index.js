@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Form, Select, Input, Row, Col, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
+import isCidr from 'is-cidr'
 const FormItem = Form.Item
 const Option = Select.Option
 const imgSrc = [
@@ -133,9 +134,15 @@ class AddWhiteList extends React.Component {
     })
   }
 
-  // checkCidr = () => {
-
-  // }
+  checkCidr = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    if (!isCidr(value)) {
+      return callback('请输入正确的 cidr')
+    }
+    callback()
+  }
 
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
@@ -151,6 +158,8 @@ class AddWhiteList extends React.Component {
                 required: true,
                 whitespace: true,
                 message: `请输入要放通的${target}网络`,
+              }, {
+                validator: this.checkCidr,
               }],
             })}
             style={{ width: 280 }}
@@ -158,9 +167,13 @@ class AddWhiteList extends React.Component {
             />
           </FormItem>
           <span>除去</span>
-          <FormItem>
+          <FormItem className="execptCidr">
             <Input
-              {...getFieldProps(`${type}${option}${k}except`)}
+              {...getFieldProps(`${type}${option}${k}except`, {
+                rules: [{
+                  validator: this.checkCidr,
+                }],
+              })}
               style={{ width: 212 }}
               placeholder="如 10.10.2.0/16"
             />
