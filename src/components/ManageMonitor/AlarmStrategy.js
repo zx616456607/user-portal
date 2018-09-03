@@ -591,4 +591,6 @@ export default connect(mapStateToProps, {
   batchDisable,
   ignoreSetting,
   deleteRecords
-})(AlarmStrategy)
+})(injectIntl(AlarmStrategy, {
+  withRef: true,
+}))
