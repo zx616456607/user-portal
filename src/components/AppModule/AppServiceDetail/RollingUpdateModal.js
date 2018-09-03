@@ -139,6 +139,7 @@ class RollingUpdateModal extends Component {
       loadServiceList,
       rollingUpdateService
     } = this.props
+    const { formatMessage } = this.props.intl
     const { containers } = this.state
     const serviceName = service.metadata.name
     const targets = {}
