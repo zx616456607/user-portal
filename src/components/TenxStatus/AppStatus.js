@@ -12,15 +12,9 @@
 
 import React, { Component, PropTypes } from 'react'
 import TenxStatus from './'
-import { injectIntl, defineMessages } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import { getAppStatus } from '../../common/status_identify'
-
-const messages = defineMessages({
-  AppReplicasMsg: {
-    id: 'TenxStatus.AppReplicasMsg',
-    defaultMessage: '共{total}个服务',
-  }
-})
+import intlMsg from './Intl'
 
 class AppStatus extends Component {
   constructor(props) {
@@ -34,7 +28,7 @@ class AppStatus extends Component {
     if (!status) {
       status = getAppStatus(services)
     }
-    status.text = `${formatMessage(messages.AppReplicasMsg, { total: services.length + '' })}`
+    status.text = `${formatMessage(intlMsg.AppReplicasMsg, { total: services.length + '' })}`
     return (
       <TenxStatus
         phase={status.phase}

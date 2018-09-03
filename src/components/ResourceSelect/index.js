@@ -28,12 +28,14 @@ import {
   RESOURCES_GPU_STEP
 } from '../../constants'
 import './style/index.less'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../containers/Application/ServiceConfigIntl'
 
 const EDIT_TEMPLATE_HASH = "#edit-template"
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
-export default class ResourceSelect extends Component {
+class ResourceSelect extends Component {
   static propTypes = {
     standardFlag: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
@@ -84,7 +86,7 @@ export default class ResourceSelect extends Component {
   render() {
     const {
       standardFlag, DIYMemoryProps, DIYCPUProps, DIYMaxMemoryProps, DIYMaxCPUProps,
-      GPURequestProps, GPULimitsProps, algorithmProps, memoryMin, cpuMin, form
+      GPURequestProps, GPULimitsProps, algorithmProps, memoryMin, cpuMin, form, intl,
       } = this.props
     const { resourceType, DIYMemory, DIYCPU } = this.state
     const { getFieldProps } = form;
@@ -92,8 +94,8 @@ export default class ResourceSelect extends Component {
       <div className="resourceSelect">
         <FormItem>
           <RadioGroup {...algorithmProps}>
-            <Radio key="X86" value="X86">X86 计算</Radio>
-            <Radio key="GPU" value="GPU">高性能计算 GPU</Radio>
+            <Radio key="X86" value="X86">{intl.formatMessage(IntlMessage.x86Radio)}</Radio>
+            <Radio key="GPU" value="GPU">{intl.formatMessage(IntlMessage.gpuRadio)}</Radio>
           </RadioGroup>
         </FormItem>
         <ul className={classNames("resourceList", {
@@ -118,7 +120,7 @@ export default class ResourceSelect extends Component {
                 2X
               </div>
               <div className="bottomBox">
-                <span>512M&nbsp;内存</span><br />
+                <span>512M&nbsp;{intl.formatMessage(IntlMessage.memory)}</span><br />
                 <span>0.2~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
@@ -132,7 +134,7 @@ export default class ResourceSelect extends Component {
                 4X
               </div>
               <div className="bottomBox">
-                <span>1GB&nbsp;内存</span><br />
+                <span>1GB&nbsp;{intl.formatMessage(IntlMessage.memory)}</span><br />
                 <span>0.4~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
@@ -146,7 +148,7 @@ export default class ResourceSelect extends Component {
                 8X
               </div>
               <div className="bottomBox">
-                <span>2GB&nbsp;内存</span><br />
+                <span>2GB&nbsp;{intl.formatMessage(IntlMessage.memory)}</span><br />
                 <span>0.8~1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
@@ -160,7 +162,7 @@ export default class ResourceSelect extends Component {
                 16X
               </div>
               <div className="bottomBox">
-                <span>4GB&nbsp;内存</span><br />
+                <span>4GB&nbsp;{intl.formatMessage(IntlMessage.memory)}</span><br />
                 <span>1CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
@@ -174,7 +176,7 @@ export default class ResourceSelect extends Component {
                 32X
               </div>
               <div className="bottomBox">
-                <span>8GB&nbsp;内存</span><br />
+                <span>8GB&nbsp;{intl.formatMessage(IntlMessage.memory)}</span><br />
                 <span>2CPU</span>
                 <div className="triangle"></div>
                 <Icon type="check" />
@@ -192,7 +194,7 @@ export default class ResourceSelect extends Component {
                 }
                 onClick={()=> this.selectResourceType(RESOURCES_DIY)}>
                 <div className="topBox">
-                  自定义
+                  {intl.formatMessage(IntlMessage.customize)}
                 </div>
                 <div className="bottomBox">
                   <Row>
@@ -218,7 +220,7 @@ export default class ResourceSelect extends Component {
                         />
                       </FormItem>
                     </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;{intl.formatMessage(IntlMessage.memory)}</Col>
                   </Row>
                   <Row>
                     <Col span={8}>
@@ -243,7 +245,7 @@ export default class ResourceSelect extends Component {
                         />
                       </FormItem>
                     </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>{intl.formatMessage(IntlMessage.core)} CPU</Col>
                   </Row>
                   <div className="triangle"/>
                   <Icon type="check" />
@@ -261,7 +263,7 @@ export default class ResourceSelect extends Component {
               <div
                 className="btn ant-btn-primary">
                 <div className="topBox">
-                  自定义
+                  {intl.formatMessage(IntlMessage.customize)}
                 </div>
                 <div className="bottomBox">
                   <Row>
@@ -287,7 +289,7 @@ export default class ResourceSelect extends Component {
                         />
                       </FormItem>
                     </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;{intl.formatMessage(IntlMessage.memory)}</Col>
                   </Row>
                   <Row>
                     <Col span={8}>
@@ -312,7 +314,7 @@ export default class ResourceSelect extends Component {
                         />
                       </FormItem>
                     </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>{intl.formatMessage(IntlMessage.core)} CPU</Col>
                   </Row>
                   <Row>
                   <Col span={8}>
@@ -336,7 +338,7 @@ export default class ResourceSelect extends Component {
                         />
                       </FormItem>
                     </Col>
-                    <Col span={7} style={{ lineHeight: '32px' }}>颗 GPU</Col>
+                    <Col span={7} style={{ lineHeight: '32px' }}>{intl.formatMessage(IntlMessage.gpuCount)}</Col>
                   </Row>
                   <div className="triangle"/>
                   <Icon type="check" />
@@ -352,3 +354,7 @@ export default class ResourceSelect extends Component {
     )
   }
 }
+
+export default injectIntl(ResourceSelect, {
+  withRef: true,
+})

@@ -46,6 +46,8 @@ import Title from '../../Title'
 import { SHOW_BILLING } from '../../../constants'
 import { getServiceStatus } from '../../../common/status_identify'
 import ServiceMeshSwitch from './ServiceMeshSwitch'
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -99,6 +101,7 @@ class AppServiceDetail extends Component {
       loadServiceDetail,
       loadK8sService,
       loadServiceContainerList,
+      projectName
     } = nextProps || this.props
     const query = {}
     loadServiceDetail(cluster, serviceName).then( res => {
@@ -124,7 +127,7 @@ class AppServiceDetail extends Component {
         isAsync: true
       }
     })
-    loadServiceContainerList(cluster, serviceName, null, {
+    loadServiceContainerList(cluster, serviceName, {projectName}, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -289,6 +292,7 @@ class AppServiceDetail extends Component {
     })
   }
   render() {
+    const { formatMessage } = this.props.intl
     const parentScope = this
     const { loginUser, serviceList } = this.props
     const {
@@ -329,13 +333,13 @@ class AppServiceDetail extends Component {
     const { enabled: billingEnabled } = billingConfig
     const operaMenu = (<Menu>
       <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}>
-        <span onClick={() => this.restartService(service)}>重新部署</span>
+        <span onClick={() => this.restartService(service)}>{formatMessage(AppServiceDetailIntl.redeploy)}</span>
       </Menu.Item>
       <Menu.Item key='stop' disabled={this.handleMenuDisabled('stop')}>
-        <span onClick={() => this.stopService(service)}>停止</span>
+        <span onClick={() => this.stopService(service)}>{formatMessage(ServiceCommonIntl.stop)}</span>
       </Menu.Item>
       <Menu.Item key='delete'>
-        <span onClick={() => this.delteService(service)}>删除</span>
+        <span onClick={() => this.delteService(service)}>{formatMessage(ServiceCommonIntl.delete)}</span>
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, bindingDomains, bindingIPs)
@@ -352,23 +356,23 @@ class AppServiceDetail extends Component {
         return (
           <Button className='loginBtn' type='primary' size='large' key={index} onClick={this.openTerminalModal.bind('', item)}>
             <TenxIcon type="terminal"/>
-            <span>登录终端</span>
+            <span>{formatMessage(AppServiceDetailIntl.loginTerminal)}</span>
           </Button>
           )
       })
     return (
       <div id='AppServiceDetail'>
-        <Modal title="删除操作" visible={deleteModal}
+        <Modal title={formatMessage(AppServiceDetailIntl.deleteOperation)} visible={deleteModal}
           onCancel={()=>this.cancelDeleteModal()}
           onOk={()=>this.okDeleteModal()}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            删除服务，该服务下的自动弹性伸缩策略也会被删除，确定要删除服务{service.metadata.name}吗？
+            {formatMessage(AppServiceDetailIntl.deleteServiceinfo, { serviceName: service.metadata.name })}
           </div>
         </Modal>
         <div className='titleBox'>
-          <Title title={`${service.metadata.name} 服务详情页`} />
+          <Title title={`${service.metadata.name} ${formatMessage(AppServiceDetailIntl.serviceDetailPage)}`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>
@@ -380,7 +384,7 @@ class AppServiceDetail extends Component {
             </p>
             <div className='leftBox appSvcDetailDomain'>
               <div>
-                状态：
+                {formatMessage(AppServiceDetailIntl.status)}：
                 <span style={{ position: 'relative' }}>
                   <ServiceStatus
                     smart={true}
@@ -388,13 +392,13 @@ class AppServiceDetail extends Component {
                 </span>
               </div>
               <div className='address'>
-                <span>地址：</span>
+                <span>{formatMessage(AppServiceDetailIntl.address)}：</span>
                 <div className='addressRight'>
                   <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={this.state.httpIcon}/>
                 </div>
               </div>
               <div>
-                容器实例：
+                {formatMessage(AppServiceDetailIntl.containerObject)}：
                 <span>
                   {availableReplicas}/{replicas}
                 </span>
@@ -406,7 +410,7 @@ class AppServiceDetail extends Component {
                   <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                     <Button className='loginBtn' type='primary' size='large'>
                       <TenxIcon type="terminal"/>
-                      <span>登录终端</span>
+                      <span>{formatMessage(AppServiceDetailIntl.loginTerminal)}</span>
                     </Button>
                   </Popover>
                   :
@@ -414,7 +418,7 @@ class AppServiceDetail extends Component {
               }
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button type='ghost' size='large' className='ant-dropdown-link' href='#'>
-                  服务相关 <i className='fa fa-caret-down'></i>
+                  {formatMessage(AppServiceDetailIntl.serviceAbout)} <i className='fa fa-caret-down'></i>
                 </Button>
               </Dropdown>
             </div>
@@ -428,7 +432,7 @@ class AppServiceDetail extends Component {
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
               >
-              <TabPane tab='容器实例' key='#containers'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.containerObject)} key='#containers'>
                 <ContainerList
                   serviceName={service.metadata.name}
                   serviceDetail={serviceDetail}
@@ -438,7 +442,7 @@ class AppServiceDetail extends Component {
                   onTabClick={this.onTabClick}
                   />
               </TabPane>
-              <TabPane tab='基础信息' key='#basic'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.basicsMessage)} key='#basic'>
                 <AppServiceDetailInfo
                   cluster={service.cluster}
                   serviceDetail={serviceDetail}
@@ -454,17 +458,16 @@ class AppServiceDetail extends Component {
                   name={this.props.name}
                 />
               </TabPane>
-              {/* TODO: 增加服务治理开关*/}
-              <TabPane tab="服务治理开关" key="#serviceMeshSwitch">
+              <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch">
                 <ServiceMeshSwitch serviceName={service.metadata.name}
                 istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
               </TabPane>
-              <TabPane tab='辅助设置' key='#setting'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.assistSet)} key='#setting'>
                 <AppServiceAssistSetting
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>
-              <TabPane tab='配置组' key='#configgroup'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.configGroup)} key='#configgroup'>
                 <ComposeGroup
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
@@ -472,10 +475,15 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab='安全组 (防火墙)' key='#securitygroup'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.fireWall)} key='#securitygroup'>
                 <SecurityGroupTab />
               </TabPane>
-              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>
+              <TabPane tab={
+                  <Tooltip placement="right" title={isKubeNode ? formatMessage(AppServiceDetailIntl.unsupportbindDomain):''}>
+                    <span>{formatMessage(AllServiceListIntl.bundDomin)}</span>
+                  </Tooltip>
+                }
+                disabled={isKubeNode} key='#binddomain'>
                 <BindDomain
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
@@ -485,7 +493,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#binddomain'}
                   />
               </TabPane>
-              <TabPane tab='访问方式' key='#visitType'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.visitStyle)} key='#visitType'>
                 <VisitType
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
@@ -495,7 +503,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#visitType'}
                 />
               </TabPane>
-              <TabPane tab='端口' key='#ports'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.port)} key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -508,7 +516,9 @@ class AppServiceDetail extends Component {
                   bindHttpsStatus={bindHttpsStatus}
                   />
               </TabPane>
-              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持设置 HTTPS': ''}><span>设置 HTTPS</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>
+              <TabPane tab={<Tooltip placement="right"
+              title={isKubeNode ? formatMessage(AppServiceDetailIntl.currentProxynosupportHTTPS): ''}>
+              <span>{formatMessage(AppServiceDetailIntl.setHTTPS)}</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>
                 <AppSettingsHttps
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -519,7 +529,7 @@ class AppServiceDetail extends Component {
                   onSwitchChange={this.onHttpsComponentSwitchChange}
                   />
               </TabPane>
-              <TabPane tab='高可用' key='#livenessprobe'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.livenessprobe)} key='#livenessprobe'>
                 <AppUseful
                   service={serviceDetail}
                   loading={isServiceDetailFetching}
@@ -528,7 +538,7 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
-              <TabPane tab='监控' key='#monitor'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.monitor)} key='#monitor'>
                 <div className='ServiceMonitor'>
                   {
                     serviceDetailmodalShow &&
@@ -538,7 +548,7 @@ class AppServiceDetail extends Component {
                   }
                 </div>
               </TabPane>
-              <TabPane tab='告警策略' key='#strategy'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.strategy)} key='#strategy'>
                 <AlarmStrategy
                   serviceName={service.metadata.name}
                   currentService={service}
@@ -546,7 +556,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey === '#strategy'}
                 />
               </TabPane>
-              <TabPane tab='自动伸缩' key='#autoScale'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.autoScale)} key='#autoScale'>
                 <AppAutoScale
                   replicas={service.spec.replicas}
                   serviceDetailmodalShow={serviceDetailmodalShow}
@@ -555,7 +565,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#autoScale'}
                   cluster={service.cluster} />
               </TabPane>
-              <TabPane tab='日志' key='#logs'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.logs)} key='#logs'>
                 <AppServiceLog
                   activeKey={activeTabKey}
                   containers={containers}
@@ -566,18 +576,18 @@ class AppServiceDetail extends Component {
                 relative/>
               </TabPane>
               {billingEnabled ?
-              [<TabPane tab='事件' key='#events'>
+              [<TabPane tab={formatMessage(AppServiceDetailIntl.events)} key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>,
-              <TabPane tab='租赁信息' key='#rentalInfo'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.rentalInfo)} key='#rentalInfo'>
                 <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
               </TabPane>]
               :
-              <TabPane tab='事件' key='#events'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.events)} key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
               }
-              <TabPane tab='服务标签' key='#serverTag'>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.serverTag)} key='#serverTag'>
                 <AppServerTag
                   // activeKey={activeTabKey}
                   // containers={containers}
@@ -616,6 +626,7 @@ function mapStateToProps(state, props) {
   const  cluster = currentShowInstance && currentShowInstance.cluster
   const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
+  const { projectName } = state.entities.current.space
   const defaultService = {
     isFetching: false,
     cluster,
@@ -666,13 +677,13 @@ function mapStateToProps(state, props) {
     isContainersFetching: targetContainers.isFetching,
     k8sService: k8sServiceData,
     serviceList: services || [],
+    projectName
   }
 }
-
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadServiceDetail,
   loadServiceContainerList,
   loadK8sService,
   addTerminal,
   deleteServices
-})(AppServiceDetail)
+})(AppServiceDetail), { withRef: true, })

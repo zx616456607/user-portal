@@ -20,48 +20,48 @@ import './style/index.less'
 const menuList_normal = [
 {
     url: '/tenant_manage/team',
-    name: '团队管理'
+    name: 'tenantTeam'
   },{
     url: '/tenant_manage/project_manage',
-    name: '项目管理'
+    name: 'tenantProject'
   },
   {
     url: '/tenant_manage/allpermissions',
-    name: '项目权限'
+    name: 'tenantProjectPermossions'
   },{
     url: '/tenant_manage/applyLimit',
-    name: '配额申请'
+    name: 'tenantResourcequotaApply'
   }
 ]
 const menuList_base = [
 {
     url: '/tenant_manage/team',
-    name: '团队管理'
+    name: 'tenantTeam'
   },{
     url: '/tenant_manage/project_manage',
-    name: '项目管理'
+    name: 'tenantProject'
   },
   {
     url: '/tenant_manage/allpermissions',
-    name: '项目权限'
+    name: 'tenantProjectPermossions'
   },{
     url: '/tenant_manage/applyLimit',
-    name: '配额申请'
+    name: 'tenantResourcequotaApply'
   }
 ]
 const menuList_sys = [
   {
     url: '/tenant_manage',
-    name: '概览'
+    name: 'tenantOverview'
   },{
     url: '/tenant_manage/user',
-    name: '成员管理'
+    name: 'tenantUser'
   },{
     url: '/tenant_manage/team',
-    name: '团队管理'
+    name: 'tenantTeam'
   },{
     url: '/tenant_manage/project_manage',
-    name: '项目管理'
+    name: 'tenantProject'
   },
   // {
   //   url: '/tenant_manage/rolemanagement',
@@ -69,18 +69,18 @@ const menuList_sys = [
   // },
   {
     url: '/tenant_manage/allpermissions',
-    name: '项目权限'
+    name: 'tenantProjectPermossions'
   },
   {
     url: '/tenant_manage/cluster_authorization',
-    name: '集群授权审批'
+    name: 'tenantClusterAuth'
   },{
     url:'/tenant_manage/approvalLimit',
-    name: '配额审批'
+    name: 'tenantResourcequotaAuth'
   },
   {
     url: '/tenant_manage/ldap',
-    name: '集成企业目录'
+    name: 'tenantLdap'
   }
 ]
 const menuList_platform = menuList_sys

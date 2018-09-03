@@ -20,6 +20,8 @@ import { parseAmount } from '../../common/tools'
 import proIcon from '../../assets/img/version/proIcon.png'
 import proIconGray from '../../assets/img/version/proIcon-gray.png'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from '../Header/Intl'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -59,6 +61,7 @@ class UserPanel extends Component {
     })
   }
 
+  // 公有云部分，不做国际化
   getEdition() {
     const { loginUser } = this.props
     const { envEdition } = loginUser
@@ -85,6 +88,7 @@ class UserPanel extends Component {
   getTitle() {
     const { loginUser } = this.props
     const { userName, email, avatar, certInfos } = loginUser
+    // 公有云部分，不做国际化
     let certName = '个人'
     let certStatus = false
     if (mode === standard) {
@@ -155,22 +159,22 @@ class UserPanel extends Component {
       {
         to: '/account',
         iconType: 'log-account',
-        text: '帐户信息',
+        text: <FormattedMessage {...IntlMessages.account} />,
       },
       {
         to: '/account#edit_pass',
         iconType: 'password-change',
-        text: '修改密码',
+        text: <FormattedMessage {...IntlMessages.changePwd} />,
       },
       {
         to: '/tenant_manage/team',
         iconType: 'team-o',
-        text: '团队',
+        text: <FormattedMessage {...IntlMessages.team} />,
       },
       {
         to: `/tenant_manage/project_manage`,
         iconType: 'backup',
-        text: '项目',
+        text: <FormattedMessage {...IntlMessages.project} />,
       }
     ]
     if (mode === standard) {
@@ -202,7 +206,7 @@ class UserPanel extends Component {
         { billingEnabled ?
         <div className='rechangeInf'>
           <div className='balance'>
-            <p>帐户余额 &nbsp;:</p>
+            <p><FormattedMessage {...IntlMessages.balance} /> &nbsp;:</p>
             <p>
               {
                 mode === standard?
@@ -233,7 +237,7 @@ class UserPanel extends Component {
         <div className='logCancle'>
           <a href='/logout'>
             <Icon type="poweroff" className='logCancleIcon' />
-            注销登录
+            <FormattedMessage {...IntlMessages.logout} />
           </a>
         </div>
       </div>
@@ -247,16 +251,16 @@ class UserPanel extends Component {
     const roleName = (role) => {
       switch (role){
         case ROLE_SYS_ADMIN:
-          return "系统管理员"
+          return <FormattedMessage {...IntlMessages.sysAdmin} />
           break
         case ROLE_PLATFORM_ADMIN:
-          return "平台管理员"
+          return <FormattedMessage {...IntlMessages.paasAdmin} />
           break
         case ROLE_BASE_ADMIN:
-          return "基础设施管理员"
+          return <FormattedMessage {...IntlMessages.localAdmin} />
           break
         case ROLE_USER:
-          return "普通成员"
+          return <FormattedMessage {...IntlMessages.normalUser} />
           break
 
       }
@@ -312,5 +316,8 @@ function mapStateToProp(state, props) {
   }
 }
 
-export default connect(mapStateToProp, {
-})(UserPanel)
+export default injectIntl(connect(mapStateToProp, {
+  //
+})(UserPanel), {
+  withRef: true,
+})

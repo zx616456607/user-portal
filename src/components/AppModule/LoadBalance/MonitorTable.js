@@ -132,7 +132,7 @@ class MonitorTable extends React.Component {
   }
   render() {
     const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
-    const { togglePart, lbDetail, changeTabs, activeKey } = this.props
+    const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name } = this.props
     const { ingress } = lbDetail || { ingress: [] }
     const pagination = {
       simple: true,
@@ -181,7 +181,7 @@ class MonitorTable extends React.Component {
     return (
       <div className="monitorTable layout-content">
         <Modal
-          title="删除负载均衡器"
+          title="删除监听"
           visible={deleteModal}
           onCancel={this.cancelDelModal}
           onOk={this.confirmDelModal}
@@ -221,16 +221,16 @@ class MonitorTable extends React.Component {
             />
 
           </TabPane>
-          <TabPane tab="TCP" key="TCP" disabled>
+          <TabPane tab="TCP" key="TCP">
             <TcpUdpTable
               type="TCP"
-              {...{ togglePart }}
+              {...{ togglePart, clusterID, name }}
             />
           </TabPane>
-          <TabPane tab="UDP" key="UDP" disabled>
+          <TabPane tab="UDP" key="UDP">
             <TcpUdpTable
               type="UDP"
-              {...{ togglePart }}
+              {...{ togglePart, clusterID, name }}
             />
           </TabPane>
           <TabPane tab="事件" key="event">

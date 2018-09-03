@@ -19,6 +19,8 @@ import { ROLE_SYS_ADMIN } from '../../../../../constants'
 import { API_URL_PREFIX } from '../../../../constants'
 import { toQuerystring } from '../../../../common/tools'
 import './style/ApmSetting.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 
@@ -56,7 +58,7 @@ const ApmSetting = React.createClass({
     if (!msaUrl) {
       return (
         <span>
-          当前项目未配置微服务治理套件，请联系基础设施管理员安装
+          <FormattedMessage {...IntlMessage.noMsaSuiteTip}/>
           {/* {
             loginUser.role === ROLE_SYS_ADMIN
             ? <span>前往设置<Link to="/cluster/globalConfig">全局配置</Link></span>
@@ -66,14 +68,14 @@ const ApmSetting = React.createClass({
       )
     }
     if (isFetching) {
-      return <div><Spin /> 加载 apm 中 ...</div>
+      return <div><Spin /> <FormattedMessage {...IntlMessage.loadingApm}/> ...</div>
     }
     // apm not install
     if (!apms || apms.length === 0) {
       return (
         <span className="infoText">
           {/* 当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a> */}
-          当前项目未安装 APM Agent，请联系基础设施管理员安装
+          <FormattedMessage {...IntlMessage.noApmInstalledTip}/>
         </span>
       )
     }
@@ -83,7 +85,10 @@ const ApmSetting = React.createClass({
       onChange: this.onApmChange
     })
     return [
-      <Switch {...apmProps} key="apm-check" checkedChildren="开" unCheckedChildren="关"/>,
+      <Switch {...apmProps} key="apm-check"
+              checkedChildren={intl.formatMessage(IntlMessage.open)}
+              unCheckedChildren={intl.formatMessage(IntlMessage.close)}
+      />,
       <span
         key="apm-support"
         className="supportSpan"
@@ -91,13 +96,13 @@ const ApmSetting = React.createClass({
           () => this.setState({ midSupportModal: true, isOnlyShowSubmitBtn: true })
         }
       >
-        查看支持的中间件
+        <FormattedMessage {...IntlMessage.viewMiddleware}/>
       </span>
     ]
   },
 
   render() {
-    const { formItemLayout } = this.props
+    const { formItemLayout, intl } = this.props
     const {
       midSupportModal,
       isOnlyShowSubmitBtn,
@@ -115,7 +120,7 @@ const ApmSetting = React.createClass({
             () => this.setState({ midSupportModal: false })
           }
         >
-          确 定
+          <FormattedMessage {...IntlMessage.confirm}/>
         </Button>
       ]
     } else {
@@ -125,7 +130,7 @@ const ApmSetting = React.createClass({
           size="large"
           onClick={this.cancelApm}
         >
-        暂不开通
+          <FormattedMessage {...IntlMessage.notOpenYet}/>
         </Button>,
         <Button
           key="submit"
@@ -136,20 +141,20 @@ const ApmSetting = React.createClass({
           }
           disabled={!confirmApmChecked}
         >
-        我知道了，开通 APM
+          <FormattedMessage {...IntlMessage.openApm}/>
         </Button>
       ]
     }
     return (
       <FormItem
         {...formItemLayout}
-        label="启用性能管理"
+        label={intl.formatMessage(IntlMessage.enablePerformanceManagement)}
         key="apm"
         className="apmSetting"
       >
         {this.renderApm()}
         <Modal
-          title="应用性能管理（APM）- 须知"
+          title={intl.formatMessage(IntlMessage.apmNotice)}
           visible={midSupportModal}
           {...midSupportModalProps}
           className="midSupportModal"
@@ -165,7 +170,7 @@ const ApmSetting = React.createClass({
               设置 Pinpoint agent id，需要提前在镜像中添加 JVM 参数：-Dpinpoint.agentId=${POD_IP}
             </li>
             <li>
-              Dockerfile CMD 示例：
+              Dockerfile CMD <FormattedMessage {...IntlMessage.example}/>：
               <br/><strong>CMD java $JAVA_OPTS -Dpinpoint.agentId=${POD_IP} -jar /app/app.jar</strong>
             </li>
           </ul>
@@ -208,7 +213,7 @@ const ApmSetting = React.createClass({
                 onChange={e => this.setState({ confirmApmChecked: e.target.checked })}
                 checked={confirmApmChecked}
               >
-              确认镜像所用中间件在上述列表内，且满足 JVM 配置
+                <FormattedMessage {...IntlMessage.apmMiddlewareTip}/>
               </Checkbox>
             )
           }
@@ -231,4 +236,6 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   loadApms,
-})(ApmSetting)
+})(injectIntl(ApmSetting, {
+  withRef: true,
+}))

@@ -40,7 +40,7 @@ const menus = [
   },
   {
     url: '/ai-deep-learning/large-scale-train',
-    name: '大规模训练',
+    name: 'largeScaleTrain',
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/large-scale-train')
@@ -54,7 +54,7 @@ const menus = [
   },
   {
     url: '/ai-deep-learning/data-set',
-    name: '数据集',
+    name: 'dataSet',
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/data-set')
@@ -68,7 +68,7 @@ const menus = [
   },
   {
     url: '/ai-deep-learning/model-set',
-    name: '模型集',
+    name: 'modelSet',
     onClick: () => {
       try {
         browserHistory.push('/ai-deep-learning/model-set')
@@ -82,7 +82,7 @@ const menus = [
   },
   {
     url: '/ai-deep-learning/ai-model-service',
-    name: 'AI 模型应用',
+    name: 'aiModelService',
   },
 ]
 

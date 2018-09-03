@@ -33,6 +33,8 @@ import {
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { relativeTimeRounding } from 'moment';
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const PRESET_MEMORY_ARRAY = [512, 1024, 2048, 4096, 8192]
@@ -134,6 +136,7 @@ class ConfigModal extends Component {
   }
 
   handleConfigOK() {
+    const { formatMessage } = this.props.intl
     const {
       parentScope,
       cluster,
@@ -160,7 +163,7 @@ class ConfigModal extends Component {
     }
     const { requests, limits } = resources
     let notification = new NotificationHandler()
-    notification.spin(`服务 ${serviceName} 配置更改中...`)
+    notification.spin(formatMessage(AppServiceDetailIntl.changeConfig, { serviceName }))
     changeQuotaService(cluster, serviceName, { requests, limits }, {
       success: {
         func: (res) => {
@@ -170,10 +173,10 @@ class ConfigModal extends Component {
           })
           if(res.data.code == 200) {
             notification.close()
-            notification.success(`服务 ${serviceName} 配置已成功更改`)
+            notification.success(formatMessage(AppServiceDetailIntl.changeConfigSuccess, { serviceName }))
           } else {
             notification.close()
-            notification.error(`更改服务 ${serviceName} 配置失败`)
+            notification.error(formatMessage(AppServiceDetailIntl.changeConfigFailure, { serviceName }))
           }
         },
         isAsync: true
@@ -181,7 +184,7 @@ class ConfigModal extends Component {
       failed: {
         func: () => {
           notification.close()
-          notification.error(`更改服务 ${serviceName} 配置失败`)
+          notification.error(formatMessage(AppServiceDetailIntl.changeConfigFailure), { serviceName })
         }
       }
     })
@@ -218,6 +221,7 @@ class ConfigModal extends Component {
     }
   }
   render() {
+    const { formatMessage } = this.props.intl
     const { service, visible, form } = this.props
     const { getFieldProps, getFieldValue } = form
     const { DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, composeType } = this.state
@@ -226,12 +230,12 @@ class ConfigModal extends Component {
     }
     const modalFooter = [
       <Button key="back" type="ghost" size="large" onClick={this.handleConfigCancel}>
-        取 消
+        {formatMessage(ServiceCommonIntl.cancel)}
       </Button>,
       <Button
         key="submit" type="primary" size="large" loading={this.state.loading}
         onClick={this.handleConfigOK}>
-        保 存
+        {formatMessage(ServiceCommonIntl.save)}
       </Button>
     ]
     const GPULimitsProps = getFieldProps('GPULimits', {
@@ -241,28 +245,28 @@ class ConfigModal extends Component {
     return (
       <Modal
         visible={visible}
-        title="更改服务配置"
+        title={formatMessage(AppServiceDetailIntl.changeServiceConfig)}
         onOk={this.handleConfigOK}
         onCancel={this.handleConfigCancel}
         width="600px"
         footer={modalFooter}>
         <div id="ConfigModal">
           <Row className="serviceName">
-            <Col className="itemTitle" span={3} style={{ textAlign: 'left' }}>服务名称</Col>
+            <Col className="itemTitle" span={3} style={{ textAlign: 'left' }}>{formatMessage(AppServiceDetailIntl.serviceName)}</Col>
             <Col className="itemBody" span={21}>
               {service.metadata.name}
             </Col>
           </Row>
           <Row>
             <Col className="itemTitle" span={3} style={{ textAlign: 'left', height: 32, lineHeight: 3 }}>
-              选择配置
+              {formatMessage(AppServiceDetailIntl.choiceConfig)}
             </Col>
             <Col className="itemBody" span={21}>
               <div className="operaBox">
               <FormItem style={{ marginBottom: 0 }}>
                 <RadioGroup {...getFieldProps('operaConfig', { initialValue: 'X86' })}>
-                  <Radio key="X86" value="X86">X86 计算</Radio>
-                  <Radio key="GPU" value="GPU">高性能计算 GPU</Radio>
+                  <Radio key="X86" value="X86">{formatMessage(AppServiceDetailIntl.x86caculate)}</Radio>
+                  <Radio key="GPU" value="GPU">{formatMessage(AppServiceDetailIntl.highPerformancecalculate)}</Radio>
                 </RadioGroup>
               </FormItem>
               {
@@ -288,7 +292,7 @@ class ConfigModal extends Component {
                             2X
                           </div>
                           <div className="bottomBox">
-                            <span>512M&nbsp;内存</span><br />
+                            <span>512M&nbsp;{formatMessage(ServiceCommonIntl.memory)}</span><br />
                             <span>0.2~1CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
@@ -302,7 +306,7 @@ class ConfigModal extends Component {
                             4X
                           </div>
                           <div className="bottomBox">
-                            <span>1GB&nbsp;内存</span><br />
+                            <span>1GB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</span><br />
                             <span>0.4~1CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
@@ -316,7 +320,7 @@ class ConfigModal extends Component {
                             8X
                           </div>
                           <div className="bottomBox">
-                            <span>2GB&nbsp;内存</span><br />
+                            <span>2GB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</span><br />
                             <span>0.8~1CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
@@ -330,7 +334,7 @@ class ConfigModal extends Component {
                             16X
                           </div>
                           <div className="bottomBox">
-                            <span>4GB&nbsp;内存</span><br />
+                            <span>4GB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</span><br />
                             <span>1CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
@@ -344,7 +348,7 @@ class ConfigModal extends Component {
                             32X
                           </div>
                           <div className="bottomBox">
-                            <span>8GB&nbsp;内存</span><br />
+                            <span>8GB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</span><br />
                             <span>2CPU</span>
                             <div className="triangle"></div>
                             <Icon type="check" />
@@ -362,7 +366,7 @@ class ConfigModal extends Component {
                             }
                             onClick={()=> this.selectComposeType(RESOURCES_DIY)}>
                             <div className="topBox">
-                              自定义
+                              {formatMessage(ServiceCommonIntl.userDefined)}
                             </div>
                             <div className="bottomBox">
                               <Row>
@@ -385,7 +389,7 @@ class ConfigModal extends Component {
                                     min={DIYMemory}
                                     max={RESOURCES_MEMORY_MAX} />
                                 </Col>
-                                <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                                <Col span={7} style={{ lineHeight: '32px' }}>MB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</Col>
                               </Row>
                               <Row>
                                 <Col span={8}>
@@ -405,7 +409,7 @@ class ConfigModal extends Component {
                                     min={DIYCPU}
                                     max={RESOURCES_CPU_MAX}/>
                                 </Col>
-                                <Col span={7} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                                <Col span={7} style={{ lineHeight: '32px' }}>{formatMessage(ServiceCommonIntl.core)} CPU</Col>
                               </Row>
                               <div className="triangle"></div>
                               <Icon type="check" />
@@ -424,7 +428,7 @@ class ConfigModal extends Component {
                       borderRadius: 6 }}
                       className='ant-btn-primary'>
                     <div className="topBox" style={{ background: '#2db7f5', color: '#fff' }}>
-                      自定义
+                      {formatMessage(ServiceCommonIntl.userDefined)}
                     </div>
                     <div className="bottomBox" style={{ height: 105, padding: 5 }}>
                       <Row>
@@ -447,7 +451,7 @@ class ConfigModal extends Component {
                             min={DIYMemory}
                             max={RESOURCES_MEMORY_MAX} />
                         </Col>
-                        <Col span={6} style={{ lineHeight: '32px' }}>MB&nbsp;内存</Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>MB&nbsp;{formatMessage(ServiceCommonIntl.memory)}</Col>
                       </Row>
                       <Row>
                         <Col span={8}>
@@ -467,7 +471,7 @@ class ConfigModal extends Component {
                             min={DIYCPU}
                             max={RESOURCES_CPU_MAX}/>
                         </Col>
-                        <Col span={6} style={{ lineHeight: '32px' }}>核 CPU</Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>{formatMessage(ServiceCommonIntl.core)} CPU</Col>
                       </Row>
                       <Row>
                         <Col span={8}>
@@ -488,7 +492,7 @@ class ConfigModal extends Component {
                             min={RESOURCES_GPU_STEP}
                             max={RESOURCES_GPU_MAX}/>
                         </Col>
-                        <Col span={6} style={{ lineHeight: '32px' }}>颗 GPU</Col>
+                        <Col span={6} style={{ lineHeight: '32px' }}>{formatMessage(ServiceCommonIntl.cases)} GPU</Col>
                       </Row>
                       <div className="triangle"></div>
                       <Icon type="check" />
@@ -501,7 +505,7 @@ class ConfigModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              Tips：重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持滚动更新，服务会有短暂不可用时间！' : ' 将进行滚动升级。'}
+              {formatMessage(AppServiceDetailIntl.rebootAllServiceInfo)}{this.state.haveRBDVolume ? formatMessage(AppServiceDetailIntl.serviceNotSupportReboot) : formatMessage(AppServiceDetailIntl.rollupUpgrade)}
             </Col>
           </Row>
         </div>
@@ -519,6 +523,6 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   changeQuotaService,
-})(Form.create()(ConfigModal))
+})(Form.create()(ConfigModal)), { withRef: true, })

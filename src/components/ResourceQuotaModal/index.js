@@ -14,8 +14,10 @@ import { Button, Icon, Row, Col, Progress } from 'antd'
 import classNames from 'classnames'
 import Modal from './Modal'
 import './style/index.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../containers/Application/intl'
 
-export default class ResourceQuotaModal extends Component {
+class ResourceQuotaModal extends Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
@@ -54,7 +56,8 @@ export default class ResourceQuotaModal extends Component {
   render() {
     const {
       visible, closeModal, selectResource,
-      usedResource, totalResource, closable
+      usedResource, totalResource, closable,
+      intl
     } = this.props
     const usedCpu = usedResource.cpu
     const usedMemory = usedResource.memory
@@ -77,12 +80,12 @@ export default class ResourceQuotaModal extends Component {
                 <Progress percent={usedCpuPercent} status="active" showInfo={false} />
               </Col>
               <Col span={7}>
-                {usedCpu}/{totalCpu}核
+                {usedCpu}/{totalCpu}{intl.formatMessage(IntlMessage.core)}
                 ({usedCpuPercent}%)
               </Col>
             </Row>
             <Row className="row">
-              <Col span={6}>内存</Col>
+              <Col span={6}><FormattedMessage {...IntlMessage.memory}/></Col>
               <Col span={11} className="Progress">
                 <Progress percent={usedMemoryPercent} status="active" showInfo={false} />
               </Col>
@@ -92,10 +95,10 @@ export default class ResourceQuotaModal extends Component {
               </Col>
             </Row>
             <Row className="textRow">
-              <Col span={6}>当前已选配置</Col>
+              <Col span={6}><FormattedMessage {...IntlMessage.selectedConfiguration}/></Col>
               <Col span={18}>
                 <span className={classNames({red: selectResource.cpu > restCpu})}>
-                  {selectResource.cpu}核
+                  {selectResource.cpu}{intl.formatMessage(IntlMessage.core)}
                 </span>
                 &nbsp;|&nbsp;
                 <span className={classNames({red: selectResource.memory > restMemory})}>
@@ -104,9 +107,9 @@ export default class ResourceQuotaModal extends Component {
               </Col>
             </Row>
             <Row className="textRow">
-              <Col span={6}>剩余最大可选配置</Col>
+              <Col span={6}><FormattedMessage {...IntlMessage.remainingConfiguration}/></Col>
               <Col span={18} className="restResources">
-                {restCpu}核 | {restMemory}GB
+                {restCpu}{intl.formatMessage(IntlMessage.core)} | {restMemory}GB
               </Col>
             </Row>
           </div>
@@ -116,3 +119,7 @@ export default class ResourceQuotaModal extends Component {
     )
   }
 }
+
+export default injectIntl(ResourceQuotaModal, {
+  withRef: true,
+})

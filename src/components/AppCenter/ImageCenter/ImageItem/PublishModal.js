@@ -22,6 +22,10 @@ import { encodeImageFullname } from '../../../../common/tools'
 import defaultImage from '../../../../../static/img/appstore/defaultimage.png'
 import isEmpty from 'lodash/isEmpty'
 import filter from 'lodash/filter'
+import publishModalIntl from './intl/punlishModalIntl'
+import { injectIntl } from 'react-intl'
+
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -60,6 +64,7 @@ class PublishModal extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { harbor } = nextProps
     const { visible: oldVisible } = this.props
+    const { formatMessage } = this.props.intl
     const {
       visible: newVisible, wrapGroupList,
       currentImage, form, getWrapGroupList, getImageStatus, server } = nextProps
@@ -101,7 +106,7 @@ class PublishModal extends React.Component {
             if (flag) {
               form.setFields({
                 tagsName: {
-                  errors: ['无可发布版本'],
+                  errors: [formatMessage(publishModalIntl.noVersionToPublish)],
                   value: ''
                 }
               })
@@ -110,7 +115,7 @@ class PublishModal extends React.Component {
         },
         failed: {
           func: () => {
-            notify.warn('获取版本失败')
+            notify.warn(formatMessage(publishModalIntl.fetchVersionFailed))
           },
           isAsync: true,
         }
@@ -126,6 +131,7 @@ class PublishModal extends React.Component {
   }
   checkImageName(rule, value, callback) {
     const { imageNameExists, form } = this.props
+    const { formatMessage } = this.props.intl
     const tag = form.getFieldValue('tagsName')
     if (!tag) return callback()
     this.imageNameTimeout = setTimeout(()=>{
@@ -136,7 +142,7 @@ class PublishModal extends React.Component {
         success: {
           func: res => {
             if (res.data) {
-              return callback('该镜像名称已存在')
+              return callback(formatMessage(publishModalIntl.imageNameHasExist))
             }
             callback()
           },
@@ -153,6 +159,7 @@ class PublishModal extends React.Component {
   }
   checkSelectName(rule, value, callback) {
     const { imageNameExists, form } = this.props
+    const { formatMessage } = this.props.intl
     const name = form.getFieldValue('select_version')
     if (!name) return callback()
     clearTimeout(this.selectNameTimeout)
@@ -164,7 +171,7 @@ class PublishModal extends React.Component {
         success: {
           func: res => {
             if (res.data) {
-              return callback('该镜像名称已存在')
+              return callback(formatMessage(publishModalIntl.imageNameHasExist))
             }
             callback()
           },
@@ -186,13 +193,14 @@ class PublishModal extends React.Component {
     },ASYNC_VALIDATOR_TIMEOUT)
   }
   fileNickProps(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     const { checkAppNameExists } = this.props
     let newValue = value && value.trim()
     if (!newValue) {
-      return callback('请输入发布名称')
+      return callback(formatMessage(publishModalIntl.publishNameValidate1))
     }
     if (newValue.length < 3 || newValue.length > 20) {
-      return callback('发布名称需在3-20个字符之间')
+      return callback(formatMessage(publishModalIntl.publishNameValidate2))
     }
     clearTimeout(this.nickNameTimeout)
     this.nickNameTimeout = setTimeout(()=>{
@@ -200,7 +208,7 @@ class PublishModal extends React.Component {
         success: {
           func: res => {
             if (res.data) {
-              return callback('该发布名称已存在')
+              return callback(formatMessage(publishModalIntl.publishNameHasExist))
             }
             callback()
           },
@@ -216,59 +224,67 @@ class PublishModal extends React.Component {
     },ASYNC_VALIDATOR_TIMEOUT)
   }
   checkTags(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请选择镜像版本')
+      return callback(formatMessage(publishModalIntl.selectVersionOfImage))
     }
     callback()
   }
   checkSelectVersion(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请选择版本')
+      return callback(formatMessage(publishModalIntl.selectVersion))
     }
     callback()
   }
   checkTargetStore(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请选择目标仓库组')
+      return callback(formatMessage(publishModalIntl.selectTargetRepoGroup))
     }
     callback()
   }
   checkClassify(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if(!value || value.length===0) {
-      return callback('请选择或输入分类')
+      return callback(formatMessage(publishModalIntl.selectOrInputClass))
     }
     if(value.length > 1) {
-      return callback('只能选择一个分类')
+      return callback(formatMessage(publishModalIntl.onlyOneClass))
     }
     callback()
   }
   checkDesc(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if(!value) {
-      return callback('请输入描述信息')
+      return callback(formatMessage(publishModalIntl.descriptionRequired))
     }
     if(value.length < 3 || value.length > 80) {
-      return callback('描述信息需在3-80个字符之间')
+      return callback(formatMessage(publishModalIntl.descriptionValidate))
     }
     callback()
   }
   checkInfo(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请输入提交信息')
+      return callback(formatMessage(publishModalIntl.submitInfoRequired))
     }
     if (value.length < 3 || value.length > 20) {
-      return callback('提交信息需在3-20个字符之间')
+      return callback(formatMessage(publishModalIntl.submitInfoValidate))
     }
     callback()
   }
   checkTargetCluster(rule, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      return callback('请选择目标集群')
+      return callback(formatMessage(publishModalIntl.targetClusterRequired))
     }
     callback()
   }
   confirmModal() {
     const { callback, form, imagePublish, currentImage, server, publishName, cluster } = this.props
     const { pkgIcon, imageID, radioVal } = this.state
+    const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     let validateArr = []
     const selectType = radioVal === 'market'
@@ -316,12 +332,12 @@ class PublishModal extends React.Component {
         }
       }
       notify.close()
-      notify.spin('提交审核中')
+      notify.spin(formatMessage(publishModalIntl.inSubmit))
       imagePublish(cluster.clusterID, body, {
         success: {
           func: () => {
             notify.close()
-            notify.success('提交审核成功')
+            notify.success(formatMessage(publishModalIntl.submitSuccess))
             this.setState({
               visible: false,
               loading: false,
@@ -335,10 +351,10 @@ class PublishModal extends React.Component {
           func: res => {
             if (res.statusCode === 409) {
               notify.close()
-              notify.warn('提交审核失败\n', `该镜像与${res.message.details.name}内容完全相同，不能发布`)
+              notify.warn(formatMessage(publishModalIntl.submitFailed1, { name: res.message.details.name}))
             } else {
               notify.close()
-              notify.warn('提交审核失败\n', res.message.message || res.message)
+              notify.warn(formatMessage(publishModalIntl.submitFailed2), res.message.message || res.message)
             }
             this.setState({
               loading: false
@@ -365,9 +381,10 @@ class PublishModal extends React.Component {
   }
   renderFooter() {
     const { loading } = this.state
+    const { formatMessage } = this.props.intl
     return[
-      <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>取消</Button>,
-      <Button key="confirm" size="large" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>提交审核</Button>
+      <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>{formatMessage(publishModalIntl.cancelText)}</Button>,
+      <Button key="confirm" size="large" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>{formatMessage(publishModalIntl.okText)}</Button>
     ]
   }
   closeSuccessModal() {
@@ -378,6 +395,7 @@ class PublishModal extends React.Component {
   getConfigInfo(tag) {
     const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
+    const { formatMessage } = this.props.intl
     loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
       success: {
         func: res => {
@@ -390,7 +408,7 @@ class PublishModal extends React.Component {
         func: res => {
           if (res.statusCode === 404) {
             notify.close()
-            notify.warn('镜像错误', res.message)
+            notify.warn(formatMessage(publishModalIntl.imageErr), res.message)
           }
         }
       }
@@ -400,6 +418,7 @@ class PublishModal extends React.Component {
   handleSelectVersionContent(val) {
     const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
+    const { formatMessage } = this.props.intl
     loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
       success: {
         func: res => {
@@ -412,13 +431,14 @@ class PublishModal extends React.Component {
         func: res => {
           if (res.statusCode === 404) {
             notify.close()
-            notify.error('镜像错误', res.message)
+            notify.error(formatMessage(publishModalIntl.imageErr), res.message)
           }
         }
       },
     })
   }
   handleSelectcheckTargetStore(val) {
+    const { formatMessage } = this.props.intl
     const { getImageStatus, currentImage, imgTag, server, harbor, form } = this.props
     const tagArr = []
     imgTag && imgTag.map( item=>{
@@ -434,7 +454,7 @@ class PublishModal extends React.Component {
     getImageStatus(body, {
       failed: {
         func: () => {
-          notify.warn('获取版本失败')
+          notify.warn(formatMessage(publishModalIntl.fetchVersionFailure))
         },
         isAsync: true,
       }
@@ -525,6 +545,7 @@ class PublishModal extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
     };
+    const { formatMessage } = this.props.intl
     const nameProps = getFieldProps('imageName', {
       rules: [
         {
@@ -634,11 +655,11 @@ class PublishModal extends React.Component {
         isType = file.name.toLowerCase().match(/\.(jpg|png|jpeg)$/)
 
         if (!isType) {
-          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
+          notificat.error(formatMessage(publishModalIntl.formatError, { formats: wrapTypelist.join('、')}))
           return false
         }
         if (file.size > 1024 * 1024 * 10) {
-          notificat.error('请上传10M以内的图片')
+          notificat.error(formatMessage(publishModalIntl.sizeLimit))
           return false
         }
       },
@@ -647,7 +668,7 @@ class PublishModal extends React.Component {
           fileList: e.fileList
         })
         if (e.file.status === 'done') {
-          notificat.success('上传成功')
+          notificat.success(formatMessage(publishModalIntl.uploadSuccess))
           this.setState({
             pkgIcon: `${e.file.response.data.id}?${+new Date()}`,
           })
@@ -659,7 +680,7 @@ class PublishModal extends React.Component {
             notificat.info(message)
           }
           if(e.file.response.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-            notificat.error('上传失败',message)
+            notificat.error(formatMessage(publishModalIntl.uploadFailure),message)
           }
         }
       }
@@ -694,7 +715,7 @@ class PublishModal extends React.Component {
       <div>
         <Modal
           className="imagePublishModal"
-          title="发布"
+          title={formatMessage(publishModalIntl.title)}
           visible={visible}
           style={{top:20}}
           maskClosable={false}
@@ -710,24 +731,24 @@ class PublishModal extends React.Component {
 
           <FormItem
             {...formItemLayout}
-            label="发布类型"
+            label={formatMessage(publishModalIntl.publishType)}
           >
             <RadioGroup
               onChange={this.handleChangePublishRadio} value={this.state.radioVal}
               >
-              <Radio value="market" key='market'>发布到商店</Radio>
-              <Radio value="store" key='store'>发布到仓库组</Radio>
+              <Radio value="market" key='market'>{formatMessage(publishModalIntl.publishToStore)}</Radio>
+              <Radio value="store" key='store'>{formatMessage(publishModalIntl.publishToRepoGroup)}</Radio>
             </RadioGroup>
           </FormItem>
           <FormItem
             {...formItemLayout}
-            label="目标集群"
+            label={formatMessage(publishModalIntl.targetCluster)}
           >
             <Select
               style={{ width: '100%' }}
               showSearch
               {...targetCluster}
-              placeholder="请选择集群"
+              placeholder={formatMessage(publishModalIntl.targetClusterPlaceholder)}
             >
               {clusterOptions}
             </Select>
@@ -738,25 +759,25 @@ class PublishModal extends React.Component {
               <FormItem
                 {...formItemLayout}
                 hasFeedback
-                label="镜像名称"
+                label={formatMessage(publishModalIntl.imageName)}
               >
                 <Input {...nameProps} disabled/>
               </FormItem>
               <Form.Item
                 {...formItemLayout}
                 hasFeedback={!!getFieldValue('fileNickName')}
-                label="发布名称"
-                help={isFieldValidating('fileNickName') ? '校验中...' : (getFieldError('fileNickName') || []).join(', ')}
+                label={formatMessage(publishModalIntl.publishName)}
+                help={isFieldValidating('fileNickName') ? formatMessage(publishModalIntl.validating) : (getFieldError('fileNickName') || []).join(', ')}
               >
                 <Input
                   disabled={publishName && publishName ? true : false}
                   {...releaseNameProps}
-                  placeholder="请输入发布名称"
+                  placeholder={formatMessage(publishModalIntl.publishNameValidate1)}
                 />
               </Form.Item>
               <FormItem
                 {...formItemLayout}
-                label="镜像版本"
+                label={formatMessage(publishModalIntl.imageVersion)}
               >
                 <Select
                   showSearch
@@ -767,7 +788,7 @@ class PublishModal extends React.Component {
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="分类名称"
+                label={formatMessage(publishModalIntl.className)}
               >
                 <Select
                   disabled={classify_name && classify_name ? true : false}
@@ -780,9 +801,9 @@ class PublishModal extends React.Component {
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="描述"
+                label={formatMessage(publishModalIntl.description)}
               >
-                <Input type="textarea" {...descProps} placeholder="描述" />
+                <Input type="textarea" {...descProps} placeholder={formatMessage(publishModalIntl.description)} />
               </FormItem>
               <FormItem
                 {...formItemLayout}
@@ -809,46 +830,48 @@ class PublishModal extends React.Component {
                 <Col span={4}>
                 </Col>
                 <Col className="hintColor">
-                  上传icon支持（jpg/jpeg/png图片格式，建议尺寸100px*100px）
+                  {
+                    formatMessage(publishModalIntl.uploadIconTip)
+                  }
                 </Col>
               </Row>
               <FormItem
                 {...formItemLayout}
-                label="提交信息"
+                label={formatMessage(publishModalIntl.submitInfo)}
               >
-                <Input type="textarea" {...infoProps} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
+                <Input type="textarea" {...infoProps} placeholder={formatMessage(publishModalIntl.submitInfoPlaceholder)} />
               </FormItem>
             </Form> :
             <Form>
               <FormItem
                 {...formItemLayout}
                 hasFeedback
-                help={isFieldValidating('select_name') ? '校验中...' : (getFieldError('select_name') || []).join(', ')}
-                label="镜像名称"
+                help={isFieldValidating('select_name') ? formatMessage(publishModalIntl.validating) : (getFieldError('select_name') || []).join(', ')}
+                label={formatMessage(publishModalIntl.imageName)}
               >
                 <Input {...selectName} disabled/>
               </FormItem>
 
               <FormItem
                 {...formItemLayout}
-                label="目标仓库组"
+                label={formatMessage(publishModalIntl.targetRepoGroup)}
               >
                 <Select
                   showSearch
                   {...targetStore}
-                  placeholder="请选择目标仓库组"
+                  placeholder={formatMessage(publishModalIntl.selectTargetRepoGroup)}
                 >
                   {targetStoreChildren}
                 </Select>
               </FormItem>
               <FormItem
                 {...formItemLayout}
-                label="选择版本"
+                label={formatMessage(publishModalIntl.version)}
               >
                 <Select
                   showSearch
                   {...selectVersion}
-                  placeholder="请选择版本"
+                  placeholder={formatMessage(publishModalIntl.selectVersion)}
                 >
                   {selectVsionChildren}
                 </Select>
@@ -856,9 +879,9 @@ class PublishModal extends React.Component {
 
               <FormItem
                 {...formItemLayout}
-                label="提交信息"
+                label={formatMessage(publishModalIntl.submitInfo)}
               >
-                <Input type="textarea" {...commitMsg} placeholder="请输入提交信息，便于系统管理员快速了解发布内容" />
+                <Input type="textarea" {...commitMsg} placeholder={formatMessage(publishModalIntl.submitInfoPlaceholder)}/>
               </FormItem>
             </Form>
           }
@@ -901,37 +924,40 @@ class SuccessModal extends React.Component {
     }, callback)
   }
   renderFooter() {
+    const { formatMessage } = this.props.intl
     return[
-      <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>关闭</Button>,
-      <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>查看发布记录</Button>
+      <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>{formatMessage(publishModalIntl.close)}</Button>,
+      <Button key="confirm" size="large" type="primary" onClick={this.confirmModal.bind(this)}>{formatMessage(publishModalIntl.checkPublishRecord)}</Button>
     ]
   }
   render() {
+    const { formatMessage } = this.props.intl
     const { visible, radioVal } = this.state
     return(
       <Modal
         className="publishSuccessModal"
-        title="提交成功"
+        title={formatMessage(publishModalIntl.submitSuccessText)}
         visible={visible}
         onOk={this.confirmModal}
         onCancel={this.cancelModal}
         footer={this.renderFooter()}
       >
         <Icon type="check-circle-o" className="successColor successIcon"/>
-        <div className="successColor successText">提交成功</div>
-        <div className="successColor waitText">等待系统管理员审核...</div>
+        <div className="successColor successText">{formatMessage(publishModalIntl.submitSuccessText)}</div>
+        <div className="successColor waitText">{formatMessage(publishModalIntl.waitingAdminCheck)}</div>
         <div className="stepHint">
-          1.提交审核后可以到
-          <span onClick={this.confirmModal} className="themeColor pointer">发布记录</span>
-          查看审核状态
+          {formatMessage(publishModalIntl.afterSubmit)}
+          <span onClick={this.confirmModal} className="themeColor pointer">{formatMessage(publishModalIntl.publishRecord)}</span>
+          {formatMessage(publishModalIntl.checkAuditStatus)}
         </div>
-        <div className="stepHint">2.审核通过系统将会复制一个新的镜像，与原镜像无关</div>
+        <div className="stepHint">2.{formatMessage(publishModalIntl.tip)}</div>
       </Modal>
     )
   }
 }
-
+SuccessModal = injectIntl(SuccessModal, { withRef: true })
 PublishModal = Form.create()(PublishModal)
+PublishModal = injectIntl(PublishModal, { withRef: true })
 
 function mapStateToProps(state) {
   const { images, current, appStore, entities } = state

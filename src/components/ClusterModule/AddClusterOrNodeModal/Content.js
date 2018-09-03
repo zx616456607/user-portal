@@ -13,6 +13,8 @@ import React, { Component, PropTypes } from 'react'
 import { Tooltip, Icon, Spin } from 'antd'
 import { genRandomString } from '../../../common/tools'
 import './style/Content.less'
+import intlMsg from './Intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 class AddClusterOrNodeModalContent extends Component {
   constructor(props) {
@@ -35,21 +37,21 @@ class AddClusterOrNodeModalContent extends Component {
   }
 
   render() {
-    const { CMD, bottomContent } = this.props
+    const { CMD, bottomContent, intl: { formatMessage } } = this.props
     const { copyCMDSuccess } = this.state
     return (
       <div id="AddClusterOrNodeModalContent">
         <div style={{paddingBottom: '15px'}}>
-          1. 安装 Docker 17.03.x CE 版本
-          （<a target="_blank" href="https://docs.docker.com/engine/installation/">如何在Linux安装Docker</a>）
+          <FormattedMessage {...intlMsg.installDockerVersion}/>
+          （<a target="_blank" href="https://docs.docker.com/engine/installation/"><FormattedMessage {...intlMsg.installDockerOnLinux}/></a>）
         </div>
         <div>
-          2. 在安装好 Docker 的主机上执行以下命令：
+          <FormattedMessage {...intlMsg.exeCommand}/>
           <pre>
             {CMD ? CMD : <div className="loadingBox"><Spin /></div>}&nbsp;&nbsp;
             {
               CMD &&
-              [<Tooltip title={copyCMDSuccess ? '复制成功' : '点击复制'}>
+              [<Tooltip title={copyCMDSuccess ? formatMessage(intlMsg.copySuccess) : formatMessage(intlMsg.clickCopy)}>
                 <a className={copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
                   onClick={this.copyCMD}
                   onMouseLeave={() => setTimeout(() => this.setState({copyCMDSuccess: false}), 500) }>
@@ -75,4 +77,6 @@ AddClusterOrNodeModalContent.defaultProps = {
   //
 }
 
-export default AddClusterOrNodeModalContent
+export default injectIntl(AddClusterOrNodeModalContent, {
+  withRef: true,
+})

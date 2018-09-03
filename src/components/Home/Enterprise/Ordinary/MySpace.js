@@ -8,13 +8,12 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress, Tooltip } from 'antd'
+import { Row, Col, Card, Timeline, Popover, Spin, Icon, Button, Radio, Progress, Tooltip, Form } from 'antd'
 import './style/MySpace.less'
 import { formatOperationType, formatTypeName, formatResourceName } from '../../../../../client/containers/ManageMonitor/OperationAudit'
 import { connect } from 'react-redux'
 import { getOperationLogList } from '../../../../actions/manage_monitor'
 import { calcuDate } from "../../../../common/tools"
-import { injectIntl, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import { getOperationalTarget } from '../../../../actions/manage_monitor'
@@ -24,6 +23,8 @@ import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../actions/quota'
 import {REG} from "../../../../constants";
 import TenxIcon from '@tenx-ui/icon'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -111,13 +112,20 @@ class MySpace extends Component {
   getOperationLog() {
     const { filterData } = this.props
     const logs = this.props.auditLog
+    const { formatMessage } = this.props.intl
     const ele = []
     if (!logs.logs) {
-      return (<Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+      return (
+      <Card
+        title={formatMessage(IntlMessages.audit)}
+        bordered={false}
+        bodyStyle={{ height: 410 }}
+      >
         <div className='loadingBox'>
-          <span>暂无数据</span>
+          <FormattedMessage {...IntlMessages.noData} />
         </div>
-      </Card>)
+      </Card>
+      )
     }
     if (logs.logs.records.length <= 0) logs.logs.records = []
     let index = 0
@@ -141,7 +149,9 @@ class MySpace extends Component {
               ${item.resourceName || resourceConfig && resourceConfig.origin_id}`}</div>
               <div className="logInf">
                 {calcuDate(item.time)}
-                <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
+                <div className="logTime">
+                  {`${formatMessage(IntlMessages.continued)} ${duringTimeFormat(new Date(item.duration) - 0, this)}`}
+                </div>
               </div>
             </div>
           </Timeline.Item>
@@ -153,20 +163,27 @@ class MySpace extends Component {
            ${item.resourceName || resourceConfig && resourceConfig.origin_id}`}</div>
           <div className="logInf">
             {calcuDate(item.time)}
-            <div className="logTime"> {`持续 ${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
+            <div className="logTime">
+              {`${formatMessage(IntlMessages.continued)} ${duringTimeFormat(new Date(item.duration) - 0, this)}`}
+            </div>
           </div>
         </div>
       </Timeline.Item>)
       index++
     })
-    if (ele.length == 0) ele.push(<div>暂无审计日志</div>)
+    if (ele.length == 0) ele.push(<div><FormattedMessage {...IntlMessages.noData} /></div>)
     return (
-      <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+      <Card
+        title={formatMessage(IntlMessages.audit)}
+        bordered={false} bodyStyle={{ height: 410 }}
+      >
         <Timeline style={{ height: 374, padding: '24px', overflowY: 'hidden' }}>
           {ele}
         </Timeline>
         <Row style={{ height: 30, lineHeight: '30px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
-          <Link to="/manange_monitor">查看更多 >></Link>
+          <Link to="/manange_monitor">
+            <FormattedMessage {...IntlMessages.seeMore} /> >>
+          </Link>
         </Row>
       </Card>
     )
@@ -227,6 +244,7 @@ class MySpace extends Component {
     return count
   }
   renderProcessNumber(key, span = {}) {
+    const { formatMessage } = this.props.intl
     const useCount = this.useCount(key)
     const maxCount = this.maxCount(key)
     const { left = 5, right = 19 } = span
@@ -236,7 +254,7 @@ class MySpace extends Component {
     }
     const content = <div>
       <span style={{ color: overUsed ? 'red' : 'white' }}>{useCount}</span>
-      /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
+      /<span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
     </div>
     return (
       <Tooltip title={content}>
@@ -244,7 +262,7 @@ class MySpace extends Component {
           <Col span={left}></Col>
           <Col span={right} className="number textoverflow">
             <span style={{ color: overUsed ? 'red' : '#333' }}>{useCount}</span>
-            /<span>{maxCount === -1 ? '无限制' : maxCount}</span>
+            /<span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
           </Col>
         </Row>
       </Tooltip>
@@ -284,6 +302,7 @@ class MySpace extends Component {
 
   render() {
     const { spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName, isFetching, filterData } = this.props
+    const { formatMessage } = this.props.intl
     // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
@@ -359,15 +378,15 @@ class MySpace extends Component {
     const ciList = [
       {
         key: 'pipeline',
-        text: '流水线(个)',
+        text: formatMessage(IntlMessages.pipelines),
       },
       {
         key: 'flow',
-        text: '阶段(个)',
+        text: formatMessage(IntlMessages.stages),
       },
       {
         key: 'dockerfile',
-        text: 'Dockerfile(个)',
+        text: formatMessage(IntlMessages.Dockerfile),
       },
     ]
     const deliverList = [
@@ -381,25 +400,44 @@ class MySpace extends Component {
       // },
       {
         key: 'orchestrationTemplate',
-        text: '编排文件(个)',
+        text: formatMessage(IntlMessages.stacks),
       },
       {
         key: 'applicationPackage',
-        text: '应用包(个)',
+        text: formatMessage(IntlMessages.packages),
       }]
     return (
       <div id='MySpace'>
         <Row className="title" style={{ marginTop: 20 }}>{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
-            <Card title="项目资源配额" bordered={false} bodyStyle={{ height: 175, padding: '7px' }}
-              extra={<Link to={spaceName === '我的个人项目' ? `/tenant_manage/user/${this.props.loginUser.info.userID}?tabs=quota` : this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota` : `/tenant_manage/user/${this.props.userID}?tabs=quota`}>
-                <Button type="primary" size="small">{this.props.loginUser.info.role === 2 ? '设置配额' : '查看详情'}</Button></Link>}>
+            <Card
+              title={formatMessage(IntlMessages.projectResourceQuota)}
+              bordered={false}
+              bodyStyle={{ height: 175, padding: '7px' }}
+              extra={
+                <Link to={
+                  spaceName === '我的个人项目'
+                    ? `/tenant_manage/user/${this.props.loginUser.info.userID}?tabs=quota` : this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
+                    : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
+                >
+                  <Button type="primary" size="small">
+                    {
+                      this.props.loginUser.info.role === 2
+                      ? <FormattedMessage {...IntlMessages.setQuota} />
+                      : <FormattedMessage {...IntlMessages.seeDetails} />
+                    }
+                  </Button>
+                </Link>
+              }
+            >
               <Row className="radios">
                 <Col span={16} offset={5}>
                   <RadioGroup size="small" onChange={(e) => this.handleChange(e)} defaultValue="ci">
                     <Radio prefixCls="ant-radio-button" value="ci">CI/CD</Radio>
-                    <Radio prefixCls="ant-radio-button" value="deliver">交付中心</Radio>
+                    <Radio prefixCls="ant-radio-button" value="deliver">
+                      <FormattedMessage {...IntlMessages.appCenter} />
+                    </Radio>
                   </RadioGroup>
                 </Col>
               </Row>
@@ -446,89 +484,102 @@ class MySpace extends Component {
                 }
               </div>
             </Card>
-            <Card title="今日该项目记录" bordered={false} bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}>
+            <Card
+              title={formatMessage(IntlMessages.todayProjectInfo)}
+              bordered={false}
+              bodyStyle={{ height: 175, padding: '20', position: 'relative', fontSize: '14px' }} style={{ marginTop: 10 }}
+            >
               <div style={{ overflowY: 'auto', height: '124px' }}>
                 <table className="clusterTab">
                   <tbody>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        创建应用
+                        <FormattedMessage {...IntlMessages.createApp} />
                     </td>
                       <td className="trecordNum">
-                        {spaceOperations.appCreate} 个
+                        {spaceOperations.appCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="volume-bind" className="icon"/>
-                        创建服务
+                        <FormattedMessage {...IntlMessages.createService} />
                     </td>
                       <td className="trecordNum">
-                        {spaceOperations.svcCreate} 个
+                        {spaceOperations.svcCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="storage-volume-o" className="icon"/>
-                        创建存储卷
+                        <FormattedMessage {...IntlMessages.createVolume} />
                   </td>
                       <td className="trecordNum">
-                        {spaceOperations.volumeCreate} 个
+                        {spaceOperations.volumeCreate}
+                        <FormattedMessage {...IntlMessages.one} />
                   </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        停止应用
+                        <FormattedMessage {...IntlMessages.stopApp} />
                   </td>
                       <td className="trecordNum">
-                        {spaceOperations.appStop} 个
+                        {spaceOperations.appStop}
+                        <FormattedMessage {...IntlMessages.one} />
                   </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="volume-bind" className="icon"/>
-                        删除服务
+                        <FormattedMessage {...IntlMessages.delService} />
                   </td>
                       <td className="trecordNum">
-                        {spaceOperations.svcDelete} 个
+                        {spaceOperations.svcDelete}
+                        <FormattedMessage {...IntlMessages.one} />
                   </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="storage-volume-o" className="icon"/>
-                        删除存储卷
+                        <FormattedMessage {...IntlMessages.delVolume} />
                   </td>
                       <td className="trecordNum">
-                        {spaceOperations.volumeDelete} 个
+                        {spaceOperations.volumeDelete}
+                        <FormattedMessage {...IntlMessages.one} />
                   </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        修改应用
+                        <FormattedMessage {...IntlMessages.updateApp} />
                     </td>
                       <td className="trecordNum">
-                        {spaceOperations.appModify} 个
+                        {spaceOperations.appModify}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        启动应用
+                        <FormattedMessage {...IntlMessages.startApp} />
                     </td>
                       <td className="trecordNum">
-                        {spaceOperations.appStart} 个
+                        {spaceOperations.appStart}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                     <tr>
                       <td>
                         <TenxIcon type="apps-o" className="icon"/>
-                        重新部署
+                        <FormattedMessage {...IntlMessages.redeploy} />
                     </td>
                       <td className="trecordNum">
-                        {spaceOperations.appRedeploy} 个
+                        {spaceOperations.appRedeploy}
+                        <FormattedMessage {...IntlMessages.one} />
                     </td>
                     </tr>
                   </tbody>
@@ -551,10 +602,11 @@ class MySpace extends Component {
                           <use xlinkHref="#settingname" />
                         </svg>*/}
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }}></div>
-                          构建成功
+                          <FormattedMessage {...IntlMessages.buildSuccessfully} />
                       </td>
                         <td className="cicdNum">
-                          {spaceCICDStats.succeedNumber} 个
+                          {spaceCICDStats.succeedNumber}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
@@ -563,10 +615,11 @@ class MySpace extends Component {
                           <use xlinkHref="#settingname" />
                         </svg>*/}
                           <div className='cicdDot' style={{ backgroundColor: '#f7676d' }}></div>
-                          构建失败
+                          <FormattedMessage {...IntlMessages.buildFailed} />
                       </td>
                         <td className="cicdNum">
-                          {spaceCICDStats.failedNumber} 个
+                          {spaceCICDStats.failedNumber}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
@@ -575,10 +628,11 @@ class MySpace extends Component {
                           <use xlinkHref="#settingname" />
                         </svg>*/}
                           <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }}></div>
-                          正在构建
+                          <FormattedMessage {...IntlMessages.building} />
                       </td>
                         <td className="cicdNum">
-                          {spaceCICDStats.runningNumber} 个
+                          {spaceCICDStats.runningNumber}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -586,21 +640,30 @@ class MySpace extends Component {
                 </Col>
               </Row>
               <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px' }}>
-                服务状态
+                <FormattedMessage {...IntlMessages.serviceStatus} />
                 {
                   this.state.cicdStates ?
                     <div style={{ float: 'right' }}>
                       <Icon type="check-circle-o" style={{ color: '#42c592', marginRight: '10px' }} />
-                      <span style={{ color: '#38c28c' }}>健康</span>
+                      <span style={{ color: '#38c28c' }}>
+                        <FormattedMessage {...IntlMessages.healthy} />
+                      </span>
                     </div> :
                     <div style={{ float: 'right' }}>
                       <Icon type="exclamation-circle" style={{ color: '#f85a59', marginRight: '10px' }} />
-                      <span style={{ color: '#f85a59' }}>异常</span>
+                      <span style={{ color: '#f85a59' }}>
+                        <FormattedMessage {...IntlMessages.abnormal} />
+                      </span>
                     </div>
                 }
               </Row>
             </Card>
-            <Card title="镜像仓库" bordered={false} bodyStyle={{ height: 175, padding: 0 }} style={{ marginTop: 10 }} >
+            <Card
+              title={formatMessage(IntlMessages.harborProject)}
+              bordered={false}
+              bodyStyle={{ height: 175, padding: 0 }}
+              style={{ marginTop: 10 }}
+            >
               <Row className="warehouse">
                 <Col span={10}>
                   <img src={homeHarbor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
@@ -611,37 +674,41 @@ class MySpace extends Component {
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          我的仓库组
+                          <FormattedMessage {...IntlMessages.myHarborProject} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myProjectCount} 个
+                          {spaceImageStats.myProjectCount}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          我的镜像
+                          <FormattedMessage {...IntlMessages.myImages} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myRepoCount} 个
+                          {spaceImageStats.myRepoCount}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
-                          公开仓库组
+                          <FormattedMessage {...IntlMessages.publicHarbroProjects} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.publicProjectCount} 个
+                          {spaceImageStats.publicProjectCount}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#46b2fa' }} />
-                          公开镜像
+                          <FormattedMessage {...IntlMessages.publicImages} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.publicRepoCount} 个
+                          {spaceImageStats.publicRepoCount}
+                          <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                     </tbody>
@@ -649,16 +716,20 @@ class MySpace extends Component {
                 </Col>
               </Row>
               <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px' }}>
-                服务状态：
+                <FormattedMessage {...IntlMessages.serviceStatus} />
                 {
                   this.state.ImageStates ?
                     <div style={{ float: 'right' }}>
                       <Icon type="check-circle-o" style={{ color: '#42c592', marginRight: '10px' }} />
-                      <span style={{ color: '#38c28c' }}>健康</span>
+                      <span style={{ color: '#38c28c' }}>
+                        <FormattedMessage {...IntlMessages.healthy} />
+                      </span>
                     </div> :
                     <div style={{ float: 'right' }}>
                       <Icon type="exclamation-circle" style={{ color: '#f85a59', marginRight: '10px' }} />
-                      <span style={{ color: '#f85a59' }}>异常</span>
+                      <span style={{ color: '#f85a59' }}>
+                        <FormattedMessage {...IntlMessages.abnormal} />
+                      </span>
                     </div>
                 }
               </Row>
@@ -666,27 +737,35 @@ class MySpace extends Component {
           </Col>
           <Col span={6} className='log'>
             {isFetchingAuditLog ? [
-              <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+              <Card
+                title={formatMessage(IntlMessages.audit)}
+                bordered={false}
+                bodyStyle={{ height: 410 }}
+              >
                 <div className="loadingBox"><Spin size="large"></Spin></div>
               </Card>
             ] : this.getOperationLog()}
           </Col>
           <Col span={6} className='warn'>
-            <Card title="告警" bordered={false} bodyStyle={{ height: 410 }}>
+            <Card
+              title={formatMessage(IntlMessages.alarm)}
+              bordered={false}
+              bodyStyle={{ height: 410 }}
+            >
               <div className="warnListWrap">
                 <Timeline className="warnList">
                   {
-                    spaceWarnings.length === 0 ?
-                      [<div className="noWarnImg">
+                    spaceWarnings.length === 0
+                      ? <div className="noWarnImg">
                         <img src={homeNoWarn} alt="NoWarn" />
-                        <div>暂时无系统告警</div>
-                      </div>] :
-                      spaceWarnings.map((item, index) => {
+                        <div><FormattedMessage {...IntlMessages.noSysAlarm} /></div>
+                      </div>
+                      : spaceWarnings.map((item, index) => {
                         return (
                           <Timeline.Item dot={
-                            index === 0 ?
-                              <div className="warnDot" style={{ backgroundColor: '#f6575c' }}></div> :
-                              <div className="warnDot"></div>
+                            index === 0
+                              ? <div className="warnDot" style={{ backgroundColor: '#f6575c' }}></div>
+                              : <div className="warnDot"></div>
                           }>
                             <div className={index === 0 ? "warnItem fistWarn" : 'warnItem'}>
                               <Row className="itemTitle">{item.reason}</Row>
@@ -850,9 +929,6 @@ function mapStateToProp(state, props) {
   }
 }
 
-MySpace = injectIntl(MySpace, {
-  withRef: true,
-})
 export default connect(mapStateToProp, {
   loadSpaceCICDStats,
   loadSpaceImageStats,
@@ -863,29 +939,6 @@ export default connect(mapStateToProp, {
   getOperationalTarget,
   getDevopsGlobaleQuotaList,
 })(MySpace)
-
-const menusText = defineMessages({
-  microsecond: {
-    id: 'ManageMonitor.operationalAudit.microsecond',
-    defaultMessage: '微秒',
-  },
-  millisecond: {
-    id: 'ManageMonitor.operationalAudit.millisecond',
-    defaultMessage: '毫秒',
-  },
-  second: {
-    id: 'ManageMonitor.operationalAudit.second',
-    defaultMessage: '秒',
-  },
-  minute: {
-    id: 'ManageMonitor.operationalAudit.minute',
-    defaultMessage: '分',
-  },
-  hour: {
-    id: 'ManageMonitor.operationalAudit.hour',
-    defaultMessage: '时',
-  },
-});
 
 function duringTimeFormat(time, scope) {
   //this function for format duringtime
@@ -902,18 +955,18 @@ function duringTimeFormat(time, scope) {
         time = time / 60;
         time = time.toFixed(0);
         //hour
-        return (time + ' ' + formatMessage(menusText.hour))
+        return (time + ' ' + formatMessage(IntlMessages.hour))
       } else {
         //min
-        return (time + ' ' + formatMessage(menusText.minute))
+        return (time + ' ' + formatMessage(IntlMessages.minute))
       }
     } else {
       //s
-      return (time + ' ' + formatMessage(menusText.second))
+      return (time + ' ' + formatMessage(IntlMessages.second))
     }
   } else {
     //ms
-    return (time + ' ' + formatMessage(menusText.millisecond))
+    return (time + ' ' + formatMessage(IntlMessages.millisecond))
   }
 }
 

@@ -22,6 +22,8 @@ import { formatDate } from '../../../../../../../src/common/tools';
 import * as appCenterActions from '../../../../../../../src/actions/app_center';
 import isEmpty from 'lodash/isEmpty';
 import './style/WrapsPart.less';
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../../../src/containers/Application/intl'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -136,36 +138,38 @@ class WrapsPart extends React.Component<any, IState> {
     const { registry } = dataSource;
     const columns = [
       {
-        title: '包名称',
+        title: <FormattedMessage {...IntlMessage.wrapName}/>,
         dataIndex: 'fileName',
         width: '20%',
       },
       {
-          title: '发布名称',
-          dataIndex: 'fileNickName',
-          width: '15%',
-          render: text => text || '-',
+        title: <FormattedMessage {...IntlMessage.publishName}/>,
+        dataIndex: 'fileNickName',
+        width: '15%',
+        render: text => text || '-',
       },
       {
-        title: '版本标签',
+        title: <FormattedMessage {...IntlMessage.tag}/>,
         dataIndex: 'fileTag',
         width: '20%',
       },
       {
-        title: '包类型',
+        title: <FormattedMessage {...IntlMessage.wrapType}/>,
         dataIndex: 'fileType',
         width: '20%',
       },
       {
-        'title': '上传时间',
+        'title': <FormattedMessage {...IntlMessage.uploadTime}/>,
         dataIndex: 'creationTime',
         width: '20%',
         render: text => formatDate(text),
       },
       {
-        title: '操作',
+        title: <FormattedMessage {...IntlMessage.operation}/>,
         width: '20%',
-        render: (_, record) => <Button type="primary" onClick={() => this.addWrap(record, registry)}>添加</Button>,
+        render: (_, record) => <Button type="primary" onClick={() => this.addWrap(record, registry)}>
+            <FormattedMessage {...IntlMessage.add}/>
+        </Button>,
       },
     ];
     return (
@@ -180,7 +184,7 @@ class WrapsPart extends React.Component<any, IState> {
   }
   render() {
     const { currentType, searchValue } = this.state;
-    const { wrapList, wrapStoreList } = this.props;
+    const { wrapList, wrapStoreList, intl } = this.props;
     const total: number = currentType === TRID_TYPE ? wrapList.total : wrapStoreList.total;
     const paginationOpts = {
       simple: true,
@@ -197,18 +201,22 @@ class WrapsPart extends React.Component<any, IState> {
     return(
       <div className="wrapPart layout-content">
         <div className="wrapHeader layout-content-btns">
-          <span>选择应用包</span>
+          <span><FormattedMessage {...IntlMessage.selectWrap}/></span>
           <span >
             <RadioGroup onChange={this.changeType} size="large" value={currentType}>
-              <RadioButton value={TRID_TYPE}>应用包</RadioButton>
-              <RadioButton value={STORE_TYPE}>应用包商店</RadioButton>
+              <RadioButton value={TRID_TYPE}><FormattedMessage {...IntlMessage.wrap}/></RadioButton>
+              <RadioButton value={STORE_TYPE}><FormattedMessage {...IntlMessage.wrapStore}/></RadioButton>
             </RadioGroup>
           </span>
           <span >
             <CommonSearchInput
               value={searchValue}
               onChange={value => this.setState({ searchValue: value })}
-              placeholder={currentType === STORE_TYPE ? '请输入包名称或发布名称搜索' : '请输入包名称搜索'}
+              placeholder={
+                currentType === STORE_TYPE ?
+                    intl.formatMessage(IntlMessage.wrapStorePlaceholder) :
+                    intl.formatMessage(IntlMessage.wrapPlaceholder)
+              }
               size="large"
               style={{ width: 200 }}
               onSearch={this.searchData}
@@ -219,10 +227,10 @@ class WrapsPart extends React.Component<any, IState> {
             size="large"
             onClick={() => browserHistory.push('/app_center/wrap_manage')}
           >
-            去上传部署包
+              <FormattedMessage {...IntlMessage.uploadWrap}/>
           </Button>
           <div className="page-box pageBox">
-            <span className="total">共 {total} 条</span>
+            <span className="total"><FormattedMessage {...IntlMessage.total} values={{ total }}/></span>
             <Pagination {...paginationOpts}/>
           </div>
         </div>
@@ -254,4 +262,4 @@ export default connect(mapStateToProps, {
   wrapManageList: appCenterActions.wrapManageList,
   getWrapStoreList: appCenterActions.getWrapStoreList,
   getImageTemplate: appCenterActions.getImageTemplate,
-})(WrapsPart);
+})(injectIntl(WrapsPart, { withRef: true }));

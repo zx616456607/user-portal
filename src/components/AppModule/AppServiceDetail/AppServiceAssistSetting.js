@@ -14,6 +14,9 @@ import './style/AppServiceAssistSetting.less'
 import { formatDate } from '../../../common/tools'
 import { TENX_LOCAL_TIME_VOLUME } from '../../../../constants'
 
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
+
 const createForm = Form.create
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -28,11 +31,12 @@ let AppServiceAssistSetting = React.createClass({
   },
 
   renderCMD(container) {
+    const { formatMessage } = this.props.intl
     const { command } = container
     if (!command || command.length == 0) {
       return (
         <div className="empty">
-          镜像默认
+          {formatMessage(AppServiceDetailIntl.mirrorDefault)}
         </div>
       )
     }
@@ -53,11 +57,12 @@ let AppServiceAssistSetting = React.createClass({
   },
 
   renderArgs(container) {
+    const { formatMessage } = this.props.intl
     const { args } = container
     if (!args || args.length == 0) {
       return (
         <div className="empty">
-          镜像默认
+          {formatMessage(AppServiceDetailIntl.mirrorDefault)}
         </div>
       )
     }
@@ -78,12 +83,13 @@ let AppServiceAssistSetting = React.createClass({
   },
 
   renderImagePullPolicy(container) {
+    const { formatMessage } = this.props.intl
     const { imagePullPolicy } = container
     return (
       <RadioGroup value={imagePullPolicy}>
-        <Radio disabled={true} key="IfNotPresent" value="IfNotPresent">优先使用本地镜像</Radio>
+        <Radio disabled={true} key="IfNotPresent" value="IfNotPresent">{formatMessage(AppServiceDetailIntl.priorityUseLocalMirror)}</Radio>
         {/*<Radio disabled={true} key="Never" value="Never">始终使用本地镜像</Radio>*/}
-        <Radio disabled={true} key="Always" value="Always">始终拉取云端该版本镜像</Radio>
+        <Radio disabled={true} key="Always" value="Always">{formatMessage(AppServiceDetailIntl.alwaysUseCloudMirror)}</Radio>
       </RadioGroup>
     )
   },
@@ -107,6 +113,7 @@ let AppServiceAssistSetting = React.createClass({
 
   render() {
     const { isFetching, serviceDetail, form } = this.props
+    const { formatMessage } = this.props.intl
     const { getFieldProps } = form
     if (isFetching || !serviceDetail.metadata) {
       return (
@@ -120,23 +127,23 @@ let AppServiceAssistSetting = React.createClass({
     if (!containers || containers.length == 0) {
       return (
         <div className="loadingBox">
-          加载中
+          {formatMessage(ServiceCommonIntl.loading)}
         </div>
       )
     }
     return (
       <Card id="AppServiceAssistSetting">
         <div className="info commonBox">
-          <span className="titleSpan">辅助设置</span>
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.assistConfig)}</span>
           <div className="assitBox">
             <div>
               <div className="inputBox">
-                <span className="commonSpan">进入点</span>
+                <span className="commonSpan">{formatMessage(AppServiceDetailIntl.intoPoint)}</span>
                 {this.renderCMD(containers[0])}
                 <div style={{ clear: "both" }}></div>
               </div>
               <div className="inputBox">
-                <span className="commonSpan">启动命令</span>
+                <span className="commonSpan">{formatMessage(AppServiceDetailIntl.starCommand)}</span>
                 <div className="selectBox" style={{height: 'auto'}}>
                   {this.renderArgs(containers[0])}
                 </div>
@@ -144,18 +151,18 @@ let AppServiceAssistSetting = React.createClass({
                 <div style={{ clear: "both" }}></div>
               </div>
               <div className="inputBox">
-                <span className="commonSpan">重新部署</span>
+                <span className="commonSpan">{formatMessage(AppServiceDetailIntl.redeploy)}</span>
                 <div className="selectBox">
                   {this.renderImagePullPolicy(containers[0])}
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
               <div className="inputBox">
-                <span className="commonSpan">时区设置</span>
+                <span className="commonSpan">{formatMessage(AppServiceDetailIntl.timeZoneSet)}</span>
                 <div className="checkBox">
                   <Checkbox disabled={true} checked={this.getLocaltime(containers[0])} />
-                  <span className="checkTitle">使用所在主机节点的时区</span><br />
-                  <span className="tooltip">选中后，可以保证容器始终与其所在的主机节点保持一致</span>
+                  <span className="checkTitle">{formatMessage(AppServiceDetailIntl.useHostNodeTimeZone)}</span><br />
+                  <span className="tooltip">{formatMessage(AppServiceDetailIntl.choicePromiseContainerAndHostNode)}</span>
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -167,6 +174,6 @@ let AppServiceAssistSetting = React.createClass({
   }
 })
 
-AppServiceAssistSetting = createForm()(AppServiceAssistSetting)
+AppServiceAssistSetting = injectIntl(createForm()(AppServiceAssistSetting), { withRef: true,  })
 
 export default AppServiceAssistSetting

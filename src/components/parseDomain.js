@@ -119,11 +119,13 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
   if (k8sSer && k8sSer.proxy) {
     k8sSer.proxy.map(port => {
       let ip = port.host ? port.host : port.loadbalanceIP
-      const domain = port.path ? `${ip}:80${port.path}` : `${ip}:80`
+      const externalPort = port.externalPort
+      const domain = port.path ? `${ip}:${externalPort}${port.path}` : `${ip}:${externalPort}`
       domains.push({
         domain,
         isLb: true,
-        interPort: port.port
+        interPort: port.internalPort,
+        protocol: port.protocol,
       })
     })
   }

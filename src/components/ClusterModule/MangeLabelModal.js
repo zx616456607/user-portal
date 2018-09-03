@@ -17,8 +17,8 @@ import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels,checkLablesTo
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../components/Notification'
-
-
+import intlMsg from './hostListIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 class ManageLabelModal extends Component {
   constructor(props){
@@ -110,7 +110,7 @@ class ManageLabelModal extends Component {
           if (ret.affectedPods.length !== 0 ) {
             Modal.confirm({
               width:460,
-              title: <span style={{fontWeight:500}}>下列服务依赖此标签调度，从此主机删除此标签可能导致服务无法启动</span>,
+              title: <span style={{fontWeight:500}}><FormattedMessage {...intlMsg.deleteLabelTip}/></span>,
               content: this.formetTable(ret.affectedPods),
               onOk() {
                 _this.beforeCloseLabel(key,value)
@@ -134,14 +134,15 @@ class ManageLabelModal extends Component {
     const list = (
       [<div key="1" className="ant-table ant-table-small ant-table-without-column-header ant-table-scroll-position-left">
         <div className="ant-table-content">
-          <div class="ant-table-body"><table><thead className="ant-table-thead"><tr><th>用户</th><th ><span>应用</span></th><th><span>服务</span></th></tr></thead>
+          <div class="ant-table-body"><table><thead className="ant-table-thead"><tr>
+            <th><FormattedMessage {...intlMsg.user}/></th><th ><span><FormattedMessage {...intlMsg.app}/></span></th><th><span><FormattedMessage {...intlMsg.server}/></span></th></tr></thead>
           <tbody className="ant-table-tbody">
             {tbody}
           </tbody></table>
           </div>
         </div>
       </div>,
-      <div key="2" style={{marginTop:15,fontSize:14}}>确定要删除这个标签吗？</div>]
+      <div key="2" style={{marginTop:15,fontSize:14}}><FormattedMessage {...intlMsg.confirmDeleteLabel}/></div>]
     )
     return list
   }
@@ -162,7 +163,7 @@ class ManageLabelModal extends Component {
   }
 
   handleManageLabelOk(){
-    const { callback, labels, editNodeLabels, clusterID, nodeName, form } = this.props
+    const { callback, labels, editNodeLabels, clusterID, nodeName, intl: { formatMessage } } = this.props
     const { userCreateLabel } = this.state
     const _this = this
     const body ={
@@ -175,7 +176,7 @@ class ManageLabelModal extends Component {
       success:{
         func:(ret)=> {
           // _this.setState({userCreateLabel:ret})
-          notificat.success('操作成功！')
+          notificat.success(formatMessage(intlMsg.operationSuccess))
           _this.loadNodeLabels(_this.props)
           callback(false)
         },
@@ -183,7 +184,7 @@ class ManageLabelModal extends Component {
       },
       failed: {
         func:(ret)=> {
-          notificat.error('操作失败！',ret.message.message || ret.message)
+          notificat.error(formatMessage(intlMsg.operationFail),ret.message.message || ret.message)
         }
       }
     })
@@ -206,18 +207,18 @@ class ManageLabelModal extends Component {
     //   _this.setState({userCreateLabel:{}})
     // },500)
   }
-  checkKey(rule, value, callback) {
+  checkKey(rule, value, callback, formatMessage) {
     if (!Boolean(value)){
-      callback(new Error('请输入标签键'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelKey)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.keyLength364)))
       return
     }
     if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.keyAlphaNumStart)))
       return
     }
     for (let item of this.props.labels) {
@@ -230,24 +231,24 @@ class ManageLabelModal extends Component {
     }
     callback()
   }
-  checkValue(rule, value, callback) {
+  checkValue(rule, value, callback, formatMessage) {
     const { sameKey } = this.state
     if (!Boolean(value)){
-      callback(new Error('请输入标签值'))
+      callback(new Error(formatMessage(intlMsg.plsInputLabelValue)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签值长度为3~64位'))
+      callback(new Error(formatMessage(intlMsg.valueLength364)))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(formatMessage(intlMsg.valueAlphaNumbStart)))
       return
     }
     for (let item of this.props.labels) {
       if ((item.value === value) && (item.key === sameKey)) {
-        callback(new Error('标签值已存在'))
+        callback(new Error(formatMessage(intlMsg.labelHasExist)))
         return
       }
     }
@@ -255,7 +256,7 @@ class ManageLabelModal extends Component {
   }
 
   handleAddLabel() {
-   const { form, addLabels, clusterID, getClusterLabel } = this.props
+   const { form, addLabels, clusterID, getClusterLabel, intl: { formatMessage } } = this.props
    const _this = this
    form.validateFields((errors,values)=> {
      if (errors) {
@@ -276,7 +277,7 @@ class ManageLabelModal extends Component {
        },
        failed: {
          func:(res)=> {
-          new NotificationHandler().error('添加标签失败！')
+          new NotificationHandler().error(formatMessage(intlMsg.addLabelFail))
          }
        }
      })
@@ -285,6 +286,7 @@ class ManageLabelModal extends Component {
   render(){
     const { userCreateLabel } = this.state
     const { getFieldProps } = this.props.form
+    const { intl: { formatMessage } } = this.props
     const createLabel = ()=> {
       const label = []
       const labels = this.props.labels || []
@@ -329,7 +331,7 @@ class ManageLabelModal extends Component {
     return(
       <div>
         <Modal
-          title="管理标签"
+          title={formatMessage(intlMsg.manageLabel)}
           visible={this.state.manageLabelModalVisible}
           onOk={this.handleManageLabelOk}
           onCancel={this.handleManageLabelCancel}
@@ -345,7 +347,7 @@ class ManageLabelModal extends Component {
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
             <TagDropdown scope={this} clusterID={this.props.clusterID} labels={this.props.labels} isManage={true} width={'120px'} context={"Modal"}/>
           </span>
-            <span className='item'>或</span>
+            <span className='item'><FormattedMessage {...intlMsg.or}/></span>
             <Form
               inline
               horizontal={true}
@@ -356,21 +358,21 @@ class ManageLabelModal extends Component {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkKey
+                    validator: (rule, value, callback) => this.checkKey(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="标签键"  />
+                })} placeholder={formatMessage(intlMsg.labelKey)}  />
               </Form.Item>
               <Form.Item className='itemkey'>
                 <Input {...getFieldProps(`value`, {
                   rules: [{
                     whitespace: true,
                   },{
-                    validator: this.checkValue
+                    validator: (rule, value, callback) => this.checkValue(rule, value, callback, formatMessage)
                   }],
-                })} placeholder="标签值"/>
+                })} placeholder={formatMessage(intlMsg.labelValue)}/>
               </Form.Item>
             </Form>
-            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={()=> this.handleAddLabel()}>新建标签</Button>
+            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={()=> this.handleAddLabel()}><FormattedMessage {...intlMsg.newLabel}/></Button>
           </div>
         </Modal>
       </div>
@@ -403,4 +405,6 @@ export default connect(mapStateToProps, {
   addLabels,
   editNodeLabels,
   getNodeLabels
-})(ManageLabelModal)
+})(injectIntl(ManageLabelModal, {
+  withRef: true,
+}))

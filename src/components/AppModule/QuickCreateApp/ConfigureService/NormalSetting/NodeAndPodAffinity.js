@@ -20,6 +20,8 @@ import { KubernetesValidator } from '../../../../../common/naming_validation'
 const FormItem = Form.Item
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 class NodeAffinity extends Component {
   constructor(props) {
@@ -74,19 +76,19 @@ class NodeAffinity extends Component {
 
   changeServiceSelectShow() {
     const { showService } = this.state
-    const { form } = this.props
+    const { form, intl } = this.props
     const { getFieldProps } = form
     switch (showService) {
       case 'single':
         return <FormItem id="select" wrapperCol={{ span: 2 }}>
         <Select id="select" size="large"
             style={{ width: 120 }}
-            placeholder = '主机标签值'
+            placeholder = {intl.formatMessage(IntlMessage.hostTagValue)}
           {...getFieldProps('serverTagKey',{
             rules: [
               {
                 required: true,
-                message: "“必填信息"
+                message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
               }
             ]
           })}
@@ -103,12 +105,12 @@ class NodeAffinity extends Component {
           <Select
             multiple
             style={{ width: 260 ,height:30 }}
-            placeholder = '主机标签值'
+            placeholder = {intl.formatMessage(IntlMessage.hostTagValue)}
             {...getFieldProps('serverTagKey',{
               rules: [
                 {
                   required: true,
-                  message: "“必填信息"
+                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ]
             })}
@@ -152,7 +154,7 @@ class NodeAffinity extends Component {
   }
 
   handleAddLabel() {
-    const { fields, form } = this.props
+    const { fields, form, intl } = this.props
     const { validateFields, setFieldsValue, getFieldProps, resetFields, getFieldsValue } = form
     const  notificat = new Notification()
     let serviceTag = []
@@ -206,7 +208,7 @@ class NodeAffinity extends Component {
         cloneTag.map( item => {
           if (isEqual(item, newlabel)) {
             flag = false
-            notificat.info('已添加')
+            notificat.info(intl.formatMessage(IntlMessage.added))
           }
         })
         if (flag) {
@@ -278,14 +280,14 @@ class NodeAffinity extends Component {
   }
 
   render() {
-    const { form, serviceTag } = this.props
+    const { form, serviceTag, intl } = this.props
     const { getFieldProps } = form
     return <div>
       <div className="serverAndPoint">
         <div className="serverAnd">
           <FormItem
           id="select"
-          label="当前服务"
+          label={intl.formatMessage(IntlMessage.currentService)}
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 2 }}
           >
@@ -294,27 +296,27 @@ class NodeAffinity extends Component {
                 rules: [
                   {
                     required: true,
-                    message: "“必填信息"
+                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ],
                 initialValue: '最好',
               })} >
-              <Select.Option value="最好" key="maybe">最好</Select.Option>
-              <Select.Option value="必须" key="must">必须</Select.Option>
+              <Select.Option value="最好" key="maybe"><FormattedMessage {...IntlMessage.theBest}/></Select.Option>
+              <Select.Option value="必须" key="must"><FormattedMessage {...IntlMessage.must}/></Select.Option>
             </Select>
           </FormItem>
-            <span className="serverText"> 调度到主机（ </span>
+            <span className="serverText"> {intl.formatMessage(IntlMessage.schedulingToHost)}（ </span>
           <FormItem
             id="select"
             wrapperCol={{ span: 2 }}
           >
             <Select id="select" size="large" style={{ width: 200 }}
-              placeholder = "主机标签键"
+              placeholder = {intl.formatMessage(IntlMessage.hostLabelKey)}
               {...getFieldProps('serverKey',{
                 rules: [
                   {
                     required: true,
-                    message: "“必填信息"
+                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ],
               })}
@@ -334,12 +336,12 @@ class NodeAffinity extends Component {
             id="select"
             wrapperCol={{ span: 2 }}
           >
-            <Select id="select" size="large" placeholder="操作符" style={{ width: 120 }}
+            <Select id="select" size="large" placeholder={intl.formatMessage(IntlMessage.operator)} style={{ width: 120 }}
               {...getFieldProps('serverMark',{
                 rules: [
                   {
                     required: true,
-                    message: "“必填信息"
+                    message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                   }
                 ]
               })}
@@ -357,7 +359,9 @@ class NodeAffinity extends Component {
             this.changeServiceSelectShow()
           }
           <span> ） </span>
-          <Button type="primary" onClick = { this.handleAddLabel } className="handleBtn" >添加</Button>
+          <Button type="primary" onClick = { this.handleAddLabel } className="handleBtn" >
+            {<FormattedMessage {...IntlMessage.add}/>}
+            </Button>
         </div>
         <div className='pointTag'>
           {
@@ -371,7 +375,9 @@ class NodeAffinity extends Component {
     </div>
   }
 }
-NodeAffinity = Form.create({})(NodeAffinity);
+NodeAffinity = Form.create({})(injectIntl(NodeAffinity, {
+  withRef: true,
+}));
 
 class PodAffinity extends Component {
   constructor(props) {
@@ -406,8 +412,11 @@ class PodAffinity extends Component {
     }
   }
   checkServiceValue(rule, value, callback) {
+    const { intl } = this.props
     if (!Boolean(value)){
-      callback(new Error('请输入服务标签值'))
+      callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.serviceTagValue)
+      })))
       return
     }
     const last = value.substr(value.length-1)
@@ -418,11 +427,11 @@ class PodAffinity extends Component {
     const Kubernetes = new KubernetesValidator()
     everyVal.map( item=>{
       if (item.length < 3 || item.length > 64) {
-        callback(new Error('每个标签值长度为3~64位'))
+        callback(new Error(intl.formatMessage(IntlMessage.labelValueLengthLimit)))
         return
       }
       if (Kubernetes.IsQualifiedName(item).length >0) {
-        callback(new Error('每个标签值以字母或数字开头和结尾中间可(_-)'))
+        callback(new Error(intl.formatMessage(IntlMessage.labelValueRegMessage)))
         return
       }
     })
@@ -430,7 +439,7 @@ class PodAffinity extends Component {
   }
   changeServiceBetweenSelectShow() {
     const { showServiceBetween } = this.state
-    const { form } = this.props
+    const { form, intl } = this.props
     const { getFieldProps } = form
     switch (showServiceBetween) {
       case 'single':
@@ -438,12 +447,15 @@ class PodAffinity extends Component {
           id="control-input"
           wrapperCol={{ span: 14 }}
         >
-          <Input id="control-input" placeholder="服务标签值，e.g. abc,123" style={{ width: 155 }}
+          <Input
+            id="control-input"
+            placeholder={intl.formatMessage(IntlMessage.serviceLabelValuePlaceholder)}
+            style={{ width: 155 }}
             {...getFieldProps('serverBottomValue',{
               rules: [
                 {
                   required: true,
-                  message: "“必填信息"
+                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                 },{
                   validator: this.checkServiceValue
                 }
@@ -457,7 +469,7 @@ class PodAffinity extends Component {
   }
 
   handleAddBottomLabel() {
-    const { fields, form } = this.props
+    const { fields, form, intl } = this.props
     const { validateFields, setFieldsValue, resetFields, getFieldsValue, } = form
     const  notificat = new Notification()
     let serviceBottomTag = []
@@ -499,7 +511,7 @@ class PodAffinity extends Component {
         cloneTag.map( item => {
           if (isEqual(item, newlabel)) {
             flag = false
-            notificat.info('已添加')
+            notificat.info(intl.formatMessage(IntlMessage.added))
           }
         })
         if (flag) {
@@ -574,17 +586,20 @@ class PodAffinity extends Component {
     })
   }
   checkServiceKey(rule, value, callback) {
+    const { intl } = this.props
     if (!Boolean(value)){
-      callback(new Error('请输入服务标签键'))
+      callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.serviceLabelKey)
+      })))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 64) {
-      callback(new Error('标签键长度为3~64位'))
+      callback(new Error(intl.formatMessage(IntlMessage.labelKeyLengthLimit)))
       return
     }
     if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      callback(new Error(intl.formatMessage(IntlMessage.labelKeyRegMessage)))
       return
     }
     callback()
@@ -597,14 +612,14 @@ class PodAffinity extends Component {
     return e
   }
   render() {
-    const { form, serviceBottomTag } = this.props
+    const { form, serviceBottomTag, intl } = this.props
     const { getFieldProps } = form
     return <div>
       <div className="serverAndServer">
         <div className="serverAnd">
         <FormItem
         id="select"
-        label="当前服务"
+        label={intl.formatMessage(IntlMessage.currentService)}
         className="serverLabel"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 2 }}
@@ -614,29 +629,29 @@ class PodAffinity extends Component {
               rules: [
                 {
                   required: true,
-                  message: "“必填信息"
+                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ],
               initialValue: '最好',
             })}
           >
-            <Select.Option value="最好" key="maybedo">最好</Select.Option>
-            <Select.Option value="最好不" key="donotmust">最好不</Select.Option>
-            <Select.Option value="必须" key="maybedo">必须</Select.Option>
-            <Select.Option value="必须不" key="mustnot">必须不</Select.Option>
+            <Select.Option value="最好" key="maybedo"><FormattedMessage {...IntlMessage.theBest}/></Select.Option>
+            <Select.Option value="最好不" key="donotmust"><FormattedMessage {...IntlMessage.bestNot}/></Select.Option>
+            <Select.Option value="必须" key="maybedo"><FormattedMessage {...IntlMessage.must}/></Select.Option>
+            <Select.Option value="必须不" key="mustnot"><FormattedMessage {...IntlMessage.mustNot}/></Select.Option>
           </Select>
         </FormItem>
-          <span className="serverText"> 与服务（  </span>
+          <span className="serverText"> {intl.formatMessage(IntlMessage.withService)}（  </span>
           <FormItem
               id="control-input"
               wrapperCol={{ span: 14 }}
             >
-              <Input id="control-input" placeholder="服务标签键" style={{ width: 120 }}
+              <Input id="control-input" placeholder={intl.formatMessage(IntlMessage.serviceLabelKey)} style={{ width: 120 }}
                 {...getFieldProps('serverBottomKey',{
                   rules: [
                     {
                       required: true,
-                      message: "“必填信息"
+                      message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                     },{
                       validator: this.checkServiceKey
                     }
@@ -649,12 +664,12 @@ class PodAffinity extends Component {
           wrapperCol={{ span: 2 }}
         >
           <Select id="select" size="large" style={{ width: 120 }}
-              placeholder = '操作符'
+              placeholder = {intl.formatMessage(IntlMessage.operator)}
             {...getFieldProps('serverBottomMark',{
               rules: [
                 {
                   required: true,
-                  message: "“必填信息"
+                  message: `“${intl.formatMessage(IntlMessage.requiredInfo)}`
                 }
               ]
             })}
@@ -670,9 +685,11 @@ class PodAffinity extends Component {
           this.changeServiceBetweenSelectShow()
         }
         <span className="serverText">)</span>
-        <span className="serverText"> 在同一拓扑域</span>
-        <span className="serverText"> (具有相同的主机标签键) </span>
-        <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">添加</Button>
+        <span className="serverText"> {intl.formatMessage(IntlMessage.sameTopologyDomain)}</span>
+        <span className="serverText"> ({intl.formatMessage(IntlMessage.sameHostLabelKey)}) </span>
+        <Button type="primary"  onClick = { this.handleAddBottomLabel } className="handleBtn">
+          <FormattedMessage {...IntlMessage.add}/>
+        </Button>
         </div>
         <div className="serverTag">
           {
@@ -690,14 +707,16 @@ class PodAffinity extends Component {
             onChange: this.handleAdvance
           })}
           >
-          高级设置：『当前服务』中的容器实例必须『分散』在不同的节点上
+          {intl.formatMessage(IntlMessage.advancedSettings)}：{intl.formatMessage(IntlMessage.affinityAdvancedSettingsTip)}
         </Checkbox>
       </FormItem>
       </div>
     </div>
   }
 }
-PodAffinity = Form.create({})(PodAffinity);
+PodAffinity = Form.create({})(injectIntl(PodAffinity, {
+  withRef: true,
+}));
 
 export { NodeAffinity, PodAffinity }
 
