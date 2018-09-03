@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Switch, Icon, Form, Select, Input, Button, Modal, Spin, Tooltip, Alart, notification } from 'antd'
+import { Switch, Icon, Form, Select, Input, Button, Modal, Spin, Tooltip, Alart } from 'antd'
 import { connect } from 'react-redux'
 import './style/ClusterStorage.less'
 import cloneDeep from 'lodash/cloneDeep'
@@ -34,6 +34,7 @@ import filter from 'lodash/filter'
 
 const FormItem = Form.Item
 const Option = Select.Option
+const PATH_REG = /^\//
 const Notification = new NotificationHandler()
 let validating = false
 
@@ -83,6 +84,8 @@ class ClusterStorage extends Component {
       isShowSetDefaultModal: false,
       currType: "",
       defaultStorage: "",
+      hostDir: '/usr/share/hostpath',
+      hostDirEditDisable: true
     }
   }
 
@@ -224,7 +227,7 @@ class ClusterStorage extends Component {
       })
       return
     }
-    const hostTemplate = new HostTemplate()
+    const hostTemplate = new HostTemplate('/usr/share/hostpath')
     const body = {
       template: yaml.dump(hostTemplate)
     }
@@ -1612,12 +1615,74 @@ class ClusterStorage extends Component {
       defaultStorage: "",
     })
   }
+  // 编辑宿主机根目录
+  hostDirEdit = e => {
+    this.setState({
+      hostDir: e.target.value
+    })
+  }
+  hostDirEditEnable = () => {
+    this.setState({
+      hostDirEditDisable: false
+    })
+  }
+  hostDirEditOk = () => {
+    const { createCephStorage, cluster } = this.props
+    const clusterID = cluster.clusterID
+    const hostTemplate = new HostTemplate(this.state.hostDir)
+    const body = {
+      template: yaml.dump(hostTemplate)
+    }
+    createCephStorage(clusterID, {type: 'host'}, body, {
+      success: {
+        func: () => {
+          this.setState({
+            hostDirEditDisable: true
+          })
+          Notification.success('修改宿主机根目录成功')
+        }
+      }
+    })
+
+  }
+  hostDirEditCancel = () => {
+    this.props.form.resetFields()
+    this.setState({
+      hostDirEditDisable: true
+    })
+  }
+  testPath = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入server 共享目录')
+    }
+    if (!PATH_REG.test(value)) {
+      return callback('请输入正确的路径')
+    }
+  }
+
   render() {
     const { hostChecked, deleteModalVisible, hostVisible, loading,
       isShowSetDefaultModal, currType, defaultStorage
     } = this.state
     const { title, label, alert } = this.getModalContent(currType)
     const { getFieldProps, getFieldValue } = this.props.form
+    const formItemLayout = {
+      labelCol: {span: 8},
+      wrapperCol: {span: 16}
+    }
+
+    const pathProps = getFieldProps('serverDir',{
+      initialValue: '/usr/share/hostpath',
+      validate: [
+        {
+          rules: [
+            {validator: this.testPath},
+          ],
+          trigger: ['onBlur', 'onChange'],
+        }
+      ],
+      onChange: this.hostDirEdit
+    })
     return(
       <div id='cluster_storage'>
         <div className='host'>
@@ -1629,7 +1694,43 @@ class ClusterStorage extends Component {
               <img src={HostImg} alt=""/>
             </div>
             <div className="container">
-              { this.renderHostTips() }
+              <div className="containerItem">
+                <span>启用本地存储</span>
+                <span>{ this.renderHostTips() }</span>
+              </div>
+              {
+                this.state.hostChecked &&
+                <Form className="containerItem formItem">
+                  <FormItem label='宿主机根目录' {...formItemLayout}>
+                    <Input {...pathProps} disabled={this.state.hostDirEditDisable}/>
+                  </FormItem>
+                  {
+                    this.state.hostDirEditDisable?
+                      <Button
+                        icon="edit"
+                        size="large"
+                        type="dashed"
+                        className='operationBtn'
+                        onClick={this.hostDirEditEnable}
+                      />
+                      :
+                      <div className='operationBtn'>
+                        <Button
+                          icon="check"
+                          size="large"
+                          type="primary"
+                          onClick={this.hostDirEditOk}
+                        />
+                        <Button
+                          icon="cross"
+                          size="large"
+                          type="default"
+                          onClick={this.hostDirEditCancel}
+                        />
+                      </div>
+                  }
+                </Form>
+              }
             </div>
           </div>
           <div className="check_box"></div>

@@ -9,7 +9,7 @@
  */
 'use strict'
 class HostTemplate {
-  constructor() {
+  constructor(baseDir) {
     this.apiVersion = "storage.k8s.io/v1"
     this.kind = "StorageClass"
     this.metadata = {
@@ -21,7 +21,7 @@ class HostTemplate {
     }
     this.provisioner = "host-storage"
     this.parameters = {
-      baseDir: "/usr/share/tenxcloud/hostpath"
+      baseDir
     }
   }
 }
