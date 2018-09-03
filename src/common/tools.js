@@ -138,7 +138,6 @@ function toDate(date) {
  * - three days ago, etc
  */
 export function calcuDate(beginDate) {
-  moment.locale('zh-cn')
   return moment(beginDate).fromNow()
 }
 
