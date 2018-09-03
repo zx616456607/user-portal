@@ -294,7 +294,7 @@ class QuickCreateApp extends Component {
     }
     const { templateDeployCheck } = this.props
     let flag = false;
-    for (let value of Object.values(fields)) {
+    for (const [key, value] of Object.entries(fields)) {
       const errorFields = {};
       const currentError = result.response.result.data[value.serviceName.value]
       if (!isEmpty(currentError)) {
@@ -302,8 +302,8 @@ class QuickCreateApp extends Component {
         formatTemplateDeployErrors(value, currentError, errorFields, templateDeployCheck)
       }
       if (!isEmpty(errorFields)) {
-        // setFormFields(key, Object.assign(value, errorFields))
-        this.form.setFields(Object.assign(value, errorFields))
+        setFormFields(key, Object.assign(value, errorFields))
+        // this.form.setFields(Object.assign(value, errorFields))
       }
     }
 
