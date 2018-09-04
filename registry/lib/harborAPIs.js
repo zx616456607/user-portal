@@ -61,6 +61,18 @@ HarborAPIs.prototype.getStatistics = function (query, callback) {
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
 
+// [post] /replications
+HarborAPIs.prototype.copyReplications = function (body, callback) {
+  const url = `${this.getAPIPrefix()}/replications`
+  this.sendRequest(url, 'POST', body, callback)
+}
+
+// [put] /jobs/replication
+HarborAPIs.prototype.updateReplicationJobs = function (body, callback) {
+  const url = `${this.getAPIPrefix()}/jobs/replication`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
 // [GET] /jobs/replication
 HarborAPIs.prototype.getReplicationJobs = function (query, callback) {
   const url = `${this.getAPIPrefix()}/jobs/replication${encodeQueryString(query)}`

@@ -328,6 +328,13 @@ exports.resetConfigurations = harborHandler(
     harbor.resetConfigurations(callback)
   })
 /*------------------configurations end--------------------------------*/
+// [post] /replications   (复制规则)
+exports.copyReplications = harborHandler(
+  (harbor, ctx, callback) => harbor.copyReplications(ctx.request.body, callback))
+// [put] /jobs/replication    (停止任务)
+exports.updateReplicationJobs = harborHandler(
+  (harbor, ctx, callback) => harbor.updateReplicationJobs(ctx.request.body, callback))
+
 // [GET] /jobs/replication
 exports.getReplicationJobs = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationJobs(ctx.query, callback))
