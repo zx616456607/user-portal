@@ -57,8 +57,8 @@ class MonitorChartTemp extends React.Component {
     const query = {
       type: metrics,
       source: 'prometheus',
-      start: new Date(timeRange[0]).toISOString(),
-      end: new Date(timeRange[1]).toISOString()
+      start: new Date(Date.parse(timeRange[0].replace(/-/g,'/'))).toISOString(),
+      end: new Date(Date.parse(timeRange[1].replace(/-/g,'/'))).toISOString()
     }
     switch (type) {
       case 'nexport':
