@@ -383,7 +383,7 @@ function fetchProjectLogs(registry, projectID, query, body,callback) {
       endpoint,
       schema: {},
       options: {
-        method: 'POST',
+        method: 'GET',
         body
       }
     },

@@ -58,6 +58,25 @@
       }
       .container{
         width: calc(~"100% - 255px");
+        padding-top: 10px!important;
+        .containerItem {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          margin-bottom: 16px;
+          span:first-child {
+            margin-right: 16px;
+          }
+          .operationBtn {
+            margin-left: 16px;
+            button {
+              margin-right: 8px
+            }
+          }
+        }
+        .formItem {
+          align-items: flex-start;
+        }
       }
       .wating_style{
         text-align: center;

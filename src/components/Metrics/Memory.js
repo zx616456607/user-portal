@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import {injectIntl} from "react-intl";
 import intlMsg from './Intl'
 
@@ -38,6 +39,10 @@ class Memory extends Component {
     option.addYAxis('value', {
       formatter: '{value} M'
     })
+    let isDataEmpty = false
+    if (isEmpty(data)) {
+      isDataEmpty = true
+    }
     option.setToolTipUnit(' M')
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
@@ -46,6 +51,7 @@ class Memory extends Component {
       const metrics = Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -64,7 +70,9 @@ class Memory extends Component {
       }
       option.addSeries(dataArr, item.containerName)
     })
-    option.setXAxisMinAndMax(minValue)
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} M'}, 0, 100) : option.addYAxis('value', {formatter: '{value} M'})
+    isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
+      option.setXAxisMinAndMax(minValue)
     option.setGirdForDataCommon(data&&data.length)
     return (
       <div className="chartBox">
