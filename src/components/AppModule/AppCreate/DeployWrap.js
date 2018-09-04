@@ -71,29 +71,7 @@ class WrapManage extends Component {
         })
         this.getStoreList(fileName)
       } else {
-        this.props.wrapManageList(query).then(res => {
-          const { pkgs } = res.response.result.data
-          const { fileType } = pkgs[0]
-          window.WrapListTable = pkgs[0]
-          switch(fileType) {
-            case 'jar':
-              this.setState({
-                defaultTemplate: 0,
-                fileType:'jar',
-                version: window.template[0].version[0]
-              })
-              break
-            case 'war':
-              this.setState({
-                defaultTemplate: 1,
-                fileType:'war',
-                version: window.template[1].version[0]
-              })
-              break
-            default:
-              break
-          }
-        })
+        this.getQueryNameData(query)
       }
       this.setState({
         selectedRowKeys: [0]
@@ -108,6 +86,31 @@ class WrapManage extends Component {
       return
     }
     this.loadData()
+  }
+  getQueryNameData = query => {
+    this.props.wrapManageList(query).then(res => {
+      const { pkgs } = res.response.result.data
+      const { fileType } = pkgs[0]
+      window.WrapListTable = pkgs[0]
+      switch(fileType) {
+        case 'jar':
+          this.setState({
+            defaultTemplate: 0,
+            fileType:'jar',
+            version: window.template[0].version[0]
+          })
+          break
+        case 'war':
+          this.setState({
+            defaultTemplate: 1,
+            fileType:'war',
+            version: window.template[1].version[0]
+          })
+          break
+        default:
+          break
+      }
+    })
   }
   getList(e) {
     let inputValue = e.target.value
@@ -168,6 +171,8 @@ class WrapManage extends Component {
     })
   }
   changeWrap(type) {
+    const { location } = this.props
+    const { from, fileName } = location.query
     this.setState({
       currentType: type,
       selectedRowKeys: [],
@@ -178,6 +183,16 @@ class WrapManage extends Component {
     })
     switch(type) {
       case 'trad':
+        if (fileName && !from) {
+          const query = {
+            filter: `fileName contains ${fileName}`,
+          }
+          this.getQueryNameData(query)
+          this.setState({
+            selectedRowKeys: [0]
+          })
+          return
+        }
         this.loadData()
         break
       case 'store':

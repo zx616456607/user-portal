@@ -350,7 +350,7 @@ module.exports = function (Router) {
   router.put('/registries/:registry/repositories/:name', harborController.updateRepository)
 
   router.get('/registries/:registry/logs', harborController.getLogs)
-  router.post('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
+  router.get('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
   router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
   router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
   router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)
@@ -358,6 +358,8 @@ module.exports = function (Router) {
   router.put('/registries/:registry/configurations', harborController.updateConfigurations)
   router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
 
+  router.post('/registries/:registry/replications', harborController.copyReplications)
+  router.put('/registries/:registry/jobs/replication', harborController.updateReplicationJobs)
   router.get('/registries/:registry/jobs/replication', harborController.getReplicationJobs)
   router.delete('/registries/:registry/jobs/replication/:id', harborController.deleteReplicationJob)
   router.get('/registries/:registry/jobs/replication/:id/log', harborController.getReplicationJobLogs)

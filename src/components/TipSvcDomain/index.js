@@ -47,27 +47,6 @@ class SvcTip extends Component {
     code.value = url
   }
 
-  renderProtocolIcon = element => {
-    if (!element.isLb) {
-      return null
-    }
-    let protocolText = ''
-    switch (element.protocol) {
-      case 'tcp':
-        protocolText = 'T'
-        break
-      case 'udp':
-        protocolText = 'U'
-        break
-      case 'http':
-        protocolText = 'H'
-        break
-      default:
-        break
-    }
-    return <span className="protocolBox">{protocolText}</span>
-  }
-
   render() {
     const { formatMessage } = this.props
     const { svcDomain } = this.props
@@ -91,7 +70,7 @@ class SvcTip extends Component {
                       className='tipCopySvg'
             />
           </Tooltip>
-          {this.renderProtocolIcon(element)}
+          {renderProtocolIcon(element)}
         </li>
       )
     })
@@ -141,27 +120,6 @@ class AppTipComponent extends Component {
     }
   }
 
-  renderProtocolIcon = element => {
-    if (!element.isLb) {
-      return null
-    }
-    let protocolText = ''
-    switch (element.protocol) {
-      case 'tcp':
-        protocolText = 'T'
-        break
-      case 'udp':
-        protocolText = 'U'
-        break
-      case 'http':
-        protocolText = 'H'
-        break
-      default:
-        break
-    }
-    return <span className="protocolBox">{protocolText}</span>
-  }
-
   render() {
     const { appDomain, scope } = this.props
     const { formatMessage } = this.props
@@ -205,7 +163,7 @@ class AppTipComponent extends Component {
                             className='tipCopySvg'
                   />
                 </Tooltip>
-                {this.renderProtocolIcon(item.data[0].domain)}
+                {renderProtocolIcon(item.data[0].domain)}
               </Timeline.Item>
             </Timeline>
           </div>
@@ -245,7 +203,7 @@ class AppTipComponent extends Component {
                           onMouseEnter={this.startCopyCode.bind(this, url)}
                         />
                       </Tooltip>
-                      {this.renderProtocolIcon(url)}
+                      {renderProtocolIcon(url)}
                     </Timeline.Item>
                   )
                 })
@@ -286,6 +244,33 @@ function lbgroup2Text(item, formatMessage) {
     return <FormattedMessage {...AppServiceDetailIntl.appLoadBalance}/>
   }
   return isInternal ? before : after
+}
+
+const renderProtocolIcon = element => {
+  if (!element.isLb) {
+    return null
+  }
+  let protocolText = ''
+  let title = ''
+  switch (element.protocol) {
+    case 'tcp':
+      protocolText = 'T'
+      title = 'TCP'
+      break
+    case 'udp':
+      protocolText = 'U'
+      title = 'UDP'
+      break
+    case 'http':
+      protocolText = 'H'
+      title = 'HTTP'
+      break
+    default:
+      break
+  }
+  return <Tooltip title={title}>
+    <span className="protocolBox">{protocolText}</span>
+  </Tooltip>
 }
 
 class TipSvcDomain extends Component {

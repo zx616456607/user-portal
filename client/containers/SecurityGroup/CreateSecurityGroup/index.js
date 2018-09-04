@@ -67,7 +67,7 @@ class CreateSecurityGroup extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn('获取列表数据出错', message.message)
           }
         },
@@ -92,6 +92,15 @@ class CreateSecurityGroup extends React.Component {
         result,
       })
     })
+  }
+
+  cidrExcept = v => {
+    const arr = v.split(',')
+    const brr = []
+    arr.forEach(item => {
+      brr.push(item)
+    })
+    return brr
   }
 
   submit = () => {
@@ -121,7 +130,7 @@ class CreateSecurityGroup extends React.Component {
               return ingList.push({
                 type: 'cidr',
                 cidr: values[`ingress${type}${el}`],
-                except: [ values[`ingress${type}${el}except`] ],
+                except: this.cidrExcept(values[`ingress${type}${el}except`]),
               })
             case 'service':
               return ingList.push({
@@ -190,7 +199,7 @@ class CreateSecurityGroup extends React.Component {
               func: error => {
                 const { message, statusCode } = error
                 notification.close()
-                if (!statusCode === 403) {
+                if (statusCode !== 403) {
                   notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
                 }
               },
@@ -215,9 +224,11 @@ class CreateSecurityGroup extends React.Component {
             func: error => {
               const { message, statusCode } = error
               notification.close()
-              if (!statusCode === 403) {
+              if (statusCode !== 403) {
                 if (isEdit) {
                   notification.success('修改安全组失败')
+                } else if (statusCode === 422 || message.message.indexOf('not within CIDR range')) {
+                  notification.warn('输入的 cidr 范围错误', message.message)
                 } else {
                   notification.warn('新建安全组失败', message.message)
                 }
@@ -241,7 +252,7 @@ class CreateSecurityGroup extends React.Component {
             func: error => {
               const { message, statusCode } = error
               notification.close()
-              if (!statusCode === 403) {
+              if (statusCode !== 403) {
                 notification.warn('修改安全组失败', message.message)
               }
               this.setState({ loading: false })

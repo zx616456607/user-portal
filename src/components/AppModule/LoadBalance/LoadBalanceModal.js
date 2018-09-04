@@ -348,10 +348,9 @@ class LoadBalanceModal extends React.Component {
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
-    const nodesChild = isEmpty(ips) ? [] : ips.map(item => {
-      if (!item.taints) {
+    const nodesChild = isEmpty(ips) ? [] : 
+      ips.filter(item => !item.taints).map(item => {
         return <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
-      }
     })
 
     return (

@@ -13,6 +13,7 @@ import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slid
 import { Link, browserHistory } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
@@ -617,7 +618,7 @@ let MyComponent = React.createClass({
     ]
     const rowSelection = {
       getCheckboxProps: record => ({
-        disabled: record.status === "used",
+        disabled: record.status === "used" || (record.status === 'unused' && !isEmpty(record.deployServiceList)),
       }),
       selectedRowKeys,
       onChange: this.onSelectChange,
