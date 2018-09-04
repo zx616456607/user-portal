@@ -15,9 +15,10 @@ import { Icon, Dropdown, Menu, Card, Pagination, Tooltip, Modal, Select, Row, Co
 import classNames from 'classnames'
 import { offShelfWrap, getWrapStoreHotList, getWrapGroupList, updateWrapGroup } from '../../../actions/app_center'
 import { getAppsList, getAppsHotList, appStoreApprove } from '../../../actions/app_store'
+import * as harborActions from '../../../actions/harbor'
 import { calcuDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
-import { API_URL_PREFIX } from '../../../constants'
+import {API_URL_PREFIX, DEFAULT_REGISTRY} from '../../../constants'
 import defaultImage from '../../../../static/img/appstore/defaultimage.png'
 import defaultApp from '../../../../static/img/appstore/defaultapp.png'
 import defaultAppSmall from '../../../../static/img/appstore/defaultappsmall.png'
@@ -26,6 +27,9 @@ import ProjectDetail from '../ImageCenter/ProjectDetail'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
 import ManageClassifyLabel from './ManageClassifyLabel'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
+import {loadProjectMembers} from "../../../actions/harbor";
+import isEmpty from "lodash/isEmpty";
+import {camelize} from "humps";
 
 const Option = Select.Option;
 const notify = new NotificationHandler()
@@ -295,9 +299,11 @@ class WrapComopnent extends React.Component {
       }
     })
   }
-  showImageDetail(item, showTag) {
-    const { activeKey } = this.props
+  showImageDetail = async (item, showTag) => {
+    const { activeKey, loadProjectMembers, clusterHarbor } = this.props
     if (activeKey === 'image') {
+      const projectID = item.versions[0].targetProjectID
+      await loadProjectMembers(DEFAULT_REGISTRY, projectID, { harbor: clusterHarbor })
       this.setState({
         currentImage: item,
         imageDetailModalShow: true
@@ -580,6 +586,7 @@ class WrapComopnent extends React.Component {
     const {
       current, dataSource, dataHotList, updateParentState, rectStyle,
       isAdmin, location, getStoreList, getAppsHotList, role, activeKey,
+      harborMembers, loginUser
     } = this.props
     const { downloadModalVisible, currentImage, offShelfModal,
       imageDetailModalShow, offshelfId, detailModal, currentWrap,
@@ -596,6 +603,16 @@ class WrapComopnent extends React.Component {
       Object.assign(currentImage, { name: currentImage.resourceName, pullCount: currentImage.downloadTimes, creationTime: currentImage.publishTime })
       tagArr = currentImage && currentImage.versions && currentImage.versions.map(item => <Option key={item.id}>{item.tag}</Option>)
     }
+    let currentMember = {}
+    const members = harborMembers.list || []
+    members.every(member => {
+      if (member.entityName === loginUser.userName) {
+        currentMember = member
+        return false
+      }
+      return true
+    })
+    const currentUserRole = currentMember[camelize('role_id')]
     const pagination = {
       simple: true,
       current,
@@ -620,6 +637,7 @@ class WrapComopnent extends React.Component {
             scope={this}
             config={currentImage}
             visible={imageDetailModalShow}
+            currentUserRole={currentUserRole}
           />
         </Modal>
         <WrapDetailModal
@@ -743,13 +761,19 @@ class WrapComopnent extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { entities } = state
-  const { loginUser } = entities
+  const { entities, harbor: stateHarbor } = state
+  const { loginUser, current } = entities
   const { info } = loginUser
   const { role, vmWrapConfig } = info
+  const { harbor } = current.cluster
+  const clusterHarbor = isEmpty(harbor) ? '' : harbor[0]
+  const harborMembers = stateHarbor.members || {}
   return {
     role,
     vmWrapConfig,
+    clusterHarbor,
+    harborMembers,
+    loginUser,
   }
 }
 export default connect(mapStateToProps, {
@@ -760,4 +784,5 @@ export default connect(mapStateToProps, {
   appStoreApprove,
   getWrapGroupList,
   updateWrapGroup,
+  loadProjectMembers: harborActions.loadProjectMembers,
 })(WrapComopnent)

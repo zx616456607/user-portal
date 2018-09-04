@@ -11,6 +11,7 @@
  */
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
+import isEmpty from 'lodash/isEmpty'
 import { TENX_STORE } from '../../constants'
 
 function systeminfo(state = {}, action) {
@@ -519,7 +520,8 @@ function imageBasicInfo(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          markdownData: action.response.result.data[0].description,
+          markdownData: !isEmpty(action.response.result.data) &&
+          action.response.result.data[0].description,
           // htmlData: action.response.result.htmlData,
         },
       })
