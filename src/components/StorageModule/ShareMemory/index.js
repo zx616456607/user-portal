@@ -373,8 +373,6 @@ class ShareMemory extends Component {
   serverTypeChange = e => {
     this.setState({
       serverType: e.target.value
-    }, () => {
-      console.log(this.state.serverType);
     })
   }
 

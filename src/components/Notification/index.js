@@ -123,7 +123,6 @@ export default class Notification {
 
   // Show warn notification
   warn(message, description, duration) {
-    console.log(message.description, duration);
     let desc = description || ''
     let timeout = duration
     if (timeout === undefined) {

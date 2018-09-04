@@ -595,8 +595,6 @@ let ContainerCatalogueModal = React.createClass({
   serverTypeChange(e) {
     this.setState({
       serverType: e.target.value
-    }, () => {
-      console.log(this.state.serverType);
     })
   },
   testPath(rule, value, callback) {
