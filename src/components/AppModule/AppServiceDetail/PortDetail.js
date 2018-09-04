@@ -583,6 +583,7 @@ let MyComponent = React.createClass({
                 onChange: (e) => self.newInputPort(k, e)
               })} style={{width:'80px'}}>
               <Select.Option key="TCP">TCP</Select.Option>
+              <Select.Option key="UDP">UDP</Select.Option>
               <Select.Option disabled={disableHTTP} key='HTTP'>HTTP</Select.Option>
             </Select>
             </Form.Item>
@@ -654,6 +655,7 @@ let MyComponent = React.createClass({
                 onChange: (e) => self.inputPort(index + 1, e)
                 })} >
                 <Select.Option key="TCP">TCP</Select.Option>
+                <Select.Option key="UDP">UDP</Select.Option>
                 <Select.Option disabled={disableHTTP} key="HTTP">HTTP</Select.Option>
               </Select>
               :

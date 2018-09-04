@@ -358,6 +358,8 @@ module.exports = function (Router) {
   router.put('/registries/:registry/configurations', harborController.updateConfigurations)
   router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
 
+  router.post('/registries/:registry/replications', harborController.copyReplications)
+  router.put('/registries/:registry/jobs/replication', harborController.updateReplicationJobs)
   router.get('/registries/:registry/jobs/replication', harborController.getReplicationJobs)
   router.delete('/registries/:registry/jobs/replication/:id', harborController.deleteReplicationJob)
   router.get('/registries/:registry/jobs/replication/:id/log', harborController.getReplicationJobLogs)

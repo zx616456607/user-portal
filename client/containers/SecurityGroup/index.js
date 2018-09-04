@@ -55,7 +55,7 @@ class SecurityGroup extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn('获取列表数据出错', message.message)
           }
         },
@@ -108,7 +108,7 @@ class SecurityGroup extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn(`删除安全组 ${toDelete.name} 失败`, message.message)
           }
         },

@@ -467,6 +467,30 @@ function imageUpdateLogs(state = {},action) {
   }
 }
 
+function getCurrentRuleTask(state = {},action) {
+  const { registry } = action
+  const defaultState = {
+    isFetching: false,
+  }
+  switch(action.type){
+    case ActionTypes.GET_CURRENT_RULE_TASK_REQUEST:
+      return merge({},defaultState,state,{
+        isFetching: true
+      })
+    case ActionTypes.GET_CURRENT_RULE_TASK_SUCCESS:
+      return Object.assign({},state,{
+        isFetching: false,
+        logs: action.response.result.data
+      })
+    case ActionTypes.GET_CURRENT_RULE_TASK_FAILURE:
+      return merge({},defaultState,state,{
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function targets(state = {},action) {
   switch(action.type){
     case ActionTypes.GET_TARGETS_REQUEST:
@@ -556,5 +580,6 @@ export default function harborRegistry(state = {
     targets: targets(state.targets, action),
     rules: rules(state.rules, action),
     imageBasicInfo: imageBasicInfo(state.imageBasicInfo, action),
+    currentRuleTask: getCurrentRuleTask(state.currentRuleTask, action)
   }
 }
