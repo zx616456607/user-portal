@@ -85,6 +85,7 @@ class ClusterStorage extends Component {
       currType: "",
       defaultStorage: "",
       hostDir: '/usr/share/hostpath',
+      initialHostDir: '/usr/share/hostpath',
       hostDirEditDisable: true
     }
   }
@@ -117,12 +118,16 @@ class ClusterStorage extends Component {
     getClusterStorageList(clusterID, {
       success: {
         func: (res) => {
-          const cephlist = res.data.cephlist
-          const nfslist = res.data.nfslist
+          const cephlist = res.data.cephList
+          const nfslist = res.data.nfsList
           const gfslist = res.data.glusterfsList
           let cephArray = []
           let nfsArray = []
           let gfsArray = []
+          this.setState({
+            hostDir: res.data.hostList[0].parameters.baseDir,
+            initialHostDir: res.data.hostList[0].parameters.baseDir
+          })
           cephlist.forEach((cephItem, index) => {
             let isDefault = cephItem.metadata.labels["system/storageDefault"] === "true"
             let item = {
@@ -1637,12 +1642,13 @@ class ClusterStorage extends Component {
       success: {
         func: () => {
           this.setState({
-            hostDirEditDisable: true
+            hostDirEditDisable: true,
+            initialHostDir: this.state.hostDir
           })
           Notification.success('修改宿主机根目录成功')
         }
       }
-    })
+    }, 'PUT')
 
   }
   hostDirEditCancel = () => {
@@ -1672,7 +1678,7 @@ class ClusterStorage extends Component {
     }
 
     const pathProps = getFieldProps('serverDir',{
-      initialValue: '/usr/share/hostpath',
+      initialValue: this.state.initialHostDir,
       validate: [
         {
           rules: [
