@@ -591,7 +591,7 @@ function fetchUpdateClusterPlugins(cluster, name, body, callback) {
         body: body
       }
     },
-  callback
+    callback
   }
 }
 
@@ -758,7 +758,7 @@ export const CREATE_CEPH_STORAGE_REQUEST = 'CREATE_CEPH_STORAGE_REQUEST'
 export const CREATE_CEPH_STORAGE_SUCCESS = 'CREATE_CEPH_STORAGE_SUCCESS'
 export const CREATE_CEPH_STORAGE_FAILURE = 'CREATE_CEPH_STORAGE_FAILURE'
 
-function fetchCreateCephStorage(cluster, query, body, callback){
+function fetchCreateCephStorage(cluster, query, body, callback, method){
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/storageclass`
   if(query){
     endpoint += `?${toQuerystring(query)}`
@@ -768,7 +768,7 @@ function fetchCreateCephStorage(cluster, query, body, callback){
       types: [CREATE_CEPH_STORAGE_REQUEST, CREATE_CEPH_STORAGE_SUCCESS, CREATE_CEPH_STORAGE_FAILURE],
       endpoint,
       options: {
-        method: 'POST',
+        method: method || 'POST',
         body
       },
       schema: {}
@@ -777,9 +777,9 @@ function fetchCreateCephStorage(cluster, query, body, callback){
   }
 }
 
-export function createCephStorage(cluster, query, body, callback){
+export function createCephStorage(cluster, query, body, callback, method){
   return (dispatch, getState) => {
-    return dispatch(fetchCreateCephStorage(cluster, query, body, callback))
+    return dispatch(fetchCreateCephStorage(cluster, query, body, callback, method, ))
   }
 }
 
