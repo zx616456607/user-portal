@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import { injectIntl } from 'react-intl'
 import intlMsg from './Intl'
 
@@ -41,6 +42,10 @@ class CPU extends Component {
     option.setToolTipUnit(' %')
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
+    let isDataEmpty = false
+    if (isEmpty(data)) {
+      isDataEmpty = true
+    }
     data&&data.map((item) => {
       let timeData = []
       let values = []
@@ -48,6 +53,7 @@ class CPU extends Component {
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
@@ -68,7 +74,10 @@ class CPU extends Component {
       }
       option.addSeries(dataArr, item.containerName)
     })
-    option.setXAxisMinAndMax(minValue)
+    // 数据为空时，给图表添加默认横纵轴范围
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} %'}, 0, 100) : option.addYAxis('value', {formatter: '{value} %'})
+    isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
+      option.setXAxisMinAndMax(minValue)
     if (data) {
       option.setGirdForDataCommon(data.length)
     }

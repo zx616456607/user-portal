@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import { injectIntl } from 'react-intl'
 import intlMsg from './Intl'
 
@@ -38,12 +39,15 @@ class Disk extends Component {
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     let isDataEmpty = false
+    if (isEmpty(diskWriteIo.data) && isEmpty(diskReadIo.data)) {
+      isDataEmpty = true
+    }
     diskReadIo.data && diskReadIo.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
-      isDataEmpty = metrics.length ? false : true
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -67,6 +71,7 @@ class Disk extends Component {
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = isDataEmpty && isEmpty(metrics)
       metrics.map((metric) => {
         // metric.value || metric.floatValue  only one
         dataArr.push([
