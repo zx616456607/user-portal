@@ -349,7 +349,14 @@ class PageCodeRepo extends Component {
             transitionName="move-right"
             onCancel={()=> this.setState({imageDetailModalShow:false})}
           >
-            <ProjectDetail currentUserRole={currentUserRole} isAdminAndHarbor={isAdminAndHarbor} location={location} server={server} scope={this} config={this.state.currentImage} />
+            <ProjectDetail
+              currentUserRole={currentUserRole}
+              isAdminAndHarbor={isAdminAndHarbor}
+              location={location} server={server}
+              scope={this}
+              config={this.state.currentImage}
+              project_id={this.props.params.id}
+            />
           </Modal>
           :
           null

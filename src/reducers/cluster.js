@@ -164,8 +164,8 @@ function clusterStorage(state = {}, action){
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
-          cephList: action.response.result.data.cephlist || [],
-          nfsList: action.response.result.data.nfslist || [],
+          cephList: action.response.result.data.cephList || [],
+          nfsList: action.response.result.data.nfsList || [],
           glusterfsList: action.response.result.data.glusterfsList || [],
         }
       })

@@ -221,7 +221,7 @@ class ImageDetailBox extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.config;
-    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location, currentUserRole } = this.props
+    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location, currentUserRole, project_id } = this.props
     if (!imageInfo) {
       return ('')
     }
@@ -318,7 +318,7 @@ class ImageDetailBox extends Component {
               <DetailInfo
                 registry={DEFAULT_REGISTRY}
                 imageName={this.props.imageName}
-                project_id={this.props.scope.props.params.id}
+                project_id={project_id}
               />
             </TabPane>
             <TabPane tab={formatMessage(detailIndexIntl.tag)} key="tag">
@@ -329,6 +329,7 @@ class ImageDetailBox extends Component {
                 scope={this} config={imageDetail}
                 scopeDetail={scope}
                 currentUserRole={currentUserRole}
+                project_id={project_id}
               />
             </TabPane>
             <TabPane tab={formatMessage(detailIndexIntl.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
