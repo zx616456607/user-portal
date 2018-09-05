@@ -55,8 +55,11 @@ class ContainerInstance extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
-          notification.warn('获取 Pod 网段数据失败')
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
         },
       },
     })
@@ -160,9 +163,12 @@ class ContainerInstance extends React.Component {
           isAsync: true,
         },
         failed: {
-          func: () => {
+          func: error => {
             notification.close()
-            notification.warn('固定 IP 操作失败')
+            const { statusCode } = error
+            if (statusCode !== 403) {
+              notification.warn('固定 IP 操作失败')
+            }
           },
         },
       })
@@ -189,9 +195,12 @@ class ContainerInstance extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
+        func: err => {
+          const { statusCode } = err
           notification.close()
-          notification.warn('释放 IP 失败')
+          if (statusCode !== 403) {
+            notification.warn('释放 IP 失败')
+          }
         },
       },
     })
@@ -220,6 +229,7 @@ class ContainerInstance extends React.Component {
     }
     callback()
   }
+
   render() {
     const { oldIP, NetSegment } = this.state
     const { form, configIP, notConfigIP, containerNum } = this.props

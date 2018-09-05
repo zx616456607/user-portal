@@ -48,8 +48,11 @@ class ReplicasRestrictIP extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
-          notification.warn('获取 Pod 网段数据失败')
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
           this.setState({
             uuid: num,
           })
