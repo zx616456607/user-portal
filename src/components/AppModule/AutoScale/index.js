@@ -586,13 +586,16 @@ class AutoScale extends React.Component {
             onRowClick={this.onRowClick}
             onChange={this.tableFilter}
             dataSource={scaleList} />
-          <AutoScaleModal
-            visible={scaleModal}
-            create={create}
-            reuse={reuse}
-            scaleDetail={scaleDetail}
-            existServices={existServices}
-            scope={this}/>
+          {
+            scaleModal &&
+            <AutoScaleModal
+              visible={scaleModal}
+              create={create}
+              reuse={reuse}
+              scaleDetail={scaleDetail}
+              existServices={existServices}
+              scope={this}/>
+          }
         </div>
       </QueueAnim>
     )
