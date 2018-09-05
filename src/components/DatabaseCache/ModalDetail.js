@@ -1092,7 +1092,7 @@ class VisitTypes extends Component{
                       {
                         this.readOnlyEnable() &&
                         <div>
-                          <span className="domain">{this.externalUrl().readOnlyExternalUrl}</span>
+                          <span className="domain">{this.externalUrl().readOnlyExternalUrl} (只读)</span>
                           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
                             <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.externalUrl().readOnlyExternalUrl)} onClick={this.copyTest.bind(this)}/>
                           </Tooltip>
@@ -1119,7 +1119,7 @@ class VisitTypes extends Component{
               {
                 this.readOnlyEnable() &&
                 <div>
-                  <span className="domain">{this.loadBalancing().readOnlyUrl}</span>
+                  <span className="domain">{this.loadBalancing().readOnlyUrl} (只读)</span>
                   <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
                     <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.loadBalancing().readOnlyUrl)} onClick={this.copyTest.bind(this)}/>
                   </Tooltip>

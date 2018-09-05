@@ -661,8 +661,7 @@ let CreateDatabase = React.createClass({
                   </div>
                   : null
               }
-              {
-                database === 'mysql' &&
+
                 <div className='commonBox clusterModeBox'>
                   <div className='title'>
                     <span>集群模式</span>
@@ -675,9 +674,12 @@ let CreateDatabase = React.createClass({
                             <span>一主多从</span>
                           </Tooltip>
                         </Radio>
-                        <Radio value="multi" key="1">
-                          <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
-                        </Radio>
+                        {
+                          database === 'mysql' &&
+                          <Radio value="multi" key="1">
+                            <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
+                          </Radio>
+                        }
                       </Radio.Group>
                     </FormItem>
 
@@ -689,7 +691,7 @@ let CreateDatabase = React.createClass({
                   </div>
                   <div style={{ clear: 'both' }}></div>
                 </div>
-              }
+
 
               <div className='commonBox'>
                 <div className='title'>
