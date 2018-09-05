@@ -117,7 +117,7 @@ class ManualScaleModal extends Component {
   render() {
     const { service, visible } = this.props
     const { formatMessage }= this.props.intl
-    const annotations = service && service.metadata && service.metadata.annotations
+    const annotations = service && service.spec.template && service.spec.template.metadata.annotations
     const isFixed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     maxInstance = isFixed && JSON.parse(annotations['cni.projectcalico.org/ipAddrs']).length || null
     if (!visible) {

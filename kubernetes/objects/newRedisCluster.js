@@ -17,7 +17,7 @@ class newRedisCluster {
       namespace,
       annotations: {
           ['master.system/lbgroup']: lbgroup,
-          ['slave.system/lbgroup']: 'none',
+          ['slave.system/lbgroup']: '',
         }
     }
     this.spec = {
