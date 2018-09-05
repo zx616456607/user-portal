@@ -14,6 +14,7 @@ import { Form, Input, Icon, Tooltip } from 'antd'
 import './style/ReplicasRestrictIP.less'
 import * as podAction from '../../../../../src/actions/app_manage'
 import Notification from '../../../../../src/components/Notification'
+import ipRangeCheck from 'ip-range-check'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -112,6 +113,19 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
+  checkPodCidr = (rule, value, callback) => {
+    if (!value) return callback()
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    callback()
+  }
+
   render() {
     const { NetSegment } = this.state
     const { getFieldProps, getFieldValue } = this.props.form
@@ -129,6 +143,8 @@ class ReplicasRestrictIP extends React.Component {
               required: true,
               whitespace: true,
               message: `请填写实例 IP（需属于 ${NetSegment}）`,
+            }, {
+              validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 300, marginRight: 15 }}

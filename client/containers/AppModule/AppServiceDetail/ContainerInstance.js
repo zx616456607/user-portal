@@ -15,6 +15,7 @@ import { Modal, Form, Input } from 'antd'
 import Notification from '../../../../src/components/Notification'
 import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
+import ipRangeCheck from 'ip-range-check'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -207,6 +208,18 @@ class ContainerInstance extends React.Component {
     onHandleCanleIp(v)
   }
 
+  checkPodCidr = (rule, value, callback) => {
+    if (!value) return callback()
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    callback()
+  }
   render() {
     const { oldIP, NetSegment } = this.state
     const { form, configIP, notConfigIP, containerNum } = this.props
@@ -234,6 +247,8 @@ class ContainerInstance extends React.Component {
               required: true,
               whitespace: true,
               message: `请填写实例 IP（需属于 ${NetSegment}）`,
+            }, {
+              validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 280 }}
