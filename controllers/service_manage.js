@@ -265,8 +265,8 @@ exports.getServiceAutoScaleList = function* () {
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){
-    index++
     if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from + 1 && index <= from + size){
+      index++
       autoScaleList[key] = tempList[key]
     }
   }
