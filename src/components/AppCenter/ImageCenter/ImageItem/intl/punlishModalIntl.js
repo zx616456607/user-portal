@@ -69,6 +69,7 @@ export const mapData = {
     tip: '审核通过系统将会复制一个新的镜像，与原镜像无关',
     close: '关闭',
     checkPublishRecord: '查看发布记录',
+    classifyNameNotEmpty: '分类名称不能为空',
   },
 }
 export default defineIntlMessages(mapData)

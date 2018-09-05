@@ -1585,6 +1585,7 @@
   "AppCenter.ImageCenter.Publish.tip": "The audit will pass through the system and a new image will be copied, regardless of the original image.",
   "AppCenter.ImageCenter.Publish.close": "close",
   "AppCenter.ImageCenter.Publish.checkPublishRecord": "checkPublishRecord",
+  "AppCenter.ImageCenter.Publish.classifyNameNotEmpty": "Category name can not be empty",
   "AppCenter.ImageCenter.List.searchPlaceholder": "Search by repo group",
   "AppCenter.ImageCenter.List.repoGroupName": "Name",
   "AppCenter.ImageCenter.List.accessLevel": "Access level",

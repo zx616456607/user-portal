@@ -10,10 +10,11 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Form, Input, Icon, Row, Col, Button, Tooltip } from 'antd'
+import { Form, Input, Icon, Tooltip } from 'antd'
 import './style/ReplicasRestrictIP.less'
 import * as podAction from '../../../../../src/actions/app_manage'
 import Notification from '../../../../../src/components/Notification'
+import ipRangeCheck from 'ip-range-check'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -47,14 +48,19 @@ class ReplicasRestrictIP extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
-          notification.warn('获取 Pod 网段数据失败')
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
           this.setState({
             uuid: num,
           })
         },
       },
     })
+    /*
+    // 固定ip暂时只支持固定一个
     this.props.Events.on('changeReplics', v => {
       const ipNum = getFieldValue('ipKeys').length
       if (v > ipNum) {
@@ -70,6 +76,7 @@ class ReplicasRestrictIP extends React.Component {
         this.setState({ uuid: uuNum })
       }
     })
+    */
   }
 
   componentWillUnmount() {
@@ -109,15 +116,28 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
+  checkPodCidr = (rule, value, callback) => {
+    if (!value) return callback()
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    callback()
+  }
+
   render() {
     const { NetSegment } = this.state
     const { getFieldProps, getFieldValue } = this.props.form
     getFieldProps('ipKeys', {
       initialValue: [ ],
     })
-    const isdelete = getFieldValue('replicas')
-      && getFieldValue('replicas') >= getFieldValue('ipKeys').length
-      || false
+    // const isdelete = getFieldValue('replicas')
+    //   && getFieldValue('replicas') >= getFieldValue('ipKeys').length
+    //   || false
     const formItems = getFieldValue('ipKeys').map(k => {
       return (
         <FormItem key={k} wrapperCol={{ span: 16, offset: 4 }}>
@@ -126,12 +146,17 @@ class ReplicasRestrictIP extends React.Component {
               required: true,
               whitespace: true,
               message: `请填写实例 IP（需属于 ${NetSegment}）`,
+            }, {
+              validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 300, marginRight: 15 }}
           placeholder= {`请填写实例 IP（需属于 ${NetSegment}）`}
           />
-          <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
+          <Tooltip placement="top" title={'目前仅支持一个实例'}>
+            <Icon type="question-circle" style={{ marginLeft: 8 }} />
+          </Tooltip>
+          {/* <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
             <Button
               className="delBtn"
               disabled={isdelete}
@@ -139,13 +164,14 @@ class ReplicasRestrictIP extends React.Component {
             >
               <Icon type="delete" />
             </Button>
-          </Tooltip>
+          </Tooltip> */}
         </FormItem>
       )
     })
-    const text = '可添加超出实例数量的固定实例 IP，可以确保水平扩展，自动弹性伸缩等功能可用（否则无法伸缩实例）'
+    // const text = '可添加超出实例数量的固定实例 IP，可以确保水平扩展，自动弹性伸缩等功能可用（否则无法伸缩实例）'
     return <div className="restrictsIP">
       {formItems}
+      {/*  // 暂时不支持 固定多个实例 IP
       <Row className="addInstance">
         <Col span={4}></Col>
         <Col>
@@ -160,6 +186,7 @@ class ReplicasRestrictIP extends React.Component {
           </span>
         </Col>
       </Row>
+      */}
     </div>
   }
 }
