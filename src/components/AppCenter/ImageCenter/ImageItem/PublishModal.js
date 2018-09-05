@@ -253,6 +253,10 @@ class PublishModal extends React.Component {
     if(!value || value.length===0) {
       return callback(formatMessage(publishModalIntl.selectOrInputClass))
     }
+    const flag = value.some(item => !!item)
+    if (flag) {
+      return callback(formatMessage(publishModalIntl.classifyNameNotEmpty))
+    }
     if(value.length > 1) {
       return callback(formatMessage(publishModalIntl.onlyOneClass))
     }
