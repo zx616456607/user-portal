@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Button, Checkbox } from 'antd'
+import { Checkbox } from 'antd'
 import ContainerInstance from './ContainerInstance'
 
 class ContainerInstanceHeader extends React.Component {
@@ -21,7 +21,8 @@ class ContainerInstanceHeader extends React.Component {
   }
 
   componentDidMount() {
-    const annotations = this.props.serviceDetail.metadata.annotations || {}
+    const annotations = this.props.serviceDetail.spec.template
+      && this.props.serviceDetail.spec.template.metadata.annotations || {}
     annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     && this.setState({ isCheckIP: true })
   }
@@ -59,8 +60,8 @@ class ContainerInstanceHeader extends React.Component {
     const { serviceDetail, containerNum } = this.props
     return (
       <div className="instanceHeader">
-        <Button type="primary">水平扩展 ({containerNum})</Button>
-        <Button type="primary" onClick={() => this.props.onTabClick('#autoScale')}>自动伸缩</Button>
+        {/* <Button type="primary">水平扩展 ({containerNum})</Button>
+        <Button type="primary" onClick={() => this.props.onTabClick('#autoScale')}>自动伸缩</Button> */}
         <Checkbox
           onChange={this.onChangeInstanceIP}
           checked={this.state.isCheckIP}

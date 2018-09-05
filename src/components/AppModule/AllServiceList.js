@@ -390,12 +390,14 @@ const MyComponent =  injectIntl(React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipAddrs'])
+      const ipv4 = item.spec.template
+        && item.spec.template.metadata.annotations
+        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
+        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
         || null
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {
             item.status.phase == "Stopped"
             ? <Menu.Item key="start">
@@ -444,7 +446,7 @@ const MyComponent =  injectIntl(React.createClass({
           </Menu.Item>
           <SubMenu title={formatMessage(AllServiceListIntl.extend)} >
             <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
-            {formatMessage(AllServiceListIntl.standardExtend)}
+              {formatMessage(AllServiceListIntl.standardExtend)}
             </Menu.Item>
             <Menu.Item key="autoScale" disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
             {formatMessage(AllServiceListIntl.autoScale)}

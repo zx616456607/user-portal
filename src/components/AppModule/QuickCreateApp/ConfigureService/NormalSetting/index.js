@@ -52,6 +52,7 @@ const Normal = React.createClass({
       memoryMin: RESOURCES_MEMORY_MIN,
       cpuMin: RESOURCES_CPU_MIN,
       allTag: [],
+      replicasIP: false,
     }
   },
   componentWillMount() {
@@ -572,6 +573,16 @@ const Normal = React.createClass({
     this.props.form.getFieldValue('replicasCheck')
       && Events.emit('changeReplics', v)
   },
+  handleReplicasCheck(e) {
+    if (e.target.checked) {
+      this.props.form.setFieldsValue({
+        replicas: 1
+      })
+    }
+    this.setState({
+      replicasIP: !this.state.replicasIP,
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -581,7 +592,7 @@ const Normal = React.createClass({
     } = this.props
     const { query } = location
     const { listNodes } = currentCluster
-    const { replicasInputDisabled, memoryMin, cpuMin } = this.state
+    const { replicasInputDisabled, memoryMin, cpuMin, replicasIP } = this.state
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
@@ -590,7 +601,7 @@ const Normal = React.createClass({
         { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas }
       ],
-      onChange: this.handleReplicas
+      // onChange: this.handleReplicas
     })
     const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
@@ -710,7 +721,7 @@ const Normal = React.createClass({
                   min={1}
                   max={10}
                   {...replicasProps}
-                  disabled={replicasInputDisabled}
+                  disabled={replicasInputDisabled || replicasIP}
                 />
                 <div className="unit">{intl.formatMessage(IntlMessage.one)}</div>
               </FormItem>
@@ -722,10 +733,11 @@ const Normal = React.createClass({
                     ...getFieldProps('replicasCheck', {
                       initialValue: false,
                       valuePropName: 'checked',
+                      onChange: this.handleReplicasCheck,
                     })
                   }
                 >
-                  固定实例 IP
+                    固定实例 IP
                 </Checkbox>
               </FormItem>
             </Col>
@@ -734,7 +746,7 @@ const Normal = React.createClass({
             getFieldValue('replicasCheck')
               ? <ReplicasRestrictIP
                   form={form}
-                  Events={Events}
+                  // Events={Events}
                 />
               : null
           }
@@ -809,15 +821,16 @@ function mapStateToProps(state, props) {
   }
 }
 
-const Events = {
-  fn: {},
-  on: function(ev, cb) {
-    this.fn[ev] = cb
-  },
-  emit: function(ev, params) {
-    this.fn[ev](params)
-  }
-}
+// 固定ip暂时仅支持一个
+// const Events = {
+//   fn: {},
+//   on: function(ev, cb) {
+//     this.fn[ev] = cb
+//   },
+//   emit: function(ev, params) {
+//     this.fn[ev](params)
+//   }
+// }
 
 export default connect(mapStateToProps, {
   getNodes,
