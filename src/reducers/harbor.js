@@ -11,6 +11,7 @@
  */
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
+import isEmpty from 'lodash/isEmpty'
 import { TENX_STORE } from '../../constants'
 
 function systeminfo(state = {}, action) {
@@ -466,6 +467,30 @@ function imageUpdateLogs(state = {},action) {
   }
 }
 
+function getCurrentRuleTask(state = {},action) {
+  const { registry } = action
+  const defaultState = {
+    isFetching: false,
+  }
+  switch(action.type){
+    case ActionTypes.GET_CURRENT_RULE_TASK_REQUEST:
+      return merge({},defaultState,state,{
+        isFetching: true
+      })
+    case ActionTypes.GET_CURRENT_RULE_TASK_SUCCESS:
+      return Object.assign({},state,{
+        isFetching: false,
+        logs: action.response.result.data
+      })
+    case ActionTypes.GET_CURRENT_RULE_TASK_FAILURE:
+      return merge({},defaultState,state,{
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function targets(state = {},action) {
   switch(action.type){
     case ActionTypes.GET_TARGETS_REQUEST:
@@ -519,7 +544,8 @@ function imageBasicInfo(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          markdownData: action.response.result.data[0].description,
+          markdownData: !isEmpty(action.response.result.data) &&
+          action.response.result.data[0].description,
           // htmlData: action.response.result.htmlData,
         },
       })
@@ -554,5 +580,6 @@ export default function harborRegistry(state = {
     targets: targets(state.targets, action),
     rules: rules(state.rules, action),
     imageBasicInfo: imageBasicInfo(state.imageBasicInfo, action),
+    currentRuleTask: getCurrentRuleTask(state.currentRuleTask, action)
   }
 }

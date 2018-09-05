@@ -35,7 +35,7 @@ class SecyrityCollapse extends React.Component {
         func: error => {
           const { message, statusCode } = error
           notification.close()
-          if (!statusCode === 403) {
+          if (statusCode !== 403) {
             notification.warn(intl.formatMessage(IntlMessage.loadDataFailed), message.message)
           }
         },
