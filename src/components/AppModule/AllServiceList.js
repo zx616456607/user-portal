@@ -1381,6 +1381,7 @@ class ServiceList extends Component {
   }
   selectSearchType() {
     const {showPlaceholder} = this.state
+    const {formatMessage} = this.props.intl
     const serviceNameSearch = formatMessage(AllServiceListIntl.serviceNameSearch)
     const serviceTagButtonSearch = formatMessage(AllServiceListIntl.serviceTagButtonSearch)
     switch (showPlaceholder) {
