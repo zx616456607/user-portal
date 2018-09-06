@@ -29,7 +29,7 @@ const messageObj = {
     edit: '修改',
     delete: '删除',
     deploy: '部署',
-    updateOn: '更新于 {date}'
+    updateOn: '更新于 {date}',
   }
 }
 

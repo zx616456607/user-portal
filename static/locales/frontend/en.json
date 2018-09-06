@@ -3059,5 +3059,19 @@
   "Common.myProject": "My project",
   "Common.teamName": "My account",
   "Editor.Error.readOnly": "readOnly",
-  "Editor.Error.theme": "theme"
+  "Editor.Error.theme": "theme",
+  "AppCenter.AppTemplate.appTemplate": "AppTemplate",
+  "AppCenter.AppTemplate.create": "Create",
+  "AppCenter.AppTemplate.refresh": "Refresh",
+  "AppCenter.AppTemplate.placeholder": "Input name to search",
+  "AppCenter.AppTemplate.total": " {total} in total",
+  "AppCenter.AppTemplate.deleteTemplate": "Delete",
+  "AppCenter.AppTemplate.deleteTip": "After deleting a template, apps created based on this template are not affected, but cannot be recovered after deletion. Are you sure to delete?",
+  "AppCenter.AppTemplate.deleting": "Deleting",
+  "AppCenter.AppTemplate.deleteFailure": "Failed to delete",
+  "AppCenter.AppTemplate.deleteSuccess": "Successfully deleted",
+  "AppCenter.AppTemplate.edit": "Edit",
+  "AppCenter.AppTemplate.delete": "Delete",
+  "AppCenter.AppTemplate.deploy": "Deploy",
+  "AppCenter.AppTemplate.updateOn": "{date} Updated"
 }
