@@ -50,13 +50,30 @@ const Ports = React.createClass({
     })
     portsKeys.every(_key => {
       const port = getFieldValue(`port${_key.value}`)
-      if (_key.value !== key && value === port) {
+      const protocol = this.formatProtocol(getFieldValue(`portProtocol${_key.value}`))
+      const currentProtocol = this.formatProtocol(getFieldValue(`portProtocol${key}`))
+      if (_key.value !== key && value === port && currentProtocol === protocol) {
         error = intl.formatMessage(IntlMessage.portExist)
         return false
       }
       return true
     })
     callback(error)
+  },
+  formatProtocol(protocol) {
+    return protocol === 'UDP' ? 'UDP' : 'TCP'
+  },
+  forceCheckPorts() {
+    const { getFieldValue, validateFields } = this.props.form
+    const portsKeys = getFieldValue('portsKeys') || []
+    console.log(portsKeys.map(key => `port${key.value}`))
+    setTimeout(() => {
+      validateFields(portsKeys.filter(key => !key.deleted).map(key => `port${key.value}`), { force: true })
+    }, 50);
+  },
+  checkContainerProtocol(rule, value, callback) {
+    callback()
+    this.forceCheckPorts()
   },
   checkMappingPort(key, rule, value, callback) {
     const { intl } = this.props
@@ -95,6 +112,7 @@ const Ports = React.createClass({
         return _key
       })
     })
+    this.forceCheckPorts()
   },
   portTypeChange(keyValue, value){
     if(value == MAPPING_PORT_SPECIAL){
@@ -140,6 +158,7 @@ const Ports = React.createClass({
             end: '',
           })
         },
+        { validator: this.checkContainerProtocol }
       ],
     })
     const portProtocolValue = getFieldValue(portProtocolKey)
