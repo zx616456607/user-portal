@@ -51,7 +51,7 @@ const ApmSetting = React.createClass({
   },
 
   renderApm() {
-    const { form, formItemLayout, loginUser, apmList, openApi } = this.props
+    const { form, formItemLayout, loginUser, apmList, openApi, intl } = this.props
     const { apms, isFetching } = apmList
     // msa-portal url not configure
     const msaUrl = loginUser.msaConfig.url
