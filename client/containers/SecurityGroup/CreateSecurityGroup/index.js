@@ -227,7 +227,7 @@ class CreateSecurityGroup extends React.Component {
               if (statusCode !== 403) {
                 if (isEdit) {
                   notification.success('修改安全组失败')
-                } else if (statusCode === 422 || message.message.indexOf('not within CIDR range')) {
+                } else if (statusCode === 422 && message.message.indexOf('not within CIDR range') > -1) {
                   notification.warn('输入的 cidr 范围错误', message.message)
                 } else {
                   notification.warn('新建安全组失败', message.message)
