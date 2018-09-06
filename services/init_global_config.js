@@ -44,11 +44,7 @@ global.globalConfig = {
   ftpConfig: {},
   billingConfig: {},
   chartRepoConfig: {},
-  aiopsConfig: {
-    protocol: 'http',
-    host: '192.168.1.59:61088',
-    version: 'v3',
-  },
+  aiopsConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -162,6 +158,12 @@ exports.initGlobalConfig = function* () {
     if (configType === 'billing') {
       globalConfig.billingConfig.enabled = configDetail.enabled
       globalConfig.billingConfig.configID = item.ConfigID
+    }
+    if (configType === 'ai') {
+      globalConfig.aiopsConfig.protocol = configDetail.protocol
+      globalConfig.aiopsConfig.host = configDetail.host
+      globalConfig.aiopsConfig.apiVersion = configDetail.apiVersion
+      return
     }
   })
   if (ConfigArray.Mail!=='NotEmpty'){

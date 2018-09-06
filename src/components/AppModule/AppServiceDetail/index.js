@@ -440,6 +440,7 @@ class AppServiceDetail extends Component {
                   containerList={containers}
                   loading={isContainersFetching}
                   onTabClick={this.onTabClick}
+                  loadServiceContainerList={this.props.loadServiceContainerList}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.basicsMessage)} key='#basic'>
