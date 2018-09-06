@@ -76,8 +76,11 @@ class YamlModal extends React.Component {
       },
       failed: {
         func: err => {
-          const { message } = err
+          const { message, statusCode } = err
           notification.close()
+          if (statusCode === 412) {
+            return
+          }
           notification.warn('修改 DNS 记录失败，请检查 yaml', message.message)
         },
       },
