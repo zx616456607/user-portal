@@ -651,7 +651,7 @@ class Backup extends React.Component {
               <Col span={3} className="name">
                 <Tooltip title={v.name}>
                   <span className="backup-point-name">
-                    ({v.chains[0].status.autoBackup ? '自动' : '手动'})
+                    ({v.chains[0].autoBackup ? '自动' : '手动'})
                     {v.name}
                   </span>
                 </Tooltip>
