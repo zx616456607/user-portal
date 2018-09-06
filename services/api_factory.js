@@ -84,7 +84,7 @@ exports.getAIOpsApi = function (loginUser) {
   const apiConfig = {
     protocol: aiopsConfig.protocol,
     host: aiopsConfig.host,
-    version: aiopsConfig.version,
+    version: aiopsConfig.apiVersion || 'v3',
     auth: loginUser,
   }
   const api = new tenxApi(apiConfig)
