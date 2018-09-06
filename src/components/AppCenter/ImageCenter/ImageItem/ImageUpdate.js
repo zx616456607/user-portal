@@ -1270,6 +1270,14 @@ class ImageUpdate extends Component {
     getCurrentRuleTask(harbor, registry, id)
   }
 
+  handleOnChange = v => {
+    const { harbor, registry, getCurrentRuleTask } = this.props
+    this.setState({
+      currentRule: v.id,
+    })
+    getCurrentRuleTask(harbor, registry, v.id)
+  }
+
   handleCopyRule = () => {
     const { copyCurrentRule, getCurrentRuleTask, harbor, registry } = this.props
     const { currentRule } = this.state
@@ -1328,7 +1336,6 @@ class ImageUpdate extends Component {
     const { currentRule } = this.state
     getCurrentRuleTask(harbor, registry, currentRule)
   }
-
   render(){
     const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
     const { edit, currentRules, currentRulesEnabled, disappear, currentRule } = this.state
@@ -1526,6 +1533,7 @@ class ImageUpdate extends Component {
           </div>
           <div className="body">
             <Table
+              onRowClick={this.handleOnChange}
               loading={this.props.loading}
               columns={rulesColumn}
               dataSource={rulesData}
