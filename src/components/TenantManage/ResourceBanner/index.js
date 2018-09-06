@@ -21,6 +21,7 @@ import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { toQuerystring } from '../../../../src/common/tools'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
+import CommonIntlMessages from '../../../containers/CommonIntl'
 import { STORAGE_BEFORE_EXPORT_FILE_FAILURE } from '../../../actions/storage';
 
 const findQuotaChinsesName = ({ resourceType, resourceList }) => {
@@ -42,9 +43,11 @@ const findQuotaChinsesName = ({ resourceType, resourceList }) => {
 
 // 根据state下面的entities > current > space字段判断项目类型
 const judgeProjectType = (space = {}) => {
+  const { formatMessage } = window._intl
+  const myProject = formatMessage(CommonIntlMessages.myProject)
   const { name, spaceName, userName, projectName, displayName, userID } = space
-  if ( name === '我的个人项目') { //我的个人项目
-    return { projectText: '我的个人项目', projectId: 'default', projectType: 1 } // projectType: 1: 我的个人项目
+  if ( name === myProject) { //我的个人项目
+    return { projectText: myProject, projectId: 'default', projectType: 1 } // projectType: 1: 我的个人项目
   }
   if ( userName ) { //个人项目
     return {  projectText: userName, projectId: userID, projectType: 2  } // projectType: 1: 个人项目

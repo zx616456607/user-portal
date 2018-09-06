@@ -407,7 +407,7 @@ class AppServiceDetail extends Component {
             <div className='rightBox'>
               {
                 containerShow.length > 1 ?
-                  <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
+                  <Popover content={containerShow} title={formatMessage(AppServiceDetailIntl.selectInstance)} trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                     <Button className='loginBtn' type='primary' size='large'>
                       <TenxIcon type="terminal"/>
                       <span>{formatMessage(AppServiceDetailIntl.loginTerminal)}</span>

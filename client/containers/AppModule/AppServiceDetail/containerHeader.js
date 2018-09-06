@@ -10,7 +10,9 @@
 
 import React from 'react'
 import { Checkbox } from 'antd'
+import { FormattedMessage } from 'react-intl'
 import ContainerInstance from './ContainerInstance'
+import IntlMessages from './ContainerHeaderIntl'
 
 class ContainerInstanceHeader extends React.Component {
   state = {
@@ -66,13 +68,13 @@ class ContainerInstanceHeader extends React.Component {
           onChange={this.onChangeInstanceIP}
           checked={this.state.isCheckIP}
         >
-          固定实例IP
+          <FormattedMessage {...IntlMessages.fixedInstanceIP} />
         </Checkbox>
         <span
           className="seeConfig"
           onClick={() => this.setState({ isFixed: true, isSee: true })}
         >
-          查看配置的IP
+          <FormattedMessage {...IntlMessages.viewConfiguredIP} />
         </span>
         {
           (isFixed || notFixed) && <ContainerInstance
