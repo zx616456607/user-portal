@@ -30,7 +30,7 @@ import {
   PAYMENT_REQUIRED_CODE,
   UPGRADE_EDITION_REQUIRED_CODE,
   LICENSE_EXPRIED_CODE,
-  LITE,
+  LITE, MY_SPACE,
 } from '../../constants'
 import TenxIcon from '@tenx-ui/icon'
 import errorHandler from './error_handler'
@@ -38,6 +38,7 @@ import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
 import Xterm from '../../components/TerminalModal/Xterm'
 import IntlMessages from './Intl'
+import CommonIntlMessages from '../CommonIntl'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -91,6 +92,10 @@ class App extends Component {
       })
     }
     window._intl = intl
+    const { formatMessage } = intl
+    MY_SPACE.name = formatMessage(CommonIntlMessages.myProject)
+    MY_SPACE.spaceName = formatMessage(CommonIntlMessages.myProject)
+    MY_SPACE.teamName = formatMessage(CommonIntlMessages.teamName)
   }
 
   setSwitchSpaceOrCluster() {

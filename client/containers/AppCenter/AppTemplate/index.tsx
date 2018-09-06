@@ -98,7 +98,7 @@ class TemplateList extends React.Component<any> {
     this.setState({
       deleteLoading: true,
     });
-    notify.spin(intl.formatMessage(AppCenterMessage.deteting));
+    notify.spin(intl.formatMessage(AppCenterMessage.deleting));
     const result = await deleteAppTemplate(selectedTemp.name, selectedTemp.versions[0].version);
     if (result.error) {
       notify.close(intl.formatMessage(AppCenterMessage.deleteFailure));
