@@ -218,3 +218,57 @@ export function checkConfigNameExistence(clusterId, name, callback) {
     callback,
   }
 }
+
+const GET_GIT_BRANCHS_REQUEST = 'GET_GIT_BRANCHS_REQUEST'
+const GET_GIT_BRANCHS_SUCCESS = 'GET_GIT_BRANCHS_SUCCESS'
+const GET_GIT_BRANCHS_FAILURE = 'GET_GIT_BRANCHS_FAILURE'
+
+export function fetchProjectBranches(query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_GIT_BRANCHS_REQUEST,
+        GET_GIT_BRANCHS_SUCCESS,
+        GET_GIT_BRANCHS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${query.project_id}/branches`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getProjectBranches(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchProjectBranches(query, callback))
+  }
+}
+
+export const GET_CONFIG_MAPS_REQUEST = 'GET_CONFIG_MAPS_REQUEST'
+export const GET_CONFIG_MAPS_SUCCESS = 'GET_CONFIG_MAPS_SUCCESS'
+export const GET_CONFIG_MAPS_FAILURE = 'GET_CONFIG_MAPS_FAILURE'
+
+export function fetchConfigMaps(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_CONFIG_MAPS_REQUEST,
+        GET_CONFIG_MAPS_SUCCESS,
+        GET_CONFIG_MAPS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${query.cluster_id}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getConfigMaps(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchConfigMaps(query, callback))
+  }
+}
+
+
+

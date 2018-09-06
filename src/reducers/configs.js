@@ -15,7 +15,7 @@ import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 
 function configGroupList(state = {}, action) {
-  const cluster = action.cluster
+  const cluster = action.cluster || action.cluster_id
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -108,6 +108,24 @@ function configGroupList(state = {}, action) {
     // return union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
       return merge({}, state, { isFetching: false })
+
+
+    case ActionTypes.GET_CONFIG_MAPS_REQUEST:
+    return merge({}, defaultState, state, {
+      [cluster]: { isFetching: true }
+    })
+    case ActionTypes.GET_CONFIG_MAPS_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          cluster: action.response.result.results.clusterId,
+          configGroup: action.response.result.results.results
+        }
+      })
+    case ActionTypes.GET_CONFIG_MAPS_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: { isFetching: false }
+      })
     default:
       return state
   }

@@ -24,7 +24,7 @@ import remove from 'lodash/remove'
 import {
   loadConfigGroup, configGroupName, createConfigGroup,
   deleteConfigGroup, updateConfigAnnotations,
-  checkConfigNameExistence
+  checkConfigNameExistence, getConfigMaps, fetchConfigMaps,
 } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
@@ -65,7 +65,7 @@ class CollapseList extends Component {
     if (filterName){
       let arr = []
       filterGroup.forEach(item => {
-        if (includes(item.annotations,filterName)) {
+        if (includes(item.configlabels,filterName)) {
           arr.push(item)
         }
       })
@@ -74,7 +74,7 @@ class CollapseList extends Component {
     if (noAnnotations) {
       let arr = []
       filterGroup.forEach(item => {
-        if (item.annotations.length === 0) {
+        if (item.configlabels && item.configlabels.length === 0) {
           arr.push(item)
         }
       })
@@ -97,7 +97,7 @@ class CollapseList extends Component {
     const scope = this
     // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
     if (isFetching && this.loadNumber < 2) {
-      this.loadNumber++
+      // this.loadNumber++
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -124,7 +124,7 @@ class CollapseList extends Component {
               handChageProp={this.props.handChageProp}
               configArray={this.props.configArray}
               collapseHeader={group}
-              sizeNumber={group.size}
+              sizeNumber={group.configList.length}
               />
           }
           handChageProp={this.handChageProp}
@@ -133,7 +133,7 @@ class CollapseList extends Component {
           >
           <CollapseContainer
             parentScope={scope}
-            collapseContainer={group.configs}
+            collapseContainer={group.configList}
             groupname={group.name} />
         </Collapse.Panel>
       )
@@ -174,17 +174,17 @@ class Service extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { cluster, loadConfigGroup, labelWithCount, spaceID } = nextProps
+    const { cluster, getConfigMaps, labelWithCount, spaceID } = nextProps
     if ((cluster !== this.props.cluster) || (spaceID !== this.props.spaceID)) {
-      loadConfigGroup(cluster)
+      getConfigMaps({ cluster_id: cluster })
     }
     this.setState({
       configList: labelWithCount
     })
   }
   loadData() {
-    const { loadConfigGroup, cluster} = this.props
-    loadConfigGroup(cluster)
+    const { getConfigMaps, cluster} = this.props
+    getConfigMaps({ cluster_id: cluster })
     this.setState({configArray:[]})
   }
   configModal(visible,editFlag) {
@@ -295,7 +295,7 @@ class Service extends Component {
     const { configList, filterName, searchValue, noAnnotations } = this.state;
     let noAnnotationsLength = 0
     configGroup.length > 0 && configGroup.forEach(item => {
-      if (!item.annotations.length) {
+      if (item.configlabels && !item.configlabels.length) {
         noAnnotationsLength++
       }
     })
@@ -375,7 +375,7 @@ class Service extends Component {
               <CollapseList
                 scope={this}
                 cluster={cluster}
-                loadConfigGroup={this.props.loadConfigGroup}
+                loadConfigGroup={this.props.getConfigMaps}
                 groupData={configGroup}
                 configName={configName}
                 btnDeleteGroup={this.btnDeleteGroup}
@@ -421,8 +421,8 @@ function mapStateToProps(state, props) {
   const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
   let labels = []
   configGroup.length > 0 && configGroup.forEach(item => {
-    if (item.annotations.length) {
-      labels = labels.concat(item.annotations)
+    if (item.configlabels && item.configlabels.length) {
+      labels = labels.concat(item.configlabels)
     }
   })
   let labelWithCount = []
@@ -452,8 +452,8 @@ function mapStateToProps(state, props) {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    loadConfigGroup: (cluster) => {
-      dispatch(loadConfigGroup(cluster))
+    getConfigMaps: (query, callback) => {
+      dispatch(fetchConfigMaps(query, callback))
     },
     createConfigGroup: (obj, callback) => {
       dispatch(createConfigGroup(obj, callback))

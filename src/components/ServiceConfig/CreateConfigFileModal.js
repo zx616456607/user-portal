@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import {CheckProjects} from "../../actions/project"
+import { checkConfigNameExistence } from "../../actions/configs"
 import filter from 'lodash/filter'
 import ConfigFileContent from './ConfigFileContent'
 
@@ -39,7 +39,7 @@ let CreateConfigFileModal = React.createClass({
     configName && configName.focus()
   },
   configNameExists(rule, value, callback) {
-    const { CheckProjects, type, data, activeGroupName } = this.props;
+    const { checkConfigNameExistence, type, data, activeGroupName } = this.props;
     const form = this.props.form;
     const _that = this
     if (!value) {
@@ -58,6 +58,7 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
       return
     }
+    return callback()
     clearTimeout(this.checkNameTimer)
     this.checkNameTimer = setTimeout(()=>{
       if(type === 'secrets' && !!data && !!activeGroupName) {
@@ -68,7 +69,7 @@ let CreateConfigFileModal = React.createClass({
           callback()
         }
       } else {
-        CheckProjects({
+        checkConfigNameExistence({
           projectsName: value
         },{
           success: {
@@ -132,6 +133,9 @@ let CreateConfigFileModal = React.createClass({
             self.setState({
               filePath: '请上传文件或直接输入内容'
             })
+            parentScope.setState({
+              modalConfigFile: false,
+            })
           },
           isAsync: true
         },
@@ -156,51 +160,7 @@ let CreateConfigFileModal = React.createClass({
           }
         }
       })
-      parentScope.setState({
-        modalConfigFile: false,
-      })
     })
-  },
-  beforeUpload(file) {
-    const fileInput = this.configFileContent.uploadInput.refs.upload.refs.inner.refs.file
-    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
-      return false
-    }
-    const self = this
-    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
-    self.setState({
-      disableUpload: true,
-      filePath: '上传文件为 ' + fileName
-    })
-    notify.spin('读取文件内容中，请稍后')
-    const fileReader = new FileReader()
-    fileReader.onerror = function(err) {
-      self.setState({
-        disableUpload: false,
-      })
-      notify.close()
-      notify.error('读取文件内容失败')
-    }
-    fileReader.onload = function() {
-      self.setState({
-        disableUpload: false,
-      })
-      notify.close()
-      notify.success('文件内容读取完成')
-      const configDesc = fileReader.result.replace(/\r\n/g, '\n')
-      self.props.form.setFieldsValue({
-        configDesc,
-        configName: fileName,// .split('.')[0]
-      })
-      this.setState({
-        tempConfigDesc: configDesc
-      })
-    }
-    fileReader.readAsText(file)
-    return false
   },
   cancelModal(e) {
     const parentScope = this.props.scope
@@ -278,8 +238,6 @@ let CreateConfigFileModal = React.createClass({
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
-                ref={ref => this.configFileContent = ref}
-                beforeUpload={this.beforeUpload}
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
@@ -297,5 +255,5 @@ function mapStateToProps(state) {
   return state
 }
 export default connect(mapStateToProps,{
-  CheckProjects
+  checkConfigNameExistence
 })(CreateConfigFileModal)

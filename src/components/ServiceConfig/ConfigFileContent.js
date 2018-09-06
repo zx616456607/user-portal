@@ -1,19 +1,25 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  */
 
 /**
- * config group: create modal
+ * config group: configfilecontent
  *
- * v0.1 - 2018-01-30
- * @author Zhangpc
+ * v0.1 - 2018-08-24
+ * @author rensiwei
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Upload, Button, Icon, Radio, Select, Row, Col, Input, Form } from 'antd'
 import Editor from '../../../client/components/EditorModule/index'
 import './style/ConfigFileContent.less'
+import { getProjectList } from "../../actions/cicd_flow"
+import { getProjectBranches } from "../../actions/configs"
+import filter from 'lodash/filter'
+
+import NotificationHandler from '../../components/Notification'
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -24,6 +30,40 @@ class ConfigFileContent extends React.Component {
     method: this.props.method || 1,
     btnLoading: false,
     fetchStatus: false,
+    branches: [],
+    projects: [],
+    isNeedSet: false,
+  }
+  componentDidMount = () => {
+    const { method } = this.props
+    if (method === 2) {
+      this.loadGitProjects()
+    }
+  }
+  loadGitProjects = () => {
+    const { getProjectList } = this.props
+    getProjectList({
+      failed:{
+        func: (err) => {
+          this.setState({
+            isNeedSet: true,
+          })
+        }
+      },
+      success: {
+        func: (res) => {
+          if(res.data && res.data.results){
+            this.setState({
+              projects: res.data.results,
+            })
+          } else {
+            this.setState({
+              isNeedSet: true,
+            })
+          }
+        }
+      }
+    })
   }
   onRadioChange = (e) => {
     const method = e.target.value
@@ -36,6 +76,8 @@ class ConfigFileContent extends React.Component {
     let configDesc = ""
     if (!readOnly) {
       configDesc = tempConfigDesc
+    } else {
+      this.loadGitProjects()
     }
     setFieldsValue({
       configDesc,
@@ -78,12 +120,75 @@ class ConfigFileContent extends React.Component {
       })
     })
   }
+  beforeUpload = (file) => {
+    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
+    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
+    const notify = new NotificationHandler()
+    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
+      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
+      return false
+    }
+    const self = this
+    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
+    self.setState({
+      disableUpload: true,
+      filePath: '上传文件为 ' + fileName
+    })
+    notify.spin('读取文件内容中，请稍后')
+    const fileReader = new FileReader()
+    fileReader.onerror = function(err) {
+      self.setState({
+        disableUpload: false,
+      })
+      notify.close()
+      notify.error('读取文件内容失败')
+    }
+    fileReader.onload = function() {
+      self.setState({
+        disableUpload: false
+      })
+      notify.close()
+      notify.success('文件内容读取完成')
+      const configDesc = fileReader.result.replace(/\r\n/g, '\n')
+      self.props.form.setFieldsValue({
+        configDesc,
+      })
+      this.setState({
+        tempConfigDesc: configDesc
+      })
+    }
+    fileReader.readAsText(file)
+    return false
+  }
+  onProjectSelect = value => {
+    this.setState({
+      branches: [],
+    }, () => {
+      const { getProjectBranches, form } = this.props
+      const { getFieldProps, getFieldValue } = form
+      const currProjectId = getFieldValue("project") || ""
+      getProjectBranches({ project_id: currProjectId }, {
+        success: {
+          func: res => {
+            !!res.branches && this.setState({
+              branches: res.branches,
+            })
+          }
+        }
+      })
+    })
+  }
   render() {
-    const { descProps, beforeUpload, filePath, form, branch, path, branchs = [1,2,3] } = this.props
-    const { readOnly, btnLoading, fetchStatus } = this.state
-    const options = branchs.map(item => <Select.Option key={item} value={item}>{item}</Select.Option>)
+    const { descProps, filePath, form, project, branch, path } = this.props
+    const { readOnly, btnLoading, fetchStatus, projects, branches } = this.state
     const { getFieldProps, getFieldValue } = form
     const method = getFieldValue("method") || 1
+
+    const currProjectId = getFieldValue("project") || ""
+    const currProject = filter(projects, { id: currProject })[0]
+    const project_options = projects.map(item => <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>)
+    const branch_options = branches.map(item => <Select.Option key={item.branch} value={item.branch}>{item.branch}</Select.Option>)
+
     const methodProps = {...getFieldProps('method',
       {
         initialValue: 1,
@@ -93,6 +198,12 @@ class ConfigFileContent extends React.Component {
     const selBranchProps = {...getFieldProps('branch',
       {
         initialValue: branch || undefined,
+      }
+    )}
+    const selProjectProps = {...getFieldProps('project',
+      {
+        initialValue: project || undefined,
+        onChange: this.onProjectSelect,
       }
     )}
     const pathProps = {...getFieldProps('path',
@@ -113,7 +224,7 @@ class ConfigFileContent extends React.Component {
         {
           method === 1 ?
             <div>
-              <Upload beforeUpload={(file) => beforeUpload(file)} showUploadList={false} ref={(instance) => this.uploadInput = instance}>
+              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} ref={(instance) => this.uploadInput = instance}>
                 <Button type="ghost" style={{marginLeft: '5px'}} disabled={this.state.disableUpload}>
                   <Icon type="upload" /> 读取文件内容
                 </Button>
@@ -122,20 +233,32 @@ class ConfigFileContent extends React.Component {
             </div>
             :
             <div>
-              <div className="deleteRow alertRow">
-                <i className="fa fa-exclamation-triangle"/>请先配置 Git 仓库
-              </div>
+              {
+                !projects.length &&
+                <div className="deleteRow alertRow">
+                  <i className="fa fa-exclamation-triangle"/>请先关联 GitLab 代码仓库
+                </div>
+              }
               <Row className="importRow">
-                <Col span={7}>
-                  <FormItem className="formItem" {...selBranchProps}>
-                    <Select className="selBranch" placeholder="请选择代码分支">
-                      {options}
+                <Col className="selleft" span={12}>
+                  <FormItem className="formItem">
+                    <Select {...selProjectProps} className="selBranch" placeholder="请选择代码仓库">
+                      {project_options}
                     </Select>
                   </FormItem>
                 </Col>
-                <Col span={12}>
-                  <FormItem className="formItem" {...pathProps}>
-                    <Input className="path" placeholder='请输入配置文件路径，例如"/app/config"' />
+                <Col className="selright" span={12}>
+                  <FormItem className="formItem">
+                    <Select {...selBranchProps} className="selBranch" placeholder="请选择代码分支">
+                      {branch_options}
+                    </Select>
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row className="importRow">
+                <Col span={20}>
+                  <FormItem className="formItem">
+                    <Input {...pathProps} className="path" placeholder='请输入配置文件路径，例如"/app/config"' />
                   </FormItem>
                 </Col>
                 <Col span={4}>
@@ -173,4 +296,12 @@ class ConfigFileContent extends React.Component {
   }
 }
 
-export default ConfigFileContent
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  return {
+    clusterId: cluster.clusterID,
+  }
+}
+export default connect(mapStateToProps,{
+  getProjectList, getProjectBranches
+})(ConfigFileContent)

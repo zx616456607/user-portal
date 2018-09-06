@@ -1211,3 +1211,19 @@ exports.getResourceDevopsquotaSet = function* () {
   const result = yield api.getBy(['resourcequota'], null)
   this.body = result
 }
+
+exports.getConfigMaps = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster_id
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["configmaps", "clusters", clusterId], null)
+  this.body = result
+}
+
+exports.getGitProjects = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const project_id = this.params.project_id
+  const result = yield api.getBy(["repos", "managed-projects", project_id, "branches_tags"], null)
+  this.body = result
+}

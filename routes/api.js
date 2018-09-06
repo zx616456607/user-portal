@@ -315,6 +315,11 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
   router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   router.get('/clusters/:cluster/configgroups/:name/verify', configController.checkConfigGroupName)
+
+  // configs by devops
+  router.get('/devops/configmaps/clusters/:cluster_id', devopsController.getConfigMaps)
+  router.get('/devops/managed-projects/:project_id/branches', devopsController.getGitProjects)
+
   // Secrets config
   router.post('/clusters/:clusterID/secrets/:groupName', secretsController.createGroup)
   router.del('/clusters/:clusterID/secrets/:groupName', secretsController.removeGroup)

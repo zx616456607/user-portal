@@ -78,46 +78,6 @@ let UpdateConfigFileModal = React.createClass({
       filePath: '请上传文件或直接输入内容'
     })
   },
-  beforeUpload(file) {
-    const fileInput = this.configFileContent.uploadInput.refs.upload.refs.inner.refs.file
-    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
-      return false
-    }
-    const self = this
-    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
-    self.setState({
-      disableUpload: true,
-      filePath: '上传文件为 ' + fileName
-    })
-    notify.spin('读取文件内容中，请稍后')
-    const fileReader = new FileReader()
-    fileReader.onerror = function(err) {
-      self.setState({
-        disableUpload: false,
-      })
-      notify.close()
-      notify.error('读取文件内容失败')
-    }
-    fileReader.onload = function() {
-      self.setState({
-        disableUpload: false
-      })
-      notify.close()
-      notify.success('文件内容读取完成')
-      const configDesc = fileReader.result.replace(/\r\n/g, '\n')
-      self.props.form.setFieldsValue({
-        configDesc,
-      })
-      this.setState({
-        tempConfigDesc: configDesc
-      })
-    }
-    fileReader.readAsText(file)
-    return false
-  },
   render() {
     const { type, form, scope } = this.props
     const { getFieldProps } = form
@@ -157,8 +117,6 @@ let UpdateConfigFileModal = React.createClass({
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
-                ref={ref => this.configFileContent = ref}
-                beforeUpload={this.beforeUpload}
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
