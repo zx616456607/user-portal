@@ -684,7 +684,7 @@ let CreateDatabase = React.createClass({
                     </FormItem>
 
                     {
-                      clusterMode === 'single'
+                      clusterMode === 'single' && database !== 'redis'
                         ? <div className='modeTips'>使用 Group Replication 的一主多从模式，能更加保证数据的准确性与一致性</div>
                         : ''
                     }

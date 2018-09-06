@@ -768,7 +768,8 @@ class ResourceQuota extends React.Component {
                                 valuePropName: 'checked',
                               })
                               const checkValue = getFieldValue(checkKey)
-                              const inputProps = getFieldProps(item.id, {
+                              const id = item.id? item.id : 'id'
+                              const inputProps = getFieldProps(`${id}`, {
                                 rules: [
                                   {
                                     validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
@@ -946,7 +947,8 @@ class ResourceQuota extends React.Component {
                                           valuePropName: 'checked',
                                         })
                                         const checkValue = getFieldValue(checkKey)
-                                        const inputProps = getFieldProps(item.id, {
+                                        const id = item.id? item.id: 'id'
+                                        const inputProps = getFieldProps(`${id}`, {
                                           rules: [
                                             {
                                               validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)

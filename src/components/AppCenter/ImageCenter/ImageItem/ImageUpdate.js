@@ -1323,6 +1323,12 @@ class ImageUpdate extends Component {
     })
   }
 
+  handleRefreshTask = () => {
+    const { harbor, registry, getCurrentRuleTask } = this.props
+    const { currentRule } = this.state
+    getCurrentRuleTask(harbor, registry, currentRule)
+  }
+
   render(){
     const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
     const { edit, currentRules, currentRulesEnabled, disappear, currentRule } = this.state
@@ -1501,6 +1507,7 @@ class ImageUpdate extends Component {
             </Button>
             <Button
               size='large'
+              type="ghost"
               className='btbuttonadd'
               disabled={!currentRule}
               onClick={this.handleCopyRule}>
@@ -1532,9 +1539,18 @@ class ImageUpdate extends Component {
             <div className='title'>同步任务</div>
             <div className="header">
             <Button
+              size="large"
+              type="ghost"
               disabled={ taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
+            </Button>
+            <Button
+              size="large"
+              type="ghost"
+              disabled={!currentRule}
+              onClick={this.handleRefreshTask}>
+              刷新
             </Button>
             <span className="searchBox">
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}

@@ -110,7 +110,7 @@ class AutoBackupModal extends React.Component {
     } = this.props
     const { hour, minutes, daysConvert } = this.state
     // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
-    const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
+    const schedule = `0 ${minutes} ${hour} * * ${daysConvert.join(',')}`
     this.setState({ pending: true })
     if (!this.state.autoBackupSwitch) {
       // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口
