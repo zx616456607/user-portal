@@ -25,6 +25,7 @@ import {REG} from "../../../../constants";
 import TenxIcon from '@tenx-ui/icon'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
+import CommonIntlMessages from '../../../../containers/CommonIntl'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -38,6 +39,7 @@ class MySpace extends Component {
       globaleList: [],
       globaleUseList: [],
     }
+    this.myProject = this.props.intl.formatMessage(CommonIntlMessages.myProject)
   }
 
   componentWillMount() {
@@ -408,7 +410,16 @@ class MySpace extends Component {
       }]
     return (
       <div id='MySpace'>
-        <Row className="title" style={{ marginTop: 20 }}>{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName}</Row>
+        <Row className="title" style={{ marginTop: 20 }}>
+          {
+            this.props.userID === undefined
+              ? spaceName === this.myProject
+                ? ''
+                : `${formatMessage(IntlMessages.sharedProject)} - `
+              : `${formatMessage(IntlMessages.personalProject)} - `
+          }
+          {spaceName}
+        </Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
             <Card
@@ -417,7 +428,7 @@ class MySpace extends Component {
               bodyStyle={{ height: 175, padding: '7px' }}
               extra={
                 <Link to={
-                  spaceName === '我的个人项目'
+                  spaceName === this.myProject
                     ? `/tenant_manage/user/${this.props.loginUser.info.userID}?tabs=quota` : this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
                     : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
                 >

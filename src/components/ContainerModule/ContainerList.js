@@ -408,7 +408,7 @@ let MyComponent = React.createClass({
       );
       const images = this.getImages(item)
       const status = item.status || {};
-      const annotations = item.metadata.annotations
+      const annotations = item.metadata.annotations || {}
       const isLock = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}

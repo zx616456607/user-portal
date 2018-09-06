@@ -245,7 +245,9 @@ class GithubComponent extends Component {
         success: {
           func: () => {
             setTimeout(() => {
-              this.props.getUserInfo('github')
+              this.props.getUserInfo('github', {
+                failed: () => {}
+              })
             })
           }
         },
@@ -259,7 +261,9 @@ class GithubComponent extends Component {
                     success: {
                       func: () => {
                         setTimeout(() => {
-                          this.props.getUserInfo('github')
+                          this.props.getUserInfo('github', {
+                            failed: () => {}
+                          })
                         })
                       }
                     }
@@ -294,7 +298,9 @@ class GithubComponent extends Component {
       success: {
         func: () => {
           setTimeout(() => {
-            getUserInfo('github')
+            getUserInfo('github', {
+              failed: () => {}
+            })
           })
         }
       },

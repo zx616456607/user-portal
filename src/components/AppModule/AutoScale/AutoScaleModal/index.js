@@ -61,11 +61,16 @@ class AutoScaleModal extends React.Component {
   }
 
   componentDidMount() {
-    const {scaleDetail} = this.props
+    const {scaleDetail, clusterID, loadAllServices} = this.props
     this.initThresholdArr(scaleDetail)
+    loadAllServices(clusterID, {
+      pageIndex: 1,
+      pageSize: 100,
+    })
+    document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
   }
 
-  componentWillReceiveProps(nextProps) {
+  /*componentWillReceiveProps(nextProps) {
     const {visible: newVisible, scope, form, scaleDetail, loadAllServices, clusterID, loadNotifyGroups } = nextProps
     const {visible: oldVisible} = this.props
     if (oldVisible && !newVisible) {
@@ -94,7 +99,7 @@ class AutoScaleModal extends React.Component {
       })
       loadNotifyGroups(null, clusterID)
     }
-  }
+  }*/
   initThresholdArr = scaleDetail => {
     const { setFieldsValue } = this.props.form
     if (isEmpty(scaleDetail)) {
@@ -119,6 +124,7 @@ class AutoScaleModal extends React.Component {
     const {scope} = this.props
     scope.setState({
       scaleModal: false,
+      scaleDetail: null,
     })
     this.setState({
       thresholdArr: [0],
@@ -169,7 +175,8 @@ class AutoScaleModal extends React.Component {
             })
             this.uuid = 0
             scope.setState({
-              scaleModal: false
+              scaleModal: false,
+              scaleDetail: null,
             })
             scope.loadData(clusterID, 1)
             notify.close()
@@ -190,7 +197,8 @@ class AutoScaleModal extends React.Component {
             })
             this.uuid = 0
             scope.setState({
-              scaleModal: false
+              scaleModal: false,
+              scaleDetail: null,
             })
             notify.close()
             notify.error('操作失败')

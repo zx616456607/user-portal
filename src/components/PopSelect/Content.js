@@ -12,6 +12,7 @@ import { Input, Button, Spin, Icon, Collapse } from 'antd'
 import './style/Content.less'
 import { MY_SPACE } from '../../constants'
 import classNames from 'classnames'
+import IntlMessages from '../../containers/IndexPage/Enterprise/Intl'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -294,18 +295,19 @@ class PopSelect extends Component {
         </div>
       )
     }
+    const { formatMessage } = window._intl
     return (
       <div className="PopSelectContent">
         {this.getSpecial()}
         <Collapse accordion defaultActiveKey={collapseDefaultActiveKey || ['team']} >
           {
             isSysAdmin && (
-              <Panel header="个人项目" key="user">
+              <Panel header={formatMessage(IntlMessages.personalProject)} key="user">
                 {userList}
               </Panel>
             )
           }
-          <Panel header="共享项目" key="team">
+          <Panel header={formatMessage(IntlMessages.sharedProject)} key="team">
             {
               Search && (
                 <span className='titlesearch'>

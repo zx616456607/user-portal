@@ -14,6 +14,8 @@ import { Checkbox, Button } from 'antd'
 import ContainerInstance from './ContainerInstance'
 import ManualScaleModal from '../../../../src/components/AppModule/AppServiceDetail/ManualScaleModal'
 import * as serviceAction from '../../../../src/actions/services'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerHeaderIntl'
 
 class ContainerInstanceHeader extends React.Component {
   state = {
@@ -89,13 +91,13 @@ class ContainerInstanceHeader extends React.Component {
           onChange={this.onChangeInstanceIP}
           checked={this.state.isCheckIP}
         >
-          固定实例IP
+          <FormattedMessage {...IntlMessages.fixedInstanceIP} />
         </Checkbox>
         <span
           className="seeConfig"
           onClick={() => this.setState({ isFixed: true, isSee: true })}
         >
-          查看配置的IP
+          <FormattedMessage {...IntlMessages.viewConfiguredIP} />
         </span>
         { isCheckIP ? <div className="disAbled">已开启固定实例 IP，无法继续操作</div> : null }
         {
