@@ -1179,7 +1179,18 @@ class Sider extends Component {
                   }
                 >
                   <Menu.Item key='notebook'>
-                    <Link to='/ai-deep-learning/notebook'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/notebook')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/notebook')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.Notebook} />
@@ -1188,7 +1199,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='large-scale-train'>
-                    <Link to='/ai-deep-learning/large-scale-train'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/large-scale-train')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/largeScaleTrain')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.largeScaleTrain} />
@@ -1197,7 +1219,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='data-set'>
-                    <Link to='/ai-deep-learning/data-set'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/data-set')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/dataSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.dataSet} />
@@ -1206,7 +1239,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='model-set'>
-                    <Link to='/ai-deep-learning/model-set'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/model-set')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/modelSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.modelSet} />
