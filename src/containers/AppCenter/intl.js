@@ -30,7 +30,6 @@ const messageObj = {
     delete: '删除',
     deploy: '部署',
     updateOn: '更新于 {date}',
-    deteting: '应用模板删除中',
   }
 }
 
