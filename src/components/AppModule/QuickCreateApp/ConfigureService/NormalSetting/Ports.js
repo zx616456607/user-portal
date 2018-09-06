@@ -66,7 +66,6 @@ const Ports = React.createClass({
   forceCheckPorts() {
     const { getFieldValue, validateFields } = this.props.form
     const portsKeys = getFieldValue('portsKeys') || []
-    console.log(portsKeys.map(key => `port${key.value}`))
     setTimeout(() => {
       validateFields(portsKeys.filter(key => !key.deleted).map(key => `port${key.value}`), { force: true })
     }, 50);
