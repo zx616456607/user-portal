@@ -17,11 +17,11 @@ import { ROLE_USER, ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../constants'
 const menuList = [
   {
    url: '/app_center/template',
-   name: '应用模板'
+   name: 'appTemplate'
   },
   {
     url: '/app_center/projects',
-    name: '镜像仓库'
+    name: 'imageProjects'
   },
   // {
   //   url: '/app_center/image_store',
@@ -29,20 +29,20 @@ const menuList = [
   // },
   {
     url: '/app_center/wrap_manage',
-    name: '应用包管理'
+    name: 'wrapManage'
   },
   {
     url: '/app_center/stack_center',
-    name: '编排文件'
+    name: 'stackCenter'
   },
   {
     url: '/app_center/wrap_store',
-    name: '应用商店'
+    name: 'wrapStore'
   }
 ]
 const wrapCheck = {
   url: '/app_center/wrap_check',
-  name: '发布审核'
+  name: 'wrapCheck'
 }
 const admin_menuList = menuList.concat(wrapCheck)
 

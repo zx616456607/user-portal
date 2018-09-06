@@ -227,7 +227,7 @@ class Backup extends React.Component {
         fullBackupPointDel: !e.target.checked,
       })
     }
-    const isCurrentFullBackup = backupChain.index === 0 && backupChain.backType === 'fullbackup'
+    const isCurrentFullBackup = backupChain.backType === 'fullbackup'
     return (
       <Modal
         visible={this.state.delThis}
@@ -236,7 +236,7 @@ class Backup extends React.Component {
         title= {isCurrentFullBackup ? '删除全量备份点' : '删除备份点'}
         footer={[
           <Button key="cancel" onClick={() => this.setState({ delThis: false })}>取消</Button>,
-          <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel} onClick={confirmDel}>确定</Button>,
+          <Button key="confirm" type="primary" disabled={isCurrentFullBackup && this.state.fullBackupPointDel && backupChain.masterBackup} onClick={confirmDel}>确定</Button>,
         ]}
       >
         {
@@ -671,8 +671,8 @@ class Backup extends React.Component {
                       删除
                     </Button>
                     :
-                    <Dropdown.Button overlay={this.backupPointmenu(v)} type="ghost">
-                      <div onClick={() => this.rollBack(v)}>
+                    <Dropdown.Button onClick={() => this.rollBack(v)} overlay={this.backupPointmenu(v)} type="ghost">
+                      <div>
                         <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
                         回滚
                       </div>
@@ -691,6 +691,43 @@ class Backup extends React.Component {
     })
     this.checkAutoBackupExist()
   }
+  // 检测所有备份链的全量备份是否都成功
+  checkAllFullbackupFailure = () => {
+    const { chainsData, database } = this.props
+    let returnData = {
+      msg: '',
+      disabled: false,
+    }
+
+    if (database === 'mysql') {
+      if (chainsData.length === 0) {
+        return {
+          msg: '无任何备份链，手动备份后，可设置自动备份',
+          disabled: true,
+        }
+      }
+      let data = []
+      chainsData.forEach(v => {
+        data = data.concat(v.chains)
+      })
+
+      data.forEach(k => {
+        if (k.backType === 'fullbackup' && k.status !== 'Failed') {
+          returnData = {
+            msg: '',
+            disabled: false,
+          }
+          return
+        }
+        returnData = {
+          msg: '无备份成功的全量备份点，无法设置自动备份',
+          disabled: true,
+        }
+      })
+      return returnData
+    }
+    return returnData
+  }
   render() {
     const { chainsData, database, databaseInfo } = this.props
     return <div className="dbClusterBackup">
@@ -708,10 +745,10 @@ class Backup extends React.Component {
           </div>
           {/* 初次备份时候，自动备份禁用 */}
           {
-            chainsData.length === 0 ?
+            this.checkAllFullbackupFailure().disabled ?
               <div className="btn-wrapper">
                 <div className="fake">
-                  <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
+                  <Tooltip title={this.checkAllFullbackupFailure().msg}>
                     <div className="mask"></div>
                   </Tooltip>
                 </div>

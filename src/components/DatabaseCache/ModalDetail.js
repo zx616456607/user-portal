@@ -13,7 +13,26 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import classNames from 'classnames'
-import { Table, Button, Icon, Spin, Modal, Collapse, Row, Col, Popover, Input, Dropdown, Menu, Timeline, InputNumber, Tabs, Tooltip, Radio, Select, Form} from 'antd'
+import { Table,
+  Button,
+  Icon,
+  Spin,
+  Modal,
+  Collapse,
+  Row,
+  Col,
+  Popover,
+  Input,
+  Dropdown,
+  Menu,
+  Timeline,
+  InputNumber,
+  Tabs,
+  Tooltip,
+  Radio,
+  Select,
+  Form,
+  Checkbox} from 'antd'
 import { injectIntl } from 'react-intl'
 import { loadDbClusterDetail,
   deleteDatabaseCluster,
@@ -30,6 +49,7 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import DatabaseEvent from '../../../client/containers/DatabaseCache/ClusterDetailComponent/DatabaseEvent'
 import Storage from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Storage'
 import Backup from '../../../client/containers/DatabaseCache/ClusterDetailComponent/Backup'
+import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
@@ -436,7 +456,6 @@ class BaseInfo extends Component {
     // const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
-
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -445,7 +464,7 @@ class BaseInfo extends Component {
           <span className="spanLeft">实例副本</span>
           <InputNumber onChange={(e) => parentScope.setState({ replicas: e })}
                        value={parentScope.state.replicas}
-                       min={ this.props.database == 'zookeeper' ? 3 : 1 }
+                       min={ this.props.database === 'elasticsearch' ? 1 : 3 }
                        /> &nbsp; 个
         </div>
         <div className="modal-li">
@@ -540,7 +559,6 @@ class BaseInfo extends Component {
                       <Button type="primary" className="resource-config-btn" size="large" onClick={() => this.setState({resourceConfigEdit: true})} style={{ marginLeft: 30 }}>编辑</Button>
                   }
                 </div>
-
                 <ResourceConfig
                   ref="resourceConfig"
                   toggleComposeType={this.selectComposeType}
@@ -577,7 +595,7 @@ class VisitTypes extends Component{
       disabled:true,
       forEdit: false,
       selectDis: undefined,
-      deleteHint: true,
+      deleteHint: false,
       svcDomain: [],
       copyStatus: false,
       isInternal: false,
@@ -585,22 +603,28 @@ class VisitTypes extends Component{
       proxyArr: [],
       currentProxy: [],
       groupID:'',
-      selectValue: ''
+      selectValue: '',
+      readOnly: false,
+      isEditAccessAddress: false,
     }
   }
   componentWillMount() {
-    const { getProxy, clusterID, databaseInfo } = this.props;
-    const lbinfo = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME]
-
-    if(lbinfo == 'none') {
+    const { getProxy, clusterID, databaseInfo, database } = this.props;
+    const annotationLbgroupName = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    const externalId = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationLbgroupName]
+    const annotations = databaseInfo.service.annotations;
+    this.setReadOnlyCheck(this.props)
+    if(!externalId || externalId === 'none') {
       this.setState({
         initValue: 1,
+        value: 1,
         initSelectDics: true
       })
     } else {
       this.setState({
         initValue: 2,
-        initGroupID: lbinfo,
+        value: 2,
+        initGroupID: externalId,
         initSelectDics: false,
       })
     }
@@ -609,6 +633,15 @@ class VisitTypes extends Component{
         func: (res) => {
           this.setState({
             proxyArr:res[camelize(clusterID)].data
+          }, () =>{
+            const { proxyArr } = this.state
+            if (externalId && externalId !== 'none') {
+              this.setState({
+                deleteHint: proxyArr.findIndex(v => v.id === externalId) < 0 && externalId
+              })
+
+            }
+
           })
         },
         isAsync: true
@@ -620,6 +653,37 @@ class VisitTypes extends Component{
     if ((!detailModal && this.props.detailModal != nextProps.detailModal) || (!isCurrentTab && isCurrentTab != this.props.isCurrentTab)) {
       this.cancelEdit()
     }
+    this.setReadOnlyCheck(nextProps)
+  }
+  //设置开启只读地址回显
+  setReadOnlyCheck = whichProps => {
+    const annotations = whichProps.databaseInfo.service.annotations;
+    const visitType = annotations['master.system/lbgroup']
+
+    if(visitType !== 'none') {
+      //说明是集群外访问，slave.system/lbgroup 不为none是开启只读
+      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] !== 'none') {
+        this.setState({
+          readOnly: true
+        })
+      }else {
+        this.setState({
+          readOnly: false
+        })
+      }
+    }else {
+      // 集群内访问，slave.system/lbgroup 为none时说明开启只读，没有该字段说明关闭只读
+      if (annotations['slave.system/lbgroup'] && annotations['slave.system/lbgroup'] === 'none') {
+        this.setState({
+          readOnly: true
+        })
+      }else {
+        this.setState({
+          readOnly: false
+        })
+      }
+    }
+
   }
   onChange(e) {
     let value = e.target.value;
@@ -667,10 +731,30 @@ class VisitTypes extends Component{
         body = {
           annotations: {
             'system/lbgroup': groupID,
-            'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+            // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+          }
+        }
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `${groupID}`,
+              'slave.system/lbgroup': `${groupID}`,
+            }
+          }
+        }
+      }else {
+        if (database === 'redis') {
+          body = {
+            annotations: {
+              // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
+              'master.system/lbgroup': `none`,
+              'slave.system/lbgroup': `none`,
+            }
           }
         }
       }
+
       const success = {
         func: () => {
           notification.close()
@@ -772,31 +856,176 @@ class VisitTypes extends Component{
       copyStatus: false
     })
   }
-  render() {
-    const { bindingIPs, domainSuffix, databaseInfo, form } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, addrHide, proxyArr, initValue, initGroupID, initSelectDics } = this.state;
-    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
-    let clusterAdd = [];
-    let port = databaseInfo.service.port.port;
-    let serviceName = databaseInfo.service.name;
-    let portNum = databaseInfo.pods && databaseInfo.pods.length;
-    for (let i = 0; i < portNum; i++) {
-      clusterAdd.push({
-        start:`${serviceName}-${i}`,
-        end:`${databaseInfo.objectMeta.name}:${port}`
-      })
+  // 编辑访问地址
+  editAccessAddress = () => {
+    this.setState({
+      isEditAccessAddress: true
+    })
+  }
+  editAccessAddressSave = () => {
+    const notification = new NotificationHandler()
+    notification.spin('保存中更改中')
+    const annotations = this.props.databaseInfo.service.annotations;
+    const visitType = annotations['master.system/lbgroup']
+    const { editDatabaseCluster } = this.props.scope.props
+    const { databaseInfo, database, clusterID } = this.props
+    const success = {
+      func: () => {
+        notification.close()
+        notification.success('保存成功')
+        const { loadDbClusterDetail } = this.props.scope.props
+        setTimeout(() => {
+          loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, database, false);
+        }, 0)
+        this.setState({
+          disabled: true,
+          forEdit:false
+        });
+      },
+      isAsync: false
+    }
+    const failed = {
+      func: (res) => {
+        notification.close()
+        let message = '更改出口方式失败'
+        if(res.message) {
+          message = res.message
+        }
+        if(res.message && res.message.message) {
+          message = res.message.message
+        }
+        notification.error(message)
+    }}
+    const groupID = databaseInfo.objectMeta.annotations['master.system/lbgroup']
+    const { readOnly } = this.state
+    let body
+    if (visitType === 'none') {
+      body = {
+        annotations: {
+          'master.system/lbgroup': `${groupID}`,
+          'slave.system/lbgroup': readOnly? 'none' : '',
+        }
+      }
+    }else {
+      body = {
+        annotations: {
+          'master.system/lbgroup': `${groupID}`,
+          'slave.system/lbgroup': readOnly? `${groupID}` : 'none',
+        }
+      }
+    }
+    editDatabaseCluster(clusterID, database, databaseInfo.objectMeta.name, body, { success, failed })
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
+  editAccessAddressCancel = () => {
+    this.setState({
+      isEditAccessAddress: false
+    })
+  }
+  // 是否开启只读
+  readOnlyEnable = () => {
+    const { database, databaseInfo } = this.props
+    const enableReadOnly = database === 'redis' &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] &&
+      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
+    return enableReadOnly
+  }
+  // 出口地址
+  externalUrl = () => {
+    const { database, databaseInfo, domainSuffix, bindingIPs } = this.props
+    const { proxyArr } = this.state
+    let annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+
+    const systemLbgroup = database === 'redis'? 'master.system/lbgroup' : ANNOTATION_LBGROUP_NAME
+    // 当集群外访问的时候，网络出口的id，目的是在公网挑选出当前选择的网络出口的IP
+    const externalIpId = databaseInfo.service.annotations && databaseInfo.service.annotations[systemLbgroup]
+    if(!externalIpId || externalIpId === 'none') {
+      return null
+    }
+    let domain = ''
+    let externalIp = ''
+    proxyArr.length!== 0 && proxyArr.every(proxy => {
+      if (proxy.id === externalIpId) {
+        domain = proxy.domain
+        externalIp = proxy.address
+        return false
+      }
+      return true
+    })
+    // 出口没匹配到，出口被管理员删除了
+    if (proxyArr.findIndex(v => v.id === externalIpId) === -1) {
+      return null
     }
 
-    const domainList = clusterAdd && clusterAdd.map((item,index)=>{
+    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    let readOnlyportAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    // 普通的出口端口
+    let externalPort = portAnnotation && portAnnotation.split('/')
+    if (externalPort && externalPort.length > 1) {
+      externalPort = externalPort[2]
+    }
+    // redis开启只读时的出口端口
+    let readOnlyExternalPort = readOnlyportAnnotation && readOnlyportAnnotation.split('/')[2]
+    let readOnlyExternalUrl
+    if(readOnlyExternalPort) {
+      readOnlyExternalUrl = externalIp + ':' + readOnlyExternalPort
+    }
+    let externalUrl
+    if (externalPort != '') {
+      if (domain) {
+        externalUrl = databaseInfo.service && databaseInfo.service.name + '-'
+          + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
+      } else {
+        externalUrl = externalIp + ':' + (externalPort || '未知')
+      }
+    }
+    return {externalUrl,readOnlyExternalUrl}
+  }
+  // 集群内实例访问地址
+  inClusterUrl = () => {
+    const { databaseInfo } = this.props
+    const { copyStatus } = this.state
+    const clusterAdd = [];
+    let port = databaseInfo.service.port.port;
+    let serviceName = databaseInfo.objectMeta.name;
+    const pods = databaseInfo.pods
+    if(pods) {
+      for (const v of pods) {
+        const url = `${v.name}.${serviceName}:${port}`
+        clusterAdd.push(url)
+      }
+    }
+    const domainList = clusterAdd && clusterAdd.map(item=>{
       return (
-        <dd className="addrList" key={item.start}>
-          <span className="domain">{item.end}</span>
+        <div className="addrList" key={item}>
+          <span className="domain">{item}</span>
           <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item.end)} onClick={this.copyTest.bind(this)}/>
+            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,item)} onClick={this.copyTest.bind(this)}/>
           </Tooltip>
-        </dd>
+        </div>
       )
     })
+    return domainList
+  }
+  // 集群内负载均衡地址
+  loadBalancing = () => {
+    const { databaseInfo, database } = this.props
+    const port = databaseInfo.service.port.port;
+    const annotationSvcSchemaPortName = database === 'redis'? 'master.tenxcloud.com/schemaPortname' : ANNOTATION_SVC_SCHEMA_PORTNAME
+    const name = databaseInfo.service.annotations && databaseInfo.service.annotations[annotationSvcSchemaPortName]
+    const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
+    const serviceName = name && name.split('/')[0];
+    const serviceNameReadOnly = nameReadonly && nameReadonly.split('/')[0];
+    const url = `${serviceName}:${port}`
+    const readOnlyUrl = `${serviceNameReadOnly}:${port}`
+    return {url, readOnlyUrl}
+  }
+  render() {
+    const { databaseInfo, form, database } = this.props
+    const { value, disabled, forEdit, selectDis, deleteHint, copyStatus, proxyArr, initValue, initGroupID, initSelectDics,isEditAccessAddress } = this.state;
+    const lbinfo = databaseInfo.service.annotations ? databaseInfo.service.annotations[ANNOTATION_LBGROUP_NAME] : 'none'
     let validator = (rule, value, callback) => callback()
     if(value == 2) {
       validator = (rule, value, callback) => {
@@ -817,46 +1046,7 @@ class VisitTypes extends Component{
           <Option key={item.id} value={item.id}>{item.type == 'public' ? '公网：' : '内网：'}{item.name}</Option>
       )
     }):null
-    let domain = ''
-    if (domainSuffix) {
-      domain = eval(domainSuffix)[0]
-    }
-    let bindingIP = ''
-    if (bindingIPs) {
-      bindingIP = eval(bindingIPs)[0]
-    }
-    // get domain, ip from lbgroup
-    proxyArr && proxyArr.every(proxy => {
-      if (proxy.id === lbinfo) {
-        domain = proxy.domain
-        bindingIP = proxy.address
-        return false
-      }
-      return true
-    })
 
-    let portAnnotation = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    if(databaseInfo.service.annotations['system/lbgroup'] === 'none') {
-      portAnnotation = ''
-    }
-    let externalPort = ''
-
-    if (portAnnotation) {
-      externalPort = portAnnotation.split('/')
-      if (externalPort && externalPort.length > 1) {
-        externalPort = externalPort[2]
-      }
-    }
-    let externalUrl
-
-    if (externalPort != '') {
-      if (domain) {
-        externalUrl = databaseInfo.service && databaseInfo.service.name + '-' + databaseInfo.service && databaseInfo.service.namespace + '.' + domain + ':' + (externalPort || '未知')
-      } else {
-        externalUrl = bindingIP + ':' + (externalPort || '未知')
-      }
-    }
-    const inClusterLB = `${serviceName}:${port}`
     const radioValue = value || initValue
     const hide = selectDis == undefined ? initSelectDics : selectDis
     const dataSource = [
@@ -890,13 +1080,24 @@ class VisitTypes extends Component{
             return (
               <div>
                 {
-                  externalUrl
+                  this.externalUrl()
                   ? (
                     <div>
-                      <span className="domain">{externalUrl}</span>
-                      <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                        <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,externalUrl)} onClick={this.copyTest.bind(this)}/>
-                      </Tooltip>
+                      <div>
+                        <span className="domain">{this.externalUrl().externalUrl}</span>
+                        <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                          <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.externalUrl().externalUrl)} onClick={this.copyTest.bind(this)}/>
+                        </Tooltip>
+                      </div>
+                      {
+                        this.readOnlyEnable() &&
+                        <div>
+                          <span className="domain">{this.externalUrl().readOnlyExternalUrl} (只读)</span>
+                          <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                            <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.externalUrl().readOnlyExternalUrl)} onClick={this.copyTest.bind(this)}/>
+                          </Tooltip>
+                        </div>
+                      }
                     </div>
                   )
                   : '-'
@@ -905,14 +1106,25 @@ class VisitTypes extends Component{
             )
           }
           if (key === 'inClusterUrls') {
-            return domainList
+            return this.inClusterUrl()
           }
           return (
             <div>
-              <span className="domain">{inClusterLB}</span>
-              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
-                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,inClusterLB)} onClick={this.copyTest.bind(this)}/>
-              </Tooltip>
+              <div>
+                <span className="domain">{this.loadBalancing().url}</span>
+                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.loadBalancing().url)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </div>
+              {
+                this.readOnlyEnable() &&
+                <div>
+                  <span className="domain">{this.loadBalancing().readOnlyUrl} (只读)</span>
+                  <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                    <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this,this.loadBalancing().readOnlyUrl)} onClick={this.copyTest.bind(this)}/>
+                  </Tooltip>
+                </div>
+              }
             </div>
           )
         }
@@ -937,7 +1149,7 @@ class VisitTypes extends Component{
               </RadioGroup>
               <p className="typeHint">
                 {
-                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问；': '数据库与缓存可提供集群外访问，选择一个网络出口；'
+                  radioValue === 1 ? '选择后该数据库与缓存集群仅提供集群内访问': '数据库与缓存可提供集群外访问，选择一个网络出口'
                 }
               </p>
               <div className={classNames("inlineBlock selectBox",{'hide': hide})}>
@@ -949,12 +1161,41 @@ class VisitTypes extends Component{
                 </Select>
                </Form.Item>
               </div>
-              <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>未配置该网络出口模式，请选择其他模式</div>
+              {
+                this.state.deleteHint &&
+                <div className={classNames("inlineBlock deleteHint")}>
+                  <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+                  已选网络出口已被管理员删除，请选择其他网络出口或访问方式
+                </div>
+              }
             </div>
           </div>
         </div>
         <div className="visitTypeBottomBox configContent">
           <div className="visitTypeTitle configHead">访问地址</div>
+          {
+            database === 'redis' &&
+            <div className="redisEdit">
+              {
+                isEditAccessAddress?
+                  [
+                    <Button type="default" style={{marginRight: 10}} onClick={this.editAccessAddressCancel}>取消</Button>,
+                    <Button type="primary" onClick={this.editAccessAddressSave}>保存</Button>
+                  ]
+                  :
+                  <Button type="primary" onClick={this.editAccessAddress}>编辑</Button>
+              }
+
+              <div className="readOnlySwitch">
+                <Checkbox checked={this.state.readOnly} disabled={!isEditAccessAddress} onChange={e => {
+                  this.setState({readOnly: e.target.checked})
+                }}>
+                  开启只读地址
+                </Checkbox>
+              </div>
+              <div className="readOnlyTip">开启只读地址后，使用只读地址执行读请求，可将所有的读请求分摊到所有备节点</div>
+            </div>
+          }
           <div className="visitAddrInnerBox">
           <input type="text" className="copyTest" style={{opacity:0}}/>
             <Table
@@ -996,9 +1237,9 @@ class LeasingInfo extends Component {
   }
   render() {
     const parentScope = this.props.scope
-    const { databaseInfo } = this.props
+    const { databaseInfo, database } = this.props
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice[database === 'mysql'? '4x':'2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
@@ -1031,7 +1272,10 @@ class ModalDetail extends Component {
       stopAlertModal: false,
       accessMethodData: null,
       rebootClusterModal: false,
-      rebootLoading: false
+      rebootLoading: false,
+      checkingBackupStatus: false,
+      backupPending: false,
+      backupChecking: false,
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1096,6 +1340,33 @@ class ModalDetail extends Component {
           }
         },
       });
+    }
+  }
+  getBackupList = () => {
+    const { cluster, dbName, database, getbackupChain } = this.props
+    this.setState({
+      checkingBackupStatus: true,
+    })
+    if (database === 'redis' || database === 'mysql') {
+      getbackupChain(cluster, database, dbName, {
+        success: {
+          func: res => {
+            this.setState({
+              checkingBackupStatus: false,
+            })
+            let chains = []
+            res.data.items.forEach(v => {chains = chains.concat(v.chains)})
+            chains.forEach(v => {
+              if (v.status === 'Scheduled' ||  v.status === 'Started' || v.status === '202') {
+                this.setState({
+                  backupPending: true
+                })
+                return
+              }
+            } )
+          },
+        },
+      })
     }
   }
   refurbishDetail() {
@@ -1227,6 +1498,7 @@ class ModalDetail extends Component {
     }
   }
   stopAlert = () => {
+    this.getBackupList()
     this.setState({
       stopAlertModal: true
     })
@@ -1319,17 +1591,28 @@ class ModalDetail extends Component {
     return <Modal
       title="重启集群"
       onOk={confirm}
-      confirmLoading={this.state.rebootLoading}
+      confirmLoading={this.state.checkingBackupStatus || this.state.rebootLoading}
       onCancel={() => {
         this.setState({
           rebootClusterModal: false,
-          rebootLoading: false
+          rebootLoading: false,
+          checkingBackupStatus: false
         })
       }}
       visible={this.state.rebootClusterModal}
     >
-      <div>
-        确认重启集群吗？
+      <div className="appServiceDetailRebootAlert">
+        <div>
+          <Icon type="question-circle-o" className="question" />
+          确认重启集群吗？
+        </div>
+        {this.state.backupPending &&
+          <div className="attention">
+            <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+            集群存在正在备份状态备份点，重启集群可能导致备份失败，为保证备份数据完整性建议备份完成后再重启集群
+          </div>
+        }
+
       </div>
     </Modal>
   }
@@ -1370,7 +1653,8 @@ class ModalDetail extends Component {
               {databaseInfo.objectMeta && databaseInfo.objectMeta.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div className="dbDesc">{databaseInfo.objectMeta.namespace} / {databaseInfo.objectMeta.name}</div>
+              <div>集群模式：{databaseInfo.multiMaster === true? '多主': '一主多从' }</div>
               <div> 状态：
                 {this.dbStatus(databaseInfo.status)}
               </div>
@@ -1382,12 +1666,16 @@ class ModalDetail extends Component {
                     {
                       needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
-                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {this.setState({rebootClusterModal: true})}}>
+                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {
+                            this.getBackupList()
+                            this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {this.setState({rebootClusterModal: true})}}>
+                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {
+                          this.getBackupList()
+                          this.setState({rebootClusterModal: true})}}>
                           重启
                         </Button>
                     }
@@ -1477,7 +1765,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>
@@ -1527,7 +1815,7 @@ class ModalDetail extends Component {
                         }
                       </TabPane>,
                       <TabPane tab='租赁信息' key='#leading'>
-                        <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
+                        <LeasingInfo databaseInfo={databaseInfo} database={database} scope= {this} />
                       </TabPane>]
                     :
                     [<TabPane tab='访问方式' key='#VisitType'>
@@ -1551,11 +1839,22 @@ class ModalDetail extends Component {
         <Modal
           visible={this.state.stopAlertModal}
           title="停止数据库与缓存集群"
-          onCancel={() => this.setState({stopAlertModal: false})}
+          onCancel={() => this.setState({
+            stopAlertModal: false,
+            checkingBackupStatus: false,
+          })}
           onOk={this.stopTheCluster}
+          confirmLoading={this.state.checkingBackupStatus}
         >
           <div className="alertContent">
             <Icon type="question-circle-o" />{`是否确定停止${databaseInfo.objectMeta.name}集群？`}
+            {this.state.backupPending &&
+            <div className="attention">
+              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+              集群存在正在备份状态备份点，停止集群可能导致备份失败，为保证备份数据完整性建议备份完成后再停止集群
+            </div>
+            }
+
           </div>
         </Modal>
         <Modal
@@ -1616,4 +1915,5 @@ export default connect(mapStateToProps, {
   editDatabaseCluster,
   updateMysqlPwd,
   rebootCluster,
+  getbackupChain,
 })(ModalDetail)

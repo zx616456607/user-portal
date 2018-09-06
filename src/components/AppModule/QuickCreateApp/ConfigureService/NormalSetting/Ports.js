@@ -18,6 +18,8 @@ import {
 } from 'antd'
 import { isDomain } from '../../../../../common/tools'
 import './style/Ports.less'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -29,11 +31,14 @@ const MAPPING_PORT_SPECIAL = 'special'
 
 const Ports = React.createClass({
   checkContainerPort(key, rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if (value < MIN || value > MAX) {
-      return callback(`容器端口范围为${MIN}~${MAX}`)
+      return callback(intl.formatMessage(IntlMessage.containerPortRange, {
+        min: MIN, max: MAX,
+      }))
     }
     const { getFieldValue } = this.props.form
     const portsKeys = getFieldValue('portsKeys') || []
@@ -46,7 +51,7 @@ const Ports = React.createClass({
     portsKeys.every(_key => {
       const port = getFieldValue(`port${_key.value}`)
       if (_key.value !== key && value === port) {
-        error = '已填写过该端口'
+        error = intl.formatMessage(IntlMessage.portExist)
         return false
       }
       return true
@@ -54,11 +59,14 @@ const Ports = React.createClass({
     callback(error)
   },
   checkMappingPort(key, rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if (value < SPECIAL_MIN || value > MAX) {
-      return callback(`容器端口范围为${SPECIAL_MIN}~${MAX}`)
+      return callback(intl.formatMessage(IntlMessage.containerPortRange, {
+        min: SPECIAL_MIN, max: MAX,
+      }))
     }
     const { getFieldValue } = this.props.form
     const portsKeys = getFieldValue('portsKeys') || []
@@ -66,7 +74,7 @@ const Ports = React.createClass({
     portsKeys.every(_key => {
       const mappingPort = getFieldValue(`mappingPort${_key}`)
       if (_key !== key && value === mappingPort) {
-        error = '已填写过该端口'
+        error = intl.formatMessage(IntlMessage.portExist)
         return false
       }
       return true
@@ -102,7 +110,7 @@ const Ports = React.createClass({
       return
     }
     const keyValue = key.value
-    const { form, currentCluster, isTemplate, disabled } = this.props
+    const { form, currentCluster, isTemplate, disabled, intl } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
     const accessMethod = getFieldValue('accessMethod')
@@ -113,22 +121,39 @@ const Ports = React.createClass({
     const mappingPortKey = `mappingPort${keyValue}`
     const portProps = getFieldProps(portKey, {
       rules: [
-        { required: true, message: '请输入容器端口' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.containerPort),
+            end: '',
+          })
+        },
         { validator: this.checkContainerPort.bind(this, keyValue) }
       ],
     })
     const portProtocolProps = getFieldProps(portProtocolKey, {
       rules: [
-        { required: true, message: '请选择端口协议' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.portProtocol),
+            end: '',
+          })
+        },
       ],
     })
     const portProtocolValue = getFieldValue(portProtocolKey)
     let mappingPortTypeProps
     let mappingPortProps
-    if (portProtocolValue === 'TCP' && accessMethod !== 'accessMethod') {
+    if ((portProtocolValue === 'TCP' || portProtocolValue === 'UDP') && accessMethod !== 'accessMethod') {
       mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
         rules: [
-          { required: true, message: '请选择映射服务端口类型' },
+          {
+            required: true,
+            message: intl.formatMessage(IntlMessage.pleaseSelect, {
+              item: intl.formatMessage(IntlMessage.mapServicePortType),
+            })
+          },
         ],
         initialValue: MAPPING_PORT_AUTO,
         onChange: this.portTypeChange.bind(this, keyValue)
@@ -137,7 +162,13 @@ const Ports = React.createClass({
       if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
         mappingPortProps = getFieldProps(mappingPortKey, {
           rules: [
-            { required: true, message: '请输入指定端口' },
+            {
+              required: true,
+              message: intl.formatMessage(IntlMessage.pleaseEnter, {
+                item: intl.formatMessage(IntlMessage.designatedPort),
+                end: '',
+              })
+            },
             { validator: this.checkMappingPort.bind(this, keyValue) }
           ],
         })
@@ -160,9 +191,9 @@ const Ports = React.createClass({
             <Select disabled={disabled} size="default" {...portProtocolProps}>
               {
                 accessMethod == 'Cluster'
-                ? <Option key="TCP" value="TCP">TCP</Option>
-                : [<Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>,
-                  <Option key="TCP" value="TCP">TCP</Option>]
+                ? [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>]
+                : [<Option key="TCP" value="TCP">TCP</Option>, <Option key="UDP" value="UDP">UDP</Option>,
+                <Option key="HTTP" value="HTTP" disabled={httpOptionDisabled}>HTTP</Option>]
               }
             </Select>
           </FormItem>
@@ -178,8 +209,8 @@ const Ports = React.createClass({
                     ? (
                     <FormItem>
                       <Select size="default" {...mappingPortTypeProps} disabled={isTemplate || disabled}>
-                        <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
-                        <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
+                        <Option value={MAPPING_PORT_AUTO}>{intl.formatMessage(IntlMessage.dynamicGeneration)}</Option>
+                        <Option value={MAPPING_PORT_SPECIAL}>{intl.formatMessage(IntlMessage.designatedPort)}</Option>
                       </Select>
                     </FormItem>
                   )
@@ -206,7 +237,7 @@ const Ports = React.createClass({
           }
         </Col>
         <Col span={5}>
-          <Tooltip title="删除">
+          <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
             <Button
               className="deleteBtn"
               type="dashed"
@@ -236,7 +267,7 @@ const Ports = React.createClass({
       validateFieldsKeys.push(`port${keyValue}`)
       validateFieldsKeys.push(`portProtocol${keyValue}`)
       const portProtocolValue = getFieldValue(`portProtocol${keyValue}`)
-      if (portProtocolValue === 'TCP' && accessMethod !== 'Cluster') {
+      if ((portProtocolValue === 'TCP' || portProtocolValue === ' UDP') && accessMethod !== 'Cluster') {
         validateFieldsKeys.push(`mappingPortType${keyValue}`)
         const mappingPortTypeValue = getFieldValue(`mappingPortType${keyValue}`)
         if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
@@ -263,29 +294,29 @@ const Ports = React.createClass({
     })
   },
   render() {
-    const { formItemLayout, form, forDetail, disabled } = this.props
+    const { formItemLayout, form, forDetail, disabled, intl } = this.props
     const { getFieldValue } = form
     // must set a port
     const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
         <Col offset={forDetail ? 0 : formItemLayout.labelCol.span} className="formItemLabel">
-          映射端口
+          {intl.formatMessage(IntlMessage.mapPort)}
         </Col>
         <Col offset={forDetail ? 0 : formItemLayout.labelCol.span}>
           <div className="portList">
             <Row className="portsHeader">
               <Col span={5}>
-                容器端口
+                {intl.formatMessage(IntlMessage.containerPort)}
               </Col>
               <Col span={5}>
-                协议
+                {intl.formatMessage(IntlMessage.protocol)}
               </Col>
               <Col span={9}>
-                映射服务端口
+                {intl.formatMessage(IntlMessage.mapServicePort)}
               </Col>
               <Col span={5}>
-                操作
+                {intl.formatMessage(IntlMessage.operate)}
               </Col>
             </Row>
             <div className="portsBody">
@@ -295,7 +326,7 @@ const Ports = React.createClass({
               !disabled &&
               <span className="addPort" onClick={this.addPortsKey}>
                 <Icon type="plus-circle-o" />
-                <span>添加映射端口</span>
+                <span>{intl.formatMessage(IntlMessage.addMapPort)}</span>
               </span>
             }
           </div>
@@ -305,4 +336,6 @@ const Ports = React.createClass({
   }
 })
 
-export default Ports
+export default injectIntl(Ports, {
+  withRef: true,
+})

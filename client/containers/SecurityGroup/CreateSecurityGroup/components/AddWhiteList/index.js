@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Form, Select, Input, Row, Col, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
+import isCidr from 'is-cidr'
 const FormItem = Form.Item
 const Option = Select.Option
 const imgSrc = [
@@ -54,7 +55,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'cidr',
               [`ingresscidr${ind}`]: item.cidr,
-              [`ingress${ind}except`]: item.except,
+              [`ingresscidr${ind}except`]: item.except[0] || null,
             })
           case 'ingress':
             return setFieldsValue({
@@ -95,7 +96,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`egress${ind}`]: 'cidr',
               [`egresscidr${ind}`]: item.cidr,
-              [`egress${ind}except`]: item.except,
+              [`egresscidr${ind}except`]: item.except[0] || null,
             })
           default:
             return null
@@ -133,9 +134,31 @@ class AddWhiteList extends React.Component {
     })
   }
 
-  // checkCidr = () => {
+  checkCidr = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    if (!isCidr(value)) {
+      return callback('请输入正确的 cidr')
+    }
+    callback()
+  }
 
-  // }
+  checkExceptCidr = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+
+    if (value) {
+      const cidrArr = value.split(',')
+      cidrArr.forEach(item => {
+        if (!isCidr(item)) {
+          return callback('请输入正确的 cidr')
+        }
+      })
+    }
+    callback()
+  }
 
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
@@ -151,6 +174,8 @@ class AddWhiteList extends React.Component {
                 required: true,
                 whitespace: true,
                 message: `请输入要放通的${target}网络`,
+              }, {
+                validator: this.checkCidr,
               }],
             })}
             style={{ width: 280 }}
@@ -158,9 +183,13 @@ class AddWhiteList extends React.Component {
             />
           </FormItem>
           <span>除去</span>
-          <FormItem>
+          <FormItem className="execptCidr">
             <Input
-              {...getFieldProps(`${type}${option}${k}except`)}
+              {...getFieldProps(`${type}${option}${k}except`, {
+                rules: [{
+                  validator: this.checkExceptCidr,
+                }],
+              })}
               style={{ width: 212 }}
               placeholder="如 10.10.2.0/16"
             />

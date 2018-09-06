@@ -19,7 +19,9 @@ import _ from 'lodash'
 import QueueAnim from 'rc-queue-anim'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { toQuerystring } from '../../../../src/common/tools'
-
+import { injectIntl, FormattedMessage } from 'react-intl'
+import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
+import { STORAGE_BEFORE_EXPORT_FILE_FAILURE } from '../../../actions/storage';
 
 const findQuotaChinsesName = ({ resourceType, resourceList }) => {
   const { definitions } = resourceList
@@ -61,7 +63,7 @@ const formateQuery = ({ space: { displayName, namespace },  resourceType, cluste
   }
   if (namespace == 'default') {
     showDisplayName.displayName = undefined
-    showDisplayName.namespace =  '我的个人项目'
+    showDisplayName.namespace =  <FormattedMessage {...AppServiceDetailIntl.myPersonalItem}/>
   } else {
     showDisplayName.displayName = displayName,
     showDisplayName.namespace = namespace
@@ -92,7 +94,7 @@ function mapStateToProps(state, props) {
 }
 @connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
   getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList })
-export default class ResourceBanner extends React.Component {
+class ResourceBanner extends React.Component {
   state = {
     setResource: undefined, // 默认资源未定义
     usedResource: 0, // 默认使用零个
@@ -196,6 +198,7 @@ export default class ResourceBanner extends React.Component {
     clearTimeout(this.timer)
   }
   render () {
+    const { formatMessage } = this.props.intl
     const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId,
       projectType, showDisplayName, flagManager  } = this.props
     const { setResource, usedResource, resourceName, resourceflay } = this.state
@@ -225,29 +228,30 @@ export default class ResourceBanner extends React.Component {
     return(
       <QueueAnim>
         {
-          setResource !== undefined && projectId !== undefined?
           <div className="ResourceBanner" key="ResourceBanner">
             <div>
-              <span>{`「${projectText}」项目`}</span>
-              <span style={{ display: resourceTypeText }}>{`在「${clusterName}」`}</span>
-              <span>{`中「${resourceName}」配额使用情况`}</span>
+              <span>{formatMessage(AppServiceDetailIntl.projectTextItem, { projectText })}</span>
+              <span style={{ display: resourceTypeText }}>{formatMessage(AppServiceDetailIntl.inCluserName, { clusterName })}</span>
+              <span>{formatMessage(AppServiceDetailIntl.inQuotauseCondition, { resourceName })}</span>
             </div>
           <div className="progress">
             <Progress percent={percent} strokeWidth={5} status="active" showInfo={false}/>
           </div>
           <div>
-            {`${usedResource}/${setResource === null ? '无限制' : setResource }`}
-            <span onClick={ this.reload } className="reload">刷新</span>
+            {`${usedResource}/${setResource === null ? formatMessage(AppServiceDetailIntl.noLimit) : setResource }`}
+            <span onClick={ this.reload } className="reload">{formatMessage(ServiceCommonIntl.refresh)}</span>
           </div>
           {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
-            <div><Link to={link}><Icon type="plus" />编辑配额</Link></div> :
-            <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />申请增加配额</Link></div>
+            <div><Link to={link}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.eidtQuota)}</Link></div> :
+            <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.applyIncreaseQuota)}</Link></div>
           }
-          </div> : null
+          </div>
         }
       </QueueAnim>
 
     )
   }
 }
+
+export default injectIntl(ResourceBanner, {withRef: true,})

@@ -10,118 +10,168 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-// import QueueAnim from 'rc-queue-anim'
-import { Form, Input, Icon, Row, Col, Button, Tooltip } from 'antd'
+import { Form, Input, Icon, Tooltip } from 'antd'
 import './style/ReplicasRestrictIP.less'
-// import DetailHeader from './DetailHeader'
-// import IsolatedObj from './IsolatedObj'
-// import WhiteList from './WhiteList'
-// import * as securityActions from '../../../actions/securityGroup'
-// import Notification from '../../../../src/components/Notification'
+import * as podAction from '../../../../../src/actions/app_manage'
+import Notification from '../../../../../src/components/Notification'
+import ipRangeCheck from 'ip-range-check'
 
-// const notification = new Notification()
+const notification = new Notification()
 const FormItem = Form.Item
 
 class ReplicasRestrictIP extends React.Component {
 
   state={
     uuid: 0,
+    NetSegment: undefined, // 校验网段使用
   }
 
   componentDidMount() {
-    const { getFieldValue, setFieldsValue } = this.props.form
+    const { cluster, getPodNetworkSegment, form } = this.props
+    const { getFieldValue, setFieldsValue } = form
     const num = getFieldValue('replicas')
+    let ipKeys = []
     for (let i = 0; i < num; i++) {
-      let keys = getFieldValue('keys')
-      keys = keys.concat(i)
-      setFieldsValue({
-        keys,
-      })
+      ipKeys = ipKeys.concat(i)
     }
-    this.setState({
-      uuid: num,
+    setFieldsValue({
+      ipKeys,
+    })
+    getPodNetworkSegment(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            uuid: num,
+            NetSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
+          this.setState({
+            uuid: num,
+          })
+        },
+      },
+    })
+    /*
+    // 固定ip暂时只支持固定一个
+    this.props.Events.on('changeReplics', v => {
+      const ipNum = getFieldValue('ipKeys').length
+      if (v > ipNum) {
+        let oldKey = getFieldValue('ipKeys')
+        let uuNum = this.state.uuid
+        for (let i = ipNum; i < v; i++) {
+          oldKey = oldKey.concat(uuNum)
+          uuNum = ++uuNum
+        }
+        setFieldsValue({
+          ipKeys: oldKey,
+        })
+        this.setState({ uuid: uuNum })
+      }
+    })
+    */
+  }
+
+  componentWillUnmount() {
+    const { form } = this.props
+    const ipKeys = form.getFieldValue('ipKeys')
+    ipKeys.forEach(i => {
+      form.setFieldsValue({
+        [`replicasIP${i}`]: undefined,
+      })
+    })
+    form.setFieldsValue({
+      ipKeys: [],
     })
   }
 
   remove = k => {
     const { form } = this.props
-    let keys = form.getFieldValue('keys')
-    keys = keys.filter(key => {
+    let ipKeys = form.getFieldValue('ipKeys')
+    ipKeys = ipKeys.filter(key => {
       return key !== k
     })
     form.setFieldsValue({
-      keys,
+      ipKeys,
     })
   }
 
   add = () => {
     const { uuid } = this.state
     const { form } = this.props
-    let keys = form.getFieldValue('keys')
-    keys = keys.concat(uuid)
+    let ipKeys = form.getFieldValue('ipKeys')
+    ipKeys = ipKeys.concat(uuid)
     form.setFieldsValue({
-      keys,
+      ipKeys,
     })
     this.setState({
       uuid: uuid + 1,
     })
   }
 
-  // setform = () => {
-  //   let num = this.state.uuid
-  //   const { getFieldValue, setFieldsValue } = this.props.form
-  //   const ln = getFieldValue('replicas')
-  //   const keyLn = getFieldValue('keys').length
-  //   for (let i = keyLn; i < ln; i++) {
-  //     let keys = getFieldValue('keys')
-  //     keys = keys.concat(num)
-  //     setFieldsValue({
-  //       keys,
-  //     })
-  //     num++
-  //   }
-  //   this.setState({ uuid: num })
-  // }
+  checkPodCidr = (rule, value, callback) => {
+    if (!value) return callback()
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    callback()
+  }
 
   render() {
-    // const { } = this.state
+    const { NetSegment } = this.state
     const { getFieldProps, getFieldValue } = this.props.form
-    getFieldProps('keys', {
+    getFieldProps('ipKeys', {
       initialValue: [ ],
     })
-    // if (getFieldValue('replicas') > getFieldValue('keys').length) {
-    //   console.log( 'set' )
-    //   this.setform()
-    // }
-    const isdelete = getFieldValue('replicas')
-      && getFieldValue('replicas') >= getFieldValue('keys').length
-      || false
-    const formItems = getFieldValue('keys').map(k => {
+    // const isdelete = getFieldValue('replicas')
+    //   && getFieldValue('replicas') >= getFieldValue('ipKeys').length
+    //   || false
+    const formItems = getFieldValue('ipKeys').map(k => {
       return (
         <FormItem key={k} wrapperCol={{ span: 16, offset: 4 }}>
           <Input {...getFieldProps(`replicasIP${k}`, {
             rules: [{
               required: true,
               whitespace: true,
-              message: '请填写实例 IP（需属于 172.168.0.0/16）',
+              message: `请填写实例 IP（需属于 ${NetSegment}）`,
+            }, {
+              validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 300, marginRight: 15 }}
-          placeholder="请填写实例 IP（需属于 172.168.0.0/16）"
+          placeholder= {`请填写实例 IP（需属于 ${NetSegment}）`}
           />
-          <Button
-            className="delBtn"
-            disabled={isdelete}
-            onClick={() => this.remove(k)}
-          >
-            <Icon type="delete" />
-          </Button>
+          <Tooltip placement="top" title={'目前仅支持一个实例'}>
+            <Icon type="question-circle" style={{ marginLeft: 8 }} />
+          </Tooltip>
+          {/* <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
+            <Button
+              className="delBtn"
+              disabled={isdelete}
+              onClick={() => this.remove(k)}
+            >
+              <Icon type="delete" />
+            </Button>
+          </Tooltip> */}
         </FormItem>
       )
     })
-    const text = '可添加超出实例数量的固定实例 IP，可以确保水平扩展，自动弹性伸缩等功能可用（否则无法伸缩实例）'
+    // const text = '可添加超出实例数量的固定实例 IP，可以确保水平扩展，自动弹性伸缩等功能可用（否则无法伸缩实例）'
     return <div className="restrictsIP">
       {formItems}
+      {/*  // 暂时不支持 固定多个实例 IP
       <Row className="addInstance">
         <Col span={4}></Col>
         <Col>
@@ -136,6 +186,7 @@ class ReplicasRestrictIP extends React.Component {
           </span>
         </Col>
       </Row>
+      */}
     </div>
   }
 }
@@ -149,5 +200,5 @@ const mapStateToProps = ({
 }
 
 export default connect(mapStateToProps, {
-  // getfSecurityGroupDetail: securityActions.getfSecurityGroupDetail,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(ReplicasRestrictIP)

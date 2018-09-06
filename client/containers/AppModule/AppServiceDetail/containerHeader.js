@@ -9,7 +9,7 @@
  */
 
 import React from 'react'
-import { Button, Checkbox } from 'antd'
+import { Checkbox } from 'antd'
 import ContainerInstance from './ContainerInstance'
 
 class ContainerInstanceHeader extends React.Component {
@@ -17,13 +17,13 @@ class ContainerInstanceHeader extends React.Component {
     isCheckIP: false,
     isFixed: false,
     notFixed: false,
+    isSee: false,
   }
 
   componentDidMount() {
-    const annotations = this.props.serviceDetail.spec
-      && this.props.serviceDetail.spec.template.metadata.annotations
-      || {}
-    annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+    const annotations = this.props.serviceDetail.spec.template
+      && this.props.serviceDetail.spec.template.metadata.annotations || {}
+    annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     && this.setState({ isCheckIP: true })
   }
 
@@ -31,42 +31,59 @@ class ContainerInstanceHeader extends React.Component {
     if (e.target.checked) {
       this.setState({
         isFixed: true,
+        isCheckIP: true,
       })
     } else if (!e.target.checked) {
       this.setState({
         notFixed: true,
+        isCheckIP: false,
       })
     }
   }
 
-  onChangeVisible = v => {
+  onChangeVisible = () => {
     this.setState({
       isFixed: false,
       notFixed: false,
+      isSee: false,
+    })
+  }
+
+  onHandleCanleIp = v => {
+    this.setState({
       isCheckIP: v,
     })
   }
 
   render() {
-    const { isFixed, notFixed } = this.state
-    const { serviceDetail } = this.props
+    const { isFixed, notFixed, isCheckIP, isSee } = this.state
+    const { serviceDetail, containerNum } = this.props
     return (
       <div className="instanceHeader">
-        <Button type="primary">水平扩展</Button>
-        <Button type="primary" onClick={() => this.props.onTabClick('#autoScale')}>自动伸缩</Button>
+        {/* <Button type="primary">水平扩展 ({containerNum})</Button>
+        <Button type="primary" onClick={() => this.props.onTabClick('#autoScale')}>自动伸缩</Button> */}
         <Checkbox
           onChange={this.onChangeInstanceIP}
           checked={this.state.isCheckIP}
         >
           固定实例IP
         </Checkbox>
-        <span>查看配置的IP</span>
+        <span
+          className="seeConfig"
+          onClick={() => this.setState({ isFixed: true, isSee: true })}
+        >
+          查看配置的IP
+        </span>
         {
           (isFixed || notFixed) && <ContainerInstance
             configIP = {isFixed}
             notConfigIP = {notFixed}
             onChangeVisible = {this.onChangeVisible}
+            onHandleCanleIp = {this.onHandleCanleIp}
             serviceDetail = {serviceDetail}
+            isCheckIP={isCheckIP}
+            isSee = {isSee}
+            containerNum={containerNum}
           />
         }
       </div>

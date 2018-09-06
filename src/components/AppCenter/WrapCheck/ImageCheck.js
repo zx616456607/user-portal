@@ -12,15 +12,18 @@ import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Radio, Tabs} from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
 import { imageApprovalList, appStoreApprove, }  from '../../../actions/app_store'
+import * as harborActions from '../../../actions/harbor'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
+import { DEFAULT_REGISTRY } from '../../../constants'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -243,11 +246,27 @@ class ImageCheckTable extends React.Component {
       })
     })
   }
+
+  openDetailModal = async record => {
+    const { loadProjectMembers, harbor } = this.props
+    await loadProjectMembers(DEFAULT_REGISTRY, record.targetProjectID, { harbor })
+    this.setState({imageDetailModalShow: true, currentImage: record})
+  }
   render() {
-    const { imageCheckList, total, form, publish_time, loginUser, location, publishType,  } = this.props
+    const { imageCheckList, total, form, publish_time, loginUser, location, publishType, harborMembers } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage, delModal } = this.state
     const isAdmin = loginUser.role === ROLE_SYS_ADMIN || loginUser.role === ROLE_BASE_ADMIN
+    let currentMember = {}
+    const members = harborMembers.list || []
+    members.every(member => {
+      if (member.entityName === loginUser.userName) {
+        currentMember = member
+        return false
+      }
+      return true
+    })
+    const currentUserRole = currentMember[camelize('role_id')]
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -292,7 +311,7 @@ class ImageCheckTable extends React.Component {
             return (
               <Tooltip title={text}>
                 <div
-                  onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+                  onClick={() => this.openDetailModal(record)}
                   style={{ maxWidth: 150 }}
                   className="textoverflow themeColor pointer"
                 >
@@ -452,7 +471,7 @@ class ImageCheckTable extends React.Component {
             return (
               <Tooltip title={text}>
                 <div
-                  onClick={() => this.setState({imageDetailModalShow: true, currentImage: record})}
+                  onClick={() => this.openDetailModal(record)}
                   style={{ maxWidth: 150 }}
                   className="textoverflow themeColor pointer"
                 >
@@ -637,7 +656,16 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail location={location} isAdminAndHarbor={isAdmin} server={serverName} visible={imageDetailModalShow} scope={this} config={currentImage}/>
+          <ProjectDetail
+            location={location}
+            isAdminAndHarbor={isAdmin}
+            server={serverName}
+            visible={imageDetailModalShow}
+            scope={this}
+            config={currentImage}
+            project_id={currentImage && currentImage.targetProjectID}
+            currentUserRole={currentUserRole}
+          />
         </Modal>
       </div>
     )
@@ -724,7 +752,10 @@ class ImageCheck extends React.Component {
     }, callback && this.getImagePublishList)
   }
   render() {
-    const { imageCheckList, total,  appStoreApprove, loginUser, location, form, } = this.props
+    const {
+      imageCheckList, total,  appStoreApprove, loginUser, location,
+      loadProjectMembers, clusterHarbor, harborMembers
+    } = this.props
     const { filterName, targetProject, current, publish_time } = this.state
     return(
       <QueueAnim className="imageCheck">
@@ -773,6 +804,9 @@ class ImageCheck extends React.Component {
               appStoreApprove={appStoreApprove}
               getImagePublishList={this.getImagePublishList}
               publishType='market'
+              loadProjectMembers={loadProjectMembers}
+              harbor={clusterHarbor}
+              harborMembers={harborMembers}
             />
           </div>
           :
@@ -803,6 +837,9 @@ class ImageCheck extends React.Component {
               appStoreApprove={appStoreApprove}
               getImagePublishList={this.getImagePublishList}
               publishType='storage'
+              loadProjectMembers={loadProjectMembers}
+              harbor={clusterHarbor}
+              harborMembers={harborMembers}
             />
           </div>
         }
@@ -813,18 +850,25 @@ class ImageCheck extends React.Component {
 ImageCheck = Form.create()(ImageCheck)
 
 function mapStateToProps(state) {
-  const { appStore, entities } = state
+  const { appStore, entities, harbor: stateHarbor } = state
   const { imageApprovalList } = appStore || { imageApprovalList: {} }
   const { data } = imageApprovalList || { data: {} }
   const { apps, total } = data || { apps: [], total: 0 }
+  const { cluster } = entities.current
+  const { harbor } = cluster
+  const clusterHarbor = isEmpty(harbor) ? '' : harbor[0]
+  const harborMembers = stateHarbor.members || {}
   return {
     loginUser: entities.loginUser.info,
     imageCheckList: apps,
-    total
+    total,
+    clusterHarbor,
+    harborMembers,
   }
 }
 
 export default connect(mapStateToProps, {
   imageApprovalList,
-  appStoreApprove
+  appStoreApprove,
+  loadProjectMembers: harborActions.loadProjectMembers,
 })(ImageCheck)

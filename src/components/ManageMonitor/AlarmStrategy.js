@@ -23,12 +23,15 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import './style/AlarmStrategy.less'
 import NotificationHandler from '../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from './AlarmStrategyIntl'
+
 const Option = Select.Option
 
 function loadStrategy(scope) {
   // this func is load strategy data
   scope.setState({ deleteModal: false, btnAll: true, strategyID:[],selectedRowKeys:[] })
-  const { getSettingList, nodeName, cluster, appName, serviceName } = scope.props
+  const { getSettingList, nodeName, cluster, appName, serviceName, intl: { formatMessage } } = scope.props
   let body = {
     targetType: 0,
     targetName: serviceName,
@@ -47,7 +50,7 @@ function loadStrategy(scope) {
   getSettingList(cluster,body, {
     failed: {
       func: ()=> {
-        new NotificationHandler().error('获取策略失败')
+        new NotificationHandler().error(formatMessage(intlMsg.getStgFail))
       }
     }
   })
@@ -136,22 +139,22 @@ class AlarmStrategy extends Component {
         style={{ width: '80px' }}
       >
         <Menu.Item key="delete">
-          <span>删除</span>
+          <span><FormattedMessage {...intlMsg.delete}/></span>
         </Menu.Item>
         <Menu.Item key="edit">
-          <span>修改</span>
+          <span><FormattedMessage {...intlMsg.modify}/></span>
         </Menu.Item>
         <Menu.Item disabled={(record.enable ==0)} key="stop">
-          <span>停用</span>
+          <span><FormattedMessage {...intlMsg.stopUse}/></span>
         </Menu.Item>
         <Menu.Item disabled={(record.enable ==1)} key="start">
-          <span>启用</span>
+          <span><FormattedMessage {...intlMsg.startUse}/></span>
         </Menu.Item>
         <Menu.Item key="list">
-          <span>查看记录</span>
+          <span><FormattedMessage {...intlMsg.checkLog}/></span>
         </Menu.Item>
         <Menu.Item key="clear">
-          <span>清除记录</span>
+          <span><FormattedMessage {...intlMsg.clearLog}/></span>
         </Menu.Item>
       </Menu>
 
@@ -159,32 +162,34 @@ class AlarmStrategy extends Component {
   }
   handDelete() {
     const { strategyID , strategyName } = this.state
+    const { intl: { formatMessage } } = this.props
     const notifcation = new NotificationHandler()
     if (strategyID.length == 0) {
-      notifcation.info('请选择要删除的策略')
+      notifcation.info(formatMessage(intlMsg.slcDeleteStg))
       return
     }
     const _this = this
     this.props.deleteSetting(this.props.cluster, strategyID, strategyName,{
       success: {
         func:()=> {
-          notifcation.success('删除策略成功')
+          notifcation.success(formatMessage(intlMsg.deleteStgScs))
           loadStrategy(_this)
         },
         isAsync: true
       },
       failed:{
         func: ()=>　{
-          notifcation.success('删除策略失败')
+          notifcation.success(formatMessage(intlMsg.deleteStgFail))
         }
       }
     })
   }
   handEnable() {
     const { strategyID, strategyName, enable } = this.state
+    const { intl: { formatMessage } } = this.props
     const _this = this
     let enables = enable == 'start' ? 1: 0
-    const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
+    const noticeText = enable== 'start' ? formatMessage(intlMsg.stgStarting):formatMessage(intlMsg.stgInStop)
     const body = {
       strategies:[{
         strategyID: strategyID.toString(),
@@ -205,7 +210,7 @@ class AlarmStrategy extends Component {
         failed: {
           func: ()=> {
             notifcation.close()
-            notifcation.error('策略修改失败！')
+            notifcation.error(formatMessage(intlMsg.stgEditFail))
           }
         }
       })
@@ -221,7 +226,7 @@ class AlarmStrategy extends Component {
         failed: {
           func: ()=> {
             notifcation.close()
-            notifcation.error('策略修改失败！')
+            notifcation.error(formatMessage(intlMsg.stgEditFail))
           }
         }
       })
@@ -229,6 +234,7 @@ class AlarmStrategy extends Component {
     _this.setState({enable: false})
   }
   handignoreSetting() {
+    const { intl: { formatMessage } } = this.props
     const strategy = []
     const _this = this
     const { record, time ,ignoreUnit } = this.state
@@ -239,10 +245,10 @@ class AlarmStrategy extends Component {
         interval: times
       })
     if(strategy.length == 0 ) {
-      notifi.error('请选择要设置忽略时间的策略')
+      notifi.error(formatMessage(intlMsg.slcIgnoreTimeStg))
       return
     }
-    notifi.spin('设置中')
+    notifi.spin(formatMessage(intlMsg.setting))
     setTimeout(()=>{
       this.setState({lookModel: false})
     },100)
@@ -252,7 +258,7 @@ class AlarmStrategy extends Component {
       success: {
         func: () => {
           notifi.close()
-          notifi.success('设置策略忽略时间成功')
+          notifi.success(formatMessage(intlMsg.setStgTimeScs))
           loadStrategy(_this)
         },
         isAsync: true
@@ -294,11 +300,11 @@ class AlarmStrategy extends Component {
     })
   }
   showAlert() {
-    const { currentApp } = this.props
+    const { currentApp, intl: { formatMessage } } = this.props
     if(currentApp && currentApp.services && !currentApp.services.length){
       Modal.info({
-        title: '提示',
-        content: <div style={{color:'#2db7f5'}}>当前应用下还未添加服务，添加服务后可为服务创建告警策略</div>,
+        title: formatMessage(intlMsg.tip),
+        content: <div style={{color:'#2db7f5'}}><FormattedMessage {...intlMsg.noServerAlarm}/></div>,
         onOk() {},
       });
       return
@@ -309,22 +315,22 @@ class AlarmStrategy extends Component {
     },500)
   }
   clearRecords() {
-    const { deleteRecords, clusterID } = this.props
+    const { deleteRecords, clusterID, intl: { formatMessage } } = this.props
     const notify = new NotificationHandler()
     if(!this.state.clearStraregy.strategyID) {
-      return notify.error('请选择要清除记录的策略')
+      return notify.error(formatMessage(intlMsg.slcClearStg))
     }
     const { strategyID, strategyName } = this.state.clearStraregy
     const query = {
       strategyID,
       strategyName
     }
-    notify.spin('策略告警记录清除中')
+    notify.spin(formatMessage(intlMsg.stgAlarmInClear))
     deleteRecords(clusterID, query, {
       success: {
         func: () => {
           notify.close()
-          notify.success('策略告警记录清除成功')
+          notify.success(formatMessage(intlMsg.stgAlarmClearScs))
           this.setState({
             clearStraregy: {},
             clearModal: false
@@ -334,7 +340,7 @@ class AlarmStrategy extends Component {
       failed: {
         func: () => {
           notify.close()
-          notify.error('策略告警记录删除失败')
+          notify.error(formatMessage(intlMsg.stgAlarmDeleteFail))
           this.setState({
             clearStraregy: {},
             clearModal: false
@@ -344,40 +350,41 @@ class AlarmStrategy extends Component {
     })
   }
   render() {
+    const { intl: { formatMessage } } = this.props
     const columns = [
       {
-        title: '名称',
+        title: formatMessage(intlMsg.name),
         dataIndex: 'strategyName',
         key: 'strategyName',
         width:'13%',
         render: (text,row) => <Link to={`/manange_monitor/alarm_setting/${row.strategyID}?name=${row.strategyName}&&clusterID=${row.clusterID}`}>{text}</Link>,
       },
       {
-        title: '状态',
+        title: formatMessage(intlMsg.status),
         dataIndex: 'statusCode',
         key: 'statusCode',
         width:'12%',
         render: text => {
           if (text == 1) {
-            return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;启用</div>
+            return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;<FormattedMessage {...intlMsg.startUse}/></div>
           }
           if (text == 0) {
-            return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;停用</div>
+            return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;<FormattedMessage {...intlMsg.stopUse}/></div>
           }
           if (text == 2) {
-            return <div style={{ color: '#FAB35B' }}><i className="fa fa-circle" /> &nbsp;告警</div>
+            return <div style={{ color: '#FAB35B' }}><i className="fa fa-circle" /> &nbsp;<FormattedMessage {...intlMsg.alarm}/></div>
           }
-          return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;忽略</div>
+          return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;<FormattedMessage {...intlMsg.ignore}/></div>
         }
       },
       {
-        title: '监控周期',
+        title: formatMessage(intlMsg.monitorCycle),
         width:'15%',
         dataIndex: 'repeatInterval',
         render: (text) => calcuTime(text)
       },
       {
-        title: '创建时间',
+        title: formatMessage(intlMsg.createTime),
         dataIndex: 'createTime',
         key: 'createTime',
         width:'20%',
@@ -385,13 +392,13 @@ class AlarmStrategy extends Component {
         render: (text) => formatDate(text)
       },
       {
-        title: '最后修改人',
+        title: formatMessage(intlMsg.lastEditPeople),
         dataIndex: 'updater',
         key: 'updater',
         width:'15%',
       },
       {
-        title: '操作',
+        title: formatMessage(intlMsg.operation),
         dataIndex: 'name',
         key: 'action',
         width:'20%',
@@ -401,7 +408,7 @@ class AlarmStrategy extends Component {
             onClick={()=> this.setState({lookModel: true, record})}
             overlay={this.dropdowns(record)}
           >
-          忽略
+            <FormattedMessage {...intlMsg.ignore}/>
           </Dropdown.Button>
         }
       }
@@ -428,12 +435,12 @@ class AlarmStrategy extends Component {
     return (
       <div className="alarmStrategy">
         <div className="topRow">
-           <Button size="large" type="primary" onClick={()=> this.showAlert()}><i className="fa fa-plus" /> 创建告警</Button>
-          <Button  className="refresh" size="large" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
-          <Button className="refresh" icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
+           <Button size="large" type="primary" onClick={()=> this.showAlert()}><i className="fa fa-plus" /> <FormattedMessage {...intlMsg.createAlarm}/></Button>
+          <Button  className="refresh" size="large" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> <FormattedMessage {...intlMsg.refresh}/></Button>
+          <Button className="refresh" icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}><FormattedMessage {...intlMsg.delete}/></Button>
         </div>
         <div className='pageBox'>
-          <span className='totalPage'>共计 {total} 条</span>
+          <span className='totalPage'><FormattedMessage {...intlMsg.totalItem} values={{ total }}/></span>
           <Pagination
             simple
             className='inlineBlock'
@@ -450,17 +457,17 @@ class AlarmStrategy extends Component {
           dataSource={this.props.strategys}
           pagination={false}
         />
-        <Modal title="删除策略" visible={this.state.deleteModal}
+        <Modal title={formatMessage(intlMsg.deleteStg)} visible={this.state.deleteModal}
           onCancel={() => this.setState({ deleteModal: false })}
           onOk={() => this.handDelete()}
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            策略删除后将不再发送邮件告警，是否确定删除？
+            <FormattedMessage {...intlMsg.confirmDeleteStg}/>
           </div>
         </Modal>
         <Modal
-          title="忽略"
+          title={<FormattedMessage {...intlMsg.ignore}/>}
           visible={this.state.lookModel}
           onOk={()=> this.handignoreSetting()}
           onCancel={()=> this.setState({lookModel: false})}
@@ -471,7 +478,7 @@ class AlarmStrategy extends Component {
               size="large"
               onClick={()=> this.setState({lookModel: false})}
             >
-            返 回
+              <FormattedMessage {...intlMsg.back}/>
             </Button>,
             <Button
               key="submit"
@@ -480,7 +487,7 @@ class AlarmStrategy extends Component {
               onClick={()=> this.handignoreSetting()}
               disabled={this.state.record && this.state.record.statusCode == 0}
             >
-              提 交
+              <FormattedMessage {...intlMsg.submit}/>
             </Button>,
           ]}
         >
@@ -491,31 +498,33 @@ class AlarmStrategy extends Component {
                 <i className="fa fa-exclamation-triangle" />
               </Col>
               <Col span={22} className="alertRowDesc">
-              当前告警策略已停用，请先启用该策略
+                <FormattedMessage {...intlMsg.stgStopPlsStart}/>
               </Col>
             </Row>
             : <div className="alertRow">
-            注意：在忽略时间内我们将不会发送告警邮件通知！
+                <FormattedMessage {...intlMsg.noteIgnoreNoMail}/>
             </div>
           }
           <div className="modalParams">
-            <span className="keys">忽略时长</span>
+            <span className="keys"><FormattedMessage {...intlMsg.ignoreTime}/></span>
             <InputNumber size="large" value={this.state.time} min={1} style={{margin:'0 10px'}} onChange={(e)=> this.setState({time: e})}/>
             <Select style={{width: 80}} size="large" value={this.state.ignoreUnit} onChange={(e)=> this.setState({ignoreUnit: e})}>
-              <Option value="h">小时</Option>
-              <Option value="m">分钟</Option>
-              <Option value="s">秒</Option>
+              <Option value="h"><FormattedMessage {...intlMsg.hour}/></Option>
+              <Option value="m"><FormattedMessage {...intlMsg.minute}/></Option>
+              <Option value="s"><FormattedMessage {...intlMsg.second}/></Option>
             </Select>
           </div>
         </Modal>
         {/* start or stop modal  */}
-        <Modal title={this.state.enable =='start' ? '启用策略': '停止策略'} visible={this.state.enable ? true : false}
+        <Modal title={this.state.enable =='start' ? formatMessage(intlMsg.startStg): formatMessage(intlMsg.stopStg)} visible={this.state.enable ? true : false}
         onCancel={()=> this.setState({enable: false})}
         onOk={()=> this.handEnable()}
         >
-          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定要{this.state.enable =='start' ? '启用':'停止'}此策略 ?</div>
+          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>
+            { formatMessage(this.state.enable =='start' ? intlMsg.confirmStartStg : intlMsg.confirmStopStg) }
+          </div>
         </Modal>
-        <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
+        <Modal title={this.state.isEdit? formatMessage(intlMsg.editAlarmStg): formatMessage(intlMsg.createAlarmStg) } visible={this.state.alarmModal} width={580}
           className="alarmModal"
           onCancel={() => this.setState({ alarmModal: false, step: 1 })}
           maskClosable={false}
@@ -531,7 +540,7 @@ class AlarmStrategy extends Component {
             currentApp={this.props.currentApp}
           />
         </Modal>
-        <Modal title="创建新通知组" visible={this.state.createGroup}
+        <Modal title={formatMessage(intlMsg.createNotiGroup)} visible={this.state.createGroup}
           width={560}
           maskClosable={false}
           wrapClassName="AlarmModal"
@@ -540,11 +549,12 @@ class AlarmStrategy extends Component {
         >
           <CreateGroup funcs={modalFunc} shouldLoadGroup={true} />
         </Modal>
-        <Modal title="清除策略告警记录" visible={this.state.clearModal}
+        <Modal title={formatMessage(intlMsg.clearStgLog)} visible={this.state.clearModal}
                onCancel={()=> this.setState({clearModal: false, clearStrategy: {}})}
                onOk={()=> this.clearRecords()}
         >
-          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您的操作将会清空 {this.state.clearStraregy.name} 策略所有告警记录，并且重置告警次数，是否清空？</div>
+          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>
+            <FormattedMessage {...intlMsg.deleteStgConfirm} values={{ name: this.state.clearStraregy.name }}/></div>
         </Modal>
       </div>
     )
@@ -581,4 +591,6 @@ export default connect(mapStateToProps, {
   batchDisable,
   ignoreSetting,
   deleteRecords
-})(AlarmStrategy)
+})(injectIntl(AlarmStrategy, {
+  withRef: true,
+}))

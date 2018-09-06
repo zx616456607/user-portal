@@ -8,14 +8,12 @@
  * @author Shouhong_Zhang
  */
 import React, { Component } from 'react'
-import { Checkbox, Dropdown, Button, Card, Menu, Icon } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import "./style/AppGraph.less"
-import ReactDOM from 'react-dom';
 import { getAppOrchfile } from '../../actions/app_manage'
 import YamlEditor from '../Editor/Yaml'
+import intlMsg from './AppDetailIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 let OrchfileComponent = React.createClass({
   componentWillMount() {
@@ -25,7 +23,7 @@ let OrchfileComponent = React.createClass({
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result
       || this.props.appOrchfile.result.data <= 0) {
-      return <div className="introBox">无</div>
+      return <div className="introBox"><FormattedMessage {...intlMsg.none}/></div>
     }
     let content = this.props.appOrchfile.result.data;
     return (
@@ -52,7 +50,9 @@ function mapStateToProp(state,props) {
 
 OrchfileComponent = connect(mapStateToProp, {
   getAppOrchfile
-})(OrchfileComponent)
+})(injectIntl(OrchfileComponent, {
+  withRef: true,
+}))
 
 export default class AppGraph extends Component {
   constructor(props) {

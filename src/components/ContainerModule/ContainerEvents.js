@@ -15,6 +15,8 @@ import QueueAnim from 'rc-queue-anim'
 import './style/ContainerEvents.less'
 import { loadContainerDetailEvents } from '../../actions/app_manage'
 import { calcuDate } from '../../common/tools.js'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerDetailIntl'
 
 function loadData(props) {
   const { cluster, containerName } = props;
@@ -38,7 +40,7 @@ let MyComponent = React.createClass({
     if (!!!config || config.length < 1) {
       return (
         <div className="noData" >
-          暂无数据
+          <FormattedMessage {...IntlMessages.noData} />
         </div>
       )
     }
@@ -57,8 +59,9 @@ let MyComponent = React.createClass({
                 </span>
               </Tooltip>
             </div>
-            <div className='message' >
-              消息: {item.message}
+            <div className='message'>
+              <FormattedMessage {...IntlMessages.eventsInfo} />
+              {item.message}
             </div>
             <div className='createTime' >
               <span className='commonSpan' >

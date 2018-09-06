@@ -25,6 +25,8 @@ import './style/ConfigMapSetting.less'
 import {validateK8sResource} from "../../../../../common/naming_validation";
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../constants'
 import { checkVolumeMountPath } from '../../utils'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -59,15 +61,16 @@ const ConfigMapSetting = React.createClass({
     }
   },
   addSelectTitle(number) {
+    const { intl } = this.props
     let selectBox = document.getElementsByClassName('ant-cascader-menus')[number]
     if (!selectBox) return
     if (!selectBox.getElementsByClassName('titleBox').length) {
       let titleBox = document.createElement('div')
       titleBox.setAttribute('class','titleBox')
       let labelBox = document.createElement('span')
-      labelBox.innerHTML = '配置分类'
+      labelBox.innerHTML = intl.formatMessage(IntlMessage.configClassify)
       let groupBox = document.createElement('span')
-      groupBox.innerHTML = '配置组'
+      groupBox.innerHTML = intl.formatMessage(IntlMessage.configGroup)
       titleBox.appendChild(labelBox)
       titleBox.appendChild(groupBox)
       selectBox.insertBefore(titleBox,selectBox.childNodes[0])
@@ -82,29 +85,32 @@ const ConfigMapSetting = React.createClass({
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
   configGroupNameCheck(rule, value, callback) {
-    const { currentCluster, checkConfigNameExistence } = this.props
+    const { currentCluster, checkConfigNameExistence, intl } = this.props
     const { clusterID } = currentCluster
     if (Array.isArray(value)) {
       return callback()
     }
     if (!value) {
-      callback([new Error('请输入配置组名称')])
+      callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.configGroupName),
+        end: '',
+      }))
       return
     }
     if(value.length < 3 || value.length > 63) {
-      callback('名称长度为 3-63 个字符')
+      callback(intl.formatMessage(IntlMessage.configGroupLengthLimit))
       return
     }
     if(!/^[a-z]/.test(value)){
-      callback('名称须以小写字母开头')
+      callback(intl.formatMessage(IntlMessage.configGroupStartLimit))
       return
     }
     if (!/[a-z0-9]$/.test(value)) {
-      callback('名称须以小写字母或数字结尾')
+      callback(intl.formatMessage(IntlMessage.configGroupEndLimit))
       return
     }
     if (!validateK8sResource(value)) {
-      callback('由小写字母、数字和连字符（-）组成')
+      callback(intl.formatMessage(IntlMessage.configGroupComposeLimit))
       return
     }
     clearTimeout(this.configGroupNameTimeout)
@@ -113,7 +119,9 @@ const ConfigMapSetting = React.createClass({
         success: {
           func: res => {
             if (res.data.existence) {
-              callback('配置组名称重复')
+              callback(intl.formatMessage(IntlMessage.nameExisted, {
+                item: intl.formatMessage(IntlMessage.configGroup),
+              }))
             } else {
               callback()
             }
@@ -153,16 +161,17 @@ const ConfigMapSetting = React.createClass({
     return currentConfigGroup
   },
   checkPath(keyValue, rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if (!PATH_REG.test(value)) {
-      return callback('请输入正确的路径')
+      return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
     }
     callback(checkVolumeMountPath(this.props.form, keyValue, value, 'configMap'))
   },
   renderConfigMapItem(key) {
-    const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate } = this.props
+    const { form, configGroupList, selectOptions, defaultSelectValue, location, isTemplate, intl } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue, isFieldValidating, getFieldError } = form
     const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
@@ -202,19 +211,35 @@ const ConfigMapSetting = React.createClass({
     }
     const configMapMountPathProps = getFieldProps(configMapMountPathKey, {
       rules: [
-        { required: true, message: '请填写挂载目录' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.mountDirectory),
+            end: '',
+          })
+        },
         { validator: this.checkPath.bind(this, keyValue) },
       ],
     })
     const configMapIsWholeDirProps = getFieldProps(configMapIsWholeDirKey, {
       rules: [
-        { required: true, message: '请选择覆盖方式' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.coverageMethod),
+          })
+        },
       ],
       onChange: this.onIsWholeDirChange.bind(this, keyValue, currentConfigGroup),
     })
     const configGroupNameProps = getFieldProps(configGroupNameKey, {
       rules: [
-        { required: true, message: '请选择配置组' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.configGroup)
+          })
+        },
         { validator: this.configGroupNameCheck }
       ],
       onChange: this.onConfigGroupChange.bind(this, keyValue),
@@ -222,7 +247,12 @@ const ConfigMapSetting = React.createClass({
     })
     const configMapSubPathValuesProps = getFieldProps(configMapSubPathValuesKey, {
       rules: [
-        { required: true, message: '请选择配置组文件' }
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.configGroupFile),
+          })
+        }
       ],
     })
     const isInput = (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
@@ -230,21 +260,25 @@ const ConfigMapSetting = React.createClass({
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
           <FormItem>
-            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...configMapMountPathProps} disabled={isExisted}/>
+            <Input
+              type="textarea" size="default"
+              placeholder={intl.formatMessage(IntlMessage.mountPathPlaceholder)}
+              {...configMapMountPathProps} disabled={isExisted}
+            />
           </FormItem>
         </Col>
         <Col span={6}>
           <FormItem>
             <RadioGroup {...configMapIsWholeDirProps} disabled={isExisted}>
               <Radio key="severalFiles" value={false}>
-                挂载若干配置文件&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                {intl.formatMessage(IntlMessage.mountSeveralFiles)}&nbsp;
+                <Tooltip width="200px" title={intl.formatMessage(IntlMessage.mountSeveralTooltip)}>
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
               <Radio key="wholeDir" value={true}>
-                挂载整个配置组&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
+                {intl.formatMessage(IntlMessage.mountConfigGroup)}&nbsp;
+                <Tooltip width="200px" title={intl.formatMessage(IntlMessage.mountConfigGroupTooltip)}>
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
@@ -254,21 +288,36 @@ const ConfigMapSetting = React.createClass({
         <Col span={5}>
           <FormItem
             hasFeedback={isInput && !!getFieldValue(configGroupNameKey)}
-            help={isInput ? isFieldValidating(configGroupNameKey) ? '校验中...' : (getFieldError(configGroupNameKey) || []).join(', ') : ''}
+            help={isInput ?
+              isFieldValidating(configGroupNameKey) ?
+                `${intl.formatMessage(IntlMessage.validating)}...` :
+                (getFieldError(configGroupNameKey) || []).join(', ') : ''
+            }
           >
             {
               isInput
                 ?
-                <Input placeholder="请输入配置组" {...configGroupNameProps} disabled={isExisted}/>
+                <Input
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.configGroup),
+                    end: '',
+                  })}
+                  {...configGroupNameProps}
+                  disabled={isExisted}
+                />
                 :
-                <Cascader displayRender={label=> label.join('：')} options={selectOptions} placeholder="配置分类：配置组" {...configGroupNameProps}/>
+                <Cascader
+                  displayRender={label=> label.join('：')}
+                  options={selectOptions}
+                  placeholder={`${intl.formatMessage(IntlMessage.configClassify)}:${intl.formatMessage(IntlMessage.configGroup)}`}
+                  {...configGroupNameProps}/>
             }
           </FormItem>
         </Col>
         <Col span={5}>
           {
             !currentConfigGroup && !templateDeploy && !isExisted
-            ? <FormItem>请选择配置组</FormItem>
+            ? <FormItem>{intl.formatMessage(IntlMessage.pleaseSelect, { item: intl.formatMessage(IntlMessage.configGroup)})}</FormItem>
             : (
               <div>
                 <FormItem>
@@ -277,7 +326,7 @@ const ConfigMapSetting = React.createClass({
                     checked={this.getSelectAllChecked(keyValue, currentConfigGroup, isExisted)}
                     disabled={templateDeploy || configMapIsWholeDir || isExisted}
                   >
-                    全选
+                    {intl.formatMessage(IntlMessage.selectAll)}
                   </Checkbox>
                 </FormItem>
                 <FormItem>
@@ -293,7 +342,7 @@ const ConfigMapSetting = React.createClass({
           }
         </Col>
         <Col span={3}>
-          <Tooltip title="删除">
+          <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
             <Button
               className={classNames("deleteBtn", {'hidden': templateDeploy})}
               type="dashed"
@@ -395,7 +444,7 @@ const ConfigMapSetting = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form, location, isTemplate } = this.props
+    const { formItemLayout, form, location, isTemplate, intl } = this.props
     const { getFieldValue, getFieldProps } = form
     getFieldProps('configMapKeys')
     const configMapKeys = getFieldValue('configMapKeys') || []
@@ -407,10 +456,10 @@ const ConfigMapSetting = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">配置管理</span>
+            <span className="title">{intl.formatMessage(IntlMessage.configManage)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">满足您统一管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.configManageTip)}</div>
           </Col>
         </Row>
       </div>
@@ -421,32 +470,32 @@ const ConfigMapSetting = React.createClass({
           <Panel header={header}>
             <Row>
               <Col span={formItemLayout.labelCol.span} className="formItemLabel">
-              普通配置
+                {intl.formatMessage(IntlMessage.normalConfig)}
               </Col>
               <Col span={formItemLayout.wrapperCol.span}>
                 <div className="configMap">
                   <Row className="configMapHeader">
                     <Col span={5}>
-                      挂载目录
+                      {intl.formatMessage(IntlMessage.mountDirectory)}
                     </Col>
                     <Col span={6}>
-                      覆盖方式
+                      {intl.formatMessage(IntlMessage.coverageMethod)}
                     </Col>
                     <Col span={5}>
-                      配置组
+                      {intl.formatMessage(IntlMessage.configGroup)}
                     </Col>
                     <Col span={5}>
-                      配置文件
+                      {intl.formatMessage(IntlMessage.configFiles)}
                     </Col>
                     <Col span={3} className={classNames({'hidden': templateDeploy})}>
-                      操作
+                      {intl.formatMessage(IntlMessage.operate)}
                     </Col>
                   </Row>
                   <div className="configMapBody">
                     {configMapKeys.map(this.renderConfigMapItem)}
                     <span className={classNames("addConfigMap", {'hidden': templateDeploy})} onClick={this.addConfigMapKey}>
                       <Icon type="plus-circle-o" />
-                      <span>添加配置目录</span>
+                      <span>{intl.formatMessage(IntlMessage.addConfigDir)}</span>
                     </span>
                   </div>
                 </div>
@@ -546,4 +595,6 @@ export default connect(mapStateToProps, {
   configGroupName,
   getSecrets,
   checkConfigNameExistence
-})(ConfigMapSetting)
+})(injectIntl(ConfigMapSetting, {
+  withRef: true,
+}))

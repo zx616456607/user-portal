@@ -13,7 +13,8 @@
 import React, { Component, PropTypes } from 'react'
 import { Radio, Button } from 'antd'
 import './style/TimeControl.less'
-
+import { FormattedMessage } from 'react-intl'
+import intlMsg from './Intl'
 const RadioGroup = Radio.Group;
 
 class TimeControl extends Component {
@@ -37,11 +38,11 @@ class TimeControl extends Component {
           ]*/
         }
         <RadioGroup defaultValue="1" size="large" onChange={onChange}>
-          <Radio prefixCls="ant-radio-button" value="1">最近1小时</Radio>
-          <Radio prefixCls="ant-radio-button" value="6">最近6小时</Radio>
-          <Radio prefixCls="ant-radio-button" value="24">最近24小时</Radio>
-          <Radio prefixCls="ant-radio-button" value="168">最近7天</Radio>
-          <Radio prefixCls="ant-radio-button" value="720">最近30天</Radio>
+          <Radio prefixCls="ant-radio-button" value="1"><FormattedMessage {...intlMsg.last1Hour}/></Radio>
+          <Radio prefixCls="ant-radio-button" value="6"><FormattedMessage {...intlMsg.last6Hour}/></Radio>
+          <Radio prefixCls="ant-radio-button" value="24"><FormattedMessage {...intlMsg.last24Hour}/></Radio>
+          <Radio prefixCls="ant-radio-button" value="168"><FormattedMessage {...intlMsg.last7Day}/></Radio>
+          <Radio prefixCls="ant-radio-button" value="720"><FormattedMessage {...intlMsg.last30Day}/></Radio>
         </RadioGroup>
       </div>
     )

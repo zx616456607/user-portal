@@ -34,9 +34,11 @@ class SecurityGroupDetail extends React.Component {
     getfSecurityGroupDetail(cluster, params.name, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取安全组数据出错', message.message)
+          if (statusCode !== 403) {
+            notification.warn('获取安全组数据出错', message.message)
+          }
         },
       },
     }).then(res => this.setState({

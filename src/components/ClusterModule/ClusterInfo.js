@@ -17,6 +17,8 @@ import { connect } from 'react-redux'
 import { getProjectVisibleClusters } from '../../actions/project'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'
+import intlMsg from './ClusterInfoIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 let saveBtnDisabled = true
 
@@ -329,7 +331,7 @@ let ClusterInfo = React.createClass ({
     return <Checkbox disabled style={{marginRight:'4px' }} checked={false}></Checkbox>
   },
   render () {
-    const { cluster, form, clusterList } = this.props
+    const { cluster, form, clusterList, intl: { formatMessage } } = this.props
     const { editCluster, saveBtnLoading } = this.state
     const { getFieldProps } = form
     let {
@@ -343,7 +345,7 @@ let ClusterInfo = React.createClass ({
       rules: [
         {
           required: true,
-          message: '输入集群名称',
+          message: formatMessage(intlMsg.inputClusterName),
         },
         {
           validator: (rule, value, callback) => {
@@ -381,7 +383,7 @@ let ClusterInfo = React.createClass ({
         <div className="h3">集群信息
           { !editCluster ?
           <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true,selectedBuilderEnvironment:isBuilder})}>
-            编辑集群
+            <FormattedMessage {...intlMsg.editCluster}/>
           </Dropdown.Button>
 
           :
@@ -391,14 +393,14 @@ let ClusterInfo = React.createClass ({
                 this.setState({editCluster: false, saveBtnLoading: false,selectedBuilderEnvironment:isBuilder})
                 saveBtnDisabled = true
               }}>
-              取消
+              <FormattedMessage {...intlMsg.cancel}/>
             </Button>
             <Button
               loading={saveBtnLoading}
               disabled={saveBtnDisabled}
               type="primary" style={{marginLeft:'8px'}}
               onClick={this.updateCluster}>
-              保存
+              <FormattedMessage {...intlMsg.save}/>
             </Button>
           </div>
           }
@@ -409,9 +411,9 @@ let ClusterInfo = React.createClass ({
         <Form className="clusterTable" style={{padding:'35px 0',textAlign:'left'}}>
           <div className="formItem">
             <Form.Item >
-              <div className="h4 blod">集群名称：</div>
+              <div className="h4 blod"><FormattedMessage {...intlMsg.clusterName}/>：</div>
               { editCluster ?
-                <Input {...nameProps} placeholder="输入集群名称" />
+                <Input {...nameProps} placeholder={formatMessage(intlMsg.inputClusterName)} />
                 :
                 <div className="blod cluserName textoverflow">{clusterName}</div>
               }
@@ -432,19 +434,19 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item style={{textAlign:'left'}}>
-              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>状态：&nbsp;&nbsp;</span>
+              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>{formatMessage(intlMsg.status)}：&nbsp;&nbsp;</span>
               {
                 isOk
-                ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> 正常</span>
-                : <span style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> 异常</span>
+                ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.normal}/></span>
+                : <span style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> <FormattedMessage {...intlMsg.abnormal}/></span>
               }
             </Form.Item>
             <Form.Item>
-              <div style={{float:'left',height:'40px'}}>构建环境：</div>
+              <div style={{float:'left',height:'40px'}}>{formatMessage(intlMsg.buildEnv)}：</div>
                 {
                   editCluster
                     ? this.eidtClusterBuilderEnvironment()
-                    : <span>{this.eidtFasleCheckbox()}该集群用来作为构建镜像的环境</span>
+                    : <span>{this.eidtFasleCheckbox()}<FormattedMessage {...intlMsg.clusterForBuildImg}/></span>
                 }
             </Form.Item>
           </div>
@@ -453,26 +455,26 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
-              <div style={{float:'left',height:'40px'}}>授权成员：</div>
+              <div style={{float:'left',height:'40px'}}><FormattedMessage {...intlMsg.authMember}/>：</div>
               <span>
                 {
                   clusterList.length == 1
-                  ? <Checkbox checked={true} disabled={!editCluster} onClick={this.CancelClusterMemberOnlyOne}>该集群可被所有成员选择使用</Checkbox>
-                  : <Checkbox disabled={!editCluster} {...authorizedProps}>该集群可被所有成员选择使用</Checkbox>
+                  ? <Checkbox checked={true} disabled={!editCluster} onClick={this.CancelClusterMemberOnlyOne}><FormattedMessage {...intlMsg.canUseByAll}/></Checkbox>
+                  : <Checkbox disabled={!editCluster} {...authorizedProps}><FormattedMessage {...intlMsg.canUseByAll}/></Checkbox>
                 }
               </span>
             </Form.Item>
             <Form.Item>
-              <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
+              <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}><FormattedMessage {...intlMsg.description}/>：&nbsp;&nbsp;</span>
               { editCluster ?
-              <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
+              <Input {...descProps} type="textarea" placeholder={formatMessage(intlMsg.addDescription)} defaultValue={description} />
               :
               <Input value={description || '-'} autosize={{minRows: 2, maxRows: 4}} type="textarea" disabled={true}  style={{width:'70%'}}/>
               }
             </Form.Item>
           </div>
         </Form>
-        <Modal title={`删除集群`}
+        <Modal title={formatMessage(intlMsg.deleteCluster)}
           confirmLoading={this.state.deleteClusterBtnLoading}
           className='deleteClusterModal'
           visible={this.state.deleteClusterModal}
@@ -480,28 +482,27 @@ let ClusterInfo = React.createClass ({
           onCancel={() => this.setState({deleteClusterModal: false})}>
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            确定要删除“{clusterName}”？
+            <FormattedMessage {...intlMsg.confirmDelete}/>“{clusterName}”？
           </div>
           {
             this.clusterListLength().length == 1
               ? <div>
-                  <div className="note">提示：</div>
+                  <div className="note"><FormattedMessage {...intlMsg.tip}/>：</div>
                   <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>1</span>、该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
                   <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>2</span>、删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
             </div>
-              :  <div className="note">注意：请确认执行删除集群操作！
-              该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
+              :  <div className="note"><FormattedMessage {...intlMsg.cautionDeleteCluster}/></div>
           }
         </Modal>
         <Modal
-          title={`提示`}
+          title={formatMessage(intlMsg.tip)}
           visible={this.state.selectBuilderEnvironmentModal}
           onOk={this.confirmSelectCurrentCluster}
           onCancel={this.cancleSelectCurrentCluster}
         >
           <div style={{color:"#00a0ea"}}>
             <i className="fa fa-question-circle-o" aria-hidden="true" style={{marginRight:'12px'}}></i>
-              目前只支持一个集群作为构建集群，修改构建集群后，需要将CI/CD基础镜像上传到新的harbor上，是否确定将 [ {clusterName} ] 作为构建集群？
+            <FormattedMessage {...intlMsg.onlySupportOneCluster}/>
               {/*目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境*/}
             </div>
         </Modal>
@@ -543,4 +544,6 @@ export default connect(mapStateToProps, {
   deleteCluster,
   updateClusterConfig,
   getProjectVisibleClusters,
-})(ClusterInfo)
+})(injectIntl(ClusterInfo, {
+  withRef: true,
+}))

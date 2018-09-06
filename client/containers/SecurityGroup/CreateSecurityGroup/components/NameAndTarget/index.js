@@ -24,7 +24,8 @@ class CreateNameAndTarget extends React.Component {
   }
 
   checkName = (rule, value, callback) => {
-    this.props.listData.forEach(item => {
+    const { isEdit, listData } = this.props
+    !isEdit && listData.forEach(item => {
       if (item.name === value) {
         return callback('该安全组已存在，请修改名称')
       }

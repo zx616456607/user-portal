@@ -14,6 +14,8 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { cpuFormat, memoryFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerDetailIntl'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -25,6 +27,7 @@ export default class ContainerDetailInfo extends Component {
   }
 
   getMount(container) {
+    const { formatMessage } = this.props.intl
     const volumes = container.spec.volumes || []
     const volumeMounts = container.spec.containers[0].volumeMounts || []
     return volumes.map((item, index) => {
@@ -68,8 +71,23 @@ export default class ContainerDetailInfo extends Component {
         if((type == '本地存储' && mountPath == '/etc/localtime') || (type == '本地存储' && mountPath == '/etc/timezone')){
           return null
         }
+        let typeText
+        switch (type) {
+          case '本地存储':
+            typeText = formatMessage(IntlMessages.localStorage)
+            break
+          case '独享型（rbd）':
+            typeText = formatMessage(IntlMessages.rbdStorage)
+            break
+          case '共享型（nfs）':
+            typeText = formatMessage(IntlMessages.nfsStorage)
+            break
+          default:
+            typeText = '-'
+            break
+        }
         return <Row key={`volume${index}`}>
-          <Col span='8' className='commonTitle'>{type}</Col>
+          <Col span='8' className='commonTitle'>{typeText}</Col>
           <Col span='8' className='commonTitle'>{name}</Col>
           <Col span='8' className='commonTitle'>{mountPath}</Col>
         </Row>
@@ -82,6 +100,7 @@ export default class ContainerDetailInfo extends Component {
     let ele = []
     let volumes = container.spec.volumes
     let configMaps = []
+    const { formatMessage } = this.props.intl
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
@@ -101,7 +120,7 @@ export default class ContainerDetailInfo extends Component {
               } else {
                 configMaps.push({
                   mountPath: volume.mountPath,
-                  key: '已挂载整个配置组',
+                  key: formatMessage(IntlMessages.allConfigGroupMounted),
                   configMapName: item.configMap.name,
                 })
               }
@@ -131,18 +150,20 @@ export default class ContainerDetailInfo extends Component {
     return (
       <div id="ContainerDetailInfo">
         <div className="info commonBox">
-          <span className="titleSpan">基本信息</span>
+          <span className="titleSpan">
+          <FormattedMessage {...IntlMessages.basic} />
+          </span>
           <div className="titleBox">
             <div className="commonTitle">
-              名称
+              <FormattedMessage {...IntlMessages.name} />
           </div>
             <div className="commonTitle">
-              镜像
+              <FormattedMessage {...IntlMessages.image} />
           </div>
             {
               mode !== standard &&
               <div className="commonTitle">
-              所属节点
+              <FormattedMessage {...IntlMessages.node} />
               </div>
             }
             <div style={{ clear: "both" }}></div>
@@ -164,16 +185,18 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="compose commonBox">
-          <span className="titleSpan">资源配置</span>
+          <span className="titleSpan">
+              <FormattedMessage {...IntlMessages.resources} />
+            </span>
           <div className="titleBox">
             <div className="commonTitle">
               CPU
             </div>
             <div className="commonTitle">
-              内存
+              <FormattedMessage {...IntlMessages.memory} />
             </div>
             <div className="commonTitle">
-              系统盘
+              <FormattedMessage {...IntlMessages.sysDisk} />
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -191,13 +214,15 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="environment commonBox">
-          <span className="titleSpan">环境变量</span>
+          <span className="titleSpan">
+            <FormattedMessage {...IntlMessages.env} />
+          </span>
           <div className="titleBox">
             <div className="commonTitle">
-              变量名
+              <FormattedMessage {...IntlMessages.envKey} />
               </div>
             <div className="commonTitle">
-              变量值
+              <FormattedMessage {...IntlMessages.envValue} />
               </div>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -216,16 +241,18 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="storage commonBox">
-          <span className="titleSpan">存储卷</span>
+          <span className="titleSpan">
+            <FormattedMessage {...IntlMessages.volume} />
+          </span>
           <div className="titleBox">
             <div className="commonTitle">
-              存储类型
+              <FormattedMessage {...IntlMessages.volumeType} />
               </div>
             <div className="commonTitle">
-              存储
+              <FormattedMessage {...IntlMessages.volume} />
             </div>
             <div className="commonTitle">
-              容器目录
+              <FormattedMessage {...IntlMessages.mountPath} />
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -234,16 +261,18 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="storage commonBox">
-          <span className="titleSpan">服务配置</span>
+          <span className="titleSpan">
+          <FormattedMessage {...IntlMessages.config} />
+          </span>
           <div className="titleBox">
             <div className="commonTitle">
-              配置组
+              <FormattedMessage {...IntlMessages.configGroup} />
             </div>
             <div className="commonTitle">
-              配置文件
+              <FormattedMessage {...IntlMessages.configFile} />
             </div>
             <div className="commonTitle">
-              挂载点
+              <FormattedMessage {...IntlMessages.mountPoint} />
             </div>
             <div style={{ clear: "both" }}></div>
           </div>

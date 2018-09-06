@@ -11,13 +11,13 @@
 import React from 'react'
 import './styles/ContainerInstance.less'
 import { connect } from 'react-redux'
-import { Modal, Form, Input, Row, Col, Button, Icon } from 'antd'
-// import QueueAnim from 'rc-queue-anim'
-// import * as serviceAction from '../../../../src/actions/app_manage'
-// import Notification from '../../../../src/components/Notification'
-// import * as securityActions from '../../../actions/securityGroup'
+import { Modal, Form, Input } from 'antd'
+import Notification from '../../../../src/components/Notification'
+import * as serviceActions from '../../../../src/actions/services'
+import * as podAction from '../../../../src/actions/app_manage'
+import ipRangeCheck from 'ip-range-check'
 
-// const notification = new Notification()
+const notification = new Notification()
 const FormItem = Form.Item
 const formItemLayout = {
   labelCol: {
@@ -40,32 +40,67 @@ let uuid = 0
 class ContainerInstance extends React.Component {
   state = {
     oldIP: undefined,
+    NetSegment: undefined,
   }
 
   componentDidMount() {
-    setTimeout(
+    const { isSee, configIP, getPodNetworkSegment, cluster } = this.props
+    getPodNetworkSegment(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            NetSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
+        },
+      },
+    })
+    isSee && setTimeout(
       this.setInitaialStatus(),
       150
     )
+    !isSee && configIP && this.nowNoneAndSetOneItem()
+  }
+
+  nowNoneAndSetOneItem = () => {
+    const keys = []
+    this.props.form.setFieldsValue({
+      keys: keys.concat(uuid),
+    })
+    uuid++
   }
 
   setInitaialStatus = () => {
-    const annotations = this.props.serviceDetail.spec.template.metadata.annotations
-    const ipv4 = annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
-      && annotations['cni.projectcalico.org/ipv4pools']
+    const { serviceDetail, cluster } = this.props
+    const service = Object.keys(serviceDetail[cluster])[0]
+    const annotations = serviceDetail[cluster][service].service.spec.template
+      && serviceDetail[cluster][service].service.spec.template.metadata.annotations
+    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+      && annotations['cni.projectcalico.org/ipAddrs']
+    const { setFieldsValue } = this.props.form
     if (ipv4) {
-      const { setFieldsValue, getFieldValue } = this.props.form
       const ipv4Arr = JSON.parse(ipv4)
-      ipv4Arr.forEach((item, ind) => {
-        const keys = getFieldValue('keys')
-        const nextKeys = keys.concat(ind)
+      const keys = []
+      ipv4Arr.forEach(item => {
+        keys.push(uuid)
         setFieldsValue({
-          [`replicasIP${ind}`]: item,
-          keys: nextKeys,
+          [`replicasIP${uuid}`]: item,
+          keys,
         })
-        uuid = ind + 1
+        uuid++
       })
       this.setState({ oldIP: ipv4Arr })
+    }
+    if (!ipv4) {
+      this.nowNoneAndSetOneItem()
     }
   }
 
@@ -88,20 +123,123 @@ class ContainerInstance extends React.Component {
   }
 
   handleOk = () => {
-    // keys 为空[]时, return
-    // this.props.form.validateFields((err, values) => { console.log( values ) })
-    this.props.onChangeVisible(true)
+    this.props.form.validateFields(async (err, values) => {
+      if (err) return
+      const { UpdateServiceAnnotation, cluster, serviceDetail,
+        containerNum, manualScaleService } = this.props
+      const server = Object.keys(serviceDetail[cluster])[0]
+      const { keys } = values
+      const ipArr = []
+      keys.forEach(el => {
+        ipArr.push(values[`replicasIP${el}`])
+      })
+      const ipStr = JSON.stringify(ipArr)
+      const annotations = serviceDetail[cluster][server].service.spec.template
+        && serviceDetail[cluster][server].service.spec.template.metadata.annotations
+        || {}
+      Object.assign(annotations, {
+        'cni.projectcalico.org/ipAddrs': ipStr,
+      })
+      notification.spin('更改中...')
+      if (containerNum > 1) {
+        await manualScaleService(cluster, server, { num: 1 }, {
+          failed: {
+            func: () => {
+              notification.close()
+              return notification.warn('固定 IP 操作失败, 水平扩展失败')
+            },
+          },
+        })
+      }
+      UpdateServiceAnnotation(cluster, server, annotations, {
+        success: {
+          func: () => {
+            notification.close()
+            const { onChangeVisible, onHandleCanleIp } = this.props
+            onChangeVisible()
+            onHandleCanleIp(true)
+            notification.success('已固定 IP')
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: error => {
+            notification.close()
+            const { statusCode } = error
+            if (statusCode !== 403) {
+              notification.warn('固定 IP 操作失败')
+            }
+          },
+        },
+      })
+
+    })
   }
+
+  handleNotFix = () => {
+    const { UpdateServiceAnnotation, onChangeVisible, cluster, serviceDetail } = this.props
+    const server = Object.keys(serviceDetail[cluster])[0]
+    const annotations = serviceDetail[cluster][server].service.spec.template
+      && serviceDetail[cluster][server].service.spec.template.metadata.annotations
+    Object.assign(annotations, {
+      'cni.projectcalico.org/ipAddrs': '',
+    })
+    notification.spin('释放中...')
+    UpdateServiceAnnotation(cluster, server, annotations, {
+      success: {
+        func: () => {
+          notification.close()
+          onChangeVisible()
+          notification.success('释放 IP 成功')
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          notification.close()
+          if (statusCode !== 403) {
+            notification.warn('释放 IP 失败')
+          }
+        },
+      },
+    })
+  }
+
+  handleCandle = v => {
+    const { isSee, onChangeVisible, onHandleCanleIp, isCheckIP } = this.props
+    if (isSee) {
+      onChangeVisible()
+      onHandleCanleIp(isCheckIP)
+      return
+    }
+    onChangeVisible()
+    onHandleCanleIp(v)
+  }
+
+  checkPodCidr = (rule, value, callback) => {
+    if (!value) return callback()
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    callback()
+  }
+
   render() {
-    const { oldIP } = this.state
-    const { form, configIP, notConfigIP } = this.props
+    const { oldIP, NetSegment } = this.state
+    const { form, configIP, notConfigIP, containerNum } = this.props
     const { getFieldProps, getFieldValue } = form
     getFieldProps('keys', {
       initialValue: [ ],
     })
     const formItems = getFieldValue('keys').map((k, index) => {
       let use = null
-      oldIP.forEach(ele => {
+      oldIP && oldIP.forEach(ele => {
         if (ele === getFieldValue(`replicasIP${k}`)) {
           use = <span className="useStatus isUsed">已使用</span>
         }
@@ -118,13 +256,16 @@ class ContainerInstance extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: '请填写实例 IP（需属于 172.168.0.0/16）',
+              message: `请填写实例 IP（需属于 ${NetSegment}）`,
+            }, {
+              validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 280 }}
-          placeholder="请填写实例 IP（需属于 172.168.0.0/16）"
+          placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
           />
           { use || <span className="useStatus shouldUse">未使用</span> }
+          {/*
           <Button
             className="delBtn"
             disabled={use}
@@ -132,6 +273,7 @@ class ContainerInstance extends React.Component {
           >
             <Icon type="delete" />
           </Button>
+          */}
         </FormItem>
       )
     })
@@ -141,7 +283,7 @@ class ContainerInstance extends React.Component {
           title="配置固定 IP"
           visible={configIP}
           onOk={this.handleOk}
-          onCancel={() => this.props.onChangeVisible(false)}
+          onCancel={() => this.handleCandle(false)}
           okText={'重启服务,应用更改'}
           // okButtonProps={{ disabled: formItems.length === 0 }}
           className="containerInstanceModal"
@@ -150,25 +292,10 @@ class ContainerInstance extends React.Component {
             <FormItem
               label="容器实例数量"
               {...formItemLayout}>
-              <span>{ '12' }</span>
+              <span>{containerNum}</span>
             </FormItem>
-
-            {/* <FormItem
-              label="配置固定 IP"
-              {...formItemLayout}
-            >
-              <Input
-                style={{ width: 300 }}
-                {...getFieldProps('target', {
-                  rules: [{
-                    required: true,
-                    message: '请输入...',
-                  }],
-                })}
-              />
-            </FormItem> */}
-
             {formItems}
+            {/*
             <Row className="addInstance">
               <Col span={5}></Col>
               <Col>
@@ -178,13 +305,14 @@ class ContainerInstance extends React.Component {
                 </span>
               </Col>
             </Row>
+            */}
           </div>
         </Modal>
         <Modal
           title="不再固定实例 IP"
           visible={notConfigIP}
-          onOk={() => this.props.onChangeVisible(false)}
-          onCancel={() => this.props.onChangeVisible(true)}
+          onOk={this.handleNotFix}//  () => this.props.onChangeVisible(false)}
+          onCancel={() => this.handleCandle(true)}
           okText={'确认释放 IP'}
         >
           <div className="securityGroupContent">
@@ -202,14 +330,16 @@ class ContainerInstance extends React.Component {
 
 const mapStateToProps = ({
   entities: { current },
-  // services: { serviceDetail },
+  services: { serviceDetail },
 }) => {
   return {
     cluster: current.cluster.clusterID,
-    // serviceDetail,
+    serviceDetail,
   }
 }
 
 export default connect(mapStateToProps, {
-
+  UpdateServiceAnnotation: serviceActions.UpdateServiceAnnotation,
+  manualScaleService: serviceActions.manualScaleService,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(Form.create()(ContainerInstance))

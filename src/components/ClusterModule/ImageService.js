@@ -22,6 +22,8 @@ import { setCurrent } from '../../actions/entities'
 import { URL_REGEX } from '../../../constants/index'
 import NotificationHandler from '../../components/Notification'
 import filter from 'lodash/filter'
+import intlMsg from './ImageServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 const notify = new NotificationHandler()
 
@@ -45,7 +47,7 @@ class ImageService extends React.Component {
   }
   onSubmitClick = () => {
     const { form: { validateFields }, setClusterHarbor, cluster, currClusterID,
-    loadClusterList, setCurrent, projectName, getProjectVisibleClusters } = this.props
+    loadClusterList, setCurrent, projectName, getProjectVisibleClusters, intl: { formatMessage } } = this.props
     let clusterID = typeof cluster === 'string' ? cluster : cluster.clusterID
 
     validateFields(['url'], (error, values) => {
@@ -60,7 +62,7 @@ class ImageService extends React.Component {
           success: {
             func: (res) => {
               // succ
-              notify.success("编辑镜像服务地址成功")
+              notify.success(formatMessage(intlMsg.editImageServiceSuccess))
               this.setState({
                 isEdit: false,
                 readonly: false,
@@ -82,7 +84,7 @@ class ImageService extends React.Component {
           },
           failed: {
             func: (err) => {
-              notify.warn('镜像服务地址不可用')
+              notify.warn(formatMessage(intlMsg.imageServiceAddressUnavailable))
               this.setState({
                 readonly: false,
               })
@@ -108,7 +110,7 @@ class ImageService extends React.Component {
     setFieldsValue({ url: value })
   }
   render() {
-    const { form, cluster } = this.props
+    const { form, cluster, intl: { formatMessage } } = this.props
     const { getFieldProps } = form
     const {
       isEdit,
@@ -117,8 +119,8 @@ class ImageService extends React.Component {
       value,
     } = this.state
     const cardTitle = <div className="title" id={'imageServiceIdForAnchor'}>
-      镜像服务
-      <span className="hint"><span className="required">*</span>集群必须配置harbor</span>
+      <FormattedMessage {...intlMsg.imageService}/>
+      <span className="hint"><span className="required">*</span><FormattedMessage {...intlMsg.clusterShouldHasHarbor}/></span>
     </div>
     return <Card title={cardTitle} className="image_service">
       <div className="imgBox">
@@ -126,8 +128,8 @@ class ImageService extends React.Component {
       </div>
       <Form className="harborConfig">
         <Row className="harborTips">
-          <span>配置 harbor 地址</span>
-          <span className={'tips'}>管理集群 Docker 镜像，用于镜像仓库、流水线镜像发布等功能，可以使用默认harbor，也可以配置其它harbor</span>
+          <span><FormattedMessage {...intlMsg.configHarborAddress}/></span>
+          <span className={'tips'}><FormattedMessage {...intlMsg.harborAddressUseFor}/></span>
         </Row>
         <Row>
           <Col span={7}>
@@ -137,28 +139,28 @@ class ImageService extends React.Component {
                   {
                     validator: (rule, value, callback) => {
                       if (!value) {
-                        return callback([new Error('请配置镜像服务')])
+                        return callback([new Error(formatMessage(intlMsg.plsConfigImageService))])
                       }
                       if (!URL_REGEX.test(value)) {
-                        return callback([new Error('请输入正确的IP地址')])
+                        return callback([new Error(formatMessage(intlMsg.plsInputRightIp))])
                       }
                       callback()
                     }
                   }
                   ],
                   initialValue: value,
-                })} onChange={this.onChange} disabled={!isEdit} placeholder="配置镜像服务" />
+                })} onChange={this.onChange} disabled={!isEdit} placeholder={formatMessage(intlMsg.configImageService)} />
             </Form.Item>
           </Col>
           <Col span={12}>
             {
               !isEdit?
-                <Button className="btn" onClick={() => this.onEditClick(true)}>编辑</Button>
+                <Button className="btn" onClick={() => this.onEditClick(true)}><FormattedMessage {...intlMsg.edit}/></Button>
                 :
                 [
-                  <Button className="btn" onClick={() => this.onEditClick(false)}>取消</Button>
+                  <Button className="btn" onClick={() => this.onEditClick(false)}><FormattedMessage {...intlMsg.cancel}/></Button>
                   ,
-                  <Button className="btn" loading={loading} type="primary" onClick={this.onSubmitClick}>保存</Button>
+                  <Button className="btn" loading={loading} type="primary" onClick={this.onSubmitClick}><FormattedMessage {...intlMsg.save}/></Button>
                 ]
             }
           </Col>
@@ -182,4 +184,6 @@ export default connect(mapStateToProps,  {
   loadClusterList,
   setCurrent,
   getProjectVisibleClusters,
-})(Form.create()(ImageService))
+})(Form.create()(injectIntl(ImageService, {
+  withRef: true,
+})))

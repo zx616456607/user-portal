@@ -20,6 +20,8 @@ import classNames from 'classnames'
 import includes from 'lodash/includes'
 import { getSecrets } from '../../../../../actions/secrets'
 import { checkVolumeMountPath } from '../../utils'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -62,16 +64,17 @@ const SecretsConfigMap = React.createClass({
     return currentConfigGroup
   },
   checkPath(keyValue, rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if (!PATH_REG.test(value)) {
-      return callback('请输入正确的路径')
+      return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
     }
     callback(checkVolumeMountPath(this.props.form, keyValue, value, 'secretConfigMap'))
   },
   renderConfigMapItem(key) {
-    const { form, secretsList, defaultSelectValue, location, isTemplate } = this.props
+    const { form, secretsList, defaultSelectValue, location, isTemplate, intl } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue } = form
     const templateDeploy = location.query.template && !isTemplate
     const keyValue = key.value
@@ -104,47 +107,72 @@ const SecretsConfigMap = React.createClass({
     }
     const secretConfigMapMountPathProps = getFieldProps(secretConfigMapMountPathKey, {
       rules: [
-        { required: true, message: '请填写挂载目录' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseEnter, {
+            item: intl.formatMessage(IntlMessage.mountDirectory),
+            end: '',
+          })
+        },
         { validator: this.checkPath.bind(this, keyValue) },
       ],
     })
     const secretConfigMapIsWholeDirProps = getFieldProps(secretConfigMapIsWholeDirKey, {
       rules: [
-        { required: true, message: '请选择覆盖方式' },
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.coverageMethod),
+          })
+        },
       ],
       onChange: this.onIsWholeDirChange.bind(this, keyValue, currentConfigGroup),
     })
     const secretConfigGroupNameProps = getFieldProps(secretConfigGroupNameKey, {
       rules: [
-        { required: true, message: '请选择配置组' }
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.configGroup),
+          })
+        }
       ],
       onChange: this.onConfigGroupChange.bind(this, keyValue),
       initialValue: defaultSelectValue
     })
     const secretConfigMapSubPathValuesProps = getFieldProps(secretConfigMapSubPathValuesKey, {
       rules: [
-        { required: true, message: '请选择配置组文件' }
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.configGroupFile),
+          })
+        }
       ],
     })
     return (
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
           <FormItem>
-            <Input type="textarea" size="default" placeholder="挂载目录，例如：/App" {...secretConfigMapMountPathProps} />
+            <Input
+              type="textarea" size="default"
+              placeholder={intl.formatMessage(IntlMessage.mountPathPlaceholder)}
+              {...secretConfigMapMountPathProps}
+            />
           </FormItem>
         </Col>
         <Col span={6}>
           <FormItem>
             <RadioGroup {...secretConfigMapIsWholeDirProps}>
               <Radio key="severalFiles" value={false}>
-                挂载若干加密对象&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改加密对象需『重启容器』来生效">
+                {intl.formatMessage(IntlMessage.mountSeveralEncryptedFiles)}&nbsp;
+                <Tooltip width="200px" title={intl.formatMessage(IntlMessage.mountEncryptedTooltip)}>
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
               <Radio key="wholeDir" value={true}>
-                挂载整个配置组&nbsp;
-                <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改加密对象）。">
+                {intl.formatMessage(IntlMessage.mountConfigGroup)}&nbsp;
+                <Tooltip width="200px" title={intl.formatMessage(IntlMessage.mountEncryptedTooltip)}>
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                 </Tooltip>
               </Radio>
@@ -153,7 +181,7 @@ const SecretsConfigMap = React.createClass({
         </Col>
         <Col span={5}>
           <FormItem>
-            <Select placeholder="配置组" {...secretConfigGroupNameProps}>
+            <Select placeholder={intl.formatMessage(IntlMessage.configGroup)} {...secretConfigGroupNameProps}>
               {
                 secretsList.map(group =>
                   <Option
@@ -170,7 +198,11 @@ const SecretsConfigMap = React.createClass({
         <Col span={5}>
           {
             !currentConfigGroup && !templateDeploy
-            ? <FormItem>请选择配置组</FormItem>
+            ? <FormItem>
+                {intl.formatMessage(IntlMessage.pleaseSelect, {
+                  item: intl.formatMessage(IntlMessage.configGroup),
+                })}
+              </FormItem>
             : (
               <div>
                 <FormItem>
@@ -179,7 +211,7 @@ const SecretsConfigMap = React.createClass({
                     checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
                     disabled={secretConfigMapIsWholeDir}
                   >
-                    全选
+                    {intl.formatMessage(IntlMessage.selectAll)}
                   </Checkbox>
                 </FormItem>
                 <FormItem>
@@ -195,7 +227,7 @@ const SecretsConfigMap = React.createClass({
           }
         </Col>
         <Col span={3}>
-          <Tooltip title="删除">
+          <Tooltip title={intl.formatMessage(IntlMessage.delete)}>
             <Button
               className="deleteBtn"
               type="dashed"
@@ -298,7 +330,7 @@ const SecretsConfigMap = React.createClass({
     return false
   },
   render() {
-    const { formItemLayout, form, location, isTemplate } = this.props
+    const { formItemLayout, form, location, isTemplate, intl } = this.props
     const { getFieldValue, getFieldProps } = form
     getFieldProps('secretConfigMapKeys')
     const secretConfigMapKeys = getFieldValue('secretConfigMapKeys') || []
@@ -308,10 +340,10 @@ const SecretsConfigMap = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">配置管理</span>
+            <span className="title">{intl.formatMessage(IntlMessage.configManage)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">满足您统一管理某些服务加密对象的需求，即：不用停止服务，即可变更多个容器内的加密对象</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.secretConfigTip)}</div>
           </Col>
         </Row>
       </div>
@@ -319,9 +351,9 @@ const SecretsConfigMap = React.createClass({
     return (
       <Row className="secret-config-map">
         <Col span={formItemLayout.labelCol.span} className="formItemLabel">
-          加密配置&nbsp;
+          {intl.formatMessage(IntlMessage.secretConfig)}&nbsp;
           <a>
-            <Tooltip title="加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd">
+            <Tooltip title={intl.formatMessage(IntlMessage.secretConfigTooltip)}>
               <Icon type="question-circle-o" />
             </Tooltip>
           </a>
@@ -330,26 +362,26 @@ const SecretsConfigMap = React.createClass({
           <div className="configMap">
             <Row className="configMapHeader">
               <Col span={5}>
-                挂载目录
+                {intl.formatMessage(IntlMessage.mountDirectory)}
               </Col>
               <Col span={6}>
-                覆盖方式
+                {intl.formatMessage(IntlMessage.coverageMethod)}
               </Col>
               <Col span={5}>
-                配置组
+                {intl.formatMessage(IntlMessage.configGroup)}
               </Col>
               <Col span={5}>
-                加密对象
+                {intl.formatMessage(IntlMessage.secretFile)}
               </Col>
               <Col span={3}>
-                操作
+                {intl.formatMessage(IntlMessage.operate)}
               </Col>
             </Row>
             <div className="configMapBody">
               {secretConfigMapKeys.map(this.renderConfigMapItem)}
               <span className="addConfigMap" onClick={this.addConfigMapKey}>
                 <Icon type="plus-circle-o" />
-                <span>添加配置目录</span>
+                <span>{intl.formatMessage(IntlMessage.addConfigDir)}</span>
               </span>
             </div>
           </div>
@@ -387,4 +419,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getSecrets,
-})(SecretsConfigMap)
+})(injectIntl(SecretsConfigMap, {
+  withRef: true,
+}))

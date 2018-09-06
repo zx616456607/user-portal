@@ -12,7 +12,7 @@ import React, { PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon, Row, Col, Radio, Spin } from 'antd'
+import { Input, Select, InputNumber, Button, Form, Icon, Tooltip, Col, Radio, Spin } from 'antd'
 import { CreateDbCluster } from '../../actions/database_cache'
 import newMySqlCluster from '../../../kubernetes/objects/newMysqlCluster'
 import newRedisCluster from '../../../kubernetes/objects/newRedisCluster'
@@ -32,7 +32,6 @@ const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-
 let CreateDatabase = React.createClass({
   getInitialState: function () {
     return {
@@ -45,7 +44,8 @@ let CreateDatabase = React.createClass({
       showAdvanceConfig: false,
       clusterConfig: {},
       path: '/etc/redis',
-      file: 'redis.conf'
+      file: 'redis.conf',
+      clusterMode: 'single'
     }
   },
   componentWillMount() {
@@ -270,6 +270,7 @@ let CreateDatabase = React.createClass({
             values.name,
             replicas,
             lbGroupID,
+            this.state.clusterMode === 'multi',
             this.state.clusterConfig,
             values.storageClass,
             `${values.storageSelect}Mi`
@@ -456,7 +457,6 @@ let CreateDatabase = React.createClass({
           }
         })
       }, ASYNC_VALIDATOR_TIMEOUT)
-
     }
   },
   dbNameIsLegal(rule, value, callback) {
@@ -496,8 +496,14 @@ let CreateDatabase = React.createClass({
     })
     return defaultStorage
   },
+  // 选择集群模式
+  selectClusterMode(e) {
+    this.setState({
+      clusterMode: e.target.value
+    })
+  },
   render() {
-    const { composeType } = this.state
+    const { composeType, clusterMode } = this.state
     const { isFetching, projects, projectVisibleClusters, space, database } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
@@ -518,6 +524,10 @@ let CreateDatabase = React.createClass({
       }],
 
     })
+    const clusterModeProps = getFieldProps('clusterMode',{
+      initialValue: 'single',
+      onChange: this.selectClusterMode
+  })
     let accessType = getFieldValue('accessType')
     let outClusterProps
     if(accessType == 'outcluster'){
@@ -562,8 +572,9 @@ let CreateDatabase = React.createClass({
         <Option key={item.clusterID}>{item.clusterName}</Option>
       )
     })
-    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
-    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const configParam = database === 'mysql'? '4x': '2x'
+    const hourPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice[configParam])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = this.props.resourcePrice && parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice[configParam])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
     const statefulApps = {
       mysql: 'MySQL',
       redis: 'Redis',
@@ -650,6 +661,38 @@ let CreateDatabase = React.createClass({
                   </div>
                   : null
               }
+
+                <div className='commonBox clusterModeBox'>
+                  <div className='title'>
+                    <span>集群模式</span>
+                  </div>
+                  <div className='radioBox'>
+                    <FormItem>
+                      <Radio.Group {...clusterModeProps}>
+                        <Radio value="single" key="2">
+                          <Tooltip title="提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡">
+                            <span>一主多从</span>
+                          </Tooltip>
+                        </Radio>
+                        {
+                          database === 'mysql' &&
+                          <Radio value="multi" key="1">
+                            <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
+                          </Radio>
+                        }
+                      </Radio.Group>
+                    </FormItem>
+
+                    {
+                      clusterMode === 'single'
+                        ? <div className='modeTips'>使用 Group Replication 的一主多从模式，能更加保证数据的准确性与一致性</div>
+                        : ''
+                    }
+                  </div>
+                  <div style={{ clear: 'both' }}></div>
+                </div>
+
+
               <div className='commonBox'>
                 <div className='title'>
                   <span>副本数</span>
@@ -659,7 +702,7 @@ let CreateDatabase = React.createClass({
                     {
                       this.state.currentType == 'zookeeper' ?
                         <InputNumber {...zkReplicasProps} size='large' min={3} max={100} disabled={isFetching} /> :
-                        <InputNumber {...replicasProps} size='large' min={1} max={100} disabled={isFetching} />
+                        <InputNumber {...replicasProps} size='large' min={3} max={100} disabled={isFetching} />
                     }
                   </FormItem>
                   <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
@@ -754,7 +797,7 @@ let CreateDatabase = React.createClass({
               }
                 <div className="modal-price">
                   <div className="price-left">
-                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                    <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice[configParam] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
                     <div className="keys">存储：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
                   </div>
                   <div className="price-unit">

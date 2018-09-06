@@ -168,7 +168,7 @@
       }
     }
   }
-  .footer{
+  .footer {
     text-align: center;
     color: #FFF;
     position: absolute;
@@ -178,5 +178,16 @@
     font-size: 12px;
     height: 40px;
     line-height: 40px;
+    & > *:not(:last-child) {
+      margin-right: 24px;
+    }
+    & > .langSwitch {
+      & > *:not(:last-child) {
+        margin-right: 6px;
+      }
+      & > .lang {
+        cursor: pointer;
+      }
+    }
   }
 }

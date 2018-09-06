@@ -11,23 +11,19 @@
 
 
  class newMysqlCluster {
-   constructor (name, replicas, lbgroup, config, storageCluster, size) {
+   constructor (name, replicas, lbgroup, multiMaster, config, storageCluster, size) {
      this.apiVersion = 'daas.tenxcloud.com/v1'
      this.kind = 'MySQLCluster'
      this.metadata =  {
-       annotations: lbgroup === 'none'? {
+       annotations: {
          ['system/lbgroup']: lbgroup,
-       }
-       :
-       {
-         ['system/lbgroup']: lbgroup,
-         ['tenxcloud.com/schemaPortname']: `${name}-0/TCP`
        },
        name,
      }
      this.spec = {
        proxy: true,
        replicas,
+       multiMaster,
        resources: config,
        configRef: {
          name: `${name}-config`

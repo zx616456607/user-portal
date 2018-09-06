@@ -17,7 +17,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { injectIntl } from 'react-intl'
+import { injectIntl,  } from 'react-intl'
 import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, Select  } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
@@ -60,11 +60,13 @@ import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon'
+import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
-const MyComponent = React.createClass({
+
+const MyComponent =  injectIntl(React.createClass({
   propTypes: {
     serviceList: React.PropTypes.array
   },
@@ -333,36 +335,39 @@ const MyComponent = React.createClass({
     },500)
   },
   renderGroupIcon(group){
+    const { formatMessage } = this.props.intl
     if(!group || !group.id || group.type == 'none'){
       return <span></span>
     }
     if(group.id == "mismatch"){
-      return <Tooltip title='网络出口已删除'>
-        <span className='standrand netcolor'>网</span>
+      return <Tooltip title={formatMessage(AllServiceListIntl.netPortDelete)}>
+        <span className='standrand netcolor'>{formatMessage(AllServiceListIntl.net)}</span>
       </Tooltip>
 
     }
     switch(group.type){
       case 'private':
-        return <Tooltip title='该服务可内网访问（通过集群网络出口）'>
-          <span className='standrand privateColor'>内</span>
+        return <Tooltip title={formatMessage(AllServiceListIntl.serviceInnerNet)}>
+          <span className='standrand privateColor'>{formatMessage(AllServiceListIntl.inner)}</span>
         </Tooltip>
       case 'public':
-        return <Tooltip title='该服务可公网访问（通过集群网络出口）'>
-          <span className='standrand publicColor'>公</span>
+        return <Tooltip title={formatMessage(AllServiceListIntl.servicePublicNet)}>
+          <span className='standrand publicColor'>{formatMessage(AllServiceListIntl.public)}</span>
         </Tooltip>
       default:
         return <span></span>
     }
   },
   renderLBIcon() {
+    const { formatMessage } = this.props.intl
     return (
-      <Tooltip title='该服务可被访问（通过应用负载均衡 LB ）'>
+      <Tooltip title={formatMessage(AllServiceListIntl.serviceloadBalance)}>
         <span className='standrand privateColor'>lb</span>
       </Tooltip>
     )
   },
   render: function () {
+    const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
       return (
@@ -374,7 +379,7 @@ const MyComponent = React.createClass({
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
-          <Icon type="frown"/>&nbsp;暂无数据
+          <Icon type="frown"/>&nbsp;{formatMessage(AllServiceListIntl.noDate)}
         </div>
       )
     }
@@ -385,30 +390,32 @@ const MyComponent = React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipv4pools'])
+      const ipv4 = item.spec.template
+        && item.spec.template.metadata.annotations
+        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
+        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
         || null
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {
             item.status.phase == "Stopped"
             ? <Menu.Item key="start">
-              启动
+              {formatMessage(ServiceCommonIntl.start)}
             </Menu.Item>
             : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
             item.status.phase == "Running" || item.status.phase == 'Pending'
             ?<Menu.Item key="stop">
-              停止
+              {formatMessage(ServiceCommonIntl.stop)}
             </Menu.Item>
             : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           {
             item.status.phase == "Running"
             ? <Menu.Item key="restart">
-              重启
+              {formatMessage(ServiceCommonIntl.reboot)}
             </Menu.Item>
             : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
@@ -417,58 +424,58 @@ const MyComponent = React.createClass({
             ? <Menu.Item
                 key="batchRestartService"
                 disabled={isRollingUpdate}
-                title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}
+                title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}
               >
-            重新部署
+            {formatMessage(AllServiceListIntl.redeploy)}
             </Menu.Item>
             : <Menu.Item style={{display:'none'}}></Menu.Item>
           }
           <Menu.Item key="delete">
-            删除
+            {formatMessage(ServiceCommonIntl.delete)}
           </Menu.Item>
           <Menu.Divider key="baseline1" />
           <Menu.Item key="rollingUpdate"
             disabled={isDisabled}
             >
-            滚动发布
+            {formatMessage(AllServiceListIntl.rollPublish)}
           </Menu.Item>
           <Menu.Item key="grayscaleUpgrade"
             disabled={isDisabled}
             >
-             灰度发布
+            {formatMessage(AllServiceListIntl.grayPublish)}
           </Menu.Item>
-          <SubMenu title="扩展" >
-            <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              水平扩展
+          <SubMenu title={formatMessage(AllServiceListIntl.extend)} >
+            <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+              {formatMessage(AllServiceListIntl.standardExtend)}
             </Menu.Item>
-            <Menu.Item key="autoScale" disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              自动伸缩
-            </Menu.Item>
-          </SubMenu>
-          <SubMenu title="变更设置">
-            <Menu.Item key="config" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              更改配置
-            </Menu.Item>
-            <Menu.Item key="basic" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              修改环境变量
-            </Menu.Item>
-            <Menu.Item key="ports" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              修改端口
-            </Menu.Item>
-            <Menu.Item key="livenessprobe" disabled={isRollingUpdate} title={isRollingUpdate && '请在灰度升级完成或回滚后操作' || ''}>
-              设置高可用
+            <Menu.Item key="autoScale" disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+            {formatMessage(AllServiceListIntl.autoScale)}
             </Menu.Item>
           </SubMenu>
-          <SubMenu title="更多设置">
+          <SubMenu title={formatMessage(AllServiceListIntl.changeSet)}>
+            <Menu.Item key="config" disabled={isRollingUpdate} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+              {formatMessage(AllServiceListIntl.changeConfig)}
+            </Menu.Item>
+            <Menu.Item key="basic" disabled={isRollingUpdate} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+              {formatMessage(AllServiceListIntl.changeEnv)}
+            </Menu.Item>
+            <Menu.Item key="ports" disabled={isRollingUpdate} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+              {formatMessage(AllServiceListIntl.changePort)}
+            </Menu.Item>
+            <Menu.Item key="livenessprobe" disabled={isRollingUpdate} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
+              {formatMessage(AllServiceListIntl.HightAvailable)}
+            </Menu.Item>
+          </SubMenu>
+          <SubMenu title={formatMessage(AllServiceListIntl.moreSet)}>
             <Menu.Item key="binddomain" style={{width:'102px'}}>
-              绑定域名
+              {formatMessage(AllServiceListIntl.bundDomin)}
             </Menu.Item>
             <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
-              设置HTTPS
+              {formatMessage(AllServiceListIntl.setHTTPS)}
             </Menu.Item>
           </SubMenu>
             <Menu.Item key="serverTag" >
-              服务标签
+              {formatMessage(AllServiceListIntl.serviceTag)}
             </Menu.Item>
         </Menu>
       );
@@ -583,10 +590,10 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="alarm commonData">
-            <Tooltip title="查看监控">
+            <Tooltip title={formatMessage(AllServiceListIntl.checkMonitor)}>
               <TenxIcon type="manage-monitor" onClick={()=> this.showMonitoring(item)}/>
             </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
+            <Tooltip title={formatMessage(AllServiceListIntl.alarmSet)} onClick={()=> this.showAlert(item)}>
             <Icon type="notification" />
             </Tooltip>
           </div>
@@ -608,7 +615,7 @@ const MyComponent = React.createClass({
               trigger={['hover']}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
-              <span>查看</span>
+              <span>{formatMessage(AllServiceListIntl.check)}</span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -621,7 +628,7 @@ const MyComponent = React.createClass({
       </div>
     );
   }
-});
+}), {withRef: true,});
 
 /*function loadServices(props) {
   const { cluster, loadAllServices, page, size, name } = props
@@ -697,7 +704,7 @@ class ServiceList extends Component {
       step:1 ,// create alarm step
       alarmStrategy: true,
       grayscaleUpgradeModalVisible: false,
-      showPlaceholder: '按服务名称搜索',
+      showPlaceholder: this.props.intl.formatMessage(AllServiceListIntl.serviceNameSearch),
       showInpVal: ''
     }
   }
@@ -869,7 +876,7 @@ class ServiceList extends Component {
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的服务')
+      noti.error(formatMessage(AllServiceListIntl.cannotOperationService))
       return
     }
     self.setState({
@@ -936,7 +943,7 @@ class ServiceList extends Component {
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的服务')
+      noti.error(formatMessage(AllServiceListIntl.cannotOperationService))
       return
     }
     self.setState({
@@ -950,7 +957,7 @@ class ServiceList extends Component {
         restartBtn: false,
       })
       let notification = new NotificationHandler()
-      notification.error('请选择要停止的服务')
+      notification.error(formatMessage(AllServiceListIntl.choiceStopService))
       return
     }
     this.setState({
@@ -1018,7 +1025,7 @@ class ServiceList extends Component {
 
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的服务')
+      noti.error(formatMessage(AllServiceListIntl.cannotOperationService))
       return
     }
 
@@ -1097,7 +1104,7 @@ class ServiceList extends Component {
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
-      noti.error('没有可以操作的服务')
+      noti.error(formatMessage(AllServiceListIntl.cannotOperationService))
       return
     }
     self.setState({
@@ -1358,14 +1365,17 @@ class ServiceList extends Component {
     }
   }
   handleSearchNameOrLabel(value) {
+    const {formatMessage} = this.props.intl
+    const serviceName = formatMessage(AllServiceListIntl.serviceName)
+    const serviceTagButton = formatMessage(AllServiceListIntl.serviceTagButton)
     switch (value) {
-      case '服务名称':
+      case serviceName:
         return this.setState({
-          showPlaceholder: '按服务名称搜索'
+          showPlaceholder: formatMessage(AllServiceListIntl.serviceNameSearch)
         })
-      case '服务标签键':
+      case serviceTagButton:
         return this.setState({
-          showPlaceholder: '按服务标签键搜索'
+          showPlaceholder: formatMessage(AllServiceListIntl.serviceTagButtonSearch)
         })
       default:
         return null
@@ -1373,10 +1383,13 @@ class ServiceList extends Component {
   }
   selectSearchType() {
     const {showPlaceholder} = this.state
+    const {formatMessage} = this.props.intl
+    const serviceNameSearch = formatMessage(AllServiceListIntl.serviceNameSearch)
+    const serviceTagButtonSearch = formatMessage(AllServiceListIntl.serviceTagButtonSearch)
     switch (showPlaceholder) {
-      case '按服务名称搜索':
+      case serviceNameSearch:
         return this.searchServices()
-      case '按服务标签键搜索':
+      case serviceTagButtonSearch:
         return  this.searchServiceKey()
       default:
         return this.searchServices()
@@ -1384,6 +1397,7 @@ class ServiceList extends Component {
   }
   render() {
     const parentScope = this
+    const { formatMessage }= this.props.intl
     let {
       modalShow, selectTab,
       currentShowInstance,
@@ -1423,10 +1437,10 @@ class ServiceList extends Component {
     const operaMenua = (
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
-          <span className="Moreoperation" onClick={this.batchQuickRestartService}><i className="fa fa-bolt"></i> 重启</span>
+          <span className="Moreoperation" onClick={this.batchQuickRestartService}><i className="fa fa-bolt"></i>{formatMessage(ServiceCommonIntl.reboot)}</span>
         </Menu.Item>
         <Menu.Item key="1" disabled={!redeploybtn}>
-          <span className="Moreoperation" onClick={this.batchRestartService}><i className='fa fa-undo' /> 重新部署</span>
+          <span className="Moreoperation" onClick={this.batchRestartService}><i className='fa fa-undo' />{formatMessage(AllServiceListIntl.redeploy)}</span>
         </Menu.Item>
       </Menu>
     );
@@ -1436,62 +1450,62 @@ class ServiceList extends Component {
       nextStep: this.nextStep
     }
     const selectBefore = (
-      <Select defaultValue="服务名称" style={{ width: 90 }} onChange={this.handleSearchNameOrLabel}>
-        <Option value="服务名称">服务名称</Option>
-        <Option value="服务标签键">服务标签键</Option>
+      <Select defaultValue={formatMessage(AllServiceListIntl.serviceName)} style={{ width: 90 }} onChange={this.handleSearchNameOrLabel}>
+        <Option value={formatMessage(AllServiceListIntl.serviceName)}>{formatMessage(AllServiceListIntl.serviceName)}</Option>
+        <Option value={formatMessage(AllServiceListIntl.serviceTagButton)}>{formatMessage(AllServiceListIntl.serviceTagButton)}</Option>
       </Select>
     );
     return (
       <div id="AppServiceList">
-        <Title title="服务列表" />
+        <Title title={formatMessage(AllServiceListIntl.documentTitle)} />
         <ResourceBanner resourceType='service'/>
         <QueueAnim className="demo-content">
           <div key='animateBox'>
           <div className='operationBox operationBoxa'>
             <div className='leftBox'>
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
-                <i className='fa fa-play'></i>启动
+                <i className='fa fa-play'></i>{formatMessage(ServiceCommonIntl.start)}
               </Button>
-              <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
+              <Modal title={formatMessage(AllServiceListIntl.reStartOperation)} visible={this.state.RestarServiceModal}
                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
                 >
                 <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart' />
               </Modal>
-              <Modal title="启动操作" visible={this.state.StartServiceModal}
+              <Modal title={formatMessage(AllServiceListIntl.startOperation)} visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >
                 <StateBtnModal serviceList={serviceList} state='Running' />
               </Modal>
               <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
-                <i className='fa fa-stop'></i>停止
+                <i className='fa fa-stop'></i>{formatMessage(ServiceCommonIntl.stop)}
               </Button>
-              <Modal title="停止操作" visible={this.state.StopServiceModal}
+              <Modal title={formatMessage(AllServiceListIntl.stopOperation)} visible={this.state.StopServiceModal}
                 onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
                 >
                 <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
-                <i className='fa fa-refresh'></i>刷新
+                <i className='fa fa-refresh'></i>{formatMessage(ServiceCommonIntl.refresh)}
               </Button>
               <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
-                <i className='fa fa-trash-o'></i>删除
+                <i className='fa fa-trash-o'></i>{formatMessage(ServiceCommonIntl.delete)}
               </Button>
-              <Modal title="删除操作" visible={this.state.DeleteServiceModal}
+              <Modal title={formatMessage(AllServiceListIntl.deleteOperation)} visible={this.state.DeleteServiceModal}
                 onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
                 >
                 <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule} callback={this.handleCheckboxvalue} settingList={SettingListfromserviceorapp}/>
               </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
-                <i className="fa fa-bolt"></i>重启
+                <i className="fa fa-bolt"></i>{formatMessage(ServiceCommonIntl.reboot)}
               </Button>
-              <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
+              <Modal title={formatMessage(AllServiceListIntl.rebootOperation)} visible={this.state.QuickRestarServiceModal}
                 onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
                 >
                 <StateBtnModal serviceList={serviceList} state='QuickRestar' />
               </Modal>
 
               <Button type='ghost' size='large' onClick={this.batchRestartService} disabled={!redeploybtn}>
-                <i className='fa fa-undo' /> 重新部署
+                <i className='fa fa-undo' />{formatMessage(AllServiceListIntl.redeploy)}
               </Button>
 
             </div>
@@ -1530,7 +1544,8 @@ class ServiceList extends Component {
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'>{formatMessage(ServiceCommonIntl.common)} {total}
+              {formatMessage(ServiceCommonIntl.page)}</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -1548,20 +1563,20 @@ class ServiceList extends Component {
           <div className='operationBox operationBoxb'>
             <div className='leftBox'>
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
-                <i className='fa fa-play'></i>启动
+                <i className='fa fa-play'></i>{formatMessage(ServiceCommonIntl.start)}
               </Button>
               <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
-                <i className='fa fa-stop'></i>停止
+                <i className='fa fa-stop'></i>{formatMessage(ServiceCommonIntl.stop)}
               </Button>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
-                <i className='fa fa-refresh'></i>刷新
+                <i className='fa fa-refresh'></i>{formatMessage(ServiceCommonIntl.refresh)}
               </Button>
               <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
-                <i className='fa fa-trash-o'></i>删除
+                <i className='fa fa-trash-o'></i>{formatMessage(ServiceCommonIntl.delete)}
               </Button>
               <Dropdown overlay={operaMenua} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
-                  更多操作<i className="fa fa-caret-down Arrow"></i>
+                  {formatMessage(ServiceCommonIntl.moreOperation)}<i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1598,7 +1613,8 @@ class ServiceList extends Component {
               </div>
             </div>
             { total !== 0 && <div className='pageBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'>{formatMessage(ServiceCommonIntl.common)} {total}
+              {formatMessage(ServiceCommonIntl.page)}</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -1619,28 +1635,28 @@ class ServiceList extends Component {
                 <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1}></Checkbox>
               </div>
               <div className='name commonTitle'>
-                服务名称
+                {formatMessage(AllServiceListIntl.serviceName)}
               </div>
               <div className='status commonTitle'>
-                状态
+                {formatMessage(ServiceCommonIntl.status)}
               </div>
               <div className='appname commonTitle'>
-                所属应用
+                {formatMessage(AllServiceListIntl.appName)}
               </div>
               <div className='alarm commonTitle'>
-                监控告警
+                {formatMessage(AllServiceListIntl.alarm)}
               </div>
               <div className='image commonTitle'>
-                镜像
+                {formatMessage(AllServiceListIntl.image)}
               </div>
               <div className='service commonTitle'>
-                服务地址
+                {formatMessage(AllServiceListIntl.serviceAddress)}
               </div>
               <div className='createTime commonTitle'>
-                创建时间
+                {formatMessage(AllServiceListIntl.createTime)}
               </div>
               <div className='actionBox commonTitle'>
-                操作
+                {formatMessage(ServiceCommonIntl.operation)}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -1658,7 +1674,7 @@ class ServiceList extends Component {
                />
           </Card>
           </div>
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+          <Modal title={formatMessage(AllServiceListIntl.createAlarmStrategy)} visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
@@ -1668,7 +1684,7 @@ class ServiceList extends Component {
             <CreateAlarm funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
           </Modal>
            {/* 通知组 */}
-          <Modal title="创建新通知组" visible={this.state.createGroup}
+          <Modal title={formatMessage(AllServiceListIntl.createNotification)} visible={this.state.createGroup}
             width={560}
             maskClosable={false}
             wrapClassName="AlarmModal"
@@ -1678,7 +1694,7 @@ class ServiceList extends Component {
           <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
           </Modal>
           <Modal
-            title='垂直居中的对话框'
+            title={formatMessage(AllServiceListIntl.verticalMiddleModal)}
             visible={this.state.modalShow}
             className='AppServiceDetail'
             transitionName='move-right'

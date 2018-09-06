@@ -14,6 +14,9 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
+import { injectIntl } from 'react-intl'
+import intlMsg from './Intl'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -29,16 +32,20 @@ class CPU extends Component {
 
   render() {
     const option = new EchartsOption('CPU')
-    const { cpu, scope, hideInstantBtn, isService } = this.props
+    const { cpu, scope, hideInstantBtn, isService, intl: { formatMessage } } = this.props
     const { isFetching, data } = cpu
     const { switchCpu, freshTime, CpuLoading, currentStart, currentCpuStart } = scope.state
-    let timeText = switchCpu ? '1分钟' : freshTime
+    let timeText = switchCpu ? formatMessage(intlMsg.min1) : freshTime
     option.addYAxis('value', {
       formatter: '{value} %'
     })
     option.setToolTipUnit(' %')
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
+    let isDataEmpty = false
+    if (isEmpty(data)) {
+      isDataEmpty = true
+    }
     data&&data.map((item) => {
       let timeData = []
       let values = []
@@ -46,6 +53,7 @@ class CPU extends Component {
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
@@ -66,19 +74,22 @@ class CPU extends Component {
       }
       option.addSeries(dataArr, item.containerName)
     })
-    option.setXAxisMinAndMax(minValue)
+    // 数据为空时，给图表添加默认横纵轴范围
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} %'}, 0, 100) : option.addYAxis('value', {formatter: '{value} %'})
+    isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
+      option.setXAxisMinAndMax(minValue)
     if (data) {
       option.setGirdForDataCommon(data.length)
     }
     return (
       <div className="chartBox">
         <span className="freshTime">
-          {`时间间隔：${timeText}`}
+          {`${formatMessage(intlMsg.timeSpace)}：${timeText}`}
         </span>
         {
           !hideInstantBtn &&
-          <Tooltip title="实时开关">
-            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Cpu')} checkedChildren="开" unCheckedChildren="关"/>
+          <Tooltip title={formatMessage(intlMsg.realTimeSwitch)}>
+            <Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Cpu')} checkedChildren={formatMessage(intlMsg.on)} unCheckedChildren={formatMessage(intlMsg.off)}/>
           </Tooltip>
         }
         <ReactEcharts
@@ -103,4 +114,6 @@ CPU.defaultProps = {
   }
 }
 
-export default CPU
+export default injectIntl(CPU, {
+  withRef: true,
+})

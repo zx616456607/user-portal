@@ -26,6 +26,7 @@ import {
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 import isEmpty from 'lodash/isEmpty'
+import { defineMessages } from 'react-intl'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
@@ -137,7 +138,6 @@ function toDate(date) {
  * - three days ago, etc
  */
 export function calcuDate(beginDate) {
-  moment.locale('zh-cn')
   return moment(beginDate).fromNow()
 }
 
@@ -834,4 +834,25 @@ export const parseImageUrl = image => {
     imageUrl = imageHost.split('//')[1]
   }
   return { imageUrl, imageTag }
+}
+
+/**
+ * 定义国际化时, 将简单对象格式化为defineMessages()方法需要的形式
+ * @param data Object 需要格式化的对象 eg: { login: '登录', tips: '点击登录' }
+ * @param prefix String 前缀, 结尾无需加. eg: 'Login'
+ * @returns Object eg:
+ * {
+ *  login: { id: 'Login.login', defaultMessage: '登录' },
+ *  tips: { id: 'Login.tips', defaultMessage: '点击登录' },
+ * }
+ */
+export const defineIntlMessages = ({ data, prefix }) => {
+  const rtn = {}
+  for(let [k, v] of Object.entries(data)) {
+    rtn[k] = {
+      id: `${prefix}.${k}`,
+      defaultMessage: v,
+    }
+  }
+  return defineMessages(rtn)
 }

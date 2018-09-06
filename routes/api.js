@@ -119,7 +119,7 @@ module.exports = function (Router) {
   router.put('/projects/label', projectController.updateToggleServiceMesh)
   router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
   router.get('/projects/istio/check', projectController.getCheckClusterIstio)
-  
+
   // Clusters
   router.get('/clusters', clusterController.getClusters)
   router.post('/clusters', clusterController.createCluster)
@@ -228,6 +228,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/autoscale/logs', serviceController.getAutoScaleLogs)
 
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
+  router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -302,6 +303,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
   router.post('/clusters/:cluster/containers/:name/export', containerController.exportContainers)
+  router.get('/clusters/:cluster/nodes/podcidr',  containerController.getPodNetworkSegment)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
@@ -348,7 +350,7 @@ module.exports = function (Router) {
   router.put('/registries/:registry/repositories/:name', harborController.updateRepository)
 
   router.get('/registries/:registry/logs', harborController.getLogs)
-  router.post('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
+  router.get('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
   router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
   router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
   router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)
@@ -356,6 +358,8 @@ module.exports = function (Router) {
   router.put('/registries/:registry/configurations', harborController.updateConfigurations)
   router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
 
+  router.post('/registries/:registry/replications', harborController.copyReplications)
+  router.put('/registries/:registry/jobs/replication', harborController.updateReplicationJobs)
   router.get('/registries/:registry/jobs/replication', harborController.getReplicationJobs)
   router.delete('/registries/:registry/jobs/replication/:id', harborController.deleteReplicationJob)
   router.get('/registries/:registry/jobs/replication/:id/log', harborController.getReplicationJobLogs)
@@ -851,6 +855,10 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
+  router.post('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.createTcpUdpIngress)
+  router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)

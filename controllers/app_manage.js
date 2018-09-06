@@ -135,8 +135,8 @@ exports.getApps = function* () {
     result = yield api.getBy([cluster, 'apps'], queryObj, { headers })
   }
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
-  const apps = result.data.apps
-  apps.map((app) => {
+  const apps = result.data && result.data.apps
+  apps && apps.map((app) => {
     if (!app.services) {
       app.services = []
     }
@@ -154,8 +154,8 @@ exports.getApps = function* () {
   this.body = {
     cluster,
     data: apps || [],
-    total: result.data.total,
-    count: result.data.count,
+    total: result.data && result.data.total || 0,
+    count: result.data && result.data.count || 0,
   }
 }
 

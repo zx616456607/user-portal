@@ -140,18 +140,19 @@ let MyComponent = React.createClass({
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '-'}</li>
               <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
-                {
-                  shoulldAutoBackup || item.cronBackup?
-                    <div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>
-                    :
-                    <Tooltip title="无任何备份链，手动备份后，可设置自动备份">
-                      <div className="opacity-switch banned"></div>
-                    </Tooltip>
-                }
-                  <Switch checkedChildren="开"
-                          unCheckedChildren="关"
-                          checked={item.cronBackup}
-                  />
+                <span>{item.cronBackup? '开启': '关闭'}</span>
+                {/*{*/}
+                  {/*shoulldAutoBackup || item.cronBackup?*/}
+                    {/*<div className="opacity-switch" onClick={() => this.autoBackupSwitch(item)}></div>*/}
+                    {/*:*/}
+                    {/*<Tooltip title="无任何备份链，手动备份后，可设置自动备份">*/}
+                      {/*<div className="opacity-switch banned"></div>*/}
+                    {/*</Tooltip>*/}
+                {/*}*/}
+                  {/*<Switch checkedChildren="开"*/}
+                          {/*unCheckedChildren="关"*/}
+                          {/*checked={item.cronBackup}*/}
+                  {/*/>*/}
               </li>
             </ul>
           </div>
@@ -403,7 +404,10 @@ class MysqlCluster extends Component {
           title='创建MySQL集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+          {
+            this.state.CreateDatabaseModalShow &&
+            <CreateDatabase scope={_this} dbservice={this.state.dbservice} database='mysql' clusterProxy={clusterProxy} visible={this.state.CreateDatabaseModalShow}/>
+          }
         </Modal>
         {
           this.state.autoBackupModalShow &&

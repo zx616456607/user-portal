@@ -42,6 +42,8 @@ import './style/index.less'
 import NotificationHandler from '../../../../components/Notification'
 import ServiceMesh from './ServiceMesh'
 import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -157,7 +159,8 @@ let ConfigureService = React.createClass({
   loadImageTags(props, name) {
     const {
       location, getOtherImageTag, form,
-      currentFields, mode, loadRepositoriesTags, harbor
+      currentFields, mode, loadRepositoriesTags, harbor,
+      intl
     } = props
     let { imageName } = props
     const { other, isWrap } = location.query
@@ -209,7 +212,8 @@ let ConfigureService = React.createClass({
        success: {
          func: result => {
            if (!result.data.length) {
-             return notify.warn('运行环境的镜像（版本）不存在', '请联系管理员上传')
+             return notify.warn(intl.formatMessage(IntlMessage.imageNotExist),
+               intl.formatMessage(IntlMessage.contactAdmin))
            }
            let imageTag = result.data[0]
            result.data.map(tag => {
@@ -421,8 +425,8 @@ let ConfigureService = React.createClass({
     if (!value || this.props.action === 'addService') {
       return callback()
     }
-    const { current, checkAppName } = this.props
-    let errorMsg = appNameCheck(value, '应用名称')
+    const { current, checkAppName, intl } = this.props
+    let errorMsg = appNameCheck(value, intl.formatMessage(IntlMessage.appName))
     if (errorMsg != 'success') {
       return callback(errorMsg)
     }
@@ -432,7 +436,7 @@ let ConfigureService = React.createClass({
         success: {
           func: (result) => {
             if (result.data) {
-              errorMsg = appNameCheck(value, '应用名称', true)
+              errorMsg = appNameCheck(value, intl.formatMessage(IntlMessage.appName), true)
               callback(errorMsg)
               return
             }
@@ -449,7 +453,7 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   checkTempName (rule, value, callback) {
-    const { appTemplateNameCheck, isTemplate, location, mode } = this.props
+    const { appTemplateNameCheck, isTemplate, location, mode, intl } = this.props
     const { query } = location
     let errorMsg = templateNameCheck(value)
     if (errorMsg !== 'success') {
@@ -469,7 +473,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: res=> {
             if (res.statusCode === 409) {
-              callback('应用模板名称重复')
+              callback(`${intl.formatMessage(IntlMessage.nameExisted, 
+                  { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
           }
         }
@@ -477,17 +482,20 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT);
   },
   checkTempVersion (rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
-      return callback('请输入模板版本')
+      return callback(`${intl.formatMessage(IntlMessage.pleaseEnter,
+        { item: intl.formatMessage(IntlMessage.appTemplateVersion), end: '' })}`)
     }
     callback()
   },
   checkTempDesc (rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       return callback()
     }
     if (value && value.length > 1000) {
-      return callback('模板描述不能超过1000个字符')
+      return callback(intl.formatMessage(IntlMessage.appTempDescLengthLimit))
     }
     callback()
   },
@@ -495,16 +503,16 @@ let ConfigureService = React.createClass({
     if (!value) {
       return callback()
     }
-    const { current, checkServiceName, allFields, id, location, isTemplate } = this.props
+    const { current, checkServiceName, allFields, id, location, isTemplate, intl } = this.props
     if (!validateK8sResourceForServiceName(value)) {
-      return callback('服务名称可由 3~60 位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+      return callback(intl.formatMessage(IntlMessage.serviceNameRegLimit))
     }
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
           const serviceName = allFields[key].serviceName || {}
         if (key !== id) {
           if (serviceName.value === value) {
-            callback(appNameCheck(value, '服务名称', true))
+            callback(appNameCheck(value, intl.formatMessage(IntlMessage.serviceName), true))
             return
           }
         }
@@ -519,7 +527,7 @@ let ConfigureService = React.createClass({
         success: {
           func: (result) => {
             if(result.data) {
-              callback(appNameCheck(value, '服务名称', true))
+              callback(appNameCheck(value, intl.formatMessage(IntlMessage.serviceName), true))
               return
             }
             callback()
@@ -547,7 +555,8 @@ let ConfigureService = React.createClass({
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
       current, id, allFields, location, AdvancedSettingKey,
-      isTemplate, template, setFormFields, appName, newImageName
+      isTemplate, template, setFormFields, appName, newImageName,
+      intl
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
@@ -559,7 +568,9 @@ let ConfigureService = React.createClass({
     if (!isTemplate) {
       appNameProps = getFieldProps('appName', {
         rules: [
-          { required: !isTemplate, message: '应用名称至少为3个字符' },
+          { required: !isTemplate,
+            message: intl.formatMessage(IntlMessage.requiredMessage,
+              { item: intl.formatMessage(IntlMessage.appName) }) },
           { validator: this.checkAppName }
         ],
       })
@@ -593,13 +604,17 @@ let ConfigureService = React.createClass({
     }
     const serviceNameProps = getFieldProps('serviceName', {
       rules: [
-        { required: true, message: '服务名称至少为3个字符' },
+        { required: true,
+          message: intl.formatMessage(IntlMessage.requiredMessage,
+            { item: intl.formatMessage(IntlMessage.serviceName) })},
         { validator: this.checkServiceName }
       ],
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true, message: '请输入镜像地址' }
+        { required: true,
+          message: intl.formatMessage(IntlMessage.pleaseEnter,
+            { item: intl.formatMessage(IntlMessage.imageAddress), end: '' }) }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {
@@ -622,13 +637,15 @@ let ConfigureService = React.createClass({
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 9 }}
-              label="应用名称"
+              label={intl.formatMessage(IntlMessage.appName)}
               hasFeedback
               key="appName"
             >
               <Input
                 size="large"
-                placeholder="请输入应用名称"
+                placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                  item: intl.formatMessage(IntlMessage.appName), end: '',
+                })}
                 autoComplete="off"
                 {...appNameProps}
                 ref="appNameInput"
@@ -638,7 +655,7 @@ let ConfigureService = React.createClass({
             }
             {isTemplate &&
               <FormItem
-                label="模板名称"
+                label={intl.formatMessage(IntlMessage.templateName)}
                 hasFeedback
                 key="templateVersion"
                 {...formItemLayout}
@@ -646,7 +663,10 @@ let ConfigureService = React.createClass({
               >
                 <Input
                   size="large"
-                  placeholder="请输入模板名称"
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.templateName),
+                    end: '',
+                  })}
                   autoComplete="off"
                   ref="templateNameInput"
                   disabled={this.getAppNameDisabled()}
@@ -671,7 +691,7 @@ let ConfigureService = React.createClass({
             } */}
             {isTemplate &&
               <FormItem
-                label="模板描述"
+                label={intl.formatMessage(IntlMessage.appTemplateDesc)}
                 key="templateDesc"
                 {...formItemLayout}
                 wrapperCol={{ span: 9 }}
@@ -679,7 +699,10 @@ let ConfigureService = React.createClass({
                 <Input
                   size="large"
                   type="textarea"
-                  placeholder="请输入模板描述"
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.appTemplateDesc),
+                    end: '',
+                  })}
                   {...templateDescProps}
                 />
               </FormItem>
@@ -687,13 +710,16 @@ let ConfigureService = React.createClass({
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 9 }}
-              label="服务名称"
+              label={intl.formatMessage(IntlMessage.serviceName)}
               hasFeedback
               key="serviceName"
             >
               <Input
                 size="large"
-                placeholder="请输入服务名称"
+                placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                  item: intl.formatMessage(IntlMessage.serviceName),
+                  end: '',
+                })}
                 autoComplete="off"
                 {...serviceNameProps}
                 ref="serviceNameInput"
@@ -702,7 +728,7 @@ let ConfigureService = React.createClass({
             {isWrap === 'true' &&
             <FormItem {...formItemLayout}
               wrapperCol={{ span: 9 }}
-              label="应用包"
+              label={intl.formatMessage(IntlMessage.wrap)}
               hasFeedback
               key="Appwrap">
               <Input readOnly value={newImageName || window.WrapListTable.fileName  + ' | '+ window.WrapListTable.fileTag} />
@@ -713,13 +739,16 @@ let ConfigureService = React.createClass({
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 9 }}
-                label="模型集"
+                label={intl.formatMessage(IntlMessage.modelSet)}
                 hasFeedback
                 key="modelSet"
               >
                 <Input
                   size="large"
-                  placeholder="请输入模型集名称"
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: intl.formatMessage(IntlMessage.modelSet),
+                    end: '',
+                  })}
                   readOnly
                   value={modelSet}
                 />
@@ -730,12 +759,19 @@ let ConfigureService = React.createClass({
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 9 }}
-                label={location.query.appPkgID ? '运行环境':"镜像"}
+                label={location.query.appPkgID ? intl.formatMessage(IntlMessage.operatingEnv): intl.formatMessage(IntlMessage.image)}
                 key="image"
               >
                 <Input
                   size="large"
-                  placeholder={`请输入${location.query.appPkgID ?'运行环境':"镜像"}地址`}
+                  placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                    item: location.query.appPkgID ?
+                      intl.formatMessage(IntlMessage.operatingEnv)
+                      :
+                      intl.formatMessage(IntlMessage.image),
+                    end: intl.formatMessage(IntlMessage.address)
+                    })
+                  }
                   autoComplete="off"
                   readOnly
                   {...imageUrlProps}
@@ -747,12 +783,24 @@ let ConfigureService = React.createClass({
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 6 }}
-                label={location.query.appPkgID ?'环境版本':"镜像版本"}
+                label={location.query.appPkgID ?
+                  `${intl.formatMessage(IntlMessage.env)}${intl.formatMessage(IntlMessage.version)}`
+                  :
+                  `${intl.formatMessage(IntlMessage.image)}${intl.formatMessage(IntlMessage.version)}`
+                }
                 key="imageTag"
               >
                 <Select
                   size="large"
-                  placeholder={`请输入${location.query.appPkgID ?'运行':"镜像"}版本`}
+                  placeholder={
+                    intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: location.query.appPkgID ?
+                        intl.formatMessage(IntlMessage.operation)
+                        :
+                        intl.formatMessage(IntlMessage.image),
+                      end: intl.formatMessage(IntlMessage.version)
+                    })
+                  }
                   showSearch
                   optionFilterProp="children"
                   {...imageTagProps}
@@ -835,6 +883,7 @@ let ConfigureService = React.createClass({
           AdvancedSettingKey={AdvancedSettingKey}
           form={form}
           formItemLayout={formItemLayout}
+          intl={this.props.intl}
           key="advanced"
         />
       </QueueAnim>
@@ -914,4 +963,6 @@ ConfigureService = connect(mapStateToProps, {
   appTemplateNameCheck
 })(ConfigureService)
 
-export default ConfigureService
+export default injectIntl(ConfigureService, {
+  withRef: true,
+})

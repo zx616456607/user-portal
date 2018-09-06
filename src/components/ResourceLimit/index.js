@@ -90,35 +90,31 @@ class ResourceQuota extends React.Component {
       query = {
         id: key ? key : clusterID,
         header: {
-          teamspace: projectName
+          teamspace: projectName,
+          onbehalfuser: ''
         }
       }
     } else {
-      if (userName !== namespace) {
-        query = {
-          id: key ? key : clusterID,
-          header: {
-            onbehalfuser: ''
-          }
-        }
-      } else {
-        query = {
-          id: key ? key : clusterID,
+      query = {
+        id: key ? key : clusterID,
+        header: {
+          onbehalfuser: userName
         }
       }
     }
     // 查看配额，若是用户中心或租户管理-成员管理详情，teamspace应该是该用户的用户名，去获取用户对应的数据
-    if(userName) {
+    if(window.location.pathname === '/account') {
       query = {
         id: key ? key : clusterID,
         header: {
-          teamspace: userName
+          teamspace: 'default'
         }
       }
     }
     /**
      * 获取资源定义，目的为了让资源配额管理支持后台动态设置
      */
+
     getResourceDefinition({
       success: {
         func: res => {
@@ -158,10 +154,8 @@ class ResourceQuota extends React.Component {
                     id: v.resourceType,
                     name: v.resourceName,
                   }
-                  v.children = [children]
                 }
               })
-
               return newArr
             }
             const quotas = {
@@ -285,10 +279,8 @@ class ResourceQuota extends React.Component {
           teamspace: projectName
         }
       } else {
-        if (userName !== namespace) {
-          header = {
-            onbehalfuser: ''
-          }
+        header = {
+          onbehalfuser: userName
         }
       }
 
@@ -319,16 +311,10 @@ class ResourceQuota extends React.Component {
                 }
               }
             } else {
-              if (userName !== namespace) {
-                query = {
-                  id: clusterID,
-                  header: {
-                    onbehalfuser: ''
-                  }
-                }
-              } else {
-                query = {
-                  id: clusterID,
+              query = {
+                id: clusterID,
+                header: {
+                  onbehalfuser: userName
                 }
               }
             }
@@ -379,10 +365,8 @@ class ResourceQuota extends React.Component {
           teamspace: projectName
         }
       } else {
-        if (userName !== namespace) {
-          header = {
-            onbehalfuser: ''
-          }
+        header = {
+          onbehalfuser: userName
         }
       }
       // 把编辑的字段过滤出来，发送给后台
@@ -390,7 +374,6 @@ class ResourceQuota extends React.Component {
       for (const v of this.state.clusterUnlimited) {
         body[v] = null
       }
-
       for(let k in value) {
         if(typeof value[k] === 'string') {
           body[k] = Number(parseFloat(value[k]).toFixed(2))
@@ -981,7 +964,7 @@ class ResourceQuota extends React.Component {
                                             </Col>
                                             <Col span={7} style={{ height: 'auto' }}>
                                               <FormItem>
-                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" id={item.id || 'id'} style={{ width: '100%' }} />
                                               </FormItem>
                                             </Col>
                                             <Col span={3}>
@@ -1045,7 +1028,8 @@ class ResourceQuota extends React.Component {
                                   valuePropName: 'checked'
                                 })
                                 const checkValue = getFieldValue(checkKey)
-                                const inputProps = getFieldProps(k.id, {
+                                let id = k.id? k.id : 'id'
+                                const inputProps = getFieldProps(id, {
                                   // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
                                   //   {
                                   //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
@@ -1068,7 +1052,7 @@ class ResourceQuota extends React.Component {
                                     </Col>
                                     <Col span={7} style={{ height: 'auto' }}>
                                       <FormItem>
-                                        <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                        <Input {...inputProps} id={k.id || 'id'} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
                                       </FormItem>
                                     </Col>
                                     <Col span={3} style={{ height: 'auto' }}>

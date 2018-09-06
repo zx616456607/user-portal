@@ -65,9 +65,11 @@ class CreateSecurityGroup extends React.Component {
     getfSecurityGroupDetail(cluster, params.name, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          if (statusCode !== 403) {
+            notification.warn('获取列表数据出错', message.message)
+          }
         },
       },
     }).then(res => {
@@ -92,6 +94,15 @@ class CreateSecurityGroup extends React.Component {
     })
   }
 
+  cidrExcept = v => {
+    const arr = v.split(',')
+    const brr = []
+    arr.forEach(item => {
+      brr.push(item)
+    })
+    return brr
+  }
+
   submit = () => {
     const { isEdit, policyName } = this.state
     const { form, createSecurityGroup, cluster,
@@ -109,10 +120,17 @@ class CreateSecurityGroup extends React.Component {
           const type = values[`ingress${el}`]
           switch (type) {
             case 'cidr':
+              if (!values[`ingress${type}${el}except`]) {
+                return ingList.push({
+                  type: 'cidr',
+                  cidr: values[`ingress${type}${el}`],
+                  except: null,
+                })
+              }
               return ingList.push({
                 type: 'cidr',
                 cidr: values[`ingress${type}${el}`],
-                except: [ `ingress${type}${el}except` ],
+                except: this.cidrExcept(values[`ingress${type}${el}except`]),
               })
             case 'service':
               return ingList.push({
@@ -143,10 +161,17 @@ class CreateSecurityGroup extends React.Component {
           const type = values[`egress${el}`]
           switch (type) {
             case 'cidr':
+              if (!values[`egress${type}${el}except`]) {
+                return egList.push({
+                  type: 'cidr',
+                  cidr: values[`egress${type}${el}`],
+                  except: null,
+                })
+              }
               return egList.push({
                 type: 'cidr',
                 cidr: values[`egress${type}${el}`],
-                except: [ `egress${type}${el}except` ],
+                except: [ values[`egress${type}${el}except`] ],
               })
             case 'service':
             case 'mysql':
@@ -172,10 +197,11 @@ class CreateSecurityGroup extends React.Component {
           await deleteSecurityGroup(cluster, policyName.metaName, {
             failed: {
               func: error => {
-                const { message } = error
+                const { message, statusCode } = error
                 notification.close()
-                notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
-                this.loadData()
+                if (statusCode !== 403) {
+                  notification.warn(`删除安全组 ${policyName.metaName} 失败`, message.message)
+                }
               },
             },
           })
@@ -196,12 +222,16 @@ class CreateSecurityGroup extends React.Component {
           },
           failed: {
             func: error => {
-              const { message } = error
+              const { message, statusCode } = error
               notification.close()
-              if (isEdit) {
-                notification.success('修改安全组失败')
-              } else {
-                notification.warn('新建安全组失败', message.message)
+              if (statusCode !== 403) {
+                if (isEdit) {
+                  notification.success('修改安全组失败')
+                } else if (statusCode === 422 || message.message.indexOf('not within CIDR range')) {
+                  notification.warn('输入的 cidr 范围错误', message.message)
+                } else {
+                  notification.warn('新建安全组失败', message.message)
+                }
               }
               this.setState({ loading: false })
             },
@@ -220,9 +250,11 @@ class CreateSecurityGroup extends React.Component {
           },
           failed: {
             func: error => {
-              const { message } = error
+              const { message, statusCode } = error
               notification.close()
-              notification.warn('修改安全组失败', message.message)
+              if (statusCode !== 403) {
+                notification.warn('修改安全组失败', message.message)
+              }
               this.setState({ loading: false })
             },
           },

@@ -35,6 +35,8 @@ import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -50,6 +52,7 @@ const Normal = React.createClass({
       memoryMin: RESOURCES_MEMORY_MIN,
       cpuMin: RESOURCES_CPU_MIN,
       allTag: [],
+      replicasIP: false,
     }
   },
   componentWillMount() {
@@ -143,16 +146,16 @@ const Normal = React.createClass({
     }
   },
   showServicePointAffinity() {
-    const { currentCluster, fields } = this.props
+    const { currentCluster, fields, intl } = this.props
     const { form } = this.props
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     getFieldProps('serviceTag')
     const serviceTag = getFieldValue('serviceTag')
     return <div>
-      <Title title="应用列表" />
+      <Title title={intl.formatMessage(IntlMessage.appList)} />
       <div className="title">
-        服务与节点亲和
-        <Tooltip placement="top" title='决定服务实例可以部署在哪些主机上'>
+        <FormattedMessage {...IntlMessage.serviceAndNodeAffinity}/>
+        <Tooltip placement="top" title={intl.formatMessage(IntlMessage.affinityTip)}>
           <Icon type="question-circle-o" />
         </Tooltip>
       </div>
@@ -166,16 +169,16 @@ const Normal = React.createClass({
     </div>
   },
   showBetweenServiceAffinity() {
-    const { form, fields } = this.props
+    const { form, fields, intl } = this.props
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     getFieldProps('serviceBottomTag')
     getFieldProps('advanceSet')
     const serviceBottomTag = getFieldValue('serviceBottomTag')
     return <div>
-      <Title title="应用列表" />
+      <Title title={intl.formatMessage(IntlMessage.appList)} />
       <div className="title">
-        服务与服务亲和
-        <Tooltip placement="top" title='决定服务实例可以和哪些服务实例部署在同一拓扑域 (具有相同的主机标签键) 上'>
+        {intl.formatMessage(IntlMessage.serviceAndServiceAffinity)}
+        <Tooltip placement="top" title={intl.formatMessage(IntlMessage.serAndSerAffinityTip)}>
           <Icon type="question-circle-o" />
         </Tooltip>
       </div>
@@ -222,11 +225,12 @@ const Normal = React.createClass({
     setFieldsValue(values)
   },
   checkReplicas(rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
       callback()
     }
     if (value < 1 || value > 10) {
-      return callback('实例数量为 1~10 之间')
+      return callback(intl.formatMessage(IntlMessage.replicaLengthLimit))
     }
     callback()
   },
@@ -279,7 +283,7 @@ const Normal = React.createClass({
   },
 
   handelhostnameTemplate(){
-    const { form, clusterNodes } = this.props
+    const { form, clusterNodes, intl } = this.props
     const { getFieldProps } = form
     const bindNodeProps = getFieldProps('bindNode',{
       rules: [
@@ -303,19 +307,23 @@ const Normal = React.createClass({
       <FormItem className='hostname'>
         <Select
           size="large"
-          placeholder="请选择绑定节点"
+          placeholder={intl.formatMessage(IntlMessage.pleaseSelectBindNode)}
           showSearch
           optionFilterProp="children"
           {...bindNodeProps}
           style={{minWidth:'290px'}}
         >
-          <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Select.Option>
+          <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>
+            <FormattedMessage {...IntlMessage.defaultScheduling}/>
+          </Select.Option>
           {
             mapArray.map(node => {
               const { name, ip, podCount, schedulable, isMaster } = node
               return (
                 <Select.Option key={name} disabled={isMaster || !schedulable}>
-                  {name} | {ip} (容器：{podCount}个)
+                  {name} | {ip} ({intl.formatMessage(IntlMessage.containerCount, {
+                    count: podCount
+                })})
                 </Select.Option>
               )
             })
@@ -326,7 +334,7 @@ const Normal = React.createClass({
   },
   //listnodes -8-
   handleBindnodeTypeTemlate(listNodes){
-    const { form } = this.props
+    const { form, intl } = this.props
     const { getFieldProps } = form
     const bindNodeTypeProps = getFieldProps('bindNodeType',{
       rules: [
@@ -336,34 +344,37 @@ const Normal = React.createClass({
     switch(listNodes){
       case 5:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname">指定主机名及IP上运行</Radio>
+          <Radio value="hostname">{intl.formatMessage(IntlMessage.specifyHostAndIP)}</Radio>
         </Radio.Group>
       case 2:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">服务与服务的亲和性</Radio>
+          <Radio value="hostlabel">{intl.formatMessage(IntlMessage.serAndSerAffinityNature)}</Radio>
         </Radio.Group>
       case 3:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">定义服务与节点亲和性</Radio>
+          <Radio value="hostlabel">{intl.formatMessage(IntlMessage.serAndNodeAffinityNature)}</Radio>
         </Radio.Group>
       case 4:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostlabel">定义服务与节点亲和性 & 服务与服务的亲和性</Radio>
+          <Radio value="hostlabel">
+            {intl.formatMessage(IntlMessage.serAndNodeAffinityNature)} & {intl.formatMessage(IntlMessage.serAndSerAffinityNature)}
+          </Radio>
         </Radio.Group>
       case 6:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">服务实例与服务实例的亲和性</Radio>
+          <Radio value="hostname" key="hostname">{intl.formatMessage(IntlMessage.specifyHostAndIP)}</Radio>
+          <Radio value="hostlabel" key="hostlabel">{intl.formatMessage(IntlMessage.insAndInsAffinityNature)}</Radio>
         </Radio.Group>
       case 7:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性</Radio>
+          <Radio value="hostname" key="hostname">{intl.formatMessage(IntlMessage.specifyHostAndIP)}</Radio>
+          <Radio value="hostlabel" key="hostlabel">{intl.formatMessage(IntlMessage.serAndNodeAffinityNature)}</Radio>
         </Radio.Group>
       case 8:
         return <Radio.Group {...bindNodeTypeProps}>
-          <Radio value="hostname" key="hostname">指定主机名及IP上运行</Radio>
-          <Radio value="hostlabel" key="hostlabel">定义服务与节点亲和性 & 服务与服务的亲和性</Radio>
+          <Radio value="hostname" key="hostname">{intl.formatMessage(IntlMessage.specifyHostAndIP)}</Radio>
+          <Radio value="hostlabel" key="hostlabel">
+            {intl.formatMessage(IntlMessage.serAndNodeAffinityNature)} & {intl.formatMessage(IntlMessage.serAndSerAffinityNature)}</Radio>
         </Radio.Group>
       default:
         return <span></span>
@@ -391,7 +402,7 @@ const Normal = React.createClass({
     }
   },
   handleBindNodeTempalte(){
-    const { currentCluster,formItemLayout } = this.props
+    const { currentCluster,formItemLayout, intl } = this.props
     const { listNodes } = currentCluster
     switch(listNodes){
       case 0:
@@ -408,7 +419,7 @@ const Normal = React.createClass({
         return <div >
           <Row>
             <Col span={formItemLayout.labelCol.span} className="title">
-              <span>节点调度</span>
+              <span>{intl.formatMessage(IntlMessage.nodeScheduling)}</span>
             </Col>
             <Col span={formItemLayout.wrapperCol.span}>
               <Form.Item>
@@ -481,9 +492,13 @@ const Normal = React.createClass({
     })
   },
   memoryChange(value) {
+    const { intl } = this.props
     const { getFieldsValue, setFieldsValue } = this.props.form
     if (!value) {
-      notify.warn('请输入最小内存')
+      notify.warn(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.minMemory),
+        end: '',
+      }))
       return
     }
     this.setResourceTypeToDIY()
@@ -496,16 +511,24 @@ const Normal = React.createClass({
     }
   },
   maxMemoryChange(value) {
+    const { intl } = this.props
     if (!value) {
-      notify.warn('请输入最大内存')
+      notify.warn(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.maxMemory),
+        end: '',
+      }))
       return
     }
     this.setResourceTypeToDIY()
   },
   cpuChange(value) {
+    const { intl } = this.props
     const { getFieldsValue, setFieldsValue } = this.props.form
     if (!value) {
-      notify.warn('请输入最小 CPU 的值')
+      notify.warn(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.minCpu),
+        end: '',
+      }))
       return
     }
     this.setResourceTypeToDIY()
@@ -518,15 +541,22 @@ const Normal = React.createClass({
     }
   },
   maxCpuChange(value) {
+    const { intl } = this.props
     if (!value) {
-      notify.warn('请输入最大 CPU 的值')
+      notify.warn(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.maxCpu),
+        end: '',
+      }))
       return
     }
     this.setResourceTypeToDIY()
   },
   maxGpuChange(value) {
     if (!value) {
-      notify.warn('请输入最大 GPU 的值')
+      notify.warn(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.maxGpu),
+        end: '',
+      }))
       return
     }
   },
@@ -539,24 +569,39 @@ const Normal = React.createClass({
       })
     }
   },
+  handleReplicas(v) {
+    this.props.form.getFieldValue('replicasCheck')
+      && Events.emit('changeReplics', v)
+  },
+  handleReplicasCheck(e) {
+    if (e.target.checked) {
+      this.props.form.setFieldsValue({
+        replicas: 1
+      })
+    }
+    this.setState({
+      replicasIP: !this.state.replicasIP,
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
-      id, isTemplate, location
+      id, isTemplate, location, intl,
     } = this.props
     const { query } = location
     const { listNodes } = currentCluster
-    const { replicasInputDisabled, memoryMin, cpuMin } = this.state
+    const { replicasInputDisabled, memoryMin, cpuMin, replicasIP } = this.state
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
-        { required: true, message: '实例数量为 1~10 之间' },
+        { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas }
       ],
+      // onChange: this.handleReplicas
     })
     const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
@@ -587,10 +632,10 @@ const Normal = React.createClass({
       <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">节点调度</span>
+            <span className="title">{intl.formatMessage(IntlMessage.nodeScheduling)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">容器调度策略支持：指定主机名及IP上运行、服务与节点亲和性、服务与服务的亲和性
+            <div className="desc">{intl.formatMessage(IntlMessage.nodeSchedulingTitle)}
               </div>
           </Col>
         </Row>
@@ -600,20 +645,20 @@ const Normal = React.createClass({
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">基本配置</span>
+            <span className="title">{intl.formatMessage(IntlMessage.baseConfig)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
-            <div className="desc">服务的计算资源、服务类型、以及实例个数等设置</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.baseConfigTitle)}</div>
           </Col>
         </Row>
 
         <div className="body" key="body">
           <Row>
             <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
-              容器配置&nbsp;
+              {intl.formatMessage(IntlMessage.containerConfig)}&nbsp;
               {
                 standardFlag && (
-                  <Tooltip title="专业版及企业认证用户可申请扩大容器配置">
+                  <Tooltip title={intl.formatMessage(IntlMessage.expansionTip)}>
                     <a>
                       <Icon type="question-circle-o" />
                     </a>
@@ -653,7 +698,7 @@ const Normal = React.createClass({
           {/* <FormItem
             {...formItemLayout}
             wrapperCol={{ span: 3 }}
-            label="实例数量"
+            label={intl.formatMessage(IntlMessage.instanceNum)}
             className="replicasFormItem"
             key="replicas"
           >
@@ -676,9 +721,9 @@ const Normal = React.createClass({
                   min={1}
                   max={10}
                   {...replicasProps}
-                  disabled={replicasInputDisabled}
+                  disabled={replicasInputDisabled || replicasIP}
                 />
-                <div className="unit"> 个</div>
+                <div className="unit">{intl.formatMessage(IntlMessage.one)}</div>
               </FormItem>
             </Col>
             <Col span={5} style={{ paddingLeft: 30 }}>
@@ -688,20 +733,22 @@ const Normal = React.createClass({
                     ...getFieldProps('replicasCheck', {
                       initialValue: false,
                       valuePropName: 'checked',
+                      onChange: this.handleReplicasCheck,
                     })
                   }
                 >
-                  固定实例 IP
+                    固定实例 IP
                 </Checkbox>
               </FormItem>
             </Col>
           </Row>
           {
-            (getFieldValue('replicasCheck') && getFieldValue('replicas'))
-              &&　<ReplicasRestrictIP
-                form={form}
-              />
-              || null
+            getFieldValue('replicasCheck')
+              ? <ReplicasRestrictIP
+                  form={form}
+                  // Events={Events}
+                />
+              : null
           }
           <AccessMethod
             formItemLayout={formItemLayout}
@@ -774,11 +821,24 @@ function mapStateToProps(state, props) {
   }
 }
 
+// 固定ip暂时仅支持一个
+// const Events = {
+//   fn: {},
+//   on: function(ev, cb) {
+//     this.fn[ev] = cb
+//   },
+//   emit: function(ev, params) {
+//     this.fn[ev](params)
+//   }
+// }
+
 export default connect(mapStateToProps, {
   getNodes,
   getClusterLabel,
   addLabels,
   getNodeLabels
-})(Normal)
+})(injectIntl(Normal, {
+  withRef: true,
+}))
 
 

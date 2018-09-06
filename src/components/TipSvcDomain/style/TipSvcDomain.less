@@ -1,3 +1,5 @@
+@import "../../../assets/style/site/core";
+
 .TipSvcDomain {
   position: relative;
   height: 100%;
@@ -117,6 +119,19 @@
     width: 14px;
     cursor: pointer;
     color: #2db7f5
+  }
+}
+.AppTip, .SvcTip {
+  .protocolBox {
+    color: @primary-color;
+    display: inline-flex;
+    width: @font-size-large;
+    height: @font-size-large;
+    border-radius: 50%;
+    border: @border-width-base @border-style-base @primary-color;
+    margin-left: @padding-base;
+    align-items: center;
+    justify-content: center;
   }
 }
 .firstUrl {

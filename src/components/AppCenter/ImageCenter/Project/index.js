@@ -19,6 +19,8 @@ import { camelize } from 'humps'
 import { loadProjectList, createProject, deleteProject, updateProject, updateProjectPublicity, loadSysteminfo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../components/Notification'
 import { DEFAULT_REGISTRY, SEARCH } from '../../../../constants'
+import indexIntl from './intl/index'
+import { injectIntl } from 'react-intl'
 
 const RadioGroup = Radio.Group
 const notification = new NotificationHandler()
@@ -38,23 +40,25 @@ class CreateItem extends Component {
     func.scope.setState({createItem:false})
   }
   projectNameExists(role, value, callback) {
+    const { formatMessage } = this.props.intl
     if (!Boolean(value)) {
-      return callback('请输入仓库组名称')
+      return callback(formatMessage(indexIntl.nameValidateMsg1))
     }
     if (value.length <3) {
-      return callback('仓库组名称至少3位字符')
+      return callback(formatMessage(indexIntl.nameValidateMsg2))
     }
     if (value.length >30) {
-      return callback('仓库组名称长度不可超过30个字符')
+      return callback(formatMessage(indexIntl.nameValidateMsg3))
     }
     if (!/^[a-z0-9]+(?:[_-][a-z0-9]+)*$/.test(value)) {
-      callback('请输入小写英文字母和数学开头和结尾，中间可[_-]')
+      callback(formatMessage(indexIntl.nameValidateMsg4))
       return
     }
     callback()
   }
   handOk() {
-    const { form, func, harbor } = this.props
+    const { form, func, harbor, intl } = this.props
+    const { formatMessage } = intl
     form.validateFields((error, values)=> {
       if (!!error) {
         return
@@ -62,7 +66,7 @@ class CreateItem extends Component {
       func.createProject(harbor, DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
-            notification.success(`仓库组 ${values.project_name} 创建成功`)
+            notification.success(formatMessage(indexIntl.createSuccessMsg, { name: values.project_name}))
             func.loadData()
             func.scope.setState({ createItem:false, currentPage: 1 })
             form.resetFields()
@@ -73,13 +77,13 @@ class CreateItem extends Component {
           func: err => {
             const { statusCode } = err
             if (statusCode === 409) {
-              notification.error(`仓库组名称 ${values.project_name} 已存在`)
+              notification.error(formatMessage(indexIntl.hasBeenCreated, { name: values.project_name}))
               return
             } else if (statusCode === 400) {
-              notification.error(`请求错误，请检查仓库名称： ${values.project_name}`)
+              notification.error(formatMessage(indexIntl.requestErr, { name: values.project_name}))
               return
             }
-            notification.error(`创建仓库组 ${values.project_name} 失败，错误代码: ${statusCode}`)
+            notification.error(formatMessage(indexIntl.createFail, { name: values.project_name, statusCode}))
           },
         }
       })
@@ -88,6 +92,7 @@ class CreateItem extends Component {
 
   render() {
     const { getFieldProps } = this.props.form
+    const { formatMessage } = this.props.intl
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 16 },
@@ -104,19 +109,27 @@ class CreateItem extends Component {
       initialValue: 0,
     })
     return (
-      <Modal title="新建仓库组" visible={this.props.visible} onOk={()=> this.handOk()} onCancel={()=> this.handCancel()}>
+      <Modal
+        title={formatMessage(indexIntl.newRepoBtn)}
+        visible={this.props.visible}
+        onOk={()=> this.handOk()}
+        onCancel={()=> this.handCancel()}
+        okText={formatMessage(indexIntl.okText)}
+        cancelText={formatMessage(indexIntl.cancelText)}
+      >
         <Form className="itemCreateFrom">
-          <Form.Item label="仓库组名称" {...formItemLayout} className="createForm">
-            <Input placeholder="请输入仓库组名称" {...itemName}/>
+          <Form.Item label={formatMessage(indexIntl.repoGroupName)} {...formItemLayout} className="createForm">
+            <Input placeholder={formatMessage(indexIntl.placeholder)} {...itemName}/>
           </Form.Item>
-          <Form.Item label="仓库组类型" {...formItemLayout} className="createForm">
+          <Form.Item label={formatMessage(indexIntl.repoGroupType)} {...formItemLayout} className="createForm">
             <RadioGroup {...projectPublic}>
-              <Radio value={0}>私有</Radio>
-              <Radio value={1}>公开</Radio>
+              <Radio value={0}>{formatMessage(indexIntl.privateType)}</Radio>
+              <Radio value={1}>{formatMessage(indexIntl.publicType)}</Radio>
             </RadioGroup>
           </Form.Item>
-
-          <div className="alertRow">当仓库组设为公开后，所有人都有读取该仓库组内镜像的权限。命令行操作下无需“docker login”即可以拉取该仓库组内的所有镜像。</div>
+          <div className="alertRow">
+            {formatMessage(indexIntl.newRepoGroupMessage)}
+            </div>
         </Form>
       </Modal>
     )
@@ -124,6 +137,7 @@ class CreateItem extends Component {
 }
 
 CreateItem = Form.create()(CreateItem)
+CreateItem = injectIntl(CreateItem, {withRef: true})
 
 class Project extends Component {
   constructor(props) {
@@ -139,21 +153,20 @@ class Project extends Component {
     this.searchProjects = this.searchProjects.bind(this)
     this.deleteItemOk = this.deleteItemOk.bind(this)
   }
-
   loadData(query = {}) {
     const { loadProjectList, harbor } = this.props
+    const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, { harbor }, query), {
       failed: {
         func: res => {
           if (res.statusCode === 500) {
-            notify.error('请求错误', '镜像仓库暂时无法访问，请联系管理员')
+            notify.error(formatMessage(indexIntl.loadDataErr))
           }
         }
       }
     })
   }
-
   componentWillMount() {
     this.loadData()
   }
@@ -171,15 +184,15 @@ class Project extends Component {
     searchInput && searchInput.focus()
   }
   searchProjects() {
-    this.loadData({ project_name: this.state.searchInput.replace(SEARCH,"") })
+    this.loadData({ name: this.state.searchInput.replace(SEARCH,"") })
   }
-
   deleteItemOk() {
     // go delete item
     const { deleteProject, harbor } = this.props
+    const { formatMessage } = this.props.intl
     const { selectedRows } = this.state
     const doSuccess = () => {
-      notification.success(`仓库组 ${selectedRows[0].name} 删除成功`)
+      notification.success(formatMessage(indexIntl.deleteRepoOk, { name: selectedRows[0].name }))
       this.setState({
         deleteItem: false,
       })
@@ -201,13 +214,13 @@ class Project extends Component {
             return
           }
           if (statusCode === 412) {
-            notification.error(`项目包含镜像仓库或复制规则，无法删除`)
+            notification.error(formatMessage(indexIntl.cannotDel))
             this.setState({
               deleteItem: false,
             })
             return
           }
-          notification.error(`仓库组删除失败`)
+          notification.error(formatMessage(indexIntl.deleteFailed))
         },
       }
     })
@@ -219,7 +232,8 @@ class Project extends Component {
   }
   render() {
     const { getFieldProps } = this.props.form
-    const { harborProjects, harborSysteminfo, createProject, updateProject, updateProjectPublicity, loginUser, harbor } = this.props
+    const { harborProjects, harborSysteminfo, createProject, updateProject, updateProjectPublicity, loginUser, harbor, intl } = this.props
+    const { formatMessage } = intl
     const { currentPage } = this.state
     const func = {
       scope: this,
@@ -245,12 +259,12 @@ class Project extends Component {
                     onClick={this.openCreateModal.bind(this)}
                   >
                     <i className='fa fa-plus'/>&nbsp;
-                    新建仓库组
+                    {formatMessage(indexIntl.newRepoBtn)}
                   </Button>
                 }
                 {/*<Button type="ghost" disabled={this.state.selectedRows.length==0} onClick={()=> this.setState({deleteItem:true})} size="large" icon="delete">删除</Button>*/}
                 <Input
-                  placeholder="按仓库组名称搜索"
+                  placeholder={formatMessage(indexIntl.searchPlaceholder)}
                   className="search"
                   size="large"
                   onChange={e => this.setState({ searchInput: e.target.value })}
@@ -268,13 +282,17 @@ class Project extends Component {
             <CreateItem visible={this.state.createItem} func={func} harbor={harbor}/>
 
             {/* 删除仓库组 Modal */}
-            <Modal title="删除仓库组" visible={this.state.deleteItem}
+            <Modal
+              title={formatMessage(indexIntl.deleteRepoModalTitle)}
+              visible={this.state.deleteItem}
               onCancel={()=> this.setState({deleteItem:false})}
               onOk={()=> this.deleteItemOk()}
+              okText={formatMessage(indexIntl.okText)}
+              cancelText={formatMessage(indexIntl.cancelText)}
             >
               <div className="deleteRow">
                 <i className="fa fa-exclamation-triangle"/>
-                您确认删除 {this.state.selectedRows.map(item=> item.name).join(',')} 仓库组?
+                { formatMessage(indexIntl.deleteConfirmText, {name: this.state.selectedRows.map(item=> item.name).join(',')}) }
               </div>
             </Modal>
           </div>
@@ -285,6 +303,7 @@ class Project extends Component {
 }
 
 Project = Form.create()(Project)
+Project = injectIntl(Project, {withRef: true})
 function mapStateToProps(state, props) {
   const { harbor: stateHarbor, entities } = state
   let harborProjects = stateHarbor.projects && stateHarbor.projects[DEFAULT_REGISTRY] || {}

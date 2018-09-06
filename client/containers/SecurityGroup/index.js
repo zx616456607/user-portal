@@ -53,9 +53,11 @@ class SecurityGroup extends React.Component {
     getSecurityGroupList(cluster, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          if (statusCode !== 403) {
+            notification.warn('获取列表数据出错', message.message)
+          }
         },
       },
     })
@@ -104,10 +106,11 @@ class SecurityGroup extends React.Component {
       },
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn(`删除安全组 ${toDelete.name} 失败`, message.message)
-          this.loadData()
+          if (statusCode !== 403) {
+            notification.warn(`删除安全组 ${toDelete.name} 失败`, message.message)
+          }
         },
       },
     })

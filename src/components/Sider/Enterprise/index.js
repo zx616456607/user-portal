@@ -20,6 +20,8 @@ import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN  } from '../../../../constants'
 import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './Intl'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -176,7 +178,7 @@ class Sider extends Component {
     }
   }
 
-  getUploadData() {
+  /* getUploadData() {
     const options = this.props.uploadFileOptions
     const volumeName = options.volumeName
     const self = this
@@ -247,7 +249,7 @@ class Sider extends Component {
         }
       }
     }
-  }
+  } */
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
@@ -265,7 +267,8 @@ class Sider extends Component {
   }
 
   render() {
-    const { siderStyle, role,backColor,oemInfo, loginUser } = this.props
+    const { siderStyle, role,backColor,oemInfo, loginUser, intl } = this.props
+    const { formatMessage } = intl
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
@@ -273,62 +276,71 @@ class Sider extends Component {
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
-          <span><div className='sideCircle'></div> 概览</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantOverview} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key="user">
         <Link to='/tenant_manage/user'>
-          <span><div className='sideCircle'></div> 成员管理</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantUser} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key="team">
         <Link to='/tenant_manage/team'>
-          <span><div className='sideCircle'></div> 团队管理</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantTeam} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='project_manage'>
         <Link to='/tenant_manage/project_manage'>
-          <span><div className='sideCircle'></div> 项目管理</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantProject} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='allpermissions'>
         <Link to='/tenant_manage/allpermissions'>
-          <span><div className='sideCircle'></div> 项目权限</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantProjectPermossions} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='cluster_authorization'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/cluster_authorization'>
-            <span>
-              集群授权审批
-            </span>
+            <FormattedMessage {...IntlMessages.tenantClusterAuth} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='approvalLimit'>
       <div className="adminBox">
-        <Tooltip title="仅系统管理员可见" placement="right">
+        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
           <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
         <Link to='/tenant_manage/approvalLimit'>
-          <span>
-            配额审批
-          </span>
+          <FormattedMessage {...IntlMessages.tenantResourcequotaAuth} />
         </Link>
       </div>
     </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/ldap'>
-            <span>
-              集成企业目录
-            </span>
+            <FormattedMessage {...IntlMessages.tenantLdap} />
           </Link>
         </div>
       </Menu.Item>,
@@ -337,29 +349,36 @@ class Sider extends Component {
     const tenantMenu_base = [
       <Menu.Item key="team">
         <Link to='/tenant_manage/team'>
-          <span><div className='sideCircle'></div> 团队管理</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantTeam} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='project_manage'>
         <Link to='/tenant_manage/project_manage'>
-          <span><div className='sideCircle'></div> 项目管理</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantProject} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='allpermissions'>
         <Link to='/tenant_manage/allpermissions'>
-          <span><div className='sideCircle'></div> 项目权限</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.tenantProjectPermossions} />
+          </span>
         </Link>
       </Menu.Item>,
       // applyLimit
       <Menu.Item key='applyLimit'>
         <div className="usrBox">
-          <Tooltip title="仅普通用户可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyNormalUser)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/applyLimit'>
-              <span>
-                配额申请
-              </span>
+            <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
           </Link>
         </div>
     </Menu.Item>,
@@ -380,60 +399,58 @@ class Sider extends Component {
     const settingMenu_admin = [
       <Menu.Item key='version'>
         <Link to='/setting/version'>
-          <span><div className='sideCircle'></div> 平台版本</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.version} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
-            <span>
-              授权管理
-            </span>
+            <FormattedMessage {...IntlMessages.license} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='API'>
         <Link to='/setting/API'>
-          <span><div className='sideCircle'></div> 开放 API</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.openApi} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-            <span>
-              高级设置
-            </span>
+            <FormattedMessage {...IntlMessages.advancedSetting} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
-            <span>
-              个性外观
-            </span>
+            <FormattedMessage {...IntlMessages.personalized} />
           </Link>
         </div>
       </Menu.Item>,
 
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
-            <span>
-              清理工具
-            </span>
+            <FormattedMessage {...IntlMessages.cleaningTool} />
           </Link>
         </div>
       </Menu.Item>
@@ -441,47 +458,47 @@ class Sider extends Component {
     const settingMenu_platform = [
       <Menu.Item key='version'>
         <Link to='/setting/version'>
-          <span><div className='sideCircle'></div> 平台版本</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.version} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
-            <span>
-              授权管理
-            </span>
+            <FormattedMessage {...IntlMessages.license} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='API'>
         <Link to='/setting/API'>
-          <span><div className='sideCircle'></div> 开放 API</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.openApi} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-            <span>
-              高级设置
-            </span>
+            <FormattedMessage {...IntlMessages.advancedSetting} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
-            <span>
-              个性外观
-            </span>
+            <FormattedMessage {...IntlMessages.personalized} />
           </Link>
         </div>
       </Menu.Item>,
@@ -490,35 +507,37 @@ class Sider extends Component {
     const settingMenu_base = [
       <Menu.Item key='version'>
         <Link to='/setting/version'>
-          <span><div className='sideCircle'></div> 平台版本</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.version} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='API'>
         <Link to='/setting/API'>
-          <span><div className='sideCircle'></div> 开放 API</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.openApi} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
-            <span>
-              高级设置
-            </span>
+            <FormattedMessage {...IntlMessages.advancedSetting} />
           </Link>
         </div>
       </Menu.Item>,
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title="仅系统管理员可见" placement="right">
+          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
-            <span>
-              清理工具
-            </span>
+            <FormattedMessage {...IntlMessages.cleaningTool} />
           </Link>
         </div>
       </Menu.Item>
@@ -526,12 +545,18 @@ class Sider extends Component {
     const settingMenu_user = [
       <Menu.Item key='version'>
         <Link to='/setting/version'>
-          <span><div className='sideCircle'></div> 平台版本</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.version} />
+          </span>
         </Link>
       </Menu.Item>,
       <Menu.Item key='API'>
         <Link to='/setting/API'>
-          <span><div className='sideCircle'></div> 开放 API</span>
+          <span>
+            <div className='sideCircle'></div>&nbsp;
+            <FormattedMessage {...IntlMessages.openApi} />
+          </span>
         </Link>
       </Menu.Item>,
     ]
@@ -562,7 +587,7 @@ class Sider extends Component {
     }
     return (
       <div id='sider' className={`oemMenu-drek-${backColor}`}>
-        <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
+        {/* <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
           visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
           <div className='uploadModal'>
             <RadioGroup onChange={(e) => {
@@ -585,7 +610,7 @@ class Sider extends Component {
             <li>2、仅支持 zip 格式文件解压，导入时会覆盖存储卷内[同文件名]</li>
             <li style={{ color: 'red' }}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
-        </Modal>
+        </Modal> */}
         {siderStyle == 'mini' ? [
           <div key='miniSider' className='miniSider'>
             <ul className='siderTop'>
@@ -596,7 +621,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('home')}
                 className={currentKey == 'home' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='总览'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.overview)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/'>
                     <TenxIcon className="commonImg" type="instrument-o" />
@@ -605,7 +630,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('app_manage')}
                 className={currentKey == 'app_manage' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='应用管理'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.appManage)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <TenxIcon className="commonImg" type="apps-o" />
@@ -614,7 +639,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('app_center')}
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='交付中心'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.appCenter)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center/template'>
                     <TenxIcon className="commonImg" type="center-o" />
@@ -632,7 +657,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('database_cache')}
                 className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='数据库与缓存'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.databaseCache)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache/mysql_cluster'>
                     <TenxIcon className="commonImg" type="database-o" />
@@ -641,7 +666,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('ai-deep-learning')}
                 className={currentKey == 'ai-deep-learning' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='AI 深度学习'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.aiDeepLearning)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ai-deep-learning/notebook'>
                     <TenxIcon className="commonImg" type="ai" />
@@ -652,7 +677,7 @@ class Sider extends Component {
               { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
                 <li onClick={()=> this.selectModel('integration')}
                   className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                  <Tooltip placement='right' title='集成中心'
+                  <Tooltip placement='right' title={formatMessage(IntlMessages.integration)}
                     getTooltipContainer={() => document.getElementById('siderTooltip')}>
                     <Link to='/integration'>
                       <TenxIcon className="commonImg" type="puzzle-o" />
@@ -662,7 +687,7 @@ class Sider extends Component {
               }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='管理与监控'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.manangeMonitor)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <TenxIcon className="commonImg" type="manage-monitor" />
@@ -671,7 +696,7 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('account')}
                 className={currentKey == 'account' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='帐户中心'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.account)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
                     <TenxIcon className="commonImg" type="user-o" />
@@ -680,7 +705,7 @@ class Sider extends Component {
               </li>
               <li onClick={this.selectModel.bind(this, 'tenant_manage', '#tenant_manage')}
                 className={currentKey == 'tenant_manage' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='租户管理'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.tenant)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
                     <TenxIcon className="commonImg" type="user-private" />
@@ -689,7 +714,7 @@ class Sider extends Component {
               </li>
               <li onClick={this.selectModel.bind(this, 'setting', '#setting')}
                 className={currentKey == 'setting' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='系统设置'
+                <Tooltip placement='right' title={formatMessage(IntlMessages.setting)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
                     <TenxIcon className="commonImg" type="setting-o" />
@@ -699,7 +724,7 @@ class Sider extends Component {
               { role !== ROLE_USER && role !==  ROLE_PLATFORM_ADMIN?
                 <li onClick={() => this.selectModel('cluster')}
                     className={currentKey == 'cluster' ? 'selectedLi' : ''}>
-                    <Tooltip placement='right' title='基础设施'
+                    <Tooltip placement='right' title={formatMessage(IntlMessages.cluster)}
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
                         <TenxIcon className="commonImg" type="infrastructure" />
@@ -770,7 +795,9 @@ class Sider extends Component {
                   <Link to='/'>
                     <span>
                       <TenxIcon className="commonImg" type='instrument-o'/>
-                      <span className='commonSiderSpan'>总览</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.overview} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   </Link>
@@ -779,59 +806,91 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="apps-o" />
-                      <span className='commonSiderSpan'>应用管理</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.appManage} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                   <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
-                      <span><div className='sideCircle'></div> 应用</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.apps} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='service'>
                     <Link to='/app_manage/service'>
-                      <span><div className='sideCircle'></div> 服务</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.services} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='container'>
                     <Link to='/app_manage/container'>
-                      <span><div className='sideCircle'></div> 容器</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.containers} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
-                      <span><div className='sideCircle'></div> 存储</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.storage} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='snapshot'>
                     <Link to='/app_manage/snapshot'>
-                      <span><div className='sideCircle'></div> 独享存储快照</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.snapshot} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
-                      <span><div className='sideCircle'></div> 服务配置</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.configs} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='discover'>
                     <Link to='/app_manage/discover'>
-                      <span><div className='sideCircle'></div> 服务发现</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.discover} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='security_group'>
                     <Link to='/app_manage/security_group'>
-                      <span><div className='sideCircle'></div> 安全组 (防火墙)</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.securityGroup} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
-                      <span><div className='sideCircle'></div> 应用负载均衡</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.loadBalance} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='auto_scale'>
                     <Link to='/app_manage/auto_scale'>
-                      <span><div className='sideCircle'></div> 自动伸缩策略</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.autoScale} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   {
@@ -839,12 +898,18 @@ class Sider extends Component {
                     ? [
                       <Menu.Item key='vm_wrap'>
                         <Link to='/app_manage/vm_wrap'>
-                          <span><div className='sideCircle'></div> 传统应用</span>
+                          <span>
+                            <div className='sideCircle'></div>&nbsp;
+                            <FormattedMessage {...IntlMessages.vmWrap} />
+                          </span>
                         </Link>
                       </Menu.Item>,
                       <Menu.Item key='vm_list'>
                         <Link to='/app_manage/vm_list'>
-                          <span><div className='sideCircle'></div> 传统应用环境</span>
+                          <span>
+                            <div className='sideCircle'></div>&nbsp;
+                            <FormattedMessage {...IntlMessages.vmList} />
+                          </span>
                         </Link>
                       </Menu.Item>
                     ]
@@ -856,47 +921,69 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="center-o" />
-                      <span className='commonSiderSpan'>交付中心</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.appCenter} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                  <Menu.Item key='app_template'>
                     <Link to='/app_center/template'>
-                      <span><div className='sideCircle'></div> 应用模板</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.appTemplate} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='projects'>
                     <Link to='/app_center/projects'>
-                      <span><div className='sideCircle'></div> 镜像仓库</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.imageProjects} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   {/*<Menu.Item key='image_store'>*/}
                     {/*<Link to='/app_center/image_store'>*/}
-                      {/*<span><div className='sideCircle'></div> 应用商店</span>*/}
+                      {/*<span>
+                      <div className='sideCircle'></div>&nbsp;
+                      应用商店</s
+                    pan>*/}
                     {/*</Link>*/}
                   {/*</Menu.Item>*/}
                   <Menu.Item key='wrap_manage'>
                     <Link to='/app_center/wrap_manage'>
-                      <span><div className='sideCircle'></div> 应用包管理</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.wrapManage} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='stack_center'>
                     <Link to='/app_center/stack_center'>
-                      <span><div className='sideCircle'></div> 编排文件</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.stackCenter} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='wrap_store'>
                     <Link to='/app_center/wrap_store'>
-                      <span><div className='sideCircle'/> 应用商店</span>
+                      <span>
+                        <div className='sideCircle'/>&nbsp;
+                        <FormattedMessage {...IntlMessages.wrapStore} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
-                        <TenxIcon type='star' className='star forAdmin'/>
+                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                          <TenxIcon type='star' className='star forAdmin'/>
+                        </Tooltip>
                         <Link to='/app_center/wrap_check'>
-                        <span>发布审核</span>
+                          <FormattedMessage {...IntlMessages.wrapCheck} />
                         </Link>
                       </div>
                     </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}/>
@@ -925,24 +1012,36 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 概览</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.cicdOverview} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
-                      <span><div className='sideCircle'></div> 代码仓库</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.cicdCodeRepos} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   {NEED_BUILD_IMAGE ?
                     <Menu.Item key='build_image'>
                       <Link to='/ci_cd/build_image'>
-                        <span><div className='sideCircle'></div> 构建镜像</span>
+                        <span>
+                          <div className='sideCircle'></div>&nbsp;
+                          <FormattedMessage {...IntlMessages.buildImage} />
+                        </span>
                       </Link>
                     </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
                   }
                   {/* <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
-                      <span><div className='sideCircle'></div> 流水线</span>
+                      <span>
+                      <div className='sideCircle'></div>&nbsp;
+                      流水线
+                    </span>
                     </Link>
                   </Menu.Item> */}
                   <Menu.Item key='pipelines'>
@@ -958,12 +1057,18 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 流水线</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.pipelines} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='docker_file'>
                     <Link to='/ci_cd/docker_file'>
-                      <span><div className='sideCircle'></div> Dockerfile</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.Dockerfile} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='cached_volumes'>
@@ -979,7 +1084,10 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 缓存卷</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.cachedVolumes} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='thirdparty'>
@@ -995,7 +1103,10 @@ class Sider extends Component {
                         }
                       }}
                     >
-                      <span><div className='sideCircle'></div> 第三方工具</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.thirdparty} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
@@ -1004,36 +1115,53 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="database-o" />
-                      <span className='commonSiderSpan'>数据库与缓存</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.databaseCache} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                   <Menu.Item key='database_cache_default'>
                     <Link to='/database_cache/mysql_cluster'>
-                      <span><div className='sideCircle'></div> MySQL集群</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.mysqlCluster} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='redis_cluster'>
                     <Link to='/database_cache/redis_cluster'>
-                      <span><div className='sideCircle'></div> Redis集群</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.redisCluster} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='zookeeper_cluster'>
                     <Link to='/database_cache/zookeeper_cluster'>
-                      <span><div className='sideCircle'></div> ZooKeeper集群</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.zookeeperCluster} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='elasticsearch_cluster'>
                   <Link to='/database_cache/elasticsearch_cluster'>
-                    <span><div className='sideCircle'></div> ElasticSearch集群</span>
+                    <span>
+                      <div className='sideCircle'></div>&nbsp;
+                      <FormattedMessage {...IntlMessages.elasticsearchCluster} />
+                    </span>
                   </Link>
                 </Menu.Item>
 
                 {/* <Menu.Item key='etcd_cluster'>
                   <Link to='/database_cache/etcd_cluster'>
-                    <span><div className='sideCircle'></div> Etcd集群</span>
+                    <span>
+                    <div className='sideCircle'></div>&nbsp;
+                    Etcd集群
+                  </span>
                   </Link>
                 </Menu.Item> */}
 
@@ -1043,38 +1171,55 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="ai" />
-                      <span className='commonSiderSpan'>AI 深度学习</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.aiDeepLearning} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                   <Menu.Item key='notebook'>
                     <Link to='/ai-deep-learning/notebook'>
-                      <span><div className='sideCircle'></div> Notebook</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.Notebook} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='large-scale-train'>
                     <Link to='/ai-deep-learning/large-scale-train'>
-                      <span><div className='sideCircle'></div> 大规模训练</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.largeScaleTrain} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='data-set'>
                     <Link to='/ai-deep-learning/data-set'>
-                      <span><div className='sideCircle'></div> 数据集</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.dataSet} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='model-set'>
                     <Link to='/ai-deep-learning/model-set'>
-                      <span><div className='sideCircle'></div> 模型集</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.modelSet} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
                   <Menu.Item key='ai-model-service'>
                     <Link to='/ai-deep-learning/ai-model-service'>
-                      <span><div className='sideCircle'></div> AI 模型应用</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.aiModelService} />
+                      </span>
                     </Link>
                   </Menu.Item>
 
@@ -1085,7 +1230,9 @@ class Sider extends Component {
                   <Link to='/integration'>
                     <span>
                       <TenxIcon className="commonImg" type="puzzle-o" />
-                      <span className='commonSiderSpan'>集成中心</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.integration} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   </Link>
@@ -1096,39 +1243,56 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="manage-monitor" />
-                      <span className='commonSiderSpan'>管理与监控</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.manangeMonitor} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                   <Menu.Item key='audit'>
                     <Link to='/manange_monitor/audit'>
-                      <span><div className='sideCircle'></div> 操作审计</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.audit} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='query_log'>
                     <Link to='/manange_monitor/query_log'>
-                      <span><div className='sideCircle'></div> 日志查询</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.queryLog} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='panel'>
                     <Link to='/manange_monitor/panel'>
-                      <span><div className='sideCircle'></div> 监控面板</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.monitorPanel} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_setting'>
                     <Link to='/manange_monitor/alarm_setting'>
-                      <span><div className='sideCircle'></div> 告警设置</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.alarmSetting} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_record'>
                     <Link to='/manange_monitor/alarm_record'>
-                      <span><div className='sideCircle'></div> 告警记录</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.alarmRecord} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_group'>
                     <Link to='/manange_monitor/alarm_group'>
-                      <div className='sideCircle'></div> 告警通知组
+                      <span><div className='sideCircle'></div> <FormattedMessage {...IntlMessages.alarmGroup} /></span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
@@ -1137,30 +1301,44 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="user-o" />
-                      <span className='commonSiderSpan'>帐户中心</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.account} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
                   <Menu.Item key='account_default'>
                     <Link to='/account'>
-                      <span><div className='sideCircle'></div> 我的帐户</span>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.myAccount} />
+                      </span>
                     </Link>
                   </Menu.Item>
                   {/*<Menu.Item key='cost'>
                    <Link to='/account/cost'>
-                   <span><div className='sideCircle'></div> 费用中心</span>
+                   <span>
+                   <div className='sideCircle'></div>&nbsp;
+                   费用中心
+                  </span>
                    </Link>
                    </Menu.Item>*/}
                   { billingEnabled ?
                     [<Menu.Item key='costCenter#consumptions'>
                       <Link to='/account/costCenter#consumptions'>
-                        <span><div className='sideCircle'></div> 消费记录</span>
+                        <span>
+                          <div className='sideCircle'></div>&nbsp;
+                          <FormattedMessage {...IntlMessages.consumptions} />
+                        </span>
                       </Link>
                     </Menu.Item>,
                     <Menu.Item key='costCenter#payments'>
                       <Link to='/account/costCenter#payments'>
-                        <span><div className='sideCircle'></div> 充值记录</span>
+                        <span>
+                          <div className='sideCircle'></div>&nbsp;
+                          <FormattedMessage {...IntlMessages.payments} />
+                        </span>
                       </Link>
                     </Menu.Item>]
                     :
@@ -1172,7 +1350,9 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="user-private" />
-                      <span className='commonSiderSpan'>租户管理</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.tenant} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
@@ -1184,7 +1364,9 @@ class Sider extends Component {
                   title={
                     <span>
                       <TenxIcon className="commonImg" type="setting-o" />
-                      <span className='commonSiderSpan'>系统设置</span>
+                      <span className='commonSiderSpan'>
+                        <FormattedMessage {...IntlMessages.setting} />
+                      </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
@@ -1200,50 +1382,46 @@ class Sider extends Component {
                     title={
                       <span>
                         <TenxIcon className="commonImg" type="infrastructure" />
-                        <span className='commonSiderSpan'>基础设施</span>
+                        <span className='commonSiderSpan'>
+                          <FormattedMessage {...IntlMessages.cluster} />
+                        </span>
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     }
                   >
                   <Menu.Item key='cluster_default'>
                     <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
+                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link to='/cluster'>
-                        <span>
-                          集群管理
-                        </span>
+                        <FormattedMessage {...IntlMessages.clusterManage} />
                       </Link>
                     </div>
                   </Menu.Item>
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
+                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/globalConfig'>
-                            <span>
-                              全局配置
-                            </span>
+                          <FormattedMessage {...IntlMessages.globalConfig} />
                         </Link>
                       </div>
                     </Menu.Item>
                   <Menu.Item key='cluster_autoscale'>
                       <div className="adminBox">
-                        <Tooltip title="仅系统管理员可见" placement="right">
+                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/cluster_autoscale'>
-                        <span>
-                        集群伸缩策略
-                        </span>
+                          <FormattedMessage {...IntlMessages.clusterAutoscale} />
                         </Link>
                       </div>
                     </Menu.Item>
                   <Menu.Item key='monitor'>
                     <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
+                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
@@ -1258,15 +1436,13 @@ class Sider extends Component {
                           }
                         }}
                       >
-                        <span>
-                        系统服务监控
-                        </span>
+                        <FormattedMessage {...IntlMessages.clusterMonitor} />
                       </Link>
                     </div>
                   </Menu.Item>
                   <Menu.Item key='backup'>
                     <div className="adminBox">
-                      <Tooltip title="仅系统管理员可见" placement="right">
+                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
@@ -1281,9 +1457,7 @@ class Sider extends Component {
                           }
                         }}
                       >
-                        <span>
-                        平台数据备份
-                        </span>
+                        <FormattedMessage {...IntlMessages.clusterBackup} />
                       </Link>
                     </div>
                   </Menu.Item>
@@ -1320,14 +1494,14 @@ class Sider extends Component {
         ] : null
         }
         <ul className="changeSiderUl" >
-          <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null}
+          <Tooltip placement='right' title={siderStyle == 'mini' ? <FormattedMessage {...IntlMessages.outdentMenu} /> : null}
             getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li className={`changeStyleBox oemMenu-shallow-${backColor}`} onClick={ this.props.changeSiderStyle }>
               <span>
-                {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent'
-                  className='fa fa-outdent'></i>]}
+                {siderStyle == 'mini' ? <i key='fa-indent' className='fa fa-indent'></i> : <i key='fa-outdent'
+                  className='fa fa-outdent'></i>}
               </span>
-              {siderStyle == 'bigger' ? [<span>收起</span>] : null}
+              {siderStyle == 'bigger' ? <FormattedMessage {...IntlMessages.indentMenu} /> : null}
             </li>
           </Tooltip>
         </ul>
@@ -1373,7 +1547,7 @@ function mapStateToProp(state) {
   }
 }
 
-export default connect(mapStateToProp, {
+export default injectIntl(connect(mapStateToProp, {
   beforeUploadFile,
   uploading,
   mergeUploadingIntoList,
@@ -1381,4 +1555,6 @@ export default connect(mapStateToProp, {
   getVolumeBindInfo,
   changeStorageDetail,
   // loadUserDetail,
-})(Sider)
+})(Sider), {
+  withRef: true,
+})

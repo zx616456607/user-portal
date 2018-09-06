@@ -8,11 +8,13 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, Tooltip } from 'antd'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import {  Button, Steps, Tooltip } from 'antd'
+import { injectIntl } from 'react-intl'
 import './style/MirrorLayered.less'
 import { loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
 import { connect } from 'react-redux'
+import mirrorLayered from './intl/mirrorLayered'
+import serviceApiIntl from './intl/serviceApiIntl'
 
 const Step = Steps.Step
 
@@ -54,10 +56,11 @@ class MirrorLayered extends Component {
 
   testContent(){
     const {mirrorLayeredinfo, imageName, tag } = this.props
+    const { formatMessage } = this.props.intl
     if(!mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result){
       return (<div style={{textAlign:'center'}}>
-        <div style={{marginTop:'10px'}}>暂未扫描到镜像分层信息</div>
-        <Button onClick={this.APIGetLayerInfo} style={{marginTop:'10px'}} loading={this.state.APIloading}>点击扫描</Button>
+        <div style={{marginTop:'10px'}}>{formatMessage(mirrorLayered.noLayered)}</div>
+        <Button onClick={this.APIGetLayerInfo} style={{marginTop:'10px'}} loading={this.state.APIloading}>{formatMessage(serviceApiIntl.toScan)}</Button>
       </div>)
     }
     const mirrorLayeredStep = mirrorLayeredinfo[imageName][tag].result.map((item, index) =>{

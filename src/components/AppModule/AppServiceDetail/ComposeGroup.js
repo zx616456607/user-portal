@@ -17,6 +17,8 @@ import classNames from 'classnames'
 import { loadConfigName, loadConfigGroup } from '../../../actions/configs.js'
 import SecretsConfig from './SecretsConfig'
 import "./style/ComposeGroup.less"
+import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -110,6 +112,7 @@ let MyComponent = React.createClass({
   render: function () {
     const configData = this.props.configData[this.props.cluster]
     const { config } = this.state;
+    const { formatMessage } = this.props
     let loading = ''
     if(configData) {
       const { isFetching } = configData
@@ -121,7 +124,7 @@ let MyComponent = React.createClass({
     if (config.length == 0) {
       return (
         <Card className="composeList">
-          <div style={{lineHeight:'60px'}}>暂无配置</div>
+          <div style={{lineHeight:'60px'}}>{formatMessage(AppServiceDetailIntl.noConfig)}</div>
         </Card>
       )
     }
@@ -131,7 +134,7 @@ let MyComponent = React.createClass({
         item.file = []
       }
       let group = item.file.map(list => {
-        return <div title="点击查看配置文件" style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
+        return <div title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)} style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
       })
       return (
         <div className="composeDetail" key={item.id.toString()}>
@@ -142,7 +145,7 @@ let MyComponent = React.createClass({
           </Tooltip>
           <Tooltip title={item.labels && item.labels.join(', ')}>
             <div className="annotations commonData textoverflow">
-              {item.labels.length ? item.labels.join(', ') : '未分类'}
+              {item.labels.length ? item.labels.join(', ') : formatMessage(AppServiceDetailIntl.noClassified)}
             </div>
           </Tooltip>
           <div className="commonData">
@@ -151,8 +154,8 @@ let MyComponent = React.createClass({
           <div className="composefile commonData">
             {
               item.file.length > 0
-              ? <span title="点击查看配置文件" onClick={() => this.loadConfigData(item.group, item.file[0].path) }>{item.file[0].path}</span>
-              : <span>已挂载整个配置组<Link to="/app_manage/configs"> <Icon type="export" /></Link></span>
+              ? <span title={formatMessage(AppServiceDetailIntl.clickCheckConfigFile)} onClick={() => this.loadConfigData(item.group, item.file[0].path) }>{item.file[0].path}</span>
+              : <span>{formatMessage(AppServiceDetailIntl.mountedAllConfigGroup)}<Link to="/app_manage/configs"> <Icon type="export" /></Link></span>
             }
             {item.file.length > 1 ?
             <Popover content={group} getTooltipContainer={()=> document.getElementById('ComposeGroup')}>
@@ -172,17 +175,18 @@ let MyComponent = React.createClass({
         <Modal
           title='查看配置文件' wrapClassName='read-configFile' visible={this.state.modalConfigFile}
           footer={
-           <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>确定</Button>
+           <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>
+           {formatMessage(ServiceCommonIntl.confirm)}</Button>
           }
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
           width="600px"
           >
           <div className='configFile-name'>
-            <div className="ant-col-3 key">名称：</div>
+            <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.name)}:</div>
             <div className="ant-col-19"><Input disabled="true" value={this.state.configName} /></div>
           </div>
           <div className="configFile-wrap">
-            <div className="ant-col-3 key">内容：</div>
+            <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.content)}:</div>
             <div className="ant-col-19">
               <pre className="configFile-content">
               {this.state.configtextarea}
@@ -210,16 +214,16 @@ MyComponent = connect(mapStateToProps, {
 
 const tabs = [
   {
-    text: '普通配置',
+    text: <FormattedMessage {...AppServiceDetailIntl.commonConfig}/>,
     key: 'normal'
   },
   {
-    text: '加密配置',
+    text: <FormattedMessage {...AppServiceDetailIntl.encryptionConfig}/>,
     key: 'secrets'
   },
 ]
 
-export default class ComposeGroup extends Component {
+class ComposeGroup extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -231,6 +235,7 @@ export default class ComposeGroup extends Component {
     const parentScope = this;
     const { activeKey } = this.state
     const { service } = this.props
+    const { formatMessage } = this.props.intl
     return (
       <div id="ComposeGroup">
         <div className='tabs_header_style'>
@@ -258,25 +263,27 @@ export default class ComposeGroup extends Component {
           <div>
             <div className="titleBox">
               <div className="commonTitle">
-                容器挂载点
+                {formatMessage(AppServiceDetailIntl.dockerMountPoint)}
               </div>
               <div className="commonTitle">
-                配置分类
+                {formatMessage(AppServiceDetailIntl.configClassify)}
               </div>
               <div className="commonTitle">
-                配置组
+                {formatMessage(AppServiceDetailIntl.configGroup)}
               </div>
               <div className="commonTitle">
-                配置文件
+                {formatMessage(AppServiceDetailIntl.configFile)}
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent service={service} serviceName={this.props.serviceName} cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}/>
+            <MyComponent service={service} serviceName={this.props.serviceName}
+             cluster={this.props.cluster} serviceDetailmodalShow={this.props.serviceDetailmodalShow}
+             formatMessage={formatMessage}/>
           </div>
         }
         {
           activeKey === 'secrets' &&
-          <SecretsConfig service={service} />
+          <SecretsConfig service={service} formatMessage={formatMessage}/>
         }
       </div>
     )
@@ -286,3 +293,5 @@ export default class ComposeGroup extends Component {
 ComposeGroup.propTypes = {
   //
 }
+
+export default injectIntl(ComposeGroup, { withRef: true,  })

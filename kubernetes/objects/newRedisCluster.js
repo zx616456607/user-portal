@@ -15,14 +15,10 @@ class newRedisCluster {
     this.metadata = {
       name,
       namespace,
-      annotations: lbgroup === 'none'? {
-          ['system/lbgroup']: lbgroup,
+      annotations: {
+          ['master.system/lbgroup']: lbgroup,
+          ['slave.system/lbgroup']: '',
         }
-        :
-        {
-          ['system/lbgroup']: lbgroup,
-          ['tenxcloud.com/schemaPortname']: `${name}/TCP`
-        },
     }
     this.spec = {
       resources: config,

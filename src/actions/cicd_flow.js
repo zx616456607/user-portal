@@ -171,23 +171,23 @@ export const GET_REPO_USER_INFO_REQUEST = 'GET_REPO_USER_INFO_REQUEST'
 export const GET_REPO_USER_INFO_SUCCESS = 'GET_REPO_USER_INFO_SUCCESS'
 export const GET_REPO_USER_INFO_FAILURE = 'GET_REPO_USER_INFO_FAILURE'
 
-function fetchGetUserInfo(types) {
-
+function fetchGetUserInfo(types, callback) {
   return {
     [FETCH_API]: {
       types: [GET_REPO_USER_INFO_REQUEST, GET_REPO_USER_INFO_SUCCESS, GET_REPO_USER_INFO_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}/user`,
       schema: {}
     },
+    callback,
     extraData: {
       type: types
     }
   }
 }
 // get user info in repo
-export function getUserInfo(types) {
-  return (dispatch, getState) => {
-    return dispatch(fetchGetUserInfo(types))
+export function getUserInfo(types, callback) {
+  return (dispatch) => {
+    return dispatch(fetchGetUserInfo(types, callback))
   }
 }
 

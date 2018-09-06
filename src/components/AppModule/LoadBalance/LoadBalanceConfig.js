@@ -56,6 +56,8 @@ class LoadBalanceConfig extends React.Component {
         return <TcpUdpDetail
           currentIngress={currentIngress}
           type={activeKey}
+          clusterID={clusterID}
+          location={location}
           togglePart={this.togglePart}
         />
       default:

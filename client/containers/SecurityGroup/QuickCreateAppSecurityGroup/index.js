@@ -14,6 +14,8 @@ import { connect } from 'react-redux'
 import { Collapse, Row, Col, Form, Select, Button } from 'antd'
 import * as securityActions from '../../../actions/securityGroup'
 import Notification from '../../../../src/components/Notification'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../src/containers/Application/ServiceConfigIntl'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -27,30 +29,32 @@ class SecyrityCollapse extends React.Component {
   }
 
   loadData = () => {
-    const { getSecurityGroupList, cluster } = this.props
+    const { getSecurityGroupList, cluster, intl } = this.props
     getSecurityGroupList(cluster, {
       failed: {
         func: error => {
-          const { message } = error
+          const { message, statusCode } = error
           notification.close()
-          notification.warn('获取列表数据出错', message.message)
+          if (statusCode !== 403) {
+            notification.warn(intl.formatMessage(IntlMessage.loadDataFailed), message.message)
+          }
         },
       },
     })
   }
 
   render() {
-    const { formItemLayout, form, listData } = this.props
+    const { formItemLayout, form, listData, intl } = this.props
     const { getFieldProps } = form
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="securityHeader">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="securityLeft">
             <div className="line"></div>
-            <span className="title" style={{ paddingLeft: 8 }}>安全组</span>
+            <span className="title" style={{ paddingLeft: 8 }}>{intl.formatMessage(IntlMessage.securityGroup)}</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="securityRight">
-            <div className="desc">安全组是逻辑上的一个分组，安全组内服务互通，安全组外服务需配置（ingress/egress）白名单规则</div>
+            <div className="desc">{intl.formatMessage(IntlMessage.securityGroupTip)}</div>
           </Col>
         </Row>
       </div>
@@ -65,10 +69,12 @@ class SecyrityCollapse extends React.Component {
                 type="ghost"
                 onClick={this.loadData}>
                 <i className="fa fa-refresh"/>
-                刷新
+                {intl.formatMessage(IntlMessage.refresh)}
               </Button>
               <Button type="primary">
-                <a href="/app_manage/security_group/create" target="_blank">新建安全组</a>
+                <a href="/app_manage/security_group/create" target="_blank">
+                  {intl.formatMessage(IntlMessage.createSecurityGroup)}
+                </a>
               </Button>
             </Col>
           </Row>
@@ -79,7 +85,9 @@ class SecyrityCollapse extends React.Component {
                 <Select
                   multiple
                   size="large"
-                  placeholder="选择安全组"
+                  placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
+                    item: intl.formatMessage(IntlMessage.securityGroup),
+                  })}
                   {...getFieldProps('securityGroup')}
                 >
                   {
@@ -114,4 +122,6 @@ const mapStateToProps = ({
 
 export default connect(mapStateToProps, {
   getSecurityGroupList: securityActions.getSecurityGroupList,
-})(SecyrityCollapse)
+})(injectIntl(SecyrityCollapse, {
+  withRef: true,
+}))

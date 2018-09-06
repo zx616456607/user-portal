@@ -11,11 +11,29 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Modal, Form, InputNumber, Select, Input } from 'antd'
+import { connect } from 'react-redux'
+import { Modal, Form, InputNumber } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import { sleep } from "../../../../../common/tools";
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
+import * as lbActions from '../../../../../actions/load_balance'
+import { getDeepValue } from "../../../../../../client/util/util";
 
 const FormItem = Form.Item
-const Option = Select.Option
+
+const mapStateToProps = (state, props) => {
+  const { type } = props
+  const lowerType = type.toLowerCase()
+  const ingressData = getDeepValue(state, ['loadBalance', 'tcpUdpIngress', lowerType])
+  return {
+    ingressData,
+  }
+}
+
+@connect(mapStateToProps, {
+  getTcpUdpIngress: lbActions.getTcpUdpIngress,
+})
 
 class TcpUdpModal extends React.PureComponent{
   static propTypes = {
@@ -24,13 +42,47 @@ class TcpUdpModal extends React.PureComponent{
     closeModal: PropTypes.func.isRequired,
     currentIngress: PropTypes.object,
     callback: PropTypes.func,
+    clusterID: PropTypes.string.isRequired,
+    lbname: PropTypes.string.isRequired,
   }
 
-  state = {}
+  state = {
+    existPorts: [],
+  }
+
+  async componentDidMount() {
+    const { getTcpUdpIngress, type, clusterID, lbname, form } = this.props
+    const { getFieldValue } = form
+    const lowerType = type.toLowerCase()
+    await getTcpUdpIngress(clusterID, lbname, lowerType)
+    const { ingressData } = this.props
+    const keys = getFieldValue(`${lowerType}Keys`)
+    const existPorts = []
+    if (!isEmpty(keys)) {
+      keys.forEach(key => {
+        const exportPort = getFieldValue(`${lowerType}-exportPort-${key}`)
+        existPorts.push(exportPort.toString())
+      })
+    }
+    if (!isEmpty(ingressData.data)) {
+      ingressData.data.forEach(item => {
+        existPorts.push(item.exportPort)
+      })
+    }
+    this.setState({
+      existPorts,
+    })
+  }
+
+  componentWillUnmount() {
+    const { resetFields } = this.props.form
+    resetFields(['modalExportPort', 'modalServicePort'])
+  }
 
   handleConfirm = () => {
     const { closeModal, form, callback } = this.props
-    form.validateFields(async (errors, values) => {
+    const validateArray = ['modalExportPort', 'modalServicePort']
+    form.validateFields(validateArray, async (errors, values) => {
       if (!!errors) {
         return
       }
@@ -48,66 +100,80 @@ class TcpUdpModal extends React.PureComponent{
     })
   }
 
-  containerPortCheck = (rules, value, callback) => {
-    if (value.length > 1) {
-      return callback('容器端口不支持多选')
+  exportPortCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    const { existPorts } = this.state
+    if (value && !isEmpty(existPorts) && existPorts.includes(value.toString())) {
+      return callback(intl.formatMessage(IntlMessage.listeningPortBeUsed))
     }
     callback()
   }
 
   render() {
-    const { form ,type, visible, currentIngress, closeModal } = this.props
+    const { form ,type, visible, currentIngress, closeModal, intl } = this.props
     const { getFieldProps } = form
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 18 }
     }
-    const monitorPortProps = getFieldProps('monitorPort', {
+    const monitorPortProps = getFieldProps('modalExportPort', {
       rules: [{
         required: true,
-        message: '监听端口不能为空',
-      }],
-      initialValue: currentIngress ? currentIngress.monitorPort : '',
-    })
-    const containerPortProps = getFieldProps('containerPort', {
-      rules: [{
-        required: true,
-        message: '容器端口不能为空',
+        message: intl.formatMessage(IntlMessage.monitorPortIsRequired),
       }, {
-        validator: this.containerPortCheck,
+        validator: this.exportPortCheck,
       }],
-      initialValue: currentIngress ? [currentIngress.containerPort] : [],
+      initialValue: currentIngress ? currentIngress.exportPort : '',
+    })
+    const containerPortProps = getFieldProps('modalServicePort', {
+      rules: [{
+        required: true,
+        message: intl.formatMessage(IntlMessage.containerPortIsRequired),
+      }],
+      initialValue: currentIngress ? currentIngress.servicePort : '',
     })
     return (
       <Modal
-        title={`配置 ${type} 监听器`}
+        title={intl.formatMessage(IntlMessage.configMonitor, {
+          item: type,
+        })}
         visible={visible}
         onCancel={closeModal}
         onOk={this.handleConfirm}
       >
         <FormItem
-          label="容器端口"
+          label={intl.formatMessage(IntlMessage.containerPort)}
           {...formItemLayout}
         >
-          <Select
-            tags
+          <InputNumber
             style={{ width: '100%' }}
-            placeholder="请输入容器端口"
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.containerPort),
+              end: ' 1 ~ 65535',
+            })}
+            min={1} max={65535}
             {...containerPortProps}
-          >
-            <Option key="80">80</Option>
-            <Option key="90">90</Option>
-          </Select>
+          />
         </FormItem>
         <FormItem
-          label="监听端口"
+          label={intl.formatMessage(IntlMessage.listeningPort)}
           {...formItemLayout}
         >
-          <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="1-65535" {...monitorPortProps}/>
+          <InputNumber
+            style={{ width: '100%' }}
+            min={10000} max={65535}
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.listeningPort),
+              end: ' 10000 ~ 65535',
+            })}
+            {...monitorPortProps}
+          />
         </FormItem>
       </Modal>
     )
   }
 }
 
-export default Form.create()(TcpUdpModal)
+export default Form.create()(injectIntl(TcpUdpModal, {
+  withRef: true,
+}))

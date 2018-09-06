@@ -94,8 +94,12 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
         if (configMapKeys) {
           configMapKeys.map(_key => {
             const originalName = value[`configGroupOriginalName${_key.value}`].value[1];
+            let newName = value[`configGroupName${_key.value}`].value
+            if (Array.isArray(newName)) { // 如果配置组名称没有重复，就用旧配置组名称作为value值
+              newName = newName[1]
+            }
             Object.assign(configMaps, {
-              [originalName]: value[`configGroupName${_key.value}`].value,
+              [originalName]: newName,
             });
           });
         }

@@ -940,9 +940,9 @@ function fetchUploadWrap(query,body,callback) {
   }
 }
 
-export function uploadWrap(body, callback) {
+export function uploadWrap(query, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchUploadWrap(body, callback))
+    return dispatch(fetchUploadWrap(query, body, callback))
   }
 }
 

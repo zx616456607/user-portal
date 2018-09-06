@@ -265,8 +265,8 @@ exports.getServiceAutoScaleList = function* () {
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){
-    index++
     if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from + 1 && index <= from + size){
+      index++
       autoScaleList[key] = tempList[key]
     }
   }
@@ -740,4 +740,13 @@ exports.podTopology = function* () {
   const response = yield spi.clusters.getBy([cluster,'apps',appName,'pods'])
   this.status = response.code
   this.body = response.data
+}
+
+exports.updateAnnotation = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.updateBy([cluster, 'services', service, 'annotation'], null, body)
+  this.body = response
 }

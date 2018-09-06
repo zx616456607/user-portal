@@ -32,7 +32,7 @@ const fetchLBIPList = cluster => {
   }
 }
 
-export const getLBIPList = cluster => 
+export const getLBIPList = cluster =>
   dispatch => dispatch(fetchLBIPList(cluster))
 
 export const CREATE_LOAD_BALANCES_REQUEST = 'CREATE_LOAD_BALANCES_REQUEST'
@@ -111,7 +111,7 @@ const fetchLBList = (cluster, query, callback) => {
   }
 }
 
-export const getLBList = (cluster, query, callback) => 
+export const getLBList = (cluster, query, callback) =>
   dispatch => dispatch(fetchLBList(cluster, query, callback))
 
 
@@ -159,7 +159,7 @@ const fetchDeleteLB = (cluster, name, displayName, callback) => {
   }
 }
 
-export const deleteLB = (cluster, name, displayName, callback) => 
+export const deleteLB = (cluster, name, displayName, callback) =>
   dispatch => dispatch(fetchDeleteLB(cluster, name, displayName, callback))
 
 export const CREATE_LOAD_BALANCE_INGRESS_REQUEST = 'CREATE_LOAD_BALANCE_INGRESS_REQUEST'
@@ -262,7 +262,7 @@ const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
   }
 }
 
-export const createAppIngress = (cluster, lbname, body, callback) => 
+export const createAppIngress = (cluster, lbname, body, callback) =>
   dispatch => dispatch(fetchCreateAppIngress(cluster, lbname, body, callback))
 
 export const GET_SERVICE_LOADBALANCE_REQUEST = 'GET_SERVICE_LOADBALANCE_REQUEST'
@@ -284,7 +284,7 @@ const fetchServiceLB = (cluster, serviceName, callback) => {
   }
 }
 
-export const getServiceLBList = (cluster, serviceName, callback) => 
+export const getServiceLBList = (cluster, serviceName, callback) =>
   dispatch => dispatch(fetchServiceLB(cluster, serviceName, callback))
 
 export const DELETE_INGRESS_SERVICES_REQUEST = 'DELETE_INGRESS_SERVICES_REQUEST'
@@ -333,3 +333,91 @@ const fetchIngressNameAndHost = (cluster, lbname, query, callback) => {
 
 export const checkIngressNameAndHost = (cluster, lbname, query, callback) =>
   dispatch => dispatch(fetchIngressNameAndHost(cluster, lbname, query, callback))
+
+export const CREATE_TCP_UDP_INGRESS_REQUEST = 'CREATE_TCP_UDP_INGRESS_REQUEST'
+export const CREATE_TCP_UDP_INGRESS_SUCCESS = 'CREATE_TCP_UDP_INGRESS_SUCCESS'
+export const CREATE_TCP_UDP_INGRESS_FAILURE = 'CREATE_TCP_UDP_INGRESS_FAILURE'
+
+const fetchCreateTcpUdpIngress = (cluster, lbname, body) => ({
+  [FETCH_API]: {
+    types: [
+      CREATE_TCP_UDP_INGRESS_REQUEST,
+      CREATE_TCP_UDP_INGRESS_SUCCESS,
+      CREATE_TCP_UDP_INGRESS_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    schema: {},
+    options: {
+      method: 'POST',
+      body,
+    }
+  }
+})
+
+export const createTcpUdpIngress = (cluster, lbname, body) =>
+  dispatch => dispatch(fetchCreateTcpUdpIngress(cluster, lbname, body))
+
+export const GET_TCP_UDP_INGRESS_REQUEST = 'GET_TCP_UDP_INGRESS_REQUEST'
+export const GET_TCP_UDP_INGRESS_SUCCESS = 'GET_TCP_UDP_INGRESS_SUCCESS'
+export const GET_TCP_UDP_INGRESS_FAILURE = 'GET_TCP_UDP_INGRESS_FAILURE'
+
+const fetchTcpUdpIngress = (cluster, lbname, type) => ({
+  ingressType: type,
+  [FETCH_API]: {
+    types: [
+      GET_TCP_UDP_INGRESS_REQUEST,
+      GET_TCP_UDP_INGRESS_SUCCESS,
+      GET_TCP_UDP_INGRESS_FAILURE
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/protocols/${type}`,
+    schema: {},
+  }
+})
+
+export const getTcpUdpIngress = (cluster, lbname, type) =>
+  dispatch => dispatch(fetchTcpUdpIngress(cluster, lbname, type))
+
+export const UPDATE_TCP_UDP_INGRESS_REQUEST = 'UPDATE_TCP_UDP_INGRESS_REQUEST'
+export const UPDATE_TCP_UDP_INGRESS_SUCCESS = 'UPDATE_TCP_UDP_INGRESS_SUCCESS'
+export const UPDATE_TCP_UDP_INGRESS_FAILURE = 'UPDATE_TCP_UDP_INGRESS_FAILURE'
+
+const fetchUpdateTcpUdpIngress = (cluster, lbname, body) => ({
+  [FETCH_API]: {
+    types: [
+      UPDATE_TCP_UDP_INGRESS_REQUEST,
+      UPDATE_TCP_UDP_INGRESS_SUCCESS,
+      UPDATE_TCP_UDP_INGRESS_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    schema: {},
+    options: {
+      method: 'PUT',
+      body,
+    }
+  }
+})
+
+export const updateTcpUdpIngress = (cluster, lbname, body) =>
+  dispatch => dispatch(fetchUpdateTcpUdpIngress(cluster, lbname, body))
+
+export const DELETE_TCP_UDP_INGRESS_REQUEST = 'DELETE_TCP_UDP_INGRESS_REQUEST'
+export const DELETE_TCP_UDP_INGRESS_SUCCESS = 'DELETE_TCP_UDP_INGRESS_SUCCESS'
+export const DELETE_TCP_UDP_INGRESS_FAILURE = 'DELETE_TCP_UDP_INGRESS_FAILURE'
+
+const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
+  [FETCH_API]: {
+    types: [
+      DELETE_TCP_UDP_INGRESS_REQUEST,
+      DELETE_TCP_UDP_INGRESS_SUCCESS,
+      DELETE_TCP_UDP_INGRESS_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/protocols/${type}/ports/${ports}`,
+    schema: {},
+    options: {
+      method: 'DELETE',
+    }
+  }
+})
+
+export const deleteTcpUdpIngress = (cluster, lbname, type, ports) =>
+  dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports))

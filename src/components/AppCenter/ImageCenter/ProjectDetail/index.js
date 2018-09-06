@@ -11,7 +11,6 @@ import React, { Component, PropTypes } from 'react'
 import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input, Modal, Select } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo, loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo,loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion'
@@ -23,64 +22,11 @@ import NotificationHandler from '../../../../components/Notification'
 import { camelize } from 'humps'
 import DetailInfo from './DetailInfo'
 import TenxIcon from '@tenx-ui/icon'
+import { injectIntl } from 'react-intl'
+import detailIndexIntl from './intl/detailIndexIntl'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
-
-const menusText = defineMessages({
-  type: {
-    id: 'AppCenter.ImageCenter.ImageDetail.type',
-    defaultMessage: '类型：',
-  },
-  pubilicType: {
-    id: 'AppCenter.ImageCenter.ImageDetail.pubilicType',
-    defaultMessage: '公开',
-  },
-  privateType: {
-    id: 'AppCenter.ImageCenter.ImageDetail.privateType',
-    defaultMessage: ' 私有',
-  },
-  colletctImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.colletctImage',
-    defaultMessage: '收藏镜像',
-  },
-  closeImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.closeImage',
-    defaultMessage: '取消收藏',
-  },
-  deployImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.deployService',
-    defaultMessage: '部署镜像',
-  },
-  downloadImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.downloadImage',
-    defaultMessage: '下载镜像',
-  },
-  info: {
-    id: 'AppCenter.ImageCenter.ImageDetail.info',
-    defaultMessage: '基本信息',
-  },
-  tag: {
-    id: 'AppCenter.ImageCenter.ImageDetail.tag',
-    defaultMessage: '版本及接口',
-  },
-  attribute: {
-    id: 'AppCenter.ImageCenter.ImageDetail.attribute',
-    defaultMessage: '属性',
-  },
-  mirrorSafety: {
-    id: 'AppCenter.ImageCenter.ImageDetail.mirrorSafety',
-    defaultMessage: '镜像安全',
-  },
-  copyBtn: {
-    id: 'AppCenter.ImageCenter.ImageDetail.copyBtn',
-    defaultMessage: '点击复制',
-  },
-  copySuccess: {
-    id: 'AppCenter.ImageCenter.ImageDetail.copySuccess',
-    defaultMessage: '复制成功',
-  }
-})
 
 class ImageDetailBox extends Component {
   constructor(props) {
@@ -155,6 +101,7 @@ class ImageDetailBox extends Component {
     const tag = this.state.tagVersion
     const notificationHandler = new NotificationHandler()
     this.setState({safetyscanLoading : true})
+    const { formatMessage } = this.props.intl;
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
@@ -228,7 +175,8 @@ class ImageDetailBox extends Component {
             })
             return
           }
-          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
+
+          notificationHandler.error(formatMessage(detailIndexIntl.errMsg, {name: imageName, tag, msg: this.formatErrorMessage(res) }))
           this.setState({
             safetyscanVisible:false,
             safetyscanLoading:false,
@@ -273,7 +221,7 @@ class ImageDetailBox extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.config;
-    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location, currentUserRole } = this.props
+    const { imageType, UpgradeVisible, scope, isAdminAndHarbor, location, currentUserRole, project_id } = this.props
     if (!imageInfo) {
       return ('')
     }
@@ -300,13 +248,13 @@ class ImageDetailBox extends Component {
               <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
               <div className='rightBoxleft'>
                 <Button size="large" type="primary" onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
-                  <FormattedMessage {...menusText.deployImage} />
+                  {formatMessage(detailIndexIntl.deployImage)}
                 </Button>
               </div>
-              {/* 说扫描 */}
+              {/* 扫描 */}
               <div className='rightBoxright'>
-                <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={true}
+                <Button type="ghost" size="large" onClick={this.safetyscanShow}>{formatMessage(detailIndexIntl.securityScan)}</Button>
+                <Modal title={formatMessage(detailIndexIntl.securityScan)} visible={this.state.safetyscanVisible} closable={true}
                   onCancel={()=> this.safetyscanhandleCancel()}
                   confirmLoading={true}
                   footer={[
@@ -315,7 +263,7 @@ class ImageDetailBox extends Component {
                       type="ghost"
                       size="large"
                       onClick={()=> this.safetyscanhandleCancel()}>
-                      取 消
+                      {formatMessage(detailIndexIntl.cancelText)}
                     </Button>,
                     <Button
                       key="submit"
@@ -324,17 +272,17 @@ class ImageDetailBox extends Component {
                       loading={this.state.safetyscanLoading}
                       disabled={this.state.disable}
                       onClick={()=> this.safetyscanhandleOk()}>
-                      确 定
+                      {formatMessage(detailIndexIntl.okText)}
                     </Button>,
                   ]}>
                   <div>
-                    <span style={{ marginRight: '30px' }}>镜像版本</span>
+                    <span style={{ marginRight: '30px' }}>{formatMessage(detailIndexIntl.version)}</span>
                     <Select
                       showSearch
                       style={{ width: '322px' }}
-                      notFoundContent="镜像未找到"
-                      placeholder='请选择镜像版本，查看安全报告'
-                      value={this.state.tagVersion ? this.state.tagVersion : '请选择镜像版本，查看安全报告'}
+                      notFoundContent={formatMessage(detailIndexIntl.notFoundContent)}
+                      placeholder={formatMessage(detailIndexIntl.selectPlaceholder)}
+                      value={this.state.tagVersion ? this.state.tagVersion : formatMessage(detailIndexIntl.selectPlaceholder)}
                       allowClear={true}
                       confirmLoading={true}
                       onChange={this.handelSelectedOption}
@@ -351,9 +299,9 @@ class ImageDetailBox extends Component {
         <div className="downloadBox">
           <div className="code">
             <TenxIcon type="download"/>
-            <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
+            {formatMessage(detailIndexIntl.downloadImage)}&nbsp;&nbsp;&nbsp;&nbsp;
             <span className="pullCode textoverflow">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
+            <Tooltip title={this.state.copySuccess ? formatMessage(detailIndexIntl.copySuccess) : formatMessage(detailIndexIntl.copyBtn)}>
               <TenxIcon type="copy" className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}/>
             </Tooltip>
             <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
@@ -366,14 +314,14 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" activeKey={this.state.activeKey} onChange={this.handleTabsSwitch}>
-            <TabPane tab={formatMessage(menusText.info)} key="detailInfo">
+            <TabPane tab={formatMessage(detailIndexIntl.info)} key="detailInfo">
               <DetailInfo
                 registry={DEFAULT_REGISTRY}
                 imageName={this.props.imageName}
-                project_id={this.props.scope.props.params.id}
+                project_id={project_id}
               />
             </TabPane>
-            <TabPane tab={formatMessage(menusText.tag)} key="tag">
+            <TabPane tab={formatMessage(detailIndexIntl.tag)} key="tag">
               <ImageVersion
                 imageName={this.props.imageName}
                 location={location}
@@ -381,10 +329,18 @@ class ImageDetailBox extends Component {
                 scope={this} config={imageDetail}
                 scopeDetail={scope}
                 currentUserRole={currentUserRole}
+                project_id={project_id}
               />
             </TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} imageType="publicImages" registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} tabledisabled={this.state.tabledisabled} /></TabPane>
+            <TabPane tab={formatMessage(detailIndexIntl.attribute)} key="attr"><Attribute detailInfo={imageInfo} /></TabPane>
+            <TabPane tab={formatMessage(detailIndexIntl.mirrorSafety)} key="5">
+              <MirrorSafety imageName={imageInfo.name}
+                            imageType="publicImages"
+                            registry={DEFAULT_REGISTRY}
+                            tagVersion={this.state.tag}
+                            tabledisabled={this.state.tabledisabled}
+              />
+            </TabPane>
           </Tabs>
         </div>
       </div>
@@ -429,7 +385,6 @@ function mapStateToProps(state, props) {
     mirrorScanstatus
   }
 }
-
 
 export default connect(mapStateToProps, {
   imageStore,

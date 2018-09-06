@@ -18,6 +18,9 @@ import { loadRepositoriesTags, loadWrapTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../components/Notification'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
+import { injectIntl,  } from 'react-intl'
+import AppServerTag from './AppServerTag';
 
 const Option = Select.Option
 
@@ -85,14 +88,15 @@ class RollingUpdateModal extends Component {
 
   componentDidMount() {
     const { service } = this.props
+    const { formatMessage } = this.props.intl
     if (service && service.status.phase === 'RollingUpdate') {
       this.handleCancel()
       Modal.info({
-        title: '正在灰度发布，该服务暂不能做滚动发布操作',
+        title: formatMessage(AppServiceDetailIntl.confirmPublished),
         width: 480,
         content: (
           <div>
-            确认发布完成或确认发布回滚后方可进行下一次发布
+            {formatMessage(AppServiceDetailIntl.confirmPublishedAfter)}
           </div>
         ),
         onOk() {},
@@ -135,6 +139,7 @@ class RollingUpdateModal extends Component {
       loadServiceList,
       rollingUpdateService
     } = this.props
+    const { formatMessage } = this.props.intl
     const { containers } = this.state
     const serviceName = service.metadata.name
     const targets = {}
@@ -148,27 +153,27 @@ class RollingUpdateModal extends Component {
     })
     let notification = new NotificationHandler()
     if(count === containers.length) {
-      notification.error('请至少为一个容器指定目标版本')
+      notification.error(formatMessage(AppServiceDetailIntl.AtleastVersion))
       return
     }
     //统一间隔时间
     const intervalTime = this.state.intervalTime
     if(!intervalTime) {
-      notification.error('请填写 2~60s 间隔时间')
+      notification.error(formatMessage(AppServiceDetailIntl.fillin260stimes))
       return
     }
     if(!/[0-9]+/.test(intervalTime)) {
-      notification.error('请填入 2~60 之间的数字')
+      notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
       return
     }
     if(intervalTime < 2) {
-      notification.error('请填入 2~60 之间的数字')
+      notification.error(formatMessage(AppServiceDetailIntl.fillin260sNumbers))
       return
     }
-    const hide = notification.spin('正在保存中...', 0)
+    const hide = notification.spin(formatMessage(AppServiceDetailIntl.saving), 0)
 
 
-    notification.spin(`服务 ${serviceName} 滚动发布中...`)
+    notification.spin(formatMessage(AppServiceDetailIntl.servicePublishRoll, { serviceName }))
     const body = {
       type: 0,
       targets,
@@ -188,7 +193,7 @@ class RollingUpdateModal extends Component {
           notification.close()
           loadServiceList(cluster, appName)
           setTimeout(function () {
-            notification.success(`服务 ${serviceName} 滚动发布已成功开启`)
+            notification.success(formatMessage(AppServiceDetailIntl.servicePublishSuccess, { serviceName }))
           }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
@@ -200,7 +205,7 @@ class RollingUpdateModal extends Component {
         func: () => {
           notification.close()
           setTimeout(function () {
-            notification.error(`服务 ${serviceName} 开启滚动发布失败`)
+            notification.error(formatMessage(AppServiceDetailIntl.servicePublishFailure, { serviceName }))
           }, 300)
         }
       }
@@ -254,6 +259,7 @@ class RollingUpdateModal extends Component {
   }
 
   render() {
+    const {formatMessage} = this.props.intl
     const { service, visible } = this.props
     if (!visible) {
       return null
@@ -272,34 +278,34 @@ class RollingUpdateModal extends Component {
       <Modal
         visible={visible}
         maskClosable={false}
-        title="滚动发布" onOk={this.handleOK} onCancel={this.handleCancel}
+        title={formatMessage(AppServiceDetailIntl.rollPublish)} onOk={this.handleOK} onCancel={this.handleCancel}
         footer={[
           <Button
             key="back" type="ghost" size="large" onClick={this.handleCancel}>
-            取 消
+            {formatMessage(ServiceCommonIntl.cancel)}
           </Button>,
           <Button
             key="submit" type="primary" size="large" loading={this.state.loading}
             onClick={this.handleOK}
             disabled={incloudPrivate}
           >
-            保 存
+            {formatMessage(ServiceCommonIntl.save)}
           </Button>
         ]}>
         <div id="RollingUpdateModal">
           {
             containers.length > 1 && (
-              <Alert message="提示: 检测到您的服务实例为k8s多容器 (Pod内多个容器) 实例,选择滚动发布时请确认下列服务实例中要升级的容器" type="info" />
+              <Alert message={formatMessage(AppServiceDetailIntl.k8sContainerRollPublish)} type="info" />
             )
           }
           {
-            incloudPrivate && <div className='alertRow'>Tips：挂载独享型存储的服务不支持滚动发布</div>
+            incloudPrivate && <div className='alertRow'>{formatMessage(AppServiceDetailIntl.noSupportRollPublish)}</div>
           }
           <div className="alertRow">
-          滚动发布是指将应用完全更新为下面所选的目标版本，可升级也可回滚版本
+          {formatMessage(AppServiceDetailIntl.rollPublishAlertRow)}
           </div>
           <Row>
-            <Col span={6}>服务名称</Col>
+            <Col span={6}>{formatMessage(AppServiceDetailIntl.serviceName)}</Col>
             <Col className="itemBody" span={18}>
               {service.metadata.name}
             </Col>
@@ -317,12 +323,12 @@ class RollingUpdateModal extends Component {
               tag = "latest"
             }
             let show = image
-            let showText = '镜像版本'
+            let showText = formatMessage(AppServiceDetailIntl.mirrorVersion)
             if(image.length > 40) show = image.substring(0, 40) + "..."
             if (service.wrapper) {
               show = service.wrapper.appPkgName
               tag = service.wrapper.appPkgTag
-              showText = '应用包'
+              showText = formatMessage(AppServiceDetailIntl.appPackage)
             }
             return [
               <Row key="old-tag" className="old-tag">
@@ -338,11 +344,11 @@ class RollingUpdateModal extends Component {
               </Row>,
               <Row key="target-tag">
                 <Col span={6}>
-                目标版本
+                  {formatMessage(AppServiceDetailIntl.targetVersion)}
                 </Col>
                 <Col span={10}>
                   <Select
-                    placeholder="请选择目标版本"
+                    placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceVersion)}
                     value={item.targetTag}
                     onChange={(value) => this.handleTagChange(value, item)}
                   >
@@ -359,7 +365,7 @@ class RollingUpdateModal extends Component {
                       </Option>
                     })
                     :
-                    <Select.OptGroup label="请选择目标版本">
+                    <Select.OptGroup label={formatMessage(AppServiceDetailIntl.pleaseChoiceVersion)}>
                       {
                         imageTags.map(tag => {
                           let disabled = false
@@ -381,14 +387,14 @@ class RollingUpdateModal extends Component {
               index <= 0 &&
               <Row key="minReadySeconds">
                 <Col span={6}>
-                更新间隔时间&nbsp;
+                {formatMessage(AppServiceDetailIntl.updateIntervalTime)}&nbsp;
                 <Tooltip title="容器实例升级时间间隔，例如若为 0 秒，则 Pod 在 Ready 后就会被认为是可用状态，继续升级">
                   <Icon type="question-circle-o" />
                 </Tooltip>
                 </Col>
                 <Col span={10}>
                   <Input
-                    placeholder="建议 2~60s"
+                    placeholder={formatMessage(AppServiceDetailIntl.suggest260s)}
                     defaultValue={ minReadySeconds ? minReadySeconds : 0 }
                     onChange={(e) => { this.getintervalTime(e, item.name)}}
                   />
@@ -419,8 +425,8 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+export default injectIntl(connect(mapStateToProps, {
   loadRepositoriesTags,
   loadWrapTags,
   rollingUpdateService
-})(RollingUpdateModal)
+})(RollingUpdateModal), { withRef: true, })

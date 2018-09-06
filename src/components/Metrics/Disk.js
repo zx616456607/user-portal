@@ -14,6 +14,9 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
+import { injectIntl } from 'react-intl'
+import intlMsg from './Intl'
 
 function formatGrid(count) {
   //this fucntion for format grid css
@@ -28,20 +31,23 @@ class Disk extends Component {
   }
 
   render() {
-    const option = new EchartsOption('磁盘')
-    const { diskReadIo, diskWriteIo, events, scope, isService } = this.props
+    const { diskReadIo, diskWriteIo, events, scope, isService, intl: { formatMessage } } = this.props
+    const option = new EchartsOption(formatMessage(intlMsg.disk))
     const { switchDisk, freshTime, DiskLoading, currentStart, currentDiskStart } = scope.state
-    let timeText = switchDisk ? '1分钟' : freshTime
+    let timeText = switchDisk ? formatMessage(intlMsg.min1) : freshTime
     option.setToolTipUnit(' KB/s')
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
     let isDataEmpty = false
+    if (isEmpty(diskWriteIo.data) && isEmpty(diskReadIo.data)) {
+      isDataEmpty = true
+    }
     diskReadIo.data && diskReadIo.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
-      isDataEmpty = metrics.length ? false : true
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -58,13 +64,14 @@ class Disk extends Component {
           minValue = Date.parse(currentStart)
         }
       }
-      option.addSeries(dataArr, `${item.containerName} 读取`)
+      option.addSeries(dataArr, `${item.containerName} ${formatMessage(intlMsg.read)}`)
     })
     diskWriteIo.data && diskWriteIo.data.map((item) => {
       let dataArr = []
       const metrics = item && Array.isArray(item.metrics)
         ? item.metrics
         : []
+      isDataEmpty = isDataEmpty && isEmpty(metrics)
       metrics.map((metric) => {
         // metric.value || metric.floatValue  only one
         dataArr.push([
@@ -72,7 +79,7 @@ class Disk extends Component {
           Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100
         ])
       })
-      option.addSeries(dataArr, `${item.containerName} 写入`)
+      option.addSeries(dataArr, `${item.containerName} ${formatMessage(intlMsg.write)}`)
     })
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
@@ -83,7 +90,7 @@ class Disk extends Component {
     return (
       <div className="chartBox">
         <span className="freshTime">
-          {`时间间隔：${timeText}`}
+          {`${formatMessage(intlMsg.timeSpace)}：${timeText}`}
         </span>
         {/*<Tooltip title="实时开关">*/}
           {/*<Switch className="chartSwitch" onChange={checked => scope.switchChange(checked, 'Disk')} checkedChildren="开" unCheckedChildren="关"/>*/}
@@ -115,4 +122,6 @@ Disk.defaultProps = {
   }
 }
 
-export default Disk
+export default injectIntl(Disk, {
+  withRef: true,
+})

@@ -159,3 +159,14 @@ exports.getProcess = function* () {
     data: result
   }
 }
+
+exports.getPodNetworkSegment = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'nodes', 'podcidr'], null)
+  this.body = {
+    data: result.data,
+    statusCode: result.statusCode
+  }
+}
