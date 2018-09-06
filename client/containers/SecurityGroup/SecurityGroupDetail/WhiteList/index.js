@@ -18,7 +18,7 @@ class DetailWhiteList extends React.Component {
     const result = parseNetworkPolicy(current)
     const { egress, ingress } = result
     const detailArr = isIngress ? ingress : egress
-    const isolateObj = detailArr && detailArr.map((item, k) => {
+    const isolateObj = detailArr && detailArr.length && detailArr.map((item, k) => {
       switch (item.type) {
         case 'cidr':
           return <div className="lineRow" key={k}>
@@ -59,7 +59,7 @@ class DetailWhiteList extends React.Component {
           <p>（{ isIngress ? '入站' : '出站' }）</p>
         </div>
         <div className="listRight">
-          { isolateObj.length && isolateObj || <div className="lineRow" key={type}>无</div> }
+          { isolateObj && isolateObj.length && isolateObj || <div className="lineRow" key={type}>无</div> }
         </div>
       </div>
     )

@@ -13,7 +13,7 @@ import './style/ManualScaleModal.less'
 import { Row, Col, Slider, InputNumber, Modal, Icon, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
 import { UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
-import { manualScaleService } from '../../../actions/services'
+import { manualScaleService, loadServiceContainerList } from '../../../actions/services'
 import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
@@ -29,6 +29,15 @@ class ManualScaleModal extends Component {
     this.getVolumeTypeInfo = this.getVolumeTypeInfo.bind(this)
     this.state = {
       realNum: 1,
+    }
+  }
+
+  componentDidMount() {
+    const { containerNum } = this.props
+    if (containerNum) {
+      this.setState({
+        realNum: containerNum,
+      })
     }
   }
 
@@ -48,6 +57,7 @@ class ManualScaleModal extends Component {
     this.setState({
       realNum: service.spec.replicas,
     })
+
   }
 
   handleModalOK() {
@@ -59,6 +69,8 @@ class ManualScaleModal extends Component {
       appName,
       loadServiceList,
       service,
+      loadServiceContainerList,
+      projectName,
     } = this.props
     const { realNum } = this.state
     const serviceName = service.metadata.name
@@ -67,19 +79,25 @@ class ManualScaleModal extends Component {
     manualScaleService(cluster, serviceName, { num: realNum }, {
       success: {
         func: () => {
-          const { serviceList } = parentScope.state
-          serviceList.map(item => {
-            if (item.metadata.name === serviceName) {
-              item.status.phase = 'Scaling'
-            }
-          })
-          parentScope.setState({
-            manualScaleModalShow: false,
-            serviceList
-          })
           notification.close()
           notification.success(formatMessage(AppServiceDetailIntl.serviceflexObject, { serviceName, realNum }))
-          loadServiceList(cluster, appName)
+          if (parentScope) {
+            const { serviceList } = parentScope.state
+            serviceList.map(item => {
+              if (item.metadata.name === serviceName) {
+                item.status.phase = 'Scaling'
+              }
+            })
+            parentScope.setState({
+              manualScaleModalShow: false,
+              serviceList
+            })
+            loadServiceList(cluster, appName)
+          } else {
+            this.props.handleChangeVisible()
+            loadServiceList(cluster, appName, )
+            loadServiceContainerList(cluster, serviceName, { projectName })
+          }
         },
         isAsync: true
       },
@@ -95,16 +113,21 @@ class ManualScaleModal extends Component {
   }
 
   handleModalCancel() {
-    const { parentScope } = this.props
-    parentScope.setState({
-      manualScaleModalShow: false
-    })
+    const { parentScope, handleChangeVisible } = this.props
+    if (parentScope) {
+      parentScope.setState({
+        manualScaleModalShow: false
+      })
+    } else {
+      handleChangeVisible()
+    }
   }
 
   getVolumeTypeInfo(){
     const { service } = this.props
     const { volumeTypeList } = service
     let incloudPrivate = false
+    if (!volumeTypeList) return
     for(let i = 0; i < volumeTypeList.length; i++){
       if(volumeTypeList[i] == 'private'){
         incloudPrivate = true
@@ -232,4 +255,5 @@ function mapStateToProps(state, props) {
 
 export default injectIntl(connect(mapStateToProps, {
   manualScaleService,
+  loadServiceContainerList
 })(ManualScaleModal), { withRef: true, })
