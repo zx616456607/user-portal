@@ -40,6 +40,13 @@ class AddWhiteList extends React.Component {
         ingress: ingressArr,
       })
       ln.map((item, ind) => {
+        let exStr = ''
+        if (item.except) {
+          item.except.forEach(el => {
+            exStr += `${el},`
+          })
+          exStr = exStr.slice(0, exStr.length - 1)
+        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -55,7 +62,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'cidr',
               [`ingresscidr${ind}`]: item.cidr,
-              [`ingresscidr${ind}except`]: item.except[0] || null,
+              [`ingresscidr${ind}except`]: exStr || null,
             })
           case 'ingress':
             return setFieldsValue({
