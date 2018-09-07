@@ -749,7 +749,7 @@ class VisitTypes extends Component{
             annotations: {
               // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
               'master.system/lbgroup': `none`,
-              'slave.system/lbgroup': `none`,
+              'slave.system/lbgroup': ``,
             }
           }
         }
@@ -927,10 +927,15 @@ class VisitTypes extends Component{
   // 是否开启只读
   readOnlyEnable = () => {
     const { database, databaseInfo } = this.props
-    const enableReadOnly = database === 'redis' &&
+    const visitType = databaseInfo.service.annotations['master.system/lbgroup'] //集群内访问或集群外访问的标志
+    if (visitType === 'none') {
+      return database === 'redis' &&
+        databaseInfo.service.annotations['slave.system/lbgroup'] &&
+        databaseInfo.service.annotations['slave.system/lbgroup'] === 'none'
+    }
+    return database === 'redis' &&
       databaseInfo.service.annotations['slave.system/lbgroup'] &&
-      databaseInfo.service.annotations['slave.system/lbgroup'] === 'none'
-    return enableReadOnly
+      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
   }
   // 出口地址
   externalUrl = () => {

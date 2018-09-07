@@ -532,6 +532,8 @@ export const mapData = {
     afterOpenServiceInfo: '开通后， 此服务将由服务网格代理，使用微服务中心提供的治理功能',
     projectOpenServiceMeshInfo: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能',
     selectInstance: '选择实例链接',
+    readWriteRight: '读取权限',
+    readWrite: '可读可写',
   }
 }
 

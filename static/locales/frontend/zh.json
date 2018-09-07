@@ -2584,6 +2584,8 @@
   "AppModule.AppServiceDetailIntl.afterOpenServiceInfo": "开通后， 此服务将由服务网格代理，使用微服务中心提供的治理功能",
   "AppModule.AppServiceDetailIntl.projectOpenServiceMeshInfo": "当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能",
   "AppModule.AppServiceDetailIntl.selectInstance": "选择实例链接",
+  "AppModule.AppServiceDetailIntl.readWriteRight": "读取权限",
+  "AppModule.AppServiceDetailIntl.readWrite": "可读可写",
   "ServiceCommon.start": "启动",
   "ServiceCommon.stop": "停止",
   "ServiceCommon.refresh": "刷新",

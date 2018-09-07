@@ -2280,6 +2280,8 @@
   "AppModule.AppServiceDetailIntl.afterOpenServiceInfo": "Once opened, this service will be serviced by the service grid, using the governance capabilities provided by the microservices center.",
   "AppModule.AppServiceDetailIntl.projectOpenServiceMeshInfo": "The current project has opened the service grid, this service will be enabled by default, the service will be proxyed by the service grid, and the governance function provided by the micro service center will be used.",
   "AppModule.AppServiceDetailIntl.selectInstance": "Please select instance",
+  "AppModule.AppServiceDetailIntl.readWriteRight": "RW permissions",
+  "AppModule.AppServiceDetailIntl.readWrite": "Readable and writable",
   "ServiceCommon.start": "start",
   "ServiceCommon.stop": "stop",
   "ServiceCommon.refresh": "refresh",

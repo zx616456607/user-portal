@@ -34,7 +34,7 @@ class AutoBackupModal extends React.Component {
           if (database === 'redis') {
             // 如果有数据或者数据内的schedule字段不为空,说明开启了自动备份。把控制自动备份开关的state置为true
             if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
-              const schedule = res.data[0].schedule.split(' ')
+              const schedule = res.data[0].schedule.split(' ').slice(1) // 由于首位是0，表示秒，设置时未精确到秒，所以回显时舍弃秒
               const { days } = this.state
               const scheduleDays = schedule[4].split(',')
               this.differentiation(days, scheduleDays)
