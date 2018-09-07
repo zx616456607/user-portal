@@ -135,6 +135,9 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr, k8sSer)
 export function parseAppDomain(app, bindingDomainStr, bindingIPStr) {
   let domains = []
   app.services.map((item) => {
+    if (!app.k8sServices) {
+      return
+    }
     const k8sSer = app.k8sServices.filter(record => record.metadata.name === item.metadata.name)[0]
     domains.push({
       name: item.metadata.name,

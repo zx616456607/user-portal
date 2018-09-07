@@ -216,18 +216,7 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       case 'haproxy':
-        return <FormItem>
-          <Input {...getFieldProps(`${type}${option}${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入要放通的${target}集群网络出口`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}集群网络出口`}
-          />
-        </FormItem>
+        return <span>所有集群网络出口</span>
       case 'ingress':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
