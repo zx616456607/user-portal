@@ -749,7 +749,7 @@ class VisitTypes extends Component{
             annotations: {
               // 'tenxcloud.com/schemaPortname': `${databaseInfo.service.annotations['tenxcloud.com/schemaPortname']}`
               'master.system/lbgroup': `none`,
-              'slave.system/lbgroup': `none`,
+              'slave.system/lbgroup': ``,
             }
           }
         }
