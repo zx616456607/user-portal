@@ -929,7 +929,7 @@ class VisitTypes extends Component{
     const { database, databaseInfo } = this.props
     const enableReadOnly = database === 'redis' &&
       databaseInfo.service.annotations['slave.system/lbgroup'] &&
-      databaseInfo.service.annotations['slave.system/lbgroup'] !== 'none'
+      databaseInfo.service.annotations['slave.system/lbgroup'] === 'none'
     return enableReadOnly
   }
   // 出口地址
