@@ -178,8 +178,8 @@ class MyComponent extends Component {
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
-    if(name == '' || value == '' || name == undefined || value == undefined){
-      Notification.error(formatMessage(AppServiceDetailIntl.variableNameValueNotEmpty))
+    if(name == '' || name == undefined){
+      Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
       return
     }
     for(let i=0; i<dataArray.length; i++ ){

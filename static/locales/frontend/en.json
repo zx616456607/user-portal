@@ -1980,6 +1980,7 @@
   "AppModule.AppServiceDetailIntl.envChangeSuccess": "The environment variable was modified successfully!",
   "AppModule.AppServiceDetailIntl.envChangeFailure": "The environment variable modification failed!",
   "AppModule.AppServiceDetailIntl.variableNameValueNotEmpty": "Variable name and variable value cannot be empty",
+  "AppModule.AppServiceDetailIntl.variableNameNotEmpty": "Variable name cannot be empty",
   "AppModule.AppServiceDetailIntl.variableNameExist": "The variable name already exists, please modify it!",
   "AppModule.AppServiceDetailIntl.saveNewEnv": "Please save the new environment variable first.",
   "AppModule.AppServiceDetailIntl.envVariable": "Env variable",
