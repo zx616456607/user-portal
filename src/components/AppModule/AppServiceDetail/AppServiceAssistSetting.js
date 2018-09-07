@@ -37,7 +37,6 @@ let AppServiceAssistSetting = React.createClass({
   },
   openButtonLock(e) {
     e.preventDefault()
-    console.log('open')
     this.setState({ buttonLock: false })
   },
   renderCMD(container, getFieldProps, openButtonLock) {
@@ -126,7 +125,8 @@ let AppServiceAssistSetting = React.createClass({
   },
   handleSubmit(e) {
     e.preventDefault();
-    console.log('收到表单值：', this.props.form.getFieldsValue());
+    // console.log('收到表单值：', this.props.form.getFieldsValue());
+    // TODO:
     this.setState({ buttonLock: true, buttonLoding: true })
   },
   render() {
