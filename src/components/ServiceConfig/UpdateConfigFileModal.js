@@ -11,9 +11,11 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import NotificationHandler from '../../components/Notification'
 import ConfigFileContent from './ConfigFileContent'
+import { getConfig } from '../../actions/configs'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -25,6 +27,16 @@ let UpdateConfigFileModal = React.createClass({
       tempConfigDesc: '',
     }
   },
+  // componentWillReceiveProps(next){
+  //   if(next.modalConfigFile) {
+  //     const { getConfig, cluster, scope: parentScope } = next
+  //     getConfig({
+  //       configmap_name: parentScope.props.groupname,
+  //       cluster_id: cluster,
+  //       config_name: parentScope.state.configName,
+  //     })
+  //   }
+  // },
   editConfigFile(group) {
     const parentScope = this.props.scope
     const _this = this
@@ -84,12 +96,15 @@ let UpdateConfigFileModal = React.createClass({
     const { filePath, tempConfigDesc } = this.state
     const parentScope = scope
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
-    const descProps = getFieldProps('configDesc', {
+    const descProps = getFieldProps('data', {
       rules: [
         { validator: this.configDescExists },
       ],
       initialValue: parentScope.state.configtextarea
     })
+    const nameProps = getFieldProps('name', {
+      initialValue: parentScope.state.configName
+    });
     return(
       <Modal
         title={`修改${type === 'secrets' ? '加密对象': '配置文件'}`}
@@ -113,13 +128,15 @@ let UpdateConfigFileModal = React.createClass({
           <Form horizontal>
             <FormItem  {...formItemLayout} label="名称">
               <Input
-                className="configName" type="text" disabled value={parentScope.state.configName}/>
+                className="configName" type="text" disabled {...nameProps}/>
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
+                method={this.props.method}
+                defaultData={this.props.defaultData}
                 descProps={descProps} />
             </FormItem>
           </Form>
@@ -131,4 +148,13 @@ let UpdateConfigFileModal = React.createClass({
 
 UpdateConfigFileModal = createForm()(UpdateConfigFileModal)
 
-export default UpdateConfigFileModal
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  return {
+    cluster: cluster.clusterID
+  }
+}
+export default connect(mapStateToProps,{
+  getConfig,
+})(UpdateConfigFileModal)
+

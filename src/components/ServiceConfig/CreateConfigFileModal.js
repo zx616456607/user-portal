@@ -17,8 +17,9 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence } from "../../actions/configs"
+import { checkConfigNameExistence, createConfigMaps } from "../../actions/configs"
 import filter from 'lodash/filter'
+import cloneDeep from 'lodash/cloneDeep'
 import ConfigFileContent from './ConfigFileContent'
 
 const FormItem = Form.Item
@@ -106,36 +107,45 @@ let CreateConfigFileModal = React.createClass({
   },
 
   createConfigFile(group) {
-    const parentScope = this.props.scope
+    const { createConfigMaps, scope: parentScope } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
-      const { type, addKeyIntoSecret } = this.props
+      const tempValues = cloneDeep(values)
+      if (tempValues.enable === true) {
+        tempValues.enable = 1
+      } else {
+        tempValues.enable = 0
+      }
+
+      const { type, addKeyIntoSecret, cluster } = this.props
       if (type === 'secrets') {
         return addKeyIntoSecret(values)
       }
       let configfile = {
         group,
-        cluster: parentScope.props.cluster.clusterID,
-        name: values.configName,
-        desc: values.configDesc
+        cluster,
+        name: tempValues.name,
+        desc: tempValues.data
       }
+
       let self = this
       // const {parentScope} = this.props
       let notification = new NotificationHandler()
-      parentScope.props.createConfigFiles(configfile, {
+      //parentScope.props.createConfigFiles(configfile, {
+      createConfigMaps( group, cluster, tempValues, {
         success: {
           func: () => {
             notification.success('创建配置文件成功')
-            setTimeout(() => self.props.form.resetFields(), 0)
-            parentScope.props.addConfigFile(configfile)
             self.setState({
               filePath: '请上传文件或直接输入内容'
             })
             parentScope.setState({
               modalConfigFile: false,
             })
+            setTimeout(() => self.props.form.resetFields(), 0)
+            parentScope.props.addConfigFile(configfile)
           },
           isAsync: true
         },
@@ -191,12 +201,12 @@ let CreateConfigFileModal = React.createClass({
       paddingRight:'10px'
     }
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
-    const nameProps = getFieldProps('configName', {
+    const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.configNameExists },
       ],
     });
-    const descProps = getFieldProps('configDesc', {
+    const descProps = getFieldProps('data', {
       rules: [
         { validator: this.configDescExists },
       ],
@@ -251,9 +261,13 @@ let CreateConfigFileModal = React.createClass({
 })
 
 CreateConfigFileModal = createForm()(CreateConfigFileModal)
+
 function mapStateToProps(state) {
-  return state
+  const { cluster } = state.entities.current
+  return {
+    cluster: cluster.clusterID
+  }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence
+  checkConfigNameExistence, createConfigMaps
 })(CreateConfigFileModal)

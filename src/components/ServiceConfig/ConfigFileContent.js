@@ -12,14 +12,15 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Upload, Button, Icon, Radio, Select, Row, Col, Input, Form } from 'antd'
+import { Upload, Button, Icon, Radio, Select, Row, Col, Input, Form, Checkbox } from 'antd'
 import Editor from '../../../client/components/EditorModule/index'
 import './style/ConfigFileContent.less'
 import { getProjectList } from "../../actions/cicd_flow"
-import { getProjectBranches } from "../../actions/configs"
+import { getProjectBranches, getGitFileContent } from "../../actions/configs"
 import filter from 'lodash/filter'
 
 import NotificationHandler from '../../components/Notification'
+const notify = new NotificationHandler()
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -54,7 +55,7 @@ class ConfigFileContent extends React.Component {
         func: (res) => {
           if(res.data && res.data.results){
             this.setState({
-              projects: res.data.results,
+              projects: filter(res.data.results, { repoType: "gitlab" }),
             })
           } else {
             this.setState({
@@ -90,40 +91,58 @@ class ConfigFileContent extends React.Component {
     this.setState({
       btnLoading: true,
     }, () => {
-      setTimeout(() => {
-        // 模拟导入成功
-        const res = "导入成功"
-        this.setState({
-          btnLoading: false,
-          fetchStatus: true,
-        })
-        setFieldsValue({
-          configDesc: res,
-        })
-      }, 2000)
-      const { fetchFileContent } = this.props
-      const query = {}
-      !!fetchFileContent && fetchFileContent(query, {
-        success: {
-          func: res => {
-            res.xxx
-            this.setState({
-              fetchStatus: true,
-            })
+      // setTimeout(() => {
+      //   // 模拟导入成功
+      //   const res = "导入成功"
+      //   this.setState({
+      //     btnLoading: false,
+      //     fetchStatus: true,
+      //   })
+      //   setFieldsValue({
+      //     configDesc: res,
+      //   })
+      // }, 2000)
+      const { getGitFileContent, form } = this.props
+      const { validateFields } = form
+      validateFields(["projectId", "filePath", "defaultBranch"], (errors, values) => {
+        if(!!errors){
+          return
+        }
+        const query = {
+          project_id: values.projectId,
+          branch_name: values.defaultBranch,
+          path_name: values.filePath,
+        }
+        !!getGitFileContent && getGitFileContent(query, {
+          success: {
+            func: res => {
+              this.setState({
+                fetchStatus: true,
+              })
+              setFieldsValue({
+                data: res.results.content,
+              })
+            },
           },
-        },
-        failed: {
-          func: () => {
-
+          failed: {
+            func: err => {
+              notify.warn("导入失败, 请检查目录结构")
+            },
           },
-        },
+          finally: {
+            func: () => {
+              this.setState({
+                btnLoading: false,
+              })
+            }
+          }
+        })
       })
     })
   }
   beforeUpload = (file) => {
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    const notify = new NotificationHandler()
     if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
       notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
       return false
@@ -163,15 +182,18 @@ class ConfigFileContent extends React.Component {
   onProjectSelect = value => {
     this.setState({
       branches: [],
-    }, () => {
+    }, async () => {
       const { getProjectBranches, form } = this.props
-      const { getFieldProps, getFieldValue } = form
-      const currProjectId = getFieldValue("project") || ""
+      const { getFieldProps, getFieldValue, setFieldsValue } = form
+      await setFieldsValue({
+        defaultBranch: undefined,
+      })
+      const currProjectId = getFieldValue("projectId") || ""
       getProjectBranches({ project_id: currProjectId }, {
         success: {
           func: res => {
-            !!res.branches && this.setState({
-              branches: res.branches,
+            !!res.results.branches && this.setState({
+              branches: res.results.branches,
             })
           }
         }
@@ -179,39 +201,45 @@ class ConfigFileContent extends React.Component {
     })
   }
   render() {
-    const { descProps, filePath, form, project, branch, path } = this.props
-    const { readOnly, btnLoading, fetchStatus, projects, branches } = this.state
+    const { descProps, filePath, form, defaultData } = this.props
+    const { projectId, defaultBranch, path, enable } = defaultData || {}
+    const { readOnly, btnLoading, fetchStatus, projects, branches, isNeedSet } = this.state
     const { getFieldProps, getFieldValue } = form
-    const method = getFieldValue("method") || 1
+    const method = getFieldValue("method") || this.props.method || 1
 
-    const currProjectId = getFieldValue("project") || ""
+    const currProjectId = getFieldValue("projectId") || ""
     const currProject = filter(projects, { id: currProject })[0]
     const project_options = projects.map(item => <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>)
     const branch_options = branches.map(item => <Select.Option key={item.branch} value={item.branch}>{item.branch}</Select.Option>)
 
     const methodProps = {...getFieldProps('method',
       {
-        initialValue: 1,
+        initialValue: this.props.method || 1,
         onChange: this.onRadioChange,
       },
     )}
-    const selBranchProps = {...getFieldProps('branch',
+    const selBranchProps = {...getFieldProps('defaultBranch',
       {
-        initialValue: branch || undefined,
+        initialValue: defaultBranch || undefined,
       }
     )}
-    const selProjectProps = {...getFieldProps('project',
+    const selProjectProps = {...getFieldProps('projectId',
       {
-        initialValue: project || undefined,
+        initialValue: projectId || undefined,
         onChange: this.onProjectSelect,
       }
     )}
-    const pathProps = {...getFieldProps('path',
+    const pathProps = {...getFieldProps('filePath',
       {
         initialValue: path || undefined,
       }
     )}
-
+    const enableProps = {...getFieldProps('enable',
+      {
+        initialValue: enable || 0,
+        valuePropName: 'checked',
+      }
+    )}
     return(
       <div className="configFileContent">
         <div>导入或直接输入配置文件</div>
@@ -234,7 +262,7 @@ class ConfigFileContent extends React.Component {
             :
             <div>
               {
-                !projects.length &&
+                isNeedSet &&
                 <div className="deleteRow alertRow">
                   <i className="fa fa-exclamation-triangle"/>请先关联 GitLab 代码仓库
                 </div>
@@ -282,6 +310,11 @@ class ConfigFileContent extends React.Component {
                   }
                 </Col>
               </Row>
+              <Row>
+                <Col span={24}>
+                  <Checkbox {...enableProps}>提交代码自动更新</Checkbox>
+                </Col>
+              </Row>
             </div>
         }
         <Editor
@@ -303,5 +336,5 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  getProjectList, getProjectBranches
+  getProjectList, getProjectBranches, getGitFileContent
 })(ConfigFileContent)

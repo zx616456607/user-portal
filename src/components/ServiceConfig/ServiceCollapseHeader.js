@@ -136,7 +136,7 @@ class CollapseHeader extends Component {
           {/*添加配置文件-弹出层-start*/}
           {
             modalConfigFile &&
-            <CreateConfigFileModal scope={this} visible = {modalConfigFile} groupName={collapseHeader.name}/>
+              <CreateConfigFileModal scope={this} visible = {modalConfigFile} groupName={collapseHeader.name}/>
           }
           {/*添加配置文件-弹出层-end*/}
 

@@ -49,17 +49,18 @@ function configGroupList(state = {}, action) {
       const index1 = findIndex(configGroup.configGroup, item => {
         return item.name === configFile.group
       })
-      configGroup.configGroup[index1].configs.push({
+      configGroup.configGroup[index1].configList.push({
         name: configFile.name,
         rawName: configFile.name
       })
-      configGroup.configGroup[index1].size = configGroup.configGroup[index1].configs.length
+      // configGroup.configGroup[index1].size = configGroup.configGroup[index1].configList.length
       return addState
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
       return merge({}, state, {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.GET_CONFIG_FILES_SUCCESS:
+      debugger
       const getState = cloneDeep(state)
       const configFile1 = action.configName
       const cluster2 = action.cluster
@@ -112,7 +113,7 @@ function configGroupList(state = {}, action) {
 
     case ActionTypes.GET_CONFIG_MAPS_REQUEST:
     return merge({}, defaultState, state, {
-      [cluster]: { isFetching: true }
+      // [cluster]: { isFetching: true }
     })
     case ActionTypes.GET_CONFIG_MAPS_SUCCESS:
       return Object.assign({}, state, {

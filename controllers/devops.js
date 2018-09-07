@@ -1227,3 +1227,45 @@ exports.getGitProjects = function* () {
   const result = yield api.getBy(["repos", "managed-projects", project_id, "branches_tags"], null)
   this.body = result
 }
+
+exports.getGitProjectsFileContent = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const project_id = this.params.project_id
+  const branch_name = this.params.branch_name
+  const path_name = this.params.path_name
+  const result = yield api.getBy(["configmaps", "projects", project_id, "branchs", branch_name, "path", path_name, "files"], null)
+  this.body = result
+}
+
+exports.createConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+
+  const configinfo = this.request.body
+  const result = yield api.createBy(["configmaps", configmap_name, "clusters", cluster_id, "configs"], null, configinfo)
+  this.body = result
+}
+
+exports.setConfigLabels = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+
+  const configinfo = this.request.body
+  const result = yield api.updateBy(["configmaps", configmap_name, "clusters", cluster_id], null, configinfo)
+  this.body = result
+}
+
+exports.getConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+  const result = yield api.getBy(["configmaps", configmap_name, "clusters", cluster_id, "configs", config_name], null)
+  this.body = result
+}

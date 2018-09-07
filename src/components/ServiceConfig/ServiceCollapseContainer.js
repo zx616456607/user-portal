@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
-import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
+import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile, getConfig } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
 import { Link } from 'react-router'
@@ -116,7 +116,9 @@ class CollapseContainer extends Component {
     this.state = {
       modalConfigFile: false,
       configtextarea: '',
-      checkConfigFile: false
+      checkConfigFile: false,
+      method: 1,// 1 input 2 git
+      defaultData: {}
       // collapseContainer: this.props.collapseContainer
 
     }
@@ -130,22 +132,45 @@ class CollapseContainer extends Component {
   }
 
   editConfigModal(group, configName) {
-    const groups = { group, Name: configName }
+    // const groups = { group, Name: configName }
 
     const self = this
-    const { cluster } = this.props
-    this.props.loadConfigName(cluster, groups, {
+    const { cluster, getConfig } = this.props
+    getConfig({
+      configmap_name: group,
+      cluster_id: cluster,
+      config_name: configName,
+    }, {
       success: {
         func: (res) => {
           self.setState({
             modalConfigFile: true,
-            configName: configName,
-            configtextarea: res.data
+            configName: res.results.name,
+            configtextarea: res.results.data,
+            method: res.results.projectId ? 2 : 1,
+            defaultData: {
+              projectId: res.results.projectId || undefined,
+              defaultBranch: res.results.defaultBranch || undefined,
+              path: res.results.filePath || "",
+              enable: res.results.enable || 0
+            }
           })
         },
         isAsync: true
       }
     })
+    // this.props.loadConfigName(cluster, groups, {
+    //   success: {
+    //     func: (res) => {
+    //       self.setState({
+    //         modalConfigFile: true,
+    //         configName: configName,
+    //         configtextarea: res.data
+    //       })
+    //     },
+    //     isAsync: true
+    //   }
+    // })
 
   }
 
@@ -316,17 +341,22 @@ class CollapseContainer extends Component {
       )
 
     })
+    const { modalConfigFile, method, defaultData } = this.state
     return (
       <Row className='file-list'>
         <Timeline>
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
-        <UpdateConfigFileModal
-          scope={this}
-          modalConfigFile={this.state.modalConfigFile}
-        />
-
+        {
+          modalConfigFile &&
+            <UpdateConfigFileModal
+              scope={this}
+              modalConfigFile={modalConfigFile}
+              method={method}
+              defaultData={defaultData}
+            />
+        }
         {/* <Modal
           title='修改配置文件'
           wrapClassName='configFile-create-modal'
@@ -397,8 +427,8 @@ export default connect(mapStateToProps, {
   updateConfigName,
   deleteConfigName,
   configGroupName,
-  loadAppList
-
+  loadAppList,
+  getConfig,
 })(injectIntl(CollapseContainer, {
   withRef: true,
 }))

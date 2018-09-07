@@ -270,5 +270,117 @@ export function getConfigMaps(query, callback) {
   }
 }
 
+export const CREATE_CONFIG_REQUEST = 'CREATE_CONFIG_REQUEST'
+export const CREATE_CONFIG_SUCCESS = 'CREATE_CONFIG_SUCCESS'
+export const CREATE_CONFIG_FAILURE = 'CREATE_CONFIG_FAILURE'
+
+export function fetchCreateConfigMaps(configmap_name, cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_CONFIG_REQUEST,
+        CREATE_CONFIG_SUCCESS,
+        CREATE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${configmap_name}/clusters/${cluster_id}/configs`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function createConfigMaps(configmap_name, cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateConfigMaps(configmap_name, cluster_id, body, callback))
+  }
+}
+
+
+export const GET_FILE_CONTENT_REQUEST = 'GET_FILE_CONTENT_REQUEST'
+export const GET_FILE_CONTENT_SUCCESS = 'GET_FILE_CONTENT_SUCCESS'
+export const GET_FILE_CONTENT_FAILURE = 'GET_FILE_CONTENT_FAILURE'
+
+export function fetchGitFileContent(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_FILE_CONTENT_REQUEST,
+        GET_FILE_CONTENT_SUCCESS,
+        GET_FILE_CONTENT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/projects/${query.project_id}/branches/${query.branch_name}/path/${query.path_name}/files`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getGitFileContent(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGitFileContent(query, callback))
+  }
+}
+
+export const SET_COMFIG_MAP_LABEL_REQUEST = 'SET_COMFIG_MAP_LABEL_REQUEST'
+export const SET_COMFIG_MAP_LABEL_SUCCESS = 'SET_COMFIG_MAP_LABEL_SUCCESS'
+export const SET_COMFIG_MAP_LABEL_FAILURE = 'SET_COMFIG_MAP_LABEL_FAILURE'
+
+export function fetchSetConfigMapLabel(configmap_name, cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        SET_COMFIG_MAP_LABEL_REQUEST,
+        SET_COMFIG_MAP_LABEL_SUCCESS,
+        SET_COMFIG_MAP_LABEL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${configmap_name}/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      },
+    },
+    callback,
+  }
+}
+
+export function setConfigMapLabel(configmap_name, cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetConfigMapLabel(configmap_name, cluster_id, body, callback))
+  }
+}
+
+export const GET_CONFIG_REQUEST = 'GET_CONFIG_REQUEST'
+export const GET_CONFIG_SUCCESS = 'GET_CONFIG_SUCCESS'
+export const GET_CONFIG_FAILURE = 'GET_CONFIG_FAILURE'
+
+export function fetchConfig(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_CONFIG_REQUEST,
+        GET_CONFIG_SUCCESS,
+        GET_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getConfig(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchConfig(query, callback))
+  }
+}
+
+
 
 

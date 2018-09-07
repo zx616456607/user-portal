@@ -194,7 +194,8 @@ class Service extends Component {
     })
     const self = this
     setTimeout(() => {
-      document.getElementById('newConfigName').focus()
+      const node = document.getElementById('newConfigName')
+      !!node && node.focus()
     },100)
     setTimeout(function () {
       if (self.focusInput) {
@@ -316,7 +317,7 @@ class Service extends Component {
         <div id="Service" key="Service">
           <Title title="服务配置" />
           {/*创建配置组-弹出层-start*/}
-          <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
+          <CreateConfigModal visible={this.state.createModal} scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置组操作" visible={this.state.delModal}
