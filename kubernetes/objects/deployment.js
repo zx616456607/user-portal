@@ -767,7 +767,7 @@ class Deployment {
     )
   }
   setHostname(hostname) {
-    if (hostname && hostname !== "") {
+    if (hostname && (hostname.trim() !== "")) {
       this.spec.template.spec.hostname = hostname
     }
   }
