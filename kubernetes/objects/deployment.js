@@ -766,6 +766,11 @@ class Deployment {
       annotations || {}
     )
   }
+  setHostname(hostname) {
+    if (hostname && hostname !== "") {
+      this.spec.template.spec.hostname = hostname
+    }
+  }
 }
 
 module.exports = Deployment

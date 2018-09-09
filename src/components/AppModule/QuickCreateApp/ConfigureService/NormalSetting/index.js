@@ -713,7 +713,7 @@ const Normal = React.createClass({
 
           </FormItem> */}
           <Row key="replicas">
-            <Col span={4} className="formItemLabel label"> 实例数量 </Col>
+            <Col span={4} className="formItemLabel label"> {intl.formatMessage(IntlMessage.instanceNum)} </Col>
             <Col span={3}>
               <FormItem className="replicasFormItem">
                 <InputNumber
@@ -737,11 +737,30 @@ const Normal = React.createClass({
                     })
                   }
                 >
-                    固定实例 IP
+                  {intl.formatMessage(IntlMessage.fixedInstanceIP)}
                 </Checkbox>
               </FormItem>
             </Col>
           </Row>
+          { // 应用模板暂不支持hostname
+            !isTemplate &&
+            <Row key="hostname">
+              <Col span={formItemLayout.labelCol.span}>{intl.formatMessage(IntlMessage.setHostname)}</Col>
+              <Col span={formItemLayout.wrapperCol.span}>
+                <FormItem
+                  wrapperCol={{ span: 6 }}
+                >
+                  <Input
+                    {...getFieldProps('hostname')}
+                    placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: 'hostname',
+                      end: '',
+                    })}
+                  />
+                </FormItem>
+              </Col>
+            </Row>
+          }
           {
             getFieldValue('replicasCheck')
               ? <ReplicasRestrictIP
