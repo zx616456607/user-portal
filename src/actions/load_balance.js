@@ -421,3 +421,26 @@ const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
 
 export const deleteTcpUdpIngress = (cluster, lbname, type, ports) =>
   dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports))
+
+export const UPDATE_LB_WHITELIST_REQUEST = 'UPDATE_LB_WHITELIST_REQUEST'
+export const UPDATE_LB_WHITELIST_SUCCESS = 'UPDATE_LB_WHITELIST_SUCCESS'
+export const UPDATE_LB_WHITELIST_FAILURE = 'UPDATE_LB_WHITELIST_FAILURE'
+
+const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
+  [FETCH_API]: {
+    types: [
+      UPDATE_LB_WHITELIST_REQUEST,
+      UPDATE_LB_WHITELIST_SUCCESS,
+      UPDATE_LB_WHITELIST_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/whitelist`,
+    schema: {},
+    options: {
+      method: 'PUT',
+      body,
+    }
+  }
+})
+
+export const updateLBWhiteList = (cluster, lbname, body) =>
+  dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body))
