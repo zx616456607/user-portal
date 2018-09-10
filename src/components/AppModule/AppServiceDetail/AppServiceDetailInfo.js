@@ -178,8 +178,8 @@ class MyComponent extends Component {
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
-    if(name == '' || value == '' || name == undefined || value == undefined){
-      Notification.error(formatMessage(AppServiceDetailIntl.variableNameValueNotEmpty))
+    if(name == '' || name == undefined){
+      Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
       return
     }
     for(let i=0; i<dataArray.length; i++ ){
@@ -1142,15 +1142,18 @@ class AppServiceDetailInfo extends Component {
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
-        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
-        <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
+        <Col span="5" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
+        <Col span="5" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
-        <Col span="7">
-          <Checkbox checked={item.readOnly} disabled>{formatMessage(AppServiceDetailIntl.readOnly)}</Checkbox>
+        <Col span="4" className='text_overfow'>{!item.readOnly ? formatMessage(AppServiceDetailIntl.readOnly) :
+        formatMessage(AppServiceDetailIntl.readWrite) }</Col>
+        <Col span="5">
+          {/* <Checkbox checked={item.readOnly} disabled>{formatMessage(AppServiceDetailIntl.readOnly)}</Checkbox> */}
           <Button
             type="dashed"
             icon="edit"
             className='handle_button'
+            style={{ marginLeft: 0 }}
             onClick={this.editContainerCatalogue.bind(this, item, index)}
           />
           <Button
@@ -1422,10 +1425,11 @@ class AppServiceDetailInfo extends Component {
           </div>
           <div className="titleBox">
             <Row className='volume_row_style'>
-              <Col span="6">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
-              <Col span="6">{formatMessage(AppServiceDetailIntl.cache)}</Col>
+              <Col span="5">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
+              <Col span="5">{formatMessage(AppServiceDetailIntl.cache)}</Col>
               <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
-              <Col span="7">{formatMessage(ServiceCommonIntl.operation)}</Col>
+              <Col span="4">{formatMessage(AppServiceDetailIntl.readWriteRight)}</Col>
+              <Col span="5">{formatMessage(ServiceCommonIntl.operation)}</Col>
             </Row>
           </div>
           <div className="dataBox">

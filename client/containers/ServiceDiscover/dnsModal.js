@@ -116,8 +116,11 @@ class DnsModal extends React.Component {
         },
         failed: {
           func: error => {
-            const { message } = error
+            const { message, statusCode } = error
             notification.close()
+            if (statusCode === 412) {
+              return
+            }
             notification.warn('新建 DNS 记录失败', message.message)
           },
         },

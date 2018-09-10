@@ -150,6 +150,7 @@ class QuickCreateApp extends Component {
     if (from && from === 'appcenter') {
       this.configureMode = 'edit';
       this.editServiceKey = key;
+      window._fieldId = key
       const currentFields = fields[key]
       if (currentFields.appPkgID) {
         const { imageUrl, appPkgID } = currentFields
@@ -283,7 +284,7 @@ class QuickCreateApp extends Component {
   }
 
   deployCheck = async (props) => {
-    const { appTemplateDeployCheck, current, templateDetail, fields } = props;
+    const { appTemplateDeployCheck, current, templateDetail, fields, setFormFields } = props;
     const { clusterID } = current.cluster;
     const { data } = templateDetail;
     const { chart } = data;
@@ -321,6 +322,8 @@ class QuickCreateApp extends Component {
     if (configureMode === 'edit') {
       // this.configureServiceKey = key
       this.editServiceKey = key
+      // 这个全局变量是因为模板部署过程中，切换服务的时候 onFieldsChange 取到的 id 值有可能不是当前父组件传给它的 id，需要用这个全局变量去做对比
+      window._fieldId = key
     }
   }
 
@@ -1029,8 +1032,8 @@ class QuickCreateApp extends Component {
     }
     // 在配置服务界面
     if (currentStep === 2) {
-      const { validateFieldsAndScroll } = this.form
-      validateFieldsAndScroll((errors, values) => {
+      const { validateFields, validateFieldsAndScroll } = this.form
+      const callback = (errors, values) => {
         if (!!errors) {
           let message = intl.formatMessage(IntlMessage.pleaseCorrectWrongForm)
           // 如果未填写服务名称，提示填写服务名称
@@ -1053,6 +1056,22 @@ class QuickCreateApp extends Component {
             editServiceLoading: false,
           })
         })
+      }
+      validateFields((errors, values) => {
+        if (!!errors) {
+          const errorsValues = Object.values(errors)
+          // 应用模板部署过程中，如果配置组名称重复，重新输入新的配置组名称后，切换服务过程中表单会报错revalidate信息，需要重新validateFields
+          const flag = errorsValues.some(error => {
+            return error.errors.some(item => item.message.includes('revalidate'))
+          })
+          if (flag) {
+            validateFieldsAndScroll((errors, values) => {
+              callback(errors, values)
+            })
+            return
+          }
+        }
+        callback(errors,values)
       })
       // const { removeFormFields } = this.props
       // setTimeout(() => {

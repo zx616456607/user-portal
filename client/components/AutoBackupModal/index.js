@@ -34,7 +34,7 @@ class AutoBackupModal extends React.Component {
           if (database === 'redis') {
             // 如果有数据或者数据内的schedule字段不为空,说明开启了自动备份。把控制自动备份开关的state置为true
             if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
-              const schedule = res.data[0].schedule.split(' ')
+              const schedule = res.data[0].schedule.split(' ').slice(1) // 由于首位是0，表示秒，设置时未精确到秒，所以回显时舍弃秒
               const { days } = this.state
               const scheduleDays = schedule[4].split(',')
               this.differentiation(days, scheduleDays)
@@ -110,7 +110,7 @@ class AutoBackupModal extends React.Component {
     } = this.props
     const { hour, minutes, daysConvert } = this.state
     // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
-    const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
+    const schedule = `0 ${minutes} ${hour} * * ${daysConvert.join(',')}`
     this.setState({ pending: true })
     if (!this.state.autoBackupSwitch) {
       // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口

@@ -353,6 +353,7 @@ exports.addManagedProject = function* () {
       }
       break;
     case "svn":
+      body.address = encodeURI(body.address)
       if (body.is_private == 1) {
         if (!body.username || !body.password) {
           const err = new Error("username and password for private SVN repository are required")

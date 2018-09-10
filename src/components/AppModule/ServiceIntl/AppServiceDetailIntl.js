@@ -219,8 +219,9 @@ export const mapData = {
     envChangeSuccess: '环境变量修改成功！',
     envChangeFailure: '环境变量修改失败！',
     variableNameValueNotEmpty: '变量名和变量值均不能为空',
+    variableNameNotEmpty: '变量名不能为空',
     variableNameExist: '变量名已经存在，请修改！',
-    saveNewEnv: '请先保存新增的环境变量',
+    saveNewEnv: '请先保存variableNameValueNotEmpty新增的环境变量',
     envVariable: '环境变量',
     VariableNameCanNotEmpty: '变量名不能为空！',
     NoEnvVariable: '暂无环境变量',
@@ -530,8 +531,11 @@ export const mapData = {
     currentPlatformNoInstallIstio: '当前集群未安装 istio，请联系基础设施管理员安装',
     serviceMesh: '服务网格',
     afterOpenServiceInfo: '开通后， 此服务将由服务网格代理，使用微服务中心提供的治理功能',
-    projectOpenServiceMeshInfo: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能'
-    }
+    projectOpenServiceMeshInfo: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能',
+    selectInstance: '选择实例链接',
+    readWriteRight: '读取权限',
+    readWrite: '可读可写',
+  }
 }
 
 export default defineIntlMessages(mapData)

@@ -55,8 +55,11 @@ class Endpoints extends React.Component {
   loadTargets(query = {}) {
     const { getTargets, harbor } = this.props
     const { searchInput } = this.state
+    if (searchInput) {
+      query = Object.assign(query, {name: searchInput})
+    }
     query.harbor = harbor
-    getTargets(DEFAULT_REGISTRY, { name: searchInput }, query)
+    getTargets(DEFAULT_REGISTRY, query)
   }
 
   delTarget() {
@@ -191,14 +194,14 @@ class Endpoints extends React.Component {
       dataIndex: 'endpoint',
       key: 'endpoint',
     }, {
+      title: '验证远程证书',
+      dataIndex: 'insecure',
+      key: 'insecure',
+      render: text => <span>{(!text).toString()}</span>,
+    }, {
       title: '创建时间',
       dataIndex: 'creationTime',
       key: 'creationTime',
-      render: text => formatDate(text),
-    }, {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      key: 'updateTime',
       render: text => formatDate(text),
     }, {
       title: '操作',
@@ -218,7 +221,6 @@ class Endpoints extends React.Component {
         </div>
       )
     }]
-
     return (
       <div className="replications-endpoints">
         <div className="actions">

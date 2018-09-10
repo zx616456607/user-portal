@@ -289,6 +289,13 @@ class ContainerInstance extends React.Component {
           className="containerInstanceModal"
         >
           <div className="relateCont">
+            {
+              containerNum > 1 ?
+                <div className="podPrompt">
+                  目前仅支持一个实例固定 IP
+                </div>
+                : null
+            }
             <FormItem
               label="容器实例数量"
               {...formItemLayout}>

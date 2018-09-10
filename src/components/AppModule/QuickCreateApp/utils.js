@@ -128,6 +128,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     storageList, // 存储的配置列表
     // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
+    hostname,
     accessType, // 是否为负载均衡
     accessMethod, //访问方式
     publicNetwork, //公网出口
@@ -342,6 +343,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
 
   }
+  // 设置 hostname
+  deployment.setHostname(hostname)
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
