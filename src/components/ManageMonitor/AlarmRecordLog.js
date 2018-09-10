@@ -180,8 +180,10 @@ class AlarmRecord extends Component {
         records.push({
           createTime: r.alertTime,
           ruleName: r.ruleName,
+          ruleNum: r.ruleNum,
           serviceName: r.serviceName,
           numHits: r.numHits,
+          log: r.log,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
           targetName: r.targetName,
@@ -316,13 +318,19 @@ class AlarmRecord extends Component {
         }
       },
       {
-        title: '告警当前值',
-        dataIndex: 'numHits',
-      },
-      {
         title: '告警规则',
         dataIndex: 'regx',
-        render: (val, record) => <div>{record.regex ? record.regex : '已删除'}</div>
+        render: (val, record) => {
+          return <div>{record.regex ? `${record.regex} 已出现 ${record.ruleNum} 次` : '已删除'}</div>
+        }
+      },
+      {
+        title: '告警字符串',
+        dataIndex: 'log',
+      },
+      {
+        title: '当前次数',
+        dataIndex: 'numHits',
       },
       {
         title: '是否发送邮件',
@@ -405,7 +413,6 @@ function mapStateToProps(state, props) {
     recordFilters,
     records,
   } = state.alert
-
   let recordFiltersData = {
     strategies: [],
     targets: [],
@@ -425,6 +432,7 @@ function mapStateToProps(state, props) {
   if (records && records.result) {
     recordsData = records.result.data
   }
+
   return {
     recordFilters: recordFiltersData,
     records: recordsData,
