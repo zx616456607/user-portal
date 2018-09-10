@@ -226,10 +226,10 @@ class AlarmRecord extends Component {
     const { clusterID, loadServiceDetail, getHostInfo } = this.props;
     const notify = new NotificationHandler()
     if (!list.targetType) {
-      loadServiceDetail(clusterID, list.targetName, {
+      loadServiceDetail(clusterID, list.serviceName, {
         success: {
           func: () => {
-            browserHistory.push(`/app_manage/service?serName=${list.targetName}`)
+            browserHistory.push(`/app_manage/service?serName=${list.serviceName}`)
           },
           isAsync: true
         },
@@ -275,6 +275,7 @@ class AlarmRecord extends Component {
           if (isEmpty(result.data)) {
             notify.error('此策略不存在或者已被删除')
           } else {
+            return
             browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.service_name}&clusterID=${clusterID}`)
           }
         },
