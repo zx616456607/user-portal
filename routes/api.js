@@ -859,6 +859,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
   router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
