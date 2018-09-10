@@ -1,0 +1,129 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of app configuration
+ *
+ * @author zhangxuan
+ * @date 2018-09-07
+ */
+@import "../../../../../../src/assets/style/site/core";
+.middleware-configs-wrapper {
+  padding: @padding-medium;
+  .middleware-configs {
+    padding: @padding-medium;
+    background-color: white;
+    .has-error.has-feedback:after {
+      display: none;
+    }
+    .ant-form-item-required {
+      &:before {
+        display: none;
+      }
+    }
+    .ant-form-explain {
+      word-break: break-all !important;
+      height: auto !important;
+      white-space: normal !important;
+    }
+    .ant-form-item-label {
+      text-align: left;
+      label {
+        font-size: 14px;
+        padding-left: 25px;
+        &:after {
+          display: none;
+        }
+      }
+    }
+    .formItemLabel {
+      font-size: 14px;
+      padding-left: 25px;
+    }
+    .ant-form-item-control {
+      .ant-select-lg {
+        width: 100%;
+      }
+      .ant-select-lg .ant-select-selection--single .ant-select-selection__rendered {
+        line-height: 30px;
+        height: 30px;
+      }
+    }
+    .ant-collapse {
+      background-color: inherit !important;
+      border: 0 !important;
+      .ant-collapse-item {
+        border: 0 !important;
+      }
+      .ant-collapse-header {
+        position: relative;
+        padding: 0 !important;
+        i {
+          position: absolute;
+          margin-left: 96%;
+          margin-left: calc(~"98% - 30px");
+          font-size: 20px;
+        }
+        i:before {
+          content: "\e601" !important;
+        }
+      }
+      .ant-collapse-header[aria-expanded="true"] .arrow {
+        transform: scale(0.58333333) rotate(90deg) !important;
+      }
+      .ant-collapse-content {
+        clear: both;
+        padding: 0;
+      }
+    }
+    .configBoxHeader {
+      background-color: #f5f5f5;
+      height: 40px;
+      line-height: 40px;
+      .headerLeft {
+        position: relative;
+        clear: both;
+        .line {
+          margin-top: 12px;
+          float: left;
+          width: 5px;
+          height: 16px;
+          border-left: 5px solid #00a1ea;
+          margin-left: 10px;
+        }
+        .title {
+          padding-left: 10px;
+          width: 100px;
+          font-size: 16px;
+        }
+      }
+      .desc {
+        padding-top: 2px;
+        font-size: 12px;
+      }
+    }
+    .form-field-box {
+      padding: @padding-medium @padding-small;
+    }
+    .headerBox {
+      background-color: #f5f5f5;
+      .configBoxHeader {
+        background-color: transparent;
+      }
+    }
+    .lastFormItem {
+      margin-bottom: 0;
+    }
+    .clearBoth {
+      clear: both;
+    }
+    .footer {
+      text-align: right;
+      button {
+        margin-right: @padding-small;
+      }
+    }
+  }
+}
