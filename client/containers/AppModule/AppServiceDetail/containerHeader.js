@@ -107,6 +107,7 @@ class ContainerInstanceHeader extends React.Component {
             onChangeVisible = {this.onChangeVisible}
             onHandleCanleIp = {this.onHandleCanleIp}
             serviceDetail = {serviceDetail}
+            serviceName={service}
             isCheckIP={isCheckIP}
             isSee = {isSee}
             containerNum={containerNum}
