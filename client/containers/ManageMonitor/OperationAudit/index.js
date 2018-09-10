@@ -484,19 +484,19 @@ class OperationalAudit extends React.Component {
         title: '对象及类型',
         width: '10%',
         render: (val, row) => {
-          let resourceConfig
+
           try {
             JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.operationType)
-            resourceConfig = JSON.parse(row.resourceConfig)
+              || JSON.parse(row.resourceConfig).origin_id
           } catch (e) {
             row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }
           return <div>
             <div>类型：{formatTypeName(row.resourceType, filterData)}</div>
-            <Tooltip title={row.resourceName || resourceConfig && resourceConfig.origin_id}>
-              <div className="object">对象：{row.resourceName || resourceConfig && resourceConfig.origin_id}</div>
+            <Tooltip title={row.resourceName}>
+              <div className="object">对象：{row.resourceName}</div>
             </Tooltip>
           </div>
         },
