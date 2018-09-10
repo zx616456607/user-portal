@@ -60,7 +60,6 @@ function configGroupList(state = {}, action) {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.GET_CONFIG_FILES_SUCCESS:
-      debugger
       const getState = cloneDeep(state)
       const configFile1 = action.configName
       const cluster2 = action.cluster

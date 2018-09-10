@@ -15,7 +15,10 @@ import { connect } from 'react-redux'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import NotificationHandler from '../../components/Notification'
 import ConfigFileContent from './ConfigFileContent'
-import { getConfig } from '../../actions/configs'
+import { getConfig, updateConfig } from '../../actions/configs'
+import { getSecretsConfig } from '../../actions/secrets_devops'
+
+import  cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -39,11 +42,19 @@ let UpdateConfigFileModal = React.createClass({
   // },
   editConfigFile(group) {
     const parentScope = this.props.scope
+    const { updateConfig } = this.props
     const _this = this
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
+      const tempValues = cloneDeep(values)
+      if (tempValues.enable === true) {
+        tempValues.enable = 1
+      } else {
+        tempValues.enable = 0
+      }
+
       const { type, updateKeyIntoSecret } = this.props
       if (type === 'secrets') {
         return updateKeyIntoSecret(values)
@@ -54,7 +65,14 @@ let UpdateConfigFileModal = React.createClass({
         cluster: parentScope.props.cluster,
         desc: values.configDesc
       }
-      parentScope.props.updateConfigName(groups, {
+      const query = {
+        configmap_name: group,
+        cluster_id: parentScope.props.cluster,
+        config_name: parentScope.state.configName,
+      }
+      const body = tempValues
+      updateConfig(query, body, {
+      // parentScope.props.updateConfigName(groups, {
         success: {
           func: () => {
             parentScope.setState({
@@ -156,5 +174,7 @@ function mapStateToProps(state) {
 }
 export default connect(mapStateToProps,{
   getConfig,
+  getSecretsConfig,
+  updateConfig,
 })(UpdateConfigFileModal)
 

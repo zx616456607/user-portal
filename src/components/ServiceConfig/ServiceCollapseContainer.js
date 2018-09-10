@@ -12,7 +12,8 @@ import React, { Component, PropTypes } from 'react'
 import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
-import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile, getConfig } from '../../actions/configs'
+import { loadConfigName, updateConfigName, configGroupName,
+  deleteConfigName, changeConfigFile, getConfig, deleteConfig } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
 import { Link } from 'react-router'
@@ -132,8 +133,6 @@ class CollapseContainer extends Component {
   }
 
   editConfigModal(group, configName) {
-    // const groups = { group, Name: configName }
-
     const self = this
     const { cluster, getConfig } = this.props
     getConfig({
@@ -159,19 +158,6 @@ class CollapseContainer extends Component {
         isAsync: true
       }
     })
-    // this.props.loadConfigName(cluster, groups, {
-    //   success: {
-    //     func: (res) => {
-    //       self.setState({
-    //         modalConfigFile: true,
-    //         configName: configName,
-    //         configtextarea: res.data
-    //       })
-    //     },
-    //     isAsync: true
-    //   }
-    // })
-
   }
 
   setInputValue(e) {
@@ -183,41 +169,53 @@ class CollapseContainer extends Component {
   deleteConfigFile() {
     let configs = []
     configs.push(this.state.configName)
+    const self = this
+    const { parentScope, deleteConfig, cluster } = this.props
+    const { configGroup, configName } = this.state
     const groups = {
-      group: this.state.configGroup,
-      cluster: this.props.cluster,
+      group: configGroup,
+      cluster: cluster,
       configs
     }
-    const self = this
-    const {parentScope} = this.props
+    const query = {
+      configmap_name: configGroup,
+      cluster_id: cluster,
+      config_name: configName,
+    }
     let notification = new NotificationHandler()
     this.setState({delModal: false})
-    self.props.deleteConfigName(groups, {
+    // self.props.deleteConfigName(groups, {
+    deleteConfig(query, {
       success: {
         func: (res) => {
-          const errorText = []
-          if (res.message.length > 0) {
-            res.message.forEach(function (list) {
-              errorText.push({
-                name: list.name,
-                text: list.error
-              })
-            })
-            const content = errorText.map(list => {
-              return (
-                <h3>{list.name} ：{list.text}</h3>
-              )
-            })
-            Modal.warning({
-              title: '删除配置文件失败!',
-              content
-            })
-          } else {
+          // const errorText = []
+          // if (res.message.length > 0) {
+          //   res.message.forEach(function (list) {
+          //     errorText.push({
+          //       name: list.name,
+          //       text: list.error
+          //     })
+          //   })
+          //   const content = errorText.map(list => {
+          //     return (
+          //       <h3>{list.name} ：{list.text}</h3>
+          //     )
+          //   })
+          //   Modal.warning({
+          //     title: '删除配置文件失败!',
+          //     content
+          //   })
+          // } else {
             notification.success('删除配置文件成功')
-            self.props.configGroupName(groups)
-          }
+            self.props.loadData()
+          // }
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          notification.warn('删除配置失败')
+        }
       }
     })
 
@@ -426,6 +424,7 @@ export default connect(mapStateToProps, {
   loadConfigName,
   updateConfigName,
   deleteConfigName,
+  deleteConfig,
   configGroupName,
   loadAppList,
   getConfig,

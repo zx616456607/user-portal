@@ -270,11 +270,41 @@ export function getConfigMaps(query, callback) {
   }
 }
 
+export const CREATE_CONFIG_MAPS_REQUEST = 'CREATE_CONFIG_MAPS_REQUEST'
+export const CREATE_CONFIG_MAPS_SUCCESS = 'CREATE_CONFIG_MAPS_SUCCESS'
+export const CREATE_CONFIG_MAPS_FAILURE = 'CREATE_CONFIG_MAPS_FAILURE'
+
+export function fetchCreateConfigMaps(cluster_id, body, callback) {
+  return {
+    cluster: cluster_id,
+    [FETCH_API]: {
+      types: [
+        CREATE_CONFIG_MAPS_REQUEST,
+        CREATE_CONFIG_MAPS_SUCCESS,
+        CREATE_CONFIG_MAPS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function createConfigMaps(cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateConfigMaps(cluster_id, body, callback))
+  }
+}
+
 export const CREATE_CONFIG_REQUEST = 'CREATE_CONFIG_REQUEST'
 export const CREATE_CONFIG_SUCCESS = 'CREATE_CONFIG_SUCCESS'
 export const CREATE_CONFIG_FAILURE = 'CREATE_CONFIG_FAILURE'
 
-export function fetchCreateConfigMaps(configmap_name, cluster_id, body, callback) {
+export function fetchCreateConfig(configmap_name, cluster_id, body, callback) {
   return {
     [FETCH_API]: {
       types: [
@@ -293,9 +323,9 @@ export function fetchCreateConfigMaps(configmap_name, cluster_id, body, callback
   }
 }
 
-export function createConfigMaps(configmap_name, cluster_id, body, callback) {
+export function createConfig(configmap_name, cluster_id, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateConfigMaps(configmap_name, cluster_id, body, callback))
+    return dispatch(fetchCreateConfig(configmap_name, cluster_id, body, callback))
   }
 }
 
@@ -381,6 +411,91 @@ export function getConfig(query, callback) {
   }
 }
 
+export const DELETE_CONFIG_REQUEST = 'DELETE_CONFIG_REQUEST'
+export const DELETE_CONFIG_SUCCESS = 'DELETE_CONFIG_SUCCESS'
+export const DELETE_CONFIG_FAILURE = 'DELETE_CONFIG_FAILURE'
+
+export function fetchDelConfig(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        DELETE_CONFIG_REQUEST,
+        DELETE_CONFIG_SUCCESS,
+        DELETE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  }
+}
+
+export function deleteConfig(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelConfig(query, callback))
+  }
+}
+
+export const UPDATE_CONFIG_REQUEST = 'UPDATE_CONFIG_REQUEST'
+export const UPDATE_CONFIG_SUCCESS = 'UPDATE_CONFIG_SUCCESS'
+export const UPDATE_CONFIG_FAILURE = 'UPDATE_CONFIG_FAILURE'
+
+export function fetchUpdateConfig(query, body, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        UPDATE_CONFIG_REQUEST,
+        UPDATE_CONFIG_SUCCESS,
+        UPDATE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function updateConfig(query, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateConfig(query, body, callback))
+  }
+}
 
 
+export const DELETE_CONFIG_MAP_REQUEST = 'DELETE_CONFIG_MAP_REQUEST'
+export const DELETE_CONFIG_MAP_SUCCESS = 'DELETE_CONFIG_MAP_SUCCESS'
+export const DELETE_CONFIG_MAP_FAILURE = 'DELETE_CONFIG_MAP_FAILURE'
 
+export function fetchDelConfigMap(cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_CONFIG_MAP_REQUEST,
+        DELETE_CONFIG_MAP_SUCCESS,
+        DELETE_CONFIG_MAP_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function deleteConfigMap(cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelConfigMap(cluster_id, body, callback))
+  }
+}

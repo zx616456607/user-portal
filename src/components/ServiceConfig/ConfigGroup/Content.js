@@ -26,9 +26,9 @@ export default class ConfigGroupContent extends React.Component {
       group, openUpdateConfigFileModal, removeKeyFromSecret,
       secretOnUse,
     } = this.props
-    const { name, data = {}, createdAt } = group
+    const { name, data = [], createdAt } = group
     const { moreModalVisible, moreUseArray, moreKey } = this.state
-    if (Object.keys(data).length === 0) {
+    if (data.length === 0) {
       return (
         <div className='li' style={{ lineHeight: '60px', height: '10px' }}>
         未添加加密对象
@@ -39,7 +39,8 @@ export default class ConfigGroupContent extends React.Component {
       <Row className='file-list'>
         <Timeline>
           {
-            Object.keys(data).map(key => {
+            data.map(item => {
+              const key = item.name
               const useArray = secretOnUse[key] || []
               const useService = new Set()
               useArray.forEach(use => {
@@ -102,7 +103,7 @@ export default class ConfigGroupContent extends React.Component {
                             <Button
                               type='primary'
                               style={{ height: '30px', padding: '0 9px' }}
-                              onClick={openUpdateConfigFileModal.bind(this, name, key, data[key])}
+                              onClick={openUpdateConfigFileModal.bind(this, name, key)}
                             >
                               <Icon type='edit' />
                             </Button>

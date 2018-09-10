@@ -17,7 +17,8 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence, createConfigMaps } from "../../actions/configs"
+import { checkConfigNameExistence, createConfig } from "../../actions/configs"
+import { createSecretsConfig } from '../../actions/secrets_devops'
 import filter from 'lodash/filter'
 import cloneDeep from 'lodash/cloneDeep'
 import ConfigFileContent from './ConfigFileContent'
@@ -40,8 +41,8 @@ let CreateConfigFileModal = React.createClass({
     configName && configName.focus()
   },
   configNameExists(rule, value, callback) {
-    const { checkConfigNameExistence, type, data, activeGroupName } = this.props;
-    const form = this.props.form;
+    const { checkConfigNameExistence, type, data, activeGroupName,
+      configNameList, form} = this.props
     const _that = this
     if (!value) {
       callback([new Error('请输入配置文件名称')])
@@ -59,7 +60,6 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
       return
     }
-    return callback()
     clearTimeout(this.checkNameTimer)
     this.checkNameTimer = setTimeout(()=>{
       if(type === 'secrets' && !!data && !!activeGroupName) {
@@ -70,27 +70,28 @@ let CreateConfigFileModal = React.createClass({
           callback()
         }
       } else {
-        checkConfigNameExistence({
-          projectsName: value
-        },{
-          success: {
-            func: res => {
-              if (res.data === false) {
-                callback()
-              } else if (res.data === true) {
-                callback([new Error('该名称已存在')])
-                return
-              }
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              callback()
-            },
-            isAsync: true
-          }
-        })
+        filter(configNameList, { name: value })[0] ? callback([new Error('该名称已存在')]) : callback()
+        // checkConfigNameExistence({
+        //   projectsName: value
+        // },{
+        //   success: {
+        //     func: res => {
+        //       if (res.data === false) {
+        //         callback()
+        //       } else if (res.data === true) {
+        //         callback([new Error('该名称已存在')])
+        //         return
+        //       }
+        //     },
+        //     isAsync: true
+        //   },
+        //   failed: {
+        //     func: () => {
+        //       callback()
+        //     },
+        //     isAsync: true
+        //   }
+        // })
       }
     },ASYNC_VALIDATOR_TIMEOUT)
   },
@@ -107,7 +108,7 @@ let CreateConfigFileModal = React.createClass({
   },
 
   createConfigFile(group) {
-    const { createConfigMaps, scope: parentScope } = this.props
+    const { createConfig, scope: parentScope } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -120,9 +121,6 @@ let CreateConfigFileModal = React.createClass({
       }
 
       const { type, addKeyIntoSecret, cluster } = this.props
-      if (type === 'secrets') {
-        return addKeyIntoSecret(values)
-      }
       let configfile = {
         group,
         cluster,
@@ -133,8 +131,11 @@ let CreateConfigFileModal = React.createClass({
       let self = this
       // const {parentScope} = this.props
       let notification = new NotificationHandler()
+      if (type === 'secrets') {
+        return createSecretsConfig(group, cluster, tempValues)
+      }
       //parentScope.props.createConfigFiles(configfile, {
-      createConfigMaps( group, cluster, tempValues, {
+      createConfig( group, cluster, tempValues, {
         success: {
           func: () => {
             notification.success('创建配置文件成功')
@@ -186,9 +187,8 @@ let CreateConfigFileModal = React.createClass({
     })
   },
   render() {
-    const { type, form } = this.props
+    const { type, form, configNameList, scope: parentScope } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
-    const parentScope = this.props.scope
     const { filePath, tempConfigDesc } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
@@ -248,6 +248,7 @@ let CreateConfigFileModal = React.createClass({
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
+                configNameList={configNameList}
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
@@ -269,5 +270,5 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, createConfigMaps
+  checkConfigNameExistence, createConfig
 })(CreateConfigFileModal)

@@ -24,7 +24,7 @@ import remove from 'lodash/remove'
 import {
   loadConfigGroup, configGroupName, createConfigGroup,
   deleteConfigGroup, updateConfigAnnotations,
-  checkConfigNameExistence, getConfigMaps, fetchConfigMaps,
+  checkConfigNameExistence, getConfigMaps, fetchConfigMaps, fetchCreateConfigMaps
 } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
@@ -118,6 +118,7 @@ class CollapseList extends Component {
         <Collapse.Panel
           header={
             <CollapseHeader
+              loadConfigGroup={this.props.loadConfigGroup}
               parentScope={scope}
               grandScope={grandScope}
               btnDeleteGroup={this.props.btnDeleteGroup}
@@ -132,6 +133,7 @@ class CollapseList extends Component {
           key={group.name}
           >
           <CollapseContainer
+            loadData={this.props.loadData}
             parentScope={scope}
             collapseContainer={group.configList}
             groupname={group.name} />
@@ -374,9 +376,10 @@ class Service extends Component {
               </Button>
               <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value && value.trim()})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
+                loadData={this.loadData}
                 scope={this}
                 cluster={cluster}
-                loadConfigGroup={this.props.getConfigMaps}
+                loadConfigGroup={this.loadData}
                 groupData={configGroup}
                 configName={configName}
                 btnDeleteGroup={this.btnDeleteGroup}
@@ -456,8 +459,9 @@ function mapDispatchToProps(dispatch) {
     getConfigMaps: (query, callback) => {
       dispatch(fetchConfigMaps(query, callback))
     },
-    createConfigGroup: (obj, callback) => {
-      dispatch(createConfigGroup(obj, callback))
+    createConfigGroup: (cluster_id, body, callback) => {
+      // dispatch(createConfigGroup(obj, callback))
+      dispatch(fetchCreateConfigMaps(cluster_id, body, callback))
     },
     deleteConfigGroup: (obj, callback) => {
       dispatch(deleteConfigGroup(obj, callback))

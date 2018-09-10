@@ -27,7 +27,7 @@ const FormItem = Form.Item
 
 class ConfigFileContent extends React.Component {
   state = {
-    readOnly: false,
+    readOnly: (!!this.props.method && this.props.method === 2) || false,
     method: this.props.method || 1,
     btnLoading: false,
     fetchStatus: false,
@@ -201,7 +201,7 @@ class ConfigFileContent extends React.Component {
     })
   }
   render() {
-    const { descProps, filePath, form, defaultData } = this.props
+    const { descProps, filePath, form, defaultData, configNameList } = this.props
     const { projectId, defaultBranch, path, enable } = defaultData || {}
     const { readOnly, btnLoading, fetchStatus, projects, branches, isNeedSet } = this.state
     const { getFieldProps, getFieldValue } = form
@@ -240,6 +240,7 @@ class ConfigFileContent extends React.Component {
         valuePropName: 'checked',
       }
     )}
+    // console.log("configNameList", configNameList)
     return(
       <div className="configFileContent">
         <div>导入或直接输入配置文件</div>

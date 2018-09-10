@@ -29,12 +29,13 @@ let CreateConfigModal = React.createClass({
         return
       }
       let configs = {
-        groupName: groupEdit ? currentGroup : groupName,
-        cluster,
-        configlabels:groupSort.toString()
+        // groupName: groupEdit ? currentGroup : groupName,
+        // cluster,
+        // configlabels:groupSort.toString()
       }
       if (!groupEdit) {
-        parentScope.props.createConfigGroup(configs, {
+        // data: configMaps -> configs
+        parentScope.props.createConfigGroup(cluster, { name: groupName, configlabels: groupSort, data: []}, {
           success: {
             func: () => {
               notification.success('创建成功')
@@ -46,7 +47,7 @@ let CreateConfigModal = React.createClass({
           },
           failed: {
             func: (res) => {
-              parentScope.setState({ createModal: false })
+              // parentScope.setState({ createModal: false })
               let errorText
               if(isResourcePermissionError(res)){
                 //403 没权限判断 在App/index中统一处理 这里直接返回

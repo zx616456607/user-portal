@@ -318,11 +318,25 @@ module.exports = function (Router) {
 
   // configs by devops
   router.get('/devops/configmaps/clusters/:cluster_id', devopsController.getConfigMaps)
-  router.get('/devops/managed-projects/:project_id/branches', devopsController.getGitProjects)
-  router.post('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs', devopsController.createConfig)
-  router.get('/devops/configmaps/projects/:project_id/branches/:branch_name/path/:path_name/files', devopsController.getGitProjectsFileContent)
+  router.post('/devops/configmaps/clusters/:cluster_id', devopsController.createConfigMaps)
+  router.del('/devops/configmaps/clusters/:cluster_id', devopsController.delConfigMap)
   router.put('/devops/configmaps/:configmap_name/clusters/:cluster_id', devopsController.setConfigLabels)
+  router.post('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs', devopsController.createConfig)
   router.get('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.getConfig)
+  router.del('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.delConfig)
+  router.put('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.updateConfig)
+  router.get('/devops/managed-projects/:project_id/branches', devopsController.getGitProjectsBranches)
+  router.get('/devops/configmaps/projects/:project_id/branches/:branch_name/path/:path_name/files', devopsController.getGitProjectsFileContent)
+
+  // Secrets by devops
+  router.get('/devops/secrets/clusters/:cluster_id', devopsController.getSecrets)
+  router.post('/devops/secrets/clusters/:cluster_id', devopsController.createSecrets)
+  router.del('/devops/secrets/clusters/:cluster_id', devopsController.delSecret)
+  router.post('/devops/secrets/:secret_name/clusters/:cluster_id/configs', devopsController.createSecretsConfig)
+  router.get('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.getSecretsConfig)
+  router.del('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.delSecretsConfig)
+  router.put('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.updateSecretsConfig)
+
 
   // Secrets config
   router.post('/clusters/:clusterID/secrets/:groupName', secretsController.createGroup)
