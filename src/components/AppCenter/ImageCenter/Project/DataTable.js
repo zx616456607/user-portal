@@ -148,7 +148,7 @@ class DataTable extends Component {
         //],
         //filteredValue: filteredInfo.public,
         //onFilter: (value, record) => record.public == value,
-        render: (text, record) => this.getIsPublicText(record, formatMessage(repoGroupListIntl.privateType), formatMessage(repoGroupListIntl.publicType))
+        render: (text, record) => this.getIsPublicText(record, formatMessage(repoGroupListIntl.publicType), formatMessage(repoGroupListIntl.privateType))
       },
       {
         title: formatMessage(repoGroupListIntl.myRole),
