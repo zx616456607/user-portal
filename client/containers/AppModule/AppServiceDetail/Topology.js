@@ -59,28 +59,30 @@ class Topology extends React.Component {
         color: '#5db75d',
         onClick: this.onClickNode,
       })
-    })
-    pod.forEach(item => {
-      nodes.push({
-        id: item.metadata.name,
-        label: <div title={item.metadata.name}>{item.metadata.name}</div>,
-        labelMinor: item.spec.nodeName || 'None',
-        width: 50,
-        height: 50,
-        // size: 130,
-        isAnimated: true,
-        shape: 'circle',
-        color: '#5db75d',
-        onClick: this.onClickNode,
-      })
-      edges.push({
-        source: item.metadata.labels.name,
-        target: item.metadata.name,
-        // withArrow: true,
-        // arrowOffset: 38,
-        // label: 'service',
-        isAnimated: true,
-        // color: '#5db75d',
+      pod.forEach(ele => {
+        if (item.metadata.name === ele.metadata.labels['tenxcloud.com/svcName']) {
+          nodes.push({
+            id: ele.metadata.name,
+            label: <div title={ele.metadata.name}>{ele.metadata.name}</div>,
+            labelMinor: ele.spec.nodeName || 'None',
+            width: 50,
+            height: 50,
+            // size: 130,
+            isAnimated: true,
+            shape: 'circle',
+            color: '#5db75d',
+            onClick: this.onClickNode,
+          })
+          edges.push({
+            source: ele.metadata.labels.name,
+            target: ele.metadata.name,
+            // withArrow: true,
+            // arrowOffset: 38,
+            // label: 'service',
+            isAnimated: true,
+            // color: '#5db75d',
+          })
+        }
       })
     })
     return { nodes, edges }
