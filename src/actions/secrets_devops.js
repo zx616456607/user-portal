@@ -46,7 +46,6 @@ export const CREATE_SECRETS_SUCCESS = 'CREATE_SECRETS_SUCCESS'
 export const CREATE_SECRETS_FAILURE = 'CREATE_SECRETS_FAILURE'
 
 export function fetchCreateSecrets(cluster_id, body, callback) {
-  debugger
   return {
     cluster: cluster_id,
     [FETCH_API]: {

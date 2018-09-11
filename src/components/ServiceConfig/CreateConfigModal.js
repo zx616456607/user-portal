@@ -29,13 +29,13 @@ let CreateConfigModal = React.createClass({
         return
       }
       let configs = {
-        // groupName: groupEdit ? currentGroup : groupName,
-        // cluster,
-        // configlabels:groupSort.toString()
+        groupName: groupEdit ? currentGroup : groupName,
+        cluster,
+        configlabels:groupSort.toString()
       }
       if (!groupEdit) {
-        // data: configMaps -> configs
-        parentScope.props.createConfigGroup(cluster, { name: groupName, configlabels: groupSort, data: []}, {
+        // data: configMaps -> configs -> revert configs
+        parentScope.props.createConfigGroup(configs, { // cluster, { name: groupName, configlabels: groupSort, data: []}, {
           success: {
             func: () => {
               notification.success('创建成功')
@@ -66,8 +66,8 @@ let CreateConfigModal = React.createClass({
           }
         })
       } else {
-       // updateConfigAnnotations(configs,{
-        setConfigMapLabel(currentGroup, cluster, { configlabels: groupSort }, {
+        updateConfigAnnotations(configs,{
+        // setConfigMapLabel(currentGroup, cluster, { configlabels: groupSort }, {
           success: {
             func: res => {
               notification.success('修改分类成功')
@@ -160,12 +160,12 @@ let CreateConfigModal = React.createClass({
     const { configGroup, labelWithCount, visible } = this.props
     const { currentGroup, groupEdit } = parentScope.state;
     const curr = filter(configGroup, { name: currentGroup })[0]
-    let currentSortArray = curr && curr.configlabels || []
-    // configGroup.length > 0 && configGroup.forEach(item => {
-    //   if ((item.name === currentGroup) && item.annotations && item.annotations.length) {
-    //     currentSortArray = item.annotations
-    //   }
-    // })
+    let currentSortArray = [] // curr && curr.configlabels || []
+    configGroup.length > 0 && configGroup.forEach(item => {
+      if ((item.name === currentGroup) && item.annotations && item.annotations.length) {
+        currentSortArray = item.annotations
+      }
+    })
     const nameProps = getFieldProps('newConfigName', {
       rules: [
         { validator: this.configNameExists },

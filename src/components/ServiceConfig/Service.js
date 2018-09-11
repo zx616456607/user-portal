@@ -194,7 +194,8 @@ class Service extends Component {
     })
     const self = this
     setTimeout(() => {
-      document.getElementById('newConfigName').focus()
+      const ele = document.getElementById('newConfigName')
+      ele && ele.focus()
     },100)
     setTimeout(function () {
       if (self.focusInput) {
@@ -292,7 +293,7 @@ class Service extends Component {
   }
   render() {
     const {cluster, configGroup, isFetching, configName, labelWithCount, updateConfigAnnotations} = this.props
-    const { configList, filterName, searchValue, noAnnotations } = this.state;
+    const { configList, filterName, searchValue, noAnnotations, createModal } = this.state;
     let noAnnotationsLength = 0
     configGroup.length > 0 && configGroup.forEach(item => {
       if (!item.annotations.length) {
@@ -316,7 +317,7 @@ class Service extends Component {
         <div id="Service" key="Service">
           <Title title="服务配置" />
           {/*创建配置组-弹出层-start*/}
-          <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
+          {createModal && <CreateConfigModal visible={createModal} scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>}
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置组操作" visible={this.state.delModal}

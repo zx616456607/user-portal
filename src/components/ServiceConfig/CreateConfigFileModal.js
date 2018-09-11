@@ -18,7 +18,9 @@ import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
 import { checkConfigNameExistence, createConfig } from "../../actions/configs"
-import { createSecretsConfig } from '../../actions/secrets_devops'
+// import { createSecretsConfig } from '../../actions/secrets_devops'
+import { createSecret } from '../../actions/secrets'
+
 import filter from 'lodash/filter'
 import cloneDeep from 'lodash/cloneDeep'
 import ConfigFileContent from './ConfigFileContent'
@@ -71,27 +73,6 @@ let CreateConfigFileModal = React.createClass({
         }
       } else {
         filter(configNameList, { name: value })[0] ? callback([new Error('该名称已存在')]) : callback()
-        // checkConfigNameExistence({
-        //   projectsName: value
-        // },{
-        //   success: {
-        //     func: res => {
-        //       if (res.data === false) {
-        //         callback()
-        //       } else if (res.data === true) {
-        //         callback([new Error('该名称已存在')])
-        //         return
-        //       }
-        //     },
-        //     isAsync: true
-        //   },
-        //   failed: {
-        //     func: () => {
-        //       callback()
-        //     },
-        //     isAsync: true
-        //   }
-        // })
       }
     },ASYNC_VALIDATOR_TIMEOUT)
   },
@@ -108,7 +89,8 @@ let CreateConfigFileModal = React.createClass({
   },
 
   createConfigFile(group) {
-    const { createConfig, scope: parentScope } = this.props
+    const { createConfig, scope: parentScope, createSecret,
+      activeGroupName } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -120,7 +102,7 @@ let CreateConfigFileModal = React.createClass({
         tempValues.enable = 0
       }
 
-      const { type, addKeyIntoSecret, cluster } = this.props
+      const { type, cluster, addKeyIntoSecret } = this.props
       let configfile = {
         group,
         cluster,
@@ -132,7 +114,10 @@ let CreateConfigFileModal = React.createClass({
       // const {parentScope} = this.props
       let notification = new NotificationHandler()
       if (type === 'secrets') {
-        return createSecretsConfig(group, cluster, tempValues)
+        return addKeyIntoSecret({
+          configName: values.name,
+          configDesc: tempValues.data,
+        })
       }
       //parentScope.props.createConfigFiles(configfile, {
       createConfig( group, cluster, tempValues, {
@@ -270,5 +255,5 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, createConfig
+  checkConfigNameExistence, createConfig, createSecret
 })(CreateConfigFileModal)

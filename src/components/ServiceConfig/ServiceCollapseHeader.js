@@ -19,6 +19,7 @@ import NotificationHandler from '../../components/Notification'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
 import { validateK8sResource } from '../../common/naming_validation'
 import CreateConfigFileModal from './CreateConfigFileModal'
+import filter from 'lodash/filter'
 
 const ButtonGroup = Button.Group
 
@@ -102,14 +103,17 @@ class CollapseHeader extends Component {
     }
   }
   render() {
-    const {collapseHeader } = this.props
-    const {sizeNumber, modalConfigFile} = this.state
+    const { collapseHeader, configMapList } = this.props
+    const { sizeNumber, modalConfigFile } = this.state
+    const currConfigMap = filter(configMapList, { name: collapseHeader.name })[0]
+    const realConfigNameList = currConfigMap ? currConfigMap.configs : []
+
     const menu = (
       <Menu onClick={this.menuClick.bind(this)} mode="vertical">
         <Menu.Item key="1"><Icon type="delete"/> 删除配置组</Menu.Item>
         <Menu.Item key="2"><i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"/> 修改分类</Menu.Item>
       </Menu>
-    );
+    )
     return (
       <Row>
         <Col className="group-name textoverflow" span="6">
@@ -136,7 +140,7 @@ class CollapseHeader extends Component {
           {/*添加配置文件-弹出层-start*/}
           {
             modalConfigFile &&
-            <CreateConfigFileModal scope={this} visible = {modalConfigFile} groupName={collapseHeader.name}/>
+            <CreateConfigFileModal configNameList={realConfigNameList} scope={this} visible = {modalConfigFile} groupName={collapseHeader.name}/>
           }
           {/*添加配置文件-弹出层-end*/}
 
@@ -178,7 +182,8 @@ function mapStateToProps(state, props) {
     configFiles,
     cluster,
     isFetching,
-    configNameList
+    configNameList,
+    configMapList: configGroupList[cluster.clusterID].configGroup
   }
 }
 
