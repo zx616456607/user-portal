@@ -32,6 +32,7 @@ import {
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
+import light from '../../../../assets/img/light.svg'
 
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
@@ -1160,7 +1161,7 @@ class ImageUpdate extends Component {
       return (
         <span>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             手动点击触发同步
           </div>
         </span>
@@ -1181,7 +1182,7 @@ class ImageUpdate extends Component {
             </Checkbox>
           </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             push 镜像自动触发同步
           </div>
         </span>
@@ -1227,7 +1228,7 @@ class ImageUpdate extends Component {
             </span>
           </span>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             定时触发同步
           </div>
         </span>
@@ -1713,6 +1714,7 @@ class ImageUpdate extends Component {
                         <Form.Item>
                           <Input
                             size="large"
+                            placeholder="请输入镜像名称"
                             {
                               ...getFieldProps('repositoryPattern',{
                                 rules: [
@@ -1753,6 +1755,7 @@ class ImageUpdate extends Component {
                         <Form.Item>
                           <Input
                             size="large"
+                            placeholder="请输入镜像版本"
                             {
                               ...getFieldProps('tagPattern',{
                                 rules: [

@@ -138,7 +138,7 @@ const UpsertModal = React.createClass({
     })
     const usernameProps = getFieldProps('username')
     const passwordProps = getFieldProps('password')
-    const text = "确定镜像复制是否要验证远程Harbor实例的证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
+    const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
     return (
       <Modal
         title={mode === 'create' ? '添加目标' : '编辑目标'}
@@ -194,7 +194,7 @@ const UpsertModal = React.createClass({
             {...formItemLayout}
             label="目标 URL"
           >
-            <Input {...endpointProps} placeholder="请输入目标 URL" disabled={disabled} />
+            <Input {...endpointProps} placeholder="请输入目标 URL，如： http(s)://192.168.1.232" disabled={disabled} />
           </FormItem>
           <FormItem
             {...formItemLayout}
