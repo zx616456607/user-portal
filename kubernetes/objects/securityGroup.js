@@ -12,6 +12,7 @@ const RuleTypeService = 'service'
 const RuleTypeHAProxy = 'haproxy'
 const RuleTypeIngress = 'ingress'
 const RuleTypeNamespace = 'namespace'
+const RuleTypeDAAS = 'daas'
 
 function parseNetworkPolicy(policy) {
   const result = {
@@ -32,7 +33,6 @@ function parseNetworkPolicy(policy) {
       const peer = from[i]
       const rule = peerToRule(peer)
       const hasKeys = Object.keys(rule).length
-      // console.log( hasKeys, rule )
       if (hasKeys) {
         result.ingress.push(rule)
       }
@@ -48,7 +48,6 @@ function parseNetworkPolicy(policy) {
       const peer = to[i]
       const rule = peerToRule(peer)
       const hasKeys = Object.keys(rule).length
-      // console.log( hasKeys )
       if (hasKeys) {
         result.egress.push(rule)
       }
@@ -137,9 +136,10 @@ function peerToRule(peer) {
     if (serviceName) {
       rule.type = RuleTypeService
       rule.serviceName = serviceName
-      if (namespace) {
-        rule.namespace = namespace
-      }
+    }
+    if (namespace) {
+      rule.type = RuleTypeNamespace
+      rule.namespace = namespace
     }
     if (matchLabels.name === 'service-proxy' && namespace === 'kube-system') {
       rule.type = RuleTypeHAProxy
@@ -149,9 +149,13 @@ function peerToRule(peer) {
       rule.type = RuleTypeIngress
       rule.ingressId = lb
     }
-  } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
-    rule.type = RuleTypeNamespace
-    rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
+    const daasType = matchLabels['system/daas-type']
+    if (daasType) {
+      rule.type = RuleTypeDAAS
+      rule.namespace = namespace
+      rule.daasName = matchLabels['system/daas-cluster']
+      rule.daasType = daasType
+    }
   }
   return rule
 }
@@ -169,29 +173,29 @@ function ruleToPeer(rule) {
     }
     return peer
   } else if (type === RuleTypeService) {
-    const peer = {
+    return {
       podSelector: {
         matchLabels: {
           'tenxcloud.com/svcName': rule.serviceName,
         },
       },
     }
-    if (rule.namespace) {
-      peer.namespaceSelector = {
-        matchLabels: {
-          'system/namespace': rule.namespace,
-        },
-      }
-    }
-    return peer
   } else if (type === RuleTypeNamespace) {
-    return {
+    const peer = {
       namespaceSelector: {
         matchLabels: {
           'system/namespace': rule.namespace,
         },
       },
     }
+    if (rule.serviceName) {
+      peer.podSelector = {
+        matchLabels: {
+          'tenxcloud.com/svcName': rule.serviceName,
+        },
+      }
+    }
+    return peer
   } else if (type === RuleTypeHAProxy) {
     return {
       podSelector: {
@@ -213,6 +217,23 @@ function ruleToPeer(rule) {
         },
       },
     }
+  } else if (type === RuleTypeDAAS) {
+    const peer = {
+      podSelector: {
+        matchLabels: {
+          'system/daas-cluster': rule.daasName,
+          'system/daas-type': rule.daasType,
+        },
+      },
+    }
+    if (rule.namespace) {
+      peer.namespaceSelector = {
+        matchLabels: {
+          'system/namespace': rule.namespace,
+        },
+      }
+    }
+    return peer
   }
 }
 

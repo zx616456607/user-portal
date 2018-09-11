@@ -33,6 +33,7 @@ import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import { Link } from 'react-router'
+import TenxIcon from '@tenx-ui/icon'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -1677,6 +1678,185 @@ let StorageService = React.createClass({
   }
 })
 
+// ai 深度学习
+class AiDeepLearning extends React.Component {
+
+  state = {
+    disable: true,
+  }
+
+  componentDidMount = () => {
+    this.setConfigForm()
+  }
+
+  setConfigForm = () => {
+    const { config } = this.props
+    const { configDetail, configID, detail } = config
+    const configDate = configDetail && JSON.parse(configDetail) || detail
+    const { apiVersion, host, protocol } = configDate
+    const { setFieldsValue } = this.props.form
+    setFieldsValue({
+      aiApi: `${protocol}://${host}`,
+      apiVersion,
+    })
+    if (configID) {
+      setFieldsValue({
+        configID,
+      })
+    }
+  }
+
+  handlSave = () => {
+    this.props.form.validateFields((error, values) => {
+      if (error) return
+      const { aiApi, apiVersion, configID } = values
+      const protocol = aiApi.split('://')[0]
+      const host = aiApi.split('://')[1]
+      const body = {
+        detail: {
+          protocol,
+          host,
+          apiVersion
+        }
+      }
+      if (configID) {
+        body.configID = configID
+      }
+      const { saveGlobalConfig, cluster, form } = this.props
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      saveGlobalConfig(cluster.clusterID, 'ai', body, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('Ai 深度学习配置保存成功')
+            this.changeDisable()
+            this.props.setGlobalConfig('ai', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let aiMsg
+            if (err.message.message) {
+              aiMsg = err.message.message
+            } else {
+              aiMsg = err.message
+            }
+            notification.error('Ai 深度学习配置保存失败', aiMsg)
+          }
+        }
+      })
+
+    })
+
+  }
+
+  handleCandle = () => {
+    this.setConfigForm()
+    this.changeDisable()
+  }
+
+  changeDisable = () => {
+    this.setState({
+      disable: !this.state.disable,
+    })
+  }
+
+  checkUrl = (rule, value, callback) => {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写 AI 深度学习服务地址')])
+      return
+    }
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?(\/)?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/)?$/.test(value)) {
+      callback([new Error('请填入 AI 深度学习服务地址')])
+      return
+    }
+    callback()
+  }
+
+  checkVersion = (rule, value, callback) => {
+    if (!value) {
+      return callback([new Error('请填写 apiVersion 地址')])
+    }
+    callback()
+  }
+
+  render() {
+    const { disable } = this.state
+    const { form, config } = this.props
+    const { getFieldProps } = form
+    const aiApiProps = getFieldProps('aiApi', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+    })
+    const apiVersionProps = getFieldProps('apiVersion', {
+      rules: [
+        { validator: this.checkVersion }
+      ],
+      initialValue: 'v3',
+    })
+    const aiID = getFieldProps('configID', {
+      initialValue: config ? config.configID : ''
+    })
+    return (
+      <div className="AiDeepLearning">
+        <div className="title">AI 深度学习</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <TenxIcon type="ai" size="86"/>
+            </div>
+            <div className="contentkeys">
+              <div className="key">AI 深度学习地址</div>
+              <div className="key">apiVersion 地址</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem>
+                  <Input {...aiApiProps} placeholder="如：http://192.168.1.59:61088" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...apiVersionProps} placeholder="如：v3" disabled={disable} />
+                </FormItem>
+                {
+                  disable ?
+                    <FormItem>
+                      <Button
+                        type="primary"
+                        onClick={this.changeDisable}
+                      >
+                        编辑
+                      </Button>
+                    </FormItem>
+                    :
+                    <FormItem>
+                      <Button
+                        onClick={this.handleCandle}
+                        style={{ marginRight: 12 }}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={this.handlSave}
+                      >
+                        保存
+                      </Button>
+                    </FormItem>
+                }
+                <input type="hidden" {...aiID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 //持续集成
 let Continue = React.createClass({
   getInitialState() {
@@ -1730,6 +1910,7 @@ ChartServer = Form.create()(ChartServer)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
+AiDeepLearning = Form.create()(AiDeepLearning)
 
 
 class GlobalConfig extends Component {
@@ -1769,6 +1950,10 @@ class GlobalConfig extends Component {
         {
           id: 'mirrorservice',
           name: '默认 Harbor',
+        },
+        {
+          id: 'AiDeepLearning',
+          name: 'AI 深度学习',
         },
         {
           id: 'conInter',
@@ -1951,6 +2136,15 @@ class GlobalConfig extends Component {
               config={globalConfig.chart_repo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
+            <AiDeepLearning
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              loadGlobalConfig={loadGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.ai}
+            />
             {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
             <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
             <Continue />

@@ -589,7 +589,8 @@ let CreateDatabase = React.createClass({
         {statefulAppOptions}
       </Select>
     )
-
+    const clusterModeTxt = database === 'mysql'? '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡' :
+      '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统可将所有的读请求分摊到所有备节点'
     return (
       <QueueAnim>
         <div id='CreateDatabase' key="createDatabase">
@@ -670,7 +671,7 @@ let CreateDatabase = React.createClass({
                     <FormItem>
                       <Radio.Group {...clusterModeProps}>
                         <Radio value="single" key="2">
-                          <Tooltip title="提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡">
+                          <Tooltip title={clusterModeTxt}>
                             <span>一主多从</span>
                           </Tooltip>
                         </Radio>

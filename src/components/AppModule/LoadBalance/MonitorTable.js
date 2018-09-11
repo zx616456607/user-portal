@@ -17,6 +17,7 @@ import { loadServiceDetail } from '../../../actions/services'
 import './style/MonitorTable.less'
 import AppServiceEvent from '../AppServiceDetail/AppServiceEvent'
 import TcpUdpTable from './TcpUdpTable'
+import WhitelistTable from './WhitelistTable'
 
 const TabPane = Tabs.TabPane
 class MonitorTable extends React.Component {
@@ -132,7 +133,7 @@ class MonitorTable extends React.Component {
   }
   render() {
     const { deleteModal, delConfirmLoading, copyIngress, current } = this.state
-    const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name } = this.props
+    const { togglePart, lbDetail, changeTabs, activeKey, clusterID, name, location } = this.props
     const { ingress } = lbDetail || { ingress: [] }
     const pagination = {
       simple: true,
@@ -231,6 +232,12 @@ class MonitorTable extends React.Component {
             <TcpUdpTable
               type="UDP"
               {...{ togglePart, clusterID, name }}
+            />
+          </TabPane>
+          <TabPane tab="白名单" key="WHITELIST">
+            <WhitelistTable
+              type="WHITELIST"
+              {...{ clusterID, name, lbDetail, location }}
             />
           </TabPane>
           <TabPane tab="事件" key="event">
