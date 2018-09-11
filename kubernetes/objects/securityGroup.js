@@ -152,9 +152,9 @@ function peerToRule(peer) {
     const daasType = matchLabels['system/daas-type']
     if (daasType) {
       rule.type = RuleTypeDAAS
-      rule.namespace = namespace // 可为空
-      rule.daasName = matchLabels['system/daas-cluster'] // [] 服务
-      rule.daasType = daasType   // type   mysql/redis
+      rule.namespace = namespace
+      rule.daasName = matchLabels['system/daas-cluster']
+      rule.daasType = daasType
     }
   } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
     rule.type = RuleTypeNamespace

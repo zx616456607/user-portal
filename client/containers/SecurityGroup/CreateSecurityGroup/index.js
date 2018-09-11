@@ -176,8 +176,6 @@ class CreateSecurityGroup extends React.Component {
                 except: [ values[`egress${type}${el}except`] ],
               })
             case 'service':
-            case 'mysql':
-            case 'redis':
               return egList.push({
                 type: 'service',
                 serviceName: values[`egress${type}${el}`],
@@ -185,9 +183,15 @@ class CreateSecurityGroup extends React.Component {
             case 'namespace':
               return egList.push({
                 type: 'namespace',
-                namespace: values[`egress${type}${el}`],
                 serviceName: values[`egress${type}${el}server`]
                   && values[`egress${type}${el}server`].split(','),
+              })
+            case 'mysql':
+            case 'redis':
+              return egList.push({
+                type: 'daas',
+                daasName: values[`egress${type}${el}`],
+                daasType: values[`egress${el}`],
               })
             default:
               return null

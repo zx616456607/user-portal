@@ -122,6 +122,11 @@ class AddWhiteList extends React.Component {
               [`egresscidr${ind}`]: item.cidr,
               [`egresscidr${ind}except`]: item.except[0] || null,
             })
+          case 'daas':
+            return setFieldsValue({
+              [`egress${ind}`]: item.daasType,
+              [`egress${item.daasType}${ind}`]: item.daasName,
+            })
           default:
             return null
         }
