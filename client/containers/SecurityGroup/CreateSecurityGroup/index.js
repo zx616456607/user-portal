@@ -150,6 +150,8 @@ class CreateSecurityGroup extends React.Component {
               return ingList.push({
                 type: 'namespace',
                 namespace: values[`ingress${type}${el}`],
+                serviceName: values[`ingress${type}${el}server`]
+                  && values[`ingress${type}${el}server`].split(','),
               })
             default:
               return null
@@ -184,6 +186,8 @@ class CreateSecurityGroup extends React.Component {
               return egList.push({
                 type: 'namespace',
                 namespace: values[`egress${type}${el}`],
+                serviceName: values[`egress${type}${el}server`]
+                  && values[`egress${type}${el}server`].split(','),
               })
             default:
               return null
