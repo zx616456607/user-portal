@@ -49,11 +49,11 @@ function configGroupList(state = {}, action) {
       const index1 = findIndex(configGroup.configGroup, item => {
         return item.name === configFile.group
       })
-      configGroup.configGroup[index1].configList.push({
+      configGroup.configGroup[index1].configs.push({
         name: configFile.name,
         rawName: configFile.name
       })
-      // configGroup.configGroup[index1].size = configGroup.configGroup[index1].configList.length
+      configGroup.configGroup[index1].size = configGroup.configGroup[index1].configList.length
       return addState
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
       return merge({}, state, {

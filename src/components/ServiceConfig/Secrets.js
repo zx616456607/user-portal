@@ -14,10 +14,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin, Tooltip } from 'antd'
 import {
-  createSecret, removeSecrets, removeKeyFromSecret,
+  createSecret, getSecrets, removeSecrets, removeKeyFromSecret,
   addKeyIntoSecret, updateKeyIntoSecret,
 } from '../../actions/secrets'
-import { getSecrets, createSecrets, getSecretsConfig } from '../../actions/secrets_devops'
 import find from 'lodash/find'
 import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
@@ -49,36 +48,14 @@ class ServiceSecretsConfig extends React.Component {
     configName: undefined,
     configtextarea: undefined,
     removeKeyModalVisible: false,
-    secretsList: [],
-    method: 1,// 1 input 2 git
-    defaultData: {}
   }
 
   loadData = () => {
     const { getSecrets, loadAppList, clusterID } = this.props
+    getSecrets(clusterID)
+    loadAppList(clusterID)
     this.setState({
-      isLoading: true,
-    }, () => {
-      getSecrets({
-        cluster_id: clusterID,
-      }, {
-        success: {
-          func: res => {
-            this.setState({ secretsList: res.results.results || [] })
-          }
-        },
-        finally: {
-          func: () => {
-            this.setState({
-              isLoading: false,
-            })
-          }
-        }
-      })
-      loadAppList(clusterID)
-      this.setState({
-        checkedList: []
-      })
+      checkedList: []
     })
   }
 
@@ -89,14 +66,12 @@ class ServiceSecretsConfig extends React.Component {
   setCheckedList = (checkedList, cb) => this.setState({ checkedList }, cb)
 
   createServiceGroup = values => {
-    const { createSecrets, clusterID } = this.props
+    const { createSecret, clusterID } = this.props
     const { name } = values
     this.setState({
       createServiceGroupModalConfrimLoading: true,
     })
-    createSecrets(clusterID, {
-      name
-    }, {
+    createSecret(clusterID, name, {
       success: {
         func: () => {
           notification.success('创建成功')
@@ -112,7 +87,7 @@ class ServiceSecretsConfig extends React.Component {
             //403 没权限判断 在App/index中统一处理 这里直接返回
             return;
           }
-          switch (err.message.code || err.message.status) {
+          switch (err.message.code) {
             case 403: errorText = '添加的配置过多'; break
             case 409: errorText = `配置组 ${name} 已存在`; break
             case 500: errorText = '网络异常'; break
@@ -251,33 +226,13 @@ class ServiceSecretsConfig extends React.Component {
     })
   }
 
-  openUpdateConfigFileModal = (secret_name, name) => {
-    const self = this
-    const { clusterID, getSecretsConfig } = this.props
-    getSecretsConfig({
-      secret_name,
-      cluster_id: clusterID,
-      config_name: name,
-    }, {
-      success: {
-        func: (res) => {
-          self.setState({
-            modalConfigFile: true,
-            configName: res.results.name,
-            configtextarea: res.results.data,
-            method: res.results.projectId ? 2 : 1,
-            defaultData: {
-              projectId: res.results.projectId || undefined,
-              defaultBranch: res.results.defaultBranch || undefined,
-              path: res.results.filePath || "",
-              enable: res.results.enable || 0
-            },
-            updateConfigFileModalVisible: true,
-            activeGroupName: secret_name,
-          })
-        },
-        isAsync: true
-      }
+  openUpdateConfigFileModal = (name, key, value) => {
+    this.setState({
+      modalConfigFile: true,
+      updateConfigFileModalVisible: true,
+      activeGroupName: name,
+      configName: key,
+      configtextarea: value,
     })
   }
 
@@ -346,8 +301,7 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   render() {
-    const { secretsOnUse } = this.props
-    const { secretsList, defaultData, method } = this.state
+    const { secretsList, secretsOnUse } = this.props
     const {
       checkedList,
       createServiceGroupModalVisible,
@@ -361,9 +315,8 @@ class ServiceSecretsConfig extends React.Component {
       searchInput,
       activeGroupName,
     } = this.state
-    // const { isFetching } = secretsList
-    const isFetching = this.state.isLoading
-    let data = secretsList || []
+    const { isFetching } = secretsList
+    let data = secretsList.data || []
     if (searchInput) {
       data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
     }
@@ -427,29 +380,23 @@ class ServiceSecretsConfig extends React.Component {
             data.length > 0 &&
             <Collapse accordion>
               {
-                data.map((secret, index) => {
-                  return (
-                    ConfigGroup({
-                      key: index,
-                      group: {
-                        name: secret.name,
-                        data: secret.configList,
-                        createdAt: secret.creationTimestamp
-                      },
-                      checkedList,
-                      setCheckedList: this.setCheckedList,
-                      removeSecrets: () => this.setState({deleteServiceGroupModalVisible: true}),
-                      openCreateConfigFileModal: this.openCreateConfigFileModal,
-                      openUpdateConfigFileModal: this.openUpdateConfigFileModal,
-                      removeKeyFromSecret: (name, key) => this.setState({
-                        removeKeyModalVisible: true,
-                        activeGroupName: name,
-                        configName: key,
-                      }),
-                      secretOnUse: secretsOnUse[secret.name] || {},
-                    })
-                  )
-                })
+                data.map((secret, index) => (
+                  ConfigGroup({
+                    key: index,
+                    group: secret,
+                    checkedList,
+                    setCheckedList: this.setCheckedList,
+                    removeSecrets: () => this.setState({deleteServiceGroupModalVisible: true}),
+                    openCreateConfigFileModal: this.openCreateConfigFileModal,
+                    openUpdateConfigFileModal: this.openUpdateConfigFileModal,
+                    removeKeyFromSecret: (name, key) => this.setState({
+                      removeKeyModalVisible: true,
+                      activeGroupName: name,
+                      configName: key,
+                    }),
+                    secretOnUse: secretsOnUse[secret.name] || {},
+                  })
+                ))
               }
             </Collapse>
           }
@@ -483,7 +430,6 @@ class ServiceSecretsConfig extends React.Component {
             addKeyIntoSecret={this.handleAddKeyIntoSecret}
             type="secrets"
             data={data}
-            groupName={activeGroupName}
             activeGroupName={activeGroupName}
           />
         }
@@ -493,10 +439,8 @@ class ServiceSecretsConfig extends React.Component {
           <UpdateConfigFileModal
             scope={this}
             modalConfigFile={modalConfigFile}
-            // updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
+            updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
             type="secrets"
-            method={method}
-            defaultData={defaultData}
           />
         }
         {/* 移除加密对象-弹出层-*/}
@@ -607,9 +551,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getSecrets,
-  // createSecret,
-  createSecrets, //devops
-  getSecretsConfig, //devops
+  createSecret,
   removeSecrets,
   removeKeyFromSecret,
   addKeyIntoSecret,

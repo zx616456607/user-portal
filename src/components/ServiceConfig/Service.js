@@ -24,7 +24,7 @@ import remove from 'lodash/remove'
 import {
   loadConfigGroup, configGroupName, createConfigGroup,
   deleteConfigGroup, updateConfigAnnotations,
-  checkConfigNameExistence, getConfigMaps, fetchConfigMaps, fetchCreateConfigMaps
+  checkConfigNameExistence
 } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 import Title from '../Title'
@@ -65,7 +65,7 @@ class CollapseList extends Component {
     if (filterName){
       let arr = []
       filterGroup.forEach(item => {
-        if (includes(item.configlabels,filterName)) {
+        if (includes(item.annotations,filterName)) {
           arr.push(item)
         }
       })
@@ -74,7 +74,7 @@ class CollapseList extends Component {
     if (noAnnotations) {
       let arr = []
       filterGroup.forEach(item => {
-        if (item.configlabels && item.configlabels.length === 0) {
+        if (item.annotations.length === 0) {
           arr.push(item)
         }
       })
@@ -97,7 +97,7 @@ class CollapseList extends Component {
     const scope = this
     // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
     if (isFetching && this.loadNumber < 2) {
-      // this.loadNumber++
+      this.loadNumber++
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -118,14 +118,13 @@ class CollapseList extends Component {
         <Collapse.Panel
           header={
             <CollapseHeader
-              loadConfigGroup={this.props.loadConfigGroup}
               parentScope={scope}
               grandScope={grandScope}
               btnDeleteGroup={this.props.btnDeleteGroup}
               handChageProp={this.props.handChageProp}
               configArray={this.props.configArray}
               collapseHeader={group}
-              sizeNumber={group.configList.length}
+              sizeNumber={group.size}
               />
           }
           handChageProp={this.handChageProp}
@@ -133,9 +132,8 @@ class CollapseList extends Component {
           key={group.name}
           >
           <CollapseContainer
-            loadData={this.props.loadData}
             parentScope={scope}
-            collapseContainer={group.configList}
+            collapseContainer={group.configs}
             groupname={group.name} />
         </Collapse.Panel>
       )
@@ -176,17 +174,17 @@ class Service extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { cluster, getConfigMaps, labelWithCount, spaceID } = nextProps
+    const { cluster, loadConfigGroup, labelWithCount, spaceID } = nextProps
     if ((cluster !== this.props.cluster) || (spaceID !== this.props.spaceID)) {
-      getConfigMaps({ cluster_id: cluster })
+      loadConfigGroup(cluster)
     }
     this.setState({
       configList: labelWithCount
     })
   }
   loadData() {
-    const { getConfigMaps, cluster} = this.props
-    getConfigMaps({ cluster_id: cluster })
+    const { loadConfigGroup, cluster} = this.props
+    loadConfigGroup(cluster)
     this.setState({configArray:[]})
   }
   configModal(visible,editFlag) {
@@ -196,8 +194,7 @@ class Service extends Component {
     })
     const self = this
     setTimeout(() => {
-      const node = document.getElementById('newConfigName')
-      !!node && node.focus()
+      document.getElementById('newConfigName').focus()
     },100)
     setTimeout(function () {
       if (self.focusInput) {
@@ -298,7 +295,7 @@ class Service extends Component {
     const { configList, filterName, searchValue, noAnnotations } = this.state;
     let noAnnotationsLength = 0
     configGroup.length > 0 && configGroup.forEach(item => {
-      if (item.configlabels && !item.configlabels.length) {
+      if (!item.annotations.length) {
         noAnnotationsLength++
       }
     })
@@ -319,7 +316,7 @@ class Service extends Component {
         <div id="Service" key="Service">
           <Title title="服务配置" />
           {/*创建配置组-弹出层-start*/}
-          <CreateConfigModal visible={this.state.createModal} scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
+          <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置组操作" visible={this.state.delModal}
@@ -376,10 +373,9 @@ class Service extends Component {
               </Button>
               <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value && value.trim()})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
-                loadData={this.loadData}
                 scope={this}
                 cluster={cluster}
-                loadConfigGroup={this.loadData}
+                loadConfigGroup={this.props.loadConfigGroup}
                 groupData={configGroup}
                 configName={configName}
                 btnDeleteGroup={this.btnDeleteGroup}
@@ -425,8 +421,8 @@ function mapStateToProps(state, props) {
   const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
   let labels = []
   configGroup.length > 0 && configGroup.forEach(item => {
-    if (item.configlabels && item.configlabels.length) {
-      labels = labels.concat(item.configlabels)
+    if (item.annotations.length) {
+      labels = labels.concat(item.annotations)
     }
   })
   let labelWithCount = []
@@ -456,12 +452,11 @@ function mapStateToProps(state, props) {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    getConfigMaps: (query, callback) => {
-      dispatch(fetchConfigMaps(query, callback))
+    loadConfigGroup: (cluster) => {
+      dispatch(loadConfigGroup(cluster))
     },
-    createConfigGroup: (cluster_id, body, callback) => {
-      // dispatch(createConfigGroup(obj, callback))
-      dispatch(fetchCreateConfigMaps(cluster_id, body, callback))
+    createConfigGroup: (obj, callback) => {
+      dispatch(createConfigGroup(obj, callback))
     },
     deleteConfigGroup: (obj, callback) => {
       dispatch(deleteConfigGroup(obj, callback))

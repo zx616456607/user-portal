@@ -42,7 +42,7 @@ export default class ConfigGroupHeader extends React.Component {
     const {
       group, checkedList = [], openCreateConfigFileModal
     } = this.props
-    const { name, data = [], createdAt } = group
+    const { name, data = {}, createdAt } = group
     const menu = (
       <Menu onClick={this.handleMenuClick.bind(this, name)} mode="vertical">
         <Menu.Item key="delete">
@@ -64,7 +64,7 @@ export default class ConfigGroupHeader extends React.Component {
         </Col>
         <Col span="6">
           加密对象 &nbsp;
-          {data.length || '0'}个
+          {Object.keys(data).length || '0'}个
         </Col>
         <Col span="6">
           创建时间&nbsp;&nbsp;
