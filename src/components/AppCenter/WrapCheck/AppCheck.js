@@ -22,6 +22,7 @@ import { formatDate } from '../../../common/tools'
 import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
+import { isResourcePermissionError } from '../../../common/tools'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -343,8 +344,14 @@ class WrapCheck extends React.Component {
     getWrapPublishList(query, {
       failed: {
         func: err => {
-          if (err.statusCode === 403) {
-            notify.warn("没有访问权限")
+          const { statusCode } = err
+          if (statusCode === 403) {
+            if (isResourcePermissionError(err)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              return;
+            } else {
+              notify.warn("没有访问权限")
+            }
           }
         }
       }
