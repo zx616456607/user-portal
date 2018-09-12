@@ -22,7 +22,7 @@ import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import { camelize } from 'humps'
-import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
+import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 const FormItem = Form.Item
@@ -255,7 +255,7 @@ class ImageCheckTable extends React.Component {
     const { imageCheckList, total, form, publish_time, loginUser, location, publishType, harborMembers } = this.props
     const { getFieldProps } = form
     const { rejectModal, copyStatus, imageDetailModalShow, currentImage, delModal } = this.state
-    const isAdmin = loginUser.role === ROLE_SYS_ADMIN || loginUser.role === ROLE_BASE_ADMIN
+    const isAdmin = loginUser.role === ROLE_SYS_ADMIN || loginUser.role === ROLE_BASE_ADMIN || loginUser.role === ROLE_PLATFORM_ADMIN
     let currentMember = {}
     const members = harborMembers.list || []
     members.every(member => {
