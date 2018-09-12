@@ -70,11 +70,12 @@ class ContainerInstanceHeader extends React.Component {
   render() {
     const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
-      appName, service, loadAllServices, projectName } = this.props
+      appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     return (
       <div className="instanceHeader">
         <Button
           type="primary"
+          size="large"
           disabled={isCheckIP}
           onClick={this.handleChangeVisible}
         >
@@ -82,10 +83,18 @@ class ContainerInstanceHeader extends React.Component {
         </Button>
         <Button
           type="primary"
+          size="large"
           disabled={isCheckIP}
           onClick={() => this.props.onTabClick('#autoScale')}
         >
           自动伸缩
+        </Button>
+        <Button
+          type="ghost"
+          size="large"
+          onClick={() => loadServiceContainerList(cluster, service, { projectName })}
+        >
+          <i className="fa fa-refresh" /> 刷新
         </Button>
         <Checkbox
           onChange={this.onChangeInstanceIP}
@@ -152,4 +161,5 @@ const mapStateToProps = ({
 export default connect(mapStateToProps, {
   loadAllServices: serviceAction.loadAllServices,
   loadServiceContainerList: serviceAction.loadServiceContainerList,
+  loadServiceDetail: serviceAction.loadServiceDetail,
 })(ContainerInstanceHeader)
