@@ -188,9 +188,9 @@ class PageItemDetail extends Component {
                       }
                     } else if(!!projectDetail.metadata && !!projectDetail.metadata.public){
                       if(projectDetail.metadata.public === "true"){
-                        res = formatMessage(imageDetailIntl.privateRepoGroup)
-                      } else {
                         res = formatMessage(imageDetailIntl.publicRepoGroup)
+                      } else {
+                        res = formatMessage(imageDetailIntl.privateRepoGroup)
                       }
                     }
                     return res
