@@ -942,12 +942,15 @@ let ProjectManage = React.createClass({
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
+              <div style={{width: "280px"}}>
+                <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
+                <span>{`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}</span>
+              </div>
             </div>
-            <div className="themeColor" style={{marginBottom: '15px'}}>
+            {/*<div className="themeColor" style={{marginBottom: '15px'}}>
               <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>
               {`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}
-            </div>
+            </div>*/}
             <Checkbox checked={deleteSingleChecked} onChange={() => {
               this.setState({deleteSingleChecked: !deleteSingleChecked})
             }}>选中此框以确认您要删除此项目。</Checkbox>
