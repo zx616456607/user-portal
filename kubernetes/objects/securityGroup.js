@@ -12,7 +12,7 @@ const RuleTypeService = 'service'
 const RuleTypeHAProxy = 'haproxy'
 const RuleTypeIngress = 'ingress'
 const RuleTypeNamespace = 'namespace'
-const RuleTypeDAAS = 'daas'
+const RuleTypeDAAS = 'daas' // 数据库缓存 mysql redis
 
 function parseNetworkPolicy(policy) {
   const result = {
@@ -138,7 +138,7 @@ function peerToRule(peer) {
       rule.serviceName = serviceName
     }
     if (namespace) {
-      rule.type = RuleTypeNamespace
+      // rule.type = RuleTypeNamespace
       rule.namespace = namespace
     }
     if (matchLabels.name === 'service-proxy' && namespace === 'kube-system') {
@@ -155,6 +155,12 @@ function peerToRule(peer) {
       rule.namespace = namespace
       rule.daasName = matchLabels['system/daas-cluster']
       rule.daasType = daasType
+    }
+  } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
+    rule.type = RuleTypeNamespace
+    rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
+    if (peer.podSelector && peer.podSelector.matchExpressions) {
+      rule.serivceName = peer.podSelector.matchExpressions[0].values
     }
   }
   return rule
@@ -190,9 +196,11 @@ function ruleToPeer(rule) {
     }
     if (rule.serviceName) {
       peer.podSelector = {
-        matchLabels: {
-          'tenxcloud.com/svcName': rule.serviceName,
-        },
+        matchExpressions: [{
+          key: 'tenxcloud.com/svcName',
+          operator: 'In',
+          values: rule.serviceName,
+        }],
       }
     }
     return peer
