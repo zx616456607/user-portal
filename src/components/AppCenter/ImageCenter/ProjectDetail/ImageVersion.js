@@ -558,7 +558,7 @@ class ImageVersion extends Component {
   }
   onConfirmOk = () => {
     const { imageName, harbor, updateProjectMaxTagCount } = this.props
-    const { max_tags_count } = this.state
+    const { max_tags_count, dataAry } = this.state
     const { formatMessage } = this.props.intl
     const query = {
       registry: DEFAULT_REGISTRY,
@@ -581,8 +581,8 @@ class ImageVersion extends Component {
       failed: {
         func: err => {
           console.log(err)
-          if(!!err && err.code === 400){
-            const current_tag_total = err.message.current_tag_total
+          if(!!err && (err.code === 400 || err.statusCode === 400)){
+            const current_tag_total = err.message.current_tag_total || dataAry.length
             if(!!current_tag_total){
               this.setState({
                 max_tags_count: current_tag_total,

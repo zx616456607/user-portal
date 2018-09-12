@@ -12,7 +12,7 @@ const RuleTypeService = 'service'
 const RuleTypeHAProxy = 'haproxy'
 const RuleTypeIngress = 'ingress'
 const RuleTypeNamespace = 'namespace'
-const RuleTypeDAAS = 'daas'
+const RuleTypeDAAS = 'daas' // 数据库缓存 mysql redis
 
 function parseNetworkPolicy(policy) {
   const result = {
@@ -136,9 +136,10 @@ function peerToRule(peer) {
     if (serviceName) {
       rule.type = RuleTypeService
       rule.serviceName = serviceName
-      if (namespace) {
-        rule.namespace = namespace
-      }
+    }
+    if (namespace) {
+      // rule.type = RuleTypeNamespace
+      rule.namespace = namespace
     }
     if (matchLabels.name === 'service-proxy' && namespace === 'kube-system') {
       rule.type = RuleTypeHAProxy
@@ -158,6 +159,9 @@ function peerToRule(peer) {
   } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
     rule.type = RuleTypeNamespace
     rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
+    if (peer.podSelector && peer.podSelector.matchExpressions) {
+      rule.serivceName = peer.podSelector.matchExpressions[0].values
+    }
   }
   return rule
 }
@@ -175,29 +179,31 @@ function ruleToPeer(rule) {
     }
     return peer
   } else if (type === RuleTypeService) {
-    const peer = {
+    return {
       podSelector: {
         matchLabels: {
           'tenxcloud.com/svcName': rule.serviceName,
         },
       },
     }
-    if (rule.namespace) {
-      peer.namespaceSelector = {
-        matchLabels: {
-          'system/namespace': rule.namespace,
-        },
-      }
-    }
-    return peer
   } else if (type === RuleTypeNamespace) {
-    return {
+    const peer = {
       namespaceSelector: {
         matchLabels: {
           'system/namespace': rule.namespace,
         },
       },
     }
+    if (rule.serviceName) {
+      peer.podSelector = {
+        matchExpressions: [{
+          key: 'tenxcloud.com/svcName',
+          operator: 'In',
+          values: rule.serviceName,
+        }],
+      }
+    }
+    return peer
   } else if (type === RuleTypeHAProxy) {
     return {
       podSelector: {
