@@ -976,13 +976,14 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
+                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN || role === ROLE_PLATFORM_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
                         <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/app_center/wrap_check'>
+                          {/* <span><div className='sideCircle'></div>&nbsp; </span>*/}
                           <FormattedMessage {...IntlMessages.wrapCheck} />
                         </Link>
                       </div>

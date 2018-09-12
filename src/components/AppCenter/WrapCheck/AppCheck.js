@@ -23,6 +23,7 @@ import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
 
+const notify = new NotificationHandler()
 const FormItem = Form.Item
 
 class WrapCheckTable extends React.Component {
@@ -103,7 +104,7 @@ class WrapCheckTable extends React.Component {
         break
     }
   }
-  
+
   confirmModal() {
     const { refusePublish, form } = this.props
     const { currentWrap } = this.state
@@ -124,7 +125,7 @@ class WrapCheckTable extends React.Component {
       })
     })
   }
-  
+
   cancelModal() {
     const { form } = this.props
     this.setState({
@@ -132,7 +133,7 @@ class WrapCheckTable extends React.Component {
     })
     form.resetFields()
   }
-  
+
   checkApprove(rule, value, callback) {
     let newValue = value && value.trim()
     if (!newValue) {
@@ -140,7 +141,7 @@ class WrapCheckTable extends React.Component {
     }
     callback()
   }
-  
+
   openDetailModal(e, row) {
     e.stopPropagation()
     this.setState({
@@ -148,11 +149,11 @@ class WrapCheckTable extends React.Component {
       detailModal: true
     })
   }
-  
+
   goDeploy(fileName) {
     browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
   }
-  
+
   closeDetailModal() {
     this.setState({
       detailModal: false
@@ -273,8 +274,8 @@ class WrapCheckTable extends React.Component {
                     }
                   ]
                 })}
-                type="textarea" 
-                rows={4} 
+                type="textarea"
+                rows={4}
                 placeholder="请输入拒绝理由"/>
             </FormItem>
           </Form>
@@ -339,7 +340,15 @@ class WrapCheck extends React.Component {
     if (sort_order) {
       Object.assign(query, { sort_order })
     }
-    getWrapPublishList(query)
+    getWrapPublishList(query, {
+      failed: {
+        func: err => {
+          if (err.statusCode === 403) {
+            notify.warn("没有访问权限")
+          }
+        }
+      }
+    })
   }
   refreshData() {
     this.setState({
@@ -466,6 +475,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getWrapPublishList,
-  passWrapPublish, 
+  passWrapPublish,
   refuseWrapPublish
 })(WrapCheck)
