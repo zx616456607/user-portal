@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence, createConfig } from "../../actions/configs"
+import { checkConfigNameExistence, dispatchCreateConfig } from "../../actions/configs"
 // import { createSecretsConfig } from '../../actions/secrets_devops'
 import { createSecret } from '../../actions/secrets'
 
@@ -36,6 +36,7 @@ let CreateConfigFileModal = React.createClass({
                   <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
+      method: 1,
     }
   },
   componentDidMount() {
@@ -90,8 +91,15 @@ let CreateConfigFileModal = React.createClass({
 
   createConfigFile(group) {
     const { createConfig, scope: parentScope, createSecret,
-      activeGroupName } = this.props
-    this.props.form.validateFields((errors, values) => {
+      activeGroupName, dispatchCreateConfig } = this.props
+    const { method } = this.state
+    let arr = [ 'name', 'data' ]
+    if (method === 1) {
+      // arr = []
+    } else if (method === 2) {
+      arr = [ 'defaultBranch', 'projectId', 'filePath' ].concat(arr)
+    }
+    this.props.form.validateFields(arr, (errors, values) => {
       if (!!errors) {
         return
       }
@@ -107,7 +115,18 @@ let CreateConfigFileModal = React.createClass({
         group,
         cluster,
         name: tempValues.name,
-        desc: tempValues.data
+        data: tempValues.data
+      }
+      const body = {}
+      if (method === 2) {
+        body.name = tempValues.name
+        body.data = tempValues.data
+        body.projectId = tempValues.projectId
+        body.defaultBranch = tempValues.defaultBranch
+        body.filePath = tempValues.filePath
+        body.enable = tempValues.enable
+      } else {
+        body.groupFiles = tempValues.data
       }
 
       let self = this
@@ -120,7 +139,7 @@ let CreateConfigFileModal = React.createClass({
         })
       }
       //parentScope.props.createConfigFiles(configfile, {
-      createConfig( group, cluster, tempValues, {
+      dispatchCreateConfig(configfile, body, {
         success: {
           func: () => {
             notification.success('创建配置文件成功')
@@ -170,6 +189,9 @@ let CreateConfigFileModal = React.createClass({
     this.setState({
       tempConfigDesc
     })
+  },
+  getMethod(method) {
+    this.setState({ method })
   },
   render() {
     const { type, form, configNameList, scope: parentScope } = this.props
@@ -233,6 +255,7 @@ let CreateConfigFileModal = React.createClass({
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
               <ConfigFileContent
+                getMethod={this.getMethod}
                 configNameList={configNameList}
                 filePath={filePath}
                 form={form}
@@ -255,5 +278,5 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, createConfig, createSecret
+  checkConfigNameExistence, dispatchCreateConfig, createSecret
 })(CreateConfigFileModal)

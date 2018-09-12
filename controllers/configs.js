@@ -111,14 +111,15 @@ exports.createConfigFiles = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
-  let data = this.request.body.groupFiles
-  if (!cluster || !data) {
+  let body = this.request.body
+  let data = body.groupFiles
+  if (!cluster) {
     this.status = 400
     this.body = { message: 'error' }
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+  let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data || body)
   if (response.code >= 400) {
     const err = new Error(`create config files fails: ${response.body}`)
     err.status = response.code

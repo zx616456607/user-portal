@@ -28,7 +28,6 @@ const FormItem = Form.Item
 class ConfigFileContent extends React.Component {
   state = {
     readOnly: (!!this.props.method && this.props.method === 2) || false,
-    method: this.props.method || 1,
     btnLoading: false,
     fetchStatus: false,
     branches: [],
@@ -69,7 +68,7 @@ class ConfigFileContent extends React.Component {
   onRadioChange = (e) => {
     const method = e.target.value
     const readOnly = method === 2
-    const { tempConfigDesc, form } = this.props
+    const { tempConfigDesc, form, getMethod } = this.props
     const { setFieldsValue } = form
     this.setState({
       readOnly,
@@ -84,13 +83,11 @@ class ConfigFileContent extends React.Component {
       configDesc,
       method,
     })
+    getMethod(method)
   }
   onImportClick = () => {
-    const { form } = this.props
-    const { setFieldsValue } = form
-    this.setState({
-      btnLoading: true,
-    }, () => {
+    const { getGitFileContent, form } = this.props
+    const { validateFields, setFieldsValue } = form
       // setTimeout(() => {
       //   // 模拟导入成功
       //   const res = "导入成功"
@@ -102,12 +99,13 @@ class ConfigFileContent extends React.Component {
       //     configDesc: res,
       //   })
       // }, 2000)
-      const { getGitFileContent, form } = this.props
-      const { validateFields } = form
-      validateFields(["projectId", "filePath", "defaultBranch"], (errors, values) => {
-        if(!!errors){
-          return
-        }
+    validateFields(["projectId", "filePath", "defaultBranch"], (errors, values) => {
+      if(!!errors){
+        return
+      }
+      this.setState({
+        btnLoading: true,
+      }, () => {
         const query = {
           project_id: values.projectId,
           branch_name: values.defaultBranch,
@@ -200,6 +198,12 @@ class ConfigFileContent extends React.Component {
       })
     })
   }
+  checkFilePath = (rule, value, callback) => {
+    if(!/^.\//.test(value)){
+      return callback(new Error("请输入正确的文件路径"))
+    }
+    return callback()
+  }
   render() {
     const { descProps, filePath, form, defaultData, configNameList } = this.props
     const { projectId, defaultBranch, path, enable } = defaultData || {}
@@ -232,6 +236,11 @@ class ConfigFileContent extends React.Component {
     const pathProps = {...getFieldProps('filePath',
       {
         initialValue: path || undefined,
+        rules: [
+          {
+            validator: this.checkFilePath
+          }
+        ]
       }
     )}
     const enableProps = {...getFieldProps('enable',

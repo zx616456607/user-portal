@@ -125,7 +125,7 @@ export const CREATE_CONFIG_FILES_REQUEST = 'CREATE_CONFIG_FILES_REQUEST'
 export const CREATE_CONFIG_FILES_SUCCESS = 'CREATE_CONFIG_FILES_SUCCESS'
 export const CREATE_CONFIG_FILES_FAILURE = 'CREATE_CONFIG_FILES_FAILURE'
 
-export function createConfigFiles(obj, callback) {
+export function createConfigFiles(obj, body, callback) {
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -133,11 +133,16 @@ export function createConfigFiles(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
       options: {
         method: 'POST',
-        body: { 'groupFiles': obj.desc }
+        body,
       },
       schema: {}
     },
     callback: callback
+  }
+}
+export function dispatchCreateConfig(obj, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(createConfigFiles(obj, body, callback))
   }
 }
 
@@ -343,7 +348,7 @@ export function fetchGitFileContent(query, callback) {
         GET_FILE_CONTENT_SUCCESS,
         GET_FILE_CONTENT_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/devops/configmaps/projects/${query.project_id}/branches/${query.branch_name}/path/${query.path_name}/files`,
+      endpoint: `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/path/${query.path_name}/files`,
       schema: {},
     },
     callback,

@@ -278,7 +278,7 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: '15px' }}>
-                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
+                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left', marginTop: '3px' }} />
                       <Tooltip title={configFileItem.name} placement="topLeft">
                         <div style={{float:'left',width:'130px'}} className="textoverflow">{configFileItem.name}</div>
                       </Tooltip>
