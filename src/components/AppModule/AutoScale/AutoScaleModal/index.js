@@ -517,7 +517,7 @@ class AutoScaleModal extends React.Component {
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right' }}>
               {
                 thresholdArr.indexOf(key) === 0
-                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="question-circle-o" /></Tooltip>：</div>
                   : ''
               }
             </Col>
@@ -613,7 +613,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4} style={{ height: 18 }}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o"/> 挂载独享型存储的服务不支持自动伸缩
+              <Icon type="info-circle-o" /> 挂载独享型存储的服务不支持自动伸缩
             </Col>
           </Row>
           <FormItem
@@ -668,7 +668,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
                   <Col span={4} style={{ height: 18 }}/>
                   <Col span={16}>
-                    <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                    <Icon type="info-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
                   </Col>
                 </Row>,
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">
