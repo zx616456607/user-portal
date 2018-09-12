@@ -264,8 +264,11 @@ class ResourceModal extends Component {
 
   selectPermissionAll = (e) => {
     if(e.target.checked){
+      const { currResourceType, getPermission } = this.props
+      const { currPRO } = this.state
+      const permission = getPermission(currPRO[currResourceType], currResourceType, currPRO);
       this.setState({
-        permissionKeys: this.state.currPRO[this.props.currResourceType].map( item => item.permissionId.toString() ),
+        permissionKeys: permission.map( item => item.permissionId.toString() ),
       })
     }
     if(!e.target.checked){
@@ -594,11 +597,11 @@ class ResourceModal extends Component {
   }
   loadApplist = () => {
     const scope = this.props.scope;
-    const { name } = scope.props.location.query
+    const { name, pathname } = scope.props.location.query
     const headers = { project: name }
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
-    this.props.loadAppList(scope.state.selectedCluster, query, scope.location.pathname, {
+    this.props.loadAppList(scope.state.selectedCluster, query, pathname, {
       success: {
         func: (res) => {
           //console.log(res)
