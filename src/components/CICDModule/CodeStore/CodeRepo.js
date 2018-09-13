@@ -94,7 +94,8 @@ const MyComponent = React.createClass({
     return {
       copySuccess: false, keyModal: false,
       regUrl: '',
-      regToken: ''
+      regToken: '',
+      codeName: '',
     }
   },
   componentWillMount() {
@@ -242,11 +243,15 @@ const MyComponent = React.createClass({
   },
   handleSearch(e) {
     const parentScope = this.props.scope
-    const codeName = e.target.value
+    let codeName = this.state.codeName
+    if (e) {
+      codeName = e.target.value
+    }
     parentScope.props.searchCodeRepo(codeName, this.props.typeName)
   },
   changeSearch(e) {
     const codeName = e.target.value
+    this.setState({ codeName })
     if (codeName == '') {
       const parentScope = this.props.scope
       parentScope.props.searchCodeRepo(codeName, this.props.typeName)
@@ -376,7 +381,7 @@ const MyComponent = React.createClass({
           </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} style={{ width: '180px', paddingRight:'28px'}} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'>  </i>
+            <i className='fa fa-search' onClick={() => this.handleSearch()}>  </i>
           </div>
         </div>
         {/*  @project  Head end    */}
