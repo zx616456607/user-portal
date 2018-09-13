@@ -1412,7 +1412,7 @@ class ServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices, loginUser, SettingListfromserviceorapp
+      loadAllServices, loginUser, SettingListfromserviceorapp,
     } = this.props
     let appName = ''
     if (this.state.currentShowInstance) {

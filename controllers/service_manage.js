@@ -625,7 +625,8 @@ exports.getAllService = function*() {
     queryObj.filter = `label ${label}`
   }
   const api = apiFactory.getK8sApi(this.session.loginUser)
-	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
+  const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
+  console.log('中间层,骚操作1', JSON.stringify(response))
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   if (!response.data) {
     response.data = {
@@ -642,6 +643,7 @@ exports.getAllService = function*() {
       }
     }
   })
+  console.log('中间层,骚操作2',  JSON.stringify(response))
 	this.body = response
 }
 

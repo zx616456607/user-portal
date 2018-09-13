@@ -48,6 +48,7 @@ import { getServiceStatus } from '../../../common/status_identify'
 import ServiceMeshSwitch from './ServiceMeshSwitch'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -313,7 +314,6 @@ class AppServiceDetail extends Component {
       bindingPort,
       https,
     }
-
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
@@ -427,7 +427,7 @@ class AppServiceDetail extends Component {
         </div>
         <div className='bottomBox'>
           <div className='siderBox'>
-            <Tabs
+            <TenxTab
               tabPosition='left'
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
@@ -459,9 +459,10 @@ class AppServiceDetail extends Component {
                   name={this.props.name}
                 />
               </TabPane>
-              <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch">
-                <ServiceMeshSwitch serviceName={service.metadata.name}
-                istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"
+              className='zhangtao'>
+              <ServiceMeshSwitch serviceName={service.metadata.name}
+                  istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.assistSet)} key='#setting'>
                 <AppServiceAssistSetting
@@ -601,7 +602,7 @@ class AppServiceDetail extends Component {
                   serviceName={this.props.serviceName}
                 relative/>
               </TabPane>
-            </Tabs>
+            </TenxTab>
           </div>
           <div className='contentBox'>
           </div>
@@ -688,3 +689,22 @@ export default injectIntl(connect(mapStateToProps, {
   addTerminal,
   deleteServices
 })(AppServiceDetail), { withRef: true, })
+
+const showkey = ['#containers', '#basic', '#monitor', '#logs', '#events' ]
+class TenxTab extends React.Component {
+  render() {
+    const appCenterChoiceShowRegx = /\/middleware_center\/deploy\/detail/
+    const appCenterChoiceHidden = appCenterChoiceShowRegx.test(window.location.pathname)
+    const newChildren = appCenterChoiceHidden ?
+    this.props.children.filter(({key}) => showkey.includes(key)).map(item => {
+      item.props.children.props.appCenterChoiceHidden = true // 对子组件注入props
+      return item
+    })
+    :  this.props.children
+    return <div>
+      <Tabs {...this.props}>
+      {newChildren}
+      </Tabs>
+    </div>
+  }
+}

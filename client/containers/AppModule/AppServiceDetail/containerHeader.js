@@ -73,13 +73,17 @@ class ContainerInstanceHeader extends React.Component {
       appName, service, loadAllServices, projectName } = this.props
     return (
       <div className="instanceHeader">
-        <Button
-          type="primary"
-          disabled={isCheckIP}
-          onClick={this.handleChangeVisible}
-        >
+        { !this.props.appCenterChoiceHidden &&
+          <Button
+            type="primary"
+            disabled={isCheckIP}
+            onClick={this.handleChangeVisible}
+          >
           水平扩展 ({containerNum})
-        </Button>
+          </Button>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
         <Button
           type="primary"
           disabled={isCheckIP}
@@ -87,12 +91,16 @@ class ContainerInstanceHeader extends React.Component {
         >
           自动伸缩
         </Button>
-        <Checkbox
-          onChange={this.onChangeInstanceIP}
-          checked={this.state.isCheckIP}
-        >
-          <FormattedMessage {...IntlMessages.fixedInstanceIP} />
-        </Checkbox>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+         <Checkbox
+           onChange={this.onChangeInstanceIP}
+           checked={this.state.isCheckIP}
+         >
+           <FormattedMessage {...IntlMessages.fixedInstanceIP} />
+         </Checkbox>
+        }
         <span
           className="seeConfig"
           onClick={() => this.setState({ isFixed: true, isSee: true })}

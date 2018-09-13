@@ -61,6 +61,7 @@ const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
+const MiddlewareCenterZ = require('../controllers/MiddlewareCenterZ')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -164,7 +165,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
   router.put('/clusters/:cluster/apps/batch-restart', appController.restartApps)
   router.put('/clusters/:cluster/apps/batch-status', appController.getAppsStatus)
-  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
+  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices) // 炎黄
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
   router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail) // spi
@@ -216,7 +217,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
-  router.get('/clusters/:cluster/services', serviceController.getAllService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService) // 炎黄
   router.put('/clusters/:cluster/services/:service_name/portinfo', serviceController.updateServicePortInfo)
   router.get('/clusters/:cluster/services/:service_name/certificates', serviceController.getCertificate)
   router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
@@ -911,6 +912,14 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
   router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
 
+  // AppCenter
+  router.get('/clusters/:cluster/appcenters', MiddlewareCenterZ.getAppClusterList)
+  router.get('/clusters/:cluster/appcenters/:name', MiddlewareCenterZ.getAppClusterDetail)
+  router.post('/clusters/:cluster/appcenters/delete', MiddlewareCenterZ.deleteClusterDetail)
+  router.post('/clusters/:cluster/appcenters/stop', MiddlewareCenterZ.stopClusterDetail)
+  router.post('/clusters/:cluster/appcenters/start', MiddlewareCenterZ.startClusterDetail)
+  router.post('/clusters/:cluster/appcenters/reboot', MiddlewareCenterZ.rebootClusterDetail)
+  router.get('/clusters/:cluster/appcenters/:name/services', MiddlewareCenterZ.getAppClusterServerList)
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }
