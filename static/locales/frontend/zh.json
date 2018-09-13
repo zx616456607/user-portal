@@ -3160,5 +3160,9 @@
   "Common.myProject": "我的个人项目",
   "Common.teamName": "我的帐户",
   "Editor.Error.readOnly": "只读",
-  "Editor.Error.theme": "主题"
+  "Editor.Error.theme": "主题",
+  "ServiceConfig.apmDisabledTip": "当前项目禁止安装 APM 组件，请联系平台管理员了解",
+  "Sider.onlyInfraAndAdmin": "仅基础设施管理员、系统管理员可见",
+  "Sider.onlyPlatformAndAdmin": "仅平台管理员、系统管理员可见"
+
 }

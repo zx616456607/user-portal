@@ -39,21 +39,22 @@ export const GET_CONFIG_BY_TYPE_REQUEST = 'GET_CONFIG_BY_TYPE_REQUEST'
 export const GET_CONFIG_BY_TYPE_SUCCESS = 'GET_CONFIG_BY_TYPE_SUCCESS'
 export const GET_CONFIG_BY_TYPE_FAILURE = 'GET_CONFIG_BY_TYPE_FAILURE'
 
-function fetchConfigByType(cluster, configType, callback) {
+function fetchConfigByType(cluster, configType, options, callback) {
   return {
     configType,
     [FETCH_API]: {
       endpoint: `${API_URL_PREFIX}/cluster/${cluster}/config/${configType}`,
       types: [GET_CONFIG_BY_TYPE_REQUEST, GET_CONFIG_BY_TYPE_SUCCESS, GET_CONFIG_BY_TYPE_FAILURE],
-      schema: {}
+      schema: {},
+      options
     },
     callback
   }
 }
 
-export function getConfigByType(cluster, type, callback) {
+export function getConfigByType(cluster, type, options, callback) {
   return (dispatch) => {
-    return dispatch(fetchConfigByType(cluster, type, callback))
+    return dispatch(fetchConfigByType(cluster, type, options, callback))
   }
 }
 
