@@ -14,8 +14,8 @@ const middlewareCenterRoutes = [{
   path: 'app',
   component: require('../../client/containers/MiddlewareCenter/App').default,
 }, {
-  path: 'app/config',
-  component: require('../../client/containers/MiddlewareCenter/App/AppConfigs').default,
+  path: 'deploy/config',
+  component: require('../../client/containers/MiddlewareCenter/DeployManage/DeployConfigs').default,
 }, {
   path: 'deploy',
   component: require('../../client/containers/MiddlewareCenter/DeployManage').default,

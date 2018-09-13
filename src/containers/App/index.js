@@ -126,6 +126,7 @@ class App extends Component {
       '/app_center/template/create',
       '/manange_monitor/alarm_setting/resource',
       '/manange_monitor/alarm_setting/log',
+      '/middleware_center/app/config',
     ]
     if(pathname === '/app_manage/app_create/quick_create' &&
       this.props.location.hash === "#configure-service"){
