@@ -49,6 +49,7 @@ class LoadBalance extends React.Component {
         delete targetOptions.displayName
         targetOptions.monitorName = sourceOptons.displayName
         targetOptions.healthOptions = sourceOptons.healthCheck
+        targetOptions.sessionPersistent = parseInt(targetOptions.sessionPersistent, 10)
         this.setState({
           [`config-${key}`]: targetOptions
         })

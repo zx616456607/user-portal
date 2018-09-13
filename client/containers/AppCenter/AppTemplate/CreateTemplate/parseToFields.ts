@@ -579,7 +579,7 @@ const parseIngress = ingress => {
     if (sessionSticky) {
       merge(ingressOptions, {
         sessionSticky,
-        sessionPersistent: parseInt(sessionPersistent, 10),
+        sessionPersistent,
       });
     }
     if (healthCheck) {
@@ -590,7 +590,7 @@ const parseIngress = ingress => {
     merge(ingressParent, {
       [`displayName-${index}`]: displayName, // 监听器名称
       [`lbAlgorithm-${index}`]: lbAlgorithm, // 调度算法
-      [`sessionPersistent-${index}`]: sessionSticky ? `已启用(${sessionPersistent}s)` : '未启用', // 会话保持
+      [`sessionPersistent-${index}`]: sessionSticky ? `已启用(${sessionPersistent})` : '未启用', // 会话保持
       [`sessionSticky-${index}`]: sessionSticky, // 会话保持是否开启
       [`protocol-${index}`]: protocol, // 监听协议
       [`port-${index}`]: items[0].servicePort, // 服务端口
