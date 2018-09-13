@@ -860,6 +860,7 @@ class ServiceList extends Component {
   handleStartServiceOk() {
     const self = this
     const { cluster, startServices, serviceList, intl } = this.props
+    const { formatMessage } = intl
     let stoppedService = []
     const checkedServiceList = serviceList.filter((service) => service.checked)
     checkedServiceList.map((service, index) => {
@@ -924,6 +925,7 @@ class ServiceList extends Component {
   handleStopServiceOk() {
     const self = this
     const { cluster, stopServices, serviceList, intl } = this.props
+    const { formatMessage } = intl
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
@@ -1000,6 +1002,7 @@ class ServiceList extends Component {
   handleRestarServiceOk() {
     const self = this
     const { cluster, restartServices, serviceList, intl, removeTerminal, terminalList } = this.props
+    const { formatMessage } = intl
     let servicesList = serviceList
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
@@ -1080,6 +1083,7 @@ class ServiceList extends Component {
   handleQuickRestarServiceOk() {
     const self = this
     const { cluster, quickRestartServices, serviceList, intl, removeTerminal, terminalList } = this.props
+    const { formatMessage } = intl
     const checkedServiceList = serviceList.filter((service) => service.checked)
     if(terminalList.length){
       const deleteList = cloneDeep(checkedServiceList)
