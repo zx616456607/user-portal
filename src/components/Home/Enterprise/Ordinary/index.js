@@ -100,7 +100,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#2eb764' }}></div>
-          <span style={{ color: '#2eb865' }}>正常</span>
+          <span style={{ color: '#2eb865' }}>
+            <FormattedMessage {...IntlMessages.svcNormal} />
+          </span>
         </div>
       )
     }
@@ -108,7 +110,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#f0986b' }}></div>
-          <span style={{ color: '#f0986b' }}>警告</span>
+          <span style={{ color: '#f0986b' }}>
+            <FormattedMessage {...IntlMessages.svcWaring} />
+          </span>
         </div>
       )
     }
@@ -116,7 +120,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#f0986b' }}></div>
-          <span style={{ color: '#f0986b' }}>未安装</span>
+          <span style={{ color: '#f0986b' }}>
+            <FormattedMessage {...IntlMessages.svcNotInstall} />
+          </span>
         </div>
       )
     }
@@ -124,7 +130,9 @@ let SvcState = React.createClass({
       item = (
         <div>
           <Icon type="exclamation-circle" style={{ color: '#f85a59' }} className='errorDot' />
-          <span style={{ color: '#f85a59' }}>异常</span>
+          <span style={{ color: '#f85a59' }}>
+            <FormattedMessage {...IntlMessages.svcAbnormal} />
+          </span>
         </div>
       )
     }
@@ -132,7 +140,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#ffa500' }}></div>
-          <span style={{ color: '#ffa500' }}>已停止</span>
+          <span style={{ color: '#ffa500' }}>
+            <FormattedMessage {...IntlMessages.svcStopped} />
+          </span>
         </div>
       )
     }
