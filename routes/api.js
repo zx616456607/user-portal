@@ -61,6 +61,7 @@ const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
+const middlewareCenter = require('../controllers/middleware_center')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -909,6 +910,12 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/networkpolicy/:name',securityGroupController.getSecurityGroupDetail)
   router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
   router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
+
+  // middlewareCenter
+  router.get('/appcenters/groups', middlewareCenter.getAppClassifies)
+  router.get('/appcenters', middlewareCenter.getApps)
+  router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
+  router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

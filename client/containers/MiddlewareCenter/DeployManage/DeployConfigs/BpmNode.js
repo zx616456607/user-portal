@@ -10,8 +10,9 @@
  * @date 2018-09-08
  */
 import React from 'react'
-import TenxPage from '@tenx-ui/page'
+import { connect } from 'react-redux'
 import { Form, Row, Col, Button, Icon, InputNumber, Select, Radio } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import IntlMessage from '../../Intl'
 import PanelHeader from './PanelHeader'
 import './style/BpmNode.less'
@@ -23,18 +24,99 @@ import {
   RESOURCES_CPU_DEFAULT,
 } from '../../../../../src/constants';
 import classNames from 'classnames';
+import * as storageActions from '../../../../../src/actions/storage'
+import * as clusterActions from '../../../../../src/actions/cluster'
+import { getDeepValue } from '../../../../../client/util/util'
+import { camelize } from 'humps';
 
 const FormItem = Form.Item
 const Option = Select.Option
 
+const DEFAULT_REPLICAS = 1
+
+const mapStateToProps = (state, props) => {
+  const { clusterID } = props
+  const clusterId = camelize(clusterID)
+  const nfsList = getDeepValue(state, [ 'cluster', 'clusterStorage', clusterID, 'nfsList' ])
+  const proxy = getDeepValue(state, [ 'cluster', 'proxy', 'result', clusterId, 'data' ])
+  return {
+    nfsList,
+    proxy,
+  }
+}
+@connect(mapStateToProps, {
+  loadFreeVolume: storageActions.loadFreeVolume,
+  getClusterStorageList: clusterActions.getClusterStorageList,
+  getProxy: clusterActions.getProxy,
+})
 export default class BpmNode extends React.PureComponent {
   state = {
-    composeType: 512,
+    resourceType: 512,
+  }
+
+  componentDidMount() {
+    this.initBpmNode()
+  }
+
+  initBpmNode = async () => {
+    const { form, getProxy, clusterID } = this.props
+    const { setFieldsValue } = form
+    const { resourceType } = this.state
+    setFieldsValue({
+      resourceType,
+      DIYMinMemory: RESOURCES_MEMORY_MIN,
+      DIYMinCPU: RESOURCES_CPU_DEFAULT,
+      DIYMaxMemory: RESOURCES_MEMORY_MIN,
+      DIYMaxCPU: RESOURCES_CPU_DEFAULT,
+      replicas: DEFAULT_REPLICAS,
+      accessMethod: 'PublicNetwork',
+    })
+    await getProxy(clusterID)
+    const { proxy } = this.props
+    let defaultProxy = proxy.filter(item => item.isDefault)
+    if (isEmpty(defaultProxy)) {
+      return
+    }
+    defaultProxy = defaultProxy[0]
+    this.setProxyFields(defaultProxy)
+  }
+
+  setProxyFields = proxy => {
+    const { setFieldsValue } = this.props.form
+    const fields = {}
+    switch (proxy.type) {
+      case 'public':
+        Object.assign(fields, {
+          accessMethod: 'PublicNetwork',
+          publicNetwork: proxy.id,
+        })
+        break
+      case 'private':
+        Object.assign(fields, {
+          accessMethod: 'InternalNetwork',
+          internalNetwork: proxy.id,
+        })
+        break
+      default:
+        break
+    }
+    setFieldsValue(fields)
+  }
+
+  handleStorage = value => {
+    const { loadFreeVolume, clusterID, getClusterStorageList } = this.props
+    loadFreeVolume(clusterID, { srtype: 'share', storagetype: value })
+    getClusterStorageList(clusterID)
   }
 
   selectComposeType = type => {
+    const { form } = this.props
+    const { setFieldsValue } = form
     this.setState({
-      composeType: type,
+      resourceType: type,
+    })
+    setFieldsValue({
+      resourceType: type,
     })
   }
 
@@ -58,7 +140,7 @@ export default class BpmNode extends React.PureComponent {
     }
   }
 
-  checkReplicas(rule, value, callback) {
+  checkReplicas = (rule, value, callback) => {
     const { intl } = this.props
     if (!value) {
       callback()
@@ -69,37 +151,86 @@ export default class BpmNode extends React.PureComponent {
     callback()
   }
 
+  renderProxy = type => {
+    const { proxy } = this.props
+    if (isEmpty(proxy)) {
+      return
+    }
+    return proxy
+      .filter(item => item.type === type)
+      .map(item => <Option value={item.id}>{item.name}</Option>)
+  }
+
+  accessMethodChange = e => {
+    const { proxy } = this.props
+    const accessMethod = e.target.value
+    const proxyType = accessMethod === 'PublicNetwork' ? 'public' : 'private'
+    const currentProxy = proxy.filter(item => item.type === proxyType)[0]
+    this.setProxyFields(currentProxy)
+  }
+
+  isProxyDisabled = type => {
+    const { proxy } = this.props
+    if (isEmpty(proxy)) {
+      return true
+    }
+    return proxy.every(item => item.type !== type)
+  }
+
   render() {
-    const { composeType } = this.state
-    const { formItemLayout, intl, form } = this.props
+    const { resourceType } = this.state
+    const { formItemLayout, intl, form, nfsList } = this.props
     const { getFieldProps, getFieldValue } = form
     const accessMethod = getFieldValue('accessMethod')
     const DIYMinMemoryProps = getFieldProps('DIYMinMemory', {
-      initialValue: RESOURCES_MEMORY_MIN,
       onChange: this.minMemoryChange,
     })
     const DIYMaxMemoryProps = getFieldProps('DIYMaxMemory', {
-      initialValue: RESOURCES_MEMORY_MIN,
     })
     const DIYMinCPUProps = getFieldProps('DIYMinCPU', {
-      initialValue: RESOURCES_CPU_DEFAULT,
       onChange: this.minCpuChange,
     })
-    const DIYMaxCPUProps = getFieldProps('DIYMaxCpu', {
-      initialValue: RESOURCES_CPU_DEFAULT,
+    const DIYMaxCPUProps = getFieldProps('DIYMaxCPU', {
     })
     const replicasProps = getFieldProps('replicas', {
       rules: [
         { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas },
       ],
-      initialValue: 1,
+    })
+    const storageType = getFieldProps('storageType', {
+      rules: [
+        {
+          required: true, message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.storageType),
+          }),
+        },
+      ],
+      onChange: this.handleStorage,
+    })
+    const storageCluster = getFieldProps('storageCluster', {
+      rules: [
+        {
+          required: true, message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.storageCluster),
+          }),
+        },
+      ],
     })
     const accessMethodProps = getFieldProps('accessMethod', {
-      initialValue: 'PublicNetwork',
+      rules: [
+        {
+          required: true,
+          message: intl.formatMessage(IntlMessage.pleaseSelect, {
+            item: intl.formatMessage(IntlMessage.accessMethod),
+            tail: '',
+          }),
+        },
+      ],
+      onChange: this.accessMethodChange,
     })
     return (
-      <TenxPage inner className="bpm-node-config">
+      <div className="bpm-node-config">
         <PanelHeader
           title={intl.formatMessage(IntlMessage.bpmNodeTitle)}
         />
@@ -109,7 +240,7 @@ export default class BpmNode extends React.PureComponent {
               {intl.formatMessage(IntlMessage.containerConfig)}
             </Col>
             <Col span={formItemLayout.wrapperCol.span} className="configBox">
-              <Button className="configList" type={composeType === 512 ? 'primary' : 'ghost'}
+              <Button className="configList" type={resourceType === 512 ? 'primary' : 'ghost'}
                 onClick={() => this.selectComposeType(512)}>
                 <div className="topBox">
                   2X
@@ -122,8 +253,8 @@ export default class BpmNode extends React.PureComponent {
                 </div>
               </Button>
               <div className={classNames('configList DIY', {
-                'btn ant-btn-primary': composeType === 'DIY',
-                'btn ant-btn-ghost': composeType !== 'DIY',
+                'btn ant-btn-primary': resourceType === 'DIY',
+                'btn ant-btn-ghost': resourceType !== 'DIY',
               })} onClick={() => this.selectComposeType('DIY')}>
                 <div className="topBox">
                   {intl.formatMessage(IntlMessage.customize)}
@@ -204,9 +335,10 @@ export default class BpmNode extends React.PureComponent {
                   placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
                     item: intl.formatMessage(IntlMessage.storageType),
                   })}
+                  {...storageType}
                 >
                   <Option value="nfs">NFS</Option>
-                  <Option value="glusterfs">GlusterFS</Option>
+                  {/* <Option value="glusterfs">GlusterFS</Option>*/}
                 </Select>
               </FormItem>
             </Col>
@@ -217,9 +349,15 @@ export default class BpmNode extends React.PureComponent {
                   placeholder={intl.formatMessage(IntlMessage.pleaseSelect, {
                     item: intl.formatMessage(IntlMessage.storageCluster),
                   })}
+                  {...storageCluster}
                 >
-                  <Option value="nfs">NFS</Option>
-                  <Option value="glusterfs">GlusterFS</Option>
+                  {
+                    nfsList && nfsList.map(item =>
+                      <Option key={item.metadata.name}>
+                        {item.metadata.annotations['tenxcloud.com/scName'] || item.metadata.name}
+                      </Option>
+                    )
+                  }
                 </Select>
               </FormItem>
             </Col>
@@ -227,12 +365,19 @@ export default class BpmNode extends React.PureComponent {
           <FormItem
             label={intl.formatMessage(IntlMessage.accessMethod)}
             {...formItemLayout}
+            style={{ marginBottom: 0 }}
           >
             <Radio.Group {...accessMethodProps}>
-              <Radio value="PublicNetwork" key="PublicNetwork">
+              <Radio
+                value="PublicNetwork" key="PublicNetwork"
+                disabled={this.isProxyDisabled('public')}
+              >
                 {intl.formatMessage(IntlMessage.publicNetAccess)}
               </Radio>
-              <Radio value="InternalNetwork" key="InternalNetwork">
+              <Radio
+                value="InternalNetwork" key="InternalNetwork"
+                disabled={this.isProxyDisabled('private')}
+              >
                 {intl.formatMessage(IntlMessage.intranetAccess)}
               </Radio>
             </Radio.Group>
@@ -240,6 +385,7 @@ export default class BpmNode extends React.PureComponent {
           <FormItem
             label={' '}
             {...formItemLayout}
+            style={{ marginBottom: 0 }}
           >
             <p className="ant-form-text hintColor">
               {
@@ -267,8 +413,7 @@ export default class BpmNode extends React.PureComponent {
                     item: intl.formatMessage(IntlMessage.nexport),
                   })}
                 >
-                  <Option key={'public1'}>public1</Option>
-                  <Option key={'public2'}>public2</Option>
+                  {this.renderProxy('public')}
                 </Select>
               </FormItem> :
               <FormItem
@@ -287,13 +432,13 @@ export default class BpmNode extends React.PureComponent {
                     item: intl.formatMessage(IntlMessage.nexport),
                   })}
                 >
-                  <Option key={'internal1'}>internal1</Option>
-                  <Option key={'internal'}>internal2</Option>
+
+                  {this.renderProxy('private')}
                 </Select>
               </FormItem>
           }
         </div>
-      </TenxPage>
+      </div>
     )
   }
 }

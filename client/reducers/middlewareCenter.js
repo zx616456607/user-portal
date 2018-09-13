@@ -25,8 +25,62 @@ function appConfigs(state = {}, action) {
   }
 }
 
+function appClassifies(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_MIDDLEWARE_APP_CLASSIFIES_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_MIDDLEWARE_APP_CLASSIFIES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_MIDDLEWARE_APP_CLASSIFIES_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function apps(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_MIDDLEWARE_APPS_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.GET_MIDDLEWARE_APPS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.GET_MIDDLEWARE_APPS_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function currentApp(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.SET_CURRENT_APP:
+      return {
+        app: action.app,
+      }
+    default:
+      return state
+  }
+}
+
 export default function middlewareCenter(state = {}, action) {
   return {
     appConfigs: appConfigs(state.appConfigs, action),
+    appClassifies: appClassifies(state.appClassifies, action),
+    apps: apps(state.apps, action),
+    currentApp: currentApp(state.currentApp, action),
   }
 }
