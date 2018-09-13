@@ -274,7 +274,7 @@ class DataTable extends Component {
     }
     const { currentProject } = this.state
     let isPublic = this.getIsPublicText(currentProject, true, false)
-    const publicModalTitle = !isPublic ?formatMessage(repoGroupListIntl.setToPrivate): formatMessage(repoGroupListIntl.setToPublic)
+    const publicModalTitle = isPublic ?formatMessage(repoGroupListIntl.setToPrivate): formatMessage(repoGroupListIntl.setToPublic)
     return (
       <div>
         <Table className="myImage"
@@ -294,12 +294,20 @@ class DataTable extends Component {
         >
           <div className="confirmText">
             <div>
-              <p>
+              <p>①&nbsp;
                 {
-                  !isPublic ? formatMessage(repoGroupListIntl.setToPublicContent1) : formatMessage(repoGroupListIntl.setToPrivateContent)
+                  isPublic ? formatMessage(repoGroupListIntl.setToPublicContent1) : formatMessage(repoGroupListIntl.setToPrivateContent1)
                 }
               </p>
-              <p>② {formatMessage(repoGroupListIntl.setToPublicContent2)} <code>docker login</code> {formatMessage(repoGroupListIntl.setToPublicContent3)}</p>
+              <p>②&nbsp;
+                {
+                  isPublic ? formatMessage(repoGroupListIntl.setToPublicContent2) : formatMessage(repoGroupListIntl.setToPrivateContent2)
+                }
+                <code>docker login</code>
+                {
+                  isPublic ? formatMessage(repoGroupListIntl.setToPublicContent3) : formatMessage(repoGroupListIntl.setToPrivateContent3)
+                }
+              </p>
             </div>
           </div>
           <br/>

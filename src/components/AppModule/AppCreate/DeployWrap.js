@@ -379,6 +379,17 @@ class WrapManage extends Component {
     }
     return null
   }
+
+  callbackRow = (RowKeys, id, Template, fileType) => {
+    this.setState({
+      selectedRowKeys: RowKeys,
+      id,
+      defaultTemplate: Template,
+      version: null,
+      fileType,
+    })
+  }
+
   render() {
     const { serviceList, template, defaultTemplate, version, currentType } = this.state
     const { current, quick_create, location, childrenSteps, intl } = this.props
@@ -434,7 +445,13 @@ class WrapManage extends Component {
                 </Button>
               </ButtonGroup>
             </div>
-            <WrapListTable currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+            <WrapListTable
+              currentType={currentType}
+              func={funcCallback}
+              selectedRowKeys={this.state.selectedRowKeys}
+              entryPkgID={location.query.entryPkgID}
+              callbackRow={this.callbackRow}
+            />
             <br />
             <div className="list_row" style={{ height: 'auto' }}>
               <span className="wrap_key" style={{ float: 'left' }}><FormattedMessage {...IntlMessage.operatingEnv}/></span>
@@ -486,7 +503,14 @@ class WrapManage extends Component {
                   <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
                 </ButtonGroup>
               </div>
-              <WrapListTable location={location} currentType={currentType} func={funcCallback} selectedRowKeys={this.state.selectedRowKeys} entryPkgID={location.query.entryPkgID}/>
+              <WrapListTable
+                location={location}
+                currentType={currentType}
+                func={funcCallback}
+                selectedRowKeys={this.state.selectedRowKeys}
+                entryPkgID={location.query.entryPkgID}
+                callbackRow={this.callbackRow}
+              />
               <br />
               <div className="list_row" style={{ height: 'auto' }}>
                 <span className="wrap_key" style={{ float: 'left' }}>运行环境</span>
