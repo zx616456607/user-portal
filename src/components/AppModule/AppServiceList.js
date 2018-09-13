@@ -476,7 +476,7 @@ const MyComponent = React.createClass({
               {formatMessage(AllServiceListIntl.HightAvailable)}
             </Menu.Item>
           </SubMenu>
-          <SubMenu title="更多设置">
+          <SubMenu title={formatMessage(AllServiceListIntl.moreSet)}>
             <Menu.Item key="binddomain" style={{width:'102px'}}>
               {formatMessage(AllServiceListIntl.bundDomin)}
             </Menu.Item>
