@@ -315,7 +315,6 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
   router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   router.get('/clusters/:cluster/configgroups/:name/verify', configController.checkConfigGroupName)
-  router.get('/clusters/:cluster/configgroups/:name/verify', configController.checkConfigGroupName)
   // Secrets config
   router.post('/clusters/:clusterID/secrets/:groupName', secretsController.createGroup)
   router.del('/clusters/:clusterID/secrets/:groupName', secretsController.removeGroup)
