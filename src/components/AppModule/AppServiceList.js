@@ -1231,14 +1231,12 @@ class AppServiceList extends Component {
       manualScaleModalShow, runBtn, stopBtn, restartBtn,
       redeploybtn, grayscaleUpgradeModalVisible,
     } = this.state
-    console.log('serviceLis骂了隔壁t', JSON.stringify(serviceList))
     const {
       name, pathname, page,
       size, total, isFetching,
       loginUser, cluster, appName, loadServiceList, k8sServiceList, intl: { formatMessage },
       serviceList: propsserviceList
     } = this.props
-    console.log('fuckserviceList', propsserviceList)
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)

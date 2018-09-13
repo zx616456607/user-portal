@@ -340,7 +340,6 @@ exports.getAppServices = function* () {
   }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', appName, 'services'], queryObj)
-  console.log('中间层,骚操作1,APP', JSON.stringify(result))
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
 
   const services = result.data.services
@@ -371,7 +370,6 @@ exports.getAppServices = function* () {
     count: result.data.count,
     availableReplicas: result.data.runningDeployment
   }
-  console.log('中间层,骚操作2,APP', JSON.stringify(body))
   this.body = body
 }
 

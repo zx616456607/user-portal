@@ -195,7 +195,6 @@ class AppContainerList extends Component {
     const { containerList, loading, serviceName, serviceDetail } = this.props
     const containerNum = containerList && containerList.length
     const {appCenterChoiceHidden = false} = this.props
-    console.log('appCenterChoiceHidden', appCenterChoiceHidden)
     return (
       <div id="AppContainerList">
         <QueueAnim className="demo-content"
