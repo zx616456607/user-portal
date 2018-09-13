@@ -61,7 +61,7 @@ const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
-const MiddlewareCenterZ = require('../controllers/MiddlewareCenterZ')
+const middlewareCenter = require('../controllers/middleware_center')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -912,14 +912,19 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
   router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
 
-  // AppCenter
-  router.get('/clusters/:cluster/appcenters', MiddlewareCenterZ.getAppClusterList)
-  router.get('/clusters/:cluster/appcenters/:name', MiddlewareCenterZ.getAppClusterDetail)
-  router.post('/clusters/:cluster/appcenters/delete', MiddlewareCenterZ.deleteClusterDetail)
-  router.post('/clusters/:cluster/appcenters/stop', MiddlewareCenterZ.stopClusterDetail)
-  router.post('/clusters/:cluster/appcenters/start', MiddlewareCenterZ.startClusterDetail)
-  router.post('/clusters/:cluster/appcenters/reboot', MiddlewareCenterZ.rebootClusterDetail)
-  router.get('/clusters/:cluster/appcenters/:name/services', MiddlewareCenterZ.getAppClusterServerList)
+    // middlewareCenter
+  router.get('/clusters/:cluster/appcenters', middlewareCenter.getAppClusterList)
+  router.get('/clusters/:cluster/appcenters/:name', middlewareCenter.getAppClusterDetail)
+  router.post('/clusters/:cluster/appcenters/delete', middlewareCenter.deleteClusterDetail)
+  router.post('/clusters/:cluster/appcenters/stop', middlewareCenter.stopClusterDetail)
+  router.post('/clusters/:cluster/appcenters/start', middlewareCenter.startClusterDetail)
+  router.post('/clusters/:cluster/appcenters/reboot', middlewareCenter.rebootClusterDetail)
+  router.get('/clusters/:cluster/appcenters/:name/services', middlewareCenter.getAppClusterServerList)
+  router.get('/appcenters/groups', middlewareCenter.getAppClassifies)
+  router.get('/appcenters', middlewareCenter.getApps)
+  router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
+  router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
+
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }

@@ -10,10 +10,15 @@
  * @date 2018-09-08
  */
 import React from 'react'
+import classNames from 'classnames'
 
-export default ({ title }) => {
+export default ({ title, isFirst }) => {
   return (
-    <div className="configBoxHeader">
+    <div
+      className={classNames('configBoxHeader', {
+        'reset-background-color': isFirst,
+      })}
+    >
       <div className="headerLeft">
         <div className="line"/>
         <span className="title">{title}</span>

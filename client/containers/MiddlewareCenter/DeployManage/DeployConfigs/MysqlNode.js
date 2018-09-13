@@ -10,21 +10,60 @@
  * @date 2018-09-08
  */
 import React from 'react'
-import TenxPage from '@tenx-ui/page'
+import { connect } from 'react-redux'
 import { Form, InputNumber, Select, Input } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import IntlMessage from '../../Intl'
 import PanelHeader from './PanelHeader'
 import './style/MysqlNode.less'
+import * as clusterActions from '../../../../../src/actions/cluster'
+import { getDeepValue } from '../../../../../client/util/util'
 
 const FormItem = Form.Item
 const Option = Select.Option
 
+const mapStateToProps = (state, props) => {
+  const { clusterID } = props
+  const cephList = getDeepValue(state, [ 'cluster', 'clusterStorage', clusterID, 'cephList' ])
+  return {
+    cephList,
+  }
+}
+
+@connect(mapStateToProps, {
+  getClusterStorageList: clusterActions.getClusterStorageList,
+})
 export default class MysqlNode extends React.PureComponent {
+
+  state = {
+    readOnly: true,
+  }
+
+  componentDidMount() {
+    const { clusterID, getClusterStorageList, form } = this.props
+    getClusterStorageList(clusterID)
+    form.setFieldsValue({
+      blockStorageSize: 512,
+    })
+  }
+
+  renderStorageCluster = () => {
+    const { cephList } = this.props
+    if (isEmpty(cephList)) {
+      return
+    }
+    return cephList.map(item =>
+      <Option key={item.metadata.name}>
+        {item.metadata.annotations['tenxcloud.com/scName']}
+      </Option>
+    )
+  }
+
   render() {
     const { form, formItemLayout, intl } = this.props
     const { getFieldProps } = form
     return (
-      <TenxPage inner className="mysql-node-config">
+      <div className="mysql-node-config">
         <PanelHeader
           title={intl.formatMessage(IntlMessage.mysqlNodeTip)}
         />
@@ -47,7 +86,7 @@ export default class MysqlNode extends React.PureComponent {
                     }],
                   })}
                 >
-                  <Option key={'cluster1'}>cluster1</Option>
+                  {this.renderStorageCluster()}
                 </Select>
               </FormItem>
             </div>
@@ -95,6 +134,10 @@ export default class MysqlNode extends React.PureComponent {
             {...formItemLayout}
           >
             <Input
+              type="password"
+              readOnly={!!this.state.readOnly}
+              onFocus={() => this.setState({ readOnly: false })}
+              onBlur={() => this.setState({ readOnly: true })}
               placeholder={intl.formatMessage(IntlMessage.password)}
               {...getFieldProps('databasePassword', {
                 rules: [{
@@ -109,7 +152,7 @@ export default class MysqlNode extends React.PureComponent {
             />
           </FormItem>
         </div>
-      </TenxPage>
+      </div>
     )
   }
 }
