@@ -327,7 +327,7 @@ class WrapDetailModal extends React.Component {
     deploy(pkgDetail.fileName)
   }
   renderDeployBtn() {
-    const { pkgDetail, isStore, isAdmin, vmWrapConfig } = this.props
+    const { pkgDetail, isStore, isAdmin, vmWrapConfig, updateDownloadCount } = this.props
     const { enabled } = vmWrapConfig
     const menu = (
       <Menu onClick={e => this.handleMenuClick(e, pkgDetail)} style={{ width: 110 }}>
@@ -354,7 +354,11 @@ class WrapDetailModal extends React.Component {
             <Menu.Item key="none" style={{ display: 'none' }} />
         }
         <Menu.Item key="download">
-          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail && pkgDetail.id}`}>下载</a>
+          <a target="_blank" href={`${API_URL_PREFIX}/pkg/${pkgDetail && pkgDetail.id}`}
+             onClick={() => updateDownloadCount && updateDownloadCount(pkgDetail.id)}
+          >
+            下载
+          </a>
         </Menu.Item>
         {
           !isStore ?

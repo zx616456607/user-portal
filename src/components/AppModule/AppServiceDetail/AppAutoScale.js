@@ -686,10 +686,11 @@ class AppAutoScale extends Component {
       )
     })
     const currentService = serviceDetail[cluster]
-      && serviceDetail[cluster][serviceName]
-      && serviceDetail[cluster][serviceName].service
-      || null
+    && serviceDetail[cluster][serviceName]
+    && serviceDetail[cluster][serviceName].service
+    || null
     const annotations = currentService
+      && currentService.spec
       && currentService.spec.template
       && currentService.spec.template.metadata.annotations
       || null
@@ -701,10 +702,12 @@ class AppAutoScale extends Component {
       <div id="AppAutoScale">
         <div className="autoScaleSwitch">
           <span>{formatMessage(AppServiceDetailIntl.autoScale)}</span>
-          <Switch checked={switchOpen} onChange={this.updateScaleStatus}
-            checkedChildren={formatMessage(ServiceCommonIntl.open)}
-            unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
-          />
+          <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
+            <Switch checked={switchOpen} onChange={this.updateScaleStatus} disabled={isFexed}
+              checkedChildren={formatMessage(ServiceCommonIntl.open)}
+              unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
+            />
+          </Tooltip>
         </div>
         <Tabs activeKey={activeKey} onChange={activeKey => this.setState({activeKey})} type="card" id="autoScaleTabs">
           <TabPane tab={formatMessage(AppServiceDetailIntl.scaleStrategy)} key="autoScaleForm">
@@ -751,7 +754,7 @@ class AppAutoScale extends Component {
                     label={formatMessage(AppServiceDetailIntl.moreContainerNum)}
                   >
                     <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
-                    {
+                    { /*
                       isFexed ?
                         <span className="maxInstance">
                           <Icon
@@ -760,7 +763,7 @@ class AppAutoScale extends Component {
                           服务开启了固定实例 IP，实例数量最多为 IP 数量
                         </span>
                         : null
-                    }
+                    */ }
                   </FormItem>
                   {thresholdItem}
                   <FormItem
@@ -822,7 +825,9 @@ class AppAutoScale extends Component {
                     {
                       !isEdit
                         ?
-                        <Button key="edit" size="large" type="primary" onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
+                        <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
+                          <Button key="edit" size="large" type="primary" disabled={isFexed} onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
+                        </Tooltip>
                         :
                         [
                           <Button key="cancel" size="large" onClick={this.cancelEdit}>{formatMessage(ServiceCommonIntl.cancel)}</Button>,

@@ -310,13 +310,6 @@ class WrapListTable extends Component {
       newId.push(record.id)
     }
     if (!rowCheckbox) {
-      func.scope.setState({
-        selectedRowKeys: [index],
-        id: [record.id],
-        defaultTemplate: record.fileType =='jar' ? 0 : 1,
-        version: null,
-        fileType: record.fileType,
-      })
       callbackRow && callbackRow([index], [record.id], record.fileType == 'jar' ? 0 : 1, record.fileType)
       window.WrapListTable = record
       return

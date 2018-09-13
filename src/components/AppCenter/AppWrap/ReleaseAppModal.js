@@ -57,6 +57,9 @@ class ReleaseAppModal extends React.Component {
     if(value && value.length > 1) {
       return callback('只能选择一个分类')
     }
+    for (let v of value) {
+      if (v.trim().length === 0) return callback('分类名不能为空字符串')
+    }
     callback()
   }
   checkDesc(rule, value, callback) {

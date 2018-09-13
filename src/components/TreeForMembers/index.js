@@ -40,7 +40,8 @@ class TreeComponent extends Component {
   }
 
   componentDidMount() {
-    const { outPermissionInfo, existMember } = this.props
+    const { outPermissionInfo, existMember, getTreeRightData } = this.props
+    getTreeRightData(existMember)
     this.setState({
       existMember,
       outPermissionInfo,

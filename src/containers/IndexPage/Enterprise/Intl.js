@@ -113,6 +113,11 @@ export const mapData = {
     publicImages: '公开镜像',
     alarm: '告警',
     noSysAlarm: '暂时无系统告警',
+    svcNormal: '正常',
+    svcWaring: '警告',
+    svcNotInstall: '未安装',
+    svcAbnormal: '异常',
+    svcStopped: '已停止',
   },
 }
 

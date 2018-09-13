@@ -742,6 +742,14 @@ const Normal = React.createClass({
               </FormItem>
             </Col>
           </Row>
+          {
+            getFieldValue('replicasCheck')
+              ? <ReplicasRestrictIP
+                  form={form}
+                  // Events={Events}
+                />
+              : null
+          }
           { // 应用模板暂不支持hostname
             !isTemplate &&
             <Row key="hostname">
@@ -760,14 +768,6 @@ const Normal = React.createClass({
                 </FormItem>
               </Col>
             </Row>
-          }
-          {
-            getFieldValue('replicasCheck')
-              ? <ReplicasRestrictIP
-                  form={form}
-                  // Events={Events}
-                />
-              : null
           }
           <AccessMethod
             formItemLayout={formItemLayout}
