@@ -3089,5 +3089,8 @@
   "AppCenter.AppTemplate.edit": "Edit",
   "AppCenter.AppTemplate.delete": "Delete",
   "AppCenter.AppTemplate.deploy": "Deploy",
-  "AppCenter.AppTemplate.updateOn": "{date} Updated"
+  "AppCenter.AppTemplate.updateOn": "{date} Updated",
+  "ServiceConfig.apmDisabledTip": "This project prohibits the installation of APM components, please contact platform-admin",
+  "Sider.onlyInfraAndAdmin": "Only infrastructure-admin&system-admin are visible",
+  "Sider.onlyPlatformAndAdmin": "Only platform-admin&system-admin visible"
 }
