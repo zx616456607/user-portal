@@ -594,6 +594,7 @@ const parseIngress = ingress => {
       [`sessionSticky-${index}`]: sessionSticky, // 会话保持是否开启
       [`protocol-${index}`]: protocol, // 监听协议
       [`port-${index}`]: items[0].servicePort, // 服务端口
+      [`weight-${index}`]: items[0].weight, // 权重
       [`host-${index}`]: hostValue, // 转发规则
       [`ingress-${index}`]: ingressOptions,
     });

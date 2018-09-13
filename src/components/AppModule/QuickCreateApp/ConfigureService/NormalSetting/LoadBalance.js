@@ -541,13 +541,13 @@ class LoadBalance extends React.Component {
             </Col>
           </Row>
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('TCP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('TCP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('UDP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('UDP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('HTTP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('HTTP')
           }
         </Col>
       </Row>
