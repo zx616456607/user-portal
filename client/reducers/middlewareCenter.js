@@ -25,6 +25,48 @@ function appConfigs(state = {}, action) {
   }
 }
 
+function AppClusterList(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.APP_CLUSTER_LIST_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      });
+    case ActionTypes.APP_CLUSTER_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.result.data,
+      });
+    case ActionTypes.APP_CLUSTER_LIST_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    default:
+      return state;
+  }
+}
+
+function AppClusterServerList(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.APP_CLUSTER_SERVER_LIST_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      });
+    case ActionTypes.APP_CLUSTER_SERVER_LIST_SUCCESS: {
+      const newState = Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result,
+      });
+      return newState
+    }
+    case ActionTypes.APP_CLUSTER_SERVER_LIST_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    default:
+      return state;
+  }
+}
+
 function appClassifies(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_MIDDLEWARE_APP_CLASSIFIES_REQUEST:
@@ -82,5 +124,7 @@ export default function middlewareCenter(state = {}, action) {
     appClassifies: appClassifies(state.appClassifies, action),
     apps: apps(state.apps, action),
     currentApp: currentApp(state.currentApp, action),
+    AppClusterList: AppClusterList(state.AppClusterList, action),
+    AppClusterServerList: AppClusterServerList(state.AppClusterServerList, action),
   }
 }

@@ -1326,8 +1326,8 @@ class AlarmModal extends Component {
               </Form.Item>
             </Form>
             <div className="wrapFooter">
-              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">{formatMessage(ServiceCommonIntl.submit)}</Button>
-              <Button size="large" onClick={() => this.submitRule()} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
+              <Button size="large" onClick={() => funcs.nextStep(2)} type="primary">{formatMessage(ServiceCommonIntl.lastStep)}</Button>
+              <Button size="large" onClick={() => this.submitRule()} type="primary">{formatMessage(ServiceCommonIntl.submit)}</Button>
             </div>
           </div>
         </div>

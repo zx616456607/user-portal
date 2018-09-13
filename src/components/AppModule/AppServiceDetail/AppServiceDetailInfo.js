@@ -178,8 +178,8 @@ class MyComponent extends Component {
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
-    if(name == '' || value == '' || name == undefined || value == undefined){
-      Notification.error(formatMessage(AppServiceDetailIntl.variableNameValueNotEmpty))
+    if(name == '' || name == undefined){
+      Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
       return
     }
     for(let i=0; i<dataArray.length; i++ ){
@@ -414,12 +414,15 @@ class MyComponent extends Component {
   render(){
     const { DeletingEnvName } = this.state
     const { formatMessage } = this.props
+    const {appCenterChoiceHidden = false} = this.props
     return (
       <div className='DetailInfo__MyComponent commonBox'>
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.envVariable)}</span>
           <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
         <div className='save_box'>
+        {!appCenterChoiceHidden &&
           <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>{formatMessage(AppServiceDetailIntl.appChange)}</Button>
+        }
         </div>
           <div className="titleBox">
             <div className="commonTitle">
@@ -438,9 +441,11 @@ class MyComponent extends Component {
             {this.templateTable(this.state.dataArray,this.state.rowDisableArray)}
           </Form>
         </div>
+        {!appCenterChoiceHidden &&
         <div className="pushRow">
           <a onClick={this.addNewEnv}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.addEnvVariable)}</a>
         </div>
+        }
         <Modal
           title={formatMessage(AppServiceDetailIntl.deleteEnvVariableOperation)}
           wrapClassName="ModalDeleteInfo"
@@ -1403,6 +1408,7 @@ class AppServiceDetailInfo extends Component {
           serviceDetail={serviceDetail}
           cluster={cluster}
           formatMessage={formatMessage}
+          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
         />
         <div className="storage commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
@@ -1411,6 +1417,7 @@ class AppServiceDetailInfo extends Component {
               {formatMessage(AppServiceDetailIntl.changeNoEffect)}
             </span>
           }
+          { (!this.props.appCenterChoiceHidden || false) &&
           <div className='save_box'>
             <Button
               type="primary"
@@ -1423,6 +1430,7 @@ class AppServiceDetailInfo extends Component {
               {formatMessage(AppServiceDetailIntl.appChange)}
             </Button>
           </div>
+          }
           <div className="titleBox">
             <Row className='volume_row_style'>
               <Col span="5">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
@@ -1435,6 +1443,7 @@ class AppServiceDetailInfo extends Component {
           <div className="dataBox">
             {this.getMount()}
           </div>
+          { (!this.props.appCenterChoiceHidden || false) &&
           <div className='add_volume_button'>
             <span
               className='add_button'
@@ -1443,6 +1452,7 @@ class AppServiceDetailInfo extends Component {
               <Icon type="plus" />{formatMessage(AppServiceDetailIntl.addContainerDir)}
             </span>
           </div>
+          }
         </div>
         <Modal
           title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }

@@ -61,6 +61,8 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/projects/,
     /\/app_center\/wrap_store/,
     /\/middleware_center\/app\/config/,
+    /\/middleware_center\/deploy/,
+    /\/middleware_center\/deploy\/detail\/?$/,
   ],
   cluster: [
     /^\/$/,
@@ -76,6 +78,8 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/wrap_store/,
     /\/cluster\/plugin/,
     /\/middleware_center\/app\/config/,
+    /\/middleware_center\/deploy/,
+    /\/middleware_center\/deploy\/detail\/?$/,
   ],
 }
 

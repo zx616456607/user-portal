@@ -194,7 +194,7 @@ const rootReducer = combineReducers({
   applyLimit,
   dnsRecord,
   securityGroup,
-  middlewareCenter,
+  middlewareCenter
 })
 
 export default rootReducer

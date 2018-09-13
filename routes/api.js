@@ -165,7 +165,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
   router.put('/clusters/:cluster/apps/batch-restart', appController.restartApps)
   router.put('/clusters/:cluster/apps/batch-status', appController.getAppsStatus)
-  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
+  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices) // 炎黄
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
   router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail) // spi
@@ -217,7 +217,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
-  router.get('/clusters/:cluster/services', serviceController.getAllService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService) // 炎黄
   router.put('/clusters/:cluster/services/:service_name/portinfo', serviceController.updateServicePortInfo)
   router.get('/clusters/:cluster/services/:service_name/certificates', serviceController.getCertificate)
   router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
@@ -860,6 +860,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
   router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
@@ -911,7 +912,14 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
   router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
 
-  // middlewareCenter
+    // middlewareCenter
+  router.get('/clusters/:cluster/appcenters', middlewareCenter.getAppClusterList)
+  router.get('/clusters/:cluster/appcenters/:name', middlewareCenter.getAppClusterDetail)
+  router.post('/clusters/:cluster/appcenters/delete', middlewareCenter.deleteClusterDetail)
+  router.post('/clusters/:cluster/appcenters/stop', middlewareCenter.stopClusterDetail)
+  router.post('/clusters/:cluster/appcenters/start', middlewareCenter.startClusterDetail)
+  router.post('/clusters/:cluster/appcenters/reboot', middlewareCenter.rebootClusterDetail)
+  router.get('/clusters/:cluster/appcenters/:name/services', middlewareCenter.getAppClusterServerList)
   router.get('/appcenters/groups', middlewareCenter.getAppClassifies)
   router.get('/appcenters', middlewareCenter.getApps)
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)

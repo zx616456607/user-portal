@@ -8,71 +8,68 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import intlMsg from './AppServiceListIntl'
-import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
-import { Link } from 'react-router'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import intlMsg from '../../../../../src/components/AppModule/AppServiceListIntl'
+import { AllServiceListIntl } from '../../../../../src/components/AppModule/ServiceIntl'
+import { Modal, Checkbox, Dropdown, Menu, Icon, Spin, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppServiceDetail from './AppServiceDetail'
-import './style/AppServiceList.less'
-import { calcuDate } from '../../common/tools'
+import AppServiceDetail from '../../../../../src/components/AppModule/AppServiceDetail'
+import '../../../../../src/components/AppModule/style/AppServiceList.less'
+import { calcuDate } from '../../../../../src/common/tools'
 import {
-  loadServiceList,
+  // loadServiceList,
   startServices,
   restartServices,
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAutoScale
-} from '../../actions/services'
-import { removeTerminal } from '../../actions/terminal'
-import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
-import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
-import {ANNOTATION_HTTPS, DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE} from '../../../constants'
+  loadAutoScale,
+} from '../../../../../src/actions/services'
+import { loadAppClusterServerList as loadServiceList } from '../../../../actions/middlewareCenter'
+import { removeTerminal } from '../../../../../src/actions/terminal'
+import { getDeploymentOrAppCDRule } from '../../../../../src/actions/cicd_flow'
+import { UPDATE_INTERVAL } from '../../../../../src/constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../../src/constants'
 import { browserHistory } from 'react-router'
-import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
-import GrayscaleUpgradeModal from './AppServiceDetail/GrayscaleUpgradeModal'
-import ConfigModal from './AppServiceDetail/ConfigModal'
-import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
-import { parseServiceDomain } from '../parseDomain'
-import ServiceStatus from '../TenxStatus/ServiceStatus'
-import TipSvcDomain from '../TipSvcDomain'
-import yaml from 'js-yaml'
-import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import StateBtnModal from '../StateBtnModal'
-import errorHandler from '../../containers/App/error_handler'
-import NotificationHandler from '../../components/Notification'
-import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
-import Title from '../Title'
+import RollingUpdateModal from '../../../../../src/components/AppModule/AppServiceDetail/RollingUpdateModal'
+import GrayscaleUpgradeModal from '../../../../../src/components/AppModule/AppServiceDetail/GrayscaleUpgradeModal'
+import ConfigModal from '../../../../../src/components/AppModule/AppServiceDetail/ConfigModal'
+import ManualScaleModal from '../../../../../src/components/AppModule/AppServiceDetail/ManualScaleModal'
+import { parseServiceDomain } from '../../../../../src/components/parseDomain'
+import ServiceStatus from '../../../../../src/components/TenxStatus/ServiceStatus'
+import TipSvcDomain from '../../../../../src/components/TipSvcDomain'
+import { removeDeploymentWatch } from '../../../../../src/containers/App/status'
+import StateBtnModal from '../../../../../src/components/StateBtnModal'
+import errorHandler from '../../../../../src/containers/App/error_handler'
+import NotificationHandler from '../../../../../src/components/Notification'
+// import { SERVICE_KUBE_NODE_PORT } from '../../../../../src/constants'
 import cloneDeep from 'lodash/cloneDeep'
-import { isResourcePermissionError } from '../../common/tools'
-import isEmpty from "lodash/isEmpty";
-import {camelize} from "humps";
+import { isResourcePermissionError } from '../../../../../src/common/tools'
+import isEmpty from 'lodash/isEmpty';
+import { camelize } from 'humps';
 
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
-const confirm = Modal.confirm
+// const SubMenu = Menu.SubMenu
 const MyComponent = React.createClass({
   propTypes: {
-    serviceList: React.PropTypes.array
+    serviceList: React.PropTypes.array,
   },
-  onchange: function (e) {
+  onchange(e) {
     const { value, checked } = e.target
     const { scope } = this.props
     const { serviceList } = scope.state
-    const checkedList = serviceList.filter((service) => service.checked)
-    serviceList.map((service) => {
+    const checkedList = serviceList.filter(service => service.checked)
+    serviceList.map(service => {
       if (service.metadata.name === value) {
         service.checked = checked
       }
+      return {}
     })
     if (checkedList.length === 0) {
       scope.setState({
         runBtn: false,
         stopBtn: false,
-        restartBtn: false
+        restartBtn: false,
       })
       return
     }
@@ -107,14 +104,14 @@ const MyComponent = React.createClass({
       let runCount = 0
       let stopCount = 0
       let pending = 0
-      let rollingUpdateCount = 0
-      checkedList.forEach((item, index) => {
+      // let rollingUpdateCount = 0
+      checkedList.forEach(item => {
         if (item.status.phase === 'Running') {
           runCount++
         } else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
           pending++
         } else if (item.status.phase === 'RollingUpdate' || item.status.phase === 'ScrollRelease') {
-          rollingUpdateCount++
+          // rollingUpdateCount++
         } else {
           stopCount++
         }
@@ -127,7 +124,7 @@ const MyComponent = React.createClass({
         })
         if (pending) {
           scope.setState({
-            restartBtn: true
+            restartBtn: true,
           })
         }
         return
@@ -148,38 +145,39 @@ const MyComponent = React.createClass({
       return
     }
     scope.setState({
-      serviceList
+      serviceList,
     })
   },
-  selectServiceByLine: function (e, item) {
-    let stopPro = e._dispatchInstances;
-    if (stopPro.length != 2) {
+  selectServiceByLine(e, item) {
+    const stopPro = e._dispatchInstances;
+    if (stopPro.length !== 2) {
       const { scope } = this.props
       scope.setState({
-        donotUserCurrentShowInstance: true
+        donotUserCurrentShowInstance: true,
       })
       const { serviceList } = scope.state
-      serviceList.map((service) => {
+      serviceList.map(service => {
         if (service.metadata.name === item.metadata.name) {
           service.checked = !service.checked
         }
+        return {}
       })
       handleStateOfServiceList(scope, serviceList)
       scope.setState({
-        serviceList
+        serviceList,
       })
     }
   },
-  modalShow: function (item) {
+  modalShow(item) {
     // e.stopPropagation()
     const { scope } = this.props;
     scope.setState({
       selectTab: null,
       modalShow: true,
-      currentShowInstance: item
+      currentShowInstance: item,
     });
   },
-  onShowSizeChange: function (page, size) {
+  onShowSizeChange(page, size) {
     if (size === this.props.size) {
       return
     }
@@ -197,24 +195,25 @@ const MyComponent = React.createClass({
     const { pathname } = this.props
     browserHistory.push({
       pathname,
-      query
+      query,
     })
   },
   serviceOperaClick(item, e) {
     const { scope } = this.props
     const { serviceList } = scope.state
-    if(e.key == 'start' || e.key == 'stop' || e.key == 'restart' || e.key == 'batchRestartService' || e.key == 'delete'){
-      serviceList.map((service) => {
+    if (e.key === 'start' || e.key === 'stop' || e.key === 'restart' || e.key === 'batchRestartService' || e.key === 'delete') {
+      serviceList.map(service => {
         if (service.metadata.name === item.metadata.name) {
           service.checked = true
         } else {
           service.checked = false
         }
+        return {}
       })
     } else {
       scope.setState({
         currentShowInstance: item,
-        donotUserCurrentShowInstance: false
+        donotUserCurrentShowInstance: false,
       })
     }
     switch (e.key) {
@@ -225,7 +224,7 @@ const MyComponent = React.createClass({
       case 'restart':
         return scope.batchQuickRestartService()
       case 'batchRestartService':
-        return scope.batchRestartService()
+        return scope.batchRestartService(item) // 炎黃
       case 'delete':
         return scope.batchDeleteServices()
       case 'rollingUpdate':
@@ -253,79 +252,82 @@ const MyComponent = React.createClass({
         return this.showServiceDetail('https')
       case 'serverTag':
         return this.showServiceDetail('serverTag')
+      default:
+        return {}
     }
   },
   showRollingUpdateModal() {
     const { scope } = this.props
     scope.setState({
-      rollingUpdateModalShow: true
+      rollingUpdateModalShow: true,
     })
   },
   showGrayscaleUpgradeModal() {
     const { scope } = this.props
     scope.setState({
-      grayscaleUpgradeModalVisible: true
+      grayscaleUpgradeModalVisible: true,
     })
   },
   showConfigModal() {
     const { scope } = this.props
     scope.setState({
-      configModal: true
+      configModal: true,
     })
   },
   showManualScaleModal(item) {
     const { scope, cluster } = this.props
     scope.props.loadAutoScale(cluster, item.metadata.name, {
       success: {
-        func: (result) => {
+        func: result => {
           if (result.data) {
             if (Object.getOwnPropertyNames(result.data).length > 0) {
               // Check if autoscaling is disabled
-              if (result.data.spec.scaleTargetRef && result.data.spec.scaleTargetRef.name === item.metadata.name) {
+              if (result.data.spec.scaleTargetRef && result.data.spec.scaleTargetRef.name ===
+                item.metadata.name) {
                 scope.setState({
-                  disableScale: true
+                  disableScale: true,
                 })
               }
               return
             }
           }
           scope.setState({
-            disableScale: false
+            disableScale: false,
           })
-        }
-      }
+        },
+      },
     })
     scope.setState({
-      manualScaleModalShow: true
+      manualScaleModalShow: true,
     })
   },
-  showServiceDetail(item){
+  showServiceDetail(item) {
     const { scope } = this.props
-    let tabKeys = '#' + item
+    const tabKeys = '#' + item
     scope.setState({
       selectTab: tabKeys,
       modalShow: true,
     })
   },
-  renderGroupIcon(group){
+  renderGroupIcon(group) {
     const { intl: { formatMessage } } = this.props
-    if(!group || !group.id || group.type == 'none'){
+    if (!group || !group.id || group.type === 'none') {
       return <span></span>
     }
-    if(group.id == "mismatch"){
+    if (group.id === 'mismatch') {
       return <Tooltip title={formatMessage(AllServiceListIntl.netPortDelete)}>
-        <span className='standrand netcolor'>{formatMessage(AllServiceListIntl.net)}</span>
+        <span className="standrand netcolor">{formatMessage(AllServiceListIntl.net)}</span>
       </Tooltip>
 
     }
-    switch(group.type){
+    switch (group.type) {
       case 'private':
         return <Tooltip title={formatMessage(AllServiceListIntl.serviceInnerNet)}>
-          <span className='standrand privateColor'>{formatMessage(AllServiceListIntl.inner)}</span>
+          <span className="standrand privateColor">{formatMessage(AllServiceListIntl.inner)}</span>
         </Tooltip>
       case 'public':
         return <Tooltip title={formatMessage(AllServiceListIntl.servicePublicNet)}>
-          <span className='standrand publicColor'>{formatMessage(AllServiceListIntl.public)}</span>
+          <span className="standrand publicColor">{formatMessage(AllServiceListIntl.public)}</span>
         </Tooltip>
       default:
         return <span></span>
@@ -335,13 +337,14 @@ const MyComponent = React.createClass({
     const { intl: { formatMessage } } = this.props
     return (
       <Tooltip title={formatMessage(AllServiceListIntl.serviceloadBalance)}>
-      <span className='standrand privateColor'>lb</span>
+        <span className="standrand privateColor">lb</span>
       </Tooltip>
     )
   },
-  render: function () {
+  render() {
     const { formatMessage } = this.props.intl
-    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
+    const { cluster, serviceList, loading, bindingDomains, bindingIPs, k8sServiceList,
+    } = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -356,44 +359,47 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    const items = serviceList.map((item) => {
+    const items = serviceList.map(item => {
       item.cluster = cluster
       let redeployDisable = true
-      if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
+      if (item.status.phase === 'Running' || item.status.phase === 'Pending') {
         redeployDisable = false
       }
 
-      const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
-      const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
-      const ipv4 = item.spec.template
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
-      const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
+      const isRollingUpdate = item.status.phase === 'RollingUpdate'
+      const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct)
+        : formatMessage(intlMsg.rollUpdateAct)) || ''
+      const isRollingUpdateOrScrollRelease = item.status.phase === 'RollingUpdate'
+      || item.status.phase === 'ScrollRelease'
+      // const ipv4 = item.spec.template && item.spec.template.metadata &&
+      // item.spec.template.metadata.annotations
+      //   && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
+      //   && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
+      //   || null
+      // const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
-          {
-            item.status.phase == "Stopped"
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{ width: '100px' }} id="appservicelistDropdownMenu">
+          {/* {
+            item.status.phase == 'Stopped'
               ? <Menu.Item key="start">
                 {formatMessage(ServiceCommonIntl.start)}
               </Menu.Item>
-              : <Menu.Item style={{display:'none'}}></Menu.Item>
+              : <Menu.Item style={{ display: 'none' }}></Menu.Item>
           }
           {
-            item.status.phase == "Running" || item.status.phase == 'Pending'
-              ?<Menu.Item key="stop">
+            item.status.phase == 'Running' || item.status.phase == 'Pending'
+              ? <Menu.Item key="stop">
                 {formatMessage(ServiceCommonIntl.stop)}
               </Menu.Item>
-              : <Menu.Item style={{display:'none'}}></Menu.Item>
-          }
-          {
-            item.status.phase == "Running"
+              : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+          } */}
+          {/* {
+            item.status.phase == 'Running'
               ? <Menu.Item key="restart">
                 {formatMessage(ServiceCommonIntl.reboot)}
               </Menu.Item>
-              : <Menu.Item style={{display:'none'}}></Menu.Item>
-          }
+              : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+          } */}
           {
             redeployDisable
               ? <Menu.Item
@@ -405,13 +411,13 @@ const MyComponent = React.createClass({
               >
                 {formatMessage(AllServiceListIntl.redeploy)}
               </Menu.Item>
-              : <Menu.Item style={{display:'none'}}></Menu.Item>
+              : <Menu.Item style={{ display: 'none' }}></Menu.Item>
           }
-          <Menu.Item key="delete">
+          {/* <Menu.Item key="delete">
             {formatMessage(ServiceCommonIntl.delete)}
-          </Menu.Item>
-          <Menu.Divider key="baseline1" />
-          <Menu.Item
+          </Menu.Item> */}
+          {/* <Menu.Divider key="baseline1" /> */}
+          {/* <Menu.Item
             key="rollingUpdate"
             disabled={isDisabled}
           >
@@ -422,10 +428,10 @@ const MyComponent = React.createClass({
             disabled={isDisabled}
           >
             {formatMessage(AllServiceListIntl.grayPublish)}
-          </Menu.Item>
-          <SubMenu title={formatMessage(intlMsg.expand)}>
+          </Menu.Item> */}
+          {/* <SubMenu title={formatMessage(intlMsg.expand)}>
             <Menu.Item
-              key="manualScale" style={{width:'102px'}}
+              key="manualScale" style={{ width: '102px' }}
               disabled={isRollingUpdateOrScrollRelease || isDisabled}
               title={
                 isRollingUpdateOrScrollRelease && titleText
@@ -441,8 +447,8 @@ const MyComponent = React.createClass({
             >
               {formatMessage(AllServiceListIntl.autoScale)}
             </Menu.Item>
-          </SubMenu>
-          <SubMenu title={formatMessage(AllServiceListIntl.changeSet)}>
+          </SubMenu> */}
+          {/* <SubMenu title={formatMessage(AllServiceListIntl.changeSet)}>
             <Menu.Item
               key="config" disabled={isRollingUpdateOrScrollRelease}
               title={
@@ -475,18 +481,18 @@ const MyComponent = React.createClass({
             >
               {formatMessage(AllServiceListIntl.HightAvailable)}
             </Menu.Item>
-          </SubMenu>
-          <SubMenu title="更多设置">
-            <Menu.Item key="binddomain" style={{width:'102px'}}>
+          </SubMenu> */}
+          {/* <SubMenu title="更多设置">
+            <Menu.Item key="binddomain" style={{ width: '102px' }}>
               {formatMessage(AllServiceListIntl.bundDomin)}
             </Menu.Item>
-            <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
+            <Menu.Item key="https" disabled={loginUser.info.proxyType === SERVICE_KUBE_NODE_PORT}>
               {formatMessage(AllServiceListIntl.setHTTPS)}
             </Menu.Item>
-          </SubMenu>
-          <Menu.Item key="serverTag">
+          </SubMenu> */}
+          {/* <Menu.Item key="serverTag">
             {formatMessage(AllServiceListIntl.serviceTag)}
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu>
 
       );
@@ -497,14 +503,15 @@ const MyComponent = React.createClass({
       if (item.metadata.annotations && item.metadata.annotations['rollingupdate/target']) {
         const rollingupdateTarget = JSON.parse(item.metadata.annotations['rollingupdate/target'])
         mirror = rollingupdateTarget[0].from + '\n' + rollingupdateTarget[0].to
-      }else {
-        mirror = images.join(', ')? images.join(', ') : ''
+      } else {
+        mirror = images.join(', ') ? images.join(', ') : ''
       }
       let lb = false
       let k8sSer = ''
       if (k8sServiceList) {
-        for (let k8sService of k8sServiceList) {
-          if (k8sService && k8sService.metadata && item.metadata.name === k8sService.metadata.name) {
+        for (const k8sService of k8sServiceList) {
+          if (k8sService && k8sService.metadata && item.metadata.name
+             === k8sService.metadata.name) {
 
             const key = camelize('ingress-lb')
             if (
@@ -512,7 +519,7 @@ const MyComponent = React.createClass({
               k8sService.metadata.annotations[key] &&
               !isEmpty(k8sService.metadata.annotations[key])
             ) {
-              let lbArr = JSON.parse(k8sService.metadata.annotations[key])
+              const lbArr = JSON.parse(k8sService.metadata.annotations[key])
               if (!isEmpty(lbArr) && !isEmpty(lbArr[0].name)) {
                 lb = true
                 k8sSer = k8sService
@@ -524,53 +531,53 @@ const MyComponent = React.createClass({
       }
       const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs, k8sSer)
       let volume = false
-      if(
+      if (
         item.spec
         && item.spec.template
         && item.spec.template.spec
         && item.spec.template.spec.volumes
-      ){
+      ) {
         const volumes = item.spec.template.spec.volumes
-        for(let i = 0; i < volumes.length; i++){
-          if(
+        for (let i = 0; i < volumes.length; i++) {
+          if (
             volumes[i].persistentVolumeClaim
             || volumes[i].rbd
             || (volumes[i].hostPath && (volumes[i].hostPath.path !== '/etc/localtime' && volumes[i].hostPath.path !== '/etc/timezone'))
-          ){
+          ) {
             volume = true
             break
           }
         }
       }
       let group = false
-      if(item.lbgroup){
-        if(item.lbgroup.id || (item.lbgroup.type && item.lbgroup.type !== 'none')){
+      if (item.lbgroup) {
+        if (item.lbgroup.id || (item.lbgroup.type && item.lbgroup.type !== 'none')) {
           group = true
         }
       }
       let heightSize = '60px'
       let lineHeightSize = '60px'
-      if(volume || group || lb){
+      if (volume || group || lb) {
         heightSize = '30px'
         lineHeightSize = '40px'
       }
       return (
         <div
-          className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
+          className={item.checked ? 'selectedInstance instanceDetail' : 'instanceDetail'}
           key={item.metadata.name}
-          onClick={(e) => this.selectServiceByLine(e, item)} >
+          onClick={e => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
             <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
-            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{height: heightSize, lineHeight: lineHeightSize}}>
+            <div className="viewBtn" onClick={() => this.modalShow(item)} style={{ height: heightSize, lineHeight: lineHeightSize }}>
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb) && <div className='icon_container'>
+              (volume || group || lb) && <div className="icon_container">
                 {
                   volume && <Tooltip title={formatMessage(intlMsg.thisServerStorage)} placement="top">
-                    <span className='standrand volumeColor'><FormattedMessage {...intlMsg.storage}/></span>
+                    <span className="standrand volumeColor"><FormattedMessage {...intlMsg.storage}/></span>
                   </Tooltip>
                 }
                 {
@@ -591,7 +598,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData appSvcListDomain">
-            <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
+            <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ''}>
               <TipSvcDomain svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'} />
             </Tooltip>
           </div>
@@ -601,13 +608,13 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type="ghost"
-              trigger={['hover']}
+              trigger={[ 'hover' ]}
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span><FormattedMessage {...intlMsg.check}/></span>
             </Dropdown.Button>
           </div>
-          <div style={{ clear: "both" }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
       );
     });
@@ -616,7 +623,7 @@ const MyComponent = React.createClass({
         {items}
       </div>
     );
-  }
+  },
 });
 
 class AppServiceList extends Component {
@@ -666,45 +673,50 @@ class AppServiceList extends Component {
       QuickRestarServiceModal: false,
       DeleteServiceModal: false,
       grayscaleUpgradeModalVisible: false,
+      rebootItem: null, // 炎黃魔改
     }
   }
   getInitialState() {
     return {
-      disableScale: false
+      disableScale: false,
     }
   }
   loadServices(nextProps, options) {
-    const self = this
+    // const self = this
     const {
-      cluster, appName, loadServiceList, page, size, name
+      // cluster, appName, loadServiceList,
+      page, size, name,
     } = nextProps || this.props
     const query = { page, size, name }
     query.customizeOpts = options
-    loadServiceList(cluster, appName, query, {
-      success: {
-        func: (result) => {
-          addDeploymentWatch(cluster, self.props, result.data)
-          // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
-          query.customizeOpts = {
-            keepChecked: true,
-          }
-          self.loadStatusTimeout = setTimeout(() => {
-            loadServiceList(cluster, appName, query)
-          }, LOAD_STATUS_TIMEOUT)
-        },
-        isAsync: true
-      }
-    })
+    // loadServiceList(cluster, appName, query, {
+    //   success: {
+    //     func: result => {
+    //       addDeploymentWatch(cluster, self.props, result.data)
+    //       // For fix issue #CRYSTAL-1604(load list again for update status)
+    //       clearTimeout(self.loadStatusTimeout)
+    //       query.customizeOpts = {
+    //         keepChecked: true,
+    //       }
+    //       self.loadStatusTimeout = setTimeout(() => {
+    //         loadServiceList(cluster, appName, query)
+    //       }, LOAD_STATUS_TIMEOUT)
+    //     },
+    //     isAsync: true,
+    //   },
+    // })
   }
 
   onAllChange(e) {
     const { checked } = e.target
     const { serviceList } = this.state
-    serviceList.map((service) => service.checked = checked)
+    serviceList.map(service => {
+      service.checked = checked
+      return {}
+    })
     this.setState({
       serviceList,
-      donotUserCurrentShowInstance: true
+      donotUserCurrentShowInstance: true,
     })
     if (checked) {
       this.setState({
@@ -727,17 +739,19 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, serviceList, onServicesChange, availabilityNumber, total } = nextProps
+    const { page, size, name, serviceList,
+      //  onServicesChange, availabilityNumber, total
+    } = nextProps
     this.setState({
-      serviceList
+      serviceList,
     })
-    onServicesChange(serviceList, availabilityNumber, total)
+    // onServicesChange(serviceList, availabilityNumber, total)
 
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
     this.setState({
-      searchInputDisabled: false
+      searchInputDisabled: false,
     })
     this.loadServices(nextProps)
   }
@@ -761,53 +775,58 @@ class AppServiceList extends Component {
 
   batchStartService() {
     this.setState({
-      StartServiceModal: true
+      StartServiceModal: true,
     })
   }
   batchStopService() {
     this.setState({
-      StopServiceModal: true
+      StopServiceModal: true,
     })
   }
-  batchRestartService() {
+  batchRestartService(item) { // 炎黃
     this.setState({
-      RestarServiceModal: true
+      RestarServiceModal: true,
+      rebootItem: item,
     })
   }
   batchQuickRestartService() {
     this.setState({
-      QuickRestarServiceModal: true
+      QuickRestarServiceModal: true,
     })
   }
   batchDeleteServices() {
     const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
     const checkList = serviceList.filter(item => item.checked)
-    if(checkList && checkList.length > 0) {
+    if (checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
       getDeploymentOrAppCDRule(cluster, 'service', name)
     }
     this.setState({
-      DeleteServiceModal: true
+      DeleteServiceModal: true,
     })
   }
 
   handleStartServiceOk() {
     const self = this
-    const { cluster, startServices, serviceList, appName, intl } = this.props
+    const { cluster, startServices, serviceList,
+      // appName,
+      intl } = this.props
     const formatMessage = intl
-    let stoppedService = []
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    checkedServiceList.map((service, index) => {
+    const stoppedService = []
+    const checkedServiceList = serviceList.filter(service => service.checked)
+    checkedServiceList.map(service => {
       if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
       }
+      return {}
     })
-    const serviceNames = stoppedService.map((service) => service.metadata.name)
+    const serviceNames = stoppedService.map(service => service.metadata.name)
     const allServices = self.state.serviceList
-    allServices.map((service) => {
+    allServices.map(service => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Starting'
       }
+      return {}
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
@@ -815,7 +834,7 @@ class AppServiceList extends Component {
       return
     }
     self.setState({
-      serviceList
+      serviceList,
     })
     startServices(cluster, serviceNames, {
       success: {
@@ -827,20 +846,20 @@ class AppServiceList extends Component {
             restartBtn: false,
           })
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: (err) => {
-          if(isResourcePermissionError(err)){
-            //403 没权限判断 在App/index中统一处理 这里直接返回
-            //return;
-          }else{
+        func: err => {
+          if (isResourcePermissionError(err)) {
+            // 403 没权限判断 在App/index中统一处理 这里直接返回
+            // return;
+          } else {
             errorHandler(err, intl)
           }
           self.loadServices(self.props)
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
   handleStartServiceCancel() {
@@ -850,23 +869,27 @@ class AppServiceList extends Component {
   }
   handleStopServiceOk() {
     const self = this
-    const { cluster, stopServices, serviceList, appName, intl } = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    let runningServices = []
+    const { cluster, stopServices, serviceList,
+      // appName,
+      intl } = this.props
+    let checkedServiceList = serviceList.filter(service => service.checked)
+    const runningServices = []
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
-      checkedServiceList = [this.state.currentShowInstance]
+      checkedServiceList = [ this.state.currentShowInstance ]
     }
-    checkedServiceList.map((service, index) => {
+    checkedServiceList.map(service => {
       if (service.status.phase === 'Running' || service.status.phase === 'Pending' || service.status.phase === 'Starting' || service.status.phase === 'Deploying') {
         runningServices.push(service)
       }
+      return {}
     })
-    const serviceNames = runningServices.map((service) => service.metadata.name)
+    const serviceNames = runningServices.map(service => service.metadata.name)
     const allServices = self.state.serviceList
-    allServices.map((service) => {
+    allServices.map(service => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Stopping'
       }
+      return {}
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
@@ -874,7 +897,7 @@ class AppServiceList extends Component {
       return
     }
     self.setState({
-      serviceList: allServices
+      serviceList: allServices,
     })
     if (serviceNames.length < 1) {
       self.setState({
@@ -883,7 +906,7 @@ class AppServiceList extends Component {
         stopBtn: false,
         restartBtn: false,
       })
-      let notification = new NotificationHandler()
+      const notification = new NotificationHandler()
       notification.error(intl.formatMessage(intlMsg.slcStopServer))
       return
     }
@@ -897,20 +920,20 @@ class AppServiceList extends Component {
             restartBtn: false,
           })
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: (err) => {
-          if(isResourcePermissionError(err)){
-            //403 没权限判断 在App/index中统一处理 这里直接返回
-            //return;
-          }else{
+        func: err => {
+          if (isResourcePermissionError(err)) {
+            // 403 没权限判断 在App/index中统一处理 这里直接返回
+            // return;
+          } else {
             errorHandler(err, intl)
           }
           self.loadServices(self.props)
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
   handleStopServiceCancel() {
@@ -918,45 +941,54 @@ class AppServiceList extends Component {
       StopServiceModal: false,
     })
   }
-  handleRestarServiceOk() {
+  handleRestarServiceOk() { // 炎黃更改
     const self = this
-    const { cluster, restartServices, serviceList, appName, intl, removeTerminal, terminalList } = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    if(terminalList.length){
+    const { rebootItem = {} } = this.state
+    const { appName, cluster: yanhuangcluster } = rebootItem
+    const { cluster, restartServices, serviceList,
+      // appName,
+      intl, removeTerminal, terminalList, loadServiceList } = this.props
+    let checkedServiceList = serviceList.filter(
+      // service => service.checked
+      () => true
+    )
+    if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
         removeTerminal(cluster, item.metadata.name)
       })
     }
-    let runningServices = []
+    const runningServices = []
 
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
-      checkedServiceList = [this.state.currentShowInstance]
+      checkedServiceList = [ this.state.currentShowInstance ]
     }
-
-    checkedServiceList.map((service, index) => {
+    checkedServiceList.map(service => {
       if (service.status.phase === 'Running' || service.status.phase === 'Pending') {
         runningServices.push(service)
       }
+      return {}
     })
-    const serviceNames = runningServices.map((service) => service.metadata.name)
+    let serviceNames = runningServices.map(service => service.metadata.name)
     const allServices = self.state.serviceList
 
-    if (serviceNames.length <= 0) {
-      const noti = new NotificationHandler()
-      noti.error(intl.formatMessage(intlMsg.noOperationServer))
-      return
-    }
+    // if (serviceNames.length <= 0) {
+    //   const noti = new NotificationHandler()
+    //   noti.error(intl.formatMessage(intlMsg.noOperationServer))
+    //   return
+    // }
 
-    allServices.map((service) => {
+    allServices.map(service => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Redeploying'
       }
+      return {}
     })
     self.setState({
       serviceList: allServices,
       RestarServiceModal: false,
     })
+    serviceNames = [ rebootItem.metadata.name ]
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
@@ -966,21 +998,22 @@ class AppServiceList extends Component {
             restartBtn: false,
             redeploybtn: false,
           })
+          loadServiceList(yanhuangcluster, appName)
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: (err) => {
-          if(isResourcePermissionError(err)){
-            //403 没权限判断 在App/index中统一处理 这里直接返回
-            //return;
-          }else{
+        func: err => {
+          if (isResourcePermissionError(err)) {
+            // 403 没权限判断 在App/index中统一处理 这里直接返回
+            // return;
+          } else {
             errorHandler(err, intl)
           }
           self.loadServices(self.props)
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
   handleRestarServiceCancel() {
@@ -990,28 +1023,32 @@ class AppServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList, appName, intl, removeTerminal, terminalList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    if(terminalList.length){
+    const { cluster, quickRestartServices, serviceList,
+      //  appName,
+      intl, removeTerminal, terminalList } = this.props
+    const checkedServiceList = serviceList.filter(service => service.checked)
+    if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
         removeTerminal(cluster, item.metadata.name)
       })
     }
-    let runningServices = []
+    const runningServices = []
 
-    checkedServiceList.map((service, index) => {
+    checkedServiceList.map(service => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
+      return {}
     })
-    const serviceNames = runningServices.map((service) => service.metadata.name)
+    const serviceNames = runningServices.map(service => service.metadata.name)
     const allServices = self.state.serviceList
 
-    allServices.map((service) => {
+    allServices.map(service => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Restarting'
       }
+      return {}
     })
     if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
@@ -1019,7 +1056,7 @@ class AppServiceList extends Component {
       return
     }
     self.setState({
-      serviceList
+      serviceList,
     })
     quickRestartServices(cluster, serviceNames, {
       success: {
@@ -1032,14 +1069,14 @@ class AppServiceList extends Component {
             restartBtn: false,
           })
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: (err) => {
-          if(isResourcePermissionError(err)){
-            //403 没权限判断 在App/index中统一处理 这里直接返回
-            //return;
-          }else{
+        func: err => {
+          if (isResourcePermissionError(err)) {
+            // 403 没权限判断 在App/index中统一处理 这里直接返回
+            // return;
+          } else {
             errorHandler(err, intl)
           }
           self.setState({
@@ -1050,8 +1087,8 @@ class AppServiceList extends Component {
           })
           self.loadServices(self.props)
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
   handleQuickRestarServiceCancel() {
@@ -1061,9 +1098,11 @@ class AppServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadServiceList, deleteServices, intl, serviceList, removeTerminal, terminalList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    if(terminalList.length){
+    const { cluster,
+      //  appName, loadServiceList,
+      deleteServices, intl, serviceList, removeTerminal, terminalList } = this.props
+    const checkedServiceList = serviceList.filter(service => service.checked)
+    if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
         removeTerminal(cluster, item.metadata.name)
@@ -1075,40 +1114,41 @@ class AppServiceList extends Component {
     const releaseNames = []
     checkedServiceList.forEach(service => {
       serviceNames.push(service.metadata.name)
-      let releaseName = service.metadata.labels.releaseName
+      const releaseName = service.metadata.labels.releaseName
       if (releaseName && !serviceNames.includes(releaseName)) {
         releaseNames.push(releaseName)
       }
     })
     const allServices = self.state.serviceList
-    allServices.map((service) => {
+    allServices.map(service => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Terminating'
       }
+      return {}
     })
     self.setState({
       DeleteServiceModal: false,
-      serviceList: allServices
+      serviceList: allServices,
     })
-    deleteServices(cluster, {services: serviceNames, releaseNames}, {
+    deleteServices(cluster, { services: serviceNames, releaseNames }, {
       success: {
         func: () => {
           self.loadServices(self.props)
         },
-        isAsync: true
+        isAsync: true,
       },
       failed: {
-        func: (err) => {
-          if(isResourcePermissionError(err)){
-            //403 没权限判断 在App/index中统一处理 这里直接返回
-            //return;
-          }else{
+        func: err => {
+          if (isResourcePermissionError(err)) {
+            // 403 没权限判断 在App/index中统一处理 这里直接返回
+            // return;
+          } else {
             errorHandler(err, intl)
           }
           self.loadServices(self.props)
         },
-        isAsync: true
-      }
+        isAsync: true,
+      },
     })
   }
   handleDeleteServiceCancel() {
@@ -1116,13 +1156,13 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
     })
   }
-  /*batchDeleteServices() {
+  /* batchDeleteServices() {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
     this.confirmDeleteServices(checkedServiceList)
   }*/
 
-  /*confirmDeleteServices(serviceList, callback) {
+  /* confirmDeleteServices(serviceList, callback) {
     const self = this
     const { cluster, appName, loadServiceList, deleteServices, intl } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
@@ -1173,7 +1213,7 @@ class AppServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
     })
   }
 
@@ -1201,7 +1241,7 @@ class AppServiceList extends Component {
     const { pathname } = this.props
     browserHistory.push({
       pathname,
-      query
+      query,
     })
   }
   onPageChange(page) {
@@ -1219,27 +1259,31 @@ class AppServiceList extends Component {
     }
     browserHistory.push({
       pathname,
-      query
+      query,
     })
   }
 
   render() {
     const parentScope = this
-    let {
-      modalShow, currentShowInstance, serviceList,
+    const {
+      // modalShow,
+      currentShowInstance,
+      // serviceList,
       selectTab, rollingUpdateModalShow, configModal,
-      manualScaleModalShow, runBtn, stopBtn, restartBtn,
-      redeploybtn, grayscaleUpgradeModalVisible,
+      manualScaleModalShow,
+      // runBtn, stopBtn, restartBtn,
+      grayscaleUpgradeModalVisible,
     } = this.state
     const {
-      name, pathname, page,
-      size, total, isFetching,
+      name,
+      //  pathname, page,size, total,
+      isFetching,
       loginUser, cluster, appName, loadServiceList, k8sServiceList, intl: { formatMessage },
-      serviceList: propsserviceList
+      serviceList,
     } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-    const isChecked = (checkedServiceList.length > 0)
+    const checkedServiceList = serviceList.filter(service => service.checked)
+    // const checkedServiceNames = checkedServiceList.map(service => service.metadata.name)
+    // const isChecked = (checkedServiceList.length > 0)
     let isAllChecked = (serviceList.length === checkedServiceList.length)
     if (serviceList.length === 0) {
       isAllChecked = false
@@ -1251,22 +1295,22 @@ class AppServiceList extends Component {
       // confirmDeleteServices: this.confirmDeleteServices,
       batchDeleteServices: this.batchDeleteServices,
     }
-    const operaMenu = (
-      <Menu>
-        <Menu.Item key="0" disabled={!redeploybtn}>
-          <span onClick={this.batchRestartService}><i className='fa fa-undo' /> <FormattedMessage {...intlMsg.redeploy}/></span>
-        </Menu.Item>
-      </Menu>
-    );
+    // const operaMenu = (
+    //   <Menu>
+    //     <Menu.Item key="0" disabled={!redeploybtn}>
+    //       <span onClick={this.batchRestartService}><i className="fa fa-undo" /> <FormattedMessage {...intlMsg.redeploy}/></span>
+    //     </Menu.Item>
+    //   </Menu>
+    // );
     return (
       <div id="AppServiceList" style={{ padding: '10px 15px' }}>
         <QueueAnim className="demo-content"
-                   key="demo"
-                   type="right"
+          key="demo"
+          type="right"
         >
-          <div className="operaBox" key="serverList">
-            <Title title={formatMessage(intlMsg.nameServerList, { appName })} />
-            <Button
+          {/* <div className="operaBox" key="serverList"> */}
+          {/* <Title title={formatMessage(intlMsg.nameServerList, { appName })} /> */}
+          {/* <Button
               size="large"
               type="primary"
               onClick={this.goAddService}
@@ -1277,55 +1321,55 @@ class AppServiceList extends Component {
             <Button size="large" onClick={this.batchStartService} disabled={!runBtn}>
               <i className="fa fa-play"></i>
               <FormattedMessage {...intlMsg.boot}/>
-            </Button>
-            <Modal title={formatMessage(intlMsg.redeployAct)} visible={this.state.RestarServiceModal}
-                   onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-            >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state="Restart" />
-            </Modal>
-            <Modal title={formatMessage(intlMsg.bootAct)} visible={this.state.StartServiceModal}
-                   onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
-            >
-              <StateBtnModal serviceList={serviceList} state="Running" />
-            </Modal>
-            <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
+            </Button> */}
+          <Modal title={formatMessage(intlMsg.redeployAct)} visible={this.state.RestarServiceModal}
+            onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+          >
+            <StateBtnModal serviceList={serviceList} scope={parentScope} state="Restart" />
+          </Modal>
+          <Modal title={formatMessage(intlMsg.bootAct)} visible={this.state.StartServiceModal}
+            onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
+          >
+            <StateBtnModal serviceList={serviceList} state="Running" />
+          </Modal>
+          {/* <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
               <FormattedMessage {...intlMsg.stop}/>
             </Button>
             <Button size="large" onClick={() => this.loadServices(this.props)} >
               <i className="fa fa-refresh"></i>
               <FormattedMessage {...intlMsg.refresh}/>
-            </Button>
-            <Modal title={formatMessage(intlMsg.stopAct)} visible={this.state.StopServiceModal}
-                   onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
-            >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state="Stopped" />
-            </Modal>
-            <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
+            </Button> */}
+          <Modal title={formatMessage(intlMsg.stopAct)} visible={this.state.StopServiceModal}
+            onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
+          >
+            <StateBtnModal serviceList={serviceList} scope={parentScope} state="Stopped" />
+          </Modal>
+          {/* <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               <FormattedMessage {...intlMsg.delete}/>
-            </Button>
-            <Modal title={formatMessage(intlMsg.deleteAct)} visible={this.state.DeleteServiceModal}
-                   onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
-            >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' cdRule={this.props.cdRule}/>
-            </Modal>
-            <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
+            </Button> */}
+          <Modal title={formatMessage(intlMsg.deleteAct)} visible={this.state.DeleteServiceModal}
+            onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
+          >
+            <StateBtnModal serviceList={serviceList} scope={parentScope} state="Delete" cdRule={this.props.cdRule}/>
+          </Modal>
+          {/* <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
               <i className="fa fa-bolt"></i>
               <FormattedMessage {...intlMsg.reboot}/>
-            </Button>
-            <Modal title={formatMessage(intlMsg.rebootAct)} visible={this.state.QuickRestarServiceModal}
-                   onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
+            </Button> */}
+          {/* <Modal title={formatMessage(intlMsg.rebootAct)} visible={this.state.QuickRestarServiceModal}
+              onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
             >
               <StateBtnModal serviceList={serviceList} state="QuickRestar" />
             </Modal>
-            <Dropdown overlay={operaMenu} trigger={['click']}>
+            <Dropdown overlay={operaMenu} trigger={[ 'click' ]}>
               <Button size="large" disabled={!isChecked}>
                 <FormattedMessage {...intlMsg.more}/>
                 <i className="fa fa-caret-down"></i>
               </Button>
-            </Dropdown>
-            <div className="rightBox">
+            </Dropdown> */}
+          {/* <div className="rightBox">
               <span className="totalPage"><FormattedMessage {...intlMsg.totalItems} values={{ total }}/></span>
               <div className="paginationBox">
                 <Pagination
@@ -1338,11 +1382,12 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
+            <div style={{ clear: 'both' }}></div> */}
+          {/* </div> */}
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
-              <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1} />
+              <Checkbox checked={isAllChecked} onChange={this.onAllChange}
+                disabled={serviceList.length < 1} />
             </div>
             <div className="name commonTitle">
               <FormattedMessage {...intlMsg.serverName}/>
@@ -1362,7 +1407,7 @@ class AppServiceList extends Component {
             <div className="actionBox commonTitle">
               <FormattedMessage {...intlMsg.act}/>
             </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <MyComponent
             loginUser={loginUser}
@@ -1399,7 +1444,7 @@ class AppServiceList extends Component {
                 visible={rollingUpdateModalShow}
                 loadServiceList={loadServiceList}
                 service={currentShowInstance} />
-              :null
+              : null
           }
           {
             grayscaleUpgradeModalVisible &&
@@ -1452,7 +1497,7 @@ AppServiceList.propTypes = {
 }
 
 function handleStateOfServiceList(scope, serviceList) {
-  const checkedList = serviceList.filter((service) => service.checked)
+  const checkedList = serviceList.filter(service => service.checked)
   if (checkedList.length === 0) {
     scope.setState({
       runBtn: false,
@@ -1463,7 +1508,7 @@ function handleStateOfServiceList(scope, serviceList) {
     return
   }
   if (checkedList.length === 1) {
-    if(checkedList[0].status.phase === 'Pending'){
+    if (checkedList[0].status.phase === 'Pending') {
       scope.setState({
         runBtn: false,
         stopBtn: true,
@@ -1500,11 +1545,10 @@ function handleStateOfServiceList(scope, serviceList) {
     let runCount = 0
     let stopCount = 0
     let pending = 0
-    checkedList.forEach((item, index) => {
+    checkedList.forEach(item => {
       if (item.status.phase === 'Running') {
         runCount++
-      }
-      else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+      } else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
         pending++
       } else {
         stopCount++
@@ -1519,7 +1563,7 @@ function handleStateOfServiceList(scope, serviceList) {
       })
       if (pending) {
         scope.setState({
-          restartBtn: true
+          restartBtn: true,
         })
       }
       return
@@ -1544,8 +1588,8 @@ function handleStateOfServiceList(scope, serviceList) {
 }
 
 function mapStateToProps(state, props) {
-  const { query, pathname } = props.location
-  let { page, size, name } = query
+  const { query, pathname } = props.location || {}
+  let { page, size, name } = query || {}
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -1565,25 +1609,40 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     appName,
     serviceList: [],
-    total: 0
+    total: 0,
   }
   const {
-    serviceItems
+    serviceItems,
   } = state.services
   let targetServices
   if (serviceItems[cluster.clusterID] && serviceItems[cluster.clusterID][appName]) {
     targetServices = serviceItems[cluster.clusterID][appName]
   }
-  const { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
+  let { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
+
+  // 炎黄新加, 后人不要参考这些代码,都是屎!!!
+  const {
+    AppClusterServerList: oldAppClusterServerList = {},
+  } = state.middlewareCenter
+  const AppClusterServerList = cloneDeep(oldAppClusterServerList.data) || {}
+  const olddata = AppClusterServerList.data || []
+  delete AppClusterServerList.data
+  serviceList = olddata.map(item => {
+    return {
+      ...AppClusterServerList,
+      ...item,
+    }
+  })
+  // console.log('炎黄服务详情', JSON.stringify(serviceList))
   const { getDeploymentOrAppCDRule } = state.cicd_flow
   const defaultCDRule = {
     isFetching: false,
     result: {
-      results: []
-    }
+      results: [],
+    },
   }
   return {
-    loginUser: loginUser,
+    loginUser,
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
@@ -1598,11 +1657,12 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     availabilityNumber,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result
+      ? getDeploymentOrAppCDRule : defaultCDRule,
   }
 }
 
-AppServiceList = connect(mapStateToProps, {
+const HOCAppServiceList = connect(mapStateToProps, {
   loadServiceList,
   startServices,
   restartServices,
@@ -1614,6 +1674,6 @@ AppServiceList = connect(mapStateToProps, {
   removeTerminal,
 })(AppServiceList)
 
-export default injectIntl(AppServiceList, {
+export default injectIntl(HOCAppServiceList, {
   withRef: true,
 })

@@ -362,7 +362,7 @@ exports.getAppServices = function* () {
     deployments.push(service.deployment)
   })
 
-  this.body = {
+  const body = {
     cluster,
     appName,
     data: deployments,
@@ -370,6 +370,7 @@ exports.getAppServices = function* () {
     count: result.data.count,
     availableReplicas: result.data.runningDeployment
   }
+  this.body = body
 }
 
 exports.getAppOrchfile = function* () {

@@ -41,6 +41,7 @@ class ContainerInstance extends React.Component {
   state = {
     oldIP: undefined,
     NetSegment: undefined,
+    isScale: undefined,
   }
 
   componentDidMount() {
@@ -68,6 +69,26 @@ class ContainerInstance extends React.Component {
       150
     )
     !isSee && configIP && this.nowNoneAndSetOneItem()
+    const { loadAutoScale, serviceName } = this.props
+    loadAutoScale(cluster, serviceName, {
+      success: {
+        func: res => {
+          const isScale = res.data && res.data.metadata.annotations.status === 'RUN' || false
+          this.setState({
+            isScale,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403 && statusCode !== 412) {
+            notification.warn('获取自动伸缩数据失败')
+          }
+        },
+      },
+    })
   }
 
   nowNoneAndSetOneItem = () => {
@@ -144,11 +165,26 @@ class ContainerInstance extends React.Component {
       if (containerNum > 1) {
         await manualScaleService(cluster, server, { num: 1 }, {
           failed: {
-            func: () => {
+            func: error => {
+              const { statusCode } = error
               notification.close()
-              return notification.warn('固定 IP 操作失败, 水平扩展失败')
+              if (statusCode !== 403 && statusCode !== 412) {
+                return notification.warn('固定 IP 操作失败, 水平扩展失败')
+              }
             },
           },
+        })
+      }
+      const { loadAutoScale, updateAutoScaleStatus } = this.props
+      const serviceName = Object.keys(serviceDetail[cluster])[0]
+      const res = await loadAutoScale(cluster, serviceName)
+      const status = res.response.result.data
+        && res.response.result.data.metadata.annotations.status === 'RUN'
+        || false
+      if (status) {
+        await updateAutoScaleStatus(cluster, {
+          services: [ serviceName ],
+          type: 0,
         })
       }
       UpdateServiceAnnotation(cluster, server, annotations, {
@@ -166,7 +202,7 @@ class ContainerInstance extends React.Component {
           func: error => {
             notification.close()
             const { statusCode } = error
-            if (statusCode !== 403) {
+            if (statusCode !== 403 && statusCode !== 412) {
               notification.warn('固定 IP 操作失败')
             }
           },
@@ -198,7 +234,7 @@ class ContainerInstance extends React.Component {
         func: err => {
           const { statusCode } = err
           notification.close()
-          if (statusCode !== 403) {
+          if (statusCode !== 403 && statusCode !== 412) {
             notification.warn('释放 IP 失败')
           }
         },
@@ -231,7 +267,7 @@ class ContainerInstance extends React.Component {
   }
 
   render() {
-    const { oldIP, NetSegment } = this.state
+    const { oldIP, NetSegment, isScale } = this.state
     const { form, configIP, notConfigIP, containerNum } = this.props
     const { getFieldProps, getFieldValue } = form
     getFieldProps('keys', {
@@ -290,9 +326,9 @@ class ContainerInstance extends React.Component {
         >
           <div className="relateCont">
             {
-              containerNum > 1 ?
+              (containerNum > 1 || isScale) ?
                 <div className="podPrompt">
-                  目前仅支持一个实例固定 IP
+                  目前仅支持一个实例固定 IP，且功能开启后，将不支持服务自动伸缩
                 </div>
                 : null
             }
@@ -348,5 +384,7 @@ const mapStateToProps = ({
 export default connect(mapStateToProps, {
   UpdateServiceAnnotation: serviceActions.UpdateServiceAnnotation,
   manualScaleService: serviceActions.manualScaleService,
+  loadAutoScale: serviceActions.loadAutoScale,
+  updateAutoScaleStatus: serviceActions.updateAutoScaleStatus,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(Form.create()(ContainerInstance))

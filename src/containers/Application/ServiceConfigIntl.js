@@ -158,6 +158,7 @@ const messageObj = {
     readWrite: '可读可写',
     cancel: '取消',
     instanceNum: '实例数量',
+    fixedInstanceIP: '固定实例 IP',
     one: '个',
     publicNetTip: '服务可通过公网访问，选择一个网络出口；',
     interNetTip: '服务可通过内网访问，选择一个网络出口；',
@@ -325,7 +326,8 @@ const messageObj = {
     secretConfig: '加密配置',
     secretConfigTooltip: '加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd',
     secretFile: '加密对象',
-    listeningPortBeUsed: '监听端口已使用'
+    listeningPortBeUsed: '监听端口已使用',
+    setHostname: '设定 hostname',
   }
 }
 

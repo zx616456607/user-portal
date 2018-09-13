@@ -265,7 +265,7 @@ exports.getServiceAutoScaleList = function* () {
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){
-    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from + 1 && index <= from + size){
+    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from && index < from + size){
       index++
       autoScaleList[key] = tempList[key]
     }
@@ -625,7 +625,7 @@ exports.getAllService = function*() {
     queryObj.filter = `label ${label}`
   }
   const api = apiFactory.getK8sApi(this.session.loginUser)
-	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
+  const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   if (!response.data) {
     response.data = {
