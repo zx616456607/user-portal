@@ -432,8 +432,12 @@ class MySpace extends Component {
               extra={
                 <Link to={
                   spaceName === this.myProject
-                    ? `/tenant_manage/user/${this.props.loginUser.info.userID}?tabs=quota` : this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
-                    : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
+                    ? this.props.loginUser.role !== 2
+                        ? '/account?tabs=quota'
+                        : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota`
+                      :
+                      this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
+                        : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
                 >
                   <Button type="primary" size="small">
                     {
