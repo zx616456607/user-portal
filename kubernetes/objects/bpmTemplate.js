@@ -34,7 +34,7 @@ class BpmTemplate {
             name: 'bpm',
           },
           spec: {
-            accessModes: ['ReadWriteOnce'],
+            accessModes: ['ReadWriteMany'],
             resources: {
               requests: {
                 storage: '512Mi'

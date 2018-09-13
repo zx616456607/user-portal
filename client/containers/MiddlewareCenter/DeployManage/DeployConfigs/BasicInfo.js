@@ -17,6 +17,7 @@ import IntlMessage from '../../Intl'
 import PanelHeader from './PanelHeader'
 import * as middlewareActions from '../../../../actions/middlewareCenter'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../../src/constants/index'
+import { appNameCheck } from '../../../../../src/common/naming_validation'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -28,6 +29,10 @@ export default class BasicInfo extends React.PureComponent {
 
   checkName = (_, value, callback) => {
     const { checkAppClusterName, clusterID, intl } = this.props
+    const message = appNameCheck(value, intl.formatMessage(IntlMessage.clusterName))
+    if (message !== 'success') {
+      return callback(message)
+    }
     clearTimeout(this.checkNameTimeout)
     this.checkNameTimeout = setTimeout(() => {
       checkAppClusterName(clusterID, value, {
