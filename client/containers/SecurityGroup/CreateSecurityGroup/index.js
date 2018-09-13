@@ -183,6 +183,7 @@ class CreateSecurityGroup extends React.Component {
             case 'namespace':
               return egList.push({
                 type: 'namespace',
+                namespace: values[`egress${type}${el}`],
                 serviceName: values[`egress${type}${el}server`]
                   && values[`egress${type}${el}server`].split(','),
               })
