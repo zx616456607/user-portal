@@ -98,7 +98,7 @@ class AppServiceDetail extends Component {
       })
     })
   }
-  loadData(nextProps) {
+  loadData = (nextProps) => {
     const self = this
     const {
       cluster,
@@ -132,7 +132,10 @@ class AppServiceDetail extends Component {
         isAsync: true
       }
     })
-    loadServiceContainerList(cluster, serviceName, {projectName}, {
+    // bpm 需要根据一个参数, 请求一个带query的容器列表接口
+    const appCenterChoiceHidden = url.test(window.location.pathname)
+    const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
+    loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -144,11 +147,11 @@ class AppServiceDetail extends Component {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
-            loadServiceContainerList(cluster, serviceName, query)
+            loadServiceContainerList(cluster, serviceName, query, bpmQuery)
           }, LOAD_STATUS_TIMEOUT)
           // Reload list each UPDATE_INTERVAL
           self.upStatusInterval = setInterval(() => {
-            loadServiceContainerList(cluster, serviceName, query)
+            loadServiceContainerList(cluster, serviceName, query, bpmQuery)
           }, UPDATE_INTERVAL)
         },
         isAsync: true
