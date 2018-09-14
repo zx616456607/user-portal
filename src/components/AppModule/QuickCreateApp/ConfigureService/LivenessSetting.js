@@ -255,7 +255,7 @@ const LivenessSetting = React.createClass({
                             <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
                           </Tooltip>
                         </Col>
-                      </Row>,
+                      </Row>
                       <Row className="configBody" key="configBody">
                         {
                           livenessPathProps && <Col span={6}>
