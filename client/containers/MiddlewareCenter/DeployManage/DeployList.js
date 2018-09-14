@@ -103,7 +103,7 @@ function formateData(data = []) {
       AppName: item.appName,
       appVersion: item.version,
       visiterAddress: item.address,
-      createTime: calcuDate(item.CreateTime),
+      createTime: calcuDate(item.createTime),
     }
   })
 }

@@ -21,7 +21,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim';
-import { Link } from 'react-router'
 import { Row, Col, Card, Tabs, Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import * as mcActions from '../../../../actions/middlewareCenter'
@@ -72,12 +71,15 @@ class DeployDetail extends React.PureComponent {
       })
     }
   }
+  handleClick = () => {
+    browserHistory.push('/middleware_center/deploy')
+  }
   render() {
     const { AppClusterServerList, routeParams: { app_name } = {} } = this.props
     return (
       <QueueAnim className="DeployDetailWrapper layout-content">
         <div className="returnTitle" key="returnTitle">
-          <Link to="/middleware_center/deploy"><ReturnButton>返回</ReturnButton></Link>
+          <ReturnButton onClick = {this.handleClick}>返回</ReturnButton>
           <span className="titleSpan">BMP</span>
         </div>
         <Row gutter={16} key="mainContent">

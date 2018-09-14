@@ -71,8 +71,10 @@ class ContainerInstanceHeader extends React.Component {
     const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName } = this.props
+    const style = (this.props.appCenterChoiceHidden) ?
+      { minHeight: '0px' } : {}
     return (
-      <div className="instanceHeader">
+      <div className="instanceHeader" style={style}>
         { !this.props.appCenterChoiceHidden &&
           <Button
             type="primary"
@@ -101,12 +103,15 @@ class ContainerInstanceHeader extends React.Component {
            <FormattedMessage {...IntlMessages.fixedInstanceIP} />
          </Checkbox>
         }
-        <span
-          className="seeConfig"
-          onClick={() => this.setState({ isFixed: true, isSee: true })}
-        >
-          <FormattedMessage {...IntlMessages.viewConfiguredIP} />
-        </span>
+        {
+          !this.props.appCenterChoiceHidden &&
+          <span
+            className="seeConfig"
+            onClick={() => this.setState({ isFixed: true, isSee: true })}
+          >
+            <FormattedMessage {...IntlMessages.viewConfiguredIP} />
+          </span>
+        }
         { isCheckIP ? <div className="disAbled">已开启固定实例 IP，无法继续操作</div> : null }
         {
           (isFixed || notFixed) && <ContainerInstance
