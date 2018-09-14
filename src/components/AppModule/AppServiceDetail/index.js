@@ -49,6 +49,7 @@ import ServiceMeshSwitch from './ServiceMeshSwitch'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
+import TenxTabsFactory from './FilterTabs';
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -64,6 +65,9 @@ function terminalSelectedCheck(item, list) {
   return existFlag;
 }
 
+const url = /\/middleware_center\/deploy\/detail/
+const showkey = ['#containers', '#basic', '#monitor', '#logs', '#events' ]
+const TenxTab = TenxTabsFactory(url, showkey)
 class AppServiceDetail extends Component {
   constructor(props) {
     super(props)
@@ -689,22 +693,3 @@ export default injectIntl(connect(mapStateToProps, {
   addTerminal,
   deleteServices
 })(AppServiceDetail), { withRef: true, })
-
-const showkey = ['#containers', '#basic', '#monitor', '#logs', '#events' ]
-class TenxTab extends React.Component {
-  render() {
-    const appCenterChoiceShowRegx = /\/middleware_center\/deploy\/detail/
-    const appCenterChoiceHidden = appCenterChoiceShowRegx.test(window.location.pathname)
-    const newChildren = appCenterChoiceHidden ?
-    this.props.children.filter(({key}) => showkey.includes(key)).map(item => {
-      item.props.children.props.appCenterChoiceHidden = true // 对子组件注入props
-      return item
-    })
-    :  this.props.children
-    return <div>
-      <Tabs {...this.props}>
-      {newChildren}
-      </Tabs>
-    </div>
-  }
-}

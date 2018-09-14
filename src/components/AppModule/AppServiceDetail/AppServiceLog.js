@@ -25,6 +25,11 @@ import merge from 'lodash/merge'
 import NotificationHandler from '../../../components/Notification'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import TenxTabsFactory from './FilterTabs';
+
+const url = /\/middleware_center\/deploy\/detail/
+const showkey = ['0']
+const TenxTab = TenxTabsFactory(url, showkey)
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -378,7 +383,7 @@ class AppServiceLog extends Component {
     return (
       <div id="AppServiceLog">
         <div className='body'>
-          <Tabs type="card" className='logTabs'>
+          <TenxTab type="card" className='logTabs'>
             <TabPane key="0" tab={formatMessage(AppServiceDetailIntl.standardLog)}>
               <div className={ this.state.logSize == 'large' ? "largeBox bottomBox" : "bottomBox"}>
                 <div className="introBox">
@@ -404,7 +409,7 @@ class AppServiceLog extends Component {
                 { this.collectLogsTemplate() }
               </div>
             </TabPane>
-          </Tabs>
+          </TenxTab>
         </div>
       </div>
     )
