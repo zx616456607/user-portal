@@ -1,16 +1,19 @@
 import { Button, Form, Input, Row, Col, Modal, Select } from 'antd';
 import React from 'react'
+import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import { isResourcePermissionError } from '../../common/tools'
 import { validateK8sResource } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
+import { setConfigMapLabel } from '../../actions/configs'
+import filter from 'lodash/filter'
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 let CreateConfigModal = React.createClass({
   btnCreateConfigGroup() {
-    const parentScope = this.props.scope
+    const { cluster, scope: parentScope, setConfigMapLabel } = this.props
     const { currentGroup, groupEdit } = parentScope.state;
     const { updateConfigAnnotations } = this.props
     let notification = new NotificationHandler()
@@ -25,14 +28,14 @@ let CreateConfigModal = React.createClass({
         notification.error('由小写字母、数字和连字符（-）组成')
         return
       }
-      const { cluster } = parentScope.props
       let configs = {
         groupName: groupEdit ? currentGroup : groupName,
         cluster,
         configlabels:groupSort.toString()
       }
       if (!groupEdit) {
-        parentScope.props.createConfigGroup(configs, {
+        // data: configMaps -> configs -> revert configs
+        parentScope.props.createConfigGroup(configs, { // cluster, { name: groupName, configlabels: groupSort, data: []}, {
           success: {
             func: () => {
               notification.success('创建成功')
@@ -44,7 +47,7 @@ let CreateConfigModal = React.createClass({
           },
           failed: {
             func: (res) => {
-              parentScope.setState({ createModal: false })
+              // parentScope.setState({ createModal: false })
               let errorText
               if(isResourcePermissionError(res)){
                 //403 没权限判断 在App/index中统一处理 这里直接返回
@@ -63,33 +66,34 @@ let CreateConfigModal = React.createClass({
           }
         })
       } else {
-       updateConfigAnnotations(configs,{
-        success: {
-          func: res => {
-            notification.success('修改分类成功')
-            self.props.form.resetFields()
-            parentScope.loadData()
-            parentScope.setState({createModal: false})
+        updateConfigAnnotations(configs,{
+        // setConfigMapLabel(currentGroup, cluster, { configlabels: groupSort }, {
+          success: {
+            func: res => {
+              notification.success('修改分类成功')
+              self.props.form.resetFields()
+              parentScope.loadData()
+              parentScope.setState({createModal: false})
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-         failed: {
-           func: (res) => {
-             parentScope.setState({ createModal: false })
-             let errorText
-             switch (res.message.code) {
-               case 403: errorText = '未授权修改配置分类'; break
-               case 409: errorText = '配置组已存在'; break
-               case 500: errorText = '网络异常'; break
-               default: errorText = '缺少参数或格式错误'
-             }
-             Modal.error({
-               title: '修改分类',
-               content: (<h3>{errorText}</h3>),
-             });
-           }
-         }
-       })
+          failed: {
+            func: (res) => {
+              parentScope.setState({ createModal: false })
+              let errorText
+              switch (res.message.code) {
+                case 403: errorText = '未授权修改配置分类'; break
+                case 409: errorText = '配置组已存在'; break
+                case 500: errorText = '网络异常'; break
+                default: errorText = '缺少参数或格式错误'
+              }
+              Modal.error({
+                title: '修改分类',
+                content: (<h3>{errorText}</h3>),
+              });
+            }
+          }
+        })
       }
     })
   },
@@ -153,11 +157,12 @@ let CreateConfigModal = React.createClass({
   render() {
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = this.props.form
     const parentScope = this.props.scope
-    const { configGroup, labelWithCount } = this.props
+    const { configGroup, labelWithCount, visible } = this.props
     const { currentGroup, groupEdit } = parentScope.state;
-    let currentSortArray = []
+    const curr = filter(configGroup, { name: currentGroup })[0]
+    let currentSortArray = [] // curr && curr.configlabels || []
     configGroup.length > 0 && configGroup.forEach(item => {
-      if ((item.name === currentGroup) && item.annotations.length) {
+      if ((item.name === currentGroup) && item.annotations && item.annotations.length) {
         currentSortArray = item.annotations
       }
     })
@@ -187,7 +192,7 @@ let CreateConfigModal = React.createClass({
         title={groupEdit ? "修改分类" : '创建配置组'}
         wrapClassName="server-create-modal"
         maskClosable={false}
-        visible={ parentScope.state.createModal }
+        visible={visible}
         onOk={() => this.btnCreateConfigGroup()}
         onCancel={() => this.handCancel(parentScope)}
         >
@@ -221,4 +226,16 @@ let CreateConfigModal = React.createClass({
 
 CreateConfigModal = createForm()(CreateConfigModal)
 
-export default CreateConfigModal
+function mapStateToProps(state, props) {
+  const { entities, secrets, apps } = state
+  const { current } = entities
+  const { cluster } = current
+  return {
+    cluster: cluster.clusterID,
+  }
+}
+
+export default connect(mapStateToProps, {
+  setConfigMapLabel,
+})(CreateConfigModal)
+

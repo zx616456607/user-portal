@@ -12,7 +12,8 @@ import React, { Component, PropTypes } from 'react'
 import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
-import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
+import { loadConfigName, updateConfigName, configGroupName,
+  deleteConfigName, changeConfigFile, getConfig, deleteConfig } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
 import NotificationHandler from '../../components/Notification'
 import { Link } from 'react-router'
@@ -116,7 +117,8 @@ class CollapseContainer extends Component {
     this.state = {
       modalConfigFile: false,
       configtextarea: '',
-      checkConfigFile: false
+      checkConfigFile: false,
+      defaultData: {}
       // collapseContainer: this.props.collapseContainer
 
     }
@@ -130,23 +132,44 @@ class CollapseContainer extends Component {
   }
 
   editConfigModal(group, configName) {
-    const groups = { group, Name: configName }
-
     const self = this
-    const { cluster } = this.props
-    this.props.loadConfigName(cluster, groups, {
+    const { cluster, loadConfigName } = this.props
+    // getConfig({
+    //   configmap_name: group,
+    //   cluster_id: cluster,
+    //   config_name: configName,
+    // }, {
+    loadConfigName(cluster, { group, Name: configName } ,{
       success: {
         func: (res) => {
-          self.setState({
-            modalConfigFile: true,
-            configName: configName,
-            configtextarea: res.data
-          })
+          let tempState = {}
+          if (!!res.data){
+            if (typeof res.data === 'string') {
+              tempState = {
+                modalConfigFile: true,
+                configName: configName,
+                configtextarea: res.data,
+              }
+            }
+            else {
+              tempState = {
+                modalConfigFile: true,
+                configName: res.data.name || configName,
+                configtextarea: res.data.data,
+                defaultData: {
+                  projectId: res.data.projectId || undefined,
+                  defaultBranch: res.data.defaultBranch || undefined,
+                  path: res.data.filePath || "",
+                  enable: res.data.enable || 0
+                }
+              }
+            }
+          }
+          self.setState(tempState)
         },
         isAsync: true
       }
     })
-
   }
 
   setInputValue(e) {
@@ -158,16 +181,23 @@ class CollapseContainer extends Component {
   deleteConfigFile() {
     let configs = []
     configs.push(this.state.configName)
+    const self = this
+    const { parentScope, deleteConfigName, cluster } = this.props
+    const { configGroup, configName } = this.state
     const groups = {
-      group: this.state.configGroup,
-      cluster: this.props.cluster,
+      group: configGroup,
+      cluster: cluster,
       configs
     }
-    const self = this
-    const {parentScope} = this.props
+    const query = {
+      configmap_name: configGroup,
+      cluster_id: cluster,
+      config_name: configName,
+    }
     let notification = new NotificationHandler()
     this.setState({delModal: false})
-    self.props.deleteConfigName(groups, {
+    deleteConfigName(groups, {
+    // deleteConfig(query, {
       success: {
         func: (res) => {
           const errorText = []
@@ -189,10 +219,15 @@ class CollapseContainer extends Component {
             })
           } else {
             notification.success('删除配置文件成功')
-            self.props.configGroupName(groups)
+            this.props.loadData()
           }
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          notification.warn('删除配置失败')
+        }
       }
     })
 
@@ -254,12 +289,38 @@ class CollapseContainer extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td style={{ padding: '15px' }}>
-                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
-                      <Tooltip title={configFileItem.name} placement="topLeft">
-                        <div style={{float:'left',width:'130px'}} className="textoverflow">{configFileItem.name}</div>
-                      </Tooltip>
-                    </div>
+                  <td className="title" style={{ padding: '15px' }}>
+                    {
+                      configFileItem.branch || configFileItem.project ?
+                        <div style={{ width: '160px' }}>
+                          <div>
+                            <Tooltip title={configFileItem.name} placement="topLeft">
+                              <div className="textoverflow">
+                                <i className="fa fa-gitlab" aria-hidden="true" style={{ marginRight: '10px', marginTop: '3px' }}></i>
+                                {configFileItem.name}
+                              </div>
+                            </Tooltip>
+                          </div>
+                          <div style={{ color: "#999", fontSize: "12px" }}>
+                            {configFileItem.project && <Tooltip title={configFileItem.project} placement="left">
+                              <div><span>仓库: </span><span style={{width:'120px'}} className="textoverflow">
+                                {configFileItem.project}
+                              </span></div>
+                            </Tooltip>}
+                            {configFileItem.branch && <Tooltip title={configFileItem.branch} placement="left">
+                              <div><span>分支: </span><span style={{width:'45px'}} className="textoverflow">{configFileItem.branch}</span></div>
+                            </Tooltip>}
+                          </div>
+                        </div>
+                        :
+                        <div style={{ width: '160px' }} className='textoverflow'>
+                          <Icon type='file-text' style={{ marginRight: '10px',float:'left', marginTop: '3px' }} />
+                          <Tooltip title={configFileItem.name} placement="topLeft">
+                            <div className="textoverflow">{configFileItem.name}</div>
+                          </Tooltip>
+                        </div>
+
+                    }
                   </td>
                   <td style={{ padding: '15px 20px' }}>
                     <Button type='primary' style={{ height: '30px', padding: '0 9px' }}
@@ -316,17 +377,23 @@ class CollapseContainer extends Component {
       )
 
     })
+    const { modalConfigFile, defaultData } = this.state
     return (
       <Row className='file-list'>
         <Timeline>
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
-        <UpdateConfigFileModal
-          scope={this}
-          modalConfigFile={this.state.modalConfigFile}
-        />
-
+        {
+          modalConfigFile ?
+            <UpdateConfigFileModal
+              scope={this}
+              modalConfigFile={modalConfigFile}
+              defaultData={defaultData}
+            />
+            :
+            null
+        }
         {/* <Modal
           title='修改配置文件'
           wrapClassName='configFile-create-modal'
@@ -396,9 +463,10 @@ export default connect(mapStateToProps, {
   loadConfigName,
   updateConfigName,
   deleteConfigName,
+  deleteConfig,
   configGroupName,
-  loadAppList
-
+  loadAppList,
+  getConfig,
 })(injectIntl(CollapseContainer, {
   withRef: true,
 }))

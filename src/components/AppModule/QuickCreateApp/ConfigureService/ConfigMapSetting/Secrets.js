@@ -19,6 +19,8 @@ import {
 import classNames from 'classnames'
 import includes from 'lodash/includes'
 import { getSecrets } from '../../../../../actions/secrets'
+// import { getSecrets } from '../../../../../actions/secrets_devops'
+
 import { checkVolumeMountPath } from '../../utils'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
@@ -33,7 +35,9 @@ const PATH_REG = /^\//
 const SecretsConfigMap = React.createClass({
   loadSecrets() {
     const { currentCluster, getSecrets } = this.props
-    getSecrets(currentCluster.clusterID)
+    getSecrets({
+      cluster_id: currentCluster.clusterID,
+    })
   },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {
