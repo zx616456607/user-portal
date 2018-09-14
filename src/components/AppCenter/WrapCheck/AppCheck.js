@@ -22,7 +22,9 @@ import { formatDate } from '../../../common/tools'
 import { API_URL_PREFIX } from '../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import WrapDetailModal from '../AppWrap/WrapDetailModal'
+import { isResourcePermissionError } from '../../../common/tools'
 
+const notify = new NotificationHandler()
 const FormItem = Form.Item
 
 class WrapCheckTable extends React.Component {
@@ -103,7 +105,7 @@ class WrapCheckTable extends React.Component {
         break
     }
   }
-  
+
   confirmModal() {
     const { refusePublish, form } = this.props
     const { currentWrap } = this.state
@@ -124,7 +126,7 @@ class WrapCheckTable extends React.Component {
       })
     })
   }
-  
+
   cancelModal() {
     const { form } = this.props
     this.setState({
@@ -132,7 +134,7 @@ class WrapCheckTable extends React.Component {
     })
     form.resetFields()
   }
-  
+
   checkApprove(rule, value, callback) {
     let newValue = value && value.trim()
     if (!newValue) {
@@ -140,7 +142,7 @@ class WrapCheckTable extends React.Component {
     }
     callback()
   }
-  
+
   openDetailModal(e, row) {
     e.stopPropagation()
     this.setState({
@@ -148,11 +150,11 @@ class WrapCheckTable extends React.Component {
       detailModal: true
     })
   }
-  
+
   goDeploy(fileName) {
     browserHistory.push('/app_manage/deploy_wrap?fileName='+fileName)
   }
-  
+
   closeDetailModal() {
     this.setState({
       detailModal: false
@@ -273,8 +275,8 @@ class WrapCheckTable extends React.Component {
                     }
                   ]
                 })}
-                type="textarea" 
-                rows={4} 
+                type="textarea"
+                rows={4}
                 placeholder="请输入拒绝理由"/>
             </FormItem>
           </Form>
@@ -339,7 +341,21 @@ class WrapCheck extends React.Component {
     if (sort_order) {
       Object.assign(query, { sort_order })
     }
-    getWrapPublishList(query)
+    getWrapPublishList(query, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode === 403) {
+            if (isResourcePermissionError(err)){
+              //403 没权限判断 在App/index中统一处理 这里直接返回
+              return;
+            } else {
+              notify.warn("没有访问权限")
+            }
+          }
+        }
+      }
+    })
   }
   refreshData() {
     this.setState({
@@ -466,6 +482,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getWrapPublishList,
-  passWrapPublish, 
+  passWrapPublish,
   refuseWrapPublish
 })(WrapCheck)

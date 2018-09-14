@@ -49,6 +49,7 @@ class LoadBalance extends React.Component {
         delete targetOptions.displayName
         targetOptions.monitorName = sourceOptons.displayName
         targetOptions.healthOptions = sourceOptons.healthCheck
+        targetOptions.sessionPersistent = parseInt(targetOptions.sessionPersistent, 10)
         this.setState({
           [`config-${key}`]: targetOptions
         })
@@ -540,13 +541,13 @@ class LoadBalance extends React.Component {
             </Col>
           </Row>
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('TCP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('TCP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('UDP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('UDP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('HTTP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('HTTP')
           }
         </Col>
       </Row>

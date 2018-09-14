@@ -57,14 +57,20 @@ class AdvancedSetting extends Component {
       traditionBtnLoading: false,
       traditionChecked: props.vmWrapConfig.enabled || false,
       isTradition: false,
+      installComponentShow: false,
+      installComponentName: "",
+      springcloud: false,
+      pinpoint: false,
+      canDeployPersonalServer: ''
     }
   }
 
   componentWillMount(){
-    const { getConfigurations, harbor, billingConfig, harborUrl } = this.props
+    const { getConfigurations,  harbor, billingConfig, harborUrl } = this.props
     if(!harbor.hasAdminRole) {
       return
     }
+    this.loadMsaConfig()
     getConfigurations(harborUrl, DEFAULT_REGISTRY, {
       success: {
         func: (res) => {
@@ -97,6 +103,27 @@ class AdvancedSetting extends Component {
     })
   }
 
+  // 加载msa配置数据
+  loadMsaConfig = () => {
+    const { getConfigByType, cluster } = this.props
+    getConfigByType(cluster.clusterID, 'msa', {
+      method: 'GET'
+    }, {
+      success: {
+        func: res => {
+          const data = JSON.parse(res.data.configDetail)
+          if (data.canDeployPersonalServer) {
+            const { springcloud, pinpoint } = data.canDeployPersonalServer
+            this.setState({
+              springcloud,
+              pinpoint,
+              canDeployPersonalServer: data.canDeployPersonalServer
+            })
+          }
+        }
+      }
+    })
+  }
   loadbalanceCard = () => {
     const { lbChecked } = this.state
     return <div className="content">
@@ -111,7 +138,6 @@ class AdvancedSetting extends Component {
       </Card>
     </div>
   }
-
   // 不同角色成员应该显示哪些内容
   renderContent = () => {
     const { imageProjectRightIsEdit, traditionChecked, billingChecked   } = this.state;
@@ -210,6 +236,7 @@ class AdvancedSetting extends Component {
             <Switch checkedChildren="开" unCheckedChildren="关" checked={billingChecked} onChange={this.handleBilling} className='switchstyle' />
           </Card>
           {this.loadbalanceCard()}
+          {this.installMsaComponent()}
         </div>
     );
     const platformAdminContent = () => (
@@ -292,6 +319,7 @@ class AdvancedSetting extends Component {
             </div>
           </div>
           {this.loadbalanceCard()}
+          {this.installMsaComponent()}
         </div>
       );
 
@@ -783,6 +811,86 @@ class AdvancedSetting extends Component {
     })
   }
 
+  installMsaComponent = () => {
+    const { msaFetching, msaData } = this.props
+
+    const { pinpoint, springcloud } = this.state
+    return <div className="content">
+      <Card title="允许个人项目安装微服务组件" className="billingCard">
+        <div className='alertRow'>
+          可以设置个人项目是否可以使用微服务平台的 Spring Cloud 微服务治理和 APM 应用性能管理功能
+        </div>
+        <div className="switch-item">
+          <span>Spring Cloud 组件</span>
+          <Switch checkedChildren="开"
+                  unCheckedChildren="关"
+                  checked={springcloud}
+                  disabled = {msaFetching}
+                  onChange={checked => {
+                    this.setState({
+                      springcloud: checked,
+                      installComponentShow: true,
+                      installComponentName: 'Spring Cloud'
+                    })
+                  }}
+                  className='switchstyle' />
+        </div>
+        <div className="switch-item">
+          <span>APM 组件</span>
+          <Switch checkedChildren="开"
+                  unCheckedChildren="关"
+                  checked={pinpoint}
+                  disabled = {msaFetching}
+                  onChange={checked => {
+                    this.setState({
+                      pinpoint: checked,
+                      installComponentShow: true,
+                      installComponentName: 'APM'
+                    })
+                  }}
+                  className='switchstyle' />
+        </div>
+      </Card>
+    </div>
+  }
+
+  confirmInstall = () => {
+    const { springcloud, pinpoint } = this.state
+    const { getConfigByType, cluster, msaData } = this.props
+    const { configDetail } = msaData
+    const newConfigDetail = JSON.parse(configDetail)
+    newConfigDetail.canDeployPersonalServer = {
+      springcloud,
+      pinpoint
+    }
+    msaData.configDetail = JSON.stringify(newConfigDetail)
+    const options = {
+      method: 'PUT',
+      body: msaData
+    }
+    getConfigByType(cluster.clusterID, 'msa', options, {
+      success: {
+        func: () => {
+          setTimeout(() => {
+            this.loadMsaConfig()
+          })
+        }
+      }
+    } )
+
+    this.setState({
+      installComponentShow: false
+    })
+  }
+  cancelInstall = () => {
+    const { springcloud, pinpoint } = this.state.canDeployPersonalServer
+    this.setState({
+      springcloud,
+      pinpoint,
+      installComponentShow: false
+    })
+
+  }
   render() {
     const {
       traditionChecked, traditiondisable,
@@ -916,6 +1024,17 @@ if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_RE
               '是否允许普通成员创建集群外应用负载均衡？'
           }
         </Modal>
+        <Modal
+          visible={this.state.installComponentShow}
+          title="允许安装"
+          onOk={this.confirmInstall}
+          onCancel={this.cancelInstall}
+        >
+          <div>
+            <span style={{marginRight: 8, color: '#46b2fa', fontSize: 16}}><Icon type="question-circle-o" /></span>
+            确定之后，个人项目将可以安装 {this.state.installComponentName} 组件，将会消耗额外资源，是否确定允许？
+          </div>
+        </Modal>
     </div>
       </QueueAnim>
     )
@@ -926,6 +1045,14 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster } = state.entities.current
+  let msa, msaData
+  let msaFetching = true
+  if (state.globalConfig.configByType) {
+    msa = state.globalConfig.configByType.msa
+    msaFetching = msa.isFetching
+    msaData = msa.data
+  }
+
   const { harbor, vmWrapConfig, billingConfig,role } = state.entities.loginUser.info
   const { configurations } = state.harbor
 
@@ -939,6 +1066,8 @@ function mapPropsToState(state,props) {
     vmWrapConfig,
     billingConfig,
     harborUrl,
+    msaFetching,
+    msaData
   }
 }
 

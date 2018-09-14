@@ -141,7 +141,6 @@ class Sider extends Component {
     }
   }
 
-
   handleCancel() {
     const currentOptions = cloneDeep(this.props.uploadFileOptions)
     currentOptions.visible = false
@@ -266,6 +265,19 @@ class Sider extends Component {
     })
   }
 
+  menuItemTip(role) {
+    const { formatMessage } = this.props.intl
+    switch (role) {
+      case ROLE_PLATFORM_ADMIN :
+        return formatMessage(IntlMessages.onlyPlatformAndAdmin)
+      case ROLE_BASE_ADMIN:
+        return formatMessage(IntlMessages.onlyInfraAndAdmin)
+      case ROLE_USER:
+        return ''
+      default:
+        return '管理员可见'
+    }
+  }
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser, intl } = this.props
     const { formatMessage } = intl
@@ -273,6 +285,7 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this;
+
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
@@ -316,7 +329,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='cluster_authorization'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(role)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/cluster_authorization'>
@@ -374,7 +387,7 @@ class Sider extends Component {
       // applyLimit
       <Menu.Item key='applyLimit'>
         <div className="usrBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyNormalUser)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/applyLimit'>
@@ -407,7 +420,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
@@ -425,7 +438,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -435,7 +448,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
@@ -446,7 +459,7 @@ class Sider extends Component {
 
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
@@ -466,7 +479,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
@@ -484,7 +497,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -494,7 +507,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
@@ -523,7 +536,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -533,7 +546,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
@@ -976,13 +989,14 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
+                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN || role === ROLE_PLATFORM_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
                         <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/app_center/wrap_check'>
+                          {/* <span><div className='sideCircle'></div>&nbsp; </span>*/}
                           <FormattedMessage {...IntlMessages.wrapCheck} />
                         </Link>
                       </div>
@@ -1435,7 +1449,7 @@ class Sider extends Component {
                   >
                   <Menu.Item key='cluster_default'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link to='/cluster'>
@@ -1445,7 +1459,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/globalConfig'>
@@ -1455,7 +1469,7 @@ class Sider extends Component {
                     </Menu.Item>
                   <Menu.Item key='cluster_autoscale'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/cluster_autoscale'>
@@ -1465,7 +1479,7 @@ class Sider extends Component {
                     </Menu.Item>
                   <Menu.Item key='monitor'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
@@ -1486,7 +1500,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='backup'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link

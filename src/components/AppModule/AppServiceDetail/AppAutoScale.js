@@ -690,6 +690,7 @@ class AppAutoScale extends Component {
     && serviceDetail[cluster][serviceName].service
     || null
     const annotations = currentService
+      && currentService.spec
       && currentService.spec.template
       && currentService.spec.template.metadata.annotations
       || null

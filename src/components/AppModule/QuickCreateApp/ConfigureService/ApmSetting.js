@@ -18,6 +18,7 @@ import { loadApms } from '../../../../actions/apm'
 import { ROLE_SYS_ADMIN } from '../../../../../constants'
 import { API_URL_PREFIX } from '../../../../constants'
 import { toQuerystring } from '../../../../common/tools'
+import { getConfigByType } from '../../../../actions/global_config'
 import './style/ApmSetting.less'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
@@ -30,12 +31,27 @@ const ApmSetting = React.createClass({
       midSupportModal: false,
       isOnlyShowSubmitBtn: false,
       confirmApmChecked: false,
+      apmDisabled: false,
     }
   },
 
   componentWillMount() {
-    const { current, loadApms } = this.props
+    const { current, loadApms, getConfigByType } = this.props
     loadApms(current.cluster.clusterID)
+    getConfigByType(current.cluster.clusterID, 'msa', {method: 'GET'}, {
+      success: {
+        func: res => {
+          const { configDetail } = res.data
+          const configDetailToJson = JSON.parse(configDetail)
+          if (configDetailToJson.canDeployPersonalServer) {
+            this.setState({
+              apmDisabled: configDetailToJson.canDeployPersonalServer.pinpoint
+            })
+          }
+        }
+      }
+    })
+
   },
 
   onApmChange(checked) {
@@ -53,8 +69,18 @@ const ApmSetting = React.createClass({
   renderApm() {
     const { form, formItemLayout, loginUser, apmList, openApi, intl } = this.props
     const { apms, isFetching } = apmList
+    const { apmDisabled } = this.state
     // msa-portal url not configure
     const msaUrl = loginUser.msaConfig.url
+    if (!apmDisabled) {
+      return (
+        <span className="infoText">
+          {/* 当前空间未安装 APM Agent，前往安装 <a target="_blank" href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: `${msaUrl}/setting/apms` })}`}>微服务平台</a> */}
+          <FormattedMessage {...IntlMessage.apmDisabledTip}/>
+        </span>
+      )
+
+    }
     if (!msaUrl) {
       return (
         <span>
@@ -236,6 +262,7 @@ function mapStateToProps(state) {
 
 export default connect(mapStateToProps, {
   loadApms,
+  getConfigByType,
 })(injectIntl(ApmSetting, {
   withRef: true,
 }))
