@@ -126,7 +126,7 @@ class VisitType extends Component{
     const portsKeys = []
     const annotations = metadata.annotations
     let userPort = annotations['tenxcloud.com/schemaPortname']
-    if (!userPort) {
+    if (!userPort && isEmpty(ports)) {
       return
     }
     if(userPort) {
@@ -146,9 +146,13 @@ class VisitType extends Component{
       form.setFieldsValue({
         [portKey]: item.targetPort,
         [portProtocolKey]: item.protocol,
-        [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
-        [mappingPortKey]: userPort[index][2]
       })
+      if (userPort) {
+        form.setFieldsValue({
+          [mappingPortTypeKey]: MAPPING_PORT_SPECIAL,
+          [mappingPortKey]: userPort[index][2]
+        })
+      }
     })
     form.setFieldsValue({
       portsKeys
@@ -567,12 +571,15 @@ class VisitType extends Component{
       'tabs_item_style': true,
       'tabs_item_selected_bg_white_style': activeKey === "loadBalance"
     })
-    const selectGroup = getFieldProps("groupID", {
-      rules:[
-        { required: deleteHint && value !== 3 ? true : false, message: formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort) }
-      ],
-      initialValue: initGroupID
-    })
+    let selectGroup
+    if ((value || initValue) !== 3) {
+      selectGroup = getFieldProps("groupID", {
+        rules:[
+          { required: deleteHint && value !== 3 ? true : false, message: formatMessage(AppServiceDetailIntl.pleaseChoiceNetPort) }
+        ],
+        initialValue: initGroupID
+      })
+    }
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
         return (
           <Option key={item.id} value={item.id}>{item.name}</Option>

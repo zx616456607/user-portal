@@ -50,11 +50,12 @@ global.globalConfig = {
 const apiFactory = require('./api_factory.js')
 
 exports.initGlobalConfig = function* () {
+  const method = 'initGlobalConfig'
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
   if (!configs) {
-    logger.error('未找到可用配置信息')
+    logger.error(method, '未找到可用配置信息')
     return
   }
   let globalConfig = global.globalConfig
@@ -62,7 +63,13 @@ exports.initGlobalConfig = function* () {
   globalConfig.storageConfig = []
   configs.forEach(item => {
     const configType = item.ConfigType
-    let configDetail = JSON.parse(item.ConfigDetail)
+    let configDetail
+    try {
+      configDetail = JSON.parse(item.ConfigDetail)
+    } catch (error) {
+      logger.error(method, 'parse configDetail failed')
+      configDetail = {}
+    }
     if (configType == 'mail' && configDetail.mailServer) {
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
