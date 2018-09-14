@@ -313,7 +313,6 @@ let MemberTable = React.createClass({
     } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope, loginUser, teams } = this.props
-
     let userManageName = this.currentUser ? this.currentUser.name : ''
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
@@ -522,9 +521,10 @@ let MemberTable = React.createClass({
                   >
                     {record.active === ACTIVE ? '停用' : '启用'}
                   </Menu.Item>
+
                   <Menu.Item
                     key="delete"
-                    disabled={record.namespace === loginUser.namespace}
+                    disabled={record.namespace === loginUser.namespace || record.role === ROLE_PLATFORM_ADMIN || record.role === ROLE_SYS_ADMIN}
                   >
                     删除
                   </Menu.Item>
@@ -1102,7 +1102,7 @@ function mapStateToProp(state) {
             active: item.active,
             email: item.email,
             style: role,
-            role: userDetail.role,// user info into team list
+            role: item.role || 0,// user info into team list
             team: item.teamCount || '-',
             balance: parseAmount(item.balance).fullAmount,
             type: item.type,
