@@ -80,7 +80,7 @@ class DeployDetail extends React.PureComponent {
       <QueueAnim className="DeployDetailWrapper layout-content">
         <div className="returnTitle" key="returnTitle">
           <ReturnButton onClick = {this.handleClick}>返回</ReturnButton>
-          <span className="titleSpan">BMP</span>
+          <span className="titleSpan">{app_name}</span>
         </div>
         <Row gutter={16} key="mainContent">
           <Col className="gutter-row" span={8}>
