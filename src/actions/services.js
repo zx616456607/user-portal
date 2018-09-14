@@ -264,7 +264,7 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceContainerList(cluster, serviceName, query, callback) {
+function fetchServiceContainerList(cluster, serviceName, query, bpmQuery,callback) {
   const { customizeOpts, projectName, userName } = query || {}
   if (query) {
     delete query.projectName
@@ -281,13 +281,17 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
       onbehalfuser: userName,
     })
   }
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`;
+  if (bpmQuery !==null) {
+    endpoint += `?${bpmQuery}`
+  }
   return {
     cluster,
     serviceName,
     customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
+      endpoint,
       schema: Schemas.CONTAINERS,
       options: {
         headers,
@@ -299,9 +303,9 @@ function fetchServiceContainerList(cluster, serviceName, query, callback) {
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, query, callback) {
+export function loadServiceContainerList(cluster, serviceName, query, bpmQuery,callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName, query, callback))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery ,callback))
   }
 }
 

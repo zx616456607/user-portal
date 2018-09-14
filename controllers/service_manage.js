@@ -173,7 +173,7 @@ exports.getServiceContainers = function* () {
     Object.assign(headers, { project: projectName, teamspace: projectName })
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], null, { headers })
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], this.query, { headers })
   const instances = result.data.instances || []
   instances.map((pod) => {
     pod.images = []
