@@ -135,7 +135,6 @@ class AppServiceDetail extends Component {
     // bpm 需要根据一个参数, 请求一个带query的容器列表接口
     const appCenterChoiceHidden = url.test(window.location.pathname)
     const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
-    console.log('bpmQuery', bpmQuery)
     loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
       success: {
         func: (result) => {
