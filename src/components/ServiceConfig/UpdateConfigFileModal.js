@@ -62,7 +62,7 @@ let UpdateConfigFileModal = React.createClass({
       const { type, updateKeyIntoSecret } = this.props
       const tempValues = cloneDeep(values)
 
-      if (tempValues.enable === true) {
+      if (tempValues.enable === true || tempValues.enable === 1) {
         tempValues.enable = 1
       } else {
         tempValues.enable = 0
