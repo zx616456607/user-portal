@@ -12,6 +12,16 @@ import './style/index.less'
 import { parseNetworkPolicy } from '../../../../../kubernetes/objects/securityGroup'
 
 class DetailWhiteList extends React.Component {
+
+  deelWithArr = arr => {
+    let str = ''
+    arr.forEach(v => {
+      str += v + ','
+    })
+    str = str.slice(0, str.length - 1)
+    return str
+  }
+
   render() {
     const { type, current } = this.props
     const isIngress = type === 'ingress' && true || false
@@ -25,7 +35,7 @@ class DetailWhiteList extends React.Component {
             <div className="lineColType">CIDR</div>
             <div className="lineColLocal">{item.cidr}</div>
             除去
-            <div className="lineColServer">{item.except || '无'} </div>
+            <div className="lineColServer">{ this.deelWithArr(item.except) || '无'} </div>
           </div>
         case 'service':
           return <div className="lineRow" key={k}>
@@ -35,8 +45,8 @@ class DetailWhiteList extends React.Component {
         case 'haproxy':
           return <div className="lineRow" key={k}>
             <div className="lineColType">集群网络出口</div>
-            {/* <div className="lineColLocal">{item.haproxy}</div>
-            <div className="lineColServer">{item.except || '无'} </div> */}
+            <div className="lineColLocal">所有集群网络出口</div>
+            {/* <div className="lineColServer">{item.except || '无'} </div> */}
           </div>
         case 'ingress':
           return <div className="lineRow" key={k}>
@@ -47,6 +57,12 @@ class DetailWhiteList extends React.Component {
           return <div className="lineRow" key={k}>
             <div className="lineColType">命名空间</div>
             <div className="lineColLocal">{item.namespace}</div>
+            <div className="lineColServerMore">{this.deelWithArr(item.serivceName)}</div>
+          </div>
+        case 'daas':
+          return <div className="lineRow" key={k}>
+            <div className="lineColType">{item.daasType === 'mysql' ? 'MySQL集群' : 'Redis 集群'}</div>
+            <div className="lineColLocal">{item.daasName}</div>
           </div>
         default:
           return null
