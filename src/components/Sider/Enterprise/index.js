@@ -285,7 +285,6 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this;
-
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
@@ -329,7 +328,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='cluster_authorization'>
         <div className="adminBox">
-          <Tooltip title={this.menuItemTip(role)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/cluster_authorization'>
@@ -339,7 +338,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='approvalLimit'>
       <div className="adminBox">
-        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+        <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
           <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
         <Link to='/tenant_manage/approvalLimit'>
@@ -349,7 +348,7 @@ class Sider extends Component {
     </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/ldap'>
@@ -386,14 +385,26 @@ class Sider extends Component {
       </Menu.Item>,
       // applyLimit
       <Menu.Item key='applyLimit'>
-        <div className="usrBox">
-          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
-            <TenxIcon type='star' className='star forAdmin'/>
-          </Tooltip>
-          <Link to='/tenant_manage/applyLimit'>
-            <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
-          </Link>
-        </div>
+        {
+          role === ROLE_USER?
+            <div className="userBox">
+              <Link to='/tenant_manage/applyLimit'>
+                <span>
+                  <div className='sideCircle'></div>&nbsp;
+                  <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
+                </span>
+              </Link>
+            </div>
+            :
+            <div className="usrBox">
+              <Tooltip title='基础设施管理员、普通用户可见' placement="right">
+                <TenxIcon type='star' className='star forAdmin'/>
+              </Tooltip>
+              <Link to='/tenant_manage/applyLimit'>
+                <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
+              </Link>
+            </div>
+        }
     </Menu.Item>,
     ]
     const tenantMenu_user = tenantMenu_base;
@@ -992,7 +1003,7 @@ class Sider extends Component {
                   {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN || role === ROLE_PLATFORM_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip()} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/app_center/wrap_check'>
