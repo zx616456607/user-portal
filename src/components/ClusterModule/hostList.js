@@ -6,7 +6,7 @@ import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../components/Notification'
 import { Card, Button, Tooltip, Icon, Input, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table, Pagination } from 'antd'
-import { formatDate, calcuDate } from '../../common/tools'
+import { formatDate, calcuDate, getHostLastHeartbeatTime } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
@@ -24,6 +24,8 @@ import './style/hostList.less'
 import isEmpty from 'lodash/isEmpty'
 import TenxIcon from '@tenx-ui/icon'
 import intlMsg from './hostListIntl'
+import clusterDetailIntlMsg from './ClusterDetailIntl'
+import * as moment from 'moment';
 
 const MASTER = 'Master'
 const SLAVE = 'Slave'
@@ -319,12 +321,30 @@ const MyComponent = React.createClass({
       </div>
     )
   },
+  isShowHeartbeatWarning(masterLastHeartbeatTime, nodeLastHeartbeatTime) {
+    if (!masterLastHeartbeatTime || !nodeLastHeartbeatTime) {
+      return false
+    }
+    const timeError = Math.abs((new Date(masterLastHeartbeatTime) - new Date(nodeLastHeartbeatTime)))
+    if (timeError < 5 * 60 * 1000) {
+      return false
+    }
+    return moment.duration(timeError).humanize()
+  },
   render: function () {
     const {
       isFetching, nodeList, cpuMetric, memoryMetric, clusterID,
       resourceConsumption, license, podCount , intl: { formatMessage },
     } = this.props
     const root = this
+    let masterLastHeartbeatTime
+    nodeList.every(node => {
+      if (node.isMaster) {
+        masterLastHeartbeatTime = getHostLastHeartbeatTime(node)
+        return false
+      }
+      return true
+    })
     let dropdown
     let maxNodes
     let column = [
@@ -384,12 +404,19 @@ const MyComponent = React.createClass({
         {
           title: formatMessage(intlMsg.nameOrIp),
           dataIndex: 'objectMeta.name',
-          render: (text, item, index) => <div onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }} className='nameIP '>
-            <div className="hostname">
-              {item.objectMeta.name}
+          render: (text, item, index) => <Tooltip
+            title={`${formatMessage(clusterDetailIntlMsg.lastHeartbeatTime)}${getHostLastHeartbeatTime(item)}`}
+          >
+            <div
+              onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }}
+              className='nameIP'
+            >
+              <div className="hostname">
+                {item.objectMeta.name}
+              </div>
+              <div className="address">{item.address}</div>
             </div>
-            <div className="address">{item.address}</div>
-          </div>,
+          </Tooltip>,
           sorter: (a, b) => (a.objectMeta.name).localeCompare(b.objectMeta.name)
         },{
           title: formatMessage(intlMsg.status),
@@ -399,11 +426,21 @@ const MyComponent = React.createClass({
         },{
           title: formatMessage(intlMsg.role),
           dataIndex: 'isMaster',
-          render: (isMaster) => <div>
-            <Tooltip title={isMaster ? MASTER : SLAVE}>
-              <span>{isMaster ? MASTER : SLAVE}</span>
-            </Tooltip>
-          </div>,
+          render: (isMaster, item) => {
+            const timeError = this.isShowHeartbeatWarning(masterLastHeartbeatTime, getHostLastHeartbeatTime(item))
+            return <div>
+              <div>
+                <span>{isMaster ? MASTER : SLAVE}</span>
+                {
+                  timeError
+                    ? <Tooltip title={formatMessage(intlMsg.lastHeartbeatTimeTips, { time: timeError })}>
+                      <Icon className="heartbeatWarningTip" type="exclamation-circle-o" />
+                    </Tooltip>
+                    : null
+                }
+              </div>
+            </div>
+          },
           sorter: (a, b) => isMasterSorter(a.isMaster) - isMasterSorter(b.isMaster)
         },{
           title: formatMessage(intlMsg.monitorAlert),
