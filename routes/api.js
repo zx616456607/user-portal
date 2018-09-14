@@ -326,7 +326,8 @@ module.exports = function (Router) {
   router.del('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.delConfig)
   router.put('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.updateConfig)
   router.get('/devops/managed-projects/:project_id/branches', devopsController.getGitProjectsBranches)
-  router.get('/devops/configmaps/projects/:project_id/branches/:branch_name/path/:path_name/files', devopsController.getGitProjectsFileContent)
+  router.get('/devops/projects/:project_id/branches/:branch_name/path/:path_name/files', devopsController.getGitProjectsFileContent)
+  // router.get('/devops/projects/:project_id/branches/:branch_name/files', devopsController.getGitProjectsFileContent)
 
   // Secrets by devops
   router.get('/devops/secrets/clusters/:cluster_id', devopsController.getSecrets)

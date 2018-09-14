@@ -51,9 +51,11 @@ function configGroupList(state = {}, action) {
       })
       configGroup.configGroup[index1].configs.push({
         name: configFile.name,
-        rawName: configFile.name
+        rawName: configFile.name,
+        project: configFile.projectName || "",
+        branch: configFile.defaultBranch || "",
       })
-      configGroup.configGroup[index1].size = configGroup.configGroup[index1].configList.length
+      configGroup.configGroup[index1].size = configGroup.configGroup[index1].configs.length
       return addState
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
       return merge({}, state, {

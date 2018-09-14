@@ -34,14 +34,25 @@ class ConfigFileContent extends React.Component {
     projects: [],
     isNeedSet: false,
   }
-  componentDidMount = () => {
-    const { method } = this.props
+  componentDidMount = async () => {
+    const { method, getProjectBranches, defaultData} = this.props
+    const project_id = defaultData ? defaultData.projectId : ""
     if (method === 2) {
-      this.loadGitProjects()
+      await this.loadGitProjects(project_id)
+      project_id && getProjectBranches({ project_id }, {
+        success: {
+          func: res => {
+            !!res.results.branches && this.setState({
+              branches: res.results.branches,
+            })
     }
   }
-  loadGitProjects = () => {
-    const { getProjectList } = this.props
+      })
+    }
+  }
+  loadGitProjects = (project_id) => {
+    const { getProjectList, form } = this.props
+    const { setFieldsValue } = form
     getProjectList({
       failed:{
         func: (err) => {
@@ -53,9 +64,11 @@ class ConfigFileContent extends React.Component {
       success: {
         func: (res) => {
           if(res.data && res.data.results){
+            const projects = filter(res.data.results, { repoType: "gitlab" })
             this.setState({
-              projects: filter(res.data.results, { repoType: "gitlab" }),
+              projects,
             })
+            !!project_id && setFieldsValue({ projectName: filter(projects, { id: project_id })[0].name })
           } else {
             this.setState({
               isNeedSet: true,
@@ -69,7 +82,7 @@ class ConfigFileContent extends React.Component {
     const method = e.target.value
     const readOnly = method === 2
     const { tempConfigDesc, form, getMethod } = this.props
-    const { setFieldsValue } = form
+    const { setFieldsValue, getFieldValue } = form
     this.setState({
       readOnly,
     })
@@ -77,12 +90,14 @@ class ConfigFileContent extends React.Component {
     if (!readOnly) {
       configDesc = tempConfigDesc
     } else {
-      this.loadGitProjects()
+      this.loadGitProjects(getFieldValue("projectId"))
     }
-    setFieldsValue({
+    const values = {
       configDesc,
       method,
-    })
+    }
+    // if(readOnly) values.name = ""
+    setFieldsValue(values)
     getMethod(method)
   }
   onImportClick = () => {
@@ -125,6 +140,9 @@ class ConfigFileContent extends React.Component {
           failed: {
             func: err => {
               notify.warn("导入失败, 请检查目录结构")
+              this.setState({
+                fetchStatus: false,
+              })
             },
           },
           finally: {
@@ -168,26 +186,25 @@ class ConfigFileContent extends React.Component {
       notify.success('文件内容读取完成')
       const configDesc = fileReader.result.replace(/\r\n/g, '\n')
       self.props.form.setFieldsValue({
-        configDesc,
-      })
-      this.setState({
-        tempConfigDesc: configDesc
+        data: configDesc,
       })
     }
     fileReader.readAsText(file)
     return false
   }
-  onProjectSelect = value => {
+  onProjectSelect = async value => {
     this.setState({
       branches: [],
     }, async () => {
       const { getProjectBranches, form } = this.props
       const { getFieldProps, getFieldValue, setFieldsValue } = form
+      const { projects } = this.state
       await setFieldsValue({
         defaultBranch: undefined,
       })
-      const currProjectId = getFieldValue("projectId") || ""
-      getProjectBranches({ project_id: currProjectId }, {
+      const project_id = getFieldValue("projectId") || ""
+      !!project_id && setFieldsValue({ projectName: filter(projects, { id: project_id })[0].name })
+      getProjectBranches({ project_id }, {
         success: {
           func: res => {
             !!res.results.branches && this.setState({
@@ -204,13 +221,22 @@ class ConfigFileContent extends React.Component {
     }
     return callback()
   }
+  onPathChange = path => {
+    const { form: { setFieldsValue } } = this.props
+    if (path.endsWith("/")) return setFieldsValue({ name: '' })
+    if (path.length < 3) return
+    const arr = path.split("/")
+    const name = arr[arr.length-1]
+    setFieldsValue({
+      name
+    })
+  }
   render() {
-    const { descProps, filePath, form, defaultData, configNameList } = this.props
-    const { projectId, defaultBranch, path, enable } = defaultData || {}
+    const { descProps, filePath, form, defaultData, configNameList, isUpdate } = this.props
+    const { projectId, defaultBranch, path, filePath: tempFliePath, enable } = defaultData || {}
     const { readOnly, btnLoading, fetchStatus, projects, branches, isNeedSet } = this.state
     const { getFieldProps, getFieldValue } = form
     const method = getFieldValue("method") || this.props.method || 1
-
     const currProjectId = getFieldValue("projectId") || ""
     const currProject = filter(projects, { id: currProject })[0]
     const project_options = projects.map(item => <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>)
@@ -235,12 +261,13 @@ class ConfigFileContent extends React.Component {
     )}
     const pathProps = {...getFieldProps('filePath',
       {
-        initialValue: path || undefined,
+        initialValue: path || tempFliePath || undefined,
         rules: [
           {
             validator: this.checkFilePath
           }
-        ]
+        ],
+        onChange: e => this.onPathChange(e.target.value)
       }
     )}
     const enableProps = {...getFieldProps('enable',
@@ -249,12 +276,11 @@ class ConfigFileContent extends React.Component {
         valuePropName: 'checked',
       }
     )}
-    // console.log("configNameList", configNameList)
     return(
       <div className="configFileContent">
         <div>导入或直接输入配置文件</div>
         <FormItem className="formItem">
-          <RadioGroup {...methodProps}>
+          <RadioGroup disabled={isUpdate} {...methodProps}>
             <Radio key="1" value={1}>本地文件导入</Radio>
             <Radio key="2" value={2}>Git仓库导入</Radio>
           </RadioGroup>
@@ -277,17 +303,22 @@ class ConfigFileContent extends React.Component {
                   <i className="fa fa-exclamation-triangle"/>请先关联 GitLab 代码仓库
                 </div>
               }
+              <input type="hidden" {
+                ...getFieldProps('projectName', {
+                  initialValue: "",
+                })
+              } />
               <Row className="importRow">
                 <Col className="selleft" span={12}>
                   <FormItem className="formItem">
-                    <Select {...selProjectProps} className="selBranch" placeholder="请选择代码仓库">
+                    <Select disabled={isUpdate} {...selProjectProps} className="selBranch" placeholder="请选择代码仓库">
                       {project_options}
                     </Select>
                   </FormItem>
                 </Col>
                 <Col className="selright" span={12}>
                   <FormItem className="formItem">
-                    <Select {...selBranchProps} className="selBranch" placeholder="请选择代码分支">
+                    <Select disabled={isUpdate} {...selBranchProps} className="selBranch" placeholder="请选择代码分支">
                       {branch_options}
                     </Select>
                   </FormItem>
@@ -296,7 +327,7 @@ class ConfigFileContent extends React.Component {
               <Row className="importRow">
                 <Col span={20}>
                   <FormItem className="formItem">
-                    <Input {...pathProps} className="path" placeholder='请输入配置文件路径，例如"/app/config"' />
+                    <Input disabled={isUpdate} {...pathProps} className="path" placeholder='请输入配置文件路径，以“./”开头' />
                   </FormItem>
                 </Col>
                 <Col span={4}>
@@ -310,7 +341,7 @@ class ConfigFileContent extends React.Component {
                         ele = "" // <span className="primary">导入中...</span>
                       } else {
                         if (fetchStatus){
-                          ele = <span className="succ"><Icon type="check-circle-o" /> 导入成功</span>
+                          ele = <span className="succ">{/*<Icon type="check-circle-o" /> */}导入成功</span>
                         } else {
                           ele = "" // <span className="failed">导入失败</span>
                         }

@@ -42,7 +42,8 @@ export default class ConfigGroupHeader extends React.Component {
     const {
       group, checkedList = [], openCreateConfigFileModal
     } = this.props
-    const { name, data = {}, createdAt } = group
+    let { name, data, createdAt } = group
+    if(!!!data) data = {}
     const menu = (
       <Menu onClick={this.handleMenuClick.bind(this, name)} mode="vertical">
         <Menu.Item key="delete">

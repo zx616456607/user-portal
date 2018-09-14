@@ -9,6 +9,7 @@
  */
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const CONFIG_LIST_REQUEST = 'CONFIG_LIST_REQUEST'
 export const CONFIG_LIST_SUCCESS = 'CONFIG_LIST_SUCCESS'
@@ -170,7 +171,7 @@ export const UPDATE_CONFIG_FILES_REQUEST = 'UPDATE_CONFIG_FILES_REQUEST'
 export const UPDATE_CONFIG_FILES_SUCCESS = 'UPDATE_CONFIG_FILES_SUCCESS'
 export const UPDATE_CONFIG_FILES_FAILURE = 'UPDATE_CONFIG_FILES_FAILURE'
 
-export function updateConfigName(obj, callback) {
+export function updateConfigName(obj, body, callback) {
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -178,7 +179,7 @@ export function updateConfigName(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
       options: {
         method: 'PUT',
-        body: { "desc": obj.desc }
+        body,
       },
       schema: {}
     },
@@ -186,6 +187,11 @@ export function updateConfigName(obj, callback) {
   }
 }
 
+export function dispatchUpdateConfig(obj, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(updateConfigName(obj, body, callback))
+  }
+}
 export const UPDATE_CONFIG_ANNOTATIONS_REQUEST = 'UPDATE_CONFIG_ANNOTATIONS_REQUEST'
 export const UPDATE_CONFIG_ANNOTATIONS_SUCCESS = 'UPDATE_CONFIG_ANNOTATIONS_SUCCESS'
 export const UPDATE_CONFIG_ANNOTATIONS_FAILURE = 'UPDATE_CONFIG_ANNOTATIONS_FAILURE'
@@ -340,6 +346,7 @@ export const GET_FILE_CONTENT_SUCCESS = 'GET_FILE_CONTENT_SUCCESS'
 export const GET_FILE_CONTENT_FAILURE = 'GET_FILE_CONTENT_FAILURE'
 
 export function fetchGitFileContent(query, callback) {
+  const pathName = query.path_name// .replace("./", "")
   return {
     cluster: query.cluster_id,
     [FETCH_API]: {
@@ -348,12 +355,30 @@ export function fetchGitFileContent(query, callback) {
         GET_FILE_CONTENT_SUCCESS,
         GET_FILE_CONTENT_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/path/${query.path_name}/files`,
+      endpoint: `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/path/${encodeURIComponent(pathName)}/files`,
       schema: {},
     },
     callback,
   }
 }
+
+// export function fetchGitFileContent(query, callback) {
+//   let endpoint = `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/files`
+//   endpoint += `?${toQuerystring({ path_name: query.path_name})}`
+//   return {
+//     cluster: query.cluster_id,
+//     [FETCH_API]: {
+//       types: [
+//         GET_FILE_CONTENT_REQUEST,
+//         GET_FILE_CONTENT_SUCCESS,
+//         GET_FILE_CONTENT_FAILURE,
+//       ],
+//       endpoint,
+//       schema: {},
+//     },
+//     callback,
+//   }
+// }
 
 export function getGitFileContent(query, callback) {
   return (dispatch, getState) => {

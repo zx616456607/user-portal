@@ -1235,9 +1235,19 @@ exports.getGitProjectsFileContent = function* () {
   const project_id = this.params.project_id
   const branch_name = this.params.branch_name
   const path_name = this.params.path_name
-  const result = yield api.getBy(["configmaps", "projects", project_id, "branchs", branch_name, "path", path_name, "files"], null)
+  const result = yield api.getBy(["projects", project_id, "branchs", branch_name, "path", path_name, "files"], null)
   this.body = result
 }
+
+// exports.getGitProjectsFileContent = function* () {
+//   const loginUser = this.session.loginUser
+//   const api = apiFactory.getDevOpsApi(loginUser)
+//   const project_id = this.params.project_id
+//   const branch_name = this.params.branch_name
+//   const path_name = this.query.path_name
+//   const result = yield api.getBy(["projects", project_id, "branchs", branch_name, "files"], { path_name })
+//   this.body = result
+// }
 
 exports.createConfig = function* () {
   const loginUser = this.session.loginUser

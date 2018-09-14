@@ -37,6 +37,7 @@ let CreateConfigFileModal = React.createClass({
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
       method: 1,
+      nameDisabled: false,
     }
   },
   componentDidMount() {
@@ -97,7 +98,7 @@ let CreateConfigFileModal = React.createClass({
     if (method === 1) {
       // arr = []
     } else if (method === 2) {
-      arr = [ 'defaultBranch', 'projectId', 'filePath' ].concat(arr)
+      arr = [ 'defaultBranch', 'projectId', 'projectName', 'filePath', 'enable' ].concat(arr)
     }
     this.props.form.validateFields(arr, (errors, values) => {
       if (!!errors) {
@@ -115,28 +116,28 @@ let CreateConfigFileModal = React.createClass({
         group,
         cluster,
         name: tempValues.name,
-        data: tempValues.data
+        data: tempValues.data,
+        projectName: tempValues.projectName,
+        defaultBranch: tempValues.defaultBranch,
       }
-      const body = {}
+      let body = {}
+      let secret_body = {}
       if (method === 2) {
-        body.name = tempValues.name
-        body.data = tempValues.data
-        body.projectId = tempValues.projectId
-        body.defaultBranch = tempValues.defaultBranch
-        body.filePath = tempValues.filePath
-        body.enable = tempValues.enable
+        body = tempValues
+        secret_body = body
       } else {
-        body.groupFiles = tempValues.data
+        body.desc = tempValues.data
+        secret_body = {
+          key: tempValues.name,
+          value: tempValues.data,
+        }
       }
 
       let self = this
       // const {parentScope} = this.props
       let notification = new NotificationHandler()
       if (type === 'secrets') {
-        return addKeyIntoSecret({
-          configName: values.name,
-          configDesc: tempValues.data,
-        })
+        return addKeyIntoSecret(secret_body)
       }
       //parentScope.props.createConfigFiles(configfile, {
       dispatchCreateConfig(configfile, body, {
@@ -191,12 +192,12 @@ let CreateConfigFileModal = React.createClass({
     })
   },
   getMethod(method) {
-    this.setState({ method })
+    this.setState({ method, nameDisabled: method === 2 })
   },
   render() {
     const { type, form, configNameList, scope: parentScope } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
-    const { filePath, tempConfigDesc } = this.state
+    const { filePath, tempConfigDesc, nameDisabled } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -241,6 +242,7 @@ let CreateConfigFileModal = React.createClass({
           <Form horizontal>
             <FormItem  {...formItemLayout} label="名称">
               <Input
+                disabled={nameDisabled}
                 className="configName"
                 type="text"
                 {...nameProps}

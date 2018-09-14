@@ -118,7 +118,6 @@ class CollapseContainer extends Component {
       modalConfigFile: false,
       configtextarea: '',
       checkConfigFile: false,
-      method: 1,// 1 input 2 git
       defaultData: {}
       // collapseContainer: this.props.collapseContainer
 
@@ -134,26 +133,39 @@ class CollapseContainer extends Component {
 
   editConfigModal(group, configName) {
     const self = this
-    const { cluster, getConfig } = this.props
-    getConfig({
-      configmap_name: group,
-      cluster_id: cluster,
-      config_name: configName,
-    }, {
+    const { cluster, loadConfigName } = this.props
+    // getConfig({
+    //   configmap_name: group,
+    //   cluster_id: cluster,
+    //   config_name: configName,
+    // }, {
+    loadConfigName(cluster, { group, Name: configName } ,{
       success: {
         func: (res) => {
-          self.setState({
-            modalConfigFile: true,
-            configName: res.results.name,
-            configtextarea: res.results.data,
-            method: res.results.projectId ? 2 : 1,
-            defaultData: {
-              projectId: res.results.projectId || undefined,
-              defaultBranch: res.results.defaultBranch || undefined,
-              path: res.results.filePath || "",
-              enable: res.results.enable || 0
+          let tempState = {}
+          if (!!res.data){
+            if (typeof res.data === 'string') {
+              tempState = {
+                modalConfigFile: true,
+                configName: configName,
+                configtextarea: res.data,
+              }
             }
-          })
+            else {
+              tempState = {
+                modalConfigFile: true,
+                configName: res.data.name || configName,
+                configtextarea: res.data.data,
+                defaultData: {
+                  projectId: res.data.projectId || undefined,
+                  defaultBranch: res.data.defaultBranch || undefined,
+                  path: res.data.filePath || "",
+                  enable: res.data.enable || 0
+                }
+              }
+            }
+          }
+          self.setState(tempState)
         },
         isAsync: true
       }
@@ -170,7 +182,7 @@ class CollapseContainer extends Component {
     let configs = []
     configs.push(this.state.configName)
     const self = this
-    const { parentScope, deleteConfig, cluster } = this.props
+    const { parentScope, deleteConfigName, cluster } = this.props
     const { configGroup, configName } = this.state
     const groups = {
       group: configGroup,
@@ -184,31 +196,31 @@ class CollapseContainer extends Component {
     }
     let notification = new NotificationHandler()
     this.setState({delModal: false})
-    // self.props.deleteConfigName(groups, {
-    deleteConfig(query, {
+    deleteConfigName(groups, {
+    // deleteConfig(query, {
       success: {
         func: (res) => {
-          // const errorText = []
-          // if (res.message.length > 0) {
-          //   res.message.forEach(function (list) {
-          //     errorText.push({
-          //       name: list.name,
-          //       text: list.error
-          //     })
-          //   })
-          //   const content = errorText.map(list => {
-          //     return (
-          //       <h3>{list.name} ：{list.text}</h3>
-          //     )
-          //   })
-          //   Modal.warning({
-          //     title: '删除配置文件失败!',
-          //     content
-          //   })
-          // } else {
+          const errorText = []
+          if (res.message.length > 0) {
+            res.message.forEach(function (list) {
+              errorText.push({
+                name: list.name,
+                text: list.error
+              })
+            })
+            const content = errorText.map(list => {
+              return (
+                <h3>{list.name} ：{list.text}</h3>
+              )
+            })
+            Modal.warning({
+              title: '删除配置文件失败!',
+              content
+            })
+          } else {
             notification.success('删除配置文件成功')
-            self.props.loadData()
-          // }
+            this.props.loadData()
+          }
         },
         isAsync: true
       },
@@ -277,12 +289,38 @@ class CollapseContainer extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td style={{ padding: '15px' }}>
-                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left', marginTop: '3px' }} />
-                      <Tooltip title={configFileItem.name} placement="topLeft">
-                        <div style={{float:'left',width:'130px'}} className="textoverflow">{configFileItem.name}</div>
-                      </Tooltip>
-                    </div>
+                  <td className="title" style={{ padding: '15px' }}>
+                    {
+                      configFileItem.branch || configFileItem.project ?
+                        <div style={{ width: '160px' }}>
+                          <div>
+                            <Tooltip title={configFileItem.name} placement="topLeft">
+                              <div className="textoverflow">
+                                <i className="fa fa-gitlab" aria-hidden="true" style={{ marginRight: '10px', marginTop: '3px' }}></i>
+                                {configFileItem.name}
+                              </div>
+                            </Tooltip>
+                          </div>
+                          <div style={{ color: "#999", fontSize: "12px" }}>
+                            {configFileItem.project && <Tooltip title={configFileItem.project} placement="left">
+                              <div><span>仓库: </span><span style={{width:'120px'}} className="textoverflow">
+                                {configFileItem.project}
+                              </span></div>
+                            </Tooltip>}
+                            {configFileItem.branch && <Tooltip title={configFileItem.branch} placement="left">
+                              <div><span>分支: </span><span style={{width:'45px'}} className="textoverflow">{configFileItem.branch}</span></div>
+                            </Tooltip>}
+                          </div>
+                        </div>
+                        :
+                        <div style={{ width: '160px' }} className='textoverflow'>
+                          <Icon type='file-text' style={{ marginRight: '10px',float:'left', marginTop: '3px' }} />
+                          <Tooltip title={configFileItem.name} placement="topLeft">
+                            <div className="textoverflow">{configFileItem.name}</div>
+                          </Tooltip>
+                        </div>
+
+                    }
                   </td>
                   <td style={{ padding: '15px 20px' }}>
                     <Button type='primary' style={{ height: '30px', padding: '0 9px' }}
@@ -339,7 +377,7 @@ class CollapseContainer extends Component {
       )
 
     })
-    const { modalConfigFile, method, defaultData } = this.state
+    const { modalConfigFile, defaultData } = this.state
     return (
       <Row className='file-list'>
         <Timeline>
@@ -347,13 +385,14 @@ class CollapseContainer extends Component {
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
         {
-          modalConfigFile &&
+          modalConfigFile ?
             <UpdateConfigFileModal
               scope={this}
               modalConfigFile={modalConfigFile}
-              method={method}
               defaultData={defaultData}
             />
+            :
+            null
         }
         {/* <Modal
           title='修改配置文件'

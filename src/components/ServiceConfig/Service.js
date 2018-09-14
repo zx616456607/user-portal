@@ -132,6 +132,7 @@ class CollapseList extends Component {
           key={group.name}
           >
           <CollapseContainer
+            loadData={this.props.loadData}
             parentScope={scope}
             collapseContainer={group.configs}
             groupname={group.name} />
@@ -372,8 +373,10 @@ class Service extends Component {
                       disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
               </Button>
+              <Button onClick={this.loadData}>刷新</Button>
               <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value && value.trim()})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
+                loadData={this.loadData}
                 scope={this}
                 cluster={cluster}
                 loadConfigGroup={this.props.loadConfigGroup}

@@ -39,7 +39,7 @@ exports.listConfigGroups = function* () {
     }
     if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
       configgroup.extended.configs.forEach(function(c) {
-        item.configs.push({name: c.name, rawName: c.rawName})
+        item.configs.push(c)
       })
     }
     item.size = item.configs.length
@@ -112,14 +112,14 @@ exports.createConfigFiles = function* () {
   const fileName = this.params.name
   const group = this.params.group
   let body = this.request.body
-  let data = body.groupFiles
+  let desc = body.desc
   if (!cluster) {
     this.status = 400
     this.body = { message: 'error' }
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data || body)
+  let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, desc || body)
   if (response.code >= 400) {
     const err = new Error(`create config files fails: ${response.body}`)
     err.status = response.code
@@ -154,11 +154,12 @@ exports.updateConfigFile = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
-  let data = this.request.body.desc
+  let body = this.request.body
+  let desc = body.desc
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
 
-  let response = yield api.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+  let response = yield api.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, desc || body)
   if (response.code >= 400) {
     const err = new Error(`update config file ${filename} fails: ${response.body}`)
     err.status = response.code
