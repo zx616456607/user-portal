@@ -30,6 +30,16 @@ const LivenessSetting = React.createClass({
       },300)
     }
   },
+  checkPath(rule, value, cb) {
+    if (!value) {
+      return cb()
+    }
+    const reg = /^(\/)/
+    if (!reg.test(value)) {
+      return cb('路径必须以 / 开头')
+    }
+    cb()
+  },
   render() {
     const { formItemLayout, form, intl } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -99,6 +109,8 @@ const LivenessSetting = React.createClass({
                 item: intl.formatMessage(IntlMessage.path),
                 end: '',
               })
+            }, {
+              validator: this.checkPath,
             }
           ],
         })

@@ -362,10 +362,13 @@ class AppUseful extends Component {
                   <div style={{ clear: "both" }}></div>
                 </div>
                 <div className="input">
-                  <span style={{ float: "left", marginLeft: "10px" }}>/</span>
+                  {/* <span style={{ float: "left", marginLeft: "10px" }}>/</span> */}
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag}
-                      value={submitInfo.info.path && submitInfo.info.path.length > 0 && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1) : submitInfo.info.path}
+                      value={submitInfo.info.path}
+                        // && submitInfo.info.path.length > 0
+                        // && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1)
+                        // : submitInfo.info.path}
                       onChange={(e) => this.getInputInfo('path', e)} />
                   </div>
                   <div className="commonInput" style={{ padding: 0 }}>
