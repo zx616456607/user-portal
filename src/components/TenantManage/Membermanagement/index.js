@@ -371,7 +371,18 @@ let MemberTable = React.createClass({
     ]
 
     let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
-
+    const cannotDelMember = record => {
+      if(loginUser.role === ROLE_PLATFORM_ADMIN && record.role === ROLE_PLATFORM_ADMIN) {
+        return true
+      }
+      if(loginUser.role === ROLE_PLATFORM_ADMIN && record.role === ROLE_SYS_ADMIN) {
+        return true
+      }
+      if(loginUser.namespace === record.namespace) {
+        return true
+      }
+      return false
+    }
     let columns = [
       {
         title: (
@@ -524,7 +535,7 @@ let MemberTable = React.createClass({
 
                   <Menu.Item
                     key="delete"
-                    disabled={record.namespace === loginUser.namespace || record.role === ROLE_PLATFORM_ADMIN || record.role === ROLE_SYS_ADMIN}
+                    disabled={cannotDelMember(record)}
                   >
                     删除
                   </Menu.Item>
