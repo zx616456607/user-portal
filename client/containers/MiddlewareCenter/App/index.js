@@ -90,7 +90,7 @@ class App extends React.PureComponent {
           <div className="app-item-footer-left">
             <div className="app-name">{item.name}</div>
             <div className="app-desc">
-              {item.description}
+              {item.comments}
             </div>
           </div>
           <Button className="deploy-btn" type={'ghost'} onClick={() => this.handleDeploy(item)}>
