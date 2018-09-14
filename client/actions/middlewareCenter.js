@@ -105,7 +105,7 @@ function fetchDeleteAppClusters(cluster, name, callback) {
       options: {
         method: 'POST',
         body: {
-          name,
+          names: name,
         },
       },
       schema: {},
@@ -135,7 +135,7 @@ function fetchRestartAppsCluster(cluster, name, callback) {
       options: {
         method: 'POST',
         body: {
-          name,
+          names: name,
         },
       },
       schema: {},
@@ -164,7 +164,7 @@ function fetchStartApps(cluster, name, callback) {
       options: {
         method: 'POST',
         body: {
-          name,
+          names: name,
         },
       },
       schema: {},
@@ -193,7 +193,7 @@ function fetchStopApps(cluster, name, callback) {
       options: {
         method: 'POST',
         body: {
-          name,
+          names: name,
         },
       },
       schema: {},
