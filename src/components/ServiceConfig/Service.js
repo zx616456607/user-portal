@@ -132,6 +132,7 @@ class CollapseList extends Component {
           key={group.name}
           >
           <CollapseContainer
+            loadData={this.props.loadData}
             parentScope={scope}
             collapseContainer={group.configs}
             groupname={group.name} />
@@ -194,7 +195,8 @@ class Service extends Component {
     })
     const self = this
     setTimeout(() => {
-      document.getElementById('newConfigName').focus()
+      const ele = document.getElementById('newConfigName')
+      ele && ele.focus()
     },100)
     setTimeout(function () {
       if (self.focusInput) {
@@ -292,7 +294,7 @@ class Service extends Component {
   }
   render() {
     const {cluster, configGroup, isFetching, configName, labelWithCount, updateConfigAnnotations} = this.props
-    const { configList, filterName, searchValue, noAnnotations } = this.state;
+    const { configList, filterName, searchValue, noAnnotations, createModal } = this.state;
     let noAnnotationsLength = 0
     configGroup.length > 0 && configGroup.forEach(item => {
       if (!item.annotations.length) {
@@ -316,7 +318,7 @@ class Service extends Component {
         <div id="Service" key="Service">
           <Title title="服务配置" />
           {/*创建配置组-弹出层-start*/}
-          <CreateConfigModal scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>
+          {createModal && <CreateConfigModal visible={createModal} scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount}/>}
           {/*创建配置组-弹出层-end*/}
           {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置组操作" visible={this.state.delModal}
@@ -371,8 +373,10 @@ class Service extends Component {
                       disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{marginRight: '5px'}} />删除
               </Button>
+              <Button onClick={this.loadData}>刷新</Button>
               <CommonSearchInput onSearch={(value)=>{this.setState({searchConfigName:value && value.trim()})}} placeholder="按配置组名称搜索" size="large"/>
               <CollapseList
+                loadData={this.loadData}
                 scope={this}
                 cluster={cluster}
                 loadConfigGroup={this.props.loadConfigGroup}

@@ -26,7 +26,8 @@ export default class ConfigGroupContent extends React.Component {
       group, openUpdateConfigFileModal, removeKeyFromSecret,
       secretOnUse,
     } = this.props
-    const { name, data = {}, createdAt } = group
+    let { name, data, createdAt } = group
+    if(!data) data = {}
     const { moreModalVisible, moreUseArray, moreKey } = this.state
     if (Object.keys(data).length === 0) {
       return (
@@ -36,12 +37,14 @@ export default class ConfigGroupContent extends React.Component {
       )
     }
     return (
-      <Row className='file-list'>
+      <Row id="secret_content" className='file-list'>
         <Timeline>
           {
             Object.keys(data).map(key => {
               const useArray = secretOnUse[key] || []
               const useService = new Set()
+              const configFileItem = data[key]
+              if(!configFileItem.name) configFileItem.name = key
               useArray.forEach(use => {
                 useService.add(use.serviceName)
               })
@@ -88,16 +91,44 @@ export default class ConfigGroupContent extends React.Component {
                     <table>
                       <tbody>
                         <tr>
-                          <td style={{ padding: '15px' }}>
-                            <div style={{ width: '160px' }} className='textoverflow'>
-                              <Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
-                              <Tooltip title={key} placement="topLeft">
-                                <div style={{float:'left',width:'130px'}} className="textoverflow">
-                                  {key}
+                          <td className="title" style={{ padding: '15px' }}>
+                            {
+                              configFileItem.defaultBranch || configFileItem.projectName ?
+                                <div style={{ width: '160px' }}>
+                                  <div>
+                                    <Tooltip title={configFileItem.name} placement="topLeft">
+                                      <div className="textoverflow">
+                                        <i className="fa fa-gitlab" aria-hidden="true" style={{ marginRight: '10px', marginTop: '3px' }}></i>
+                                        {configFileItem.name}
+                                      </div>
+                                    </Tooltip>
+                                  </div>
+                                  <div style={{ color: "#999", fontSize: "12px" }}>
+                                    {configFileItem.projectName && <Tooltip title={configFileItem.projectName} placement="left">
+                                      <div><span>仓库: </span><span style={{width:'120px'}} className="textoverflow">
+                                        {configFileItem.projectName}
+                                      </span></div>
+                                    </Tooltip>}
+                                    {configFileItem.defaultBranch && <Tooltip title={configFileItem.defaultBranch} placement="left">
+                                      <div><span>分支: </span><span style={{width:'45px'}} className="textoverflow">{configFileItem.defaultBranch}</span></div>
+                                    </Tooltip>}
+                                  </div>
                                 </div>
-                              </Tooltip>
-                            </div>
+                                :
+                                <div style={{ width: '160px' }} className='textoverflow'>
+                                  <Icon type='file-text' style={{ marginRight: '10px',float:'left', marginTop: '3px' }} />
+                                  <Tooltip title={configFileItem.name} placement="topLeft">
+                                    <div className="textoverflow">{configFileItem.name}</div>
+                                  </Tooltip>
+                                </div>
+
+                            }
                           </td>
+
+
+
+
+
                           <td style={{ padding: '15px 20px' }}>
                             <Button
                               type='primary'

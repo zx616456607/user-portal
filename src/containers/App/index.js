@@ -62,6 +62,7 @@ class App extends Component {
     this.state = {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
+      loadErrorModalVisible: false,
       loadLoginUserSuccess: true,
       upgradeModalShow: false,
       upgradeFrom: null,
@@ -443,6 +444,20 @@ class App extends Component {
   }
 
   componentDidMount() {
+    // 捕获错误，主要用于网站升级后加载 js 失败，提醒用户刷新页面
+    window.addEventListener('error', e => {
+      const { target } = e
+      if (target && target.src && target.tagName === 'SCRIPT') {
+        let { src } = target
+        src = src.replace(window.location.origin, '')
+        if (/^\/bundles\/[a-zA-Z0-9\.]+\.js$/.test(src)) {
+          this.setState({
+            loadErrorModalVisible: true,
+          })
+          return false
+        }
+      }
+    }, true)
 
     const { loadLicensePlatform, getResourceDefinition } = this.props
     if (realMode === LITE) {
@@ -516,6 +531,7 @@ class App extends Component {
     redirectUrl = redirectUrl.replace(hashTagReg, encodeURIComponent(hashTag))
     const {
       loginModalVisible,
+      loadErrorModalVisible,
       loadLoginUserSuccess,
       loginErr,
       upgradeModalShow,
@@ -570,6 +586,29 @@ class App extends Component {
               <TenxIcon type="lost" size={120}/>
             </p>
             <p><FormattedMessage {...IntlMessages.loginExpiredTip} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={loadErrorModalVisible}
+          title={formatMessage(IntlMessages.loadError)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loadErrorBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <p style={{ marginBottom: 16 }}>
+              <TenxIcon type="lost" size={120}/>
+            </p>
+            <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
           </div>
         </Modal>
         {this.getStatusWatchWs()}

@@ -27,6 +27,8 @@ export const mapData = {
     tenantResourcequotaApply: '配额申请',
     tenantLdap: '集成企业目录',
     onlyAdmin: '仅系统管理员可见',
+    onlyInfraAndAdmin: '仅基础设施管理员、系统管理员可见',
+    onlyPlatformAndAdmin: '仅平台管理员、系统管理员可见',
     onlyNormalUser: '仅普通用户可见',
     version: '平台版本',
     license: '授权管理',

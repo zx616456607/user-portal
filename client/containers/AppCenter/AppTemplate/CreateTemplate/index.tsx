@@ -174,6 +174,7 @@ class AppTemplate extends React.Component<IProps, IState> {
     const { location } = props;
     const { hash, query } = location;
     const { key } = query;
+    window._fieldId = key
     const configureMode = hash === TEMPLATE_EDIT_HASH ? 'edit' : 'create';
     this.configureMode = configureMode;
     if (configureMode === 'edit') {

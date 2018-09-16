@@ -35,6 +35,9 @@ export const mapData = {
     notAuthorizedTip: '当前操作未被授权{operation}，请联系管理员进行授权后，再进行操作',
     resourceQuotaTip1: '超过配额，你目前只剩下{leftResource}配额',
     resourceQuotaTip2: '您可以前往总览或项目详情页面查询当前配额使用情况或联系系统管理员提高配额。',
+    loadError: '加载出错',
+    loadErrorBtn: '重新加载',
+    loadErrorTips: '加载出错，平台升级中，点击「重新加载」刷新页面',
   }
 }
 

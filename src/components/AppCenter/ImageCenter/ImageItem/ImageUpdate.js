@@ -32,6 +32,7 @@ import {
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
+import light from '../../../../assets/img/light.svg'
 
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
@@ -307,7 +308,7 @@ class ImageUpdate extends Component {
           }
           this.setState({
             addRulesVisible: false,
-            disappear: true,
+            disappear: !this.state.disappear,
           })
         },
         isAsync: true
@@ -570,9 +571,9 @@ class ImageUpdate extends Component {
       } else {
         this.handleloadImageUpdateList()
       }
+      this.setState({ disappear: !this.state.disappear })
       Notification.success('添加规则成功')
     })
-
   }
 
   createNewRules(values){
@@ -1107,9 +1108,18 @@ class ImageUpdate extends Component {
     }
     if (record.trigger.kind === 'Scheduled') {
       // offtime => HH:mm
+      const schedule = record.trigger.scheduleParam
+      let newTime = null
+      const originTime = '2018/01/01 08:00'
+      if (schedule.offtime > 57540) {
+        newTime = new Date(new Date(originTime).getTime() - (86400 - schedule.offtime) * 1000)
+      } else {
+        newTime = new Date(schedule.offtime * 1000 + new Date(originTime).getTime())
+      }
+      const setTime = newTime.toString().substring(16, 21)
       form.setFieldsValue({
-        setDay: record.trigger.scheduleParam.weekday.toString(),
-        setTime: '09:00',
+        setDay: schedule.weekday.toString(),
+        setTime,
       })
     }
     if (isReplications) {
@@ -1150,19 +1160,8 @@ class ImageUpdate extends Component {
     if (mode === 'Manual') {
       return (
         <span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             手动点击触发同步
           </div>
         </span>
@@ -1170,18 +1169,6 @@ class ImageUpdate extends Component {
     } else if (mode === 'Immediate') {
       return (
         <span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                  valuePropName: 'checked',
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <Form.Item>
             <Checkbox
               {
@@ -1195,7 +1182,7 @@ class ImageUpdate extends Component {
             </Checkbox>
           </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             push 镜像自动触发同步
           </div>
         </span>
@@ -1240,20 +1227,8 @@ class ImageUpdate extends Component {
               </Form.Item>
             </span>
           </span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                  valuePropName: 'checked',
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             定时触发同步
           </div>
         </span>
@@ -1739,6 +1714,7 @@ class ImageUpdate extends Component {
                         <Form.Item>
                           <Input
                             size="large"
+                            placeholder="请输入镜像名称"
                             {
                               ...getFieldProps('repositoryPattern',{
                                 rules: [
@@ -1779,6 +1755,7 @@ class ImageUpdate extends Component {
                         <Form.Item>
                           <Input
                             size="large"
+                            placeholder="请输入镜像版本"
                             {
                               ...getFieldProps('tagPattern',{
                                 rules: [
@@ -1813,11 +1790,29 @@ class ImageUpdate extends Component {
                   <Option value="Scheduled">定时触发</Option>
                 </Select>
               </Form.Item>
-
+              <Row>
+                <Col className="ant-col-4"></Col>
+                <Col className="checkBox" span={20}>
+                  <Form.Item>
+                    <Checkbox
+                      {
+                        ...getFieldProps('quick', {
+                          initialValue: false,
+                          valuePropName: 'checked',
+                        })
+                      }
+                    >
+                      立即复制镜像
+                    </Checkbox>
+                  </Form.Item>
+                </Col>
+              </Row>
               <Row>
                 <Col className="ant-col-4"></Col>
                 <Col className="checkBox" span={20}>{this.emitModeOption()}</Col>
               </Row>
+              <Form.Item>
+          </Form.Item>
             </div>
 
           </Form>

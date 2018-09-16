@@ -30,7 +30,7 @@ import { loadAppClusterServerList as loadServiceList } from '../../../../actions
 import { removeTerminal } from '../../../../../src/actions/terminal'
 import { getDeploymentOrAppCDRule } from '../../../../../src/actions/cicd_flow'
 import { UPDATE_INTERVAL } from '../../../../../src/constants'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../../src/constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from '../../../../../src/components/AppModule/AppServiceDetail/RollingUpdateModal'
 import GrayscaleUpgradeModal from '../../../../../src/components/AppModule/AppServiceDetail/GrayscaleUpgradeModal'

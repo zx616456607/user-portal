@@ -53,6 +53,7 @@ const messageObj = {
     apmMiddlewareTitle: '支持的中间件如下',
     apmMiddlewareTip: '确认镜像所用中间件在上述列表内，且满足 JVM 配置',
     noIstioTip: '当前集群未安装 istio，请联系基础设施管理员安装',
+    apmDisabledTip: '当前项目禁止安装 APM 组件，请联系平台管理员了解',
     serviceMeshCheckedTip: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能',
     serviceMeshUncheckTip: '开通后, 此服务将由服务网格代理, 使用微服务中心提供的治理功能',
     enableServiceMesh: '启用服务网格',

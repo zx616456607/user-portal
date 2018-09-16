@@ -254,7 +254,7 @@ class PublishModal extends React.Component {
       return callback(formatMessage(publishModalIntl.selectOrInputClass))
     }
     const flag = value.some(item => !!item)
-    if (flag) {
+    if (!flag) {
       return callback(formatMessage(publishModalIntl.classifyNameNotEmpty))
     }
     if(value.length > 1) {
@@ -714,9 +714,12 @@ class PublishModal extends React.Component {
     const currSelCluster = getFieldValue("targetCluster")
 
     const targetStoreChildren = []
+    const currStore = currentImage && currentImage.name && currentImage.name.split("/")[0] || ""
     !!currSelCluster && privateData && privateData.length && privateData.length >0 && privateData.map( (item,index)=>{
       // todo 根据集群筛选
-      targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
+      if(item.name !== currStore){
+        targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
+      }
     })
     const clusterOptions = clusters.map((item, index) =>
       <Option key={index} value={item.clusterID} >{item.clusterName}</Option>

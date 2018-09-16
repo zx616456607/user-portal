@@ -70,7 +70,7 @@ class ContainerInstanceHeader extends React.Component {
   render() {
     const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
-      appName, service, loadAllServices, projectName } = this.props
+      appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     const style = (this.props.appCenterChoiceHidden) ?
       { minHeight: '0px' } : {}
     return (
@@ -78,21 +78,32 @@ class ContainerInstanceHeader extends React.Component {
         { !this.props.appCenterChoiceHidden &&
           <Button
             type="primary"
+            size="large"
             disabled={isCheckIP}
             onClick={this.handleChangeVisible}
           >
-          水平扩展 ({containerNum})
+            <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
           </Button>
         }
         {
           !this.props.appCenterChoiceHidden &&
         <Button
           type="primary"
+          size="large"
           disabled={isCheckIP}
           onClick={() => this.props.onTabClick('#autoScale')}
         >
-          自动伸缩
+          <FormattedMessage {...IntlMessages.autoScaling} />
         </Button>
+        }
+        {
+          <Button
+            type="ghost"
+            size="large"
+            onClick={() => loadServiceContainerList(cluster, service, { projectName })}
+          >
+            <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
+          </Button>
         }
         {
           !this.props.appCenterChoiceHidden &&
@@ -112,7 +123,11 @@ class ContainerInstanceHeader extends React.Component {
             <FormattedMessage {...IntlMessages.viewConfiguredIP} />
           </span>
         }
-        { isCheckIP ? <div className="disAbled">已开启固定实例 IP，无法继续操作</div> : null }
+        {
+          isCheckIP
+            ? <div className="disAbled"><FormattedMessage {...IntlMessages.fixedIPTips} /></div>
+            : null
+        }
         {
           (isFixed || notFixed) && <ContainerInstance
             configIP = {isFixed}
@@ -165,4 +180,5 @@ const mapStateToProps = ({
 export default connect(mapStateToProps, {
   loadAllServices: serviceAction.loadAllServices,
   loadServiceContainerList: serviceAction.loadServiceContainerList,
+  loadServiceDetail: serviceAction.loadServiceDetail,
 })(ContainerInstanceHeader)
