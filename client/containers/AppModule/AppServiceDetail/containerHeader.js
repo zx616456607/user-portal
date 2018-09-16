@@ -71,10 +71,9 @@ class ContainerInstanceHeader extends React.Component {
     const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
-    const style = (this.props.appCenterChoiceHidden) ?
-      { minHeight: '0px' } : {}
+    const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     return (
-      <div className="instanceHeader" style={style}>
+      <div className="instanceHeader" >
         { !this.props.appCenterChoiceHidden &&
           <Button
             type="primary"
@@ -100,7 +99,7 @@ class ContainerInstanceHeader extends React.Component {
           <Button
             type="ghost"
             size="large"
-            onClick={() => loadServiceContainerList(cluster, service, { projectName })}
+            onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
           >
             <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
           </Button>

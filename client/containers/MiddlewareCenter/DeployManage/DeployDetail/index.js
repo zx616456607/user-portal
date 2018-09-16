@@ -83,10 +83,10 @@ class DeployDetail extends React.PureComponent {
           <span className="titleSpan">{app_name}</span>
         </div>
         <Row gutter={16} key="mainContent">
-          <Col className="gutter-row" span={8}>
+          <Col className="gutter-row" span={6}>
             <BaseInfoCard info={ this.state.appClusterDetail}/>
           </Col>
-          <Col className="gutter-row" span={16}>
+          <Col className="gutter-row" span={18}>
             <DeployDetailTabs
               Tabdata = {AppClusterServerList} appName = {app_name}
             />
