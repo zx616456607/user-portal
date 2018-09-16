@@ -17,7 +17,6 @@ import * as serviceAction from '../../../../src/actions/services'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
 
-const refreshButtonStyle = { marginBottom: '12px', overflow: 'hidden' }
 class ContainerInstanceHeader extends React.Component {
   state = {
     isCheckIP: false,
@@ -73,10 +72,8 @@ class ContainerInstanceHeader extends React.Component {
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
-    const style = (this.props.appCenterChoiceHidden) ?
-      { minHeight: '0px' } : {}
     return (
-      <div className="instanceHeader" style={style}>
+      <div className="instanceHeader" >
         { !this.props.appCenterChoiceHidden &&
           <Button
             type="primary"
@@ -99,17 +96,13 @@ class ContainerInstanceHeader extends React.Component {
         </Button>
         }
         {
-          this.props.appCenterChoiceHidden &&
-          <div className="refreshButton" style={refreshButtonStyle}>
-            <Button
-              style={{ float: 'right' }}
-              type="ghost"
-              size="large"
-              onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
-            >
-              <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
-            </Button>
-          </div>
+          <Button
+            type="ghost"
+            size="large"
+            onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
+          >
+            <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
+          </Button>
         }
         {
           !this.props.appCenterChoiceHidden &&
