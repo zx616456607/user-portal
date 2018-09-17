@@ -65,9 +65,9 @@ function terminalSelectedCheck(item, list) {
   return existFlag;
 }
 
-const url = /\/middleware_center\/deploy\/detail/
+const urlArray = [/\/middleware_center\/deploy\/detail/, /\/app_manage\/container/ ]
 const showkey = ['#containers', '#basic', '#monitor', '#logs', '#events' ]
-const TenxTab = TenxTabsFactory(url, showkey)
+const TenxTab = TenxTabsFactory(urlArray, showkey)
 class AppServiceDetail extends Component {
   constructor(props) {
     super(props)
@@ -133,7 +133,7 @@ class AppServiceDetail extends Component {
       }
     })
     // bpm 需要根据一个参数, 请求一个带query的容器列表接口
-    const appCenterChoiceHidden = url.test(window.location.pathname)
+    const appCenterChoiceHidden = urlArray.some(url => url.test(window.location.pathname))
     const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
       success: {

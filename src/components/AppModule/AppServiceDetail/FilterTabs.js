@@ -13,11 +13,10 @@ import { Tabs } from 'antd'
 // url: Regx
 // filterKey: Array<string>
 // /\/middleware_center\/deploy\/detail/
-export default function TenxTabFactory(url, filterKey) {
+export default function TenxTabFactory(urlArray, filterKey) {
   return class TenxTab extends React.Component {
     render() {
-      const appCenterChoiceShowRegx = url
-      const appCenterChoiceHidden = appCenterChoiceShowRegx.test(window.location.pathname)
+      const appCenterChoiceHidden = urlArray.some(url => url.test(window.location.pathname))
       const children = this.props.children
       // react 包含的子组件的形式有很多种
       /**
