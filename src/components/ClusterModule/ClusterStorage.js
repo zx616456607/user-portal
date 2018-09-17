@@ -125,8 +125,8 @@ class ClusterStorage extends Component {
           let nfsArray = []
           let gfsArray = []
           this.setState({
-            hostDir: res.data.hostList[0].parameters.baseDir,
-            initialHostDir: res.data.hostList[0].parameters.baseDir
+            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+            initialHostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir
           })
           cephlist.forEach((cephItem, index) => {
             let isDefault = cephItem.metadata.labels["system/storageDefault"] === "true"
