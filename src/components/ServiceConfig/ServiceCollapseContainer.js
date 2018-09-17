@@ -303,12 +303,12 @@ class CollapseContainer extends Component {
                           </div>
                           <div style={{ color: "#999", fontSize: "12px" }}>
                             {configFileItem.project && <Tooltip title={configFileItem.project} placement="left">
-                              <div><span>仓库: </span><span style={{width:'120px'}} className="textoverflow">
+                              <div><span>仓库: </span><span className="textoverflow projectName">
                                 {configFileItem.project}
                               </span></div>
                             </Tooltip>}
                             {configFileItem.branch && <Tooltip title={configFileItem.branch} placement="left">
-                              <div><span>分支: </span><span style={{width:'45px'}} className="textoverflow">{configFileItem.branch}</span></div>
+                              <div><span>分支: </span><span className="textoverflow branchName">{configFileItem.branch}</span></div>
                             </Tooltip>}
                           </div>
                         </div>
