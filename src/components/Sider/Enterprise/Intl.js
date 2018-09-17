@@ -100,6 +100,7 @@ export const mapData = {
     clusterBackup: '平台数据备份',
     outdentMenu: '展开导航栏',
     indentMenu: '收起',
+    deployManage: '部署管理'
   },
 }
 

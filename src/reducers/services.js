@@ -9,6 +9,7 @@
  */
 
 import * as ActionTypes from '../actions/services'
+import * as clientActionTypes from '../../client/actions/middlewareCenter'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 import reducerFactory from './factory'
@@ -131,9 +132,11 @@ function serviceDetail(state = {}, action) {
       return state
   }
 }
+// 炎黄改这里
 function serviceList(state = {}, action) {
   const { cluster, customizeOpts } = action
   switch (action.type) {
+    // case clientActionTypes.APP_CLUSTER_SERVER_LIST_REQUEST:
     case ActionTypes.SERVICE_GET_ALL_LIST_REQUEST: {
       return merge({}, state, {
         isFetching: (
@@ -143,6 +146,7 @@ function serviceList(state = {}, action) {
         )
       })
     }
+    // case clientActionTypes.APP_CLUSTER_SERVER_LIST_SUCCESS:
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
       let services = action.response.result.data.services.map(service => {
         service.deployment.cluster = service.cluster
@@ -157,7 +161,12 @@ function serviceList(state = {}, action) {
         total: action.response.result.data.total,
       }, { isFetching: false })
     }
-    case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE: {
+    // case clientActionTypes.APP_CLUSTER_SERVER_LIST_SUCCESS: { // 炎黄
+
+    //   return merge({},action.response.result, { isFetching: false })
+    // }
+    case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE:
+    case clientActionTypes.APP_CLUSTER_SERVER_LIST_FAILURE: {
       return merge({}, state, { isFetching: false })
     }
     case ActionTypes.UPDATE_SERVICE_GET_ALL_LIST:

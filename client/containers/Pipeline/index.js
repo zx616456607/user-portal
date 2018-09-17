@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
 import { browserHistory } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import Title from '../../../src/components/Title'
@@ -57,23 +58,26 @@ class Pipeline extends React.Component {
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token, billingEnabled,
-      username, location: { pathname, query: locationQuery },
+      username, location: { pathname, query: _query },
     } = this.props
+    const locationQuery = cloneDeep(_query)
     let title
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
-    if (pathname === '/ci_cd/thirdparty') {
-      title = '第三方工具'
-      redirect = redirect || '/devops/thirdparty'
-    } else if (pathname === '/ci_cd/cached_volumes') {
-      title = '缓存卷'
-      redirect = redirect || '/devops/volumes/rbd'
-    } else if (pathname === '/ci_cd/overview') {
-      title = 'CI/CD 概览'
-      redirect = redirect || '/devops/pandect'
-    } else {
-      title = '流水线'
-      redirect = redirect || '/devops/pipelines'
+    if (!redirect) {
+      if (pathname === '/ci_cd/thirdparty') {
+        title = '第三方工具'
+        redirect = redirect || '/devops/thirdparty'
+      } else if (pathname === '/ci_cd/cached_volumes') {
+        title = '缓存卷'
+        redirect = redirect || '/devops/volumes/rbd'
+      } else if (pathname === '/ci_cd/overview') {
+        title = 'CI/CD 概览'
+        redirect = redirect || '/devops/pandect'
+      } else {
+        title = '流水线'
+        redirect = redirect || '/devops/pipelines'
+      }
     }
     const query = Object.assign(
       {},

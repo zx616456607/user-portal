@@ -802,6 +802,7 @@
   "Sider.clusterBackup": "Platform backup",
   "Sider.outdentMenu": "Expand the navigation bar",
   "Sider.indentMenu": "Collapse",
+  "Sider.deployManage": "Deploy manage",
   "this.is.an.commnent": "/------------------------App (template) Creation process-----------------------/",
   "AppCreate.requestFailure": "Request error",
   "AppCreate.imageStoreError": "The imageStore is temporarily inaccessible，Please contact the administrator",
