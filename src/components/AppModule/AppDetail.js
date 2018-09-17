@@ -174,6 +174,7 @@ class AppDetail extends Component {
     const descProps = this.props.form.getFieldProps('desc', {initialValue: this.state.desc || app.description})
     const currentApp = app
     currentApp.name = appName
+    const isShow = activeTabKey === '#topology'
     return (
       <div id='AppDetail'>
         <Title title={formatMessage(intlMsg.appNameDetail, { appName })} />
@@ -289,14 +290,28 @@ class AppDetail extends Component {
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
-                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
+                    {
+                      isShow && <Topology
+                        appName={appName}
+                        cluster={this.props.cluster}
+                        teamspace={this.props.teamspace}
+                        userName={this.props.userName}
+                      />
+                    }
                   </TabPane>]
                 :
                   [<TabPane tab={formatMessage(intlMsg.alarmStg)} key="#strategy">
                     <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                   </TabPane>,
                   <TabPane tab={formatMessage(intlMsg.topology)} key="#topology">
-                    <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} userName={this.props.userName} />
+                    {
+                      isShow && <Topology
+                        appName={appName}
+                        cluster={this.props.cluster}
+                        teamspace={this.props.teamspace}
+                        userName={this.props.userName}
+                      />
+                    }
                   </TabPane>]
                 }
               </Tabs>
