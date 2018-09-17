@@ -62,6 +62,7 @@ import aiops from '../../client/reducers/aiops'
 import backupChain from '../../client/reducers/backupChain'
 import dnsRecord from '../../client/reducers/dnsRecord'
 import securityGroup from '../../client/reducers/securityGroup'
+import middlewareCenter from '../../client/reducers/middlewareCenter'
 import {
   LOGIN_EXPIRED_MESSAGE,
   PAYMENT_REQUIRED_CODE,
@@ -192,7 +193,8 @@ const rootReducer = combineReducers({
   aiops,
   applyLimit,
   dnsRecord,
-  securityGroup
+  securityGroup,
+  middlewareCenter
 })
 
 export default rootReducer

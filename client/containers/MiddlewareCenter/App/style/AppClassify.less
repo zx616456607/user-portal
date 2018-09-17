@@ -1,0 +1,35 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of app classify
+ *
+ * @author zhangxuan
+ * @date 2018-09-10
+ */
+@import "../../../../../src/assets/style/site/core";
+.app-classify {
+  display: flex;
+  .app-classify-label {
+    flex: 0 0 40px;
+    margin-right: @padding-small;
+    height: 30px;
+    line-height: 30px;
+  }
+  .app-classify-box {
+    flex: 1;
+    .classify-item {
+      display: inline-block;
+      text-align: center;
+      padding: 6px @padding-small;
+      border-radius: 14px;
+      margin: 0 @padding-base @padding-small 0;
+    }
+    .classify-item-active {
+      background-color: @primary-color;
+      color: #fff;
+    }
+  }
+}

@@ -1234,7 +1234,8 @@ class AppServiceList extends Component {
     const {
       name, pathname, page,
       size, total, isFetching,
-      loginUser, cluster, appName, loadServiceList, k8sServiceList, intl: { formatMessage }
+      loginUser, cluster, appName, loadServiceList, k8sServiceList, intl: { formatMessage },
+      serviceList: propsserviceList
     } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)

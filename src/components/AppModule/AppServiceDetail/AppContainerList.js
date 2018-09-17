@@ -194,6 +194,7 @@ class AppContainerList extends Component {
     const parentScope = this;
     const { containerList, loading, serviceName, serviceDetail } = this.props
     const containerNum = containerList && containerList.length
+    const {appCenterChoiceHidden = false} = this.props
     return (
       <div id="AppContainerList">
         <QueueAnim className="demo-content"
@@ -227,6 +228,7 @@ class AppContainerList extends Component {
               serviceDetail={serviceDetail}
               onTabClick={this.props.onTabClick}
               containerNum={containerNum}
+              appCenterChoiceHidden = {appCenterChoiceHidden}
             />
           }
           <Card className="dataBox">
