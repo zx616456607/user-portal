@@ -157,4 +157,7 @@ module.exports = function (config) {
 
   // ~ ai
   this.ai = collections.create('ai')
+
+  // ~ appcenters
+  this.appcenters = collections.create('appcenters')
 }

@@ -173,7 +173,7 @@ exports.getServiceContainers = function* () {
     Object.assign(headers, { project: projectName, teamspace: projectName })
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], null, { headers })
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], this.query, { headers })
   const instances = result.data.instances || []
   instances.map((pod) => {
     pod.images = []
@@ -625,7 +625,7 @@ exports.getAllService = function*() {
     queryObj.filter = `label ${label}`
   }
   const api = apiFactory.getK8sApi(this.session.loginUser)
-	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
+  const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   if (!response.data) {
     response.data = {

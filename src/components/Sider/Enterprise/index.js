@@ -95,6 +95,10 @@ class Sider extends Component {
       currentOpenMenu = ['app_center', 'app_template']
       currentSelectedMenu = currentOpenMenu
     }
+    if (pathname.includes('middleware_center/app')) {
+      currentOpenMenu = ['middleware_center', 'middleware_center_default']
+      currentSelectedMenu = currentOpenMenu
+    }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
@@ -132,7 +136,10 @@ class Sider extends Component {
         currentOpenMenu = ['app_center', 'app_template']
         currentSelectedMenu = currentOpenMenu
       }
-
+      if (pathname.includes('middleware_center/app')) {
+        currentOpenMenu = ['middleware_center', 'middleware_center_default']
+        currentSelectedMenu = currentOpenMenu
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
@@ -679,6 +686,15 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={()=> this.selectModel('middleware_center')}
+                  className={currentKey == 'middleware_center' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='APPCenter'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/middleware_center/app'>
+                    <TenxIcon className="commonImg" type="database-o" />
+                  </Link>
+                </Tooltip>
+              </li>
               <li onClick={()=> this.selectModel('database_cache')}
                 className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.databaseCache)}
@@ -1135,6 +1151,34 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
+                </SubMenu>
+                <SubMenu key="middleware_center"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="database-o"/>
+                      <span className="commonSiderSpan">
+                        APPCenter
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='middleware_center_default'>
+                    <Link to='/middleware_center/app'>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.apps} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='deploy'>
+                    <Link to='/middleware_center/deploy'>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.deployManage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
                 </SubMenu>
                 <SubMenu key='database_cache'
                   title={

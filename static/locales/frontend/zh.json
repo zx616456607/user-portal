@@ -821,6 +821,7 @@
   "Sider.clusterBackup": "平台数据备份",
   "Sider.outdentMenu": "展开导航栏",
   "Sider.indentMenu": "收起",
+  "Sider.deployManage": "部署管理",
   "----": "App----------------",
   "App.insufficientBalance": "余额不足，请充值后重试",
   "App.teamInsufficientBalance": "团队余额不足，请充值后重试",

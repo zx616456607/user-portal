@@ -71,16 +71,21 @@ class ContainerInstanceHeader extends React.Component {
     const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
+    const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     return (
-      <div className="instanceHeader">
-        <Button
-          type="primary"
-          size="large"
-          disabled={isCheckIP}
-          onClick={this.handleChangeVisible}
-        >
-          <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
-        </Button>
+      <div className="instanceHeader" >
+        { !this.props.appCenterChoiceHidden &&
+          <Button
+            type="primary"
+            size="large"
+            disabled={isCheckIP}
+            onClick={this.handleChangeVisible}
+          >
+            <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
+          </Button>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
         <Button
           type="primary"
           size="large"
@@ -89,25 +94,34 @@ class ContainerInstanceHeader extends React.Component {
         >
           <FormattedMessage {...IntlMessages.autoScaling} />
         </Button>
-        <Button
-          type="ghost"
-          size="large"
-          onClick={() => loadServiceContainerList(cluster, service, { projectName })}
-        >
-          <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
-        </Button>
-        <Checkbox
-          onChange={this.onChangeInstanceIP}
-          checked={this.state.isCheckIP}
-        >
-          <FormattedMessage {...IntlMessages.fixedInstanceIP} />
-        </Checkbox>
-        <span
-          className="seeConfig"
-          onClick={() => this.setState({ isFixed: true, isSee: true })}
-        >
-          <FormattedMessage {...IntlMessages.viewConfiguredIP} />
-        </span>
+        }
+        {
+          <Button
+            type="ghost"
+            size="large"
+            onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
+          >
+            <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
+          </Button>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+         <Checkbox
+           onChange={this.onChangeInstanceIP}
+           checked={this.state.isCheckIP}
+         >
+           <FormattedMessage {...IntlMessages.fixedInstanceIP} />
+         </Checkbox>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+          <span
+            className="seeConfig"
+            onClick={() => this.setState({ isFixed: true, isSee: true })}
+          >
+            <FormattedMessage {...IntlMessages.viewConfiguredIP} />
+          </span>
+        }
         {
           isCheckIP
             ? <div className="disAbled"><FormattedMessage {...IntlMessages.fixedIPTips} /></div>

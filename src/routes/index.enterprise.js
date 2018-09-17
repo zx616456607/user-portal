@@ -133,6 +133,18 @@ const rootRoutes = {
         },
       },
       {
+        path: 'middleware_center',
+        component: require('../../client/containers/MiddlewareCenter').default,
+        indexRoute: {
+          component: require('../../client/containers/MiddlewareCenter/App').default,
+        },
+        getChildRoutes: (location, cb) => {
+          require.ensure([],function (require) {
+            cb(null, require('./middleware_center').default)
+          })
+        },
+      },
+      {
         path: 'account',
         component: require('../containers/Account').default,
         indexRoute: {
