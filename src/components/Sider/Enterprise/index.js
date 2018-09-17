@@ -688,10 +688,10 @@ class Sider extends Component {
               </li>
               <li onClick={()=> this.selectModel('middleware_center')}
                   className={currentKey == 'middleware_center' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='APPCenter'
+                <Tooltip placement='right' title={intl.formatMessage(IntlMessages.middlewareCenter)}
                          getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/middleware_center/app'>
-                    <TenxIcon className="commonImg" type="database-o" />
+                    <TenxIcon className="commonImg" type="middleware"/>
                   </Link>
                 </Tooltip>
               </li>
@@ -1155,9 +1155,9 @@ class Sider extends Component {
                 <SubMenu key="middleware_center"
                   title={
                     <span>
-                      <TenxIcon className="commonImg" type="database-o"/>
+                      <TenxIcon className="commonImg" type="middleware"/>
                       <span className="commonSiderSpan">
-                        APPCenter
+                        {intl.formatMessage(IntlMessages.middlewareCenter)}
                       </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
