@@ -126,7 +126,6 @@ class WrapDocsModal extends React.Component {
       fileList,
       beforeUpload: file=> {
         const fileNameL = getUnicodeLength(file.name)
-        console.log(fileNameL, '-----')
         if (fileNameL > 256) {
           return notify.warn('文件名称不能超过 256 个字节')
         }
