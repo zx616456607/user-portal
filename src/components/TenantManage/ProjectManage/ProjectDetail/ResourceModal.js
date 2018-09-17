@@ -597,11 +597,11 @@ class ResourceModal extends Component {
   }
   loadApplist = () => {
     const scope = this.props.scope;
-    const { name, pathname } = scope.props.location.query
+    const { name } = scope.props.location.query
     const headers = { project: name }
     const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
-    this.props.loadAppList(scope.state.selectedCluster, query, pathname, {
+    this.props.loadAppList(scope.state.selectedCluster, query, {
       success: {
         func: (res) => {
           //console.log(res)
