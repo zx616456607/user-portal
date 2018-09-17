@@ -16,6 +16,7 @@ import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
+import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
 
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
