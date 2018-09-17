@@ -9,6 +9,7 @@
  */
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const CONFIG_LIST_REQUEST = 'CONFIG_LIST_REQUEST'
 export const CONFIG_LIST_SUCCESS = 'CONFIG_LIST_SUCCESS'
@@ -125,7 +126,7 @@ export const CREATE_CONFIG_FILES_REQUEST = 'CREATE_CONFIG_FILES_REQUEST'
 export const CREATE_CONFIG_FILES_SUCCESS = 'CREATE_CONFIG_FILES_SUCCESS'
 export const CREATE_CONFIG_FILES_FAILURE = 'CREATE_CONFIG_FILES_FAILURE'
 
-export function createConfigFiles(obj, callback) {
+export function createConfigFiles(obj, body, callback) {
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -133,11 +134,16 @@ export function createConfigFiles(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
       options: {
         method: 'POST',
-        body: { 'groupFiles': obj.desc }
+        body,
       },
       schema: {}
     },
     callback: callback
+  }
+}
+export function dispatchCreateConfig(obj, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(createConfigFiles(obj, body, callback))
   }
 }
 
@@ -165,7 +171,7 @@ export const UPDATE_CONFIG_FILES_REQUEST = 'UPDATE_CONFIG_FILES_REQUEST'
 export const UPDATE_CONFIG_FILES_SUCCESS = 'UPDATE_CONFIG_FILES_SUCCESS'
 export const UPDATE_CONFIG_FILES_FAILURE = 'UPDATE_CONFIG_FILES_FAILURE'
 
-export function updateConfigName(obj, callback) {
+export function updateConfigName(obj, body, callback) {
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -173,7 +179,7 @@ export function updateConfigName(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
       options: {
         method: 'PUT',
-        body: { "desc": obj.desc }
+        body,
       },
       schema: {}
     },
@@ -181,6 +187,11 @@ export function updateConfigName(obj, callback) {
   }
 }
 
+export function dispatchUpdateConfig(obj, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(updateConfigName(obj, body, callback))
+  }
+}
 export const UPDATE_CONFIG_ANNOTATIONS_REQUEST = 'UPDATE_CONFIG_ANNOTATIONS_REQUEST'
 export const UPDATE_CONFIG_ANNOTATIONS_SUCCESS = 'UPDATE_CONFIG_ANNOTATIONS_SUCCESS'
 export const UPDATE_CONFIG_ANNOTATIONS_FAILURE = 'UPDATE_CONFIG_ANNOTATIONS_FAILURE'
@@ -216,5 +227,305 @@ export function checkConfigNameExistence(clusterId, name, callback) {
       schema: {},
     },
     callback,
+  }
+}
+
+const GET_GIT_BRANCHS_REQUEST = 'GET_GIT_BRANCHS_REQUEST'
+const GET_GIT_BRANCHS_SUCCESS = 'GET_GIT_BRANCHS_SUCCESS'
+const GET_GIT_BRANCHS_FAILURE = 'GET_GIT_BRANCHS_FAILURE'
+
+export function fetchProjectBranches(query, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_GIT_BRANCHS_REQUEST,
+        GET_GIT_BRANCHS_SUCCESS,
+        GET_GIT_BRANCHS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${query.project_id}/branches`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getProjectBranches(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchProjectBranches(query, callback))
+  }
+}
+
+export const GET_CONFIG_MAPS_REQUEST = 'GET_CONFIG_MAPS_REQUEST'
+export const GET_CONFIG_MAPS_SUCCESS = 'GET_CONFIG_MAPS_SUCCESS'
+export const GET_CONFIG_MAPS_FAILURE = 'GET_CONFIG_MAPS_FAILURE'
+
+export function fetchConfigMaps(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_CONFIG_MAPS_REQUEST,
+        GET_CONFIG_MAPS_SUCCESS,
+        GET_CONFIG_MAPS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${query.cluster_id}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getConfigMaps(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchConfigMaps(query, callback))
+  }
+}
+
+export const CREATE_CONFIG_MAPS_REQUEST = 'CREATE_CONFIG_MAPS_REQUEST'
+export const CREATE_CONFIG_MAPS_SUCCESS = 'CREATE_CONFIG_MAPS_SUCCESS'
+export const CREATE_CONFIG_MAPS_FAILURE = 'CREATE_CONFIG_MAPS_FAILURE'
+
+export function fetchCreateConfigMaps(cluster_id, body, callback) {
+  return {
+    cluster: cluster_id,
+    [FETCH_API]: {
+      types: [
+        CREATE_CONFIG_MAPS_REQUEST,
+        CREATE_CONFIG_MAPS_SUCCESS,
+        CREATE_CONFIG_MAPS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function createConfigMaps(cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateConfigMaps(cluster_id, body, callback))
+  }
+}
+
+export const CREATE_CONFIG_REQUEST = 'CREATE_CONFIG_REQUEST'
+export const CREATE_CONFIG_SUCCESS = 'CREATE_CONFIG_SUCCESS'
+export const CREATE_CONFIG_FAILURE = 'CREATE_CONFIG_FAILURE'
+
+export function fetchCreateConfig(configmap_name, cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        CREATE_CONFIG_REQUEST,
+        CREATE_CONFIG_SUCCESS,
+        CREATE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${configmap_name}/clusters/${cluster_id}/configs`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function createConfig(configmap_name, cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateConfig(configmap_name, cluster_id, body, callback))
+  }
+}
+
+
+export const GET_FILE_CONTENT_REQUEST = 'GET_FILE_CONTENT_REQUEST'
+export const GET_FILE_CONTENT_SUCCESS = 'GET_FILE_CONTENT_SUCCESS'
+export const GET_FILE_CONTENT_FAILURE = 'GET_FILE_CONTENT_FAILURE'
+
+export function fetchGitFileContent(query, callback) {
+  const pathName = query.path_name// .replace("./", "")
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_FILE_CONTENT_REQUEST,
+        GET_FILE_CONTENT_SUCCESS,
+        GET_FILE_CONTENT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/path/${encodeURIComponent(pathName)}/files`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+// export function fetchGitFileContent(query, callback) {
+//   let endpoint = `${API_URL_PREFIX}/devops/projects/${query.project_id}/branches/${query.branch_name}/files`
+//   endpoint += `?${toQuerystring({ path_name: query.path_name})}`
+//   return {
+//     cluster: query.cluster_id,
+//     [FETCH_API]: {
+//       types: [
+//         GET_FILE_CONTENT_REQUEST,
+//         GET_FILE_CONTENT_SUCCESS,
+//         GET_FILE_CONTENT_FAILURE,
+//       ],
+//       endpoint,
+//       schema: {},
+//     },
+//     callback,
+//   }
+// }
+
+export function getGitFileContent(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGitFileContent(query, callback))
+  }
+}
+
+export const SET_COMFIG_MAP_LABEL_REQUEST = 'SET_COMFIG_MAP_LABEL_REQUEST'
+export const SET_COMFIG_MAP_LABEL_SUCCESS = 'SET_COMFIG_MAP_LABEL_SUCCESS'
+export const SET_COMFIG_MAP_LABEL_FAILURE = 'SET_COMFIG_MAP_LABEL_FAILURE'
+
+export function fetchSetConfigMapLabel(configmap_name, cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        SET_COMFIG_MAP_LABEL_REQUEST,
+        SET_COMFIG_MAP_LABEL_SUCCESS,
+        SET_COMFIG_MAP_LABEL_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${configmap_name}/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      },
+    },
+    callback,
+  }
+}
+
+export function setConfigMapLabel(configmap_name, cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetConfigMapLabel(configmap_name, cluster_id, body, callback))
+  }
+}
+
+export const GET_CONFIG_REQUEST = 'GET_CONFIG_REQUEST'
+export const GET_CONFIG_SUCCESS = 'GET_CONFIG_SUCCESS'
+export const GET_CONFIG_FAILURE = 'GET_CONFIG_FAILURE'
+
+export function fetchConfig(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        GET_CONFIG_REQUEST,
+        GET_CONFIG_SUCCESS,
+        GET_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getConfig(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchConfig(query, callback))
+  }
+}
+
+export const DELETE_CONFIG_REQUEST = 'DELETE_CONFIG_REQUEST'
+export const DELETE_CONFIG_SUCCESS = 'DELETE_CONFIG_SUCCESS'
+export const DELETE_CONFIG_FAILURE = 'DELETE_CONFIG_FAILURE'
+
+export function fetchDelConfig(query, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        DELETE_CONFIG_REQUEST,
+        DELETE_CONFIG_SUCCESS,
+        DELETE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  }
+}
+
+export function deleteConfig(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelConfig(query, callback))
+  }
+}
+
+export const UPDATE_CONFIG_REQUEST = 'UPDATE_CONFIG_REQUEST'
+export const UPDATE_CONFIG_SUCCESS = 'UPDATE_CONFIG_SUCCESS'
+export const UPDATE_CONFIG_FAILURE = 'UPDATE_CONFIG_FAILURE'
+
+export function fetchUpdateConfig(query, body, callback) {
+  return {
+    cluster: query.cluster_id,
+    [FETCH_API]: {
+      types: [
+        UPDATE_CONFIG_REQUEST,
+        UPDATE_CONFIG_SUCCESS,
+        UPDATE_CONFIG_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/${query.configmap_name}/clusters/${query.cluster_id}/configs/${query.config_name}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function updateConfig(query, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateConfig(query, body, callback))
+  }
+}
+
+
+export const DELETE_CONFIG_MAP_REQUEST = 'DELETE_CONFIG_MAP_REQUEST'
+export const DELETE_CONFIG_MAP_SUCCESS = 'DELETE_CONFIG_MAP_SUCCESS'
+export const DELETE_CONFIG_MAP_FAILURE = 'DELETE_CONFIG_MAP_FAILURE'
+
+export function fetchDelConfigMap(cluster_id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_CONFIG_MAP_REQUEST,
+        DELETE_CONFIG_MAP_SUCCESS,
+        DELETE_CONFIG_MAP_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/devops/configmaps/clusters/${cluster_id}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+export function deleteConfigMap(cluster_id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelConfigMap(cluster_id, body, callback))
   }
 }

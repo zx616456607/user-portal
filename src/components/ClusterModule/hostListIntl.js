@@ -141,6 +141,7 @@ export const mapData = {
     addLabelFail: '添加标签失败！',
     or: '或',
     newLabel: '新建标签',
+    lastHeartbeatTimeTips: '上次心跳时间与 Master 相差 {time}'
   }
 }
 

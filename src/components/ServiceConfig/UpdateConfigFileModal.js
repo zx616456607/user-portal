@@ -11,8 +11,14 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import NotificationHandler from '../../components/Notification'
+import ConfigFileContent from './ConfigFileContent'
+import { getConfig, updateConfig, dispatchUpdateConfig } from '../../actions/configs'
+import { getSecretsConfig } from '../../actions/secrets_devops'
+
+import  cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -20,31 +26,80 @@ const createForm = Form.create
 let UpdateConfigFileModal = React.createClass({
   getInitialState() {
     return {
-      filePath: '请上传文件或直接输入内容'
+      filePath: '请上传文件或直接输入内容',
+      tempConfigDesc: '',
+      method: this.props.defaultData && JSON.stringify(this.props.defaultData) !== "{}"
+      && this.props.defaultData.projectId !== "" ? 2 : 1,
+      nameDisabled: false,
     }
   },
+  // componentWillReceiveProps(next){
+  //   if(next.modalConfigFile) {
+  //     const { getConfig, cluster, scope: parentScope } = next
+  //     getConfig({
+  //       configmap_name: parentScope.props.groupname,
+  //       cluster_id: cluster,
+  //       config_name: parentScope.state.configName,
+  //     })
+  //   }
+  // },
   editConfigFile(group) {
+    let notification = new NotificationHandler()
     const parentScope = this.props.scope
+    const { dispatchUpdateConfig } = this.props
     const _this = this
-    this.props.form.validateFields((errors, values) => {
+    const { method } = this.state
+    let arr = [ 'name', 'data' ]
+    if (method === 1) {
+      // arr = []
+    } else if (method === 2) {
+      arr = [ 'defaultBranch', 'projectId', 'projectName', 'filePath', 'enable' ].concat(arr)
+    }
+    this.props.form.validateFields(arr, (errors, values) => {
       if (!!errors) {
         return
       }
       const { type, updateKeyIntoSecret } = this.props
-      if (type === 'secrets') {
-        return updateKeyIntoSecret(values)
+      const tempValues = cloneDeep(values)
+
+      if (tempValues.enable === true || tempValues.enable === 1) {
+        tempValues.enable = 1
+      } else {
+        tempValues.enable = 0
       }
-      let notification = new NotificationHandler()
+
+      let secret_body = {}
       const groups = {
-        group, name: parentScope.state.configName,
+        group,
+        name: parentScope.state.configName,
         cluster: parentScope.props.cluster,
         desc: values.configDesc
       }
-      parentScope.props.updateConfigName(groups, {
+      // const query = {
+      //   configmap_name: group,
+      //   cluster_id: parentScope.props.cluster,
+      //   config_name: parentScope.state.configName,
+      // }
+      let body = tempValues
+      if (method === 2) {
+        secret_body = body
+      } else {
+        body = { desc: tempValues.data }
+        secret_body = {
+          key: tempValues.name,
+          value: tempValues.data,
+        }
+      }
+      if (type === 'secrets') {
+        return updateKeyIntoSecret(secret_body)
+      }
+      // updateConfig(query, body, {
+      dispatchUpdateConfig(groups, body, {
         success: {
           func: () => {
             parentScope.setState({
               modalConfigFile: false,
+              defaultData: {},
             })
             _this.setState({
               filePath: "请上传文件或直接输入内容"
@@ -71,64 +126,35 @@ let UpdateConfigFileModal = React.createClass({
   closeModal() {
     const parentScope = this.props.scope
     this.props.form.resetFields()
-    parentScope.setState({modalConfigFile:false, updateConfigFileModalVisible: false})
+    parentScope.setState({modalConfigFile:false, updateConfigFileModalVisible: false, defaultData: {}})
     this.setState({
       filePath: '请上传文件或直接输入内容'
     })
   },
-  beforeUpload(file) {
-    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
-    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
-    const notify = new NotificationHandler()
-    if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
-      return false
-    }
-    const self = this
-    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
-    self.setState({
-      disableUpload: true,
-      filePath: '上传文件为 ' + fileName
-    })
-    notify.spin('读取文件内容中，请稍后')
-    const fileReader = new FileReader()
-    fileReader.onerror = function(err) {
-      self.setState({
-        disableUpload: false,
-      })
-      notify.close()
-      notify.error('读取文件内容失败')
-    }
-    fileReader.onload = function() {
-      self.setState({
-        disableUpload: false
-      })
-      notify.close()
-      notify.success('文件内容读取完成')
-      self.props.form.setFieldsValue({
-        configDesc: fileReader.result.replace(/\r\n/g, '\n')
-      })
-    }
-    fileReader.readAsText(file)
-    return false
+  getMethod(method) {
+    this.setState({ method }) // , nameDisabled: method === 2 })
   },
   render() {
-    const { type, form } = this.props
+    const { type, form, scope, defaultData, modalConfigFile } = this.props
     const { getFieldProps } = form
-    const parentScope = this.props.scope
+    const { filePath, tempConfigDesc, method, nameDisabled } = this.state
+    const parentScope = scope
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
-    const descProps = getFieldProps('configDesc', {
+    const descProps = getFieldProps('data', {
       rules: [
         { validator: this.configDescExists },
       ],
-      initialValue: parentScope.state.configtextarea
+      initialValue: parentScope.state.configtextarea || defaultData.data
     })
+    const nameProps = getFieldProps('name', {
+      initialValue: parentScope.state.configName
+    });
     return(
       <Modal
         title={`修改${type === 'secrets' ? '加密对象': '配置文件'}`}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
-        visible={this.props.modalConfigFile}
+        visible={modalConfigFile}
         onOk={() => this.editConfigFile(parentScope.props.groupname)}
         onCancel={() => this.closeModal() }
         width="600px"
@@ -136,27 +162,28 @@ let UpdateConfigFileModal = React.createClass({
         <div className="configFile-inf" style={{ padding: '0 10px' }}>
           <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px' }}>
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
-            即将保存一个配置文件，您可以在创建应用 → 添加服务时，关联使用该配置
             {
               type === 'secrets'
               ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
-              : '即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置'
+              : '即将保存一个配置文件，您可以在创建应用 → 添加服务时，关联使用该配置'
             }
           </div>
           <Form horizontal>
             <FormItem  {...formItemLayout} label="名称">
-              <Input type="text" disabled value={parentScope.state.configName}/>
-            </FormItem>
-            <FormItem>
-              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
-                <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
-                <Button type="ghost" style={{marginLeft: '10px'}} disabled={this.state.disableUpload}>
-                  <Icon type="upload" /> 读取文件内容
-                </Button>
-              </Upload>
+              <Input
+                disabled={nameDisabled}
+                className="configName" type="text" disabled {...nameProps}/>
             </FormItem>
             <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
+              <ConfigFileContent
+                isUpdate={true}
+                getMethod={this.getMethod}
+                filePath={filePath}
+                form={form}
+                tempConfigDesc={tempConfigDesc}
+                method={method}
+                defaultData={defaultData}
+                descProps={descProps} />
             </FormItem>
           </Form>
         </div>
@@ -167,4 +194,16 @@ let UpdateConfigFileModal = React.createClass({
 
 UpdateConfigFileModal = createForm()(UpdateConfigFileModal)
 
-export default UpdateConfigFileModal
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  return {
+    cluster: cluster.clusterID
+  }
+}
+export default connect(mapStateToProps,{
+  getConfig,
+  getSecretsConfig,
+  updateConfig,
+  dispatchUpdateConfig,
+})(UpdateConfigFileModal)
+

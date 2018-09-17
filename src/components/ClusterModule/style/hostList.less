@@ -1,4 +1,4 @@
-@import "../../../assets/style/site/core";
+@import "../../../assets/style/site/core.less";
 #cluster__hostlist{
   .operaBox {
     position: relative;
@@ -128,6 +128,10 @@
         color: #00a1e9;
       }
       .imageList{
+        .heartbeatWarningTip {
+          margin-left: 4px;
+          color: @warning-color;
+        }
         .ant-spin-nested-loading {
           position: initial;
           & > .ant-spin-container {

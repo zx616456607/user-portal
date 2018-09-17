@@ -30,6 +30,7 @@ import { isResourceQuotaError, isResourcePermissionError } from '../../common/to
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
+import filter from 'lodash/filter'
 
 const notification = new NotificationHandler()
 
@@ -48,6 +49,7 @@ class ServiceSecretsConfig extends React.Component {
     configName: undefined,
     configtextarea: undefined,
     removeKeyModalVisible: false,
+    defaultData: {}
   }
 
   loadData = () => {
@@ -183,13 +185,9 @@ class ServiceSecretsConfig extends React.Component {
     })
   }
 
-  handleAddKeyIntoSecret = values => {
+  handleAddKeyIntoSecret = body => {
     const { addKeyIntoSecret, clusterID } = this.props
     const { activeGroupName } = this.state
-    const body = {
-      key: values.configName,
-      value: values.configDesc,
-    }
     addKeyIntoSecret(clusterID, activeGroupName, body, {
       success: {
         func: () => {
@@ -232,17 +230,17 @@ class ServiceSecretsConfig extends React.Component {
       updateConfigFileModalVisible: true,
       activeGroupName: name,
       configName: key,
-      configtextarea: value,
+      configtextarea: typeof value === "string" ? value : value && value.data,
     })
   }
 
-  handleUpdateKeyIntoSecret = values => {
+  handleUpdateKeyIntoSecret = body => {
     const { updateKeyIntoSecret, clusterID } = this.props
     const { activeGroupName, configName } = this.state
-    const body = {
-      key: configName,
-      value: values.configDesc,
-    }
+    // const body = {
+    //   key: configName,
+    //   value: values.configDesc,
+    // }
     updateKeyIntoSecret(clusterID, activeGroupName, body, {
       success: {
         func: () => {
@@ -299,7 +297,11 @@ class ServiceSecretsConfig extends React.Component {
       },
     })
   }
-
+  getDefaultData = data => {
+    const { activeGroupName } = this.state
+    const temp = filter(data, { name: activeGroupName })[0]
+    return temp ? temp.data[this.state.configName] : {}
+  }
   render() {
     const { secretsList, secretsOnUse } = this.props
     const {
@@ -320,6 +322,7 @@ class ServiceSecretsConfig extends React.Component {
     if (searchInput) {
       data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
     }
+    const defaultData = !!data ? this.getDefaultData(data) : {}
     return (
       <div className="service-secret-config" id="service-secret-config">
       <ResourceBanner resourceType='secret'/>
@@ -423,25 +426,30 @@ class ServiceSecretsConfig extends React.Component {
         </Modal>
         {/* 添加加密对象-弹出层-*/}
         {
-          createConfigFileModalVisible && modalConfigFile &&
-          <CreateConfigFileModal
-            scope={this}
-            visible={modalConfigFile}
-            addKeyIntoSecret={this.handleAddKeyIntoSecret}
-            type="secrets"
-            data={data}
-            activeGroupName={activeGroupName}
-          />
+          createConfigFileModalVisible && modalConfigFile ?
+            <CreateConfigFileModal
+              scope={this}
+              visible={modalConfigFile}
+              addKeyIntoSecret={this.handleAddKeyIntoSecret}
+              type="secrets"
+              data={data}
+              activeGroupName={activeGroupName}
+            />
+            :
+            null
         }
         {/* 修改加密对象-弹出层-*/}
         {
-          updateConfigFileModalVisible && modalConfigFile &&
-          <UpdateConfigFileModal
-            scope={this}
-            modalConfigFile={modalConfigFile}
-            updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
-            type="secrets"
-          />
+          updateConfigFileModalVisible && modalConfigFile ?
+            <UpdateConfigFileModal
+              scope={this}
+              modalConfigFile={modalConfigFile}
+              updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
+              defaultData={defaultData}
+              type="secrets"
+            />
+            :
+            null
         }
         {/* 移除加密对象-弹出层-*/}
         <Modal title="移除加密对象操作"

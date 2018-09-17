@@ -153,6 +153,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     livenessTimeoutSeconds, // 高可用-检查超时
     livenessPeriodSeconds, // 高可用-检查间隔
     livenessPath, // 高可用-Path 路径
+    successThreshold, // 高可用健康阀值
+    failureThreshold, // 高可用不健康阀值
     envKeys, // 环境变量的 keys(数组)
     configMapKeys, // 普通配置目录的 keys(数组)
     secretConfigMapKeys, // 加密配置目录的 keys(数组)
@@ -465,6 +467,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
+      successThreshold: parseInt(successThreshold),
+      failureThreshold: parseInt(failureThreshold),
     })
     // Keep liveness and readiness probe the same
     deployment.setReadinessProbe(serviceName, livenessProtocol, {
@@ -473,6 +477,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
+      successThreshold: parseInt(successThreshold),
+      failureThreshold: parseInt(failureThreshold),
     })
   }
   // 设置环境变量
