@@ -11,11 +11,12 @@
 import React from 'react'
 import './styles/ContainerInstance.less'
 import { connect } from 'react-redux'
-import { Modal, Form, Input } from 'antd'
+import { Modal, Form, Input, Button, Tooltip } from 'antd'
 import Notification from '../../../../src/components/Notification'
 import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
+import { getServiceStatus } from '../../../../src/common/status_identify'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -73,7 +74,7 @@ class ContainerInstance extends React.Component {
     loadAutoScale(cluster, serviceName, {
       success: {
         func: res => {
-          const isScale = res.data && res.data.metadata.annotations.status === 'RUN' || false
+          const isScale = res.data && res.data.metadata && res.data.metadata.annotations.status === 'RUN' || false
           this.setState({
             isScale,
           })
@@ -268,8 +269,16 @@ class ContainerInstance extends React.Component {
 
   render() {
     const { oldIP, NetSegment, isScale } = this.state
-    const { form, configIP, notConfigIP, containerNum } = this.props
+    const { form, configIP, notConfigIP, containerNum, cluster, serviceDetail } = this.props
     const { getFieldProps, getFieldValue } = form
+    const server = Object.keys(serviceDetail[cluster])[0]
+    const service = serviceDetail[cluster][server].service
+    const status = getServiceStatus(service)
+    const { replicas, availableReplicas } = status
+    let isStop = false
+    if (!replicas && !availableReplicas) {
+      isStop = true
+    }
     getFieldProps('keys', {
       initialValue: [ ],
     })
@@ -320,9 +329,13 @@ class ContainerInstance extends React.Component {
           visible={configIP}
           onOk={this.handleOk}
           onCancel={() => this.handleCandle(false)}
-          okText={'重启服务,应用更改'}
-          // okButtonProps={{ disabled: formItems.length === 0 }}
           className="containerInstanceModal"
+          footer={[
+            <Button key="cancel" onClick={() => this.handleCandle(false)}>取消</Button>,
+            <Tooltip title={isStop ? '停止中的服务不支持固定 IP' : null}>
+              <Button key="confirm" type="primary" disabled={isStop} onClick={this.handleOk}>重启服务，应用更改</Button>
+            </Tooltip>,
+          ]}
         >
           <div className="relateCont">
             {
