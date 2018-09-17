@@ -699,6 +699,8 @@ function mapStateToProps(state, props) {
   let {services} = serviceList || {services: []}
   services = services && services.length && existServices && services.filter(item => (
     !existServices.includes(item.metadata.name)
+      && item.spec.template.metadata
+      && item.spec.template.metadata.annotations
       && !item.spec.template.metadata.annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
   ))
   return {
