@@ -42,6 +42,7 @@ let ContainerCatalogueModal = React.createClass({
       isResetComponent: false,
       confirmLoading: false,
       type_1Value: 'nfs',
+      hostDir: ''
       // loading: true,
     }
   },
@@ -73,9 +74,15 @@ let ContainerCatalogueModal = React.createClass({
   componentWillMount() {
     const { currentIndex, fieldsList, isTemplate, getClusterStorageList, clusterID } = this.props
     this.restFormValues(fieldsList[currentIndex])
-    if (isTemplate) {
-      getClusterStorageList(clusterID)
-    }
+    getClusterStorageList(clusterID, {
+      success: {
+        func: (res) => {
+          this.setState({
+            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+          })
+        }
+      },
+    })
   },
 
   componentWillReceiveProps(nextProps) {
@@ -832,6 +839,7 @@ let ContainerCatalogueModal = React.createClass({
               {...formItemLayout}
             >
               <Input
+                addonBefore={this.state.hostDir}
                 placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
                   item: intl.formatMessage(IntlMessage.containerDirectory),
                   end: '',
