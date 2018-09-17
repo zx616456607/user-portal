@@ -12,6 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
 import { browserHistory } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import Title from '../../../src/components/Title'
@@ -57,13 +58,17 @@ class Monitor extends React.Component {
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
-      username, location: { pathname, query: locationQuery },
+      username, location: { pathname, query: _query },
     } = this.props
+    const locationQuery = cloneDeep(_query)
     let redirect = '/cluster/monitor'
     let title = '系统服务监控'
-    if (pathname === '/cluster/backup') {
-      redirect = '/backup'
-      title = '平台数据备份'
+    delete locationQuery.redirect
+    if (!redirect) {
+      if (pathname === '/cluster/backup') {
+        redirect = '/backup'
+        title = '平台数据备份'
+      }
     }
     const query = Object.assign(
       {},

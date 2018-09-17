@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
 import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import SecondSider from '../../../src/components/SecondSider'
@@ -123,23 +124,27 @@ class AIDeepLearning extends React.Component {
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token, cluster,
-      username, location: { pathname, query: locationQuery },
+      username, location: { pathname, query: _query },
       children,
     } = this.props
+    const locationQuery = cloneDeep(_query)
     let title
-    let redirect
-    if (pathname === '/ai-deep-learning/large-scale-train') {
-      title = '大规模训练'
-      redirect = '/ai-deep-learning/largeScaleTrain'
-    } else if (pathname === '/ai-deep-learning/data-set') {
-      title = '数据集'
-      redirect = '/ai-deep-learning/dataSet'
-    } else if (pathname === '/ai-deep-learning/model-set') {
-      title = '模型集'
-      redirect = '/ai-deep-learning/modelSet'
-    } else {
-      title = 'Notebook'
-      redirect = '/ai-deep-learning/notebook'
+    let redirect = locationQuery.redirect
+    delete locationQuery.redirect
+    if (!redirect) {
+      if (pathname === '/ai-deep-learning/large-scale-train') {
+        title = '大规模训练'
+        redirect = '/ai-deep-learning/largeScaleTrain'
+      } else if (pathname === '/ai-deep-learning/data-set') {
+        title = '数据集'
+        redirect = '/ai-deep-learning/dataSet'
+      } else if (pathname === '/ai-deep-learning/model-set') {
+        title = '模型集'
+        redirect = '/ai-deep-learning/modelSet'
+      } else {
+        title = 'Notebook'
+        redirect = '/ai-deep-learning/notebook'
+      }
     }
     const query = Object.assign(
       {},
