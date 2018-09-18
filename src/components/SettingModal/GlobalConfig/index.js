@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Form, Button, Input, Spin, Checkbox } from 'antd'
+import { Form, Button, Input, Spin, Checkbox, Icon } from 'antd'
 import ReactDom from 'react-dom'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
@@ -1902,6 +1902,172 @@ let Continue = React.createClass({
   }
 });
 
+// 短信告警
+class MessageAlarm extends React.Component {
+
+  state = {
+    disable: true,
+  }
+
+  componentDidMount = () => {
+    this.setConfigForm()
+  }
+
+  setConfigForm = () => {
+    const { config } = this.props
+    const { configDetail, configID, detail } = config
+    const { setFieldsValue } = this.props.form
+    setFieldsValue({
+      phoneNum: undefined,
+    })
+    if (configID) {
+      setFieldsValue({
+        configID,
+      })
+    }
+  }
+
+  handlSave = () => {
+    this.props.form.validateFields((error, values) => {
+      if (error) return
+      // const { phoneNum, configID } = values
+      // const body = {
+      //   detail: {
+      //     phoneNum
+      //   }
+      // }
+      // if (configID) {
+      //   body.configID = configID
+      // }
+      // const { saveGlobalConfig, cluster, form } = this.props
+      // const notification = new NotificationHandler()
+      // notification.spin('保存中')
+      // saveGlobalConfig(cluster.clusterID, 'ai', body, {
+      //   success: {
+      //     func: () => {
+      //       notification.close()
+      //       notification.success('Ai 深度学习配置保存成功')
+      //       this.changeDisable()
+      //       this.props.setGlobalConfig('ai', body)
+      //     }
+      //   },
+      //   failed: {
+      //     func: (err) => {
+      //       notification.close()
+      //       let aiMsg
+      //       if (err.message.message) {
+      //         aiMsg = err.message.message
+      //       } else {
+      //         aiMsg = err.message
+      //       }
+      //       notification.error('Ai 深度学习配置保存失败', aiMsg)
+      //     }
+      //   }
+      // })
+
+    })
+
+  }
+
+  handleCandle = () => {
+    this.setConfigForm()
+    this.changeDisable()
+  }
+
+  changeDisable = () => {
+    this.setState({
+      disable: !this.state.disable,
+    })
+  }
+
+  checkUrl = (rule, value, callback) => {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写短信服务器地址')])
+      return
+    }
+    // if (!/ .test(value)) {
+    //   callback([new Error('请填入 AI 深度学习服务地址')])
+    //   return
+    // }
+    callback()
+  }
+
+  render() {
+    const { disable } = this.state
+    const { form, config } = this.props
+    const { getFieldProps } = form
+    const phoneProps = getFieldProps('phoneNum', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+    })
+    const magID = getFieldProps('configID', {
+      initialValue: config ? config.configID : ''
+    })
+    return (
+      <div className="GlobalConfigMessage">
+        <div className="title">短信告警</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <Icon type="message" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">短信服务器</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem>
+                  <Input {...phoneProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                </FormItem>
+                {
+                  disable ?
+                    <FormItem>
+                      <Button
+                        type="primary"
+                        onClick={this.changeDisable}
+                      >
+                        编辑
+                      </Button>
+                      <Button
+                        // onClick={this. }
+                        style={{ margin: '0 12px' }}
+                      >
+                        发送验证短信
+                      </Button>
+                    </FormItem>
+                    :
+                    <FormItem>
+                      <Button
+                        onClick={this.handleCandle}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={this.handlSave}
+                        style={{ margin: '0 12px' }}
+                      >
+                        保存
+                      </Button>
+                      <Button
+                        // onClick={this. }
+                      >
+                        发送验证短信
+                      </Button>
+                    </FormItem>
+                }
+                <input type="hidden" {...magID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
@@ -1911,6 +2077,7 @@ ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
 AiDeepLearning = Form.create()(AiDeepLearning)
+MessageAlarm = Form.create()(MessageAlarm)
 
 
 class GlobalConfig extends Component {
@@ -1930,6 +2097,10 @@ class GlobalConfig extends Component {
         {
           id: 'GlobalConfigEmail',
           name: '邮件报警',
+        },
+        {
+          id: 'GlobalConfigMessage',
+          name: '短信告警',
         },
         {
           id: 'GlobalConfigMSA',
@@ -2095,6 +2266,14 @@ class GlobalConfig extends Component {
               saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig}
               cluster={cluster}
               config={globalConfig.mail} />
+
+            <MessageAlarm
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.ai}
+            />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
               msaDisable={msaDisable}
