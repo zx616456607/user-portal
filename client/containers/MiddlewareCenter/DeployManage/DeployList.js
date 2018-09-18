@@ -8,7 +8,7 @@
  * @date Monday September 10th 2018
  */
 import React from 'react'
-import { Table, Card, Dropdown, Menu, Icon } from 'antd'
+import { Table, Card, Dropdown, Menu, Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { browserHistory } from 'react-router'
 import './styles/DeployList.less'
@@ -17,6 +17,9 @@ import TenxStatus from '../../../../src/components/TenxStatus'
 import { calcuDate } from '../../../../src/common/tools'
 
 const statusText = [ 'Running', 'Pending', 'Stopping', 'Stopped' ]
+const styleAddress = { width: '200px', overflow: 'hidden', whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+}
 function formateColums(self) {
   return [{
     title: '集群名称',
@@ -54,7 +57,18 @@ function formateColums(self) {
     dataIndex: 'visiterAddress',
     render: text => {
       // return <TipSvcDomain/>
-      return <span>{text}</span>
+      return <div>
+        <Tooltip title={`${text}/portal/console/`}>
+          <div style={styleAddress}>
+            <a href={`http://${text}/portal/console/`} target="_blank">{`${text}/portal/console/`}</a>
+          </div>
+        </Tooltip>
+        <Tooltip title={`${text}/portal/`}>
+          <div style={styleAddress}>
+            <a href={`http://${text}/portal/`} target="_blank">{`${text}/portal/`}</a>
+          </div>
+        </Tooltip>
+      </div>
     },
   }, {
     title: '创建时间',
