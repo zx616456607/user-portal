@@ -105,12 +105,12 @@ export default class ConfigGroupContent extends React.Component {
                                   </div>
                                   <div style={{ color: "#999", fontSize: "12px" }}>
                                     {configFileItem.projectName && <Tooltip title={configFileItem.projectName} placement="left">
-                                      <div><span>仓库: </span><span style={{width:'120px'}} className="textoverflow">
+                                      <div><span>仓库: </span><span className="textoverflow projectName">
                                         {configFileItem.projectName}
                                       </span></div>
                                     </Tooltip>}
                                     {configFileItem.defaultBranch && <Tooltip title={configFileItem.defaultBranch} placement="left">
-                                      <div><span>分支: </span><span style={{width:'45px'}} className="textoverflow">{configFileItem.defaultBranch}</span></div>
+                                      <div><span>分支: </span><span className="textoverflow branchName">{configFileItem.defaultBranch}</span></div>
                                     </Tooltip>}
                                   </div>
                                 </div>

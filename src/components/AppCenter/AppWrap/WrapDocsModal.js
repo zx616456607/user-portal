@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Modal, Form, Upload, Button } from 'antd'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-import { isResourcePermissionError } from '../../../common/tools'
+import { isResourcePermissionError, getUnicodeLength } from '../../../common/tools'
 import { throwError } from '../../../actions'
 
 const notify = new NotificationHandler()
@@ -29,16 +29,16 @@ class WrapDocsModal extends React.Component {
     this.cancelModal = this.cancelModal.bind(this)
     this.confirmModal = this.confirmModal.bind(this)
   }
-  
+
   state = {
     fileList: []
   }
-  
-  cancelModal() { 
+
+  cancelModal() {
     const { closeModal } = this.props
     closeModal()
   }
-  
+
   confirmModal() {
     const { closeModal, currentWrap, callback } = this.props
     const {  fileList } = this.state
@@ -48,7 +48,7 @@ class WrapDocsModal extends React.Component {
     }
     if (fileList.length > 20) {
       notify.warn('上传附件数需在20个以内')
-      return 
+      return
     }
     const formData = new FormData();
     fileList.forEach((file) => {
@@ -73,7 +73,7 @@ class WrapDocsModal extends React.Component {
           return
         }
         notify.warn('上传失败', response.message)
-        return 
+        return
       }
       notify.close()
       notify.success('上传成功')
@@ -88,7 +88,7 @@ class WrapDocsModal extends React.Component {
       closeModal()
     })
   }
-  
+
   renderFooter = () => {
     const { confirmLoading } = this.state
     return [
@@ -96,7 +96,7 @@ class WrapDocsModal extends React.Component {
       <Button type="primary" loading={confirmLoading} onClick={this.confirmModal}>确定</Button>
     ]
   }
-  
+
   render() {
     const { fileList, confirmLoading } = this.state
     const { visible, form, currentWrap, space } = this.props
@@ -125,6 +125,10 @@ class WrapDocsModal extends React.Component {
       disabled: confirmLoading,
       fileList,
       beforeUpload: file=> {
+        const fileNameL = getUnicodeLength(file.name)
+        if (fileNameL > 256) {
+          return notify.warn('文件名称不能超过 256 个字节')
+        }
         this.setState(({ fileList }) => ({
             fileList: [...fileList, file]
         }))

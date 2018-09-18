@@ -877,3 +877,21 @@ export function getHostLastHeartbeatTime(hostInfo) {
   }
   return condition.lastHeartbeatTime
 }
+
+/**
+ * get unicode length
+ * @param string
+ * @returns {number}
+ */
+export const getUnicodeLength = string => {
+  let bytesCount = 0
+  for (let i = 0; i < string.length; i++) {
+    let c = string.charAt(i);
+    if (/[^\x00-\xff]/.test(c)) {//匹配双字节
+      bytesCount += 2;
+    } else {
+      bytesCount += 1;
+    }
+  }
+  return bytesCount
+}
