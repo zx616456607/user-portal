@@ -1497,7 +1497,6 @@ class AppServiceDetailInfo extends Component {
             </span>
             </div>
           </div>
-          }
         </div>
         <Modal
           title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }
