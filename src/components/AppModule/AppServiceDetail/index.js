@@ -49,7 +49,7 @@ import ServiceMeshSwitch from './ServiceMeshSwitch'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
-import TenxTabsFactory from './FilterTabs';
+import TenxTab from './FilterTabs';
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -65,9 +65,6 @@ function terminalSelectedCheck(item, list) {
   return existFlag;
 }
 
-const urlArray = [/\/middleware_center\/deploy\/detail/, /\/app_manage\/container/ ]
-const showkey = ['#containers', '#basic', '#monitor', '#logs', '#events' ]
-const TenxTab = TenxTabsFactory(urlArray, showkey)
 class AppServiceDetail extends Component {
   constructor(props) {
     super(props)
@@ -133,7 +130,7 @@ class AppServiceDetail extends Component {
       }
     })
     // bpm 需要根据一个参数, 请求一个带query的容器列表接口
-    const appCenterChoiceHidden = urlArray.some(url => url.test(window.location.pathname))
+    const appCenterChoiceHidden = this.props.bpmShow
     const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
       success: {
@@ -438,6 +435,8 @@ class AppServiceDetail extends Component {
               tabPosition='left'
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
+              bpmShow = {this.props.bpmShow}
+              filterKey = {['#containers', '#basic', '#monitor', '#logs', '#events' ]}
               >
               <TabPane tab={formatMessage(AppServiceDetailIntl.containerObject)} key='#containers'>
                 <ContainerList
@@ -582,6 +581,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceDetail={serviceDetail}
+                  bpmShow = {this.props.bpmShow}
                 relative/>
               </TabPane>
               {billingEnabled ?
