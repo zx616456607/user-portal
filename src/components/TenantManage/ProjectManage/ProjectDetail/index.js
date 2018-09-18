@@ -1422,7 +1422,7 @@ class ProjectDetail extends Component {
               </Col>
               <Col span={12}>
                 <div className="basicInfoRight">
-                  <Row gutter={16}>
+                  <Row>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
                         创建时间
@@ -1434,7 +1434,7 @@ class ProjectDetail extends Component {
                       </div>
                     </Col>
                   </Row>
-                  <Row gutter={16}>
+                  <Row>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
                         更新时间
@@ -1446,7 +1446,7 @@ class ProjectDetail extends Component {
                       </div>
                     </Col>
                   </Row>
-                  <Row gutter={16}>
+                  <Row>
                     <Col className='gutter-row' span={4}>
                       <div className="gutter-box">
                         授权集群
@@ -1492,7 +1492,7 @@ class ProjectDetail extends Component {
                       </div>
                     </Col>
                   </Row>
-                  <Row gutter={16}>
+                  <Row>
                     <Col className='gutter-row' span={24} >
                       {
                         appliedLenght > 0 &&
