@@ -128,7 +128,7 @@ function BaseInfoCard({ info: {
       </Card>
       <div style={{ height: '16' }}></div>
       <Card title="访问地址" bordered={false} className="BaseInfoCard">
-        <p >AWS Paas 实例控制台:</p>
+        <p >AWS PaaS 实例控制台:</p>
         <Tooltip title={`${address}/portal/console/`}>
           <div style={styleAddress}>
             <a href={`http://${address}/portal/console/`}
@@ -136,7 +136,7 @@ function BaseInfoCard({ info: {
             </a>
           </div>
         </Tooltip>
-        <p style={stylep}>AWS BPM Paas 门户:</p>
+        <p style={stylep}>AWS BPM PaaS 门户:</p>
         <Tooltip title={`${address}/portal/`}>
           <div style={styleAddress}>
             <a href={`http://${address}/portal/`}
