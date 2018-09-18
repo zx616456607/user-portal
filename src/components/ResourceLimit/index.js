@@ -114,7 +114,6 @@ class ResourceQuota extends React.Component {
     /**
      * 获取资源定义，目的为了让资源配额管理支持后台动态设置
      */
-
     getResourceDefinition({
       success: {
         func: res => {
@@ -775,7 +774,7 @@ class ResourceQuota extends React.Component {
                                     validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
                                   },
                                 ],
-                                initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0,
+                                initialValue: globaleList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : undefined,
                               })
                               const surplu = inputProps.value !== undefined
                                 ? Math.round((inputProps.value - this.useGlobaleCount(item.id)) * 100) / 100
@@ -1042,7 +1041,7 @@ class ResourceQuota extends React.Component {
                                       validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name, k.id)
                                     }
                                   ],
-                                  initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : 0
+                                  initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : undefined
                                 })
                                 const surplus = inputProps.value !== undefined
                                   ? Math.round((inputProps.value - this.useClusterCount(k.id)) * 100) / 100
