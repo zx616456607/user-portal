@@ -209,7 +209,6 @@ let MyComponent = React.createClass({
     const port = parseInt(value.trim())
     const { loginUser } = this.props
     let msg = validatePortNumber(loginUser.info.proxyType, port)
-    console.log('msg', msg)
     if (msg) {
       callback(new Error(msg))
       return
