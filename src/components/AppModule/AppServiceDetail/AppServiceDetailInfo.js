@@ -32,6 +32,7 @@ import yaml from 'js-yaml'
 import { HARBOR_ALL_PROJECT_FAILURE } from '../../../actions/harbor';
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import $ from 'jquery'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -883,6 +884,8 @@ class AppServiceDetailInfo extends Component {
       replicas: 1,
       currentService: '',
       isBindNode: false,
+      menuAnchors: [],
+      activeButton: '基础信息'
     }
   }
 
@@ -1050,10 +1053,24 @@ class AppServiceDetailInfo extends Component {
       currentService: serviceName
     })
   }
-  // componentDidMount() {
-  //   const { serviceDetail } = this.props
+  componentDidMount() {
+    // const { serviceDetail } = this.props
+    const titles = document.getElementsByClassName('titleSpan')
+    const commonBoxes = document.getElementsByClassName('commonBox')
 
-  // }
+    const menus = []
+    for (let i=0; i<titles.length; i++) {
+      menus.push({
+        name: titles[i].innerHTML,
+        top: commonBoxes[i].offsetTop
+      })
+    }
+
+    this.setState({
+      menuAnchors: menus
+    })
+
+  }
 
   componentWillReceiveProps(nextProps) {
     if(this.props.serviceName !== nextProps.serviceName){
@@ -1316,7 +1333,20 @@ class AppServiceDetailInfo extends Component {
     })
   }
 
+  scrollToAnchors = (position, name) => {
+    this.setState({
+      activeButton: name
+    })
+    const target = position - 16
+    $('#baseInfo').animate({
+      scrollTop: target
+    }, 300)
+  }
   render() {
+    const menu = document.getElementsByClassName('menu')[0]
+    if (this.refs.baseInfo) {
+      this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
+    }
     const { isFetching, serviceDetail, cluster, volumes } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
@@ -1335,128 +1365,137 @@ class AppServiceDetailInfo extends Component {
     const annotations = serviceDetail.spec.template.metadata.annotations
     return (
       <Card id="AppServiceDetailInfo">
-        <div className="info commonBox">
-          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.basicsMessage)}</span>
-          <div className="titleBox">
-            <div className="commonTitle">
-              {formatMessage(ServiceCommonIntl.name)}
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.mirrorName)}
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.createTime)}
-          </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-          <div className="dataBox">
-            <div className="commonTitle">
-              {serviceDetail.metadata.name}
+        <div id="baseInfo" ref="baseInfo">
+            <div className="menu">
+              {
+                this.state.menuAnchors.map(v => {
+                  return <Button
+                    key={v.name}
+                    onClick={() => this.scrollToAnchors(v.top, v.name)}
+                    className={this.state.activeButton === v.name? "anchorItem" : "anchorItem defaultBtn"}
+                    type={this.state.activeButton === v.name? "primary" : "default" }
+                  >{ v.name }</Button>
+                })
+              }
             </div>
-            <div className="commonTitle">
-              {serviceDetail.images.join(', ') || '-'}
+            <div className="info commonBox">
+              <span className="titleSpan">{formatMessage(AppServiceDetailIntl.basicsMessage)}</span>
+              <div className="titleBox">
+                <div className="commonTitle">
+                  {formatMessage(ServiceCommonIntl.name)}
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.mirrorName)}
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.createTime)}
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
+              <div className="dataBox">
+                <div className="commonTitle">
+                  {serviceDetail.metadata.name}
+                </div>
+                <div className="commonTitle">
+                  {serviceDetail.images.join(', ') || '-'}
+                </div>
+                <div className="commonTitle">
+                  {formatDate(serviceDetail.metadata.creationTimestamp || '')}
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
             </div>
-            <div className="commonTitle">
-              {formatDate(serviceDetail.metadata.creationTimestamp || '')}
-            </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-        </div>
-        {
-          annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
-          <div className="compose commonBox">
-            <span className="titleSpan">{formatMessage(AppServiceDetailIntl.modelMessage)}</span>
-            <Row className="titleBox">
-              <Col span={6} >{formatMessage(AppServiceDetailIntl.bindModelAssembly)}</Col>
-              <Col span={18}>
-              <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
-                <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
-              </Select>
-              <div style={{ color: '#999', fontSize: 12 }}>{formatMessage(AppServiceDetailIntl.modelGroupMapToUserCatalogue)}</div>
-              </Col>
-            </Row>
-          </div>
-          : null
-        }
+            {
+              annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
+                <div className="compose commonBox">
+                  <span className="titleSpan">{formatMessage(AppServiceDetailIntl.modelMessage)}</span>
+                  <Row className="titleBox">
+                    <Col span={6} >{formatMessage(AppServiceDetailIntl.bindModelAssembly)}</Col>
+                    <Col span={18}>
+                      <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
+                        <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
+                      </Select>
+                      <div style={{ color: '#999', fontSize: 12 }}>{formatMessage(AppServiceDetailIntl.modelGroupMapToUserCatalogue)}</div>
+                    </Col>
+                  </Row>
+                </div>
+                : null
+            }
 
-        <div className="compose commonBox">
-          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
-          <div className="titleBox">
-            <div className="commonTitle">
-              CPU
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.memory)}
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.systemDisk)}
-          </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-          <div className="dataBox">
-            <div className="commonTitle">
-              { cpuFormatResult }
+            <div className="compose commonBox">
+              <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
+              <div className="titleBox">
+                <div className="commonTitle">
+                  CPU
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.memory)}
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.systemDisk)}
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
+              <div className="dataBox">
+                <div className="commonTitle">
+                  { cpuFormatResult }
+                </div>
+                <div className="commonTitle">
+                  { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
+                </div>
+                <div className="commonTitle">
+                  10G
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
             </div>
-            <div className="commonTitle">
-              { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
-            </div>
-            <div className="commonTitle">
-              10G
-          </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-        </div>
-        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
-        <MyComponent
-          ref="envComponent"
-          serviceDetail={serviceDetail}
-          cluster={cluster}
-          formatMessage={formatMessage}
-          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
-        />
-        <div className="storage commonBox">
-          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
-          {
-            !nouseEditing &&  <span className='editTip'>
+            <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
+            <MyComponent
+              ref="envComponent"
+              serviceDetail={serviceDetail}
+              cluster={cluster}
+              formatMessage={formatMessage}
+            />
+
+          <div className="storage commonBox">
+            <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
+            {
+              !nouseEditing &&  <span className='editTip'>
               {formatMessage(AppServiceDetailIntl.changeNoEffect)}
             </span>
-          }
-          { (!this.props.appCenterChoiceHidden || false) &&
-          <div className='save_box'>
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => this.saveVolumnsChange()}
-              className='title_button'
-              disabled={nouseEditing}
-              loading={loading}
-            >
-              {formatMessage(AppServiceDetailIntl.appChange)}
-            </Button>
-          </div>
-          }
-          <div className="titleBox">
-            <Row className='volume_row_style'>
-              <Col span="5">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
-              <Col span="5">{formatMessage(AppServiceDetailIntl.cache)}</Col>
-              <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
-              <Col span="4">{formatMessage(AppServiceDetailIntl.readWriteRight)}</Col>
-              { (!this.props.appCenterChoiceHidden || false) &&
-              <Col span="5">{formatMessage(ServiceCommonIntl.operation)}</Col>
-              }
-            </Row>
-          </div>
-          <div className="dataBox">
-            {this.getMount(this.props.appCenterChoiceHidden)}
-          </div>
-          { (!this.props.appCenterChoiceHidden || false) &&
-          <div className='add_volume_button'>
+            }
+            <div className='save_box'>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => this.saveVolumnsChange()}
+                className='title_button'
+                disabled={nouseEditing}
+                loading={loading}
+              >
+                {formatMessage(AppServiceDetailIntl.appChange)}
+              </Button>
+            </div>
+            <div className="titleBox">
+              <Row className='volume_row_style'>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.cache)}</Col>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
+                <Col span="4">{formatMessage(AppServiceDetailIntl.readWriteRight)}</Col>
+                <Col span="5">{formatMessage(ServiceCommonIntl.operation)}</Col>
+              </Row>
+            </div>
+            <div className="dataBox">
+              {this.getMount()}
+            </div>
+            <div className='add_volume_button'>
             <span
               className='add_button'
               onClick={() => this.addContainerCatalogue()}
             >
               <Icon type="plus" />{formatMessage(AppServiceDetailIntl.addContainerDir)}
             </span>
+            </div>
           </div>
           }
         </div>
