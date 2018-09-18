@@ -411,7 +411,7 @@ class PodAffinity extends Component {
         })
     }
   }
-  checkServiceValue(rule, value, callback) {
+  checkServiceValue = (rule, value, callback) => {
     const { intl } = this.props
     if (!Boolean(value)){
       callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
@@ -585,7 +585,7 @@ class PodAffinity extends Component {
       }
     })
   }
-  checkServiceKey(rule, value, callback) {
+  checkServiceKey = (rule, value, callback) => {
     const { intl } = this.props
     if (!Boolean(value)){
       callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
