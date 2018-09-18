@@ -1,20 +1,23 @@
-import { Button, Form, Input, Row, Col, Modal, Select } from 'antd';
+import { Button, Form, Input, Row, Col, Modal, Select } from 'antd'
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import { isResourcePermissionError } from '../../common/tools'
 import { validateK8sResource } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import { setConfigMapLabel } from '../../actions/configs'
 import filter from 'lodash/filter'
-const createForm = Form.create;
-const FormItem = Form.Item;
-const Option = Select.Option;
+import serviceIntl from './intl/serviceIntl'
+const createForm = Form.create
+const FormItem = Form.Item
+const Option = Select.Option
 
 let CreateConfigModal = React.createClass({
   btnCreateConfigGroup() {
-    const { cluster, scope: parentScope, setConfigMapLabel } = this.props
-    const { currentGroup, groupEdit } = parentScope.state;
+    const { cluster, scope: parentScope, setConfigMapLabel, intl } = this.props
+    const { formatMessage } = intl
+    const { currentGroup, groupEdit } = parentScope.state
     const { updateConfigAnnotations } = this.props
     let notification = new NotificationHandler()
     let self = this
@@ -25,20 +28,20 @@ let CreateConfigModal = React.createClass({
       const groupName = values.newConfigName
       const groupSort = values.newConfigSort
       if (!validateK8sResource(groupName)) {
-        notification.error('由小写字母、数字和连字符（-）组成')
+        notification.error(formatMessage(serviceIntl.errorK8sMessage))
         return
       }
       let configs = {
         groupName: groupEdit ? currentGroup : groupName,
         cluster,
-        configlabels:groupSort.toString()
+        configlabels: groupSort.toString()
       }
       if (!groupEdit) {
         // data: configMaps -> configs -> revert configs
         parentScope.props.createConfigGroup(configs, { // cluster, { name: groupName, configlabels: groupSort, data: []}, {
           success: {
             func: () => {
-              notification.success('创建成功')
+              notification.success(formatMessage(serviceIntl.createSucc))
               self.props.form.resetFields()
               parentScope.loadData()
               parentScope.setState({ createModal: false })
@@ -46,51 +49,58 @@ let CreateConfigModal = React.createClass({
             isAsync: true
           },
           failed: {
-            func: (res) => {
+            func: res => {
               // parentScope.setState({ createModal: false })
               let errorText
-              if(isResourcePermissionError(res)){
+              if (isResourcePermissionError(res)) {
                 //403 没权限判断 在App/index中统一处理 这里直接返回
-                return;
+                return
               }
               switch (res.message.code) {
-                case 409: errorText = '配置组已存在'; break
-                case 500: errorText = '网络异常'; break
-                default: errorText = '缺少参数或格式错误'
+                case 409:
+                  errorText = formatMessage(serviceIntl.error409Message);break
+                case 500:
+                  errorText = formatMessage(serviceIntl.error500Message);break
+                default:
+                  errorText = formatMessage(serviceIntl.defaultErrorMessage)
               }
               Modal.error({
-                title: '创建配置组',
-                content: (<h3>{errorText}</h3>),
-              });
+                title: formatMessage(serviceIntl.createConfigGroup),
+                content: <h3>{errorText}</h3>
+              })
             }
           }
         })
       } else {
-        updateConfigAnnotations(configs,{
-        // setConfigMapLabel(currentGroup, cluster, { configlabels: groupSort }, {
+        updateConfigAnnotations(configs, {
+          // setConfigMapLabel(currentGroup, cluster, { configlabels: groupSort }, {
           success: {
             func: res => {
-              notification.success('修改分类成功')
+              notification.success(formatMessage(serviceIntl.editClassSucc))
               self.props.form.resetFields()
               parentScope.loadData()
-              parentScope.setState({createModal: false})
+              parentScope.setState({ createModal: false })
             },
             isAsync: true
           },
           failed: {
-            func: (res) => {
+            func: res => {
               parentScope.setState({ createModal: false })
               let errorText
               switch (res.message.code) {
-                case 403: errorText = '未授权修改配置分类'; break
-                case 409: errorText = '配置组已存在'; break
-                case 500: errorText = '网络异常'; break
-                default: errorText = '缺少参数或格式错误'
+                case 403:
+                  errorText = formatMessage(serviceIntl.error403Message);;break
+                case 409:
+                  errorText = formatMessage(serviceIntl.error409Message);;break
+                case 500:
+                  errorText = formatMessage(serviceIntl.error500Message);;break
+                default:
+                  errorText = formatMessage(serviceIntl.defaultErrorMessage)
               }
               Modal.error({
-                title: '修改分类',
-                content: (<h3>{errorText}</h3>),
-              });
+                title: formatMessage(serviceIntl.editConfigGroupClass),
+                content: <h3>{errorText}</h3>
+              })
             }
           }
         })
@@ -99,30 +109,31 @@ let CreateConfigModal = React.createClass({
   },
 
   configNameExists(rule, value, callback) {
-    const parentScope = this.props.scope
+    const { scope: parentScope, intl } = this.props
+    const { formatMessage } = intl
     const { checkConfigNameExistence, cluster } = parentScope.props
-    const { groupEdit } = parentScope.state;
+    const { groupEdit } = parentScope.state
     if (groupEdit) {
       return callback()
     }
     if (!value) {
-      callback([new Error('请输入配置组名称')])
+      callback([new Error(formatMessage(serviceIntl.checkConfigNameErrorMsg01))])
       return
     }
-    if(value.length < 3 || value.length > 63) {
-      callback('名称长度为 3-63 个字符')
+    if (value.length < 3 || value.length > 63) {
+      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg02))
       return
     }
-    if(!/^[a-z]/.test(value)){
-      callback('名称须以小写字母开头')
+    if (!/^[a-z]/.test(value)) {
+      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg03))
       return
     }
     if (!/[a-z0-9]$/.test(value)) {
-      callback('名称须以小写字母或数字结尾')
+      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg04))
       return
     }
     if (!validateK8sResource(value)) {
-      callback('由小写字母、数字和连字符（-）组成')
+      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg05))
       return
     }
     clearTimeout(this.configNameTimeout)
@@ -131,7 +142,7 @@ let CreateConfigModal = React.createClass({
         success: {
           func: res => {
             if (res.data.existence) {
-              callback('配置组名称重复')
+              callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg06))
             } else {
               callback()
             }
@@ -151,78 +162,57 @@ let CreateConfigModal = React.createClass({
     callback()
   },
   handCancel(parentScope) {
-     parentScope.configModal(false,false)
-     this.props.form.resetFields()
+    parentScope.configModal(false, false)
+    this.props.form.resetFields()
   },
   render() {
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = this.props.form
     const parentScope = this.props.scope
-    const { configGroup, labelWithCount, visible } = this.props
-    const { currentGroup, groupEdit } = parentScope.state;
+    const { configGroup, labelWithCount, visible, intl } = this.props
+    const { formatMessage } = intl
+    const { currentGroup, groupEdit } = parentScope.state
     const curr = filter(configGroup, { name: currentGroup })[0]
     let currentSortArray = [] // curr && curr.configlabels || []
     configGroup.length > 0 && configGroup.forEach(item => {
-      if ((item.name === currentGroup) && item.annotations && item.annotations.length) {
+      if (item.name === currentGroup && item.annotations && item.annotations.length) {
         currentSortArray = item.annotations
       }
     })
     const nameProps = getFieldProps('newConfigName', {
-      rules: [
-        { validator: this.configNameExists },
-      ],
+      rules: [{ validator: this.configNameExists }],
       initialValue: groupEdit ? currentGroup : ''
-    });
+    })
     const sortProps = getFieldProps('newConfigSort', {
-      rules: [
-        { message: '请选择分类', type: 'array' },
-        { validator: this.configSortExists }
-      ],
-      initialValue:groupEdit ? currentSortArray : []
+      rules: [{ message: formatMessage(serviceIntl.needClassifyMsg), type: 'array' }, { validator: this.configSortExists }],
+      initialValue: groupEdit ? currentSortArray : []
     })
     const formItemLayout = {
       labelCol: { span: 6 },
-      wrapperCol: { span: 18 },
-    };
-    let children = [];
+      wrapperCol: { span: 18 }
+    }
+    let children = []
     labelWithCount.length > 0 && labelWithCount.forEach(item => {
-      children.push(<Option key={item.labelName}>{item.labelName}</Option>);
+      children.push(<Option key={item.labelName}>{item.labelName}</Option>)
     })
-    return (
-      <Modal
-        title={groupEdit ? "修改分类" : '创建配置组'}
-        wrapClassName="server-create-modal"
-        maskClosable={false}
-        visible={visible}
-        onOk={() => this.btnCreateConfigGroup()}
-        onCancel={() => this.handCancel(parentScope)}
-        >
+    return <Modal title={groupEdit ? formatMessage(serviceIntl.editConfigGroupClass) : formatMessage(serviceIntl.createConfigGroup)} wrapClassName="server-create-modal" maskClosable={false} visible={visible} onOk={() => this.btnCreateConfigGroup()} onCancel={() => this.handCancel(parentScope)}>
         <Form horizontal>
           <Row style={{ paddingTop: '10px' }}>
             <Col span="19">
-              <FormItem
-                {...formItemLayout}
-                label="配置分类"
-              >
-                <Select {...sortProps} tags multiple placeholder="输入内容查找或创建分类" notFoundContent="">
+              <FormItem {...formItemLayout} label={formatMessage(serviceIntl.groupClassify)}>
+                <Select {...sortProps} tags multiple placeholder={formatMessage(serviceIntl.classifyPlaceholder)} notFoundContent="">
                   {children}
                 </Select>
               </FormItem>
-              <FormItem
-                {...formItemLayout}
-                label="配置组名称"
-                hasFeedback={!!getFieldValue('newConfigName')}
-                help={isFieldValidating('newConfigName') ? '校验中...' : (getFieldError('newConfigName') || []).join(', ')}
-                >
-                <Input {...nameProps} disabled={groupEdit} type="text" id="newConfigName" onPressEnter={()=> this.btnCreateConfigGroup()} />
+              <FormItem {...formItemLayout} label={formatMessage(serviceIntl.configName)} hasFeedback={!!getFieldValue('newConfigName')} help={isFieldValidating('newConfigName') ? formatMessage(serviceIntl.checkouting) : (getFieldError('newConfigName') || []).join(', ')}>
+                <Input {...nameProps} disabled={groupEdit} type="text" id="newConfigName" onPressEnter={() => this.btnCreateConfigGroup()} />
               </FormItem>
             </Col>
 
           </Row>
         </Form>
       </Modal>
-    );
-  },
-});
+  }
+})
 
 CreateConfigModal = createForm()(CreateConfigModal)
 
@@ -231,11 +221,12 @@ function mapStateToProps(state, props) {
   const { current } = entities
   const { cluster } = current
   return {
-    cluster: cluster.clusterID,
+    cluster: cluster.clusterID
   }
 }
 
 export default connect(mapStateToProps, {
-  setConfigMapLabel,
-})(CreateConfigModal)
-
+  setConfigMapLabel
+})(injectIntl(CreateConfigModal, {
+  withRef: true
+}))
