@@ -478,7 +478,7 @@ class Information extends Component {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
     let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN &&
-      (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) ||
+      (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN || userDetail.role === ROLE_BASE_ADMIN)) ||
       (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
     let accountTypeEdit = false
     let editRole = true //是否可以编辑权限
@@ -611,7 +611,7 @@ class Information extends Component {
               />
             </Col>
             {
-              userDetail.role !== ROLE_SYS_ADMIN &&
+              loginUser.role !== ROLE_PLATFORM_ADMIN &&
               <Col span={7}>
                 <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
