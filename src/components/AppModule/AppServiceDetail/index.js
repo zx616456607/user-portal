@@ -436,7 +436,7 @@ class AppServiceDetail extends Component {
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
               bpmShow = {this.props.bpmShow}
-              filterKey = {['#containers', '#basic', '#monitor', '#logs', '#events' ]}
+              filterKey = {['#containers', '#basic', '#monitor', '#logs', '#events', '#ports' ]}
               >
               <TabPane tab={formatMessage(AppServiceDetailIntl.containerObject)} key='#containers'>
                 <ContainerList
