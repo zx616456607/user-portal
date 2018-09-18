@@ -300,7 +300,7 @@ class ServiceSecretsConfig extends React.Component {
   getDefaultData = data => {
     const { activeGroupName } = this.state
     const temp = filter(data, { name: activeGroupName })[0]
-    return temp ? temp.data[this.state.configName] : {}
+    return temp && temp.data ? temp.data[this.state.configName] : {}
   }
   render() {
     const { secretsList, secretsOnUse } = this.props
