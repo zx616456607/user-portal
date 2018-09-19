@@ -172,7 +172,7 @@ class ClusterLabelManage extends Component{
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error('标签键长度为3~64位'))
       return
     }
