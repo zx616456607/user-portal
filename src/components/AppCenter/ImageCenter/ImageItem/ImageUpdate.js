@@ -1260,12 +1260,12 @@ class ImageUpdate extends Component {
       policy_id: currentRule,
     }
     const Notification = new NotificationHandler()
-    Notification.spin('复制中...')
+    Notification.spin('同步中...')
     copyCurrentRule(harbor, registry, body, {
       success : {
         func: () => {
           Notification.close()
-          Notification.success('复制规则成功')
+          Notification.success('同步任务开始执行')
           getCurrentRuleTask(harbor, registry, currentRule)
         },
         isAsync: true
@@ -1273,7 +1273,7 @@ class ImageUpdate extends Component {
       failed: {
         func: err => {
           Notification.close()
-          Notification.error('复制规则失败')
+          Notification.error('同步任务开启失败')
         }
       }
     })
@@ -1493,7 +1493,7 @@ class ImageUpdate extends Component {
               className='btbuttonadd'
               disabled={!currentRule}
               onClick={this.handleCopyRule}>
-              复制
+              同步镜像
             </Button>
             {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
