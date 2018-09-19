@@ -136,8 +136,12 @@ const UpsertModal = React.createClass({
         { required: true, message: '请输入目标 URL' },
       ]
     })
-    const usernameProps = getFieldProps('username')
-    const passwordProps = getFieldProps('password')
+    const usernameProps = getFieldProps('username', {
+      rules: [{ required: true, message: '请输入用户名' }]
+    })
+    const passwordProps = getFieldProps('password', {
+      rules: [{ required: true, message: '请输入密码' }]
+    })
     const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
     return (
       <Modal
