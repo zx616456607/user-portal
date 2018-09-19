@@ -36,6 +36,7 @@ let CreateConfigFileModal = React.createClass({
                   <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
+      tempConfigName: '', // 缓存 name
       method: 1,
       nameDisabled: false,
     }
@@ -214,7 +215,7 @@ let CreateConfigFileModal = React.createClass({
   render() {
     const { type, form, configNameList, scope: parentScope } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
-    const { filePath, tempConfigDesc, nameDisabled } = this.state
+    const { filePath, tempConfigDesc, nameDisabled, tempConfigName } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -230,6 +231,7 @@ let CreateConfigFileModal = React.createClass({
       rules: [
         { validator: this.configNameExists },
       ],
+      onChange: e => this.setState({ tempConfigName: e.target.value })
     });
     const descProps = getFieldProps('data', {
       rules: [
@@ -279,6 +281,7 @@ let CreateConfigFileModal = React.createClass({
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
+                tempConfigName={tempConfigName}
                 descProps={descProps} />
             </FormItem>
           </Form>

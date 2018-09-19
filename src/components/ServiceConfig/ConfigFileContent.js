@@ -81,16 +81,18 @@ class ConfigFileContent extends React.Component {
   onRadioChange = (e) => {
     const method = e.target.value
     const readOnly = method === 2
-    const { tempConfigDesc, form, getMethod } = this.props
+    const { tempConfigDesc, form, getMethod, tempConfigName } = this.props
     const { setFieldsValue, getFieldValue } = form
     this.setState({
       readOnly,
     })
     let configDesc = ""
     let data = ''
+    let name = ''
     if (!readOnly) {
       configDesc = tempConfigDesc
       data = tempConfigDesc
+      name = tempConfigName
     } else {
       this.loadGitProjects(getFieldValue("projectId"))
     }
@@ -98,6 +100,7 @@ class ConfigFileContent extends React.Component {
       configDesc,
       method,
       data,
+      name,
     }
     // if(readOnly) values.name = ""
     setFieldsValue(values)
