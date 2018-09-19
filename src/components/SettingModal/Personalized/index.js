@@ -295,6 +295,7 @@ class Personalized extends Component{
                   <span className={this.state.siderColor=='6' ?'list color-6 selected':'list color-6'} onClick={()=> this.setSliderColor(6)}></span>
                   <span className={this.state.siderColor=='7' ?'list color-7 selected':'list color-7'} onClick={()=> this.setSliderColor(7)}></span>
                   <span className={this.state.siderColor=='8' ?'list color-8 selected':'list color-8'} onClick={()=> this.setSliderColor(8)}></span>
+                  <span className={this.state.siderColor=='9' ?'list color-9 selected':'list color-9'} onClick={()=> this.setSliderColor(9)}></span>
 
                 </div>
                 <div className="colorButton">
