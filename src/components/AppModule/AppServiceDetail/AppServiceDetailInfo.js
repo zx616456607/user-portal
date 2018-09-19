@@ -33,6 +33,7 @@ import { HARBOR_ALL_PROJECT_FAILURE } from '../../../actions/harbor';
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
 import $ from 'jquery'
+import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -482,7 +483,7 @@ class MyComponent extends Component {
     )
   }
 }
-MyComponent = Form.create()(MyComponent)
+// MyComponent = Form.create()(MyComponent)
 
 function mapStateToProp(state, props){
   const { entities, secrets } = state
@@ -1347,7 +1348,7 @@ class AppServiceDetailInfo extends Component {
     if (this.refs.baseInfo) {
       this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
     }
-    const { isFetching, serviceDetail, cluster, volumes } = this.props
+    const { isFetching, serviceDetail, cluster, volumes, intl, form } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
@@ -1363,6 +1364,10 @@ class AppServiceDetailInfo extends Component {
       cpuFormatResult = '-'
     }
     const annotations = serviceDetail.spec.template.metadata.annotations
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    }
     return (
       <Card id="AppServiceDetailInfo">
         <div id="baseInfo" ref="baseInfo">
@@ -1422,45 +1427,46 @@ class AppServiceDetailInfo extends Component {
                 : null
             }
 
-            <div className="compose commonBox">
-              <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
-              <div className="titleBox">
-                <div className="commonTitle">
-                  CPU
-                </div>
-                <div className="commonTitle">
-                  {formatMessage(AppServiceDetailIntl.memory)}
-                </div>
-                <div className="commonTitle">
-                  {formatMessage(AppServiceDetailIntl.systemDisk)}
-                </div>
-                <div style={{ clear: 'both' }}></div>
-              </div>
-              <div className="dataBox">
-                <div className="commonTitle">
-                  { cpuFormatResult }
-                </div>
-                <div className="commonTitle">
-                  { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
-                </div>
-                <div className="commonTitle">
-                  10G
-                </div>
-                <div style={{ clear: 'both' }}></div>
-              </div>
+        <div className="compose commonBox">
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
+          <div className="titleBox">
+            <div className="commonTitle">
+              CPU
+          </div>
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.memory)}
+          </div>
+            <div className="commonTitle">
+              {formatMessage(AppServiceDetailIntl.systemDisk)}
+          </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+          <div className="dataBox">
+            <div className="commonTitle">
+              { cpuFormatResult }
             </div>
-            <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
-            <MyComponent
-              ref="envComponent"
-              serviceDetail={serviceDetail}
-              cluster={cluster}
-              formatMessage={formatMessage}
-            />
-
-          <div className="storage commonBox">
-            <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
-            {
-              !nouseEditing &&  <span className='editTip'>
+            <div className="commonTitle">
+              { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
+            </div>
+            <div className="commonTitle">
+              10G
+          </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+        </div>
+        <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
+        <MyComponent
+          form={form}
+          ref="envComponent"
+          serviceDetail={serviceDetail}
+          cluster={cluster}
+          formatMessage={formatMessage}
+          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
+        />
+        <div className="storage commonBox">
+          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
+          {
+            !nouseEditing &&  <span className='editTip'>
               {formatMessage(AppServiceDetailIntl.changeNoEffect)}
             </span>
             }
@@ -1498,6 +1504,12 @@ class AppServiceDetailInfo extends Component {
             </div>
           </div>
         </div>
+        <ContainerNetwork
+          forDetail
+          formItemLayout={formItemLayout}
+          form={form}
+          intl={intl}
+        />
         <Modal
           title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }
           visible={ containerCatalogueVisible }
@@ -1556,4 +1568,4 @@ export default injectIntl(connect(mapStateToPropsInfo, {
   editServiceVolume,
   loadAllServices,
   loadServiceDetail,
-})(AppServiceDetailInfo), { withRef: true, })
+})(Form.create()(AppServiceDetailInfo)), { withRef: true, })
