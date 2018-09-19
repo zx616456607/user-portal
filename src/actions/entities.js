@@ -36,8 +36,10 @@ function _setCurrent(current, callback, _current) {
   } else {
     onbehalfuser = 'default'
   }
-  const currentConfig = `${teamID},${namespace},${clusterID},${onbehalfuser}`
-  setCookie(USER_CURRENT_CONFIG, currentConfig)
+  if (namespace) {
+    const currentConfig = `${teamID},${namespace},${clusterID},${onbehalfuser}`
+    setCookie(USER_CURRENT_CONFIG, currentConfig)
+  }
   return {
     current,
     type: SET_CURRENT,

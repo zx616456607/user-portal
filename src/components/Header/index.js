@@ -13,7 +13,6 @@ import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadUserList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getStorageClassType } from '../../actions/storage'
@@ -27,13 +26,14 @@ import {
   USER_CURRENT_CONFIG, ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN, INTL_COOKIE_NAME,
 } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE, API_URL_PREFIX } from '../../constants'
-import { Link } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 import TenxIcon from '@tenx-ui/icon'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
+import { getDeepValue } from '../../../client/util/util'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -41,7 +41,7 @@ const standardFlag = standard === mode
 const SubMenu = Menu.SubMenu
 
 // The following routes RegExp will show select space or select cluster
-const SPACE_CLUSTER_PATHNAME_MAP = {
+export const SPACE_CLUSTER_PATHNAME_MAP = {
   space: [
     /^\/$/,
     /\/app_manage/,
@@ -83,9 +83,9 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
   ],
 }
 
-function loadProjects(props, callback) {
+async function loadProjects(props, callback) {
   const { ListProjects, loginUser } = props
-  ListProjects({ size: 0 }, callback)
+  return await ListProjects({ size: 0 }, callback)
 }
 
 function getHideDot() {
@@ -126,7 +126,6 @@ class Header extends Component {
       hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
       visible: false,
-      allUsers: [],
       collapseDefaultActiveKey: null,
     }
     const { formatMessage } = this.props.intl
@@ -291,15 +290,7 @@ class Header extends Component {
 
   async componentDidMount() {
     this._checkLiteVersion()
-    if (this.isSysAdmin) {
-      await this.props.loadUserList({ size: 0, sort: 'a,userName' }, {
-        success: {
-          func: res => {
-            this.setState({ allUsers: cloneDeep(res.users || []) })
-          }
-        }
-      })
-    }
+    const notification = new NotificationHandler()
     const {
       loadTeamClustersList,
       setCurrent,
@@ -309,60 +300,56 @@ class Header extends Component {
     } = this.props
     const config = getCookie(USER_CURRENT_CONFIG) || ''
     const [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
-    setCurrent({
-      team: { teamID },
-      space: { namespace },
-      cluster: { clusterID },
+    // setCurrent({
+    //   team: { teamID },
+    //   space: { namespace },
+    //   cluster: { clusterID },
+    // })
+    const projectsRes = await loadProjects(this.props, { failed: {} }) || {}
+    if (projectsRes.error) {
+      notification.warn('加载项目失败')
+      return
+    }
+    const projects = getDeepValue(projectsRes, [ 'response', 'result', 'data', 'projects' ]) || []
+    let defaultProject = projects[0]
+    projects.map(project => {
+      if (project.namespace === namespace) {
+        defaultProject = project
+      }
     })
-    if (onbehalfuser === 'onbehalfuser' && this.isSysAdmin) {
-      this.setState({
-        collapseDefaultActiveKey: [ 'user' ],
-      })
-      this.state.allUsers.every(user => {
-        if (user.namespace === namespace) {
-          this.handleProjectChange(user, false)
-          return false
-        }
-        return true
+    if (!defaultProject) {
+      notification.warn('帐号还未加入任何项目，请先『创建项目』或『联系管理员加入项目』')
+      browserHistory.push('/tenant_manage/project_manage')
+      setCurrent({
+        space: { noProjectsFlag: true },
       })
       return
     }
-    loadProjects(this.props, {
-      success: {
-        func: res => {
-          const projects = res.data && res.data.projects || []
-          let defaultSpace = projects[0] || {}
-          if (namespace === 'default' || projects.length === 0) {
-            defaultSpace = MY_SPACE
-          } else {
-            projects.map(project => {
-              if (project.namespace === namespace) {
-                defaultSpace = project
-              }
-            })
-          }
-          setCurrent({
-            space: defaultSpace
-          })
-          getProjectVisibleClusters(defaultSpace.projectName, {
-            success: {
-              func: clustersRes => {
-                const { clusters } = clustersRes.data
-                let defaultCluster = clusters[0] || {}
-                clusters.map(cluster => {
-                  if (cluster.clusterID === clusterID) {
-                    defaultCluster = cluster
-                  }
-                })
-                this.loadStorageClassType(defaultCluster)
-              },
-              isAsync: true
-            }
-          })
-        },
-        isAsync: true,
-      },
+    setCurrent({
+      space: defaultProject
     })
+    const clustersRes = await getProjectVisibleClusters(defaultProject.projectName, { failed: {} }) || {}
+    if (clustersRes.error) {
+      notification.warn('加载集群失败')
+      return
+    }
+    const clusters = getDeepValue(clustersRes, [ 'response', 'result', 'data', 'clusters' ]) || []
+    let defaultCluster = clusters[0]
+    clusters.map(cluster => {
+      if (cluster.clusterID === clusterID) {
+        defaultCluster = cluster
+      }
+    })
+    if (!defaultCluster) {
+      notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
+      browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
+      defaultProject.noClustersFlag = true
+      setCurrent({
+        space: defaultProject,
+      })
+      return
+    }
+    this.loadStorageClassType(defaultCluster)
   }
 
   showUpgradeVersionModal() {
@@ -450,7 +437,6 @@ class Header extends Component {
       type,
       hideDot,
       visible,
-      allUsers,
       collapseDefaultActiveKey,
     } = this.state
     const msaUrl = loginUser.msaConfig && loginUser.msaConfig.url
@@ -503,7 +489,6 @@ class Header extends Component {
                 </div>
                 <div className="spaceBtn">
                   <PopSelect
-                    allUsers={allUsers}
                     isSysAdmin={this.isSysAdmin}
                     Search={Search}
                     title={this.selectTeam}
@@ -670,7 +655,6 @@ export default injectIntl(connect(mapStateToProps, {
   setCurrent,
   loadLoginUserDetail,
   checkVersion,
-  loadUserList,
   ListProjects,
   getProjectVisibleClusters,
   getStorageClassType,

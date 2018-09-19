@@ -230,7 +230,8 @@ class CreateModal extends React.Component {
   }
   render(){
     const { selectedClusters, choosableClusters } = this.state;
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.form;
+    const { roleNum, form } = this.props
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form;
     const menuTop = (
       [
         selectedClusters && selectedClusters.length > 0 ? selectedClusters.map((item,index)=>{
@@ -268,13 +269,34 @@ class CreateModal extends React.Component {
         onCancel={this.onCancel}
         onClose={this.onCancel}
         title="创建项目"
-        okText="保存"
         width="550"
         maskClosable={false}
         confirmLoading={this.state.submitLoading}
-        >
+        footer={[
+          <Button key="back" type="ghost" size="large" onClick={this.onCancel}>
+          取 消
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            loading={this.state.submitLoading}
+            onClick={this.onOk}
+            disabled={roleNum !== 1 && roleNum !== 2}
+          >
+            保 存
+          </Button>,
+        ]}
+      >
         <Form>
           <div id="projectCreateStepOne">
+            {
+              (roleNum !== 1 && roleNum !== 2) &&
+              <div className="deleteRow">
+                <i className="fa fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+                当前帐号无创建项目权限，联系管理员进行授权后再进行操作！
+              </div>
+            }
             <div className="alertRow createTip">请填写项目名称、描述，并为该项目授权集群</div>
             <div className="projectCreateFirstForm">
               <Form.Item label="项目名称"

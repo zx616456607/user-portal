@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
-import Header from '../../components/Header'
+import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
@@ -39,6 +39,9 @@ import NotificationHandler from '../../common/notification_handler'
 import Xterm from '../../components/TerminalModal/Xterm'
 import IntlMessages from './Intl'
 import CommonIntlMessages from '../CommonIntl'
+import noProjectsImage from '../../assets/img/no-projects.png'
+import noClustersImage from '../../assets/img/no-clusters.png'
+import classNames from 'classnames'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -367,40 +370,76 @@ class App extends Component {
   getChildren() {
     const { children, errorMessage, loginUser, current, location } = this.props
     const { pathname } = location
-    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
+    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster, siderStyle } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
       )
     }
-    if (!errorMessage) {
-      if (!current.space.projectName) {
+    if (errorMessage) {
+      const { statusCode } = errorMessage.error
+      if (this.showErrorPage(errorMessage)) {
         return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
-          </div>
+          <ErrorPage code={statusCode} errorMessage={errorMessage} />
         )
       }
-      if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
-        return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
-          </div>
-        )
+    }
+    const loadingClass = classNames('loading', {
+      marginBigSider: siderStyle === 'bigger',
+      marginMiniSider: siderStyle === 'mini',
+    })
+    let showProject = false
+    SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
+      if (pathname.search(path) == 0) {
+        showProject = true
+        return false
       }
-      if (switchSpaceOrCluster) {
-        return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
-          </div>
-        )
-      }
+      return true
+    })
+    if (!showProject) {
       return children
     }
-    const { statusCode } = errorMessage.error
-    if (this.showErrorPage(errorMessage)) {
+    if (current.space.noProjectsFlag) {
       return (
-        <ErrorPage code={statusCode} errorMessage={errorMessage} />
+        <div className={loadingClass}>
+          <img src={noProjectsImage} alt="no-projects" />
+          <br />
+          帐号还未加入任何项目，请先
+          <Link to="/tenant_manage/project_manage">『创建项目』</Link>
+          或『联系管理员加入项目』
+        </div>
+      )
+    }
+    if (current.space.noClustersFlag) {
+      return (
+        <div className={loadingClass}>
+          <img src={noClustersImage} alt="no-clusters" />
+          <br />
+          项目暂无授权的集群，请先
+          <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>申请『授权集群』</Link>
+          或选择其他项目
+        </div>
+      )
+    }
+    if (!current.space.projectName) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
+        </div>
+      )
+    }
+    if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
+        </div>
+      )
+    }
+    if (switchSpaceOrCluster) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
+        </div>
       )
     }
     return children
