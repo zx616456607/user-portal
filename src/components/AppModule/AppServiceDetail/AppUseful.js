@@ -184,6 +184,12 @@ class AppUseful extends Component {
       notification.error(formatMessage(AppServiceDetailIntl.checkIntervalNoLessThanOne))
       return
     }
+    if (submitInfo.info.path) {
+      const reg = /^(\/)/
+      if (!reg.test(submitInfo.info.path)) {
+        return notification.error('路径必须以 / 开头')
+      }
+    }
     // if(this.state.checkType === 'http') {
     //   if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
     //     notification.error('信息填写不全')
@@ -340,7 +346,7 @@ class AppUseful extends Component {
                   <div style={{ clear: "both" }}></div>
                 </div>
                 <div className="title">
-                  <div className="httpcommonTitle">
+                  <div className="httpcommonTitle httpcommonTitleLarge">
                     <span>{formatMessage(AppServiceDetailIntl.Path)}</span>
                   </div>
                   <div className="httpcommonTitle">
@@ -363,7 +369,7 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   {/* <span style={{ float: "left", marginLeft: "10px" }}>/</span> */}
-                  <div className="commonInput">
+                  <div className="commonInput commonInputLarge">
                     <Input type="text" disabled={this.state.editFlag}
                       value={submitInfo.info.path}
                         // && submitInfo.info.path.length > 0
