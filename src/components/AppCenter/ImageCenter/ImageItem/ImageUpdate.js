@@ -469,7 +469,7 @@ class ImageUpdate extends Component {
     }]
     const currentTarget = []
     targets && targets.length && targets.forEach(item => {
-      if (item.endpoint === harbor) {
+      if (item.endpoint === values.URLAddress) {
         currentTarget.push({
           creation_time: item.creationTime,
           endpoint: item.endpoint,
