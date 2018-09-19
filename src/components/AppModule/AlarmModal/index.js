@@ -121,6 +121,10 @@ let FistStop = React.createClass({
   fistStopServer(rule, value, callback) {
     const { intl: { formatMessage } } = this.props
     if (!Boolean(value)) {
+      const { getFieldValue } = this.props.form
+      if (getFieldValue('type') == 'node') {
+        return callback()
+      }
       callback(new Error(formatMessage(intlMsg.plsSlcServer)));
       return
     }
@@ -142,13 +146,13 @@ let FistStop = React.createClass({
       if (!!error) {
         return
       }
-      const { getFieldValue } = form
+
       setParentState({
-        name: getFieldValue('name'),
-        type: getFieldValue('type'),
-        apply: getFieldValue('apply'),
-        server: getFieldValue('server'),
-        interval: getFieldValue('interval')
+        name: values.name,
+        type: values.type,
+        apply: values.apply,
+        server: values.server,
+        interval: values.interval
       })
       funcs.nextStep(2) // go step 2
     })
@@ -233,7 +237,7 @@ let FistStop = React.createClass({
     let applyProps
     let serverProps
     let repeatInterval
-    let isNode
+    let isNode = getFieldValue('type') == 'node'
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
@@ -249,7 +253,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: data.targetType == 1 && loginUser.info.role == ROLE_SYS_ADMIN ? 'node' : 'service'
       });
-      isNode = data.targetType
+      // isNode = data.targetType
       applyProps = getFieldProps('apply', {
         rules: [
           { whitespace: true },
@@ -261,7 +265,7 @@ let FistStop = React.createClass({
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer.bind(this) }
         ],
         initialValue: data.targetName
       });
@@ -311,11 +315,11 @@ let FistStop = React.createClass({
         // initialValue: initAppName
         initialValue: funcs.scope.props.nodeName? funcs.scope.props.nodeName : initAppName
       })
-      isNode = getFieldValue('type') == 'node'
+      // isNode = getFieldValue('type') == 'node'
       serverProps = getFieldProps('server', {
         rules: [
           { whitespace: true },
-          { validator: isNode ? '' : this.fistStopServer.bind(this) }
+          { validator: this.fistStopServer.bind(this) }
         ],
         initialValue: initService
       });

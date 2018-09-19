@@ -63,7 +63,7 @@ class ConfigFileContent extends React.Component {
       },
       success: {
         func: (res) => {
-          if(res.data && res.data.results){
+          if(res.data && res.data.results && res.data.results.length > 0){
             const projects = filter(res.data.results, { repoType: "gitlab" })
             this.setState({
               projects,
