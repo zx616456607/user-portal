@@ -2944,7 +2944,7 @@
   "ServiceConfig.secretConfigTooltip": "The encryption configuration will be used to mount the encrypted object to be encrypted to the specified directory. For example, if the mount directory is /db-token and the encryption object is user or passwd, the mount result is /db-token/user. /db-token/passwd",
   "ServiceConfig.secretFile": "Encrypted object",
   "ServiceConfig.listeningPortBeUsed": "Listening port has been used",
-  "ServiceConfig.setHostname": "Set hostname",
+  "ServiceConfig.setHostname": "Set HostName",
   "-------": "-------第三部分中文---------",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "Search by warehouse group name",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "Warehouse group name",
