@@ -39,7 +39,7 @@ class CreateItem extends Component {
     form.resetFields()
     func.scope.setState({createItem:false})
   }
-  projectNameExists(role, value, callback) {
+  projectNameExists = (role, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!Boolean(value)) {
       return callback(formatMessage(indexIntl.nameValidateMsg1))

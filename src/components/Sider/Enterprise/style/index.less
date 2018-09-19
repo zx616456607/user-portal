@@ -1,3 +1,7 @@
+@backColor9:#433d61;
+@activeColor9:#534d73;
+@shallowColor9:#302c47;
+
 @backColor8:#0aad89;
 @activeColor8:#39dba0;
 @shallowColor8:#22b494;
@@ -47,6 +51,9 @@
 .oemMenu-drek-1{
   background:#2b333d;
 }
+.oemMenu-drek-9{
+  background:@backColor9;
+}
 .oemMenu-drek-8{
   background:@backColor8;
 }
@@ -71,6 +78,10 @@
 .oemMenu-shallow-1{
   background: #333c47;
   color: #a4a8a9;
+}
+.oemMenu-shallow-9{
+  background: @shallowColor9;
+  color: rgba(255, 255, 255, 0.8);
 }
 .oemMenu-shallow-8{
   background: @shallowColor8;
@@ -108,7 +119,8 @@
 #sider.oemMenu-drek-5,
 #sider.oemMenu-drek-6,
 #sider.oemMenu-drek-7,
-#sider.oemMenu-drek-8
+#sider.oemMenu-drek-8,
+#sider.oemMenu-drek-9
 {
   position: inherit;
   width: 60px;
@@ -144,10 +156,7 @@
         color: #fff;
       }
     }
-    //被选中态
-    .selectedLi {
-      border-right: 3px solid #00afdd;
-    }
+
   }
   //a标签通用样式
   a {
@@ -661,7 +670,48 @@
     }
   }
 }
-#sider.oemMenu-drek-6,#sider.oemMenu-drek-7,#sider.oemMenu-drek-8 {
+#sider.oemMenu-drek-9 {
+  .miniSider {
+    li:hover {
+      background-color: @shallowColor9;
+    }
+    //被选中态
+    .selectedLi {
+      background-color: @activeColor9;
+    }
+    .selectedLi:hover {
+      background-color: @shallowColor9;
+    }
+  }
+  //a标签通用样式
+  .toolTip {
+    background-color: @backColor9;
+  }
+  //顶部栏样式
+  .siderTop {
+    .logo {
+      background-color: @shallowColor9;
+    }
+  }
+  .ant-badge-dot {
+    background: @activeColor9;
+  }
+  .siderBigger {
+    .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+      background-color: @shallowColor9;
+    }
+    .ant-menu-item-selected {
+      background: @activeColor9;
+    }
+    .logBox {
+      background-color: @shallowColor9;
+    }
+  }
+}
+#sider.oemMenu-drek-6,
+#sider.oemMenu-drek-7,
+#sider.oemMenu-drek-8,
+#sider.oemMenu-drek-9 {
   .siderBigger {
     .ant-menu-item a{
       color: hsla(0, 0%, 100%, 0.8);

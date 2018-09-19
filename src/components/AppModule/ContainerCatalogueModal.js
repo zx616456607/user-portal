@@ -329,6 +329,7 @@ let ContainerCatalogueModal = React.createClass({
         wrapperCol={{ span: 17 }}
       >
         <Input
+          addonBefore={this.state.hostDir}
           placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
             item: intl.formatMessage(IntlMessage.hostDirectory),
             end: '',
@@ -839,7 +840,6 @@ let ContainerCatalogueModal = React.createClass({
               {...formItemLayout}
             >
               <Input
-                addonBefore={this.state.hostDir}
                 placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
                   item: intl.formatMessage(IntlMessage.containerDirectory),
                   end: '',
