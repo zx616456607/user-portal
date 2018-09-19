@@ -371,7 +371,7 @@ class AppUseful extends Component {
                         // : submitInfo.info.path}
                       onChange={(e) => this.getInputInfo('path', e)} />
                   </div>
-                  <div className="commonInput" style={{ padding: 0 }}>
+                  <div className="commonInput">
                     <InputNumber type="text"
                       disabled={this.state.editFlag}
                       value={submitInfo.successThreshold}
@@ -380,7 +380,7 @@ class AppUseful extends Component {
                     />
                     &nbsp;&nbsp;次成功
                   </div>
-                  <div className="commonInput" style={{ padding: 0 }}>
+                  <div className="commonInput">
                     <InputNumber type="text"
                       disabled={this.state.editFlag}
                       value={submitInfo.failureThreshold}
