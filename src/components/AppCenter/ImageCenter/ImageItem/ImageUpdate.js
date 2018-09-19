@@ -1824,7 +1824,7 @@ class ImageUpdate extends Component {
                         })
                       }
                     >
-                      立即复制镜像
+                      立即同步镜像
                     </Checkbox>
                   </Form.Item>
                 </Col>
