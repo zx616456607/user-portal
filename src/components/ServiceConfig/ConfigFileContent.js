@@ -87,14 +87,17 @@ class ConfigFileContent extends React.Component {
       readOnly,
     })
     let configDesc = ""
+    let data = ''
     if (!readOnly) {
       configDesc = tempConfigDesc
+      data = tempConfigDesc
     } else {
       this.loadGitProjects(getFieldValue("projectId"))
     }
     const values = {
       configDesc,
       method,
+      data,
     }
     // if(readOnly) values.name = ""
     setFieldsValue(values)

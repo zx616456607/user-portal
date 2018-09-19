@@ -34,7 +34,7 @@ function AppClusterList(state = {}, action) {
     case ActionTypes.APP_CLUSTER_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        data: action.response.result.result.data,
+        data: action.response.result.result && action.response.result.result.data,
       });
     case ActionTypes.APP_CLUSTER_LIST_FAILURE:
       return Object.assign({}, state, {
