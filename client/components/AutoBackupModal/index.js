@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Row, Col, Switch, InputNumber, Icon } from 'antd'
+import { Modal, Row, Col, Switch, InputNumber, Icon, Button } from 'antd'
 import BackupStrategy from '../../containers/DatabaseCache/BackupStrategy'
 import NotificationHandler from '../../../src/components/Notification'
 import { connect } from 'react-redux'
@@ -47,17 +47,16 @@ class AutoBackupModal extends React.Component {
               })
               return
             }
-
           } else if (database === 'mysql') {
             if (res.data.schedule !== '') {
               const schedule = res.data.schedule.split(' ')
               const { days } = this.state
-              const scheduleDays = schedule[4].split(',')
+              const scheduleDays = schedule[5].split(',')
               this.differentiation(days, scheduleDays)
               const newDays = days.splice(0)
               this.setState({
-                minutes: schedule[0],
-                hour: schedule[1],
+                minutes: schedule[1],
+                hour: schedule[2],
                 days: newDays,
                 daysConvert: newDays,
               })
@@ -212,10 +211,12 @@ class AutoBackupModal extends React.Component {
     return <Modal
       visible={isShow}
       title={database === 'redis' ? '设置自动全量备份' : '设置自动差异备份（基于当前链）'}
-      onOk={this.handleAutoBackupOk}
       confirmLoading={this.state.pending}
-      onCancel={() => closeModal()}
       width={650}
+      footer={[
+        <Button onClick={() => closeModal()}>取消</Button>,
+        <Button onClick={this.handleAutoBackupOk} disabled={this.state.days.findIndex(v => !!v) < 0 } type="primary">确定</Button>,
+      ]}
     >
       <div className="dbClusterBackup-autoContent">
         <Row className="item">
@@ -247,6 +248,9 @@ class AutoBackupModal extends React.Component {
               <Col span={19} push={1}>
                 <BackupStrategy
                   disabled={notYet} weeksSelected={this.state.days} setPeriod={this.selectPeriod}/>
+                {
+                  this.state.days.findIndex(v => !!v) < 0 && <div className="alert-text" style={{ color: '#F85A5A', marginTop: 8, fontSize: 12 }}>请选择备份周期</div>
+                }
               </Col>
             </Row>
             <Row className="item">
