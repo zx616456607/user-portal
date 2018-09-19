@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence, dispatchCreateConfig } from "../../actions/configs"
+import { checkConfigNameExistence, dispatchCreateConfig, getGitFileContent } from "../../actions/configs"
 // import { createSecretsConfig } from '../../actions/secrets_devops'
 import { createSecret } from '../../actions/secrets'
 
@@ -84,15 +84,16 @@ let CreateConfigFileModal = React.createClass({
       this.setState({
         filePath: '请上传文件或直接输入内容'
       })
-      callback([new Error('内容不能为空，请重新输入内容')])
-      return
+      // 跟产品确认了下，配置文件内容可以为空
+      // callback([new Error('内容不能为空，请重新输入内容')])
+      // return
     }
     callback()
   },
 
-  createConfigFile(group) {
+  async createConfigFile(group) {
     const { createConfig, scope: parentScope, createSecret,
-      activeGroupName, dispatchCreateConfig } = this.props
+      activeGroupName, dispatchCreateConfig, getGitFileContent } = this.props
     const { method } = this.state
     let arr = [ 'name', 'data' ]
     if (method === 1) {
@@ -100,17 +101,34 @@ let CreateConfigFileModal = React.createClass({
     } else if (method === 2) {
       arr = [ 'defaultBranch', 'projectId', 'projectName', 'filePath', 'enable' ].concat(arr)
     }
-    this.props.form.validateFields(arr, (errors, values) => {
+    this.props.form.validateFields(arr,async (errors, values) => {
       if (!!errors) {
         return
       }
+      let notification = new NotificationHandler()
       const tempValues = cloneDeep(values)
       if (tempValues.enable === true) {
         tempValues.enable = 1
       } else {
         tempValues.enable = 0
       }
-
+      if (method === 2) {
+        const query = {
+          project_id: tempValues.projectId,
+          branch_name: tempValues.defaultBranch,
+          path_name: tempValues.filePath,
+        }
+        const result = await getGitFileContent(query, {
+          failed: {
+            func: () => {
+              notification.warn("导入失败, 请检查目录结构")
+            },
+          },
+        })
+        if (result.error) {
+          return
+        }
+      }
       const { type, cluster, addKeyIntoSecret } = this.props
       let configfile = {
         group,
@@ -135,7 +153,6 @@ let CreateConfigFileModal = React.createClass({
 
       let self = this
       // const {parentScope} = this.props
-      let notification = new NotificationHandler()
       if (type === 'secrets') {
         return addKeyIntoSecret(secret_body)
       }
@@ -280,5 +297,6 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, dispatchCreateConfig, createSecret
+  checkConfigNameExistence, dispatchCreateConfig, createSecret,
+  getGitFileContent
 })(CreateConfigFileModal)
