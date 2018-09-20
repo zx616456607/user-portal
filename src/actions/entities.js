@@ -20,24 +20,15 @@ export const SET_CURRENT = 'SET_CURRENT'
 function _setCurrent(current, callback, _current) {
   current = Object.assign({}, cloneDeep(_current), current)
   const config = getCookie(USER_CURRENT_CONFIG) || ''
-  let [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
-  if (current.team) {
-    teamID = current.team.teamID
-  }
+  let [ username, namespace, clusterID ] = config.split(',')
   if (current.space) {
     namespace = current.space.namespace
   }
   if (current.cluster) {
-    clusterID = current.cluster.clusterID
-  }
-  if (current.space && current.space.userName) {
-    namespace = current.space.userName
-    onbehalfuser = 'onbehalfuser'
-  } else {
-    onbehalfuser = 'default'
+    clusterID = current.cluster.clusterID || ''
   }
   if (namespace) {
-    const currentConfig = `${teamID},${namespace},${clusterID},${onbehalfuser}`
+    const currentConfig = `${username},${namespace},${clusterID}`
     setCookie(USER_CURRENT_CONFIG, currentConfig)
   }
   return {

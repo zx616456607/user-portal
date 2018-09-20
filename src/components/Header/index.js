@@ -26,7 +26,7 @@ import {
   USER_CURRENT_CONFIG, ROLE_SYS_ADMIN,ROLE_PLATFORM_ADMIN, INTL_COOKIE_NAME,
 } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE, API_URL_PREFIX } from '../../constants'
-import { browserHistory, Link } from 'react-router'
+import { Link } from 'react-router'
 import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
@@ -201,9 +201,9 @@ class Header extends Component {
     const { getProjectVisibleClusters, setCurrent, current, showCluster } = this.props
     let notification = new NotificationHandler()
     // sys admin select the user list
-    if (project.userName) {
+    /* if (project.userName) {
       project.projectName = 'default'
-    }
+    } */
     this.setState({
       spacesVisible: false,
       clustersVisible: true,
@@ -222,7 +222,7 @@ class Header extends Component {
             return cluster
           })
           if (!clusters || clusters.length < 1) {
-            const msg = formatMessage(IntlMessages.emptyClustersTip, {
+            /* const msg = formatMessage(IntlMessages.emptyClustersTip, {
               project: this.team,
               projectName: project.projectName,
               cluster: this.zone,
@@ -230,6 +230,16 @@ class Header extends Component {
             notification.warn(msg)
             this.setState({
               spacesVisible: true,
+              clustersVisible: false,
+            }) */
+            notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
+            project.noClustersFlag = true
+            setCurrent({
+              space: project,
+              cluster: {},
+            })
+            this.setState({
+              spacesVisible: false,
               clustersVisible: false,
             })
             return
@@ -299,12 +309,7 @@ class Header extends Component {
       getProjectVisibleClusters,
     } = this.props
     const config = getCookie(USER_CURRENT_CONFIG) || ''
-    const [ teamID, namespace, clusterID, onbehalfuser ] = config.split(',')
-    // setCurrent({
-    //   team: { teamID },
-    //   space: { namespace },
-    //   cluster: { clusterID },
-    // })
+    const [ username, namespace, clusterID ] = config.split(',')
     const projectsRes = await loadProjects(this.props, { failed: {} }) || {}
     if (projectsRes.error) {
       notification.warn('加载项目失败')
@@ -319,7 +324,7 @@ class Header extends Component {
     })
     if (!defaultProject) {
       notification.warn('帐号还未加入任何项目，请先『创建项目』或『联系管理员加入项目』')
-      browserHistory.push('/tenant_manage/project_manage')
+      // browserHistory.push('/tenant_manage/project_manage')
       setCurrent({
         space: { noProjectsFlag: true },
       })
@@ -342,7 +347,7 @@ class Header extends Component {
     })
     if (!defaultCluster) {
       notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
-      browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
+      // browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
       defaultProject.noClustersFlag = true
       setCurrent({
         space: defaultProject,

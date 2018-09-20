@@ -290,8 +290,6 @@ if (process.env.RUNNING_MODE === 'standard') {
 // ~ No authentication required
 const noAuthRoutes = require('./routes/no_auth')
 app.use(noAuthRoutes(Router))
-// For set user current config
-app.use(middlewares.setUserCurrentConfig)
 const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')

@@ -1,5 +1,6 @@
 .PopSelectContent {
   min-width: 204px;
+  max-width: 400px;
   .ant-collapse-content > .ant-collapse-content-box {
     padding-top: 0;
   }
@@ -27,6 +28,9 @@
       height: 32px;
       line-height: 32px;
       padding: 0 16px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
       &:hover {
         background-color: #effdfe;
         color: #37afee;
