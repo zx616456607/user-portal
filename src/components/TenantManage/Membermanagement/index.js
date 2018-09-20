@@ -512,8 +512,16 @@ let MemberTable = React.createClass({
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
-        render: (text, record, index) => (
-          <div className="action">
+        render: (text, record, index) => {
+          let disabled = false
+          console.log(record);
+          const loginRole = loginUser.role
+          const memberRole = record.role
+          if(loginRole === ROLE_PLATFORM_ADMIN || loginRole === ROLE_BASE_ADMIN) {
+            if (memberRole !== ROLE_USER) disabled = true
+          }
+          if(record.namespace === loginUser.namespace) disabled = true
+          return <div className="action">
             <Dropdown.Button
               onClick={() => {
                 if (!billingEnabled) {
@@ -527,9 +535,7 @@ let MemberTable = React.createClass({
                   onClick={this.handleMenuClick.bind(this, record)}
                   style={{ width: '80px' }}
                 >
-                  <Menu.Item key="active"
-                    disabled={record.namespace === loginUser.namespace}
-                  >
+                  <Menu.Item key="active" disabled={disabled}>
                     {record.active === ACTIVE ? '停用' : '启用'}
                   </Menu.Item>
 
@@ -546,7 +552,8 @@ let MemberTable = React.createClass({
               { billingEnabled ? '充值' : '查看' }
             </Dropdown.Button>
           </div>
-        ),
+
+        }
       })
     }
     if (!billingEnabled) {
