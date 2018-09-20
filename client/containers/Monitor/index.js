@@ -61,10 +61,11 @@ class Monitor extends React.Component {
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
-    let redirect = '/cluster/monitor'
+    let redirect = locationQuery.redirect
     let title = '系统服务监控'
     delete locationQuery.redirect
     if (!redirect) {
+      redirect = '/cluster/monitor'
       if (pathname === '/cluster/backup') {
         redirect = '/backup'
         title = '平台数据备份'
