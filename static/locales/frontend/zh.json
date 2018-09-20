@@ -2074,7 +2074,7 @@
   "AppModule.ServiceList.changeConfig": "更改配置",
   "AppModule.ServiceList.changeSet": "变更设置",
   "AppModule.ServiceList.changeEnv": "修改环境变量",
-  "AppModule.ServiceList.changePort": "修改环境变量",
+  "AppModule.ServiceList.changePort": "修改端口",
   "AppModule.ServiceList.HightAvailable": "设置高可用",
   "AppModule.ServiceList.bundDomin": "绑定域名",
   "AppModule.ServiceList.setHTTPS": "设置HTTPS",
