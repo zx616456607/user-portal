@@ -24,7 +24,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import TenxIcon from '@tenx-ui/icon'
 import codeRepoIntl from './intl/codeRepoIntl'
 import { injectIntl } from 'react-intl'
-import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants/index'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../../constants/index'
 
 const notification = new NotificationHandler()
 
