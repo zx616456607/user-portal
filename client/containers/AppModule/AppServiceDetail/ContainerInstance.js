@@ -180,6 +180,7 @@ class ContainerInstance extends React.Component {
       const serviceName = Object.keys(serviceDetail[cluster])[0]
       const res = await loadAutoScale(cluster, serviceName)
       const status = res.response.result.data
+        && res.response.result.data.metadata
         && res.response.result.data.metadata.annotations.status === 'RUN'
         || false
       if (status) {
