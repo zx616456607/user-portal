@@ -21,6 +21,7 @@ import { validateK8sResource } from '../../common/naming_validation'
 import CreateConfigFileModal from './CreateConfigFileModal'
 import filter from 'lodash/filter'
 import serviceIntl from './intl/serviceIntl'
+import indexIntl from './intl/indexIntl'
 
 const ButtonGroup = Button.Group
 
@@ -110,7 +111,7 @@ class CollapseHeader extends Component {
     const realConfigNameList = currConfigMap ? currConfigMap.configs : []
 
     const menu = <Menu onClick={this.menuClick.bind(this)} mode="vertical">
-        <Menu.Item key="1"><Icon type="delete" /> {formatMessage(serviceIntl.deleteConfigGroup)}</Menu.Item>
+        <Menu.Item key="1"><Icon type="delete" /> {formatMessage(indexIntl.deleteGroup)}</Menu.Item>
         <Menu.Item key="2"><i className="fa fa-pencil-square-o fa-lg" aria-hidden="true" /> {formatMessage(serviceIntl.editConfigGroupClass)}</Menu.Item>
       </Menu>
     return <Row>
@@ -126,7 +127,7 @@ class CollapseHeader extends Component {
           {formatMessage(serviceIntl.configFileWithCount, { count: sizeNumber })}
         </Col>
         <Col span="6">
-          {formatMessage(serviceIntl.createTime)}  {calcuDate(collapseHeader.creationTimestamp)}
+          {formatMessage(indexIntl.createTime)}  {calcuDate(collapseHeader.creationTimestamp)}
         </Col>
         <Col span="6">
           <ButtonGroup onClick={e => this.handleDropdown(e)}>

@@ -12,11 +12,13 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import NotificationHandler from '../../components/Notification'
 import ConfigFileContent from './ConfigFileContent'
 import { getConfig, updateConfig, dispatchUpdateConfig } from '../../actions/configs'
 import { getSecretsConfig } from '../../actions/secrets_devops'
+import indexIntl from './intl/indexIntl'
 
 import  cloneDeep from 'lodash/cloneDeep'
 
@@ -26,7 +28,7 @@ const createForm = Form.create
 let UpdateConfigFileModal = React.createClass({
   getInitialState() {
     return {
-      filePath: '请上传文件或直接输入内容',
+      filePath: this.props.intl.formatMessage(indexIntl.filePathHint1),
       tempConfigDesc: '',
       method: this.props.defaultData && JSON.stringify(this.props.defaultData) !== "{}"
       && this.props.defaultData.projectId !== "" ? 2 : 1,
@@ -46,7 +48,8 @@ let UpdateConfigFileModal = React.createClass({
   editConfigFile(group) {
     let notification = new NotificationHandler()
     const parentScope = this.props.scope
-    const { dispatchUpdateConfig } = this.props
+    const { dispatchUpdateConfig, intl } = this.props
+    const { formatMessage } = intl
     const _this = this
     const { method } = this.state
     let arr = [ 'name', 'data' ]
@@ -102,10 +105,10 @@ let UpdateConfigFileModal = React.createClass({
               defaultData: {},
             })
             _this.setState({
-              filePath: "请上传文件或直接输入内容"
+              filePath: formatMessage(indexIntl.filePathHint1)
             })
             setTimeout(() => _this.props.form.resetFields())
-            notification.success('修改配置文件成功')
+            notification.success(formatMessage(indexIntl.updateConfigSucc))
           },
           isAsync: true
         }
@@ -113,29 +116,32 @@ let UpdateConfigFileModal = React.createClass({
     })
   },
   configDescExists(rule, value, callback) {
-    const form = this.props.form;
+    const { intl, form } = this.props
+    const { formatMessage } = intl
     if (!value) {
       this.setState({
-        filePath: '请上传文件或直接输入内容'
+        filePath: formatMessage(indexIntl.filePathHint1)
       })
-      callback([new Error('内容不能为空，请重新输入内容')])
+      callback([new Error(formatMessage(indexIntl.checkConfigDescErrorMsg))])
       return
     }
     callback()
   },
   closeModal() {
     const parentScope = this.props.scope
+    const formatMessage = this.props.intl.formatMessage
     this.props.form.resetFields()
     parentScope.setState({modalConfigFile:false, updateConfigFileModalVisible: false, defaultData: {}})
     this.setState({
-      filePath: '请上传文件或直接输入内容'
+      filePath: formatMessage(indexIntl.filePathHint1)
     })
   },
   getMethod(method) {
     this.setState({ method }) // , nameDisabled: method === 2 })
   },
   render() {
-    const { type, form, scope, defaultData, modalConfigFile } = this.props
+    const { type, form, scope, defaultData, modalConfigFile, intl } = this.props
+    const { formatMessage } = intl
     const { getFieldProps } = form
     const { filePath, tempConfigDesc, method, nameDisabled } = this.state
     const parentScope = scope
@@ -151,7 +157,7 @@ let UpdateConfigFileModal = React.createClass({
     });
     return(
       <Modal
-        title={`修改${type === 'secrets' ? '加密对象': '配置文件'}`}
+        title={formatMessage(indexIntl.update) + (type === 'secrets' ? formatMessage(indexIntl.serectObj): formatMessage(indexIntl.configFile))}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
         visible={modalConfigFile}
@@ -164,17 +170,17 @@ let UpdateConfigFileModal = React.createClass({
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
             {
               type === 'secrets'
-              ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
-              : '即将保存一个配置文件，您可以在创建应用 → 添加服务时，关联使用该配置'
+              ? formatMessage(indexIntl.secretAlert)
+              : formatMessage(indexIntl.serviceAlert)
             }
           </div>
           <Form horizontal>
-            <FormItem  {...formItemLayout} label="名称">
+            <FormItem  {...formItemLayout} label={formatMessage(indexIntl.configName)}>
               <Input
                 disabled={nameDisabled}
                 className="configName" type="text" disabled {...nameProps}/>
             </FormItem>
-            <FormItem {...formItemLayout} label="内容">
+            <FormItem {...formItemLayout} label={formatMessage(indexIntl.configDesc)}>
               <ConfigFileContent
                 isUpdate={true}
                 getMethod={this.getMethod}
@@ -205,5 +211,7 @@ export default connect(mapStateToProps,{
   getSecretsConfig,
   updateConfig,
   dispatchUpdateConfig,
-})(UpdateConfigFileModal)
+})(injectIntl(UpdateConfigFileModal, {
+  withRef: true,
+}))
 

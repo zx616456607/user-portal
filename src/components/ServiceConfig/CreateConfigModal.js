@@ -9,6 +9,7 @@ import NotificationHandler from '../../components/Notification'
 import { setConfigMapLabel } from '../../actions/configs'
 import filter from 'lodash/filter'
 import serviceIntl from './intl/serviceIntl'
+import indexIntl from './intl/indexIntl'
 const createForm = Form.create
 const FormItem = Form.Item
 const Option = Select.Option
@@ -65,7 +66,7 @@ let CreateConfigModal = React.createClass({
                   errorText = formatMessage(serviceIntl.defaultErrorMessage)
               }
               Modal.error({
-                title: formatMessage(serviceIntl.createConfigGroup),
+                title: formatMessage(indexIntl.createGroup),
                 content: <h3>{errorText}</h3>
               })
             }
@@ -117,23 +118,23 @@ let CreateConfigModal = React.createClass({
       return callback()
     }
     if (!value) {
-      callback([new Error(formatMessage(serviceIntl.checkConfigNameErrorMsg01))])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg01))])
       return
     }
     if (value.length < 3 || value.length > 63) {
-      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg02))
+      callback(formatMessage(indexIntl.checkNameErrorMsg02))
       return
     }
     if (!/^[a-z]/.test(value)) {
-      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg03))
+      callback(formatMessage(indexIntl.checkNameErrorMsg03))
       return
     }
     if (!/[a-z0-9]$/.test(value)) {
-      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg04))
+      callback(formatMessage(indexIntl.checkNameErrorMsg04))
       return
     }
     if (!validateK8sResource(value)) {
-      callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg05))
+      callback(formatMessage(indexIntl.checkNameErrorMsg05))
       return
     }
     clearTimeout(this.configNameTimeout)
@@ -142,7 +143,7 @@ let CreateConfigModal = React.createClass({
         success: {
           func: res => {
             if (res.data.existence) {
-              callback(formatMessage(serviceIntl.checkConfigGroupNameErrorMsg06))
+              callback(formatMessage(indexIntl.checkNameErrorMsg06))
             } else {
               callback()
             }
@@ -194,7 +195,7 @@ let CreateConfigModal = React.createClass({
     labelWithCount.length > 0 && labelWithCount.forEach(item => {
       children.push(<Option key={item.labelName}>{item.labelName}</Option>)
     })
-    return <Modal title={groupEdit ? formatMessage(serviceIntl.editConfigGroupClass) : formatMessage(serviceIntl.createConfigGroup)} wrapClassName="server-create-modal" maskClosable={false} visible={visible} onOk={() => this.btnCreateConfigGroup()} onCancel={() => this.handCancel(parentScope)}>
+    return <Modal title={groupEdit ? formatMessage(serviceIntl.editConfigGroupClass) : formatMessage(indexIntl.createGroup)} wrapClassName="server-create-modal" maskClosable={false} visible={visible} onOk={() => this.btnCreateConfigGroup()} onCancel={() => this.handCancel(parentScope)}>
         <Form horizontal>
           <Row style={{ paddingTop: '10px' }}>
             <Col span="19">
@@ -203,7 +204,7 @@ let CreateConfigModal = React.createClass({
                   {children}
                 </Select>
               </FormItem>
-              <FormItem {...formItemLayout} label={formatMessage(serviceIntl.configName)} hasFeedback={!!getFieldValue('newConfigName')} help={isFieldValidating('newConfigName') ? formatMessage(serviceIntl.checkouting) : (getFieldError('newConfigName') || []).join(', ')}>
+              <FormItem {...formItemLayout} label={formatMessage(indexIntl.configGroupName)} hasFeedback={!!getFieldValue('newConfigName')} help={isFieldValidating('newConfigName') ? formatMessage(serviceIntl.checkouting) : (getFieldError('newConfigName') || []).join(', ')}>
                 <Input {...nameProps} disabled={groupEdit} type="text" id="newConfigName" onPressEnter={() => this.btnCreateConfigGroup()} />
               </FormItem>
             </Col>

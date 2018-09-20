@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence, dispatchCreateConfig } from "../../actions/configs"
+import { checkConfigNameExistence, dispatchCreateConfig, getGitFileContent } from "../../actions/configs"
 // import { createSecretsConfig } from '../../actions/secrets_devops'
 import { createSecret } from '../../actions/secrets'
 import indexIntl from './intl/indexIntl.js'
@@ -39,6 +39,7 @@ let CreateConfigFileModal = React.createClass({
                   <div>{this.props.intl.formatMessage(indexIntl.filePathHint2)}</div>
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
+      tempConfigName: '', // 缓存 name
       method: 1,
       nameDisabled: false,
     }
@@ -54,19 +55,19 @@ let CreateConfigFileModal = React.createClass({
       configNameList, form} = this.props
     const _that = this
     if (!value) {
-      callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg1))])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg01))])
       return
     }
     if(value.length < 3 || value.length > 63) {
-      callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg2))])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg02))])
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg3))])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg03))])
       return
     }
     if (!validateServiceConfigFile(value)) {
-      callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg4))])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg04))])
       return
     }
     clearTimeout(this.checkNameTimer)
@@ -90,15 +91,16 @@ let CreateConfigFileModal = React.createClass({
       this.setState({
         filePath: formatMessage(indexIntl.filePathHint1)
       })
-      callback([new Error(formatMessage(indexIntl.checkConfigDescErrorMsg))])
-      return
+      // 跟产品确认了下，配置文件内容可以为空
+      // callback([new Error('内容不能为空，请重新输入内容')])
+      // return
     }
     callback()
   },
 
-  createConfigFile(group) {
+  async createConfigFile(group) {
     const { createConfig, scope: parentScope, createSecret,
-      activeGroupName, dispatchCreateConfig, intl } = this.props
+      activeGroupName, dispatchCreateConfig, intl, getGitFileContent } = this.props
     const { formatMessage } = intl
     const { method } = this.state
     let arr = [ 'name', 'data' ]
@@ -107,17 +109,34 @@ let CreateConfigFileModal = React.createClass({
     } else if (method === 2) {
       arr = [ 'defaultBranch', 'projectId', 'projectName', 'filePath', 'enable' ].concat(arr)
     }
-    this.props.form.validateFields(arr, (errors, values) => {
+    this.props.form.validateFields(arr,async (errors, values) => {
       if (!!errors) {
         return
       }
+      let notification = new NotificationHandler()
       const tempValues = cloneDeep(values)
       if (tempValues.enable === true) {
         tempValues.enable = 1
       } else {
         tempValues.enable = 0
       }
-
+      if (method === 2) {
+        const query = {
+          project_id: tempValues.projectId,
+          branch_name: tempValues.defaultBranch,
+          path_name: tempValues.filePath,
+        }
+        const result = await getGitFileContent(query, {
+          failed: {
+            func: () => {
+              notification.warn(formatMessage(indexIntl.importFileFailed))
+            },
+          },
+        })
+        if (result.error) {
+          return
+        }
+      }
       const { type, cluster, addKeyIntoSecret } = this.props
       let configfile = {
         group,
@@ -142,7 +161,6 @@ let CreateConfigFileModal = React.createClass({
 
       let self = this
       // const {parentScope} = this.props
-      let notification = new NotificationHandler()
       if (type === 'secrets') {
         return addKeyIntoSecret(secret_body)
       }
@@ -187,6 +205,7 @@ let CreateConfigFileModal = React.createClass({
   },
   cancelModal(e) {
     const parentScope = this.props.scope
+    const { formatMessage } = this.props.intl
     this.setState({
       filePath: formatMessage(indexIntl.filePathHint1)
     })
@@ -204,7 +223,7 @@ let CreateConfigFileModal = React.createClass({
   render() {
     const { type, form, configNameList, scope: parentScope } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
-    const { filePath, tempConfigDesc, nameDisabled } = this.state
+    const { filePath, tempConfigDesc, nameDisabled, tempConfigName } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -220,6 +239,7 @@ let CreateConfigFileModal = React.createClass({
       rules: [
         { validator: this.configNameExists },
       ],
+      onChange: e => this.setState({ tempConfigName: e.target.value })
     });
     const descProps = getFieldProps('data', {
       rules: [
@@ -229,7 +249,7 @@ let CreateConfigFileModal = React.createClass({
     });
     return(
       <Modal
-        title={formatMessage(indexIntl.createConfigModalTitle, { name: type === 'secrets' ? '加密对象': '配置文件'})}
+        title={formatMessage(indexIntl.createConfigModalTitle) + (type === 'secrets' ? formatMessage(indexIntl.serectObj): formatMessage(indexIntl.configFile))}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
         visible={this.props.visible}
@@ -269,6 +289,7 @@ let CreateConfigFileModal = React.createClass({
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
+                tempConfigName={tempConfigName}
                 descProps={descProps} />
             </FormItem>
           </Form>
@@ -287,7 +308,7 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, dispatchCreateConfig, createSecret
+  checkConfigNameExistence, dispatchCreateConfig, createSecret, getGitFileContent
 })(injectIntl(CreateConfigFileModal, {
   withRef: true,
 }))

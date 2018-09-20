@@ -13,30 +13,33 @@
 import React from 'react'
 import { Button, Form, Input, Row, Col, Modal, Select } from 'antd'
 import { validateK8sResource } from '../../../common/naming_validation'
+import { injectIntl } from 'react-intl'
+import indexIntl from '../intl/indexIntl.js'
 
 const createForm = Form.create
 const FormItem = Form.Item
 
 class CreateServiceGroupModal extends React.Component {
   validateGroupName = (rule, value, callback) => {
+    const { formatMessage } = this.props.intl
     if (!value) {
-      callback([new Error('请输入配置组名称')])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg01))])
       return
     }
     if(value.length < 3 || value.length > 63) {
-      callback('名称长度为 3-63 个字符')
+      callback(formatMessage(indexIntl.checkNameErrorMsg02))
       return
     }
     if(!/^[a-z]/.test(value)){
-      callback('名称须以小写字母开头')
+      callback(formatMessage(indexIntl.checkNameErrorMsg03))
       return
     }
     if (!/[a-z0-9]$/.test(value)) {
-      callback('名称须以小写字母或数字结尾')
+      callback(formatMessage(indexIntl.checkNameErrorMsg04))
       return
     }
     if (!validateK8sResource(value)) {
-      callback('由小写字母、数字和连字符（-）组成')
+      callback(formatMessage(indexIntl.checkNameErrorMsg05))
       return
     }
     callback()
@@ -54,7 +57,8 @@ class CreateServiceGroupModal extends React.Component {
   }
 
   render() {
-    const { visible, form, onCancel, confirmLoading } = this.props
+    const { visible, form, onCancel, confirmLoading, intl } = this.props
+    const { formatMessage } = intl
     const { getFieldProps } = form
     const formItemLayout = {
       labelCol: { span: 6 },
@@ -68,7 +72,7 @@ class CreateServiceGroupModal extends React.Component {
     return (
       <Modal
         visible={visible}
-        title="创建配置组"
+        title={formatMessage(indexIntl.createGroup)}
         wrapClassName="server-create-modal"
         maskClosable={false}
         onOk={this.handleSubmit}
@@ -82,7 +86,7 @@ class CreateServiceGroupModal extends React.Component {
               <Col span="19">
                 <FormItem
                   {...formItemLayout}
-                  label="配置组名称"
+                  label={formatMessage(indexIntl.configGroupName)}
                   >
                   <Input
                     {...nameProps}
@@ -97,5 +101,7 @@ class CreateServiceGroupModal extends React.Component {
     )
   }
 }
-
+CreateServiceGroupModal = injectIntl(CreateServiceGroupModal, {
+  withRef: true,
+})
 export default createForm()(CreateServiceGroupModal)

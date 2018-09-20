@@ -12,12 +12,14 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import { Upload, Button, Icon, Radio, Select, Row, Col, Input, Form, Checkbox } from 'antd'
 import Editor from '../../../client/components/EditorModule/index'
 import './style/ConfigFileContent.less'
 import { getProjectList } from "../../actions/cicd_flow"
 import { getProjectBranches, getGitFileContent } from "../../actions/configs"
 import filter from 'lodash/filter'
+import indexIntl from './intl/indexIntl'
 
 import NotificationHandler from '../../components/Notification'
 const notify = new NotificationHandler()
@@ -81,20 +83,26 @@ class ConfigFileContent extends React.Component {
   onRadioChange = (e) => {
     const method = e.target.value
     const readOnly = method === 2
-    const { tempConfigDesc, form, getMethod } = this.props
+    const { tempConfigDesc, form, getMethod, tempConfigName } = this.props
     const { setFieldsValue, getFieldValue } = form
     this.setState({
       readOnly,
     })
     let configDesc = ""
+    let data = ''
+    let name = ''
     if (!readOnly) {
       configDesc = tempConfigDesc
+      data = tempConfigDesc
+      name = tempConfigName
     } else {
       this.loadGitProjects(getFieldValue("projectId"))
     }
     const values = {
       configDesc,
       method,
+      data,
+      name,
     }
     // if(readOnly) values.name = ""
     setFieldsValue(values)
@@ -139,7 +147,7 @@ class ConfigFileContent extends React.Component {
           },
           failed: {
             func: err => {
-              notify.warn("导入失败, 请检查目录结构")
+              notify.warn(this.props.intl.formatMessage(indexIntl.importFileFailed))
               this.setState({
                 fetchStatus: false,
               })
@@ -157,33 +165,35 @@ class ConfigFileContent extends React.Component {
     })
   }
   beforeUpload = (file) => {
+    const { intl } = this.props
+    const { formatMessage } = intl
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     if(!/xml|json|conf|config|data|ini|txt|properties|yaml|yml/.test(fileType)) {
-      notify.info('目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式', true)
+      notify.info(formatMessage(indexIntl.filePathHint2), true)
       return false
     }
     const self = this
     const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
     self.setState({
       disableUpload: true,
-      filePath: '上传文件为 ' + fileName
+      filePath: formatMessage(indexIntl.fileNameHint, { name: fileName })
     })
-    notify.spin('读取文件内容中，请稍后')
+    notify.spin(formatMessage(indexIntl.loadFileSpin))
     const fileReader = new FileReader()
     fileReader.onerror = function(err) {
       self.setState({
         disableUpload: false,
       })
       notify.close()
-      notify.error('读取文件内容失败')
+      notify.error(formatMessage(indexIntl.loadFileFailed))
     }
     fileReader.onload = function() {
       self.setState({
         disableUpload: false
       })
       notify.close()
-      notify.success('文件内容读取完成')
+      notify.success(formatMessage(indexIntl.loadFileSucc))
       const configDesc = fileReader.result.replace(/\r\n/g, '\n')
       self.props.form.setFieldsValue({
         data: configDesc,
@@ -217,7 +227,7 @@ class ConfigFileContent extends React.Component {
   }
   checkFilePath = (rule, value, callback) => {
     if(!/^.\//.test(value)){
-      return callback(new Error("请输入正确的文件路径"))
+      return callback(new Error(this.props.intl.formatMessage(indexIntl.wrongFilePathHint)))
     }
     return callback()
   }
@@ -232,7 +242,8 @@ class ConfigFileContent extends React.Component {
     })
   }
   render() {
-    const { descProps, filePath, form, defaultData, configNameList, isUpdate } = this.props
+    const { descProps, filePath, form, defaultData, configNameList, isUpdate, intl } = this.props
+    const { formatMessage } = intl
     const { projectId, defaultBranch, path, filePath: tempFliePath, enable } = defaultData || {}
     const { readOnly, btnLoading, fetchStatus, projects, branches, isNeedSet } = this.state
     const { getFieldProps, getFieldValue } = form
@@ -278,11 +289,11 @@ class ConfigFileContent extends React.Component {
     )}
     return(
       <div className="configFileContent">
-        <div>导入或直接输入配置文件</div>
+        <div>{formatMessage(indexIntl.importFileorEnter)}</div>
         <FormItem className="formItem">
           <RadioGroup disabled={isUpdate} {...methodProps}>
-            <Radio key="1" value={1}>本地文件导入</Radio>
-            <Radio key="2" value={2}>Git仓库导入</Radio>
+            <Radio key="1" value={1}>{formatMessage(indexIntl.importFileRadio)}</Radio>
+            <Radio key="2" value={2}>{formatMessage(indexIntl.gitFileRadio)}</Radio>
           </RadioGroup>
         </FormItem>
         {
@@ -290,7 +301,7 @@ class ConfigFileContent extends React.Component {
             <div>
               <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} ref={(instance) => this.uploadInput = instance}>
                 <Button type="ghost" style={{marginLeft: '5px'}} disabled={this.state.disableUpload}>
-                  <Icon type="upload" /> 读取文件内容
+                  <Icon type="upload" /> {formatMessage(indexIntl.upload)}
                 </Button>
               </Upload>
               <span className="filepath" >{filePath}</span>
@@ -300,7 +311,7 @@ class ConfigFileContent extends React.Component {
               {
                 isNeedSet &&
                 <div className="deleteRow alertRow">
-                  <i className="fa fa-exclamation-triangle"/>请先关联 GitLab 代码仓库
+                  <i className="fa fa-exclamation-triangle"/>{formatMessage(indexIntl.noGitLabHint)}
                 </div>
               }
               <input type="hidden" {
@@ -353,13 +364,13 @@ class ConfigFileContent extends React.Component {
               </Row>
               <Row>
                 <Col span={24}>
-                  <Checkbox {...enableProps}>提交代码自动更新</Checkbox>
+                  <Checkbox {...enableProps}>{formatMessage(indexIntl.autoUpdateCheck)}</Checkbox>
                 </Col>
               </Row>
             </div>
         }
         <Editor
-          title="配置文件内容"
+          title={formatMessage(indexIntl.editorTitle)}
           options={{
             readOnly
           }}
@@ -378,4 +389,6 @@ function mapStateToProps(state) {
 }
 export default connect(mapStateToProps,{
   getProjectList, getProjectBranches, getGitFileContent
-})(ConfigFileContent)
+})(injectIntl(ConfigFileContent, {
+  withRef: true,
+}))

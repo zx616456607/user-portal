@@ -356,7 +356,7 @@ class Service extends Component {
             <Col span={20}>
               <div className="title">{formatMessage(serviceIntl.configGroup)}</div>
               <Button type="primary" size="large" onClick={e => this.configModal(true, false)}>
-                <i className="fa fa-plus" /> {formatMessage(serviceIntl.createConfigGroup)}
+                <i className="fa fa-plus" /> {formatMessage(indexIntl.createGroup)}
               </Button>
               <Button size="large" onClick={() => this.setState({ delModal: true })} style={{ marginLeft: "12px", marginRight: "12px" }} disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{ marginRight: '5px' }} />{formatMessage(serviceIntl.delConfigGroup)}

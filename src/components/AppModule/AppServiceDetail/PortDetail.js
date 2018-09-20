@@ -22,7 +22,7 @@ import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
 import { isResourcePermissionError } from '../../../common/tools'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
-import { injectIntl,FormattedMessage  } from 'react-intl'
+import { injectIntl, FormattedMessage  } from 'react-intl'
 
 let uuid=0
 let ob = {}
@@ -41,7 +41,7 @@ function validatePortNumber(proxyType, portNumber) {
     maximumPort = 32766
   }
   if( portNumber < minimumPort || portNumber > maximumPort ) {
-    return <FormattedMessage { ...AppServiceDetailIntl.portRange } values={{minimumPort,maximumPort }}/>
+    return window._intl.formatMessage(AppServiceDetailIntl.portRange, { minimumPort, maximumPort })
   } else {
     return
   }
@@ -177,6 +177,7 @@ let MyComponent = React.createClass({
     return callback()
   },
   checkContainerPort(rule, value, callback) {
+    const { formatMessage } = this.props
     if (!value) return callback()
     if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputNumber)))
@@ -604,7 +605,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span2">
             <Form.Item key={k} style={{position: 'relative'}}>
-            <Input  type='text' style={{width: '80px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
+            <Input type='text' style={{width: '80px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span3">

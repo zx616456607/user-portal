@@ -38,7 +38,7 @@ import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, remove
 import { getImageTemplate } from '../../../actions/app_center'
 import {
   buildJson, getFieldsValues, formatValuesToFields,
-  formatTemplateDeployErrors
+  formatTemplateDeployErrors, isFieldsHasErrors
 } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -740,14 +740,19 @@ class QuickCreateApp extends Component {
   }
 
   async onCreateAppOrAddServiceClick(isValidateFields) {
-    const { intl } = this.props
+    const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }
-    const { validateFieldsAndScroll } = this.form
-    validateFieldsAndScroll( async (errors, values) => {
+    // 检查 fields 中是否有错误
+    if (isFieldsHasErrors(fields)) {
+      notification.warn(intl.formatMessage(IntlMessage.formsError))
+      return
+    }
+    const { validateFieldsAndScroll, validateFields } = this.form
+    const callback = async (errors, values) => {
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
@@ -828,6 +833,22 @@ class QuickCreateApp extends Component {
           isAsync: true,
         }
       })
+    }
+    validateFields(async (errors, values) => {
+      if (!!errors) {
+        const errorsValues = Object.values(errors)
+        // 应用模板部署过程中，如果配置组名称重复，重新输入新的配置组名称后，切换服务过程中表单会报错revalidate信息，需要重新validateFields
+        const flag = errorsValues.some(error => {
+          return error.errors.some(item => item.message.includes('revalidate'))
+        })
+        if (flag) {
+          validateFieldsAndScroll(async (errors, values) => {
+            await callback(errors, values)
+          })
+          return
+        }
+      }
+      await callback(errors,values)
     })
   }
 

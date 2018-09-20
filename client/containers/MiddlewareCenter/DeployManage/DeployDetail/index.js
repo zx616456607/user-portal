@@ -21,7 +21,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim';
-import { Row, Col, Card, Tabs, Spin } from 'antd'
+import { Row, Col, Card, Tabs, Tooltip } from 'antd'
 import { browserHistory } from 'react-router'
 import * as mcActions from '../../../../actions/middlewareCenter'
 import TenxStatus from '../../../../../src/components/TenxStatus'
@@ -65,6 +65,7 @@ class DeployDetail extends React.PureComponent {
         appVersion: data.version || '-',
         status: data.status || '-',
         createTime: data.createTime || '-',
+        address: data.address || '-',
       }
       this.setState({
         appClusterDetail: newData,
@@ -97,6 +98,10 @@ class DeployDetail extends React.PureComponent {
   }
 }
 
+const stylep = { marginTop: '12' }
+const styleAddress = { width: '200px', overflow: 'hidden', whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+}
 export default DeployDetail
 const style = { width: '80', display: 'inline-block' }
 function BaseInfoCard({ info: {
@@ -106,22 +111,41 @@ function BaseInfoCard({ info: {
   appVersion = '-',
   status = '-',
   createTime = '-',
-} = {}, info = {} }) {
+  address = '-',
+} = {} }) {
   return (
-    <Card title="基本信息" bordered={false} className="BaseInfoCard">
-      {
-        Object.values(info).length === 0 ? <Spin/> :
-          <div>
-            <p><span style={style}>集群名称:</span> <span>{clusterName}</span></p>
-            <p><span style={style}>描述:</span> <span>{describe}</span></p>
-            <p><span style={style}>应用名称:</span> <span>{appName}</span></p>
-            <p><span style={style}>应用版本:</span> <span>{appVersion}</span></p>
-            <p><span style={style}>状态:</span> <span>{status === '-' ? status : <TenxStatus phase={status}
-              smart={true}/> }</span></p>
-            <p><span style={style}>创建时间:</span> <span>{calcuDate(createTime)}</span></p>
+    <div>
+      <Card title="基本信息" bordered={false} className="BaseInfoCard">
+        <div>
+          <p><span style={style}>集群名称:</span> <span>{clusterName}</span></p>
+          <p><span style={style}>描述:</span> <span>{describe}</span></p>
+          <p><span style={style}>应用名称:</span> <span>{appName}</span></p>
+          <p><span style={style}>应用版本:</span> <span>{appVersion}</span></p>
+          <p><span style={style}>状态:</span> <span>{status === '-' ? status : <TenxStatus phase={status}
+            smart={true}/> }</span></p>
+          <p><span style={style}>创建时间:</span> <span>{calcuDate(createTime)}</span></p>
+        </div>
+      </Card>
+      <div style={{ height: '16' }}></div>
+      <Card title="访问地址" bordered={false} className="BaseInfoCard">
+        <p >AWS PaaS 实例控制台:</p>
+        <Tooltip title={`${address}/portal/console/`}>
+          <div style={styleAddress}>
+            <a href={`http://${address}/portal/console/`}
+              target="_blank">{`${address}/portal/console/`}
+            </a>
           </div>
-      }
-    </Card>
+        </Tooltip>
+        <p style={stylep}>AWS BPM PaaS 门户:</p>
+        <Tooltip title={`${address}/portal/`}>
+          <div style={styleAddress}>
+            <a href={`http://${address}/portal/`}
+              target="_blank">{`${address}/portal/`}
+            </a>
+          </div>
+        </Tooltip>
+      </Card>
+    </div>
   )
 }
 

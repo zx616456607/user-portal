@@ -13,10 +13,9 @@ import { Tabs } from 'antd'
 // url: Regx
 // filterKey: Array<string>
 // /\/middleware_center\/deploy\/detail/
-export default function TenxTabFactory(urlArray, filterKey) {
-  return class TenxTab extends React.Component {
+export default class TenxTab extends React.Component {
     render() {
-      const appCenterChoiceHidden = urlArray.some(url => url.test(window.location.pathname))
+      const appCenterChoiceHidden = this.props.bpmShow
       const children = this.props.children
       // react 包含的子组件的形式有很多种
       /**
@@ -31,7 +30,7 @@ export default function TenxTabFactory(urlArray, filterKey) {
         spreadChildren.push(item)
       })
       const newChildren = appCenterChoiceHidden ?
-      spreadChildren.filter(({key}) => filterKey.includes(key)).map(item => {
+      spreadChildren.filter(({key}) => this.props.filterKey.includes(key)).map(item => {
         item.props.children.props.appCenterChoiceHidden = true // 对子组件注入props
         return item
       })
@@ -43,5 +42,4 @@ export default function TenxTabFactory(urlArray, filterKey) {
       </div>
     }
   }
-}
 

@@ -168,9 +168,8 @@ class BaseInfo extends React.Component {
           </div>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              地址IP：<span className="successColor">
-              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
-              </span>
+              标签：
+              {deployment && deployment.metadata && deployment.metadata.labels && deployment.metadata.labels.ingressLb}
             </Col>
             <Col span={14}>
               创建时间：{formatDate(deployment && deployment.metadata && deployment.metadata.creationTimestamp)}
@@ -178,7 +177,9 @@ class BaseInfo extends React.Component {
           </Row>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              代理类型：集群内
+              地址IP：<span className="successColor">
+              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
+              </span>
             </Col>
             <Col span={14}>
               配置：
@@ -210,35 +211,40 @@ class BaseInfo extends React.Component {
               } 内存
             </Col>
           </Row>
-          <div className="balanceDescBox">
-            <span className="nameLabel">
-              备注：
-            </span>
-            <div className="balanceDesc">
-              {
-                descEdit ?
-                  <FormItem>
-                    <Input type="textarea" {...descProps} style={{ width: 250 }}/>
-                  </FormItem>
-                  :
-                  <span>{deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.description}</span>
-              }
-              {
-                descEdit ?
-                  [
-                    <Tooltip title="取消">
-                      <i key="cancelDesc" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
-                    </Tooltip>,
-                    <Tooltip title="保存">
-                      <i key="saveDesc" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
+          <Row>
+            <Col span={10}>
+              代理类型：集群内
+            </Col>
+            <Col span={14} className="balanceDescBox">
+              <span className="nameLabel">
+                备注：
+              </span>
+              <div className="balanceDesc">
+                {
+                  descEdit ?
+                    <FormItem>
+                      <Input type="textarea" {...descProps} style={{ width: 250 }}/>
+                    </FormItem>
+                    :
+                    <span>{deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.description}</span>
+                }
+                {
+                  descEdit ?
+                    [
+                      <Tooltip title="取消">
+                        <i key="cancelDesc" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
+                      </Tooltip>,
+                      <Tooltip title="保存">
+                        <i key="saveDesc" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
+                      </Tooltip>
+                    ] :
+                    <Tooltip title="编辑">
+                      <i key="editDesc" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
                     </Tooltip>
-                  ] :
-                  <Tooltip title="编辑">
-                    <i key="editDesc" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
-                  </Tooltip>
-              }
-            </div>
-          </div>
+                }
+              </div>
+            </Col>
+          </Row>
         </div>
       </Card>
     )

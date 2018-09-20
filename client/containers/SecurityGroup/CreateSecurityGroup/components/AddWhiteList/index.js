@@ -268,7 +268,7 @@ class AddWhiteList extends React.Component {
             }],
           })}
           style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}应用负载均衡`}
+          placeholder={`请输入要放通的${target}应用负载均衡（输入标签）`}
           />
         </FormItem>
       case 'namespace':

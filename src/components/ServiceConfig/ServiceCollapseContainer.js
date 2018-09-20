@@ -21,6 +21,7 @@ import unionWith from 'lodash/unionWith'
 import isEqual from 'lodash/isEqual'
 import UpdateConfigFileModal from './UpdateConfigFileModal'
 import serviceIntl from './intl/serviceIntl'
+import indexIntl from './intl/indexIntl'
 
 function formatLinkContainer(data, groupname, name) {
   let linkContainer = []
@@ -252,7 +253,7 @@ class CollapseContainer extends Component {
         imageName = formatLinkContainer(self.props.appList, groupname, configFileItem.name)
         if (imageName.length == 0) {
           volume = <td style={{ textAlign: 'center' }}>
-            <div>{formatMessage(serviceIntl.onVolumeMounts)}</div>
+            <div>{formatMessage(indexIntl.onVolumeMounts)}</div>
           </td>
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
@@ -269,7 +270,7 @@ class CollapseContainer extends Component {
         }
       } else {
         volume = <td style={{ textAlign: 'center' }}>
-            <div>{formatMessage(serviceIntl.onVolumeMounts)}</div>
+            <div>{formatMessage(indexIntl.onVolumeMounts)}</div>
           </td>
       }
       return <Timeline.Item key={configFileItem.name}>
@@ -290,12 +291,12 @@ class CollapseContainer extends Component {
                           </div>
                           <div style={{ color: "#999", fontSize: "12px" }}>
                             {configFileItem.project && <Tooltip title={configFileItem.project} placement="left">
-                              <div><span>{formatMessage(serviceIntl.projectName)}</span><span className="textoverflow projectName">
+                              <div><span>{formatMessage(indexIntl.projectName)}</span><span className="textoverflow projectName">
                                 {configFileItem.project}
                               </span></div>
                             </Tooltip>}
                             {configFileItem.branch && <Tooltip title={configFileItem.branch} placement="left">
-                              <div><span>{formatMessage(serviceIntl.branchName)}</span><span className="textoverflow branchName">{configFileItem.branch}</span></div>
+                              <div><span>{formatMessage(indexIntl.branchName)}</span><span className="textoverflow branchName">{configFileItem.branch}</span></div>
                             </Tooltip>}
                           </div>
                         </div> : <div style={{ width: '160px' }} className="textoverflow">
@@ -314,7 +315,7 @@ class CollapseContainer extends Component {
                     </Button>
                   </td>
                   <td style={{ width: '130px' }}>
-                    <div className="li">{formatMessage(serviceIntl.associatedService)}<span className="node-number">{Array.from(new Set(imageName)).length}</span></div>
+                    <div className="li">{formatMessage(indexIntl.associatedService)}<span className="node-number">{Array.from(new Set(imageName)).length}</span></div>
                     <div className="lis">{formatMessage(serviceIntl.mountPath)}</div>
                   </td>
                   {volume}
@@ -322,7 +323,7 @@ class CollapseContainer extends Component {
                   {mounts && mounts.length > 1 ? <td style={{ textAlign: 'center' }}>
                       <div style={{ cursor: 'pointer' }} onClick={() => {
                     this.setState({ [this.props.groupname + configFileItem.name]: true })
-                  }}><a>{formatMessage(serviceIntl.loadMore)}</a></div>
+                  }}><a>{formatMessage(indexIntl.loadMore)}</a></div>
                     </td> : null}
                 </tr>
               </tbody>
@@ -333,7 +334,7 @@ class CollapseContainer extends Component {
             this.setState({ [this.props.groupname + configFileItem.name]: false })
           }}>
               <div className="check-config-head">
-                <div className="span4">{formatMessage(serviceIntl.serviceName)}</div>
+                <div className="span4">{formatMessage(indexIntl.serviceName)}</div>
                 <div className="span6">{formatMessage(serviceIntl.mountPath)}</div>
               </div>
                 {}

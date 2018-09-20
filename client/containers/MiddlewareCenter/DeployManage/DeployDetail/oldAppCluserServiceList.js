@@ -1433,6 +1433,7 @@ class AppServiceList extends Component {
               funcs={funcs}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
+              bpmShow={true}
             />
           </Modal>
           {
