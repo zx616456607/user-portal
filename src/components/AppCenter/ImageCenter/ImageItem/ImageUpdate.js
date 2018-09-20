@@ -1544,7 +1544,7 @@ class ImageUpdate extends Component {
             <Button
               size="large"
               type="ghost"
-              disabled={ currentRule ? true : taskUpdataData.length < 1 }
+              disabled={ !currentRule ? true : taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
             </Button>
