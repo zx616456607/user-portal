@@ -1,3 +1,13 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * AppStore.less page
+ *
+ * @author zhangtao
+ * @date Thursday September 20th 2018
+ */
+@import "../../../../assets/style/site/core.less";
 #AppStore {
   padding: 40px;
   .operaBox {
@@ -19,7 +29,7 @@
       float: left;
       width: 18px;
       height: 20px;
-      border-left: 3px solid #00A1EA;
+      border-left: 3px solid  @primary-color;
     }
   }
   .AppList {
@@ -73,7 +83,7 @@
     }
     .selectedApp {
       .imgBox {
-        border: 2px solid #00A1EA;
+        border: 2px solid @primary-color;
         box-shadow: 3px #999999;
         .selectIcon {
           display: block;

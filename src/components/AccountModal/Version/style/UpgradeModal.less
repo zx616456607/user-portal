@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .wrapUpgradeModalBox{
   z-index: 2100 !important;
   .upgradeModalBox {
@@ -21,7 +22,7 @@
       text-align: center;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
-      background-color: #4cb3f6;
+      background-color: @primary-color;
     }
     .infoBox {
       padding: 30px 20px;
@@ -86,20 +87,20 @@
       }
       .rightBox {
         .littleTitle {
-          background-color: #4cb3f6;
+          background-color: @primary-color;
         }
         .activeInfo {
           color: #4cb3f6 !important;
           background-color: #eaf8fe;
           .littleIcon {
             transform: rotateZ(45deg);
-            background-color: #4cb3f6;
+            background-color: @primary-color;
           }
         }
           .littleInfo:hover {
             color: #4cb3f6;
             .littleIcon {
-              background-color: #4cb3f6;
+              background-color:  @primary-color;
             }
           }
       }

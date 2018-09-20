@@ -1,3 +1,5 @@
+
+@import "../../../../assets/style/site/core.less";
 #imageUpdata{
   .ant-table-thead>tr >th{
     font-weight: normal;
@@ -62,7 +64,7 @@
     .title{
       height: 18px;
       line-height: 18px;
-      border-left:6px solid #2db7f5;
+      border-left:6px solid @primary-color ;
       padding-left: 16px;
       font-size: 14px;
       margin: 18px 0 20px 0;
@@ -287,26 +289,26 @@
       &:after{
         border-top:15px solid transparent;
         border-bottom: 15px solid transparent;
-        border-left: 23px solid #2DB7F5;
+        border-left: 23px solid  @primary-color ;
       }
     }
     .step.active:nth-of-type(2) {
 
        &:before {
-        border-top:15px solid #2DB7F5;;
-        border-bottom: 15px solid #2DB7F5;;
+        border-top:15px solid @primary-color ;
+        border-bottom: 15px solid @primary-color ;
         border-left: 23px solid transparent;
       }
     }
     .step.active:nth-of-type(2) {
        &:before {
-        border-top:15px solid #2DB7F5;;
-        border-bottom: 15px solid #2DB7F5;;
+        border-top:15px solid  @primary-color ;
+        border-bottom: 15px solid  @primary-color ;
         border-left: 23px solid transparent;
       }
     }
     .step.active{
-      background: #2DB7F5;
+      background:  @primary-color;
       color: white;
       .number {border-color: white;}
     }
