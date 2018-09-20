@@ -886,6 +886,10 @@ class Membermanagement extends Component {
       <div className="bracket1">
         <div className="rangeNames">
           <div className="names name-item">系统设置</div>
+          <div className="names">
+            <div className="name-item">发布审核</div>
+            <span>镜像和应用包</span>
+          </div>
           <div className="names name-item">租户管理</div>
         </div>
       </div>

@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Table, Button, Modal, Alert } from 'antd'
+import { Table, Button, Modal, Alert, Pagination } from 'antd'
 import CommonSearchInput from '../../../../../CommonSearchInput'
 import NotificationHandler from '../../../../../Notification'
 import {
@@ -41,6 +41,7 @@ class Endpoints extends React.Component {
       upsertBtnLoading: false,
       mode: 'create',
       updateTargetDisabled: false,
+      currentPage: 1,
     }
     this.loadTargets = this.loadTargets.bind(this)
     this.delTarget = this.delTarget.bind(this)
@@ -182,12 +183,16 @@ class Endpoints extends React.Component {
     })
   }
 
+  handlePager = currentPage => {
+    this.setState({ currentPage })
+  }
+
   render() {
     const { targets, validationNewTargetStore, validationOldTargetStore, harbor } = this.props
     const { isFetching, data } = targets
     const {
       searchInput, deleteModal, currentRow, delBtnLoading,
-      mode, upsertModal, upsertBtnLoading, updateTargetDisabled,
+      mode, upsertModal, upsertBtnLoading, updateTargetDisabled, currentPage,
     } = this.state
     const columns = [{
       title: '目标名',
@@ -225,6 +230,18 @@ class Endpoints extends React.Component {
         </div>
       )
     }]
+    let listData = data ? data : []
+    const total = listData.length
+    const pagination = {
+      simple: true,
+      total,
+      current: currentPage,
+      pageSize: 10,
+      onChange: this.handlePager,
+    }
+    listData = listData.length < 10 ?
+      listData
+      : listData.slice((currentPage - 1) * 10, currentPage * 10)
     return (
       <div className="replications-endpoints">
         <div className="actions">
@@ -251,9 +268,13 @@ class Endpoints extends React.Component {
             onChange={searchInput => this.setState({ searchInput })}
             onSearch={name => this.loadTargets({ name })}
           />
+          <span className="pageList">
+            <span className="total">共 {total} 条</span>
+            <Pagination {...pagination}/>
+          </span>
         </div>
         <Table
-          dataSource={data || []}
+          dataSource={listData}
           columns={columns}
           pagination={false}
           loading={isFetching}

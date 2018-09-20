@@ -37,6 +37,7 @@ export default class ServiceMeshSwitch extends React.Component {
     }
     const newNameSpace = projectDetail && projectDetail.namespace;
     const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
+    // console.log('result1', result1)
     const result1Data = getDeepValue(result1, ['response', 'result',]);
     if (result1Data.data === true) {
       this.setState({ Switchchecked: true, userType: 1 })
@@ -53,7 +54,7 @@ export default class ServiceMeshSwitch extends React.Component {
   }
   render() {
     const { Switchchecked, serviceMesh, userType = 1 } = this.state
-    const { clusterId } = this.props
+    const { clusterId, projectDetail: { namespace } = {} } = this.props
     return (
       <div>
         {
@@ -61,8 +62,7 @@ export default class ServiceMeshSwitch extends React.Component {
             <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
               onChange={this.SwitchOnChange}/>
               <span style={{ paddingLeft: '12px', fontSize: '14px' }}>
-                <Tooltip title="项目开通服务网格，表示项目中所有服务均被开启服务网格，项目中所有服务服务
-                              将由服务网格代理，使用微服务中心提供的治理功能">
+                <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
@@ -77,7 +77,7 @@ export default class ServiceMeshSwitch extends React.Component {
         }
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
         ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}
-        clusterId={ clusterId }
+        clusterId={ clusterId } namespace={namespace} clusterName={this.props.clusterName}
         />
       </div>
     )

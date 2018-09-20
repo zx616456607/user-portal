@@ -1,3 +1,4 @@
+@import "../../../../../assets/style/site/core.less";
 #TeamDetail {
   .back {
     display: inline-block;
@@ -9,13 +10,13 @@
       height: 0;
       border-bottom: 15px solid transparent;
       border-top: 15px solid transparent;
-      border-right: 15px solid #00A0E9;
+      border-right: 15px solid @primary-color;
       font-size: 0;
       line-height: 0;
     }
     .btn-back {
       display: inline-block;
-      background: #00A0E9;
+      background: @primary-color;
       color: white;
       height: 30px;
       line-height: 30px;
@@ -33,7 +34,7 @@
     margin-top: 6px;
     height: 18px;
     line-height: 18px;
-    border-left: 8px solid #24a7eb;
+    border-left: 8px solid  @primary-color;
     font-size: 16px;
     padding-left: 8px;
     margin-left: 20px;
@@ -44,7 +45,7 @@
     color: #1a7db6;
     font-size: 13px !important;
     background-color: #d9edf6;
-    border: 1px dashed #85d7fd !important;
+    border: 1px dashed  @primary-color !important;
   }
   .memberOption {
     height: 75px;
@@ -54,7 +55,7 @@
       height: 35px;
       margin: 20px 0;
       font-size: 14px;
-      background-color: #00a1e9;
+      background-color:  @primary-color;
       color: #fff;
       border: 1px solid #00a1e9;
     }
@@ -63,7 +64,7 @@
       height: 35px;
       font-size: 14px;
       &:hover {
-        background-color: #00a1e9;
+        background-color:  @primary-color;
         color: #fff
       }
     }
@@ -72,7 +73,7 @@
       margin-left: 12px;
       font-size: 14px;
       &:hover {
-        background-color: #00a1e9;
+        background-color:  @primary-color;
         color: #fff
       }
     }
@@ -96,15 +97,15 @@
             height:28px;
             background-color: #fff;
             &:hover {
-              background-color: #00a1e9;
+              background-color:  @primary-color;
               color: #fff
             }
           }
           .hoverRed {
             &:hover {
               color: #fff;
-              border: 1px solid #f85a59;
-              background-color: #f85a59;
+              border: 1px solid  @error-color;
+              background-color:  @error-color;
             }
           }
         }

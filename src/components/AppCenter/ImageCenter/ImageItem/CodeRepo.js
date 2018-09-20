@@ -24,6 +24,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import TenxIcon from '@tenx-ui/icon'
 import codeRepoIntl from './intl/codeRepoIntl'
 import { injectIntl } from 'react-intl'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../../constants/index'
 
 const notification = new NotificationHandler()
 
@@ -170,13 +171,14 @@ class PageCodeRepo extends Component {
     server = server.replace('http://', '').replace('https://', '')
     let currentMember = {}
     members.every(member => {
-      if (member.username === user.userName) {
+      if (member.username === user.userName || member.entityName === user.userName) {
         currentMember = member
         return false
       }
       return true
     })
-    const isAbleToDel = members.roleId === 1
+    const isAbleToDel = [ 1,2 ].indexOf(currentMember.roleId) > -1 ||
+      [ ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN ].indexOf(user.role) > -1
 
     const columns = [
       {
@@ -255,7 +257,7 @@ class PageCodeRepo extends Component {
               <Menu.Item key="publish">
                 {formatMessage(codeRepoIntl.publish)}
               </Menu.Item>
-              <Menu.Item key="delete" disabled={!isAbleToDel && !user.role}>
+              <Menu.Item key="delete" disabled={!isAbleToDel}>
                 {formatMessage(codeRepoIntl.delThis)}
               </Menu.Item>
             </Menu>

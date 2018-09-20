@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 //header
 #header {
   height: 55px;
@@ -99,7 +100,7 @@
         text-align: center;
         border-bottom-left-radius: 6px;
         border-top-left-radius: 6px;
-        background-color: #27a3e9;
+        background-color: @primary-color;
         img {
           position: absolute;
           top: 50%;
@@ -135,7 +136,7 @@
       &:hover {
         .backText {
           color: #FFFFFF;
-          background-color: #2db7f5;
+          background-color: @primary-color;
         }
       }
     }
@@ -186,7 +187,7 @@
       background-color: #f0f9ff;
       color:#69bef5;
       .rocket{
-        fill:#69bef5;
+        fill: @primary-color;
       }
       .text{
         color:#69bef5;

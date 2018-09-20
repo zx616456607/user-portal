@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 #VersionNoraml {
   width: 100%;
   .firstPage {
@@ -10,7 +11,7 @@
       height: 14px;
       line-height: 14px;
       font-size: 14px;
-      border-left: 5px solid #00A1EA;
+      border-left: 5px solid @primary-color;
       span {
         margin-left: 20px;
         font-size: 14px;
@@ -81,13 +82,13 @@
       color: #FFFFFF;
       font-size: 14px;
       text-align: center;
-      background-color: #00A0E9;
+      background-color:  @primary-color;
       cursor: pointer;
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
       &:before {
         border: 15px solid transparent;
-        border-right: 15px solid #00A0E9;
+        border-right: 15px solid  @primary-color;
         width: 0px;
         height: 0px;
         position: absolute;
@@ -200,10 +201,10 @@
     }
     .rightBox {
       .commonBigTitle {
-        background-color: #51b5f3;
+        background-color: @primary-color;
       }
       .commonIcon {
-        background-color: #51b5f3 !important;
+        background-color: @primary-color !important;
       }
     }
   }
