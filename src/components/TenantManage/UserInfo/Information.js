@@ -502,7 +502,7 @@ class Information extends Component {
     } else {
       accountTypeEdit = false
     }
-    if (loginUser.role === ROLE_SYS_ADMIN) {
+    if (userDetail.role === ROLE_SYS_ADMIN ) {
       accountTypeEdit = true
     }
     const { billingConfig } = loginUser
