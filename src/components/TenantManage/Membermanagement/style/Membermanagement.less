@@ -410,19 +410,27 @@
           &:nth-child(1) {
             top:35px;
             &:after {
-            content: "";
-            display: block;
-            width: 80px;
-            height: 1px;
-            background: #ccccce;
-            position: absolute;
-            top: 50%;
-            margin-top: -0.5px;
-            right: -80px;
-          }
-
+              content: "";
+              display: block;
+              width: 80px;
+              height: 1px;
+              background: #ccccce;
+              position: absolute;
+              top: 50%;
+              margin-top: -0.5px;
+              right: -80px;
+            }
           }
           &:nth-child(2) {
+            top:115px;
+            width: 200px;
+            display: flex;
+            align-items: center;
+            span {
+              margin-left: 5px;
+            }
+          }
+          &:nth-child(3) {
             top:235px;
             &:after {
               content: "";
