@@ -20,10 +20,45 @@
         font-size: @font-size-medium;
         margin-bottom: 10px;
         .nameLabel {
-          flex: 0 0 120px;
+          flex: 0 0 45px;
         }
         .balanceName{
           flex: 1 1 200px;
+          position: relative;
+          .ant-form-item{
+            display: inline-block;
+            margin: 0;
+            .ant-form-explain{
+              font-size: 12px;
+              white-space: normal;
+              height: auto;
+            }
+          }
+          .cancel, .confirm{
+            position: absolute;
+            top: 15px;
+          }
+          .cancel{
+            right: 30px;
+          }
+          .confirm{
+            right: 0;
+          }
+          .edit{
+            margin-left: 15px;
+          }
+          .teamInput{
+            padding-right: 30px;
+          }
+        }
+      }
+      .displayNameBox {
+        display: inline-flex;
+        .nameLabel {
+          flex: 0 0 55px;
+        }
+        .displayName{
+          flex: 0 1 220px;
           position: relative;
           .ant-form-item{
             display: inline-block;

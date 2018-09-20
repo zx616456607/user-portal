@@ -445,7 +445,7 @@ export function ingressContextCheck(value) {
  */
 
 export function lbNameCheck(value) {
-  return serviceNameCheck(value, '负载均衡器名称')
+  return serviceNameCheck(value, '负载均衡器备注名')
 }
 
 /**
