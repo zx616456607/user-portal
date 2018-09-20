@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { isResourcePermissionError } from '../../common/tools'
-import { checkConfigNameExistence, dispatchCreateConfig } from "../../actions/configs"
+import { checkConfigNameExistence, dispatchCreateConfig, getGitFileContent } from "../../actions/configs"
 // import { createSecretsConfig } from '../../actions/secrets_devops'
 import { createSecret } from '../../actions/secrets'
 
@@ -36,6 +36,7 @@ let CreateConfigFileModal = React.createClass({
                   <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
+      tempConfigName: '', // 缓存 name
       method: 1,
       nameDisabled: false,
     }
@@ -84,15 +85,16 @@ let CreateConfigFileModal = React.createClass({
       this.setState({
         filePath: '请上传文件或直接输入内容'
       })
-      callback([new Error('内容不能为空，请重新输入内容')])
-      return
+      // 跟产品确认了下，配置文件内容可以为空
+      // callback([new Error('内容不能为空，请重新输入内容')])
+      // return
     }
     callback()
   },
 
-  createConfigFile(group) {
+  async createConfigFile(group) {
     const { createConfig, scope: parentScope, createSecret,
-      activeGroupName, dispatchCreateConfig } = this.props
+      activeGroupName, dispatchCreateConfig, getGitFileContent } = this.props
     const { method } = this.state
     let arr = [ 'name', 'data' ]
     if (method === 1) {
@@ -100,17 +102,34 @@ let CreateConfigFileModal = React.createClass({
     } else if (method === 2) {
       arr = [ 'defaultBranch', 'projectId', 'projectName', 'filePath', 'enable' ].concat(arr)
     }
-    this.props.form.validateFields(arr, (errors, values) => {
+    this.props.form.validateFields(arr,async (errors, values) => {
       if (!!errors) {
         return
       }
+      let notification = new NotificationHandler()
       const tempValues = cloneDeep(values)
       if (tempValues.enable === true) {
         tempValues.enable = 1
       } else {
         tempValues.enable = 0
       }
-
+      if (method === 2) {
+        const query = {
+          project_id: tempValues.projectId,
+          branch_name: tempValues.defaultBranch,
+          path_name: tempValues.filePath,
+        }
+        const result = await getGitFileContent(query, {
+          failed: {
+            func: () => {
+              notification.warn("导入失败, 请检查目录结构")
+            },
+          },
+        })
+        if (result.error) {
+          return
+        }
+      }
       const { type, cluster, addKeyIntoSecret } = this.props
       let configfile = {
         group,
@@ -135,7 +154,6 @@ let CreateConfigFileModal = React.createClass({
 
       let self = this
       // const {parentScope} = this.props
-      let notification = new NotificationHandler()
       if (type === 'secrets') {
         return addKeyIntoSecret(secret_body)
       }
@@ -197,7 +215,7 @@ let CreateConfigFileModal = React.createClass({
   render() {
     const { type, form, configNameList, scope: parentScope } = this.props
     const { getFieldProps,isFieldValidating,getFieldError } = form
-    const { filePath, tempConfigDesc, nameDisabled } = this.state
+    const { filePath, tempConfigDesc, nameDisabled, tempConfigName } = this.state
     const configFileTipStyle = {
       color: "#16a3ea",
       height: '35px',
@@ -213,6 +231,7 @@ let CreateConfigFileModal = React.createClass({
       rules: [
         { validator: this.configNameExists },
       ],
+      onChange: e => this.setState({ tempConfigName: e.target.value })
     });
     const descProps = getFieldProps('data', {
       rules: [
@@ -262,6 +281,7 @@ let CreateConfigFileModal = React.createClass({
                 filePath={filePath}
                 form={form}
                 tempConfigDesc={tempConfigDesc}
+                tempConfigName={tempConfigName}
                 descProps={descProps} />
             </FormItem>
           </Form>
@@ -280,5 +300,6 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, dispatchCreateConfig, createSecret
+  checkConfigNameExistence, dispatchCreateConfig, createSecret,
+  getGitFileContent
 })(CreateConfigFileModal)

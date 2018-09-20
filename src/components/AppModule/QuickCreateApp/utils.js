@@ -840,3 +840,11 @@ export function formatTemplateDeployErrors(value, currentError, errorFields, tem
     }
   })
 }
+
+export const isFieldsHasErrors = fields => {
+  const fieldsArray = Object.values(fields)
+  return fieldsArray.some(field => {
+    const currentFieldValues = Object.values(field)
+    return currentFieldValues.some(value => !isEmpty(value.errors))
+  })
+}
