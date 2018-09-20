@@ -502,7 +502,7 @@ class Information extends Component {
     } else {
       accountTypeEdit = false
     }
-    if (loginUser.role === ROLE_SYS_ADMIN) {
+    if (userDetail.role === ROLE_SYS_ADMIN ) {
       accountTypeEdit = true
     }
     // 登录user是平台管理员,将被禁止修改
