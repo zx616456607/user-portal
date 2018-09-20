@@ -505,8 +505,8 @@ class Information extends Component {
     if (loginUser.role === ROLE_SYS_ADMIN) {
       accountTypeEdit = true
     }
-    // 登录user是平台管理员 && 要修改自己，将被禁止
-    if (loginUser.role === ROLE_PLATFORM_ADMIN && loginUser.userID == this.props.userID) {
+    // 登录user是平台管理员,将被禁止修改
+    if (loginUser.role === ROLE_PLATFORM_ADMIN) {
       accountTypeEdit = true
     }
     const { billingConfig } = loginUser
