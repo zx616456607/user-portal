@@ -418,7 +418,7 @@ class PageImageCenter extends Component {
       )
     })
 
-    const isAuth = loginUser.role === ROLE_BASE_ADMIN || loginUser.role === ROLE_SYS_ADMIN || loginUser.role ===  || loginUser.role === ROLE_PLATFORM_ADMIN
+    const isAuth = loginUser.role === ROLE_BASE_ADMIN || loginUser.role === ROLE_SYS_ADMIN || loginUser.role === ROLE_PLATFORM_ADMIN
     // 只有平台管理员和系统管理员才可见“同步管理” add: 非同步管理 应为仓库管理 ROLE_BASE_ADMIN基础设施管理员 ROLE_PLATFORM_ADMIN平台管理员也可见
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
