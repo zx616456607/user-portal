@@ -770,10 +770,17 @@ class Deployment {
       annotations || {}
     )
   }
-  setHostname(hostname) {
+  setHostnameAndSubdomain(hostname, subdomain) {
     if (hostname && (hostname.trim() !== "")) {
       this.spec.template.spec.hostname = hostname
     }
+    if (subdomain && (subdomain.trim() !== "")) {
+      this.spec.template.spec.subdomain = subdomain
+    }
+  }
+
+  setHostAliases(hostAliases) {
+    this.spec.template.spec.hostAliases = hostAliases
   }
 }
 
