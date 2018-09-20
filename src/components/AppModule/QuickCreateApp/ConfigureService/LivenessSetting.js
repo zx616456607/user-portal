@@ -239,7 +239,7 @@ const LivenessSetting = React.createClass({
                       </Row>
                       <Row className="configHeader" key="configHeader">
                         {
-                          livenessPathProps && <Col span={6}>
+                          livenessPathProps && <Col span={12}>
                             {intl.formatMessage(IntlMessage.path)}
                           </Col>
                         }
@@ -258,7 +258,7 @@ const LivenessSetting = React.createClass({
                       </Row>
                       <Row className="configBody" key="configBody">
                         {
-                          livenessPathProps && <Col span={6}>
+                          livenessPathProps && <Col span={12}>
                             <FormItem>
                               <Input
                                 size="default"

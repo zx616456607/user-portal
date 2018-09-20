@@ -201,11 +201,14 @@ class LoadBalance extends React.Component {
       onChange: this.handlePage
     }
     const columns = [{
-      title: '名称',
+      title: '名称 / 备注名',
       dataIndex: 'metadata.annotations.displayName',
       width: '15%',
       render: (text, record) =>
-        <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>{text}</Link>
+        <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>
+          <div>{record.metadata.labels.ingressLb}</div>
+          {text}
+          </Link>
     }, {
       title: '状态',
       dataIndex: 'status',

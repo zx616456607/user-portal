@@ -15,6 +15,7 @@ import { formatDate, cpuFormat, memoryFormat } from "../../../common/tools"
 import Notification from '../../Notification'
 import './style/BaseInfo.less'
 import loadBalanceIcon from '../../../assets/img/appmanage/loadBalance.png'
+import {lbNameCheck} from "../../../common/naming_validation";
 
 const FormItem = Form.Item
 
@@ -45,9 +46,10 @@ class BaseInfo extends React.Component {
     return true
   }
 
-  nameCheck = (rules, value, callback) => {
-    if (!value) {
-      return callback('请输入负载均衡器名称')
+  nameCheck = (rule, value, callback) => {
+    let message = lbNameCheck(value)
+    if (message !== 'success') {
+      return callback(message)
     }
     callback()
   }
@@ -136,41 +138,42 @@ class BaseInfo extends React.Component {
         <div className="baseInfoRightPart">
           <div className="balanceNameBox">
             <span className="nameLabel">
-              负载均衡器名称：
+              名称：
             </span>
             <div className="balanceName">
-              {
-                nameEdit ?
-                  <FormItem
-                    hasFeedback
-                    help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-                  >
-                    <Input {...nameProps} style={{ width: 170 }}/>
-                  </FormItem>
-                  :
-                  <span>{deployment && deployment.metadata && deployment.metadata.annotations.displayName}</span>
-              }
-              {
-                nameEdit ?
-                  [
-                    <Tooltip title="取消">
-                      <i key="cancelName" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditName} />
-                    </Tooltip>,
-                    <Tooltip title="保存">
-                      <i key="saveName" className="confirm anticon anticon-save pointer" onClick={this.saveName} />
-                    </Tooltip>
-                  ] :
-                  <Tooltip title="编辑">
-                    <i key="editName" className="edit anticon anticon-edit pointer" onClick={this.editName} />
-                  </Tooltip>
-              }
+              {deployment && deployment.metadata && deployment.metadata.labels && deployment.metadata.labels.ingressLb}
             </div>
           </div>
           <Row style={{ marginBottom: 15 }}>
-            <Col span={10}>
-              地址IP：<span className="successColor">
-              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
-              </span>
+            <Col span={10} className="displayNameBox">
+              <span className="nameLabel">备注名：</span>
+              <div className="displayName">
+                {
+                  nameEdit ?
+                    <FormItem
+                      hasFeedback
+                      help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                    >
+                      <Input {...nameProps} style={{ width: 170 }}/>
+                    </FormItem>
+                    :
+                    <span>{deployment && deployment.metadata && deployment.metadata.annotations.displayName}</span>
+                }
+                {
+                  nameEdit ?
+                    [
+                      <Tooltip title="取消">
+                        <i key="cancelName" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditName} />
+                      </Tooltip>,
+                      <Tooltip title="保存">
+                        <i key="saveName" className="confirm anticon anticon-save pointer" onClick={this.saveName} />
+                      </Tooltip>
+                    ] :
+                    <Tooltip title="编辑">
+                      <i key="editName" className="edit anticon anticon-edit pointer" onClick={this.editName} />
+                    </Tooltip>
+                }
+              </div>
             </Col>
             <Col span={14}>
               创建时间：{formatDate(deployment && deployment.metadata && deployment.metadata.creationTimestamp)}
@@ -178,7 +181,9 @@ class BaseInfo extends React.Component {
           </Row>
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
-              代理类型：集群内
+              地址IP：<span className="successColor">
+              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
+              </span>
             </Col>
             <Col span={14}>
               配置：
@@ -210,35 +215,40 @@ class BaseInfo extends React.Component {
               } 内存
             </Col>
           </Row>
-          <div className="balanceDescBox">
-            <span className="nameLabel">
-              备注：
-            </span>
-            <div className="balanceDesc">
-              {
-                descEdit ?
-                  <FormItem>
-                    <Input type="textarea" {...descProps} style={{ width: 250 }}/>
-                  </FormItem>
-                  :
-                  <span>{deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.description}</span>
-              }
-              {
-                descEdit ?
-                  [
-                    <Tooltip title="取消">
-                      <i key="cancelDesc" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
-                    </Tooltip>,
-                    <Tooltip title="保存">
-                      <i key="saveDesc" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
+          <Row>
+            <Col span={10}>
+              代理类型：集群内
+            </Col>
+            <Col span={14} className="balanceDescBox">
+              <span className="nameLabel">
+                备注：
+              </span>
+              <div className="balanceDesc">
+                {
+                  descEdit ?
+                    <FormItem>
+                      <Input type="textarea" {...descProps} style={{ width: 250 }}/>
+                    </FormItem>
+                    :
+                    <span>{deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.description}</span>
+                }
+                {
+                  descEdit ?
+                    [
+                      <Tooltip title="取消">
+                        <i key="cancelDesc" className="cancel anticon anticon-minus-circle-o pointer" onClick={this.cancelEditDesc} />
+                      </Tooltip>,
+                      <Tooltip title="保存">
+                        <i key="saveDesc" className="confirm anticon anticon-save pointer" onClick={this.saveDesc} />
+                      </Tooltip>
+                    ] :
+                    <Tooltip title="编辑">
+                      <i key="editDesc" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
                     </Tooltip>
-                  ] :
-                  <Tooltip title="编辑">
-                    <i key="editDesc" className="edit anticon anticon-edit pointer" onClick={this.editDesc} />
-                  </Tooltip>
-              }
-            </div>
-          </div>
+                }
+              </div>
+            </Col>
+          </Row>
         </div>
       </Card>
     )

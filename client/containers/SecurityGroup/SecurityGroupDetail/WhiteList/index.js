@@ -15,7 +15,7 @@ class DetailWhiteList extends React.Component {
 
   deelWithArr = arr => {
     let str = ''
-    arr.forEach(v => {
+    arr && arr.length && arr.forEach(v => {
       str += v + ','
     })
     str = str.slice(0, str.length - 1)
