@@ -40,6 +40,18 @@ export default class ContainerNetwork extends React.PureComponent {
     activeKey: '0',
   }
 
+  componentDidUpdate() {
+    const { getFieldValue } = this.props.form
+    const keys = getFieldValue('aliasesKeys')
+    if (!isEmpty(keys)) {
+      uidd = keys[keys.length - 1]
+    }
+  }
+
+  componentWillUnmount() {
+    uidd = 0
+  }
+
   collapseChange = key => {
     this.setState({
       activeKey: key,
@@ -140,6 +152,22 @@ export default class ContainerNetwork extends React.PureComponent {
     )
   }
 
+  hostnameCheck = (rules, value, callback) => {
+    const { forDetail, intl } = this.props
+    if (forDetail && !value) {
+      return callback(intl.formatMessage(IntlMessage.hostnameIsRequired))
+    }
+    callback()
+  }
+
+  subdomainCheck = (rules, value, callback) => {
+    const { forDetail, intl } = this.props
+    if (forDetail && !value) {
+      return callback(intl.formatMessage(IntlMessage.subdomainIsRequired))
+    }
+    callback()
+  }
+
   renderContent = () => {
     const { intl, formItemLayout, form, setParentState } = this.props
     const { getFieldProps } = form
@@ -157,6 +185,9 @@ export default class ContainerNetwork extends React.PureComponent {
               <FormItem>
                 <Input
                   {...getFieldProps('hostname', {
+                    rules: [{
+                      validator: this.hostnameCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
@@ -175,6 +206,9 @@ export default class ContainerNetwork extends React.PureComponent {
               >
                 <Input
                   {...getFieldProps('subdomain', {
+                    rules: [{
+                      validator: this.subdomainCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.subdomainPlaceholder)}

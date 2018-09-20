@@ -1055,3 +1055,53 @@ export function UpdateServiceAnnotation(cluster, service, body, callback){
     return dispatch(fetchUpdateAnnotation(cluster, service, body, callback))
   }
 }
+
+// 修改服务 hostname 和 subdomain
+export const UPDATE_SERVICE_HOSTNAME_REQUEST = 'UPDATE_SERVICE_HOSTNAME_REQUEST'
+export const UPDATE_SERVICE_HOSTNAME_SUCCESS = 'UPDATE_SERVICE_HOSTNAME_SUCCESS'
+export const UPDATE_SERVICE_HOSTNAME_FAILURE = 'UPDATE_SERVICE_HOSTNAME_FAILURE'
+
+const fetchUpdateHostname = (cluster, service, body, callback) => ({
+  [FETCH_API]: {
+    types: [
+      UPDATE_SERVICE_HOSTNAME_REQUEST,
+      UPDATE_SERVICE_HOSTNAME_SUCCESS,
+      UPDATE_SERVICE_HOSTNAME_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/hostname`,
+    schema: {},
+    options: {
+      method: 'PUT',
+      body,
+    }
+  },
+  callback,
+})
+
+export const updateHostname = (cluster, service, body, callback) =>
+  dispatch => dispatch(fetchUpdateHostname(cluster, service, body, callback))
+
+// 修改服务 hostAliases
+export const UPDATE_SERVICE_HOSTALIASES_REQUEST = 'UPDATE_SERVICE_HOSTALIASES_REQUEST'
+export const UPDATE_SERVICE_HOSTALIASES_SUCCESS = 'UPDATE_SERVICE_HOSTALIASES_SUCCESS'
+export const UPDATE_SERVICE_HOSTALIASES_FAILURE = 'UPDATE_SERVICE_HOSTALIASES_FAILURE'
+
+const fetchUpdateHostAliases = (cluster, service, body, callback) => ({
+  [FETCH_API]: {
+    types: [
+      UPDATE_SERVICE_HOSTALIASES_REQUEST,
+      UPDATE_SERVICE_HOSTALIASES_SUCCESS,
+      UPDATE_SERVICE_HOSTALIASES_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/hostaliases`,
+    schema: {},
+    options: {
+      method: 'PUT',
+      body,
+    }
+  },
+  callback
+})
+
+export const updateHostAliases = (cluster, service, body, callback) =>
+  dispatch => dispatch(fetchUpdateHostAliases(cluster, service, body, callback))

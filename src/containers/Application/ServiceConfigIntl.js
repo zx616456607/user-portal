@@ -10,6 +10,7 @@
  * @date 2018-08-28
  */
 import { defineIntlMessages } from '../../common/tools'
+import {mapData} from "../../components/AppModule/ServiceIntl/AppServiceDetailIntl";
 
 const messageObj = {
   prefix: 'ServiceConfig',
@@ -344,7 +345,9 @@ const messageObj = {
     hostAliasesTip: '/etc/hosts 记录',
     subdomainPlaceholder: '例如：foo',
     subdomain: '子域',
-    hostAliasesPlaceholder: '如：example.com'
+    hostAliasesPlaceholder: '如：example.com',
+    hostnameIsRequired: '主机名不能为空',
+    subdomainIsRequired: '子域名不能为空'
   }
 }
 

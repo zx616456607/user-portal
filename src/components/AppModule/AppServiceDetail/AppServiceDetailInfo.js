@@ -1506,6 +1506,8 @@ class AppServiceDetailInfo extends Component {
         </div>
         <ContainerNetwork
           forDetail
+          serviceDetail={serviceDetail}
+          cluster={cluster}
           formItemLayout={formItemLayout}
           form={form}
           intl={intl}
