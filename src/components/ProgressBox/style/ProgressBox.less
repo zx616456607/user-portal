@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #ProgressBox {
   height:100%;
   .boxContainer {
@@ -25,7 +26,7 @@
             overflow: hidden;
             z-index: 2;
             border-radius: 50%;
-            border: 2px solid #00aaee;
+            border: 2px solid  @primary-color;
             transition: all 1s ease;
             .water {
               position: absolute;
@@ -37,12 +38,12 @@
               animation-timing-function: linear;
               animation-name: spin;
               z-index: 114;
-              background: #00aaee;
+              background:  @primary-color ;
               transition: all 1s ease;
               animation-duration: 10s;
             }
             .w2 {
-              background: #68cff7;
+              background: @primary-color ;
               left: 20%;
               z-index: 110;
             }

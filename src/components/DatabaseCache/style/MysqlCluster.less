@@ -1,5 +1,6 @@
+@import "../../../assets/style/site/core.less";
 @borderColor: #F2F2F2;
-@activeColor: #2db7f5;
+@activeColor: @primary-color;
 @boxColor: #C2C2C2;
 #mysqlDatabase {
   .ant-btn {
@@ -91,7 +92,7 @@
             position: absolute;
             z-index: 100;
             opacity: 0;
-            background: #0b9eeb;
+            background: @primary-color;
             top: 6px;
             left: 63px;
             width: 60px;
