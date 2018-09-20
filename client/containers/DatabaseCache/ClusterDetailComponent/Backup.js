@@ -150,7 +150,10 @@ class Backup extends React.Component {
         success: {
           func: () => {
             notification.success(`操作成功,集群数据将回滚至 ${name} 状态`)
-            setTimeout(() => this.getList())
+            setTimeout(() => {
+              this.props.rollBackSuccess()
+              this.getList()
+            })
           },
         },
         failed: {
