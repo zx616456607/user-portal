@@ -1218,7 +1218,11 @@ class ProjectDetail extends Component {
       <QueueAnim>
         <div key='projectDetailBox' className="projectDetailBox">
           <div className="goBackBox">
-            <span className="goBackBtn pointer" onClick={() => browserHistory.push(url)}>返回</span>
+              <span className="back"
+                  onClick={() => browserHistory.push(url)}>
+                <span className="backjia"></span>
+                <span className="btn-back">返回</span>
+              </span>
             <i />
             项目详情
           </div>

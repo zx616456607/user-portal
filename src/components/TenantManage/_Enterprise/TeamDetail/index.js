@@ -793,7 +793,11 @@ class TeamDetail extends Component {
         <div key="tenantTeamDetail" id='tenantTeamDetail'>
           <Row className="teamDetailHeader">
             <div className="goBackBox">
-              <span className="goBackBtn pointer" onClick={() => browserHistory.push(`/tenant_manage/team?teamPage=${teamPage}`)}>返回</span>
+              <span className="back"
+                  onClick={() => browserHistory.push(`/tenant_manage/team?teamPage=${teamPage}`)}>
+                <span className="backjia"></span>
+                <span className="btn-back">返回</span>
+              </span>
               <i />
               团队详情
             </div>
