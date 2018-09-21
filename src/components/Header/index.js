@@ -33,6 +33,7 @@ import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 import TenxIcon from '@tenx-ui/icon'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
+import AppIntlMessages from '../../containers/App/Intl'
 import { getDeepValue } from '../../../client/util/util'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -308,11 +309,12 @@ class Header extends Component {
       loginUser,
       getProjectVisibleClusters,
     } = this.props
+    const { formatMessage } = this.props.intl
     const config = getCookie(USER_CURRENT_CONFIG) || ''
     const [ username, namespace, clusterID ] = config.split(',')
     const projectsRes = await loadProjects(this.props, { failed: {} }) || {}
     if (projectsRes.error) {
-      notification.warn('加载项目失败')
+      notification.warn(formatMessage(IntlMessages.loadProjectsFailedTip))
       return
     }
     const projects = getDeepValue(projectsRes, [ 'response', 'result', 'data', 'projects' ]) || []
@@ -323,7 +325,7 @@ class Header extends Component {
       }
     })
     if (!defaultProject) {
-      notification.warn('帐号还未加入任何项目，请先『创建项目』或『联系管理员加入项目』')
+      notification.warn(formatMessage(AppIntlMessages.noProjetsTip))
       // browserHistory.push('/tenant_manage/project_manage')
       setCurrent({
         space: { noProjectsFlag: true },
@@ -335,7 +337,7 @@ class Header extends Component {
     })
     const clustersRes = await getProjectVisibleClusters(defaultProject.projectName, { failed: {} }) || {}
     if (clustersRes.error) {
-      notification.warn('加载集群失败')
+      notification.warn(formatMessage(IntlMessages.loadClustersFailedTip))
       return
     }
     const clusters = getDeepValue(clustersRes, [ 'response', 'result', 'data', 'clusters' ]) || []
@@ -346,7 +348,7 @@ class Header extends Component {
       }
     })
     if (!defaultCluster) {
-      notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
+      notification.warn(formatMessage(AppIntlMessages.noClustersTip))
       // browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
       defaultProject.noClustersFlag = true
       setCurrent({

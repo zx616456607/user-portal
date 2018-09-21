@@ -16,7 +16,10 @@ import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
-import { isEmptyObject, getPortalRealMode, isResourcePermissionError, isResourceQuotaError } from '../../common/tools'
+import {
+  isEmptyObject, getPortalRealMode, isResourcePermissionError,
+  isResourceQuotaError, getCookie,
+} from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
@@ -42,6 +45,7 @@ import CommonIntlMessages from '../CommonIntl'
 import noProjectsImage from '../../assets/img/no-projects.png'
 import noClustersImage from '../../assets/img/no-clusters.png'
 import classNames from 'classnames'
+import { USER_CURRENT_CONFIG } from '../../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -404,9 +408,17 @@ class App extends Component {
         <div className={loadingClass}>
           <img src={noProjectsImage} alt="no-projects" />
           <br />
-          帐号还未加入任何项目，请先
+          <FormattedMessage
+            {...IntlMessages.noProjetsTipWithLink}
+            values={{
+              link: <Link to="/tenant_manage/project_manage">
+                <FormattedMessage {...IntlMessages.createProject} />
+              </Link>
+            }}
+          />
+          {/* 帐号还未加入任何项目，请先
           <Link to="/tenant_manage/project_manage">『创建项目』</Link>
-          或『联系管理员加入项目』
+          或『联系管理员加入项目』 */}
         </div>
       )
     }
@@ -415,9 +427,17 @@ class App extends Component {
         <div className={loadingClass}>
           <img src={noClustersImage} alt="no-clusters" />
           <br />
-          项目暂无授权的集群，请先
+          <FormattedMessage
+            {...IntlMessages.noClustersTipWithLink}
+            values={{
+              link: <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>
+                <FormattedMessage {...IntlMessages.applyClusters} />
+              </Link>
+            }}
+          />
+          {/* 项目暂无授权的集群，请先
           <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>申请『授权集群』</Link>
-          或选择其他项目
+          或选择其他项目 */}
         </div>
       )
     }
@@ -559,6 +579,7 @@ class App extends Component {
       redirectUrl,
       pathnameWithHash,
       loginUser,
+      currentUser,
       Sider,
       siderStyle,
       UpgradeModal,
@@ -648,6 +669,29 @@ class App extends Component {
               <TenxIcon type="lost" size={120}/>
             </p>
             <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={currentUser !== loginUser.userName}
+          title={formatMessage(IntlMessages.loginUserChanged)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loginUserChangedBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+              <FormattedMessage {...IntlMessages.loginUserChangedTips} values={{ user: currentUser }} />
+            </div>
           </div>
         </Modal>
         {this.getStatusWatchWs()}
@@ -769,6 +813,8 @@ function mapStateToProps(state, props) {
     redirectUrl += hash
     pathnameWithHash += hash
   }
+  const config = getCookie(USER_CURRENT_CONFIG) || ''
+  let [ currentUser ] = config.split(',')
   return {
     reduxState: state,
     errorMessage,
@@ -777,6 +823,7 @@ function mapStateToProps(state, props) {
     pathnameWithHash,
     current,
     sockets,
+    currentUser,
     loginUser: loginUser.info,
     platform: (platform.result ? platform.result.data : {})
   }
