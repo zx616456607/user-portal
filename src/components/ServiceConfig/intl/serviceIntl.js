@@ -29,7 +29,6 @@ export const mapData = {
     createConfig: '创建配置',
     createSucc: '创建成功',
     delConfigGroup: '删除',
-    searchPlaceHolder: '按配置组名称搜索',
     searchClassPlaceHolder: '请输入分类名搜索',
     delConfigFailed: '删除配置文件失败!',
     delConfigSucc: '删除配置文件成功',

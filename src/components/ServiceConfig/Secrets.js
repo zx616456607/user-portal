@@ -351,8 +351,9 @@ class ServiceSecretsConfig extends React.Component {
             <i className="fa fa-trash-o" /> {formatMessage(secretIntl.deleteSecretGroup)}
           </Button>
           <CommonSearchInput
+            style={{marginLeft: '0'}}
             onSearch={value => { this.setState({ searchInput: value && value.trim()}) }}
-            placeholder="按配置组名称搜索"
+            placeholder={formatMessage(indexIntl.searchPlaceHolder)}
             size="large"
           />
         </div>

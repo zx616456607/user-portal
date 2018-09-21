@@ -344,7 +344,9 @@ class Service extends Component {
                       <span className="citeCount verticalCenter">({configGroup.length})</span>
                     </li>}
                   {<li className={classNames("configSort pointer", { active: noAnnotations, hidden: Boolean(searchValue) })} onClick={() => this.sortFilter(null, true)}>
-                      <span className="sortName">{formatMessage(serviceIntl.groupsWithoutClass)}</span>
+                      <Tooltip title={formatMessage(serviceIntl.groupsWithoutClass)}>
+                        <span className="sortName textoverflow">{formatMessage(serviceIntl.groupsWithoutClass)}</span>
+                      </Tooltip>
                       <i className="fa fa-trash-o fa-lg verticalCenter pointer" aria-hidden="true" />
                       <i className="fa fa-pencil-square-o fa-lg verticalCenter pointer" aria-hidden="true" />
                       <span className="citeCount verticalCenter">({noAnnotationsLength})</span>
@@ -358,12 +360,12 @@ class Service extends Component {
               <Button type="primary" size="large" onClick={e => this.configModal(true, false)}>
                 <i className="fa fa-plus" /> {formatMessage(indexIntl.createGroup)}
               </Button>
-              <Button size="large" onClick={() => this.setState({ delModal: true })} style={{ marginLeft: "12px", marginRight: "12px" }} disabled={!this.state.configArray || this.state.configArray.length < 1}>
+              <Button size="large" onClick={() => this.setState({ delModal: true })} style={{ marginLeft: "12px" }} disabled={!this.state.configArray || this.state.configArray.length < 1}>
                 <i className="fa fa-trash-o" style={{ marginRight: '5px' }} />{formatMessage(serviceIntl.delConfigGroup)}
               </Button>
               <CommonSearchInput onSearch={value => {
               this.setState({ searchConfigName: value && value.trim() })
-            }} placeholder={formatMessage(serviceIntl.searchPlaceHolder)} size="large" />
+            }} placeholder={formatMessage(indexIntl.searchPlaceHolder)} size="large" />
               <CollapseList loadData={this.loadData} scope={this} cluster={cluster} loadConfigGroup={this.props.loadConfigGroup} groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup} isFetching={isFetching} handChageProp={this.handChageProp()} configArray={this.state.configArray} configGroupName={obj => this.props.configGroupName(obj)} />
             </Col>
           </Row>

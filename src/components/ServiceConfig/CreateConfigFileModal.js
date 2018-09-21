@@ -221,7 +221,8 @@ let CreateConfigFileModal = React.createClass({
     this.setState({ method, nameDisabled: method === 2 })
   },
   render() {
-    const { type, form, configNameList, scope: parentScope } = this.props
+    const { type, form, configNameList, scope: parentScope, intl } = this.props
+    const { formatMessage } = intl
     const { getFieldProps,isFieldValidating,getFieldError } = form
     const { filePath, tempConfigDesc, nameDisabled, tempConfigName } = this.state
     const configFileTipStyle = {
@@ -234,7 +235,7 @@ let CreateConfigFileModal = React.createClass({
       textAlign:'center',
       paddingRight:'10px'
     }
-    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
+    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.configNameExists },
@@ -249,7 +250,7 @@ let CreateConfigFileModal = React.createClass({
     });
     return(
       <Modal
-        title={formatMessage(indexIntl.createConfigModalTitle) + (type === 'secrets' ? formatMessage(indexIntl.serectObj): formatMessage(indexIntl.configFile))}
+        title={formatMessage(indexIntl.create) + (type === 'secrets' ? formatMessage(indexIntl.serectObj): formatMessage(indexIntl.configFile))}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
         visible={this.props.visible}
@@ -267,7 +268,11 @@ let CreateConfigFileModal = React.createClass({
             }
           </div>
           <Form horizontal>
-            <FormItem  {...formItemLayout} label={formatMessage(indexIntl.configName)}>
+            <FormItem  {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configName)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configName)}</span>
+              </Tooltip>
+            }>
               <Input
                 disabled={nameDisabled}
                 className="configName"
@@ -282,7 +287,11 @@ let CreateConfigFileModal = React.createClass({
 
               />
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage(indexIntl.configDesc)}>
+            <FormItem {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configDesc)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configDesc)}</span>
+              </Tooltip>
+            }>
               <ConfigFileContent
                 getMethod={this.getMethod}
                 configNameList={configNameList}

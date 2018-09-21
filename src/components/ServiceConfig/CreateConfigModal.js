@@ -188,8 +188,8 @@ let CreateConfigModal = React.createClass({
       initialValue: groupEdit ? currentSortArray : []
     })
     const formItemLayout = {
-      labelCol: { span: 6 },
-      wrapperCol: { span: 18 }
+      labelCol: { span: 8 },
+      wrapperCol: { span: 16 }
     }
     let children = []
     labelWithCount.length > 0 && labelWithCount.forEach(item => {

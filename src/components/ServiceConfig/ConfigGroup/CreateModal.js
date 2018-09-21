@@ -61,8 +61,8 @@ class CreateServiceGroupModal extends React.Component {
     const { formatMessage } = intl
     const { getFieldProps } = form
     const formItemLayout = {
-      labelCol: { span: 6 },
-      wrapperCol: { span: 18 },
+      labelCol: { span: 8 },
+      wrapperCol: { span: 16 },
     }
     const nameProps = getFieldProps('name', {
       rules: [

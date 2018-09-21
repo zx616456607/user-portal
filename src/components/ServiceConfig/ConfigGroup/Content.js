@@ -13,11 +13,11 @@
 import React from 'react'
 import { Link } from 'react-router'
 import { injectIntl } from 'react-intl'
-import indexIntl from '../intl/indexIntl'
 import { Timeline, Row, Icon, Button, Tooltip, Modal } from 'antd'
-import secretsIntl from '../intl/secretsIntl';
+import secretIntl from '../intl/secretsIntl'
+import indexIntl from '../intl/indexIntl'
 
-export default class ConfigGroupContent extends React.Component {
+class ConfigGroupContent extends React.Component {
   state = {
     moreModalVisible: false,
     moreUseArray: [],
@@ -231,3 +231,6 @@ export default class ConfigGroupContent extends React.Component {
     )
   }
 }
+export default injectIntl(ConfigGroupContent, {
+  withRef: true,
+})

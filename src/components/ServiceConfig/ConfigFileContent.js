@@ -22,6 +22,7 @@ import filter from 'lodash/filter'
 import indexIntl from './intl/indexIntl'
 
 import NotificationHandler from '../../components/Notification'
+import { format } from 'util';
 const notify = new NotificationHandler()
 
 const RadioGroup = Radio.Group
@@ -322,14 +323,14 @@ class ConfigFileContent extends React.Component {
               <Row className="importRow">
                 <Col className="selleft" span={12}>
                   <FormItem className="formItem">
-                    <Select disabled={isUpdate} {...selProjectProps} className="selBranch" placeholder="请选择代码仓库">
+                    <Select disabled={isUpdate} {...selProjectProps} className="selBranch" placeholder={formatMessage(indexIntl.projectPlaceholder)}>
                       {project_options}
                     </Select>
                   </FormItem>
                 </Col>
                 <Col className="selright" span={12}>
                   <FormItem className="formItem">
-                    <Select disabled={isUpdate} {...selBranchProps} className="selBranch" placeholder="请选择代码分支">
+                    <Select disabled={isUpdate} {...selBranchProps} className="selBranch" placeholder={formatMessage(indexIntl.branchPlaceholder)}>
                       {branch_options}
                     </Select>
                   </FormItem>
@@ -338,11 +339,11 @@ class ConfigFileContent extends React.Component {
               <Row className="importRow">
                 <Col span={20}>
                   <FormItem className="formItem">
-                    <Input disabled={isUpdate} {...pathProps} className="path" placeholder='请输入配置文件路径，以“./”开头' />
+                    <Input disabled={isUpdate} {...pathProps} className="path" placeholder={formatMessage(indexIntl.pathPlaceholder)} />
                   </FormItem>
                 </Col>
                 <Col span={4}>
-                  <Button type="primary" onClick={this.onImportClick} loading={btnLoading}>导入</Button>
+                  <Button type="primary" onClick={this.onImportClick} loading={btnLoading}>{formatMessage(indexIntl.import)}</Button>
                 </Col>
                 <Col className="importStatus" span={4}>
                   {
@@ -352,7 +353,7 @@ class ConfigFileContent extends React.Component {
                         ele = "" // <span className="primary">导入中...</span>
                       } else {
                         if (fetchStatus){
-                          ele = <span className="succ">{/*<Icon type="check-circle-o" /> */}导入成功</span>
+                          ele = <span className="succ">{/*<Icon type="check-circle-o" /> */}{formatMessage(indexIntl.importSucc)}</span>
                         } else {
                           ele = "" // <span className="failed">导入失败</span>
                         }

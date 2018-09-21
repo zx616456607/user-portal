@@ -253,7 +253,7 @@ class CollapseContainer extends Component {
         imageName = formatLinkContainer(self.props.appList, groupname, configFileItem.name)
         if (imageName.length == 0) {
           volume = <td style={{ textAlign: 'center' }}>
-            <div>{formatMessage(indexIntl.onVolumeMounts)}</div>
+            <div>{formatMessage(indexIntl.noVolumeMounts)}</div>
           </td>
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
@@ -270,7 +270,7 @@ class CollapseContainer extends Component {
         }
       } else {
         volume = <td style={{ textAlign: 'center' }}>
-            <div>{formatMessage(indexIntl.onVolumeMounts)}</div>
+            <div>{formatMessage(indexIntl.noVolumeMounts)}</div>
           </td>
       }
       return <Timeline.Item key={configFileItem.name}>

@@ -38,7 +38,7 @@ export const mapData = {
     configNamePlaceHolder: '如 {name}',
     configDesc: '内容',
     importFileFailed: '导入失败, 请检查目录结构',
-    onVolumeMounts: '暂无挂载',
+    noVolumeMounts: '暂无挂载',
     appTitle: '应用：',
     serviceTitle: '服务：',
     projectName: '仓库：',
@@ -72,8 +72,13 @@ export const mapData = {
     autoUpdateCheck: '提交代码自动更新',
     editorTitle: '配置文件内容',
     updateConfigSucc: '修改配置文件成功',
-    update: '修改'
-
+    update: '修改',
+    projectPlaceholder: '请选择代码仓库',
+    branchPlaceholder: '请选择代码分支',
+    pathPlaceholder: '请输入配置文件路径，以“./”开头',
+    searchPlaceHolder: '按配置组名称搜索',
+    import: '导入',
+    importSucc: '导入成功',
   }
 }
 

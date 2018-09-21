@@ -145,7 +145,7 @@ let UpdateConfigFileModal = React.createClass({
     const { getFieldProps } = form
     const { filePath, tempConfigDesc, method, nameDisabled } = this.state
     const parentScope = scope
-    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
+    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const descProps = getFieldProps('data', {
       rules: [
         { validator: this.configDescExists },
@@ -175,12 +175,20 @@ let UpdateConfigFileModal = React.createClass({
             }
           </div>
           <Form horizontal>
-            <FormItem  {...formItemLayout} label={formatMessage(indexIntl.configName)}>
+            <FormItem  {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configName)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configName)}</span>
+              </Tooltip>
+            }>
               <Input
                 disabled={nameDisabled}
                 className="configName" type="text" disabled {...nameProps}/>
             </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage(indexIntl.configDesc)}>
+            <FormItem {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configDesc)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configDesc)}</span>
+              </Tooltip>
+            }>
               <ConfigFileContent
                 isUpdate={true}
                 getMethod={this.getMethod}
