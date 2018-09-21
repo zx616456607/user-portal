@@ -2290,8 +2290,6 @@
   "AppModule.AppServiceDetailIntl.readWriteRight": "RW permissions",
   "AppModule.AppServiceDetailIntl.readWrite": "Readable and writable",
   "AppModule.AppServiceDetailIntl.containerNetwork": "ContainerNetwork",
-  "AppModule.AppServiceDetailIntl.updateHostnameFailed": "Failed to update hostname",
-  "AppModule.AppServiceDetailIntl.updateHostAliasesFailed": "Failed to update hostalias",
   "ServiceCommon.start": "start",
   "ServiceCommon.stop": "stop",
   "ServiceCommon.refresh": "refresh",

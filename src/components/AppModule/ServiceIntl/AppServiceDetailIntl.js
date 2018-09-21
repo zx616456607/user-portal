@@ -536,8 +536,6 @@ export const mapData = {
     readWriteRight: '读取权限',
     readWrite: '可读可写',
     containerNetwork: '容器网络',
-    updateHostnameFailed: '修改主机名失败',
-    updateHostAliasesFailed: '修改主机别名失败',
   }
 }
 
