@@ -34,6 +34,8 @@ export const mapData = {
     changePwd: '修改密码',
     team: '团队',
     project: '项目',
+    loadProjectsFailedTip: '加载项目失败',
+    loadClustersFailedTip: '加载集群失败',
   },
 }
 

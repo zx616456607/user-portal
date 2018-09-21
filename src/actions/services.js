@@ -303,9 +303,9 @@ function fetchServiceContainerList(cluster, serviceName, query, bpmQuery,callbac
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, query, bpmQuery,callback) {
+export function loadServiceContainerList(cluster, serviceName, query, bpmQuery, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery ,callback))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery, callback))
   }
 }
 

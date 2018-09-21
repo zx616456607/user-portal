@@ -273,7 +273,7 @@ class ApprovalOperation extends React.Component {
 
     let approvalPass = 0
 
-    let accountType
+    const accountType = '共享项目'
     if (!_.isEmpty(approvalStateArr)) {
       for(const value of approvalStateArr) {
         if (value === true) {
@@ -281,50 +281,45 @@ class ApprovalOperation extends React.Component {
         }
       }
     }
-    if (recordData.applier === recordData.namespace) {
-      accountType = '个人项目'
-    } else {
-      accountType = '共享项目'
-    }
-        // 通过 rowSelection 对象表明需要行选择
-  const rowSelection = {
-    onSelect: (record, selected, selectedRows) => {
-      this.cancelApprovalState('all')
-      for(const value of selectedRows) {
-        this.setApprovalState(value.key - 1)
-      }
-    },
-    onSelectAll: (selected, selectedRows, changeRows) => {
-      // console.log('selected', selected,);
-      // console.log('selectedRows',selectedRows,);
-      // console.log('changeRows', changeRows);
-      if(selected === true) { // 表示全部选中
-        this.setApprovalState('all')
-      }
-      if(selected === false) { //表示全部取消
+    // 通过 rowSelection 对象表明需要行选择
+    const rowSelection = {
+      onSelect: (record, selected, selectedRows) => {
         this.cancelApprovalState('all')
+        for(const value of selectedRows) {
+          this.setApprovalState(value.key - 1)
+        }
+      },
+      onSelectAll: (selected, selectedRows, changeRows) => {
+        // console.log('selected', selected,);
+        // console.log('selectedRows',selectedRows,);
+        // console.log('changeRows', changeRows);
+        if(selected === true) { // 表示全部选中
+          this.setApprovalState('all')
+        }
+        if(selected === false) { //表示全部取消
+          this.cancelApprovalState('all')
+        }
+      },
+      onChange: (selectedRowKeys) => {
+        this.setState({ selectedRowKeys });
+      },
+      selectedRowKeys: selectedRowKeys,
+    }
+    const rowClick = (record, index, e) => {
+      const newselectedRowKeys = cloneDeep(selectedRowKeys)
+      if (newselectedRowKeys.includes(index+1)){
+        delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
+      } else {
+        newselectedRowKeys.push(index + 1)
       }
-    },
-    onChange: (selectedRowKeys) => {
-      this.setState({ selectedRowKeys });
-    },
-    selectedRowKeys: selectedRowKeys,
-  }
-  const rowClick = (record, index, e) => {
-    const newselectedRowKeys = cloneDeep(selectedRowKeys)
-    if (newselectedRowKeys.includes(index+1)){
-      delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
-    } else {
-      newselectedRowKeys.push(index + 1)
+      this.setState({ selectedRowKeys: compact(newselectedRowKeys) })
+      const { approvalState } = this.state
+      if (approvalState[index] === true) {
+        this.cancelApprovalState(index)
+      } else {
+        this.setApprovalState(index)
+      }
     }
-    this.setState({ selectedRowKeys: compact(newselectedRowKeys) })
-    const { approvalState } = this.state
-    if (approvalState[index] === true) {
-      this.cancelApprovalState(index)
-    } else {
-      this.setApprovalState(index)
-    }
-  }
     return (
       <Modal
         visible = {visible}
@@ -382,7 +377,8 @@ class ApprovalOperation extends React.Component {
 
 const mapStateToProps = (state, props) => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
-  const choiceClusters = state.projectAuthority.projectVisibleClusters.default
+  const projectName = getDeepValue(state, [ 'entities', 'current', 'space', 'projectName' ])
+  const choiceClusters = state.projectAuthority.projectVisibleClusters[projectName]
 
   const { data: recordData = {} , isFetching: detailDataisFetching} = detailData
   const { applyDetails, approveDetails } = recordData

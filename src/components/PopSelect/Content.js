@@ -22,14 +22,11 @@ class PopSelect extends Component {
   constructor(props) {
     super(props)
     this.handleSearchInput = this.handleSearchInput.bind(this)
-    this.handleSearchUserInput = this.handleSearchUserInput.bind(this)
-    const { list, allUsers } = props
+    const { list } = props
     this.userListId = 'user_' +(Math.random() *10).toString(16)
     this.searchListId = 'search_' + (Math.random() *10).toString(16)
     this.state = {
       list,
-      userSearchList: allUsers,
-      userSearchInput: '',
     }
   }
 
@@ -41,29 +38,10 @@ class PopSelect extends Component {
   // }
 
   componentWillReceiveProps(nextProps) {
-    const { list, allUsers } = nextProps
+    const { list } = nextProps
     this.setState({
       list,
-      userSearchList: allUsers,
     })
-  }
-  userKeyCode(e) {
-    const { userSearchList,userListIndex  } = this.state
-    switch(e.keyCode) {
-      case 38:{// up
-        this.userListIndexSelect(userSearchList.length -1,'-')
-        return;
-      }
-      case 40:{// down
-        this.userListIndexSelect(userSearchList.length -1,'+')
-        return;
-      }
-      case 13: {// enter
-        this.props.onChange(userSearchList[userListIndex])
-        return
-      }
-      default: this.setState({userListIndex: 0});
-    }
   }
   userListIndexSelect(num, mark) {
     const { userListIndex = 0 } = this.state
@@ -143,46 +121,6 @@ class PopSelect extends Component {
     })
   }
 
-  handleSearchUserInput(e) {
-    const { userSearchInput, userSearchList } = this.state
-    const { allUsers } = this.props
-    let value = e.target.value
-    if (typeof value !== undefined) {
-      value = value.trim()
-    } else {
-      value = userSearchInput
-    }
-    this.setState({
-      userSearchInput: value,
-      userSearchList: allUsers.filter(user => user.userName.indexOf(value) > -1),
-    })
-  }
-
-  getSpecial() {
-    const { onChange, special, popTeamSelect } = this.props
-    if (!special && !popTeamSelect) {
-      return
-    }
-    return (
-      <div className="searchInt">
-        {/* <div style={{lineHeight:'30px'}}>
-          用户
-        </div> */}
-        <ul className="searchList">
-          <li
-            onClick={() => onChange(MY_SPACE)}
-            className="myItem">
-            {
-              popTeamSelect
-                ? MY_SPACE.teamName
-                : MY_SPACE.name
-            }
-          </li>
-        </ul>
-      </div>
-    )
-  }
-
   render() {
     const {
       onChange, loading, special, popTeamSelect, Search,
@@ -201,6 +139,7 @@ class PopSelect extends Component {
           }
           let liProps = {
             key: name,
+            title: name,
             className: classNames({
               searchItem: true,
               itemDisabled: disabled,
@@ -222,45 +161,6 @@ class PopSelect extends Component {
           )
         })
     )
-    let userList
-    if (isSysAdmin) {
-      userList = (
-        <div>
-          <span className='titlesearch'>
-            <Input
-              placeholder="请输入用户名"
-              size="large"
-              onChange={this.handleSearchUserInput}
-              onPressEnter={this.handleSearchUserInput}
-              onKeyUp={(e)=> this.userKeyCode(e)}
-            />
-            <Icon type="search" className='titleicon' onClick={this.handleSearchUserInput}/>
-          </span>
-          <ul className="searchList" id={this.userListId}>
-            {
-              userSearchList.length === 0
-                ? <div className='loadingBox'>结果为空</div>
-                :
-                userSearchList.map((user, index) => {
-
-                  let liProps = {
-                    key: user.namespace + index,
-                    className: classNames({
-                      searchItem: true,
-                      selectItem: userListIndex == index
-                    })
-                  }
-                  return(
-                    <li {...liProps}  onClick={onChange.bind(this, user)}>
-                    {user.userName}
-                    </li>
-                  )
-                })
-            }
-          </ul>
-        </div>
-      )
-    }
     if (loading) {
       searchList = (
         <div className='loadingBox'>
@@ -298,37 +198,30 @@ class PopSelect extends Component {
     const { formatMessage } = window._intl
     return (
       <div className="PopSelectContent">
-        {this.getSpecial()}
-        <Collapse accordion defaultActiveKey={collapseDefaultActiveKey || ['team']} >
-          {
-            isSysAdmin && (
-              <Panel header={formatMessage(IntlMessages.personalProject)} key="user">
-                {userList}
-              </Panel>
-            )
-          }
+        {
+          Search && (
+            <span className='titlesearch'>
+              <Input
+                placeholder="请输入项目名"
+                size="large"
+                ref='titleInput'
+                id='titleInput'
+                onChange={this.handleSearchInput}
+                onPressEnter={this.handleSearchInput}
+                onKeyUp={(e)=> this.changeKeyCode(e)}
+              />
+              <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
+            </span>
+          )
+        }
+        <ul className="searchList" id={this.searchListId}>
+          {searchList}
+        </ul>
+        {/* <Collapse accordion defaultActiveKey={collapseDefaultActiveKey || ['team']} >
           <Panel header={formatMessage(IntlMessages.sharedProject)} key="team">
-            {
-              Search && (
-                <span className='titlesearch'>
-                  <Input
-                    placeholder="请输入项目名"
-                    size="large"
-                    ref='titleInput'
-                    id='titleInput'
-                    onChange={this.handleSearchInput}
-                    onPressEnter={this.handleSearchInput}
-                    onKeyUp={(e)=> this.changeKeyCode(e)}
-                  />
-                  <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
-                </span>
-              )
-            }
-            <ul className="searchList" id={this.searchListId}>
-              {searchList}
-            </ul>
+
           </Panel>
-        </Collapse>
+        </Collapse> */}
       </div>
     )
   }
