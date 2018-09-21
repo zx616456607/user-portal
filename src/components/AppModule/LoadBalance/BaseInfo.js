@@ -16,6 +16,7 @@ import Notification from '../../Notification'
 import './style/BaseInfo.less'
 import loadBalanceIcon from '../../../assets/img/appmanage/loadBalance.png'
 import {lbNameCheck} from "../../../common/naming_validation";
+import { getDeepValue } from "../../../../client/util/util";
 
 const FormItem = Form.Item
 
@@ -182,7 +183,7 @@ class BaseInfo extends React.Component {
           <Row style={{ marginBottom: 15 }}>
             <Col span={10}>
               地址IP：<span className="successColor">
-              {deployment && deployment.metadata && deployment.metadata.annotations && deployment.metadata.annotations.allocatedIP}
+              {getDeepValue(deployment, ['metadata', 'annotations', 'podIP'])}
               </span>
             </Col>
             <Col span={14}>
@@ -217,7 +218,8 @@ class BaseInfo extends React.Component {
           </Row>
           <Row>
             <Col span={10}>
-              代理类型：集群内
+              代理类型：
+              {getDeepValue(deployment, ['metadata', 'labels', 'agentType']) === 'outside' ? '集群外' : '集群内'}
             </Col>
             <Col span={14} className="balanceDescBox">
               <span className="nameLabel">
