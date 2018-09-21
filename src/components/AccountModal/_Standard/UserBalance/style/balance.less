@@ -1,5 +1,6 @@
+@import "../../../../../assets/style/site/core.less";
 @borderColor: #E4E8F3;
-@activeColor: #2db7f5;
+@activeColor: @primary-color;
 #UserBalance {
   margin-bottom: 50px;
   .myAccount,
@@ -78,13 +79,13 @@
       height: 0;
       border-bottom: 15px solid transparent;
       border-top: 15px solid transparent;
-      border-right: 15px solid #00A0E9;
+      border-right: 15px solid @primary-color;
       font-size: 0;
       line-height: 0;
     }
     .btn-back {
       display: inline-block;
-      background: #00A0E9;
+      background: @primary-color;
       color: white;
       height: 30px;
       line-height: 30px;
@@ -108,7 +109,7 @@
     color: #1a7db6;
     font-size: 13px !important;
     background-color: #d9edf6;
-    border: 1px dashed #85d7fd !important;
+    border: 1px dashed  @primary-color !important;
     padding: 10px 20px;
     border-radius: 6px;
     margin: 20px 0;
@@ -154,7 +155,7 @@
         height: 0;
         border-bottom: 0 solid transparent;
         border-top: 20px solid transparent;
-        border-right: 23px solid #00A1EC;
+        border-right: 23px solid  @primary-color;
         font-size: 0;
         line-height: 0;
         position: absolute;
@@ -218,7 +219,7 @@
         height: 0;
         border-bottom: 0 solid transparent;
         border-top: 20px solid transparent;
-        border-right: 23px solid #00A1EC;
+        border-right: 23px solid  @primary-color;
         font-size: 0;
         line-height: 0;
         position: absolute;
@@ -292,7 +293,7 @@
           height: 0;
           border-bottom: 0 solid transparent;
           border-top: 20px solid transparent;
-          border-right: 23px solid #00A1EC;
+          border-right: 23px solid  @primary-color;
           font-size: 0;
           line-height: 0;
           position: absolute;
@@ -301,7 +302,7 @@
         }
       }
       .wrap-img.selected {
-        border-color: #00A1EC;
+        border-color: @primary-color;
         i {
           display: inline-block;
         }
@@ -369,7 +370,7 @@
       margin-bottom: 10px;
     }
     .paySuccess.question {
-      background: #009EE7;
+      background: @primary-color;
     }
     .payText.question {
       border: 0;

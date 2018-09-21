@@ -1,3 +1,13 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * AllService.less page
+ *
+ * @author zhangtao
+ * @date Thursday September 20th 2018
+ */
+@import "../../../assets/style/site/core.less";
 #AppServiceList {
   width: 100%;
   padding-top: 20px;
@@ -148,10 +158,10 @@
           background: #56bc56;
         }
         .publicColor{
-          background: #2cb8f6;
+          background:  @primary-color;
         }
         .volumeColor{
-          background: #00A0EA;
+          background:  @primary-color;
         }
       }
       .selectIconTitle {
@@ -207,7 +217,7 @@
           vertical-align: middle;
           transition: all 0.2s ease-in-out;
           &:hover {
-            fill:#10B5FF;
+            fill: @primary-color;
           }
         }
         > .anticon:before{

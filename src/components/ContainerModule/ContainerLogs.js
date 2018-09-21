@@ -21,7 +21,7 @@ import './style/ContainerLogs.less'
 import { loadContainerDetailEvents,setTingLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 import { MAX_LOGS_NUMBER } from '../../constants'
-import { FormattedMessage } from 'react-intl'
+import {injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
 
 const RETRY_TIMTEOUT = 5000
@@ -428,10 +428,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-ContainerLogs = connect(mapStateToProps, {
+ContainerLogs = injectIntl(connect(mapStateToProps, {
   // clearContainerLogs,
   loadContainerDetailEvents,
   setTingLogs
-})(ContainerLogs)
+})(ContainerLogs), { withRef: true })
 
 export default ContainerLogs

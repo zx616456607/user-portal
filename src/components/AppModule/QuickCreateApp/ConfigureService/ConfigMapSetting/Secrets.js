@@ -35,9 +35,7 @@ const PATH_REG = /^\//
 const SecretsConfigMap = React.createClass({
   loadSecrets() {
     const { currentCluster, getSecrets } = this.props
-    getSecrets({
-      cluster_id: currentCluster.clusterID,
-    })
+    getSecrets(currentCluster.clusterID)
   },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {

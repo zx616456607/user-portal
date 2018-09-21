@@ -1,3 +1,4 @@
+@import "../../../../../assets/style/site/core.less";
 #tenantTeamDetail {
   padding:0 20px;
   .teamDetailHeader{
@@ -70,7 +71,7 @@
     i{
       width: 6px;
       height: 16px;
-      background-color: #2db7f5;
+      background-color:  @primary-color;
       margin-left: 20px;
       margin-right: 10px;
     }
@@ -78,7 +79,7 @@
   .title {
     height: 18px;
     line-height: 18px;
-    border-left: 8px solid #24a7eb;
+    border-left: 8px solid  @primary-color;
     font-size: 16px;
     padding-left: 8px;
     margin-top: 6px;
@@ -147,7 +148,8 @@
       margin-right: 12px;
       border-radius: 3px;
       &:hover {
-        background: #00a0ea;color: white;
+        background:  @primary-color;
+        color: white;
       }
     }
     .ant-table {

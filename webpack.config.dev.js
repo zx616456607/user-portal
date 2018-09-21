@@ -17,6 +17,20 @@ const nodeModulesPath = path.join(__dirname, '/node_modules/')
 const hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
 const webpack_base = require('./webpack.config.base')
 const webpackMerge = require('webpack-merge')
+const customTheme = require('./theme.json')
+
+const defaultTheme = {
+  "@primary-color": "#2db7f5",
+  "@success-color": "#5cb85c",
+  "@warning-color": "#ffbf00",
+  "@error-color": "#f85a5a",
+  "@a-hover-color": "#57cfff",
+  // "@font-size-base": "12px",
+  "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
+  '@tenx-icon-url': "'/font/tenx-icon/iconfont'", // 请在url字符串两侧再加双引号!!! 否则替换会不能成功
+}
+
+const theme = Object.assign(defaultTheme, customTheme)
 
 console.log('Use development webpack config ...')
 const config = webpackMerge(webpack_base, {
@@ -104,16 +118,7 @@ const config = webpackMerge(webpack_base, {
           {
             loader: 'less-loader',
             options: {
-              modifyVars: {
-                // "@primary-color": "#2db7f5",
-                // "@success-color": "#5cb85c",
-                // "@warning-color": "#ffbf00",
-                // "@error-color": "#f85a5a",
-                // "@a-hover-color": "#57cfff",
-                // "@font-size-base": "12px",
-                "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
-                '@tenx-icon-url': "'/font/tenx-icon/iconfont'", // 请在url字符串两侧再加双引号!!! 否则替换会不能成功
-              }
+              modifyVars:theme,
             }
           },
           {

@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #ContainerList {  padding-top: 20px;
   padding-left: 20px;
   padding-right: 20px;
@@ -102,7 +103,7 @@
       }
       .ant-btn-group:hover {
         svg use {
-          fill: #2db7f5;
+          fill: @primary-color;
         }
       }
     }
@@ -168,7 +169,7 @@
           }
           .viewBtn:hover {
             use {
-              fill: #57c5f7;
+              fill: @primary-color;
               transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
               transition-property: all;
               transition-duration: 0.3s;
@@ -197,8 +198,8 @@
         background-color: #effdff;
         .viewBtn {
           color: #FFFFFF;
-          border-color: #2db7f5;
-          background-color: #2db7f5;
+          border-color: @primary-color;
+          background-color: @primary-color;
           use {
             fill: #FFFFFF !important;
             transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
