@@ -217,12 +217,12 @@ class LoadBalance extends React.Component {
     }, {
       title: '地址',
       width: '10%',
-      dataIndex: 'metadata.annotations.allocatedIP',
+      dataIndex: 'metadata.annotations.podIP',
     }, {
       title: '代理方式',
-      dataIndex: 'port',
+      dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: () => `集群外`,
+      render: text => text === 'inside' ? '集群内' : '集群外',
     }, {
       title: '监听器数量',
       width: '10%',
