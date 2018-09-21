@@ -156,7 +156,7 @@ export default class ContainerNetwork extends React.PureComponent {
 
   hostnameCheck = (rules, value, callback) => {
     const { forDetail, intl, originalHostname } = this.props
-    if (forDetail && !(!originalHostname && !value)) {
+    if (forDetail && originalHostname && !value) {
       return callback(intl.formatMessage(IntlMessage.hostnameIsRequired))
     }
     callback()
@@ -164,7 +164,7 @@ export default class ContainerNetwork extends React.PureComponent {
 
   subdomainCheck = (rules, value, callback) => {
     const { forDetail, intl, originalSubdomain } = this.props
-    if (forDetail && !(!originalSubdomain && !value)) {
+    if (forDetail && originalSubdomain && !value) {
       return callback(intl.formatMessage(IntlMessage.subdomainIsRequired))
     }
     callback()
