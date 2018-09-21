@@ -1503,15 +1503,15 @@ class AppServiceDetailInfo extends Component {
             </span>
             </div>
           </div>
+          <ContainerNetwork
+            forDetail
+            serviceDetail={serviceDetail}
+            cluster={cluster}
+            formItemLayout={formItemLayout}
+            form={form}
+            intl={intl}
+          />
         </div>
-        <ContainerNetwork
-          forDetail
-          serviceDetail={serviceDetail}
-          cluster={cluster}
-          formItemLayout={formItemLayout}
-          form={form}
-          intl={intl}
-        />
         <Modal
           title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }
           visible={ containerCatalogueVisible }

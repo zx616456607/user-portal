@@ -35,6 +35,8 @@ export default class ContainerNetwork extends React.PureComponent {
     form: PropTypes.object.isRequired,
     formItemLayout: PropTypes.object.isRequired, // 表单布局
     setParentState: PropTypes.func, // 更新父组件 state
+    originalHostname: PropTypes.string, // 原始 hostname
+    originalSubdomain: PropTypes.string, // 原始 subdomain
   }
   state = {
     activeKey: '0',
@@ -153,16 +155,16 @@ export default class ContainerNetwork extends React.PureComponent {
   }
 
   hostnameCheck = (rules, value, callback) => {
-    const { forDetail, intl } = this.props
-    if (forDetail && !value) {
+    const { forDetail, intl, originalHostname } = this.props
+    if (forDetail && !(!originalHostname && !value)) {
       return callback(intl.formatMessage(IntlMessage.hostnameIsRequired))
     }
     callback()
   }
 
   subdomainCheck = (rules, value, callback) => {
-    const { forDetail, intl } = this.props
-    if (forDetail && !value) {
+    const { forDetail, intl, originalSubdomain } = this.props
+    if (forDetail && !(!originalSubdomain && !value)) {
       return callback(intl.formatMessage(IntlMessage.subdomainIsRequired))
     }
     callback()

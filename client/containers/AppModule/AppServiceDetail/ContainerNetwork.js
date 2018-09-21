@@ -89,9 +89,12 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         })
       }
       const promiseArray = [
-        updateHostname(cluster, serviceName, hostnameBoby, { failed: { func: () => false } }),
         updateHostAliases(cluster, serviceName, aliasesArray, { failed: { func: () => false } }),
       ]
+      if (hostname && subdomain) {
+        promiseArray.push(
+          updateHostname(cluster, serviceName, hostnameBoby, { failed: { func: () => false } }))
+      }
       const result = await Promise.all(promiseArray)
       const flag = result.every(res => {
         if (res.type === UPDATE_SERVICE_HOSTNAME_FAILURE) {
@@ -126,8 +129,9 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
 
   render() {
     const { isEdit, loading } = this.state
-    const { intl } = this.props
+    const { intl, serviceDetail } = this.props
     const { formatMessage } = intl
+    const { hostname, subdomain } = serviceDetail.spec.template.spec
     return (
       <div className="commonBox containerNetworkForDetail">
         <span className="titleSpan">{formatMessage(AppServiceDetailIntl.containerNetwork)}</span>
@@ -149,6 +153,8 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         <ContainerNetwork
           {...this.props}
           setParentState={this.editing}
+          originalHostname={hostname}
+          originalSubdomain={subdomain}
         />
       </div>
     )

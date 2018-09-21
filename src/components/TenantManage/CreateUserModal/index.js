@@ -213,6 +213,7 @@ let CreateUserModal = React.createClass({
         if (value === ROLE_PLATFORM_ADMIN || value === ROLE_BASE_ADMIN) {
           authority = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
         }
+        console.log(value);
         setFieldsValue({
           authority,
         })
@@ -272,22 +273,24 @@ let CreateUserModal = React.createClass({
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                  <span style={{marginRight: 15}}>
+                    <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                    </Radio>
                     <Tooltip title="点击查看平台管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
+                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: -10, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
                     </Tooltip>
-                  </Radio>
+                  </span>
               }
               {
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
+                  <span>
+                    <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员</Radio>
                     <Tooltip title="点击查看基础设施管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
+                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: -10, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
                     </Tooltip>
-                  </Radio>
-
+                  </span>
               }
             </Radio.Group>
           </FormItem>
