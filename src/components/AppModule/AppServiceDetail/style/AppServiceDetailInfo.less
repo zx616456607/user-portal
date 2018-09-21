@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .AppServiceRental{
   padding:30px 30px 50px;
   border:1px solid #d9d9d9;
@@ -20,6 +21,7 @@
       position: absolute;
       top: 16px;
       left: 24px;
+      z-index: 10;
       .anchorItem {
         margin-right: 16px;
         border-radius: 30px;
@@ -96,7 +98,7 @@
       height: 20px;
       line-height: 20px;
       font-size: 16px;
-      border-left: 5px solid #00A1EA;
+      border-left: 5px solid  @primary-color;
       color: #333;
       margin-bottom: 10px;
     }
@@ -163,7 +165,7 @@
       height: 20px;
       line-height: 20px;
       font-size: 16px;
-      border-left: 5px solid #00A1EA;
+      border-left: 5px solid  @primary-color;
       color: #333;
     }
     .starts{
@@ -174,7 +176,9 @@
     p{line-height: 35px;}
 
   }
-
+  .containerNetworkForDetail {
+    position: relative;
+  }
   .bindNodes{
     .bindnodeTitle{
       height: 28px;

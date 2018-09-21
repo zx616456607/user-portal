@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .JoinProjectsModal {
   .ant-modal-content {
     width: 650px;
@@ -55,19 +56,19 @@
 
           border-top:15px solid transparent;
           border-bottom: 15px solid transparent;
-          border-left: 23px solid #2DB7F5;
+          border-left: 23px solid @primary-color  ;
         }
       }
       .step.active:nth-of-type(2) {
 
         &:before {
-          border-top:15px solid #2DB7F5;;
-          border-bottom: 15px solid #2DB7F5;;
+          border-top:15px solid  @primary-color  ;
+          border-bottom: 15px solid @primary-color  ;
           border-left: 23px solid transparent;
         }
       }
       .step.active{
-        background: #2DB7F5;
+        background: @primary-color;
         color: white;
         .number {border-color: white;}
       }
@@ -90,7 +91,7 @@
         .ant-menu-item-selected {
           border: 0;
           color: #fff;
-          background-color: #2DB7F5;
+          background-color: @primary-color;
         }
       }
     }

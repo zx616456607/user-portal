@@ -257,6 +257,7 @@ class ImageUpdate extends Component {
       edit: false,
       currentKey: false,
       currentRulesEnabled: false,
+      currentName: undefined,
     },()=>{
       document.getElementById('rulesName').focus()
     })
@@ -848,12 +849,22 @@ class ImageUpdate extends Component {
   }
 
   checkRulesNameProps(rule, value, callback){
+    const { rulesData } = this.props
+    const { edit, currentName } = this.state
     if(!value){
       return callback('请输入规则名称')
     }
     if(value.length < 3 || value.length > 26){
       return callback('规则名称为3到25个字符')
     }
+    if (edit && value === currentName) {
+      return callback()
+    }
+    rulesData && rulesData.length && rulesData.forEach(item => {
+      if (item.name ===  value) {
+        return callback('规则名已存在')
+      }
+    })
     callback()
   }
 
@@ -940,6 +951,11 @@ class ImageUpdate extends Component {
             this.loadAllPolicies()
           } else {
             this.handleloadImageUpdateList()
+          }
+          if (id === this.state.currentRule) {
+            this.setState({
+              currentRule: undefined,
+            })
           }
           this.setState({
             SwitchRulesVisible: false
@@ -1149,6 +1165,7 @@ class ImageUpdate extends Component {
       },
       currentRulesEnabled: true,
       editKey: record.id,
+      currentName: record.name,
     })
     return
   }
@@ -1532,7 +1549,7 @@ class ImageUpdate extends Component {
             <Button
               size="large"
               type="ghost"
-              disabled={ taskUpdataData.length < 1 }
+              disabled={ !currentRule ? true : taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
             </Button>

@@ -53,6 +53,18 @@ const menusText = defineMessages({
   search: {
     id: 'CICD.DockerFile.search',
     defaultMessage: '搜索',
+  },
+  pipelineName: {
+    id: 'CICD.DockerFile.pipelineName',
+    defaultMessage: '流水线',
+  },
+  flowName: {
+    id: 'CICD.DockerFile.flowName',
+    defaultMessage: '阶段',
+  },
+  stageName: {
+    id: 'CICD.DockerFile.stageName',
+    defaultMessage: '任务',
   }
 })
 
@@ -188,15 +200,14 @@ const MyComponent = React.createClass({
       );
       return (
         <div className='CodeTable' key={`dockerfile-${index}`} >
-          <div className='name'>
-            {item.stageName}
+          <div className='pipelineName'>
+            {item.pipelineName}
           </div>
-          <div className='type'>
-              <Tooltip title={item.name}>
-                <Col className="textoverflow" span={20}>
-                  {item.name}
-                </Col>
-              </Tooltip>
+          <div className='flowName'>
+            {item.flowName}
+          </div>
+          <div className='stageName'>
+            {item.stageName}
           </div>
 
           <div className='editTime'>
@@ -309,11 +320,14 @@ class DockerFile extends Component {
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >
-              <div className='name'>
-                <FormattedMessage {...menusText.itemName} />
+              <div className='pipelineName'>
+                <FormattedMessage {...menusText.pipelineName} />
               </div>
-              <div className='type'>
-                TenxFlow
+              <div className='flowName'>
+                <FormattedMessage {...menusText.flowName} />
+              </div>
+              <div className='stageName'>
+                <FormattedMessage {...menusText.stageName} />
               </div>
               <div className='editTime'>
                 <FormattedMessage {...menusText.editTime} />

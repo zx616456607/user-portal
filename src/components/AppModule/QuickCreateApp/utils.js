@@ -129,6 +129,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
     hostname,
+    aliasesKeys, // hostname 别名 key
+    subdomain, // 子域名
     accessType, // 是否为负载均衡
     accessMethod, //访问方式
     publicNetwork, //公网出口
@@ -345,8 +347,21 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
 
   }
-  // 设置 hostname
-  deployment.setHostname(hostname)
+  // 设置 hostname 和 subdomain
+  deployment.setHostnameAndSubdomain(hostname, subdomain)
+  // 设置 hostname aliases
+  if (!isEmpty(aliasesKeys)) {
+    const hostAliases = []
+    aliasesKeys.forEach(key => {
+      const ip = fieldsValues[`ipHost-${key}`]
+      const hostnames = [fieldsValues[`hostAliases-${key}`]]
+      hostAliases.push({
+        ip,
+        hostnames,
+      })
+    })
+    deployment.setHostAliases(hostAliases)
+  }
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser

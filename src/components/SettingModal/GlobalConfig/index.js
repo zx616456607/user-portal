@@ -1989,7 +1989,7 @@ class GlobalConfig extends Component {
     setTimeout(() => {
       const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
       const globalWrapper = this.refs.wrapper
-      globalWrapper.style.paddingTop = `${navHeight + 10}px`
+      globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
   }
   emailChange() {
