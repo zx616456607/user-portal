@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #quickentry{
   padding: 20px 30px;
   overflow: hidden;
@@ -13,7 +14,7 @@
         font-size: 16px;
         height: 16px;
         line-height: 16px;
-        border-left: 6px solid #46b2fb;
+        border-left: 6px solid @primary-color;
         padding: 0 30px 0 10px;
       }
       .item{
@@ -42,12 +43,12 @@
         }
         .middle{
           font-size: 16px;
-          color: #44b3fa;
+          color: @primary-color;
           margin: 24px 0 6px 0;
         }
       }
       .item:hover{
-        border:1px solid #46b2fa;
+        border:1px solid @primary-color;
         background: #f9fdff;
       }
     }
@@ -85,7 +86,7 @@
           text-align: center;
           padding-top: 20px;
           .middle{
-            color: #47b4f9;
+            color: @primary-color;
             font-size: 14px;
             padding-top: 10px;
             padding-bottom: 8px;
@@ -99,7 +100,7 @@
           }
         }
         .item:hover{
-          border-color:#46b2fa;
+          border-color: @primary-color;
           background: #f9fdff;
         }
         .docker{

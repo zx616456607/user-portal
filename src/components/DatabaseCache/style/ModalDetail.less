@@ -1,8 +1,8 @@
 @import "../../../assets/style/site/core.less";
 @borderColor: #F2F2F2;
-@activeColor: #2db7f5;
+@activeColor: @primary-color;
 @boxColor: #C2C2C2;
-@themeColor:#2db7f5;
+@themeColor: @primary-color;
 .putmodalPopover {
   width: 600px;
   .ant-popover-inner{border:0}
@@ -149,8 +149,8 @@
         float: right;
         margin-top: 15px;
         .shinning {
-          border-color: #2db7f5;
-          box-shadow: 0 0 5px #2db7f5;
+          border-color: @primary-color;
+          box-shadow: 0 0 5px @primary-color;
           animation: fade 2000ms infinite;
           @keyframes fade {
             0% {
@@ -158,8 +158,8 @@
               box-shadow: 0 0 0 #ffffff;
             }
             50% {
-              border-color: #2db7f5;
-              box-shadow: 0 0 10px #2db7f5;
+              border-color: @primary-color;
+              box-shadow: 0 0 10px @primary-color;
             }
             100% {
               border-color: #d9d9d9;
@@ -354,7 +354,7 @@
         line-height: 50px;
         font-size: 14px;
         border: 1px solid #d4d4d4;
-        border-left: 3px solid #00a2ea;
+        border-left: 3px solid @primary-color;
         background-color: #fff;
         margin-bottom: 15px;
         &:hover {

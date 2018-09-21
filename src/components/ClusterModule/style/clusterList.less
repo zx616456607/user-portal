@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 .ClusterBox {
   padding: 20px 20px 0 20px;
   #ClusterContent {
@@ -51,7 +52,7 @@
         }
         .ant-tabs-tab-active{
           background: #eceff4;
-          border:1px solid #30baf9;
+          border:1px solid @primary-color;
           border-bottom: none;
         }
       }
@@ -99,7 +100,7 @@
       }
     }
     .authorityBtn:hover{
-      border: 1px solid #57c5f7;
+      border: 1px solid @primary-color;
     }
     .addBtn {
       right: 40px;
@@ -244,7 +245,7 @@
       top: 0;
     }
     .deleteIcon:hover{
-      fill:#57c5f7;
+      fill: @primary-color;
     }
     .recall{
       position: absolute;

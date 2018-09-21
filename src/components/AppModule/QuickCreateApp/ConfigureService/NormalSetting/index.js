@@ -35,6 +35,7 @@ import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
+import ContainerNetwork from '../../../../../../client/containers/AppModule/QuickCreateApp/ContainerNetwork'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
@@ -750,25 +751,6 @@ const Normal = React.createClass({
                 />
               : null
           }
-          { // 应用模板暂不支持hostname
-            !isTemplate &&
-            <Row key="hostname">
-              <Col span={formItemLayout.labelCol.span}>{intl.formatMessage(IntlMessage.setHostname)}</Col>
-              <Col span={formItemLayout.wrapperCol.span}>
-                <FormItem
-                  wrapperCol={{ span: 6 }}
-                >
-                  <Input
-                    {...getFieldProps('hostname')}
-                    placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
-                      item: 'hostname',
-                      end: '',
-                    })}
-                  />
-                </FormItem>
-              </Col>
-            </Row>
-          }
           <AccessMethod
             formItemLayout={formItemLayout}
             fields={fields}
@@ -788,6 +770,15 @@ const Normal = React.createClass({
               currentCluster={currentCluster}
               isTemplate={isTemplate}
               key="ports"
+            />
+          }
+          {// 应用模板暂不支持
+            !isTemplate &&
+            <ContainerNetwork
+              formItemLayout={formItemLayout}
+              form={form}
+              intl={intl}
+              key="containerNetwork"
             />
           }
           {/* // listNode   left IP   right class pod
