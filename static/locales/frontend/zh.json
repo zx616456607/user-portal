@@ -822,6 +822,7 @@
   "Sider.outdentMenu": "展开导航栏",
   "Sider.indentMenu": "收起",
   "Sider.deployManage": "部署管理",
+  "Sider.middlewareCenter": "中间件&大数据",
   "----": "App----------------",
   "App.insufficientBalance": "余额不足，请充值后重试",
   "App.teamInsufficientBalance": "团队余额不足，请充值后重试",

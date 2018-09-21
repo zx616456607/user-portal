@@ -235,3 +235,10 @@ exports.updateWhiteList = function* () {
   const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList'], null, body)
   this.body = result
 }
+
+exports.helmIsReady = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+
+}
