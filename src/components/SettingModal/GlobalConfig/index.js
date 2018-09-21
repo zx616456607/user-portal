@@ -1915,55 +1915,59 @@ class MessageAlarm extends React.Component {
 
   setConfigForm = () => {
     const { config } = this.props
-    const { configDetail, configID, detail } = config
     const { setFieldsValue } = this.props.form
+    if (!config) return null
+    const { configDetail, configID, detail } = config
+    const configData = configDetail && JSON.parse(configDetail) || detail
     setFieldsValue({
-      phoneNum: undefined,
+      url: configData.url,
+      smsUser: configData.sms_user,
+      smsKey: configData.sms_key,
+      logTemplate: configData.log_template,
+      resourceTemplate: configData.resource_template,
+      configID,
     })
-    if (configID) {
-      setFieldsValue({
-        configID,
-      })
-    }
   }
 
   handlSave = () => {
     this.props.form.validateFields((error, values) => {
       if (error) return
-      // const { phoneNum, configID } = values
-      // const body = {
-      //   detail: {
-      //     phoneNum
-      //   }
-      // }
-      // if (configID) {
-      //   body.configID = configID
-      // }
-      // const { saveGlobalConfig, cluster, form } = this.props
-      // const notification = new NotificationHandler()
-      // notification.spin('保存中')
-      // saveGlobalConfig(cluster.clusterID, 'ai', body, {
-      //   success: {
-      //     func: () => {
-      //       notification.close()
-      //       notification.success('Ai 深度学习配置保存成功')
-      //       this.changeDisable()
-      //       this.props.setGlobalConfig('ai', body)
-      //     }
-      //   },
-      //   failed: {
-      //     func: (err) => {
-      //       notification.close()
-      //       let aiMsg
-      //       if (err.message.message) {
-      //         aiMsg = err.message.message
-      //       } else {
-      //         aiMsg = err.message
-      //       }
-      //       notification.error('Ai 深度学习配置保存失败', aiMsg)
-      //     }
-      //   }
-      // })
+      const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
+      const body = {
+        configID: configID ? configID : '',
+        detail: {
+          url,
+          sms_user: smsUser,
+          sms_key: smsKey,
+          log_template: logTemplate,
+          resource_template: resourceTemplate
+        }
+      }
+      const { saveGlobalConfig, cluster } = this.props
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      saveGlobalConfig(cluster.clusterID, 'message', body, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('保存成功')
+            this.changeDisable()
+            this.props.setGlobalConfig('message', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('保存失败', msg)
+          }
+        }
+      })
 
     })
 
@@ -1997,10 +2001,22 @@ class MessageAlarm extends React.Component {
     const { disable } = this.state
     const { form, config } = this.props
     const { getFieldProps } = form
-    const phoneProps = getFieldProps('phoneNum', {
+    const urlProps = getFieldProps('url', {
       rules: [
         { validator: this.checkUrl }
       ],
+    })
+    const msmUserProps = getFieldProps('smsUser', {
+      // rules: [ { validator: this.checkUrl } ]
+    })
+    const msmsKeyProps = getFieldProps('smsKey', {
+      // rules: [ { validator: this.checkUrl } ]
+    })
+    const logTemProps = getFieldProps('logTemplate', {
+      // rules: [ { validator: this.checkUrl } ]
+    })
+    const resourceProps = getFieldProps('resourceTemplate', {
+      // rules: [ { validator: this.checkUrl } ]
     })
     const magID = getFieldProps('configID', {
       initialValue: config ? config.configID : ''
@@ -2015,11 +2031,27 @@ class MessageAlarm extends React.Component {
             </div>
             <div className="contentkeys">
               <div className="key">短信服务器</div>
+              <div className="key">SMS_USER</div>
+              <div className="key">SMS_KEY</div>
+              <div className="key">模板 ID</div>
+              <div className="key">资源 ID</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem>
-                  <Input {...phoneProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                  <Input {...urlProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...msmUserProps} placeholder="输入短信服务器的 SMS_USER" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...msmsKeyProps} placeholder="输入短信服务器的 SMS_KEY" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...logTemProps} placeholder="输入短信服务器的 模板 ID" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...resourceProps} placeholder="输入短信服务器的 资源 ID" disabled={disable} />
                 </FormItem>
                 {
                   disable ?
@@ -2272,7 +2304,7 @@ class GlobalConfig extends Component {
               saveGlobalConfig={saveGlobalConfig}
               updateGlobalConfig={saveGlobalConfig}
               cluster={cluster}
-              config={globalConfig.ai}
+              config={globalConfig.message}
             />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}

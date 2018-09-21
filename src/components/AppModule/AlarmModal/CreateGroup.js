@@ -236,7 +236,7 @@ let CreateAlarmGroup = React.createClass({
         desc: values.groupDesc,
         receivers: {
           email: [],
-          // phone: [],
+          tel: [],
         },
       }
       values.keys.map(function(k) {
@@ -247,18 +247,21 @@ let CreateAlarmGroup = React.createClass({
           })
         }
       })
-      // if (values.phoneKeys.length) {
-      //   values.phoneKeys.forEach(k => {
-      //     body.receivers.phone.push({
-      //       addr: values[`phoneNum${k}`],
-      //       desc: values[`phoneDesc${k}`] || '',
-      //     })
-      //   })
-      // }
+      if (values.phoneKeys.length) {
+        values.phoneKeys.forEach(k => {
+          body.receivers.tel.push({
+            addr: values[`phoneNum${k}`],
+            desc: values[`phoneDesc${k}`] || '',
+          })
+        })
+      }
       if (!this.props.isModify) {
+        notification.spin('创建中...')
         createNotifyGroup(clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('创建成功')
               funcs.scope.setState({ createGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -279,6 +282,7 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
+              notification.close()
               if (err.message.code === 409) {
                 notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
@@ -288,9 +292,12 @@ let CreateAlarmGroup = React.createClass({
             isAsync: true
           }})
       } else {
+        notification.spin('更新中...')
         modifyNotifyGroup(data.groupID,clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('更新成功')
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -305,10 +312,11 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
+              notification.close()
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.error(formatMessage(intlMsg.editGroupFail), err.message.message)
+              notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
             }
           }
         })
@@ -447,9 +455,9 @@ let CreateAlarmGroup = React.createClass({
       let indexed = Math.max(0,k-1)
       let initAddrValue = ''
       let initDescValue = ''
-      if (isModify && data.receivers.pnone[indexed]) {
-        initAddrValue = data.receivers.pnone[indexed].addr
-        initDescValue = data.receivers.pnone[indexed].desc
+      if (isModify && data.receivers.tel[indexed]) {
+        initAddrValue = data.receivers.tel[indexed].number
+        initDescValue = data.receivers.tel[indexed].desc
       }
       return (
         <div key={`phone-${k}`} className="createEmailList" style={{clear:'both'}}>
