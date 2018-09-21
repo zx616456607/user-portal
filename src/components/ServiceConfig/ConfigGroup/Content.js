@@ -12,9 +12,12 @@
 
 import React from 'react'
 import { Link } from 'react-router'
+import { injectIntl } from 'react-intl'
 import { Timeline, Row, Icon, Button, Tooltip, Modal } from 'antd'
+import secretIntl from '../intl/secretsIntl'
+import indexIntl from '../intl/indexIntl'
 
-export default class ConfigGroupContent extends React.Component {
+class ConfigGroupContent extends React.Component {
   state = {
     moreModalVisible: false,
     moreUseArray: [],
@@ -24,15 +27,16 @@ export default class ConfigGroupContent extends React.Component {
   render() {
     const {
       group, openUpdateConfigFileModal, removeKeyFromSecret,
-      secretOnUse,
+      secretOnUse, intl
     } = this.props
+    const { formatMessage } = intl
     let { name, data, createdAt } = group
     if(!data) data = {}
     const { moreModalVisible, moreUseArray, moreKey } = this.state
     if (Object.keys(data).length === 0) {
       return (
         <div className='li' style={{ lineHeight: '60px', height: '10px' }}>
-        未添加加密对象
+        {formatMessage(secretIntl.noSecretHint)}
         </div>
       )
     }
@@ -52,27 +56,27 @@ export default class ConfigGroupContent extends React.Component {
               let useElement
               if (useArray.length === 0) {
                 useElement = <td style={{ textAlign: 'center' }}>
-                  <div>暂无挂载</div>
+                  <div>{formatMessage(indexIntl.noVolumeMounts)}</div>
                 </td>
               } else {
                 const secretServiceMap = <span>
                   {
                     useArray[0].mountPath &&
-                    useArray[0].mountPath + '（挂载路径）'
+                    formatMessage(secretIntl.mountPath, { path: useArray[0].mountPath })
                   }
                   &nbsp;&nbsp;
                   {
                     useArray[0].env.length > 0 &&
-                    useArray[0].env.join(', ') + '（环境变量）'
+                    formatMessage(secretIntl.mountPath, { env: useArray[0].env.join(', ') })
                   }
                 </span>
                 useElement = <td>
                   <div className="li">
-                    应用：
+                    {formatMessage(indexIntl.appTitle)}
                     <Link to={`/app_manage/detail/${useArray[0].appName}`}>
                     {useArray[0].appName}
-                    </Link>，
-                    服务：
+                    </Link><span>，</span><br />
+                    {formatMessage(indexIntl.serviceTitle)}
                     <Link to={`/app_manage/service?serName=${useArray[0].serviceName}`}>
                     {useArray[0].serviceName}
                     </Link>
@@ -105,12 +109,12 @@ export default class ConfigGroupContent extends React.Component {
                                   </div>
                                   <div style={{ color: "#999", fontSize: "12px" }}>
                                     {configFileItem.projectName && <Tooltip title={configFileItem.projectName} placement="left">
-                                      <div><span>仓库: </span><span className="textoverflow projectName">
+                                      <div><span>{formatMessage(indexIntl.projectName)}</span><span className="textoverflow projectName">
                                         {configFileItem.projectName}
                                       </span></div>
                                     </Tooltip>}
                                     {configFileItem.defaultBranch && <Tooltip title={configFileItem.defaultBranch} placement="left">
-                                      <div><span>分支: </span><span className="textoverflow branchName">{configFileItem.defaultBranch}</span></div>
+                                      <div><span>{formatMessage(indexIntl.branchName)} </span><span className="textoverflow branchName">{configFileItem.defaultBranch}</span></div>
                                     </Tooltip>}
                                   </div>
                                 </div>
@@ -148,12 +152,12 @@ export default class ConfigGroupContent extends React.Component {
                           </td>
                           <td style={{ width: '130px' }}>
                             <div className='li'>
-                              关联服务&nbsp;
+                              {formatMessage(indexIntl.associatedService)}&nbsp;
                               <span className='node-number'>
                               {useServiceSum + ''}
                               </span>
                             </div>
-                            <div className='lis'>映射方式</div>
+                            <div className='lis'>{formatMessage(indexIntl.mapMode)}</div>
                           </td>
                           {useElement}
                           {
@@ -169,7 +173,7 @@ export default class ConfigGroupContent extends React.Component {
                                   })
                                 }
                               >
-                                <a>查看更多</a>
+                                <a>{formatMessage(indexIntl.loadMore)}</a>
                               </div>
                             </td>
                           }
@@ -177,27 +181,27 @@ export default class ConfigGroupContent extends React.Component {
                       </tbody>
                     </table>
                     <Modal
-                      title={`加密对象 ${moreKey}`}
+                      title={formatMessage(secretIntl.viewMoreModalTitle, { key: moreKey })}
                       wrapClassName="server-check-modal"
                       visible={moreModalVisible}
                       onCancel={() => { this.setState({ moreModalVisible: false }) }}
                       onOk={() => { this.setState({ moreModalVisible: false }) }}
                     >
                       <div className="check-config-head">
-                        <div className="span4">服务名称</div>
-                        <div className="span6">映射方式</div>
+                        <div className="span4">{formatMessage(indexIntl.serviceName)}</div>
+                        <div className="span6">{formatMessage(indexIntl.mapMode)}</div>
                       </div>
                         {/*查看更多-关联服务列表-start*/}
                         {moreUseArray.map((item, index) => {
                           const secretServiceMap = <span>
                             {
                               item.mountPath &&
-                              item.mountPath + '（挂载路径）'
+                              formatMessage(secretIntl.mountPathContent, {path:item.mountPath})
                             }
                             &nbsp;&nbsp;
                             {
                               item.env.length > 0 &&
-                              item.env.join(', ') + '（环境变量）'
+                              formatMessage(secretIntl.EnvContent, {env:item.env.join(', ') })
                             }
                           </span>
                           return (
@@ -227,3 +231,6 @@ export default class ConfigGroupContent extends React.Component {
     )
   }
 }
+export default injectIntl(ConfigGroupContent, {
+  withRef: true,
+})
