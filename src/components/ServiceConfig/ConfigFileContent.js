@@ -63,7 +63,7 @@ class ConfigFileContent extends React.Component {
       },
       success: {
         func: (res) => {
-          if(res.data && res.data.results){
+          if(res.data && res.data.results && res.data.results.length > 0){
             const projects = filter(res.data.results, { repoType: "gitlab" })
             this.setState({
               projects,
@@ -81,20 +81,26 @@ class ConfigFileContent extends React.Component {
   onRadioChange = (e) => {
     const method = e.target.value
     const readOnly = method === 2
-    const { tempConfigDesc, form, getMethod } = this.props
+    const { tempConfigDesc, form, getMethod, tempConfigName } = this.props
     const { setFieldsValue, getFieldValue } = form
     this.setState({
       readOnly,
     })
     let configDesc = ""
+    let data = ''
+    let name = ''
     if (!readOnly) {
       configDesc = tempConfigDesc
+      data = tempConfigDesc
+      name = tempConfigName
     } else {
       this.loadGitProjects(getFieldValue("projectId"))
     }
     const values = {
       configDesc,
       method,
+      data,
+      name,
     }
     // if(readOnly) values.name = ""
     setFieldsValue(values)

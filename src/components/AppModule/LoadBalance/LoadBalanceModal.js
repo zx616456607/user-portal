@@ -348,7 +348,7 @@ class LoadBalanceModal extends React.Component {
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
-    const nodesChild = isEmpty(ips) ? [] : 
+    const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
         return <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
     })
@@ -389,10 +389,10 @@ class LoadBalanceModal extends React.Component {
             </FormItem>
           }
           <FormItem
-            label="名称"
+            label="备注名"
             {...formItemLayout}
           >
-            <Input placeholder="请输入负载均衡器的名称" {...nameProps}/>
+            <Input placeholder="请输入负载均衡器的备注名" {...nameProps}/>
           </FormItem>
           <Row className="configRow">
             <Col span={5}>

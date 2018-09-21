@@ -1624,7 +1624,6 @@ class ModalDetail extends Component {
   editConfigOk = () => {
     const { database, loadDbClusterDetail, dbName, cluster } = this.props
     loadDbClusterDetail(cluster, dbName, database, true);
-
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
@@ -1751,7 +1750,7 @@ class ModalDetail extends Component {
                     <Storage databaseInfo={databaseInfo} database={this.props.database}/>
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
-                    <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
+                    <Backup database={database} scope= {this} databaseInfo={databaseInfo} rollBackSuccess={this.editConfigOk}/>
                   </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>

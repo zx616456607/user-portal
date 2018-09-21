@@ -9,7 +9,8 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Icon, Table, Modal, Form, Row, Col, Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker } from 'antd'
+import { Button, Input, Icon, Table, Modal, Form, Row, Col,
+  Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import '../style/ImageUpdate.less'
 import {
@@ -28,11 +29,13 @@ import {
   updateCurrentTask,
   loadProjectList,
   loadProjectDetail,
+  getTargets,
 } from '../../../../actions/harbor'
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
@@ -254,6 +257,7 @@ class ImageUpdate extends Component {
       edit: false,
       currentKey: false,
       currentRulesEnabled: false,
+      currentName: undefined,
     },()=>{
       document.getElementById('rulesName').focus()
     })
@@ -439,12 +443,13 @@ class ImageUpdate extends Component {
   // 新版规则
   async putNewRule(values) {
     const { loadImageUpdateList, loadProjectDetail, iamgeUpdateAddNewRules,
-      registry, detail, harbor, targets, isReplications, projectList } = this.props
+      registry, detail, harbor, isReplications, projectList, getTargets } = this.props
     let projectID = isReplications ? values.originPro : detail.data.projectId
     const rep = {
       registry,
       projectID,
     }
+    await getTargets(DEFAULT_REGISTRY, { harbor })
     await loadImageUpdateList(harbor, rep)
     let project = detail.data
     if (isReplications) {
@@ -468,8 +473,9 @@ class ImageUpdate extends Component {
       update_time: project.updateTime,
     }]
     const currentTarget = []
+    const { targets } = this.props
     targets && targets.length && targets.forEach(item => {
-      if (item.endpoint === harbor) {
+      if (item.endpoint === values.URLAddress) {
         currentTarget.push({
           creation_time: item.creationTime,
           endpoint: item.endpoint,
@@ -584,7 +590,9 @@ class ImageUpdate extends Component {
         name: values.NewTargetstoreName,
         endpoint: values.URLAddress,
         username: values.userName,
-        password: values.passWord
+        password: values.passWord,
+        insecure: !values.insecure,
+        type: 0,
       }
       // 检验新仓库是否可用
       this.validationTargetStore('create', newStoremInfo).then(validateResult => {
@@ -841,12 +849,22 @@ class ImageUpdate extends Component {
   }
 
   checkRulesNameProps(rule, value, callback){
+    const { rulesData } = this.props
+    const { edit, currentName } = this.state
     if(!value){
       return callback('请输入规则名称')
     }
     if(value.length < 3 || value.length > 26){
       return callback('规则名称为3到25个字符')
     }
+    if (edit && value === currentName) {
+      return callback()
+    }
+    rulesData && rulesData.length && rulesData.forEach(item => {
+      if (item.name ===  value) {
+        return callback('规则名已存在')
+      }
+    })
     callback()
   }
 
@@ -1142,6 +1160,7 @@ class ImageUpdate extends Component {
       },
       currentRulesEnabled: true,
       editKey: record.id,
+      currentName: record.name,
     })
     return
   }
@@ -1260,12 +1279,12 @@ class ImageUpdate extends Component {
       policy_id: currentRule,
     }
     const Notification = new NotificationHandler()
-    Notification.spin('复制中...')
+    Notification.spin('同步中...')
     copyCurrentRule(harbor, registry, body, {
       success : {
         func: () => {
           Notification.close()
-          Notification.success('复制规则成功')
+          Notification.success('同步任务开始执行')
           getCurrentRuleTask(harbor, registry, currentRule)
         },
         isAsync: true
@@ -1273,7 +1292,7 @@ class ImageUpdate extends Component {
       failed: {
         func: err => {
           Notification.close()
-          Notification.error('复制规则失败')
+          Notification.error('同步任务开启失败')
         }
       }
     })
@@ -1468,9 +1487,10 @@ class ImageUpdate extends Component {
     }
 
     const formItemLayout = {
-      labelCol: {span: 4},
-      wrapperCol: {span: 20},
+      labelCol: {span: 5},
+      wrapperCol: {span: 19},
     }
+    const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
     return(
       <div id='imageUpdata'>
         <div className='rules'>
@@ -1493,7 +1513,7 @@ class ImageUpdate extends Component {
               className='btbuttonadd'
               disabled={!currentRule}
               onClick={this.handleCopyRule}>
-              复制
+              同步镜像
             </Button>
             {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
@@ -1524,7 +1544,7 @@ class ImageUpdate extends Component {
             <Button
               size="large"
               type="ghost"
-              disabled={ taskUpdataData.length < 1 }
+              disabled={ !currentRule ? true : taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
             </Button>
@@ -1670,6 +1690,20 @@ class ImageUpdate extends Component {
                     >
                       <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
                     </Form.Item>
+                    <Form.Item
+                      {...formItemLayout}
+                      label="验证远程证书"
+                    >
+                      <Checkbox
+                        {...getFieldProps('insecure', {
+                          valuePropName: 'checked',
+                        })}
+                      >
+                        <Tooltip placement="top" title={text}>
+                          <Icon type="info-circle-o" />
+                        </Tooltip>
+                      </Checkbox>
+                    </Form.Item>
                   </span>
                   : null
               }
@@ -1802,7 +1836,7 @@ class ImageUpdate extends Component {
                         })
                       }
                     >
-                      立即复制镜像
+                      立即同步镜像
                     </Checkbox>
                   </Form.Item>
                 </Col>
@@ -1902,5 +1936,6 @@ export default connect(mapStateToProp, {
   updateCurrentTask,
   loadProjectList,
   loadProjectDetail,
+  getTargets,
 })(ImageUpdate)
 

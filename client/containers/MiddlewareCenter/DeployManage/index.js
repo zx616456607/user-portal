@@ -149,9 +149,7 @@ class DeployMange extends React.PureComponent {
       <QueueAnim className="DeployManageWrapper layout-content">
         <Title key="title" title={'部署管理'}/>
         <div key="topInfo" className="topInfo">
-        APPCenter 是一个云计算环境中的应用交付与运营管理平台，同时包含一整套用来开发云应用及云化已有应用的框架。让应
-        用提供商和开发者可以从资源层管理的复杂性中脱离出来，从而更高效地开发、部署、运维及管理所提供的应用，让用户可以
-        便捷地选择需要的应用来构建和管理自身的业务。
+          中间件&大数据 一个中间件与大数据的完整交付平台，包含云化的中间件、大数据应用的全生命周期管理。
         </div>
         <div className="operationBox" key="operationBox">
           <Button type="ghost" size="large"

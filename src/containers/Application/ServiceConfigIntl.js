@@ -10,6 +10,7 @@
  * @date 2018-08-28
  */
 import { defineIntlMessages } from '../../common/tools'
+import {mapData} from "../../components/AppModule/ServiceIntl/AppServiceDetailIntl";
 
 const messageObj = {
   prefix: 'ServiceConfig',
@@ -328,7 +329,25 @@ const messageObj = {
     secretConfigTooltip: '加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd',
     secretFile: '加密对象',
     listeningPortBeUsed: '监听端口已使用',
-    setHostname: '设定 hostname',
+    setHostname: '设定 HostName',
+    containerNetwork: '容器网络',
+    containerNetworkTip: '设置容器的网络和 DNS 选项',
+    setHostAliases: '设定主机别名',
+    ipHost: 'IP 地址',
+    hostAliases: '主机别名',
+    ipHostRegMeg: 'IP 地址格式不正确',
+    hostAliasesRegMeg: '由小写字母、数字、字符 - 或 . 组成，以字母、数字开头和结尾',
+    hostAliasesLengthLimit: '主机别名不能超过 63 个字符',
+    addHostAliases: '添加主机别名',
+    ipHostPlaceholder: '如：192.168.0.1',
+    ipHostIsRequired: 'IP 地址不能为空',
+    hostName: '主机名',
+    hostAliasesTip: '/etc/hosts 记录',
+    subdomainPlaceholder: '例如：foo',
+    subdomain: '子域',
+    hostAliasesPlaceholder: '如：example.com',
+    hostnameIsRequired: '主机名不能为空',
+    subdomainIsRequired: '子域名不能为空'
   }
 }
 
