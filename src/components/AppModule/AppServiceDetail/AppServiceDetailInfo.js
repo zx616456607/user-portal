@@ -886,7 +886,7 @@ class AppServiceDetailInfo extends Component {
       currentService: '',
       isBindNode: false,
       menuAnchors: [],
-      activeButton: '基础信息'
+      activeButton: ''
     }
   }
 
@@ -1058,6 +1058,9 @@ class AppServiceDetailInfo extends Component {
     // const { serviceDetail } = this.props
     const titles = document.getElementsByClassName('titleSpan')
     const commonBoxes = document.getElementsByClassName('commonBox')
+    this.setState({
+      activeButton: titles[0].innerText
+    })
 
     const menus = []
     for (let i=0; i<titles.length; i++) {
