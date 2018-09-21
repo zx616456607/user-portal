@@ -13,6 +13,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin, Tooltip } from 'antd'
+import Title from '../Title'
 import { injectIntl } from 'react-intl'
 import {
   createSecret, getSecrets, removeSecrets, removeKeyFromSecret,
@@ -332,6 +333,7 @@ class ServiceSecretsConfig extends React.Component {
     const defaultData = !!data ? this.getDefaultData(data) : {}
     return (
       <div className="service-secret-config" id="service-secret-config">
+      <Title title={formatMessage(secretIntl.headTitle)} />
       <ResourceBanner resourceType='secret'/>
         <div className="layout-content-btns">
           <Button

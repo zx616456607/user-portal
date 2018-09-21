@@ -49,6 +49,7 @@ export const mapData = {
     editClassSucc: '修改分类成功',
     errorK8sMessage: '由小写字母、数字和连字符（-）组成',
     return: '返回',
+    headTitle: '服务配置'
   }
 }
 

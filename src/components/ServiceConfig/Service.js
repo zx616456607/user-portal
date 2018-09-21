@@ -310,7 +310,7 @@ class Service extends Component {
     })
     return <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
-          <Title title={formatMessage(indexIntl.serviceConfig)} />
+          <Title title={formatMessage(serviceIntl.headTitle)} />
           {}
           {createModal && <CreateConfigModal visible={createModal} scope={this} configGroup={configGroup} updateConfigAnnotations={updateConfigAnnotations} labelWithCount={labelWithCount} />}
           {}

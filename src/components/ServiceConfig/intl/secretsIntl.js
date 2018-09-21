@@ -41,7 +41,8 @@ export const mapData = {
     mountPathContent: '{path}（挂载路径）',
     EnvContent: '{env}（环境变量）',
     viewMoreModalTitle: '加密对象 {key}',
-    secretCount: '加密对象 {count} 个'
+    secretCount: '加密对象 {count} 个',
+    headTitle: '加密配置'
   }
 };
 
