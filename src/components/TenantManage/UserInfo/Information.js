@@ -453,6 +453,9 @@ class Information extends Component {
               notify.error('权限不足')
               return
             }
+            if (res.statusCode === 409) {
+              return notify.error('修改失败', '该邮箱已在平台上注册')
+            }
             if(res.statusCode == 500) {
               const { message } = res
               if (typeof message === 'string') {

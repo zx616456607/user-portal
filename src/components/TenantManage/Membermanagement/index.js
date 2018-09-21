@@ -514,7 +514,6 @@ let MemberTable = React.createClass({
         key: 'operation',
         render: (text, record, index) => {
           let disabled = false
-          console.log(record);
           const loginRole = loginUser.role
           const memberRole = record.role
           if(loginRole === ROLE_PLATFORM_ADMIN || loginRole === ROLE_BASE_ADMIN) {
