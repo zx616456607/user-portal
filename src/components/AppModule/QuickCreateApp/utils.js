@@ -132,6 +132,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     aliasesKeys, // hostname 别名 key
     subdomain, // 子域名
     accessType, // 是否为负载均衡
+    agentType, // 集群内/外 方式
     accessMethod, //访问方式
     publicNetwork, //公网出口
     internaletwork, //内网出口
@@ -378,6 +379,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
+
+    // 设置负载均衡方式
+    deployment.setAnnotations({
+      agentType,
+    })
     !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
       const name = `${serviceName}-${key}`

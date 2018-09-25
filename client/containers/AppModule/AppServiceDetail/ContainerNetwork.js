@@ -20,14 +20,12 @@ import * as serviceActions from '../../../../src/actions/services'
 import Notification from '../../../../src/components/Notification'
 
 const {
-  UPDATE_SERVICE_HOSTNAME_FAILURE,
-  UPDATE_SERVICE_HOSTALIASES_FAILURE,
+  UPDATE_SERVICE_HOSTCONFIG_FAILURE,
 } = serviceActions
 const notify = new Notification()
 
 @connect(null, {
-  updateHostname: serviceActions.updateHostname,
-  updateHostAliases: serviceActions.updateHostAliases,
+  updateHostConfig: serviceActions.updateHostConfig,
 })
 export default class ContainerNetworkForDetail extends React.PureComponent {
 
@@ -57,7 +55,7 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
   }
 
   handleConfirm = async () => {
-    const { form, cluster, serviceDetail, updateHostname, updateHostAliases, intl } = this.props
+    const { form, cluster, serviceDetail, updateHostConfig, intl } = this.props
     const { getFieldValue, validateFields } = form
     const serviceName = serviceDetail.metadata.name
     const aliasesKeys = getFieldValue('aliasesKeys')
@@ -75,48 +73,36 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         loading: true,
       })
       const { hostname, subdomain, aliasesKeys } = values
-      const hostnameBoby = {
-        hostname,
-        subdomain,
-      }
-      const aliasesArray = []
+
+      const hostaliases = []
       if (!isEmpty(aliasesKeys)) {
         aliasesKeys.forEach(key => {
-          aliasesArray.push({
+          hostaliases.push({
             ip: values[`ipHost-${key}`],
             hostnames: [ values[`hostAliases-${key}`] ],
           })
         })
       }
-      const promiseArray = [
-        updateHostAliases(cluster, serviceName, aliasesArray, { failed: { func: () => false } }),
-      ]
-      if (hostname && subdomain) {
-        promiseArray.push(
-          updateHostname(cluster, serviceName, hostnameBoby, { failed: { func: () => false } }))
+      const hostnameBoby = {
+        hostname,
+        subdomain,
+        hostaliases,
       }
-      const result = await Promise.all(promiseArray)
-      const flag = result.every(res => {
-        if (res.type === UPDATE_SERVICE_HOSTNAME_FAILURE) {
-          notify.warn(intl.formatMessage(AppServiceDetailIntl.updateHostnameFailed))
-          return false
-        }
-        if (res.type === UPDATE_SERVICE_HOSTALIASES_FAILURE) {
-          notify.warn(intl.formatMessage(AppServiceDetailIntl.updateHostAliasesFailed))
-          return false
-        }
-        return true
-      })
-      if (flag) {
-        notify.close(intl.formatMessage(AppServiceDetailIntl.changeSuccess))
+      const result =
+        await updateHostConfig(cluster, serviceName, hostnameBoby, {
+          failed: { func: () => false },
+        })
+      if (result.type === UPDATE_SERVICE_HOSTCONFIG_FAILURE) {
+        notify.warn(intl.formatMessage(AppServiceDetailIntl.changeFailure))
         this.setState({
           loading: false,
-          isEdit: false,
         })
         return
       }
+      notify.success(intl.formatMessage(AppServiceDetailIntl.changeSuccess))
       this.setState({
         loading: false,
+        isEdit: false,
       })
     })
   }
@@ -129,9 +115,8 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
 
   render() {
     const { isEdit, loading } = this.state
-    const { intl, serviceDetail } = this.props
+    const { intl } = this.props
     const { formatMessage } = intl
-    const { hostname, subdomain } = serviceDetail.spec.template.spec
     return (
       <div className="commonBox containerNetworkForDetail">
         <span className="titleSpan">{formatMessage(AppServiceDetailIntl.containerNetwork)}</span>
@@ -153,8 +138,6 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         <ContainerNetwork
           {...this.props}
           setParentState={this.editing}
-          originalHostname={hostname}
-          originalSubdomain={subdomain}
         />
       </div>
     )

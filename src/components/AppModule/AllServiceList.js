@@ -705,7 +705,8 @@ class ServiceList extends Component {
       alarmStrategy: true,
       grayscaleUpgradeModalVisible: false,
       showPlaceholder: this.props.intl.formatMessage(AllServiceListIntl.serviceNameSearch),
-      showInpVal: ''
+      showInpVal: '',
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
     }
   }
   getInitialState() {
@@ -1286,7 +1287,12 @@ class ServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
   searchServices() {
@@ -1412,7 +1418,8 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn,
       redeploybtn,
       grayscaleUpgradeModalVisible,
-      showPlaceholder
+      showPlaceholder,
+      documentTitle,
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
@@ -1461,7 +1468,7 @@ class ServiceList extends Component {
     );
     return (
       <div id="AppServiceList">
-        <Title title={formatMessage(AllServiceListIntl.documentTitle)} />
+        <Title title={documentTitle} />
         <ResourceBanner resourceType='service'/>
         <QueueAnim className="demo-content">
           <div key='animateBox'>

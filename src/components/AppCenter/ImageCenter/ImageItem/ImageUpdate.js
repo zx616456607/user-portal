@@ -952,6 +952,11 @@ class ImageUpdate extends Component {
           } else {
             this.handleloadImageUpdateList()
           }
+          if (id === this.state.currentRule) {
+            this.setState({
+              currentRule: undefined,
+            })
+          }
           this.setState({
             SwitchRulesVisible: false
           })

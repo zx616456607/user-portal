@@ -230,8 +230,7 @@ module.exports = function (Router) {
 
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
-  router.put('/clusters/:cluster/services/:service/hostname', serviceController.updateHostnameAndDomain)
-  router.put('/clusters/:cluster/services/:service/hostaliases', serviceController.updateHostAliases)
+  router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -684,7 +683,6 @@ module.exports = function (Router) {
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   router.post('/configs/email/verification', globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
-  router.put('/cluster/:cluster/config/:type', globalConfigController.putSpringCloudAndApm)
 
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)

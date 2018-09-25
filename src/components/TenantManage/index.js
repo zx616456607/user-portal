@@ -39,9 +39,9 @@ import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
 import * as userActions from '../../actions/user'
 import cloneDeep from 'lodash/cloneDeep'
 
-const getColumns = ({ toggleApprovalModal, type, allUsers }) => {
+const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
-    title: type === 'person' ? '个人项目' : '共享项目',
+    title: '共享项目',
     dataIndex: 'item',
     render: (text, record) => {
       let link
@@ -698,20 +698,16 @@ class TenantManage extends React.Component {
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
-                  <Col span={12} className="personalProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'person', allUsers })} dataSource={personItem.tabDataIndex} size="small" pagination={false}
-                           scroll={{ y: 360 }} loading={tabisFetching}/>
+                  <Col span={24} className="shareProject">
+                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
+                        loading={tabisFetching} scroll={{ y: 360 }} />
                   </Col>
-                  <Col span={12} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'share', allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
-                    loading={tabisFetching} scroll={{ y: 360 }} />
-                  </Col>
-                  <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                                     record={this.record} reload={this.reload} resourceDefinitions={definitions}
-                                     resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
-                                     cancelApprovalModal = {this.cancelApprovalModal}
-                                     />
                 </Row>
+                <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
+                                    record={this.record} reload={this.reload} resourceDefinitions={definitions}
+                                    resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
+                                    cancelApprovalModal = {this.cancelApprovalModal}
+                                    />
               </Card>
             </Col>
           </Row>

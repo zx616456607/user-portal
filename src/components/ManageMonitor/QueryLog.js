@@ -16,7 +16,6 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
 import { ListProjects } from '../../actions/project'
-import { loadUserList } from '../../actions/user'
 import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog, getQueryLogFileList, searchFileLogOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
@@ -681,7 +680,7 @@ class QueryLog extends Component {
   }
 
   componentWillMount() {
-    const { current, query, intl, loadUserList, loginUser } = this.props;
+    const { current, query, intl, loginUser } = this.props;
     const { formatMessage } = intl;
     const _this = this;
     loadProjects(this.props, {
@@ -695,22 +694,20 @@ class QueryLog extends Component {
         }
       }
     })
-    loadUserList({ size: 0, sort: 'a,userName' })
     const { space, cluster } = current;
     const { namespace, projectName, userName } = space;
     const { clusterName, clusterID } = cluster;
     const { userName: loginName } = loginUser
-    const finalNamespace = namespace === 'default' ? userName ? userName : loginName : loginName
-    this.onSelectNamespace(projectName, finalNamespace);
+    this.onSelectNamespace(projectName, namespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
-        currentNamespace:  `${projectName},${finalNamespace}`,
+        currentNamespace:  `${projectName},${namespace}`,
         currentCluster: clusterName,
         currentClusterId: clusterID,
         currentService: service,
       }, () => {
-        this.onSelectCluster(clusterName, clusterID, finalNamespace);
+        this.onSelectCluster(clusterName, clusterID, namespace);
         this.onSelectService(service);
         this.onSelectInstance(instance);
         setTimeout(this.submitSearch);
@@ -761,7 +758,7 @@ class QueryLog extends Component {
     this.onChangeEndTime(end_time)
     this.onChangeStartTime(start_time)
     if(query.from == 'serviceDetailLogs'){
-      loadServiceContainerList(cluster, query.serviceName, { projectName }, {
+      loadServiceContainerList(cluster, query.serviceName, { projectName }, null, {
         success: {
           func: (res) => {
             this.setState({
@@ -866,11 +863,8 @@ class QueryLog extends Component {
       let query = {
         projectName,
       }
-      if (projectName === 'default' && (loginName !== userName)) {
-        query = Object.assign({}, query, { userName })
-      }
       const { loadServiceContainerList } = this.props;
-      loadServiceContainerList(this.state.currentClusterId, name, query, {
+      loadServiceContainerList(this.state.currentClusterId, name, query, null, {
         success: {
           func: (res) => {
             let path = '未配置采集目录'
@@ -1183,13 +1177,6 @@ class QueryLog extends Component {
     getQueryLogFileList(cluster, instance, body)
   }
 
-  renderUserList = () => {
-    const { userList, loginUser } = this.props
-    const { userName } = loginUser
-    const filterUser = userList.filter(user => user.userName !== userName)
-    return (filterUser || []).map(user => <Select.Option key={`default,${user.userName}`}>{user.userName}</Select.Option>)
-  }
-
   renderProjectList = () => {
     const { namespaceList } = this.state
     return (namespaceList || []).map(project =>
@@ -1249,15 +1236,7 @@ class QueryLog extends Component {
                 value={currentNamespace}
                 onSelect={value => this.onSelectNamespace(value.split(',')[0], value.split(',')[1])}
               >
-                <Select.OptGroup label="选择项目">
-                  <Select.Option key={`default,${userName}`}>我的个人项目</Select.Option>
-                </Select.OptGroup>
-                <Select.OptGroup label="个人项目">
-                  {this.renderUserList()}
-                </Select.OptGroup>
-                <Select.OptGroup label="共享项目">
-                  {this.renderProjectList()}
-                </Select.OptGroup>
+                {this.renderProjectList()}
               </Select>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -1311,7 +1290,13 @@ class QueryLog extends Component {
                 arrowPointAtCenter={true}
                 >
                 <div className={checkClass(this.state.instancePopup, this.state.selectedInstance).replace('cloneSelectError', '')} >
-                  <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
+                  <span className='selectedSpan'>
+                    {
+                      this.state.currentInstance.length != 0
+                        ? this.state.currentInstance.join(',')
+                        : <span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>
+                      }
+                    </span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noInstance} /></span>
                 </div>
@@ -1439,7 +1424,7 @@ function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
   const { cluster, space } = current
   const defaultNamespace = space.namespace
-  const { teamspaces, users } = state.user
+  const { teamspaces } = state.user
   const { teamClusters } = state.team
   const defaultLogs = {
     cluster: cluster.clusterID,
@@ -1458,11 +1443,6 @@ function mapStateToProps(state, props) {
   if (current && current.cluster && current.cluster.disabledPlugins) {
     loggingEnabled = !current.cluster.disabledPlugins['logging']
   }
-  const defaultUsers = {
-    users: [],
-  }
-
-  const { users: userList } = users.result || defaultUsers
   return {
     loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
@@ -1478,7 +1458,6 @@ function mapStateToProps(state, props) {
     loggingEnabled,
     defaultNamespace,
     getLogFileOfQueryLog,
-    userList,
   }
 }
 
@@ -1501,5 +1480,4 @@ export default connect(mapStateToProps, {
   throwError,
   getQueryLogFileList,
   searchFileLogOfQueryLog,
-  loadUserList,
 })(QueryLog)

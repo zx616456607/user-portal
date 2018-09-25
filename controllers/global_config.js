@@ -344,16 +344,6 @@ exports.getGlobalConfigByType = function* () {
   this.body = result
 }
 
-exports.putSpringCloudAndApm = function* () {
-  const type = this.params.type
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getApi(loginUser)
-  const body = this.request.body
-  const result = yield spi.configs.updateBy([type], null, body )
-  this.status = result.code
-  this.body = result
-}
-
 exports.isValidConfig = function* () {
   if (this.session.loginUser.role != constant.ADMIN_ROLE) {
     const err = new Error('Not admin user')
