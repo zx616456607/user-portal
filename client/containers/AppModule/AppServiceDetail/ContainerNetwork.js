@@ -56,7 +56,7 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
 
   handleConfirm = async () => {
     const { form, cluster, serviceDetail, updateHostConfig, intl } = this.props
-    const { getFieldValue, validateFields } = form
+    const { getFieldValue, validateFields, setFields } = form
     const serviceName = serviceDetail.metadata.name
     const aliasesKeys = getFieldValue('aliasesKeys')
     const validateArray = [ 'hostname', 'subdomain', 'aliasesKeys' ]
@@ -69,11 +69,32 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
       if (errors) {
         return
       }
+      const { hostname, subdomain, aliasesKeys } = values
+      const newHostname = hostname && hostname.trim()
+      const newSubdomain = subdomain && subdomain.trim()
+      if (!!newHostname && !newSubdomain || !newHostname && !!newSubdomain) {
+        const errorObj = {}
+        if (!newHostname) {
+          Object.assign(errorObj, {
+            hostname: {
+              errors: [intl.formatMessage(AppServiceDetailIntl.hostnameIsRequired)],
+              value: ''
+            }
+          })
+        } else {
+          Object.assign(errorObj, {
+            subdomain: {
+              errors: [intl.formatMessage(AppServiceDetailIntl.subdomainIsRequired)],
+              value: ''
+            }
+          })
+        }
+        setFields(errorObj)
+        return
+      }
       this.setState({
         loading: true,
       })
-      const { hostname, subdomain, aliasesKeys } = values
-
       const hostaliases = []
       if (!isEmpty(aliasesKeys)) {
         aliasesKeys.forEach(key => {
@@ -84,8 +105,8 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         })
       }
       const hostnameBoby = {
-        hostname,
-        subdomain,
+        hostname: newHostname,
+        subdomain: newSubdomain,
         hostaliases,
       }
       const result =
