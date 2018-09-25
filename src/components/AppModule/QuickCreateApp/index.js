@@ -1009,9 +1009,11 @@ class QuickCreateApp extends Component {
               >
                 <FormattedMessage {...IntlMessage.previous}/>
               </Button>
-              <Button size="large" disabled={template && !helmAlready} type="primary" onClick={this.onCreateAppOrAddServiceClick}>
-                { this.renderCreateBtnText() }
-              </Button>
+              <Tooltip title={template && !helmAlready ? <FormattedMessage {...IntlMessage.noTillerTip}/> : ''}>
+                <Button size="large" disabled={template && !helmAlready} type="primary" onClick={this.onCreateAppOrAddServiceClick}>
+                  { this.renderCreateBtnText() }
+                </Button>
+              </Tooltip>
             </div>
           </div>
         </div>

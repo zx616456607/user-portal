@@ -238,14 +238,16 @@ class TemplateList extends React.Component<any> {
                 <span>{calcuDate(temp.versions[0].created)}</span>
               </Tooltip>
             </div>
-            <Button
-              className="deploy"
-              type="ghost"
-              disabled={this.chartRepoIsEmpty()}
-              onClick={() => this.handleDeploy(temp)}
-            >
-              <FormattedMessage {...AppCenterMessage.deploy}/>
-            </Button>
+            <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+              <Button
+                className="deploy"
+                type="ghost"
+                disabled={this.chartRepoIsEmpty()}
+                onClick={() => this.handleDeploy(temp)}
+              >
+                <FormattedMessage {...AppCenterMessage.deploy}/>
+              </Button>
+            </Tooltip>
           </div>
         </div>
       );
@@ -288,9 +290,11 @@ class TemplateList extends React.Component<any> {
       <QueueAnim className="templateWrapper layout-content">
         <Title title={formatMessage(AppCenterMessage.appTemplate)}/>
         <div className="layout-content-btns" key="btns">
-          <Button type="primary" size="large" disabled={this.chartRepoIsEmpty()} onClick={this.createTemplate}>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <Button type="primary" size="large" disabled={this.chartRepoIsEmpty()} onClick={this.createTemplate}>
               <i className="fa fa-plus" /> <FormattedMessage {...AppCenterMessage.create} />
-          </Button>
+            </Button>
+          </Tooltip>
           <Button type="ghost" size="large" onClick={this.loadTemplateList}>
               <i className="fa fa-refresh"/> <FormattedMessage {...AppCenterMessage.refresh} />
           </Button>
