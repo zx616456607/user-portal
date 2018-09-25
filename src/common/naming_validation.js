@@ -419,7 +419,10 @@ export function ingressRelayRuleCheck(value) {
   if (!value.trim()) {
     return '请输入校验规则'
   }
-  const regx = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-/a-z0-9]*[a-z0-9])?)*$/
+  if (value.includes('://')) {
+    return '服务位置不能有协议'
+  }
+  const regx = /[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-/a-z0-9]*[a-z0-9])?)*$/
   if (!regx.test(value)) {
     return '小写字母、数字、中划线-组成，以字母或者数组开头和结尾'
   }
