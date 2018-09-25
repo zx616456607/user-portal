@@ -185,3 +185,25 @@ const fetchAppTemplateNameCheck = (name, callback) => {
 
 export const appTemplateNameCheck = (name, callback) =>
   dispatch => dispatch(fetchAppTemplateNameCheck(name, callback));
+
+const HELM_IS_PREPARE_REQUEST = 'HELM_IS_PREPARE_REQUEST'
+const HELM_IS_PREPARE_SUCCESS = 'HELM_IS_PREPARE_SUCCESS'
+const HELM_IS_PREPARE_FAILURE = 'HELM_IS_PREPARE_FAILURE'
+
+const fetchHelmIsPrePare = (cluster, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        HELM_IS_PREPARE_REQUEST,
+        HELM_IS_PREPARE_SUCCESS,
+        HELM_IS_PREPARE_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/templates/helm/prepare/clusters/${cluster}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const checkHelmIsPrepare = (cluster, callback) =>
+  dispatch => dispatch(fetchHelmIsPrePare(cluster, callback));

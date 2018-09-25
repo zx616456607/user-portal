@@ -50,6 +50,8 @@ import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import * as templateActions from '../../../../client/actions/template'
+import {getDeepValue} from "../../../../client/util/util";
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -141,6 +143,7 @@ class QuickCreateApp extends Component {
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
+      this.checkHelmIsRepare()
     }
     if (isEmpty(templateList)) {
       getImageTemplate(DEFAULT_REGISTRY)
@@ -194,6 +197,16 @@ class QuickCreateApp extends Component {
   removeDeployCheck = (props) => {
     const { removeAppTemplateDeployCheck } = this.props;
     setTimeout(removeAppTemplateDeployCheck);
+  }
+
+  checkHelmIsRepare = async () => {
+    const { checkHelmIsPrepare, current } = this.props
+    const { clusterID } = current.cluster;
+    const result = await checkHelmIsPrepare(clusterID)
+    const already = getDeepValue(result, ['response', 'result', 'data', 'already'])
+    this.setState({
+      helmAlready: !!already,
+    })
   }
 
   getExistentServices() {
@@ -972,6 +985,7 @@ class QuickCreateApp extends Component {
 
   renderFooterSteps() {
     const { location } = this.props
+    const { helmAlready } = this.state
     const { hash, query } = location
     const { template } = query;
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
@@ -995,7 +1009,7 @@ class QuickCreateApp extends Component {
               >
                 <FormattedMessage {...IntlMessage.previous}/>
               </Button>
-              <Button size="large" type="primary" onClick={this.onCreateAppOrAddServiceClick}>
+              <Button size="large" disabled={template && !helmAlready} type="primary" onClick={this.onCreateAppOrAddServiceClick}>
                 { this.renderCreateBtnText() }
               </Button>
             </div>
@@ -1471,6 +1485,7 @@ export default connect(mapStateToProps, {
   getfSecurityGroupDetail,
   updateSecurityGroup,
   createTcpUdpIngress,
+  checkHelmIsPrepare: templateActions.checkHelmIsPrepare,
 })(injectIntl(QuickCreateApp, {
   withRef: true,
 }))
