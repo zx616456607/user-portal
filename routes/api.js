@@ -617,6 +617,8 @@ module.exports = function (Router) {
   router.get('/clusters/:clusterID/daas/:type/:name/events', serviceController.getDatabaseEvents)
   // 重启集群
   router.put('/clusters/:clusterID/daas/:type/:name/reboot', databaseCacheController.rebootCluster)
+  // 获取回滚记录
+  router.get('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.getRollbackRecord)
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)

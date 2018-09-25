@@ -23,13 +23,14 @@ class RollbackRecord extends React.Component {
       {
         dataIndex: 'whichBackup',
         title: '使用备份',
-        render: text => <Tooltip title={text}><span className="overflow-span">{text}</span></Tooltip>,
+        render: text => <Tooltip title={text} placement="topLeft"><span className="overflow-span">{text}</span></Tooltip>,
         width: 200,
       },
       {
         dataIndex: 'whichChain',
         title: '所在链路',
-        render: text => <Tooltip title={text}><span className="overflow-span">{text}</span></Tooltip>,
+        render: (text, record) => <Tooltip title={text} placement="topLeft"
+        ><span onClick={() => this.jumpToBackupPannel(record)} className="overflow-span link-to">{text}</span></Tooltip>,
         width: 200,
       },
       {
@@ -38,11 +39,26 @@ class RollbackRecord extends React.Component {
         render: text => <span>{formatDate(text)}</span>,
         width: 300,
       },
-
     ],
   }
   componentDidMount() {
-    this.props.getRollbackRecord()
+    const { clusterID, databaseInfo, database } = this.props
+    const databaseName = databaseInfo.objectMeta.name
+    this.props.getRollbackRecord(clusterID, database, databaseName, {
+      success: {
+        func: () => {
+          // something
+        },
+      },
+      failed: {
+        func: () => {
+          // something
+        },
+      },
+    })
+  }
+  jumpToBackupPannel(recordItem) {
+    this.props.linkToBackup(recordItem.whichChain, recordItem.whichBackup)
   }
   convertStatus = status => {
     switch (status) {
@@ -82,9 +98,10 @@ class RollbackRecord extends React.Component {
 }
 const mapStateToProps = state => {
   const { rollbackRecord } = state.backupChain
+  const { clusterID } = state.entities.current.cluster
   rollbackRecord.data = rollbackRecord.data &&
     rollbackRecord.data.sort((a, b) => a.startTime - b.startTime)
-  return { rollbackRecord }
+  return { rollbackRecord, clusterID }
 }
 export default connect(mapStateToProps, {
   getRollbackRecord,

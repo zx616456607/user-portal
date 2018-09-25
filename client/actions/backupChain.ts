@@ -211,16 +211,20 @@ export const ROLLBACK_RECORD_REQUEST = 'ROLLBACK_RECORD_REQUEST'
 export const ROLLBACK_RECORD_SUCCESS = 'ROLLBACK_RECORD_SUCCESS'
 export const ROLLBACK_RECORD_FAILURE = 'ROLLBACK_RECORD_FAILURE'
 
-const fetchRollbackRecord = () => {
+const fetchRollbackRecord = (clusterId, type, clusterName, callback) => {
   return {
     [FETCH_API]: {
       types: [ROLLBACK_RECORD_REQUEST, ROLLBACK_RECORD_SUCCESS, ROLLBACK_RECORD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/record`,
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/${type}/${clusterName}/restores`,
       schema: {},
+      options: {
+        method: 'GET',
+      },
     },
+    callback,
   }
 }
 
-export const getRollbackRecord = () => {
-  return dispatch => dispatch(fetchRollbackRecord())
+export const getRollbackRecord = (clusterId, type, clusterName, callback) => {
+  return dispatch => dispatch(fetchRollbackRecord(clusterId, type, clusterName, callback))
 }

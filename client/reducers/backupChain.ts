@@ -17,9 +17,11 @@ function chains(state = {}, action: any) {
       }
     case ActionsType.GET_BACKUPCHAIN_SUCCESS:
       const data = action.response.result.data.items
+      const rollbackComplete = action.response.result.data.rollBack
       return {
         isFetching: false,
         data,
+        rollbackComplete,
       }
     case ActionsType.GET_BACKUPCHAIN_FAILURE:
       return {
@@ -63,56 +65,56 @@ const rollbackRecordInitial = {
     {
       startTime: 1526069282000,
       status: '0',
-      whichBackup: 'ase',
-      whichChain: 'edda',
+      whichBackup: 'heppl',
+      whichChain: 'heppl',
       endTime: 1526069582000,
     },
     {
       startTime: 1529007182000,
       status: '1',
-      whichBackup: 'ase',
-      whichChain: 'edda',
+      whichBackup: 'heppl',
+      whichChain: 'heppl',
       endTime: 1529046782000,
     },
     {
       startTime: 1530591182000,
       status: '2',
-      whichBackup: 'ase',
-      whichChain: 'edda',
+      whichBackup: 'heppl',
+      whichChain: 'heppl',
       endTime: 1530605582000,
     },
     {
       startTime: 1530864782000,
       status: '0',
-      whichBackup: 'ase',
-      whichChain: 'edda',
+      whichBackup: 'heppl',
+      whichChain: 'heppl',
       endTime: 1531440782000,
     },
     {
       startTime: 1531908782000,
       status: '0',
-      whichBackup: 'ase',
-      whichChain: 'edda',
+      whichBackup: 'heppl',
+      whichChain: 'heppl',
       endTime: 1531994942000,
     },
     {
       startTime: 1534691342000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1534691522000,
     },
     {
       startTime: 1526915522000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1525273922000,
     },
     {
       startTime: 1534032722000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1534036085000,
     },
@@ -126,28 +128,28 @@ const rollbackRecordInitial = {
     {
       startTime: 1537045565000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1537121165000,
     },
     {
       startTime: 1529172485000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1529172525000,
     },
     {
       startTime: 1525802925000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1525803285000,
     },
     {
       startTime: 1537856085000,
       status: '0',
-      whichBackup: 'ase',
+      whichBackup: 'heppl',
       whichChain: 'edda',
       endTime: 1537859325000,
     },
@@ -161,10 +163,102 @@ function rollbackRecord(state = rollbackRecordInitial, action: any) {
         data: [],
       }
     case ActionsType.ROLLBACK_RECORD_SUCCESS:
-      // const data = action.response.result.data
+      action.response.result.data.items = [
+        {
+          startTime: 1526069282000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1526069582000,
+        },
+        {
+          startTime: 1529007182000,
+          status: '1',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1529046782000,
+        },
+        {
+          startTime: 1530591182000,
+          status: '2',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1530605582000,
+        },
+        {
+          startTime: 1530864782000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1531440782000,
+        },
+        {
+          startTime: 1531908782000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1531994942000,
+        },
+        {
+          startTime: 1534691342000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1534691522000,
+        },
+        {
+          startTime: 1526915522000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1525273922000,
+        },
+        {
+          startTime: 1534032722000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1534036085000,
+        },
+        {
+          startTime: 1531685285000,
+          status: '0',
+          whichBackup: 'afdfsddfsfdsfdsfdsfdsfdssdffse',
+          whichChain: 'eddxcfsdfsdfdsfdsfdsfdssasda',
+          endTime: 1531688885000,
+        },
+        {
+          startTime: 1537045565000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1537121165000,
+        },
+        {
+          startTime: 1529172485000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1529172525000,
+        },
+        {
+          startTime: 1525802925000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1525803285000,
+        },
+        {
+          startTime: 1537856085000,
+          status: '0',
+          whichBackup: 'ase',
+          whichChain: 'edda',
+          endTime: 1537859325000,
+        },
+      ]
       return {
         isFetching: false,
-        data: [],
+        data: action.response.result.data.items || [],
       }
     case ActionsType.ROLLBACK_RECORD_FAILURE:
       return {
