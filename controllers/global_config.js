@@ -397,3 +397,10 @@ exports.sendVerification = function* () {
 	yield email.sendGlobalConfigVerificationEmail(Body, loginUser.user, loginUser.email)
 	this.body = {}
 }
+
+exports.validateMsgConfig = function* () {
+  const body = this.request.body
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.configs.createBy(['message', 'isvalidconfig'], null, body)
+  return response
+}

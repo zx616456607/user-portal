@@ -24,7 +24,7 @@ import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
 import tip_harbor from '../../../assets/img/setting/tip_harbor.jpg'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification, validateMsgConfig } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
@@ -1973,6 +1973,47 @@ class MessageAlarm extends React.Component {
 
   }
 
+  validateConfig = () => {
+    this.props.form.validateFields((error, values) => {
+      if (error) return
+      const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
+      const body = {
+        configID: configID ? configID : '',
+        detail: {
+          url,
+          sms_user: smsUser,
+          sms_key: smsKey,
+          log_template: logTemplate,
+          resource_template: resourceTemplate
+        }
+      }
+      const notification = new NotificationHandler()
+      const { validateMsgConfig } = this.props
+      validateMsgConfig(body, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('验证成功')
+            // this.changeDisable()
+            // this.props.setGlobalConfig('message', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('验证失败', msg)
+          }
+        }
+      })
+    })
+  }
+
   handleCandle = () => {
     this.setConfigForm()
     this.changeDisable()
@@ -1990,10 +2031,6 @@ class MessageAlarm extends React.Component {
       callback([new Error('请填写短信服务器地址')])
       return
     }
-    // if (!/ .test(value)) {
-    //   callback([new Error('请填入 AI 深度学习服务地址')])
-    //   return
-    // }
     callback()
   }
 
@@ -2062,12 +2099,12 @@ class MessageAlarm extends React.Component {
                       >
                         编辑
                       </Button>
-                      <Button
-                        // onClick={this. }
+                      {/* <Button
+                        onClick={this.validateConfig}
                         style={{ margin: '0 12px' }}
                       >
                         发送验证短信
-                      </Button>
+                      </Button> */}
                     </FormItem>
                     :
                     <FormItem>
@@ -2084,7 +2121,7 @@ class MessageAlarm extends React.Component {
                         保存
                       </Button>
                       <Button
-                        // onClick={this. }
+                        onClick={this.validateConfig}
                       >
                         发送验证短信
                       </Button>
@@ -2257,7 +2294,7 @@ class GlobalConfig extends Component {
     } = this.state
 
 
-    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -2305,6 +2342,7 @@ class GlobalConfig extends Component {
               updateGlobalConfig={saveGlobalConfig}
               cluster={cluster}
               config={globalConfig.message}
+              validateMsgConfig={validateMsgConfig}
             />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
@@ -2380,5 +2418,6 @@ export default connect(mapPropsToState, {
   updateGlobalConfig,
   loadGlobalConfig,
   isValidConfig,
-  loadLoginUserDetail
+  loadLoginUserDetail,
+  validateMsgConfig,
 })(GlobalConfig)
