@@ -205,3 +205,22 @@ export const postRollback = (clusterId: string, type: string, pointName: string,
     dispatch (rollbackRequest(clusterId, type, pointName, body, callback))
   }
 }
+
+// 获取回滚记录
+export const ROLLBACK_RECORD_REQUEST = 'ROLLBACK_RECORD_REQUEST'
+export const ROLLBACK_RECORD_SUCCESS = 'ROLLBACK_RECORD_SUCCESS'
+export const ROLLBACK_RECORD_FAILURE = 'ROLLBACK_RECORD_FAILURE'
+
+const fetchRollbackRecord = () => {
+  return {
+    [FETCH_API]: {
+      types: [ROLLBACK_RECORD_REQUEST, ROLLBACK_RECORD_SUCCESS, ROLLBACK_RECORD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/record`,
+      schema: {},
+    },
+  }
+}
+
+export const getRollbackRecord = () => {
+  return dispatch => dispatch(fetchRollbackRecord())
+}

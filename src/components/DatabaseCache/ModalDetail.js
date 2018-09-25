@@ -52,6 +52,7 @@ import Backup from '../../../client/containers/DatabaseCache/ClusterDetailCompon
 import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
+import RollbackRecord from '../../../client/containers/DatabaseCache/ClusterDetailComponent/RollbackRecord'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -1751,6 +1752,9 @@ class ModalDetail extends Component {
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
                     <Backup database={database} scope= {this} databaseInfo={databaseInfo} rollBackSuccess={this.editConfigOk}/>
+                  </TabPane>
+                  <TabPane tab='回滚记录' key='#RollbackRecord'>
+                    <RollbackRecord database={database}/>
                   </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
