@@ -250,7 +250,7 @@ let CreateAlarmGroup = React.createClass({
       if (values.phoneKeys.length) {
         values.phoneKeys.forEach(k => {
           body.receivers.tel.push({
-            addr: values[`phoneNum${k}`],
+            number: values[`phoneNum${k}`],
             desc: values[`phoneDesc${k}`] || '',
           })
         })
