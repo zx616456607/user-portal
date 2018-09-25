@@ -392,15 +392,22 @@ class App extends Component {
       marginBigSider: siderStyle === 'bigger',
       marginMiniSider: siderStyle === 'mini',
     })
-    let showProject = false
+    let showProjectOrCluster = false
     SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
       if (pathname.search(path) == 0) {
-        showProject = true
+        showProjectOrCluster = true
         return false
       }
       return true
     })
-    if (!showProject) {
+    SPACE_CLUSTER_PATHNAME_MAP.cluster.every(path => {
+      if (pathname.search(path) == 0) {
+        showProjectOrCluster = true
+        return false
+      }
+      return true
+    })
+    if (!showProjectOrCluster) {
       return children
     }
     if (current.space.noProjectsFlag) {
