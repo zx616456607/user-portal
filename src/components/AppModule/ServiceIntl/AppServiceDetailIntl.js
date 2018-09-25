@@ -536,6 +536,8 @@ export const mapData = {
     readWriteRight: '读取权限',
     readWrite: '可读可写',
     containerNetwork: '容器网络',
+    hostnameIsRequired: '主机名不能为空',
+    subdomainIsRequired: '子域名不能为空'
   }
 }
 
