@@ -52,11 +52,6 @@ let ClusterInfo = React.createClass ({
   APIupdateCluster(clusterID, values){
     const { updateCluster, loadClusterList, form } = this.props
     const notification = new NotificationHandler()
-    if(values.isDefault || loadClusterList.length == 1){
-      values.isDefault = 1
-    } else {
-      values.isDefault = 0
-    }
     updateCluster(clusterID, values, {
       success: {
         func: result => {
@@ -76,12 +71,7 @@ let ClusterInfo = React.createClass ({
       },
       failed: {
         func: err => {
-          if(!!err && !!err.message && !! err.message.message && err.message.message === 'the cluster is the only cluster which exists in our env'){
-            notification.error(`当前集群为个人项目使用集群\n请保证至少有一个集群，可被平台成员的个人项目使用`)
-            form.resetFields(['isDefault'])
-          } else {
-            notification.error(`更新集群信息失败`)
-          }
+          notification.error(`更新集群信息失败`)
           this.setState({
             saveBtnLoading: false,
           })
@@ -254,17 +244,6 @@ let ClusterInfo = React.createClass ({
       onOk() {},
     });
   },
-  CancelClusterMemberOnlyOne(){
-    Modal.info({
-      title: '提示',
-      content: (
-        <div>
-          <p>由于目前只有一个集群，不可取消成员授权</p>
-        </div>
-      ),
-      onOk() {},
-    });
-  },
   selectBuilderEnvironment(){
     const { harbor } = this.props.cluster
     if(!!harbor && harbor.length > 0 && !!harbor[0]){
@@ -337,7 +316,7 @@ let ClusterInfo = React.createClass ({
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs,
-      description, apiToken, isOk, isBuilder, isDefault
+      description, apiToken, isOk, isBuilder,
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -364,13 +343,6 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: description
     });
-    const authorizedProps = getFieldProps('isDefault', {
-      rules: [
-        { required: false, message: '请选择' },
-      ],
-      initialValue: isDefault,
-      valuePropName: 'checked',
-    })
     const dropdown = (
       <Menu onClick={this.deleteCluster} style={{ width: "100px" }} >
         <Menu.Item>
@@ -453,16 +425,6 @@ let ClusterInfo = React.createClass ({
           <div className="formItem">
             <Form.Item>
               <div className="h4 blod">&nbsp;</div>
-            </Form.Item>
-            <Form.Item>
-              <div style={{float:'left',height:'40px'}}><FormattedMessage {...intlMsg.authMember}/>：</div>
-              <span>
-                {
-                  clusterList.length == 1
-                  ? <Checkbox checked={true} disabled={!editCluster} onClick={this.CancelClusterMemberOnlyOne}><FormattedMessage {...intlMsg.canUseByAll}/></Checkbox>
-                  : <Checkbox disabled={!editCluster} {...authorizedProps}><FormattedMessage {...intlMsg.canUseByAll}/></Checkbox>
-                }
-              </span>
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}><FormattedMessage {...intlMsg.description}/>：&nbsp;&nbsp;</span>

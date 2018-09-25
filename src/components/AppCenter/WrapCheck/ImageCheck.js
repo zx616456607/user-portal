@@ -613,6 +613,7 @@ class ImageCheckTable extends React.Component {
           columns={columns}
           onChange={this.onTableChange}
           pagination={pagination}
+          loading={this.props.loading}
         />
         <Modal
           title="删除审核记录" visible={delModal}
@@ -686,7 +687,8 @@ class ImageCheck extends React.Component {
       sort: 'd,publish_time',
       publish_time: false,
       filter: 'type,2,target_project__eq,',
-      pushlishTarget: 'market'
+      pushlishTarget: 'market',
+      loading: false,
     }
   }
   componentWillMount() {
@@ -718,23 +720,35 @@ class ImageCheck extends React.Component {
     }
   }
   getImagePublishList() {
-    const { current, filterName, targetProject, sort, filter } = this.state
-    const { imageApprovalList } = this.props
-    let query = {
-      from: (current - 1) * 10,
-      size: 10,
-      filter
-    }
-    if (filterName) {
-      Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
-    }
-    if (targetProject) {
-      Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
-    }
-    if (sort) {
-      Object.assign(query, { sort })
-    }
-    imageApprovalList(query)
+    this.setState({
+      loading: true,
+    }, () => {
+      const { current, filterName, targetProject, sort, filter } = this.state
+      const { imageApprovalList } = this.props
+      let query = {
+        from: (current - 1) * 10,
+        size: 10,
+        filter
+      }
+      if (filterName) {
+        Object.assign(query, { filter: `file_nick_name,${filterName},${filter}` })
+      }
+      if (targetProject) {
+        Object.assign(query, { filter: `target_project,${targetProject},${filter}` })
+      }
+      if (sort) {
+        Object.assign(query, { sort })
+      }
+      imageApprovalList(query, {
+        finally: {
+          func: () => {
+            this.setState({
+              loading: false
+            })
+          }
+        }
+      })
+    })
   }
   refreshData(type) {
     this.setState({
@@ -742,7 +756,7 @@ class ImageCheck extends React.Component {
       sort: 'd,publish_time',
       current: 1,
       publish_time: false,
-      pushlishTarget: 'market'
+      // pushlishTarget: 'market'
     }, this.getImagePublishList)
   }
   updateParentState(type, value, callback) {
@@ -806,6 +820,7 @@ class ImageCheck extends React.Component {
               loadProjectMembers={loadProjectMembers}
               harbor={clusterHarbor}
               harborMembers={harborMembers}
+              loading={this.state.loading}
             />
           </div>
           :
@@ -839,6 +854,7 @@ class ImageCheck extends React.Component {
               loadProjectMembers={loadProjectMembers}
               harbor={clusterHarbor}
               harborMembers={harborMembers}
+              loading={this.state.loading}
             />
           </div>
         }

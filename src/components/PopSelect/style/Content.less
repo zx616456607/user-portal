@@ -1,5 +1,6 @@
 .PopSelectContent {
   min-width: 204px;
+  max-width: 400px;
   .ant-collapse-content > .ant-collapse-content-box {
     padding-top: 0;
   }
@@ -10,8 +11,7 @@
   .titlesearch {
     position: relative;
     display:block;
-    width:165px;
-    margin:5px 0px 5px 5px;
+    margin: 8px 16px;
     .titleicon {
       position:absolute;
       top: 11px;
@@ -27,7 +27,10 @@
       cursor: pointer;
       height: 32px;
       line-height: 32px;
-      padding-left: 25px;
+      padding: 0 16px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
       &:hover {
         background-color: #effdfe;
         color: #37afee;

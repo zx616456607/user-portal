@@ -273,11 +273,11 @@ let CreateClusterModal = React.createClass({
       this.setState({
         submitBtnLoading: true,
       })
-      if (values.isDefault === true) {
+      /* if (values.isDefault === true) {
         values.isDefault = DEFAULT_CLUSTER_MARK
       } else {
         values.isDefault = 0
-      }
+      } */
       const notification = new NotificationHandler()
       createCluster(values, {
         success: {
@@ -429,13 +429,13 @@ let CreateClusterModal = React.createClass({
         { whitespace: true },
       ]
     })
-    const isDefaultProps = getFieldProps('isDefault', {
+    /* const isDefaultProps = getFieldProps('isDefault', {
       rules: [
         { required: true, message: formatMessage(intlMsg.plsSelect) },
       ],
       valuePropName: 'checked',
       initialValue: (noCluster ? true : false),
-    })
+    }) */
     return (
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab={formatMessage(intlMsg.newCluster)} key="newCluster">
@@ -491,10 +491,10 @@ let CreateClusterModal = React.createClass({
               <span className="itemKey"><FormattedMessage {...intlMsg.description} /></span>
               <Input {...descProps} type="textarea"/>
             </Form.Item>
-            <Form.Item>
+            {/* <Form.Item>
               <span className="itemKey"></span>
               <Checkbox disabled={noCluster} {...isDefaultProps}><FormattedMessage {...intlMsg.onlyOpenToEnterprise} /></Checkbox>
-            </Form.Item>
+            </Form.Item> */}
           </Form>
           <div className="footer">
             {

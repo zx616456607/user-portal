@@ -19,15 +19,6 @@ function current(state, action) {
   switch (action.type) {
     case ActionTypes.SET_CURRENT:
       let current = action.current
-      if (!current.team) {
-        current.team = state.team
-      }
-      if (!current.space) {
-        current.space = state.space
-      }
-      if (!current.cluster) {
-        current.cluster = state.cluster
-      }
       current.unit = 'T'
       if (mode === STANDARD_MODE) {
          current.unit = '￥'

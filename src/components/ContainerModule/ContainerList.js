@@ -952,7 +952,7 @@ class ContainerList extends Component {
               {
                 this.state.checkedContainerList.length === 1
                 ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
-                : formatMessage(ContainerListIntl.thisNumContainer)
+                : formatMessage(ContainerListIntl.thisNumContainer, {length : this.state.checkedContainerList.length})
               }
            </div>
           </Modal>
@@ -969,7 +969,7 @@ class ContainerList extends Component {
               {
                 this.state.checkedContainerList.length === 1
                   ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
-                  : formatMessage(ContainerListIntl.thisNumContainer)
+                  : formatMessage(ContainerListIntl.thisNumContainer, {length : this.state.checkedContainerList.length})
               }
             </div>
           </Modal>

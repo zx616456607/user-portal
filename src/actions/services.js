@@ -303,9 +303,9 @@ function fetchServiceContainerList(cluster, serviceName, query, bpmQuery,callbac
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, query, bpmQuery,callback) {
+export function loadServiceContainerList(cluster, serviceName, query, bpmQuery, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery ,callback))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery, callback))
   }
 }
 
@@ -1056,19 +1056,19 @@ export function UpdateServiceAnnotation(cluster, service, body, callback){
   }
 }
 
-// 修改服务 hostname 和 subdomain
-export const UPDATE_SERVICE_HOSTNAME_REQUEST = 'UPDATE_SERVICE_HOSTNAME_REQUEST'
-export const UPDATE_SERVICE_HOSTNAME_SUCCESS = 'UPDATE_SERVICE_HOSTNAME_SUCCESS'
-export const UPDATE_SERVICE_HOSTNAME_FAILURE = 'UPDATE_SERVICE_HOSTNAME_FAILURE'
+// 修改服务 hostname 和 subdomain 、 hostAliases
+export const UPDATE_SERVICE_HOSTCONFIG_REQUEST = 'UPDATE_SERVICE_HOSTCONFIG_REQUEST'
+export const UPDATE_SERVICE_HOSTCONFIG_SUCCESS = 'UPDATE_SERVICE_HOSTCONFIG_SUCCESS'
+export const UPDATE_SERVICE_HOSTCONFIG_FAILURE = 'UPDATE_SERVICE_HOSTCONFIG_FAILURE'
 
-const fetchUpdateHostname = (cluster, service, body, callback) => ({
+const fetchUpdateHostConfig = (cluster, service, body, callback) => ({
   [FETCH_API]: {
     types: [
-      UPDATE_SERVICE_HOSTNAME_REQUEST,
-      UPDATE_SERVICE_HOSTNAME_SUCCESS,
-      UPDATE_SERVICE_HOSTNAME_FAILURE,
+      UPDATE_SERVICE_HOSTCONFIG_REQUEST,
+      UPDATE_SERVICE_HOSTCONFIG_SUCCESS,
+      UPDATE_SERVICE_HOSTCONFIG_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/hostname`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/host`,
     schema: {},
     options: {
       method: 'PUT',
@@ -1078,30 +1078,5 @@ const fetchUpdateHostname = (cluster, service, body, callback) => ({
   callback,
 })
 
-export const updateHostname = (cluster, service, body, callback) =>
-  dispatch => dispatch(fetchUpdateHostname(cluster, service, body, callback))
-
-// 修改服务 hostAliases
-export const UPDATE_SERVICE_HOSTALIASES_REQUEST = 'UPDATE_SERVICE_HOSTALIASES_REQUEST'
-export const UPDATE_SERVICE_HOSTALIASES_SUCCESS = 'UPDATE_SERVICE_HOSTALIASES_SUCCESS'
-export const UPDATE_SERVICE_HOSTALIASES_FAILURE = 'UPDATE_SERVICE_HOSTALIASES_FAILURE'
-
-const fetchUpdateHostAliases = (cluster, service, body, callback) => ({
-  [FETCH_API]: {
-    types: [
-      UPDATE_SERVICE_HOSTALIASES_REQUEST,
-      UPDATE_SERVICE_HOSTALIASES_SUCCESS,
-      UPDATE_SERVICE_HOSTALIASES_FAILURE,
-    ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/hostaliases`,
-    schema: {},
-    options: {
-      method: 'PUT',
-      body,
-    }
-  },
-  callback
-})
-
-export const updateHostAliases = (cluster, service, body, callback) =>
-  dispatch => dispatch(fetchUpdateHostAliases(cluster, service, body, callback))
+export const updateHostConfig = (cluster, service, body, callback) =>
+  dispatch => dispatch(fetchUpdateHostConfig(cluster, service, body, callback))

@@ -475,8 +475,9 @@ class LoadBalance extends React.Component {
       ]
     })
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'outside'
+      initialValue: 'inside'
     })
+    const agentType = getFieldValue('agentType')
     return (
       <Row className="serviceCreateLb">
         {
@@ -509,7 +510,7 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
+              <Radio value="inside">{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
               <Radio value="outside">{intl.formatMessage(IntlMessage.outerClusterLB)}</Radio>
             </RadioGroup>
           </FormItem>
@@ -525,7 +526,9 @@ class LoadBalance extends React.Component {
                   {...lbSelectProps}
                 >
                   {
-                    (loadBalanceList || []).map(item =>
+                    (loadBalanceList || [])
+                      .filter(item => item.metadata.labels.agentType === agentType)
+                      .map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
                     )
                   }
