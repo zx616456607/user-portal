@@ -423,9 +423,6 @@ class App extends Component {
               </Link>
             }}
           />
-          {/* 帐号还未加入任何项目，请先
-          <Link to="/tenant_manage/project_manage">『创建项目』</Link>
-          或『联系管理员加入项目』 */}
         </div>
       )
     }
@@ -442,9 +439,6 @@ class App extends Component {
               </Link>
             }}
           />
-          {/* 项目暂无授权的集群，请先
-          <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>申请『授权集群』</Link>
-          或选择其他项目 */}
         </div>
       )
     }
