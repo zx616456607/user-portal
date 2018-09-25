@@ -74,13 +74,10 @@ exports.auth = function* (next) {
   // get teamspace from cookie
   if (typeof teamspace === 'undefined') {
     const currentConfig = this.cookies.get(USER_CURRENT_CONFIG) || ''
-    const _teamspace = currentConfig.split(',')[0]
-    if (_teamspace && _teamspace !== 'default' && _teamspace !== 'undefined') {
+    const _teamspace = currentConfig.split(',')[1]
+    if (_teamspace && _teamspace !== 'undefined') {
       teamspace = _teamspace
     }
-  }
-  if (teamspace === 'default') {
-    teamspace = null
   }
   this.session.loginUser.teamspace = teamspace
   // this.session.loginUser.onbehalfuser = onbehalfuser
