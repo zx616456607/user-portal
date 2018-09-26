@@ -191,6 +191,7 @@ module.exports = function (Router) {
   router.get('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplateCheck)
   router.post('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplate)
   router.get('/templates/helm/:name', helmTemplateController.templateNameCheck)
+  router.get('/templates/helm/prepare/clusters/:cluster', helmTemplateController.checkHelmIsPrepare)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)

@@ -392,15 +392,22 @@ class App extends Component {
       marginBigSider: siderStyle === 'bigger',
       marginMiniSider: siderStyle === 'mini',
     })
-    let showProject = false
+    let showProjectOrCluster = false
     SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
       if (pathname.search(path) == 0) {
-        showProject = true
+        showProjectOrCluster = true
         return false
       }
       return true
     })
-    if (!showProject) {
+    SPACE_CLUSTER_PATHNAME_MAP.cluster.every(path => {
+      if (pathname.search(path) == 0) {
+        showProjectOrCluster = true
+        return false
+      }
+      return true
+    })
+    if (!showProjectOrCluster) {
       return children
     }
     if (current.space.noProjectsFlag) {
@@ -416,9 +423,6 @@ class App extends Component {
               </Link>
             }}
           />
-          {/* 帐号还未加入任何项目，请先
-          <Link to="/tenant_manage/project_manage">『创建项目』</Link>
-          或『联系管理员加入项目』 */}
         </div>
       )
     }
@@ -435,9 +439,6 @@ class App extends Component {
               </Link>
             }}
           />
-          {/* 项目暂无授权的集群，请先
-          <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>申请『授权集群』</Link>
-          或选择其他项目 */}
         </div>
       )
     }

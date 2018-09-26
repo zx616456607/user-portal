@@ -109,7 +109,7 @@ class CollapseList extends Component {
     if (!Array.isArray(groupData) || groupData.length === 0) {
       return <div className="text-center">
           <img src={noConfigGroupImg} />
-          <div>{formatMessage(serviceIntl.noConfigGroupMsg)}<Button type="primary" size="large" onClick={() => this.props.scope.configModal(true, false)}>{formatMessage(serviceIntl.create)}</Button></div>
+          <div>{formatMessage(serviceIntl.noConfigGroupMsg)}<Button type="primary" size="large" onClick={() => this.props.scope.configModal(true, false)}>{formatMessage(indexIntl.create)}</Button></div>
         </div>
     }
     let filterGroup = this.filterConfig()

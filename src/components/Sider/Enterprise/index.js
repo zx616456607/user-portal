@@ -291,7 +291,7 @@ class Sider extends Component {
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
-    const scope = this;
+    const scope = this
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
@@ -1016,7 +1016,7 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
+                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN || role === ROLE_PLATFORM_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
                         <Tooltip title={this.menuItemTip()} placement="right">

@@ -176,7 +176,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   const PORT_PROTOCOL = 'portProtocol' // 端口协议(HTTP, TCP)
   const MAPPING_PORTTYPE = 'mappingPortType' // 映射服务端口类型(auto, special)
   const MAPPING_PORT = 'mappingPort' // 映射服务端口
-
   const deployment = new Deployment(serviceName)
   // set annotation => system/registry = dockerhub
   deployment.setAnnotations({

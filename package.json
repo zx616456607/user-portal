@@ -104,6 +104,7 @@
     "svg-captcha": "^1.0.7",
     "urllib": "^2.13.1",
     "useragent": "^2.1.10",
+    "utf8-bytes": "^0.0.1",
     "utility": "^1.9.0",
     "uuid": "^3.1.0",
     "ws": "^5.2.1",
