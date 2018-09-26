@@ -1270,7 +1270,7 @@ class AppServiceList extends Component {
               size="large"
               type="primary"
               onClick={this.goAddService}
-              style={{ backgroundColor: '#2db7f5' }}>
+              >
               <i className="fa fa-plus"></i>
               <FormattedMessage {...intlMsg.addServer}/>
             </Button>
