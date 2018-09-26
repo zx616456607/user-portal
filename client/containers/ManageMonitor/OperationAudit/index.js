@@ -202,7 +202,8 @@ const formatResourceName = (resourceName, resourceId) => {
     }
   } else {
     if (resourceName.length === 0) {
-      if (resourceId.length === 0) {
+      // @Todo: resourceId is unused
+      if (resourceId && resourceId.length === 0) {
         return '-'
       }
       return '-'

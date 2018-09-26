@@ -1,0 +1,24 @@
+@import "../../../assets/style/site/core.less";
+
+.thirdTabs {
+  width: 100%;
+  border-bottom: 1px solid #d9d9d9;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
+  font-size: 14px;
+  margin-top: @padding-large;
+  cursor: pointer;
+  .tabs {
+    box-sizing: border-box;
+    height: 37px;
+    padding: 0 24px;
+    &:hover {
+      color: @primary-color;
+    }
+  }
+  .activeTabs {
+    color: @primary-color;
+    border-bottom: 1px solid @primary-color;
+  }
+}

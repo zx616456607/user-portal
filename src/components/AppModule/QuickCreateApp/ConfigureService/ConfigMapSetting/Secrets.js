@@ -314,13 +314,9 @@ const SecretsConfigMap = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form, location, isTemplate } = this.props
+    const { form } = this.props
     const { getFieldValue } = form
-    const templateDeploy = location.query.template && !isTemplate
 
-    if (templateDeploy) {
-      return true
-    }
     if (!currentConfigGroup) {
       return false
     }
