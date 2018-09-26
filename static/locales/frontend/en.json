@@ -2597,6 +2597,8 @@
   "IndexPage.harborProject": "Harbor project",
   "IndexPage.myHarborProject": "My harbor project",
   "IndexPage.myImages": "My images",
+  "IndexPage.privateProject": "Private project",
+  "IndexPage.privateImage": "Private repo",
   "IndexPage.publicHarbroProjects": "Public harbro projects",
   "IndexPage.publicImages": "Public images",
   "IndexPage.alarm": "Alert",
