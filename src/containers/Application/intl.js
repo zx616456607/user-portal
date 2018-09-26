@@ -202,6 +202,7 @@ const messageObj = {
     resourceFailure: '资源故障',
     continue: '继续',
     abandon: '放弃',
+    noTillerTip: '请先在集群中安装tiller插件并设置固定节点',
   }
 }
 
