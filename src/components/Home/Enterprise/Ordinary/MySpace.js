@@ -692,20 +692,20 @@ class MySpace extends Component {
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          <FormattedMessage {...IntlMessages.myHarborProject} />
+                          <FormattedMessage {...IntlMessages.privateProject} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myProjectCount}
+                          {spaceImageStats.privateProjectCount}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          <FormattedMessage {...IntlMessages.myImages} />
+                          <FormattedMessage {...IntlMessages.privateImage} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myRepoCount}
+                          {spaceImageStats.privateRepoCount}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>

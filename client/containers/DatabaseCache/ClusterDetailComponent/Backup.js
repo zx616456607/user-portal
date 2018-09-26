@@ -137,6 +137,7 @@ class Backup extends React.Component {
     this.setState({
       currentItem: keys[keys.length - 1],
     })
+    this.props.resetRecordItem()
   }
   rollBackAlert = () => {
     const confirmRollBack = () => {
@@ -162,6 +163,7 @@ class Backup extends React.Component {
           },
         },
       })
+      this.props.jumpToRollbackRecord()
       this.setState({ rollBackAlert: false })
     }
     const onChange = e => {
@@ -184,7 +186,7 @@ class Backup extends React.Component {
             <Icon type="question-circle-o" />
           </div>
           <div className="right">
-            <p>回滚后，此数据库集群将恢复到该备份点的状态。确定回滚操作吗？</p>
+            <p>回滚后，此数据库集群将恢复到该备份点的状态。回滚完成后将自动重启集群，确定回滚操作吗？</p>
             {
               this.state.rollBackAlert &&
               <Checkbox onChange={onChange}>已经对当前数据备份，确定执行回滚操作</Checkbox>
@@ -574,8 +576,9 @@ class Backup extends React.Component {
         return '未知'
     }
   }
+
   renderList = () => {
-    const { database, databaseInfo } = this.props
+    const { database, databaseInfo, rollbackComplete, recordItem } = this.props
     let chainsData = JSON.parse(JSON.stringify(this.props.chainsData))
     const sortData = chainsData.splice(1)
     sortData.sort(
@@ -585,8 +588,21 @@ class Backup extends React.Component {
       })
     chainsData = [ this.props.chainsData[0] ].concat(sortData)
 
+    const activeIndex = () => {
+      let key
+      chainsData.forEach(v => {
+        v.chains.forEach(k => {
+          if (k.name === recordItem) key = v.name
+        })
+      })
+      return key
+    }
+    const disabledStyle = {
+      cursor: 'not-allowed',
+      color: '#cccccc',
+    }
     return database === 'mysql' ?
-      <Collapse onChange={this.expendPanel}>
+      <Collapse onChange={this.expendPanel} defaultActiveKey={activeIndex()}>
         {
           chainsData.length !== 0 && chainsData.map((v, i) => {
             return <Panel header={this.renderHeader(v, i)} key={v.name}>
@@ -607,7 +623,7 @@ class Backup extends React.Component {
                           dot={k.backType === 'fullbackup' ? this.fullBackupPoint(k.status) : ''}
                           key={k.creationTimestamp}
                           color={this.pointClass(k.status).color}>
-                          <Row className="children-chain">
+                          <Row className={recordItem && recordItem === k.name ? 'children-chain selected' : 'children-chain'}>
                             <Col span={6}>{formatDate(k.creationTimestamp)}</Col>
                             <Col span={3}>{(k.size / 1024 / 1024).toFixed(2)} M</Col>
                             <Col span={4} pull={1}>
@@ -620,12 +636,20 @@ class Backup extends React.Component {
                                 {this.pointStatus(k.status, k)}
                               </span>
                             </Col>
-                            <Col span={6} push={2}>
+                            <Col span={6} push={2} className={rollbackComplete ? 'disabled-rollback' : ''}>
                               {
                                 k.status === 'Complete' ?
-                                  <Dropdown.Button onClick={() => this.rollBack(k)} overlay={this.backupPointmenu(k, i)} type="ghost">
-                                    <TenxIcon type="rollback"size={13} style={{ marginRight: 4 }}/>
-                                    <span>回滚</span>
+                                  <Dropdown.Button onClick={() => {
+                                    if (!rollbackComplete) {
+                                      this.rollBack(k)
+                                    }
+                                  }} overlay={this.backupPointmenu(k, i)} type="ghost">
+                                    <Tooltip title={rollbackComplete ? '正在回滚中' : ''}>
+                                      <span style={rollbackComplete ? disabledStyle : null}>
+                                        <TenxIcon type="rollback"size={13} style={{ marginRight: 4 }}/>
+                                        <span>回滚</span>
+                                      </span>
+                                    </Tooltip>
                                   </Dropdown.Button>
                                   :
                                   <Button icon="delete" onClick={() => this.delThis(k, i)} style={{ width: 95, background: '#fff' }}>
@@ -667,18 +691,24 @@ class Backup extends React.Component {
                 </span>
               </Col>
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
-              <Col span={5}>
+              <Col span={5} className={rollbackComplete ? 'disabled-rollback' : ''}>
                 {
                   v.chains[0].status === '500' ?
                     <Button icon="delete" onClick={() => this.delThis(v.chains[0], i)} style={{ width: 95, background: '#fff' }}>
                       删除
                     </Button>
                     :
-                    <Dropdown.Button onClick={() => this.rollBack(v)} overlay={this.backupPointmenu(v)} type="ghost">
-                      <div>
-                        <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
-                        回滚
-                      </div>
+                    <Dropdown.Button onClick={() => {
+                      if (!rollbackComplete) {
+                        this.rollBack(v)
+                      }
+                    }} overlay={this.backupPointmenu(v)} type="ghost">
+                      <Tooltip title={rollbackComplete ? '正在回滚中' : ''}>
+                        <div style={rollbackComplete ? disabledStyle : null}>
+                          <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
+                          回滚
+                        </div>
+                      </Tooltip>
                     </Dropdown.Button>
                 }
               </Col>
@@ -828,6 +858,8 @@ const mapStateToProps = (state, props) => {
   const { namespace } = state.entities.loginUser.info
   const { chains, autoBackupChains } = state.backupChain
   const chainsData = chains.data || []
+  // 是否正在备份
+  const rollbackComplete = chains.rollbackComplete || false
   if (database === 'mysql') {
     // 将当前备份链放到第一个
     if (chainsData && chainsData.length !== 0) {
@@ -854,6 +886,7 @@ const mapStateToProps = (state, props) => {
     chainsData,
     clusterID,
     autoBackupChains, // 当前是自动备份的备份链
+    rollbackComplete,
   }
 }
 const BackupForm = Form.create()(Backup)
