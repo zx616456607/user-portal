@@ -36,7 +36,9 @@ import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { Link } from 'react-router'
 
+const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
 let LogsTemplate = React.createClass({
@@ -95,8 +97,6 @@ let LogsTemplate = React.createClass({
 class ImageUpdate extends Component {
 	constructor(props){
     super(props)
-    this.handleSearchRules = this.handleSearchRules.bind(this)
-    this.handleInputValue = this.handleInputValue.bind(this)
     this.handleAddRules = this.handleAddRules.bind(this)
     this.modalCancel = this.modalCancel.bind(this)
     this.modalConfirm = this.modalConfirm.bind(this)
@@ -141,6 +141,8 @@ class ImageUpdate extends Component {
       disappear: true,
       editKey: undefined,
       currentRule: undefined,
+      searchType: 'name',
+      searchText: undefined,
     }
   }
 
@@ -226,23 +228,10 @@ class ImageUpdate extends Component {
     !isReplications && this.handleloadImageUpdateList()
   }
 
-  handleInputValue(e){
+  handleInputValue = e => {
     this.setState({
-      inputValue: e.target.value
-    })
-  }
-
-  handleSearchRules(){
-	  const { inputValue } = this.state
-    const { rulesData } = this.props
-    let newRulesData  = []
-    rulesData.map((item, index) => {
-	    if(item.name.indexOf(inputValue) > -1){
-        newRulesData.push(item)
-      }
-    })
-    this.setState({
-      rulesData: newRulesData
+      searchText: e.target.value,
+      currentRule: undefined,
     })
   }
 
@@ -1337,7 +1326,7 @@ class ImageUpdate extends Component {
   }
   render(){
     const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
-    const { edit, currentRules, currentRulesEnabled, disappear, currentRule } = this.state
+    const { edit, currentRules, currentRulesEnabled, disappear, currentRule, searchType, searchText } = this.state
     if(!rulesData || !taskUpdataData){
       return <div style={{textAlign:'center'}}><Spin style={{textAlign:'center'}}></Spin></div>
     }
@@ -1366,7 +1355,7 @@ class ImageUpdate extends Component {
         <Menu.Item key="delete" style={{width:'90px'}}><i className="fa fa-trash-o" aria-hidden="true" style={{ marginRight: '8px'}}></i>删除</Menu.Item>
       </Menu>
     })
-    const rulesColumn = [
+    let rulesColumn = [
       {
         title:' ',
         dataIndex:'check',
@@ -1402,6 +1391,14 @@ class ImageUpdate extends Component {
         </div>
       }
     ]
+
+    if (isReplications) {
+      rulesColumn.splice(4, 0, {
+        title:'仓库组',
+        dataIndex:'projects',
+        render: item => <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+      })
+    }
 
     const updataTaskColumn = [
       {
@@ -1496,6 +1493,21 @@ class ImageUpdate extends Component {
       wrapperCol: {span: 19},
     }
     const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
+    const selectBefore = (
+      <Select
+        value={searchType}
+        style={{ width: 80 }}
+        onChange={searchType => this.setState({ searchType, searchText: '' })}>
+        <Option value="name">名称</Option>
+        <Option value="target">目标</Option>
+      </Select>
+    )
+    const listData = !searchText ? rulesData : rulesData.filter(item => {
+      if (searchType === 'target') {
+        return item.targets[0].name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+      }
+      return item.name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+    })
     return(
       <div id='imageUpdata'>
         <div className='rules'>
@@ -1520,14 +1532,19 @@ class ImageUpdate extends Component {
               onClick={this.handleCopyRule}>
               同步镜像
             </Button>
-            {/*<span className='searchBox'>
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>*/}
+            <span className='searchBox'>
+              <Input
+                addonBefore={selectBefore}
+                size="large"
+                placeholder={searchType === 'name' ? '按名称搜索' : '按目标名搜索'}
+                className='inputStandrd'
+                value={searchText}
+                onChange={this.handleInputValue}
+              />
+            </span>
             {
-              rulesData.length
-              ? <span className='totleNum'>共计：{rulesData.length} 条</span>
+              listData.length
+              ? <span className='totleNum'>共计：{listData.length} 条</span>
               : null
             }
           </div>
@@ -1536,7 +1553,7 @@ class ImageUpdate extends Component {
               onRowClick={this.handleOnChange}
               loading={this.props.loading}
               columns={rulesColumn}
-              dataSource={rulesData}
+              dataSource={listData}
               pagination={{simple: true}}
             />
           </div>
@@ -1560,11 +1577,6 @@ class ImageUpdate extends Component {
               onClick={this.handleRefreshTask}>
               刷新
             </Button>
-            <span className="searchBox">
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                     onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>
               {
                 taskUpdataData.length
                   ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
