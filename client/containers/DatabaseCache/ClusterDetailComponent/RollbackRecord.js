@@ -95,8 +95,9 @@ class RollbackRecord extends React.Component {
 const mapStateToProps = state => {
   const { rollbackRecord } = state.backupChain
   const { clusterID } = state.entities.current.cluster
-  rollbackRecord.data = rollbackRecord &&
-    rollbackRecord.data.sort((a, b) => a.startTime - b.startTime)
+  rollbackRecord.data.sort((a, b) => {
+    return Date.parse(b.timeStarted) - Date.parse(a.timeStarted)
+  })
   return { rollbackRecord, clusterID }
 }
 export default connect(mapStateToProps, {

@@ -1763,6 +1763,9 @@ class ModalDetail extends Component {
                     {
                       this.state.activeTabKey === '#Backup' &&
                       <Backup database={database}
+                              jumpToRollbackRecord = {() => {
+                                this.setState({ activeTabKey: '#RollbackRecord' })
+                              }}
                               resetRecordItem={() => {
                                 this.setState({ recordItem: null })
                               }}
@@ -1771,9 +1774,12 @@ class ModalDetail extends Component {
                               rollBackSuccess={this.editConfigOk}/>
                     }
                   </TabPane>
-                  <TabPane tab='回滚记录' key='#RollbackRecord'>
-                    <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
-                  </TabPane>
+                  {
+                    database === 'mysql' &&
+                    <TabPane tab='回滚记录' key='#RollbackRecord'>
+                      <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
+                    </TabPane>
+                  }
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
                   </TabPane>

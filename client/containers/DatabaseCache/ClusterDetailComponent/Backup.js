@@ -163,6 +163,7 @@ class Backup extends React.Component {
           },
         },
       })
+      this.props.jumpToRollbackRecord()
       this.setState({ rollBackAlert: false })
     }
     const onChange = e => {
