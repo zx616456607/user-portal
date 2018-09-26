@@ -168,9 +168,9 @@ let CreateConfigFileModal = React.createClass({
       dispatchCreateConfig(configfile, body, {
         success: {
           func: () => {
-            notification.success(formatMessage(intl.createConfigSucc))
+            notification.success(formatMessage(indexIntl.createConfigSucc))
             self.setState({
-              filePath: formatMessage(intl.filePathHint1)
+              filePath: formatMessage(indexIntl.filePathHint1)
             })
             parentScope.setState({
               modalConfigFile: false,

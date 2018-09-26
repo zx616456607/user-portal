@@ -52,6 +52,7 @@ import Backup from '../../../client/containers/DatabaseCache/ClusterDetailCompon
 import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
+import RollbackRecord from '../../../client/containers/DatabaseCache/ClusterDetailComponent/RollbackRecord'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -1281,6 +1282,7 @@ class ModalDetail extends Component {
       checkingBackupStatus: false,
       backupPending: false,
       backupChecking: false,
+      recordItem: null
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1468,11 +1470,13 @@ class ModalDetail extends Component {
     })
   }
   onTabClick(activeTabKey) {
+
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
     this.setState({
-      activeTabKey
+      activeTabKey,
+      recordItem: null
     })
   }
   logo(clusterType) {
@@ -1625,6 +1629,12 @@ class ModalDetail extends Component {
     const { database, loadDbClusterDetail, dbName, cluster } = this.props
     loadDbClusterDetail(cluster, dbName, database, true);
   }
+  linkToBackup = backupRef => {
+    this.setState({
+      activeTabKey: '#Backup',
+      recordItem: backupRef
+    })
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
     if (isFetching || databaseInfo == null) {
@@ -1750,8 +1760,26 @@ class ModalDetail extends Component {
                     <Storage databaseInfo={databaseInfo} database={this.props.database}/>
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
-                    <Backup database={database} scope= {this} databaseInfo={databaseInfo} rollBackSuccess={this.editConfigOk}/>
+                    {
+                      this.state.activeTabKey === '#Backup' &&
+                      <Backup database={database}
+                              jumpToRollbackRecord = {() => {
+                                this.setState({ activeTabKey: '#RollbackRecord' })
+                              }}
+                              resetRecordItem={() => {
+                                this.setState({ recordItem: null })
+                              }}
+                              recordItem={this.state.recordItem}
+                              scope= {this} databaseInfo={databaseInfo}
+                              rollBackSuccess={this.editConfigOk}/>
+                    }
                   </TabPane>
+                  {
+                    database === 'mysql' &&
+                    <TabPane tab='回滚记录' key='#RollbackRecord'>
+                      <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
+                    </TabPane>
+                  }
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
                   </TabPane>

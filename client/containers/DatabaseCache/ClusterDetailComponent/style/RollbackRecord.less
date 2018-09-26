@@ -1,0 +1,34 @@
+@import '../../../../../src/assets/style/site/core.less';
+#rollback-record {
+  background: #fff;
+  border-radius: @border-radius-base;
+  border: 1px solid @border-color-split;
+  .ant-table-thead > tr > th {
+    border-bottom: 1px solid @border-color-split;
+    font-weight: normal;
+    background: #fff;
+    &:nth-child(1) {
+      padding-left: @padding-medium;
+    }
+  }
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #fff;
+    &:nth-child(1) {
+      padding-left: @padding-medium;
+    }
+  }
+  .ant-table-pagination {
+    padding-right: @padding-medium;
+  }
+  .overflow-span {
+    display: inline-block;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .link-to {
+    cursor: pointer;
+  }
+}
