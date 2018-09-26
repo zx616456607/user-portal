@@ -1697,9 +1697,10 @@ class AiDeepLearning extends React.Component {
     const { configDetail, configID, detail } = config
     const configDate = configDetail && JSON.parse(configDetail) || detail
     const { apiVersion, host, protocol } = configDate
+    const aiApi = protocol ? `${protocol}://${host}` : ''
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      aiApi: `${protocol}://${host}`,
+      aiApi,
       apiVersion,
     })
     if (configID) {
@@ -1991,7 +1992,7 @@ class GlobalConfig extends Component {
   componentDidMount() {
     setTimeout(() => {
       const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
-      const globalWrapper = this.refs.wrapper
+      const globalWrapper = document.getElementById('GlobalConfig')
       globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
   }
@@ -2038,14 +2039,14 @@ class GlobalConfig extends Component {
       currentMenu: id
     })
     const element = document.getElementsByClassName(id)[0]
-    const existItem = element.getElementsByClassName('title')[0]
+    const existItem = element && element.getElementsByClassName('title')[0]
     const anchor = document.createElement('div')
     const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
     // 创建锚点元素，滚动到窗口顶部与锚点元素对齐，删除锚点
     anchor.style.position = 'absolute'
     anchor.style.top = `-${navHeight + 55}px`
     element.insertBefore(anchor, existItem)
-    anchor.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    anchor.scrollIntoView({behavior: "smooth", block: "start"});
     element.removeChild(anchor)
   }
   render() {
@@ -2089,7 +2090,7 @@ class GlobalConfig extends Component {
         </div>
 
         <QueueAnim>
-          <div key='GlobalConfig' className="globalConfigContent">
+          <div className="globalConfigContent">
             <Title title="全局配置" />
             <Emaill
               sendEmailVerification={this.props.sendEmailVerification}
