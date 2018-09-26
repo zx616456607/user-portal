@@ -51,7 +51,7 @@ import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/o
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 import * as templateActions from '../../../../client/actions/template'
-import {getDeepValue} from "../../../../client/util/util";
+import {getDeepValue} from "../../../../client/util/util"
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -69,6 +69,7 @@ class QuickCreateApp extends Component {
     this.getStepsCurrent = this.getStepsCurrent.bind(this)
     this.renderBody = this.renderBody.bind(this)
     this.onSelectImage = this.onSelectImage.bind(this)
+    this.onSelectOtherImage = this.onSelectOtherImage.bind(this)
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
@@ -347,7 +348,9 @@ class QuickCreateApp extends Component {
     }
     return 1
   }
-
+  onSelectOtherImage(query) {
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
+  }
   onSelectImage(imageName, registryServer, appName, fromDetail) {
     this.setState({
       imageName,
@@ -908,7 +911,7 @@ class QuickCreateApp extends Component {
         onChange={this.onDeployAIChange}
       />
     }
-    return <SelectImage location={location} onChange={this.onSelectImage} />
+    return <SelectImage location={location} onChange={this.onSelectImage} onOtherChange={this.onSelectOtherImage} />
   }
 
   renderCreateBtnText() {
