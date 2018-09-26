@@ -1013,6 +1013,7 @@ let NetworkConfiguration = React.createClass ({
               !editCluster ?
                 [
                   <Button
+                    key='edit'
                     onClick={() => {
                       const _ = this
                       editingKey || editingKey === 0  ?
@@ -1035,6 +1036,7 @@ let NetworkConfiguration = React.createClass ({
                     type="dashed"
                   />,
                   <Button
+                    key="delete"
                     icon={'delete'}
                     disabled={editingKey || editingKey === 0}
                     onClick={() => this.deletePublic(item, data[item.key])}
@@ -1042,11 +1044,13 @@ let NetworkConfiguration = React.createClass ({
                   />,
                 ] : [
                   <Button
+                    key="save"
                     onClick={this.updateCluster}
                     icon={'check'}
                     type="dashed"
                   />,
                   <Button
+                    key="cancel"
                     onClick={this.cancleEdit}
                     icon={'cross'}
                     type="dashed"
