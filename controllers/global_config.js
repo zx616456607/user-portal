@@ -194,7 +194,7 @@ function* aiConfigFunc(entity) {
 function* msgConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'message'
-  entity.detail = Object.assign({}, global.globalConfig.aiopsConfig, entity.detail)
+  entity.detail = Object.assign({}, global.globalConfig.messageConfig, entity.detail)
   let response
   entity.configDetail = JSON.stringify(entity.detail)
   if (entity.configID) {
@@ -402,5 +402,5 @@ exports.validateMsgConfig = function* () {
   const body = this.request.body
   const api = apiFactory.getApi(this.session.loginUser)
   const response = yield api.configs.createBy(['message', 'isvalidconfig'], null, body)
-  return response
+  this.body = response
 }

@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Form, Button, Input, Spin, Checkbox, Icon } from 'antd'
+import { Form, Button, Input, Spin, Checkbox, Icon, Modal } from 'antd'
 import ReactDom from 'react-dom'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
@@ -29,6 +29,7 @@ import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
+import { PHONE_REGEX } from '../../../../constants'
 import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
@@ -1907,6 +1908,7 @@ class MessageAlarm extends React.Component {
 
   state = {
     disable: true,
+    isShowValidate: false,
   }
 
   componentDidMount = () => {
@@ -1930,7 +1932,7 @@ class MessageAlarm extends React.Component {
   }
 
   handlSave = () => {
-    this.props.form.validateFields((error, values) => {
+    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'configID' ], (error, values) => {
       if (error) return
       const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
       const body = {
@@ -1974,18 +1976,16 @@ class MessageAlarm extends React.Component {
   }
 
   validateConfig = () => {
-    this.props.form.validateFields((error, values) => {
+    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
       if (error) return
-      const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
+      const { url, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
       const body = {
-        configID: configID ? configID : '',
-        detail: {
-          url,
-          sms_user: smsUser,
-          sms_key: smsKey,
-          log_template: logTemplate,
-          resource_template: resourceTemplate
-        }
+        url,
+        sms_user: smsUser,
+        sms_key: smsKey,
+        log_template: logTemplate,
+        resource_template: resourceTemplate,
+        test_phone: phone
       }
       const notification = new NotificationHandler()
       const { validateMsgConfig } = this.props
@@ -1994,20 +1994,14 @@ class MessageAlarm extends React.Component {
           func: () => {
             notification.close()
             notification.success('验证成功')
-            // this.changeDisable()
-            // this.props.setGlobalConfig('message', body)
+            this.changeValidate()
           }
         },
         failed: {
-          func: (err) => {
+          func: err => {
             notification.close()
-            let msg
-            if (err.message.message) {
-              msg = err.message.message
-            } else {
-              msg = err.message
-            }
-            notification.error('验证失败', msg)
+            const msg = err.message.message
+            notification.warn('验证失败', msg)
           }
         }
       })
@@ -2026,7 +2020,6 @@ class MessageAlarm extends React.Component {
   }
 
   checkUrl = (rule, value, callback) => {
-    const { validateFields } = this.props.form
     if (!value) {
       callback([new Error('请填写短信服务器地址')])
       return
@@ -2034,8 +2027,33 @@ class MessageAlarm extends React.Component {
     callback()
   }
 
+  checkPhone = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入手机号')
+    }
+    if (!PHONE_REGEX.test(value)) {
+      return callback('请输入正确的号码')
+    }
+    callback()
+  }
+
+  showValidate = () => {
+    this.props.form.validateFields([ 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
+      (error, values) => {
+        if (error) return
+        this.changeValidate()
+      }
+    )
+  }
+
+  changeValidate = () => {
+    this.setState({
+      isShowValidate: !this.state.isShowValidate,
+    })
+  }
+
   render() {
-    const { disable } = this.state
+    const { disable, isShowValidate } = this.state
     const { form, config } = this.props
     const { getFieldProps } = form
     const urlProps = getFieldProps('url', {
@@ -2044,18 +2062,21 @@ class MessageAlarm extends React.Component {
       ],
     })
     const msmUserProps = getFieldProps('smsUser', {
-      // rules: [ { validator: this.checkUrl } ]
+      rules: [ { required: true, message: '请输入 SMS_USER' } ]
     })
     const msmsKeyProps = getFieldProps('smsKey', {
-      // rules: [ { validator: this.checkUrl } ]
+      rules: [ { required: true, message: '请输入 SMS_KEY' } ]
     })
     const logTemProps = getFieldProps('logTemplate', {
-      // rules: [ { validator: this.checkUrl } ]
+      rules: [ { required: true, message: '请输入 模板 ID' } ]
     })
     const resourceProps = getFieldProps('resourceTemplate', {
-      // rules: [ { validator: this.checkUrl } ]
+      rules: [ { required: true, message: '请输入 资源 ID' } ]
     })
-    const magID = getFieldProps('configID', {
+    const phoneProps = getFieldProps('phone', {
+      rules: [ { validator: this.checkPhone } ]
+    })
+    const msgID = getFieldProps('configID', {
       initialValue: config ? config.configID : ''
     })
     return (
@@ -2121,17 +2142,31 @@ class MessageAlarm extends React.Component {
                         保存
                       </Button>
                       <Button
-                        onClick={this.validateConfig}
+                        onClick={this.showValidate}
                       >
                         发送验证短信
                       </Button>
                     </FormItem>
                 }
-                <input type="hidden" {...magID} />
+                <input type="hidden" {...msgID} />
               </Form>
             </div>
           </div>
         </div>
+        <Modal
+          title="验证短信"
+          visible={isShowValidate}
+          onOk={this.validateConfig}
+          onCancel={this.changeValidate}
+        >
+          <FormItem
+            label="手机号"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <Input {...phoneProps} placeholder="请填写手机号"/>
+          </FormItem>
+        </Modal>
       </div>
     )
   }

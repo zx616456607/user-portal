@@ -146,7 +146,7 @@ export function validateMsgConfig(body, callback) {
       endpoint: `${API_URL_PREFIX}/configs/message/isvalidconfig`,
       options: {
         method: 'POST',
-        body: body
+        body,
       }
     },
     callback
