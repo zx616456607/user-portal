@@ -8,33 +8,29 @@ class RollbackRecord extends React.Component {
   state = {
     columns: [
       {
-        dataIndex: 'startTime',
+        dataIndex: 'timeStarted',
         title: '回滚开始时间',
         render: text => <span>{formatDate(text)}</span>,
         width: 350,
       },
       {
-        dataIndex: 'status',
+        dataIndex: 'phase',
         title: '回滚状态',
         render: text => <span style={{ color: this.convertStatus(text).color }}>
           {this.convertStatus(text).text}</span>,
         width: 150,
       },
       {
-        dataIndex: 'whichBackup',
+        dataIndex: 'backupRef',
         title: '使用备份',
-        render: text => <Tooltip title={text} placement="topLeft"><span className="overflow-span">{text}</span></Tooltip>,
+        render: (text, record) => <Tooltip title={text} placement="topLeft">
+          <span className="overflow-span" onClick={() => this.jumpToBackupPannel(record)}>{text}</span>
+        </Tooltip>,
         width: 200,
       },
+
       {
-        dataIndex: 'whichChain',
-        title: '所在链路',
-        render: (text, record) => <Tooltip title={text} placement="topLeft"
-        ><span onClick={() => this.jumpToBackupPannel(record)} className="overflow-span link-to">{text}</span></Tooltip>,
-        width: 200,
-      },
-      {
-        dataIndex: 'endTime',
+        dataIndex: 'timeCompleted',
         title: '回滚结束时间',
         render: text => <span>{formatDate(text)}</span>,
         width: 300,
@@ -58,21 +54,21 @@ class RollbackRecord extends React.Component {
     })
   }
   jumpToBackupPannel(recordItem) {
-    this.props.linkToBackup(recordItem.whichChain, recordItem.whichBackup)
+    this.props.linkToBackup(recordItem.backupRef)
   }
   convertStatus = status => {
     switch (status) {
-      case '0':
+      case 'Scheduled' || 'Started':
         return {
           text: '回滚中',
           color: '#2db7f5',
         }
-      case '1':
+      case 'Complete':
         return {
           text: '回滚完成',
           color: '#5cb85c',
         }
-      case '2':
+      case 'Failed':
         return {
           text: '回滚失败',
           color: '#f85a5a',
@@ -99,7 +95,7 @@ class RollbackRecord extends React.Component {
 const mapStateToProps = state => {
   const { rollbackRecord } = state.backupChain
   const { clusterID } = state.entities.current.cluster
-  rollbackRecord.data = rollbackRecord.data &&
+  rollbackRecord.data = rollbackRecord &&
     rollbackRecord.data.sort((a, b) => a.startTime - b.startTime)
   return { rollbackRecord, clusterID }
 }

@@ -26,6 +26,22 @@ function chains(state = {}, action: any) {
     case ActionsType.GET_BACKUPCHAIN_FAILURE:
       return {
         isFetching: false,
+        rollbackComplete: false,
+      }
+    case ActionsType.ROLLBACK_REQUEST:
+      return {
+        ...state,
+        rollbackComplete: true,
+      }
+    case ActionsType.ROLLBACK_SUCCESS:
+      return {
+        ...state,
+        rollbackComplete: false,
+      }
+    case ActionsType.ROLLBACK_FAILURE:
+      return {
+        ...state,
+        rollbackComplete: false,
       }
     default:
       return state
@@ -59,101 +75,10 @@ function autoBackupChains(state = autoBackupInitial, action: any) {
       return state
   }
 }
+
 const rollbackRecordInitial = {
   isFetching: false,
-  data: [
-    {
-      startTime: 1526069282000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'heppl',
-      endTime: 1526069582000,
-    },
-    {
-      startTime: 1529007182000,
-      status: '1',
-      whichBackup: 'heppl',
-      whichChain: 'heppl',
-      endTime: 1529046782000,
-    },
-    {
-      startTime: 1530591182000,
-      status: '2',
-      whichBackup: 'heppl',
-      whichChain: 'heppl',
-      endTime: 1530605582000,
-    },
-    {
-      startTime: 1530864782000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'heppl',
-      endTime: 1531440782000,
-    },
-    {
-      startTime: 1531908782000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'heppl',
-      endTime: 1531994942000,
-    },
-    {
-      startTime: 1534691342000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1534691522000,
-    },
-    {
-      startTime: 1526915522000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1525273922000,
-    },
-    {
-      startTime: 1534032722000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1534036085000,
-    },
-    {
-      startTime: 1531685285000,
-      status: '0',
-      whichBackup: 'afdfsddfsfdsfdsfdsfdsfdssdffse',
-      whichChain: 'eddxcfsdfsdfdsfdsfdsfdssasda',
-      endTime: 1531688885000,
-    },
-    {
-      startTime: 1537045565000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1537121165000,
-    },
-    {
-      startTime: 1529172485000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1529172525000,
-    },
-    {
-      startTime: 1525802925000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1525803285000,
-    },
-    {
-      startTime: 1537856085000,
-      status: '0',
-      whichBackup: 'heppl',
-      whichChain: 'edda',
-      endTime: 1537859325000,
-    },
-  ],
+  data: [],
 }
 function rollbackRecord(state = rollbackRecordInitial, action: any) {
   switch (action.type) {
@@ -163,102 +88,10 @@ function rollbackRecord(state = rollbackRecordInitial, action: any) {
         data: [],
       }
     case ActionsType.ROLLBACK_RECORD_SUCCESS:
-      action.response.result.data.items = [
-        {
-          startTime: 1526069282000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1526069582000,
-        },
-        {
-          startTime: 1529007182000,
-          status: '1',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1529046782000,
-        },
-        {
-          startTime: 1530591182000,
-          status: '2',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1530605582000,
-        },
-        {
-          startTime: 1530864782000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1531440782000,
-        },
-        {
-          startTime: 1531908782000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1531994942000,
-        },
-        {
-          startTime: 1534691342000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1534691522000,
-        },
-        {
-          startTime: 1526915522000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1525273922000,
-        },
-        {
-          startTime: 1534032722000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1534036085000,
-        },
-        {
-          startTime: 1531685285000,
-          status: '0',
-          whichBackup: 'afdfsddfsfdsfdsfdsfdsfdssdffse',
-          whichChain: 'eddxcfsdfsdfdsfdsfdsfdssasda',
-          endTime: 1531688885000,
-        },
-        {
-          startTime: 1537045565000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1537121165000,
-        },
-        {
-          startTime: 1529172485000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1529172525000,
-        },
-        {
-          startTime: 1525802925000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1525803285000,
-        },
-        {
-          startTime: 1537856085000,
-          status: '0',
-          whichBackup: 'ase',
-          whichChain: 'edda',
-          endTime: 1537859325000,
-        },
-      ]
+      const data = action.response.result.data.items || []
       return {
         isFetching: false,
-        data: action.response.result.data.items || [],
+        data,
       }
     case ActionsType.ROLLBACK_RECORD_FAILURE:
       return {
@@ -273,6 +106,6 @@ export default function backupChain(state = {}, action) {
   return {
     chains: chains(state.chains, action),
     autoBackupChains : autoBackupChains(state.autoBackupChains, action),
-    rollbackRecord : rollbackRecord(state.rollbackRecordInitial, action),
+    rollbackRecord : rollbackRecord(state.rollbackRecord, action),
   }
 }

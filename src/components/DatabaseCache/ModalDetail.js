@@ -1629,10 +1629,10 @@ class ModalDetail extends Component {
     const { database, loadDbClusterDetail, dbName, cluster } = this.props
     loadDbClusterDetail(cluster, dbName, database, true);
   }
-  linkToBackup = (witchChain, whichBackup) => {
+  linkToBackup = backupRef => {
     this.setState({
       activeTabKey: '#Backup',
-      recordItem: {witchChain, whichBackup}
+      recordItem: backupRef
     })
   }
   render() {
@@ -1760,13 +1760,16 @@ class ModalDetail extends Component {
                     <Storage databaseInfo={databaseInfo} database={this.props.database}/>
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
-                    <Backup database={database}
-                            resetRecordItem={() => {
-                              this.setState({ recordItem: null })
-                            }}
-                            recordItem={this.state.recordItem}
-                            scope= {this} databaseInfo={databaseInfo}
-                            rollBackSuccess={this.editConfigOk}/>
+                    {
+                      this.state.activeTabKey === '#Backup' &&
+                      <Backup database={database}
+                              resetRecordItem={() => {
+                                this.setState({ recordItem: null })
+                              }}
+                              recordItem={this.state.recordItem}
+                              scope= {this} databaseInfo={databaseInfo}
+                              rollBackSuccess={this.editConfigOk}/>
+                    }
                   </TabPane>
                   <TabPane tab='回滚记录' key='#RollbackRecord'>
                     <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
