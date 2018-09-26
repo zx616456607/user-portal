@@ -104,7 +104,7 @@ let CreateDatabase = React.createClass({
       }
     }
   },
-  onChangeCluster(clusterID) {
+/*  onChangeCluster(clusterID) {
     this.setState({onselectCluster: false})
     const { projectVisibleClusters, form, space, setCurrent } = this.props
     const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
@@ -118,7 +118,7 @@ let CreateDatabase = React.createClass({
       }
       return true
     })
-  },
+  },*/
   selectDatabaseType(database) {
     //this funciton for user select different database
     this.setState({
@@ -126,7 +126,7 @@ let CreateDatabase = React.createClass({
     });
     document.getElementById('name').focus()
   },
-  onChangeNamespace(namespace) {
+/*  onChangeNamespace(namespace) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
     const { projects, getProjectVisibleClusters, setCurrent, form } = this.props
@@ -157,7 +157,7 @@ let CreateDatabase = React.createClass({
       }
       return true
     })
-  },
+  },*/
 
   checkPwd: function () {
     //this function for user change the password box input type
@@ -229,6 +229,7 @@ let CreateDatabase = React.createClass({
         _this.setState({loading: false})
         return
       }
+/*
       let newSpace, newCluster
       projects.map(list => {
         if (list.namespace === values.namespaceSelect) {
@@ -242,6 +243,7 @@ let CreateDatabase = React.createClass({
           return newCluster = list
         }
       })
+
       let externalIP = ''
       if (newCluster.publicIPs && newCluster.publicIPs != "") {
         let ips = eval(newCluster.publicIPs)
@@ -249,6 +251,7 @@ let CreateDatabase = React.createClass({
           externalIP = ips[0]
         }
       }
+    */
       let lbGroupID = 'none'
       if(values.outerCluster){
         lbGroupID = values.outerCluster
@@ -295,10 +298,12 @@ let CreateDatabase = React.createClass({
           }
           // 创建成功
           notification.success('创建成功')
+/*
           setCurrent({
             cluster: newCluster,
             space: newSpace
           })
+*/
           this.props.form.resetFields();
           scope.setState({
             CreateDatabaseModalShow: false
@@ -327,10 +332,12 @@ let CreateDatabase = React.createClass({
           }
           // 创建成功
           notification.success('创建成功')
+/*
           setCurrent({
             cluster: newCluster,
             space: newSpace
           })
+*/
           this.props.form.resetFields();
           scope.setState({
             CreateDatabaseModalShow: false
