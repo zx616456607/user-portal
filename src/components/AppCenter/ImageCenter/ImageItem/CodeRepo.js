@@ -95,7 +95,7 @@ class PageCodeRepo extends Component {
     const { formatMessage } = intl
     const { selectedRepo } = this.state
     const doSuccess = () => {
-      notification.success(formatMessage(codeRepoIntl.delMessage, {name: selectedRepo}))
+      notification.success(formatMessage(codeRepoIntl.delMessage, {repo: selectedRepo}))
       this.setState({
         deleteRepoVisible: false,
       })
