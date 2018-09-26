@@ -474,7 +474,7 @@ let ConfigureService = React.createClass({
         failed: {
           func: res=> {
             if (res.statusCode === 409) {
-              callback(`${intl.formatMessage(IntlMessage.nameExisted, 
+              callback(`${intl.formatMessage(IntlMessage.nameExisted,
                   { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
           }

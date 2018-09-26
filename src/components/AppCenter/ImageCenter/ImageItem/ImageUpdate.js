@@ -1396,7 +1396,7 @@ class ImageUpdate extends Component {
       rulesColumn.splice(4, 0, {
         title:'仓库组',
         dataIndex:'projects',
-        render: item => <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
       })
     }
 
