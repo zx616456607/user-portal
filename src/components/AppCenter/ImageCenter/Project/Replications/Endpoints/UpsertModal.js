@@ -38,7 +38,7 @@ const UpsertModal = React.createClass({
     const { mode, currentRow, form } = this.props
     if (mode === 'edit') {
       const { name, endpoint, username, password, insecure } = currentRow
-      form.setFieldsValue({ name, endpoint, username, password: '******', insecure: !insecure })
+      form.setFieldsValue({ name, endpoint, username, password, insecure: !insecure })
     }
   },
 
