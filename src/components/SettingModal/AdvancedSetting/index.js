@@ -504,7 +504,7 @@ class AdvancedSetting extends Component {
       billingLoading: true
     })
     notify.spin(billingChecked ? '关闭计费功能中' : '开启计费功能中')
-    updateGlobalConfig(cluster, null, 'billing', body, {
+    updateGlobalConfig(cluster.clusterID, null, 'billing', body, {
       success: {
         func: () => {
           notify.close()
