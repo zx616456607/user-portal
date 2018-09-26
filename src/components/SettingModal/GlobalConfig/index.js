@@ -1691,6 +1691,9 @@ class AiDeepLearning extends React.Component {
 
   setConfigForm = () => {
     const { config } = this.props
+    if (!config) {
+      return
+    }
     const { configDetail, configID, detail } = config
     const configDate = configDetail && JSON.parse(configDetail) || detail
     const { apiVersion, host, protocol } = configDate
