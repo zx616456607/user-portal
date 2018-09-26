@@ -56,6 +56,7 @@ class AdvancedSetting extends Component {
       traditionVisible: false,
       traditionBtnLoading: false,
       traditionChecked: props.vmWrapConfig.enabled || false,
+      lbChecked: props.loadbalanceConfig.enabled || false,
       isTradition: false,
     }
   }
@@ -107,7 +108,7 @@ class AdvancedSetting extends Component {
         <span className="switchLabel" style={{ width: 300 }}>
           是否允许普通成员创建集群外应用负载均衡
         </span>
-        <Switch checkedChildren="开" unCheckedChildren="关" checked={lbChecked} disabled onChange={this.handleLoadbalance} className='switchstyle' />
+        <Switch checkedChildren="开" unCheckedChildren="关" checked={lbChecked} onChange={this.handleLoadbalance} className='switchstyle' />
       </Card>
     </div>
   }
@@ -547,16 +548,45 @@ class AdvancedSetting extends Component {
 
   confirmLoadbalance = () => {
     const { lbChecked } = this.state
+    const { saveGlobalConfig, loadLoginUserDetail, loadbalanceConfig, cluster } = this.props
+    const notification = new NotificationHandler()
     this.setState({
       lbLoading: true,
     })
-    setTimeout(() => {
-      this.setState({
-        lbVisible: false,
-        lbLoading: false,
-        lbChecked: !lbChecked,
-      })
-    }, 500)
+    const body = {
+      configID: loadbalanceConfig.configID,
+      detail: {
+        enabled: !lbChecked
+      }
+    }
+    notification.spin(lbChecked ? '关闭中' : '开启中')
+    saveGlobalConfig(cluster.clusterID, 'loadbalance', body, {
+      success: {
+        func: () => {
+          loadLoginUserDetail()
+          notification.close()
+          notification.success(lbChecked ? '关闭成功' : '开启成功')
+          this.setState({
+            lbVisible: false,
+            lbChecked: !lbChecked,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.warn(lbChecked ? '关闭失败' : '开启失败')
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            lbLoading: false,
+          })
+        }
+      }
+    })
   }
   /**
    * 弹框确定
@@ -926,7 +956,7 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster } = state.entities.current
-  const { harbor, vmWrapConfig, billingConfig,role } = state.entities.loginUser.info
+  const { harbor, vmWrapConfig, billingConfig,role, loadbalanceConfig } = state.entities.loginUser.info
   const { configurations } = state.harbor
 
   const { harbor: harbors } = cluster
@@ -939,6 +969,7 @@ function mapPropsToState(state,props) {
     vmWrapConfig,
     billingConfig,
     harborUrl,
+    loadbalanceConfig,
   }
 }
 

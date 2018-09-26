@@ -126,6 +126,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.ftpConfig = globalConfig.ftpConfig
   // Add billing config
   user.billingConfig = globalConfig.billingConfig
+  // Add loadbalance config
+  user.loadbalanceConfig = globalConfig.loadbalanceConfig
   return user
 }
 

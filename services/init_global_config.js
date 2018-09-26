@@ -45,6 +45,7 @@ global.globalConfig = {
   billingConfig: {},
   chartRepoConfig: {},
   aiopsConfig: {},
+  loadbalanceConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -172,6 +173,11 @@ exports.initGlobalConfig = function* () {
       globalConfig.aiopsConfig.apiVersion = configDetail.apiVersion
       return
     }
+    if (configType === 'loadbalance') {
+      globalConfig.loadbalanceConfig.enabled = configDetail.enabled
+      globalConfig.loadbalanceConfig.configID = item.ConfigID
+      return
+    }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
       globalConfig.mail_server={
@@ -192,4 +198,5 @@ exports.initGlobalConfig = function* () {
   logger.info('msa config: ', globalConfig.msaConfig.url)
   logger.info('ftp config: ', globalConfig.ftpConfig.addr)
   logger.info('billing config: ', globalConfig.billingConfig.enabled)
+  logger.info('loadbalance config: ', globalConfig.loadbalanceConfig.enabled)
 }
