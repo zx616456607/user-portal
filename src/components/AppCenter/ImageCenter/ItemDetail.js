@@ -72,7 +72,7 @@ class PageItemDetail extends Component {
      const { clusterId } = this.props.location.query
     clusterId ? this.handleClusterChange() : this.fetchData()
     const activeKey = this.props.location.query.key
-    this.setState({ activeKey })
+    activeKey && this.setState({ activeKey })
   }
   fetchData = () => {
     const { loadProjectDetail, loadProjectMembers, params, harbor, intl } = this.props
