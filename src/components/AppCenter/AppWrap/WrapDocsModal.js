@@ -13,8 +13,9 @@ import { connect } from 'react-redux'
 import { Modal, Form, Upload, Button } from 'antd'
 import NotificationHandler from '../../../components/Notification'
 import { API_URL_PREFIX } from '../../../constants'
-import { isResourcePermissionError, getUnicodeLength } from '../../../common/tools'
+import { isResourcePermissionError } from '../../../common/tools'
 import { throwError } from '../../../actions'
+import utf8Bytes from 'utf8-bytes'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -67,24 +68,24 @@ class WrapDocsModal extends React.Component {
       _this.setState({
         confirmLoading: false
       })
-      if (response.statusCode >= 400 && response.statusCode < 500) {
+      if (response.status >= 400 && response.status < 500) {
         if (isResourcePermissionError(response)) {
           throwError(response)
           return
         }
-        notify.warn('上传失败', response.message)
+        notify.warn('上传失败')
         return
       }
       notify.close()
       notify.success('上传成功')
       callback && callback()
       closeModal()
-    }).catch(function(ex) {
+    }).catch(function() {
       _this.setState({
         confirmLoading: false
       })
       notify.close()
-      notify.error('上传失败', ex.message)
+      notify.error('上传失败')
       closeModal()
     })
   }
@@ -125,8 +126,8 @@ class WrapDocsModal extends React.Component {
       disabled: confirmLoading,
       fileList,
       beforeUpload: file=> {
-        const fileNameL = getUnicodeLength(file.name)
-        if (fileNameL > 256) {
+        const fileNameBytes = utf8Bytes(file.name)
+        if (fileNameBytes.length > 256) {
           return notify.warn('文件名称不能超过 256 个字节')
         }
         this.setState(({ fileList }) => ({
