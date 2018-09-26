@@ -768,7 +768,8 @@ let NetworkConfiguration = React.createClass ({
   },
   renderDomainWarningStatus(data, item) {
     const { form, intl: { formatMessage } } = this.props
-    const { editCluster } = this.state
+    const { editCluster, editingKey } = this.state
+    const isEditing = editingKey || editingKey === 0
     const { getFieldValue } = form
     const initialValue = data[item.key] && data[item.key].domain ? data[item.key].domain : undefined
     const currentValue = getFieldValue(`domain${item.key}`)
@@ -776,15 +777,21 @@ let NetworkConfiguration = React.createClass ({
       status: 'success',
       message: ''
     }
-    if (editCluster && initialValue && !currentValue.length) {
+    if (isEditing && initialValue && !currentValue.length) {
       status = {
         status: 'warning',
         message: formatMessage(intlMsg.clearDomainHttpError)
       }
       return status
     }
+    if (isEditing && !currentValue && !initialValue) {
+      return {
+        status: 'success',
+        message: '',
+      }
+    }
     const domainPattern = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
-    if (!domainPattern.test(currentValue)) {
+    if (isEditing && !domainPattern.test(currentValue)) {
       return {
         status: 'error',
         message: '',
@@ -869,7 +876,7 @@ let NetworkConfiguration = React.createClass ({
             : null
         }
         <Row className='title'>
-          <Col span="13">
+          <Col span="12">
             <FormattedMessage {...intlMsg.serviceIntranetProxy}/>
             <Tooltip title={formatMessage(intlMsg.serviceIntranetIpShow)}>
               <Icon type="question-circle-o" className='qustionIcon'/>
@@ -882,7 +889,7 @@ let NetworkConfiguration = React.createClass ({
             </Tooltip>
             <span className="sketchMap" onClick={()=> this.setState({visible:true})}><FormattedMessage {...intlMsg.checkPic}/></span>
           </Col>
-          <Col span="2">
+          <Col span="3">
             <div className={'actionColumn'}><FormattedMessage {...intlMsg.action}/></div>
           </Col>
         </Row>
@@ -894,7 +901,7 @@ let NetworkConfiguration = React.createClass ({
               style={{display: editCluster ? 'inline-block' : 'none'}}
             />*/}
 
-          <Col xs={{span:10}}>
+          <Col xs={{span:9}}>
             <div className="formItem inner-mesh">
               <Row className='innerItemTitle'>
                 <Col xs={{span:11}}><FormattedMessage {...intlMsg.proxyNode}/></Col>
@@ -1001,7 +1008,7 @@ let NetworkConfiguration = React.createClass ({
               </FormItem>
             </div>
           </Col>
-          <Col span={2} className={'actionButtons'}>
+          <Col span={3} className={'actionButtons'}>
             {
               !editCluster ?
                 [
