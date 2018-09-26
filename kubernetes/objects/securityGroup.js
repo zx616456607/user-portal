@@ -13,6 +13,20 @@ const RuleTypeHAProxy = 'haproxy'
 const RuleTypeIngress = 'ingress'
 const RuleTypeNamespace = 'namespace'
 const RuleTypeDAAS = 'daas' // 数据库缓存 mysql redis
+const RuleTypeKubeDNS = 'kube-dns'
+
+const kubeDNS = {
+  namespaceSelector: {
+    matchLabels: {
+      'system/namespace': 'kube-system',
+    },
+  },
+  podSelector: {
+    matchLabels: {
+      'k8s-app': 'kube-dns',
+    },
+  },
+}
 
 function parseNetworkPolicy(policy) {
   const result = {
@@ -47,6 +61,9 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
       const rule = peerToRule(peer)
+      if (rule.type === RuleTypeKubeDNS) {
+        continue
+      }
       const hasKeys = Object.keys(rule).length
       if (hasKeys) {
         result.egress.push(rule)
@@ -99,15 +116,13 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
       from.push(peer)
     }
   }
+  policy.spec.egress = [{to: [kubeDNS]}]
+  if (!policy.spec.policyTypes) {
+    policy.spec.policyTypes = ['Egress']
+  } else if (policy.spec.policyTypes.findIndex(t => t === 'Egress') === -1) {
+    policy.spec.policyTypes.push('Egress')
+  }
   if (egress && egress.length) {
-    if (!policy.spec.egress) {
-      policy.spec.egress = [{to: []}]
-    }
-    if (!policy.spec.policyTypes) {
-      policy.spec.policyTypes = ['Egress']
-    } else if (policy.spec.policyTypes.findIndex(t => t === 'Egress') === -1) {
-      policy.spec.policyTypes.push('Egress')
-    }
     const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]
@@ -157,13 +172,27 @@ function peerToRule(peer) {
       rule.daasType = daasType
     }
   } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
-    rule.type = RuleTypeNamespace
-    rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
-    if (peer.podSelector && peer.podSelector.matchExpressions) {
-      rule.serivceName = peer.podSelector.matchExpressions[0].values
+    if (isKubeDNS(peer)) {
+      rule.type = RuleTypeKubeDNS
+    } else {
+      rule.type = RuleTypeNamespace
+      rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
+      if (peer.podSelector && peer.podSelector.matchExpressions) {
+        rule.serivceName = peer.podSelector.matchExpressions[0].values
+      }
     }
   }
   return rule
+}
+
+function isKubeDNS(peer) {
+  if (peer.namespaceSelector.matchLabels['system/namespace'] !== 'kube-system') {
+    return false
+  }
+  if (!peer.podSelector || !peer.podSelector.matchLabels) {
+    return false
+  }
+  return peer.podSelector.matchLabels['k8s-app'] === 'kube-dns'
 }
 
 function ruleToPeer(rule) {
