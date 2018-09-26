@@ -77,16 +77,16 @@ export default class ContainerNetworkForDetail extends React.PureComponent {
         if (!newHostname) {
           Object.assign(errorObj, {
             hostname: {
-              errors: [intl.formatMessage(AppServiceDetailIntl.hostnameIsRequired)],
-              value: ''
-            }
+              errors: [ intl.formatMessage(AppServiceDetailIntl.hostnameIsRequired) ],
+              value: '',
+            },
           })
         } else {
           Object.assign(errorObj, {
             subdomain: {
-              errors: [intl.formatMessage(AppServiceDetailIntl.subdomainIsRequired)],
-              value: ''
-            }
+              errors: [ intl.formatMessage(AppServiceDetailIntl.subdomainIsRequired) ],
+              value: '',
+            },
           })
         }
         setFields(errorObj)
