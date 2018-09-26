@@ -144,7 +144,7 @@ function peerToRule(peer) {
     if (matchLabels.name === 'service-proxy' && namespace === 'kube-system') {
       rule.type = RuleTypeHAProxy
     }
-    const lb = matchLabels['tenxcloud.com/lb']
+    const lb = matchLabels['ingress-lb']
     if (lb) {
       rule.type = RuleTypeIngress
       rule.ingressId = lb
@@ -221,7 +221,7 @@ function ruleToPeer(rule) {
     return {
       podSelector: {
         matchLabels: {
-          'tenxcloud.com/lb': rule.ingressId,
+          'ingress-lb': rule.ingressId,
         },
       },
     }

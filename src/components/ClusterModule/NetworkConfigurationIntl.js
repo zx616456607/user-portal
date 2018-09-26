@@ -83,6 +83,10 @@ export const mapData = {
     deleteNetOutTip2: '2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认',
     deleteNetOutConfirm: '是否确定删除 { currentName } 网络出口?',
     setOneDefaultNetOut: '设置一个默认的网络出口，当创建服务或数据库与缓存时，默认选择该网络出口作为服务访问方式',
+    serverProxy: '服务代理',
+    action: '操作',
+    haveEditingOut: '存在编辑状态的网络出口',
+    goOnNoSave: '若确定编辑该网络出口，将「取消编辑」正在编辑的网络出口，且不保存',
   }
 }
 

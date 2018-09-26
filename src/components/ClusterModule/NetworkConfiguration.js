@@ -9,7 +9,25 @@
  */
 import React from 'react'
 import { camelize } from 'humps'
-import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Row, Col } from 'antd'
+import {
+  Icon,
+  Select,
+  Button,
+  Card,
+  Form,
+  Input,
+  Tooltip,
+  Spin,
+  Modal,
+  Dropdown,
+  Menu,
+  Row,
+  Col,
+  Tabs,
+  Table,
+} from 'antd'
+import ThirdTabs from './ThirdTabs'
+import QueueAni from 'rc-queue-anim'
 import { getProxy, updateProxy, getClusterNodeAddr, setDefaultGroup } from '../../actions/cluster'
 import { changeClusterIPsAndDomains } from '../../actions/entities'
 import { getAllClusterNodes } from '../../actions/cluster_node'
@@ -24,10 +42,11 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import ResourceQuota from "../ResourceLimit";
 
 const Option = Select.Option
 const FormItem = Form.Item
-
+const TabPane = Tabs.TabPane
 let formadd=1;
 let validing = false
 
@@ -38,7 +57,7 @@ let NetworkConfiguration = React.createClass ({
       nodes: []
     }
     return {
-      editCluster: false, // edit btn
+      editCluster: true, // edit btn
       saveBtnDisabled: false,
       showDeleteModal: false,
       visible:false,
@@ -50,6 +69,8 @@ let NetworkConfiguration = React.createClass ({
       defaultGroup: undefined,
       lbgroupInputId: `lbgroup${genRandomString('0123456789',4)}`,
       copyCMDSuccess: false,
+      networkType: 'server',
+      editingKey: null,
     }
   },
   componentWillMount(){
@@ -118,7 +139,7 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   getSelectItem() {
-    const { nodeList, cluster, intl: { formatMessage } } = this.props
+    const { nodeList, cluster } = this.props
     const clusterID = cluster.clusterID
     if(!nodeList) {
       return <Option key="none"/>
@@ -185,6 +206,7 @@ let NetworkConfiguration = React.createClass ({
     }
     validing = true
     const { form } = this.props
+
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     let validateFieldsArray = []
     if(type == 'node'){
@@ -252,9 +274,6 @@ let NetworkConfiguration = React.createClass ({
     setFieldsValue({
       networkConfigArray
     })
-    setTimeout(() => {
-      this.validAllField()
-    },200)
   },
   updateCluster() {
     const { form, cluster, updateProxy, getProxy, changeClusterIPsAndDomains, intl: { formatMessage } } = this.props
@@ -327,7 +346,8 @@ let NetworkConfiguration = React.createClass ({
             this.loadData(false)
             this.setState({
               saveBtnDisabled: false,
-              editCluster: false
+              editCluster: false,
+              editingKey: null,
             })
           },
           isAsync: true
@@ -347,7 +367,7 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   cancleEdit() {
-    this.setState({editCluster: false, saveBtnLoading: false, saveBtnDisabled: true})
+    this.setState({editCluster: false, editingKey: null, saveBtnLoading: false, saveBtnDisabled: true})
     const { form, cluster, clusterProxy } = this.props
     const clusterID = camelize(cluster.clusterID)
     if(clusterProxy.result[clusterID] && clusterProxy.result[clusterID].data) {
@@ -415,13 +435,14 @@ let NetworkConfiguration = React.createClass ({
       [`nodeIP-${networkKey}-${key}`]: address
     })
     setTimeout(() => {
-      this.validAllField('IP')
+      // this.validAllField('IP')
     }, 100)
   },
   getItems(config) {
     const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
     const { getFieldProps, getFieldValue } = form;
-    const { editCluster, saveBtnLoading } = this.state
+    const { editingKey, saveBtnLoading } = this.state
+    const editCluster = editingKey === config.key
     let {bindingIPs} = cluster
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
       return <div></div>
@@ -476,7 +497,7 @@ let NetworkConfiguration = React.createClass ({
                   initialValue: nodes && nodes[item] ? nodes[item].address : undefined,
                   rules: [
                     {
-                      validator: (rule, value, callback) => {
+                      validator_: (rule, value, callback) => {
                         if(!value) {
                           return callback(formatMessage(intlMsg.inputNetworkCardIp))
                         }
@@ -542,7 +563,22 @@ let NetworkConfiguration = React.createClass ({
       });
     })
   },
-  addPublic(){
+  addPublicModal(){
+    const _ = this
+    const { intl: { formatMessage } } = this.props
+    const { editingKey } = this.state
+    editingKey || editingKey === 0 ? Modal.confirm({
+      width:460,
+      title: <span style={{fontWeight:500}}>{formatMessage(intlMsg.haveEditingOut)}</span>,
+      content: formatMessage(intlMsg.goOnNoSave),
+      onOk() {
+        _.addPublic()
+      },
+    }) : _.addPublic()
+
+  },
+  addPublic() {
+    this.cancleEdit()
     this.uuid.configKey++
     const { form } = this.props;
     // can use data-binding to get
@@ -553,20 +589,25 @@ let NetworkConfiguration = React.createClass ({
       let networkConfigArray = form.getFieldValue('networkConfigArray');
       let item = {
         key: this.uuid.configKey,
-        arr: [0]
+        arr: [0],
+        add: true,
       }
       let nodesItem = {
         key: this.uuid.configKey,
-        nodesKey: 0
+        nodesKey: 0,
+        add: true
       }
-      this.uuid.nodes.push(nodesItem)
-      networkConfigArray.push(item)
+      this.uuid.nodes.unshift(nodesItem)
+      networkConfigArray.unshift(item)
       //keys = keys.concat(uuid);
       // can use data-binding to set
       // important! notify form to detect changes
       form.setFieldsValue({
         networkConfigArray,
       });
+      this.setState({
+        editingKey: this.uuid.configKey,
+      })
     })
   },
   deletePublic(item, record){
@@ -610,6 +651,7 @@ let NetworkConfiguration = React.createClass ({
       this.setState({
         deleteDefaultGroup: false
       })
+      this.updateCluster()
       return
     }
     return this.setState({
@@ -648,7 +690,7 @@ let NetworkConfiguration = React.createClass ({
       return <Option value="none" key="none"><FormattedMessage {...intlMsg.noOutForNow}/></Option>
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
-    let networkConfigArray = form.getFieldValue('networkConfigArray')
+    let networkConfigArray = form.getFieldValue('networkConfigArray').filter(i => !i.add)
     const optionMapArray = []
     for(let i = 0; i < proxy.data.length; i++){
       if (networkConfigArray[i] && !networkConfigArray[i].deleted){
@@ -726,7 +768,8 @@ let NetworkConfiguration = React.createClass ({
   },
   renderDomainWarningStatus(data, item) {
     const { form, intl: { formatMessage } } = this.props
-    const { editCluster } = this.state
+    const { editCluster, editingKey } = this.state
+    const isEditing = editingKey || editingKey === 0
     const { getFieldValue } = form
     const initialValue = data[item.key] && data[item.key].domain ? data[item.key].domain : undefined
     const currentValue = getFieldValue(`domain${item.key}`)
@@ -734,15 +777,21 @@ let NetworkConfiguration = React.createClass ({
       status: 'success',
       message: ''
     }
-    if (editCluster && initialValue && !currentValue.length) {
+    if (isEditing && initialValue && !currentValue.length) {
       status = {
         status: 'warning',
         message: formatMessage(intlMsg.clearDomainHttpError)
       }
       return status
     }
+    if (isEditing && !currentValue && !initialValue) {
+      return {
+        status: 'success',
+        message: '',
+      }
+    }
     const domainPattern = /^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/
-    if (!domainPattern.test(currentValue)) {
+    if (isEditing && !domainPattern.test(currentValue)) {
       return {
         status: 'error',
         message: '',
@@ -750,154 +799,151 @@ let NetworkConfiguration = React.createClass ({
     }
     return status
   },
-  render (){
-    const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
-    const { editCluster, saveBtnLoading, sketchshow } = this.state
-    const { getFieldProps, getFieldValue, setFieldsValue } = form
-    if(clusterProxy.isEmptyObject || !clusterProxy.result) {
-      return  <Card id="Network">
-        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
-        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
-      </Card>
-    }
-    let proxy = clusterProxy.result[camelize(cluster.clusterID)]
-    if(!proxy) {
-      return  <Card id="Network">
-        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
-        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
-      </Card>
-    }
-    let networkConfigArray = form.getFieldValue('networkConfigArray')
-    if(!networkConfigArray) {
-      return  <Card id="Network">
-        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
-        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
-      </Card>
-    }
-    let dataList = proxy.data
-    let data = []
-    dataList.forEach((item, index) => {
-      if(item.type !== "incluster"){
-        data.push(item)
-      }
-    })
-    let networkConfigList = []
-    if(!networkConfigArray.length){
-      networkConfigList = [
-        <div className='nodata'>
-          <FormattedMessage {...intlMsg.noConfigPlsAdd}/>
+  onTabChange(key) {
+    console.log(key)
+  },
+  renderIstioGateway() {
+    return(
+      <QueueAni>
+        <div key={'a'}>
+          333
         </div>
-      ]
-    } else {
-      const formItemLayout = {
-        labelCol: { span: 7 },
-        wrapperCol: { span: 17 }
+      </QueueAni>
+    )
+  },
+  networkConfigArray(networkConfigArray, data) {
+    const formItemLayout = {
+      labelCol: { span: 7 },
+      wrapperCol: { span: 17 }
+    }
+    const { form, intl: { formatMessage } } = this.props
+    const { editingKey, } = this.state
+    const { getFieldProps, getFieldValue } = form
+    return  networkConfigArray.map((item) => {
+      const index = item.key
+      const editCluster = editingKey === item.key
+
+      if(item == 0){
+        return <div></div>
       }
-      networkConfigList = networkConfigArray.map((item,index) => {
-        if(item == 0){
-          return <div></div>
-        }
-        if(item.deleted){
-          return <Row key={`row-${index}`}></Row>
-        }
-        let originType = data[item.key] && data[item.key].type ? data[item.key].type : undefined
-        let networkType = originType
-        if(editCluster){
-          networkType = getFieldValue(`networkType${item.key}`) || originType
-        }
-        let nameProps = getFieldProps(`name${item.key}`,{
-          initialValue: data[item.key] && data[item.key].name ? data[item.key].name : undefined,
-          rules:[{
-            validator: (rule, value, callback) => {
-              if(!value) {
-                return callback(formatMessage(intlMsg.netProxyNotNull))
-              }
-              this.valiadAllGroupNameField()
-              if(this.isNameRepeat(item.key)) {
-                return callback(formatMessage(intlMsg.netProxyRepeat))
-              }
-              return callback()
+      if(item.deleted){
+        return <Row key={`row-${index}`}></Row>
+      }
+      let originType = data[item.key] && data[item.key].type ? data[item.key].type : undefined
+      let networkType = originType
+      if(editCluster){
+        networkType = getFieldValue(`networkType${item.key}`) || originType
+      }
+      let nameProps = getFieldProps(`name${item.key}`,{
+        initialValue: data[item.key] && data[item.key].name ? data[item.key].name : undefined,
+        rules:[{
+          validator: (rule, value, callback) => {
+            if(!value) {
+              return callback(formatMessage(intlMsg.netProxyNotNull))
             }
-          }]
-        })
-        let addressProps = getFieldProps(`address${item.key}`,{
-          initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
-          rules:[{required: true, message: formatMessage(intlMsg.serviceOutNotNull)}, {
-            pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-            message: formatMessage(intlMsg.inputRightIp)
-          }]
-        })
-        let domainProps  = getFieldProps(`domain${item.key}`,{
-          initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
-          rules: [{ required: false }, {
-            validator: this.serverDomainValidator
-          }]
-        })
-        const domainWarningStatus = this.renderDomainWarningStatus(data, item)
-        let groupidProps = getFieldProps(`groupId${item.key}`,{
-          initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
-        })
-        let isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
-          initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
-        })
-        return  <Row className="clusterTable" key={`rows-${index}`}>
-          <Icon
-            type="cross"
-            className='crossIcon'
-            onClick={() => this.deletePublic(item, data[item.key])}
-            style={{display: editCluster ? 'inline-block' : 'none'}}
-          />
-          {
-            data[item.key] && data[item.key].isDefault
-              ? <div className='dafaultGroup'><FormattedMessage {...intlMsg.defaultStr}/></div>
-              : null
+            this.valiadAllGroupNameField()
+            if(this.isNameRepeat(item.key)) {
+              return callback(formatMessage(intlMsg.netProxyRepeat))
+            }
+            return callback()
           }
-          <Col xs={{span:10}}>
+        }]
+      })
+      let addressProps = getFieldProps(`address${item.key}`,{
+        initialValue: data[item.key] && data[item.key].address ? data[item.key].address : '',
+        rules:[{required: true, message: formatMessage(intlMsg.serviceOutNotNull)}, {
+          pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+          message: formatMessage(intlMsg.inputRightIp)
+        }]
+      })
+      let domainProps  = getFieldProps(`domain${item.key}`,{
+        initialValue: data[item.key] && data[item.key].domain ? data[item.key].domain: '',
+        rules: [{ required: false }, {
+          validator: this.serverDomainValidator
+        }]
+      })
+      const domainWarningStatus = this.renderDomainWarningStatus(data, item)
+      let groupidProps = getFieldProps(`groupId${item.key}`,{
+        initialValue: data[item.key] && data[item.key].id ? data[item.key].id : '',
+      })
+      let isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
+        initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
+      })
+      return  <div className="clusterTable" key={`rows-${index}`}>
+        {
+          data[item.key] && data[item.key].isDefault
+            ? <div className='dafaultGroup'><FormattedMessage {...intlMsg.defaultStr}/></div>
+            : null
+        }
+        <Row className='title'>
+          <Col span="12">
+            <FormattedMessage {...intlMsg.serviceIntranetProxy}/>
+            <Tooltip title={formatMessage(intlMsg.serviceIntranetIpShow)}>
+              <Icon type="question-circle-o" className='qustionIcon'/>
+            </Tooltip>
+          </Col>
+          <Col span="9">
+            <FormattedMessage {...intlMsg.serviceOut}/>
+            <Tooltip title={formatMessage(intlMsg.serviceOutIpShow)}>
+              <Icon type="question-circle-o" className='qustionIcon'/>
+            </Tooltip>
+            <span className="sketchMap" onClick={()=> this.setState({visible:true})}><FormattedMessage {...intlMsg.checkPic}/></span>
+          </Col>
+          <Col span="3">
+            <div className={'actionColumn'}><FormattedMessage {...intlMsg.action}/></div>
+          </Col>
+        </Row>
+        <Row>
+          {/*<Icon
+              type="cross"
+              className='crossIcon'
+              onClick={() => this.deletePublic(item, data[item.key])}
+              style={{display: editCluster ? 'inline-block' : 'none'}}
+            />*/}
+
+          <Col xs={{span:9}}>
             <div className="formItem inner-mesh">
               <Row className='innerItemTitle'>
                 <Col xs={{span:11}}><FormattedMessage {...intlMsg.proxyNode}/></Col>
                 <Col xs={{span:13}}><FormattedMessage {...intlMsg.nodeNetIpConfirm}/></Col>
               </Row>
               {this.getItems(item)}
-              {editCluster ?
-                <Form.Item className="increase">
-                  <span onClick={() => this.add(item)}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addIntranetProxy}/></span>
-                </Form.Item>
-                :
-                null
+              {editCluster &&
+              <Form.Item className="increase">
+                <span onClick={() => this.add(item)}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addIntranetProxy}/></span>
+              </Form.Item>
               }
             </div>
           </Col>
-          <Col style={{height:'100%'}} xs={{span:4}}>
+          <Col style={{height:'100%'}} xs={{span:3}}>
             <div className="imgBox imgboxa">
               <img style={{width:'90%', maxWidth: '190px'}} src={mappingImg}/>
             </div>
           </Col>
-          <Col xs={{span:10}}>
+          <Col xs={{span:9}}>
             <div className="formItem extranet">
               {
-                data[item.key] && data[item.key].id
-                ? <Row style={{marginBottom: '20px'}}>
-                    <Col span="7"><FormattedMessage {...intlMsg.outId}/></Col>
-                    <Col span="17">
-                      {data[item.key].id}
-                      <Tooltip title={this.state.copyCMDSuccess ? formatMessage(intlMsg.copySuccess): formatMessage(intlMsg.clickCopy)}>
-                        <a
-                          className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
-                          onClick={() => this.copyOrder(data[item.key].id)}
-                          onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }),500)}
-                        >
-                          <Icon type="copy" style={{ marginLeft: 8 }}/>
-                        </a>
-                      </Tooltip>
-                      <input
-                        id={`${this.state.lbgroupInputId}${data[item.key].id}`}
-                        style={{ position: "absolute",opacity: "0",top: '0' }}
-                        value={data[item.key].id}
-                      />
-                    </Col>
-                  </Row>
-                : null
+                data[item.key] && data[item.key].id &&
+                <Row style={{marginBottom: '20px'}}>
+                  <Col span="7"><FormattedMessage {...intlMsg.outId}/></Col>
+                  <Col span="17">
+                    {data[item.key].id}
+                    <Tooltip title={this.state.copyCMDSuccess ? formatMessage(intlMsg.copySuccess): formatMessage(intlMsg.clickCopy)}>
+                      <a
+                        className={this.state.copyCMDSuccess ? "actions copyBtn": "copyBtn"}
+                        onClick={() => this.copyOrder(data[item.key].id)}
+                        onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }),500)}
+                      >
+                        <Icon type="copy" style={{ marginLeft: 8 }}/>
+                      </a>
+                    </Tooltip>
+                    <input
+                      id={`${this.state.lbgroupInputId}${data[item.key].id}`}
+                      style={{ position: "absolute",opacity: "0",top: '0' }}
+                      value={data[item.key].id}
+                    />
+                  </Col>
+                </Row>
               }
               <FormItem
                 label={<span> <FormattedMessage {...intlMsg.type}/>
@@ -962,64 +1008,130 @@ let NetworkConfiguration = React.createClass ({
               </FormItem>
             </div>
           </Col>
+          <Col span={3} className={'actionButtons'}>
+            {
+              !editCluster ?
+                [
+                  <Button
+                    onClick={() => {
+                      const _ = this
+                      editingKey || editingKey === 0  ?
+                        Modal.confirm({
+                          width:460,
+                          title: <span style={{fontWeight:500}}>{formatMessage(intlMsg.haveEditingOut)}</span>,
+                          content: formatMessage(intlMsg.goOnNoSave),
+                          onOk() {
+                            _.cancleEdit()
+                            _.setState({
+                              editingKey: item.key,
+                            })
+                          },
+                        })
+                        : this.setState({
+                          editingKey: item.key,
+                        })
+                    }}
+                    icon={'edit'}
+                    type="dashed"
+                  />,
+                  <Button
+                    icon={'delete'}
+                    disabled={editingKey || editingKey === 0}
+                    onClick={() => this.deletePublic(item, data[item.key])}
+                    type="dashed"
+                  />,
+                ] : [
+                  <Button
+                    onClick={this.updateCluster}
+                    icon={'check'}
+                    type="dashed"
+                  />,
+                  <Button
+                    onClick={this.cancleEdit}
+                    icon={'cross'}
+                    type="dashed"
+                  />,
+                ]
+            }
+          </Col>
         </Row>
-      })
+      </div>
+    })
+  },
+  render (){
+    const { cluster, form, clusterProxy, intl: { formatMessage } } = this.props
+    const { editCluster, saveBtnLoading, sketchshow, networkType } = this.state
+    const { getFieldProps, getFieldValue, setFieldsValue } = form
+    if(clusterProxy.isEmptyObject || !clusterProxy.result) {
+      return  <Card id="Network">
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
+      </Card>
+    }
+    let proxy = clusterProxy.result[camelize(cluster.clusterID)]
+    if(!proxy) {
+      return  <Card id="Network">
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
+      </Card>
+    }
+    let networkConfigArray = form.getFieldValue('networkConfigArray')
+    let disabledAddNetOut = false
+    networkConfigArray.map(conf => conf.add && (disabledAddNetOut = true))
+    if(!networkConfigArray) {
+      return  <Card id="Network">
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <div className="loadingBox" style={{height:'100px'}}><FormattedMessage {...intlMsg.noProxyForNow}/></div>
+      </Card>
+    }
+    let dataList = proxy.data
+    let data = []
+    dataList.forEach((item, index) => {
+      if(item.type !== "incluster"){
+        data.push(item)
+      }
+    })
+    let networkConfigList = []
+    if(!networkConfigArray.length){
+      networkConfigList = [
+        <div className='nodata'>
+          <FormattedMessage {...intlMsg.noConfigPlsAdd}/>
+        </div>
+      ]
+    } else {
+      networkConfigList = this.networkConfigArray(networkConfigArray, data, editCluster)
     }
 
     return (
       <Card id="Network" >
-        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/>
-          {!editCluster?
-           <Button type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
-             <FormattedMessage {...intlMsg.editConfig}/>
+        <div className="header"><FormattedMessage {...intlMsg.networkConfig}/></div>
+        <ThirdTabs
+          tabs={[
+            { name: formatMessage(intlMsg.serverProxy), value: 'server' },
+            // { name: 'Istio-gateway', value: 'Istio-gateway' }
+            ]}
+          active={networkType}
+          onChange={key => this.setState({ networkType: key })}
+        />
+        {
+          networkType === 'server' &&
+          <QueueAni>
+            <div className={'addNetOut'} key={'btn'}>
+              <Button disabled={disabledAddNetOut} type="primary" className='addPublick' onClick={this.addPublicModal}>
+                <FormattedMessage {...intlMsg.addNetOut}/>
               </Button>
-            :
-            <div style={{float:'right'}}>
-              <Button
-                onClick={()=> this.cancleEdit()}>
-                <FormattedMessage {...intlMsg.cancel}/>
-              </Button>
-              <Button
-                loading={saveBtnLoading}
-                disabled={this.state.saveBtnDisabled}
-                type="primary" style={{marginLeft:'8px'}}
-                onClick={this.updateCluster}>
-                <FormattedMessage {...intlMsg.save}/>
-              </Button>
-            </div>
-          }
-        </div>
-        <Row className='title'>
-          <Col span="14">
-            <FormattedMessage {...intlMsg.serviceIntranetProxy}/>
-            <Tooltip title={formatMessage(intlMsg.serviceIntranetIpShow)}>
-              <Icon type="question-circle-o" className='qustionIcon'/>
-            </Tooltip>
-          </Col>
-          <Col span="10">
-            <FormattedMessage {...intlMsg.serviceOut}/>
-            <Tooltip title={formatMessage(intlMsg.serviceOutIpShow)}>
-              <Icon type="question-circle-o" className='qustionIcon'/>
-            </Tooltip>
-            <span className="sketchMap" onClick={()=> this.setState({visible:true})}><FormattedMessage {...intlMsg.checkPic}/></span>
-            {
-              editCluster
-              ? <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
+              <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
                 <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}/>
               </Tooltip>
-              : <Button icon="setting" className='settingDefalut' disabled/>
-            }
-
-            <Button type="primary" className='addPublick' disabled={!editCluster} onClick={this.addPublic}><FormattedMessage {...intlMsg.addNetOut}/></Button>
-          </Col>
-        </Row>
-
-        <Form>
-          { networkConfigList }
-        </Form>
-
-
-
+            </div>
+            <Form key={form}>
+              { networkConfigList }
+            </Form>
+          </QueueAni>
+        }
+        {
+          networkType === 'Istio-gateway' && this.renderIstioGateway()
+        }
         <Modal wrapClassName="vertical-center-modal" width='75%' title={formatMessage(intlMsg.Schematic)}
                footer={<Button type="primary" onClick={()=> this.setState({visible:false})}>
                  <FormattedMessage {...intlMsg.iKnow}/></Button>}
@@ -1061,7 +1173,6 @@ let NetworkConfiguration = React.createClass ({
              </Select>
            </Form.Item>
          </Modal>
-
 
         <Modal
           title={formatMessage(intlMsg.deleteNetOut)}

@@ -346,8 +346,6 @@ const messageObj = {
     subdomainPlaceholder: '例如：foo',
     subdomain: '子域',
     hostAliasesPlaceholder: '如：example.com',
-    hostnameIsRequired: '主机名不能为空',
-    subdomainIsRequired: '子域名不能为空'
   }
 }
 
