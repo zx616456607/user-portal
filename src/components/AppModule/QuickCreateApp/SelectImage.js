@@ -336,6 +336,7 @@ class SelectImage extends Component {
       key: 'deploy',
       width: '10%',
       render: (text, row)=> {
+        const { others, imageType } = this.state
         const flag = imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages'
         let str = row.repositoryName
         let server = imageData.server
@@ -350,7 +351,6 @@ class SelectImage extends Component {
         //   other: '', //imageId
         //   systemRegistry: '', //dockerhub
         // }
-        const { others, imageType } = this.state
         const other = filter(others, { id: imageType })[0]
         const url = other ? other.url : ''
         const query = {
@@ -371,7 +371,8 @@ class SelectImage extends Component {
                   this.onDeploy(str, server)
                   :
                   this.onDeployOthers(query)
-              }}
+                }
+              }
             >
               <FormattedMessage {...IntlMessage.deploy}/>&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
