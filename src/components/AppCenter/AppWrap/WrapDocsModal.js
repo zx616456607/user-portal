@@ -68,11 +68,13 @@ class WrapDocsModal extends React.Component {
       _this.setState({
         confirmLoading: false
       })
-      if (response.status >= 400 && response.status < 500) {
+      if (response.status >= 400) {
         if (isResourcePermissionError(response)) {
+          notify.close()
           throwError(response)
           return
         }
+        notify.close()
         notify.warn('上传失败')
         return
       }
@@ -127,8 +129,8 @@ class WrapDocsModal extends React.Component {
       fileList,
       beforeUpload: file=> {
         const fileNameBytes = utf8Bytes(file.name)
-        if (fileNameBytes.length > 256) {
-          return notify.warn('文件名称不能超过 256 个字节')
+        if (fileNameBytes.length >= 256) {
+          return notify.warn('文件名称需小于 256 个字节')
         }
         this.setState(({ fileList }) => ({
             fileList: [...fileList, file]
