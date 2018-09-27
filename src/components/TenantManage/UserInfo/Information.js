@@ -454,7 +454,13 @@ class Information extends Component {
               return
             }
             if (res.statusCode === 409) {
-              return notify.error('修改失败', '该邮箱已在平台上注册')
+              let type = '信息'
+              if (key === 'email') {
+                type = '邮箱'
+              } else if (key === 'phone') {
+                type = '手机号'
+              }
+              return notify.error('修改失败', `该${type}已在平台上注册`)
             }
             if(res.statusCode == 500) {
               const { message } = res
