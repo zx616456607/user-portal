@@ -53,6 +53,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'billing') {
     this.body = yield billingConfigFunc.apply(this, [entity])
   }
+  if (type == 'message') {
+    this.body = yield msgConfigFunc.apply(this, [entity])
+  }
   if (type == 'loadbalance') {
     this.body = yield lbConfigFunc.apply(this, [entity])
   }
@@ -181,6 +184,20 @@ function* aiConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'ai'
   entity.detail = Object.assign({}, global.globalConfig.aiopsConfig, entity.detail)
+  let response
+  entity.configDetail = JSON.stringify(entity.detail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
+
+function* msgConfigFunc(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'message'
+  entity.detail = Object.assign({}, global.globalConfig.messageConfig, entity.detail)
   let response
   entity.configDetail = JSON.stringify(entity.detail)
   if (entity.configID) {
@@ -396,4 +413,11 @@ exports.sendVerification = function* () {
     const Body = this.request.body
 	yield email.sendGlobalConfigVerificationEmail(Body, loginUser.user, loginUser.email)
 	this.body = {}
+}
+
+exports.validateMsgConfig = function* () {
+  const body = this.request.body
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.configs.createBy(['message', 'isvalidconfig'], null, body)
+  this.body = response
 }

@@ -235,7 +235,8 @@ let CreateAlarmGroup = React.createClass({
         name: values.groupName,
         desc: values.groupDesc,
         receivers: {
-          email: []
+          email: [],
+          tel: [],
         },
       }
       values.keys.map(function(k) {
@@ -246,10 +247,21 @@ let CreateAlarmGroup = React.createClass({
           })
         }
       })
+      if (values.phoneKeys.length) {
+        values.phoneKeys.forEach(k => {
+          body.receivers.tel.push({
+            number: values[`phoneNum${k}`],
+            desc: values[`phoneDesc${k}`] || '',
+          })
+        })
+      }
       if (!this.props.isModify) {
+        notification.spin('创建中...')
         createNotifyGroup(clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('创建成功')
               funcs.scope.setState({ createGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -270,6 +282,7 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
+              notification.close()
               if (err.message.code === 409) {
                 notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
@@ -279,9 +292,12 @@ let CreateAlarmGroup = React.createClass({
             isAsync: true
           }})
       } else {
+        notification.spin('更新中...')
         modifyNotifyGroup(data.groupID,clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('更新成功')
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -296,10 +312,11 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
+              notification.close()
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.error(formatMessage(intlMsg.editGroupFail), err.message.message)
+              notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
             }
           }
         })
@@ -367,6 +384,19 @@ let CreateAlarmGroup = React.createClass({
       QRCodeVisible: true,
     })
   },
+  checkPhoneNum(rule, value, callback) {
+    const { intl: { formatMessage } } = this.props
+    let newValue = value.trim()
+    let isAddEmail= true
+    if(!Boolean(newValue)) {
+      return callback('请输入手机号')
+    }
+    if (!/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(newValue)) {
+      // callback(new Error(formatMessage(intlMsg)))
+      return callback(new Error('请输入正确手机号'))
+    }
+    callback()
+  },
   render() {
     const formItemLayout = {
       labelCol: { span: 3 },
@@ -420,21 +450,39 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('phoneKeys', {
       initialValue: [0],
     });
+    const phoneLn = getFieldValue('phoneKeys').length > 0
     const phoneItems =getFieldValue('phoneKeys').map((k) => {
       let indexed = Math.max(0,k-1)
       let initAddrValue = ''
       let initDescValue = ''
-      if (isModify && data.receivers.email[indexed]) {
-        initAddrValue = data.receivers.email[indexed].addr
-        initDescValue = data.receivers.email[indexed].desc
+      if (isModify && data.receivers.tel[indexed]) {
+        initAddrValue = data.receivers.tel[indexed].number
+        initDescValue = data.receivers.tel[indexed].desc
       }
       return (
         <div key={`phone-${k}`} className="createEmailList" style={{clear:'both'}}>
           <Form.Item style={{float:'left'}}>
-            <Input style={{ width: '150px', marginRight: 8 }} />
+            <Input
+              style={{ width: '150px', marginRight: 8 }}
+              {
+                ...getFieldProps(`phoneNum${k}`, {
+                  rules: [ {validator: this.checkPhoneNum.bind(this)} ],
+                  initialValue: initAddrValue,
+                })
+              }
+            />
           </Form.Item>
           <Form.Item style={{float:'left'}}>
-            <Input placeholder={formatMessage(intlMsg.remarks)} size="large" style={{ width: 80,  marginRight: 8 }} />
+            <Input
+              placeholder={formatMessage(intlMsg.remarks)}
+              size="large"
+              style={{ width: 80,  marginRight: 8 }}
+              {
+                ...getFieldProps(`phoneDesc${k}`, {
+                  initialValue: initDescValue,
+                })
+              }
+            />
           </Form.Item>
           <Button
             type="primary"
@@ -443,7 +491,9 @@ let CreateAlarmGroup = React.createClass({
           >
             <FormattedMessage {...intlMsg.validatorPhone}/>
           </Button>
-          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}>
+          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
+            disabled={phoneLn}
+          >
             <FormattedMessage {...intlMsg.cancel}/>
           </Button>
         </div>
@@ -473,10 +523,6 @@ let CreateAlarmGroup = React.createClass({
             <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addEmail}/></a></div>
           </div>
         </div>
-
-        {/*
-        // 暂不支持 手机号 、微信 【LOT-137】
-
         <div className="lables">
           <div className="keys">
             手机
@@ -485,12 +531,13 @@ let CreateAlarmGroup = React.createClass({
             {phoneItems}
             <div style={{clear:'both'}}>
               <a onClick={() => this.addPhone()}>
-                <Icon type="plus-circle-o" /> 添加手机
+                <Icon type="plus-circle-o" /> 添加手机号
               </a>
             </div>
           </div>
         </div>
-        <div className="lables">
+
+        {/* <div className="lables">
           <div className="keys">
             微信
           </div>

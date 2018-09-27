@@ -686,6 +686,7 @@ module.exports = function (Router) {
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   router.post('/configs/email/verification', globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
+  router.post('/configs/message/isvalidconfig', globalConfigController.validateMsgConfig)
 
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
