@@ -336,7 +336,7 @@ class SelectImage extends Component {
       key: 'deploy',
       width: '10%',
       render: (text, row)=> {
-        const { others, imageType } = this.state
+        const { others } = this.state
         const flag = imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages'
         let str = row.repositoryName
         let server = imageData.server
