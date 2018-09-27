@@ -1708,7 +1708,7 @@ class ClusterStorage extends Component {
                 this.state.hostChecked &&
                 <Form className="containerItem formItem">
                   <FormItem label='宿主机根目录' {...formItemLayout}>
-                    <Input {...pathProps} disabled={this.state.hostDirEditDisable}/>
+                    <Input {...pathProps} style={{ marginLeft: 5 }} disabled={this.state.hostDirEditDisable}/>
                   </FormItem>
                   {
                     this.state.hostDirEditDisable?
