@@ -203,15 +203,12 @@ let SvnComponent = React.createClass({
               <FormItem  {...formItemLayout} label="名称">
                 <Input placeholder="输入名称" size="large" {...forName} />
               </FormItem>
-
               <FormItem {...formItemLayout} label="地址" >
                 <Input placeholder="如：http://svn.demo.org/project" size="large" {...forUrl} />
               </FormItem>
-
               <FormItem {...formItemLayout} label="类型">
                 <Switch checked={this.state.privateType}  onChange={(e) => this.changeType(e) } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
-
               {!this.state.privateType ?
                 <div>
                   <FormItem {...formItemLayout} label="用户名 : ">
@@ -231,7 +228,7 @@ let SvnComponent = React.createClass({
                 </div>
                 : null
               }
-
+              <div className="tip">SVN代码源暂不支持执行信息获取分支及变更记录</div>
             </Form>
 
           </div>
