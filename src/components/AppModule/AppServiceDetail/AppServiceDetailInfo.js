@@ -136,8 +136,10 @@ class MyComponent extends Component {
         rowDisableArray,
         saveBtnLoadingArray,
       },() => {
-        document.getElementById('envName0').value = valueArr[0].name // LOT-2805
-        document.getElementById('envValue0').value = valueArr[0].value // LOT-2805
+        if (dataArray.length !== 0) {
+          document.getElementById('envName0').value = valueArr[0].name // LOT-2805
+          document.getElementById('envValue0').value = valueArr[0].value // LOT-2805
+        }
       })
       return
     }
