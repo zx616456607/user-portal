@@ -115,14 +115,29 @@ class MyComponent extends Component {
       })
       return
     } */
+    // LOT-2805
+    const valueArr = []
+    dataArray.forEach((v, i) => {
+      const nameItem = document.getElementById(`envName${i}`)
+      const valueItem = document.getElementById(`envValue${i}`)
+      valueArr.push({
+        name: nameItem.value,
+        value: valueItem.value,
+      })
+    })
+    // LOT-2805
     if(dataArray[index].flag == true){
       dataArray.splice(index,1)
+      valueArr.splice(index,1) // LOT-2805
       rowDisableArray.splice(index,1)
       saveBtnLoadingArray.splice(index,1)
       this.setState({
         dataArray,
         rowDisableArray,
         saveBtnLoadingArray,
+      },() => {
+        document.getElementById('envName0').value = valueArr[0].name // LOT-2805
+        document.getElementById('envValue0').value = valueArr[0].value // LOT-2805
       })
       return
     }
@@ -222,7 +237,6 @@ class MyComponent extends Component {
       },300)
     })
   }
-
   addNewEnv(){
     const {  formatMessage} = this.props
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
