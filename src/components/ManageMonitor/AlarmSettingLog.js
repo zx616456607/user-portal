@@ -1096,10 +1096,10 @@ class AlarmSetting extends Component {
         namespace : middleEditStrategy.filter[1].query.queryString.query.split(':').pop().trim(),
         // namespaceType : 0,
         nodeName : "",
-        receivers : middleEditStrategy.email.length === 0 ? '' : middleEditStrategy.email[0], // 有告警通知组的概念
+        receivers : middleEditStrategy.alertGroup ? middleEditStrategy.alertGroup : '', // 有告警通知组的概念
         receiversGroup : middleEditStrategy.alertGroup,
         repeatInterval: middleEditStrategy.timeframe.minutes * 60,
-        sendEmail : middleEditStrategy.email.length === 0 ? 0 : 1,
+        sendEmail : middleEditStrategy.alertGroup ? 1 : 0, // 有告警组就发送告警
         statusCode : 1,
         strategyID : middleEditStrategy.owner + middleEditStrategy.name,
         strategyName : middleEditStrategy.name,

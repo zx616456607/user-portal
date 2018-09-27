@@ -1061,18 +1061,17 @@ class AlarmModal extends Component {
       // }
       const service = this.state.server
       const num_events = parseInt(specs[0].value)
-      console.log('notifyGroup', notifyGroup)
-      let sendEmail = []
-      if (this.state.isSendEmail) {
-        const datas = notifyGroup.result.data
-        datas.forEach((data)=>{
-          if (data.groupID === receiversGroup) {
-            sendEmail = data.receivers.email.map(( email ) => {
-              return email.addr
-            })
-          }
-        })
-      }
+      // let sendEmail = []
+      // if (this.state.isSendEmail) {
+      //   const datas = notifyGroup.result.data
+      //   datas.forEach((data)=>{
+      //     if (data.groupID === receiversGroup) {
+      //       sendEmail = data.receivers.email.map(( email ) => {
+      //         return email.addr
+      //       })
+      //     }
+      //   })
+      // }
       const requestBody = {
         name: strategyName,
         num_events,
@@ -1082,7 +1081,7 @@ class AlarmModal extends Component {
         app: appName,
       }
       if (this.state.isSendEmail) {
-        requestBody.email = sendEmail
+        // requestBody.email = sendEmail
         requestBody.alertGroup = receiversGroup
       }
       if (isEdit) {
