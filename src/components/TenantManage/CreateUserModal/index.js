@@ -77,17 +77,17 @@ let CreateUserModal = React.createClass({
       callback([new Error('请填写密码')])
       return
     }
-    if (value.length < 6 || value.length > 30) {
-      callback([new Error('长度为6~30个字符')])
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
       return
     }
     if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母，长度为6~30个字符')])
+      callback([new Error('密码必须包含数字和字母，长度为6~16个字符')])
       return
     }
-    const reg = new RegExp("^([a-zA-Z0-9]|[~!@#$%^&*()_+=\\-`{}|\\[\\]\\\\;':\",./<>?]){6,30}$")
+    const reg = new RegExp("^([a-zA-Z0-9]|[~!@#$%^&*()_+=\\-`{}|\\[\\]\\\\;':\",./<>?]){6,16}$")
     if(!reg.test(value)){
-      callback([new Error('密码只能输入数字、字母和标点符号，长度为6~30个字符')])
+      callback([new Error('密码只能输入数字、字母和标点符号，长度为6~16个字符')])
       return
     }
     if (value) {
