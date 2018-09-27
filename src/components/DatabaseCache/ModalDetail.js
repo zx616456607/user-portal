@@ -1774,12 +1774,12 @@ class ModalDetail extends Component {
                               rollBackSuccess={this.editConfigOk}/>
                     }
                   </TabPane>
-                  {
-                    database === 'mysql' &&
-                    <TabPane tab='回滚记录' key='#RollbackRecord'>
-                      <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
-                    </TabPane>
-                  }
+                  <TabPane tab='回滚记录' key='#RollbackRecord'>
+                    {
+                      this.state.activeTabKey === '#RollbackRecord' &&
+                        <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
+                    }
+                  </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
                   </TabPane>

@@ -674,7 +674,7 @@ class Backup extends React.Component {
       <div className="redis-list-wrapper">
         {
           chainsData.length !== 0 && chainsData.map((v, i) => {
-            return <Row className="redis-list-item-header" ref="header" key={v.name}>
+            return <Row className={activeIndex() === v.name ? 'redis-list-item-header selected' : 'redis-list-item-header' } ref="header" key={v.name} >
               <Col span={3} className="name">
                 <Tooltip title={v.name}>
                   <span className="backup-point-name">
@@ -763,7 +763,7 @@ class Backup extends React.Component {
   }
   render() {
     const { chainsData, database, databaseInfo } = this.props
-    return <div className="dbClusterBackup">
+    return <div className="dbClusterBackup" onClick={() => { this.props.resetRecordItem() }}>
       <div className="title">备份</div>
       <div className="content">
         <div className="operation">
