@@ -40,25 +40,19 @@ class RollbackRecord extends React.Component {
   componentDidMount() {
     const { clusterID, databaseInfo, database } = this.props
     const databaseName = databaseInfo.objectMeta.name
-    this.props.getRollbackRecord(clusterID, database, databaseName, {
-      success: {
-        func: () => {
-          // something
-        },
-      },
-      failed: {
-        func: () => {
-          // something
-        },
-      },
-    })
+    this.props.getRollbackRecord(clusterID, database, databaseName)
   }
   jumpToBackupPannel(recordItem) {
     this.props.linkToBackup(recordItem.backupRef)
   }
   convertStatus = status => {
     switch (status) {
-      case 'Scheduled' || 'Started':
+      case 'Scheduled':
+        return {
+          text: '回滚中',
+          color: '#2db7f5',
+        }
+      case 'Started':
         return {
           text: '回滚中',
           color: '#2db7f5',
