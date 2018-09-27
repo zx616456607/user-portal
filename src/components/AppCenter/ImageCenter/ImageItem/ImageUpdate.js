@@ -980,7 +980,7 @@ class ImageUpdate extends Component {
           SelectTargetStore: value,
           URLAddress: targets[i].endpoint,
           userName: targets[i].username,
-          passWord: '******',
+          passWord: '',
         })
         break
       }
@@ -1002,7 +1002,7 @@ class ImageUpdate extends Component {
         form.setFieldsValue({
           URLAddress: currentRules.store.endpoint,
           userName: currentRules.store.username,
-          passWord: '******',
+          passWord: '',
           SelectTargetStore: currentRules.store.name
         })
         return
@@ -1324,6 +1324,17 @@ class ImageUpdate extends Component {
     const { currentRule } = this.state
     getCurrentRuleTask(harbor, registry, currentRule)
   }
+
+  checkAddressUrl = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入 Url 地址')
+    }
+    // if (!  .test(value)) {
+    //   return callback('请输入正确地址')
+    // }
+    callback()
+  }
+
   render(){
     const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
     const { edit, currentRules, currentRulesEnabled, disappear, currentRule, searchType, searchText } = this.state
@@ -1453,7 +1464,11 @@ class ImageUpdate extends Component {
     })
     const targetstoretype = getFieldValue('targetStoreType')
     let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
-    let URLAddressProps = getFieldProps('URLAddress')
+    const URLAddressProps = getFieldProps('URLAddress',{
+      rules: [
+        { validator: this.checkAddressUrl }
+      ]
+    })
     let userNameProps = getFieldProps('userName')
     let passWordProps = getFieldProps('passWord')
     let SelcetTargetStoreProps = getFieldProps('SelectTargetStore')
@@ -1462,11 +1477,6 @@ class ImageUpdate extends Component {
         rules: [
           { required: true, message: '请输入新目标仓库名称' },
           // { validator:　this.checkNewTarget }
-        ]
-      })
-      URLAddressProps = getFieldProps('URLAddress',{
-        rules: [
-          { required: true, message: '请输入URL地址' },
         ]
       })
       userNameProps = getFieldProps('userName',{
@@ -1697,13 +1707,13 @@ class ImageUpdate extends Component {
                   <span>
                     <Form.Item
                       {...formItemLayout}
-                      label='用户名'
+                      label={<span>用户名<span className='star'>*</span></span>}
                     >
                       <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}
-                      label="密码"
+                      label={<span>密码<span className='star'>*</span></span>}
                     >
                       <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
                     </Form.Item>
