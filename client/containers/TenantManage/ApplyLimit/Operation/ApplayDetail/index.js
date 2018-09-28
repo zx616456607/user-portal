@@ -88,7 +88,7 @@ const getcolums = (resourceDefinitions = []) => {
 }
 
 const findClusersName = ({ id, choiceClusters }) => {
-  for (const o of choiceClusters.data) {
+  for (const o of (choiceClusters.data || [])) {
     if (o.clusterID === id) {
       return o.clusterName
     }
@@ -117,7 +117,7 @@ const formatTabDate = (applyDetails, approveDetails, choiceClusters, resourceInu
           key: indexKey,
           resource: resourcekey,
           aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-          use: resourceInuse[key][resourcekey] !== undefined ?
+          use: (resourceInuse[key] || {})[resourcekey] !== undefined ?
             resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
           applyLimit: applyDetails[key][resourcekey] || '无限制',
           approvalStatus: approveDetails[key] ?
@@ -137,10 +137,12 @@ class ApplayDetail extends React.Component {
     record: PropTypes.object.isRequired,
   }
   render() {
-    const { visible, title, resourcequoteRecord, choiceClusters, resourceDefinitions,
+    const { visible, title, resourcequoteRecord, choiceClusters: choiceClustersObject,
+      resourceDefinitions,
       resourceInuse, globaleDevopsQuotaList, cancelVisable } = this.props
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const { applyDetails, approveDetails } = recordData
+    const choiceClusters = choiceClustersObject[recordData.namespace] || {}
     const tabData = formatTabDate(applyDetails, approveDetails, choiceClusters, resourceInuse,
       globaleDevopsQuotaList)
     let accountType
@@ -201,7 +203,9 @@ class ApplayDetail extends React.Component {
 
 const mapStateToProps = state => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
-  const choiceClusters = state.projectAuthority.projectVisibleClusters.default
+  // const projectName = getDeepValue(state, [ 'entities', 'current', 'space', 'projectName' ])
+
+  const choiceClusters = state.projectAuthority.projectVisibleClusters
   return {
     resourcequoteRecord: detailData, choiceClusters,
   }

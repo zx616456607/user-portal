@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react'
 import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import classNames from 'classnames'
 import isEmpty from 'lodash/isEmpty'
 import { connect } from 'react-redux'
@@ -26,6 +26,7 @@ import {isResourcePermissionError} from "../../../common/tools";
 import findIndex from "lodash/findIndex";
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import { getDeepValue } from "../../../../client/util/util"
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -70,6 +71,10 @@ class VisitType extends Component{
         isLbgroupNull: false
       })
     }
+    const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
+    this.setState({
+      agentValue: agentType,
+    })
     getServiceLBList(cluster, service.metadata.name)
     form.setFieldsValue({
       portsKeys: [{value: 0}]
@@ -115,7 +120,7 @@ class VisitType extends Component{
   setPortsToForm = async (props) => {
     const { loadK8sService, cluster, service, k8sService, form } = props
     await loadK8sService(cluster, service.metadata.name)
-    if (isEmpty(k8sService) || isEmpty(k8sService.data)) {
+    if (isEmpty(k8sService) || isEmpty(k8sService.data) || service.lbgroup.type === 'none') {
       return
     }
     const { spec, metadata } =  k8sService.data[camelize(service.metadata.name)]
@@ -475,15 +480,22 @@ class VisitType extends Component{
 
   renderIngresses = () => {
     const { LBList } = this.props
+    const { agentValue } = this.state
     const { formatMessage } = this.props.intl
     if (!LBList || !LBList.length) {
-      return <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
+      return <div>
+        <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
+        <Button type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
+          {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
+          </Button>
+      </div>
     }
-    return LBList.map(item => {
+    const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
+    return copyList.filter(_item => _item.agentType === agentValue).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
-          <Col span={4}>
+          <Col span={5}>
             <Button type="primary" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
             </Button>
@@ -590,7 +602,7 @@ class VisitType extends Component{
         <Modal
           title={formatMessage(AppServiceDetailIntl.removeLoadBalance)}
           visible={unbindVisible}
-          onCancle={this.cancelModal}
+          onCancel={this.cancelModal}
           onOk={this.confirmModal}
           confirmLoading={confirmLoading}
         >
@@ -662,7 +674,7 @@ class VisitType extends Component{
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
-                <Radio value="inside" disabled>{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
+                <Radio value="inside">{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
                 <Radio value="outside">{formatMessage(AppServiceDetailIntl.loadBalanceOutCluster)}</Radio>
               </RadioGroup>
               {this.renderIngresses()}

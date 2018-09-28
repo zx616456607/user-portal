@@ -61,11 +61,14 @@ export default class ServiceMeshSwitch extends React.Component {
           userType === 1 &&
             <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
               onChange={this.SwitchOnChange}/>
-              <span style={{ paddingLeft: '12px', fontSize: '14px' }}>
+              {
+                !Switchchecked &&
+              <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
                 <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
+              }
             </div>
         }
         {
