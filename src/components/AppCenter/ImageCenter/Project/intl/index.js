@@ -33,7 +33,7 @@ export const mapData = {
     cancelText: '取消',
     loadDataErr: '请求错误,镜像仓库暂时无法访问，请联系管理员',
     deleteRepoOk: '仓库组 {name} 删除成功',
-    cannotDel: '项目包含镜像仓库或复制规则，无法删除',
+    cannotDel: '仓库组包含镜像仓库或复制规则，无法删除',
     deleteFailed: '仓库组删除失败',
     newRepoBtn: '新建仓库组',
     searchPlaceholder: '按仓库组名称搜索',
