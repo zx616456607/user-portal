@@ -58,10 +58,29 @@ export default class ContainerNetwork extends React.PureComponent {
     })
   }
 
-  hostAliasesCheck = (rules, value, callback) => {
+  isAliasesExist = (alases, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('aliasesKeys')
+    if (isEmpty(keys)) {
+      return false
+    }
+    return keys.filter(_key => _key !== key).some(_key => {
+      const existAliases = getFieldValue(`hostAliases-${_key}`)
+      if (existAliases === alases) {
+        return true
+      }
+      return false
+    })
+  }
+
+  hostAliasesCheck = (rules, value, callback, key) => {
     const { intl } = this.props
     if (value && value.length > 63) {
       return callback(intl.formatMessage(IntlMessage.hostAliasesLengthLimit))
+    }
+    if (this.isAliasesExist(value, key)) {
+      return callback(intl.formatMessage(IntlMessage.hostAliasesExist))
     }
     callback()
   }
@@ -138,7 +157,8 @@ export default class ContainerNetwork extends React.PureComponent {
                   pattern: IP_ALIASES,
                   message: intl.formatMessage(IntlMessage.hostAliasesRegMeg),
                 }, {
-                  validator: this.hostAliasesCheck,
+                  validator: (rules, value, callback) =>
+                    this.hostAliasesCheck(rules, value, callback, key),
                 }],
                 onChange: () => setParentState && setParentState(true),
               })}
