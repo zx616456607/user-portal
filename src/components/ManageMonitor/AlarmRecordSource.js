@@ -251,6 +251,9 @@ class AlarmRecord extends Component {
         }
       })
   }
+  disabledDate = current => {
+    return current && current.getTime() > Date.now()
+  }
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -349,8 +352,8 @@ class AlarmRecord extends Component {
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({ targetFilter: value })}>
               {filters.targets}
             </Select>
-            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
-            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
+            <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />
+            <DatePicker placeholder="选择结束日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             <Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>
             { total !== 0 && <div className='pageBox'>

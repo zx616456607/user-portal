@@ -172,7 +172,7 @@ class CleaningTool extends Component {
         this.cleanSystem()
     }
   }
-  
+
   cleanCicd() {
     const { form, startClean, userName } = this.props
     const time = form.getFieldValue("cache")
@@ -223,7 +223,7 @@ class CleaningTool extends Component {
       }
     })
   }
-  
+
   cleanSystem() {
     const { form, cleanSystemLogs } = this.props
     const time = form.getFieldValue("systemLogTime")
@@ -338,7 +338,7 @@ class CleaningTool extends Component {
   }
 
   saveMirrorImage(){
-    const { accomplish, pending, forbid } = this.state 
+    const { accomplish, pending, forbid } = this.state
     const { form } = this.props
 
     if(accomplish){
@@ -449,12 +449,12 @@ class CleaningTool extends Component {
     }
     return <span>后端运行垃圾回收直至移除所有无标签镜像</span>
   }
-  
+
   renderSystemTab() {
     const { getFieldProps } = this.props.form
     const { cleanSystemLogStatus, systemLogs } = this.state
     switch(cleanSystemLogStatus) {
-      case 'cleaning': 
+      case 'cleaning':
         return (
           <div className='done_box'>
             <div className='tips'>
@@ -513,8 +513,8 @@ class CleaningTool extends Component {
         )
     }
   }
-  
-  renderCicdTab() {
+
+/*  renderCicdTab() {  LOT-2873【【前端任务】- 插件管理去掉 prune-tool 编排 & CI/CD 缓存的清理】
     const { getFieldProps } = this.props.form
     const { cleanCicdStatus, cicdLogs } = this.state
     switch(cleanCicdStatus) {
@@ -576,7 +576,7 @@ class CleaningTool extends Component {
           </div>
         )
     }
-  }
+  }*/
   tabChange(tab){
     this.setState({
       activeKey: tab
@@ -731,14 +731,14 @@ class CleaningTool extends Component {
                   </div>
                 </div>
               </TabPane>*/}
-              <TabPane tab="CI/CD缓存" key="cache">
+{/*              <TabPane tab="CI/CD缓存" key="cache">  LOT-2873【【前端任务】- 插件管理去掉 prune-tool 编排 & CI/CD 缓存的清理】
                 <div className='img_box'>
                   <img className={classNames({'cleaning': cleanCicdStatus === 'cleaning'})} src={CleaningToolImg}/>
                 </div>
                 {
                   this.renderCicdTab()
                 }
-              </TabPane>
+              </TabPane>*/}
               <TabPane tab="监控数据" key="monitoringData">
                 <div className='img_box'>
                   <img className={classNames({'cleaning': monitorBtnLoading})} src={CleaningToolImg}/>
