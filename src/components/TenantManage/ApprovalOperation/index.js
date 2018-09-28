@@ -135,7 +135,7 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState, resou
 }
 
 const findClusersName = ({ id, choiceClusters }) => {
-    for (const o of choiceClusters.data) {
+    for (const o of (choiceClusters.data || [])) {
       if (o.clusterID === id) {
         return o.clusterName
       }
@@ -150,12 +150,11 @@ const findClusersName = ({ id, choiceClusters }) => {
       for (const key in applyDetails) {
         const clusterName = findClusersName({ id: key, choiceClusters })
         for (const resourcekey in applyDetails[key]) {
-          // console.log('globaleDevopsQuotaList', globaleDevopsQuotaList)
           date.push({
             key: indexKey,
             resource: resourcekey,
             aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-            use: resourceInuse[key][resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
+            use: (resourceInuse[key] || {})[resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
             applyLimit: applyDetails[key][resourcekey] || '无限制',
             approvalStatus: approveDetails[key] ? approveDetails[key][resourcekey] !== -1 : false,
             clusterID: key,
@@ -262,7 +261,8 @@ class ApprovalOperation extends React.Component {
     cancelApprovalModal()
   }
   render() {
-    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData,
+    const { visible, toggleVisable, record, title, resourcequoteRecord,
+      choiceClusters, tabData,
       resourceDefinitions, cancelApprovalModal, detailDataisFetching } = this.props
     const { approvalState, selectedRowKeys } = this.state
     const setApprovalState = this.setApprovalState
@@ -270,7 +270,6 @@ class ApprovalOperation extends React.Component {
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const tabDataLength = this.props.tabData.length
     let approvalStateArr = approvalState.slice(0, tabDataLength)
-
     let approvalPass = 0
 
     const accountType = '共享项目'
@@ -377,9 +376,9 @@ class ApprovalOperation extends React.Component {
 
 const mapStateToProps = (state, props) => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
-  const projectName = getDeepValue(state, [ 'entities', 'current', 'space', 'projectName' ])
-  const choiceClusters = state.projectAuthority.projectVisibleClusters[projectName]
-
+  // const projectName = getDeepValue(state, [ 'entities', 'current', 'space', 'projectName' ])
+  const choiceClustersObject = state.projectAuthority.projectVisibleClusters
+  const choiceClusters = choiceClustersObject[props.record.namespace] || {}
   const { data: recordData = {} , isFetching: detailDataisFetching} = detailData
   const { applyDetails, approveDetails } = recordData
   let resourceInuse = props.resourceInuseProps
