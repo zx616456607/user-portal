@@ -50,6 +50,7 @@ exports.HOST_REGEX = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/
 exports.IP_REGEX = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
 exports.IP_PATH_REGEX = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])([\/_a-zA-Z0-9]+)+$/
 exports.IP_ALIASES = /^[0-9a-z]+[0-9a-z\.\-]*[0-9a-z]*$/
+exports.HOSTNAME_SUBDOMAIN = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/
 exports.AMOUNT_CONVERSION = 10000 // 10000 = 1 元
 exports.AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位
 exports.TENX_LOCAL_TIME_VOLUME = {

@@ -2983,6 +2983,8 @@
   "ServiceConfig.subdomainPlaceholder": "e.g. foo",
   "ServiceConfig.subdomain": "Subdomain",
   "ServiceConfig.hostAliasesPlaceholder": "e.g. example.com",
+  "ServiceConfig.hostnameRegMsg": "Hostname must consist of lower case alphanumeric characters, '-', and must start and end with an alphanumeric character",
+  "ServiceConfig.subdomainRegMsg": "Subdomain must consist of lower case alphanumeric characters, '-', and must start and end with an alphanumeric character",
   "-------": "-------第三部分中文---------",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "Search by warehouse group name",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "Warehouse group name",

@@ -20,7 +20,7 @@ import isEmpty from 'lodash/isEmpty'
 import IntlMessage from '../../../../src/containers/Application/ServiceConfigIntl'
 import { FormattedMessage } from 'react-intl'
 import './style/ContainerNetwork.less'
-import { IP_ALIASES, IP_REGEX } from '../../../../constants'
+import { IP_ALIASES, IP_REGEX, HOSTNAME_SUBDOMAIN } from '../../../../constants'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -152,6 +152,22 @@ export default class ContainerNetwork extends React.PureComponent {
     )
   }
 
+  hostnameCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
+      return callback(intl.formatMessage(IntlMessage.hostnameRegMsg))
+    }
+    callback()
+  }
+
+  subdomainCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
+      return callback(intl.formatMessage(IntlMessage.subdomainRegMsg))
+    }
+    callback()
+  }
+
   renderContent = () => {
     const { intl, formItemLayout, form, setParentState } = this.props
     const { getFieldProps } = form
@@ -169,6 +185,9 @@ export default class ContainerNetwork extends React.PureComponent {
               <FormItem>
                 <Input
                   {...getFieldProps('hostname', {
+                    rules: [{
+                      validator: this.hostnameCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
@@ -187,6 +206,9 @@ export default class ContainerNetwork extends React.PureComponent {
               >
                 <Input
                   {...getFieldProps('subdomain', {
+                    rules: [{
+                      validator: this.subdomainCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.subdomainPlaceholder)}
