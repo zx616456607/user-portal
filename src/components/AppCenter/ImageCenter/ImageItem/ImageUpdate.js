@@ -143,6 +143,7 @@ class ImageUpdate extends Component {
       currentRule: undefined,
       searchType: 'name',
       searchText: undefined,
+      confirmLoading: false,
     }
   }
 
@@ -293,6 +294,7 @@ class ImageUpdate extends Component {
     editImageUpdateRules(harbor, registry, id, body, {
       success : {
         func: () => {
+          this.changeLoading()
           Notification.success('修改规则成功')
           if (isReplications) {
             this.loadAllPolicies()
@@ -308,6 +310,7 @@ class ImageUpdate extends Component {
       },
       failed: {
         func: (res) => {
+          this.changeLoading()
           if(res.statusCode = 409){
             Notification.error('存在相同规则，修改规则失败')
             return
@@ -537,6 +540,7 @@ class ImageUpdate extends Component {
               testLink: false,
               testLinkResult: false,
             })
+            this.changeLoading()
             this.modalCancel()
             resolve({
               result: true
@@ -546,6 +550,7 @@ class ImageUpdate extends Component {
         },
         failed: {
           func: (res) => {
+            this.changeLoading()
             resolve({
               result: false,
               statusCode: res.statusCode
@@ -586,6 +591,7 @@ class ImageUpdate extends Component {
       // 检验新仓库是否可用
       this.validationTargetStore('create', newStoremInfo).then(validateResult => {
         if(!validateResult){
+          this.changeLoading()
           throw(new Error('新目标仓库未连接，创建规则失败！'))
         }
         // 创建新仓库
@@ -593,14 +599,17 @@ class ImageUpdate extends Component {
       }).then(createStoreResult => {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
+            this.changeLoading()
             throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
           }
+          this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
         }
         // 创建新规则 (旧版)
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
+        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
@@ -677,14 +686,40 @@ class ImageUpdate extends Component {
   }
 
   modalConfirm(){
-    const { form } = this.props
+    const { form, isReplications } = this.props
+    const { getFieldValue } = form
     const { edit } = this.state
-    form.validateFields((errors, values) => {
+    let checkArr = []
+    const targetType = getFieldValue('targetStoreType')
+    if (targetType === 'createNewstore') {
+      checkArr = [ 'rulesName', 'description', 'targetStoreType', 'NewTargetstoreName', 'URLAddress', 'userName', 'passWord',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    } else if (targetType === 'selectTargetStore') {
+      checkArr = [ 'rulesName',  'description', 'targetStoreType', 'SelectTargetStore', 'URLAddress',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    }
+    if (isReplications) {
+      checkArr.push('originPro')
+    }
+    if (getFieldValue('repository')) {
+      checkArr.push('repositoryPattern')
+    }
+    if (getFieldValue('tag')) {
+      checkArr.push('tagPattern')
+    }
+    const emode = getFieldValue('emitMode')
+    if (emode === 'Immediate') {  // emitMode
+      checkArr.push('deleteImage')
+    } else if (emode === 'Scheduled') {
+      checkArr.push('setDay')
+      checkArr.push('setTime')
+    }
+    form.validateFields(checkArr, (errors, values) => {
       if(!!errors){
         return
       }
+      this.changeLoading()
       if(edit){
-        // this.handleeditImageUpdateRules(values)
         this.putNewRule(values)
         return
       }
@@ -754,8 +789,14 @@ class ImageUpdate extends Component {
     return <Spin />
   }
 
+  changeLoading = () => {
+    this.setState({
+      confirmLoading: !this.state.confirmLoading,
+    })
+  }
+
   handleModalFooterDomNodes(){
-    const { testLink, disappear } = this.state
+    const { testLink, disappear, confirmLoading } = this.state
     if (disappear) {
       return <div>
         <Button
@@ -785,7 +826,7 @@ class ImageUpdate extends Component {
         : <span></span>
       }
       <Button size="large" onClick={this.handleNextStep}>上一步</Button>
-      <Button type="primary" size="large" onClick={this.modalConfirm}>确定</Button>
+      <Button type="primary" size="large" loading={confirmLoading} onClick={this.modalConfirm}>确定</Button>
     </div>
   }
 
@@ -1463,40 +1504,36 @@ class ImageUpdate extends Component {
       onChange: this.handleRadioGroupChange
     })
     const targetstoretype = getFieldValue('targetStoreType')
-    let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
+    // let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
     const URLAddressProps = getFieldProps('URLAddress',{
       rules: [
         { validator: this.checkAddressUrl }
       ]
     })
-    let userNameProps = getFieldProps('userName')
-    let passWordProps = getFieldProps('passWord')
     let SelcetTargetStoreProps = getFieldProps('SelectTargetStore')
-    if(targetstoretype == 'createNewstore'){
-      NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
-        rules: [
-          { required: true, message: '请输入新目标仓库名称' },
-          // { validator:　this.checkNewTarget }
-        ]
-      })
-      userNameProps = getFieldProps('userName',{
-        rules: [
-          { required: true, message: '请输入用户名' },
-        ]
-      })
-      passWordProps = getFieldProps('passWord',{
-        rules: [
-          { required: true, message: '请输入密码' },
-        ],
-      })
-    }
-    if(targetstoretype == 'selectTargetStore'){
-      SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
-        rules: [
-          { required: true, message: '请选择一个目标仓库' },
-        ]
-      })
-    }
+    const NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
+      rules: [
+        { required: true, message: '请输入新目标仓库名称' },
+        // { validator:　this.checkNewTarget }
+      ]
+    })
+    const userNameProps = getFieldProps('userName',{
+      rules: [
+        { required: true, message: '请输入用户名' },
+      ]
+    })
+    const passWordProps = getFieldProps('passWord',{
+      rules: [
+        { required: true, message: '请输入密码' },
+      ],
+    })
+    // if(targetstoretype == 'selectTargetStore'){
+    SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
+      rules: [
+        { required: true, message: '请选择一个目标仓库' },
+      ]
+    })
+    // }
 
     const formItemLayout = {
       labelCol: {span: 5},
