@@ -150,12 +150,8 @@ class ContainerInstance extends React.Component {
       const { UpdateServiceAnnotation, cluster, serviceDetail,
         containerNum, manualScaleService } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
-      const { keys } = values
-      const ipArr = []
-      keys.forEach(el => {
-        ipArr.push(values[`replicasIP${el}`])
-      })
-      const ipStr = JSON.stringify(ipArr)
+      const { replicasIP0 } = values
+      const ipStr = `[\"${replicasIP0}\"]`
       const annotations = serviceDetail[cluster][server].service.spec.template
         && serviceDetail[cluster][server].service.spec.template.metadata.annotations
         || {}
