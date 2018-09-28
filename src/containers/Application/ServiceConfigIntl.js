@@ -346,6 +346,9 @@ const messageObj = {
     subdomainPlaceholder: '例如：foo',
     subdomain: '子域',
     hostAliasesPlaceholder: '如：example.com',
+    hostnameRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    subdomainRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    hostAliasesExist: '主机别名已存在',
   }
 }
 

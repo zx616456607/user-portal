@@ -20,7 +20,7 @@ import isEmpty from 'lodash/isEmpty'
 import IntlMessage from '../../../../src/containers/Application/ServiceConfigIntl'
 import { FormattedMessage } from 'react-intl'
 import './style/ContainerNetwork.less'
-import { IP_ALIASES, IP_REGEX } from '../../../../constants'
+import { IP_ALIASES, IP_REGEX, HOSTNAME_SUBDOMAIN } from '../../../../constants'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
@@ -58,10 +58,29 @@ export default class ContainerNetwork extends React.PureComponent {
     })
   }
 
-  hostAliasesCheck = (rules, value, callback) => {
+  isAliasesExist = (alases, key) => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('aliasesKeys')
+    if (isEmpty(keys)) {
+      return false
+    }
+    return keys.filter(_key => _key !== key).some(_key => {
+      const existAliases = getFieldValue(`hostAliases-${_key}`)
+      if (existAliases === alases) {
+        return true
+      }
+      return false
+    })
+  }
+
+  hostAliasesCheck = (rules, value, callback, key) => {
     const { intl } = this.props
     if (value && value.length > 63) {
       return callback(intl.formatMessage(IntlMessage.hostAliasesLengthLimit))
+    }
+    if (this.isAliasesExist(value, key)) {
+      return callback(intl.formatMessage(IntlMessage.hostAliasesExist))
     }
     callback()
   }
@@ -138,7 +157,8 @@ export default class ContainerNetwork extends React.PureComponent {
                   pattern: IP_ALIASES,
                   message: intl.formatMessage(IntlMessage.hostAliasesRegMeg),
                 }, {
-                  validator: this.hostAliasesCheck,
+                  validator: (rules, value, callback) =>
+                    this.hostAliasesCheck(rules, value, callback, key),
                 }],
                 onChange: () => setParentState && setParentState(true),
               })}
@@ -150,6 +170,22 @@ export default class ContainerNetwork extends React.PureComponent {
         </Col>
       </Row>
     )
+  }
+
+  hostnameCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
+      return callback(intl.formatMessage(IntlMessage.hostnameRegMsg))
+    }
+    callback()
+  }
+
+  subdomainCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    if (value && !HOSTNAME_SUBDOMAIN.test(value)) {
+      return callback(intl.formatMessage(IntlMessage.subdomainRegMsg))
+    }
+    callback()
   }
 
   renderContent = () => {
@@ -169,6 +205,9 @@ export default class ContainerNetwork extends React.PureComponent {
               <FormItem>
                 <Input
                   {...getFieldProps('hostname', {
+                    rules: [{
+                      validator: this.hostnameCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
@@ -187,6 +226,9 @@ export default class ContainerNetwork extends React.PureComponent {
               >
                 <Input
                   {...getFieldProps('subdomain', {
+                    rules: [{
+                      validator: this.subdomainCheck,
+                    }],
                     onChange: () => setParentState && setParentState(true),
                   })}
                   placeholder={intl.formatMessage(IntlMessage.subdomainPlaceholder)}
