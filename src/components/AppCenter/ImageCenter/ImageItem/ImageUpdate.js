@@ -180,16 +180,9 @@ class ImageUpdate extends Component {
     const { getReplicationPolicies, registry, harbor } = this.props
     getReplicationPolicies(harbor, registry)
   }
-  componentWillMount() {
-    const { isReplications } = this.props
-    if (isReplications) {
-      this.loadAllPolicies()
-      return
-    }
-    !isReplications && this.handleloadImageUpdateList()
-  }
 
   componentDidMount() {
+    setTimeout( () => this.refreshData(), 200)
     //bind 'esc' key down
     const scope = this;
     function handler(e){
