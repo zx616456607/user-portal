@@ -1552,13 +1552,18 @@ class ModalDetail extends Component {
     })
   }
   clusterBtn = status => {
+    const { inRollback } = this.props
+    const disabledStyle = {
+      color: "#cccccc",
+      cursor: "not-allowed"
+    }
     switch (status) {
       case 'Pending':
-        return <div onClick={this.stopAlert}>
+        return <div onClick={inRollback? () => "" : this.stopAlert} style={inRollback ? disabledStyle : {}}>
           <span className="stopIcon"></span>停止
         </div>
       case 'Running':
-        return <div onClick={this.stopAlert}>
+        return <div onClick={inRollback? () => "" : this.stopAlert} style={inRollback ? disabledStyle : {}}>
           <span className="stopIcon"></span>停止
         </div>
       case 'Stopped':
@@ -1636,7 +1641,7 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database, inRollback } = this.props;
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -1680,14 +1685,14 @@ class ModalDetail extends Component {
                     {
                       needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
-                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {
+                          <Button style={{marginRight:'16px'}} className="shinning" disabled={inRollback} onClick={() => {
                             this.getBackupList()
                             this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {
+                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped' || inRollback} onClick={() => {
                           this.getBackupList()
                           this.setState({rebootClusterModal: true})}}>
                           重启
@@ -1916,6 +1921,8 @@ function mapStateToProps(state, props) {
   }
   const { databaseClusterDetail } = state.databaseCache
   const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
+  const { chains } = state.backupChain
+  const inRollback = chains.rollbackComplete || false
   return {
     isFetching,
     cluster: cluster.clusterID,
@@ -1923,7 +1930,8 @@ function mapStateToProps(state, props) {
     bindingIPs: cluster.bindingIPs,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice, //storage
-    billingEnabled
+    billingEnabled,
+    inRollback
   }
 }
 

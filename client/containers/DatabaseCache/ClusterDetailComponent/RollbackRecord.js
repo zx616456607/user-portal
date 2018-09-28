@@ -28,11 +28,10 @@ class RollbackRecord extends React.Component {
         </Tooltip>,
         width: 200,
       },
-
       {
         dataIndex: 'timeCompleted',
         title: '回滚结束时间',
-        render: text => <span>{formatDate(text)}</span>,
+        render: text => <span>{text ? formatDate(text) : '-'}</span>,
         width: 300,
       },
     ],
