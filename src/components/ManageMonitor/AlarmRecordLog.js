@@ -306,7 +306,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'ruleName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
+          return <span className="targetName">{text}</span>
         }
       },
       {
