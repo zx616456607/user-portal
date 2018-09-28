@@ -2617,6 +2617,7 @@
   "AppModule.AppServiceDetailIntl.containerNetwork": "容器网络",
   "AppModule.AppServiceDetailIntl.hostnameIsRequired": "主机名不能为空",
   "AppModule.AppServiceDetailIntl.subdomainIsRequired": "子域名不能为空",
+  "AppModule.AppServiceDetailIntl.bindLoadbalance": "去绑定负载均衡",
   "ServiceCommon.start": "启动",
   "ServiceCommon.stop": "停止",
   "ServiceCommon.refresh": "刷新",

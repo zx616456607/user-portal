@@ -2298,6 +2298,7 @@
   "AppModule.AppServiceDetailIntl.containerNetwork": "ContainerNetwork",
   "AppModule.AppServiceDetailIntl.hostnameIsRequired": "Hostname cannot be empty",
   "AppModule.AppServiceDetailIntl.subdomainIsRequired": "Subdomain cannot be empty",
+  "AppModule.AppServiceDetailIntl.bindLoadbalance": "Binding load balancing",
   "ServiceCommon.start": "start",
   "ServiceCommon.stop": "stop",
   "ServiceCommon.refresh": "refresh",
