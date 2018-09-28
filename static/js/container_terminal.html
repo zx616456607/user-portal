@@ -5,10 +5,14 @@
   <title>Tenxcloud Container Terminal</title>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="/js/lib/xterm/xterm.css?_=20170330">
+  <script src="/js/lib/promise.min.js?_=20180927"></script>
+  <script src="/js/lib/fetch.min.js?_=20180927"></script>
   <script src="/js/lib/xterm/xterm.js?_=20170330"></script>
   <script src="/js/lib/xterm/addons/attach/attach.js?_=20170330"></script>
   <script>
     "use strict";
+    Terminal.applyAddon(attach);
+    // xterm version 3.7.0
     var health_timeout = 120000 // 2 minutes for real timeout
     var ws
     var term
@@ -42,16 +46,9 @@
       })
     });
     window.addEventListener("resize", function (e) {
-      var rowsNum = parseInt(e.target.innerHeight / 12) - 2;
-      var colsNum = parseInt((e.target.innerWidth - 40) / 12) - 2;
-      if (colsNum <= 5) {
-        colsNum = 5;
-      }
-      if (rowsNum <= 5) {
-        rowsNum = 5;
-      }
       if (connected) {
-        term.resize(colsNum, rowsNum)
+        // TODO 需要node后端添加一个终端模拟器，前后端终端需要宽高一致
+        // term.resize(colsNum, rowsNum)
         term.element.focus();
       }
     })
@@ -78,11 +75,7 @@
       terminalConnect();
       // Create a new terminal connection to a container
       function terminalConnect() {
-        var rowsNum = parseInt(window.innerHeight / 12) - 2;
-        var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
         term = new Terminal({
-          cols: colsNum,
-          rows: rowsNum,
           cursorBlink: true
         });
         try {
