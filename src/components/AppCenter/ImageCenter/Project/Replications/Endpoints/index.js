@@ -151,7 +151,11 @@ class Endpoints extends React.Component {
         isAsync: true,
       },
       failed: {
-        func: () => {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode === 409) {
+            return notification.error('目标名或目标 URL 已存在')
+          }
           notification.error('修改目标失败')
         },
       },
