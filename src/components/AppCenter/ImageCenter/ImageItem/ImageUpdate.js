@@ -1589,7 +1589,7 @@ class ImageUpdate extends Component {
             </Button>
               {
                 taskUpdataData.length
-                  ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
+                  ? <span className='totNum'>共计：{taskUpdataData.length} 条</span>
                   : null
               }
             </div>
