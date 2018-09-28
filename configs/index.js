@@ -33,6 +33,11 @@ const config = {
     protocol: env.TENX_VM_API_PROTOCOL,
     host: env.TENX_VM_API_HOST,
   },
+  mesh_api: {
+    protocol: 'http',
+    host: '192.168.1.59:65532',
+    version: 'v3',
+  },
   // mail_server: {
   //   host: "smtp.qq.com",
   //   port: 465,

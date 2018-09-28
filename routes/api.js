@@ -62,6 +62,7 @@ const resourcequota = require('../controllers/resourcequota') // 申请资源配
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
+const servicemesh = require('../controllers/service_mesh')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -117,9 +118,11 @@ module.exports = function (Router) {
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
   // servicMesh 相关
-  router.put('/projects/label', projectController.updateToggleServiceMesh)
-  router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
-  router.get('/projects/istio/check', projectController.getCheckClusterIstio)
+  router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
+  router.get('/projects/istio/check', servicemesh.getCheckClusterIstio)
+  router.put('/clusters/:cluster/services/:service/serverMesh', servicemesh.putToggleAPPMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/pods', servicemesh.getCheckAPPInClusMesh)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -173,9 +176,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
-  // serviceMesh 相关
-  router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
-  router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
   router.get('/templates/:templateid', appTemplateController.getTemplate)
