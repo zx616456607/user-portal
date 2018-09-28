@@ -81,6 +81,7 @@ class ProjectDetail extends Component {
       createRoleDesc: '',
       createRolePer: [],
       currentMembers: [],
+      allMembers: [],
       memberCount: 0,
       connectModal: false,
       memberArr: [],
@@ -107,6 +108,9 @@ class ProjectDetail extends Component {
       selectedCluster: "",
       isChangeCluster: false,
       projectLoading: true,
+      initialList: ['all', 'a~d', 'e~h', 'i~l', 'm~p', 'q~t', 'u~x', 'y~z'],
+      currentMemberFilter: 'all',
+      letterArr: []
     }
   }
   componentDidMount() {
@@ -117,7 +121,7 @@ class ProjectDetail extends Component {
     // this.loadRoleList()
     const key = this.props.location.query
     this.setState({
-      tabsKey: key.tabs,
+      tabsKey: key.tabs
     })
     loadClusterList()
   }
@@ -552,6 +556,7 @@ class ProjectDetail extends Component {
       //currentRoleInfo: {},
       currentRolePermission: [],
       currentMembers: [],
+      allMembers: [],
       getRoleLoading: true
     }, () => {
       GetRole({
@@ -598,10 +603,14 @@ class ProjectDetail extends Component {
               this.formatArr(member)
               this.setState({
                 currentMembers: member,
+                allMembers: member,
+                currentMemberFilter: 'all',
                 existentMember: exist,
                 memberCount: member.length > 0 ? member.length : 0,
                 getRoleLoading: false
-              })
+              }, () => this.setState({
+                letterArr: this.generateLetterArr(),
+              }))
             },
             isAsync: true
           },
@@ -609,6 +618,7 @@ class ProjectDetail extends Component {
             func: res => {
               this.setState({
                 currentMembers: [],
+                allMembers: [],
                 existentMember: [],
                 memberCount: 0,
                 getRoleLoading: false
@@ -1002,6 +1012,51 @@ class ProjectDetail extends Component {
     }
     return permission;
   }
+  generateLetterArr = () => {
+    const { currentMembers } = this.state
+    const letterArr = [{index: "all"}]
+    const letters = []
+    for (let i = 0; i< 26; i++) {
+      if (i % 4 === 0 && i <= 24) {
+        const item = []
+        const limit = i === 24 ? 2 : 4
+        for (let k = 0; k < limit; k ++) {
+          const key = String.fromCharCode(65 + i + k).toLowerCase()
+          item.push(key)
+        }
+        const index = `${item[0]}~${item[item.length-1]}`
+        letterArr.push({index, list: item})
+        letters.push(item)
+      }
+    }
+    currentMembers.forEach(v => {
+      const initlalChar = v.userName[0]
+      letterArr.forEach((j, m) => {
+        if(j.list && j.list.some(item => item === initlalChar)) {
+          v.key = j.index
+        }
+      })
+    })
+    this.setState({currentMembers})
+    return letterArr
+
+  }
+  filterMemberByInitial = v => {
+    const { allMembers } = this.state
+    if (v === 'all') {
+      this.setState({
+        currentMembers: allMembers,
+        currentMemberFilter: v
+      })
+      return
+    }
+    const newMembers = allMembers.filter(k => k.key === v)
+    this.setState({
+      currentMembers: newMembers,
+      currentMemberFilter: v
+    })
+
+  }
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
@@ -1194,7 +1249,7 @@ class ProjectDetail extends Component {
     );
     let items;
     this.state.currentMembers.length ?
-    items = this.state.currentMembers.map(item => <div className="item">{item.userName}</div>)
+    items = this.state.currentMembers.map(item =><Tooltip title={item.userName}><div className="item">{item.userName}</div></Tooltip>)
     :
     items = (
       <div className="nodata">暂无成员</div>
@@ -1644,6 +1699,15 @@ class ProjectDetail extends Component {
                       </div>
                       <div className="bottom-line"></div>
                       <div className="memberContainer">
+                        <div className="filterBox">
+                          <div className="title">成员：</div>
+                          {
+                            this.state.letterArr.map(v => <div
+                              className={this.state.currentMemberFilter === v.index ? "actived" : ""}
+                              onClick={() => this.filterMemberByInitial(v.index)}
+                              key={v.index}>{v.index}</div>)
+                          }
+                        </div>
                         {
                           items
                         }
