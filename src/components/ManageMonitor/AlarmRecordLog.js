@@ -337,10 +337,12 @@ class AlarmRecord extends Component {
         dataIndex: 'numHits',
       },
       {
-        title: '是否发送邮件',
-        dataIndex: 'alertSent',
+        title: '是否发送通知',
+        dataIndex: 'alertInfo',
         render: (val, record) => {
-          return <div>{ val && record.alertInfo.recipients[0] !== "test@example.com"? '是': '否'}</div>
+          const condition = record.alertInfo['http_post_webhook_url'][0]
+          condition.charAt(condition.length - 1)
+          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
         }
       }
     ];
