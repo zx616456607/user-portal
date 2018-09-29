@@ -166,10 +166,9 @@ class LoadBalance extends React.Component {
     })
   }
 
-  removeTcpUdpKey = key => {
+  removeTcpUdpKey = (protocol, key) => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    const { protocol } = this.state
     const lowerProtocol = protocol.toLowerCase()
     setFieldsValue({
       [`${lowerProtocol}Keys`]: getFieldValue(`${lowerProtocol}Keys`).filter(item => item !== key)
@@ -408,7 +407,7 @@ class LoadBalance extends React.Component {
           </Button>
           <Button
             type="dashed" icon="delete" key={`${lowerProtocol}-delete-${key}`}
-            onClick={() => this.removeTcpUdpKey(key)}
+            onClick={() => this.removeTcpUdpKey(protocol, key)}
           />
         </Col>
       </Row>
