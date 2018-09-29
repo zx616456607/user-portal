@@ -666,7 +666,7 @@ class ShareMemory extends Component {
                                 }
                               ]
                             })}
-                            placeholder='/var/nfs/请输入 server共享目录'/>
+                            placeholder='请输入 server共享目录'/>
                       }
                     </FormItem>
                   :

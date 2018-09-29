@@ -713,7 +713,7 @@ let ContainerCatalogueModal = React.createClass({
       })
     }
     const pathProps = getFieldProps('serverDir',{
-      initialValue: '/usr/share/hostpath',
+      initialValue: '',
       validate: [
         {
           rules: [
@@ -846,7 +846,7 @@ let ContainerCatalogueModal = React.createClass({
             }
             {this.renderDifferentType(type, volume)}
             {
-              (type === 'share' && this.state.createStorage) &&
+              (type === 'share' && this.state.createStorage && this.state.type_1Value === 'nfs') &&
               <FormItem
                 label={intl.formatMessage(IntlMessage.serverDir)}
                 {...formItemLayout}
@@ -857,7 +857,7 @@ let ContainerCatalogueModal = React.createClass({
                 </RadioGroup>
                 {
                   this.state.serverType === 'custom' &&
-                  <Input {...pathProps} placeholder={`/var/nfs/${intl.formatMessage(IntlMessage.pleaseInputServerDir)}`}/>
+                  <Input {...pathProps} placeholder={`${intl.formatMessage(IntlMessage.pleaseInputServerDir)}`}/>
                 }
               </FormItem>
             }
