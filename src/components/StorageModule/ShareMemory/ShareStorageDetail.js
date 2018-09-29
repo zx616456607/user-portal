@@ -107,6 +107,11 @@ class ShareStorageDetail extends Component {
                     </div>*/}
                   </Col>
                 </Row>
+                <Row>
+                  <Col>
+                    server共享目录：{StorageInfo.customFolder || '系统随机'}
+                  </Col>
+                </Row>
               </div>
             </div>
           </Card>

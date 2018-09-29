@@ -9,12 +9,11 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Form, Select, Row, Col, Radio, Input, Tooltip, Icon, InputNumber, Button, Spin } from 'antd'
+import { Form, Select, Row, Col, Radio, Input, InputNumber, Button } from 'antd'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadFreeVolume, getCheckVolumeNameExist } from '../../actions/storage'
 import { getClusterStorageList } from '../../actions/cluster'
-import { isStorageUsed } from '../../common/tools'
 import { serviceNameCheck } from '../../common/naming_validation'
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import './style/ContainerCatalogueModal.less'
@@ -24,6 +23,7 @@ import IntlMessage from '../../containers/Application/ServiceConfigIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
+const RadioGroup = Radio.Group
 const PATH_REG = /^\//
 let firstShowModal = true;
 
@@ -42,7 +42,9 @@ let ContainerCatalogueModal = React.createClass({
       isResetComponent: false,
       confirmLoading: false,
       type_1Value: 'nfs',
-      hostDir: ''
+      serverType: 'random',
+      hostDir: '',
+      createStorage: false
       // loading: true,
     }
   },
@@ -59,6 +61,7 @@ let ContainerCatalogueModal = React.createClass({
         'type',
         'mountPath',
         'readOnly',
+        'serverDir'
       ])
       return
     }
@@ -214,8 +217,8 @@ let ContainerCatalogueModal = React.createClass({
       return (
         <FormItem
           label={intl.formatMessage(IntlMessage.storageVolumeSetting)}
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 20 }}
+          labelCol={{ span: 5 }}
+          wrapperCol={{ span: 17 }}
           className='volume_setting'
         >
           {
@@ -313,7 +316,7 @@ let ContainerCatalogueModal = React.createClass({
     const { getFieldProps } = form
     return <div>
       <Row className='host_node_row'>
-        <Col span="4">{intl.formatMessage(IntlMessage.bindingNode)}</Col>
+        <Col span="5">{intl.formatMessage(IntlMessage.bindingNode)}</Col>
         <Col span="17">
           {
             isBindNode
@@ -325,43 +328,46 @@ let ContainerCatalogueModal = React.createClass({
       <FormItem
         label={intl.formatMessage(IntlMessage.hostDirectory)}
         key="host_path"
-        labelCol={{ span: 4 }}
+        labelCol={{ span: 5 }}
         wrapperCol={{ span: 17 }}
       >
-        <Input
-          addonBefore={this.state.hostDir}
-          placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
-            item: intl.formatMessage(IntlMessage.hostDirectory),
-            end: '',
-          })}
-          {...getFieldProps('hostPath', {
-            initialValue: undefined,
-            rules: [{
-              validator: (rule, value, callback) => {
-                if(!value){
-                  return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
-                    item: intl.formatMessage(IntlMessage.hostDirectory),
-                    end: '',
-                  }))
+
+        <div className='host_wrapper'>
+          <Input
+            addonBefore={this.state.hostDir}
+            placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
+              item: intl.formatMessage(IntlMessage.hostDirectory),
+              end: '',
+            })}
+            {...getFieldProps('hostPath', {
+              initialValue: undefined,
+              rules: [{
+                validator: (rule, value, callback) => {
+                  if(!value){
+                    return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+                      item: intl.formatMessage(IntlMessage.hostDirectory),
+                      end: '',
+                    }))
+                  }
+                  if (!PATH_REG.test(value)) {
+                    return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
+                  }
+                  // if (value.lastIndexOf('/') > 0) {
+                  //   return callback('本地存储不支持挂载多级目录')
+                  // }
+                  //const list = cloneDeep(fieldsList)
+                  //list.splice(currentIndex, 1)
+                  //for (let i = 0; i < list.length; i++) {
+                  //  if (value === list[i].hostPath) {
+                  //    return callback('已填写过该路径')
+                  //  }
+                  //}
+                  return callback()
                 }
-                if (!PATH_REG.test(value)) {
-                  return callback(intl.formatMessage(IntlMessage.plsEnterCorrectPath))
-                }
-                // if (value.lastIndexOf('/') > 0) {
-                //   return callback('本地存储不支持挂载多级目录')
-                // }
-                //const list = cloneDeep(fieldsList)
-                //list.splice(currentIndex, 1)
-                //for (let i = 0; i < list.length; i++) {
-                //  if (value === list[i].hostPath) {
-                //    return callback('已填写过该路径')
-                //  }
-                //}
-                return callback()
-              }
-            }]
-          })}
-        />
+              }]
+            })}
+          />
+        </div>
       </FormItem>
     </div>
   },
@@ -370,11 +376,15 @@ let ContainerCatalogueModal = React.createClass({
     const { callbackFields, form, isTemplate } = this.props
     this.setState({
       isResetComponent: true,
+
     })
     if (type === 'cancel') {
       const obj = {
         type,
       }
+      this.setState({
+        confirmLoading: false
+      })
       this.resetState();
       return callbackFields(obj)
     }
@@ -410,6 +420,7 @@ let ContainerCatalogueModal = React.createClass({
             'name',
             'size',
             'fsType',
+            'serverDir'
             //'strategy',
           ]
         }
@@ -426,6 +437,7 @@ let ContainerCatalogueModal = React.createClass({
             'storageClassName',
             'volume',
             'name',
+            'serverDir'
             //'size',
             //'fsType',
           ]
@@ -443,6 +455,7 @@ let ContainerCatalogueModal = React.createClass({
       array.forEach(item => {
         validateArray.push(item)
       });
+
       form.validateFields(validateArray, (errors, values) => {
         this.setState({
           confirmLoading: false
@@ -476,8 +489,11 @@ let ContainerCatalogueModal = React.createClass({
       const { getClusterStorageList, clusterID,
         form } = this.props
       getClusterStorageList(clusterID)
+      this.setState({createStorage: true})
       return
     }
+    this.setState({createStorage: false})
+
     const { form, avaliableVolume } = this.props
     const { volumes } = avaliableVolume
     let volumeIsOld = false
@@ -588,6 +604,22 @@ let ContainerCatalogueModal = React.createClass({
       ])
     })
   },
+  // 选择server 共享目录
+  serverTypeChange(e) {
+    this.setState({
+      serverType: e.target.value
+    })
+  },
+  testPath(rule, value, callback) {
+    const { intl } = this.props
+    if (!value) {
+      return callback(intl.formatMessage(IntlMessage.pleaseInputServerDir))
+    }
+    if (!PATH_REG.test(value)) {
+      return callback(intl.formatMessage(IntlMessage.pathInCorrect))
+    }
+    callback()
+  },
   render() {
     const { storageClassType, intl } = this.props
     const {
@@ -598,7 +630,7 @@ let ContainerCatalogueModal = React.createClass({
     } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
-      labelCol: { span: 4 },
+      labelCol: { span: 5 },
       wrapperCol: { span: 17 }
     }
     let isEdit = false
@@ -680,7 +712,18 @@ let ContainerCatalogueModal = React.createClass({
         }
       })
     }
-
+    const pathProps = getFieldProps('serverDir',{
+      initialValue: '',
+      validate: [
+        {
+          rules: [
+            {validator: this.testPath},
+          ],
+          trigger: ['onBlur', 'onChange'],
+        }
+      ],
+      onChange: this.hostDirEdit
+    })
     return (
       <div id='container_catalogue'>
         <div className="body">
@@ -802,6 +845,23 @@ let ContainerCatalogueModal = React.createClass({
                 : null
             }
             {this.renderDifferentType(type, volume)}
+            {
+              (type === 'share' && this.state.createStorage && this.state.type_1Value === 'nfs') &&
+              <FormItem
+                label={intl.formatMessage(IntlMessage.serverDir)}
+                {...formItemLayout}
+              >
+                <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
+                <Radio value='random' key='random'>{intl.formatMessage(IntlMessage.random)}</Radio>
+                <Radio value='custom' key='custom'>{intl.formatMessage(IntlMessage.custom)}</Radio>
+                </RadioGroup>
+                {
+                  this.state.serverType === 'custom' &&
+                  <Input {...pathProps} placeholder={`${intl.formatMessage(IntlMessage.pleaseInputServerDir)}`}/>
+                }
+              </FormItem>
+            }
+
             {/*
               volume === 'create' && type === 'private' && (
                 <FormItem

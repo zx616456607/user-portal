@@ -1226,6 +1226,7 @@ class AppServiceDetailInfo extends Component {
 
   saveVolumnsChange = async () => {
     const { cluster, serviceName, createStorage, editServiceVolume } = this.props
+    const { formatMessage } = this.props.intl
     const { volumeList } = this.state
     const notification = new NotificationHandler()
     this.setState({
@@ -1248,11 +1249,12 @@ class AppServiceDetailInfo extends Component {
           }
         }
         if(item.type == 'share'){
-          const { name, storageClassName } = item
+          const { name, storageClassName, serverDir } = item
           body = {
             name,
             storageType: item.type_1,
             storageClassName,
+            serverDir,
           }
           if(item.type_1 == 'glusterfs'){
             body.storage = item.storage
@@ -1299,6 +1301,7 @@ class AppServiceDetailInfo extends Component {
   }
 
   callbackFields(info){
+
     const { volumeList, isEdit, currentIndex } = this.state
     const list = cloneDeep(volumeList)
     const type = info.type
