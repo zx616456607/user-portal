@@ -143,7 +143,7 @@ let CreateAlarmGroup = React.createClass({
     let repeat
     keys.length >1 && keys.every(k => {
       // cannot repeat
-      if (k == mid) {
+      if (`email${k}` === rule.fullField) {
         return true
       }
       if (value === form.getFieldValue(`email${k}`)) {
@@ -463,7 +463,7 @@ let CreateAlarmGroup = React.createClass({
     let phoneKeys = form.getFieldValue('phoneKeys');
     let repeat
     phoneKeys.length >1 && phoneKeys.every(list => {
-      if (list == phoneUuid) {
+      if (`phoneNum${list}` === rule.fullField) {
         return true
       }
       // cannot repeat
