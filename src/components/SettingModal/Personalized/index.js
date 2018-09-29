@@ -239,6 +239,19 @@ class Personalized extends Component{
                 </Upload>
               </Col>
             </Row>
+            <Row className="image-row">
+              <Col span="3"style={{width:150}}>邮箱LOGO</Col>
+              <Col span="20">
+                <div className="row-text">此处图片用于替换系统邮件左下角 logo 图标，如告警邮件、构建邮件及其它敏感操作邮件等，建议大小120px*30px</div>
+                <Upload beforeUpload={(file)=> this.beforeUpload(file,'emailLogo')}>
+                  <span className="wrap-image">
+                    <img className="logo" src={ oemInfo.emailLogo } />
+                    <Icon type="plus" className="push-icon"/>
+                  </span>
+                </Upload>
+              </Col>
+            </Row>
+
           </Card>
 
           <Card className="image-push" title={[<img className="img-icon" src={tenxTextIcon} key="image-text" />,<span key='span-text'>文字定制</span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('tenxText')}>恢复默认设置</Button>} >
