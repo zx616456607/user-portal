@@ -17,7 +17,7 @@ export const TOGGLE_SERVICEMESH_FAILURE = 'TOGGLE_SERVICEMESH_FAILURE'
 
 // 项目在某个集群下开启serviceMesh
 // 设置项目 Istio 状态（开/关）
-function fetchToggleServiceMesh(project, clusterId, callback) {
+function fetchToggleServiceMesh(project, clusterId, body, callback) {
   let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/paas/status`
   return {
     [FETCH_API]: {
@@ -26,6 +26,7 @@ function fetchToggleServiceMesh(project, clusterId, callback) {
       schema: {},
       options: {
         method: 'PUT',
+        body,
         headers: {
           teamspace: project,
         }
@@ -35,9 +36,9 @@ function fetchToggleServiceMesh(project, clusterId, callback) {
   }
 }
 
-export function ToggleServiceMesh(body, callback) {
+export function ToggleServiceMesh(project, clusterId, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchToggleServiceMesh(body, callback))
+    return dispatch(fetchToggleServiceMesh(project, clusterId, body, callback))
   }
 }
 
@@ -92,9 +93,9 @@ function fetchCheckProInClusMesh(project, clusterId, callback) {
   }
 }
 
-export function checkProInClusMesh(query, callback) {
+export function checkProInClusMesh(project, clusterId, callback) {
   return (dispatch) => {
-    return dispatch(fetchCheckProInClusMesh(query, callback))
+    return dispatch(fetchCheckProInClusMesh(project, clusterId, callback))
   }
 }
 
@@ -149,8 +150,8 @@ function fetchCheckAPPInClusMesh(clusterId, application, service , callback) {
   }
 }
 
-export function checkAPPInClusMesh(cluster, service, query, callback) {
+export function checkAPPInClusMesh(clusterId, application, service , callback) {
   return (dispatch) => {
-    return dispatch(fetchCheckAPPInClusMesh(cluster, service, query, callback))
+    return dispatch(fetchCheckAPPInClusMesh(clusterId, application, service , callback))
   }
 }

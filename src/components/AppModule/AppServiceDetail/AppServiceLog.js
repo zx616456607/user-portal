@@ -129,13 +129,12 @@ class AppServiceLog extends Component {
      this.changeCurrentDate(new Date(), true, nextProps.cluster, nextProps.serviceName)
   }
   moutseRollLoadLogs() {
-    const { formatMessage } = this.props.intl
+    const { serviceLogs, cluster, intl: { formatMessage } } = this.props
     if (!this.state.useGetLogs) return
     if (this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
     this.setState({
       useGetLogs: false
     })
-    const cluster = this.props.cluster
     const serviceName = this.props.serviceName
     const self = this
     const scrollBottom = this.infoBox.scrollBottom
@@ -144,6 +143,9 @@ class AppServiceLog extends Component {
       notification.warn(formatMessage(AppServiceDetailIntl.noInstallLogService))
       return
     }
+
+    const logsData = serviceLogs[cluster].logs
+    if (logsData.count <= logsData.data.length) return
     this.props.loadServiceLogs(cluster, serviceName, {
       from: (this.state.pageIndex - 1) * this.state.pageSize,
       size: this.state.pageSize,

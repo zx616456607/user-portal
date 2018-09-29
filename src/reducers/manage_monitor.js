@@ -66,7 +66,8 @@ function getQueryLog(state = {}, action) {
       })
     case ActionTypes.GET_QUERY_LOG_SUCCESS:
     case ActionTypes.GET_SERVICE_QUERY_LOG_SUCCESS:
-      resLogs = action.response.result.logs || []
+      const resData = action.response.result.logs || {}
+      resLogs = resData.logs || []
       if (direction === 'forward') {
         resLogs.shift()
       }

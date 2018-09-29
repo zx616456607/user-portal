@@ -1145,8 +1145,11 @@ class ProjectDetail extends Component {
                   <Col span={12}>
                   <div className="gutter-box">
                         {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
-                        <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={projectDetail}
-                        clusterName={item.clusterName}/>
+                        {
+                        (this.state.displayName || this.state.projectDetail && this.state.projectDetail.namespace) &&
+                        <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={this.state.projectDetail}
+                        clusterName={item.clusterName} displayName={this.state.displayName}/>
+                        }
                     </div>
                   </Col>
                 </Row>

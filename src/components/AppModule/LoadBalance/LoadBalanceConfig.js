@@ -97,6 +97,10 @@ class LoadBalanceConfig extends React.Component {
           editLB={editLB}
           location={location}
         />
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+          请确保应用负载均衡所在主机有权限访问容器网络，可联系管理员确认网络策略配置
+        </div>
         <div key="tableAndDetail">
           {
             tablePart ?
