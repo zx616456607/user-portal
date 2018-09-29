@@ -20,6 +20,7 @@ class PersistentVolumeClaim {
       reclaimPolicy,
       accessModes,
       storage,
+      serverDir,
     } = config
     if (!fsType) {
       fsType = 'ext4'
@@ -56,11 +57,17 @@ class PersistentVolumeClaim {
     }else{
       labels['tenxcloud.com/fsType'] = 'ext4'
     }
+
     this.kind = 'PersistentVolumeClaim'
     this.apiVersion = 'v1'
     this.metadata = {
       name,
       labels: labels
+    }
+    if (serverDir) {
+      this.metadata.annotations = {
+        'system/customfolder': serverDir
+      }
     }
     this.spec = {
       accessModes: [

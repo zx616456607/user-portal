@@ -43,7 +43,8 @@ let ContainerCatalogueModal = React.createClass({
       confirmLoading: false,
       type_1Value: 'nfs',
       serverType: 'random',
-      hostDir: ''
+      hostDir: '',
+      createStorage: false
       // loading: true,
     }
   },
@@ -454,6 +455,7 @@ let ContainerCatalogueModal = React.createClass({
       array.forEach(item => {
         validateArray.push(item)
       });
+
       form.validateFields(validateArray, (errors, values) => {
         this.setState({
           confirmLoading: false
@@ -487,8 +489,11 @@ let ContainerCatalogueModal = React.createClass({
       const { getClusterStorageList, clusterID,
         form } = this.props
       getClusterStorageList(clusterID)
+      this.setState({createStorage: true})
       return
     }
+    this.setState({createStorage: false})
+
     const { form, avaliableVolume } = this.props
     const { volumes } = avaliableVolume
     let volumeIsOld = false
@@ -606,12 +611,14 @@ let ContainerCatalogueModal = React.createClass({
     })
   },
   testPath(rule, value, callback) {
+    const { intl } = this.props
     if (!value) {
-      return callback('请输入server 共享目录')
+      return callback(intl.formatMessage(IntlMessage.pleaseInputServerDir))
     }
     if (!PATH_REG.test(value)) {
-      return callback('请输入正确的路径')
+      return callback(intl.formatMessage(IntlMessage.pathInCorrect))
     }
+    callback()
   },
   render() {
     const { storageClassType, intl } = this.props
@@ -839,18 +846,18 @@ let ContainerCatalogueModal = React.createClass({
             }
             {this.renderDifferentType(type, volume)}
             {
-              type === 'share' &&
+              (type === 'share' && this.state.createStorage) &&
               <FormItem
-                label="server共享目录"
+                label={intl.formatMessage(IntlMessage.serverDir)}
                 {...formItemLayout}
               >
                 <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
-                <Radio value='random' key='random'>系统随机</Radio>
-                <Radio value='custom' key='custom'>自定义</Radio>
+                <Radio value='random' key='random'>{intl.formatMessage(IntlMessage.random)}</Radio>
+                <Radio value='custom' key='custom'>{intl.formatMessage(IntlMessage.custom)}</Radio>
                 </RadioGroup>
                 {
                   this.state.serverType === 'custom' &&
-                  <Input {...pathProps} placeholder='/var/nfs/请输入 server共享目录'/>
+                  <Input {...pathProps} placeholder={`/var/nfs/${intl.formatMessage(IntlMessage.pleaseInputServerDir)}`}/>
                 }
               </FormItem>
             }

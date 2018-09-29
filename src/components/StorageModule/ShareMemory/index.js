@@ -182,10 +182,12 @@ class ShareMemory extends Component {
     const { form, createStorage, clusterID } = this.props
     const notification = new NotificationHandler()
     const viladateArray = this.state.serverType === 'custom' ? [
+      'storageType',
       'storageClassName',
       'name',
       'serverDir'
     ] : [
+      'storageType',
       'storageClassName',
       'name',
     ]
@@ -200,17 +202,19 @@ class ShareMemory extends Component {
         })
         return
       }
-      const { name, storageType, storageClassName } = values
+      const { name, storageType, storageClassName, serverDir } = values
       const config = {
         name,
         storageType,
         storageClassName,
         reclaimPolicy: 'retain',
+        serverDir
       }
       if(storageType === 'glusterfs'){
         config.storage = values.storage
       }
       const persistentVolumeClaim = new PersistentVolumeClaim(config)
+      console.log(persistentVolumeClaim);
       const body = {
         cluster: clusterID,
         template: yaml.dump(persistentVolumeClaim),
@@ -378,14 +382,14 @@ class ShareMemory extends Component {
     })
   }
 
-  testPath = (rule, value, callback) => {
-      if (!value) {
+  testServerPath = (rule, value, callback) => {
+    if (!value) {
         return callback('请输入server 共享目录')
       }
-      if (!PATH_REG.test(value)) {
-        return callback('请输入正确的路径')
-      }
-
+    if (!PATH_REG.test(value)) {
+      return callback('请输入正确的路径')
+    }
+    callback()
   }
   render() {
     const {
@@ -402,21 +406,6 @@ class ShareMemory extends Component {
     } = this.state
     const { query = {} } = location
     const { getFieldProps } = form
-    const pathProps = getFieldProps('serverDir',{
-      validate: [
-        {
-          rules: [
-            {validator: this.testPath},
-          ],
-          trigger: ['onBlur', 'onChange'],
-        }
-      ]
-    })
-    // const serverTypeProps = getFieldProps('serverType',{
-    //   initialValue: this.state.serverType,
-    //   value: this.state.serverType,
-    //   onChange: this.serverTypeChange
-    // })
     const columns = [
       {
         key: 'name',
@@ -666,7 +655,18 @@ class ShareMemory extends Component {
                       </RadioGroup>
                       {
                         this.state.serverType === 'custom' &&
-                          <Input {...pathProps} placeholder='/var/nfs/请输入 server共享目录'/>
+                          <Input
+                            {...getFieldProps('serverDir',{
+                              validate: [
+                                {
+                                  rules: [
+                                    {validator: this.testServerPath},
+                                  ],
+                                  trigger: ['onBlur', 'onChange'],
+                                }
+                              ]
+                            })}
+                            placeholder='/var/nfs/请输入 server共享目录'/>
                       }
                     </FormItem>
                   :
