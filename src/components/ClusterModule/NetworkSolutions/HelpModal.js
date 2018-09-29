@@ -19,7 +19,23 @@ const yamlFile = `- apiVersion: v1
     - action: allow
       protocol: udp
       source:
-        net: "192.168.1.0/24"`
+        net: "192.168.1.0/24"
+---
+- apiVersion: v1
+  kind: policy
+  metadata:
+    name: k8s-policy-no-match
+  spec:
+    egress:
+    - action: pass
+      destination: {}
+      source: {}
+    ingress:
+    - action: pass
+      destination: {}
+      source: {}
+    order: 2000
+    selector: has(calico/k8s_ns)`
 
 export default class HelpModal extends Component {
   state = {
