@@ -51,7 +51,7 @@ class TcpUdpModal extends React.PureComponent{
   }
 
   async componentDidMount() {
-    const { getTcpUdpIngress, type, clusterID, lbname, form } = this.props
+    const { getTcpUdpIngress, type, clusterID, lbname, form, currentIngress } = this.props
     const { getFieldValue } = form
     const lowerType = type.toLowerCase()
     await getTcpUdpIngress(clusterID, lbname, lowerType)
@@ -101,8 +101,11 @@ class TcpUdpModal extends React.PureComponent{
   }
 
   exportPortCheck = (rules, value, callback) => {
-    const { intl } = this.props
+    const { intl, currentIngress } = this.props
     const { existPorts } = this.state
+    if (currentIngress && value && value === currentIngress.exportPort) {
+      return callback()
+    }
     if (value && !isEmpty(existPorts) && existPorts.includes(value.toString())) {
       return callback(intl.formatMessage(IntlMessage.listeningPortBeUsed))
     }
