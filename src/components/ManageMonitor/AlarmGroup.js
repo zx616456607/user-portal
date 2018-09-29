@@ -142,6 +142,12 @@ class AlarmGroup extends Component {
     })
   }
   openModifyModal(group) {
+    if (!group.receivers.email) {
+      group.receivers.email = []
+    }
+    if (!group.receivers.tel) {
+      group.receivers.tel = []
+    }
     this.setState({
       createGroup: false,
       modifyGroup: true,
