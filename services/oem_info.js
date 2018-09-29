@@ -16,6 +16,7 @@ const oem = apiFactory.getTenxSysSignSpi().oem
 const naviExpand = 'naviExpand'
 const naviShrink = 'naviShrink'
 const loginLogo = 'loginLogo'
+const emailLogo = 'emailLogo'
 const favoriteIcon = 'favoriteIcon'
 const root = global.__root__dirname
 const staticRefPath = '/static'
@@ -24,6 +25,7 @@ const staticFullPath = `${root}${staticRefPath}`
 exports.naviExpand = naviExpand
 exports.naviShrink = naviShrink
 exports.loginLogo = loginLogo
+exports.emailLogo = emailLogo
 exports.favoriteIcon = favoriteIcon
 
 const defaultMedias = {
@@ -31,6 +33,7 @@ const defaultMedias = {
   [naviExpand]: '/img/logo.png',
   [naviShrink]: '/img/sider/siderNewLogo.svg',
   [favoriteIcon]: '/favicon.ico',
+  [emailLogo]: '/img/logo.png',
 }
 
 const customDefaultInfo = {
@@ -46,6 +49,7 @@ const customDefaultMedias = {
   [naviExpand]: {type: "static-file"},
   [naviShrink]: {type: "static-file"},
   [favoriteIcon]: {type: "static-file"},
+  [emailLogo]: {type: "static-file"},
 }
 
 let customDefaultColor = {

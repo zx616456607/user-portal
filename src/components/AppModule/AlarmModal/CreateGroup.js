@@ -54,9 +54,7 @@ let CreateAlarmGroup = React.createClass({
       data,
       form,
     } = newProps
-    if (form.getFieldValue('keys') && form.getFieldValue('keys').length > 0) {
-      return
-    }
+
     if (isModify) {
       if (oldProps && oldProps.isModify === true) {
         return
@@ -73,8 +71,18 @@ let CreateAlarmGroup = React.createClass({
           [`emailStatus${mid}`]: email.status,
         })
       }
+      let phoneKeys = []
+      for (let phone of data.receivers.tel) {
+        phoneUuid++
+        phoneKeys.push(phoneUuid)
+        form.setFieldsValue({
+          [`phoneNum${phoneUuid}`]: phone.number,
+          [`phoneDesc${phoneUuid}`]: phone.desc,
+        })
+      }
       form.setFieldsValue({
-        keys
+        keys,
+        phoneKeys
       })
     }
   },
