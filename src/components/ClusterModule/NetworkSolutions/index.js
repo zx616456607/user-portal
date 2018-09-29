@@ -19,25 +19,6 @@ import { setCurrent } from '../../../actions/entities'
 import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
 import HelpModal from './HelpModal'
 
-const createOrder = `calicoctl create -f policy.yaml`
-const deleteOrder = `calicoctl delete policy failsafe`
-const yamlFile = `- apiVersion: v1
-  kind: policy
-  metadata:
-    name: failsafe
-  spec:
-    selector: "all()"
-    order: 0
-    ingress:
-    - action: allow
-      protocol: tcp
-      source:
-        net: "192.168.1.0/24"
-    - action: allow
-      protocol: udp
-      source:
-        net: "192.168.1.0/24"`
-
 class NetworkSolutions extends Component {
   constructor(props) {
     super(props)
