@@ -33,6 +33,8 @@ import { parseToFields } from './CreateTemplate/parseToFields';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
 import { getDeepValue } from '../../../util/util'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
 
 const notify = new NotificationHandler();
 
@@ -222,13 +224,21 @@ class TemplateList extends React.Component<any> {
             >
               <Icon className="operation" type="setting" />
             </Popover>
-            <img className="tempLogo" src={defaultApp}/>
-            <Tooltip title={temp.name}>
-              <div className="templateName">{temp.name}</div>
-            </Tooltip>
-            <Tooltip title={temp.versions[0].description} placement="top">
-              <div className="templateDesc textoverflow hintColor">{temp.versions[0].description}</div>
-            </Tooltip>
+            <div className="templateContent">
+              <img className="tempLogo" src={defaultApp}/>
+              <div className="nameAndDescBox">
+                <div className="templateName">
+                  <Ellipsis>
+                    <span>{temp.name}</span>
+                  </Ellipsis>
+                </div>
+                <div className="templateDesc hintColor">
+                  <Ellipsis lines={2}>
+                    <span>{temp.versions[0].description}</span>
+                  </Ellipsis>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="templateFooter">
             <div className="templateCreated">
@@ -243,7 +253,6 @@ class TemplateList extends React.Component<any> {
             <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
               <Button
                 className="deploy"
-                type="ghost"
                 disabled={this.chartRepoIsEmpty()}
                 onClick={() => this.handleDeploy(temp)}
               >
