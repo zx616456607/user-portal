@@ -1189,7 +1189,7 @@ class AppServiceDetailInfo extends Component {
         <Col span="5" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
         <Col span="5" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
-        <Col span="4" className='text_overfow'>{!item.readOnly ? formatMessage(AppServiceDetailIntl.readOnly) :
+        <Col span="4" className='text_overfow'>{item.readOnly ? formatMessage(AppServiceDetailIntl.readOnly) :
         formatMessage(AppServiceDetailIntl.readWrite) }</Col>
         { !(appCenterChoiceHidden || false) &&
         <Col span="5">

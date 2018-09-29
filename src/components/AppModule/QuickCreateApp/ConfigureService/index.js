@@ -448,7 +448,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -469,7 +470,8 @@ let ConfigureService = React.createClass({
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res=> {
@@ -477,7 +479,8 @@ let ConfigureService = React.createClass({
               callback(`${intl.formatMessage(IntlMessage.nameExisted,
                   { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT);
@@ -538,7 +541,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -909,9 +913,10 @@ const createFormOpts = {
     const newFields = Object.assign({}, fieldsBefore, fields)
     fieldsBefore = cloneDeep(newFields)
     clearTimeout(setFormFieldsTimeout)
-    setFormFieldsTimeout = setTimeout(() => {
+    // 改延迟会导致用户输入过快表单显示不准确 和 切换服务过快时校验报错 LOT-2785 LOT-2912
+    // setFormFieldsTimeout = setTimeout(() => {
       setFormFields(id, newFields)
-    }, lazySetFormFieldsTimeout)
+    // }, lazySetFormFieldsTimeout)
   }
 }
 
