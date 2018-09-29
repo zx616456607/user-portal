@@ -775,8 +775,7 @@ export function formatServiceToArrry(detail, templateArray) {
     if (!detail.dependencies) {
       return;
     }
-    const copyDetail = detail.dependencies[0];
-    formatServiceToArrry(copyDetail, templateArray);
+    templateArray.push(...detail.dependencies)
 }
 
 /**
