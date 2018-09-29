@@ -213,7 +213,7 @@ class ManageLabelModal extends Component {
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error(formatMessage(intlMsg.keyLength364)))
       return
     }
@@ -238,7 +238,7 @@ class ManageLabelModal extends Component {
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error(formatMessage(intlMsg.valueLength364)))
       return
     }
