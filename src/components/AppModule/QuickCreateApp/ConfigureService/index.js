@@ -448,7 +448,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -469,7 +470,8 @@ let ConfigureService = React.createClass({
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res=> {
@@ -477,7 +479,8 @@ let ConfigureService = React.createClass({
               callback(`${intl.formatMessage(IntlMessage.nameExisted,
                   { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT);
@@ -538,7 +541,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
