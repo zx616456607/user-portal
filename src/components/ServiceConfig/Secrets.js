@@ -13,6 +13,8 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin, Tooltip } from 'antd'
+import Title from '../Title'
+import { injectIntl } from 'react-intl'
 import {
   createSecret, getSecrets, removeSecrets, removeKeyFromSecret,
   addKeyIntoSecret, updateKeyIntoSecret,
@@ -30,6 +32,9 @@ import { isResourceQuotaError, isResourcePermissionError } from '../../common/to
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import './style/Secret.less'
 import './style/ServiceConfig.less'
+import filter from 'lodash/filter'
+import secretIntl from './intl/secretsIntl'
+import indexIntl from './intl/indexIntl'
 
 const notification = new NotificationHandler()
 
@@ -48,6 +53,7 @@ class ServiceSecretsConfig extends React.Component {
     configName: undefined,
     configtextarea: undefined,
     removeKeyModalVisible: false,
+    defaultData: {}
   }
 
   loadData = () => {
@@ -66,7 +72,8 @@ class ServiceSecretsConfig extends React.Component {
   setCheckedList = (checkedList, cb) => this.setState({ checkedList }, cb)
 
   createServiceGroup = values => {
-    const { createSecret, clusterID } = this.props
+    const { createSecret, clusterID, intl } = this.props
+    const { formatMessage } = intl
     const { name } = values
     this.setState({
       createServiceGroupModalConfrimLoading: true,
@@ -74,7 +81,7 @@ class ServiceSecretsConfig extends React.Component {
     createSecret(clusterID, name, {
       success: {
         func: () => {
-          notification.success('创建成功')
+          notification.success(formatMessage(secretIntl.createSecretGroupSucc))
           this.loadData()
           this.onCreateServiceGroupModalCancel()
         },
@@ -88,10 +95,10 @@ class ServiceSecretsConfig extends React.Component {
             return;
           }
           switch (err.message.code) {
-            case 403: errorText = '添加的配置过多'; break
-            case 409: errorText = `配置组 ${name} 已存在`; break
-            case 500: errorText = '网络异常'; break
-            default: errorText = '创建失败'
+            case 403: errorText = formatMessage(secretIntl.createSecretSucc1); break
+            case 409: errorText = formatMessage(secretIntl.createSecretSucc2, { name }); break
+            case 500: errorText = formatMessage(secretIntl.createSecretSucc3); break
+            default: errorText = formatMessage(secretIntl.createSecretSucc4)
           }
           notification.error(errorText)
         },
@@ -127,10 +134,10 @@ class ServiceSecretsConfig extends React.Component {
           checkedList: [],
         })
         return Modal.warning({
-          title: '删除配置组失败!',
+          title: formatMessage(secretIntl.delSecretGroupFailed),
           content: <div>
             {
-              onUseSecrets.map(secretName => <div>{secretName}：配置组正在使用中</div>)
+              onUseSecrets.map(secretName => <div>{secretName}{formatMessage(secretIntl.delSecretGroupFailedDesc)}</div>)
             }
           </div>,
         })
@@ -142,7 +149,7 @@ class ServiceSecretsConfig extends React.Component {
     removeSecrets(clusterID, checkedList, {
       success: {
         func: () => {
-          notification.success('删除成功')
+          notification.success(formatMessage(secretIntl.delSecretGroupSucc))
           this.loadData()
           this.setState({
             deleteServiceGroupModalVisible: false,
@@ -152,7 +159,7 @@ class ServiceSecretsConfig extends React.Component {
       },
       failed: {
         func: () => {
-          notification.error('删除失败')
+          notification.error(formatMessage(secretIntl.delSecretGroupFailed))
         },
         isAsync: true
       },
@@ -183,17 +190,14 @@ class ServiceSecretsConfig extends React.Component {
     })
   }
 
-  handleAddKeyIntoSecret = values => {
-    const { addKeyIntoSecret, clusterID } = this.props
+  handleAddKeyIntoSecret = body => {
+    const { addKeyIntoSecret, clusterID, intl } = this.props
+    const { formatMessage } = intl
     const { activeGroupName } = this.state
-    const body = {
-      key: values.configName,
-      value: values.configDesc,
-    }
     addKeyIntoSecret(clusterID, activeGroupName, body, {
       success: {
         func: () => {
-          notification.success('添加成功')
+          notification.success(formatMessage(secretIntl.createSecretSucc))
           this.loadData()
           this.setState({
             modalConfigFile: false,
@@ -219,7 +223,7 @@ class ServiceSecretsConfig extends React.Component {
             })
             return
           }
-          notification.error('添加失败')
+          notification.error(formatMessage(secretIntl.createSecretFailed))
         },
         isAsync: true
       },
@@ -232,21 +236,21 @@ class ServiceSecretsConfig extends React.Component {
       updateConfigFileModalVisible: true,
       activeGroupName: name,
       configName: key,
-      configtextarea: value,
+      configtextarea: typeof value === "string" ? value : value && value.data,
     })
   }
 
-  handleUpdateKeyIntoSecret = values => {
+  handleUpdateKeyIntoSecret = body => {
     const { updateKeyIntoSecret, clusterID } = this.props
     const { activeGroupName, configName } = this.state
-    const body = {
-      key: configName,
-      value: values.configDesc,
-    }
+    // const body = {
+    //   key: configName,
+    //   value: values.configDesc,
+    // }
     updateKeyIntoSecret(clusterID, activeGroupName, body, {
       success: {
         func: () => {
-          notification.success('更新成功')
+          notification.success(formatMessage(secretIntl.updateSecretFailed))
           this.loadData()
           this.setState({
             modalConfigFile: false,
@@ -259,7 +263,7 @@ class ServiceSecretsConfig extends React.Component {
       },
       failed: {
         func: () => {
-          notification.error('更新失败')
+          notification.error(formatMessage(secretIntl.updateSecretFailed))
         },
         isAsync: true
       },
@@ -267,7 +271,8 @@ class ServiceSecretsConfig extends React.Component {
   }
 
   handleRemoveKeyFromSecret = () => {
-    const { removeKeyFromSecret, clusterID, secretsOnUse } = this.props
+    const { removeKeyFromSecret, clusterID, secretsOnUse, intl } = this.props
+    const { formatMessage } = intl
     const { activeGroupName, configName } = this.state
     if (secretsOnUse[activeGroupName] && secretsOnUse[activeGroupName][configName].length > 0) {
       this.setState({
@@ -275,14 +280,14 @@ class ServiceSecretsConfig extends React.Component {
         removeKeyModalVisible: false,
       })
       return Modal.warning({
-        title: '移除加密对象失败!',
-        content: `${configName}：加密对象正在使用中`,
+        title: formatMessage(secretIntl.delSecretFailedTitle),
+        content: formatMessage(secretIntl.delSecretFailedContent),
       })
     }
     removeKeyFromSecret(clusterID, activeGroupName, configName, {
       success: {
         func: () => {
-          notification.success('移除成功')
+          notification.success(formatMessage(secretIntl.delSecretSucc))
           this.loadData()
           this.setState({
             modalConfigFile: false,
@@ -293,15 +298,20 @@ class ServiceSecretsConfig extends React.Component {
       },
       failed: {
         func: () => {
-          notification.error('移除失败')
+          notification.error(formatMessage(secretIntl.delSecretFailedTitle))
         },
         isAsync: true
       },
     })
   }
-
+  getDefaultData = data => {
+    const { activeGroupName } = this.state
+    const temp = filter(data, { name: activeGroupName })[0]
+    return temp && temp.data ? temp.data[this.state.configName] : {}
+  }
   render() {
-    const { secretsList, secretsOnUse } = this.props
+    const { secretsList, secretsOnUse, intl } = this.props
+    const { formatMessage } = intl
     const {
       checkedList,
       createServiceGroupModalVisible,
@@ -320,8 +330,10 @@ class ServiceSecretsConfig extends React.Component {
     if (searchInput) {
       data = data.filter(secret => secret.name.indexOf(searchInput) > -1)
     }
+    const defaultData = !!data ? this.getDefaultData(data) : {}
     return (
       <div className="service-secret-config" id="service-secret-config">
+      <Title title={formatMessage(secretIntl.headTitle)} />
       <ResourceBanner resourceType='secret'/>
         <div className="layout-content-btns">
           <Button
@@ -331,18 +343,19 @@ class ServiceSecretsConfig extends React.Component {
               document.getElementById('name').focus()
             })}
           >
-            <i className="fa fa-plus" /> 创建配置组
+            <i className="fa fa-plus" /> {formatMessage(indexIntl.create)}
           </Button>
           <Button
             size="large"
             disabled={checkedList.length === 0}
             onClick={() => this.setState({deleteServiceGroupModalVisible: true})}
           >
-            <i className="fa fa-trash-o" /> 删除
+            <i className="fa fa-trash-o" /> {formatMessage(secretIntl.deleteSecretGroup)}
           </Button>
           <CommonSearchInput
+            style={{marginLeft: '0'}}
             onSearch={value => { this.setState({ searchInput: value && value.trim()}) }}
-            placeholder="按配置组名称搜索"
+            placeholder={formatMessage(indexIntl.searchPlaceHolder)}
             size="large"
           />
         </div>
@@ -360,8 +373,8 @@ class ServiceSecretsConfig extends React.Component {
               <div>
                 {
                   searchInput
-                  ? '未找到相关配置组'
-                  : '您还没有配置组，创建一个吧！'
+                  ? formatMessage(secretIntl.searchFailedHint)
+                  : formatMessage(secretIntl.noSecretGroupHint)
                 }
                 &nbsp;
                 <Button
@@ -371,7 +384,7 @@ class ServiceSecretsConfig extends React.Component {
                     document.getElementById('name').focus()
                   })}
                 >
-                创建
+                {formatMessage(indexIntl.createGroup)}
                 </Button>
               </div>
             </div>
@@ -410,7 +423,7 @@ class ServiceSecretsConfig extends React.Component {
         />
         {/* 删除配置组-弹出层-*/}
         <Modal
-          title="删除配置组操作"
+          title={formatMessage(secretIntl.delSecretGroupModalTitle)}
           visible={deleteServiceGroupModalVisible}
           onOk={this.handleRemoveSecrets}
           onCancel={() => this.setState({ deleteServiceGroupModalVisible: false })}
@@ -418,40 +431,45 @@ class ServiceSecretsConfig extends React.Component {
         >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-            您是否确定要删除配置组 {checkedList.join('，')} ?
+            {formatMessage(secretIntl.delSecretGroupModalContent, { names: checkedList.join('，')})}
           </div>
         </Modal>
         {/* 添加加密对象-弹出层-*/}
         {
-          createConfigFileModalVisible && modalConfigFile &&
-          <CreateConfigFileModal
-            scope={this}
-            visible={modalConfigFile}
-            addKeyIntoSecret={this.handleAddKeyIntoSecret}
-            type="secrets"
-            data={data}
-            activeGroupName={activeGroupName}
-          />
+          createConfigFileModalVisible && modalConfigFile ?
+            <CreateConfigFileModal
+              scope={this}
+              visible={modalConfigFile}
+              addKeyIntoSecret={this.handleAddKeyIntoSecret}
+              type="secrets"
+              data={data}
+              activeGroupName={activeGroupName}
+            />
+            :
+            null
         }
         {/* 修改加密对象-弹出层-*/}
         {
-          updateConfigFileModalVisible && modalConfigFile &&
-          <UpdateConfigFileModal
-            scope={this}
-            modalConfigFile={modalConfigFile}
-            updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
-            type="secrets"
-          />
+          updateConfigFileModalVisible && modalConfigFile ?
+            <UpdateConfigFileModal
+              scope={this}
+              modalConfigFile={modalConfigFile}
+              updateKeyIntoSecret={this.handleUpdateKeyIntoSecret}
+              defaultData={defaultData}
+              type="secrets"
+            />
+            :
+            null
         }
         {/* 移除加密对象-弹出层-*/}
-        <Modal title="移除加密对象操作"
+        <Modal title={formatMessage(secretIntl.delSecretModalTitle)}
           visible={removeKeyModalVisible}
           onOk={this.handleRemoveKeyFromSecret}
           onCancel={() => this.setState({ removeKeyModalVisible: false })}
         >
           <div className="modalColor">
             <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>
-            您是否确定要移除加密对象 {this.state.configName}?
+             {formatMessage(secretIntl.delSecretModalContent, {names: this.state.configName})}
           </div>
         </Modal>
       </div>
@@ -557,4 +575,6 @@ export default connect(mapStateToProps, {
   addKeyIntoSecret,
   updateKeyIntoSecret,
   loadAppList,
-})(ServiceSecretsConfig)
+})(injectIntl(ServiceSecretsConfig, {
+  withRef: true,
+}))

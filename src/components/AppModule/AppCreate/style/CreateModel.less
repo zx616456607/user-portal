@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 #CreateModel {
   padding: 20px;
   .topBox {
@@ -64,21 +65,21 @@
       .disabled{
         background: #f7f7f7;
       }
-      .commonBox {
+      .commonBox, .disabled {
         .selectedIcon {
           opacity: 0;
         }
       }
       .commonBox:hover {
         cursor: pointer;
-        border: 2px solid #00a1ea;
+        border: 2px solid  @primary-color ;
         color:#00a1ea;
         use{
-          fill: #00a1ea !important;
+          fill: @primary-color  !important;
         }
       }
       .selectedBox{
-        border: 2px solid #00a1ea;
+        border: 2px solid @primary-color ;
         color:#00a1ea;
         position: relative;
         overflow: hidden;
@@ -90,7 +91,7 @@
           right: 0;
         }
         use{
-          fill: #00a1ea !important;
+          fill:  @primary-color  !important;
         }
         .commonSelectedImg{
           display: block;

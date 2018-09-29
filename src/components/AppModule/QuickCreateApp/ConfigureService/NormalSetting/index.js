@@ -35,6 +35,7 @@ import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
+import ContainerNetwork from '../../../../../../client/containers/AppModule/QuickCreateApp/ContainerNetwork'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
@@ -52,6 +53,7 @@ const Normal = React.createClass({
       memoryMin: RESOURCES_MEMORY_MIN,
       cpuMin: RESOURCES_CPU_MIN,
       allTag: [],
+      replicasIP: false,
     }
   },
   componentWillMount() {
@@ -572,6 +574,16 @@ const Normal = React.createClass({
     this.props.form.getFieldValue('replicasCheck')
       && Events.emit('changeReplics', v)
   },
+  handleReplicasCheck(e) {
+    if (e.target.checked) {
+      this.props.form.setFieldsValue({
+        replicas: 1
+      })
+    }
+    this.setState({
+      replicasIP: !this.state.replicasIP,
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -581,7 +593,7 @@ const Normal = React.createClass({
     } = this.props
     const { query } = location
     const { listNodes } = currentCluster
-    const { replicasInputDisabled, memoryMin, cpuMin } = this.state
+    const { replicasInputDisabled, memoryMin, cpuMin, replicasIP } = this.state
     const { getFieldProps, setFieldsValue, getFieldValue } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU, DIYMaxMemory, DIYMaxCPU, accessType } = fields || {}
@@ -590,7 +602,7 @@ const Normal = React.createClass({
         { required: true, message: intl.formatMessage(IntlMessage.replicaLengthLimit) },
         { validator: this.checkReplicas }
       ],
-      onChange: this.handleReplicas
+      // onChange: this.handleReplicas
     })
     const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
@@ -702,7 +714,7 @@ const Normal = React.createClass({
 
           </FormItem> */}
           <Row key="replicas">
-            <Col span={4} className="formItemLabel label"> 实例数量 </Col>
+            <Col span={4} className="formItemLabel label"> {intl.formatMessage(IntlMessage.instanceNum)} </Col>
             <Col span={3}>
               <FormItem className="replicasFormItem">
                 <InputNumber
@@ -710,7 +722,7 @@ const Normal = React.createClass({
                   min={1}
                   max={10}
                   {...replicasProps}
-                  disabled={replicasInputDisabled}
+                  disabled={replicasInputDisabled || replicasIP}
                 />
                 <div className="unit">{intl.formatMessage(IntlMessage.one)}</div>
               </FormItem>
@@ -722,10 +734,11 @@ const Normal = React.createClass({
                     ...getFieldProps('replicasCheck', {
                       initialValue: false,
                       valuePropName: 'checked',
+                      onChange: this.handleReplicasCheck,
                     })
                   }
                 >
-                  固定实例 IP
+                  {intl.formatMessage(IntlMessage.fixedInstanceIP)}
                 </Checkbox>
               </FormItem>
             </Col>
@@ -734,7 +747,7 @@ const Normal = React.createClass({
             getFieldValue('replicasCheck')
               ? <ReplicasRestrictIP
                   form={form}
-                  Events={Events}
+                  // Events={Events}
                 />
               : null
           }
@@ -757,6 +770,15 @@ const Normal = React.createClass({
               currentCluster={currentCluster}
               isTemplate={isTemplate}
               key="ports"
+            />
+          }
+          {// 应用模板暂不支持
+            !isTemplate &&
+            <ContainerNetwork
+              formItemLayout={formItemLayout}
+              form={form}
+              intl={intl}
+              key="containerNetwork"
             />
           }
           {/* // listNode   left IP   right class pod
@@ -809,15 +831,16 @@ function mapStateToProps(state, props) {
   }
 }
 
-const Events = {
-  fn: {},
-  on: function(ev, cb) {
-    this.fn[ev] = cb
-  },
-  emit: function(ev, params) {
-    this.fn[ev](params)
-  }
-}
+// 固定ip暂时仅支持一个
+// const Events = {
+//   fn: {},
+//   on: function(ev, cb) {
+//     this.fn[ev] = cb
+//   },
+//   emit: function(ev, params) {
+//     this.fn[ev](params)
+//   }
+// }
 
 export default connect(mapStateToProps, {
   getNodes,

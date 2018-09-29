@@ -11,7 +11,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import { Modal, Form, Input, Alert, Button, Row, Col, Icon } from 'antd'
+import { Modal, Form, Input, Alert, Button, Row, Col, Icon, Checkbox, Tooltip } from 'antd'
 import NotificationHandler from '../../../../../Notification'
 import './style/UpsertModal.less'
 import { DEFAULT_REGISTRY } from '../../../../../../constants'
@@ -37,8 +37,8 @@ const UpsertModal = React.createClass({
   componentWillMount() {
     const { mode, currentRow, form } = this.props
     if (mode === 'edit') {
-      const { name, endpoint, username, password } = currentRow
-      form.setFieldsValue({ name, endpoint, username, password })
+      const { name, endpoint, username, password, insecure } = currentRow
+      form.setFieldsValue({ name, endpoint, username, password, insecure: !insecure })
     }
   },
 
@@ -49,6 +49,8 @@ const UpsertModal = React.createClass({
       if (errors) {
         return
       }
+      values.type = 0
+      values.insecure = !values.insecure
       if (mode === 'edit') {
         const { isChanged, changedValues } = this.getChangedValues(values)
         if (!isChanged) {
@@ -134,8 +136,13 @@ const UpsertModal = React.createClass({
         { required: true, message: '请输入目标 URL' },
       ]
     })
-    const usernameProps = getFieldProps('username')
-    const passwordProps = getFieldProps('password')
+    const usernameProps = getFieldProps('username', {
+      rules: [{ required: true, message: '请输入用户名' }]
+    })
+    const passwordProps = getFieldProps('password', {
+      rules: [{ required: true, message: '请输入密码' }]
+    })
+    const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
     return (
       <Modal
         title={mode === 'create' ? '添加目标' : '编辑目标'}
@@ -191,7 +198,7 @@ const UpsertModal = React.createClass({
             {...formItemLayout}
             label="目标 URL"
           >
-            <Input {...endpointProps} placeholder="请输入目标 URL" disabled={disabled} />
+            <Input {...endpointProps} placeholder="请输入目标 URL，如： http(s)://192.168.1.232" disabled={disabled} />
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -213,6 +220,20 @@ const UpsertModal = React.createClass({
               onBlur={() => this.setState({ readOnly: true })}
               disabled={disabled}
             />
+          </FormItem>
+          <FormItem
+            {...formItemLayout}
+            label="验证远程证书"
+          >
+            <Checkbox
+              {...getFieldProps('insecure', {
+                valuePropName: 'checked',
+              })}
+            >
+              <Tooltip placement="top" title={text}>
+                <Icon type="info-circle-o" />
+              </Tooltip>
+            </Checkbox>
           </FormItem>
         </Form>
       </Modal>

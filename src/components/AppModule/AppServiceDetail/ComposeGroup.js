@@ -19,6 +19,7 @@ import SecretsConfig from './SecretsConfig'
 import "./style/ComposeGroup.less"
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import Editor from '../../../../client/components/EditorModule/index'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -82,7 +83,8 @@ let MyComponent = React.createClass({
           self.setState({
             modalConfigFile: true,
             configName: name,
-            configtextarea: (<pre>{result.data}</pre>)
+            configtextarea: typeof result.data === "object" ?
+                result.data.data : result.data
           })
           // Modal.confirm({
           //   title: '配置文件',
@@ -188,9 +190,13 @@ let MyComponent = React.createClass({
           <div className="configFile-wrap">
             <div className="ant-col-3 key">{formatMessage(ServiceCommonIntl.content)}:</div>
             <div className="ant-col-19">
-              <pre className="configFile-content">
-              {this.state.configtextarea}
-              </pre>
+              <Editor
+                title="配置文件内容"
+                options={{
+                  readOnly: true
+                }}
+                style={{ minHeight: '260px' }}
+                value={this.state.configtextarea}/>
             </div>
           </div>
           <br />

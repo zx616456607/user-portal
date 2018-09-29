@@ -353,6 +353,7 @@ exports.addManagedProject = function* () {
       }
       break;
     case "svn":
+      body.address = encodeURI(body.address)
       if (body.is_private == 1) {
         if (!body.username || !body.password) {
           const err = new Error("username and password for private SVN repository are required")
@@ -1209,5 +1210,194 @@ exports.getResourceDevopsquotaSet = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(['resourcequota'], null)
+  this.body = result
+}
+
+exports.getConfigMaps = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster_id
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["configmaps", "clusters", clusterId], null)
+  this.body = result
+}
+
+exports.getGitProjectsBranches = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const project_id = this.params.project_id
+  const result = yield api.getBy(["repos", "managed-projects", project_id, "branches_tags"], null)
+  this.body = result
+}
+
+exports.getGitProjectsFileContent = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const project_id = this.params.project_id
+  const branch_name = this.params.branch_name
+  const path_name = this.params.path_name
+  const result = yield api.getBy(["projects", project_id, "branchs", branch_name, "path", path_name, "files"], null)
+  this.body = result
+}
+
+// exports.getGitProjectsFileContent = function* () {
+//   const loginUser = this.session.loginUser
+//   const api = apiFactory.getDevOpsApi(loginUser)
+//   const project_id = this.params.project_id
+//   const branch_name = this.params.branch_name
+//   const path_name = this.query.path_name
+//   const result = yield api.getBy(["projects", project_id, "branchs", branch_name, "files"], { path_name })
+//   this.body = result
+// }
+
+exports.createConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+
+  const configinfo = this.request.body
+  const result = yield api.createBy(["configmaps", configmap_name, "clusters", cluster_id, "configs"], null, configinfo)
+  this.body = result
+}
+
+exports.setConfigLabels = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+
+  const configinfo = this.request.body
+  const result = yield api.updateBy(["configmaps", configmap_name, "clusters", cluster_id], null, configinfo)
+  this.body = result
+}
+
+exports.getConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+  const result = yield api.getBy(["configmaps", configmap_name, "clusters", cluster_id, "configs", config_name], null)
+  this.body = result
+}
+
+exports.delConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+
+  const result = yield api.deleteBy(["configmaps", configmap_name, "clusters", cluster_id, "configs", config_name], null)
+  this.body = result
+}
+
+exports.updateConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+
+  const configinfo = this.request.body
+  const result = yield api.updateBy(["configmaps", configmap_name, "clusters", cluster_id, "configs", config_name], null, configinfo)
+  this.body = result
+}
+
+exports.delConfigMap = function* () {
+  const loginUser = this.session.loginUser
+  const configmap_name = this.params.configmap_name
+  const cluster_id = this.params.cluster_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["configmaps", configmap_name, "clusters", cluster_id], null)
+
+  this.body = result
+}
+
+exports.createConfigMaps = function* () {
+  const loginUser = this.session.loginUser
+  const cluster_id = this.params.cluster_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["configmaps", "clusters", cluster_id], null, body)
+
+  this.body = result
+}
+
+
+
+exports.getSecrets = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.cluster_id
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["secrets", "clusters", clusterId], null)
+  this.body = result
+}
+
+exports.createSecrets = function* () {
+  const loginUser = this.session.loginUser
+  const cluster_id = this.params.cluster_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["secrets", "clusters", cluster_id], null, body)
+
+  this.body = result
+}
+
+exports.delSecret = function* () {
+  const loginUser = this.session.loginUser
+  const secret_name = this.params.secret_name
+  const cluster_id = this.params.cluster_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["secrets", secret_name, "clusters", cluster_id], null)
+
+  this.body = result
+}
+
+exports.createSecretsConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const secret_name = this.params.secret_name
+  const cluster_id = this.params.cluster_id
+
+  const configinfo = this.request.body
+  const result = yield api.createBy(["secrets", secret_name, "clusters", cluster_id, "configs"], null, configinfo)
+  this.body = result
+}
+
+exports.getSecretsConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const secret_name = this.params.secret_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+  const result = yield api.getBy(["secrets", secret_name, "clusters", cluster_id, "configs", config_name], null)
+  this.body = result
+}
+
+exports.delSecretsConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const secret_name = this.params.secret_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+
+  const result = yield api.deleteBy(["secrets", secret_name, "clusters", cluster_id, "configs", config_name], null)
+  this.body = result
+}
+
+exports.updateSecretsConfig = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const secret_name = this.params.secret_name
+  const cluster_id = this.params.cluster_id
+  const config_name = this.params.config_name
+
+  const configinfo = this.request.body
+  const result = yield api.updateBy(["secrets", secret_name, "clusters", cluster_id, "configs", config_name], null, configinfo)
   this.body = result
 }

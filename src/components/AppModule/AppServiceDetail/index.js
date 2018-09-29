@@ -48,6 +48,8 @@ import { getServiceStatus } from '../../../common/status_identify'
 import ServiceMeshSwitch from './ServiceMeshSwitch'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
+import TenxTab from './FilterTabs';
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -93,7 +95,7 @@ class AppServiceDetail extends Component {
       })
     })
   }
-  loadData(nextProps) {
+  loadData = (nextProps) => {
     const self = this
     const {
       cluster,
@@ -127,7 +129,10 @@ class AppServiceDetail extends Component {
         isAsync: true
       }
     })
-    loadServiceContainerList(cluster, serviceName, {projectName}, {
+    // bpm 需要根据一个参数, 请求一个带query的容器列表接口
+    const appCenterChoiceHidden = this.props.bpmShow
+    const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
+    loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -139,11 +144,11 @@ class AppServiceDetail extends Component {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
-            loadServiceContainerList(cluster, serviceName, query)
+            loadServiceContainerList(cluster, serviceName, query, bpmQuery)
           }, LOAD_STATUS_TIMEOUT)
           // Reload list each UPDATE_INTERVAL
           self.upStatusInterval = setInterval(() => {
-            loadServiceContainerList(cluster, serviceName, query)
+            loadServiceContainerList(cluster, serviceName, query, bpmQuery)
           }, UPDATE_INTERVAL)
         },
         isAsync: true
@@ -313,7 +318,6 @@ class AppServiceDetail extends Component {
       bindingPort,
       https,
     }
-
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
@@ -407,7 +411,7 @@ class AppServiceDetail extends Component {
             <div className='rightBox'>
               {
                 containerShow.length > 1 ?
-                  <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
+                  <Popover content={containerShow} title={formatMessage(AppServiceDetailIntl.selectInstance)} trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                     <Button className='loginBtn' type='primary' size='large'>
                       <TenxIcon type="terminal"/>
                       <span>{formatMessage(AppServiceDetailIntl.loginTerminal)}</span>
@@ -427,10 +431,12 @@ class AppServiceDetail extends Component {
         </div>
         <div className='bottomBox'>
           <div className='siderBox'>
-            <Tabs
+            <TenxTab
               tabPosition='left'
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
+              bpmShow = {this.props.bpmShow}
+              filterKey = {['#containers', '#basic', '#monitor', '#logs', '#events', '#ports' ]}
               >
               <TabPane tab={formatMessage(AppServiceDetailIntl.containerObject)} key='#containers'>
                 <ContainerList
@@ -440,6 +446,7 @@ class AppServiceDetail extends Component {
                   containerList={containers}
                   loading={isContainersFetching}
                   onTabClick={this.onTabClick}
+                  loadServiceContainerList={this.props.loadServiceContainerList}
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.basicsMessage)} key='#basic'>
@@ -458,9 +465,10 @@ class AppServiceDetail extends Component {
                   name={this.props.name}
                 />
               </TabPane>
-              <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch">
-                <ServiceMeshSwitch serviceName={service.metadata.name}
-                istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
+              <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"
+              className='zhangtao'>
+              <ServiceMeshSwitch serviceName={service.metadata.name}
+                  istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.assistSet)} key='#setting'>
                 <AppServiceAssistSetting
@@ -573,6 +581,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceDetail={serviceDetail}
+                  bpmShow = {this.props.bpmShow}
                 relative/>
               </TabPane>
               {billingEnabled ?
@@ -600,7 +609,7 @@ class AppServiceDetail extends Component {
                   serviceName={this.props.serviceName}
                 relative/>
               </TabPane>
-            </Tabs>
+            </TenxTab>
           </div>
           <div className='contentBox'>
           </div>

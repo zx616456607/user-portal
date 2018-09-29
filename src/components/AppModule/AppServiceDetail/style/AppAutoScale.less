@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .ant-tabs-tabpane{
   #AppAutoScale {
     padding-bottom: 40px;
@@ -15,6 +16,7 @@
         font-size: 14px;
         font-weight: bold;
         margin-right: 10px;
+        overflow: hidden;
       }
     }
     .ant-tabs{
@@ -42,8 +44,8 @@
       .ant-tabs-tab-active{
         background: #f9f9f9;
         transform: translateZ(0);
-        border-color: #2db7f5;
-        color: #2db7f5;
+        border-color:  @primary-color;
+        color:  @primary-color;
       }
     }
     .autoScaleForm{

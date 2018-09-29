@@ -44,21 +44,19 @@ global.globalConfig = {
   ftpConfig: {},
   billingConfig: {},
   chartRepoConfig: {},
-  aiopsConfig: {
-    protocol: 'http',
-    host: '192.168.1.59:61088',
-    version: 'v3',
-  },
+  aiopsConfig: {},
+  loadbalanceConfig: {},
 }
 
 const apiFactory = require('./api_factory.js')
 
 exports.initGlobalConfig = function* () {
+  const method = 'initGlobalConfig'
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
   if (!configs) {
-    logger.error('未找到可用配置信息')
+    logger.error(method, '未找到可用配置信息')
     return
   }
   let globalConfig = global.globalConfig
@@ -66,7 +64,13 @@ exports.initGlobalConfig = function* () {
   globalConfig.storageConfig = []
   configs.forEach(item => {
     const configType = item.ConfigType
-    let configDetail = JSON.parse(item.ConfigDetail)
+    let configDetail
+    try {
+      configDetail = JSON.parse(item.ConfigDetail)
+    } catch (error) {
+      logger.error(method, 'parse configDetail failed')
+      configDetail = {}
+    }
     if (configType == 'mail' && configDetail.mailServer) {
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
@@ -163,6 +167,17 @@ exports.initGlobalConfig = function* () {
       globalConfig.billingConfig.enabled = configDetail.enabled
       globalConfig.billingConfig.configID = item.ConfigID
     }
+    if (configType === 'ai') {
+      globalConfig.aiopsConfig.protocol = configDetail.protocol
+      globalConfig.aiopsConfig.host = configDetail.host
+      globalConfig.aiopsConfig.apiVersion = configDetail.apiVersion
+      return
+    }
+    if (configType === 'loadbalance') {
+      globalConfig.loadbalanceConfig.enabled = configDetail.enabled
+      globalConfig.loadbalanceConfig.configID = item.ConfigID
+      return
+    }
   })
   if (ConfigArray.Mail!=='NotEmpty'){
       globalConfig.mail_server={
@@ -183,4 +198,5 @@ exports.initGlobalConfig = function* () {
   logger.info('msa config: ', globalConfig.msaConfig.url)
   logger.info('ftp config: ', globalConfig.ftpConfig.addr)
   logger.info('billing config: ', globalConfig.billingConfig.enabled)
+  logger.info('loadbalance config: ', globalConfig.loadbalanceConfig.enabled)
 }

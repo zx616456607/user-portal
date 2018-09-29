@@ -76,6 +76,7 @@ export const mapData = {
     detail: '详情',
     monitor: '监控',
     alarmStrategy: '告警策略',
+    lastHeartbeatTime: '上次心跳时间：',
   }
 }
 

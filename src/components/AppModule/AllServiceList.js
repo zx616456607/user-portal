@@ -390,12 +390,14 @@ const MyComponent =  injectIntl(React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipAddrs'])
+      const ipv4 = item.spec.template
+        && item.spec.template.metadata.annotations
+        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
+        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
         || null
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu">
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {
             item.status.phase == "Stopped"
             ? <Menu.Item key="start">
@@ -444,7 +446,7 @@ const MyComponent =  injectIntl(React.createClass({
           </Menu.Item>
           <SubMenu title={formatMessage(AllServiceListIntl.extend)} >
             <Menu.Item key="manualScale" style={{width:'102px'}} disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
-            {formatMessage(AllServiceListIntl.standardExtend)}
+              {formatMessage(AllServiceListIntl.standardExtend)}
             </Menu.Item>
             <Menu.Item key="autoScale" disabled={isRollingUpdate || isDisabled} title={isRollingUpdate && formatMessage(AllServiceListIntl.pleaseAfterRollOperation) || ''}>
             {formatMessage(AllServiceListIntl.autoScale)}
@@ -703,7 +705,8 @@ class ServiceList extends Component {
       alarmStrategy: true,
       grayscaleUpgradeModalVisible: false,
       showPlaceholder: this.props.intl.formatMessage(AllServiceListIntl.serviceNameSearch),
-      showInpVal: ''
+      showInpVal: '',
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
     }
   }
   getInitialState() {
@@ -858,6 +861,7 @@ class ServiceList extends Component {
   handleStartServiceOk() {
     const self = this
     const { cluster, startServices, serviceList, intl } = this.props
+    const { formatMessage } = intl
     let stoppedService = []
     const checkedServiceList = serviceList.filter((service) => service.checked)
     checkedServiceList.map((service, index) => {
@@ -922,6 +926,7 @@ class ServiceList extends Component {
   handleStopServiceOk() {
     const self = this
     const { cluster, stopServices, serviceList, intl } = this.props
+    const { formatMessage } = intl
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
@@ -998,6 +1003,7 @@ class ServiceList extends Component {
   handleRestarServiceOk() {
     const self = this
     const { cluster, restartServices, serviceList, intl, removeTerminal, terminalList } = this.props
+    const { formatMessage } = intl
     let servicesList = serviceList
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
@@ -1078,6 +1084,7 @@ class ServiceList extends Component {
   handleQuickRestarServiceOk() {
     const self = this
     const { cluster, quickRestartServices, serviceList, intl, removeTerminal, terminalList } = this.props
+    const { formatMessage } = intl
     const checkedServiceList = serviceList.filter((service) => service.checked)
     if(terminalList.length){
       const deleteList = cloneDeep(checkedServiceList)
@@ -1280,7 +1287,12 @@ class ServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
   searchServices() {
@@ -1381,6 +1393,7 @@ class ServiceList extends Component {
   }
   selectSearchType() {
     const {showPlaceholder} = this.state
+    const {formatMessage} = this.props.intl
     const serviceNameSearch = formatMessage(AllServiceListIntl.serviceNameSearch)
     const serviceTagButtonSearch = formatMessage(AllServiceListIntl.serviceTagButtonSearch)
     switch (showPlaceholder) {
@@ -1405,11 +1418,12 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn,
       redeploybtn,
       grayscaleUpgradeModalVisible,
-      showPlaceholder
+      showPlaceholder,
+      documentTitle,
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices, loginUser, SettingListfromserviceorapp
+      loadAllServices, loginUser, SettingListfromserviceorapp,
     } = this.props
     let appName = ''
     if (this.state.currentShowInstance) {
@@ -1454,7 +1468,7 @@ class ServiceList extends Component {
     );
     return (
       <div id="AppServiceList">
-        <Title title={formatMessage(AllServiceListIntl.documentTitle)} />
+        <Title title={documentTitle} />
         <ResourceBanner resourceType='service'/>
         <QueueAnim className="demo-content">
           <div key='animateBox'>

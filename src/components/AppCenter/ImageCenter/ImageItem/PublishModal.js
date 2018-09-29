@@ -129,14 +129,16 @@ class PublishModal extends React.Component {
     clearTimeout(this.nickNameTimeout)
     clearTimeout(this.imageNameTimeout)
   }
-  checkImageName(rule, value, callback) {
+  checkImageName = (rule, value, callback) => {
     const { imageNameExists, form } = this.props
     const { formatMessage } = this.props.intl
     const tag = form.getFieldValue('tagsName')
+    const targetCluster = form.getFieldValue('targetCluster')
     if (!tag) return callback()
     this.imageNameTimeout = setTimeout(()=>{
       const body = {
-        image: `${value}:${tag}`
+        image: `${value}:${tag}`,
+        target_cluster: targetCluster,
       }
       imageNameExists(body, {
         success: {
@@ -157,15 +159,17 @@ class PublishModal extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
-  checkSelectName(rule, value, callback) {
+  checkSelectName = (rule, value, callback) => {
     const { imageNameExists, form } = this.props
     const { formatMessage } = this.props.intl
     const name = form.getFieldValue('select_version')
+    const targetCluster = form.getFieldValue('targetCluster')
     if (!name) return callback()
     clearTimeout(this.selectNameTimeout)
     this.selectNameTimeout = setTimeout(()=>{
       const body = {
-        image: `${value}:${name}`
+        image: `${value}:${name}`,
+        target_cluster: targetCluster,
       }
       imageNameExists(body, {
         success: {
@@ -192,7 +196,7 @@ class PublishModal extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
-  fileNickProps(rule, value, callback) {
+  fileNickProps = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     const { checkAppNameExists } = this.props
     let newValue = value && value.trim()
@@ -223,38 +227,42 @@ class PublishModal extends React.Component {
       })
     },ASYNC_VALIDATOR_TIMEOUT)
   }
-  checkTags(rule, value, callback) {
+  checkTags = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.selectVersionOfImage))
     }
     callback()
   }
-  checkSelectVersion(rule, value, callback) {
+  checkSelectVersion = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.selectVersion))
     }
     callback()
   }
-  checkTargetStore(rule, value, callback) {
+  checkTargetStore = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.selectTargetRepoGroup))
     }
     callback()
   }
-  checkClassify(rule, value, callback) {
+  checkClassify = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if(!value || value.length===0) {
       return callback(formatMessage(publishModalIntl.selectOrInputClass))
+    }
+    const flag = value.some(item => !!item)
+    if (!flag) {
+      return callback(formatMessage(publishModalIntl.classifyNameNotEmpty))
     }
     if(value.length > 1) {
       return callback(formatMessage(publishModalIntl.onlyOneClass))
     }
     callback()
   }
-  checkDesc(rule, value, callback) {
+  checkDesc = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if(!value) {
       return callback(formatMessage(publishModalIntl.descriptionRequired))
@@ -264,7 +272,7 @@ class PublishModal extends React.Component {
     }
     callback()
   }
-  checkInfo(rule, value, callback) {
+  checkInfo = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.submitInfoRequired))
@@ -274,7 +282,7 @@ class PublishModal extends React.Component {
     }
     callback()
   }
-  checkTargetCluster(rule, value, callback) {
+  checkTargetCluster = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.targetClusterRequired))
@@ -316,6 +324,7 @@ class PublishModal extends React.Component {
           type: 2,
           resource: imageID,
           targetCluster,
+          targetProjectID: currentImage.projectId,
         }
         if (pkgIcon) {
           Object.assign(body, { icon_id: Number(pkgIcon.split('?')[0]) })
@@ -329,6 +338,7 @@ class PublishModal extends React.Component {
           type: 2,
           resource: imageID,
           targetCluster,
+          targetProjectID: currentImage.projectId,
         }
       }
       notify.close()
@@ -379,7 +389,7 @@ class PublishModal extends React.Component {
     })
     callback()
   }
-  renderFooter() {
+  renderFooter = () => {
     const { loading } = this.state
     const { formatMessage } = this.props.intl
     return[
@@ -392,7 +402,7 @@ class PublishModal extends React.Component {
       successModal: false
     })
   }
-  getConfigInfo(tag) {
+  getConfigInfo = (tag) => {
     const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
     const { formatMessage } = this.props.intl
@@ -415,7 +425,7 @@ class PublishModal extends React.Component {
     })
   }
 
-  handleSelectVersionContent(val) {
+  handleSelectVersionContent = (val) => {
     const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
     let notify = new NotificationHandler()
     const { formatMessage } = this.props.intl
@@ -437,7 +447,7 @@ class PublishModal extends React.Component {
       },
     })
   }
-  handleSelectcheckTargetStore(val) {
+  handleSelectcheckTargetStore = (val) => {
     const { formatMessage } = this.props.intl
     const { getImageStatus, currentImage, imgTag, server, harbor, form } = this.props
     const tagArr = []
@@ -460,7 +470,7 @@ class PublishModal extends React.Component {
       }
     })
   }
-  handleChangePublishRadio(e) {
+  handleChangePublishRadio = (e) => {
     const radioVal = e.target.value
     const getFieldValue = this.props.form.getFieldValue
     this.setState({
@@ -704,9 +714,12 @@ class PublishModal extends React.Component {
     const currSelCluster = getFieldValue("targetCluster")
 
     const targetStoreChildren = []
+    const currStore = currentImage && currentImage.name && currentImage.name.split("/")[0] || ""
     !!currSelCluster && privateData && privateData.length && privateData.length >0 && privateData.map( (item,index)=>{
       // todo 根据集群筛选
-      targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
+      if(item.name !== currStore){
+        targetStoreChildren.push( <Option key={item.name + item.index} value={item.name} >{item.name}</Option> )
+      }
     })
     const clusterOptions = clusters.map((item, index) =>
       <Option key={index} value={item.clusterID} >{item.clusterName}</Option>

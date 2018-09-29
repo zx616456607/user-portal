@@ -49,6 +49,7 @@ class LoadBalance extends React.Component {
         delete targetOptions.displayName
         targetOptions.monitorName = sourceOptons.displayName
         targetOptions.healthOptions = sourceOptons.healthCheck
+        targetOptions.sessionPersistent = parseInt(targetOptions.sessionPersistent, 10)
         this.setState({
           [`config-${key}`]: targetOptions
         })
@@ -474,8 +475,9 @@ class LoadBalance extends React.Component {
       ]
     })
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'outside'
+      initialValue: 'inside'
     })
+    const agentType = getFieldValue('agentType')
     return (
       <Row className="serviceCreateLb">
         {
@@ -508,7 +510,7 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
+              <Radio value="inside">{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
               <Radio value="outside">{intl.formatMessage(IntlMessage.outerClusterLB)}</Radio>
             </RadioGroup>
           </FormItem>
@@ -524,7 +526,9 @@ class LoadBalance extends React.Component {
                   {...lbSelectProps}
                 >
                   {
-                    (loadBalanceList || []).map(item =>
+                    (loadBalanceList || [])
+                      .filter(item => item.metadata.labels.agentType === agentType)
+                      .map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
                     )
                   }
@@ -540,13 +544,13 @@ class LoadBalance extends React.Component {
             </Col>
           </Row>
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('TCP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('TCP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('UDP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('UDP')
           }
           {
-            !templateDeploy && getFieldValue('loadBalance') && this.renderIngressWrapper('HTTP')
+            (!templateDeploy || getFieldValue('loadBalance')) && this.renderIngressWrapper('HTTP')
           }
         </Col>
       </Row>

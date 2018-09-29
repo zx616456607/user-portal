@@ -12,7 +12,7 @@
 
 import React, { PropTypes } from 'react'
 import {
-  Form, Collapse, Row, Col, Radio, Input, InputNumber,
+  Form, Collapse, Row, Col, Radio, Input, InputNumber, Tooltip, Icon
 } from 'antd'
 import './style/LivenessSetting.less'
 
@@ -29,6 +29,16 @@ const LivenessSetting = React.createClass({
         document.getElementById('livenessPort').focus()
       },300)
     }
+  },
+  checkPath(rule, value, cb) {
+    if (!value) {
+      return cb()
+    }
+    const reg = /^(\/)/
+    if (!reg.test(value)) {
+      return cb('路径必须以 / 开头')
+    }
+    cb()
   },
   render() {
     const { formItemLayout, form, intl } = this.props
@@ -99,11 +109,25 @@ const LivenessSetting = React.createClass({
                 item: intl.formatMessage(IntlMessage.path),
                 end: '',
               })
+            }, {
+              validator: this.checkPath,
             }
           ],
         })
       }
     }
+    const successThresholdProps = getFieldProps('successThreshold', {
+      initialValue: 1,
+      rules: [
+        { required: true, message: '请输入健康阀值'}
+      ]
+    })
+    const failureThresholdProps = getFieldProps('failureThreshold', {
+      initialValue: 3,
+      rules: [
+        { required: true, message: '请输入不健康阀值'}
+      ]
+    })
     const header = (
       <div className="headerBox">
         <Row className="configBoxHeader" key="header">
@@ -117,6 +141,8 @@ const LivenessSetting = React.createClass({
         </Row>
       </div>
     )
+    const sucText = 'successThreshold 探测失败后，再次探测成功最少连续如下次数认为健康（默认为 1，活跃度必须为 1 且最小值为 1）'
+    const failText = 'failureThreshold 探测失败阈值，失败如下次数，将认为不健康（默认为 3，最小值为1） '
     return (
       <div id="livenessConfigureService">
         <Collapse>
@@ -211,25 +237,61 @@ const LivenessSetting = React.createClass({
                           </FormItem>
                         </Col>
                       </Row>
-                      {
-                        livenessPathProps && [
-                          <Row className="configHeader" key="configHeader">
-                            <Col span={6}>
-                              {intl.formatMessage(IntlMessage.path)}
-                            </Col>
-                          </Row>,
-                          <Row className="configBody" key="configBody">
-                            <Col span={6}>
-                              <FormItem>
-                                <Input
-                                  size="default"
-                                  {...livenessPathProps}
-                                />
-                              </FormItem>
-                            </Col>
-                          </Row>
-                        ]
-                      }
+                      <Row className="configHeader" key="configHeader">
+                        {
+                          livenessPathProps && <Col span={12}>
+                            {intl.formatMessage(IntlMessage.path)}
+                          </Col>
+                        }
+                        <Col span={6}>
+                          健康阀值
+                          <Tooltip placement="top" title={sucText}>
+                            <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                          </Tooltip>
+                        </Col>
+                        <Col span={6}>
+                          不健康阀值
+                          <Tooltip placement="top" title={failText}>
+                            <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                          </Tooltip>
+                        </Col>
+                      </Row>
+                      <Row className="configBody" key="configBody">
+                        {
+                          livenessPathProps && <Col span={12}>
+                            <FormItem>
+                              <Input
+                                size="default"
+                                {...livenessPathProps}
+                              />
+                            </FormItem>
+                          </Col>
+                        }
+                        <Col span={6}>
+                          <FormItem>
+                            <InputNumber
+                              size="default"
+                              {...successThresholdProps}
+                              min={1}
+                            />
+                            <span className="livenessUnit">
+                              次成功
+                            </span>
+                          </FormItem>
+                        </Col>
+                        <Col span={6}>
+                          <FormItem>
+                            <InputNumber
+                              size="default"
+                              {...failureThresholdProps}
+                              min={1}
+                            />
+                            <span className="livenessUnit">
+                              次失败
+                            </span>
+                          </FormItem>
+                        </Col>
+                      </Row>
                     </div>
                   </Col>
                 </Row>

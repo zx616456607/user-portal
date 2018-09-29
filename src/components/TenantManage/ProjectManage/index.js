@@ -942,12 +942,15 @@ let ProjectManage = React.createClass({
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
+              <div style={{width: "280px"}}>
+                <span>删除后该项目的资源也将被清理，此操作不能恢复。</span>
+                <span>{`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}</span>
+              </div>
             </div>
-            <div className="themeColor" style={{marginBottom: '15px'}}>
+            {/*<div className="themeColor" style={{marginBottom: '15px'}}>
               <i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}/>
               {`您是否确定要删除项目${deleteSinglePro && deleteSinglePro[0] && deleteSinglePro[0].projectName}？`}
-            </div>
+            </div>*/}
             <Checkbox checked={deleteSingleChecked} onChange={() => {
               this.setState({deleteSingleChecked: !deleteSingleChecked})
             }}>选中此框以确认您要删除此项目。</Checkbox>
@@ -1019,7 +1022,7 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              (roleNum == 1 || roleNum == 2)&&
+              // (roleNum == 1 || roleNum == 2)&&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>
@@ -1108,6 +1111,7 @@ let ProjectManage = React.createClass({
           onOk={this.createModalOk}
           onCancel={this.createModalCancel}
           onClose={this.createModalCancel}
+          roleNum={roleNum}
         />
       </QueueAnim>
     )
@@ -1120,7 +1124,7 @@ function mapStateToProps(state, props) {
   const { enabled: billingEnabled } = billingConfig
   let roleCode = role
   let roleNum = 0
-  if (role === ROLE_SYS_ADMIN || ROLE_PLATFORM_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) {
     roleNum = 1
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {

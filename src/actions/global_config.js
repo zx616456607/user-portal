@@ -133,3 +133,22 @@ export function sendEmailVerification(body, callback) {
     callback
   }
 }
+
+export const VERIFY_MSG_REQUEST = 'VERIFY_MSG_REQUEST'
+export const VERIFY_MSG_SUCCESS = 'VERIFY_MSG_SUCCESS'
+export const VERIFY_MSG_FAILURE = 'VERIFY_MSG_FAILURE'
+
+export function validateMsgConfig(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [VERIFY_MSG_REQUEST, VERIFY_MSG_SUCCESS, VERIFY_MSG_FAILURE],
+      schema: {},
+      endpoint: `${API_URL_PREFIX}/configs/message/isvalidconfig`,
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}

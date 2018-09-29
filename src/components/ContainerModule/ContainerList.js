@@ -408,6 +408,8 @@ let MyComponent = React.createClass({
       );
       const images = this.getImages(item)
       const status = item.status || {};
+      const annotations = item.metadata.annotations || {}
+      const isLock = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -441,6 +443,13 @@ let MyComponent = React.createClass({
             <Tooltip placement='topLeft' title={images}>
               <span>{images}</span>
             </Tooltip>
+            {
+              isLock ?
+                <Tooltip placement='top' title={'固定实例 IP，保持 IP 不变'}>
+                  <Icon type="lock" style={{ marginLeft: 3 }}/>
+                </Tooltip>
+                : null
+            }
           </div>
           <div className='visitIp commonData'>
             <Tooltip placement='topLeft' title={status.podIP}>
@@ -943,7 +952,7 @@ class ContainerList extends Component {
               {
                 this.state.checkedContainerList.length === 1
                 ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
-                : formatMessage(ContainerListIntl.thisNumContainer)
+                : formatMessage(ContainerListIntl.thisNumContainer, {length : this.state.checkedContainerList.length})
               }
            </div>
           </Modal>
@@ -960,7 +969,7 @@ class ContainerList extends Component {
               {
                 this.state.checkedContainerList.length === 1
                   ? formatMessage(ContainerListIntl.containerName, { name:this.state.checkedContainerList[0].metadata.name  })
-                  : formatMessage(ContainerListIntl.thisNumContainer)
+                  : formatMessage(ContainerListIntl.thisNumContainer, {length : this.state.checkedContainerList.length})
               }
             </div>
           </Modal>

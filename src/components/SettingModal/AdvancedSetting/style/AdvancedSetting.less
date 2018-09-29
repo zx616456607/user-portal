@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 #AdvancedSetting{
   overflow: hidden;
   padding-bottom: 20px;
@@ -5,7 +6,7 @@
     height: 16px;
     line-height: 16px;
     font-size: 16px;
-    border-left: 5px solid #46b2fa;
+    border-left: 5px solid @primary-color;
     padding-left: 9px;
     margin-bottom: 20px;
   }
@@ -15,6 +16,13 @@
   }
   .content{
     background: #eceff4;
+    .switch-item {
+      width: 200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
     .switchLabel {
       display: inline-block;
       font-size: 14px;
@@ -128,3 +136,4 @@
     color:#00A0E9;
   }
 }
+

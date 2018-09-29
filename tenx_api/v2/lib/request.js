@@ -64,7 +64,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     }
 
     logger.info(`<-- [${options.method || 'GET'}] ${url}`)
-    logger.info(`--> [options]`, options)
+    logger.debug(`--> [options]`, options)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {

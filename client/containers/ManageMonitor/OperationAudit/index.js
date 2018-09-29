@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Select, Button, Table, DatePicker, Row, Col, Cascader, Pagination } from 'antd'
+import { Select, Button, Table, DatePicker, Row, Col, Cascader, Pagination, Tooltip } from 'antd'
 import { injectIntl } from 'react-intl'
 import * as manageMonitorActions from '../../../../src/actions/manage_monitor'
 import { formatDate } from '../../../../src/common/tools.js'
@@ -187,6 +187,9 @@ const formatResourceName = (resourceName, resourceId) => {
     if (newBody.fileName) {
       return newBody.fileName
     }
+    if (newBody.filePkgName) {
+      return newBody.filePkgName
+    }
     if (newBody.fileNickName) {
       return newBody.fileNickName
     }
@@ -199,7 +202,8 @@ const formatResourceName = (resourceName, resourceId) => {
     }
   } else {
     if (resourceName.length === 0) {
-      if (resourceId.length === 0) {
+      // @Todo: resourceId is unused
+      if (resourceId && resourceId.length === 0) {
         return '-'
       }
       return '-'
@@ -479,20 +483,22 @@ class OperationalAudit extends React.Component {
       {
         dataIndex: 'targetAndType',
         title: '对象及类型',
-        width: '30%',
+        width: '10%',
         render: (val, row) => {
-          let resourceConfig
+
           try {
             JSON.parse(row.resourceName)
             row.resourceName = formatResourceName(row.resourceName, row.operationType)
-            resourceConfig = JSON.parse(row.resourceConfig)
+              || JSON.parse(row.resourceConfig).origin_id
           } catch (e) {
             row.resourceName = row.resourceName === '' ? '-' : row.resourceName
             // do nothing
           }
           return <div>
             <div>类型：{formatTypeName(row.resourceType, filterData)}</div>
-            <div>对象：{row.resourceName || resourceConfig && resourceConfig.origin_id}</div>
+            <Tooltip title={row.resourceName}>
+              <div className="object">对象：{row.resourceName}</div>
+            </Tooltip>
           </div>
         },
 

@@ -128,7 +128,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     storageList, // 存储的配置列表
     // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
+    hostname,
+    aliasesKeys, // hostname 别名 key
+    subdomain, // 子域名
     accessType, // 是否为负载均衡
+    agentType, // 集群内/外 方式
     accessMethod, //访问方式
     publicNetwork, //公网出口
     internaletwork, //内网出口
@@ -152,6 +156,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     livenessTimeoutSeconds, // 高可用-检查超时
     livenessPeriodSeconds, // 高可用-检查间隔
     livenessPath, // 高可用-Path 路径
+    successThreshold, // 高可用健康阀值
+    failureThreshold, // 高可用不健康阀值
     envKeys, // 环境变量的 keys(数组)
     configMapKeys, // 普通配置目录的 keys(数组)
     secretConfigMapKeys, // 加密配置目录的 keys(数组)
@@ -170,7 +176,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   const PORT_PROTOCOL = 'portProtocol' // 端口协议(HTTP, TCP)
   const MAPPING_PORTTYPE = 'mappingPortType' // 映射服务端口类型(auto, special)
   const MAPPING_PORT = 'mappingPort' // 映射服务端口
-
   const deployment = new Deployment(serviceName)
   // set annotation => system/registry = dockerhub
   deployment.setAnnotations({
@@ -337,10 +342,25 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       replicasIPArr.push(fieldsValues[`replicasIP${item}`])
     })
     const replicasIPStr = JSON.stringify(replicasIPArr)
-    deployment.setMetaAnnotations({
+    deployment.setAnnotations({
       ['cni.projectcalico.org/ipAddrs']: replicasIPStr,
     })
 
+  }
+  // 设置 hostname 和 subdomain
+  deployment.setHostnameAndSubdomain(hostname, subdomain)
+  // 设置 hostname aliases
+  if (!isEmpty(aliasesKeys)) {
+    const hostAliases = []
+    aliasesKeys.forEach(key => {
+      const ip = fieldsValues[`ipHost-${key}`]
+      const hostnames = [fieldsValues[`hostAliases-${key}`]]
+      hostAliases.push({
+        ip,
+        hostnames,
+      })
+    })
+    deployment.setHostAliases(hostAliases)
   }
   // 设置端口
   const service = new Service(serviceName, cluster)
@@ -358,6 +378,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
+
+    // 设置负载均衡方式
+    deployment.setAnnotations({
+      agentType,
+    })
     !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
       const name = `${serviceName}-${key}`
@@ -462,6 +487,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
+      successThreshold: parseInt(successThreshold),
+      failureThreshold: parseInt(failureThreshold),
     })
     // Keep liveness and readiness probe the same
     deployment.setReadinessProbe(serviceName, livenessProtocol, {
@@ -470,6 +497,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
+      successThreshold: parseInt(successThreshold),
+      failureThreshold: parseInt(failureThreshold),
     })
   }
   // 设置环境变量
@@ -829,5 +858,13 @@ export function formatTemplateDeployErrors(value, currentError, errorFields, tem
       default:
         break
     }
+  })
+}
+
+export const isFieldsHasErrors = fields => {
+  const fieldsArray = Object.values(fields)
+  return fieldsArray.some(field => {
+    const currentFieldValues = Object.values(field)
+    return currentFieldValues.some(value => !isEmpty(value.errors))
   })
 }

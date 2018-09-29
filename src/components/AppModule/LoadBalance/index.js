@@ -201,11 +201,14 @@ class LoadBalance extends React.Component {
       onChange: this.handlePage
     }
     const columns = [{
-      title: '名称',
+      title: '名称 / 备注名',
       dataIndex: 'metadata.annotations.displayName',
       width: '15%',
       render: (text, record) =>
-        <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>{text}</Link>
+        <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>
+          <div>{record.metadata.labels.ingressLb}</div>
+          {text}
+          </Link>
     }, {
       title: '状态',
       dataIndex: 'status',
@@ -214,12 +217,12 @@ class LoadBalance extends React.Component {
     }, {
       title: '地址',
       width: '10%',
-      dataIndex: 'metadata.annotations.allocatedIP',
+      dataIndex: 'metadata.annotations.podIP',
     }, {
       title: '代理方式',
-      dataIndex: 'port',
+      dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: () => `集群外`,
+      render: text => text === 'inside' ? '集群内' : '集群外',
     }, {
       title: '监听器数量',
       width: '10%',

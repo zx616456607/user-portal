@@ -453,6 +453,15 @@ class Information extends Component {
               notify.error('权限不足')
               return
             }
+            if (res.statusCode === 409) {
+              let type = '信息'
+              if (key === 'email') {
+                type = '邮箱'
+              } else if (key === 'phone') {
+                type = '手机号'
+              }
+              return notify.error('修改失败', `该${type}已在平台上注册`)
+            }
             if(res.statusCode == 500) {
               const { message } = res
               if (typeof message === 'string') {
@@ -478,10 +487,10 @@ class Information extends Component {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
     let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN &&
-      (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) ||
+      (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN || userDetail.role === ROLE_BASE_ADMIN)) ||
       (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
     let accountTypeEdit = false
-    let editRole = true //是否可以编辑权限
+    let editRole = true //隐藏权限的修改按钮
     const currentPath = this.props.location.pathname
     if(loginUser.userID == this.props.userID && loginUser.role === ROLE_PLATFORM_ADMIN ) {
       notAllowChange = false
@@ -490,6 +499,12 @@ class Information extends Component {
     if(loginUser.userID == this.props.userID || currentPath === '/account') {
       notAllowChange = false
     }
+    let authorityDisabled = notAllowChange
+    // 系统管理员不可修改基础设施管理员和平台管理员的权限
+    if(loginUser.role == ROLE_SYS_ADMIN && (userDetail.role === ROLE_BASE_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) {
+      authorityDisabled = true
+    }
+
     if(currentPath === '/account' &&
       (!loginUser.role || loginUser.role === ROLE_BASE_ADMIN)) {
       editRole = false
@@ -501,6 +516,13 @@ class Information extends Component {
       }
     } else {
       accountTypeEdit = false
+    }
+    if (userDetail.role === ROLE_SYS_ADMIN ) {
+      accountTypeEdit = true
+    }
+    // 登录user是平台管理员,将被禁止修改
+    if (loginUser.role === ROLE_PLATFORM_ADMIN) {
+      accountTypeEdit = true
     }
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
@@ -608,9 +630,9 @@ class Information extends Component {
               />
             </Col>
             {
-              userDetail.role !== ROLE_SYS_ADMIN &&
+              loginUser.role !== ROLE_PLATFORM_ADMIN &&
               <Col span={7}>
-                <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
+                <Button style={{width: '80px'}} disabled={authorityDisabled} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
               </Col>

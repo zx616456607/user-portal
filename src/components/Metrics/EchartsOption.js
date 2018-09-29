@@ -104,6 +104,7 @@ export default class EchartsOption {
   addYAxis(type, axisLabel, min, max) {
     const yAxisItem = {
       type: 'value',
+      position: 'left',
       axisLabel: {
         formatter: '{value} %'
       },

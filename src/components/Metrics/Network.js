@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 import { Tooltip, Switch } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import {injectIntl} from "react-intl";
 import intlMsg from './Intl'
 
@@ -40,11 +41,16 @@ class Network extends Component {
     option.setToolTipUnit(' KB/s')
     option.setServiceFlag(!!isService)
     let minValue = 'dataMin'
+    let isDataEmpty = false
+    if (isEmpty(networkReceived.data) && isEmpty(networkTransmitted.data)) {
+      isDataEmpty = true
+    }
     networkReceived.data && networkReceived.data.map((item) => {
       let dataArr = []
       const metrics = Array.isArray(item.metrics)
                       ? item.metrics
                       : []
+      isDataEmpty = !isEmpty(metrics) ? false : true
       metrics.map((metric) => {
         // metric.value || floatValue  only one
         dataArr.push([
@@ -68,6 +74,7 @@ class Network extends Component {
       const metrics = Array.isArray(item.metrics)
                       ? item.metrics
                       : []
+      isDataEmpty = isDataEmpty && isEmpty(metrics)
       metrics.map((metric) => {
         // metric.value || metric.floatValue  only one
         dataArr.push([
@@ -77,7 +84,9 @@ class Network extends Component {
       })
       option.addSeries(dataArr, `${item.containerName} ${formatMessage(intlMsg.upload)}`)
     })
-    option.setXAxisMinAndMax(minValue)
+    isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
+    isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
+      option.setXAxisMinAndMax(minValue)
     if (networkTransmitted.data && networkReceived.data) {
       option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length, events)
     }

@@ -9,8 +9,13 @@
  */
 
 import React from 'react'
-import { Button, Checkbox } from 'antd'
+import { connect } from 'react-redux'
+import { Checkbox, Button } from 'antd'
 import ContainerInstance from './ContainerInstance'
+import ManualScaleModal from '../../../../src/components/AppModule/AppServiceDetail/ManualScaleModal'
+import * as serviceAction from '../../../../src/actions/services'
+import { FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerHeaderIntl'
 
 class ContainerInstanceHeader extends React.Component {
   state = {
@@ -18,10 +23,12 @@ class ContainerInstanceHeader extends React.Component {
     isFixed: false,
     notFixed: false,
     isSee: false,
+    manualScaleModalShow: false,
   }
 
   componentDidMount() {
-    const annotations = this.props.serviceDetail.metadata.annotations || {}
+    const annotations = this.props.serviceDetail.spec.template
+      && this.props.serviceDetail.spec.template.metadata.annotations || {}
     annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
     && this.setState({ isCheckIP: true })
   }
@@ -54,25 +61,72 @@ class ContainerInstanceHeader extends React.Component {
     })
   }
 
+  handleChangeVisible = () => {
+    this.setState({
+      manualScaleModalShow: !this.state.manualScaleModalShow,
+    })
+  }
+
   render() {
-    const { isFixed, notFixed, isCheckIP, isSee } = this.state
-    const { serviceDetail, containerNum } = this.props
+    const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
+    const { serviceDetail, containerNum, cluster,
+      appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
+    const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
     return (
-      <div className="instanceHeader">
-        <Button type="primary">水平扩展 ({containerNum})</Button>
-        <Button type="primary" onClick={() => this.props.onTabClick('#autoScale')}>自动伸缩</Button>
-        <Checkbox
-          onChange={this.onChangeInstanceIP}
-          checked={this.state.isCheckIP}
+      <div className="instanceHeader" >
+        { !this.props.appCenterChoiceHidden &&
+          <Button
+            type="primary"
+            size="large"
+            disabled={isCheckIP}
+            onClick={this.handleChangeVisible}
+          >
+            <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
+          </Button>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+        <Button
+          type="primary"
+          size="large"
+          disabled={isCheckIP}
+          onClick={() => this.props.onTabClick('#autoScale')}
         >
-          固定实例IP
-        </Checkbox>
-        <span
-          className="seeConfig"
-          onClick={() => this.setState({ isFixed: true, isSee: true })}
-        >
-          查看配置的IP
-        </span>
+          <FormattedMessage {...IntlMessages.autoScaling} />
+        </Button>
+        }
+        {
+          <Button
+            type="ghost"
+            size="large"
+            onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
+          >
+            <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
+          </Button>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+         <Checkbox
+           onChange={this.onChangeInstanceIP}
+           checked={this.state.isCheckIP}
+         >
+           <FormattedMessage {...IntlMessages.fixedInstanceIP} />
+         </Checkbox>
+        }
+        {
+          !this.props.appCenterChoiceHidden &&
+          <span
+            className="seeConfig"
+            onClick={() => this.setState({ isFixed: true, isSee: true })}
+          >
+            <FormattedMessage {...IntlMessages.viewConfiguredIP} />
+          </span>
+        }
+        {
+          isCheckIP
+            ? <div className="disAbled"><FormattedMessage {...IntlMessages.fixedIPTips} /></div>
+            : null
+        }
         {
           (isFixed || notFixed) && <ContainerInstance
             configIP = {isFixed}
@@ -80,9 +134,23 @@ class ContainerInstanceHeader extends React.Component {
             onChangeVisible = {this.onChangeVisible}
             onHandleCanleIp = {this.onHandleCanleIp}
             serviceDetail = {serviceDetail}
+            serviceName={service}
             isCheckIP={isCheckIP}
             isSee = {isSee}
             containerNum={containerNum}
+          />
+        }
+        {
+          manualScaleModalShow && <ManualScaleModal
+            handleChangeVisible={this.handleChangeVisible}
+            cluster={cluster}
+            appName={appName}
+            visible={manualScaleModalShow}
+            service={serviceDetail}
+            serviceName={service}
+            loadServiceList={loadAllServices}
+            containerNum={containerNum}
+            projectName={projectName}
           />
         }
       </div>
@@ -90,4 +158,26 @@ class ContainerInstanceHeader extends React.Component {
   }
 }
 
-export default ContainerInstanceHeader
+const mapStateToProps = ({
+  entities: { current },
+  services: { serviceDetail },
+}) => {
+  const cluster = current.cluster.clusterID
+  const service = Object.keys(serviceDetail[cluster])[0]
+  const appName = serviceDetail[cluster][service].service.metadata.labels['tenxcloud.com/appName']
+  serviceDetail = serviceDetail[cluster][service].service
+  const { projectName } = current.space
+  return {
+    cluster: current.cluster.clusterID,
+    serviceDetail,
+    service,
+    appName,
+    projectName,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadAllServices: serviceAction.loadAllServices,
+  loadServiceContainerList: serviceAction.loadServiceContainerList,
+  loadServiceDetail: serviceAction.loadServiceDetail,
+})(ContainerInstanceHeader)

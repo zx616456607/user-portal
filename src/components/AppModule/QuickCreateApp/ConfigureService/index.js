@@ -44,6 +44,7 @@ import ServiceMesh from './ServiceMesh'
 import SecurityGroup from '../../../../../client/containers/SecurityGroup/QuickCreateAppSecurityGroup'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
+import cloneDeep from 'lodash/cloneDeep'
 
 const LATEST = 'latest'
 const FormItem = Form.Item
@@ -473,7 +474,7 @@ let ConfigureService = React.createClass({
         failed: {
           func: res=> {
             if (res.statusCode === 409) {
-              callback(`${intl.formatMessage(IntlMessage.nameExisted, 
+              callback(`${intl.formatMessage(IntlMessage.nameExisted,
                   { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
           }
@@ -896,14 +897,17 @@ const createFormOpts = {
     return props.currentFields
   },
   onFieldsChange(props, fields) {
-    const { id, setFormFields } = props
+    const { id, setFormFields, mode } = props
+    if ((id !== window._fieldId) && (mode !== 'create')) {
+      return
+    }
     if (!initForm) {
       setFormFields(id, fields)
       initForm = true
       return
     }
     const newFields = Object.assign({}, fieldsBefore, fields)
-    fieldsBefore = newFields
+    fieldsBefore = cloneDeep(newFields)
     clearTimeout(setFormFieldsTimeout)
     setFormFieldsTimeout = setTimeout(() => {
       setFormFields(id, newFields)
@@ -952,7 +956,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-ConfigureService = connect(mapStateToProps, {
+export default connect(mapStateToProps, {
   setFormFields,
   checkAppName,
   checkServiceName,
@@ -963,6 +967,6 @@ ConfigureService = connect(mapStateToProps, {
   appTemplateNameCheck
 })(ConfigureService)
 
-export default injectIntl(ConfigureService, {
-  withRef: true,
-})
+// export default injectIntl(ConfigureService, {
+//   withRef: true,
+// })

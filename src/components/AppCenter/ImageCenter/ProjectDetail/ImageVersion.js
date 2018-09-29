@@ -109,10 +109,10 @@ class ImageVersion extends Component {
 
   loadData() {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo, detailAry, harbor, loadProjectMaxTagCount,
-      config: imageDetail, loadLabelList,
+      config: imageDetail, loadLabelList, project_id,
     } = this.props
     const { formatMessage } = this.props.intl
-    const project_id = ""
+    const projectId = imageDetail.projectId || project_id
 
     let processedName = encodeImageFullname(imageDetail.name)
     this.setState({
@@ -141,7 +141,7 @@ class ImageVersion extends Component {
         isAsync: true,
       }
     }, true)
-    loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: imageDetail.projectId }, {
+    loadProjectMaxTagCount(DEFAULT_REGISTRY, { harbor, project_id: projectId }, {
       success: {
         func: res => {
           const currTag = filter(res.data, { name: processedName })[0]
@@ -170,7 +170,7 @@ class ImageVersion extends Component {
         }
       }
       // 项目内标签
-      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'p', project_id: imageDetail.projectId }), {
+      loadLabelList(DEFAULT_REGISTRY, Object.assign({}, params, { scope: 'p', project_id: projectId }), {
         success:{
           func: succ,
           isAsync: true,
@@ -558,7 +558,7 @@ class ImageVersion extends Component {
   }
   onConfirmOk = () => {
     const { imageName, harbor, updateProjectMaxTagCount } = this.props
-    const { max_tags_count } = this.state
+    const { max_tags_count, dataAry } = this.state
     const { formatMessage } = this.props.intl
     const query = {
       registry: DEFAULT_REGISTRY,
@@ -581,8 +581,8 @@ class ImageVersion extends Component {
       failed: {
         func: err => {
           console.log(err)
-          if(!!err && err.code === 400){
-            const current_tag_total = err.message.current_tag_total
+          if(!!err && (err.code === 400 || err.statusCode === 400)){
+            const current_tag_total = err.message.current_tag_total || dataAry.length
             if(!!current_tag_total){
               this.setState({
                 max_tags_count: current_tag_total,

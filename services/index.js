@@ -26,26 +26,15 @@ const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 
 exports.setUserCurrentConfigCookie = function* (loginUser) {
   const method = 'setUserCurrentConfigCookie'
-  // Get default clusters
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.clusters.getBy(['default'])
-  const clusters = result.clusters || []
-  let clusterID
-  if (clusters.length < 1) {
-    clusterID = 'default'
-  } else {
-    clusters.every((cluster => {
-      if (cluster.isOk) {
-        clusterID = cluster.clusterID
-        return false
-      }
-      return true
-    }))
-    if (!clusterID) {
-      clusterID = clusters[0].clusterID
+  let config = this.cookies.get(USER_CURRENT_CONFIG)
+  if (config) {
+    let [ username ] = config.split(',')
+    if (username !== loginUser.user) {
+      config = `${loginUser.user}`
     }
+  } else {
+    config = `${loginUser.user}`
   }
-  const config = `default,default,${clusterID},default`
   logger.info(method, `set current config cookie to: ${config}`)
   this.cookies.set(USER_CURRENT_CONFIG, config, {
     httpOnly: false
@@ -137,6 +126,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.ftpConfig = globalConfig.ftpConfig
   // Add billing config
   user.billingConfig = globalConfig.billingConfig
+  // Add loadbalance config
+  user.loadbalanceConfig = globalConfig.loadbalanceConfig
   return user
 }
 

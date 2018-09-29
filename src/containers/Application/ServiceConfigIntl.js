@@ -10,6 +10,7 @@
  * @date 2018-08-28
  */
 import { defineIntlMessages } from '../../common/tools'
+import {mapData} from "../../components/AppModule/ServiceIntl/AppServiceDetailIntl";
 
 const messageObj = {
   prefix: 'ServiceConfig',
@@ -53,6 +54,7 @@ const messageObj = {
     apmMiddlewareTitle: '支持的中间件如下',
     apmMiddlewareTip: '确认镜像所用中间件在上述列表内，且满足 JVM 配置',
     noIstioTip: '当前集群未安装 istio，请联系基础设施管理员安装',
+    apmDisabledTip: '当前项目禁止安装 APM 组件，请联系平台管理员了解',
     serviceMeshCheckedTip: '当前项目已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能',
     serviceMeshUncheckTip: '开通后, 此服务将由服务网格代理, 使用微服务中心提供的治理功能',
     enableServiceMesh: '启用服务网格',
@@ -158,6 +160,7 @@ const messageObj = {
     readWrite: '可读可写',
     cancel: '取消',
     instanceNum: '实例数量',
+    fixedInstanceIP: '固定实例 IP',
     one: '个',
     publicNetTip: '服务可通过公网访问，选择一个网络出口；',
     interNetTip: '服务可通过内网访问，选择一个网络出口；',
@@ -325,7 +328,27 @@ const messageObj = {
     secretConfig: '加密配置',
     secretConfigTooltip: '加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd',
     secretFile: '加密对象',
-    listeningPortBeUsed: '监听端口已使用'
+    listeningPortBeUsed: '监听端口已使用',
+    setHostname: '设定 HostName',
+    containerNetwork: '容器网络',
+    containerNetworkTip: '设置容器的网络和 DNS 选项',
+    setHostAliases: '设定主机别名',
+    ipHost: 'IP 地址',
+    hostAliases: '主机别名',
+    ipHostRegMeg: 'IP 地址格式不正确',
+    hostAliasesRegMeg: '由小写字母、数字、字符 - 或 . 组成，以字母、数字开头和结尾',
+    hostAliasesLengthLimit: '主机别名不能超过 63 个字符',
+    addHostAliases: '添加主机别名',
+    ipHostPlaceholder: '如：192.168.0.1',
+    ipHostIsRequired: 'IP 地址不能为空',
+    hostName: '主机名',
+    hostAliasesTip: '/etc/hosts 记录',
+    subdomainPlaceholder: '例如：foo',
+    subdomain: '子域',
+    hostAliasesPlaceholder: '如：example.com',
+    hostnameRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    subdomainRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    hostAliasesExist: '主机别名已存在',
   }
 }
 

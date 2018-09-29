@@ -38,7 +38,7 @@ import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, remove
 import { getImageTemplate } from '../../../actions/app_center'
 import {
   buildJson, getFieldsValues, formatValuesToFields,
-  formatTemplateDeployErrors
+  formatTemplateDeployErrors, isFieldsHasErrors
 } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -50,6 +50,8 @@ import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import * as templateActions from '../../../../client/actions/template'
+import {getDeepValue} from "../../../../client/util/util"
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -67,6 +69,7 @@ class QuickCreateApp extends Component {
     this.getStepsCurrent = this.getStepsCurrent.bind(this)
     this.renderBody = this.renderBody.bind(this)
     this.onSelectImage = this.onSelectImage.bind(this)
+    this.onSelectOtherImage = this.onSelectOtherImage.bind(this)
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
@@ -141,6 +144,7 @@ class QuickCreateApp extends Component {
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
+      this.checkHelmIsRepare()
     }
     if (isEmpty(templateList)) {
       getImageTemplate(DEFAULT_REGISTRY)
@@ -150,6 +154,7 @@ class QuickCreateApp extends Component {
     if (from && from === 'appcenter') {
       this.configureMode = 'edit';
       this.editServiceKey = key;
+      window._fieldId = key
       const currentFields = fields[key]
       if (currentFields.appPkgID) {
         const { imageUrl, appPkgID } = currentFields
@@ -193,6 +198,16 @@ class QuickCreateApp extends Component {
   removeDeployCheck = (props) => {
     const { removeAppTemplateDeployCheck } = this.props;
     setTimeout(removeAppTemplateDeployCheck);
+  }
+
+  checkHelmIsRepare = async () => {
+    const { checkHelmIsPrepare, current } = this.props
+    const { clusterID } = current.cluster;
+    const result = await checkHelmIsPrepare(clusterID)
+    const already = getDeepValue(result, ['response', 'result', 'data', 'already'])
+    this.setState({
+      helmAlready: !!already,
+    })
   }
 
   getExistentServices() {
@@ -283,7 +298,7 @@ class QuickCreateApp extends Component {
   }
 
   deployCheck = async (props) => {
-    const { appTemplateDeployCheck, current, templateDetail, fields } = props;
+    const { appTemplateDeployCheck, current, templateDetail, fields, setFormFields } = props;
     const { clusterID } = current.cluster;
     const { data } = templateDetail;
     const { chart } = data;
@@ -321,6 +336,8 @@ class QuickCreateApp extends Component {
     if (configureMode === 'edit') {
       // this.configureServiceKey = key
       this.editServiceKey = key
+      // 这个全局变量是因为模板部署过程中，切换服务的时候 onFieldsChange 取到的 id 值有可能不是当前父组件传给它的 id，需要用这个全局变量去做对比
+      window._fieldId = key
     }
   }
 
@@ -331,7 +348,9 @@ class QuickCreateApp extends Component {
     }
     return 1
   }
-
+  onSelectOtherImage(query) {
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
+  }
   onSelectImage(imageName, registryServer, appName, fromDetail) {
     this.setState({
       imageName,
@@ -737,14 +756,19 @@ class QuickCreateApp extends Component {
   }
 
   async onCreateAppOrAddServiceClick(isValidateFields) {
-    const { intl } = this.props
+    const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }
-    const { validateFieldsAndScroll } = this.form
-    validateFieldsAndScroll( async (errors, values) => {
+    // 检查 fields 中是否有错误
+    if (isFieldsHasErrors(fields)) {
+      notification.warn(intl.formatMessage(IntlMessage.formsError))
+      return
+    }
+    const { validateFieldsAndScroll, validateFields } = this.form
+    const callback = async (errors, values) => {
       if (!!errors) {
         let keys = Object.getOwnPropertyNames(errors)
         const envNameErrors = keys.filter( item => {
@@ -825,6 +849,22 @@ class QuickCreateApp extends Component {
           isAsync: true,
         }
       })
+    }
+    validateFields(async (errors, values) => {
+      if (!!errors) {
+        const errorsValues = Object.values(errors)
+        // 应用模板部署过程中，如果配置组名称重复，重新输入新的配置组名称后，切换服务过程中表单会报错revalidate信息，需要重新validateFields
+        const flag = errorsValues.some(error => {
+          return error.errors.some(item => item.message.includes('revalidate'))
+        })
+        if (flag) {
+          validateFieldsAndScroll(async (errors, values) => {
+            await callback(errors, values)
+          })
+          return
+        }
+      }
+      await callback(errors,values)
     })
   }
 
@@ -871,7 +911,7 @@ class QuickCreateApp extends Component {
         onChange={this.onDeployAIChange}
       />
     }
-    return <SelectImage location={location} onChange={this.onSelectImage} />
+    return <SelectImage location={location} onChange={this.onSelectImage} onOtherChange={this.onSelectOtherImage} />
   }
 
   renderCreateBtnText() {
@@ -948,6 +988,7 @@ class QuickCreateApp extends Component {
 
   renderFooterSteps() {
     const { location } = this.props
+    const { helmAlready } = this.state
     const { hash, query } = location
     const { template } = query;
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
@@ -971,9 +1012,11 @@ class QuickCreateApp extends Component {
               >
                 <FormattedMessage {...IntlMessage.previous}/>
               </Button>
-              <Button size="large" type="primary" onClick={this.onCreateAppOrAddServiceClick}>
-                { this.renderCreateBtnText() }
-              </Button>
+              <Tooltip title={template && !helmAlready ? <FormattedMessage {...IntlMessage.noTillerTip}/> : ''}>
+                <Button size="large" disabled={template && !helmAlready} type="primary" onClick={this.onCreateAppOrAddServiceClick}>
+                  { this.renderCreateBtnText() }
+                </Button>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -1029,8 +1072,8 @@ class QuickCreateApp extends Component {
     }
     // 在配置服务界面
     if (currentStep === 2) {
-      const { validateFieldsAndScroll } = this.form
-      validateFieldsAndScroll((errors, values) => {
+      const { validateFields, validateFieldsAndScroll } = this.form
+      const callback = (errors, values) => {
         if (!!errors) {
           let message = intl.formatMessage(IntlMessage.pleaseCorrectWrongForm)
           // 如果未填写服务名称，提示填写服务名称
@@ -1053,6 +1096,22 @@ class QuickCreateApp extends Component {
             editServiceLoading: false,
           })
         })
+      }
+      validateFields((errors, values) => {
+        if (!!errors) {
+          const errorsValues = Object.values(errors)
+          // 应用模板部署过程中，如果配置组名称重复，重新输入新的配置组名称后，切换服务过程中表单会报错revalidate信息，需要重新validateFields
+          const flag = errorsValues.some(error => {
+            return error.errors.some(item => item.message.includes('revalidate'))
+          })
+          if (flag) {
+            validateFieldsAndScroll((errors, values) => {
+              callback(errors, values)
+            })
+            return
+          }
+        }
+        callback(errors,values)
       })
       // const { removeFormFields } = this.props
       // setTimeout(() => {
@@ -1431,6 +1490,7 @@ export default connect(mapStateToProps, {
   getfSecurityGroupDetail,
   updateSecurityGroup,
   createTcpUdpIngress,
+  checkHelmIsPrepare: templateActions.checkHelmIsPrepare,
 })(injectIntl(QuickCreateApp, {
   withRef: true,
 }))

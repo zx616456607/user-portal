@@ -61,11 +61,16 @@ class AutoScaleModal extends React.Component {
   }
 
   componentDidMount() {
-    const {scaleDetail} = this.props
+    const {scaleDetail, clusterID, loadAllServices} = this.props
     this.initThresholdArr(scaleDetail)
+    loadAllServices(clusterID, {
+      pageIndex: 1,
+      pageSize: 100,
+    })
+    document.getElementById('scale_strategy_name') && document.getElementById('scale_strategy_name').focus()
   }
 
-  componentWillReceiveProps(nextProps) {
+  /*componentWillReceiveProps(nextProps) {
     const {visible: newVisible, scope, form, scaleDetail, loadAllServices, clusterID, loadNotifyGroups } = nextProps
     const {visible: oldVisible} = this.props
     if (oldVisible && !newVisible) {
@@ -94,7 +99,7 @@ class AutoScaleModal extends React.Component {
       })
       loadNotifyGroups(null, clusterID)
     }
-  }
+  }*/
   initThresholdArr = scaleDetail => {
     const { setFieldsValue } = this.props.form
     if (isEmpty(scaleDetail)) {
@@ -119,6 +124,7 @@ class AutoScaleModal extends React.Component {
     const {scope} = this.props
     scope.setState({
       scaleModal: false,
+      scaleDetail: null,
     })
     this.setState({
       thresholdArr: [0],
@@ -169,7 +175,8 @@ class AutoScaleModal extends React.Component {
             })
             this.uuid = 0
             scope.setState({
-              scaleModal: false
+              scaleModal: false,
+              scaleDetail: null,
             })
             scope.loadData(clusterID, 1)
             notify.close()
@@ -190,7 +197,8 @@ class AutoScaleModal extends React.Component {
             })
             this.uuid = 0
             scope.setState({
-              scaleModal: false
+              scaleModal: false,
+              scaleDetail: null,
             })
             notify.close()
             notify.error('操作失败')
@@ -509,7 +517,7 @@ class AutoScaleModal extends React.Component {
             <Col className={classNames({"strategyLabel": key === 0})} span={4} style={{ marginTop: 8, textAlign: 'right' }}>
               {
                 thresholdArr.indexOf(key) === 0
-                  ? <div> 阈值 <Tooltip title={message}><Icon type="exclamation-circle-o"/></Tooltip>：</div>
+                  ? <div> 阈值 <Tooltip title={message}><Icon type="question-circle-o" /></Tooltip>：</div>
                   : ''
               }
             </Col>
@@ -605,7 +613,7 @@ class AutoScaleModal extends React.Component {
           <Row style={{margin: '-3px 0 10px'}}>
             <Col span={4} style={{ height: 18 }}/>
             <Col span={16}>
-              <Icon type="exclamation-circle-o"/> 挂载独享型存储的服务不支持自动伸缩
+              <Icon type="info-circle-o" /> 挂载独享型存储的服务不支持自动伸缩
             </Col>
           </Row>
           <FormItem
@@ -660,7 +668,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
                   <Col span={4} style={{ height: 18 }}/>
                   <Col span={16}>
-                    <Icon type="exclamation-circle-o"/> 发生弹性伸缩时会向该通知组发送邮件通知
+                    <Icon type="info-circle-o" /> 发生弹性伸缩时会向该通知组发送邮件通知
                   </Col>
                 </Row>,
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">
@@ -689,9 +697,12 @@ function mapStateToProps(state, props) {
   const { serviceLoadBalances } = loadBalance
   const { data: LBList } = serviceLoadBalances || { data: [] }
   let {services} = serviceList || {services: []}
-  services = services && services.length && existServices && services.filter(item => {
-    return !existServices.includes(item.metadata.name)
-  })
+  services = services && services.length && existServices && services.filter(item => (
+    !existServices.includes(item.metadata.name)
+      && item.spec.template.metadata
+      && item.spec.template.metadata.annotations
+      && !item.spec.template.metadata.annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+  ))
   return {
     clusterID,
     services,

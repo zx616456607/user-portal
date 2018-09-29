@@ -104,7 +104,7 @@ let CreateDatabase = React.createClass({
       }
     }
   },
-  onChangeCluster(clusterID) {
+/*  onChangeCluster(clusterID) {
     this.setState({onselectCluster: false})
     const { projectVisibleClusters, form, space, setCurrent } = this.props
     const currentNamespace = form.getFieldValue('namespaceSelect') || space.namespace
@@ -118,7 +118,7 @@ let CreateDatabase = React.createClass({
       }
       return true
     })
-  },
+  },*/
   selectDatabaseType(database) {
     //this funciton for user select different database
     this.setState({
@@ -126,7 +126,7 @@ let CreateDatabase = React.createClass({
     });
     document.getElementById('name').focus()
   },
-  onChangeNamespace(namespace) {
+/*  onChangeNamespace(namespace) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
     const { projects, getProjectVisibleClusters, setCurrent, form } = this.props
@@ -157,7 +157,7 @@ let CreateDatabase = React.createClass({
       }
       return true
     })
-  },
+  },*/
 
   checkPwd: function () {
     //this function for user change the password box input type
@@ -229,6 +229,7 @@ let CreateDatabase = React.createClass({
         _this.setState({loading: false})
         return
       }
+/*
       let newSpace, newCluster
       projects.map(list => {
         if (list.namespace === values.namespaceSelect) {
@@ -242,6 +243,7 @@ let CreateDatabase = React.createClass({
           return newCluster = list
         }
       })
+
       let externalIP = ''
       if (newCluster.publicIPs && newCluster.publicIPs != "") {
         let ips = eval(newCluster.publicIPs)
@@ -249,6 +251,7 @@ let CreateDatabase = React.createClass({
           externalIP = ips[0]
         }
       }
+    */
       let lbGroupID = 'none'
       if(values.outerCluster){
         lbGroupID = values.outerCluster
@@ -295,10 +298,12 @@ let CreateDatabase = React.createClass({
           }
           // 创建成功
           notification.success('创建成功')
+/*
           setCurrent({
             cluster: newCluster,
             space: newSpace
           })
+*/
           this.props.form.resetFields();
           scope.setState({
             CreateDatabaseModalShow: false
@@ -327,10 +332,12 @@ let CreateDatabase = React.createClass({
           }
           // 创建成功
           notification.success('创建成功')
+/*
           setCurrent({
             cluster: newCluster,
             space: newSpace
           })
+*/
           this.props.form.resetFields();
           scope.setState({
             CreateDatabaseModalShow: false
@@ -589,7 +596,8 @@ let CreateDatabase = React.createClass({
         {statefulAppOptions}
       </Select>
     )
-
+    const clusterModeTxt = database === 'mysql'? '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡' :
+      '提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统可将所有的读请求分摊到所有备节点'
     return (
       <QueueAnim>
         <div id='CreateDatabase' key="createDatabase">
@@ -661,8 +669,7 @@ let CreateDatabase = React.createClass({
                   </div>
                   : null
               }
-              {
-                database === 'mysql' &&
+
                 <div className='commonBox clusterModeBox'>
                   <div className='title'>
                     <span>集群模式</span>
@@ -671,25 +678,28 @@ let CreateDatabase = React.createClass({
                     <FormItem>
                       <Radio.Group {...clusterModeProps}>
                         <Radio value="single" key="2">
-                          <Tooltip title="提供高可用，当主节点故障后，备节点自动升级为主节点，包含一个主节点和多个备节点，主备节点的数据通过实时复制保持一致，备节点为只读节点，系统自动进行读请求的负载均衡">
+                          <Tooltip title={clusterModeTxt}>
                             <span>一主多从</span>
                           </Tooltip>
                         </Radio>
-                        <Radio value="multi" key="1">
-                          <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
-                        </Radio>
+                        {
+                          database === 'mysql' &&
+                          <Radio value="multi" key="1">
+                            <Tooltip title="节点均为主节点，不存在Slave延迟，具有读和写的扩展能力"><span>多主</span></Tooltip>
+                          </Radio>
+                        }
                       </Radio.Group>
                     </FormItem>
 
                     {
-                      clusterMode === 'single'
+                      clusterMode === 'single' && database !== 'redis'
                         ? <div className='modeTips'>使用 Group Replication 的一主多从模式，能更加保证数据的准确性与一致性</div>
                         : ''
                     }
                   </div>
                   <div style={{ clear: 'both' }}></div>
                 </div>
-              }
+
 
               <div className='commonBox'>
                 <div className='title'>

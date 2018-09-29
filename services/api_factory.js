@@ -38,6 +38,17 @@ exports.getK8sApi = function (loginUser) {
   return api.clusters
 }
 
+exports.getMeshApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.mesh_api.protocol,
+    host: config.mesh_api.host ,
+    version: config.mesh_api.version,
+    auth: loginUser,
+  }
+  const api = new tenxApi(apiConfig)
+  return api
+}
+
 /*
 API factory to handle thirdparty docker registry integration
 */
@@ -84,7 +95,7 @@ exports.getAIOpsApi = function (loginUser) {
   const apiConfig = {
     protocol: aiopsConfig.protocol,
     host: aiopsConfig.host,
-    version: aiopsConfig.version,
+    version: aiopsConfig.apiVersion || 'v3',
     auth: loginUser,
   }
   const api = new tenxApi(apiConfig)
@@ -202,4 +213,3 @@ exports.getQuotaApi = function (loginUser) {
   const api = new tenxApi(apiConfig)
   return api.resourcequota
 }
-

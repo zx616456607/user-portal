@@ -95,6 +95,10 @@ class Sider extends Component {
       currentOpenMenu = ['app_center', 'app_template']
       currentSelectedMenu = currentOpenMenu
     }
+    if (pathname.includes('middleware_center/app')) {
+      currentOpenMenu = ['middleware_center', 'middleware_center_default']
+      currentSelectedMenu = currentOpenMenu
+    }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
@@ -132,7 +136,10 @@ class Sider extends Component {
         currentOpenMenu = ['app_center', 'app_template']
         currentSelectedMenu = currentOpenMenu
       }
-
+      if (pathname.includes('middleware_center/app')) {
+        currentOpenMenu = ['middleware_center', 'middleware_center_default']
+        currentSelectedMenu = currentOpenMenu
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
@@ -140,7 +147,6 @@ class Sider extends Component {
       })
     }
   }
-
 
   handleCancel() {
     const currentOptions = cloneDeep(this.props.uploadFileOptions)
@@ -266,13 +272,26 @@ class Sider extends Component {
     })
   }
 
+  menuItemTip(role) {
+    const { formatMessage } = this.props.intl
+    switch (role) {
+      case ROLE_PLATFORM_ADMIN :
+        return formatMessage(IntlMessages.onlyPlatformAndAdmin)
+      case ROLE_BASE_ADMIN:
+        return formatMessage(IntlMessages.onlyInfraAndAdmin)
+      case ROLE_USER:
+        return ''
+      default:
+        return '管理员可见'
+    }
+  }
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser, intl } = this.props
     const { formatMessage } = intl
     const { currentKey } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
-    const scope = this;
+    const scope = this
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
@@ -316,7 +335,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='cluster_authorization'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/cluster_authorization'>
@@ -326,7 +345,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='approvalLimit'>
       <div className="adminBox">
-        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+        <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
           <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
         <Link to='/tenant_manage/approvalLimit'>
@@ -336,7 +355,7 @@ class Sider extends Component {
     </Menu.Item>,
       <Menu.Item key='ldap'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/tenant_manage/ldap'>
@@ -373,14 +392,26 @@ class Sider extends Component {
       </Menu.Item>,
       // applyLimit
       <Menu.Item key='applyLimit'>
-        <div className="usrBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyNormalUser)} placement="right">
-            <TenxIcon type='star' className='star forAdmin'/>
-          </Tooltip>
-          <Link to='/tenant_manage/applyLimit'>
-            <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
-          </Link>
-        </div>
+        {
+          role === ROLE_USER?
+            <div className="userBox">
+              <Link to='/tenant_manage/applyLimit'>
+                <span>
+                  <div className='sideCircle'></div>&nbsp;
+                  <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
+                </span>
+              </Link>
+            </div>
+            :
+            <div className="usrBox">
+              <Tooltip title='基础设施管理员、普通用户可见' placement="right">
+                <TenxIcon type='star' className='star forAdmin'/>
+              </Tooltip>
+              <Link to='/tenant_manage/applyLimit'>
+                <FormattedMessage {...IntlMessages.tenantResourcequotaApply} />
+              </Link>
+            </div>
+        }
     </Menu.Item>,
     ]
     const tenantMenu_user = tenantMenu_base;
@@ -407,7 +438,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
@@ -425,7 +456,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -435,7 +466,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
@@ -446,7 +477,7 @@ class Sider extends Component {
 
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
@@ -466,7 +497,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='license'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/license'>
@@ -484,7 +515,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -494,7 +525,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='personalized'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/personalized'>
@@ -523,7 +554,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='advancedSetting'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip()} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/advancedSetting'>
@@ -533,7 +564,7 @@ class Sider extends Component {
       </Menu.Item>,
       <Menu.Item key='cleaningTool'>
         <div className="adminBox">
-          <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+          <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
           <Link to='/setting/cleaningTool'>
@@ -652,6 +683,15 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd/overview'>
                     <TenxIcon className="commonImg" type="lift-card-o" />
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={()=> this.selectModel('middleware_center')}
+                  className={currentKey == 'middleware_center' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={intl.formatMessage(IntlMessages.middlewareCenter)}
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/middleware_center/app'>
+                    <TenxIcon className="commonImg" type="middleware"/>
                   </Link>
                 </Tooltip>
               </li>
@@ -976,13 +1016,14 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
+                  {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN || role === ROLE_PLATFORM_ADMIN ?
                     <Menu.Item key='wrap_check'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip()} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/app_center/wrap_check'>
+                          {/* <span><div className='sideCircle'></div>&nbsp; </span>*/}
                           <FormattedMessage {...IntlMessages.wrapCheck} />
                         </Link>
                       </div>
@@ -1111,6 +1152,34 @@ class Sider extends Component {
                   </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
+                <SubMenu key="middleware_center"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="middleware"/>
+                      <span className="commonSiderSpan">
+                        {intl.formatMessage(IntlMessages.middlewareCenter)}
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='middleware_center_default'>
+                    <Link to='/middleware_center/app'>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.apps} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='deploy'>
+                    <Link to='/middleware_center/deploy'>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.deployManage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                </SubMenu>
                 <SubMenu key='database_cache'
                   title={
                     <span>
@@ -1179,7 +1248,18 @@ class Sider extends Component {
                   }
                 >
                   <Menu.Item key='notebook'>
-                    <Link to='/ai-deep-learning/notebook'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/notebook')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/notebook')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.Notebook} />
@@ -1188,7 +1268,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='large-scale-train'>
-                    <Link to='/ai-deep-learning/large-scale-train'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/large-scale-train')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/largeScaleTrain')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.largeScaleTrain} />
@@ -1197,7 +1288,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='data-set'>
-                    <Link to='/ai-deep-learning/data-set'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/data-set')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/dataSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.dataSet} />
@@ -1206,7 +1308,18 @@ class Sider extends Component {
                   </Menu.Item>
 
                   <Menu.Item key='model-set'>
-                    <Link to='/ai-deep-learning/model-set'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/ai-deep-learning/model-set')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/ai-deep-learning/modelSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.modelSet} />
@@ -1391,7 +1504,7 @@ class Sider extends Component {
                   >
                   <Menu.Item key='cluster_default'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link to='/cluster'>
@@ -1401,7 +1514,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='globalConfig'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/globalConfig'>
@@ -1411,7 +1524,7 @@ class Sider extends Component {
                     </Menu.Item>
                   <Menu.Item key='cluster_autoscale'>
                       <div className="adminBox">
-                        <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                        <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                           <TenxIcon type='star' className='star forAdmin'/>
                         </Tooltip>
                         <Link to='/cluster/cluster_autoscale'>
@@ -1421,7 +1534,7 @@ class Sider extends Component {
                     </Menu.Item>
                   <Menu.Item key='monitor'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link
@@ -1442,7 +1555,7 @@ class Sider extends Component {
                   </Menu.Item>
                   <Menu.Item key='backup'>
                     <div className="adminBox">
-                      <Tooltip title={formatMessage(IntlMessages.onlyAdmin)} placement="right">
+                      <Tooltip title={this.menuItemTip(ROLE_BASE_ADMIN)} placement="right">
                         <TenxIcon type='star' className='star forAdmin'/>
                       </Tooltip>
                       <Link

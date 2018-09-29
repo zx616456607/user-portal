@@ -38,8 +38,8 @@ class ServiceMeshSwitch extends React.Component {
     userrole: undefined, // 根据多个条件判断页面显示内容
   }
   componentDidMount = async () => {
-    const { checkClusterIstio, ToggleAPPMesh, istioFlag = false } = this.props
-    const { msaConfig, clusterId, serviceName } = this.props
+    const { checkClusterIstio, ToggleAPPMesh, istioFlag = false, checkProInClusMesh } = this.props
+    const { msaConfig, clusterId, serviceName, namespace, userName } = this.props
     if (!msaConfig) {
       this.setState({ userrole: 1 })
     }
@@ -49,9 +49,13 @@ class ServiceMeshSwitch extends React.Component {
       this.setState({ userrole: 2 })
       return
     }
-    // const newNameSpace = namespace || userName;
-    // const result1 = await checkAPPInClusMesh(clusterId, serviceName, { namespace: newNameSpace });
-    // const result1Data = getDeepValue(result1, ['response', 'result',]);
+    const newNameSpace = namespace || userName;
+    const result1 = await checkProInClusMesh(clusterId, serviceName, { namespace: newNameSpace });
+    const result1Data = getDeepValue(result1, ['response', 'result',]);
+    if(result1Data.data === false){ // 判断当前项目是否开启了serviceMesh
+      this.setState({ userType: 3 })
+    }
+
     if (istioFlag == 'true') {
       this.setState({ switchValue: true, userrole: 5 })
       return
@@ -82,6 +86,9 @@ class ServiceMeshSwitch extends React.Component {
     }
     if (userrole === 2) {
       return <span className="infoText">{formatMessage(AppServiceDetailIntl.currentPlatformNoInstallIstio)}</span>
+    }
+    if (userrole === 3) {
+      return <span className="infoText">{`当前项目所在集群未允许服务启用服务网格，请联系项目管理员开通`}</span>
     }
     return null;
   }
@@ -130,4 +137,5 @@ class ServiceMeshSwitch extends React.Component {
 export default injectIntl(connect(mapStatetoProps, {
   checkClusterIstio: projectActions.checkClusterIstio,
   ToggleAPPMesh: projectActions.ToggleAPPMesh,
+  checkProInClusMesh: projectActions.checkProInClusMesh,
 })(ServiceMeshSwitch), { withRef: true, })

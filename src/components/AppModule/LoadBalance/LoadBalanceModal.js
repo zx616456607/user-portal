@@ -32,6 +32,7 @@ import {
   RESOURCES_DIY,
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../../../constants'
+import { IP_REGEX } from '../../../../constants'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -47,6 +48,14 @@ class LoadBalanceModal extends React.Component {
     const { clusterID, getLBIPList, currentBalance, form } = this.props
     getLBIPList(clusterID)
     if (currentBalance) {
+      let agentType = 'inside'
+      const { labels } = currentBalance.metadata
+      if (labels.agentType && labels.agentType === 'outside') { // 集群外
+        agentType = 'outside'
+      }
+      form.setFieldsValue({
+        agentType,
+      })
       const { resources } = currentBalance.spec.template.spec.containers[0]
       const { limits, requests } = resources
       const { cpu: limitsCPU, memory: limitsMemory } = limits
@@ -160,6 +169,10 @@ class LoadBalanceModal extends React.Component {
           nodeName: currentBalance ? currentBalance.metadata.annotations.nodeName : node.split('/')[1],
           ip: currentBalance ? currentBalance.metadata.annotations.allocatedIP : node.split('/')[0],
         })
+      } else {
+        Object.assign(body, {
+          staticIP: values.staticIP,
+        })
       }
       if (currentBalance) {
         // 修改负载均衡
@@ -185,6 +198,11 @@ class LoadBalanceModal extends React.Component {
             this.setState({
               confirmLoading: false
             })
+            if (res.statusCode === 403) {
+              notify.close()
+              notify.warn(currentBalance ? '修改失败' : '创建失败', '允许创建『集群外』负载均衡开关关闭，请联系管理员开启')
+              return
+            }
             if (res.statusCode === 409) {
               if (res.message.message.indexOf('name') > -1) {
                 notify.warn(currentBalance ? '修改失败' : '创建失败', '该负载均衡器的名称已经存在')
@@ -269,6 +287,17 @@ class LoadBalanceModal extends React.Component {
     }
     callback()
   }
+
+  staticIpCheck = (rules, value, callback) => {
+    if (!value) {
+      return callback('固定 IP 不能为空')
+    }
+    if (!IP_REGEX.test(value)) {
+      return callback('IP 格式不正确')
+    }
+    callback()
+  }
+
   render() {
     const { composeType, confirmLoading } = this.state
     const { form, ips, visible, currentBalance } = this.props
@@ -291,7 +320,7 @@ class LoadBalanceModal extends React.Component {
     }
 
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'outside'
+      initialValue: 'inside'
     })
 
     const nameProps = getFieldProps('displayName', {
@@ -348,7 +377,7 @@ class LoadBalanceModal extends React.Component {
     const descProps = getFieldProps('description', {
       initialValue: currentBalance ? currentBalance.metadata.annotations.description : ''
     })
-    const nodesChild = isEmpty(ips) ? [] : 
+    const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
         return <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
     })
@@ -368,13 +397,13 @@ class LoadBalanceModal extends React.Component {
             label="代理方式"
             {...formItemLayout}
           >
-            <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>集群内代理</Radio>
+            <RadioGroup {...agentTypeProps} disabled={!!currentBalance}>
+              <Radio value="inside">集群内代理</Radio>
               <Radio value="outside">集群外代理</Radio>
             </RadioGroup>
           </FormItem>
           {
-            agentType === 'outside' &&
+            agentType === 'outside' ?
             <FormItem
               label="选择节点"
               {...formItemLayout}
@@ -387,12 +416,27 @@ class LoadBalanceModal extends React.Component {
                 {nodesChild}
               </Select>
             </FormItem>
+              :
+            <FormItem
+              label="固定 IP"
+              {...formItemLayout}
+            >
+              <Input
+                disabled={currentBalance}
+                {...getFieldProps('staticIP', {
+                  rules: [{
+                    validator: this.staticIpCheck,
+                  }],
+                  initialValue: currentBalance && currentBalance.metadata.annotations.podIP
+                })}
+              />
+            </FormItem>
           }
           <FormItem
-            label="名称"
+            label="备注名"
             {...formItemLayout}
           >
-            <Input placeholder="请输入负载均衡器的名称" {...nameProps}/>
+            <Input placeholder="请输入负载均衡器的备注名" {...nameProps}/>
           </FormItem>
           <Row className="configRow">
             <Col span={5}>

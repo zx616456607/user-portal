@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .AppServiceRental{
   padding:30px 30px 50px;
   border:1px solid #d9d9d9;
@@ -6,6 +7,35 @@
   width: 100%;
   background-color: #FFFFFF !important;
   margin-bottom: 50px;
+  .ant-card-body {
+    position: relative;
+  }
+  #baseInfo {
+    height: 640px;
+    overflow: auto;
+    padding-bottom: 16px;
+    .menu {
+      width: 100%;
+      padding: 8px 0 16px 0;
+      background: #fff;
+      position: absolute;
+      top: 16px;
+      left: 24px;
+      z-index: 10;
+      .anchorItem {
+        margin-right: 16px;
+        border-radius: 30px;
+        margin-bottom: 8px;
+      }
+      .defaultBtn {
+        border: 1px solid #ffffff;
+        background: #fff;
+      }
+
+    }
+
+  }
+
   .editTip{
     position: absolute;
     top: 5px;
@@ -68,7 +98,7 @@
       height: 20px;
       line-height: 20px;
       font-size: 16px;
-      border-left: 5px solid #00A1EA;
+      border-left: 5px solid  @primary-color;
       color: #333;
       margin-bottom: 10px;
     }
@@ -135,7 +165,7 @@
       height: 20px;
       line-height: 20px;
       font-size: 16px;
-      border-left: 5px solid #00A1EA;
+      border-left: 5px solid  @primary-color;
       color: #333;
     }
     .starts{
@@ -146,7 +176,9 @@
     p{line-height: 35px;}
 
   }
-
+  .containerNetworkForDetail {
+    position: relative;
+  }
   .bindNodes{
     .bindnodeTitle{
       height: 28px;

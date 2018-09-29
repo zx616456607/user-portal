@@ -125,8 +125,8 @@ class ClusterStorage extends Component {
           let nfsArray = []
           let gfsArray = []
           this.setState({
-            hostDir: res.data.hostList[0].parameters.baseDir,
-            initialHostDir: res.data.hostList[0].parameters.baseDir
+            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+            initialHostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir
           })
           cephlist.forEach((cephItem, index) => {
             let isDefault = cephItem.metadata.labels["system/storageDefault"] === "true"
@@ -541,8 +541,8 @@ class ClusterStorage extends Component {
     }
     const cephListData = clusterStorage.cephList
     const formItemLayout = {
-    	labelCol: {span: 6},
-    	wrapperCol: {span: 18}
+      labelCol: {span: 6},
+      wrapperCol: {span: 18}
     }
     const { form } = this.props
     const { getFieldProps } = form
@@ -553,7 +553,7 @@ class ClusterStorage extends Component {
       return <div className='list_container' key={`list_container${item.index}`}>
         <div className={item.isDefault ? 'list defaultStorage' : 'list'} key={ `ceph_list_${item.index}` }>
           { item.isDefault&&
-              <div className="dafaultGroup">默认</div>
+          <div className="dafaultGroup">默认</div>
           }
           <FormItem
             label="集群名称"
@@ -697,7 +697,7 @@ class ClusterStorage extends Component {
         <div className='handle_box'>
           {
             item.disabled
-            ? <span>
+              ? <span>
                 <Button
                   icon="edit"
                   size="large"
@@ -719,7 +719,7 @@ class ClusterStorage extends Component {
                   })}
                 />
               </span>
-            : <span className="btnContainer">
+              : <span className="btnContainer">
                 <Spin spinning={this.state.cephLoading}>
                   <Button
                     icon="check"
@@ -730,10 +730,10 @@ class ClusterStorage extends Component {
                   />
                 </Spin>
                 <Button
-                   icon="cross"
-                   className='right_button'
-                   size="large"
-                   onClick={this.calcelCeph.bind(this, item)}
+                  icon="cross"
+                  className='right_button'
+                  size="large"
+                  onClick={this.calcelCeph.bind(this, item)}
                 />
               </span>
           }
@@ -1155,7 +1155,7 @@ class ClusterStorage extends Component {
       return <div className='list_container' key={`list_container${item.index}`}>
         <div className={item.isDefault  ? 'list defaultStorage' : 'list'} key={ `gfs_list_${item.index}` }>
           { item.isDefault&&
-              <div className="dafaultGroup">默认</div>
+          <div className="dafaultGroup">默认</div>
           }
           <FormItem
             label="集群名称"
@@ -1364,7 +1364,7 @@ class ClusterStorage extends Component {
       return <div className='list_container' key={`list_container${item.index}`}>
         <div className={item.isDefault  ? 'list defaultStorage' : 'list'} key={ `nfs_list_${item.index}` }>
           { item.isDefault&&
-              <div className="dafaultGroup">默认</div>
+          <div className="dafaultGroup">默认</div>
           }
           <FormItem
             label="nfs 服务名称"
@@ -1459,10 +1459,10 @@ class ClusterStorage extends Component {
                   </Button>
                 </Spin>
                 <Button
-                   icon="cross"
-                   className='right_button'
-                   size="large"
-                   onClick={this.cancelNfs.bind(this, item)}
+                  icon="cross"
+                  className='right_button'
+                  size="large"
+                  onClick={this.cancelNfs.bind(this, item)}
                 />
               </span>
           }
@@ -1708,7 +1708,7 @@ class ClusterStorage extends Component {
                 this.state.hostChecked &&
                 <Form className="containerItem formItem">
                   <FormItem label='宿主机根目录' {...formItemLayout}>
-                    <Input {...pathProps} disabled={this.state.hostDirEditDisable}/>
+                    <Input {...pathProps} style={{ marginLeft: 5 }} disabled={this.state.hostDirEditDisable}/>
                   </FormItem>
                   {
                     this.state.hostDirEditDisable?
@@ -1833,11 +1833,11 @@ class ClusterStorage extends Component {
           maskClosable={false}
           wrapClassName="delete_cluster_storage"
         >
-        	<div className='tips'>
+          <div className='tips'>
             <i className="fa fa-exclamation-triangle tips_icon" aria-hidden="true"></i>
             请注意，删除该类型存储会对该集群存储的使用有影响，
             删除后将不能基于该存储配置创建存储，请谨慎操作。
-        	</div>
+          </div>
           <div className='confirm_tips'>
             <Icon type="question-circle-o" className='confirm_icon'/>
             是否确定移除该存储配置？
@@ -1869,9 +1869,9 @@ class ClusterStorage extends Component {
                     onChange:value => this.setState({ defaultStorage: value })
                   })}
                 >
-                {
-                  this.renderOpt(currType)
-                }
+                  {
+                    this.renderOpt(currType)
+                  }
                 </Select>
                 <Button style={{marginLeft: 5}} disabled={!!!defaultStorage} onClick={() => {
                   this.setState({

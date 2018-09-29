@@ -1,3 +1,13 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * ImageStore.less page
+ *
+ * @author zhangtao
+ * @date Thursday September 20th 2018
+ */
+@import "../../../assets/style/site/core.less";
 @borderColor: #f2f2f2;
 .ImageStoreBox {
   padding: 20px 20px 50px 20px;
@@ -18,7 +28,7 @@
       line-height: 20px;
       font-size: 16px;
       font-weight: 600;
-      border-left: 8px solid #24a7eb;
+      border-left: 8px solid @primary-color;
     }
     .imageDetail {
       .ant-card-body {
@@ -66,8 +76,8 @@
           background: white;
         }
         .btn-deploy:hover{
-          background: #21ADEB;
-          border-color: #0092DB;
+          background:  @primary-color;
+          border-color:  @primary-color;
           color: white;
         }
       }

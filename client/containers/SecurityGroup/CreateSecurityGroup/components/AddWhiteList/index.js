@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Form, Select, Input, Row, Col, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isCidr from 'is-cidr'
+import { validateK8sResourceForServiceName } from '../../../../../../src/common/naming_validation'
 const FormItem = Form.Item
 const Option = Select.Option
 const imgSrc = [
@@ -40,6 +41,20 @@ class AddWhiteList extends React.Component {
         ingress: ingressArr,
       })
       ln.map((item, ind) => {
+        let exStr = ''
+        if (item.except) {
+          item.except.forEach(el => {
+            exStr += `${el},`
+          })
+          exStr = exStr.slice(0, exStr.length - 1)
+        }
+        let service = ''
+        if (item.type === 'namespace' && item.serivceName) {
+          item.serivceName.forEach(ele => {
+            service += `${ele},`
+          })
+          service = service.slice(0, service.length - 1)
+        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -50,12 +65,13 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'namespace',
               [`ingressnamespace${ind}`]: item.namespace,
+              [`ingressnamespace${ind}server`]: service,
             })
           case 'cidr':
             return setFieldsValue({
               [`ingress${ind}`]: 'cidr',
               [`ingresscidr${ind}`]: item.cidr,
-              [`ingresscidr${ind}except`]: item.except[0] || null,
+              [`ingresscidr${ind}except`]: exStr || null,
             })
           case 'ingress':
             return setFieldsValue({
@@ -81,6 +97,13 @@ class AddWhiteList extends React.Component {
         egress: egressArr,
       })
       ln.map((item, ind) => {
+        let service = ''
+        if (item.type === 'namespace' && item.serivceName) {
+          item.serivceName.forEach(ele => {
+            service += `${ele},`
+          })
+          service = service.slice(0, service.length - 1)
+        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -91,12 +114,18 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`egress${ind}`]: 'namespace',
               [`egressnamespace${ind}`]: item.namespace,
+              [`egressnamespace${ind}server`]: service,
             })
           case 'cidr':
             return setFieldsValue({
               [`egress${ind}`]: 'cidr',
               [`egresscidr${ind}`]: item.cidr,
               [`egresscidr${ind}except`]: item.except[0] || null,
+            })
+          case 'daas':
+            return setFieldsValue({
+              [`egress${ind}`]: item.daasType,
+              [`egress${item.daasType}${ind}`]: item.daasName,
             })
           default:
             return null
@@ -160,6 +189,25 @@ class AddWhiteList extends React.Component {
     callback()
   }
 
+  checkServiceName = (rule, value, callback) => {
+    if (!value) {
+      return callback()
+    }
+    if (value.indexOf('，') > -1) {
+      return callback('请使用英文 , 分隔')
+    }
+    const nameArr = value.split(',')
+    nameArr.forEach(item => {
+      if (item.length < 3 || item.length > 60) {
+        return callback('服务名称 3~60 位')
+      }
+      if (!validateK8sResourceForServiceName(item)) {
+        return callback('服务名称由小写字母、数字、中划线组成， 以小写字母开头，小写字母或者数字结尾')
+      }
+    })
+    callback()
+  }
+
   relatedSelect = (k, isIngress) => {
     const { form, type } = this.props
     const target = isIngress ? '来源' : '目标'
@@ -209,18 +257,7 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       case 'haproxy':
-        return <FormItem>
-          <Input {...getFieldProps(`${type}${option}${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入要放通的${target}集群网络出口`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}集群网络出口`}
-          />
-        </FormItem>
+        return <span>所有集群网络出口</span>
       case 'ingress':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
@@ -231,7 +268,7 @@ class AddWhiteList extends React.Component {
             }],
           })}
           style={{ width: 280 }}
-          placeholder={`请输入要放通的${target}应用负载均衡`}
+          placeholder={`请输入要放通的${target}应用负载均衡（输入标签）`}
           />
         </FormItem>
       case 'namespace':
@@ -248,9 +285,13 @@ class AddWhiteList extends React.Component {
             placeholder={`请输入要放通的${target}命名空间`}
             />
           </FormItem>
-          <FormItem>
+          <FormItem className="checkServerName">
             <Input
-              {...getFieldProps(`${type}${option}${k}server`)}
+              {...getFieldProps(`${type}${option}${k}server`, {
+                rules: [{
+                  validator: this.checkServiceName,
+                }],
+              })}
               style={{ width: 250 }}
               placeholder="服务1，服务2"
             />

@@ -467,6 +467,8 @@ class Deployment {
       livenessProbe.initialDelaySeconds = probe.initialDelaySeconds
       livenessProbe.timeoutSeconds = probe.timeoutSeconds
       livenessProbe.periodSeconds = probe.periodSeconds
+      livenessProbe.successThreshold = probe.successThreshold
+      livenessProbe.failureThreshold = probe.failureThreshold
       container.livenessProbe = livenessProbe
     })
   }
@@ -491,6 +493,8 @@ class Deployment {
       readinessProbe.initialDelaySeconds = probe.initialDelaySeconds
       readinessProbe.timeoutSeconds = probe.timeoutSeconds
       readinessProbe.periodSeconds = probe.periodSeconds
+      readinessProbe.successThreshold = probe.successThreshold
+      readinessProbe.failureThreshold = probe.failureThreshold
       container.readinessProbe = readinessProbe
     })
   }
@@ -765,6 +769,18 @@ class Deployment {
       this.metadata.annotations,
       annotations || {}
     )
+  }
+  setHostnameAndSubdomain(hostname, subdomain) {
+    if (hostname && (hostname.trim() !== "")) {
+      this.spec.template.spec.hostname = hostname
+    }
+    if (subdomain && (subdomain.trim() !== "")) {
+      this.spec.template.spec.subdomain = subdomain
+    }
+  }
+
+  setHostAliases(hostAliases) {
+    this.spec.template.spec.hostAliases = hostAliases
   }
 }
 

@@ -61,6 +61,8 @@ const aiopsController = require('../controllers/aiops')
 const resourcequota = require('../controllers/resourcequota') // 申请资源配额相关
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
+const middlewareCenter = require('../controllers/middleware_center')
+const servicemesh = require('../controllers/service_mesh')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -116,9 +118,11 @@ module.exports = function (Router) {
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
   // servicMesh 相关
-  router.put('/projects/label', projectController.updateToggleServiceMesh)
-  router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
-  router.get('/projects/istio/check', projectController.getCheckClusterIstio)
+  router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
+  router.get('/projects/istio/check', servicemesh.getCheckClusterIstio)
+  router.put('/clusters/:cluster/services/:service/serverMesh', servicemesh.putToggleAPPMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/pods', servicemesh.getCheckAPPInClusMesh)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -164,7 +168,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
   router.put('/clusters/:cluster/apps/batch-restart', appController.restartApps)
   router.put('/clusters/:cluster/apps/batch-status', appController.getAppsStatus)
-  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
+  router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices) // 炎黄
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
   router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail) // spi
@@ -172,9 +176,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
-  // serviceMesh 相关
-  router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
-  router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
   router.get('/templates/:templateid', appTemplateController.getTemplate)
@@ -190,6 +191,7 @@ module.exports = function (Router) {
   router.get('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplateCheck)
   router.post('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplate)
   router.get('/templates/helm/:name', helmTemplateController.templateNameCheck)
+  router.get('/templates/helm/prepare/clusters/:cluster', helmTemplateController.checkHelmIsPrepare)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
@@ -216,7 +218,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
-  router.get('/clusters/:cluster/services', serviceController.getAllService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService) // 炎黄
   router.put('/clusters/:cluster/services/:service_name/portinfo', serviceController.updateServicePortInfo)
   router.get('/clusters/:cluster/services/:service_name/certificates', serviceController.getCertificate)
   router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
@@ -229,6 +231,7 @@ module.exports = function (Router) {
 
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
+  router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -315,6 +318,30 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
   router.put('/clusters/:cluster/configgroups/:name', configController.updateConfigAnnotations)
   router.get('/clusters/:cluster/configgroups/:name/verify', configController.checkConfigGroupName)
+
+  // configs by devops
+  router.get('/devops/configmaps/clusters/:cluster_id', devopsController.getConfigMaps)
+  router.post('/devops/configmaps/clusters/:cluster_id', devopsController.createConfigMaps)
+  router.del('/devops/configmaps/clusters/:cluster_id', devopsController.delConfigMap)
+  router.put('/devops/configmaps/:configmap_name/clusters/:cluster_id', devopsController.setConfigLabels)
+  router.post('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs', devopsController.createConfig)
+  router.get('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.getConfig)
+  router.del('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.delConfig)
+  router.put('/devops/configmaps/:configmap_name/clusters/:cluster_id/configs/:config_name', devopsController.updateConfig)
+  router.get('/devops/managed-projects/:project_id/branches', devopsController.getGitProjectsBranches)
+  router.get('/devops/projects/:project_id/branches/:branch_name/path/:path_name/files', devopsController.getGitProjectsFileContent)
+  // router.get('/devops/projects/:project_id/branches/:branch_name/files', devopsController.getGitProjectsFileContent)
+
+  // Secrets by devops
+  router.get('/devops/secrets/clusters/:cluster_id', devopsController.getSecrets)
+  router.post('/devops/secrets/clusters/:cluster_id', devopsController.createSecrets)
+  router.del('/devops/secrets/clusters/:cluster_id', devopsController.delSecret)
+  router.post('/devops/secrets/:secret_name/clusters/:cluster_id/configs', devopsController.createSecretsConfig)
+  router.get('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.getSecretsConfig)
+  router.del('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.delSecretsConfig)
+  router.put('/devops/secrets/:secret_name/clusters/:cluster_id/configs/:config_name', devopsController.updateSecretsConfig)
+
+
   // Secrets config
   router.post('/clusters/:clusterID/secrets/:groupName', secretsController.createGroup)
   router.del('/clusters/:clusterID/secrets/:groupName', secretsController.removeGroup)
@@ -591,6 +618,8 @@ module.exports = function (Router) {
   router.get('/clusters/:clusterID/daas/:type/:name/events', serviceController.getDatabaseEvents)
   // 重启集群
   router.put('/clusters/:clusterID/daas/:type/:name/reboot', databaseCacheController.rebootCluster)
+  // 获取回滚记录
+  router.get('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.getRollbackRecord)
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)
@@ -657,6 +686,7 @@ module.exports = function (Router) {
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   router.post('/configs/email/verification', globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
+  router.post('/configs/message/isvalidconfig', globalConfigController.validateMsgConfig)
 
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
@@ -859,6 +889,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
   router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
@@ -909,6 +940,19 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/networkpolicy/:name',securityGroupController.getSecurityGroupDetail)
   router.put('/clusters/:cluster/networkpolicy',securityGroupController.updataSecurityGroup)
   router.delete('/clusters/:cluster/networkpolicy/:name',securityGroupController.deleteSecurityGroup)
+
+    // middlewareCenter
+  router.get('/clusters/:cluster/appcenters', middlewareCenter.getAppClusterList)
+  router.get('/clusters/:cluster/appcenters/:name', middlewareCenter.getAppClusterDetail)
+  router.post('/clusters/:cluster/appcenters/delete', middlewareCenter.deleteClusterDetail)
+  router.post('/clusters/:cluster/appcenters/stop', middlewareCenter.stopClusterDetail)
+  router.post('/clusters/:cluster/appcenters/start', middlewareCenter.startClusterDetail)
+  router.post('/clusters/:cluster/appcenters/reboot', middlewareCenter.rebootClusterDetail)
+  router.get('/clusters/:cluster/appcenters/:name/services', middlewareCenter.getAppClusterServerList)
+  router.get('/appcenters/groups', middlewareCenter.getAppClassifies)
+  router.get('/appcenters', middlewareCenter.getApps)
+  router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
+  router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

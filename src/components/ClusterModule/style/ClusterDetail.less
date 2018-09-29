@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 @borderColor:#d9d9d9;
 #clusterDetail {
   padding-top: 20px;
@@ -6,7 +7,7 @@
   min-width: 950px;
   .topTitle {
     line-height: 18px;
-    border-left: 5px solid #24a7eb;
+    border-left: 5px solid @primary-color;
     font-size: 16px;
     padding-left: 8px;
     margin: 30px 0;
@@ -22,14 +23,14 @@
       height: 0;
       border-bottom: 15px solid transparent;
       border-top: 15px solid transparent;
-      border-right: 15px solid #00A0E9;
+      border-right: 15px solid @primary-color;
       font-size: 0;
       line-height: 0;
       cursor: pointer;
     }
     .btn-back {
       display: inline-block;
-      background: #00A0E9;
+      background: @primary-color;
       color: white;
       height: 30px;
       line-height: 30px;
@@ -47,7 +48,7 @@
     margin-top: 6px;
     height: 18px;
     line-height: 18px;
-    border-left: 5px solid #24a7eb;
+    border-left: 5px solid @primary-color;
     font-size: 16px;
     padding-left: 8px;
     margin-left: 20px;
@@ -154,5 +155,5 @@
     }
     .Versionin {margin-right:0px}
   }
-  .clusterTable {height: 160px;}
+  .clusterTable {height: 180px;}
 }

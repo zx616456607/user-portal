@@ -150,6 +150,8 @@ class CreateSecurityGroup extends React.Component {
               return ingList.push({
                 type: 'namespace',
                 namespace: values[`ingress${type}${el}`],
+                serviceName: values[`ingress${type}${el}server`]
+                  && values[`ingress${type}${el}server`].split(','),
               })
             default:
               return null
@@ -174,8 +176,6 @@ class CreateSecurityGroup extends React.Component {
                 except: [ values[`egress${type}${el}except`] ],
               })
             case 'service':
-            case 'mysql':
-            case 'redis':
               return egList.push({
                 type: 'service',
                 serviceName: values[`egress${type}${el}`],
@@ -184,6 +184,15 @@ class CreateSecurityGroup extends React.Component {
               return egList.push({
                 type: 'namespace',
                 namespace: values[`egress${type}${el}`],
+                serviceName: values[`egress${type}${el}server`]
+                  && values[`egress${type}${el}server`].split(','),
+              })
+            case 'mysql':
+            case 'redis':
+              return egList.push({
+                type: 'daas',
+                daasName: values[`egress${type}${el}`],
+                daasType: values[`egress${el}`],
               })
             default:
               return null
@@ -227,7 +236,7 @@ class CreateSecurityGroup extends React.Component {
               if (statusCode !== 403) {
                 if (isEdit) {
                   notification.success('修改安全组失败')
-                } else if (statusCode === 422 || message.message.indexOf('not within CIDR range')) {
+                } else if (statusCode === 422 && message.message.indexOf('not within CIDR range') > -1) {
                   notification.warn('输入的 cidr 范围错误', message.message)
                 } else {
                   notification.warn('新建安全组失败', message.message)

@@ -180,8 +180,10 @@ class AlarmRecord extends Component {
         records.push({
           createTime: r.alertTime,
           ruleName: r.ruleName,
+          ruleNum: r.ruleNum,
           serviceName: r.serviceName,
           numHits: r.numHits,
+          log: r.log,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
           targetName: r.targetName,
@@ -224,10 +226,10 @@ class AlarmRecord extends Component {
     const { clusterID, loadServiceDetail, getHostInfo } = this.props;
     const notify = new NotificationHandler()
     if (!list.targetType) {
-      loadServiceDetail(clusterID, list.targetName, {
+      loadServiceDetail(clusterID, list.serviceName, {
         success: {
           func: () => {
-            browserHistory.push(`/app_manage/service?serName=${list.targetName}`)
+            browserHistory.push(`/app_manage/service?serName=${list.serviceName}`)
           },
           isAsync: true
         },
@@ -273,6 +275,7 @@ class AlarmRecord extends Component {
           if (isEmpty(result.data)) {
             notify.error('此策略不存在或者已被删除')
           } else {
+            return
             browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.service_name}&clusterID=${clusterID}`)
           }
         },
@@ -285,6 +288,9 @@ class AlarmRecord extends Component {
         isAsync: true
       }
     })
+  }
+  disabledDate = current => {
+    return current && current.getTime() > Date.now()
   }
   render() {
     const { clusterID } = this.props;
@@ -300,7 +306,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'ruleName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
+          return <span className="targetName">{text}</span>
         }
       },
       {
@@ -316,19 +322,27 @@ class AlarmRecord extends Component {
         }
       },
       {
-        title: '告警当前值',
+        title: '告警规则',
+        dataIndex: 'regx',
+        render: (val, record) => {
+          return <div>{record.regex ? `${record.regex} 已出现 ${record.ruleNum} 次` : '已删除'}</div>
+        }
+      },
+      {
+        title: '告警字符串',
+        dataIndex: 'log',
+      },
+      {
+        title: '当前次数',
         dataIndex: 'numHits',
       },
       {
-        title: '告警规则',
-        dataIndex: 'regx',
-        render: (val, record) => <div>{record.regex ? record.regex : '已删除'}</div>
-      },
-      {
-        title: '是否发送邮件',
-        dataIndex: 'alertSent',
+        title: '是否发送通知',
+        dataIndex: 'alertInfo',
         render: (val, record) => {
-          return <div>{ val && record.alertInfo.recipients[0] !== "test@example.com"? '是': '否'}</div>
+          const condition = record.alertInfo['http_post_webhook_url'][0]
+          condition.charAt(condition.length - 1)
+          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
         }
       }
     ];
@@ -369,8 +383,8 @@ class AlarmRecord extends Component {
             }>
               {filters.targets}
             </Select>
-            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
-            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
+            <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />
+            <DatePicker placeholder="选择结束日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             {/*<Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>*/}
             { total !== 0 && <div className='pageBox'>
@@ -405,7 +419,6 @@ function mapStateToProps(state, props) {
     recordFilters,
     records,
   } = state.alert
-
   let recordFiltersData = {
     strategies: [],
     targets: [],
@@ -425,6 +438,7 @@ function mapStateToProps(state, props) {
   if (records && records.result) {
     recordsData = records.result.data
   }
+
   return {
     recordFilters: recordFiltersData,
     records: recordsData,

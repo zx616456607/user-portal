@@ -40,6 +40,7 @@ class PageItemDetail extends Component {
       sortedInfo: null,
       filteredInfo: null,
       isSettingCurrent: false,
+      activeKey: 'repo',
     }
     this.currentUser = {}
   }
@@ -70,6 +71,8 @@ class PageItemDetail extends Component {
    componentDidMount() {
      const { clusterId } = this.props.location.query
     clusterId ? this.handleClusterChange() : this.fetchData()
+    const activeKey = this.props.location.query.key
+    activeKey && this.setState({ activeKey })
   }
   fetchData = () => {
     const { loadProjectDetail, loadProjectMembers, params, harbor, intl } = this.props
@@ -188,9 +191,9 @@ class PageItemDetail extends Component {
                       }
                     } else if(!!projectDetail.metadata && !!projectDetail.metadata.public){
                       if(projectDetail.metadata.public === "true"){
-                        res = formatMessage(imageDetailIntl.privateRepoGroup)
-                      } else {
                         res = formatMessage(imageDetailIntl.publicRepoGroup)
+                      } else {
+                        res = formatMessage(imageDetailIntl.privateRepoGroup)
                       }
                     }
                     return res
@@ -209,7 +212,10 @@ class PageItemDetail extends Component {
                 }
               </div>
               <br />
-              <Tabs defaultActiveKey="repo">
+              <Tabs
+                activeKey={this.state.activeKey}
+                onChange={activeKey => this.setState({ activeKey })}
+              >
                 { tabPanels }
               </Tabs>
             </Card>

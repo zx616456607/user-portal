@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 .alarmModal {
   overflow-x: hidden;
 }
@@ -79,31 +80,31 @@
 
         border-top:15px solid transparent;
         border-bottom: 15px solid transparent;
-        border-left: 23px solid #2DB7F5;
+        border-left: 23px solid  @primary-color;
       }
     }
     .step.active:nth-of-type(2) {
       &:after{
         border-top:15px solid transparent;
         border-bottom: 15px solid transparent;
-        border-left: 23px solid #2DB7F5;
+        border-left: 23px solid  @primary-color;
       }
        &:before {
-        border-top:15px solid #2DB7F5;;
-        border-bottom: 15px solid #2DB7F5;;
+        border-top:15px solid  @primary-color;;
+        border-bottom: 15px solid  @primary-color;;
         border-left: 23px solid transparent;
       }
     }
     .step.active:nth-of-type(3) {
 
        &:before {
-        border-top:15px solid #2DB7F5;;
-        border-bottom: 15px solid #2DB7F5;;
+        border-top:15px solid  @primary-color;;
+        border-bottom: 15px solid  @primary-color;;
         border-left: 23px solid transparent;
       }
     }
     .step.active{
-      background: #2DB7F5;
+      background:  @primary-color;
       color: white;
       .number {border-color: white;}
     }

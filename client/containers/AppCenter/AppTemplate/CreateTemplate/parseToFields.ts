@@ -13,6 +13,7 @@
 import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
 import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools';
+import { getDeepValue } from '../../../../../client/util/util';
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
   DEFAULT_ALGORITHM,
@@ -548,11 +549,12 @@ const parseService = service => {
   return values;
 };
 
-const parseIngress = ingress => {
+const parseIngress = (ingress, deployment) => {
   let accessType = 'netExport';
   if (!ingress) {
     return { accessType };
   }
+  const { agentType } = getDeepValue(deployment, ['spec', 'template', 'metadata', 'annotations'])
   accessType = 'loadBalance';
   let loadBalance: string;
   const lbKeys: Array = [];
@@ -579,7 +581,7 @@ const parseIngress = ingress => {
     if (sessionSticky) {
       merge(ingressOptions, {
         sessionSticky,
-        sessionPersistent: parseInt(sessionPersistent, 10),
+        sessionPersistent,
       });
     }
     if (healthCheck) {
@@ -590,16 +592,18 @@ const parseIngress = ingress => {
     merge(ingressParent, {
       [`displayName-${index}`]: displayName, // 监听器名称
       [`lbAlgorithm-${index}`]: lbAlgorithm, // 调度算法
-      [`sessionPersistent-${index}`]: sessionSticky ? `已启用(${sessionPersistent}s)` : '未启用', // 会话保持
+      [`sessionPersistent-${index}`]: sessionSticky ? `已启用(${sessionPersistent})` : '未启用', // 会话保持
       [`sessionSticky-${index}`]: sessionSticky, // 会话保持是否开启
       [`protocol-${index}`]: protocol, // 监听协议
       [`port-${index}`]: items[0].servicePort, // 服务端口
+      [`weight-${index}`]: items[0].weight, // 权重
       [`host-${index}`]: hostValue, // 转发规则
       [`ingress-${index}`]: ingressOptions,
     });
   });
   return {
     accessType, // 是否为负载均衡
+    agentType: agentType ? agentType : 'inside', // 应用负载均衡类型
     loadBalance, // 负载均衡器名称
     lbKeys, // 负载均衡器监听的端口组
     ...ingressParent,
@@ -624,7 +628,7 @@ export const parseToFields = (templateDetail, wrapperChart) => {
     templateDesc: description, // 模板描述
     ...parseDeployment(deployment, chart),
     ...parseService(service),
-    ...parseIngress(ingress),
+    ...parseIngress(ingress, deployment),
   };
   return formatValues(values);
 };

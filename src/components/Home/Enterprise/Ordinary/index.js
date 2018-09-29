@@ -33,6 +33,7 @@ import { GetProjectsDetail } from '../../../../actions/project'
 import TenxIcon from '@tenx-ui/icon'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
+import CommonIntlMessages from '../../../../containers/CommonIntl'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
@@ -99,7 +100,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#2eb764' }}></div>
-          <span style={{ color: '#2eb865' }}>正常</span>
+          <span style={{ color: '#2eb865' }}>
+            <FormattedMessage {...IntlMessages.svcNormal} />
+          </span>
         </div>
       )
     }
@@ -107,7 +110,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#f0986b' }}></div>
-          <span style={{ color: '#f0986b' }}>警告</span>
+          <span style={{ color: '#f0986b' }}>
+            <FormattedMessage {...IntlMessages.svcWaring} />
+          </span>
         </div>
       )
     }
@@ -115,7 +120,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#f0986b' }}></div>
-          <span style={{ color: '#f0986b' }}>未安装</span>
+          <span style={{ color: '#f0986b' }}>
+            <FormattedMessage {...IntlMessages.svcNotInstall} />
+          </span>
         </div>
       )
     }
@@ -123,7 +130,9 @@ let SvcState = React.createClass({
       item = (
         <div>
           <Icon type="exclamation-circle" style={{ color: '#f85a59' }} className='errorDot' />
-          <span style={{ color: '#f85a59' }}>异常</span>
+          <span style={{ color: '#f85a59' }}>
+            <FormattedMessage {...IntlMessages.svcAbnormal} />
+          </span>
         </div>
       )
     }
@@ -131,7 +140,9 @@ let SvcState = React.createClass({
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{ backgroundColor: '#ffa500' }}></div>
-          <span style={{ color: '#ffa500' }}>已停止</span>
+          <span style={{ color: '#ffa500' }}>
+            <FormattedMessage {...IntlMessages.svcStopped} />
+          </span>
         </div>
       )
     }
@@ -150,6 +161,7 @@ class Ordinary extends Component {
     this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
     this.loadClusterSummary = this.loadClusterSummary.bind(this)
     this.handleMinVisible = this.handleMinVisible.bind(this)
+    this.myProject = this.props.intl.formatMessage(CommonIntlMessages.myProject)
     this.state = {
       tab1: true,
       tab2: false,
@@ -1461,7 +1473,7 @@ class Ordinary extends Component {
         <Row className="title">
           {
             this.props.userID === undefined
-              ? spaceName === '我的个人项目'
+              ? spaceName === this.myProject
                 ? ''
                 : `${formatMessage(IntlMessages.sharedProject)} - `
               : `${formatMessage(IntlMessages.personalProject)} - `
@@ -1476,7 +1488,7 @@ class Ordinary extends Component {
                 bordered={false}
                 bodyStyle={{ height: 220, padding: '30px 24px' }}
                 extra={
-                  spaceName !== '我的个人项目'
+                  spaceName !== this.myProject
                     ? this.props.userID === undefined
                       ? <Link to={`/tenant_manage/project_manage/project_detail?name=${this.props.projectName}`}>
                         <Button type="primary" size="small">
@@ -1494,7 +1506,7 @@ class Ordinary extends Component {
                     </span>
                     <span>{spaceName}</span>
                     {
-                      spaceName === '我的个人项目'
+                      spaceName === this.myProject
                         ? <span className="desc">
                           <FormattedMessage {...IntlMessages.personal} />
                         </span>
@@ -1512,7 +1524,7 @@ class Ordinary extends Component {
                       <FormattedMessage {...IntlMessages.projecRoles} />
                     </span>
                     {
-                      spaceName === '我的个人项目' || this.props.userID !== undefined
+                      spaceName === this.myProject || this.props.userID !== undefined
                         ? <span className="projectDesc">
                           <FormattedMessage {...IntlMessages.personalProjectNoRoles} />
                         </span>
@@ -1598,7 +1610,7 @@ class Ordinary extends Component {
               bordered={false}
               bodyStyle={{ height: 220 }}
               extra={
-                <Link to={spaceName === '我的个人项目'
+                <Link to={spaceName === this.myProject
                   ? this.props.loginUser.role !== 2
                     ? '/account?tabs=quota'
                     : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota`
@@ -1890,7 +1902,7 @@ class Ordinary extends Component {
           </Col>
           <Col span={6}>
             <Card
-              title={formatMessage(IntlMessages.service)}
+              title={formatMessage(IntlMessages.serviceOnly)}
               bordered={false}
               bodyStyle={{ height: 180, padding: '0px' }}
             >
@@ -1904,7 +1916,7 @@ class Ordinary extends Component {
           </Col>
           <Col span={6}>
             <Card
-              title={formatMessage(IntlMessages.container)}
+              title={formatMessage(IntlMessages.containerOnly)}
               bordered={false}
               bodyStyle={{ height: 180, padding: '0px' }}
             >

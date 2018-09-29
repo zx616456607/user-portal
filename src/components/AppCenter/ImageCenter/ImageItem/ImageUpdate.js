@@ -9,7 +9,8 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Icon, Table, Modal, Form, Row, Col, Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker } from 'antd'
+import { Button, Input, Icon, Table, Modal, Form, Row, Col,
+  Checkbox, Select, Spin, Radio, Dropdown, Menu, TimePicker, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import '../style/ImageUpdate.less'
 import {
@@ -26,11 +27,18 @@ import {
   getCurrentRuleTask,
   copyCurrentRule,
   updateCurrentTask,
+  loadProjectList,
+  loadProjectDetail,
+  getTargets,
 } from '../../../../actions/harbor'
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
+import light from '../../../../assets/img/light.svg'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+import { Link } from 'react-router'
 
+const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
 let LogsTemplate = React.createClass({
@@ -89,8 +97,6 @@ let LogsTemplate = React.createClass({
 class ImageUpdate extends Component {
 	constructor(props){
     super(props)
-    this.handleSearchRules = this.handleSearchRules.bind(this)
-    this.handleInputValue = this.handleInputValue.bind(this)
     this.handleAddRules = this.handleAddRules.bind(this)
     this.modalCancel = this.modalCancel.bind(this)
     this.modalConfirm = this.modalConfirm.bind(this)
@@ -135,6 +141,9 @@ class ImageUpdate extends Component {
       disappear: true,
       editKey: undefined,
       currentRule: undefined,
+      searchType: 'name',
+      searchText: undefined,
+      confirmLoading: false,
     }
   }
 
@@ -171,16 +180,9 @@ class ImageUpdate extends Component {
     const { getReplicationPolicies, registry, harbor } = this.props
     getReplicationPolicies(harbor, registry)
   }
-  componentWillMount() {
-    const { isReplications } = this.props
-    if (isReplications) {
-      this.loadAllPolicies()
-      return
-    }
-    this.handleloadImageUpdateList()
-  }
 
   componentDidMount() {
+    setTimeout( () => this.refreshData(), 200)
     //bind 'esc' key down
     const scope = this;
     function handler(e){
@@ -193,6 +195,8 @@ class ImageUpdate extends Component {
     }
 
     document.addEventListener('keyup',handler )
+    const { loadProjectList, registry, harbor } = this.props
+    this.props.isReplications && loadProjectList(registry, Object.assign({}, registry, { harbor }))
   }
 
   componentWillUnmount() {
@@ -215,26 +219,13 @@ class ImageUpdate extends Component {
       this.loadAllPolicies()
       return
     }
-    this.handleloadImageUpdateList()
+    !isReplications && this.handleloadImageUpdateList()
   }
 
-  handleInputValue(e){
+  handleInputValue = e => {
     this.setState({
-      inputValue: e.target.value
-    })
-  }
-
-  handleSearchRules(){
-	  const { inputValue } = this.state
-    const { rulesData } = this.props
-    let newRulesData  = []
-    rulesData.map((item, index) => {
-	    if(item.name.indexOf(inputValue) > -1){
-        newRulesData.push(item)
-      }
-    })
-    this.setState({
-      rulesData: newRulesData
+      searchText: e.target.value,
+      currentRule: undefined,
     })
   }
 
@@ -249,6 +240,7 @@ class ImageUpdate extends Component {
       edit: false,
       currentKey: false,
       currentRulesEnabled: false,
+      currentName: undefined,
     },()=>{
       document.getElementById('rulesName').focus()
     })
@@ -295,6 +287,7 @@ class ImageUpdate extends Component {
     editImageUpdateRules(harbor, registry, id, body, {
       success : {
         func: () => {
+          this.changeLoading()
           Notification.success('修改规则成功')
           if (isReplications) {
             this.loadAllPolicies()
@@ -303,13 +296,14 @@ class ImageUpdate extends Component {
           }
           this.setState({
             addRulesVisible: false,
-            disappear: true,
+            disappear: !this.state.disappear,
           })
         },
         isAsync: true
       },
       failed: {
         func: (res) => {
+          this.changeLoading()
           if(res.statusCode = 409){
             Notification.error('存在相同规则，修改规则失败')
             return
@@ -433,14 +427,23 @@ class ImageUpdate extends Component {
 
   // 新版规则
   async putNewRule(values) {
-    let projectID = this.props.detail.data.projectId
+    const { loadImageUpdateList, loadProjectDetail, iamgeUpdateAddNewRules,
+      registry, detail, harbor, isReplications, projectList, getTargets } = this.props
+    let projectID = isReplications ? values.originPro : detail.data.projectId
     const rep = {
-      registry: registry,
+      registry,
       projectID,
     }
-    const res = await this.props.loadImageUpdateList(this.props.harbor, rep)
-    const { iamgeUpdateAddNewRules, registry, detail, harbor, targets } = this.props
+    await getTargets(DEFAULT_REGISTRY, { harbor })
+    await loadImageUpdateList(harbor, rep)
     let project = detail.data
+    if (isReplications) {
+      projectList.forEach(el => {
+        if (el.projectId === projectID) {
+          project = el
+        }
+      })
+    }
     const projects = [{
       creation_time: project.creationTime,
       current_user_role_id: project.currentUserRoleId,
@@ -455,8 +458,9 @@ class ImageUpdate extends Component {
       update_time: project.updateTime,
     }]
     const currentTarget = []
+    const { targets } = this.props
     targets && targets.length && targets.forEach(item => {
-      if (item.endpoint === harbor) {
+      if (item.endpoint === values.URLAddress) {
         currentTarget.push({
           creation_time: item.creationTime,
           endpoint: item.endpoint,
@@ -519,6 +523,7 @@ class ImageUpdate extends Component {
     if (this.state.edit) {
       return this.handelEidtImageRules(this.state.editKey, body)
     }
+    let Notification = new NotificationHandler()
     return new Promise((resolve, reject) => {
       iamgeUpdateAddNewRules(harbor, registry, body, {
         success : {
@@ -528,6 +533,7 @@ class ImageUpdate extends Component {
               testLink: false,
               testLinkResult: false,
             })
+            this.changeLoading()
             this.modalCancel()
             resolve({
               result: true
@@ -537,6 +543,7 @@ class ImageUpdate extends Component {
         },
         failed: {
           func: (res) => {
+            this.changeLoading()
             resolve({
               result: false,
               statusCode: res.statusCode
@@ -552,15 +559,14 @@ class ImageUpdate extends Component {
         throw(new Error('添加规则失败'))
       }
       // reload 镜像同步页面
-      return this.handleloadImageUpdateList()
-    }).then(loadListResult => {
-      if(!loadListResult.result){
-        throw(new Error('添加规则成功，页面列表刷新失败，请刷新重试！'))
+      if (isReplications) {
+        this.loadAllPolicies()
+      } else {
+        this.handleloadImageUpdateList()
       }
-      this.handleNextStep()
-      throw(new Error('添加规则成功'))
+      this.setState({ disappear: !this.state.disappear })
+      Notification.success('添加规则成功')
     })
-
   }
 
   createNewRules(values){
@@ -571,11 +577,14 @@ class ImageUpdate extends Component {
         name: values.NewTargetstoreName,
         endpoint: values.URLAddress,
         username: values.userName,
-        password: values.passWord
+        password: values.passWord,
+        insecure: !values.insecure,
+        type: 0,
       }
       // 检验新仓库是否可用
       this.validationTargetStore('create', newStoremInfo).then(validateResult => {
         if(!validateResult){
+          this.changeLoading()
           throw(new Error('新目标仓库未连接，创建规则失败！'))
         }
         // 创建新仓库
@@ -583,14 +592,17 @@ class ImageUpdate extends Component {
       }).then(createStoreResult => {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
+            this.changeLoading()
             throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
           }
+          this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
         }
         // 创建新规则 (旧版)
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
+        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
@@ -667,14 +679,40 @@ class ImageUpdate extends Component {
   }
 
   modalConfirm(){
-    const { form } = this.props
+    const { form, isReplications } = this.props
+    const { getFieldValue } = form
     const { edit } = this.state
-    form.validateFields((errors, values) => {
+    let checkArr = []
+    const targetType = getFieldValue('targetStoreType')
+    if (targetType === 'createNewstore') {
+      checkArr = [ 'rulesName', 'description', 'targetStoreType', 'NewTargetstoreName', 'URLAddress', 'userName', 'passWord',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    } else if (targetType === 'selectTargetStore') {
+      checkArr = [ 'rulesName',  'description', 'targetStoreType', 'SelectTargetStore', 'URLAddress',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    }
+    if (isReplications) {
+      checkArr.push('originPro')
+    }
+    if (getFieldValue('repository')) {
+      checkArr.push('repositoryPattern')
+    }
+    if (getFieldValue('tag')) {
+      checkArr.push('tagPattern')
+    }
+    const emode = getFieldValue('emitMode')
+    if (emode === 'Immediate') {  // emitMode
+      checkArr.push('deleteImage')
+    } else if (emode === 'Scheduled') {
+      checkArr.push('setDay')
+      checkArr.push('setTime')
+    }
+    form.validateFields(checkArr, (errors, values) => {
       if(!!errors){
         return
       }
+      this.changeLoading()
       if(edit){
-        // this.handleeditImageUpdateRules(values)
         this.putNewRule(values)
         return
       }
@@ -744,8 +782,14 @@ class ImageUpdate extends Component {
     return <Spin />
   }
 
+  changeLoading = () => {
+    this.setState({
+      confirmLoading: !this.state.confirmLoading,
+    })
+  }
+
   handleModalFooterDomNodes(){
-    const { testLink, disappear } = this.state
+    const { testLink, disappear, confirmLoading } = this.state
     if (disappear) {
       return <div>
         <Button
@@ -775,22 +819,46 @@ class ImageUpdate extends Component {
         : <span></span>
       }
       <Button size="large" onClick={this.handleNextStep}>上一步</Button>
-      <Button type="primary" size="large" onClick={this.modalConfirm}>确定</Button>
+      <Button type="primary" size="large" loading={confirmLoading} onClick={this.modalConfirm}>确定</Button>
     </div>
   }
 
   handleNextStep() {
-    const { form } = this.props
+    const { form, isReplications } = this.props
     const { disappear } = this.state
-    disappear && form.validateFields((errors, values) => {
-      if(errors){
-        return
+    if (disappear) {
+      let checkArr = [ 'rulesName', 'targetStoreType', 'URLAddress', ]
+      const targetType = form.getFieldValue('targetStoreType')
+      if (targetType === 'createNewstore') {
+        checkArr = [ 'rulesName', 'targetStoreType', 'NewTargetstoreName', 'URLAddress', 'userName', 'passWord' ]
+      } else if (targetType === 'selectTargetStore') {
+        checkArr = [ 'rulesName', 'targetStoreType', 'SelectTargetStore', 'URLAddress' ]
       }
+      isReplications && checkArr.push('originPro')
+      form.validateFields(checkArr, (errors, values) => {
+        if(!!errors){
+          return
+        }
+        this.setState({ disappear: !disappear })
+      })
+    } else {
       this.setState({ disappear: !disappear })
-    })
-    !disappear && this.setState({ disappear: !disappear })
-    //
+    }
   }
+
+  selectOriginPro = () => {
+    const { projectList } = this.props
+    return projectList.length && projectList.map(item => {
+      return <Select.Option key={item.projectId} value={item.projectId}>{item.name}</Select.Option>
+    })
+  }
+
+  // checkNewTarget = (rule, value, callback) => {
+  //   if (!value) {
+  //     return callback('请输入新目标仓库名称')
+  //   }
+  //   callback()
+  // }
 
   handleSelectOption(){
     const { targets } = this.props
@@ -804,12 +872,22 @@ class ImageUpdate extends Component {
   }
 
   checkRulesNameProps(rule, value, callback){
+    const { rulesData } = this.props
+    const { edit, currentName } = this.state
     if(!value){
       return callback('请输入规则名称')
     }
     if(value.length < 3 || value.length > 26){
       return callback('规则名称为3到25个字符')
     }
+    if (edit && value === currentName) {
+      return callback()
+    }
+    rulesData && rulesData.length && rulesData.forEach(item => {
+      if (item.name ===  value) {
+        return callback('规则名已存在')
+      }
+    })
     callback()
   }
 
@@ -897,6 +975,11 @@ class ImageUpdate extends Component {
           } else {
             this.handleloadImageUpdateList()
           }
+          if (id === this.state.currentRule) {
+            this.setState({
+              currentRule: undefined,
+            })
+          }
           this.setState({
             SwitchRulesVisible: false
           })
@@ -931,7 +1014,7 @@ class ImageUpdate extends Component {
           SelectTargetStore: value,
           URLAddress: targets[i].endpoint,
           userName: targets[i].username,
-          passWord: '******',
+          passWord: '',
         })
         break
       }
@@ -953,7 +1036,7 @@ class ImageUpdate extends Component {
         form.setFieldsValue({
           URLAddress: currentRules.store.endpoint,
           userName: currentRules.store.username,
-          passWord: '******',
+          passWord: '',
           SelectTargetStore: currentRules.store.name
         })
         return
@@ -1048,7 +1131,7 @@ class ImageUpdate extends Component {
 
   async handleEditRule(record){
     const key = record.key
-    const { form, rulesData, targets } = this.props
+    const { form, rulesData, targets, isReplications  } = this.props
     let targetStore = {}
     form.setFieldsValue({
       rulesName: record.name,
@@ -1071,15 +1154,28 @@ class ImageUpdate extends Component {
     }
     if (record.trigger.kind === 'Scheduled') {
       // offtime => HH:mm
+      const schedule = record.trigger.scheduleParam
+      let newTime = null
+      const originTime = '2018/01/01 08:00'
+      if (schedule.offtime > 57540) {
+        newTime = new Date(new Date(originTime).getTime() - (86400 - schedule.offtime) * 1000)
+      } else {
+        newTime = new Date(schedule.offtime * 1000 + new Date(originTime).getTime())
+      }
+      const setTime = newTime.toString().substring(16, 21)
       form.setFieldsValue({
-        setDay: record.trigger.scheduleParam.weekday.toString(),
-        setTime: '09:00',
+        setDay: schedule.weekday.toString(),
+        setTime,
+      })
+    }
+    if (isReplications) {
+      form.setFieldsValue({
+        originPro: record.projects[0].projectId,
       })
     }
       /*
         需要设置表单状态
       */
-
     this.setState({
       addRulesVisible: true,
       currentKey: key,
@@ -1088,10 +1184,11 @@ class ImageUpdate extends Component {
       edit: true,
       currentRules: {
         rules: rulesData[key],
-        store: record.targets[0], // targets[i],
+        store: record.targets[0],
       },
       currentRulesEnabled: true,
       editKey: record.id,
+      currentName: record.name,
     })
     return
   }
@@ -1110,19 +1207,8 @@ class ImageUpdate extends Component {
     if (mode === 'Manual') {
       return (
         <span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             手动点击触发同步
           </div>
         </span>
@@ -1130,18 +1216,6 @@ class ImageUpdate extends Component {
     } else if (mode === 'Immediate') {
       return (
         <span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                  valuePropName: 'checked',
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <Form.Item>
             <Checkbox
               {
@@ -1155,7 +1229,7 @@ class ImageUpdate extends Component {
             </Checkbox>
           </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             push 镜像自动触发同步
           </div>
         </span>
@@ -1200,20 +1274,8 @@ class ImageUpdate extends Component {
               </Form.Item>
             </span>
           </span>
-          <Form.Item>
-            <Checkbox
-              {
-                ...getFieldProps('quick', {
-                  initialValue: false,
-                  valuePropName: 'checked',
-                })
-              }
-            >
-              立即复制镜像
-            </Checkbox>
-          </Form.Item>
           <div className="emitPrompt">
-            <Icon type="info-circle-o" />
+            <img src={light} alt='light'/>
             定时触发同步
           </div>
         </span>
@@ -1230,6 +1292,14 @@ class ImageUpdate extends Component {
     getCurrentRuleTask(harbor, registry, id)
   }
 
+  handleOnChange = v => {
+    const { harbor, registry, getCurrentRuleTask } = this.props
+    this.setState({
+      currentRule: v.id,
+    })
+    getCurrentRuleTask(harbor, registry, v.id)
+  }
+
   handleCopyRule = () => {
     const { copyCurrentRule, getCurrentRuleTask, harbor, registry } = this.props
     const { currentRule } = this.state
@@ -1237,12 +1307,12 @@ class ImageUpdate extends Component {
       policy_id: currentRule,
     }
     const Notification = new NotificationHandler()
-    Notification.spin('复制中...')
+    Notification.spin('同步中...')
     copyCurrentRule(harbor, registry, body, {
       success : {
         func: () => {
           Notification.close()
-          Notification.success('复制规则成功')
+          Notification.success('同步任务开始执行')
           getCurrentRuleTask(harbor, registry, currentRule)
         },
         isAsync: true
@@ -1250,7 +1320,7 @@ class ImageUpdate extends Component {
       failed: {
         func: err => {
           Notification.close()
-          Notification.error('复制规则失败')
+          Notification.error('同步任务开启失败')
         }
       }
     })
@@ -1283,9 +1353,25 @@ class ImageUpdate extends Component {
     })
   }
 
+  handleRefreshTask = () => {
+    const { harbor, registry, getCurrentRuleTask } = this.props
+    const { currentRule } = this.state
+    getCurrentRuleTask(harbor, registry, currentRule)
+  }
+
+  checkAddressUrl = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入 Url 地址')
+    }
+    // if (!  .test(value)) {
+    //   return callback('请输入正确地址')
+    // }
+    callback()
+  }
+
   render(){
-    const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching } = this.props
-    const { edit, currentRules, currentRulesEnabled, disappear, currentRule } = this.state
+    const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
+    const { edit, currentRules, currentRulesEnabled, disappear, currentRule, searchType, searchText } = this.state
     if(!rulesData || !taskUpdataData){
       return <div style={{textAlign:'center'}}><Spin style={{textAlign:'center'}}></Spin></div>
     }
@@ -1314,7 +1400,7 @@ class ImageUpdate extends Component {
         <Menu.Item key="delete" style={{width:'90px'}}><i className="fa fa-trash-o" aria-hidden="true" style={{ marginRight: '8px'}}></i>删除</Menu.Item>
       </Menu>
     })
-    const rulesColumn = [
+    let rulesColumn = [
       {
         title:' ',
         dataIndex:'check',
@@ -1339,7 +1425,7 @@ class ImageUpdate extends Component {
       },{
         title:'触发模式',
         dataIndex:'trigger',
-        render: (status) => <div>{formatstatus(status.kind)}</div>
+        render: (status) => <div>{ status && formatstatus(status.kind)}</div>
       },{
         title:'操作',
         dataIndex:'key',
@@ -1350,6 +1436,14 @@ class ImageUpdate extends Component {
         </div>
       }
     ]
+
+    if (isReplications) {
+      rulesColumn.splice(4, 0, {
+        title:'仓库组',
+        dataIndex:'projects',
+        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+      })
+    }
 
     const updataTaskColumn = [
       {
@@ -1403,52 +1497,66 @@ class ImageUpdate extends Component {
       onChange: this.handleRadioGroupChange
     })
     const targetstoretype = getFieldValue('targetStoreType')
-    let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
-    let URLAddressProps = getFieldProps('URLAddress')
-    let userNameProps = getFieldProps('userName')
-    let passWordProps = getFieldProps('passWord')
+    // let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
+    const URLAddressProps = getFieldProps('URLAddress',{
+      rules: [
+        { validator: this.checkAddressUrl }
+      ]
+    })
     let SelcetTargetStoreProps = getFieldProps('SelectTargetStore')
-    if(targetstoretype == 'createNewstore'){
-      NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
-        rules: [
-          { required: true, message: '请输入新目标仓库名称' },
-        ]
-      })
-      URLAddressProps = getFieldProps('URLAddress',{
-        rules: [
-          { required: true, message: '请输入URL地址' },
-        ]
-      })
-      userNameProps = getFieldProps('userName',{
-        rules: [
-          { required: true, message: '请输入用户名' },
-        ]
-      })
-      passWordProps = getFieldProps('passWord',{
-        rules: [
-          { required: true, message: '请输入密码' },
-        ],
-      })
-    }
-    if(targetstoretype == 'selectTargetStore'){
-      SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
-        rules: [
-          { required: true, message: '请选择一个目标仓库' },
-        ]
-      })
-    }
+    const NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
+      rules: [
+        { required: true, message: '请输入新目标仓库名称' },
+        // { validator:　this.checkNewTarget }
+      ]
+    })
+    const userNameProps = getFieldProps('userName',{
+      rules: [
+        { required: true, message: '请输入用户名' },
+      ]
+    })
+    const passWordProps = getFieldProps('passWord',{
+      rules: [
+        { required: true, message: '请输入密码' },
+      ],
+    })
+    // if(targetstoretype == 'selectTargetStore'){
+    SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
+      rules: [
+        { required: true, message: '请选择一个目标仓库' },
+      ]
+    })
+    // }
 
     const formItemLayout = {
-      labelCol: {span: 4},
-      wrapperCol: {span: 20},
+      labelCol: {span: 5},
+      wrapperCol: {span: 19},
     }
-
+    const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
+    const selectBefore = (
+      <Select
+        value={searchType}
+        style={{ width: 80 }}
+        onChange={searchType => this.setState({ searchType, searchText: '' })}>
+        <Option value="name">名称</Option>
+        <Option value="target">目标</Option>
+      </Select>
+    )
+    const listData = !searchText ? rulesData : rulesData.filter(item => {
+      if (searchType === 'target') {
+        return item.targets[0].name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+      }
+      return item.name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+    })
     return(
       <div id='imageUpdata'>
         <div className='rules'>
+          <div className="headerPrompt">
+            镜像同步可以将当前镜像仓库组，同步到另一个 harbor 的同名仓库组中，适用于仓库组间的批量复制镜像操作，例如做镜像备份或应用需要部署到不同集群等场景
+          </div>
           <div className='header'>
             {
-              !isReplications &&
+              // !isReplications &&
               <Button type="primary" size='large' className='buttonadd' onClick={this.handleAddRules}>
                 <i className='fa fa-plus'/>&nbsp;添加规则
               </Button>
@@ -1458,49 +1566,60 @@ class ImageUpdate extends Component {
             </Button>
             <Button
               size='large'
+              type="ghost"
               className='btbuttonadd'
               disabled={!currentRule}
               onClick={this.handleCopyRule}>
-              复制
+              同步镜像
             </Button>
-            {/*<span className='searchBox'>
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>*/}
+            <span className='searchBox'>
+              <Input
+                addonBefore={selectBefore}
+                size="large"
+                placeholder={searchType === 'name' ? '按名称搜索' : '按目标名搜索'}
+                className='inputStandrd'
+                value={searchText}
+                onChange={this.handleInputValue}
+              />
+            </span>
             {
-              rulesData.length
-              ? <span className='totleNum'>共计：{rulesData.length} 条</span>
+              listData.length
+              ? <span className='totleNum'>共计：{listData.length} 条</span>
               : null
             }
           </div>
           <div className="body">
             <Table
+              onRowClick={this.handleOnChange}
               loading={this.props.loading}
               columns={rulesColumn}
-              dataSource={rulesData}
+              dataSource={listData}
               pagination={{simple: true}}
             />
           </div>
         </div>
         {
-          !isReplications &&
+          // !isReplications &&
           <div className='updataTask'>
             <div className='title'>同步任务</div>
             <div className="header">
             <Button
-              disabled={ taskUpdataData.length < 1 }
+              size="large"
+              type="ghost"
+              disabled={ !currentRule ? true : taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
             </Button>
-            <span className="searchBox">
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                     onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>
+            <Button
+              size="large"
+              type="ghost"
+              disabled={!currentRule}
+              onClick={this.handleRefreshTask}>
+              刷新
+            </Button>
               {
                 taskUpdataData.length
-                  ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
+                  ? <span className='totNum'>共计：{taskUpdataData.length} 条</span>
                   : null
               }
             </div>
@@ -1550,6 +1669,32 @@ class ImageUpdate extends Component {
               >
                 <Input size="large" {...descriptionProps} className='textareaStyle' type="textarea"/>
               </Form.Item>
+              {
+                isReplications
+                ? <Form.Item
+                    {...formItemLayout}
+                    label='源项目'
+                    key="originPro"
+                    style={{ marginTop: 24, marginBottom: 0 }}
+                  >
+                    <Select
+                      showSearch
+                      optionFilterProp="children"
+                      placeholder="选择源项目"
+                      {
+                        ...getFieldProps('originPro',{
+                          rules: [{
+                            required: true, message: '请选择一个源项目'
+                          }]
+                        })
+                      }
+                    >
+                      {this.selectOriginPro()}
+                    </Select>
+                  </Form.Item>
+                  : null
+              }
+
               <Form.Item
                 {...formItemLayout}
                 key="targeStoreType"
@@ -1592,15 +1737,29 @@ class ImageUpdate extends Component {
                   <span>
                     <Form.Item
                       {...formItemLayout}
-                      label='用户名'
+                      label={<span>用户名<span className='star'>*</span></span>}
                     >
                       <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}
-                      label="密码"
+                      label={<span>密码<span className='star'>*</span></span>}
                     >
                       <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
+                    </Form.Item>
+                    <Form.Item
+                      {...formItemLayout}
+                      label="验证远程证书"
+                    >
+                      <Checkbox
+                        {...getFieldProps('insecure', {
+                          valuePropName: 'checked',
+                        })}
+                      >
+                        <Tooltip placement="top" title={text}>
+                          <Icon type="info-circle-o" />
+                        </Tooltip>
+                      </Checkbox>
                     </Form.Item>
                   </span>
                   : null
@@ -1618,118 +1777,135 @@ class ImageUpdate extends Component {
               } */}
             </div>
 
-            {
-              !disappear ?
-                <div className="second">
-                  <Row>
-                    <Col className="ant-col-4 ant-form-item-label">
-                      镜像过滤
-                    </Col>
-                    <Col className="checkBox ">
-                      <Form.Item>
-                        <Checkbox
-                          {
-                            ...getFieldProps('repository', {
-                              initialValue: false,
-                              valuePropName: 'checked',
-                            })
-                          }
-                        >
-                          repository
-                        </Checkbox>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  {
-                    getFieldValue('repository')
-                      ? <Row className="inpRow">
-                          <Col className="ant-col-4"></Col>
-                          <Col className="ant-col-20">
-                            <Form.Item>
-                              <Input
-                                size="large"
-                                {
-                                  ...getFieldProps('repositoryPattern',{
-                                    rules: [
-                                      { required: true, message: '请输入 tag' },
-                                    ]
-                                  })
-                                }
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      : null
-                  }
-
-                  <Row>
-                    <Col className="ant-col-4"></Col>
-                    <Col className="checkBox">
-                      <Form.Item>
-                        <Checkbox
-                          {
-                            ...getFieldProps('tag', {
-                              initialValue: false,
-                              valuePropName: 'checked',
-                            })
-                          }
-                        >
-                          tag
-                        </Checkbox>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  {
-                    getFieldValue('tag')
-                      ? <Row className="inpRow">
-                          <Col className="ant-col-4"></Col>
-                          <Col className="ant-col-20">
-                            <Form.Item>
-                              <Input
-                                size="large"
-                                {
-                                  ...getFieldProps('tagPattern',{
-                                    rules: [
-                                      { required: true, message: '请输入 tag' },
-                                    ]
-                                  })
-                                }
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      : null
-                  }
-
-                  <Form.Item
-                    label="触发模式"
-                    labelCol={{ span: 4 }}
-                    wrapperCol={{ span: 20 }}
-                    style={{ marginTop: 10, marginBottom: 10 }}
-                  >
-                    <Select
-                      id="select"
-                      size="large"
+            <div className={ disappear ? "second disappear" : "second" }>
+              <Row>
+                <Col className="ant-col-4 ant-form-item-label">
+                  镜像过滤
+                </Col>
+                <Col className="checkBox ">
+                  <Form.Item>
+                    <Checkbox
                       {
-                        ...getFieldProps('emitMode', {
-                          initialValue: 'Manual',
+                        ...getFieldProps('repository', {
+                          initialValue: false,
+                          valuePropName: 'checked',
                         })
                       }
                     >
-                      <Option value="Manual">手动同步</Option>
-                      <Option value="Immediate">自动同步</Option>
-                      <Option value="Scheduled">定时触发</Option>
-                    </Select>
+                      repository
+                    </Checkbox>
                   </Form.Item>
+                </Col>
+              </Row>
+              {
+                getFieldValue('repository')
+                  ? <Row className="inpRow">
+                      <Col className="ant-col-4"></Col>
+                      <Col className="ant-col-20">
+                        <Form.Item>
+                          <Input
+                            size="large"
+                            placeholder="请输入镜像名称"
+                            {
+                              ...getFieldProps('repositoryPattern',{
+                                rules: [
+                                  { required: true, message: '请输入 tag' },
+                                ]
+                              })
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  : null
+              }
 
-                  <Row>
-                    <Col className="ant-col-4"></Col>
-                    <Col className="checkBox" span={20}>{this.emitModeOption()}</Col>
-                  </Row>
-                </div>
-                : null
-            }
+              <Row>
+                <Col className="ant-col-4"></Col>
+                <Col className="checkBox">
+                  <Form.Item>
+                    <Checkbox
+                      {
+                        ...getFieldProps('tag', {
+                          initialValue: false,
+                          valuePropName: 'checked',
+                        })
+                      }
+                    >
+                      tag
+                    </Checkbox>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              {
+                getFieldValue('tag')
+                  ? <Row className="inpRow">
+                      <Col className="ant-col-4"></Col>
+                      <Col className="ant-col-20">
+                        <Form.Item>
+                          <Input
+                            size="large"
+                            placeholder="请输入镜像版本"
+                            {
+                              ...getFieldProps('tagPattern',{
+                                rules: [
+                                  { required: true, message: '请输入 tag' },
+                                ]
+                              })
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  : null
+              }
+
+              <Form.Item
+                label="触发模式"
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
+                style={{ marginTop: 10, marginBottom: 10 }}
+              >
+                <Select
+                  id="select"
+                  size="large"
+                  {
+                    ...getFieldProps('emitMode', {
+                      initialValue: 'Manual',
+                    })
+                  }
+                >
+                  <Option value="Manual">手动同步</Option>
+                  <Option value="Immediate">自动同步</Option>
+                  <Option value="Scheduled">定时触发</Option>
+                </Select>
+              </Form.Item>
+              <Row>
+                <Col className="ant-col-4"></Col>
+                <Col className="checkBox" span={20}>
+                  <Form.Item>
+                    <Checkbox
+                      {
+                        ...getFieldProps('quick', {
+                          initialValue: false,
+                          valuePropName: 'checked',
+                        })
+                      }
+                    >
+                      立即同步镜像
+                    </Checkbox>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row>
+                <Col className="ant-col-4"></Col>
+                <Col className="checkBox" span={20}>{this.emitModeOption()}</Col>
+              </Row>
+              <Form.Item>
+          </Form.Item>
+            </div>
+
           </Form>
         </Modal>
 
@@ -1771,7 +1947,7 @@ ImageUpdate = Form.create()(ImageUpdate)
 
 function mapStateToProp(state, props) {
   const { harbor: stateHarbor, entities } = state
-  const { location } = props
+  const { location, registry } = props
   const { detail, imageUpdate, imageUpdateLogs, rules, targets: allTargets } = stateHarbor
   const { isFetching, logs } = state.harbor.currentRuleTask
   const { policies, jobs, targets } = imageUpdate
@@ -1786,6 +1962,7 @@ function mapStateToProp(state, props) {
   const { cluster } =  entities.current
   const { harbor: harbors } = cluster
   const harbor = harbors ? harbors[0] || "" : ""
+  const projectList = state.harbor && state.harbor.projects[registry] && state.harbor.projects[registry].list || []
   return {
     detail,
     loading: isReplications ? rules.isFetching : imageUpdate.isFetching,
@@ -1796,6 +1973,7 @@ function mapStateToProp(state, props) {
     isReplications,
     harbor,
     isFetching,
+    projectList,
   }
 }
 
@@ -1813,5 +1991,8 @@ export default connect(mapStateToProp, {
   getCurrentRuleTask,
   copyCurrentRule,
   updateCurrentTask,
+  loadProjectList,
+  loadProjectDetail,
+  getTargets,
 })(ImageUpdate)
 

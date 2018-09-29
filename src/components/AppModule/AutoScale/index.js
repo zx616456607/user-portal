@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { Button, Table, Menu, Dropdown, Icon, Modal, Tooltip } from 'antd'
 import {
   loadAutoScaleList, deleteAutoScale, updateAutoScale,
-  updateAutoScaleStatus
+  updateAutoScaleStatus, loadServiceDetail
 } from '../../../actions/services'
 import './style/index.less'
 import CommonSearchInput from '../../CommonSearchInput'
@@ -50,7 +50,7 @@ class AutoScale extends React.Component {
     }
   }
   loadData = (clusterID, page, name) => {
-    const { loadAutoScaleList } = this.props
+    const { loadAutoScaleList, loadServiceDetail } = this.props
     let query = {
       page: page,
       size: 10
@@ -70,6 +70,25 @@ class AutoScale extends React.Component {
             scaleList,
             totalCount: res.totalCount,
             tableLoading: false,
+          })
+          scaleList.forEach(item => {
+            loadServiceDetail(clusterID, item.metadata.name, {
+              success: {
+                func: res => {
+                  const isFexed = res.data
+                    && res.data.spec
+                    && res.data.spec.template
+                    && res.data.spec.template.metadata
+                    && res.data.spec.template.metadata.annotations
+                    && res.data.spec.template.metadata.annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+                    || false
+                  item.isFexed = isFexed
+                  this.setState({
+                    scaleList,
+                  })
+                }
+              }
+            })
           })
         },
         isAsync: true
@@ -193,6 +212,9 @@ class AutoScale extends React.Component {
         deleteModal: true
       })
     } else if (e.key === 'start' || e.key === 'stop') {
+      if (record.isFexed) {
+        return notify.warn('已固定 IP，请勿启动')
+      }
       let opt = Object.assign({type: e.key === 'start' ? 1 : 0, services: [serviceName]})
       const mesSpin = e.key === 'start' ? '启用中' : '停用中'
       notify.spin(mesSpin)
@@ -280,6 +302,9 @@ class AutoScale extends React.Component {
     this.loadData(clusterID, pagination.current, searchValue)
   }
   onRowClick = record => {
+    if (record.isFexed) {
+      return null
+    }
     const { selectedRowKeys } = this.state
     const name = record.metadata.name
     let newKeys = selectedRowKeys.slice(0)
@@ -427,6 +452,9 @@ class AutoScale extends React.Component {
       title: '策略名称',
       dataIndex: 'metadata.labels.strategyName',
       width: '10%',
+      render: (text, record) => <Tooltip placement="top" title={record.isFexed ? '已固定 IP' : null}>
+        <span>{text}</span>
+      </Tooltip>
     }, {
       title: '服务名称',
       dataIndex: 'metadata.name',
@@ -483,6 +511,7 @@ class AutoScale extends React.Component {
       }
     }];
     const rowSelection = {
+      getCheckboxProps: record => ({ disabled: record.isFexed === true }),
       selectedRowKeys,
       onChange: (selectedRowKeys) => this.setState({selectedRowKeys}, this.checkScaleStatus)
     };
@@ -586,13 +615,16 @@ class AutoScale extends React.Component {
             onRowClick={this.onRowClick}
             onChange={this.tableFilter}
             dataSource={scaleList} />
-          <AutoScaleModal
-            visible={scaleModal}
-            create={create}
-            reuse={reuse}
-            scaleDetail={scaleDetail}
-            existServices={existServices}
-            scope={this}/>
+          {
+            scaleModal &&
+            <AutoScaleModal
+              visible={scaleModal}
+              create={create}
+              reuse={reuse}
+              scaleDetail={scaleDetail}
+              existServices={existServices}
+              scope={this}/>
+          }
         </div>
       </QueueAnim>
     )
@@ -613,5 +645,6 @@ export default connect(mapStateToProps, {
   loadAutoScaleList,
   deleteAutoScale,
   updateAutoScale,
-  updateAutoScaleStatus
+  updateAutoScaleStatus,
+  loadServiceDetail,
 })(AutoScale)

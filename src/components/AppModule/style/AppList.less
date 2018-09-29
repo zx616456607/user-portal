@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #AppList {
   padding-top: 20px;
   padding-left: 20px;
@@ -55,7 +56,7 @@
       }
       .ant-btn-ghost:hover, .ant-btn-ghost:focus {
         .rocket {
-          fill: #10B5FF;
+          fill: @primary-color;
         }
       }
       .rocket{
@@ -141,7 +142,7 @@
         transition: all 0.2s ease-in-out;
         vertical-align: middle;
         &:hover {
-          fill:#10B5FF;
+          fill:  @primary-color;
         }
       }
       i {
@@ -167,7 +168,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       .indexOf{
-        background: #2db7f5;
+        background:  @primary-color;
         color: white;
         text-transform: uppercase;
         width:18px;height: 18px;

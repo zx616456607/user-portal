@@ -42,7 +42,8 @@ let ContainerCatalogueModal = React.createClass({
       isResetComponent: false,
       confirmLoading: false,
       type_1Value: 'nfs',
-      serverType: 'random'
+      serverType: 'random',
+      hostDir: ''
       // loading: true,
     }
   },
@@ -75,9 +76,15 @@ let ContainerCatalogueModal = React.createClass({
   componentWillMount() {
     const { currentIndex, fieldsList, isTemplate, getClusterStorageList, clusterID } = this.props
     this.restFormValues(fieldsList[currentIndex])
-    if (isTemplate) {
-      getClusterStorageList(clusterID)
-    }
+    getClusterStorageList(clusterID, {
+      success: {
+        func: (res) => {
+          this.setState({
+            hostDir: res.data.hostList[0] && res.data.hostList[0].parameters.baseDir,
+          })
+        }
+      },
+    })
   },
 
   componentWillReceiveProps(nextProps) {
@@ -323,9 +330,10 @@ let ContainerCatalogueModal = React.createClass({
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 17 }}
       >
+
         <div className='host_wrapper'>
-          <span>/usr/root</span>
           <Input
+            addonBefore={this.state.hostDir}
             placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
               item: intl.formatMessage(IntlMessage.hostDirectory),
               end: '',
@@ -831,7 +839,7 @@ let ContainerCatalogueModal = React.createClass({
             }
             {this.renderDifferentType(type, volume)}
             {
-              (type !== 'host' && volume == 'create') &&
+              type === 'share' &&
               <FormItem
                 label="server共享目录"
                 {...formItemLayout}

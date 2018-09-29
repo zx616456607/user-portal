@@ -19,7 +19,7 @@ import {
 } from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
-import { formatDate, calcuDate } from '../../common/tools'
+import { formatDate, calcuDate, getHostLastHeartbeatTime } from '../../common/tools'
 import { LABEL_APPNAME } from '../../constants'
 import NotificationHandler from '../../components/Notification'
 import { getHostInfo } from '../../actions/cluster'
@@ -673,6 +673,7 @@ class ClusterDetail extends Component {
     } = this.props
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
+    const lastHeartbeatTime = getHostLastHeartbeatTime(hostInfo) || '-'
     const showCpu = switchCpu ? this.formatMetrics(hostCpu, clusterName) : this.formatMetrics(cpu, clusterName)
     const showMemory = switchMemory ? this.formatMetrics(hostMemory, clusterName): this.formatMetrics(memory, clusterName)
     const showNetworkRec = switchNetwork ? this.formatMetrics(hostNetworkRx, clusterName) : this.formatMetrics(networkReceived, clusterName)
@@ -710,6 +711,12 @@ class ClusterDetail extends Component {
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
               <div className="list"><FormattedMessage {...intlMsg.runningStatus}/>：{this.renderStatus(hostInfo)}</div>
               <div className="list"><FormattedMessage {...intlMsg.nodeRole}/>：<span className="role">{hostInfo.isMaster ? formatMessage(intlMsg.masterNode) : formatMessage(intlMsg.computedNode)}</span></div>
+              <div className="list">
+                <FormattedMessage {...intlMsg.lastHeartbeatTime}/>
+                <span className="role">
+                  {lastHeartbeatTime}
+                </span>
+              </div>
             </div>
             <div className="formItem">
               <div className="h2"></div>

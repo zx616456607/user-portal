@@ -24,7 +24,6 @@ import NotificationHandler from '../../../components/Notification'
 import JoinProjectsModal from './JoinProjectsModal'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 import './style/UserProjectsAndTeams.less'
-import ResourceQuota from '../../ResourceLimit'
 import { getGlobaleQuota, getGlobaleQuotaList, getClusterQuota, getClusterQuotaList } from '../../../actions/quota'
 import { REG } from '../../../constants'
 
@@ -508,9 +507,6 @@ class UserProjectsAndTeams extends React.Component {
                 />
               </div>
             </div>
-          </TabPane>
-          <TabPane tab="个人资源配额管理" key="quota">
-            <ResourceQuota isProject={false} userName={userDetail.displayName} />
           </TabPane>
         </Tabs>
         <Modal

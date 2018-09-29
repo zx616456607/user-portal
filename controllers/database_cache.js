@@ -406,6 +406,17 @@ exports.rebootCluster = function* () {
   const result = yield api.updateBy([clusterID, 'daas', type, name, 'reboot'])
   this.body = result
 }
+
+//获取回滚记录
+exports.getRollbackRecord = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const clusterID = this.params.clusterID
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterID, 'daas', type, name, 'restores' ])
+  this.body = result
+}
 exports.scaleDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser

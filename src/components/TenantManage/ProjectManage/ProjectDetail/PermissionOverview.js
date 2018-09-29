@@ -283,6 +283,7 @@ class PermissionOverview extends React.Component{
         [`visible-${type}-${record.name}`]: false
       })
     }
+    notify.close()
   }
 
   deletePermission = currentPermission => {

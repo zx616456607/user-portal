@@ -8,32 +8,23 @@
  * @date Tuesday June 12th 2018
  */
 import * as React from 'react'
-// import { connect } from 'react-redux'
 import { Card, Table, Button, Select, DatePicker, Modal, Alert, Pagination, Icon } from 'antd'
 import './style/index.less'
-// import Notification from '../../../../src/components/Notification'
 import Title from '../../../../src/components/Title'
 import CommonSearchInput from '../../../../src/components/CommonSearchInput'
 import ApplayDetail from '../ApplyLimit/Operation/ApplayDetail'
 import QueueAnim from 'rc-queue-anim'
 import '@tenx-ui/page/assets/index.css'
 import TenxPage from '@tenx-ui/page'
-// import TenxIcon from '@tenx-ui/icon'
 import { connect } from 'react-redux'
-// import { checkApplyRecord, checkResourcequotaDetail } from '../../../actions/applyLimit'
 import * as applyLimitActions from '../../../actions/applyLimit'
 import _ from 'lodash'
-// import { loadUserList } from '../../../../src/actions/user'
 import * as userActions from '../../../../src/actions/user'
 import { getDeepValue } from '../../../util/util'
 import moment from 'moment'
-// import { checkResourcequotaDetail } from '../../../actions/applyLimit'
-// import { ListProjects } from '../../../../src/actions/project'
 import * as projectActions from '../../../../src/actions/project'
 import ApprovalOperation from '../../../../src/components/TenantManage/ApprovalOperation'
-// import { getDevopsGlobaleQuotaList, getResourceDefinition } from '../../../../src/actions/quota'
 import * as quotaActions from '../../../../src/actions/quota'
-// import { getResourceDefinition } from '../../../../src/actions/quota'
 import { calcuDate } from '../../../../src/common/tools'
 import { Link } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -84,6 +75,7 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
   checkResourcequotaDetail, toggleApprovalModal, getDevopsGlobaleQuotaList,
   self }) => {
   const { allUsers } = self.state
+  const { getProjectVisibleClusters } = self.props
   const colums = [{
     title: '申请项目',
     dataIndex: 'item',
@@ -158,6 +150,7 @@ const getColums = ({ toggleDetailForm, getDetailRecord,
       const toggleDetail = recordTo => {
         getDetailRecord(recordTo)
         checkResourcequotaDetail(recordTo.id)
+        getProjectVisibleClusters(recordTo.namespace)
         // let query = {}
         // if (record.namespace !== personNamespace) { // 如果是我的个人项目
         //   query = { header: { teamspace: record.namespace } }
@@ -244,7 +237,6 @@ class ApprovalLimit extends React.Component {
     detailVisible: false, // 详情页显示影藏标志位
     currentPage: 1,
     searchValue: null, // 当前搜索的关键字
-    itemType: undefined, // 项目类型
     approvalStatus: undefined, // 审批状态
     approver: undefined, // 审批者
     showApprovalModal: false, // 显示/隐藏审批页面
@@ -362,7 +354,7 @@ class ApprovalLimit extends React.Component {
   }
   reload = () => {
     const { checkApplyRecord } = this.props
-    this.setState({ currentPage: 1, searchValue: null, itemType: undefined,
+    this.setState({ currentPage: 1, searchValue: null,
       approvalStatus: undefined, approver: undefined, startValue: undefined, endValue: undefined })
     const waitquery = { from: 0, size: 10, filter: 'status,0', noreducer: true }
     checkApplyRecord(waitquery, {
@@ -385,9 +377,6 @@ class ApprovalLimit extends React.Component {
       const query = { from: 0, size: 10, filter: `display_name,${value}` } // 搜索关键词的时候 默认请求第一页
       checkApplyRecord(query)
     }
-  }
-  clickItemType = value => {
-    this.setState({ itemType: value })
   }
   clickApprovalStatus = value => {
     if (value === 0) {
@@ -421,15 +410,11 @@ class ApprovalLimit extends React.Component {
     this.setState({ showApprovalModal: false })
   }
   handleSearch = () => {
-    const { itemType, approvalStatus, approver, startValue, endValue } = this.state
+    const { approvalStatus, approver, startValue, endValue } = this.state
     const { checkApplyRecord } = this.props
     const formateStartValue = moment(startValue).format('X') // 转换成事件戳
     const formatEndValue = moment(endValue).format('X') // 转换成事件戳
-    let filter = ''
-    if (!_.isEmpty(itemType)) {
-      filter += `project_type,${itemType},`
-
-    }
+    let filter = 'project_type,public,'
     if (approvalStatus !== undefined) { // 因为审批中是零
       filter += `status,${approvalStatus},`
     }
@@ -484,14 +469,14 @@ class ApprovalLimit extends React.Component {
   }
   resetSearch = () => {
     const { checkApplyRecord } = this.props
-    this.setState({ currentPage: 1, searchValue: null, itemType: undefined,
+    this.setState({ currentPage: 1, searchValue: null,
       approvalStatus: undefined, approver: undefined, startValue: undefined, endValue: undefined })
     const query = { from: 0, size: 10, sort: 'd,create_time' } // 刷新页面时 默认请求第一页
     checkApplyRecord(query)
   }
   render() {
     const { startValue, endValue, endOpen, approvalVisible, approvalLoading,
-      detailVisible, currentPage, itemType, approvalStatus, approver, wait,
+      detailVisible, currentPage, approvalStatus, approver, wait,
       showApprovalModal, applyTimeSorted, approvalTimeSorted, globaleDevopsQuotaList, definitions,
     } = this.state
     const sortedInfo = this.state.sortedInfo || {}
@@ -507,11 +492,7 @@ class ApprovalLimit extends React.Component {
     const formateStartValue = moment(startValue).format('X') // 转换成事件戳
     const formatEndValue = moment(endValue).format('X') // 转换成事件戳
     const self = this
-    let filter = ''
-    if (!_.isEmpty(itemType)) {
-      filter += `project_type,${itemType},`
-
-    }
+    let filter = 'project_type,public,'
     if (!_.isEmpty(approvalStatus)) {
       filter += `status,${approvalStatus}`
     }
@@ -552,10 +533,6 @@ class ApprovalLimit extends React.Component {
         <QueueAnim>
           <Title title="配额审批" />
           <div className="layout-content-btns header" key="header">
-            <Select placeholder="项目类型" style={{ width: 140 }} value={itemType}
-              onChange={this.clickItemType}>
-              {optionFormat({ 个人项目: 'person', 共享项目: 'public' })}
-            </Select>
             <Select placeholder="审批状态" style={{ width: 140 }} value={approvalStatus}
               onChange={this.clickApprovalStatus}
             >
@@ -662,6 +639,7 @@ export default connect(mapStateToProps, {
   loadUserList: userActions.loadUserList,
   checkResourcequotaDetail: applyLimitActions.checkResourcequotaDetail,
   ListProjects: projectActions.ListProjects,
+  getProjectVisibleClusters: projectActions.getProjectVisibleClusters,
   getDevopsGlobaleQuotaList: quotaActions.getDevopsGlobaleQuotaList,
   getResourceDefinition: quotaActions.getResourceDefinition,
 })(ApprovalLimit)

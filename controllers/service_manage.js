@@ -173,7 +173,7 @@ exports.getServiceContainers = function* () {
     Object.assign(headers, { project: projectName, teamspace: projectName })
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], null, { headers })
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'], this.query, { headers })
   const instances = result.data.instances || []
   instances.map((pod) => {
     pod.images = []
@@ -265,8 +265,8 @@ exports.getServiceAutoScaleList = function* () {
   var autoScaleList = {}
   let index = 0
   for (let key in tempList){
-    index++
-    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from + 1 && index <= from + size){
+    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from && index < from + size){
+      index++
       autoScaleList[key] = tempList[key]
     }
   }
@@ -625,7 +625,7 @@ exports.getAllService = function*() {
     queryObj.filter = `label ${label}`
   }
   const api = apiFactory.getK8sApi(this.session.loginUser)
-	const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
+  const response = yield api.getBy([cluster, 'services'], queryObj, { headers })
   const lbgroupSettings =  yield api.getBy([cluster, 'proxies'])
   if (!response.data) {
     response.data = {
@@ -749,4 +749,13 @@ exports.updateAnnotation = function* () {
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const response = yield api.updateBy([cluster, 'services', service, 'annotation'], null, body)
   this.body = response
+}
+
+exports.updateHostConfig = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([cluster, 'services', service, 'host'], null, body)
+  this.body = result
 }

@@ -1,7 +1,6 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
- */
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.*/
 
 /**
  * App template list
@@ -26,12 +25,14 @@ import {
 import ReleaseModal from './ReleaseModal';
 import * as TemplateActions from '../../../actions/template';
 import * as QuickCreateAppActions from '../../../../src/actions/quick_create_app';
+import * as globalActions from '../../../../src/actions/global_config';
 import defaultApp from '../../../assets/img/AppCenter/app_template.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
+import { getDeepValue } from '../../../util/util'
 
 const notify = new NotificationHandler();
 
@@ -46,7 +47,9 @@ class TemplateList extends React.Component<any> {
   serviceSum = 0;
 
   componentWillMount() {
+    const { loadGlobalConfig } = this.props
     this.loadTemplateList();
+    loadGlobalConfig()
   }
 
   loadTemplateList = (query: any) => {
@@ -98,7 +101,7 @@ class TemplateList extends React.Component<any> {
     this.setState({
       deleteLoading: true,
     });
-    notify.spin(intl.formatMessage(AppCenterMessage.deteting));
+    notify.spin(intl.formatMessage(AppCenterMessage.deleting));
     const result = await deleteAppTemplate(selectedTemp.name, selectedTemp.versions[0].version);
     if (result.error) {
       notify.close(intl.formatMessage(AppCenterMessage.deleteFailure));
@@ -186,9 +189,11 @@ class TemplateList extends React.Component<any> {
         <div className="noTemplateData" key="noTemplateData"/>,
         <div className="noTemplateText" key="noTemplateText">
           <FormattedMessage {...AppCenterMessage.emptyTip} />
-          <Button type="primary" size="large" onClick={this.createTemplate}>
-            <FormattedMessage {...AppCenterMessage.create} />
-          </Button>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <Button type="primary" size="large" onClick={this.createTemplate}>
+              <FormattedMessage {...AppCenterMessage.create} />
+            </Button>
+          </Tooltip>
         </div>,
       ];
     }
@@ -235,14 +240,43 @@ class TemplateList extends React.Component<any> {
                 <span>{calcuDate(temp.versions[0].created)}</span>
               </Tooltip>
             </div>
-            <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>
-              <FormattedMessage {...AppCenterMessage.deploy}/>
-            </Button>
+            <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+              <Button
+                className="deploy"
+                type="ghost"
+                disabled={this.chartRepoIsEmpty()}
+                onClick={() => this.handleDeploy(temp)}
+              >
+                <FormattedMessage {...AppCenterMessage.deploy}/>
+              </Button>
+            </Tooltip>
           </div>
         </div>
       );
     });
   }
+
+  chartRepoIsEmpty = () => {
+    const { globalConfig } = this.props
+    if (isEmpty(globalConfig)) {
+      return true
+    }
+    let chartRepo = globalConfig.filter(item => item.configType === 'chart_repo')
+    if (isEmpty(chartRepo)) {
+      return true
+    }
+    chartRepo = chartRepo[0]
+    const { configDetail } = chartRepo
+    if (isEmpty(configDetail)) {
+      return true
+    }
+    const { url } = JSON.parse(configDetail)
+    if (isEmpty(url)) {
+      return true
+    }
+    return false
+  }
+
   render() {
     const { deleteVisible, releaseVisible, deleteLoading, searchValue, current } = this.state;
     const { total, intl } = this.props;
@@ -258,9 +292,11 @@ class TemplateList extends React.Component<any> {
       <QueueAnim className="templateWrapper layout-content">
         <Title title={formatMessage(AppCenterMessage.appTemplate)}/>
         <div className="layout-content-btns" key="btns">
-          <Button type="primary" size="large" onClick={this.createTemplate}>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <Button type="primary" size="large" disabled={this.chartRepoIsEmpty()} onClick={this.createTemplate}>
               <i className="fa fa-plus" /> <FormattedMessage {...AppCenterMessage.create} />
-          </Button>
+            </Button>
+          </Tooltip>
           <Button type="ghost" size="large" onClick={this.loadTemplateList}>
               <i className="fa fa-refresh"/> <FormattedMessage {...AppCenterMessage.refresh} />
           </Button>
@@ -306,11 +342,13 @@ const mapStateToProps = state => {
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 0 };
+  const globalConfig = getDeepValue(state, ['globalConfig', 'globalConfig', 'result', 'data'])
   return {
     templateList,
     total,
     isFetching,
     fields: quickCreateApp.fields,
+    globalConfig,
   };
 };
 
@@ -319,4 +357,5 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
+  loadGlobalConfig: globalActions.loadGlobalConfig,
 })(injectIntl(TemplateList, { withRef: true }));

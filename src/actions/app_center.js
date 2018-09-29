@@ -123,19 +123,32 @@ export function LoadOtherImage(callback) {
   }
 }
 
+export function dispatchLoadOtherImage(id, query, callback) {
+  return (dispatch) => {
+    return dispatch(LoadOtherImage(id, query, callback))
+  }
+}
+
 export const GET_OTHER_LIST_REQUEST = 'GET_OTHER_LIST_REQUEST'
 export const GET_OTHER_LIST_SUCCESS = 'GET_OTHER_LIST_SUCCESS'
 export const GET_OTHER_LIST_FAILURE = 'GET_OTHER_LIST_FAILURE'
 
 // Other image list getOtherImageList
-export function getOtherImageList(id) {
+export function getOtherImageList(id, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_LIST_REQUEST, GET_OTHER_LIST_SUCCESS, GET_OTHER_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}/images`,
       schema: Schemas.REGISTRYS
     },
-    id
+    id,
+    callback
+  }
+}
+
+export function dispatchGetOtherImageList(id, callback) {
+  return (dispatch) => {
+    return dispatch(getOtherImageList(id, callback))
   }
 }
 
@@ -940,9 +953,9 @@ function fetchUploadWrap(query,body,callback) {
   }
 }
 
-export function uploadWrap(body, callback) {
+export function uploadWrap(query, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchUploadWrap(body, callback))
+    return dispatch(fetchUploadWrap(query, body, callback))
   }
 }
 

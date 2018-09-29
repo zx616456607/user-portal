@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 #account_projectManage {
   padding: 20px 20px 100px;
   .btnBox{
@@ -10,7 +11,7 @@
   }
   .addBtn {
     font-weight: normal;
-    background-color: #2db7f5;
+    background-color: @primary-color;
     padding: 5px 10px;
     float: left;
     margin-right: 10px;
@@ -62,7 +63,7 @@
     i{
       width: 6px;
       height: 16px;
-      background-color: #2db7f5;
+      background-color: @primary-color;
       margin-left: 20px;
       margin-right: 10px;
     }
@@ -136,16 +137,16 @@
     }
     .active{
       color: #ffffff;
-      background-color: #2db7f5;
+      background-color: @primary-color;
       span{
         border-color: #ffffff;
       }
       &:after{
-        border-left-color: #2db7f5;
+        border-left-color: @primary-color;
       }
       &:before{
-        border-top-color: #2db7f5;
-        border-bottom-color: #2db7f5;
+        border-top-color: @primary-color;
+        border-bottom-color: @primary-color;
       }
     }
   }
@@ -212,7 +213,7 @@
         height: 0;
         border-bottom: 0 solid transparent;
         border-top: 19px solid transparent;
-        border-right: 23px solid #00a1ec;
+        border-right: 23px solid @primary-color;
         font-size: 0;
         line-height: 0;
         position: absolute;
@@ -244,8 +245,8 @@
       margin-left: -10px;
     }
     .active{
-      border-color: #2cb6f5;
-      color: #2cb6f5;
+      border-color: @primary-color;
+      color: @primary-color;
       .triangle{
         display: inline-block;
         i{
@@ -315,7 +316,7 @@
           height: 0;
           border-bottom: 0 solid transparent;
           border-top: 19px solid transparent;
-          border-right: 23px solid #00a1ec;
+          border-right: 23px solid @primary-color;
           font-size: 0;
           line-height: 0;
           position: absolute;
@@ -347,8 +348,8 @@
         margin-left: -20px;
       }
       .active{
-        border-color: #2cb6f5;
-        color: #2cb6f5;
+        border-color: @primary-color;
+        color: @primary-color;
         .triangle{
           display: inline-block;
           i{
@@ -559,8 +560,8 @@
           border-bottom: 1px solid #dadada;
         }
         .active{
-          border-left: 2px solid #00a0ea;
-          color: #00a0ea;
+          border-left: 2px solid @primary-color;
+          color: @primary-color;
           background-color: #effdff;
         }
       }

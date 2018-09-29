@@ -313,7 +313,6 @@ let MemberTable = React.createClass({
     } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope, loginUser, teams } = this.props
-
     let userManageName = this.currentUser ? this.currentUser.name : ''
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
@@ -372,7 +371,18 @@ let MemberTable = React.createClass({
     ]
 
     let ldapFileter = [{ text: '是', value: 2 }, { text: '否', value: 1 }]
-
+    const cannotDelMember = record => {
+      if(loginUser.role === ROLE_PLATFORM_ADMIN && record.role === ROLE_PLATFORM_ADMIN) {
+        return true
+      }
+      if(loginUser.role === ROLE_PLATFORM_ADMIN && record.role === ROLE_SYS_ADMIN) {
+        return true
+      }
+      if(loginUser.namespace === record.namespace) {
+        return true
+      }
+      return false
+    }
     let columns = [
       {
         title: (
@@ -502,8 +512,15 @@ let MemberTable = React.createClass({
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
-        render: (text, record, index) => (
-          <div className="action">
+        render: (text, record, index) => {
+          let disabled = false
+          const loginRole = loginUser.role
+          const memberRole = record.role
+          if(loginRole === ROLE_PLATFORM_ADMIN || loginRole === ROLE_BASE_ADMIN) {
+            if (memberRole !== ROLE_USER) disabled = true
+          }
+          if(record.namespace === loginUser.namespace) disabled = true
+          return <div className="action">
             <Dropdown.Button
               onClick={() => {
                 if (!billingEnabled) {
@@ -517,14 +534,13 @@ let MemberTable = React.createClass({
                   onClick={this.handleMenuClick.bind(this, record)}
                   style={{ width: '80px' }}
                 >
-                  <Menu.Item key="active"
-                    disabled={record.namespace === loginUser.namespace}
-                  >
+                  <Menu.Item key="active" disabled={disabled}>
                     {record.active === ACTIVE ? '停用' : '启用'}
                   </Menu.Item>
+
                   <Menu.Item
                     key="delete"
-                    disabled={record.namespace === loginUser.namespace}
+                    disabled={cannotDelMember(record)}
                   >
                     删除
                   </Menu.Item>
@@ -535,7 +551,8 @@ let MemberTable = React.createClass({
               { billingEnabled ? '充值' : '查看' }
             </Dropdown.Button>
           </div>
-        ),
+
+        }
       })
     }
     if (!billingEnabled) {
@@ -875,6 +892,10 @@ class Membermanagement extends Component {
       <div className="bracket1">
         <div className="rangeNames">
           <div className="names name-item">系统设置</div>
+          <div className="names">
+            <div className="name-item">发布审核</div>
+            <span>镜像和应用包</span>
+          </div>
           <div className="names name-item">租户管理</div>
         </div>
       </div>
@@ -1102,7 +1123,7 @@ function mapStateToProp(state) {
             active: item.active,
             email: item.email,
             style: role,
-            role: userDetail.role,// user info into team list
+            role: item.role || 0,// user info into team list
             team: item.teamCount || '-',
             balance: parseAmount(item.balance).fullAmount,
             type: item.type,

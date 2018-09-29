@@ -219,7 +219,7 @@ class ManageClassifyLabel extends Component {
         closable={true}
         onOk={() => this.handleOk()}
         onCancel={() => closeModalMethod()}
-        width="600px"
+        width="650px"
         maskClosable={false}
         confirmLoading={loading}
         wrapClassName="manage-classify-label"

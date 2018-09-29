@@ -225,3 +225,20 @@ exports.deleteTcpUdpIngress = function* () {
   const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports])
   this.body = result
 }
+
+exports.updateWhiteList = function* () {
+  const cluster = this.params.cluster
+  const lbname = this.params.lbname
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList'], null, body)
+  this.body = result
+}
+
+exports.helmIsReady = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+
+}

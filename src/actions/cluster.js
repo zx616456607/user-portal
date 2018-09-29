@@ -591,7 +591,7 @@ function fetchUpdateClusterPlugins(cluster, name, body, callback) {
         body: body
       }
     },
-  callback
+    callback
   }
 }
 

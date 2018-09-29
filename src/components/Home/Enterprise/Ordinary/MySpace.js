@@ -25,6 +25,7 @@ import {REG} from "../../../../constants";
 import TenxIcon from '@tenx-ui/icon'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
+import CommonIntlMessages from '../../../../containers/CommonIntl'
 
 const RadioGroup = Radio.Group
 class MySpace extends Component {
@@ -38,6 +39,7 @@ class MySpace extends Component {
       globaleList: [],
       globaleUseList: [],
     }
+    this.myProject = this.props.intl.formatMessage(CommonIntlMessages.myProject)
   }
 
   componentWillMount() {
@@ -133,20 +135,23 @@ class MySpace extends Component {
     logs.logs.records.forEach(item => {
       if (!item.operationType) return
       if (index > 5) return
-      let resourceConfig
+
       try {
-        item.resourceName = formatResourceName(item.resourceName, item.resourceId)
-        resourceConfig = JSON.parse(item.resourceConfig)
+        item.resourceName = formatResourceName(item.resourceName, item.resourceId) || JSON.parse(item.resourceConfig).origin_id
+
       } catch (e) {
         // do nothing
       }
-
       if (index === 0) {
         return ele.push(
           <Timeline.Item>
             <div className="logItem">
-              <div className="logTitle">{`${formatOperationType(item.operationType, filterData)}${formatTypeName(item.resourceType, filterData) || ''}
-              ${item.resourceName || resourceConfig && resourceConfig.origin_id}`}</div>
+              <div className="logTitle">
+                {formatOperationType(item.operationType, filterData) + formatTypeName(item.resourceType, filterData) || ''}
+                <Tooltip title={item.resourceName}>
+                  <span>{item.resourceName}</span>
+                </Tooltip>
+              </div>
               <div className="logInf">
                 {calcuDate(item.time)}
                 <div className="logTime">
@@ -408,7 +413,16 @@ class MySpace extends Component {
       }]
     return (
       <div id='MySpace'>
-        <Row className="title" style={{ marginTop: 20 }}>{this.props.userID === undefined ? spaceName === '我的个人项目' ? '':'共享项目 - ':'个人项目 - '}{spaceName}</Row>
+        <Row className="title" style={{ marginTop: 20 }}>
+          {
+            this.props.userID === undefined
+              ? spaceName === this.myProject
+                ? ''
+                : `${formatMessage(IntlMessages.sharedProject)} - `
+              : `${formatMessage(IntlMessages.personalProject)} - `
+          }
+          {spaceName}
+        </Row>
         <Row className="content" gutter={16}>
           <Col span={6} className="quota">
             <Card
@@ -417,9 +431,13 @@ class MySpace extends Component {
               bodyStyle={{ height: 175, padding: '7px' }}
               extra={
                 <Link to={
-                  spaceName === '我的个人项目'
-                    ? `/tenant_manage/user/${this.props.loginUser.info.userID}?tabs=quota` : this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
-                    : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
+                  spaceName === this.myProject
+                    ? this.props.loginUser.role !== 2
+                        ? '/account?tabs=quota'
+                        : `/tenant_manage/user/${this.props.loginUser.userID}?tabs=quota`
+                      :
+                      this.props.userID === undefined ? `/tenant_manage/project_manage/project_detail?name=${this.props.projectName}&tabs=quota`
+                        : `/tenant_manage/user/${this.props.userID}?tabs=quota`}
                 >
                   <Button type="primary" size="small">
                     {
@@ -674,20 +692,20 @@ class MySpace extends Component {
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          <FormattedMessage {...IntlMessages.myHarborProject} />
+                          <FormattedMessage {...IntlMessages.privateProject} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myProjectCount}
+                          {spaceImageStats.privateProjectCount}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
                           <div className='cicdDot' style={{ backgroundColor: '#13c563' }} />
-                          <FormattedMessage {...IntlMessages.myImages} />
+                          <FormattedMessage {...IntlMessages.privateImage} />
                       </td>
                         <td className="cicdNum">
-                          {spaceImageStats.myRepoCount}
+                          {spaceImageStats.privateRepoCount}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>

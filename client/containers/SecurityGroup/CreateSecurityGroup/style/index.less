@@ -1,3 +1,4 @@
+@import "../../../../../src/assets/style/site/core.less";
 .createSecurityGroup {
   padding: 20px;
   .createSecurityPage {
@@ -19,13 +20,13 @@
           height: 0;
           border-bottom: 15px solid transparent;
           border-top: 15px solid transparent;
-          border-right: 15px solid #2db7f5;
+          border-right: 15px solid @primary-color;
           font-size: 0;
           line-height: 0;
         }
         .btnRight {
           display: inline-block;
-          background: #2db7f5;
+          background: @primary-color;
           color: #fff;
           height: 30px;
           line-height: 30px;
@@ -40,7 +41,7 @@
         box-sizing: border-box;
         display: flex;
         .headerLeft {
-          background-color: #2db7f5;
+          background-color: @primary-color;
           width: 4px;
           height: 18px;
           margin-right: 8px;

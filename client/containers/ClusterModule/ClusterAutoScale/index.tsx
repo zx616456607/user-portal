@@ -16,6 +16,8 @@ import { connect } from 'react-redux';
 import './style/clusterAutoScale.less';
 import Tab1 from './tabs/IaasTab';
 import Tab2 from './tabs/StrategyTab';
+import Title from '../../../../src/components/Title'
+
 const TabPane = Tabs.TabPane;
 
 class ClusterAutoScale extends React.Component {
@@ -59,6 +61,7 @@ class ClusterAutoScale extends React.Component {
     const tabTitle2 = this.getTitle('资源池配置');
     return (
       <QueueAnim className="clusterAutoScaleBox" type="right">
+          <Title title="集群伸缩策略" />
         <div className="bline" />
         <Tabs className="autoScalerTab" activeKey={this.state.activeKey} onChange={this.tabChange} type="card" key="1">
           <TabPane className="tabTitle" tab={tabTitle1} key="pane1">

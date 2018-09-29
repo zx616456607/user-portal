@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Row, Col, Switch, InputNumber, Icon } from 'antd'
+import { Modal, Row, Col, Switch, InputNumber, Icon, Button } from 'antd'
 import BackupStrategy from '../../containers/DatabaseCache/BackupStrategy'
 import NotificationHandler from '../../../src/components/Notification'
 import { connect } from 'react-redux'
@@ -34,7 +34,7 @@ class AutoBackupModal extends React.Component {
           if (database === 'redis') {
             // 如果有数据或者数据内的schedule字段不为空,说明开启了自动备份。把控制自动备份开关的state置为true
             if (res.data.length !== 0 && res.data[0] && res.data[0].schedule !== '') {
-              const schedule = res.data[0].schedule.split(' ')
+              const schedule = res.data[0].schedule.split(' ').slice(1) // 由于首位是0，表示秒，设置时未精确到秒，所以回显时舍弃秒
               const { days } = this.state
               const scheduleDays = schedule[4].split(',')
               this.differentiation(days, scheduleDays)
@@ -47,17 +47,16 @@ class AutoBackupModal extends React.Component {
               })
               return
             }
-
           } else if (database === 'mysql') {
             if (res.data.schedule !== '') {
               const schedule = res.data.schedule.split(' ')
               const { days } = this.state
-              const scheduleDays = schedule[4].split(',')
+              const scheduleDays = schedule[5].split(',')
               this.differentiation(days, scheduleDays)
               const newDays = days.splice(0)
               this.setState({
-                minutes: schedule[0],
-                hour: schedule[1],
+                minutes: schedule[1],
+                hour: schedule[2],
                 days: newDays,
                 daysConvert: newDays,
               })
@@ -110,7 +109,7 @@ class AutoBackupModal extends React.Component {
     } = this.props
     const { hour, minutes, daysConvert } = this.state
     // const schedule = `${minutes} ${hour} * * ${daysConvert.join(',').replace(/,/g, ' ')}`
-    const schedule = `${minutes} ${hour} * * ${daysConvert.join(',')}`
+    const schedule = `0 ${minutes} ${hour} * * ${daysConvert.join(',')}`
     this.setState({ pending: true })
     if (!this.state.autoBackupSwitch) {
       // 如果开关关闭，说明要关闭自动备份, redis和mysql的关闭方法不一样，前者调用修改接口，后者调用删除接口
@@ -212,10 +211,12 @@ class AutoBackupModal extends React.Component {
     return <Modal
       visible={isShow}
       title={database === 'redis' ? '设置自动全量备份' : '设置自动差异备份（基于当前链）'}
-      onOk={this.handleAutoBackupOk}
       confirmLoading={this.state.pending}
-      onCancel={() => closeModal()}
       width={650}
+      footer={[
+        <Button onClick={() => closeModal()}>取消</Button>,
+        <Button onClick={this.handleAutoBackupOk} disabled={this.state.days.findIndex(v => !!v) < 0 } type="primary">确定</Button>,
+      ]}
     >
       <div className="dbClusterBackup-autoContent">
         <Row className="item">
@@ -247,6 +248,9 @@ class AutoBackupModal extends React.Component {
               <Col span={19} push={1}>
                 <BackupStrategy
                   disabled={notYet} weeksSelected={this.state.days} setPeriod={this.selectPeriod}/>
+                {
+                  this.state.days.findIndex(v => !!v) < 0 && <div className="alert-text" style={{ color: '#F85A5A', marginTop: 8, fontSize: 12 }}>请选择备份周期</div>
+                }
               </Col>
             </Row>
             <Row className="item">

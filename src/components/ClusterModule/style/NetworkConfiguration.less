@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 #Cluster{
   .ClusterInfo{
     .h3{
@@ -5,6 +6,7 @@
     }
   }
   #Network{
+    padding: 0 @padding-large + @padding-base;
     .ant-card-body{
       padding:0;
     }
@@ -16,9 +18,10 @@
       line-height: 40px;
       border-bottom: 1px solid #d9d9d9;
       padding: 0 24px;
+      margin: 0 -40px;
     }
     .title{
-      padding:20px 50px 13px 50px;
+      padding-bottom: 13px;
       line-height: 28px;
       .sketchMap{
         color:#57c5f7;
@@ -27,11 +30,20 @@
         text-align:right;
         margin-left: 8px;
       }
-      .addPublick{
-        float:right;
+      .actionColumn {
+        margin-left: @padding-medium;
       }
+    }
+    .actionButtons {
+      display: flex;
+      width: 70px;
+      justify-content: space-between;
+      margin-top: 75px;
+      margin-left: @padding-medium;
+    }
+    .addNetOut {
+      margin: 20px;
       .settingDefalut{
-        float: right;
         margin-left: 8px;
       }
     }
@@ -102,7 +114,7 @@
         margin-left: 8px;
       }
       .typePublic{
-        background: #2cb8f6;
+        background: @primary-color;
       }
       .typePrivate{
         background: #56bc56;

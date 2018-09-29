@@ -187,6 +187,10 @@ class AppTipComponent extends Component {
                     )
                   }
                   let linkURL = 'http://' + url.domain
+                  if (linkURL.endsWith("undefined")) {
+                    // TODO: Skip undefined port if it has, refine later
+                    return <div></div>
+                  }
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <TenxIcon type="branch" className='branchSvg'/>

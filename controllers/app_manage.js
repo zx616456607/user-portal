@@ -362,7 +362,7 @@ exports.getAppServices = function* () {
     deployments.push(service.deployment)
   })
 
-  this.body = {
+  const body = {
     cluster,
     appName,
     data: deployments,
@@ -370,6 +370,7 @@ exports.getAppServices = function* () {
     count: result.data.count,
     availableReplicas: result.data.runningDeployment
   }
+  this.body = body
 }
 
 exports.getAppOrchfile = function* () {
@@ -436,35 +437,5 @@ exports.checkAppName = function* () {
   const spi = apiFactory.getSpi(this.session.loginUser)
   const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'existence'])
   this.status = response.code
-  this.body = response
-}
-
-// serviceMesh 相关
-exports.putToggleAPPMesh = function *() {
-  const cluster = this.params.cluster
-  const service = this.params.service
-  const project = this.request.body;
-  if (!project) {
-    this.status = 400;
-    this.body = {
-      message: 'request body was empty',
-    }
-    return
-  }
-  const loginUser = this.session.loginUser;
-  const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'mesh'], null, project )
-  this.status = response.statusCode
-  this.body = response
-}
-
-exports.getCheckAPPInClusMesh = function *() {
-  const cluster = this.params.cluster
-  const service = this.params.service
-  const namespace = this.query.namespace
-  const loginUser = this.session.loginUser
-  const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.getBy([cluster, 'services', service, 'mesh'], {namespace})
-  this.status = response.statusCode
   this.body = response
 }

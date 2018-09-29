@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Popconfirm, Alert, Card, Input, Button, Select, Switch, message, InputNumber } from 'antd'
+import { Popconfirm, Alert, Card, Input, Button, Select, Switch, message, InputNumber, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -184,6 +184,12 @@ class AppUseful extends Component {
       notification.error(formatMessage(AppServiceDetailIntl.checkIntervalNoLessThanOne))
       return
     }
+    if (submitInfo.info.path) {
+      const reg = /^(\/)/
+      if (!reg.test(submitInfo.info.path)) {
+        return notification.error('路径必须以 / 开头')
+      }
+    }
     // if(this.state.checkType === 'http') {
     //   if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
     //     notification.error('信息填写不全')
@@ -216,7 +222,7 @@ class AppUseful extends Component {
     if (self.state.checkType === 'http') {
       options.httpGet = {
         port: parseInt(submitInfo.info.port),
-        path: '/' + (submitInfo.info.path ? submitInfo.info.path : '')
+        path: submitInfo.info.path ? submitInfo.info.path : ''
       }
     } else {
       options.tcpSocket = {
@@ -226,6 +232,8 @@ class AppUseful extends Component {
     options.initialDelaySeconds = submitInfo.initialDelaySeconds ? parseInt(submitInfo.initialDelaySeconds) : 0
     options.timeoutSeconds = submitInfo.timeoutSeconds ? parseInt(submitInfo.timeoutSeconds) : 1
     options.periodSeconds = submitInfo.periodSeconds ? parseInt(submitInfo.periodSeconds) : 10
+    options.successThreshold = parseInt(submitInfo.successThreshold)
+    options.failureThreshold = parseInt(submitInfo.failureThreshold)
     changeServiceAvailability(cluster, serviceName, options, {
       success: {
         func() {
@@ -266,6 +274,8 @@ class AppUseful extends Component {
     let livenessProbe = this.state.livenessProbe
     let protocol = this.state.checkType
     const submitInfo = this.state.submitInfo
+    const sucText = 'successThreshold 探测失败后，再次探测成功最少连续如下次数认为健康（默认为 1，活跃度必须为 1 且最小值为 1）'
+    const failText = 'failureThreshold 探测失败阈值，失败如下次数，将认为不健康（默认为 3，最小值为1） '
     return (
       <div id="AppUseful">
         <div className="operaBox">
@@ -336,17 +346,54 @@ class AppUseful extends Component {
                   <div style={{ clear: "both" }}></div>
                 </div>
                 <div className="title">
-                  <div className="httpcommonTitle">
+                  <div className="httpcommonTitle httpcommonTitleLarge">
                     <span>{formatMessage(AppServiceDetailIntl.Path)}</span>
+                  </div>
+                  <div className="httpcommonTitle">
+                    <span>
+                      健康阀值
+                      <Tooltip placement="top" title={sucText}>
+                        <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                      </Tooltip>
+                    </span>
+                  </div>
+                  <div className="httpcommonTitle">
+                    <span>
+                      不健康阀值
+                      <Tooltip placement="top" title={failText}>
+                        <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                      </Tooltip>
+                    </span>
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
                 <div className="input">
-                  <span style={{ float: "left", marginLeft: "10px" }}>/</span>
-                  <div className="commonInput">
+                  {/* <span style={{ float: "left", marginLeft: "10px" }}>/</span> */}
+                  <div className="commonInput commonInputLarge">
                     <Input type="text" disabled={this.state.editFlag}
-                      value={submitInfo.info.path && submitInfo.info.path.length > 0 && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1) : submitInfo.info.path}
+                      value={submitInfo.info.path}
+                        // && submitInfo.info.path.length > 0
+                        // && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1)
+                        // : submitInfo.info.path}
                       onChange={(e) => this.getInputInfo('path', e)} />
+                  </div>
+                  <div className="commonInput">
+                    <InputNumber type="text"
+                      disabled={this.state.editFlag}
+                      value={submitInfo.successThreshold}
+                      onChange={(e) => this.getInputInfo('successThreshold', e)}
+                      min={1}
+                    />
+                    &nbsp;&nbsp;次成功
+                  </div>
+                  <div className="commonInput">
+                    <InputNumber type="text"
+                      disabled={this.state.editFlag}
+                      value={submitInfo.failureThreshold}
+                      onChange={(e) => this.getInputInfo('failureThreshold', e)}
+                      min={1}
+                    />
+                    &nbsp;&nbsp;次失败
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -382,6 +429,46 @@ class AppUseful extends Component {
                   <div className="commonInput">
                     <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e) => this.getInputInfo('periodSeconds', e)} />&nbsp;&nbsp;s
                 </div>
+                  <div style={{ clear: "both" }}></div>
+                </div>
+                <div className="title">
+                  <div className="httpcommonTitle">
+                    <span>
+                      健康阀值
+                      <Tooltip placement="top" title={sucText}>
+                        <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                      </Tooltip>
+                    </span>
+                  </div>
+                  <div className="httpcommonTitle">
+                    <span>
+                      不健康阀值
+                      <Tooltip placement="top" title={failText}>
+                        <Icon type="info-circle-o" style={{ marginLeft: 5 }} />
+                      </Tooltip>
+                    </span>
+                  </div>
+                  <div style={{ clear: "both" }}></div>
+                </div>
+                <div className="input">
+                  <div className="commonInput">
+                    <InputNumber type="text"
+                      disabled={this.state.editFlag}
+                      value={submitInfo.successThreshold }
+                      onChange={(e) => this.getInputInfo('successThreshold', e)}
+                      min={1}
+                    />
+                    &nbsp;&nbsp;次成功
+                  </div>
+                  <div className="commonInput">
+                    <InputNumber type="text"
+                      disabled={this.state.editFlag}
+                      value={submitInfo.failureThreshold}
+                      onChange={(e) => this.getInputInfo('failureThreshold', e)}
+                      min={1}
+                    />
+                    &nbsp;&nbsp;次失败
+                  </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
               </div>

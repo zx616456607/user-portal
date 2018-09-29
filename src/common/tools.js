@@ -856,3 +856,24 @@ export const defineIntlMessages = ({ data, prefix }) => {
   }
   return defineMessages(rtn)
 }
+
+/**
+ * get host lastHeartbeatTime
+ *
+ * @export
+ * @param {object} hostInfo hostInfo of k8s node
+ * @returns {string} lastHeartbeatTime
+ */
+export function getHostLastHeartbeatTime(hostInfo) {
+  let condition = hostInfo.conditions && hostInfo.conditions[0] || {}
+  if (hostInfo.conditions) {
+    hostInfo.conditions.every(_condition => {
+      if (_condition.type === 'Ready') {
+        condition = _condition
+        return false
+      }
+      return true
+    })
+  }
+  return condition.lastHeartbeatTime
+}

@@ -113,6 +113,9 @@ module.exports = function (config) {
   // ~ scheduler
   this.scheduler = collections.create('scheduler')
 
+  // service-mesh
+  this.servicemesh = collections.create('servicemesh')
+
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////
@@ -157,4 +160,7 @@ module.exports = function (config) {
 
   // ~ ai
   this.ai = collections.create('ai')
+
+  // ~ appcenters
+  this.appcenters = collections.create('appcenters')
 }

@@ -11,14 +11,17 @@
  */
 
 import React from 'react'
+import { injectIntl } from 'react-intl'
 import {
   Menu, Row, Col, Icon, Button, Dropdown, Checkbox,
 } from 'antd'
 import { calcuDate } from '../../../common/tools'
+import secretIntl from '../intl/secretsIntl'
+import indexIntl from '../intl/indexIntl';
 
 const ButtonGroup = Button.Group
 
-export default class ConfigGroupHeader extends React.Component {
+class ConfigGroupHeader extends React.Component {
   handleMenuClick = name => {
     const { removeSecrets, setCheckedList } = this.props
     setCheckedList([ name ], removeSecrets)
@@ -40,13 +43,16 @@ export default class ConfigGroupHeader extends React.Component {
 
   render() {
     const {
-      group, checkedList = [], openCreateConfigFileModal
+      group, checkedList = [], openCreateConfigFileModal,
+      intl
     } = this.props
-    const { name, data = {}, createdAt } = group
+    const { formatMessage } = intl
+    let { name, data, createdAt } = group
+    if(!!!data) data = {}
     const menu = (
       <Menu onClick={this.handleMenuClick.bind(this, name)} mode="vertical">
         <Menu.Item key="delete">
-          <i className="fa fa-trash-o" /> 删除配置组
+          <i className="fa fa-trash-o" /> {formatMessage(indexIntl.deleteGroup)}
         </Menu.Item>
       </Menu>
     )
@@ -63,11 +69,10 @@ export default class ConfigGroupHeader extends React.Component {
           <span>{name}</span>
         </Col>
         <Col span="6">
-          加密对象 &nbsp;
-          {Object.keys(data).length || '0'}个
+          {formatMessage(secretIntl.secretCount, { count: Object.keys(data).length || '0'})}
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;
+          {formatMessage(indexIntl.createTime)}&nbsp;&nbsp;
           {calcuDate(createdAt)}
         </Col>
         <Col span="6">
@@ -78,7 +83,7 @@ export default class ConfigGroupHeader extends React.Component {
               overlay={menu}
               type="ghost"
             >
-              <Icon type="plus" /> 加密对象
+              <Icon type="plus" /> {formatMessage(indexIntl.serectObj)}
             </Dropdown.Button>
           </ButtonGroup>
         </Col>
@@ -86,3 +91,6 @@ export default class ConfigGroupHeader extends React.Component {
     )
   }
 }
+export default injectIntl(ConfigGroupHeader, {
+  withRef: true,
+})

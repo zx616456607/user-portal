@@ -1,3 +1,4 @@
+@import "../../../../../assets/style/site/core.less";
 #TeamManage {
   .ant-alert {
     color: #1a7db6;
@@ -18,15 +19,15 @@
     .plusBtn {
       float: left;
       font-weight: normal;
-      background-color: #2db7f5;
+      background-color: @primary-color ;
       padding: 5px 10px;
       margin-right: 10px;
     }
     .viewBtn {
       font-weight: normal;
       height: 36px;
-      color: #1dabed;
-      border-color: #1dabed;
+      color: @primary-color ;
+      border-color:  @primary-color ;
       border-radius: 3px;
     }
   }
@@ -52,7 +53,7 @@
             margin-right: 12px;
             border-radius: 3px;
             &:hover {
-              background-color: #00a1ea;
+              background-color: @primary-color ;
               color: #fff;
             }
           }
@@ -139,7 +140,7 @@
   .confirm {
     padding: 8px 8px 8px 16px;
     font-size: 12px;
-    color: #119fdf;
+    color:  @primary-color ;
     .confirmIcon {
       text-align: center;
       height:30px;
@@ -151,7 +152,7 @@
         width: 140px;
         font-size: 12px;
         border: none;
-        border-bottom: 1px solid #119fdf;
+        border-bottom: 1px solid  @primary-color ;
         border-radius: 0;
         box-shadow: none;
         margin-left: 10px;
@@ -162,19 +163,19 @@
       }
     }
     ::-webkit-input-placeholder { /* WebKit browsers */
-      color: #119fdf;
+      color:  @primary-color ;
       font-size: 12px;
     }
     :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-      color: #119fdf;
+      color: @primary-color ;
       font-size: 12px;
     }
     ::-moz-placeholder { /* Mozilla Firefox 19+ */
-      color: #119fdf;
+      color: @primary-color ;
       font-size: 12px;
     }
     :-ms-input-placeholder { /* Internet Explorer 10+ */
-      color: #119fdf;
+      color: @primary-color ;
       font-size: 12px;
     }
   }
@@ -238,7 +239,7 @@
   .react-tagsinput {
     width: 100%;
     height: 78px;
-    border: 1px solid #24aeed;
+    border: 1px solid @primary-color ;
     border-radius: 3px;
     overflow-y: auto;
   }
@@ -267,8 +268,8 @@
     font-family: "Microsoft YaHei";
     &:hover {
       color: #fff;
-      background-color: #21ade8;
-      border: 1px solid #008fdb;
+      background-color:  @primary-color ;
+      border: 1px solid @primary-color ;
       .react-tagsinput-remove {
         border: 1px solid #008fdb;
         color: #43b3e6;

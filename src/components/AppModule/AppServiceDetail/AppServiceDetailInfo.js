@@ -32,6 +32,8 @@ import yaml from 'js-yaml'
 import { HARBOR_ALL_PROJECT_FAILURE } from '../../../actions/harbor';
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import $ from 'jquery'
+import ContainerNetwork from '../../../../client/containers/AppModule/AppServiceDetail/ContainerNetwork'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
@@ -113,14 +115,31 @@ class MyComponent extends Component {
       })
       return
     } */
+    // LOT-2805
+    const valueArr = []
+    dataArray.forEach((v, i) => {
+      const nameItem = document.getElementById(`envName${i}`)
+      const valueItem = document.getElementById(`envValue${i}`)
+      valueArr.push({
+        name: nameItem.value,
+        value: valueItem.value,
+      })
+    })
+    // LOT-2805
     if(dataArray[index].flag == true){
       dataArray.splice(index,1)
+      valueArr.splice(index,1) // LOT-2805
       rowDisableArray.splice(index,1)
       saveBtnLoadingArray.splice(index,1)
       this.setState({
         dataArray,
         rowDisableArray,
         saveBtnLoadingArray,
+      },() => {
+        if (dataArray.length !== 0) {
+          document.getElementById('envName0').value = valueArr[0].name // LOT-2805
+          document.getElementById('envValue0').value = valueArr[0].value // LOT-2805
+        }
       })
       return
     }
@@ -178,8 +197,8 @@ class MyComponent extends Component {
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
-    if(name == '' || value == '' || name == undefined || value == undefined){
-      Notification.error(formatMessage(AppServiceDetailIntl.variableNameValueNotEmpty))
+    if(name == '' || name == undefined){
+      Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
       return
     }
     for(let i=0; i<dataArray.length; i++ ){
@@ -220,7 +239,6 @@ class MyComponent extends Component {
       },300)
     })
   }
-
   addNewEnv(){
     const {  formatMessage} = this.props
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
@@ -296,7 +314,7 @@ class MyComponent extends Component {
     }
   }
 
-  templateTable(dataArray,rowDisableArray) {
+  templateTable(dataArray,rowDisableArray, appCenterChoiceHidden) {
     const { formatMessage } = this.props
     if(dataArray.length == 0) {
       return <div className='noData'>{formatMessage(AppServiceDetailIntl.NoEnvVariable)}</div>
@@ -394,7 +412,7 @@ class MyComponent extends Component {
             }
           </div>
           <div>
-            {
+            { appCenterChoiceHidden? null :
               rowDisableArray[index].disable
               ? <div>
                 <Button type='primary' className='saveBtn' onClick={() => this.handleSaveEdit(index)} loading={this.state.saveBtnLoadingArray[index].loading}>{formatMessage(ServiceCommonIntl.save)}</Button>
@@ -414,12 +432,15 @@ class MyComponent extends Component {
   render(){
     const { DeletingEnvName } = this.state
     const { formatMessage } = this.props
+    const {appCenterChoiceHidden = false} = this.props
     return (
       <div className='DetailInfo__MyComponent commonBox'>
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.envVariable)}</span>
           <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
         <div className='save_box'>
+        {!appCenterChoiceHidden &&
           <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>{formatMessage(AppServiceDetailIntl.appChange)}</Button>
+        }
         </div>
           <div className="titleBox">
             <div className="commonTitle">
@@ -428,19 +449,23 @@ class MyComponent extends Component {
             <div className="commonTitle">
               {formatMessage(AppServiceDetailIntl.variableValue)}
             </div>
+            { !appCenterChoiceHidden &&
             <div className="commonTitle">
               {formatMessage(ServiceCommonIntl.operation)}
             </div>
+            }
             <div style={{ clear: 'both' }}></div>
           </div>
         <div>
           <Form>
-            {this.templateTable(this.state.dataArray,this.state.rowDisableArray)}
+            {this.templateTable(this.state.dataArray,this.state.rowDisableArray, appCenterChoiceHidden)}
           </Form>
         </div>
+        {!appCenterChoiceHidden &&
         <div className="pushRow">
           <a onClick={this.addNewEnv}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.addEnvVariable)}</a>
         </div>
+        }
         <Modal
           title={formatMessage(AppServiceDetailIntl.deleteEnvVariableOperation)}
           wrapClassName="ModalDeleteInfo"
@@ -474,7 +499,7 @@ class MyComponent extends Component {
     )
   }
 }
-MyComponent = Form.create()(MyComponent)
+// MyComponent = Form.create()(MyComponent)
 
 function mapStateToProp(state, props){
   const { entities, secrets } = state
@@ -876,6 +901,8 @@ class AppServiceDetailInfo extends Component {
       replicas: 1,
       currentService: '',
       isBindNode: false,
+      menuAnchors: [],
+      activeButton: ''
     }
   }
 
@@ -1043,10 +1070,27 @@ class AppServiceDetailInfo extends Component {
       currentService: serviceName
     })
   }
-  // componentDidMount() {
-  //   const { serviceDetail } = this.props
+  componentDidMount() {
+    // const { serviceDetail } = this.props
+    const titles = document.getElementsByClassName('titleSpan')
+    const commonBoxes = document.getElementsByClassName('commonBox')
+    this.setState({
+      activeButton: titles[0].innerText
+    })
 
-  // }
+    const menus = []
+    for (let i=0; i<titles.length; i++) {
+      menus.push({
+        name: titles[i].innerHTML,
+        top: commonBoxes[i].offsetTop
+      })
+    }
+
+    this.setState({
+      menuAnchors: menus
+    })
+
+  }
 
   componentWillReceiveProps(nextProps) {
     if(this.props.serviceName !== nextProps.serviceName){
@@ -1133,7 +1177,7 @@ class AppServiceDetailInfo extends Component {
     return item.volume.split(' ')[0]
   }
 
-  getMount() {
+  getMount(appCenterChoiceHidden) {
     const { volumeList } = this.state
     const { formatMessage } = this.props.intl
     let ele = []
@@ -1142,15 +1186,19 @@ class AppServiceDetailInfo extends Component {
     }
     ele = volumeList.map((item, index) => {
       return <Row key={`volume${index}`} className='volume_row_style'>
-        <Col span="6" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
-        <Col span="6" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
+        <Col span="5" className='text_overfow'>{ this.formatVolumeType(item.type, item.type_1) }</Col>
+        <Col span="5" className='text_overfow'>{ this.renderVolumeName(item) }</Col>
         <Col span="5" className='text_overfow'>{item.mountPath}</Col>
-        <Col span="7">
-          <Checkbox checked={item.readOnly} disabled>{formatMessage(AppServiceDetailIntl.readOnly)}</Checkbox>
+        <Col span="4" className='text_overfow'>{!item.readOnly ? formatMessage(AppServiceDetailIntl.readOnly) :
+        formatMessage(AppServiceDetailIntl.readWrite) }</Col>
+        { !(appCenterChoiceHidden || false) &&
+        <Col span="5">
+          {/* <Checkbox checked={item.readOnly} disabled>{formatMessage(AppServiceDetailIntl.readOnly)}</Checkbox> */}
           <Button
             type="dashed"
             icon="edit"
             className='handle_button'
+            style={{ marginLeft: 0 }}
             onClick={this.editContainerCatalogue.bind(this, item, index)}
           />
           <Button
@@ -1160,6 +1208,7 @@ class AppServiceDetailInfo extends Component {
             onClick={this.openDeleteModal.bind(this, item, index)}
           />
         </Col>
+        }
       </Row>
     })
     return ele
@@ -1304,8 +1353,21 @@ class AppServiceDetailInfo extends Component {
     })
   }
 
+  scrollToAnchors = (position, name) => {
+    this.setState({
+      activeButton: name
+    })
+    const target = position - 16
+    $('#baseInfo').animate({
+      scrollTop: target
+    }, 300)
+  }
   render() {
-    const { isFetching, serviceDetail, cluster, volumes } = this.props
+    const menu = document.getElementsByClassName('menu')[0]
+    if (this.refs.baseInfo) {
+      this.refs.baseInfo.style.paddingTop = menu.offsetHeight + 'px'
+    }
+    const { isFetching, serviceDetail, cluster, volumes, intl, form } = this.props
     const { formatMessage } = this.props.intl
     const { isEdit, currentItem, currentIndex, containerCatalogueVisible, nouseEditing, volumeList, isAutoScale, replicas, loading, currentService, isBindNode } = this.state
     if (isFetching || !serviceDetail.metadata) {
@@ -1321,51 +1383,68 @@ class AppServiceDetailInfo extends Component {
       cpuFormatResult = '-'
     }
     const annotations = serviceDetail.spec.template.metadata.annotations
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    }
     return (
       <Card id="AppServiceDetailInfo">
-        <div className="info commonBox">
-          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.basicsMessage)}</span>
-          <div className="titleBox">
-            <div className="commonTitle">
-              {formatMessage(ServiceCommonIntl.name)}
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.mirrorName)}
-          </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.createTime)}
-          </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-          <div className="dataBox">
-            <div className="commonTitle">
-              {serviceDetail.metadata.name}
+        <div id="baseInfo" ref="baseInfo">
+            <div className="menu">
+              {
+                this.state.menuAnchors.map(v => {
+                  return <Button
+                    key={v.name}
+                    onClick={() => this.scrollToAnchors(v.top, v.name)}
+                    className={this.state.activeButton === v.name? "anchorItem" : "anchorItem defaultBtn"}
+                    type={this.state.activeButton === v.name? "primary" : "default" }
+                  >{ v.name }</Button>
+                })
+              }
             </div>
-            <div className="commonTitle">
-              {serviceDetail.images.join(', ') || '-'}
+            <div className="info commonBox">
+              <span className="titleSpan">{formatMessage(AppServiceDetailIntl.basicsMessage)}</span>
+              <div className="titleBox">
+                <div className="commonTitle">
+                  {formatMessage(ServiceCommonIntl.name)}
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.mirrorName)}
+                </div>
+                <div className="commonTitle">
+                  {formatMessage(AppServiceDetailIntl.createTime)}
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
+              <div className="dataBox">
+                <div className="commonTitle">
+                  {serviceDetail.metadata.name}
+                </div>
+                <div className="commonTitle">
+                  {serviceDetail.images.join(', ') || '-'}
+                </div>
+                <div className="commonTitle">
+                  {formatDate(serviceDetail.metadata.creationTimestamp || '')}
+                </div>
+                <div style={{ clear: 'both' }}></div>
+              </div>
             </div>
-            <div className="commonTitle">
-              {formatDate(serviceDetail.metadata.creationTimestamp || '')}
-            </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-        </div>
-        {
-          annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
-          <div className="compose commonBox">
-            <span className="titleSpan">{formatMessage(AppServiceDetailIntl.modelMessage)}</span>
-            <Row className="titleBox">
-              <Col span={6} >{formatMessage(AppServiceDetailIntl.bindModelAssembly)}</Col>
-              <Col span={18}>
-              <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
-                <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
-              </Select>
-              <div style={{ color: '#999', fontSize: 12 }}>{formatMessage(AppServiceDetailIntl.modelGroupMapToUserCatalogue)}</div>
-              </Col>
-            </Row>
-          </div>
-          : null
-        }
+            {
+              annotations && annotations.hasOwnProperty('tensorflow/modelsetName') ?
+                <div className="compose commonBox">
+                  <span className="titleSpan">{formatMessage(AppServiceDetailIntl.modelMessage)}</span>
+                  <Row className="titleBox">
+                    <Col span={6} >{formatMessage(AppServiceDetailIntl.bindModelAssembly)}</Col>
+                    <Col span={18}>
+                      <Select defaultValue="lucy" style={{ width: 300 }}allowClear disabled>
+                        <Option value="lucy">{annotations['tensorflow/modelsetName']}</Option>
+                      </Select>
+                      <div style={{ color: '#999', fontSize: 12 }}>{formatMessage(AppServiceDetailIntl.modelGroupMapToUserCatalogue)}</div>
+                    </Col>
+                  </Row>
+                </div>
+                : null
+            }
 
         <div className="compose commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.resourceConfig)}</span>
@@ -1396,10 +1475,12 @@ class AppServiceDetailInfo extends Component {
         </div>
         <BindNodes serviceDetail={serviceDetail} formatMessage={formatMessage}/>
         <MyComponent
+          form={form}
           ref="envComponent"
           serviceDetail={serviceDetail}
           cluster={cluster}
           formatMessage={formatMessage}
+          appCenterChoiceHidden={this.props.appCenterChoiceHidden}
         />
         <div className="storage commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.CacheVolume)}</span>
@@ -1407,38 +1488,48 @@ class AppServiceDetailInfo extends Component {
             !nouseEditing &&  <span className='editTip'>
               {formatMessage(AppServiceDetailIntl.changeNoEffect)}
             </span>
-          }
-          <div className='save_box'>
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => this.saveVolumnsChange()}
-              className='title_button'
-              disabled={nouseEditing}
-              loading={loading}
-            >
-              {formatMessage(AppServiceDetailIntl.appChange)}
-            </Button>
-          </div>
-          <div className="titleBox">
-            <Row className='volume_row_style'>
-              <Col span="6">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
-              <Col span="6">{formatMessage(AppServiceDetailIntl.cache)}</Col>
-              <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
-              <Col span="7">{formatMessage(ServiceCommonIntl.operation)}</Col>
-            </Row>
-          </div>
-          <div className="dataBox">
-            {this.getMount()}
-          </div>
-          <div className='add_volume_button'>
+            }
+            <div className='save_box'>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => this.saveVolumnsChange()}
+                className='title_button'
+                disabled={nouseEditing}
+                loading={loading}
+              >
+                {formatMessage(AppServiceDetailIntl.appChange)}
+              </Button>
+            </div>
+            <div className="titleBox">
+              <Row className='volume_row_style'>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.cacheType)}</Col>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.cache)}</Col>
+                <Col span="5">{formatMessage(AppServiceDetailIntl.containerDir)}</Col>
+                <Col span="4">{formatMessage(AppServiceDetailIntl.readWriteRight)}</Col>
+                <Col span="5">{formatMessage(ServiceCommonIntl.operation)}</Col>
+              </Row>
+            </div>
+            <div className="dataBox">
+              {this.getMount()}
+            </div>
+            <div className='add_volume_button'>
             <span
               className='add_button'
               onClick={() => this.addContainerCatalogue()}
             >
               <Icon type="plus" />{formatMessage(AppServiceDetailIntl.addContainerDir)}
             </span>
+            </div>
           </div>
+          <ContainerNetwork
+            forDetail
+            serviceDetail={serviceDetail}
+            cluster={cluster}
+            formItemLayout={formItemLayout}
+            form={form}
+            intl={intl}
+          />
         </div>
         <Modal
           title={ isEdit ? formatMessage(AppServiceDetailIntl.editContainerDir): formatMessage(AppServiceDetailIntl.addOnlyContainerDir) }
@@ -1498,4 +1589,4 @@ export default injectIntl(connect(mapStateToPropsInfo, {
   editServiceVolume,
   loadAllServices,
   loadServiceDetail,
-})(AppServiceDetailInfo), { withRef: true, })
+})(Form.create()(AppServiceDetailInfo)), { withRef: true, })

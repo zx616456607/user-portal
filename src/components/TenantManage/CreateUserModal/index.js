@@ -77,17 +77,17 @@ let CreateUserModal = React.createClass({
       callback([new Error('请填写密码')])
       return
     }
-    if (value.length < 6 || value.length > 30) {
-      callback([new Error('长度为6~30个字符')])
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
       return
     }
     if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母，长度为6~30个字符')])
+      callback([new Error('密码必须包含数字和字母，长度为6~16个字符')])
       return
     }
-    const reg = new RegExp("^([a-zA-Z0-9]|[~!@#$%^&*()_+=\\-`{}|\\[\\]\\\\;':\",./<>?]){6,30}$")
+    const reg = new RegExp("^([a-zA-Z0-9]|[~!@#$%^&*()_+=\\-`{}|\\[\\]\\\\;':\",./<>?]){6,16}$")
     if(!reg.test(value)){
-      callback([new Error('密码只能输入数字、字母和标点符号，长度为6~30个字符')])
+      callback([new Error('密码只能输入数字、字母和标点符号，长度为6~16个字符')])
       return
     }
     if (value) {
@@ -266,28 +266,35 @@ let CreateUserModal = React.createClass({
             {...formItemLayout}
             label="类型"
           >
-            <Radio.Group  {...roleProps} defaultValue="0">
+            <Radio.Group {...roleProps} defaultValue="0">
               <Radio key={ROLE_USER} value={ROLE_USER}>普通成员</Radio>
               {
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
-                    <Tooltip title="点击查看平台管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}/>
-                    </Tooltip>
-                  </Radio>
+                    <Radio key={ROLE_PLATFORM_ADMIN} value={ROLE_PLATFORM_ADMIN}>平台管理员
+                      <Tooltip title="点击查看平台管理员权限">
+                        <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={e => {
+                          e.preventDefault()
+                          this.props.scope.showManageRange(ROLE_PLATFORM_ADMIN)}}/>
+                      </Tooltip>
+                    </Radio>
               }
               {
                 loginUser.role === ROLE_PLATFORM_ADMIN?
                   ""
                   :
-                  <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>基础设施管理员
-                    <Tooltip title="点击查看基础设施管理员权限">
-                      <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={() => this.props.scope.showManageRange(ROLE_BASE_ADMIN)}/>
-                    </Tooltip>
-                  </Radio>
 
+                    <Radio key={ROLE_BASE_ADMIN} value={ROLE_BASE_ADMIN}>
+                      基础设施管理员
+                      <Tooltip title="点击查看基础设施管理员权限">
+                        <Icon type="question-circle-o" className='lbgroup_icon' style={{ color:'rgb(45,183,245)', marginLeft: 5, cursor: 'pointer' }} onClick={e  => {
+                          e.preventDefault()
+                          this.props.scope.showManageRange(ROLE_BASE_ADMIN)}
+                        }/>
+                      </Tooltip>
+
+                    </Radio>
               }
             </Radio.Group>
           </FormItem>

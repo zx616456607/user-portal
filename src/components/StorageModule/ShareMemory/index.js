@@ -162,7 +162,7 @@ class ShareMemory extends Component {
           }else {
             tempList = res.data.glusterfsList
           }
-          tempList.map(item => {
+          tempList && tempList.map(item => {
             if(item.metadata.labels["system/storageDefault"] === "true"){
               name = item.metadata.name
             }
@@ -181,11 +181,13 @@ class ShareMemory extends Component {
   confirmCreateShareMemory() {
     const { form, createStorage, clusterID } = this.props
     const notification = new NotificationHandler()
-    const viladateArray = [
-      'storageType',
+    const viladateArray = this.state.serverType === 'custom' ? [
       'storageClassName',
       'name',
       'serverDir'
+    ] : [
+      'storageClassName',
+      'name',
     ]
     if(this.state.modalStorageType === 'glusterfs'){
       viladateArray.push('storage');
@@ -377,12 +379,13 @@ class ShareMemory extends Component {
   }
 
   testPath = (rule, value, callback) => {
-    if (!value) {
-      return callback('请输入server 共享目录')
-    }
-    if (!PATH_REG.test(value)) {
-      return callback('请输入正确的路径')
-    }
+      if (!value) {
+        return callback('请输入server 共享目录')
+      }
+      if (!PATH_REG.test(value)) {
+        return callback('请输入正确的路径')
+      }
+
   }
   render() {
     const {
@@ -409,6 +412,11 @@ class ShareMemory extends Component {
         }
       ]
     })
+    // const serverTypeProps = getFieldProps('serverType',{
+    //   initialValue: this.state.serverType,
+    //   value: this.state.serverType,
+    //   onChange: this.serverTypeChange
+    // })
     const columns = [
       {
         key: 'name',
@@ -632,7 +640,6 @@ class ShareMemory extends Component {
                     }
                     </Select>
                   </FormItem>
-
                 </FormItem>
                 <FormItem
                   label="存储名称"
@@ -662,7 +669,6 @@ class ShareMemory extends Component {
                           <Input {...pathProps} placeholder='/var/nfs/请输入 server共享目录'/>
                       }
                     </FormItem>
-
                   :
                   <FormItem
                     label="存储大小"
