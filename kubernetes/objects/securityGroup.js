@@ -14,6 +14,7 @@ const RuleTypeIngress = 'ingress'
 const RuleTypeNamespace = 'namespace'
 const RuleTypeDAAS = 'daas' // 数据库缓存 mysql redis
 const RuleTypeKubeDNS = 'kube-dns'
+const RuleTypeInnerGroup = 'internal'
 
 const kubeDNS = {
   namespaceSelector: {
@@ -46,10 +47,10 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
       const rule = peerToRule(peer)
-      const hasKeys = Object.keys(rule).length
-      if (hasKeys) {
-        result.ingress.push(rule)
+      if (rule.type === RuleTypeKubeDNS || rule.type === RuleTypeInnerGroup) {
+        continue
       }
+      result.ingress.push(rule)
     }
   }
   if (policy.spec
@@ -61,13 +62,10 @@ function parseNetworkPolicy(policy) {
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
       const rule = peerToRule(peer)
-      if (rule.type === RuleTypeKubeDNS) {
+      if (rule.type === RuleTypeKubeDNS || rule.type === RuleTypeInnerGroup) {
         continue
       }
-      const hasKeys = Object.keys(rule).length
-      if (hasKeys) {
-        result.egress.push(rule)
-      }
+      result.egress.push(rule)
     }
   }
   return result
@@ -141,6 +139,20 @@ function peerToRule(peer) {
     if (peer.ipBlock.except) {
       rule.except = peer.ipBlock.except
     }
+  } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
+    if (isKubeDNS(peer)) {
+      rule.type = RuleTypeKubeDNS
+    } else {
+      rule.type = RuleTypeNamespace
+      rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
+      if (peer.podSelector && peer.podSelector.matchExpressions) {
+        rule.serivceName = peer.podSelector.matchExpressions[0].values
+      }
+    }
+  } else if (peer.podSelector && peer.podSelector.matchExpressions) {
+    // no namespace selector but had pod match expression
+    // this is internal rule
+    rule.type = RuleTypeInnerGroup
   } else if (peer.podSelector && peer.podSelector.matchLabels) {
     let namespace = null
     if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
@@ -170,16 +182,6 @@ function peerToRule(peer) {
       rule.namespace = namespace
       rule.daasName = matchLabels['system/daas-cluster']
       rule.daasType = daasType
-    }
-  } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
-    if (isKubeDNS(peer)) {
-      rule.type = RuleTypeKubeDNS
-    } else {
-      rule.type = RuleTypeNamespace
-      rule.namespace = peer.namespaceSelector.matchLabels['system/namespace']
-      if (peer.podSelector && peer.podSelector.matchExpressions) {
-        rule.serivceName = peer.podSelector.matchExpressions[0].values
-      }
     }
   }
   return rule

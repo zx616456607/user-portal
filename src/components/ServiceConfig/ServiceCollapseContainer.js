@@ -258,10 +258,8 @@ class CollapseContainer extends Component {
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
           volume = mounts.slice(0, 1).map((list, index) => {
-            return <td key={intl.get("ServiceCollapseContainer.js-0.2098809752393429", {
-              index: index
-            }).d('key@ {index}  ')}>
-                <div className="li">{formatMessage(serviceIntl.appTitle)}<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>{formatMessage(serviceIntl.serviceTitle)}<Link to={`/app_manage/service?serName=${list.serviceName}`}>{list.serviceName}</Link></div>
+            return <td key={`key@${index}`}>
+                <div className="li">{formatMessage(indexIntl.appTitle)}<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>{formatMessage(indexIntl.serviceTitle)}<Link to={`/app_manage/service?serName=${list.serviceName}`}>{list.serviceName}</Link></div>
                 <Tooltip title={list.mountPath} placement="topLeft">
                   <div className="lis textoverflow">{list.mountPath}</div>
                 </Tooltip>
