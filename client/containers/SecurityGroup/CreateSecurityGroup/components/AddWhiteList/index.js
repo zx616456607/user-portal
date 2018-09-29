@@ -334,12 +334,7 @@ class AddWhiteList extends React.Component {
     let selectData = [{ value: 'cidr', inner: 'CIDR' },
       { value: 'service', inner: '服务名称' },
       { value: 'namespace', inner: '命名空间' }]
-    if (isIngress) {
-      selectData = selectData.concat([
-        { value: 'haproxy', inner: '集群网络出口' },
-        { value: 'ingress', inner: '应用负载均衡' },
-      ])
-    } else {
+    if (!isIngress) {
       selectData = selectData.concat([
         { value: 'redis', inner: 'Redis 集群' },
         { value: 'mysql', inner: 'MySQL 集群' },

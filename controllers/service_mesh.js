@@ -14,18 +14,11 @@ const apiFactory = require('../services/api_factory')
 // 项目在某个集群下开启或关闭serviceMesh
 // 设置项目 Istio 状态（开/关）
 exports.updateToggleServiceMesh = function *() {
-  const project = this.request.body;
-  if (!project) {
-    this.status = 400;
-    this.body = {
-      message: 'request body was empty',
-    }
-    return
-  }
   const clusterId = this.params.clusterId
   const loginUser = this.session.loginUser;
   const projectApi = apiFactory.getMeshApi(loginUser);
-  const response = yield projectApi.servicemesh.updateBy(['clusters', clusterId, 'pass', 'status' ], null, project);
+  const response = yield projectApi.servicemesh.updateBy(['clusters', clusterId, 'paas', 'status' ],
+  null, this.request.body);
   this.status = response.statusCode
   this.body = response
 }
@@ -36,7 +29,8 @@ exports.getCheckProInClusMesh = function *() {
   const clusterId = this.params.clusterId
   const loginUser = this.session.loginUser;
   const projectApi = apiFactory.getMeshApi(loginUser);
-  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'paas', 'status'],);
+  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'paas', 'status'],
+  null,);
   this.status = response.statusCode;
   this.body = response;
 }
@@ -54,17 +48,10 @@ exports.getCheckClusterIstio = function *() {
 exports.putToggleAPPMesh = function *() {
   const cluster = this.params.cluster
   const service = this.params.service
-  const project = this.request.body;
-  if (!project) {
-    this.status = 400;
-    this.body = {
-      message: 'request body was empty',
-    }
-    return
-  }
+
   const loginUser = this.session.loginUser;
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'mesh'], null, project )
+  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'mesh'], )
   this.status = response.statusCode
   this.body = response
 }

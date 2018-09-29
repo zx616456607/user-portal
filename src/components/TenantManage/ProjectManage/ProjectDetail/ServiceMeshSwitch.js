@@ -1,6 +1,6 @@
 import React from 'react';
 import ServiceMeshForm from './ServiceMeshForm';
-import { Switch, Tooltip, Icon  } from 'antd';
+import { Switch, Tooltip, Icon, Spin  } from 'antd';
 import { connect } from 'react-redux';
 import { getDeepValue } from '../../../../../client/util/util'
 import * as projectActions from '../../../../actions/serviceMesh';
@@ -24,7 +24,7 @@ export default class ServiceMeshSwitch extends React.Component {
   }
   componentDidMount = async () => {
     const { checkProInClusMesh, checkClusterIstio } = this.props
-    const { msaConfig, clusterId, projectDetail} = this.props
+    const { msaConfig, clusterId, projectDetail, displayName} = this.props
     if (!msaConfig) {
       this.setState({ userType: 2 })
       return
@@ -35,18 +35,14 @@ export default class ServiceMeshSwitch extends React.Component {
       this.setState({ userType: 3 })
       return
     }
-    const newNameSpace = projectDetail && projectDetail.namespace;
-    const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
-    // console.log('result1', result1)
-    const result1Data = getDeepValue(result1, ['response', 'result',]);
-    if (result1Data.data === true) {
+    const newNameSpace = displayName || projectDetail && projectDetail.namespace;
+    const result1 = await checkProInClusMesh(newNameSpace, clusterId);
+    const { istioEnabled = false } = result1.response.result
+    if (istioEnabled === true) {
       this.setState({ Switchchecked: true, userType: 1 })
       return
     }
-    if(result1Data.data === false){
-      this.setState({ Switchchecked: false, userType: 1 })
-    }
-
+    this.setState({ Switchchecked: false, userType: 1 })
   }
   SwitchOnChange = checked => {
     this.setState({ Switchchecked: checked})
@@ -54,7 +50,7 @@ export default class ServiceMeshSwitch extends React.Component {
   }
   render() {
     const { Switchchecked, serviceMesh, userType = 1 } = this.state
-    const { clusterId, projectDetail: { namespace } = {} } = this.props
+    const { clusterId, projectDetail: { namespace } = {}, displayName, projectDetail } = this.props
     return (
       <div>
         {

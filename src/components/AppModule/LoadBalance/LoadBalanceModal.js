@@ -531,6 +531,10 @@ class LoadBalanceModal extends React.Component {
             <Input {...descProps} type="textarea" placeholder="可输入中英文数字等作为备注"/>
           </FormItem>
         </Form>
+        <div className="deleteRow">
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+          请确保应用负载均衡所在主机有权限访问容器网络，可联系管理员确认网络策略配置
+        </div>
       </Modal>
     )
   }
