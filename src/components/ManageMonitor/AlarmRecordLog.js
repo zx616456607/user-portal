@@ -289,6 +289,9 @@ class AlarmRecord extends Component {
       }
     })
   }
+  disabledDate = current => {
+    return current && current.getTime() > Date.now()
+  }
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -303,7 +306,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'ruleName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
+          return <span className="targetName">{text}</span>
         }
       },
       {
@@ -334,10 +337,12 @@ class AlarmRecord extends Component {
         dataIndex: 'numHits',
       },
       {
-        title: '是否发送邮件',
-        dataIndex: 'alertSent',
+        title: '是否发送通知',
+        dataIndex: 'alertInfo',
         render: (val, record) => {
-          return <div>{ val && record.alertInfo.recipients[0] !== "test@example.com"? '是': '否'}</div>
+          const condition = record.alertInfo['http_post_webhook_url'][0]
+          condition.charAt(condition.length - 1)
+          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
         }
       }
     ];
@@ -378,8 +383,8 @@ class AlarmRecord extends Component {
             }>
               {filters.targets}
             </Select>
-            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
-            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
+            <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />
+            <DatePicker placeholder="选择结束日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             {/*<Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>*/}
             { total !== 0 && <div className='pageBox'>

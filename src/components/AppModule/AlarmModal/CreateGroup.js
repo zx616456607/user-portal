@@ -484,13 +484,13 @@ let CreateAlarmGroup = React.createClass({
               }
             />
           </Form.Item>
-          <Button
+          {/* <Button
             type="primary"
             style={{padding:5}}
             size="large"
           >
             <FormattedMessage {...intlMsg.validatorPhone}/>
-          </Button>
+          </Button> */}
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
             disabled={phoneLn}
           >

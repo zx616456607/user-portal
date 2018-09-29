@@ -57,7 +57,7 @@ class Pipeline extends React.Component {
 
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token, billingEnabled,
+      project, onbehalfuser, onbehalfuserid, token, billingEnabled, ftpEnabled,
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
@@ -85,6 +85,7 @@ class Pipeline extends React.Component {
       {
         token, username, project, onbehalfuser,
         onbehalfuserid, billingenabled: billingEnabled ? 1 : 0,
+        ftpEnabled: ftpEnabled ? 1 : 0,
       }
     )
     const { windowHeight } = this.state
@@ -106,7 +107,7 @@ class Pipeline extends React.Component {
 
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
-  const { billingConfig } = state.entities.loginUser.info
+  const { billingConfig, ftpConfig } = state.entities.loginUser.info
   const { enabled: billingEnabled } = billingConfig
   let onbehalfuser
   let onbehalfuserid
@@ -130,6 +131,7 @@ const mapStateToProps = state => {
     username,
     token,
     billingEnabled,
+    ftpEnabled: ftpConfig && ftpConfig.addr,
   }
 }
 

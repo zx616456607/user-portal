@@ -1913,6 +1913,7 @@ class MessageAlarm extends React.Component {
   state = {
     disable: true,
     isShowValidate: false,
+    confirmLoading: false,
   }
 
   componentDidMount = () => {
@@ -1993,9 +1994,11 @@ class MessageAlarm extends React.Component {
       }
       const notification = new NotificationHandler()
       const { validateMsgConfig } = this.props
+      this.changemLoading()
       validateMsgConfig(body, {
         success: {
           func: () => {
+            this.changemLoading()
             notification.close()
             notification.success('验证成功')
             this.changeValidate()
@@ -2003,6 +2006,7 @@ class MessageAlarm extends React.Component {
         },
         failed: {
           func: err => {
+            this.changemLoading()
             notification.close()
             const msg = err.message.message
             notification.warn('验证失败', msg)
@@ -2056,8 +2060,13 @@ class MessageAlarm extends React.Component {
     })
   }
 
+  changemLoading = () => {
+    this.setState({
+      confirmLoading: !this.state.confirmLoading,
+    })
+  }
   render() {
-    const { disable, isShowValidate } = this.state
+    const { disable, isShowValidate, confirmLoading } = this.state
     const { form, config } = this.props
     const { getFieldProps } = form
     const urlProps = getFieldProps('url', {
@@ -2162,6 +2171,7 @@ class MessageAlarm extends React.Component {
           visible={isShowValidate}
           onOk={this.validateConfig}
           onCancel={this.changeValidate}
+          confirmLoading={confirmLoading}
         >
           <FormItem
             label="手机号"

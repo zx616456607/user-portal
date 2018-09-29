@@ -346,14 +346,35 @@
       }
     }
     .memberContainer{
-      padding: 20px;
+      padding: 10px 20px 20px 20px;
+      .filterBox {
+        display: flex;
+        margin-bottom: @padding-base;
+
+        div {
+          margin: 0 5px;
+          padding: @padding-base;
+          cursor: pointer;
+        }
+        .actived {
+          color: @primary-color;
+        }
+        .title {
+          margin-left: 0;
+        }
+      }
       .item{
+        width: 110px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         border-radius: 5px;
         background-color: #edf0f5;
         color: #7b7f82;
         display: inline-block;
         padding: 3px 15px;
-        margin-right: 10px;
+        margin-right: 15px;
+        margin-bottom: 5px;
       }
       .nodata{
         text-align: center;
