@@ -214,7 +214,6 @@ class ShareMemory extends Component {
         config.storage = values.storage
       }
       const persistentVolumeClaim = new PersistentVolumeClaim(config)
-      console.log(persistentVolumeClaim);
       const body = {
         cluster: clusterID,
         template: yaml.dump(persistentVolumeClaim),
