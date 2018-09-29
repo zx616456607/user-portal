@@ -1114,7 +1114,7 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
-            // { name: 'Istio-gateway', value: 'Istio-gateway' }
+            // { name: '服务网格出口', value: 'Istio-gateway' }
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}

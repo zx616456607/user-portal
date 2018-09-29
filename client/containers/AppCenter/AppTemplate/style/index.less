@@ -40,30 +40,39 @@
       overflow: hidden;
       background-color: white;
       .templateHeader {
-        padding: 10px 15px;
+        padding: @padding-small @padding-small @padding-small @padding-large;
         &::after {
           content: '';
           clear: both;
         }
         .operation {
           float: right;
-        }
-        .tempLogo {
-          margin: 22px auto 0;
-          width: 60px;
-          height: 60px;
-          display: block;
-        }
-        .templateName {
-          text-align: center;
-          margin-top: 10px;
           font-size: @font-size-medium;
         }
-        .templateDesc {
-          width: 160px;
-          text-align: center;
-          margin: 5px auto 0;
-          font-size: @font-size-medium;
+        .templateContent {
+          display: flex;
+          height: 100%;
+          align-items: center;
+          justify-content: space-around;
+          .tempLogo {
+            flex: 0 0 60px;
+            height: 60px;
+            margin-right: @padding-large;
+          }
+          .nameAndDescBox {
+            flex: 1;
+            .templateName {
+              font-size: @font-size-large;
+              display: inline-block;
+              max-width: 99%;
+            }
+            .templateDesc {
+              font-size: @font-size-medium;
+              margin-top: @padding-base;
+              display: block;
+              width: 100%;
+            }
+          }
         }
       }
       .templateFooter {
@@ -72,6 +81,7 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
+        background-color: @backgroud-color;
         .templateCreated {
           i {
             margin-right: @padding-base;
