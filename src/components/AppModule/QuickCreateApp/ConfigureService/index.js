@@ -909,9 +909,10 @@ const createFormOpts = {
     const newFields = Object.assign({}, fieldsBefore, fields)
     fieldsBefore = cloneDeep(newFields)
     clearTimeout(setFormFieldsTimeout)
-    setFormFieldsTimeout = setTimeout(() => {
+    // 改延迟会导致用户输入过快表单显示不准确 和 切换服务过快时校验报错 LOT-2785 LOT-2912
+    // setFormFieldsTimeout = setTimeout(() => {
       setFormFields(id, newFields)
-    }, lazySetFormFieldsTimeout)
+    // }, lazySetFormFieldsTimeout)
   }
 }
 
