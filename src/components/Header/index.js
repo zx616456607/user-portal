@@ -82,6 +82,9 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
   ],
+  loadProjectAndClusterNeeded: [
+    /^\/manange_monitor\/query_log$/,
+  ]
 }
 
 async function loadProjects(props, callback) {

@@ -57,7 +57,7 @@ class DetailWhiteList extends React.Component {
           return <div className="lineRow" key={k}>
             <div className="lineColType">命名空间</div>
             <div className="lineColLocal">{item.namespace}</div>
-            <div className="lineColServerMore">{this.deelWithArr(item.serivceName)}</div>
+            {/* <div className="lineColServerMore">{this.deelWithArr(item.serivceName)}</div> */}
           </div>
         case 'daas':
           return <div className="lineRow" key={k}>
