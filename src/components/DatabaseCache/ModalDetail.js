@@ -1563,14 +1563,43 @@ class ModalDetail extends Component {
           <span className="stopIcon"></span>停止
         </div>
       case 'Running':
-        return <div onClick={inRollback? () => "" : this.stopAlert} style={inRollback ? disabledStyle : {}}>
-          <span className="stopIcon"></span>停止
+        return <div onClick={inRollback || this.isReboot()? () => "" : this.stopAlert} style={inRollback || this.isReboot()? disabledStyle : {}}>
+          {
+            this.isReboot()?
+              <Tooltip title="正在备份的集群不支持停止">
+                <span><span className="stopIcon"></span>停止</span>
+              </Tooltip>
+              :
+              <span><span className="stopIcon"></span>停止</span>
+          }
+
         </div>
       case 'Stopped':
         return <div  onClick={this.startAlert}>启动</div>
       case 'Stopping':
         return <div  onClick={this.startAlert}>启动</div>
     }
+  }
+  isReboot = () => {
+    const { chains, database } = this.props
+    let isReboot = false
+    if(Object.keys(chains).length !== 0 && !chains.isFetching) {
+      const chainsData = chains.data
+      chainsData.forEach(v => {
+        if(v.chains && v.chains.length !== 0) {
+          v.chains.forEach(k => {
+            if(database === 'mysql' && k.status === "Started") {
+              isReboot = true
+            }
+            if(database === 'redis' && (k.status === "0" || k.status === "202")) {
+              isReboot = true
+            }
+          })
+        }
+      } )
+    }
+    return isReboot
+
   }
   reboot = () => {
     const confirm = () => {
@@ -1641,7 +1670,7 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database, inRollback } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database, inRollback, chains } = this.props;
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -1692,11 +1721,21 @@ class ModalDetail extends Component {
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped' || inRollback} onClick={() => {
-                          this.getBackupList()
-                          this.setState({rebootClusterModal: true})}}>
-                          重启
-                        </Button>
+                        this.isReboot()?
+                          <Tooltip title="正在备份的集群不支持重启">
+                            <Button style={{marginRight:'16px'}} disabled={true} onClick={() => {
+                              this.getBackupList()
+                              this.setState({rebootClusterModal: true})}}>
+                              重启
+                            </Button>
+
+                          </Tooltip>
+                          :
+                          <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped' || inRollback} onClick={() => {
+                            this.getBackupList()
+                            this.setState({rebootClusterModal: true})}}>
+                            重启
+                          </Button>
                     }
                     {this.reboot()}
                     <Button style={{marginRight:'16px'}} onClick={()=> this.refurbishDetail()}>
@@ -1931,7 +1970,8 @@ function mapStateToProps(state, props) {
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice, //storage
     billingEnabled,
-    inRollback
+    inRollback,
+    chains
   }
 }
 
