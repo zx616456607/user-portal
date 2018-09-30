@@ -329,8 +329,8 @@ class NetworkSolutions extends Component {
             maskClosable={false}
             confirmLoading={this.state.confirmLoading}
             wrapClassName="set_permission_modal"
-            okText={<span>{networkPolicySupported ? '确定' : '已添加，开启允许'}</span>}
-            cancelText={<span>{networkPolicySupported ? '取消' : '尚未添加'}</span>}
+            okText={'确定'}
+            cancelText={'取消'}
           >
             {
               networkPolicySupported
