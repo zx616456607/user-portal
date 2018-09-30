@@ -192,7 +192,7 @@ class TemplateList extends React.Component<any> {
         <div className="noTemplateText" key="noTemplateText">
           <FormattedMessage {...AppCenterMessage.emptyTip} />
           <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
-            <Button type="primary" size="large" onClick={this.createTemplate}>
+            <Button type="primary" size="large" onClick={this.createTemplate} disabled={this.chartRepoIsEmpty()}>
               <FormattedMessage {...AppCenterMessage.create} />
             </Button>
           </Tooltip>
