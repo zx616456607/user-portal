@@ -114,7 +114,7 @@ class PageLogs extends Component {
     this.loadData({
       page: page,
       page_size: this.state.pageSize
-    }, postBody)
+    })
   }
   render() {
     const { projectLogs, intl } = this.props
