@@ -337,19 +337,13 @@ class NetworkSolutions extends Component {
                 ? <div className='info_box_close'>
                   <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                   <div>
-                    将关闭『允许当前集群用户开启 inbound 隔离』的功能。
+                    将禁止当前集群用户变更 inbound 隔离，确认允许平台用户随时变更？
                   </div>
                 </div>
                 : <div className='info_box'>
                   <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                   <div>
-                    将允许当前集群用户开启 inbound 隔离，请提前创建允许所有代理出口 ip/网段 访问集群服务的策略，具体查看
-                    <span className='help_button' onClick={() => this.setState({
-                      helpVisible: true,
-                      modalHelp: true,
-                      permissionVisible: false
-                    })}>帮助</span>
-                    信息。
+                    将允许当前集群用户变更 inbound 隔离，确认允许平台用户随时变更？
                   </div>
                 </div>
             }
