@@ -416,8 +416,8 @@ export function ingressNameCheck(value) {
  */
 
 export function ingressRelayRuleCheck(value) {
-  if (!value.trim()) {
-    return '请输入校验规则'
+  if (!value) {
+    return 'success'
   }
   if (value.includes('://')) {
     return '服务位置不能有协议'
@@ -436,10 +436,7 @@ export function ingressRelayRuleCheck(value) {
 export function ingressContextCheck(value) {
   const formatMessage = window._intl.formatMessage
   if (!value) {
-    return formatMessage(ServiceConfigIntl.pleaseEnter, {
-      item: formatMessage(ServiceConfigIntl.accessPath),
-      end: '',
-    })
+    return 'success'
   }
   let regx = /^\/[-\/_a-zA-Z0-9]*$/
   if (!regx.test(value)) {
