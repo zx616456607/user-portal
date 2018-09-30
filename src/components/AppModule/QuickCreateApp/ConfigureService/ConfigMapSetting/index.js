@@ -93,7 +93,7 @@ const ConfigMapSetting = React.createClass({
     }
     return configMapKeys.filter(_key => _key.value !== key).some(_key => {
       const configGroupName = getFieldValue(`configGroupName${_key.value}`)
-      if (value === configGroupName[1]) {
+      if (!isEmpty(configGroupName) && value === configGroupName[1]) {
         return true
       }
       return false
