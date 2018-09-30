@@ -1122,22 +1122,6 @@ let NetworkConfiguration = React.createClass ({
         {
           networkType === 'server' &&
           <QueueAni>
-            <div className="deleteRow">
-              <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-              请确保内网代理节点有权限访问容器网络，可管理网络策略配置
-              <Button
-                type="primary"
-                style={{ marginLeft: 8 }}
-                onClick={() => this.setState({ helpVisible: true })}
-              >
-                帮助
-              </Button>
-            </div>
-            <HelpModal
-              helpVisible={this.state.helpVisible}
-              closeHelpModal={() => { this.setState({ helpVisible: false }) }}
-              isNotMasterNode={true}
-            />
             <div className={'addNetOut'} key={'btn'}>
               <Button disabled={disabledAddNetOut} type="primary" className='addPublick' onClick={this.addPublicModal}>
                 <FormattedMessage {...intlMsg.addNetOut}/>

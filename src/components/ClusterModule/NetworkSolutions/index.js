@@ -92,13 +92,6 @@ class NetworkSolutions extends Component {
                     : '[ 禁止变更 ]'
                 }
               </span>
-              <Button
-                type="primary"
-                style={{ marginLeft: 8 }}
-                onClick={() => this.setState({ helpVisible: true })}
-              >
-                帮助
-              </Button>
             </span>
           }
         </Col>
@@ -361,11 +354,6 @@ class NetworkSolutions extends Component {
                 </div>
             }
           </Modal>
-          <HelpModal
-            helpVisible={this.state.helpVisible}
-            closeHelpModal={this.closeHelpModal}
-            isNotMasterNode={false}
-          />
           <Modal title="删除" visible={this.state.deleteVisible}
             onCancel={() => this.handleDelClose()}
             onOk={() => this.handleOk()}>
