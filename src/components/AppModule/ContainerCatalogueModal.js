@@ -420,9 +420,9 @@ let ContainerCatalogueModal = React.createClass({
             'name',
             'size',
             'fsType',
-            'serverDir'
             //'strategy',
           ]
+          if (this.state.serverType === 'custom') array.push('serverDir')
         }
       }
       if (volumeType === 'share') {
@@ -437,10 +437,10 @@ let ContainerCatalogueModal = React.createClass({
             'storageClassName',
             'volume',
             'name',
-            'serverDir'
             //'size',
             //'fsType',
           ]
+          if (this.state.serverType === 'custom') array.push('serverDir')
           if(this.state.type_1Value === 'glusterfs')
           {
             array.push('storage');
