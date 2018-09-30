@@ -707,8 +707,8 @@ class QueryLog extends Component {
         currentClusterId: clusterID,
         currentService: service,
       }, () => {
-        this.onSelectCluster(clusterName, clusterID, namespace);
-        this.onSelectService(service);
+        this.onSelectCluster(clusterName, clusterID, namespace, true);
+        this.onSelectService(service, undefined, true);
         this.onSelectInstance(instance);
         setTimeout(this.submitSearch);
       });
@@ -808,7 +808,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectCluster(name, clusterId, namespace) {
+  onSelectCluster(name, clusterId, namespace, isInit) {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
     const { currentNamespace } = this.state
@@ -816,7 +816,7 @@ class QueryLog extends Component {
     if (currentNamespace != undefined) {
       namespace = currentNamespace.split(',')[1];
     }
-    if (name != this.state.currentCluster) {
+    if (name != this.state.currentCluster || isInit) {
       this.setState({
         gettingSerivce: true,
         clusterPopup: false,
@@ -842,11 +842,11 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectService(name, item) {
+  onSelectService(name, item, isInit) {
     //this function for user get search 10-20 of service list
     const _this = this;
     const { currentNamespace } = this.state
-    if (name != this.state.currentService) {
+    if (name != this.state.currentService || isInit) {
       this.setState({
         gettingInstance: true,
         currentService: name,
@@ -872,6 +872,7 @@ class QueryLog extends Component {
               let applogs = JSON.parse(res.data[0].metadata.annotations.applogs)
               path = applogs[0].path
             }
+            console.log('res.data', res.data)
             _this.setState({
               gettingInstance: false,
               instanceList: res.data,
