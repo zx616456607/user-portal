@@ -337,7 +337,7 @@ class AlarmRecord extends Component {
         dataIndex: 'numHits',
       },
       {
-        title: '是否发送通知',
+        title: '是否发送邮件/短信',
         dataIndex: 'alertInfo',
         render: (val, record) => {
           const condition = record.alertInfo['http_post_webhook_url'][0]

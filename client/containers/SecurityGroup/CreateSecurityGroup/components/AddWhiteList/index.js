@@ -48,13 +48,6 @@ class AddWhiteList extends React.Component {
           })
           exStr = exStr.slice(0, exStr.length - 1)
         }
-        let service = ''
-        if (item.type === 'namespace' && item.serivceName) {
-          item.serivceName.forEach(ele => {
-            service += `${ele},`
-          })
-          service = service.slice(0, service.length - 1)
-        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -65,7 +58,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'namespace',
               [`ingressnamespace${ind}`]: item.namespace,
-              [`ingressnamespace${ind}server`]: service,
+              [`ingressnamespace${ind}server`]: '',
             })
           case 'cidr':
             return setFieldsValue({
@@ -97,13 +90,6 @@ class AddWhiteList extends React.Component {
         egress: egressArr,
       })
       ln.map((item, ind) => {
-        let service = ''
-        if (item.type === 'namespace' && item.serivceName) {
-          item.serivceName.forEach(ele => {
-            service += `${ele},`
-          })
-          service = service.slice(0, service.length - 1)
-        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -114,7 +100,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`egress${ind}`]: 'namespace',
               [`egressnamespace${ind}`]: item.namespace,
-              [`egressnamespace${ind}server`]: service,
+              [`egressnamespace${ind}server`]: '',
             })
           case 'cidr':
             return setFieldsValue({
@@ -285,7 +271,7 @@ class AddWhiteList extends React.Component {
             placeholder={`请输入要放通的${target}命名空间`}
             />
           </FormItem>
-          <FormItem className="checkServerName">
+          {/* <FormItem className="checkServerName">
             <Input
               {...getFieldProps(`${type}${option}${k}server`, {
                 rules: [{
@@ -295,7 +281,7 @@ class AddWhiteList extends React.Component {
               style={{ width: 250 }}
               placeholder="服务1，服务2"
             />
-          </FormItem>
+          </FormItem> */}
         </span>
       case 'mysql':
         return <FormItem key={`*${k}`}>
