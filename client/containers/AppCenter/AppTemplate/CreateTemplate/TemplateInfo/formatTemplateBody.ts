@@ -63,7 +63,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
           });
           const body = {
             host: hostname,
-            path: path ? '/' + path.join('/') : '',
+            path: path ? '/' + path.join('/') : '/',
             items,
           };
           if (!loadBalanceName) {
