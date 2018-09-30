@@ -1,3 +1,7 @@
 {
-
+  "@primary-color": "#23cad0",
+  "@success-color": "#c1e0f0",
+  "@warning-color": "#ffa347",
+  "@error-color": "#ee6b63",
+  "@a-hover-color": "#33649d"
 }

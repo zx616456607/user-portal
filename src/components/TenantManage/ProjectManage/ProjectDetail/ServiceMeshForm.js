@@ -47,6 +47,7 @@ export default class ServiceMeshForm extends React.Component {
           istio: status === 'on' ? 'enabled' : 'disabled',
           existingServicesOff: openAllServiceMesh,
         })
+        this.props.reload()
     } catch(e) {
       notification.error({
         message: '操作羡慕服务网格开关失败',

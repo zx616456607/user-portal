@@ -50,6 +50,7 @@ import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../
 import { injectIntl,  } from 'react-intl'
 import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
 import TenxTab from './FilterTabs';
+import classNames from 'classnames';
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -299,7 +300,7 @@ class AppServiceDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const parentScope = this
-    const { loginUser, serviceList } = this.props
+    const { loginUser, serviceList, shiningFlag } = this.props
     const {
       scope,
       serviceDetailmodalShow,
@@ -321,6 +322,14 @@ class AppServiceDetail extends Component {
     const { activeTabKey, currentContainer, deleteModal } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
+    const shinningWraper = classNames({
+      'shinningWraper': true,
+      'shinning': shiningFlag, // 可变的
+    });
+    const shinningInner = classNames({
+      'shinningInner': true,
+      'shinning': shiningFlag, // 可变的
+    })
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -335,9 +344,12 @@ class AppServiceDetail extends Component {
     }
     const { billingConfig } = loginUser.info
     const { enabled: billingEnabled } = billingConfig
-    const operaMenu = (<Menu>
-      <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}>
-        <span onClick={() => this.restartService(service)}>{formatMessage(AppServiceDetailIntl.redeploy)}</span>
+    const operaMenu = (
+    <Menu>
+      <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}  className={shinningInner}>
+        <TenxTooltip title={`服务网格配置已更改, 重新部署后生效`} disabled={!shiningFlag}>
+          <span onClick={() => this.restartService(service)}>{formatMessage(AppServiceDetailIntl.redeploy)}</span>
+        </TenxTooltip>
       </Menu.Item>
       <Menu.Item key='stop' disabled={this.handleMenuDisabled('stop')}>
         <span onClick={() => this.stopService(service)}>{formatMessage(ServiceCommonIntl.stop)}</span>
@@ -345,7 +357,8 @@ class AppServiceDetail extends Component {
       <Menu.Item key='delete'>
         <span onClick={() => this.delteService(service)}>{formatMessage(ServiceCommonIntl.delete)}</span>
       </Menu.Item>
-    </Menu>);
+    </Menu>
+    );
     const svcDomain = parseServiceDomain(service, bindingDomains, bindingIPs)
     const { availableReplicas, replicas } = service.status
     let containerShow = containers.map((item, index) => {
@@ -420,11 +433,13 @@ class AppServiceDetail extends Component {
                   :
                   onTerminal
               }
+              <span className={shinningWraper}>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button type='ghost' size='large' className='ant-dropdown-link' href='#'>
                   {formatMessage(AppServiceDetailIntl.serviceAbout)} <i className='fa fa-caret-down'></i>
                 </Button>
               </Dropdown>
+              </span>
             </div>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -467,8 +482,9 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.serviceMeshSwitch)} key="#serviceMeshSwitch"
               className='zhangtao'>
-              <ServiceMeshSwitch serviceName={service.metadata.name}
-                  istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}/>
+              <ServiceMeshSwitch serviceName={service.metadata.name} activeKey={activeTabKey}
+                  // istioFlag={service.metadata.annotations["sidecar.istio.io/inject"]}
+                  />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.assistSet)} key='#setting'>
                 <AppServiceAssistSetting
@@ -636,6 +652,7 @@ function mapStateToProps(state, props) {
   const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
   const { projectName } = state.entities.current.space
+  const { shiningFlag = false } = state.rebootShining
   const defaultService = {
     isFetching: false,
     cluster,
@@ -686,7 +703,8 @@ function mapStateToProps(state, props) {
     isContainersFetching: targetContainers.isFetching,
     k8sService: k8sServiceData,
     serviceList: services || [],
-    projectName
+    projectName,
+    shiningFlag
   }
 }
 export default injectIntl(connect(mapStateToProps, {
@@ -696,3 +714,24 @@ export default injectIntl(connect(mapStateToProps, {
   addTerminal,
   deleteServices
 })(AppServiceDetail), { withRef: true, })
+
+// Tenx Tooltip
+// 通过一个外部变量控制是否渲染tooltip
+function TenxTooltip(
+  {
+    disabled = false,
+    title,
+    children
+  }
+) {
+  return (
+    <div>
+      {
+        disabled ? children:
+        <Tooltip title={title}>
+          {children}
+        </Tooltip>
+      }
+    </div>
+  )
+}
