@@ -1585,7 +1585,7 @@ class ModalDetail extends Component {
     let isReboot = false
     if(Object.keys(chains).length !== 0 && !chains.isFetching) {
       const chainsData = chains.data
-      chainsData.forEach(v => {
+      chainsData && chainsData.forEach(v => {
         if(v.chains && v.chains.length !== 0) {
           v.chains.forEach(k => {
             if(database === 'mysql' && k.status === "Started") {
