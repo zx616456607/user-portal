@@ -597,6 +597,13 @@ class Backup extends React.Component {
       })
       return key
     }
+    const rollbackDisabled = databaseInfo.status !== 'Running' || rollbackComplete
+    let rollbackText = ''
+    if (databaseInfo.status !== 'Running') {
+      rollbackText = '运行中的集群支持回滚'
+    } else if (rollbackComplete) {
+      rollbackText = '正在回滚中'
+    }
     const disabledStyle = {
       cursor: 'not-allowed',
       color: '#cccccc',
@@ -636,16 +643,16 @@ class Backup extends React.Component {
                                 {this.pointStatus(k.status, k)}
                               </span>
                             </Col>
-                            <Col span={6} push={2} className={rollbackComplete ? 'disabled-rollback' : ''}>
+                            <Col span={6} push={2} className={rollbackDisabled ? 'disabled-rollback' : ''}>
                               {
                                 k.status === 'Complete' ?
                                   <Dropdown.Button onClick={() => {
-                                    if (!rollbackComplete) {
+                                    if (!rollbackDisabled) {
                                       this.rollBack(k)
                                     }
                                   }} overlay={this.backupPointmenu(k, i)} type="ghost">
-                                    <Tooltip title={rollbackComplete ? '正在回滚中' : ''}>
-                                      <span style={rollbackComplete ? disabledStyle : null}>
+                                    <Tooltip title={rollbackText}>
+                                      <span style={rollbackDisabled ? disabledStyle : null}>
                                         <TenxIcon type="rollback"size={13} style={{ marginRight: 4 }}/>
                                         <span>回滚</span>
                                       </span>
@@ -691,7 +698,7 @@ class Backup extends React.Component {
                 </span>
               </Col>
               <Col span={8} className="create-time">创建于{formatDate(v.creationTimestamp)}</Col>
-              <Col span={5} className={rollbackComplete ? 'disabled-rollback' : ''}>
+              <Col span={5} className={rollbackDisabled ? 'disabled-rollback' : ''}>
                 {
                   v.chains[0].status === '500' ?
                     <Button icon="delete" onClick={() => this.delThis(v.chains[0], i)} style={{ width: 95, background: '#fff' }}>
@@ -699,12 +706,12 @@ class Backup extends React.Component {
                     </Button>
                     :
                     <Dropdown.Button onClick={() => {
-                      if (!rollbackComplete) {
+                      if (!rollbackDisabled) {
                         this.rollBack(v)
                       }
                     }} overlay={this.backupPointmenu(v)} type="ghost">
-                      <Tooltip title={rollbackComplete ? '正在回滚中' : ''}>
-                        <div style={rollbackComplete ? disabledStyle : null}>
+                      <Tooltip title={rollbackText}>
+                        <div style={rollbackDisabled ? disabledStyle : null}>
                           <TenxIcon type="rollback" size={13} style={{ marginRight: 4 }}/>
                           回滚
                         </div>
