@@ -127,6 +127,7 @@ class OtherSpace extends Component {
     }
   }
   searchImage(image) {
+    if(!image) image = ''
     const otherHead = this.props.otherHead
     if (otherHead.type === 'dockerhub') {
       if (!image || !image.trim()) {
