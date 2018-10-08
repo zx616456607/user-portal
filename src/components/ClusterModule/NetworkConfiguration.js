@@ -1,12 +1,3 @@
-/*
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
- * ----
- * NetworkConfiguration.js page
- *
- * @author zhangtao
- * @date Sunday September 30th 2018
- */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.

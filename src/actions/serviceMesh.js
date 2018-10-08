@@ -157,7 +157,6 @@ export function checkAPPInClusMesh(clusterId, application, service , callback) {
   }
 }
 
-
 // 当服务网格页面重新配置了服务网格,需要让重新
 export const SERVICEMESH_REBOOT_SHINING = "SERVICEMESH_REBOOT_SHINING"
 export function rebootShining(shiningFlag) {
