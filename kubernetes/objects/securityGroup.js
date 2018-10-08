@@ -15,6 +15,19 @@ const RuleTypeNamespace = 'namespace'
 const RuleTypeDAAS = 'daas' // 数据库缓存 mysql redis
 const RuleTypeKubeSystem = 'kube-system'
 const RuleTypeInnerGroup = 'internal'
+const RuleTypeIntermediate = 'intermediate'
+
+const InClusterIngress = 'in-cluster-ingress'
+const HAProxyPrefix = 'haproxy/'
+const IngressPrefix = 'ingress/'
+
+const IgnoreTypes = {
+  [RuleTypeKubeSystem]: {},
+  [RuleTypeInnerGroup]: {},
+  [RuleTypeIntermediate]: {},
+}
+
+const Known = {known: true}
 
 function parseNetworkPolicy(policy) {
   const result = {
@@ -28,13 +41,15 @@ function parseNetworkPolicy(policy) {
     && policy.spec.podSelector.matchExpressions[0].values) {
     result.targetServices = policy.spec.podSelector.matchExpressions[0].values
   }
+  const annotations = indexAnnotations(policy.metadata.annotations)
   if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
     const from = policy.spec.ingress[0].from
     result.ingress = []
+    const context = {}
     for (let i = 0; i < from.length; ++i) {
       const peer = from[i]
-      const rule = peerToRule(peer)
-      if (rule.type === RuleTypeKubeSystem || rule.type === RuleTypeInnerGroup) {
+      const rule = peerToRule(peer, annotations, context)
+      if (ignoreThisRule(rule)) {
         continue
       }
       result.ingress.push(rule)
@@ -46,10 +61,11 @@ function parseNetworkPolicy(policy) {
     && policy.spec.egress[0].to) {
     const to = policy.spec.egress[0].to
     result.egress = []
+    const context = {}
     for (let i = 0; i < to.length; ++i) {
       const peer = to[i]
-      const rule = peerToRule(peer)
-      if (rule.type === RuleTypeKubeSystem || rule.type === RuleTypeInnerGroup) {
+      const rule = peerToRule(peer, annotations, context)
+      if (ignoreThisRule(rule)) {
         continue
       }
       result.egress.push(rule)
@@ -58,7 +74,19 @@ function parseNetworkPolicy(policy) {
   return result
 }
 
-function buildNetworkPolicy(name, targetServices, ingress, egress) {
+function ignoreThisRule(rule) {
+  return IgnoreTypes.hasOwnProperty(rule.type)
+}
+
+// data = {
+//   haproxy: [  // api.js#141 router.get('/clusters/:cluster/proxies', clusterController.getProxy)
+//   ],  // 结果是 { '集群ID': { data: [...] } }, 这里 haproxy 直接对 data 结构，把 data 对的数组直接给 haproxy 这个 key。
+//   ingress: [  // api.js#878 router.get('/clusters/:cluster/loadbalances', loadBalanceController.getLBList)
+//   ],  // 结果是 { data: [...] }，就是 data 这个 key 对一个数组，这里把 data 对的数组直接给 ingress 这个 key。
+// }
+//
+function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
+  data = indexData(data)
   const policy = {
     metadata: {
       annotations: {
@@ -97,8 +125,12 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
     const from = policy.spec.ingress[0].from
     for (let i = 0; i < ingress.length; ++i) {
       const rule = ingress[i]
-      const peer = ruleToPeer(rule)
-      from.push(peer)
+      const peer = ruleToPeer(rule, data, policy.metadata.annotations)
+      if (Array.isArray(peer)) {
+        peer.forEach(p => from.push(p))
+      } else {
+        from.push(peer)
+      }
     }
   }
   policy.spec.egress = [{
@@ -119,20 +151,60 @@ function buildNetworkPolicy(name, targetServices, ingress, egress) {
     const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]
-      const peer = ruleToPeer(rule)
-      to.push(peer)
+      const peer = ruleToPeer(rule, data, policy.metadata.annotations)
+      if (Array.isArray(peer)) {
+        peer.forEach(p => to.push(p))
+      } else {
+        to.push(peer)
+      }
     }
   }
   return policy
 }
 
-function peerToRule(peer) {
+function indexAnnotations(annotations) {
+  if (!annotations) {
+    return
+  }
+  const index = {}
+  const properties = Object.getOwnPropertyNames(annotations)
+  for (let i = 0; i < properties.length; ++i) {
+    const key = properties[i]
+    const value = annotations[key]
+    if (key.startsWith(HAProxyPrefix)) {
+      const groupId = key.substring(HAProxyPrefix.length)
+      const ips = JSON.parse(value)
+      ips.forEach(ip => index[ip + '/32'] = {type: RuleTypeHAProxy, id: groupId})
+    } else if (key.startsWith(IngressPrefix)) {
+      index[value + '/32'] = {type: RuleTypeIngress, id: key.substring(IngressPrefix.length)}
+    }
+  }
+  return index
+}
+
+function peerToRule(peer, annotations, context) {
   const rule = {}
   if (peer.ipBlock) {
-    rule.type = RuleTypeCIDR
-    rule.cidr = peer.ipBlock.cidr
-    if (peer.ipBlock.except) {
-      rule.except = peer.ipBlock.except
+    const cidr = peer.ipBlock.cidr
+    const node = annotations[cidr]
+    if (node) {
+      if (context[cidr] === Known) {
+        rule.type = RuleTypeIntermediate
+      } else {
+        rule.type = node.type
+        if (rule.type === RuleTypeIngress) {
+          rule.ingressId = node.id
+        } else if (rule.type === RuleTypeHAProxy) {
+          rule.groupId = node.id
+        }
+        context[cidr] = Known
+      }
+    } else {
+      rule.type = RuleTypeCIDR
+      rule.cidr = cidr
+      if (peer.ipBlock.except) {
+        rule.except = peer.ipBlock.except
+      }
     }
   } else if (peer.namespaceSelector && peer.namespaceSelector.matchLabels) {
     if (peer.namespaceSelector.matchLabels['system/namespace'] === 'kube-system') {
@@ -182,7 +254,48 @@ function peerToRule(peer) {
   return rule
 }
 
-function ruleToPeer(rule) {
+function indexData(data) {
+  if (!data) {
+    return
+  }
+  if (data.haproxy) {
+    data.haproxy = indexHAProxy(data.haproxy)
+  }
+  if (data.ingress) {
+    data.ingress = indexIngress(data.ingress)
+  }
+  return data
+}
+
+function indexHAProxy(data) {
+  const indexed = {}
+  for (let i = 0; i < data.length; ++i) {
+    const group = data[i]
+    const ips = []
+    for (let j = 0; j < group.nodes.length; ++j) {
+      const node = group.nodes[j]
+      ips.push(node.address)
+    }
+    indexed[group.id] = ips
+  }
+  return indexed
+}
+
+function indexIngress(data) {
+  const indexed = {}
+  for (let i = 0; i < data.length; ++i) {
+    const lb = data[i]
+    const annotations = lb.metadata.annotations
+    const labels = lb.metadata.labels
+    const ip = annotations['allocatedIP']
+    indexed[lb.metadata.labels['ingress-lb']] =
+      labels['agentType'] === "inside" && annotations['allocatedIP'] === ""
+        ? InClusterIngress : ip
+  }
+  return indexed
+}
+
+function ruleToPeer(rule, data, annotations) {
   const type = rule.type
   if (type === RuleTypeCIDR) {
     const peer = {
@@ -221,24 +334,36 @@ function ruleToPeer(rule) {
     }
     return peer
   } else if (type === RuleTypeHAProxy) {
-    return {
-      podSelector: {
-        matchLabels: {
-          name: 'service-proxy',
-        },
-      },
-      namespaceSelector: {
-        matchLabels: {
-          'system/namespace': 'kube-system',
-        },
-      },
+    const ips = data.haproxy[rule.groupId]
+    if (!ips) {
+      const err = new Error("not found")
+      err.groupId = rule.groupId
+      throw err
     }
+    const key = HAProxyPrefix + rule.groupId
+    annotations[key] = JSON.stringify(ips)
+    return ips.map(ip => ({ipBlock: {cidr: ip + '/32'}}))
   } else if (type === RuleTypeIngress) {
-    return {
-      podSelector: {
-        matchLabels: {
-          'ingress-lb': rule.ingressId,
+    const ip = data.ingress[rule.ingressId]
+    if (!ip) {
+      const err = new Error("not found")
+      err.ingressId = rule.ingressId
+      throw err
+    }
+    if (ip === InClusterIngress) {
+      return {
+        podSelector: {
+          matchLabels: {
+            'ingress-lb': rule.ingressId,
+          },
         },
+      }
+    }
+    const key = IngressPrefix + rule.ingressId
+    annotations[key] = ip
+    return {
+      ipBlock: {
+        cidr: ip + '/32',
       },
     }
   } else if (type === RuleTypeDAAS) {
@@ -262,3 +387,14 @@ function ruleToPeer(rule) {
 }
 
 export {buildNetworkPolicy, parseNetworkPolicy}
+
+// const lalala = buildNetworkPolicy(
+//   'lalala',
+//   ['one', 'two', 'three'],
+//   [{type: RuleTypeHAProxy, groupId: 'group-ewfhf'}],
+//   null,
+//   {haproxy: [{"nodes":[{"host":"autoscaler-5y7d3h","address":"192.168.1.221"}],"id":"group-ewfhf","name":"gongwang_3","type":"public","address":"192.168.1.221","domain":""},{"nodes":[{"host":"k8s-node-4","address":"192.168.1.225"}],"id":"group-wmtwh","name":"225","type":"private","address":"192.168.1.225","domain":"","is_default":true}]})
+// console.log('lalala', JSON.stringify(lalala, null, 4))
+//
+// const result = parseNetworkPolicy(lalala)
+// console.log('parsed', JSON.stringify(result, null, 4))
