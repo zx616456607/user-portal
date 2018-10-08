@@ -155,7 +155,8 @@ class SelectImage extends Component {
     const imageType = e.target.value
     if (imageType === IMAGE_STORE) {
       this.setState({
-        imageType
+        imageType,
+        searchInputValue: '',
       })
       return this.loadImageStore()
     } else  if( imageType === 'publicImages' || imageType === 'privateImages'){
@@ -167,6 +168,7 @@ class SelectImage extends Component {
       const newState = {
         imageType,
         currentPage: 1,
+        searchInputValue: '',
         searchInputValue: this.state.searchInputValue
       }
       if (isResetSearchInput === true || isResetSearchInput === undefined) {
@@ -192,6 +194,7 @@ class SelectImage extends Component {
     } else {
       this.setState({
         imageType,
+        searchInputValue: '',
         isLoadingOthersImages: true
       }, () => {
         this.props.dispatchGetOtherImageList(imageType, {
@@ -245,7 +248,6 @@ class SelectImage extends Component {
     const imageFilter = e.target.value
     this.setState({
       imageFilter,
-      searchInputValue: '',
     })
     publicFilterServer(this.props.registry, imageFilter)
   }
@@ -280,11 +282,11 @@ class SelectImage extends Component {
         tempOthersImages = othersImages
       }
       this.setState({
-        tempOthersImages,
         isLoadingOthersImages: true,
       })
       setTimeout(() => {
         this.setState({
+          tempOthersImages,
           isLoadingOthersImages: false,
         })
       }, 300)
