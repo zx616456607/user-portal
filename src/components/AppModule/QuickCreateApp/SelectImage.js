@@ -69,6 +69,7 @@ class SelectImage extends Component {
       searchImage,
       others: [],
       othersImages: [],
+      tempOthersImages: [],
       isLoadingOthersImages: false,
     }
   }
@@ -196,13 +197,15 @@ class SelectImage extends Component {
         this.props.dispatchGetOtherImageList(imageType, {
           success: {
             func: res => {
+              const othersImages = res.results ? res.results.map(item => {
+                return Object.assign({}, item, {
+                  projectPublic: !item.isPrivate,
+                  repositoryName: item.name
+                })
+              }) : []
               this.setState({
-                othersImages: res.results ? res.results.map(item => {
-                  return Object.assign({}, item, {
-                    projectPublic: !item.isPrivate,
-                    repositoryName: item.name
-                  })
-                }) : [],
+                othersImages,
+                tempOthersImages: othersImages,
                 isLoadingOthersImages: false
               })
             }
@@ -242,6 +245,7 @@ class SelectImage extends Component {
     const imageFilter = e.target.value
     this.setState({
       imageFilter,
+      searchInputValue: '',
     })
     publicFilterServer(this.props.registry, imageFilter)
   }
@@ -256,13 +260,35 @@ class SelectImage extends Component {
   }
 
   searchImages() {
-    const { searchInputValue, imageType } = this.state
-    if(searchInputValue) {
-      return this.loadData(this.props, {
-        q: searchInputValue
+    const { searchInputValue, imageType, othersImages } = this.state
+    if(imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages'){
+      if(searchInputValue) {
+        return this.loadData(this.props, {
+          q: searchInputValue
+        })
+      }
+      return this.loadData(this.props)
+    } else {
+      let tempOthersImages = []
+      if(searchInputValue){
+        othersImages.map(o => {
+          if(o.name.indexOf(searchInputValue) > -1){
+            tempOthersImages.push(o)
+          }
+        })
+      } else {
+        tempOthersImages = othersImages
+      }
+      this.setState({
+        tempOthersImages,
+        isLoadingOthersImages: true,
       })
+      setTimeout(() => {
+        this.setState({
+          isLoadingOthersImages: false,
+        })
+      }, 300)
     }
-    return this.loadData(this.props)
     // const {
     //   registry,
     //   searchPublicImages,
@@ -402,14 +428,14 @@ class SelectImage extends Component {
 
   render() {
     const { images, registry, intl } = this.props
-    const { imageType, imageFilter, searchInputValue, others, othersImages, isLoadingOthersImages } = this.state
+    const { imageType, imageFilter, searchInputValue, others, othersImages, tempOthersImages, isLoadingOthersImages } = this.state
     const noTabimageList = (
       <div>
         {/* <div style={{height: "28px"}}></div> */}
         {(imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages') ?
           this.renderImageList(images)
           :
-          this.renderImageList(othersImages, isLoadingOthersImages)}
+          this.renderImageList(tempOthersImages, isLoadingOthersImages)}
       </div>
     )
     const radios = [
