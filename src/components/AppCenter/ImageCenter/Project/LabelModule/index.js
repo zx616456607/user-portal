@@ -58,7 +58,6 @@ class Project extends Component {
     const { isShowEditor } = this.state
     // if (isShowEditor) return
     const lastItem = selectedRows.pop()
-    debugger
     this.setState({
       selectedRows: lastItem ? [lastItem] : [],
     })
