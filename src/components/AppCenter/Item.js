@@ -305,10 +305,20 @@ MyComponent = injectIntl(MyComponent, {
 class PageImageCenter extends Component {
   constructor(props) {
     super(props)
+    const { location } = this.props
+    let other = {}
+    let itemType = ''
+    if (location.pathname.indexOf('/other/') > -1){
+      other = {
+        id: location.pathname.split('/').pop()
+      }
+      itemType = 'other'
+    }
     this.state = {
       createModalShow: false,
       otherImageHead: [], // other image store
-      other: {}
+      other,
+      itemType,
     }
     if(props.location.query.addUserDefined) {
       this.state.createModalShow = true
@@ -322,7 +332,7 @@ class PageImageCenter extends Component {
       browserHistory.push('/app_center/projects')
       return
     }
-    browserHistory.push(`/app_center/projects/${type}`)
+    browserHistory.push(`/app_center/projects/${type}` + (type === 'other' ? '/' + other.id : ''))
   }
   componentWillMount() {
     const { location } = this.props
@@ -337,6 +347,8 @@ class PageImageCenter extends Component {
       type = 'publish'
     } else if (location.pathname === '/app_center/projects/replications') {
       type = 'replications'
+    } else if(location.pathname.indexOf('/other/') > -1){
+      type = 'other'
     }
     this.setState({itemType:type})
     this.props.LoadOtherImage({
@@ -345,7 +357,8 @@ class PageImageCenter extends Component {
           this.setState({
             otherImageHead: res.data
           })
-        }
+        },
+        isAsync: true,
       }
     })
   }
@@ -357,7 +370,7 @@ class PageImageCenter extends Component {
         browserHistory.replace('/app_center/projects')
         return
       }
-      if (newLocation.pathname === '/app_center/projects/other') {
+      if (newLocation.pathname.indexOf('/other/') > -1) {
         this.props.LoadOtherImage({
           success: {
             func: (res) => {
