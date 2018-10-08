@@ -45,13 +45,15 @@ exports.getCheckClusterIstio = function *() {
 }
 
 // serviceMesh 相关
+// 设置服务 Istio 状态（开/关）
 exports.putToggleAPPMesh = function *() {
-  const cluster = this.params.cluster
-  const service = this.params.service
+  const clusterId = this.params.clusterId
+  const name = this.params.name
 
   const loginUser = this.session.loginUser;
-  const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.clusters.updateBy([cluster, 'services', service, 'mesh'], )
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.updateBy(['clusters', clusterId, 'paas', 'services' ,
+  name, 'status'], null,  this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -64,6 +66,17 @@ exports.getCheckAPPInClusMesh = function *() {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getMeshApi(loginUser)
   const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'paas', 'pods'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+// 获取服务列表服务状态
+exports.getServiceListServiceMeshStatus = function *() {
+  const clusterId = this.params.clusterId
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'paas', 'services'], query)
   this.status = response.statusCode
   this.body = response
 }

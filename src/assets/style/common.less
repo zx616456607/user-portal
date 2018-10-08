@@ -750,3 +750,24 @@ i.anticon.anticon-arrows-alt:before {
     }
   }
 }
+
+// 闪动效果
+.shinning {
+  border-color: @primary-color;
+  box-shadow: 0 0 5px @primary-color;
+  animation: fade 2000ms infinite;
+  @keyframes fade {
+    0% {
+      border-color: #d9d9d9;
+      box-shadow: 0 0 0 #ffffff;
+    }
+    50% {
+      border-color: @primary-color;
+      box-shadow: 0 0 10px @primary-color;
+    }
+    100% {
+      border-color: #d9d9d9;
+      box-shadow: 0 0 0 #ffffff;
+    }
+  }
+}

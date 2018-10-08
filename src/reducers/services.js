@@ -378,7 +378,6 @@ function certificates(state = {}, action) {
   }
 }
 
-
 export function services(state = { appItmes: {} }, action) {
   return {
     serviceItems: serviceItems(state.serviceItems, action),
