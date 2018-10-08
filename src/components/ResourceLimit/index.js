@@ -260,7 +260,7 @@ class ResourceQuota extends React.Component {
         body[v] = null
       }
       for(let k in value) {
-        if(typeof value[k] === 'string') {
+        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
           body[k] = Number(value[k])
         }
       }
@@ -328,11 +328,10 @@ class ResourceQuota extends React.Component {
         body[v] = null
       }
       for(let k in value) {
-        if(typeof value[k] === 'string') {
+        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
           body[k] = Number(parseFloat(value[k]).toFixed(2))
         }
       }
-
       let query = {
         id: cluster === '' ? clusterID : cluster,
         header,
