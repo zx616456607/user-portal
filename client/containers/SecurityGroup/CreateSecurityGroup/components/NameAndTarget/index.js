@@ -86,7 +86,7 @@ const mapStateToProps = ({
 }) => {
   const listData = []
   data && data.map(item => listData.push({
-    name: item.metadata.annotations['policy-name'],
+    name: item.metadata && item.metadata.annotations['policy-name'],
     key: item.metadata.name,
   }))
   return {
