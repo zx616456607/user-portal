@@ -56,14 +56,13 @@ class ServiceMesh extends React.Component {
       return
     }
     const newNameSpace = namespace || userName;
-    const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
-    const result1Data = getDeepValue(result1, ['response', 'result',]);
-    if (result1Data.data === true) {
-      this.setState({ userrole: 3 })
-      return
+    const result1 = await checkProInClusMesh(newNameSpace, clusterId);
+    const {istioEnabled = false} = result1.response.result
+    if(istioEnabled === false){ // 判断当前项目是否开启了serviceMesh
+      return this.setState({ userrole: 3 })
     }
-    if(result1Data.data === false){
-      this.setState({ userrole: 4 })
+    if(istioEnabled === true){
+      return this.setState({ userrole: 4 })
     }
   }
   renderMesh() {
@@ -82,7 +81,10 @@ class ServiceMesh extends React.Component {
     if (userrole === 2) {
       return <span className="infoText"><FormattedMessage {...IntlMessage.noIstioTip}/></span>
     }
-    if (userrole === 3 || userrole === 4) {
+    if (userrole === 3) {
+      return <span className="infoText">当前项目所在集群未允许服务启用服务网格，请联系项目管理员开通</span>
+    }
+    if (userrole === 4) {
       return [
         <Switch
           {...checkedmeshProps}
@@ -110,9 +112,11 @@ class ServiceMesh extends React.Component {
         {...formItemLayout}
         label={intl.formatMessage(IntlMessage.enableServiceMesh)}
         key="serviceMesh"
-        className="serviceMesh"
+
       >
+      <div className="serviceMesh">
         {this.renderMesh()}
+      </div>
       </FormItem>
     )
   }
