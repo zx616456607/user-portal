@@ -27,6 +27,7 @@ import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
+import filter from 'lodash/filter'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -308,9 +309,11 @@ class PageImageCenter extends Component {
     const { location } = this.props
     let other = {}
     let itemType = ''
+    let activeKey = ''
     if (location.pathname.indexOf('/other/') > -1){
+      activeKey = location.pathname.split('/').pop()
       other = {
-        id: location.pathname.split('/').pop()
+        id: activeKey
       }
       itemType = 'other'
     }
@@ -319,6 +322,7 @@ class PageImageCenter extends Component {
       otherImageHead: [], // other image store
       other,
       itemType,
+      activeKey,
     }
     if(props.location.query.addUserDefined) {
       this.state.createModalShow = true
@@ -374,10 +378,14 @@ class PageImageCenter extends Component {
         this.props.LoadOtherImage({
           success: {
             func: (res) => {
+              const activeKey = newLocation.pathname.split('/').pop()
               this.setState({
-                otherImageHead: res.data
+                activeKey,
+                otherImageHead: res.data,
+                other: filter(res.data, { id: activeKey })[0] || this.state.other
               })
-            }
+            },
+            isAsync: true,
           }
         })
         return
@@ -399,7 +407,7 @@ class PageImageCenter extends Component {
   render() {
     const { children, loginUser, intl } = this.props
     const { formatMessage } = intl
-    const { otherImageHead, other, itemType } = this.state
+    const { otherImageHead, other, itemType, activeKey } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (
@@ -463,7 +471,7 @@ class PageImageCenter extends Component {
             <Tabs
               key='ImageCenterTabs'
               className="otherStore"
-              activeKey={other.id}
+              activeKey={activeKey}
               >
               {tempImageList}
             </Tabs>
