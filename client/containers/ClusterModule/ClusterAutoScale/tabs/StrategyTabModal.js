@@ -34,6 +34,7 @@ export default connect(mapStateToProps, {
   getAutoScalerClusterList: autoScalerActions.getAutoScalerClusterList,
   addServer: autoScalerActions.createServer,
   updateServer: autoScalerActions.updateServer,
+  getServerList: autoScalerActions.getServerList,
 })(Form.create()(class Tab2Modal extends React.Component {
   clickIcon = e => {
     const obj = e.target.parentElement.attributes['data-name'] || e.target.attributes['data-name']
@@ -51,11 +52,31 @@ export default connect(mapStateToProps, {
     isShowPassword: false,
     isPasswordReadOnly: true, // 防止密码填充表单
     submitLoading: false,
+    allClusterIds: [],
   }
   componentDidMount() {
     // 接收参数
     isEdit = this.props.isEdit
     this.getQueryData()
+    this.getServers()
+  }
+
+  componentWillReceiveProps(next) {
+    if (!this.props.visible && next.visible) {
+      this.getServers()
+    }
+  }
+  getServers = () => {
+    this.props.getServerList({}, {
+      success: {
+        func: res => {
+          !!res.data && this.setState({
+            allClusterIds: res.data.map(item => item.cluster),
+          })
+        },
+        isAsync: true,
+      },
+    })
   }
   getQueryData() {
     const { getAutoScalerClusterList, currData } = this.props
@@ -223,11 +244,12 @@ export default connect(mapStateToProps, {
   render() {
     const { clusterList, isModalFetching } = this.props
     const { getFieldProps } = this.props.form
+    const { allClusterIds } = this.state
     const options = clusterList ?
       clusterList.map((o, i) =>
         <Select.Option
           disabled={
-            !!this.props.allClusterIds && this.props.allClusterIds.indexOf(o.clusterid) > -1}
+            !!allClusterIds && allClusterIds.indexOf(o.clusterid) > -1}
           key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null
     !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
     const objCluster = _.filter(clusterList, { clusterid: this.state.selectValue })[0]
