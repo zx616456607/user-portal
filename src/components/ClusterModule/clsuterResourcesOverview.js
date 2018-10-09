@@ -19,10 +19,23 @@ class ClusterResourcesOverview extends Component{
   constructor(props){
     super(props)
     this.state = {
-      //
+      refreshNetworkConfig: false,
     }
   }
-
+  refreshNetworkConfig() {
+    this.setState({
+      // 子组件NetworkConfiguration添加网络出口后会遇到再次添加失败的问题(问题的原因很复杂), 暂时使用卸载并重新渲染组件的方式解决
+      refreshNetworkConfig: true,
+    })
+    this.refreshNetworkTimer = setTimeout(() => {
+      this.setState({
+        refreshNetworkConfig: false
+      })
+    }, 10)
+  }
+  componentWillUnmount() {
+    this.refreshNetworkTimer && clearTimeout(this.refreshNetworkTimer)
+  }
   render(){
     const {
       intl, isFetching, nodes,
@@ -34,7 +47,13 @@ class ClusterResourcesOverview extends Component{
       <ClusterInfo cluster={cluster}/>
       <ResourcesOverview clusterSummary={clusterSummary} cluster={cluster} />
       <ImageService cluster={cluster}/>
-      <NetworkConfiguration id="Network" cluster={cluster}/>
+      {
+        !this.state.refreshNetworkConfig &&
+        <NetworkConfiguration
+          refreshComponent={this.refreshNetworkConfig.bind(this)}
+          id="Network"
+          cluster={cluster}/>
+      }
     </div>
   }
 }

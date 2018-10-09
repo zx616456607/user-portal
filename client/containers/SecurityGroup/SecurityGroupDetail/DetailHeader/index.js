@@ -20,7 +20,7 @@ class DetailHeader extends React.Component {
   render() {
     const { loadData, current } = this.props
     const metadataName = current && current.metadata.name
-    const name = current && current.metadata.annotations['policy-name']
+    const name = current && current.metadata && current.metadata.annotations['policy-name']
     const time = current && current.metadata.creationTimestamp
     return (
       <div className="securityGroupDetailHeader" key="header">

@@ -14,6 +14,8 @@ import { Form, Select, Input, Row, Col, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isCidr from 'is-cidr'
 import { validateK8sResourceForServiceName } from '../../../../../../src/common/naming_validation'
+import * as clusterActions from '../../../../../../src/actions/cluster'
+import * as balanceActions from '../../../../../../src/actions/load_balance'
 const FormItem = Form.Item
 const Option = Select.Option
 const imgSrc = [
@@ -26,11 +28,13 @@ class AddWhiteList extends React.Component {
     uuid: 0,
   }
   componentDidMount() {
-    const { ln, type, form } = this.props
+    const { ln, type, form, getProxy, cluster, getLBList } = this.props
     const { setFieldsValue } = form
     ln && this.setState({
       uuid: ln.length,
     })
+    getProxy(cluster)
+    getLBList(cluster)
     if (type === 'ingress' && ln && ln.length) {
       const num = ln.length
       const ingressArr = []
@@ -74,6 +78,7 @@ class AddWhiteList extends React.Component {
           case 'haproxy':
             return setFieldsValue({
               [`ingress${ind}`]: 'haproxy',
+              [`ingresshaproxy${ind}`]: item.groupId,
             })
           default:
             return null
@@ -243,7 +248,18 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       case 'haproxy':
-        return <span>所有集群网络出口</span>
+        return <FormItem>
+          <Input {...getFieldProps(`${type}${option}${k}`, {
+            rules: [{
+              required: true,
+              whitespace: true,
+              message: `请输入${target}集群网络出口`,
+            }],
+          })}
+          style={{ width: 280 }}
+          placeholder={`请输入${target}集群网络出口`}
+          />
+        </FormItem>
       case 'ingress':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
@@ -320,7 +336,12 @@ class AddWhiteList extends React.Component {
     let selectData = [{ value: 'cidr', inner: 'CIDR' },
       { value: 'service', inner: '服务名称' },
       { value: 'namespace', inner: '命名空间' }]
-    if (!isIngress) {
+    if (isIngress) {
+      selectData = selectData.concat([
+        { value: 'haproxy', inner: '集群网络出口' },
+        { value: 'ingress', inner: '应用负载均衡' },
+      ])
+    } else {
       selectData = selectData.concat([
         { value: 'redis', inner: 'Redis 集群' },
         { value: 'mysql', inner: 'MySQL 集群' },
@@ -397,4 +418,15 @@ class AddWhiteList extends React.Component {
     </div>
   }
 }
-export default connect()(AddWhiteList)
+
+const mapStateToProps = ({ entities: { current },
+}) => {
+  return {
+    cluster: current.cluster.clusterID,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getProxy: clusterActions.getProxy,
+  getLBList: balanceActions.getLBList,
+})(AddWhiteList)

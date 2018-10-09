@@ -67,7 +67,7 @@ class SecurityGroupTab extends React.Component {
           res.data.map(item => {
             targetArr.push(item.metadata.name)
             return arr.push({
-              name: item.metadata.annotations.policyName,
+              name: item.metadata && item.metadata.annotations.policyName,
               metaName: item.metadata.name,
             })
           })
@@ -333,7 +333,7 @@ const mapStateToProps = ({
 }) => {
   const selectData = []
   data && data.map(item => selectData.push({
-    name: item.metadata.annotations['policy-name'],
+    name: item.metadata && item.metadata.annotations['policy-name'],
     metaName: item.metadata.name,
   }))
   return {
