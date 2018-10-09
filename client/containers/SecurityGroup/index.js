@@ -222,23 +222,6 @@ class SecurityGroup extends React.Component {
             onChange={this.changeInp}
             onSearch={this.searchService}
           />
-          <span className="showTit">
-            当前项目
-            {
-              isolationStatus ?
-                <span className="proEach"><Icon type="arrow-left" />/<Icon type="arrow-right" /></span> :
-                <span className="proEach"><Icon type="arrow-left" /><Icon type="arrow-right" /></span>
-            }
-            其他项目
-            {
-              isolationStatus ?
-                <span className="proOpen">隔离其他项目访问</span> :
-                <span className="proClose">放通其他项目访问</span>
-            }
-            <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
-              <Icon type="edit"/>修改
-            </span>
-          </span>
           {
             total ?
               <div className="page-box">
@@ -248,6 +231,30 @@ class SecurityGroup extends React.Component {
               : null
           }
         </div>
+        <span className="showTit">
+          当前项目
+          {
+            isolationStatus ?
+              <span className="proEach"><Icon type="arrow-left" />/<Icon type="arrow-right" /></span> :
+              <span className="proEach"><Icon type="arrow-left" /><Icon type="arrow-right" /></span>
+          }
+          其他项目
+          {
+            isolationStatus ?
+              <span className="proOpen">禁止其他项目访问</span> :
+              <span className="proClose">放通其他项目访问</span>
+          }
+          <span className="titEdit" onClick={() => browserHistory.push('/app_manage/security_group/network_isolation')}>
+            <Icon type="edit"/>修改
+          </span>
+          {
+            isolationStatus ?
+              <span className="proClose">
+                （若仍有通过其他项目『应用负载均衡』访问的服务，需要在 Ingress 放通对应 IP）
+              </span>
+              : null
+          }
+        </span>
         <Card className="discoverTabTable">
           <Table
             className="reset_antd_table_header"

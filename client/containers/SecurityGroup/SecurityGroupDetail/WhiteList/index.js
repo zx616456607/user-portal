@@ -45,8 +45,7 @@ class DetailWhiteList extends React.Component {
         case 'haproxy':
           return <div className="lineRow" key={k}>
             <div className="lineColType">集群网络出口</div>
-            <div className="lineColLocal">所有集群网络出口</div>
-            {/* <div className="lineColServer">{item.except || '无'} </div> */}
+            <div className="lineColLocal">{item.groupId}</div>
           </div>
         case 'ingress':
           return <div className="lineRow" key={k}>

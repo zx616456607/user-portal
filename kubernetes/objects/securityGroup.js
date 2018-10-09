@@ -4,8 +4,10 @@
  *
  * 2018-07-24  @author lizhen
  */
-
 'use strict'
+
+import Notification from '../../src/components/Notification'
+const notification = new Notification()
 
 const RuleTypeCIDR = 'cidr'
 const RuleTypeService = 'service'
@@ -288,7 +290,7 @@ function indexIngress(data) {
     const annotations = lb.metadata.annotations
     const labels = lb.metadata.labels
     const ip = annotations['allocatedIP']
-    indexed[lb.metadata.labels['ingress-lb']] =
+    indexed[lb.metadata.labels['ingressLb']] =
       labels['agentType'] === "inside" && annotations['allocatedIP'] === ""
         ? InClusterIngress : ip
   }
@@ -336,7 +338,7 @@ function ruleToPeer(rule, data, annotations) {
   } else if (type === RuleTypeHAProxy) {
     const ips = data.haproxy[rule.groupId]
     if (!ips) {
-      const err = new Error("not found")
+      const err = notification.warn(`集群网络出口 ${rule.groupId} 不存在`, '请输入存在的集群网络出口')
       err.groupId = rule.groupId
       throw err
     }
@@ -346,7 +348,7 @@ function ruleToPeer(rule, data, annotations) {
   } else if (type === RuleTypeIngress) {
     const ip = data.ingress[rule.ingressId]
     if (!ip) {
-      const err = new Error("not found")
+      const err = notification.warn(`应用负载均衡 ${rule.ingressId} 不存在`, '请输入存在的应用负载均衡')
       err.ingressId = rule.ingressId
       throw err
     }
