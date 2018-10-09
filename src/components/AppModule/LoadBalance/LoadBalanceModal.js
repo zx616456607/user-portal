@@ -32,7 +32,8 @@ import {
   RESOURCES_DIY,
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../../../constants'
-import { IP_REGEX } from '../../../../constants'
+import { getPodNetworkSegment } from '../../../actions/app_manage'
+import ipRangeCheck from 'ip-range-check'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -41,12 +42,31 @@ const notify = new Notification()
 
 class LoadBalanceModal extends React.Component {
   state = {
-    composeType: 512
+    composeType: 512,
+    NetSegment: undefined,
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form } = this.props
+    const { clusterID, getLBIPList, currentBalance, form, getPodNetworkSegment } = this.props
     getLBIPList(clusterID)
+    getPodNetworkSegment(clusterID, {
+      success: {
+        func: res => {
+          this.setState({
+            NetSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
+        },
+      },
+    })
     if (currentBalance) {
       let agentType = 'inside'
       const { labels } = currentBalance.metadata
@@ -292,14 +312,20 @@ class LoadBalanceModal extends React.Component {
     if (!value) {
       return callback('固定 IP 不能为空')
     }
-    if (!IP_REGEX.test(value)) {
-      return callback('IP 格式不正确')
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
     }
     callback()
   }
 
   render() {
-    const { composeType, confirmLoading } = this.state
+    const { composeType, confirmLoading, NetSegment } = this.state
+    console.log( 'NetSegment', NetSegment )
     const { form, ips, visible, currentBalance } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -429,6 +455,7 @@ class LoadBalanceModal extends React.Component {
                   }],
                   initialValue: currentBalance && currentBalance.metadata.annotations.podIP
                 })}
+                placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
               />
             </FormItem>
           }
@@ -552,5 +579,6 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   getLBIPList,
   createLB,
-  editLB
+  editLB,
+  getPodNetworkSegment,
 })(LoadBalanceModal)
