@@ -61,11 +61,11 @@ export default connect(mapStateToProps, {
     this.getServers()
   }
 
-  componentWillReceiveProps(next) {
-    if (!this.props.visible && next.visible) {
-      this.getServers()
-    }
-  }
+  // componentWillReceiveProps(next) {
+  //   if (!this.props.visible && next.visible) {
+  //     this.getServers()
+  //   }
+  // }
   getServers = () => {
     this.props.getServerList({}, {
       success: {

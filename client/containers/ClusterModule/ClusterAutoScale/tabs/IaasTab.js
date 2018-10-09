@@ -564,14 +564,19 @@ class Tab1 extends React.Component {
           onOk={this.onTab1ModalOk}
           onCancel={this.onTab1ModalCancel}
           onClose={this.onTab1ModalCancel}/>
-        <Tab2Modal
-          visible={this.state.isTab2ModalShow}
-          onCancel={this.onTab2ModalCancel}
-          onClose={this.onTab2ModalCancel}
-          isEdit={false}
-          currData={null}
-          funcTab1={funcTab1}
-          ref="tab2MC"/>
+        {
+          this.state.isTab2ModalShow ?
+            <Tab2Modal
+              visible={this.state.isTab2ModalShow}
+              onCancel={this.onTab2ModalCancel}
+              onClose={this.onTab2ModalCancel}
+              isEdit={false}
+              currData={null}
+              funcTab1={funcTab1}
+              ref="tab2MC"/>
+            :
+            null
+        }
         <Modal
           visible={this.state.isShowDelModal}
           onOk={this.del}
