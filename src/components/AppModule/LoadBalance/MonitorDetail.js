@@ -493,7 +493,7 @@ class MonitorDetail extends React.Component {
         port,
         lbAlgorithm: strategy,
         host: hostname,
-        path: path ? '/' + path.join('/') : '',
+        path: path ? '/' + path.join('/') : '/',
         context,
         items: this.getServiceList()
       }

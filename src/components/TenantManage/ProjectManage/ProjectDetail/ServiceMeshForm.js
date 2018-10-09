@@ -22,7 +22,7 @@ export default class ServiceMeshForm extends React.Component {
   state = {
     Buttonloading: false,
     checked: false,
-    openAllServiceMesh: false,
+    openAllServiceMesh: true,
   }
   static propTypes = {
     ModalType: PropTypes.bool.isRequired,
@@ -34,23 +34,27 @@ export default class ServiceMeshForm extends React.Component {
   onCancel = () => {
     const { onClose, SwitchOnChange, ModalType } = this.props;
     onClose()
-    setTimeout(() => {SwitchOnChange(!ModalType)}, 0)
-    this.setState({ checked: false })
+    this.setState({ checked: false, openAllServiceMesh: true },
+    () => SwitchOnChange(!ModalType))
   }
   onOk = async (status) => {
     const { onClose, ToggleServiceMesh, clusterId, namespace } = this.props
     const { openAllServiceMesh } = this.state
     this.setState({ Buttonloading: true })
     try{
-      await ToggleServiceMesh({ projectName:namespace, status, cluster: clusterId,
-        openAllServiceMesh })
+      await ToggleServiceMesh(namespace, clusterId,
+        {
+          istio: status === 'on' ? 'enabled' : 'disabled',
+          existingServicesOff: openAllServiceMesh,
+        })
+        this.props.reload()
     } catch(e) {
       notification.error({
         message: '操作羡慕服务网格开关失败',
       })
     }
     onClose()
-    this.setState({ checked: false, openAllServiceMesh: false, Buttonloading: false})
+    this.setState({ checked: false, openAllServiceMesh: true, Buttonloading: false})
   }
   onCheckBoxChange = e => {
     const { checked } = this.state
@@ -90,8 +94,8 @@ export default class ServiceMeshForm extends React.Component {
           </Col>
           <Col span={20}>
             <RadioGroup onChange={this.openAllServiceMesh} value={this.state.openAllServiceMesh}>
-              <Radio key="a" value={false}>全部关闭服务网格</Radio>
-              <Radio key="b" value={true}>全部开启服务网格</Radio>
+              <Radio key="a" value={true}>全部关闭服务网格</Radio>
+              <Radio key="b" value={false}>全部开启服务网格</Radio>
             </RadioGroup>
             <div style={{ color: '#ccc', marginTop: 12 }}>
               将项目&集群下已有的全部服务的服务网格关闭，需要时可在服务详情中开启

@@ -27,6 +27,7 @@ import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
+import filter from 'lodash/filter'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -305,10 +306,23 @@ MyComponent = injectIntl(MyComponent, {
 class PageImageCenter extends Component {
   constructor(props) {
     super(props)
+    const { location } = this.props
+    let other = {}
+    let itemType = ''
+    let activeKey = ''
+    if (location.pathname.indexOf('/other/') > -1){
+      activeKey = location.pathname.split('/').pop()
+      other = {
+        id: activeKey
+      }
+      itemType = 'other'
+    }
     this.state = {
       createModalShow: false,
       otherImageHead: [], // other image store
-      other: {}
+      other,
+      itemType,
+      activeKey,
     }
     if(props.location.query.addUserDefined) {
       this.state.createModalShow = true
@@ -322,7 +336,7 @@ class PageImageCenter extends Component {
       browserHistory.push('/app_center/projects')
       return
     }
-    browserHistory.push(`/app_center/projects/${type}`)
+    browserHistory.push(`/app_center/projects/${type}` + (type === 'other' ? '/' + other.id : ''))
   }
   componentWillMount() {
     const { location } = this.props
@@ -337,6 +351,8 @@ class PageImageCenter extends Component {
       type = 'publish'
     } else if (location.pathname === '/app_center/projects/replications') {
       type = 'replications'
+    } else if(location.pathname.indexOf('/other/') > -1){
+      type = 'other'
     }
     this.setState({itemType:type})
     this.props.LoadOtherImage({
@@ -345,7 +361,8 @@ class PageImageCenter extends Component {
           this.setState({
             otherImageHead: res.data
           })
-        }
+        },
+        isAsync: true,
       }
     })
   }
@@ -357,14 +374,18 @@ class PageImageCenter extends Component {
         browserHistory.replace('/app_center/projects')
         return
       }
-      if (newLocation.pathname === '/app_center/projects/other') {
+      if (newLocation.pathname.indexOf('/other/') > -1) {
         this.props.LoadOtherImage({
           success: {
             func: (res) => {
+              const activeKey = newLocation.pathname.split('/').pop()
               this.setState({
-                otherImageHead: res.data
+                activeKey,
+                otherImageHead: res.data,
+                other: filter(res.data, { id: activeKey })[0] || this.state.other
               })
-            }
+            },
+            isAsync: true,
           }
         })
         return
@@ -386,7 +407,7 @@ class PageImageCenter extends Component {
   render() {
     const { children, loginUser, intl } = this.props
     const { formatMessage } = intl
-    const { otherImageHead, other, itemType } = this.state
+    const { otherImageHead, other, itemType, activeKey } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (
@@ -450,7 +471,7 @@ class PageImageCenter extends Component {
             <Tabs
               key='ImageCenterTabs'
               className="otherStore"
-              activeKey={other.id}
+              activeKey={activeKey}
               >
               {tempImageList}
             </Tabs>

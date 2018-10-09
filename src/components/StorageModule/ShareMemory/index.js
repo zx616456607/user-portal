@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Table, Modal, Form, Select, Icon, Tooltip, Col, InputNumber, Slider } from 'antd'
+import { Button, Input, Table, Modal, Form, Select, Radio, Tooltip, Col, InputNumber, Slider } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -23,9 +23,12 @@ import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/to
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
+import IntlMessage from "../../../containers/Application/ServiceConfigIntl";
 
 const FormItem = Form.Item
 const Option = Select.Option
+const RadioGroup = Radio.Group
+const PATH_REG = /^\//
 
 const DEFAULT_QUERY = {
   storagetype: 'nfs,glusterfs',
@@ -49,6 +52,7 @@ class ShareMemory extends Component {
       modalStorageType: 'nfs',
       sliderValue: 1,
       filteredValue: [],
+      serverType: 'random',// server共享目录
     }
   }
 
@@ -158,7 +162,7 @@ class ShareMemory extends Component {
           }else {
             tempList = res.data.glusterfsList
           }
-          tempList.map(item => {
+          tempList && tempList.map(item => {
             if(item.metadata.labels["system/storageDefault"] === "true"){
               name = item.metadata.name
             }
@@ -177,7 +181,12 @@ class ShareMemory extends Component {
   confirmCreateShareMemory() {
     const { form, createStorage, clusterID } = this.props
     const notification = new NotificationHandler()
-    const viladateArray = [
+    const viladateArray = this.state.serverType === 'custom' ? [
+      'storageType',
+      'storageClassName',
+      'name',
+      'serverDir'
+    ] : [
       'storageType',
       'storageClassName',
       'name',
@@ -193,12 +202,13 @@ class ShareMemory extends Component {
         })
         return
       }
-      const { name, storageType, storageClassName } = values
+      const { name, storageType, storageClassName, serverDir } = values
       const config = {
         name,
         storageType,
         storageClassName,
         reclaimPolicy: 'retain',
+        serverDir
       }
       if(storageType === 'glusterfs'){
         config.storage = values.storage
@@ -363,6 +373,23 @@ class ShareMemory extends Component {
       this.loadData({ page: parseInt(query.page) || 1, search: searchInput })
     })
   }
+
+  // 选择server 共享目录
+  serverTypeChange = e => {
+    this.setState({
+      serverType: e.target.value
+    })
+  }
+
+  testServerPath = (rule, value, callback) => {
+    if (!value) {
+        return callback('请输入server 共享目录')
+      }
+    if (!PATH_REG.test(value)) {
+      return callback('请输入正确的路径')
+    }
+    callback()
+  }
   render() {
     const {
       form, nfsList, storageList, storageListIsFetching, clusterID,
@@ -376,7 +403,6 @@ class ShareMemory extends Component {
       searchInput,
       modalStorageType,
     } = this.state
-
     const { query = {} } = location
     const { getFieldProps } = form
     const columns = [
@@ -444,6 +470,7 @@ class ShareMemory extends Component {
     	labelCol: {span: 5},
     	wrapperCol: {span: 16}
     }
+
     let canCreate = false
     if(storageClassType.share){
       canCreate = storageClassType.share
@@ -601,7 +628,6 @@ class ShareMemory extends Component {
                     }
                     </Select>
                   </FormItem>
-
                 </FormItem>
                 <FormItem
                   label="存储名称"
@@ -618,7 +644,30 @@ class ShareMemory extends Component {
                 </FormItem>
                 {
                   this.state.modalStorageType === 'nfs' ?
-                  null
+                    <FormItem
+                      label="server 共享目录"
+                      {...formItemLayout}
+                    >
+                      <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
+                        <Radio value='random' key='random'>系统随机</Radio>
+                        <Radio value='custom' key='custom'>自定义</Radio>
+                      </RadioGroup>
+                      {
+                        this.state.serverType === 'custom' &&
+                          <Input
+                            {...getFieldProps('serverDir',{
+                              validate: [
+                                {
+                                  rules: [
+                                    {validator: this.testServerPath},
+                                  ],
+                                  trigger: ['onBlur', 'onChange'],
+                                }
+                              ]
+                            })}
+                            placeholder='请输入 server共享目录'/>
+                      }
+                    </FormItem>
                   :
                   <FormItem
                     label="存储大小"

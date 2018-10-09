@@ -5,15 +5,26 @@ import isEmpty from 'lodash/isEmpty';
 import { buildJson, getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
 
 const formatTemplateInfo = (serviceArray: Array): Array => {
+  // 模板拼数组拼 2 层 【ser1, ser2, ser3】=> [ser3.dependencies: [ser2, ser1]]
   const copyArr = cloneDeep(serviceArray);
   copyArr.reverse();
-  copyArr.forEach((item, index, arr) => {
-    if (index < arr.length - 1) {
-      item.dependencies = [copyArr[index + 1]];
+  const dependencies = []
+  copyArr.forEach((item, index) => {
+    if (index > 0) {
+      dependencies.push(item)
     }
-  });
+  })
+  copyArr[0].dependencies = dependencies
   return [copyArr[0]];
 };
+
+const formatChartName = name => {
+  if (!name.includes('-')) {
+    return name
+  }
+  name = name.split('-')[0]
+  return name
+}
 
 export const formatTemplateBody = (props, imageConfig, isDeploy) => {
   const { fields, current, loginUser, loadBalanceList } = props;
@@ -38,7 +49,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       Object.assign(serviceOption, {
         chart: {
           name: isDeploy ? value.chartName.value : // 部署模板
-              value.chartName && value.chartName.value ? value.chartName.value : // 编辑模板
+              value.chartName && value.chartName.value ? formatChartName(value.chartName.value) + `-${count}` : // 编辑模板
             count === fieldsLength ? value.templateName.value : value.templateName.value + `-${count}`, // 创建模板
           // version: value.templateVersion.value,
           version: 'v1',
@@ -60,7 +71,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
           });
           const body = {
             host: hostname,
-            path: path ? '/' + path.join('/') : '',
+            path: path ? '/' + path.join('/') : '/',
             items,
           };
           if (!loadBalanceName) {

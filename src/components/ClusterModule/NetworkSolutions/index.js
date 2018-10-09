@@ -16,27 +16,8 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { loadTeamClustersList } from '../../../actions/team'
 import NotificationHandler from '../../../components/Notification'
 import { setCurrent } from '../../../actions/entities'
-import { genRandomString } from '../../../common/tools'
 import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
-
-const createOrder = `calicoctl create -f policy.yaml`
-const deleteOrder = `calicoctl delete policy failsafe`
-const yamlFile = `- apiVersion: v1
-  kind: policy
-  metadata:
-    name: failsafe
-  spec:
-    selector: "all()"
-    order: 0
-    ingress:
-    - action: allow
-      protocol: tcp
-      source:
-        net: "192.168.1.0/24"
-    - action: allow
-      protocol: udp
-      source:
-        net: "192.168.1.0/24"`
+import HelpModal from './HelpModal'
 
 class NetworkSolutions extends Component {
   constructor(props) {
@@ -46,23 +27,16 @@ class NetworkSolutions extends Component {
     this.handleCurrentTemplate = this.handleCurrentTemplate.bind(this)
     this.confirmSettingPermsission = this.confirmSettingPermsission.bind(this)
     this.openPermissionModal = this.openPermissionModal.bind(this)
-    this.copyOrder = this.copyOrder.bind(this)
-    this.copyCloseOrder = this.copyCloseOrder.bind(this)
     this.closeHelpModal = this.closeHelpModal.bind(this)
-    this.copyYmal = this.copyYmal.bind(this)
     this.state = {
       permissionVisible: false,
       confirmLoading: false,
       helpVisible: false,
-      copyCMDSuccess: false,
-      openInputId: `openPermissoionInput${genRandomString('0123456789', 4)}`,
-      closeInputId: `closePermissoionInput${genRandomString('012345678', 4)}`,
-      yamlTextarea: `yamlTextarea${genRandomString('012345678', 4)}`,
-      activeKey: 'open',
       modalHelp: false,
       dnsId: 0,
       sketchVisible: false,
       deleteVisible: false,
+      isNotMasterNode: false,
     }
   }
 
@@ -118,13 +92,6 @@ class NetworkSolutions extends Component {
                     : '[ 禁止变更 ]'
                 }
               </span>
-              <Button
-                type="primary"
-                style={{ marginLeft: 8 }}
-                onClick={() => this.setState({ helpVisible: true })}
-              >
-                帮助
-              </Button>
             </span>
           }
         </Col>
@@ -229,45 +196,12 @@ class NetworkSolutions extends Component {
     })
   }
 
-  copyOrder() {
-    //this function for user click the copy btn and copy the download code
-    const code = document.getElementById(this.state.openInputId)
-    code.select()
-    document.execCommand('Copy', false)
-    this.setState({
-      copyCMDSuccess: true,
-    })
-  }
-
-  copyCloseOrder() {
-    const code = document.getElementById(this.state.closeInputId)
-    code.select()
-    document.execCommand('Copy', false)
-    this.setState({
-      copyCMDSuccess: true,
-    })
-  }
-
-  copyYmal() {
-    const code = document.getElementById(this.state.yamlTextarea)
-    code.select()
-    document.execCommand('Copy', false)
-    this.setState({
-      copyCMDSuccess: true,
-    })
-  }
-
   closeHelpModal() {
     const { modalHelp } = this.state
     this.setState({
       helpVisible: false,
       modalHelp: false,
     })
-    setTimeout(() => {
-      this.setState({
-        activeKey: 'open',
-      })
-    }, 1000)
     if (modalHelp) {
       this.setState({
         permissionVisible: true,
@@ -320,7 +254,8 @@ class NetworkSolutions extends Component {
 
   render() {
     const { networkPolicySupported } = this.props
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps, getFieldValue } = this.props.form
+    const { isNotMasterNode } = this.state
     getFieldProps('keys', {
       initialValue: [0],
     })
@@ -394,108 +329,24 @@ class NetworkSolutions extends Component {
             maskClosable={false}
             confirmLoading={this.state.confirmLoading}
             wrapClassName="set_permission_modal"
-            okText={<span>{networkPolicySupported ? '确定' : '已添加，开启允许'}</span>}
-            cancelText={<span>{networkPolicySupported ? '取消' : '尚未添加'}</span>}
+            okText={'确定'}
+            cancelText={'取消'}
           >
             {
               networkPolicySupported
                 ? <div className='info_box_close'>
                   <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                   <div>
-                    将关闭『允许当前集群用户开启 inbound 隔离』的功能。
+                    将禁止当前集群用户变更 inbound 隔离，确认允许平台用户随时变更？
                   </div>
                 </div>
                 : <div className='info_box'>
                   <i className="fa fa-exclamation-triangle warning_icon" aria-hidden="true"></i>
                   <div>
-                    将允许当前集群用户开启 inbound 隔离，请提前创建允许所有代理出口 ip/网段 访问集群服务的策略，具体查看
-                    <span className='help_button' onClick={() => this.setState({
-                      helpVisible: true,
-                      modalHelp: true,
-                      permissionVisible: false
-                    })}>帮助</span>
-                    信息。
+                    将允许当前集群用户变更 inbound 隔离，确认允许平台用户随时变更？
                   </div>
                 </div>
             }
-          </Modal>
-          <Modal
-            title="帮助"
-            visible={this.state.helpVisible}
-            closable={true}
-            onOk={this.closeHelpModal}
-            onCancel={this.closeHelpModal}
-            maskClosable={false}
-            wrapClassName="help_modal"
-          >
-            <div className='tips_area'>
-              <div className='tips'>
-                在 master 控制节点上，保存以下内容为 policy.yaml 到任意目录，注意修改 net 字段中的内容为主机节点的网段信息。
-              </div>
-            </div>
-            <Tabs
-              className='tabs_area'
-              activeKey={this.state.activeKey}
-              onChange={(key) => this.setState({ activeKey: key })}
-            >
-              <Tabs.TabPane key="open" tab="添加节点允许访问策略" className='height open_area'>
-                <pre className='order create_area'>
-                  {yamlFile}
-                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                    <a
-                      className={this.state.copyCMDSuccess ? "actions copyBtn copy_icon" : "copyBtn copy_icon"}
-                      onClick={this.copyYmal}
-                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                    >
-                      <Icon type="copy" />
-                    </a>
-                  </Tooltip>
-                  <textarea
-                    id={this.state.yamlTextarea}
-                    style={{ position: "absolute", opacity: "0", top: '0' }}
-                    value={yamlFile}
-                  />
-                </pre>
-                <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
-                <pre className='order'>
-                  {createOrder}
-                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                    <a
-                      className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
-                      onClick={this.copyOrder}
-                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                    >
-                      <Icon type="copy" style={{ marginLeft: 8 }} />
-                    </a>
-                  </Tooltip>
-                  <input
-                    id={this.state.openInputId}
-                    style={{ position: "absolute", opacity: "0", top: '0' }}
-                    value={createOrder}
-                  />
-                </pre>
-              </Tabs.TabPane>
-              <Tabs.TabPane key="close" tab="关闭节点允许访问策略" className='height'>
-                <div className='title'>在安装了 calicoctl 命令的 master 控制节点上运行以下命令：</div>
-                <pre className='order'>
-                  {deleteOrder}
-                  <Tooltip title={this.state.copyCMDSuccess ? '复制成功' : '点击复制'}>
-                    <a
-                      className={this.state.copyCMDSuccess ? "actions copyBtn" : "copyBtn"}
-                      onClick={this.copyCloseOrder}
-                      onMouseLeave={() => setTimeout(() => this.setState({ copyCMDSuccess: false }), 500)}
-                    >
-                      <Icon type="copy" style={{ marginLeft: 8 }} />
-                    </a>
-                  </Tooltip>
-                  <input
-                    id={this.state.closeInputId}
-                    style={{ position: "absolute", opacity: "0", top: '0' }}
-                    value={deleteOrder}
-                  />
-                </pre>
-              </Tabs.TabPane>
-            </Tabs>
           </Modal>
           <Modal title="删除" visible={this.state.deleteVisible}
             onCancel={() => this.handleDelClose()}

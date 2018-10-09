@@ -302,7 +302,7 @@ class AlarmRecord extends Component {
 
       },
       {
-        title: '是否发送邮件',
+        title: '是否发送邮件/短信',
         dataIndex: 'status',
         render: (text) => {
           switch (text) {

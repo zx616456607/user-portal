@@ -17,7 +17,7 @@ export const TOGGLE_SERVICEMESH_FAILURE = 'TOGGLE_SERVICEMESH_FAILURE'
 
 // 项目在某个集群下开启serviceMesh
 // 设置项目 Istio 状态（开/关）
-function fetchToggleServiceMesh(project, clusterId, callback) {
+function fetchToggleServiceMesh(project, clusterId, body, callback) {
   let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/paas/status`
   return {
     [FETCH_API]: {
@@ -26,6 +26,7 @@ function fetchToggleServiceMesh(project, clusterId, callback) {
       schema: {},
       options: {
         method: 'PUT',
+        body,
         headers: {
           teamspace: project,
         }
@@ -35,9 +36,9 @@ function fetchToggleServiceMesh(project, clusterId, callback) {
   }
 }
 
-export function ToggleServiceMesh(body, callback) {
+export function ToggleServiceMesh(project, clusterId, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchToggleServiceMesh(body, callback))
+    return dispatch(fetchToggleServiceMesh(project, clusterId, body, callback))
   }
 }
 
@@ -47,8 +48,9 @@ export const TOGGlE_APP_MESH_SUCCESS = 'TOGGlE_APP_MESH_SUCCESS'
 export const TOGGlE_APP_MESH_FAILURE = 'TOGGlE_APP_MESH_FAILURE'
 
 // 项目在某个集群下开启serviceMesh
+// 设置服务 Istio 状态（开/关）
 function fetchToggleAPPMesh(cluster, service, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/serverMesh`
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${cluster}/paas/services/${service}/status`
   return {
     [FETCH_API]: {
       types: [TOGGlE_APP_MESH_REQUEST, TOGGlE_APP_MESH_SUCCESS, TOGGlE_APP_MESH_FAILURE],
@@ -92,9 +94,9 @@ function fetchCheckProInClusMesh(project, clusterId, callback) {
   }
 }
 
-export function checkProInClusMesh(query, callback) {
+export function checkProInClusMesh(project, clusterId, callback) {
   return (dispatch) => {
-    return dispatch(fetchCheckProInClusMesh(query, callback))
+    return dispatch(fetchCheckProInClusMesh(project, clusterId, callback))
   }
 }
 
@@ -149,8 +151,46 @@ function fetchCheckAPPInClusMesh(clusterId, application, service , callback) {
   }
 }
 
-export function checkAPPInClusMesh(cluster, service, query, callback) {
+export function checkAPPInClusMesh(clusterId, application, service , callback) {
   return (dispatch) => {
-    return dispatch(fetchCheckAPPInClusMesh(cluster, service, query, callback))
+    return dispatch(fetchCheckAPPInClusMesh(clusterId, application, service , callback))
+  }
+}
+
+// 当服务网格页面重新配置了服务网格,需要让重新
+export const SERVICEMESH_REBOOT_SHINING = "SERVICEMESH_REBOOT_SHINING"
+export function rebootShining(shiningFlag) {
+  return {
+    type: SERVICEMESH_REBOOT_SHINING,
+    shiningFlag
+  }
+}
+
+// 获取服务列表的istio状态
+export const GET_SERVICE_LIST_SERVICE_MESH_REQUEST = 'GET_SERVICE_LIST_SERVICE_MESH_REQUEST'
+export const GET_SERVICE_LIST_SERVICE_MESH_SUCCESS = 'GET_SERVICE_LIST_SERVICE_MESH_SUCCESS'
+export const GET_SERVICE_LIST_SERVICE_MESH_FAILURE = 'GET_SERVICE_LIST_SERVICE_MESH_FAILURE'
+function checkServiceListServiceMeshStatus(clusterId, serviceList ,callback) {
+  const query = toQuerystring({
+    name: serviceList
+  })
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/paas/services`
+  endpoint += `?${query}`
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_LIST_SERVICE_MESH_REQUEST, GET_SERVICE_LIST_SERVICE_MESH_SUCCESS, GET_SERVICE_LIST_SERVICE_MESH_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET',
+      }
+    },
+    callback,
+  }
+}
+
+export function getServiceListServiceMeshStatus(clusterId, serviceList, callback) {
+  return (dispatch) => {
+    return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, callback))
   }
 }

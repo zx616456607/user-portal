@@ -57,8 +57,9 @@ class Project extends Component {
   onRowChange = (selectedRowKeys, selectedRows) => {
     const { isShowEditor } = this.state
     // if (isShowEditor) return
+    const lastItem = selectedRows.pop()
     this.setState({
-      selectedRows,
+      selectedRows: lastItem ? [lastItem] : [],
     })
   }
   loadData = () => {
@@ -262,8 +263,9 @@ class Project extends Component {
     temp = remove(selectedRows, row => row.id !== record.id )
     :
     temp.push(record)
+    const lastItem = temp.pop()
     this.setState({
-      selectedRows: temp,
+      selectedRows: lastItem ? [lastItem] : [],
     })
   }
   onSearchChange = e => {
@@ -317,6 +319,7 @@ class Project extends Component {
     const rowSelection = {
       selectedRowKeys: selectedRows.map( row => row.id ),
       onChange: this.onRowChange,
+      type: 'radio',
     }
     const tempData = filter(data, { scope })
     const total = tempData.length

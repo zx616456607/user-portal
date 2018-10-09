@@ -33,11 +33,14 @@ import { parseToFields } from './CreateTemplate/parseToFields';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
 import { getDeepValue } from '../../../util/util'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
 
 const notify = new NotificationHandler();
 
 const DEFAULT_SIZE = 12;
 const SERVICE_CONFIG_HASH = '#configure-service';
+const CONFIG_TYPE = 'chart_repo'
 
 class TemplateList extends React.Component<any> {
 
@@ -47,9 +50,9 @@ class TemplateList extends React.Component<any> {
   serviceSum = 0;
 
   componentWillMount() {
-    const { loadGlobalConfig } = this.props
+    const { getConfigByType } = this.props
     this.loadTemplateList();
-    loadGlobalConfig()
+    getConfigByType(undefined, CONFIG_TYPE)
   }
 
   loadTemplateList = (query: any) => {
@@ -190,7 +193,7 @@ class TemplateList extends React.Component<any> {
         <div className="noTemplateText" key="noTemplateText">
           <FormattedMessage {...AppCenterMessage.emptyTip} />
           <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
-            <Button type="primary" size="large" onClick={this.createTemplate}>
+            <Button type="primary" size="large" onClick={this.createTemplate} disabled={this.chartRepoIsEmpty()}>
               <FormattedMessage {...AppCenterMessage.create} />
             </Button>
           </Tooltip>
@@ -222,13 +225,21 @@ class TemplateList extends React.Component<any> {
             >
               <Icon className="operation" type="setting" />
             </Popover>
-            <img className="tempLogo" src={defaultApp}/>
-            <Tooltip title={temp.name}>
-              <div className="templateName">{temp.name}</div>
-            </Tooltip>
-            <Tooltip title={temp.versions[0].description} placement="top">
-              <div className="templateDesc textoverflow hintColor">{temp.versions[0].description}</div>
-            </Tooltip>
+            <div className="templateContent">
+              <img className="tempLogo" src={defaultApp}/>
+              <div className="nameAndDescBox">
+                <div className="templateName">
+                  <Ellipsis>
+                    <span>{temp.name}</span>
+                  </Ellipsis>
+                </div>
+                <div className="templateDesc hintColor">
+                  <Ellipsis lines={2}>
+                    <span>{temp.versions[0].description}</span>
+                  </Ellipsis>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="templateFooter">
             <div className="templateCreated">
@@ -243,7 +254,6 @@ class TemplateList extends React.Component<any> {
             <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
               <Button
                 className="deploy"
-                type="ghost"
                 disabled={this.chartRepoIsEmpty()}
                 onClick={() => this.handleDeploy(temp)}
               >
@@ -257,16 +267,11 @@ class TemplateList extends React.Component<any> {
   }
 
   chartRepoIsEmpty = () => {
-    const { globalConfig } = this.props
-    if (isEmpty(globalConfig)) {
+    const { chartConfig } = this.props
+    if (isEmpty(chartConfig)) {
       return true
     }
-    let chartRepo = globalConfig.filter(item => item.configType === 'chart_repo')
-    if (isEmpty(chartRepo)) {
-      return true
-    }
-    chartRepo = chartRepo[0]
-    const { configDetail } = chartRepo
+    const { configDetail } = chartConfig
     if (isEmpty(configDetail)) {
       return true
     }
@@ -342,13 +347,13 @@ const mapStateToProps = state => {
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 0 };
-  const globalConfig = getDeepValue(state, ['globalConfig', 'globalConfig', 'result', 'data'])
+  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
   return {
     templateList,
     total,
     isFetching,
     fields: quickCreateApp.fields,
-    globalConfig,
+    chartConfig,
   };
 };
 
@@ -357,5 +362,5 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
-  loadGlobalConfig: globalActions.loadGlobalConfig,
+  getConfigByType: globalActions.getConfigByType,
 })(injectIntl(TemplateList, { withRef: true }));

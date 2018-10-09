@@ -44,6 +44,7 @@ import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import ResourceQuota from "../ResourceLimit";
 import ServiceMeshPortCard from './ServiceMeshPortCard'
+import HelpModal from './NetworkSolutions/HelpModal'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -72,6 +73,8 @@ let NetworkConfiguration = React.createClass ({
       copyCMDSuccess: false,
       networkType: 'server',
       editingKey: null,
+      helpVisible: false,
+      addContentVisible: false,
     }
   },
   componentWillMount(){
@@ -368,7 +371,13 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   cancleEdit() {
-    this.setState({editCluster: false, editingKey: null, saveBtnLoading: false, saveBtnDisabled: true})
+    this.setState({
+      editCluster: false,
+      editingKey: null,
+      saveBtnLoading: false,
+      saveBtnDisabled: true,
+      addContentVisible: false,
+    })
     const { form, cluster, clusterProxy } = this.props
     const clusterID = camelize(cluster.clusterID)
     if(clusterProxy.result[clusterID] && clusterProxy.result[clusterID].data) {
@@ -484,6 +493,7 @@ let NetworkConfiguration = React.createClass ({
                   }],
                   onChange:(value) => this.nodeChange(value, networkKey, item)
                   })}
+                  className="select-width-full"
                   placeholder={formatMessage(intlMsg.selectServiceNode)}
                   disabled={!editCluster}
                 >
@@ -580,6 +590,9 @@ let NetworkConfiguration = React.createClass ({
   },
   addPublic() {
     this.cancleEdit()
+    this.setState({
+      addContentVisible: true,
+    })
     this.uuid.configKey++
     const { form } = this.props;
     // can use data-binding to get
@@ -810,7 +823,7 @@ let NetworkConfiguration = React.createClass ({
       </QueueAni>
     )
   },
-  networkConfigArray(networkConfigArray, data) {
+  _networkConfigArray(networkConfigArray, data ,isAdd) {
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 17 }
@@ -818,7 +831,7 @@ let NetworkConfiguration = React.createClass ({
     const { form, intl: { formatMessage } } = this.props
     const { editingKey, } = this.state
     const { getFieldProps, getFieldValue } = form
-    return  networkConfigArray.map((item) => {
+    return  networkConfigArray.filter(item => isAdd ? item.add : !item.add).map((item) => {
       const index = item.key
       const editCluster = editingKey === item.key
 
@@ -888,9 +901,11 @@ let NetworkConfiguration = React.createClass ({
             </Tooltip>
             <span className="sketchMap" onClick={()=> this.setState({visible:true})}><FormattedMessage {...intlMsg.checkPic}/></span>
           </Col>
-          <Col span="3">
-            <div className={'actionColumn'}><FormattedMessage {...intlMsg.action}/></div>
-          </Col>
+          {
+            !isAdd && <Col span="3">
+              <div className={'actionColumn'}><FormattedMessage {...intlMsg.action}/></div>
+            </Col>
+          }
         </Row>
         <Row>
           {/*<Icon
@@ -960,6 +975,7 @@ let NetworkConfiguration = React.createClass ({
                     rules:[{required: true, message: formatMessage(intlMsg.netTypeNotNull)}]
                   })}
                   disabled={!editCluster}
+                  className="select-width-full"
                 >
                   <Option value="public" key="public"><FormattedMessage {...intlMsg.publicNet}/></Option>
                   <Option value="private" key="private"><FormattedMessage {...intlMsg.intranet}/></Option>
@@ -1007,56 +1023,58 @@ let NetworkConfiguration = React.createClass ({
               </FormItem>
             </div>
           </Col>
-          <Col span={3} className={'actionButtons'}>
-            {
-              !editCluster ?
-                [
-                  <Button
-                    key='edit'
-                    onClick={() => {
-                      const _ = this
-                      editingKey || editingKey === 0  ?
-                        Modal.confirm({
-                          width:460,
-                          title: <span style={{fontWeight:500}}>{formatMessage(intlMsg.haveEditingOut)}</span>,
-                          content: formatMessage(intlMsg.goOnNoSave),
-                          onOk() {
-                            _.cancleEdit()
-                            _.setState({
-                              editingKey: item.key,
-                            })
-                          },
-                        })
-                        : this.setState({
-                          editingKey: item.key,
-                        })
-                    }}
-                    icon={'edit'}
-                    type="dashed"
-                  />,
-                  <Button
-                    key="delete"
-                    icon={'delete'}
-                    disabled={editingKey || editingKey === 0}
-                    onClick={() => this.deletePublic(item, data[item.key])}
-                    type="dashed"
-                  />,
-                ] : [
-                  <Button
-                    key="save"
-                    onClick={this.updateCluster}
-                    icon={'check'}
-                    type="dashed"
-                  />,
-                  <Button
-                    key="cancel"
-                    onClick={this.cancleEdit}
-                    icon={'cross'}
-                    type="dashed"
-                  />,
-                ]
-            }
-          </Col>
+          {
+            !isAdd && <Col span={3} className={'actionButtons'}>
+              {
+                !editCluster ?
+                  [
+                    <Button
+                      key='edit'
+                      onClick={() => {
+                        const _ = this
+                        editingKey || editingKey === 0  ?
+                          Modal.confirm({
+                            width:460,
+                            title: <span style={{fontWeight:500}}>{formatMessage(intlMsg.haveEditingOut)}</span>,
+                            content: formatMessage(intlMsg.goOnNoSave),
+                            onOk() {
+                              _.cancleEdit()
+                              _.setState({
+                                editingKey: item.key,
+                              })
+                            },
+                          })
+                          : this.setState({
+                            editingKey: item.key,
+                          })
+                      }}
+                      icon={'edit'}
+                      type="dashed"
+                    />,
+                    <Button
+                      key="delete"
+                      icon={'delete'}
+                      disabled={editingKey || editingKey === 0}
+                      onClick={() => this.deletePublic(item, data[item.key])}
+                      type="dashed"
+                    />,
+                  ] : [
+                    <Button
+                      key="save"
+                      onClick={this.updateCluster}
+                      icon={'check'}
+                      type="dashed"
+                    />,
+                    <Button
+                      key="cancel"
+                      onClick={this.cancleEdit}
+                      icon={'cross'}
+                      type="dashed"
+                    />,
+                  ]
+              }
+            </Col>
+          }
         </Row>
       </div>
     })
@@ -1102,7 +1120,7 @@ let NetworkConfiguration = React.createClass ({
         </div>
       ]
     } else {
-      networkConfigList = this.networkConfigArray(networkConfigArray, data, editCluster)
+      networkConfigList = this._networkConfigArray(networkConfigArray, data)
     }
 
     return (
@@ -1111,7 +1129,11 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
+<<<<<<< HEAD
             { name: '服务网格出口', value: 'Istio-gateway' }
+=======
+            // { name: '服务网格出口', value: 'Istio-gateway' }
+>>>>>>> 90c8a25cae1bb65e290f0fa480b2ec7be6a73916
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}
@@ -1143,14 +1165,26 @@ let NetworkConfiguration = React.createClass ({
             <img style={{width:'100%',height:'100%'}} src={sketchImg}/>
           </div>
         </Modal>
-
+        <Modal
+          wrapClassName="vertical-center-modal"
+          width='60%'
+          title={formatMessage(intlMsg.Schematic)}
+          footer={[
+            <Button key="cancel" onClick={this.cancleEdit}><FormattedMessage {...intlMsg.cancel}/></Button>,
+            <Button key="save" onClick={this.updateCluster} type="primary"><FormattedMessage {...intlMsg.save}/></Button>,
+            ]}
+          visible={this.state.addContentVisible}
+          onCancel={this.cancleEdit}
+        >
+          {this._networkConfigArray(networkConfigArray, data, 'isAdd')}
+        </Modal>
          <Modal
            title={formatMessage(intlMsg.setDefaultNetOut)}
            visible={this.state.settingDefalut}
            closable={true}
            onOk={this.confirmSet}
            onCancel={this.cancelSet}
-           width='570px'
+           width='750px'
            maskClosable={false}
            confirmLoading={this.settingDefalutLoading}
            wrapClassName="settingDefalut"
