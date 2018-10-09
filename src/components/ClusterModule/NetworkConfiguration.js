@@ -43,6 +43,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import ResourceQuota from "../ResourceLimit";
+import ServiceMeshPortCard from './ServiceMeshPortCard'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -805,9 +806,7 @@ let NetworkConfiguration = React.createClass ({
   renderIstioGateway() {
     return(
       <QueueAni>
-        <div key={'a'}>
-          333
-        </div>
+        <ServiceMeshPortCard key="ServiceMeshPortCard"/>
       </QueueAni>
     )
   },
@@ -1112,7 +1111,7 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
-            // { name: 'Istio-gateway', value: 'Istio-gateway' }
+            { name: '服务网格出口', value: 'Istio-gateway' }
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}
