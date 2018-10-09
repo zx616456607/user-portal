@@ -517,7 +517,6 @@ export default connect(mapStateToProps, {
             footer={footer}
             maskClosable={false}
             confirmLoadin={this.props.confirmLoading}
-            // onClose={() => { !this.props.isModalFetching && !isResFetching && this.modalCancel() }}
             onClose={() => { this.modalCancel() }}
           >
             {
