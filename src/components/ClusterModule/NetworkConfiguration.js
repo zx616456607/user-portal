@@ -352,6 +352,7 @@ let NetworkConfiguration = React.createClass ({
               editCluster: false,
               editingKey: null,
             })
+            this.props.refreshComponent()
           },
           isAsync: true
         },
@@ -1164,8 +1165,8 @@ let NetworkConfiguration = React.createClass ({
         </Modal>
         <Modal
           wrapClassName="vertical-center-modal"
-          width='60%'
-          title={formatMessage(intlMsg.Schematic)}
+          width='65%'
+          title={formatMessage(intlMsg.addNetOut)}
           footer={[
             <Button key="cancel" onClick={this.cancleEdit}><FormattedMessage {...intlMsg.cancel}/></Button>,
             <Button key="save" onClick={this.updateCluster} type="primary"><FormattedMessage {...intlMsg.save}/></Button>,
@@ -1181,7 +1182,7 @@ let NetworkConfiguration = React.createClass ({
            closable={true}
            onOk={this.confirmSet}
            onCancel={this.cancelSet}
-           width='750px'
+           width='570px'
            maskClosable={false}
            confirmLoading={this.settingDefalutLoading}
            wrapClassName="settingDefalut"
