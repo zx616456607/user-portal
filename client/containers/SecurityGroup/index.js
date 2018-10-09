@@ -275,7 +275,7 @@ const mapStateToProps = ({
 }) => {
   const listData = []
   data && data.map(item => listData.push({
-    name: item.metadata.annotations['policy-name'],
+    name: item.metadata && item.metadata.annotations['policy-name'],
     metaName: item.metadata.name,
     target: item.spec.podSelector.matchExpressions
       && item.spec.podSelector.matchExpressions[0].values,

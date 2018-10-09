@@ -43,7 +43,7 @@ function parseNetworkPolicy(policy) {
     && policy.spec.podSelector.matchExpressions[0].values) {
     result.targetServices = policy.spec.podSelector.matchExpressions[0].values
   }
-  const annotations = indexAnnotations(policy.metadata.annotations)
+  const annotations = indexAnnotations(policy.metadata && policy.metadata.annotations)
   if (policy.spec && policy.spec.ingress && policy.spec.ingress.length > 0 && policy.spec.ingress[0].from) {
     const from = policy.spec.ingress[0].from
     result.ingress = []
@@ -127,7 +127,7 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
     const from = policy.spec.ingress[0].from
     for (let i = 0; i < ingress.length; ++i) {
       const rule = ingress[i]
-      const peer = ruleToPeer(rule, data, policy.metadata.annotations)
+      const peer = ruleToPeer(rule, data, policy.metadata && policy.metadata.annotations)
       if (Array.isArray(peer)) {
         peer.forEach(p => from.push(p))
       } else {
@@ -153,7 +153,7 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
     const to = policy.spec.egress[0].to
     for (let i = 0; i < egress.length; ++i) {
       const rule = egress[i]
-      const peer = ruleToPeer(rule, data, policy.metadata.annotations)
+      const peer = ruleToPeer(rule, data, policy.metadata && policy.metadata.annotations)
       if (Array.isArray(peer)) {
         peer.forEach(p => to.push(p))
       } else {
@@ -287,7 +287,7 @@ function indexIngress(data) {
   const indexed = {}
   for (let i = 0; i < data.length; ++i) {
     const lb = data[i]
-    const annotations = lb.metadata.annotations
+    const annotations = lb.metadata && lb.metadata.annotations
     const labels = lb.metadata.labels
     const ip = annotations['allocatedIP']
     indexed[lb.metadata.labels['ingressLb']] =
