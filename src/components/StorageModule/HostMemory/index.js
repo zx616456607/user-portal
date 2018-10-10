@@ -18,6 +18,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import { loadStorageList, searchStorage} from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/tools'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import StorageIntl from '../StorageIntl'
 
 const DEFAULT_QUERY = {
   storagetype: 'host',
@@ -111,7 +113,8 @@ class HostMemory extends Component {
       selectedRowKeys, deleteModalVisible,
       confirmLoading, searchInput,
     } = this.state
-    const { storageList, location } = this.props
+    const { storageList, location, intl } = this.props
+    const { formatMessage } = intl
     const { query = {} } = location
     const columns = [
       {
@@ -125,22 +128,22 @@ class HostMemory extends Component {
         >{text}</div>
       }, {
         key: 'mountPath',
-        title: '宿主机目录',
+        title: <FormattedMessage {...StorageIntl.hostDir} />,
         dataIndex: 'mountPath',
         width: '20%',
       }, {
         key:'serviceName',
-        title:'服务',
+        title: <FormattedMessage {...StorageIntl.service} />,
         dataIndex:'serviceName',
         width:'20%',
       }, {
         key: 'type',
-        title: '类型',
+        title: <FormattedMessage {...StorageIntl.type} />,
         dataIndex: 'storageType',
         width: '20%',
       }, {
         key: 'node',
-        title: '存储节点',
+        title: <FormattedMessage {...StorageIntl.nodeVolume} />,
         dataIndex: 'storageIP',
         width: '20%',
       //}, {
@@ -170,7 +173,7 @@ class HostMemory extends Component {
       <QueueAnim className='host_memory'>
         <div id='host_memory' key="host_memory">
           <div className='alertRow'>
-            本地存储可以使部署的服务访问当前运行节点上的文件系统，一般用于读取节点配置或者进行本地存储等场景
+            <FormattedMessage {...StorageIntl.localVolumeTips} />
           </div>
           <div className='data_container'>
             <div className='handle_box'>
@@ -182,7 +185,7 @@ class HostMemory extends Component {
                 <i className="fa fa-refresh button_icon" aria-hidden="true"
                   onClick={() => this.loadData({ page: parseInt(query.page) || 1, search: searchInput })}
                 />
-                刷新
+                <FormattedMessage {...StorageIntl.refresh} />
               </Button>
               {/*<Button
                 size="large"
@@ -196,7 +199,7 @@ class HostMemory extends Component {
               <div className='search_box'>
                 <Input
                   size="large"
-                  placeholder="按服务名称搜索"
+                  placeholder= {formatMessage(StorageIntl.pleaseServiceName)}
                   id='search_host_volume'
                   onChange={e => this.setState({ searchInput: e.target.value })}
                   onPressEnter={() => this.searchHostVolume({ page: 1 })}
@@ -206,7 +209,7 @@ class HostMemory extends Component {
               </div>
               {
                 dataSource.length
-                  ? <div className='totle_num'>共计 {dataSource.length} 条</div>
+                  ? <div className='totle_num'><FormattedMessage{...StorageIntl.totalItems} /> {dataSource.length} <FormattedMessage{...StorageIntl.item} /></div>
                   : null
               }
             </div>
@@ -223,7 +226,7 @@ class HostMemory extends Component {
           </div>
 
           <Modal
-            title="删除操作"
+            title= {<FormattedMessage {...StorageIntl.deleteAct} />}
             visible={deleteModalVisible}
             closable={true}
             onOk={() => this.confirmDeleteItem()}
@@ -235,7 +238,9 @@ class HostMemory extends Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              确定要删出这 {selectedRowKeys.length} 个存储目录吗？
+              <FormattedMessage {...StorageIntl.sureDelete} />
+              <span style={{ padding: '0 3px' }}> {selectedRowKeys.length} </span>
+              <FormattedMessage{...StorageIntl.aStorage} />？
             </div>
           </Modal>
         </div>
@@ -256,6 +261,8 @@ function mapStateToProp(state, props) {
     storageList: storage.storageList[DEFAULT_IMAGE_POOL] || defaultStorageList
   }
 }
+
+HostMemory = injectIntl(HostMemory, {withRef: true})
 
 export default connect(mapStateToProp, {
   loadStorageList,
