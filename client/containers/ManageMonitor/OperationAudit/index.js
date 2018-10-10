@@ -12,6 +12,7 @@ import Title from '../../../../src/components/Title'
 import '../style/operationAudit.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
+const RangePicker = DatePicker.RangePicker
 const notification = new NotificationHandler()
 
 // this function for format duringtime
@@ -386,6 +387,12 @@ class OperationalAudit extends React.Component {
       end_time: formatDate(time),
     })
   }
+  onRangeChange = value => {
+    this.setState({
+      start_time: value[0],
+      end_time: value[1],
+    })
+  }
   // 立即查询
   submitSearch = () => {
     this.getData()
@@ -493,6 +500,30 @@ class OperationalAudit extends React.Component {
     this.setState({
       currentProject,
     })
+  }
+
+  disabledStartDate = startValue => {
+    const end_time = new Date(this.state.end_time)
+    if (!startValue || !end_time || !this.state.end_time) {
+      return false
+    }
+    return startValue.getTime() >= end_time.getTime()
+  }
+
+  disabledEndDate = endValue => {
+    const start_time = new Date(this.state.start_time)
+    if (!endValue || !start_time || !this.state.start_time) {
+      return false
+    }
+    return endValue.getTime() <= start_time.getTime()
+  }
+  rangeDisabledDate = value => {
+    // debugger
+    return new Date(value.getTime()) > new Date()
+    // () => {
+    //   const date = new Date()
+    //   return date.setDate(date.getDate() + 1)
+    // }
   }
   render() {
     const { isFetching, filterData } = this.props
@@ -621,13 +652,23 @@ class OperationalAudit extends React.Component {
                       ))
                     }
                   </Select>
-                  <DatePicker
+                  <RangePicker
+                    style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+                    size="large"
+                    showTime
+                    value={[ this.state.start_time, this.state.end_time ]}
+                    format="yyyy/MM/dd HH:mm:ss"
+                    onChange={this.onRangeChange}
+                    disabledDate={this.rangeDisabledDate}
+                  />
+                  {/* <DatePicker
                     onChange={this.onChangeStartTime}
                     style={{ marginRight: 20, marginTop: 10, float: 'left' }}
                     showTime
                     format="yyyy-MM-dd HH:mm:ss"
                     size="large"
                     value={this.state.start_time}
+                    disabledDate={this.disabledStartDate}
                   />
                   <DatePicker
                     onChange={this.onChangeEndTime}
@@ -636,7 +677,8 @@ class OperationalAudit extends React.Component {
                     format="yyyy-MM-dd HH:mm:ss"
                     size="large"
                     value={this.state.end_time}
-                  />
+                    disabledDate={this.disabledEndDate}
+                  /> */}
                   <Button className="btn" size="large" onClick={this.submitSearch} type="primary">
                     <i className="fa fa-wpforms"></i>
                     立即查询
