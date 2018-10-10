@@ -16,7 +16,7 @@ Thumbs.db
 *.swo
 *.pyc
 *.pyo
-node_modules
+node_modules*
 dist
 logs
 .vscode/

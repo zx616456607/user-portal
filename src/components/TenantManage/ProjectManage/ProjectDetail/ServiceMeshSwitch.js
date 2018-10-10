@@ -23,6 +23,9 @@ export default class ServiceMeshSwitch extends React.Component {
     userType: undefined,
   }
   componentDidMount = async () => {
+    this.reload()
+  }
+  reload = async () => {
     const { checkProInClusMesh, checkClusterIstio } = this.props
     const { msaConfig, clusterId, projectDetail, displayName} = this.props
     if (!msaConfig) {
@@ -77,6 +80,7 @@ export default class ServiceMeshSwitch extends React.Component {
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
         ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}
         clusterId={ clusterId } namespace={namespace} clusterName={this.props.clusterName}
+        reload={this.reload}
         />
       </div>
     )

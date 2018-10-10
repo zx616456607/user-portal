@@ -13,7 +13,6 @@ import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadTeamClustersList } from '../../actions/team'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getStorageClassType } from '../../actions/storage'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
@@ -77,7 +76,6 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/ai\-deep\-learning\/?/,
     /\/app_center\/projects/,
     /\/app_center\/wrap_store/,
-    /\/cluster\/plugin/,
     /\/middleware_center\/app\/config/,
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
@@ -306,7 +304,6 @@ class Header extends Component {
     this._checkLiteVersion()
     const notification = new NotificationHandler()
     const {
-      loadTeamClustersList,
       setCurrent,
       loadLoginUserDetail,
       loginUser,
@@ -661,7 +658,6 @@ function mapStateToProps(state, props) {
 }
 
 export default injectIntl(connect(mapStateToProps, {
-  loadTeamClustersList,
   setCurrent,
   loadLoginUserDetail,
   checkVersion,
