@@ -203,7 +203,7 @@ class UserPanel extends Component {
     }
     return (
       <div className='logMenu'>
-        { billingEnabled ?
+        {/* { billingEnabled ?
         <div className='rechangeInf'>
           <div className='balance'>
             <p><FormattedMessage {...IntlMessages.balance} /> &nbsp;:</p>
@@ -223,7 +223,7 @@ class UserPanel extends Component {
             </Button>
           }
         </div>
-        :null}
+        :null} */}
         <table className='navTab'>
           <tbody>
             <tr>
