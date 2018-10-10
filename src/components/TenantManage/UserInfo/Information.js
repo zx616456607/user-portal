@@ -678,12 +678,12 @@ class Information extends Component {
             <Col span={4}>创建时间</Col>
             <Col span={18}>{formatDate(userDetail.creationTime)}</Col>
           </Row>
-          {
+          {/* {
             billingEnabled &&
             <Row className="Item">
               <Col span={4}>余额</Col>
               <Col span={13}>{balance}T</Col>
-              {/*  system user  */}
+              // system user
               {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
                 <Col span={7}>
                   <Button type="primary" icon="pay-circle-o" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
@@ -693,7 +693,7 @@ class Information extends Component {
                 :null
               }
             </Row>
-          }
+          } */}
           <Row className="Item comment">
             <Col span={4}>备注</Col>
             <Col span={13}>
