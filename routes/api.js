@@ -121,8 +121,9 @@ module.exports = function (Router) {
   router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
   router.get('/projects/istio/check', servicemesh.getCheckClusterIstio)
-  router.put('/clusters/:cluster/services/:service/serverMesh', servicemesh.putToggleAPPMesh)
+  router.put('/servicemesh/clusters/:clusterId/paas/services/:name/status', servicemesh.putToggleAPPMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/pods', servicemesh.getCheckAPPInClusMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/services', servicemesh.getServiceListServiceMeshStatus)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -698,6 +699,7 @@ module.exports = function (Router) {
 
   // alert
   router.get('/cluster/:cluster/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/cluster/:cluster/alerts/service-records/query', alertController.getRecordFilters)
   router.get('/cluster/:cluster/alerts/records', alertController.getRecords)
   router.delete('/cluster/:cluster/alerts/records', alertController.deleteRecords)
   router.post('/cluster/:cluster/alerts/groups', alertController.createNotifyGroup)

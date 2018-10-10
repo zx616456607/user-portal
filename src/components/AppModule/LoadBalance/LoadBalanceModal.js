@@ -18,6 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
 import { getLBIPList, createLB, editLB } from '../../../actions/load_balance'
+import * as globalActions from '../../../../src/actions/global_config'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
@@ -32,21 +33,47 @@ import {
   RESOURCES_DIY,
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../../../constants'
-import { IP_REGEX } from '../../../../constants'
+import { getPodNetworkSegment } from '../../../actions/app_manage'
+import ipRangeCheck from 'ip-range-check'
+import {getDeepValue} from "../../../../client/util/util"
+import { sleep } from "../../../common/tools"
+import TenxIcon from '@tenx-ui/icon'
 
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group;
 const notify = new Notification()
 
+const CONFIG_TYPE = 'chart_repo'
+
 class LoadBalanceModal extends React.Component {
   state = {
-    composeType: 512
+    composeType: 512,
+    NetSegment: undefined,
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form } = this.props
+    const { clusterID, getLBIPList, currentBalance, form, getConfigByType, getPodNetworkSegment } = this.props
+    getConfigByType(undefined, CONFIG_TYPE)
     getLBIPList(clusterID)
+    getPodNetworkSegment(clusterID, {
+      success: {
+        func: res => {
+          this.setState({
+            NetSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取 Pod 网段数据失败')
+          }
+        },
+      },
+    })
     if (currentBalance) {
       let agentType = 'inside'
       const { labels } = currentBalance.metadata
@@ -292,14 +319,55 @@ class LoadBalanceModal extends React.Component {
     if (!value) {
       return callback('固定 IP 不能为空')
     }
-    if (!IP_REGEX.test(value)) {
-      return callback('IP 格式不正确')
+    const { NetSegment } = this.state
+    if (!NetSegment) {
+      return callback('未获取到指定网段')
+    }
+    const inRange = ipRangeCheck(value, NetSegment)
+    if (!inRange) {
+      return callback(`请输入属于 ${NetSegment} 的 IP`)
     }
     callback()
   }
 
+  chartRepoIsEmpty = () => {
+    const { chartConfig } = this.props
+    if (isEmpty(chartConfig)) {
+      return true
+    }
+    const { configDetail } = chartConfig
+    if (isEmpty(configDetail)) {
+      return true
+    }
+    const { url } = JSON.parse(configDetail)
+    if (isEmpty(url)) {
+      return true
+    }
+    return false
+  }
+
+  agentTypeChange = async e => {
+    const { form } = this.props
+    const { value } = e.target
+    if (this.chartRepoIsEmpty() && value === 'outside') {
+      await sleep(0)
+      form.setFieldsValue({
+        agentType: 'inside',
+      })
+      this.setState({
+        tipVisible: true,
+      })
+    }
+  }
+
+  closeTipModal = () => {
+    this.setState({
+      tipVisible: false,
+    })
+  }
+
   render() {
-    const { composeType, confirmLoading } = this.state
+    const { composeType, confirmLoading, tipVisible, NetSegment } = this.state
     const { form, ips, visible, currentBalance } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -320,7 +388,8 @@ class LoadBalanceModal extends React.Component {
     }
 
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'inside'
+      initialValue: 'inside',
+      onChange: this.agentTypeChange,
     })
 
     const nameProps = getFieldProps('displayName', {
@@ -392,6 +461,18 @@ class LoadBalanceModal extends React.Component {
         okText={currentBalance ? '确认修改' : "确认创建"}
         confirmLoading={confirmLoading}
       >
+        <Modal
+          title={'提示'}
+          visible={tipVisible}
+          onCancel={this.closeTipModal}
+          onOk={this.closeTipModal}
+        >
+          <div className="alertIconRow">
+            <TenxIcon type="tips" className="alertIcon"/>
+            应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
+            适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
+          </div>
+        </Modal>
         <Form form={form}>
           <FormItem
             label="代理方式"
@@ -429,6 +510,7 @@ class LoadBalanceModal extends React.Component {
                   }],
                   initialValue: currentBalance && currentBalance.metadata.annotations.podIP
                 })}
+                placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
               />
             </FormItem>
           }
@@ -543,14 +625,18 @@ const mapStateToProps = state => {
   const { clusterID } = entities.current.cluster
   const { loadBalanceIPList } = loadBalance
   const { data } = loadBalanceIPList || { data: [] }
+  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
   return {
     clusterID,
-    ips: data
+    ips: data,
+    chartConfig,
   }
 }
 
 export default connect(mapStateToProps, {
   getLBIPList,
   createLB,
-  editLB
+  editLB,
+  getPodNetworkSegment,
+  getConfigByType: globalActions.getConfigByType,
 })(LoadBalanceModal)

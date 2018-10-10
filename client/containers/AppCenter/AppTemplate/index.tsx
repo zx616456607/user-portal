@@ -40,6 +40,7 @@ const notify = new NotificationHandler();
 
 const DEFAULT_SIZE = 12;
 const SERVICE_CONFIG_HASH = '#configure-service';
+const CONFIG_TYPE = 'chart_repo'
 
 class TemplateList extends React.Component<any> {
 
@@ -49,9 +50,9 @@ class TemplateList extends React.Component<any> {
   serviceSum = 0;
 
   componentWillMount() {
-    const { loadGlobalConfig } = this.props
+    const { getConfigByType } = this.props
     this.loadTemplateList();
-    loadGlobalConfig()
+    getConfigByType(undefined, CONFIG_TYPE)
   }
 
   loadTemplateList = (query: any) => {
@@ -266,16 +267,11 @@ class TemplateList extends React.Component<any> {
   }
 
   chartRepoIsEmpty = () => {
-    const { globalConfig } = this.props
-    if (isEmpty(globalConfig)) {
+    const { chartConfig } = this.props
+    if (isEmpty(chartConfig)) {
       return true
     }
-    let chartRepo = globalConfig.filter(item => item.configType === 'chart_repo')
-    if (isEmpty(chartRepo)) {
-      return true
-    }
-    chartRepo = chartRepo[0]
-    const { configDetail } = chartRepo
+    const { configDetail } = chartConfig
     if (isEmpty(configDetail)) {
       return true
     }
@@ -351,13 +347,13 @@ const mapStateToProps = state => {
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 0 };
-  const globalConfig = getDeepValue(state, ['globalConfig', 'globalConfig', 'result', 'data'])
+  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
   return {
     templateList,
     total,
     isFetching,
     fields: quickCreateApp.fields,
-    globalConfig,
+    chartConfig,
   };
 };
 
@@ -366,5 +362,5 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
-  loadGlobalConfig: globalActions.loadGlobalConfig,
+  getConfigByType: globalActions.getConfigByType,
 })(injectIntl(TemplateList, { withRef: true }));

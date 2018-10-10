@@ -18,6 +18,14 @@ const formatTemplateInfo = (serviceArray: Array): Array => {
   return [copyArr[0]];
 };
 
+const formatChartName = name => {
+  if (!name.includes('-')) {
+    return name
+  }
+  name = name.split('-')[0]
+  return name
+}
+
 export const formatTemplateBody = (props, imageConfig, isDeploy) => {
   const { fields, current, loginUser, loadBalanceList } = props;
   const serviceArray: Array = [];
@@ -41,7 +49,7 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       Object.assign(serviceOption, {
         chart: {
           name: isDeploy ? value.chartName.value : // 部署模板
-              value.chartName && value.chartName.value ? value.chartName.value : // 编辑模板
+              value.chartName && value.chartName.value ? formatChartName(value.chartName.value) + `-${count}` : // 编辑模板
             count === fieldsLength ? value.templateName.value : value.templateName.value + `-${count}`, // 创建模板
           // version: value.templateVersion.value,
           version: 'v1',

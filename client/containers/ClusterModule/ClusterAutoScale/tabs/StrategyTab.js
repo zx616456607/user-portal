@@ -116,7 +116,7 @@ class Tab2 extends React.Component {
   }
   onTab2ModalCancel = _cb => {
     this.setState({ isTab2ModalShow: false, currData: '' }, function() {
-      !!_cb && _cb()
+      !!_cb && typeof _cb === 'function' && _cb()
     })
   }
   onCancel = () => {

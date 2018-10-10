@@ -680,7 +680,7 @@ class WrapDetailModal extends React.Component {
                 <div className="docsBox">
                   {this.renderDocsList()}
                 </div>
-              </TabPane> : <TabPane key="none" />
+              </TabPane> : <TabPane key="none" disabled/>
           }
         </Tabs>
       </Modal>

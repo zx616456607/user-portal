@@ -90,7 +90,7 @@ class AlarmRecord extends Component {
       targetFilter: targetName
     })
 
-    loadRecordsFilters(clusterID)
+    loadRecordsFilters(clusterID, true)
     getSettingList(clusterID,{
       from: 0,
       size: 1000
@@ -262,7 +262,6 @@ class AlarmRecord extends Component {
         }
       })
     }
-
   }
   toAlarmDetail(record) {
     const { getAlertSetting, clusterID } = this.props

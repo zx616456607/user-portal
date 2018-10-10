@@ -315,11 +315,11 @@ class IngressModal extends React.Component {
           {
             showSlider &&
             <Row>
-              <Col span={16}>
+              <Col span={17}>
                 <FormItem
                   label={intl.formatMessage(IntlMessage.holdTime)}
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 18 }}
+                  labelCol={{ span: 7 }}
+                  wrapperCol={{ span: 17 }}
                 >
                   <Slider  max={3600} {...getFieldProps('sessionPersistent', {
                     initialValue: currentIngress ? currentIngress.sessionPersistent : 100
