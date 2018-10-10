@@ -1462,6 +1462,8 @@
   "TerminalModal.confirmClose": "Are you sure you want to close this terminal link?",
   "TerminalModal.notSupportSafari": "Safari browser is not supported at this time",
   "TerminalModal.log": "Log",
+  "AppCenter.ImageCenter.Tab.repoGroup": "RepoGroup",
+  "AppCenter.ImageCenter.Tab.allRepoGroup": "AllRepoGroup",
   "AppCenter.ImageCenter.Tab.privateRepoGroup": "PrivateRepoGroup",
   "AppCenter.ImageCenter.Tab.publicRepoGroup": "PublicRepoGroup",
   "AppCenter.ImageCenter.Tab.imageRepo": "Registry",

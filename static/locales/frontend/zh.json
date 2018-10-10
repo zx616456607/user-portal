@@ -1713,6 +1713,8 @@
   "TerminalModal.confirmClose": "您是否确定要关闭此终端链接?",
   "TerminalModal.notSupportSafari": "暂不支持 Safari 浏览器",
   "TerminalModal.log": "日志",
+  "AppCenter.ImageCenter.Tab.repoGroup": "仓库组",
+  "AppCenter.ImageCenter.Tab.allRepoGroup": "所有仓库组",
   "AppCenter.ImageCenter.Tab.privateRepoGroup": "我的仓库组",
   "AppCenter.ImageCenter.Tab.publicRepoGroup": "公开仓库组",
   "AppCenter.ImageCenter.Tab.imageRepo": "镜像仓库",

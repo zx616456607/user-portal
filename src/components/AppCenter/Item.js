@@ -305,12 +305,15 @@ MyComponent = injectIntl(MyComponent, {
 class PageImageCenter extends Component {
   constructor(props) {
     super(props)
+    const { location } = props
+    const { addUserDefined, public: repoPublic } = props.location.query
     this.state = {
       createModalShow: false,
       otherImageHead: [], // other image store
-      other: {}
+      other: {},
+      repoPublic: this.queryPublicToState(repoPublic),
     }
-    if(props.location.query.addUserDefined) {
+    if(addUserDefined) {
       this.state.createModalShow = true
     }
   }
@@ -349,9 +352,20 @@ class PageImageCenter extends Component {
       }
     })
   }
+  queryPublicToState(repoPublic) {
+    if (repoPublic === undefined) {
+      repoPublic = 'all'
+    }
+    return repoPublic
+  }
   componentWillReceiveProps(nextProps) {
     const { location: oldLocation } = this.props
     const { location: newLocation } = nextProps
+    if (newLocation.query.public !== oldLocation.query.public) {
+      this.setState({
+        repoPublic: this.queryPublicToState(newLocation.query.public),
+      })
+    }
     if (oldLocation !== newLocation) {
       if (newLocation.pathname === '/app_center') {
         browserHistory.replace('/app_center/projects')
@@ -384,7 +398,7 @@ class PageImageCenter extends Component {
     }
   }
   render() {
-    const { children, loginUser, intl } = this.props
+    const { children, loginUser, intl, location } = this.props
     const { formatMessage } = intl
     const { otherImageHead, other, itemType } = this.state
     const _this = this
@@ -425,9 +439,15 @@ class PageImageCenter extends Component {
         <div id='ImageCenter' key='ImageCenterBox'>
           <Title title={formatMessage(itemIntl.imageRepo)} />
           <div className="ImageCenterTabs">
-           <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>{formatMessage(itemIntl.privateRepoGroup)}</span>
-            <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>{formatMessage(itemIntl.publicRepoGroup)}</span>
-            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>{formatMessage(itemIntl.releaseRecord)}</span>
+            <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>
+              {formatMessage(itemIntl.repoGroup)}
+            </span>
+            {/* <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>
+              {formatMessage(itemIntl.publicRepoGroup)}
+            </span> */}
+            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>
+              {formatMessage(itemIntl.releaseRecord)}
+            </span>
             {
               isAuth &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
@@ -446,6 +466,28 @@ class PageImageCenter extends Component {
               </Tooltip>
             </span>
           </div>
+          {
+            location.pathname === '/app_center/projects' &&
+            <div className="ImageCenterRepoSwitch">
+              <br />
+              <RadioGroup
+                value={this.state.repoPublic}
+                onChange={e => {
+                  const repoPublic = e.target.value
+                  this.setState({ repoPublic })
+                  let pathname = '/app_center/projects'
+                  if (repoPublic !== 'all') {
+                    pathname += `?public=${repoPublic}`
+                  }
+                  browserHistory.push(pathname)
+                }}
+              >
+                <Radio value="all">{formatMessage(itemIntl.allRepoGroup)}</Radio>
+                <Radio value="0">{formatMessage(itemIntl.privateRepoGroup)}</Radio>
+                <Radio value="1">{formatMessage(itemIntl.publicRepoGroup)}</Radio>
+              </RadioGroup>
+            </div>
+          }
           {itemType =='other'?
             <Tabs
               key='ImageCenterTabs'
