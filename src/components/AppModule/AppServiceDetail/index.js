@@ -158,10 +158,8 @@ class AppServiceDetail extends Component {
   }
 
   closeModal() {
-    const {scope} = this.props
-    scope.setState({
-      modalShow: false
-    });
+    const { onClose } = this.props
+    onClose()
   }
 
   openTerminalModal(item) {
