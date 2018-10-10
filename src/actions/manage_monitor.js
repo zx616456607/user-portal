@@ -32,7 +32,8 @@ function fetchOperationLogList(body, callback) {
           start_time: body.start_time,
           end_time: body.end_time,
           status: body.status
-        }
+        },
+        headers: { teamspace: body.projectName }
       },
       schema: {}
     },
