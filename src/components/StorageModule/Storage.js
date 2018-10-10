@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form, Table } from 'antd'
 import { Link, browserHistory } from 'react-router'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import QueueAnim from 'rc-queue-anim'
@@ -22,109 +22,16 @@ import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeSt
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP, UPDATE_INTERVAL } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount, formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../common/tools'
-import { volNameCheck } from '../../common/naming_validation'
+// import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../components/Notification'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 import CreateVolume from '../StorageModule/CreateVolume'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
-import Title from '../Title'
+// import Title from '../Title'
+import StorageIntl from './StorageIntl'
 const RadioGroup = Radio.Group;
 let isActing = false
 
-const messages = defineMessages({
-  name: {
-    id: "Storage.modal.name",
-    defaultMessage: '名称'
-  },
-  cancelBtn: {
-    id: "Storage.modal.cancelBtn",
-    defaultMessage: '取消'
-  },
-  createBtn: {
-    id: "Storage.modal.createBtn",
-    defaultMessage: '创建'
-  },
-  createTitle: {
-    id: "Storage.modal.createTitle",
-    defaultMessage: '创建存储'
-  },
-  createModalTitle: {
-    id: "Storage.menu.create",
-    defaultMessage: "创建存储卷",
-  },
-  storageName: {
-    id: 'Storage.titleRow.name',
-    defaultMessage: '存储名称',
-  },
-  delete: {
-    id: 'Storage.menu.delete',
-    defaultMessage: '删除',
-  },
-  status: {
-    id: 'Storage.titleRow.status',
-    defaultMessage: '状态',
-  },
-  formats: {
-    id: 'Storage.titleRow.formats',
-    defaultMessage: '格式',
-  },
-  forin: {
-    id: 'Storage.titleRow.forin',
-    defaultMessage: '容器挂载点',
-  },
-  cluster: {
-    id: 'Storage.titleRow.cluster',
-    defaultMessage: '集群'
-  },
-  app: {
-    id: 'Storage.titleRow.app',
-    defaultMessage: '应用',
-  },
-  size: {
-    id: 'Storage.titleRow.size',
-    defaultMessage: '大小',
-  },
-  createTime: {
-    id: 'Storage.titleRow.createTime',
-    defaultMessage: '创建时间',
-  },
-  action: {
-    id: 'Storage.titleRow.action',
-    defaultMessage: '操作',
-  },
-  formatting: {
-    id: 'Storage.titleRow.formatting',
-    defaultMessage: '格式化',
-  },
-  dilation: {
-    id: 'Storage.titleRow.dilation',
-    defaultMessage: '扩容',
-  },
-  okRow: {
-    id: 'Storage.titleRow.normal',
-    defaultMessage: '正常',
-  },
-  use: {
-    id: 'Storage.titleRow.use',
-    defaultMessage: '使用中',
-  },
-  noUse: {
-    id: 'Storage.titleRow.noUse',
-    defaultMessage: '未使用',
-  },
-  errorRow: {
-    id: 'Storage.titleRow.error',
-    defaultMessage: '异常',
-  },
-  placeholder: {
-    id: 'Storage.modal.placeholder',
-    defaultMessage: '输入名称',
-  },
-  inputPlaceholder: {
-    id: 'Storage.modal.inputPlaceholder',
-    defaultMessage: '按存储名称搜索',
-  }
-})
 
 const DEFAULT_QUERY = {
   storagetype: 'ceph',
@@ -172,11 +79,12 @@ let MyComponent = React.createClass({
     if(isActing) return
     isActing = true
     const { location, loadStorageList } = this.props
+    const { formatMessage } = this.props.intl
     const { query = {} } = location
     const type = this.state.modalType
     const self = this
     let notification = new NotificationHandler()
-    notification.spin("执行中")
+    notification.spin(formatMessage(StorageIntl.execution))
     if (type === 'format') {
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
@@ -190,7 +98,7 @@ let MyComponent = React.createClass({
               })
               isActing = false
               notification.close()
-              notification.success('格式化存储卷成功')
+              notification.success(formatMessage(StorageIntl.formatSuccess))
               loadStorageList({ page: query.page || 1 })
             }
           },
@@ -202,14 +110,14 @@ let MyComponent = React.createClass({
               })
               isActing = false
               notification.close()
-              notification.error('格式化存储卷失败')
+              notification.error(formatMessage(StorageIntl.formatFailed))
             }
           }
         })
     } else if (type === 'resize') {
       if (this.state.size <= this.state.modalSize) {
         notification.close()
-        notification.info('存储卷大小没有变化')
+        notification.info(formatMessage(StorageIntl.notchange))
         isActing = false
         return
       }
@@ -225,7 +133,7 @@ let MyComponent = React.createClass({
               })
               isActing = false
               notification.close()
-              notification.success('扩容成功')
+              notification.success(formatMessage(StorageIntl.dilationSuccess))
               loadStorageList({ page: query.page || 1 })
             }
           },
@@ -237,7 +145,7 @@ let MyComponent = React.createClass({
               })
               isActing = false
               notification.close()
-              let message = this.formatMessage(res, '扩容失败')
+              let message = this.formatMessage(res, formatMessage(StorageIntl.dilationFailed))
               notification.error(message)
             }
           }
@@ -267,6 +175,7 @@ let MyComponent = React.createClass({
     });
   },
   showAction(e, type, item) {
+    const { formatMessage } = this.props.intl
     if(e.stopPropagation) e.stopPropagation()
     else e.cancelable = true
     if(e.key && e.key == 'createSnapshot'){
@@ -302,7 +211,7 @@ let MyComponent = React.createClass({
         modalSize: size,
         size,
         currentVolume: item,
-        modalTitle: '扩容'
+        modalTitle: formatMessage(StorageIntl.dilation)
       });
       return
     }
@@ -323,12 +232,12 @@ let MyComponent = React.createClass({
         formateType: item.format
       });
       this.setState({
-        modalTitle: '格式化'
+        modalTitle: formatMessage(StorageIntl.formatting)
       })
     }
   },
   handleConfirmCreateSnapshot(){
-    const { form, SnapshotCreate, cluster } = this.props
+    const { form, SnapshotCreate, cluster, intl } = this.props
     const { volumeName } = this.state
     let Noti = new NotificationHandler()
     form.validateFields( (errors, values) => {
@@ -348,7 +257,7 @@ let MyComponent = React.createClass({
       SnapshotCreate(body,{
         success: {
           func: () => {
-            Noti.success('创建快照成功！')
+            Noti.success(intl.formatMessage(StorageIntl.createSuccess))
             this.setState({
               createSnapModal: false,
               confirmCreateSnapshotLoading: false,
@@ -361,7 +270,7 @@ let MyComponent = React.createClass({
         failed: {
           func: err => {
             if(err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE){
-              Noti.error('创建快照失败！')
+              Noti.error(intl.formatMessage(StorageIntl.createFailed))
             }
             this.setState({
               createSnapModal: false,
@@ -382,28 +291,30 @@ let MyComponent = React.createClass({
     })
   },
   checksnapshotName(rule, value, callback){
-    const { snapshotDataList } = this.props
+    const { snapshotDataList, intl } = this.props
+    const { formatMessage } = intl
     if(!value){
-      return callback('请输入快照名称')
+      return callback(formatMessage(StorageIntl.pleaseInput))
     }
     if(value.length > 32){
-      return callback('快照名称不能超过32个字符')
+      return callback(formatMessage(StorageIntl.atMost32Character))
     }
     if(!/^[A-Za-z]{1}/.test(value)){
-      return callback('快照名称必须以字母开头')
+      return callback(formatMessage(StorageIntl.beginCharacter))
     }
     if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
-      return callback('快照名称由字母、数字、中划线-、下划线_组成')
+      return callback(formatMessage(StorageIntl.ruleName))
     }
     if(value.length < 3){
-      return callback('快照名称不能少于3个字符')
+      return callback(formatMessage(StorageIntl.atMost3Character))
     }
     if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
-      return callback('快照名称必须由字母或数字结尾')
+      return callback(formatMessage(StorageIntl.endNumber))
     }
     for(let i = 0; i < snapshotDataList.length; i++){
       if(value == snapshotDataList[i].name){
-        return callback('快照名称已存在！')
+        callback(formatMessage(StorageIntl.nameExists))
+        break
       }
     }
     return callback()
@@ -439,22 +350,22 @@ let MyComponent = React.createClass({
       case 'pending':
         return <span style={{color: '#0eb4ff'}}>
         <i className="fa fa-circle icon-marginRight penging"></i>
-        创建中
+        <FormattedMessage {...StorageIntl.createing} />
       </span>
       case 'used':
         return <span style={{color: '#f85a5a'}}>
         <i className="fa fa-circle icon-marginRight used"></i>
-        使用中
+        <FormattedMessage {...StorageIntl.useing} />
       </span>
       case 'unused':
         return <span style={{color: '#5cb85c'}}>
         <i className="fa fa-circle icon-marginRight no_used"></i>
-        未使用
+        <FormattedMessage {...StorageIntl.nouse} />
       </span>
       default:
         return <span style={{color: '#666666'}}>
         <i className="fa fa-circle icon-marginRight unknown"></i>
-        未知
+        <FormattedMessage {...StorageIntl.unknown} />
       </span>
     }
   },
@@ -511,26 +422,26 @@ let MyComponent = React.createClass({
     })
     const columns = [
       {
-        title: '存储名称',
+        title: <FormattedMessage {...StorageIntl.storageName} />,
         key: 'name',
         dataIndex: 'name',
         width: '12%',
         className: 'name',
         render: name => <div><span className='text' onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${this.props.imagePool}/${this.props.cluster}/${name}`)}>{name}</span></div>
       },{
-        title: '状态',
+        title: <FormattedMessage {...StorageIntl.status} />,
         key: 'status',
         dataIndex: 'status',
         width: '10%',
         render: status => <div className='status'>{this.formatStatus(status)}</div>
       },{
-        title: '类型',
+        title: <FormattedMessage {...StorageIntl.type} />,
         key: 'storageServer',
         dataIndex: 'storageServer',
         width: '18%',
-        render: storageServer => <div>块存储 ({storageServer || '-'})</div>
+        render: storageServer => <div><FormattedMessage {...StorageIntl.blockStorage} /> ({storageServer || '-'})</div>
       },{
-        title: '大小',
+        title: <FormattedMessage {...StorageIntl.size} />,
         key: 'desireSize',
         dataIndex: 'desireSize',
         width: '9%',
@@ -539,19 +450,19 @@ let MyComponent = React.createClass({
           return <div>{size == 0 ? '-' : size} M</div>
         }
       },{
-        title: '格式',
+        title: <FormattedMessage {...StorageIntl.format} />,
         key: 'format',
         dataIndex: 'format',
         width: '9%'
       },{
-        title: '服务',
+        title: <FormattedMessage {...StorageIntl.service} />,
         key: 'deployServiceList',
         dataIndex: 'deployServiceList',
         width: '10%',
         render: deployServiceList => {
           const serviceName = deployServiceList && deployServiceList[0] && deployServiceList[0].serviceName
           if (!serviceName) {
-            return '未挂载服务'
+            return <FormattedMessage {...StorageIntl.unService} />
           }
           return <Link to={`/app_manage/service?serName=${serviceName}`}>{serviceName}</Link>
         }
@@ -571,38 +482,37 @@ let MyComponent = React.createClass({
       //  className: 'strategy',
       //  render: reclaimPolicy => <div>{ reclaimPolicy == 'delete' ? '删除' : '保留'}</div>
       },{
-        title: '创建时间',
+        title: <FormattedMessage {...StorageIntl.createTime} />,
         key: 'createTime',
         dataIndex: 'createTime',
         width: '17%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
         render: createTime => <div>{formatDate(createTime)}</div>
       },{
-        title: '操作',
+        title: <FormattedMessage {...StorageIntl.act} />,
         key: 'handle',
         dataIndex: 'handle',
         width: '15%',
         render: (text, record, index) => {
           const menu = <Menu
             onClick={(e) => { this.showAction(e, 'format', record) } }
-            style={{ width: '80px' }}
           >
             <Menu.Item
               key='resize'
               disabled={record.status == 'pending' || record.status == 'used'}
-              title="使用中存储不能进行扩容操作"
+              title= {<FormattedMessage {...StorageIntl.notDilationTips} />}
             >
-              <FormattedMessage {...messages.dilation} />
+              <FormattedMessage {...StorageIntl.dilation} />
             </Menu.Item>
             <Menu.Item key="createSnapshot" disabled={record.status == 'pending'}>
-              创建快照
+              <FormattedMessage {...StorageIntl.create} /><FormattedMessage {...StorageIntl.snapshot} />
             </Menu.Item>
             <Menu.Item
               key="format"
               disabled={record.status == 'pending' || record.status == 'used'}
-              title="使用中存储不能进行格式化操作"
+              title={<FormattedMessage {...StorageIntl.notFormatTips} />}
             >
-              <FormattedMessage {...messages.formatting} />
+              <FormattedMessage {...StorageIntl.formatting} />
             </Menu.Item>
           </Menu>
           return <Dropdown.Button
@@ -611,7 +521,7 @@ let MyComponent = React.createClass({
             onClick={() => browserHistory.push(`/app_manage/storage/exclusiveMemory/${imagePool}/${cluster}/${record.name}`)}
             key="dilation"
           >
-            查看
+            <FormattedMessage {...StorageIntl.see} />
           </Dropdown.Button>
         }
       }
@@ -645,33 +555,30 @@ let MyComponent = React.createClass({
         <Modal
           title={this.state.modalTitle}
           visible={this.state.visible}
-          okText="确定"
-          cancelText="取消"
           className="storageModal"
           width={600}
           onCancel= {() => this.cancelModal() }
           footer={[
-            <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
+            <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }><FormattedMessage {...StorageIntl.cancel} /></Button>,
             <Button
               key="submit"
               type="primary"
               size="large"
               // disabled={this.state.modalType === 'resize' && resizeConfirmBtnDisabled}
               loading={isActing}
-              loading={this.state.loading}
               onClick={(e) => { this.handleSure() } }
             >
-              确定
+              <FormattedMessage {...StorageIntl.btnOk} />
             </Button>
           ]}
          >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
-              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
+              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...StorageIntl.name} /></Col>
               <Col span="12"><input type="text" className="ant-input" value={this.state.modalName} disabled /></Col>
             </Row>
             <Row style={{ height: '40px' }}>
-              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
+              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(StorageIntl.size)}</Col>
               <Col span="12">
                 <Slider
                   min={ parseInt(this.state.modalSize) < 20480 ? parseInt(this.state.modalSize) : 512}
@@ -690,11 +597,11 @@ let MyComponent = React.createClass({
             { billingEnabled ?
             <div className="modal-price">
               <div className="price-left">
-                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*小时)
+              <FormattedMessage {...StorageIntl.storage} />{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*<FormattedMessage {...StorageIntl.hour} />)
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
+                <p><FormattedMessage {...StorageIntl.count} />：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/<FormattedMessage {...StorageIntl.hour} /></span></p>
+                <p><span className="unit">（<FormattedMessage {...StorageIntl.about} />：</span><span className="unit"> { countPrice.fullAmount }/<FormattedMessage {...StorageIntl.month} />）</span></p>
               </div>
             </div>
             :null
@@ -709,7 +616,7 @@ let MyComponent = React.createClass({
                     confirmChecked: e.target.checked,
                   })}
                 >
-                  存储扩容后，将重新部署服务&nbsp;
+                  <FormattedMessage {...StorageIntl.afterDilationTips} />&nbsp;
                     <a target="_blank" href={`/app_manage/service?serName=${currentVolumeServiceName}`}>
                     {currentVolumeServiceName}
                     </a>
@@ -719,10 +626,10 @@ let MyComponent = React.createClass({
             }
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
-            <div style={{ height: '30px' }}>确定格式化存储卷 {this.state.modalName} 吗？
-              <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span>
+            <div style={{ height: '30px' }}><FormattedMessage {...StorageIntl.areyousure} /> {this.state.modalName} ？
+              <span style={{ color: 'red' }}>(<FormattedMessage {...StorageIntl.afterFormetTips} />)。</span>
             </div>
-            <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
+            <Col span="6" style={{ lineHeight: '30px' }}><FormattedMessage {...StorageIntl.fileFormat} />：</Col>
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <Radio prefixCls="ant-radio-button" value="ext4">ext4</Radio>
               <Radio prefixCls="ant-radio-button" value="xfs">xfs</Radio>
@@ -732,7 +639,7 @@ let MyComponent = React.createClass({
         </Modal>
 
         <Modal
-          title="创建快照"
+          title={<span><FormattedMessage {...StorageIntl.create}/><FormattedMessage {...StorageIntl.snapshot} /></span>}
           visible={this.state.createSnapModal}
           closable={true}
           onOk={this.handleConfirmCreateSnapshot}
@@ -741,15 +648,15 @@ let MyComponent = React.createClass({
           maskClosable={false}
           confirmLoading={this.state.confirmCreateSnapshotLoading}
           wrapClassName="CreateSnapshotModal"
-          okText="创建快照"
+          okText={<span><FormattedMessage {...StorageIntl.create}/><FormattedMessage {...StorageIntl.snapshot} /></span>}
         >
           <div>
             <div className='header'>
               <div className='leftbox'>
-                <div className="item">存储名称</div>
-                <div className="item">存储大小</div>
-                <div className="item">存储格式</div>
-                <div className="item">快照名称</div>
+                <div className="item"><FormattedMessage {...StorageIntl.storage}/><FormattedMessage {...StorageIntl.name}/></div>
+                <div className="item"><FormattedMessage {...StorageIntl.storage}/><FormattedMessage {...StorageIntl.size}/></div>
+                <div className="item"><FormattedMessage {...StorageIntl.storage}/><FormattedMessage {...StorageIntl.format}/></div>
+                <div className="item"><FormattedMessage {...StorageIntl.snapshot}/><FormattedMessage {...StorageIntl.name}/></div>
               </div>
               <div className="rightbox">
                 <div className='item'>{this.state.volumeName}</div>
@@ -759,7 +666,7 @@ let MyComponent = React.createClass({
                   <Form.Item>
                     <Input
                       {...snapshotName}
-                      placeholder='请输入快照名称'
+                      placeholder={formatMessage(StorageIntl.pleaseInput)}
                       onPressEnter={this.handleConfirmCreateSnapshot}
                     />
                   </Form.Item>
@@ -767,15 +674,15 @@ let MyComponent = React.createClass({
               </div>
             </div>
             <div className='footer'>
-              <div className="title">为了保证快照能完整的捕获磁盘数据内容，建议制作快照前，进行以下操作：</div>
-              <div className="item"><span className='num'>1</span>数据库业务：Flush & Lock Table</div>
-              <div className="item"><span className='num'>2</span>文件系统：进行Sync操作，将内存缓冲区中的数据立刻写入磁盘内</div>
+              <div className="title"><FormattedMessage {...StorageIntl.createModalTops} />：</div>
+              <div className="item"><span className='num'>1</span><FormattedMessage {...StorageIntl.dbService} />：Flush & Lock Table</div>
+              <div className="item"><span className='num'>2</span><FormattedMessage {...StorageIntl.createMOdalTips} /></div>
             </div>
           </div>
         </Modal>
 
         <Modal
-          title="创建快照"
+          title={<span><FormattedMessage{...StorageIntl.create} /><FormattedMessage {...StorageIntl.snapshot} /></span>}
           visible={this.state.CreateSnapshotSuccessModal}
           closable={true}
           onOk={this.handleConfirmCreateSnapshotSuccess}
@@ -783,8 +690,8 @@ let MyComponent = React.createClass({
           width='570px'
           maskClosable={false}
           wrapClassName="CreateSnapshotSccessModal"
-          okText="去查看"
-          cancelText="关闭"
+          okText={<FormattedMessage{...StorageIntl.see} />}
+          cancelText={<FormattedMessage{...StorageIntl.close} />}
         >
           <div className='container'>
             <div className='header'>
@@ -792,15 +699,15 @@ let MyComponent = React.createClass({
                 <Icon type="check-circle-o" className='icon'/>
               </div>
               <div className='tips'>
-                操作成功
+                <FormattedMessage{...StorageIntl.actionSuccess} />
               </div>
             </div>
-            <div>快照名称 {this.state.snapshotName}</div>
+            <div><FormattedMessage{...StorageIntl.snapshot} /><FormattedMessage{...StorageIntl.name} /> {this.state.snapshotName}</div>
           </div>
         </Modal>
 
          <Modal
-           title="提示"
+           title={<FormattedMessage{...StorageIntl.tips} />}
            visible={this.state.tipsModal}
            closable={true}
            onOk={this.colseTipsModal}
@@ -811,11 +718,11 @@ let MyComponent = React.createClass({
          >
            <div className='content'>
              <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-             停止绑定的服务后可
+             <FormattedMessage{...StorageIntl.stopBindTips} />
              {
                this.state.dilation
-               ? <span>格式化</span>
-               : <span>扩容</span>
+               ? <span><FormattedMessage{...StorageIntl.formatting} /></span>
+               : <span><FormattedMessage{...StorageIntl.dilation} /></span>
              }
            </div>
          </Modal>
@@ -939,7 +846,8 @@ class Storage extends Component {
   }
   deleteStorage() {
     const { disableListArray } = this.state
-    const { location } = this.props
+    const { location,intl } = this.props
+    const { formatMessage } = intl
     const { query = {} } = location
     let volumeArray = this.state.ableListArray
     let notification = new NotificationHandler()
@@ -948,7 +856,7 @@ class Storage extends Component {
       let serviceStr = disableListArray.map((item, index) => {
         return item.name
       })
-      message = '存储卷 ' + serviceStr.join('、') + ' 仍在服务挂载状态，暂时无法删除，请先删除对应服务'
+      message = formatMessage(StorageIntl.storageVolume) + serviceStr.join('、') + formatMessage(StorageIntl.deleteVolume)
     }
     if (volumeArray && volumeArray.length === 0) {
       notification.info(message)
@@ -966,13 +874,13 @@ class Storage extends Component {
     this.setState({
       delModal: false,
     })
-    notification.spin("删除存储中")
+    notification.spin(formatMessage(StorageIntl.deleteing))
     this.props.deleteStorage(this.props.currentImagePool, this.props.cluster, { volumes: volumeArray }, {
       success: {
         func: () => {
           notification.close()
           this.getStorageList()
-          notification.success('删除存储成功')
+          notification.success(formatMessage(StorageIntl.deleteSuccess))
           this.setState({
             volumeArray: [],
             disableListArray: [],
@@ -990,11 +898,11 @@ class Storage extends Component {
           notification.close()
           const { statusCode, message } = err
           if (statusCode === 409 && message.data && message.data.length > 0) {
-            notification.error(`${message.data} 存储删除失败，请稍后重试`)
+            notification.error(`${message.data} `+ formatMessage(StorageIntl.deleteFailed))
             this.getStorageList()
             return
           }
-          notification.error('删除存储失败')
+          notification.error(formatMessage(StorageIntl.deleteFailed))
           this.getStorageList()
         }
       }
@@ -1084,20 +992,7 @@ class Storage extends Component {
       return selectAll
     }
   }
-  handleInputName(e) {
 
-    let name = e.target.value;
-    let errorMsg = volNameCheck(name, '存储名称');
-    let errorFlag = false;
-    if(errorMsg != 'success') {
-      errorFlag = true;
-    }
-    this.setState({
-      name: e.target.value,
-      nameError: errorFlag,
-      nameErrorMsg: errorMsg
-    })
-  }
   searchByStorageName(query = { page: 1 }) {
     const { searchStorage, location } = this.props
     const { searchInput } = this.state
@@ -1150,13 +1045,10 @@ class Storage extends Component {
     const mode = require('../../../configs/model').mode
     let title = ''
     if (!canCreate) {
-      title = '尚未配置块存储集群，暂不能创建'
+      title = <FormattedMessage{...StorageIntl.configTips} />
     }
     if (!currentCluster.resourcePrice) return <div></div>
     if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
-    const storagePrice = currentCluster.resourcePrice.storage /10000
-    const hourPrice = parseAmount(this.state.size / 1024 * currentCluster.resourcePrice.storage, 4)
-    const countPrice = parseAmount(this.state.size / 1024 * currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
     const confirmRisk = getFieldProps('confirmRisk',{
       valuePropName: 'checked',
@@ -1171,45 +1063,46 @@ class Storage extends Component {
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
-          <Title title="存储" />
           <div className='alertRow'>
-            独享存储，仅支持一个容器实例读写操作；块存储类型的存储卷可创建快照
+            <FormattedMessage{...StorageIntl.exclusiveTips} />
           </div>
-          { mode === standard && <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> }
+          { mode === standard && <div className='alertRow'><FormattedMessage{...StorageIntl.creditLowTips} /></div> }
           <div className="operationBox">
             <div className="leftBox">
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
-                <i className="fa fa-plus" />创建独享型存储
+                <i className="fa fa-plus" /><FormattedMessage{...StorageIntl.create} /><FormattedMessage{...StorageIntl.exclusiveStorage} />
               </Button></Tooltip>
               <Button className="refreshBtn" size='large' onClick={this.refreshstorage}>
-                <i className='fa fa-refresh' />刷新
+                <i className='fa fa-refresh' /><FormattedMessage{...StorageIntl.refresh} />
               </Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteButton}
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
-                <i className="fa fa-trash-o" />删除
+                <i className="fa fa-trash-o" /><FormattedMessage{...StorageIntl.delete} />
               </Button>
-              <Modal title="删除存储卷操作" visible={this.state.delModal}
+              <Modal title={<FormattedMessage{...StorageIntl.deleteAct} />} visible={this.state.delModal}
                 onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
                 wrapClassName="deleteVolumeModal"
                 footer={[
-                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel" type='ghost'>取消</Button>,
-                  <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
+                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel" type='ghost'><FormattedMessage{...StorageIntl.cancel} /></Button>,
+                  <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>{<FormattedMessage{...StorageIntl.btnOk} />}</Button>
                 ]}
               >
                 <div className="deleteRow">
                   <div>
                     <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-                    确定要删除这 {this.state.volumeArray.length} 个存储吗?
+                    <FormattedMessage{...StorageIntl.sureDelete} />
+                    <span style={{ padding: '0 3px' }}> {this.state.volumeArray.length} </span>
+                    <FormattedMessage{...StorageIntl.aStorage} />？
                   </div>
                 </div>
                 <div>
                   <Form>
-                    <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}>了解删除快照风险，确认将存储卷关联快照一并删除。</Checkbox></Form.Item>
+                    <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}><FormattedMessage{...StorageIntl.deleteTips} /> </Checkbox></Form.Item>
                   </Form>
                 </div>
               </Modal>
               <Modal
-                title='创建独享型存储卷'
+                title={<span><FormattedMessage{...StorageIntl.create} /><FormattedMessage{...StorageIntl.exclusiveStorage} /></span>}
                 visible={this.state.visible} width={550}
                 className='createAppStorageModal'
                 onCancel= {() => this.handleCancel() }
@@ -1232,14 +1125,14 @@ class Storage extends Component {
               <div className="littleRight">
                 <Input size="large"
                   style={{ paddingRight: '28px' }}
-                  placeholder={formatMessage(messages.inputPlaceholder)}
+                  placeholder={formatMessage(StorageIntl.pleaseInput)}
                   onChange={e => this.setState({ searchInput: e.target.value })}
                   onPressEnter={() => this.searchByStorageName()}
                 />
               </div>
             </div>
             <div className='total_num'>
-              { storageList.length > 0 && <div>共 {storageList.length} 条</div> }
+              { storageList.length > 0 && <div><FormattedMessage{...StorageIntl.totalItems} /> {storageList.length} <FormattedMessage{...StorageIntl.item} /></div> }
             </div>
             <div className="clearDiv"></div>
           </div>

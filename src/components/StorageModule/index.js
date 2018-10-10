@@ -15,27 +15,29 @@ import classNames from 'classnames'
 import { browserHistory } from 'react-router'
 import Title from '../Title'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import StorageIntl from './StorageIntl'
 
 const tabs = [
   {
-    text: '独享型存储',
+    text: <FormattedMessage {...StorageIntl.exclusiveStorage}/>,
     key: '/app_manage/storage/rbd'
   }, {
-    text: '共享型存储',
+    text: <FormattedMessage {...StorageIntl.SharedStorage}/>,
     key: '/app_manage/storage/shared'
   }, {
-    text: '本地存储',
+    text: <FormattedMessage {...StorageIntl.localStorage}/>,
     key: '/app_manage/storage/host'
   },
 ]
 
-export default class StorageHome extends Component {
+class StorageHome extends Component {
   render() {
-    const { children, location } = this.props
+    const { children, location,intl } = this.props
     const { pathname } = location
     return(
       <QueueAnim className='storage_home'>
-        <Title title="存储"/>
+        <Title title={intl.formatMessage(StorageIntl.storage)}/>
         <div id='storage_home' key="storage_home">
           <ResourceBanner resourceType='volume'/>
           <div className='tabs_header_style'>
@@ -66,3 +68,5 @@ export default class StorageHome extends Component {
     )
   }
 }
+
+export default injectIntl(StorageHome, {withRef: true})
