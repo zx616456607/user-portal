@@ -76,6 +76,10 @@ class ConfigPart extends React.Component<any, IState> {
       template: true,
       other,
     };
+    this.setState({
+      imageName,
+      registryServer,
+    });
     if (location.query.action) {
       Object.assign(imageQuery, { action: location.query.action });
     }
