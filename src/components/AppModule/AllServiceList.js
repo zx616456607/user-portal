@@ -1755,6 +1755,7 @@ class ServiceList extends Component {
                 page={page}
                 size={size}
                 name={this.props.name}
+                onClose={this.closeModal}
               />
             }
           </Modal>

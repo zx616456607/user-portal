@@ -682,6 +682,7 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
       grayscaleUpgradeModalVisible: false,
       mesh: undefined,
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
     }
   }
   getInitialState() {
@@ -1205,7 +1206,12 @@ class AppServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
 
@@ -1262,6 +1268,7 @@ class AppServiceList extends Component {
       selectTab, rollingUpdateModalShow, configModal,
       manualScaleModalShow, runBtn, stopBtn, restartBtn,
       redeploybtn, grayscaleUpgradeModalVisible,
+      documentTitle,
     } = this.state
     const {
       name, pathname, page,
@@ -1297,7 +1304,8 @@ class AppServiceList extends Component {
                    type="right"
         >
           <div className="operaBox" key="serverList">
-            <Title title={formatMessage(intlMsg.nameServerList, { appName })} />
+            <Title title={documentTitle} />
+            {/* <Title title={formatMessage(intlMsg.nameServerList, { appName })} /> */}
             <Button
               size="large"
               type="primary"
@@ -1416,13 +1424,19 @@ class AppServiceList extends Component {
             transitionName="move-right"
             onCancel={this.closeModal}
           >
-            <AppServiceDetail
-              appName={appName}
-              scope={parentScope}
-              funcs={funcs}
-              selectTab={selectTab}
-              serviceDetailmodalShow={this.state.modalShow}
-            />
+          {
+            modalShow ?
+              <AppServiceDetail
+                appName={appName}
+                scope={parentScope}
+                funcs={funcs}
+                selectTab={selectTab}
+                serviceDetailmodalShow={this.state.modalShow}
+                onClose={this.closeModal}
+              />
+              :
+              null
+          }
           </Modal>
           {
             rollingUpdateModalShow ?
