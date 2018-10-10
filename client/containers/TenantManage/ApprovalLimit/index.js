@@ -279,16 +279,16 @@ class ApprovalLimit extends React.Component {
     ListProjects() // 获取集群信息
   }
   disabledStartDate = startValue => {
-    if (!startValue || !this.state.endValue) {
-      return false
-    }
-    return startValue.getTime() >= this.state.endValue.getTime()
+    // if (!startValue || !this.state.endValue) {
+    //   return false
+    // }
+    return startValue.getTime() > Date.now()
   }
   disabledEndDate = endValue => {
     if (!endValue || !this.state.startValue) {
-      return false
+      return endValue.getTime()
     }
-    return endValue.getTime() <= this.state.startValue.getTime()
+    return endValue.getTime() > this.state.startValue.getTime()
   }
   onChange = (field, value) => {
     this.setState({
@@ -548,7 +548,7 @@ class ApprovalLimit extends React.Component {
               showTime format="yyyy-MM-dd HH:mm:ss"
               disabledDate={this.disabledStartDate}
               value={startValue}
-              placeholder="选择开始日期"
+              placeholder="开始日期"
               onChange={this.onStartChange}
               toggleOpen={this.handleStartToggle}
             />
@@ -557,7 +557,7 @@ class ApprovalLimit extends React.Component {
               showTime format="yyyy-MM-dd HH:mm:ss"
               disabledDate={this.disabledEndDate}
               value={endValue}
-              placeholder="选择结束日期"
+              placeholder="结束日期"
               onChange={this.onEndChange}
               open={endOpen}
               toggleOpen={this.handleEndToggle}
