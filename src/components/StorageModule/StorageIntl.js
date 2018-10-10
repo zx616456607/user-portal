@@ -1,0 +1,118 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+*/
+
+/**
+ *
+ * define Intl Msg for StorageModule
+ *
+ * @author BaiYu
+ * @date 2018-10-09
+ *
+*/
+
+import { defineIntlMessages } from "../../common/tools"
+
+export const mapData = {
+  prefix: 'StorageModule',
+  data: {
+    exclusiveStorage: '独享型存储',
+    SharedStorage: '共享型存储',
+    localStorage: '本地存储',
+    tips: '独享存储，仅支持一个容器实例读写操作；块存储类型的存储卷可创建快照',
+    refresh: '刷新',
+    delete: '删除',
+    create: '创建',
+    totalItems: '共',
+    item: '条',
+    aStorage: '个存储',
+    storageName: '存储名称',
+    name: '名称',
+    status: '状态',
+    type: '类型',
+    size: '大小',
+    format: '格式',
+    service: '服务',
+    deleteAct:'删除存储卷操作',
+    createTime: '创建时间',
+    act: '操作',
+    see: '查 看',
+    snapshot: '快照',
+    dilation: '扩容',
+    formatting: '格式化',
+    blockStorage: '块存储',
+    createing: '创建中',
+    useing: '使用中',
+    nouse: '未使用',
+    unknown: '未知',
+    execution: '执行中',
+    formatSuccess: '格式化存储卷成功',
+    formatfailed: '格式化存储卷失败',
+    notchange: '存储卷大小没有变化',
+    dilationSuccess: '扩容成功',
+    dilationFailed: '扩容失败',
+    createSuccess:'创建快照成功',
+    createFailed: '创建快照失败',
+    pleaseInput: '请输入快照名称',
+    atMost32Character: '快照名称不能超过32个字符',
+    beginCharacter: '快照名称必须以字母开头',
+    ruleName: '快照名称由字母、数字、中划线-、下划线_组成',
+    atMost3Character: '快照名称不能少于3个字符',
+    endNumber: '快照名称必须由字母或数字结尾',
+    nameExists: '快照名称已存在',
+    unService: '未挂载服务',
+    notDilationTips: '使用中存储不能进行扩容操作',
+    notFormatTips: '使用中存储不能进行格式化操作',
+    cancel: '取消',
+    btnOk: '确定',
+    storage: '存储',
+    count: '合计',
+    hour: '小时',
+    about: '约',
+    month: '月',
+    afterDilationTips: '存储扩容后，将重新部署服务',
+    areyousure: '确定格式化存储卷',
+    afterFormetTips: '格式化后数据将被清除',
+    fileFormat: '选择文件系统格式',
+    createModalTops: '为了保证快照能完整的捕获磁盘数据内容，建议制作快照前，进行以下操作',
+    dbService: '数据库业务',
+    createMOdalTips: '文件系统：进行Sync操作，将内存缓冲区中的数据立刻写入磁盘内',
+    actionSuccess: '操作成功',
+    actionFailed: '操作失败',
+    tips: '提示',
+    stopBindTips: '停止绑定的服务后可',
+    storageVolume: '存储卷',
+    deleteVolume: '仍在服务挂载状态，暂时无法删除，请先删除对应服务',
+    deleteing: '删除存储卷中',
+    deleteSuccess: '删除存储卷成功',
+    deleteFailed: '删除存储卷失败',
+    configTips: '尚未配置块存储集群，暂不能创建',
+    exclusiveTips: '独享存储，仅支持一个容器实例读写操作；块存储类型的存储卷可创建快照',
+    creditLowTips: '您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。',
+    sureDelete: '确定要删除这{number}个存储',
+    deleteTips: '了解删除快照风险，确认将存储卷关联快照一并删除',
+    close: '关闭',
+    commonStorageConfig: '尚未配置共享存储，暂不能创建',
+    commonStorageAlert: '共享型存储支持多个容器实例同时对同一个共享目录进行读写操作',
+    commonStorage: '共享存储',
+    commonService: '共享服务',
+    storageService: '存储服务',
+    searchName: '按存储名称搜索',
+    commonStorageDir: '共享存储目录',
+    commonDir: '共享目录',
+    pleaseStorageName: '请输入存储名称',
+    pleaseService: '请选择一个服务',
+    pleaseServiceDir: '请输入服务共享目录',
+    pleaseStorageSize: '请输入存储大小',
+    systemRandom: '系统随机',
+    customize: '自定义',
+    pleaseSendPath: '请正确的路径',
+    hostDir: '宿主机目录',
+    nodeVolume: '存储节点',
+    localVolumeTips: '本地存储可以使部署的服务访问当前运行节点上的文件系统，一般用于读取节点配置或者进行本地存储等场景',
+    pleaseServiceName: '按服务名称搜索',
+  }
+}
+
+export default defineIntlMessages(mapData)

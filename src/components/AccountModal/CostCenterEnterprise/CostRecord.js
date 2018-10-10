@@ -159,6 +159,9 @@ class CostRecord extends Component{
     loadSpaceSummary(currentNamespace)
   }
 
+  disabledDate = value => {
+    return new Date(value.getTime()) > new Date()
+  }
   render(){
     const _this = this
     const {
@@ -298,7 +301,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
+          <MonthPicker disabledDate={this.disabledDate} defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
         </div>
       </div>
     )
@@ -306,7 +309,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryInDayDateChange} />
+          <MonthPicker disabledDate={this.disabledDate} defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryInDayDateChange} />
         </div>
       </div>
     )

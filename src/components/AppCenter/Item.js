@@ -173,7 +173,11 @@ let MyComponent = React.createClass({
               title: '添加第三方镜像失败',
               content: (<h3>{err.message.message}</h3>)
             });*/
-            notification.error('添加第三方镜像失败', err.message.message)
+            if (err.code === 409 || err.statusCode === 409){
+              notification.error('添加第三方镜像失败', '仓库名重复')
+            } else {
+              notification.error('添加第三方镜像失败', err.message.message)
+            }
           },
           isAsync: true
         },

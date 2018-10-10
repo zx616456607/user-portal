@@ -61,8 +61,9 @@ class AutoScaleModal extends React.Component {
   }
 
   componentDidMount() {
-    const {scaleDetail, clusterID, loadAllServices} = this.props
+    const {scaleDetail, clusterID, loadAllServices, loadNotifyGroups} = this.props
     this.initThresholdArr(scaleDetail)
+    loadNotifyGroups(null, clusterID)
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
