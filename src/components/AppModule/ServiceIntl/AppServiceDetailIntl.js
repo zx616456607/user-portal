@@ -539,6 +539,22 @@ export const mapData = {
     hostnameIsRequired: '主机名不能为空',
     subdomainIsRequired: '子域名不能为空',
     bindLoadbalance: '去绑定负载均衡',
+    currentProjectNotAllowServiceMesh: '当前项目所在集群未允许服务启用服务网格，请联系项目管理员开通',
+    changeStatus: '更改状态',
+    serviceMeshStatue: '服务网格状态:',
+    alreadyOpenServiceMesh: '已开启服务网格，重启服务后生效',
+    alreadyCloseServiceMesh: '已关闭服务网格，重启服务后生效',
+    open: '开启',
+    close: '关闭',
+    opening: '正在开启...',
+    closeing: '正在关闭...',
+    pleaseChoiceOpenOrCloseService: '请选择开启/关闭服务',
+    openOrCloseServiceMeshWrong: '开启/关闭服务网格出错!',
+    serviceMeshStatus: '服务网格状态',
+    openCloseServiceMeshNeedReboot: '开启 / 关闭服务网格后, 需要重启服务才能生效。',
+    openServiceMesh: '开启服务网格',
+    closeServiceMesh: '关闭服务网格',
+    afterOpenServiceMeshInfo: '开启后，此服务将由服务网格代理，使用微服务中心提供的治理功能。服务的访问方式可在路由规则中设置'
   }
 }
 

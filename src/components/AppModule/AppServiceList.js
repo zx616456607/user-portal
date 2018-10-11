@@ -345,7 +345,7 @@ const MyComponent = React.createClass({
   rendermeshIcon() {
     return (
       <span style={{ lineHeight: '16px' }}>
-        <Tooltip title={"该服务已开启服务网格"}>
+        <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
         <img className="meshIcon"　src={meshIcon} alt=""/>
         </Tooltip>
       </span>
