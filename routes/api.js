@@ -124,6 +124,12 @@ module.exports = function (Router) {
   router.put('/servicemesh/clusters/:clusterId/paas/services/:name/status', servicemesh.putToggleAPPMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/pods', servicemesh.getCheckAPPInClusMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/services', servicemesh.getServiceListServiceMeshStatus)
+  router.get('/servicemesh/clusters/:clusterId/ingressgateway', servicemesh.getServiceMeshPortList)
+  router.get('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.getServiceMeshPort)
+  router.post('/servicemesh/clusters/:clusterId/ingressgateway', servicemesh.createServiceMeshPort)
+  router.put('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.updateServiceMeshPort)
+  router.del('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.deleteServiceMeshPort)
+  router.get('/servicemesh/clusters/:clusterId/nodes', servicemesh.getServiceMeshClusterNode)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)

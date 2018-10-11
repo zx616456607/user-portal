@@ -15,7 +15,9 @@ import { defineIntlMessages } from "../../../common/tools"
 export const mapData = {
   prefix: 'AppCenter.ImageCenter.Tab',
   data: {
-    privateRepoGroup: '我的仓库组',
+    repoGroup: '仓库组',
+    allRepoGroup: '所有仓库组',
+    privateRepoGroup: '私有仓库组',
     publicRepoGroup: '公开仓库组',
     imageRepo: '镜像仓库',
     releaseRecord: '发布记录',
