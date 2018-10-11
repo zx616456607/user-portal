@@ -348,20 +348,12 @@ class LoadBalanceModal extends React.Component {
       form.setFieldsValue({
         agentType: 'inside',
       })
-      this.setState({
-        tipVisible: true,
-      })
+      notify.warn('禁止选择', '允许创建『集群外』负载均衡开关关闭，请联系管理员开启')
     }
   }
 
-  closeTipModal = () => {
-    this.setState({
-      tipVisible: false,
-    })
-  }
-
   render() {
-    const { composeType, confirmLoading, tipVisible, NetSegment } = this.state
+    const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -455,18 +447,11 @@ class LoadBalanceModal extends React.Component {
         okText={currentBalance ? '确认修改' : "确认创建"}
         confirmLoading={confirmLoading}
       >
-        <Modal
-          title={'提示'}
-          visible={tipVisible}
-          onCancel={this.closeTipModal}
-          onOk={this.closeTipModal}
-        >
-          <div className="alertIconRow">
-            <TenxIcon type="tips" className="alertIcon"/>
-            应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
-            适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
-          </div>
-        </Modal>
+        <div className="alertIconRow">
+          <TenxIcon type="tips" className="alertIcon"/>
+          应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
+          适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
+        </div>
         <Form form={form}>
           <FormItem
             label="代理方式"
