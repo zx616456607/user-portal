@@ -13,7 +13,7 @@ import './style/NetworkSolutions.less'
 import { connect } from 'react-redux'
 import { getNetworkSolutions } from '../../../actions/cluster_node'
 import { updateClusterConfig } from '../../../actions/cluster'
-import { loadTeamClustersList } from '../../../actions/team'
+import { getProjectVisibleClusters } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import { setCurrent } from '../../../actions/entities'
 import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
@@ -137,7 +137,7 @@ class NetworkSolutions extends Component {
   confirmSettingPermsission() {
     const {
       networkPolicySupported, updateClusterConfig,
-      clusterID, loadTeamClustersList,
+      clusterID, getProjectVisibleClusters,
       space, setCurrent
     } = this.props
     let Noti = new NotificationHandler()
@@ -159,14 +159,14 @@ class NetworkSolutions extends Component {
             permissionVisible: false,
             confirmLoading: false,
           })
-          loadTeamClustersList(space.teamID, { size: 100 }, {
+          getProjectVisibleClusters(space.projectName, {
             success: {
-              func: () => {
-                const { result } = this.props
-                for (let i = 0; i < result.data.length; i++) {
-                  if (result.data[i].clusterID == clusterID) {
+              func: clustersRes => {
+                let { clusters } = clustersRes.data
+                for (let i = 0; i < clusters.length; i++) {
+                  if (clusters[i].clusterID == clusterID) {
                     setCurrent({
-                      cluster: result.data[i],
+                      cluster: clusters[i],
                     })
                     break
                   }
@@ -377,7 +377,6 @@ function mapStateToProp(state, props) {
   let networkPolicySupported = false
   let clusterID
   let space = entities.current.space
-  const { result } = state.team.teamClusters || {}
   if (entities.current && entities.current.cluster) {
     networkPolicySupported = entities.current.cluster.networkPolicySupported
     clusterID = entities.current.cluster.clusterID
@@ -387,7 +386,6 @@ function mapStateToProp(state, props) {
     clusterID,
     space,
     networkPolicySupported,
-    result,
     currentClusterID: props.clusterID
   }
 }
@@ -395,6 +393,6 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   getNetworkSolutions,
   updateClusterConfig,
-  loadTeamClustersList,
+  getProjectVisibleClusters,
   setCurrent,
 })(NetworkSolutions)

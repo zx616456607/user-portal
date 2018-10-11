@@ -699,6 +699,7 @@ module.exports = function (Router) {
 
   // alert
   router.get('/cluster/:cluster/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/cluster/:cluster/alerts/service-records/query', alertController.getRecordFilters)
   router.get('/cluster/:cluster/alerts/records', alertController.getRecords)
   router.delete('/cluster/:cluster/alerts/records', alertController.deleteRecords)
   router.post('/cluster/:cluster/alerts/groups', alertController.createNotifyGroup)

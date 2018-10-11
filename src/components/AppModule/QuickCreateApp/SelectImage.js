@@ -61,10 +61,14 @@ class SelectImage extends Component {
     } else {
       imageType = 'privateImages'
     }
+    let searchInputValue
+    if (!location.pathname.includes('/app_center/template/create')) {
+      searchInputValue = imageName
+    }
     this.state = {
       imageType,
       imageFilter: 'all',
-      searchInputValue: imageName,
+      searchInputValue,
       currentPage: 1,
       searchImage,
       others: [],

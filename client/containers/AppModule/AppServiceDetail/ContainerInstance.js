@@ -18,8 +18,6 @@ import * as podAction from '../../../../src/actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import { getServiceStatus } from '../../../../src/common/status_identify'
 
-// loadServiceDetail(cluster, serviceName, {
-
 const notification = new Notification()
 const FormItem = Form.Item
 const formItemLayout = {
