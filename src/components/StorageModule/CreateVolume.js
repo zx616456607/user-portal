@@ -10,7 +10,7 @@
 import React,{ Component,PropTypes } from 'react'
 import { Modal, Row, Col, InputNumber, Input, Slider, Button, Form, Select, Icon, Switch, Radio, Tooltip } from 'antd'
 import { connect } from 'react-redux'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { serviceNameCheck } from '../../common/naming_validation'
@@ -20,37 +20,11 @@ import PersistentVolumeClaim from '../../../kubernetes/objects/persistentVolumeC
 import yaml from 'js-yaml'
 import { DEFAULT_IMAGE_POOL, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import NotificationHandler from '../../components/Notification'
-import { SHOW_BILLING, ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
+import StorageIntl from './StorageIntl'
 
 const Option = Select.Option
 const notificationHandler = new NotificationHandler()
-
-const messages = defineMessages({
-  name: {
-    id: "Storage.modal.name",
-    defaultMessage: '名称'
-  },
-  snapshot: {
-    id: "Storage.modal.snapshot",
-    defaultMessage: '快照'
-  },
-  cancelBtn: {
-    id: "Storage.modal.cancelBtn",
-    defaultMessage: '取消'
-  },
-  formats: {
-    id: 'Storage.titleRow.formats',
-    defaultMessage: '格式',
-  },
-  size: {
-    id: 'Storage.titleRow.size',
-    defaultMessage: '大小',
-  },
-  placeholder: {
-    id: 'Storage.modal.placeholder',
-    defaultMessage: '输入名称',
-  },
-})
 
 class CreateVolume extends Component {
   constructor(props) {
@@ -86,8 +60,9 @@ class CreateVolume extends Component {
   SnapshotSwitch(){
     const { swicthChecked, hasAlreadyGetSnapshotList } = this.state
     if(!swicthChecked && !hasAlreadyGetSnapshotList){
-      const { SnapshotList, clusterID } = this.props
-      notificationHandler.spin('获取独享存储快照列表中')
+      const { SnapshotList, clusterID, intl } = this.props
+      const { formatMessage } = intl
+      notificationHandler.spin(formatMessage(StorageIntl.getSnapshotList))
       SnapshotList({clusterID}, {
         success: {
           func: () => {
@@ -108,7 +83,7 @@ class CreateVolume extends Component {
         failed: {
           func: () => {
             notificationHandler.close()
-            notificationHandler.error('获取独享型快照列表失败，不能使用快照创建独享型存储，请重试')
+            notificationHandler.error(formatMessage(StorageIntl.getSnapshotFailed))
           }
         }
       })
@@ -239,9 +214,10 @@ class CreateVolume extends Component {
   handleComfirmCreateVolume() {
     const {
       form, SnapshotClone, cluster, currentVolume, createStorage, loadStorageList,
-      snapshotDataList, scope
+      snapshotDataList, scope, intl
     } = this.props
     const { volumeSize,fstype, swicthChecked } = this.state
+    const { formatMessage } = intl
     this.setState({
       loading: true,
     })
@@ -262,7 +238,7 @@ class CreateVolume extends Component {
         return
       }
       let notification = new NotificationHandler()
-      notification.spin('创建独享型存储中')
+      notification.spin(formatMessage(StorageIntl.createExclusiveing))
       if(!values.selectSnapshotName){
         // 创建存储卷
         const config = {
@@ -283,7 +259,7 @@ class CreateVolume extends Component {
             func: () => {
               this.handleResetState()
               notification.close()
-              notification.success(`创建独享型存储 ${config.name} 操作成功`)
+              notification.success(formatMessage(StorageIntl.create) + formatMessage(StorageIntl.exclusiveStorage) +`${config.name} `+ formatMessage(StorageIntl.actionSuccess))
               scope.setState({ searchInput: '' }, loadStorageList({ page: 1, search: '' }))
             },
             isAsync: true
@@ -293,11 +269,16 @@ class CreateVolume extends Component {
               this.handleResetState()
               notification.close()
               if(err.statusCode === 409){
-                notification.error('独享型存储 ' + config.name + ' 已经存在')
+                notification.error(formatMessage(StorageIntl.exclusiveStorage)  + config.name + formatMessage(StorageIntl.exists))
                 return
               }
               if (err.statusCode !== 402 && err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
-                notification.error(`创建独享型存储 ${config.name} 操作失败`,err.message.message || err.message)
+                notification.error(
+                  formatMessage(StorageIntl.create)+
+                  formatMessage(StorageIntl.exclusiveStorage) +
+                  ` ${config.name}` + formatMessage(StorageIntl.actionFailed),
+                   err.message.message || err.message
+                )
               }
             }
           }
@@ -329,7 +310,11 @@ class CreateVolume extends Component {
         success: {
           func: () => {
             notification.close()
-            notification.success('创建存储成功')
+            notification.success(
+              formatMessage(StorageIntl.create)+
+              formatMessage(StorageIntl.exclusiveStorage)+
+              formatMessage(StorageIntl.actionSuccess)
+            )
             this.handleResetState()
             const { snapshotRequired } = this.props
             if(!snapshotRequired){
@@ -341,16 +326,18 @@ class CreateVolume extends Component {
         failed: {
           func: (res) => {
             if(res.statusCode === 409){
-              notification.error('存储卷 ' + volumeName + ' 已经存在')
+              notification.error(
+                formatMessage(StorageIntl.storageVolume)+
+                volumeName +
+                formatMessage(StorageIntl.exists)
+              )
               return
             }
-            let message = '创建存储卷失败，请重试'
+            let message = formatMessage(StorageIntl.create) + formatMessage(StorageIntl.storageVolume) + formatMessage(StorageIntl.actionFailed)
             this.handleResetState()
             notification.close()
-            if(res.message){
-              message = res.message
-            }
-            notification.error(message)
+
+            notification.error(message, res.message || '')
           }
         }
       })
@@ -362,8 +349,9 @@ class CreateVolume extends Component {
   }
 
   checkVolumeName(rule, value, callback){
-    const { getCheckVolumeNameExist, clusterID } = this.props
-    let msg = serviceNameCheck(value, '存储名称')
+    const { getCheckVolumeNameExist, clusterID, intl } = this.props
+    const { formatMessage } = intl
+    let msg = serviceNameCheck(value, formatMessage(StorageIntl.storageName))
     if (msg !== 'success') {
       return callback(msg)
     }
@@ -379,7 +367,7 @@ class CreateVolume extends Component {
         failed: {
           func: (res) => {
             if(res.statusCode == 409){
-              msg = serviceNameCheck(value, '存储名称', true)
+              msg = serviceNameCheck(value, formatMessage(StorageIntl.storageName), true)
               return callback(msg)
             }
           },
@@ -392,24 +380,24 @@ class CreateVolume extends Component {
   handleFormatSelectOption(){
     const { renderSnapshotOptionlist } = this.state
     if(!renderSnapshotOptionlist.length){
-      return <Select.Option
+      return <Option
         key='nodata'
         value='nodata'
         disabled
         style={{textAlign: 'center'}}
       >
-        暂无可用快照
-      </Select.Option>
+        <FormattedMessage {...StorageIntl.notSnapshot} />
+      </Option>
     }
     let Options = renderSnapshotOptionlist.map((item, index) => {
-      return <Select.Option key={item.name} value={item.name}>
+      return <Option key={item.name} value={item.name}>
         <Row>
           <Col span={8} className='snapshotName'>{item.name}</Col>
           <Col span={9}>{formatDate(item.createTime)}</Col>
           <Col span={4}>{item.size} M</Col>
           <Col span={3}>{item.fstype}</Col>
         </Row>
-      </Select.Option>
+      </Option>
     })
     return Options
   }
@@ -464,9 +452,10 @@ class CreateVolume extends Component {
   }
 
   render(){
-    const { form, cluster, snapshotRequired, isFetching, billingEnabled, cephList } = this.props
+    const { form, cluster, snapshotRequired, isFetching, billingEnabled, cephList, intl } = this.props
     const { currentSnapshot } = this.state
     const { getFieldProps } = form
+    const { formatMessage } = intl
     const VolumeNameProps = getFieldProps('volumeName',{
       rules: [{
         validator: this.checkVolumeName
@@ -481,7 +470,7 @@ class CreateVolume extends Component {
       selectSnapshotNameProps = getFieldProps('selectSnapshotName',{
         rules:[{
           required: true,
-          message:'请选择快照名称',
+          message: formatMessage(StorageIntl.inputSnapshot),
         }],
         initialValue: selectdefaultValue
       })
@@ -490,10 +479,7 @@ class CreateVolume extends Component {
     const storagePrice = resourcePrice.storage /10000
     const hourPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.volumeSize /1024 * resourcePrice.storage * 24 *30, 4)
-    const formItemLayout = {
-    	labelCol: {span: 4},
-    	wrapperCol: {span: 19}
-    }
+
     let init_address
     cephList.map(item => {
       if(item.metadata.labels["system/storageDefault"] === "true"){
@@ -505,31 +491,31 @@ class CreateVolume extends Component {
         <Form className='formStyle'>
           <Row className='volumeName'>
             <Col span="4" className="name-text-center name">
-              存储卷名称
+              {formatMessage(StorageIntl.storageName)}
             </Col>
             <Col span="19" className='nameValue'>
               <Form.Item>
-                <Input {...VolumeNameProps} />
+                <Input {...VolumeNameProps} placeholder={formatMessage(StorageIntl.storageName)} />
               </Form.Item>
             </Col>
           </Row>
           <Row className='type'>
             <Col span="4" className="name-text-center name">
-              存储类型
+              {formatMessage(StorageIntl.type)}
             </Col>
             <Col span="19" className='type_value'>
               <Row>
                 <Col span={12}>
                   <Form.Item>
                     <Select
-                      placeholder="请选择类型"
+                      placeholder={formatMessage(StorageIntl.pleaseType)}
                       disabled={this.state.selectChecked}
                       {...getFieldProps('type', {
                         initialValue: "ceph",
-                        rules: [{required: true, message: '类型不能为空'}]
+                        rules: [{required: true, message: formatMessage(StorageIntl.pleaseType)}]
                       })}
                     >
-                      <Option key="ceph" value="ceph">块存储</Option>
+                      <Option key="ceph" value="ceph">{formatMessage(StorageIntl.blockStorage)}</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -537,12 +523,12 @@ class CreateVolume extends Component {
                   <Form.Item>
                     <Select
                       disabled={this.state.selectChecked}
-                      placeholder="请选择一个块存储集群"
+                      placeholder={formatMessage(StorageIntl.pleaseBlockCluster)}
                       {...getFieldProps('address', {
                         initialValue: init_address,
                         rules: [{
                           required: true,
-                          message: "请选择块存储集群"
+                          message: formatMessage(StorageIntl.pleaseBlockCluster)
                         }],
                         onChange: this.selectStorageServer,
                       })}
@@ -556,7 +542,7 @@ class CreateVolume extends Component {
           </Row>
           <Row className='switchSnapshot'>
             <Col span="4" className="name-text-center switchName">
-              使用快照创建
+              {formatMessage(StorageIntl.useSnapshot)}
             </Col>
             <Col span="3">
               <Switch
@@ -567,35 +553,35 @@ class CreateVolume extends Component {
                 disabled={this.state.switchDisabled || isFetching}
               />
             </Col>
-            <Col span="15">通过快照创建存储卷，1-2分钟即可创建成功</Col>
+            <Col span="15">{formatMessage(StorageIntl.snapshotTops)}</Col>
           </Row>
           {
             this.state.swicthChecked
             ? <Row className='snapshot'>
               <Col span="4" className="name-text-center name">
-                <FormattedMessage {...messages.snapshot} />
+                <FormattedMessage {...StorageIntl.snapshot} />
               </Col>
               <Col span="12" className='nameValue'>
                 <Form.Item>
                   <Select
                     showSearch
-                    placeholder="请选择快照"
+                    placeholder={formatMessage(StorageIntl.pleaseSelectSnapshot)}
                     size="large"
-                    notFoundContent="无法找到"
+                    notFoundContent={formatMessage(StorageIntl.notFound)}
                     {...selectSnapshotNameProps}
                     onChange={this.handleSelectSnapshot}
                     getPopupContainer={() => document.getElementById('CreateVolume')}
                     className='selectSnapshot'
                     disabled={this.state.selectChecked}
                   >
-                    <Select.Option key="title" value="title" disabled={true}>
+                    <Option key="title" value="title" disabled={true}>
                       <Row>
-                        <Col span={8}>快照名称</Col>
-                        <Col span={9}>创建时间</Col>
-                        <Col span={4}>大小</Col>
-                        <Col span={3}>格式</Col>
+                        <Col span={8}>{formatMessage(StorageIntl.snapshotName)}</Col>
+                        <Col span={9}>{formatMessage(StorageIntl.createTime)}</Col>
+                        <Col span={4}>{formatMessage(StorageIntl.size)}</Col>
+                        <Col span={3}>{formatMessage(StorageIntl.type)}</Col>
                       </Row>
-                    </Select.Option>
+                    </Option>
                     {this.handleFormatSelectOption()}
                   </Select>
                 </Form.Item>
@@ -605,7 +591,7 @@ class CreateVolume extends Component {
           }
           <Row className='volumeSize'>
             <Col span="4" className="name-text-center size">
-              <FormattedMessage {...messages.size} />
+              <FormattedMessage {...StorageIntl.size} />
             </Col>
             <Col span="12">
               <Slider
@@ -631,7 +617,7 @@ class CreateVolume extends Component {
           </Row>
           <Row className='volumeFormat'>
             <Col span="4" className="name-text-center format">
-              <FormattedMessage {...messages.formats} />
+              <FormattedMessage {...StorageIntl.format} />
             </Col>
             <Col span="20" className="action-btns">
               <Button
@@ -675,19 +661,19 @@ class CreateVolume extends Component {
           { billingEnabled ?
           <div className="modal-price">
             <div className="price-left">
-              存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
+              <FormattedMessage {...StorageIntl.storage} />：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*<FormattedMessage {...StorageIntl.hour} />)
             </div>
             <div className="price-unit">
-              <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-              <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
+              <p><FormattedMessage {...StorageIntl.count} />：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/<FormattedMessage {...StorageIntl.hour} /></span></p>
+              <p><span className="unit">（<FormattedMessage {...StorageIntl.about} />：</span><span className="unit">{ countPrice.fullAmount }/<FormattedMessage {...StorageIntl.month} />）</span></p>
             </div>
           </div>
           :null
           }
         </Form>
         <div className='createVolumeFooter'>
-          <Button size='large' type="primary" className='buttonConfirm' onClick={this.handleComfirmCreateVolume} loading={this.state.loading}>确定</Button>
-          <Button size='large' className='buttonCancel' onClick={this.handleCancelCreateVolume}>取消</Button>
+          <Button size='large' type="primary" className='buttonConfirm' onClick={this.handleComfirmCreateVolume} loading={this.state.loading}><FormattedMessage {...StorageIntl.btnOk} /></Button>
+          <Button size='large' className='buttonCancel' onClick={this.handleCancelCreateVolume}><FormattedMessage {...StorageIntl.cancel} /></Button>
         </div>
       </div>
     )

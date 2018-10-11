@@ -17,6 +17,8 @@ import Title from '../../Title'
 import './style/HostStorageDetail.less'
 import storagePNG from '../../../assets/img/storage.png'
 import StorageBind from '../StorageBind'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import StorageDetailIntl from '../StorageDetailIntl'
 
 const TabPane = Tabs.TabPane
 
@@ -28,13 +30,10 @@ class HostStorageDetail extends Component {
     }
   }
 
-  componentWillMount() {
-
-  }
-
   render() {
-    const { cluster, params, location, StorageInfo } = this.props
+    const { cluster, params, location, StorageInfo, intl } = this.props
     const clusterID = cluster.clusterID
+    const { formatMessage } = intl
     const hostName = params.host_name
     const { path, ip } = location.query
     const query ={
@@ -45,16 +44,16 @@ class HostStorageDetail extends Component {
     return(
       <QueueAnim type="right">
         <div id='host_storage_detail' key="host_storage_detail">
-          <Title title="存储详情" />
+          <Title title={formatMessage(StorageDetailIntl.detail)} />
           <div className="topRow">
               <span
                 className="back"
                 onClick={() => browserHistory.push(`/app_manage/storage/host`)}
               >
                 <span className="backjia"></span>
-                <span className="btn-back">返回</span>
+                <span className="btn-back">{<FormattedMessage {...StorageDetailIntl.back} />}</span>
               </span>
-            <span className="title">存储详情</span>
+              <span className="title">{<FormattedMessage {...StorageDetailIntl.detail} />}</span>
           </div>
           <Card className='topCard'>
             <div className="imgBox">
@@ -67,7 +66,7 @@ class HostStorageDetail extends Component {
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：host
+                    <FormattedMessage {...StorageDetailIntl.storageType}/> ：host
                   </Col>
                   <Col span="15">
                     {/*<div className="createDate">
@@ -77,10 +76,10 @@ class HostStorageDetail extends Component {
                 </Row>
                 <Row>
                   <Col span="9">
-                    宿主机目录：{ path }
+                    <FormattedMessage {...StorageDetailIntl.hostDir}/>：{ path }
                   </Col>
                   <Col span="15">
-                    存储节点：{ ip ? ip : '-' }
+                    <FormattedMessage {...StorageDetailIntl.nodeVolume}/>：{ ip ? ip : '-' }
                   </Col>
                 </Row>
               </div>
@@ -88,7 +87,7 @@ class HostStorageDetail extends Component {
           </Card>
           <Card>
             <Tabs>
-              <TabPane tab="绑定服务" key="service">
+              <TabPane tab={<FormattedMessage {...StorageDetailIntl.bindService}/>} key="service">
                 <StorageBind
                   pool={StorageInfo.imagePool}
                   cluster={clusterID}
@@ -128,4 +127,4 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
 
-})(HostStorageDetail)
+})(injectIntl(HostStorageDetail,{withRef: true}))

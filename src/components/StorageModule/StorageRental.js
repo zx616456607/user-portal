@@ -11,6 +11,8 @@ import React, { Component, PropTypes } from 'react'
 import { Icon } from 'antd'
 import { parseAmount } from '../../common/tools.js'
 import './style/StorageRental.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import StorageDetailIntl from './StorageDetailIntl'
 
 class StorageRental extends Component {
   constructor(props) {
@@ -25,7 +27,7 @@ class StorageRental extends Component {
     return (
       <div id="StorageRental">
         <div className="info">
-          <span className="titleSpan">租赁信息 </span>
+          <span className="titleSpan"><FormattedMessage {...StorageDetailIntl.LeaseholdInfo}/> </span>
           {/*<div className="starts">
             <p><Icon type="clock-circle-o" /> 开始计费：2016.12.12. 15：50</p>
             <p><Icon type="clock-circle-o" /> 停止计费：2016.12.22. 15：50</p>
@@ -33,13 +35,14 @@ class StorageRental extends Component {
           </div>
           */}
           <div className="dataBox">
-            <p><Icon type="pay-circle-o" /> 价格：<span className="unit">{ storagePrice.fullAmount }</span> /（GB*小时）</p>
-            <p><Icon type="hdd" /> 大小：<span className="unit">{this.props.size}Mi</span></p>
+            <p><Icon type="pay-circle-o" /> <FormattedMessage {...StorageDetailIntl.price}/>：<span className="unit">{ storagePrice.fullAmount }</span> /（GB*<FormattedMessage {...StorageDetailIntl.hour}/>）</p>
+            <p><Icon type="hdd" /> <FormattedMessage {...StorageDetailIntl.size}/>：<span className="unit">{this.props.size}Mi</span></p>
           </div>
           <div className="dataBox">
-            <div className="priceCount">合计：<span className="unit">{storagePrice.unit == '￥' ? '￥':''}</span><span className="blod unit">{ hourPrice.amount } {storagePrice.unit == '￥' ? '':' T'}/小时</span>
-            <span className="unit" style={{marginLeft:'15px'}}>(约{ countPrice.fullAmount }/月)</span>
-          </div>
+            <div className="priceCount">
+              <FormattedMessage {...StorageDetailIntl.count}/>：<span className="unit">{storagePrice.unit == '￥' ? '￥':''}</span><span className="blod unit">{ hourPrice.amount } {storagePrice.unit == '￥' ? '':' T'}/<FormattedMessage {...StorageDetailIntl.hour}/></span>
+              <span className="unit" style={{marginLeft:'15px'}}>(<FormattedMessage {...StorageDetailIntl.about}/> { countPrice.fullAmount }/<FormattedMessage {...StorageDetailIntl.month}/>)</span>
+            </div>
           </div>
         </div>
 
@@ -53,4 +56,4 @@ StorageRental.propTypes = {
 }
 
 
-export default StorageRental
+export default injectIntl(StorageRental,{withRef: true})
