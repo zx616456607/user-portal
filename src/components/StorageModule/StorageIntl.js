@@ -112,6 +112,19 @@ export const mapData = {
     nodeVolume: '存储节点',
     localVolumeTips: '本地存储可以使部署的服务访问当前运行节点上的文件系统，一般用于读取节点配置或者进行本地存储等场景',
     pleaseServiceName: '按服务名称搜索',
+    getSnapshotList: '获取独享存储快照列表中',
+    getSnapshotFailed: '获取独享型快照列表失败，不能使用快照创建独享型存储。',
+    createExclusiveing: '创建独享型存储中',
+    exists: '已存在',
+    notSnapshot: '暂无可用快照',
+    snapshotName: '快照名称',
+    inputSnapshot: '请输入快照名称',
+    pleaseType: '请选择类型',
+    pleaseBlockCluster: '请选择块存储集群',
+    useSnapshot: '使用快照创建',
+    snapshotTops: '通过快照创建存储卷，1-2分钟即可创建成功',
+    pleaseSelectSnapshot: '请选择快照',
+    notFound: '无法找到'
   }
 }
 

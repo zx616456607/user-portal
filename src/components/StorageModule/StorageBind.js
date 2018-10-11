@@ -12,27 +12,9 @@ import { connect } from 'react-redux'
 import "./style/StorageBind.less"
 import { Card, Row, Col, Icon, Spin } from 'antd';
 import { Timeline } from 'antd';
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import { getVolumeBindInfo } from '../../actions/storage'
-
-const messages = defineMessages({
-  forIn: {
-    id: "Storage.titleRow.forin",
-    defaultMessage: '挂载点'
-  },
-  volume: {
-    id: "StorageBind.bind.volume",
-    defaultMessage: "存储卷"
-  },
-  container: {
-    id: "StorageBind.bind.container",
-    defaultMessage: "服务"
-  },
-  app: {
-    id: "StorageBind.bind.app",
-    defaultMessage: "应用"
-  },
-})
+import StorageDetailIntl from './StorageDetailIntl'
 
 class StorageBind extends Component {
   constructor(props) {
@@ -55,13 +37,13 @@ class StorageBind extends Component {
     let isFetching = volumeBindInfo.isFetching
     if (isFetching) {
     return (<div className="loadingBox">
-       <Spin size="large"></Spin> 
-       </div>) 
+       <Spin size="large"></Spin>
+       </div>)
     }
     if(!Object.keys(mountInfo).length || mountInfo.appName =='') {
       return (
         <div id="StorageBind" style={{paddingLeft:'15px'}}>
-            无绑定服务
+          <FormattedMessage {...StorageDetailIntl.notBind} />
         </div>
       )
     }
@@ -71,20 +53,20 @@ class StorageBind extends Component {
           <Col>
             <Timeline>
               <Timeline.Item>
-                <Card title={`${formatMessage(messages.app)}：${mountInfo.appName} `} style={{ width: 300 }} bordered={false}>
+                <Card title={`${formatMessage(StorageDetailIntl.app)}：${mountInfo.appName} `} style={{ width: 300 }} bordered={false}>
                   <div className="container">
                     <div className="container-ico">
                       <i className="fa fa-server"></i>
                     </div>
                     <p>
-                      <FormattedMessage {...messages.container} />
+                      <FormattedMessage {...StorageDetailIntl.service} />
                       <div className="serviceName">{mountInfo.serviceName}</div>
                     </p>
                   </div>
                 </Card>
                 <div className="point">
                   <span className="point-inf">
-                    <FormattedMessage {...messages.forIn} />
+                    <FormattedMessage {...StorageDetailIntl.forIn} />
                     ： {mountInfo.mountPoint}
                   </span>
                 </div>
@@ -95,7 +77,7 @@ class StorageBind extends Component {
                     <Icon type="hdd" />
                   </div>
                   <p>
-                    <FormattedMessage {...messages.volume} />
+                    <FormattedMessage {...StorageDetailIntl.volume} />
                     <div className="volumeName">{this.props.volumeName}</div>
                   </p>
                 </div>
