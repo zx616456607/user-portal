@@ -1,44 +1,12 @@
 
 @import "../../../assets/style/site/core.less";
 .ServiceMeshPortCard {
+  min-height: 400px;
+  margin-bottom:  @padding-medium;
   .operationBar {
     padding: 0 0 @padding-small 0;
     button {
       margin-right: @padding-small;
-    }
-  }
-  .NoteIcon {
-    @height: 35px;
-    @width: 40px;
-    @color: #2ABE84;
-    width: @width;
-    border-top: 1px dashed @color;
-    overflow: hidden;
-    position: relative;
-    margin-left: @padding-small;
-    .parallelogram {
-      float: left;
-      width: 50%;
-      height: @height;
-      transform: skew(0, 20deg) translate(0, -10px);
-      border-right:  1px dashed @color;
-      border-bottom:  1px dashed @color;
-    }
-    .parallelogram1 {
-      float: left;
-      width: 50%;
-      height: @height;
-      transform: skew(0, -20deg) translate(0, -10px);
-      border-left:  1px dashed @color;
-      border-bottom:  1px dashed @color;
-    }
-    .title {
-    color: @color;
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 14px;
-    padding-left: 6px;
     }
   }
   .BottomButton{
@@ -54,9 +22,6 @@
       text-align: center;
       float: left;
       user-select: none;
-      &:hover {
-        background-color: white;
-      }
     }
     .inter {
       position: absolute;
@@ -71,13 +36,21 @@
     position: relative;
     border: 1px solid @border-color-split;
     margin-right: @padding-small;
-    margin-bottom: @padding-small;
+    margin-bottom:  @padding-medium;
     border-radius: 6px;
     float: left;
     width: 48%;
   }
+  .loading {
+    vertical-align: middle;
+  }
 }
-
+.noIstioInfo {
+  min-height: 400px;
+  .ant-alert {
+    margin-top: @padding-medium;
+  }
+}
 .SetDefaultPort {
   .ant-alert{
     height: 50px;
