@@ -40,7 +40,8 @@ const appCenterRoutes = [
     childRoutes: [
       {
         path: 'public',
-        component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
+        onEnter: (nextState, replace) => replace('/app_center/projects?public=1')
+        // component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
       },
       {
         path: 'publish',
