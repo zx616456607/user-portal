@@ -1128,7 +1128,7 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
-            { name: '服务网格出口', value: 'Istio-gateway' }
+            { name: formatMessage(intlMsg.IstioGateway), value: 'Istio-gateway' }
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}
@@ -1142,7 +1142,7 @@ let NetworkConfiguration = React.createClass ({
               </Button>
               <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
                 <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}>
-                  设置
+                {formatMessage(intlMsg.set)}
                 </Button>
               </Tooltip>
             </div>

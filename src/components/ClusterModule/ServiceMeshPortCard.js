@@ -17,6 +17,9 @@ import * as serviceMeshActions from '../../actions/serviceMesh'
 import { IP_REGEX } from '../../../constants'
 import { getDeepValue } from '../../../client/util/util'
 import NotificationHandler from '../../../src/components/Notification'
+import intlMsg from './NetworkConfigurationIntl'
+import { injectIntl, FormattedMessage } from 'react-intl'
+
 const notification = new NotificationHandler()
 
 const mapStateToProps = state => {
@@ -32,7 +35,7 @@ const mapStateToProps = state => {
   getServiceMeshClusterNode: serviceMeshActions.getServiceMeshClusterNode,
   checkClusterIstio: serviceMeshActions.checkClusterIstio,
 })
-export default class ServiceMeshPortCard extends React.Component {
+class ServiceMeshPortCard extends React.Component {
   state = {
     addMeshPortVisiblity: false,
     setDefaultPortvisible: false,
@@ -51,7 +54,7 @@ export default class ServiceMeshPortCard extends React.Component {
       const result = await this.props.getServiceMeshClusterNode(clusterID)
       const { availability: nodeArray = {} } = result.response.result
       this.setState({ nodeArray })
-      } catch(e) { notification.error('加载节点数据失败!') }
+      } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
     await this.reload()
   }
   reload = async () => {
@@ -60,7 +63,7 @@ export default class ServiceMeshPortCard extends React.Component {
     try {
       result = await getServiceMeshPortList(clusterID)
     } catch(e) {
-      notification.error('获取服务网格出口列表失败',)
+      notification.error(this.props.intl.formatMessage(intlMsg.gainServiceMeshPortListFailure))
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
@@ -73,7 +76,7 @@ export default class ServiceMeshPortCard extends React.Component {
           <div key="noIstioInfo" className="noIstioInfo">
               <Alert
                 // message="集群尚未安装Istio, 暂不能添加"
-                description="集群尚未安装Istio, 暂不能添加"
+                description={this.props.intl.formatMessage(intlMsg.clusterNoIstioNOAdd)}
                 type="warning"
                 showIcon
               />
@@ -82,7 +85,7 @@ export default class ServiceMeshPortCard extends React.Component {
         <div key="ServiceMeshPortCard" className="ServiceMeshPortCard">
           <div className="operationBar">
             <Button type="primary" onClick={() => this.setState({ addMeshPortVisiblity: true })}>
-              <Icon type="plus" />添加网格出口
+              <Icon type="plus" />{this.props.intl.formatMessage(intlMsg.addMeshPort)}
             </Button>
             {/* <Button onClick={() => this.setState({ setDefaultPortvisible: true })}><Icon type="setting" />设置</Button> */}
             <AddMeshNetPort
@@ -93,12 +96,13 @@ export default class ServiceMeshPortCard extends React.Component {
               createServiceMeshPort = {this.props.createServiceMeshPort}
               alreadyUseName={this.state.ServiceMeshPortList.map(({ name }) => name )}
               nodeArray={this.state.nodeArray}
+              formatMessage={this.props.intl.formatMessage}
               />
             <SetDefaultPort visible={this.state.setDefaultPortvisible} self={this}/>
           </div>
           {
             this.state.ServiceMeshPortList.length === 0 ?
-            <div className="loading" >暂无网格出口配置</div>
+            <div className="loading" >{this.props.intl.formatMessage(intlMsg.noMeshPortConfig)}</div>
             :
              this.state.ServiceMeshPortList.map((initialValue) =>
             <ServicePortCar
@@ -109,6 +113,7 @@ export default class ServiceMeshPortCard extends React.Component {
             reload={this.reload}
             nodeArray ={this.state.nodeArray}
             updateServiceMeshPort = {this.props.updateServiceMeshPort}
+            formatMessage={this.props.intl.formatMessage}
             />
           )
           }
@@ -118,6 +123,11 @@ export default class ServiceMeshPortCard extends React.Component {
     )
   }
 }
+
+const ServiceMeshPortCardIntl = injectIntl(ServiceMeshPortCard, {
+  withRef: true,
+})
+export default ServiceMeshPortCardIntl
 
 function BottomButton({
   leftText = '-',
@@ -154,9 +164,9 @@ class ServicePortCar extends React.Component {
       }
       try {
         await this.props.updateServiceMeshPort(this.props.clusterID,hashedName, body)
-      } catch(e) { notification.error('编辑网格出口失败') }
+      } catch(e) { notification.error(this.props.formatMessage(intlMsg.editMeshPortFailure)) }
         await this.props.reload()
-        notification.info('编辑网格出口配置成功')
+        notification.info(this.props.formatMessage(intlMsg.editMeshPortSuccess))
     });
   }
   render() {
@@ -169,19 +179,28 @@ class ServicePortCar extends React.Component {
       initialValue={this.props.initialValue}
       alreadyUseName={this.props.alreadyUseName}
       nodeArray={this.props.nodeArray}
+      formatMessage={this.props.formatMessage}
       />
       {
         !this.state.edit ?
       <BottomButton
-        leftText={<span><Icon type="edit" /><span style={{marginLeft: '8px'}}>编辑配置</span></span>}
+        leftText={<span><Icon type="edit" />
+          <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.editConfig)}</span>
+        </span>}
         leftfunc={() => this.setState({ edit: true })}
-        rightText={<span><Icon type="delete" /><span style={{marginLeft: '8px'}}>删除</span></span>}
+        rightText={<span><Icon type="delete" />
+          <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.delete)}</span>
+        </span>}
         rightfunc = {() => this.setState({ deletevisible: true })}
       /> :
       <BottomButton
-        leftText={<span><Icon type="cross" /><span style={{marginLeft: '8px'}}>取消</span></span>}
+        leftText={<span><Icon type="cross" />
+          <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.cancel)}</span>
+        </span>}
         leftfunc={this.onCancel}
-        rightText={<span ><Icon type="check" /><span style={{marginLeft: '8px'}}>保存</span></span>}
+        rightText={<span ><Icon type="check" />
+          <span style={{marginLeft: '8px'}}>{this.props.formatMessage(intlMsg.save)}</span>
+        </span>}
         rightfunc={this.onSave}
       />
       }
@@ -192,6 +211,7 @@ class ServicePortCar extends React.Component {
       initialValue = {this.props.initialValue}
       deleteServiceMeshPort={this.props.deleteServiceMeshPort}
       reload={this.props.reload}
+      formatMessage={this.props.formatMessage}
       />
     </div>
     )
@@ -207,7 +227,7 @@ class DeleteMeshForm extends React.Component {
     const { clusterID, initialValue} = this.props
     try{
     await this.props.deleteServiceMeshPort(clusterID, initialValue.hashedName)
-    } catch(e) {  notification.error('删除服务网格出口失败') }
+    } catch(e) {  notification.error(this.props.formatMessage(intlMsg.deleteServiceMeshPortFailure)) }
     this.setState({ loading: false })
     this.props.self.setState({ deletevisible: false })
     await this.props.reload()
@@ -216,7 +236,7 @@ class DeleteMeshForm extends React.Component {
     const { visible, self } = this.props
     return(
       <Modal
-    title="删除服务网格出口"
+    title={this.props.formatMessage(intlMsg.deleteServiceMeshPort)}
     visible={visible}
     onOk={this.handleOk}
     onCancel={() => self.setState({ deletevisible: false })}
@@ -226,13 +246,16 @@ class DeleteMeshForm extends React.Component {
     <Alert
       description={
         <span >
-          <p>1. 删除该服务网格出口后, 已使用此出口的网关, 以及关联的路由规则中的服务将不能通过此网络出口被访问</p>
-          <p>2. 此服务网格出口为默认出口, 删除后, 创建网关时, 将不提供默认的服务网格出口, 建议重新设置默认出口</p>
+          <p>{this.props.formatMessage(intlMsg.DeleteMeshFormInfoOne)}</p>
+          <p>{this.props.formatMessage(intlMsg.DeleteMeshFormInfoTwo)}</p>
         </span>
       }
       type="warning" showIcon
     />
-    <div className="info">{`是否确定删除${this.props.initialValue.name}服务网格出口?`}</div>
+    <div className="info">
+    <FormattedMessage {...intlMsg.deleteServiceMeshPortConfig }
+      values={{ serviceMesh: this.props.initialValue.name }}/>
+    </div>
   </div>
   </Modal>
     )
@@ -252,10 +275,10 @@ class FormInner extends React.Component {
     // 当编辑时. 不验证名称,应为此时名称不允许修改
     if (this.props.nameDisabled) return callback()
     if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(value)) {
-      return callback('仅能包含字母或数组且不能以数字开头')
+      return callback(this.props.formatMessage(intlMsg.onlyIncloudNumberAndalphabet))
     }
     if (this.props.alreadyUseName.includes(value)){
-      return callback('此名称已被使用!')
+      return callback(this.props.formatMessage(intlMsg.thisNameAlreadyBeUsed))
     }
     callback()
   }
@@ -278,33 +301,33 @@ class FormInner extends React.Component {
       <Form form={this.props.form}>
       <FormItem
         {...innerFormItemLayout}
-        label="名称"
+        label={this.props.formatMessage(intlMsg.name)}
       >
         <Input
         {...getFieldProps('name', {
           initialValue: name,
           rules: [{
             required: true,
-            message: '名称不能为空',
+            message: this.props.formatMessage(intlMsg.nameNotEmpty),
           },
           {
             validator: this.validatorfunc,
             trigger: [ 'onBlur', 'onChange' ],
           }],
         })}
-        placeholder="请输入服务网格的名称"
+        placeholder={this.props.formatMessage(intlMsg.pleaseInputServiceMeshName)}
         disabled={nameDisabled}/>
       </FormItem>
       <FormItem
         {...innerFormItemLayout}
         label={<span className="innerSpanWapper">
-          <span className="innerSpan">选择节点</span>
-          <Tooltip title="选择多个节点时高可用">
+          <span className="innerSpan">{this.props.formatMessage(intlMsg.choiceNode)}</span>
+          <Tooltip title={this.props.formatMessage(intlMsg.choiceMoreNodesHighAvailability)}>
             <Icon type="question-circle-o" />
           </Tooltip>
           </span>}
       >
-        <Select placeholder="请选择节点" multiple  disabled={disabled}
+        <Select placeholder={this.props.formatMessage(intlMsg.pleaseChoiceNode)} multiple  disabled={disabled}
          {...getFieldProps('node', { initialValue: nodeNames })}>
             {
               Object.entries(this.props.nodeArray || {}).map(([key, value]) =>
@@ -315,8 +338,8 @@ class FormInner extends React.Component {
       <FormItem
         {...innerFormItemLayout}
         label={<span className="innerSpanWapper">
-          <span className="innerSpan">出口 IP</span>
-            <Tooltip title="服务对外的出口 IP">
+          <span className="innerSpan">{this.props.formatMessage(intlMsg.PortIP)}</span>
+            <Tooltip title={this.props.formatMessage(intlMsg.ServiceExportPortIP)}>
             <Icon type="question-circle-o" />
             </Tooltip>
           </span>}
@@ -326,13 +349,13 @@ class FormInner extends React.Component {
         rules: [{
           required: true,
           whitespace: true,
-          message: '请输入出口IP地址',
+          message: this.props.formatMessage(intlMsg.PleaseInputExportPortIp),
         }, {
           pattern: IP_REGEX,
-          message: 'IP地址格式不正确',
+          message: this.props.formatMessage(intlMsg.IPAddressWrong),
         }]
       })}
-        placeholder="请输入出口Ip地址"
+        placeholder={this.props.formatMessage(intlMsg.PleaseInputExportPortIp)}
          disabled={disabled}
           />
       </FormItem>
@@ -367,7 +390,7 @@ class AddMeshNetPort extends React.Component {
         this.setState({ loading: false })
         this.props.self.setState({ addMeshPortVisiblity: false })
         this.props.form.resetFields()
-      } catch(e) { notification.error('创建网格出口失败') }
+      } catch(e) { notification.error(this.props.formatMessage(intlMsg.createMeshPortFailure)) }
         await this.props.reload()
     });
 
@@ -386,7 +409,7 @@ class AddMeshNetPort extends React.Component {
   render() {
     return (
       <Modal
-      title="添加服务网格出口"
+      title={this.props.formatMessage(intlMsg.addServiceMeshPort)}
       visible={this.props.visible}
       onOk={this.handleOk}
       onCancel={this.onCancel}
@@ -398,6 +421,7 @@ class AddMeshNetPort extends React.Component {
       form={this.props.form}
       nodeArray = {this.props.nodeArray}
       alreadyUseName={this.props.alreadyUseName}
+      formatMessage={this.props.formatMessage}
       />
     </Modal>
     )
@@ -408,6 +432,8 @@ const DefaultformItemLayout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 10 },
 }
+
+// TODO: 设置默认网格出口的功能 后端提议并经产品确认后, 决定先不做, 所以以下代码并未调试,
 class SetDefaultPort extends React.Component {
   render() {
     const { self } = this.props;
