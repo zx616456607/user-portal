@@ -17,8 +17,7 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
-import { getLBIPList, createLB, editLB } from '../../../actions/load_balance'
-import * as globalActions from '../../../../src/actions/global_config'
+import { getLBIPList, createLB, editLB, checkLbPermission } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
@@ -44,7 +43,7 @@ const Option = Select.Option
 const RadioGroup = Radio.Group;
 const notify = new Notification()
 
-const CONFIG_TYPE = 'chart_repo'
+const CONFIG_TYPE = 'loadbalance'
 
 class LoadBalanceModal extends React.Component {
   state = {
@@ -53,9 +52,11 @@ class LoadBalanceModal extends React.Component {
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form, getConfigByType, getPodNetworkSegment } = this.props
-    getConfigByType(undefined, CONFIG_TYPE)
+    const { clusterID, getLBIPList, currentBalance, form, getPodNetworkSegment,
+      checkLbPermission,
+    } = this.props
     getLBIPList(clusterID)
+    checkLbPermission()
     getPodNetworkSegment(clusterID, {
       success: {
         func: res => {
@@ -331,19 +332,12 @@ class LoadBalanceModal extends React.Component {
   }
 
   chartRepoIsEmpty = () => {
-    const { chartConfig } = this.props
-    if (isEmpty(chartConfig)) {
+    const { loadbalanceConfig } = this.props
+    if (isEmpty(loadbalanceConfig)) {
       return true
     }
-    const { configDetail } = chartConfig
-    if (isEmpty(configDetail)) {
-      return true
-    }
-    const { url } = JSON.parse(configDetail)
-    if (isEmpty(url)) {
-      return true
-    }
-    return false
+    const { havePermission } = loadbalanceConfig
+    return !havePermission
   }
 
   agentTypeChange = async e => {
@@ -625,11 +619,11 @@ const mapStateToProps = state => {
   const { clusterID } = entities.current.cluster
   const { loadBalanceIPList } = loadBalance
   const { data } = loadBalanceIPList || { data: [] }
-  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
+  const loadbalanceConfig = getDeepValue(state, ['loadbalance', 'loadbalancePermission', 'data'])
   return {
     clusterID,
     ips: data,
-    chartConfig,
+    loadbalanceConfig,
   }
 }
 
@@ -638,5 +632,5 @@ export default connect(mapStateToProps, {
   createLB,
   editLB,
   getPodNetworkSegment,
-  getConfigByType: globalActions.getConfigByType,
+  checkLbPermission,
 })(LoadBalanceModal)

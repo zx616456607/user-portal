@@ -199,6 +199,7 @@ module.exports = function (Router) {
   router.post('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplate)
   router.get('/templates/helm/:name', helmTemplateController.templateNameCheck)
   router.get('/templates/helm/prepare/clusters/:cluster', helmTemplateController.checkHelmIsPrepare)
+  router.get('/templates/helm/prepare/chart_repo', helmTemplateController.checkChartRepoIsPrepare)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
@@ -898,6 +899,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
   router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
   router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
+  router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)
