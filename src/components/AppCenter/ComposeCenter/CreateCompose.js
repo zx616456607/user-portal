@@ -38,6 +38,16 @@ class CreateCompose extends Component {
     }
   }
 
+  componentDidMount() {
+    const { parentState } = this.props
+    console.log(parentState, 'parentState')
+    if (parentState.stackItemContent) {
+      this.setState({
+        composeAttr: parentState.stackItem.isPublic === 1 ? true : false,
+      })
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const { parentState, scope } = nextProps;
     let currentYaml = '';
@@ -45,11 +55,6 @@ class CreateCompose extends Component {
       currentYaml = parentState.stackItemContent;
       this.setState({
         currentYaml: currentYaml
-      })
-    }
-    if (!this.props.parentState.createModalShow && nextProps.parentState.createModalShow) {
-      this.setState({
-        composeAttr: nextProps.parentState.stackItem.isPublic === 1 ? true : false
       })
     }
   }
