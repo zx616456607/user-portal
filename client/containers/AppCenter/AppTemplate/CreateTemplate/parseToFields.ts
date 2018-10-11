@@ -16,7 +16,7 @@ import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools
 import { getDeepValue } from '../../../../../client/util/util';
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
-  DEFAULT_ALGORITHM,
+  DEFAULT_ALGORITHM, OTHER_IMAGE,
 } from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
@@ -443,6 +443,15 @@ const parseAdvancedEnv = containers => {
   };
 };
 
+const parseOtherImage = annotations => {
+  if (isEmpty(annotations) || isEmpty(annotations[OTHER_IMAGE])) {
+    return
+  }
+  return {
+    [OTHER_IMAGE]: annotations[OTHER_IMAGE],
+  }
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -477,6 +486,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseLiveness(containers[0]), // 高可用
     ...parseConfigMap(containers[0], volumes, annotations), // 配置管理
     ...parseAdvancedEnv(containers[0]), // 环境变量
+    ...parseOtherImage(annotations), // 第三方镜像
   };
   return values;
 };

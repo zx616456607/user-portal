@@ -604,7 +604,7 @@ const mapStateToProps = state => {
   const { clusterID } = entities.current.cluster
   const { loadBalanceIPList } = loadBalance
   const { data } = loadBalanceIPList || { data: [] }
-  const loadbalanceConfig = getDeepValue(state, ['loadbalance', 'loadbalancePermission', 'data'])
+  const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   return {
     clusterID,
     ips: data,
