@@ -14,13 +14,15 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ShareStorageDetail.less'
 import Title from '../../Title'
-import { FormattedMessage } from 'react-intl'
+import { injectIntl, FormattedMessage } from 'react-intl'
 import storagePNG from '../../../assets/img/storage.png'
 import { browserHistory } from 'react-router'
 import { loadStorageInfo } from '../../../actions/storage'
 import { formatDate } from '../../../common/tools'
 import MountServiceList from '../MountServiceList'
 import NotificationHandler from '../../Notification/index'
+import StorageDetailIntl from '../StorageDetailIntl'
+
 const notification = new NotificationHandler()
 
 const TabPane = Tabs.TabPane
@@ -34,11 +36,11 @@ class ShareStorageDetail extends Component {
   }
 
   componentWillMount() {
-    const { loadStorageInfo, params } = this.props;
+    const { loadStorageInfo, params, intl } = this.props;
     loadStorageInfo(params.cluster, params.share_name, {fstype: this.props.location.query.diskType}, {
       failed:{
         func: err => {
-          notification.warn("获取存储详情失败")
+          notification.warn(intl.formatMessage(StorageDetailIntl.getDetail))
         },
         isAsync: true,
       }
@@ -46,7 +48,8 @@ class ShareStorageDetail extends Component {
   }
 
   render() {
-    const { StorageInfo, isFetching, params, cluster } = this.props
+    const { StorageInfo, isFetching, params, cluster, intl } = this.props
+    const { formatMessage } = intl
     if (isFetching) {
       return (
         <div className="loadingBox">
@@ -58,7 +61,7 @@ class ShareStorageDetail extends Component {
     const volumeName = params.share_name;
     return(
       <QueueAnim type="right">
-        <Title title="存储详情"/>
+        <Title title={formatMessage(StorageDetailIntl.detail)}/>
         <div id='share_storage_detail' key="share_storage_detail">
           <div className="topRow">
             <span
@@ -66,9 +69,9 @@ class ShareStorageDetail extends Component {
               onClick={() => browserHistory.push(`/app_manage/storage/shared`)}
             >
               <span className="backjia"></span>
-              <span className="btn-back">返回</span>
+              <span className="btn-back"><FormattedMessage {...StorageDetailIntl.back} /></span>
             </span>
-            <span className="title">存储详情</span>
+            <span className="title"><FormattedMessage {...StorageDetailIntl.detail} /></span>
           </div>
           <Card className='topCard'>
             <div className="imgBox">
@@ -81,22 +84,22 @@ class ShareStorageDetail extends Component {
               <div className="info">
                 <Row>
                   <Col span="9">
-                    存储类型：共享型（{ this.props.location.query.diskType === 'glusterfs' ? 'GlusterFS' : 'NFS' }）
+                    <FormattedMessage {...StorageDetailIntl.storageType} />：<FormattedMessage {...StorageDetailIntl.SharedStorage} />（{ this.props.location.query.diskType === 'glusterfs' ? 'GlusterFS' : 'NFS' }）
                   </Col>
                   <Col span="15">
                     <div className="createDate">
-                      创建时间：{ formatDate(StorageInfo.createTime) }
+                      <FormattedMessage {...StorageDetailIntl.createTime} />：{ formatDate(StorageInfo.createTime) }
                     </div>
                   </Col>
                 </Row>
                 <Row>
                   <Col span="9">
-                    存储server：{ StorageInfo.storageServer }
+                    <FormattedMessage {...StorageDetailIntl.storageService} />：{ StorageInfo.storageServer }
                   </Col>
                   <Col span="15">
                   {
                     this.props.location.query.diskType === 'glusterfs' ?
-                    <div className="use">总量:  { StorageInfo.size } </div>
+                    <div className="use"><FormattedMessage {...StorageDetailIntl.total} />:  { StorageInfo.size } </div>
                     :
                     null
                   }
@@ -109,7 +112,7 @@ class ShareStorageDetail extends Component {
                 </Row>
                 <Row>
                   <Col>
-                    server共享目录：{StorageInfo.customFolder || '系统随机'}
+                    <FormattedMessage {...StorageDetailIntl.serviceCommonDir} />：{StorageInfo.customFolder || formatMessage(StorageDetailIntl.systemRandom)}
                   </Col>
                 </Row>
               </div>
@@ -117,7 +120,7 @@ class ShareStorageDetail extends Component {
           </Card>
           <Card>
             <Tabs>
-              <TabPane tab="绑定服务" key="service">
+              <TabPane tab={<FormattedMessage {...StorageDetailIntl.bindService} />} key="service">
                 <MountServiceList
                   clusterID={clusterID}
                   volumeName={volumeName}
@@ -155,4 +158,6 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
   loadStorageInfo,
-})(ShareStorageDetail)
+})(injectIntl(ShareStorageDetail,{
+  withRef: true
+}))

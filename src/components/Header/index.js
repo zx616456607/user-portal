@@ -13,7 +13,6 @@ import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import cloneDeep from 'lodash/cloneDeep'
-import { loadTeamClustersList } from '../../actions/team'
 import { getProjectVisibleClusters, ListProjects } from '../../actions/project'
 import { getStorageClassType } from '../../actions/storage'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
@@ -51,7 +50,6 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/stack_center/,
     /\/app_center\/wrap_manage/,
     /\/ci_cd/,
-    /\/manange_monitor\/audit/,
     /\/manange_monitor\/alarm_record/, //  告警记录去掉上方导航的"项目"
     /\/manange_monitor\/alarm_setting\/resource/, // 告警设置去掉上方导航的"项目"
     /\/manange_monitor\/alarm_setting\/log/,
@@ -77,13 +75,13 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/ai\-deep\-learning\/?/,
     /\/app_center\/projects/,
     /\/app_center\/wrap_store/,
-    /\/cluster\/plugin/,
     /\/middleware_center\/app\/config/,
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
   ],
   loadProjectAndClusterNeeded: [
     /^\/manange_monitor\/query_log$/,
+    /\/manange_monitor\/audit/,
   ]
 }
 
@@ -236,7 +234,7 @@ class Header extends Component {
               spacesVisible: true,
               clustersVisible: false,
             }) */
-            notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
+            // notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
             project.noClustersFlag = true
             setCurrent({
               space: project,
@@ -306,7 +304,6 @@ class Header extends Component {
     this._checkLiteVersion()
     const notification = new NotificationHandler()
     const {
-      loadTeamClustersList,
       setCurrent,
       loadLoginUserDetail,
       loginUser,
@@ -351,7 +348,7 @@ class Header extends Component {
       }
     })
     if (!defaultCluster) {
-      notification.warn(formatMessage(AppIntlMessages.noClustersTip))
+      // notification.warn(formatMessage(AppIntlMessages.noClustersTip))
       // browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
       defaultProject.noClustersFlag = true
       setCurrent({
@@ -661,7 +658,6 @@ function mapStateToProps(state, props) {
 }
 
 export default injectIntl(connect(mapStateToProps, {
-  loadTeamClustersList,
   setCurrent,
   loadLoginUserDetail,
   checkVersion,

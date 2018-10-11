@@ -90,7 +90,7 @@ class AlarmRecord extends Component {
       targetFilter: targetName
     })
 
-    loadRecordsFilters(clusterID)
+    loadRecordsFilters(clusterID, true)
     getSettingList(clusterID,{
       from: 0,
       size: 1000
@@ -108,7 +108,6 @@ class AlarmRecord extends Component {
       recordFilters,
       strategy
     } = this.props
-
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     if(strategy) {
@@ -262,7 +261,6 @@ class AlarmRecord extends Component {
         }
       })
     }
-
   }
   toAlarmDetail(record) {
     const { getAlertSetting, clusterID } = this.props
@@ -340,7 +338,7 @@ class AlarmRecord extends Component {
         title: '是否发送邮件/短信',
         dataIndex: 'alertInfo',
         render: (val, record) => {
-          const condition = record.alertInfo['http_post_webhook_url'][0]
+          const condition = record.alertInfo.httpPostWebhookUrl[0]
           condition.charAt(condition.length - 1)
           return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
         }

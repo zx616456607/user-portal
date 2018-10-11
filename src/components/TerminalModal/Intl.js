@@ -30,6 +30,7 @@ export const mapData = {
     confirmClose: '您是否确定要关闭此终端链接?',
     notSupportSafari: '暂不支持 Safari 浏览器',
     log: '日志',
+    connectClose: '连接已断开',
   }
 }
 

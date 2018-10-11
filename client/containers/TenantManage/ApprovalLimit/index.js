@@ -29,7 +29,7 @@ import { calcuDate } from '../../../../src/common/tools'
 import { Link } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
-
+const RangePicker = DatePicker.RangePicker;
 // 格式化options
 // optionArr = { key: value }
 const optionFormat = optionobj => {
@@ -230,7 +230,6 @@ class ApprovalLimit extends React.Component {
   state = {
     startValue: null,
     endValue: null,
-    endOpen: false,
     sortedInfo: null,
     approvalVisible: false, // 撤销审批显示影藏标志位
     approvalLoading: false, // 撤销审批loading
@@ -278,36 +277,18 @@ class ApprovalLimit extends React.Component {
     }) // 获取所有成员
     ListProjects() // 获取集群信息
   }
-  disabledStartDate = startValue => {
-    if (!startValue || !this.state.endValue) {
-      return false
-    }
-    return startValue.getTime() >= this.state.endValue.getTime()
-  }
-  disabledEndDate = endValue => {
-    if (!endValue || !this.state.startValue) {
-      return false
-    }
-    return endValue.getTime() <= this.state.startValue.getTime()
-  }
+  disabledDate = current => current && current.getTime() > Date.now();
+
   onChange = (field, value) => {
     this.setState({
       [field]: value,
     })
   }
-  onStartChange = value => {
-    this.onChange('startValue', value)
-  }
-  onEndChange = value => {
-    this.onChange('endValue', value)
-  }
-  handleStartToggle = ({ open }) => {
-    if (!open) {
-      this.setState({ endOpen: true })
-    }
-  }
-  handleEndToggle = ({ open }) => {
-    this.setState({ endOpen: open })
+  timeChange = date => {
+    this.setState({
+      startValue: date[0],
+      endValue: date[1],
+    })
   }
   toggleCancelApproval = () => {
     const { approvalVisible } = this.state
@@ -475,7 +456,7 @@ class ApprovalLimit extends React.Component {
     checkApplyRecord(query)
   }
   render() {
-    const { startValue, endValue, endOpen, approvalVisible, approvalLoading,
+    const { startValue, endValue, approvalVisible, approvalLoading,
       detailVisible, currentPage, approvalStatus, approver, wait,
       showApprovalModal, applyTimeSorted, approvalTimeSorted, globaleDevopsQuotaList, definitions,
     } = this.state
@@ -543,24 +524,11 @@ class ApprovalLimit extends React.Component {
             >
               {optionFormat((formateUsername(userName)))}
             </Select>
-            <DatePicker
-              style={{ width: 140 }}
+            <RangePicker
+              style={{ width: 300 }}
               showTime format="yyyy-MM-dd HH:mm:ss"
-              disabledDate={this.disabledStartDate}
-              value={startValue}
-              placeholder="选择开始日期"
-              onChange={this.onStartChange}
-              toggleOpen={this.handleStartToggle}
-            />
-            <DatePicker
-              style={{ width: 140 }}
-              showTime format="yyyy-MM-dd HH:mm:ss"
-              disabledDate={this.disabledEndDate}
-              value={endValue}
-              placeholder="选择结束日期"
-              onChange={this.onEndChange}
-              open={endOpen}
-              toggleOpen={this.handleEndToggle}
+              disabledDate={this.disabledDate}
+              onChange={this.timeChange}
             />
             <Button type="primary" onClick={this.handleSearch}>立即查询</Button>
             <Button type="primary" onClick={this.resetSearch}>重置</Button>

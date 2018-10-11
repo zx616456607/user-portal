@@ -111,10 +111,10 @@ class CreateSecurityGroup extends React.Component {
       if (errors) {
         return
       }
-      this.setState({ loading: true })
       const { name, target, ingress, egress } = values
       const ingList = []
       const egList = []
+      const data = {}
       if (ingress.length > 0) {
         ingress.map(el => {
           const type = values[`ingress${el}`]
@@ -138,10 +138,13 @@ class CreateSecurityGroup extends React.Component {
                 serviceName: values[`ingress${type}${el}`],
               })
             case 'haproxy':
+              data.haproxy = this.props.proxiesArr
               return ingList.push({
                 type: 'haproxy',
+                groupId: values[`ingress${type}${el}`],
               })
             case 'ingress':
+              data.ingress = this.props.loadBalanceList
               return ingList.push({
                 type: 'ingress',
                 ingressId: values[`ingress${type}${el}`],
@@ -199,7 +202,8 @@ class CreateSecurityGroup extends React.Component {
           }
         })
       }
-      const body = buildNetworkPolicy(name, target, ingList, egList)
+      const body = buildNetworkPolicy(name, target, ingList, egList, data)
+      this.setState({ loading: true })
       const isChangeName = policyName && policyName.name === name
       if (!isEdit || !isChangeName) {
         if (!isChangeName && isEdit) {
@@ -318,12 +322,23 @@ class CreateSecurityGroup extends React.Component {
   }
 }
 
-const mapStateToProps = ({ entities: { current }, services: { serviceList: { services } } }) => {
+const mapStateToProps = ({ entities: { current },
+  services: { serviceList: { services } },
+  cluster: { proxy },
+  loadBalance: { loadBalanceList },
+}) => {
   const serverList = []
   services && services.length > 0 && services.map(item => serverList.push(item.metadata.name))
+  let proxiesArr = []
+  if (proxy.result) {
+    const cluster = Object.keys(proxy.result)[0]
+    proxiesArr = proxy.result[cluster].data
+  }
   return {
     cluster: current.cluster.clusterID,
     serverList,
+    proxiesArr,
+    loadBalanceList: loadBalanceList.data || [],
   }
 }
 
