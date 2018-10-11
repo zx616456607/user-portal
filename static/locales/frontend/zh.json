@@ -1783,6 +1783,7 @@
   "TerminalModal.confirmCloseAll": "您是否确定要关闭所有终端链接么?",
   "TerminalModal.confirmClose": "您是否确定要关闭此终端链接?",
   "TerminalModal.notSupportSafari": "暂不支持 Safari 浏览器",
+  "TerminalModal.connectClose": "连接已断开",
   "TerminalModal.log": "日志",
   "AppCenter.ImageCenter.Tab.privateRepoGroup": "我的仓库组",
   "AppCenter.ImageCenter.Tab.publicRepoGroup": "公开仓库组",

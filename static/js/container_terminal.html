@@ -78,6 +78,8 @@
         term = new Terminal({
           cursorBlink: true
         });
+        term.setOption('fontFamily', '"Monospace Regular", "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace')
+        term.setOption('fontSize', 12)
         try {
           ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
         } catch (error) {
@@ -85,6 +87,7 @@
         }
         ws.addEventListener('close', function (event) {
           // console.log('close', event)
+          termCallback(data['pod'], 'close')
         })
         ws.addEventListener('open', function (event) {
           // console.log('open', event)
