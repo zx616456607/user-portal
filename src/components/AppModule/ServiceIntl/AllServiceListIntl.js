@@ -58,7 +58,8 @@ export const mapData = {
     extend: '扩展',
     check: '查看',
     checkMonitor: '查看监控',
-    alarmSet :'告警设置'
+    alarmSet :'告警设置',
+    thisServiceOpenMesh: '该服务已开启服务网格',
   }
 }
 
