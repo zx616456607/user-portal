@@ -40,7 +40,6 @@ const notify = new NotificationHandler();
 
 const DEFAULT_SIZE = 12;
 const SERVICE_CONFIG_HASH = '#configure-service';
-const CONFIG_TYPE = 'chart_repo'
 
 class TemplateList extends React.Component<any> {
 
@@ -50,9 +49,9 @@ class TemplateList extends React.Component<any> {
   serviceSum = 0;
 
   componentWillMount() {
-    const { getConfigByType } = this.props
+    const { checkChartRepoIsPrepare } = this.props
     this.loadTemplateList();
-    getConfigByType(undefined, CONFIG_TYPE)
+    checkChartRepoIsPrepare()
   }
 
   loadTemplateList = (query: any) => {
@@ -124,6 +123,9 @@ class TemplateList extends React.Component<any> {
   }
 
   handleEdit = (temp: object) => {
+    if (this.chartRepoIsEmpty()) {
+      return
+    }
     browserHistory.push(`/app_center/template/create?name=${temp.name}&version=${temp.versions[0].version}`);
   }
   cancelRelease = () => {
@@ -204,9 +206,11 @@ class TemplateList extends React.Component<any> {
       const content = (
         <div className="templateInnerPopover">
           {/* <div key="clone" className="pointer">克隆</div> */}
-          <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>
-            <FormattedMessage {...AppCenterMessage.edit} />
-          </div>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>
+              <FormattedMessage {...AppCenterMessage.edit} />
+            </div>
+          </Tooltip>
           <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>
             <FormattedMessage {...AppCenterMessage.delete} />
           </div>
@@ -271,12 +275,8 @@ class TemplateList extends React.Component<any> {
     if (isEmpty(chartConfig)) {
       return true
     }
-    const { configDetail } = chartConfig
-    if (isEmpty(configDetail)) {
-      return true
-    }
-    const { url } = JSON.parse(configDetail)
-    if (isEmpty(url)) {
+    const { ready } = chartConfig
+    if (!ready) {
       return true
     }
     return false
@@ -347,7 +347,7 @@ const mapStateToProps = state => {
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 0 };
-  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
+  const chartConfig = getDeepValue(state, ['appTemplates', 'chartRepoConfig', 'data'])
   return {
     templateList,
     total,
@@ -362,5 +362,5 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
-  getConfigByType: globalActions.getConfigByType,
+  checkChartRepoIsPrepare: TemplateActions.checkChartRepoIsPrepare,
 })(injectIntl(TemplateList, { withRef: true }));

@@ -122,6 +122,27 @@ function tcpUdpIngress(state = {}, action) {
       return state
   }
 }
+
+function loadbalancePermission(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.CHECK_LB_PERMISSION_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.CHECK_LB_PERMISSION_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        data: action.response.result.data,
+      })
+    case ActionTypes.CHECK_LB_PERMISSION_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
 export default function loadBalance (state = {
   loadBalanceIPList,
   loadBalanceList
@@ -131,6 +152,7 @@ export default function loadBalance (state = {
     loadBalanceList: loadBalanceList(state.loadBalanceList, action),
     loadBalanceDetail: loadBalanceDetail(state.loadBalanceDetail, action),
     serviceLoadBalances: serviceLoadBalances(state.serviceLoadBalances, action),
-    tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action)
+    tcpUdpIngress: tcpUdpIngress(state.tcpUdpIngress, action),
+    loadbalancePermission: loadbalancePermission(state.loadbalancePermission, action),
   }
 }

@@ -204,9 +204,9 @@ class QuickCreateApp extends Component {
     const { checkHelmIsPrepare, current } = this.props
     const { clusterID } = current.cluster;
     const result = await checkHelmIsPrepare(clusterID)
-    const already = getDeepValue(result, ['response', 'result', 'data', 'already'])
+    const ready = getDeepValue(result, ['response', 'result', 'data', 'ready'])
     this.setState({
-      helmAlready: !!already,
+      helmAlready: !!ready,
     })
   }
 
