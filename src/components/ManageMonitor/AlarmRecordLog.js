@@ -46,7 +46,7 @@ class AlarmRecord extends Component {
       dateEndFilter: '',
       from: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
-      deleteModal: false
+      deleteModal: false,
     }
   }
 
@@ -105,23 +105,18 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters,
-      strategy
+      recordFilters
     } = this.props
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if(strategy) {
-      for (let v of strategy) {
-        strategies.push(<Option value={v.strategyName} key={v.strategyID}>{v.strategyName}</Option>)
+    if (recordFilters.strategies) {
+      for (let strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
       }
-
-
-      for (let v of strategy) {
-        targets.push(<Option value={v.strategyID} key={v.strategyID}>{v.targetName}</Option>)
+      for (let target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
       }
-
     }
-
     return {
       strategies,
       targets,

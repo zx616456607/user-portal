@@ -698,8 +698,8 @@ module.exports = function (Router) {
   router.post('/images/scan-rule', imageScanController.uploadFile)
 
   // alert
-  router.get('/cluster/:cluster/alerts/record-filters', alertController.getRecordFilters)
-  router.get('/cluster/:cluster/alerts/service-records/query', alertController.getRecordFilters)
+  router.get('/cluster/:cluster/alerts/record-filters', alertController.getResourceRecordFilters)
+  router.get('/cluster/:cluster/alerts/service-records/query', alertController.getLogRecordFilters)
   router.get('/cluster/:cluster/alerts/records', alertController.getRecords)
   router.delete('/cluster/:cluster/alerts/records', alertController.deleteRecords)
   router.post('/cluster/:cluster/alerts/groups', alertController.createNotifyGroup)
@@ -708,7 +708,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/groups/batch-delete', alertController.batchDeleteNotifyGroups)
   router.post('/email/invitations', alertController.sendInvitation)
   router.get('/email/invitations/status', alertController.checkEmailAcceptInvitation)
-  router.post('/cluster/:cluster/alerts/service-records', alertController.getRecordLogFilters)
+  router.post('/cluster/:cluster/alerts/service-records', alertController.getLogRecord)
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)
