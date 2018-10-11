@@ -111,10 +111,10 @@ class AlarmRecord extends Component {
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
     if (recordFilters.strategies) {
       for (let strategy of recordFilters.strategies) {
-        strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+        strategies.push(<Option value={strategy}>{strategy}</Option>)
       }
       for (let target of recordFilters.targets) {
-        targets.push(<Option value={target.name}>{target.name}</Option>)
+        targets.push(<Option value={target}>{target}</Option>)
       }
     }
     return {
