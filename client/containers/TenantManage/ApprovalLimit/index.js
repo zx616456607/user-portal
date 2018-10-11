@@ -526,6 +526,7 @@ class ApprovalLimit extends React.Component {
             </Select>
             <RangePicker
               style={{ width: 300 }}
+              value={[ startValue, endValue ]}
               showTime format="yyyy-MM-dd HH:mm:ss"
               disabledDate={this.disabledDate}
               onChange={this.timeChange}
