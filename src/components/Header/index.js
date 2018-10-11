@@ -234,7 +234,7 @@ class Header extends Component {
               spacesVisible: true,
               clustersVisible: false,
             }) */
-            notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
+            // notification.warn('项目暂无授权的集群，请先申请『授权集群』或选择其他项目')
             project.noClustersFlag = true
             setCurrent({
               space: project,
@@ -348,7 +348,7 @@ class Header extends Component {
       }
     })
     if (!defaultCluster) {
-      notification.warn(formatMessage(AppIntlMessages.noClustersTip))
+      // notification.warn(formatMessage(AppIntlMessages.noClustersTip))
       // browserHistory.push(`/tenant_manage/project_manage/project_detail?name=${defaultProject.projectName}`)
       defaultProject.noClustersFlag = true
       setCurrent({
