@@ -784,7 +784,7 @@ class Backup extends React.Component {
     let disabledText = ''
     if (databaseInfo.status !== 'Running') {
       disabledText = '运行中的集群支持备份'
-    }else {
+    } else {
       disabledText = '回滚中不支持备份'
     }
     return <div className="dbClusterBackup" onClick={() => { this.props.resetRecordItem() }}>
