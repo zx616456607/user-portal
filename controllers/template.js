@@ -102,3 +102,11 @@ exports.checkHelmIsPrepare = function* () {
   const result = yield api.templates.getBy(['helm', 'prepare', 'clusters', cluster]);
   this.body = result;
 }
+
+// chart-repo is prepare
+exports.checkChartRepoIsPrepare = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.templates.getBy(['helm', 'prepare', 'chart_repo'])
+  this.body = result;
+}

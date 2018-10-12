@@ -71,6 +71,7 @@ export const mapData = {
     atLeastOneEmail: '请至少添加一个邮箱或手机号',
     createGroupFail: '创建通知组失败',
     nameExist: `通知组名字已存在，请修改后重试`,
+    withoutConfig: '请先完成『邮箱/短息服务器』的配置',
     editGroupFail: `修改通知组失败`,
     validatorEmail: '验证邮件',
     secondsAfter: '秒后重新验证',

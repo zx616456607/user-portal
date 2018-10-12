@@ -1130,7 +1130,7 @@ class hostList extends Component {
     const scope = this;
     const nodeSum = nodeList && nodeList.length
     let addNodeBtnDisabled = true
-    const maxNodes = license[camelize('max_nodes')]
+    const maxNodes = license && license[camelize('max_nodes')]
     if (nodeSum < maxNodes) {
       addNodeBtnDisabled = false
     }

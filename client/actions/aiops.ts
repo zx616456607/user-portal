@@ -13,13 +13,12 @@
 import { arrayOf } from 'normalizr';
 import { FETCH_API } from '../../src/middleware/api';
 import { API_URL_PREFIX } from '../../src/constants';
-import { toQuerystring } from '../../src/common/tools';
 
 export const GET_AI_MODELSETS_REQUEST = 'GET_AI_MODELSETS_REQUEST';
 export const GET_AI_MODELSETS_SUCCESS = 'GET_AI_MODELSETS_SUCCESS';
 export const GET_AI_MODELSETS_FAILURE = 'GET_AI_MODELSETS_FAILURE';
 
-const fetchAIModelsets = (cluster, query) => {
+const fetchAIModelsets = (cluster, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -27,11 +26,12 @@ const fetchAIModelsets = (cluster, query) => {
         GET_AI_MODELSETS_SUCCESS,
         GET_AI_MODELSETS_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/ai/clusters/${cluster}/modelsets?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/ai/clusters/${cluster}/modelsets`,
       schema: arrayOf({}),
     },
+    callback,
   };
 };
 
-export const getAIModelsets = (cluster: string, query?: object) =>
-  dispatch => dispatch(fetchAIModelsets(cluster, query));
+export const getAIModelsets = (cluster: string, callback) =>
+  dispatch => dispatch(fetchAIModelsets(cluster, callback));

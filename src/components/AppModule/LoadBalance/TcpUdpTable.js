@@ -85,15 +85,16 @@ export default class TcpUdpTable extends React.PureComponent{
   }
 
   confirmDelete = async () => {
-    const { deleteTcpUdpIngress, clusterID, name, type } = this.props
+    const { deleteTcpUdpIngress, clusterID, name, type, location } = this.props
     const { deleteRow } = this.state
+    const { displayName } = location.query
     this.setState({
       confirmLoading: true,
     })
     notify.spin('删除中...')
     const lowerType = type.toLowerCase()
     const { exportPort } = deleteRow
-    const result = await deleteTcpUdpIngress(clusterID, name, lowerType, exportPort)
+    const result = await deleteTcpUdpIngress(clusterID, name, lowerType, exportPort, displayName)
     if (result.error) {
       notify.close()
       notify.warn('删除失败')

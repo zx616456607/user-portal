@@ -430,6 +430,7 @@ class Backup extends React.Component {
   }
   // 点击弹出手动备份弹出弹框
   menualBackup = (chain, i) => {
+    if (this.props.rollbackComplete) return
     this.setState({
       manualBackupModalShow: true,
       curentChain: chain,
@@ -608,6 +609,12 @@ class Backup extends React.Component {
       cursor: 'not-allowed',
       color: '#cccccc',
     }
+    const newPointClass = () => {
+      if (this.props.rollbackComplete) {
+        return 'new-point disabled-point'
+      }
+      return 'new-point'
+    }
     return database === 'mysql' ?
       <Collapse onChange={this.expendPanel} defaultActiveKey={activeIndex()}>
         {
@@ -617,9 +624,13 @@ class Backup extends React.Component {
                 databaseInfo.status !== 'Running' || !v.masterBackup ?
                   ''
                   :
-                  <div className="new-point" onClick={() => this.menualBackup(chainsData[i], i)} >
-                    <div className="line"></div>
-                  </div>
+                  <Tooltip title={this.props.rollbackComplete ? '回滚中不支持备份' : ''}>
+                    <div className={newPointClass()}
+                      onClick={ () => this.menualBackup(chainsData[i], i) } >
+                      <div className="line"></div>
+                    </div>
+
+                  </Tooltip>
               }
               {
                 v.chains ?
@@ -769,7 +780,13 @@ class Backup extends React.Component {
     return returnData
   }
   render() {
-    const { chainsData, database, databaseInfo } = this.props
+    const { chainsData, database, databaseInfo, rollbackComplete } = this.props
+    let disabledText = ''
+    if (databaseInfo.status !== 'Running') {
+      disabledText = '运行中的集群支持备份'
+    } else {
+      disabledText = '回滚中不支持备份'
+    }
     return <div className="dbClusterBackup" onClick={() => { this.props.resetRecordItem() }}>
       <div className="title">备份</div>
       <div className="content">
@@ -804,10 +821,10 @@ class Backup extends React.Component {
               </Button>
           }
           {
-            databaseInfo.status !== 'Running' ?
+            databaseInfo.status !== 'Running' || rollbackComplete ?
               <div className="btn-wrapper">
                 <div className="fake">
-                  <Tooltip title="运行中的集群支持备份">
+                  <Tooltip title={disabledText}>
                     <div className="mask" ></div>
                   </Tooltip>
                 </div>

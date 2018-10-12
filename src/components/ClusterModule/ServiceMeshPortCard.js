@@ -249,7 +249,6 @@ class DeleteMeshForm extends React.Component {
       description={
         <span >
           <p>{this.props.formatMessage(intlMsg.DeleteMeshFormInfoOne)}</p>
-          <p>{this.props.formatMessage(intlMsg.DeleteMeshFormInfoTwo)}</p>
         </span>
       }
       type="warning" showIcon

@@ -199,7 +199,7 @@ const messageObj = {
     monitorNameExist: '监听器名称已经存在',
     verRuleExist: '校验规则已经存在',
     ingressName: '监听器名称',
-    ingressNameRegMessage: '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾',
+    ingressNameRegMessage: '可由数字、中划线组成，以字母或者数字开头，字母或者数字结尾',
     appNameCheckStartMessage: '请以字母开头',
     appNameCheckComposeMessage: '由字母、数字、中划线-、下划线_组成',
     appNameMinLength: '至少为3个字符',

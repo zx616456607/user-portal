@@ -630,12 +630,15 @@ let NetworkConfiguration = React.createClass ({
     const { form } = this.props
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     let newnetworkConfigArray = cloneDeep(networkConfigArray)
+    // [LOT-3802] 服务网络出口，删除操作时，提示有问题
+    this.setState({
+      currentGroup: record.isDefault,
+    })
     if(record && record.isDefault){
       return this.setState({
         deleteDefaultGroup: true,
         currentItem: item,
         currentName: record.name,
-        currentGroup: record.isDefault
       })
     }
     if(!record || record == 'confirm'){
@@ -881,7 +884,7 @@ let NetworkConfiguration = React.createClass ({
       let isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
         initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
       })
-      return  <div className="clusterTable" key={`rows-${index}`}>
+      return  <div className={`clusterTable ${isAdd ? 'no-border-top' : ''}`} key={`rows-${index}`}>
         {
           data[item.key] && data[item.key].isDefault
             ? <div className='dafaultGroup'><NoteIcon title={`默认`}/></div>
@@ -1174,7 +1177,9 @@ let NetworkConfiguration = React.createClass ({
           visible={this.state.addContentVisible}
           onCancel={this.cancleEdit}
         >
-          {this._networkConfigArray(networkConfigArray, data, 'isAdd')}
+          < div className="network-config-add-modal">
+            {this._networkConfigArray(networkConfigArray, data, 'isAdd')}
+          </div>
         </Modal>
          <Modal
            title={formatMessage(intlMsg.setDefaultNetOut)}

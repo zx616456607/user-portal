@@ -46,7 +46,7 @@ class AlarmRecord extends Component {
       dateEndFilter: '',
       from: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
-      deleteModal: false
+      deleteModal: false,
     }
   }
 
@@ -105,23 +105,18 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters,
-      strategy
+      recordFilters
     } = this.props
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if(strategy) {
-      for (let v of strategy) {
-        strategies.push(<Option value={v.strategyName} key={v.strategyID}>{v.strategyName}</Option>)
+    if (recordFilters.strategies) {
+      for (let strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy}>{strategy}</Option>)
       }
-
-
-      for (let v of strategy) {
-        targets.push(<Option value={v.strategyID} key={v.strategyID}>{v.targetName}</Option>)
+      for (let target of recordFilters.targets) {
+        targets.push(<Option value={target}>{target}</Option>)
       }
-
     }
-
     return {
       strategies,
       targets,
@@ -304,7 +299,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'ruleName',
         render: (text, record) => {
-          return <span className="targetName">{text}</span>
+          return <span>{text}</span>
         }
       },
       {
@@ -323,7 +318,7 @@ class AlarmRecord extends Component {
         title: '告警规则',
         dataIndex: 'regx',
         render: (val, record) => {
-          return <div>{record.regex ? `${record.regex} 已出现 ${record.ruleNum} 次` : '已删除'}</div>
+          return <div>{record.regex ? `${record.regex} 出现 ${record.ruleNum} 次` : '已删除'}</div>
         }
       },
       {
@@ -332,7 +327,7 @@ class AlarmRecord extends Component {
       },
       {
         title: '当前次数',
-        dataIndex: 'numHits',
+        dataIndex: 'numMatches',
       },
       {
         title: '是否发送邮件/短信',
@@ -376,8 +371,7 @@ class AlarmRecord extends Component {
               {getTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
-              this.setState({ ruleName: value? this.props.strategy.filter(v=>v.strategyID === value)[0].strategyName : ''})}
-
+              this.setState({ ruleName: value})}
             }>
               {filters.targets}
             </Select>

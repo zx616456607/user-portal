@@ -335,7 +335,9 @@ let CreateAlarmGroup = React.createClass({
                 'transitionEnble0': false,
               })
               notification.close()
-              if (err.message.code === 409) {
+              if (err.message.code === 404) {
+                notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else if (err.message.code === 409) {
                 notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
                 notification.error(formatMessage(intlMsg.createGroupFail), err.message.message)
@@ -368,7 +370,11 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
+              if (err.message.code === 404) {
+                return notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else {
+                notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
+              }
             }
           }
         })

@@ -417,7 +417,7 @@ export function ingressNameCheck(value) {
 
 export function ingressRelayRuleCheck(value) {
   if (!value) {
-    return 'success'
+    return '服务位置不能为空'
   }
   if (value.includes('://')) {
     return '服务位置不能有协议'
