@@ -1368,6 +1368,7 @@
   "AlarmModal.plsInput321": "请输入3~21个字符",
   "AlarmModal.atLeastOneEmail": "请至少添加一个邮箱或手机号",
   "AlarmModal.createGroupFail": "创建通知组失败",
+  "AlarmModal.withoutConfig": "请先完成『邮箱/短息服务器』的配置",
   "AlarmModal.nameExist": "通知组名字已存在，请修改后重试",
   "AlarmModal.editGroupFail": "修改通知组失败",
   "AlarmModal.validatorEmail": "验证邮件",

@@ -1112,6 +1112,7 @@
   "AlarmModal.plsInput321": "Please enter 3~21 characters.",
   "AlarmModal.atLeastOneEmail": "Please add at least one mailbox or mobile phone number",
   "AlarmModal.createGroupFail": "Create Group Fail",
+  "AlarmModal.withoutConfig": "Complete the configuration of \"Mail/Message Server\" first",
   "AlarmModal.nameExist": "Notification group name already exists，Please modify and try again",
   "AlarmModal.editGroupFail": "Modify notification group failed",
   "AlarmModal.validatorEmail": "Verification email",
