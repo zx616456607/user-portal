@@ -349,3 +349,12 @@ export function getServiceMeshClusterNode(clusterId, callback) {
     return dispatch(checkServiceMeshClusterNode(clusterId, callback))
   }
 }
+
+// 当创建应用的时候, 如果开启了服务网格, 创建应用处的访问方式应该不显示当前组件, 而是显示一段话
+export const CREATE_APP_MESH_VISITOR_PORT_DISABLE = "CREATE_APP_MESH_VISITOR_PORT_DISABLE"
+export function toggleCreateAppMeshFlag(flag) {
+  return {
+    type: CREATE_APP_MESH_VISITOR_PORT_DISABLE,
+    flag
+  }
+}

@@ -10,7 +10,7 @@
 import React from 'react'
 import '@tenx-ui/page/assets/index.css'
 import TenxPage from '@tenx-ui/page'
-import { Card, Button, Switch, Modal, Alert, Radio, notification } from 'antd'
+import { Card, Button, Switch, Modal, Alert, Radio, notification, Icon } from 'antd'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { getDeepValue } from '../../../../client/util/util'
@@ -70,16 +70,17 @@ class ServiceMeshSwitch extends React.Component {
     if (podsIstioDisableAll) {
       this.setState({switchValue: 3})
     }
-    if (!podsIstioEnableAll && !podsIstioDisableAll && podsIstio[0].serviceIstioEnabled === true) {
+    const { serviceIstioEnabled } = podsIstio[0] || {}
+    if (!podsIstioEnableAll && !podsIstioDisableAll && serviceIstioEnabled === true) {
       this.setState({ switchValue: 2 })
     }
-    if (!podsIstioEnableAll && !podsIstioDisableAll && podsIstio[0].serviceIstioEnabled === false) {
+    if (!podsIstioEnableAll && !podsIstioDisableAll && serviceIstioEnabled === false) {
       this.setState({ switchValue: 4 })
     }
-    if (podsIstio[0].serviceIstioEnabled === true) {
+    if (serviceIstioEnabled === true) {
       this.setState({ userrole: 5 })
     }
-    if (podsIstio[0].serviceIstioEnabled === false) {
+    if (serviceIstioEnabled === false) {
       this.setState({ userrole: 6 })
     }
   }
@@ -100,6 +101,9 @@ class ServiceMeshSwitch extends React.Component {
     }
     return null;
   }
+  componentWillUnmount() {
+    clearInterval(this.timer)
+  }
   render() {
     let { initialSwitchValue, rebootShining, namespace, userName, serviceName, activeKey } = this.props;
     const { switchValue, userrole } = this.state;
@@ -112,7 +116,7 @@ class ServiceMeshSwitch extends React.Component {
       rebootShining(false)
     }
     if (activeKey === "#serviceMeshSwitch" &&  !this.timer ) {
-      this.timer = setInterval(this.reload, 4000)
+      this.timer = setInterval(this.reload, 15000)
     }
     if (activeKey !== "#serviceMeshSwitch") {
       clearInterval(this.timer)
@@ -144,14 +148,30 @@ class ServiceMeshSwitch extends React.Component {
                 userrole === 5 &&
                 <span>
                   <IstioFlag status={switchValue} formatMessage={formatMessage} />
-                  <span className="tipinfo">{formatMessage(AppServiceDetailIntl.alreadyOpenServiceMesh)}</span>
+                  {
+                    switchValue === 3 &&
+                    <span className="tipinfo">
+                    <Icon type="info-circle-o" />
+                    <span style={{ paddingLeft: 4 }}>
+                    {formatMessage(AppServiceDetailIntl.alreadyOpenServiceMesh)}
+                    </span>
+                    </span>
+                  }
                 </span>
               }
               {
                 userrole === 6 &&
                 <span>
                   <IstioFlag status={switchValue} formatMessage={formatMessage} />
-                  <span className="tipinfo">{formatMessage(AppServiceDetailIntl.alreadyCloseServiceMesh)}</span>
+                  {
+                    switchValue === 1 &&
+                    <span className="tipinfo">
+                    <Icon type="info-circle-o" />
+                    <span style={{ paddingLeft: 4 }}>
+                    {formatMessage(AppServiceDetailIntl.alreadyCloseServiceMesh)}
+                    </span>
+                    </span>
+                  }
                 </span>
               }
               </div>
@@ -211,6 +231,17 @@ class ServiceMeshForm extends React.Component {
       buttonLoading: false,
     }
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.initialIstioValue !== this.props.initialIstioValue
+    || nextProps.initialIstioValue !== this.state.istioValue) {
+      if (nextProps.initialIstioValue === 3) {
+        return this.setState({ istioValue: false })
+      }
+      if (nextProps.initialIstioValue === 1) {
+        return this.setState({ istioValue: true })
+      }
+    }
+  }
   RadioChange = e => {
     this.setState({
       istioValue: e.target.value,
@@ -237,7 +268,6 @@ class ServiceMeshForm extends React.Component {
     }
   }
   render() {
-    const { initialIstioValue } = this.props
     return (
       <Modal
       visible={this.props.visible}
@@ -258,7 +288,8 @@ class ServiceMeshForm extends React.Component {
         showIcon
       />
       </div>
-          <RadioGroup onChange={this.RadioChange} value={this.state.istioValue}>
+          <RadioGroup onChange={this.RadioChange} value={this.state.istioValue}
+          >
             <Radio key="a" value={true}>
               {this.props.formatMessage(AppServiceDetailIntl.openServiceMesh)}
             </Radio>
@@ -267,8 +298,11 @@ class ServiceMeshForm extends React.Component {
             </Radio>
           </RadioGroup>
           <div style={{ color: '#ccc', marginTop: 12 }}>
-          {this.props.formatMessage(AppServiceDetailIntl.afterOpenServiceMeshInfo)}
-      </div>
+          { this.state.istioValue &&
+          <span>{this.props.formatMessage(AppServiceDetailIntl.afterOpenServiceMeshInfo)}</span>}
+          { !this.state.istioValue &&
+          <span>{'关闭后，服务将不能使用服务网格功能，服务的访问方式默认设为「仅在集群内访问」'}</span> }
+          </div>
     </Modal>
     )
   }

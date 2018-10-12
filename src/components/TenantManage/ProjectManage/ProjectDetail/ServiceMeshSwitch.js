@@ -18,6 +18,7 @@ const mapStatetoProps = (state) => {
 })
 export default class ServiceMeshSwitch extends React.Component {
   state = {
+    currentSwitchchecked: false,
     Switchchecked: false,
     serviceMesh: false,
     userType: undefined,
@@ -42,26 +43,26 @@ export default class ServiceMeshSwitch extends React.Component {
     const result1 = await checkProInClusMesh(newNameSpace, clusterId);
     const { istioEnabled = false } = result1.response.result
     if (istioEnabled === true) {
-      this.setState({ Switchchecked: true, userType: 1 })
+      this.setState({ Switchchecked: true, currentSwitchchecked: true, userType: 1 })
       return
     }
-    this.setState({ Switchchecked: false, userType: 1 })
+    this.setState({ Switchchecked: false, currentSwitchchecked: false, userType: 1 })
   }
   SwitchOnChange = checked => {
     this.setState({ Switchchecked: checked})
     this.setState({ serviceMesh: true })
   }
   render() {
-    const { Switchchecked, serviceMesh, userType = 1 } = this.state
+    const { Switchchecked, serviceMesh, userType = 1, currentSwitchchecked } = this.state
     const { clusterId, projectDetail: { namespace } = {}, displayName, projectDetail } = this.props
     return (
       <div>
         {
           userType === 1 &&
-            <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
+            <div><Switch checkedChildren="开" unCheckedChildren="关" checked={currentSwitchchecked}
               onChange={this.SwitchOnChange}/>
               {
-                !Switchchecked &&
+                !currentSwitchchecked &&
               <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
                 <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
                   <Icon type="question-circle-o" />

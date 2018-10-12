@@ -71,5 +71,38 @@
 .DeleteMeshForm {
   .info {
     color: @primary-color;
+    margin-top: @padding-small;
+  }
+}
+
+.TenxAlertBar{
+  border:1px dashed #ffd99e;
+  border-radius: 4px;
+  background: #fffbf5;
+  line-height: 22px;
+  padding:16px 20px 16px 40px;
+  position: relative;
+  .warningIcon{
+    position: absolute;
+    font-size: 26px;
+    color:#ffc000;
+    left:7px;
+    top:14px;
+  }
+}
+.TenxNoBar{
+  border:1px dashed #ffd99e;
+  border-radius: 4px;
+  background: #fffbf5;
+  line-height: 18px;
+  padding:16px 10px 16px 20px;
+  .icon {
+    font-size: 28px;
+    color: @warning-color;
+    padding-right: 8px;
+  }
+  > span {
+    font-size: 14px;
+    line-height: 26px;
   }
 }

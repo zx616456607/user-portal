@@ -516,14 +516,14 @@ class AppServiceDetail extends Component {
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.visitStyle)} key='#visitType'>
-                <VisitType
+                { activeTabKey==='#visitType' && <VisitType
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   service={serviceDetail}
                   activeKey={activeTabKey}
                   isCurrentTab={activeTabKey==='#visitType'}
-                />
+                />}
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.port)} key='#ports'>
                 <PortDetail
@@ -650,7 +650,7 @@ function mapStateToProps(state, props) {
   const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
   const { projectName } = state.entities.current.space
-  const { shiningFlag = false } = state.rebootShining
+  const {rebootShining: { shiningFlag = false } = {}} = state.serviceMesh
   const defaultService = {
     isFetching: false,
     cluster,
