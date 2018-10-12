@@ -399,6 +399,11 @@ class QuickCreateApp extends Component {
         key: firstID,
       };
       Object.assign(query, {...location.query})
+      if (currentFields[OTHER_IMAGE]) {
+        Object.assign(query, {
+          other: currentFields[OTHER_IMAGE].value,
+        })
+      }
       if (location.query.appName) {
         this.configureMode = 'create';
         this.configureServiceKey = firstID;
