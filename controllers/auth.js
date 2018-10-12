@@ -167,3 +167,14 @@ exports.checkCaptchaIsCorrect = function* () {
     correct: true,
   }
 }
+
+exports.getEmailApproval = function* () {
+  let method = 'emailApproval'
+  let title = this.t('邮件审批')
+  const oemInfo = global.globalConfig.oemInfo || {}
+  const productName = oemInfo.company && oemInfo.company.productName
+  if (productName) {
+    title = title + ' | ' + productName
+  }
+  yield this.render(global.indexHtml, { title, body: '' })
+}

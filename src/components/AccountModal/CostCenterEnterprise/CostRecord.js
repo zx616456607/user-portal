@@ -316,7 +316,7 @@ class CostRecord extends Component{
     let spaceTableTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}消费明细</span>
-        <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)} onChange={onConsumptionDetailDateChange} />
+        <DatePicker disabledDate={this.disabledDate} style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)} onChange={onConsumptionDetailDateChange} />
         <div className='dataPicker'>
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
