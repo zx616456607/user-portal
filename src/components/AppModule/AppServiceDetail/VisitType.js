@@ -481,7 +481,7 @@ class VisitType extends Component{
       if (isLb && item.isLb) {
         return this.domainComponent(index, item)
       }
-      if (item.isInternal === isInterPort) {
+      if (item.isInternal === isInterPort && !isLb) {
         return this.domainComponent(index, item)
       }
     })
