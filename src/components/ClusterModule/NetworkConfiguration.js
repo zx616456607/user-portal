@@ -630,12 +630,15 @@ let NetworkConfiguration = React.createClass ({
     const { form } = this.props
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     let newnetworkConfigArray = cloneDeep(networkConfigArray)
+    // [LOT-3802] 服务网络出口，删除操作时，提示有问题
+    this.setState({
+      currentGroup: record.isDefault,
+    })
     if(record && record.isDefault){
       return this.setState({
         deleteDefaultGroup: true,
         currentItem: item,
         currentName: record.name,
-        currentGroup: record.isDefault
       })
     }
     if(!record || record == 'confirm'){
