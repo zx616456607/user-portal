@@ -874,5 +874,5 @@ export function getHostLastHeartbeatTime(hostInfo) {
       return true
     })
   }
-  return condition.lastHeartbeatTime
+  return formatDate(condition.lastHeartbeatTime)
 }
