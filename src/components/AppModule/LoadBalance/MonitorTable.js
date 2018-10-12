@@ -225,13 +225,13 @@ class MonitorTable extends React.Component {
           <TabPane tab="TCP" key="TCP">
             <TcpUdpTable
               type="TCP"
-              {...{ togglePart, clusterID, name }}
+              {...{ togglePart, clusterID, name, location }}
             />
           </TabPane>
           <TabPane tab="UDP" key="UDP">
             <TcpUdpTable
               type="UDP"
-              {...{ togglePart, clusterID, name }}
+              {...{ togglePart, clusterID, name, location }}
             />
           </TabPane>
           <TabPane tab="白名单" key="WHITELIST">

@@ -56,7 +56,7 @@ class TcpUdpDetail extends React.PureComponent{
       currentIngress, updateTcpUdpIngress, clusterID,
       createTcpUdpIngress, location, form, type
     } = this.props
-    const { name } = location.query
+    const { name, displayName } = location.query
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         return
@@ -75,7 +75,7 @@ class TcpUdpDetail extends React.PureComponent{
 
       if (!currentIngress) {
         notify.spin('创建中...')
-        const result = await createTcpUdpIngress(clusterID, name, body)
+        const result = await createTcpUdpIngress(clusterID, name, lowerType, displayName, body)
         if (result.error) {
           notify.close()
           notify.warn('创建失败')
@@ -93,7 +93,7 @@ class TcpUdpDetail extends React.PureComponent{
         return
       }
       notify.spin('修改中...')
-      const res = await updateTcpUdpIngress(clusterID, name, body)
+      const res = await updateTcpUdpIngress(clusterID, name, lowerType, displayName, body)
       if (res.error) {
         notify.close()
         notify.warn('修改失败')
