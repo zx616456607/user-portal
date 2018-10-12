@@ -477,7 +477,7 @@ function TenxAlertBar({text = '-'}) {
 
 function TenxNoBar({text = '-'}) {
   return (
-    <div className='TenxAlertBar'>
+    <div className='TenxNoBar'>
     <TenxIcon type="warning" className="icon"/>
     {/* <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"
     style={{ top: '24px' }}></i> */}
