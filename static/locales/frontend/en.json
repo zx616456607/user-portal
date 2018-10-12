@@ -2946,7 +2946,7 @@
   "ServiceConfig.monitorNameExist": "The listener name already exists",
   "ServiceConfig.verRuleExist": "The verification rule already exists",
   "ServiceConfig.ingressName": "Listener name",
-  "ServiceConfig.ingressNameRegMessage": "Can consist of numbers, underscores, underscores, beginning with letters or numbers, ending with letters or numbers",
+  "ServiceConfig.ingressNameRegMessage": "Can consist of numbers, underlined, beginning with letters or numbers, ending with letters or numbers",
   "ServiceConfig.appNameCheckStartMessage": "Please start with a letter",
   "ServiceConfig.appNameCheckComposeMessage": "Composed of letters, numbers, underscores, and underscores",
   "ServiceConfig.appNameMinLength": "At least 3 characters",
