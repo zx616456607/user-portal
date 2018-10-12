@@ -414,6 +414,7 @@ let ConfigureService = React.createClass({
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
       systemRegistry,
+      imagePorts: containerPorts,
     }
     Object.assign(fieldsValues, storageFields, portsFields,
       commandFields,

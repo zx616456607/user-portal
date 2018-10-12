@@ -12,7 +12,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Modal, Form, InputNumber } from 'antd'
+import { Modal, Form, InputNumber, Select } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import { sleep } from "../../../../../common/tools";
 import { injectIntl } from 'react-intl'
@@ -21,6 +21,7 @@ import * as lbActions from '../../../../../actions/load_balance'
 import { getDeepValue } from "../../../../../../client/util/util";
 
 const FormItem = Form.Item
+const Option = Select.Option
 
 const mapStateToProps = (state, props) => {
   const { type } = props
@@ -112,6 +113,38 @@ class TcpUdpModal extends React.PureComponent{
     callback()
   }
 
+  servicePortCheck = (rules, value, callback) => {
+    const { intl } = this.props
+    if (isEmpty(value)) {
+      return callback(intl.formatMessage(IntlMessage.pleaseEnter, {
+        item: intl.formatMessage(IntlMessage.containerPort),
+        end: '',
+      }))
+    }
+    if (value.length > 1) {
+      return callback(intl.formatMessage(IntlMessage.containerPortSingleSlt))
+    }
+    callback()
+  }
+
+  renderPorts = () => {
+    const { form, type } = this.props
+    const { getFieldValue } = form
+    const lowerType = type.toLowerCase()
+    const imagePorts = getFieldValue('imagePorts')
+    if (isEmpty(imagePorts)) {
+      return
+    }
+    const protocolPorts = imagePorts.filter(_item => _item.split('/')[1] === lowerType)
+    if (isEmpty(protocolPorts)) {
+      return
+    }
+    return protocolPorts.map(_item => {
+      const port = _item.split('/')[0]
+      return <Option key={port}>{port}</Option>
+    })
+  }
+
   render() {
     const { form ,type, visible, currentIngress, closeModal, intl } = this.props
     const { getFieldProps } = form
@@ -132,8 +165,10 @@ class TcpUdpModal extends React.PureComponent{
       rules: [{
         required: true,
         message: intl.formatMessage(IntlMessage.containerPortIsRequired),
+      }, {
+        validator: this.servicePortCheck,
       }],
-      initialValue: currentIngress ? currentIngress.servicePort : '',
+      initialValue: currentIngress ? [currentIngress.servicePort] : [],
     })
     return (
       <Modal
@@ -148,15 +183,17 @@ class TcpUdpModal extends React.PureComponent{
           label={intl.formatMessage(IntlMessage.containerPort)}
           {...formItemLayout}
         >
-          <InputNumber
+          <Select
             style={{ width: '100%' }}
+            tags
+            {...containerPortProps}
             placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
               item: intl.formatMessage(IntlMessage.containerPort),
-              end: ' 1 ~ 65535',
+              end: '',
             })}
-            min={1} max={65535}
-            {...containerPortProps}
-          />
+          >
+            {this.renderPorts()}
+          </Select>
         </FormItem>
         <FormItem
           label={intl.formatMessage(IntlMessage.listeningPort)}
