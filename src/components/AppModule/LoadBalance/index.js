@@ -286,7 +286,7 @@ class LoadBalance extends React.Component {
           <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>
           {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
-            placeholder="请输入关键词搜索"
+            placeholder="请输入备注名搜索"
             size="large"
             value={name}
             onSearch={this.handleSearch}
