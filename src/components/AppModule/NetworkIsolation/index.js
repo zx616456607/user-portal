@@ -191,7 +191,7 @@ class NetworkIsolation extends Component {
                   ? '不允许'
                   : '可'
               }
-              被同一集群其他用户或项目的服务访问
+              被同一集群其他项目的服务访问
             </div>
           </div>
           <div className="footer">
@@ -227,11 +227,11 @@ class NetworkIsolation extends Component {
               {
                 allow
                   ? <div>
-                    关闭后，您的服务将允许被同一集群其他用户或项目访问。<br/>
+                    关闭后，您的服务将允许被同一集群其他项目访问。<br/>
                     确认关闭网络 inbound 隔离？
                   </div>
                   : <div>
-                    开启后，将无法被同一集群其他用户或项目的服务访问。<br/>
+                    开启后，将无法被同一集群其他项目的服务访问。<br/>
                     确认开启网络 inbound 隔离？
                   </div>
               }
