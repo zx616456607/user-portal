@@ -276,7 +276,7 @@ const ConfigMapSetting = React.createClass({
         }
       ],
     })
-    const isInput = templateDeploy && (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
+    const isInput = templateDeploy && ((!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted)
     return (
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>

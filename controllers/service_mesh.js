@@ -80,3 +80,61 @@ exports.getServiceListServiceMeshStatus = function *() {
   this.status = response.statusCode
   this.body = response
 }
+
+// 列取服务网格出口
+exports.getServiceMeshPortList = function *() {
+  const clusterId = this.params.clusterId
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'ingressgateway'])
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getServiceMeshPort = function *() {
+  const clusterId = this.params.clusterId
+  const hashedName = this.params.hashedName
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'ingressgateway', hashedName])
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.createServiceMeshPort = function *() {
+  const clusterId = this.params.clusterId
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.createBy(['clusters', clusterId, 'ingressgateway'], null, this.request.body )
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateServiceMeshPort = function *() {
+  const clusterId = this.params.clusterId
+  const hashedName = this.params.hashedName
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.updateBy(['clusters', clusterId, 'ingressgateway', hashedName], null,  this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.deleteServiceMeshPort = function *() {
+  const clusterId = this.params.clusterId
+  const hashedName = this.params.hashedName
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.deleteBy(['clusters', clusterId, 'ingressgateway', hashedName])
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getServiceMeshClusterNode = function *() {
+  const clusterId = this.params.clusterId
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const response = yield projectApi.servicemesh.getBy(['clusters', clusterId, 'nodes'])
+  this.status = response.statusCode
+  this.body = response
+}

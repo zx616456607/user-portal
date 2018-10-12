@@ -19,6 +19,7 @@ const alertController = require('../controllers/alert')
 const oemController = require('../controllers/oem_info')
 const globalConfigController = require('../controllers/global_config')
 const userController = require('../controllers/user_manage')
+const emailApprovalController = require('../controllers/emailApproval')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -35,6 +36,11 @@ module.exports = function (Router) {
   router.get('/notfound', function* () {
     yield this.render(global.indexHtml, { title: 'Page not found', body: '' })
   })
+
+  // email-approval
+  router.get('/email/email_Approval', authController.getEmailApproval)
+  router.get('/api/v2/devops/emailapproval/:stageId/:stageBuildId/status', emailApprovalController.getEmailApprovalStatus)
+  router.post('/api/v2/devops/emailapproval/:stageId/:stageBuildId/:type', emailApprovalController.updateEmailApprovalStatus)
 
   // oem info
   router.get('/oem/info', oemController.getOEMInfo)

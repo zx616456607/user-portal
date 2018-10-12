@@ -207,3 +207,23 @@ const fetchHelmIsPrePare = (cluster, callback) => {
 
 export const checkHelmIsPrepare = (cluster, callback) =>
   dispatch => dispatch(fetchHelmIsPrePare(cluster, callback));
+
+export const CHART_REPO_IS_PREPARE_REQUEST = 'CHART_REPO_IS_PREPARE_REQUEST'
+export const CHART_REPO_IS_PREPARE_SUCCESS = 'CHART_REPO_IS_PREPARE_SUCCESS'
+export const CHART_REPO_IS_PREPARE_FAILURE = 'CHART_REPO_IS_PREPARE_FAILURE'
+
+const fetchChartRepoIsPrepare = callback => ({
+  [FETCH_API]: {
+    types: [
+      CHART_REPO_IS_PREPARE_REQUEST,
+      CHART_REPO_IS_PREPARE_SUCCESS,
+      CHART_REPO_IS_PREPARE_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/templates/helm/prepare/chart_repo`,
+  },
+  callback,
+});
+
+export const checkChartRepoIsPrepare = callback =>
+  dispatch => dispatch(fetchChartRepoIsPrepare(callback))

@@ -444,3 +444,23 @@ const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
 
 export const updateLBWhiteList = (cluster, lbname, body) =>
   dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body))
+
+export const CHECK_LB_PERMISSION_REQUEST = 'CHECK_LB_PERMISSION_REQUEST'
+export const CHECK_LB_PERMISSION_SUCCESS = 'CHECK_LB_PERMISSION_SUCCESS'
+export const CHECK_LB_PERMISSION_FAILURE = 'CHECK_LB_PERMISSION_FAILURE'
+
+const fetchCheckLbPermission = callback => ({
+  [FETCH_API]: {
+    types: [
+      CHECK_LB_PERMISSION_REQUEST,
+      CHECK_LB_PERMISSION_SUCCESS,
+      CHECK_LB_PERMISSION_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/loadbalances/checkpermission`,
+  },
+  callback,
+})
+
+export const checkLbPermission = callback =>
+  dispatch => dispatch(fetchCheckLbPermission(callback))

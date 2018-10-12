@@ -96,7 +96,7 @@ class ServiceMeshSwitch extends React.Component {
       return <span className="infoText">{formatMessage(AppServiceDetailIntl.currentPlatformNoInstallIstio)}</span>
     }
     if (userrole === 3) {
-      return <span className="infoText">{`当前项目所在集群未允许服务启用服务网格，请联系项目管理员开通`}</span>
+      return <span className="infoText">{formatMessage(AppServiceDetailIntl.currentProjectNotAllowServiceMesh)}</span>
     }
     return null;
   }
@@ -122,13 +122,14 @@ class ServiceMeshSwitch extends React.Component {
       <div className="ServiceMeshSwitch">
       <Card>
         <TenxPage>
-          <div className="titleSpan">{formatMessage(AppServiceDetailIntl.serviceMesh)}</div>
+          <div className="titleSpan">
+          {formatMessage(AppServiceDetailIntl.serviceMesh)}</div>
           {this.renderMesh()}
           { (userrole === 6 || userrole === 5) &&
           <div>
             <div className="operationWrap">
               <Button type="primary" onClick={this.buttonClick} >
-                修改状态
+                {formatMessage(AppServiceDetailIntl.changeStatus)}
               </Button>
               <div style={{ display: 'flex' }}>
               <div style={{ width: '80px'}}>
@@ -137,20 +138,20 @@ class ServiceMeshSwitch extends React.Component {
                 unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
                 key="switch" checked={switchValue}
                 onChange={this.onChange}/> */}
-              服务网格状态:
+              {formatMessage(AppServiceDetailIntl.serviceMeshStatue)}
               </div>
               {
                 userrole === 5 &&
                 <span>
-                  <IstioFlag status={switchValue}/>
-                  <span className="tipinfo">已开启服务网格，重启服务后生效</span>
+                  <IstioFlag status={switchValue} formatMessage={formatMessage} />
+                  <span className="tipinfo">{formatMessage(AppServiceDetailIntl.alreadyOpenServiceMesh)}</span>
                 </span>
               }
               {
                 userrole === 6 &&
                 <span>
-                  <IstioFlag status={switchValue}/>
-                  <span className="tipinfo">已关闭服务网格，重启服务后生效</span>
+                  <IstioFlag status={switchValue} formatMessage={formatMessage} />
+                  <span className="tipinfo">{formatMessage(AppServiceDetailIntl.alreadyCloseServiceMesh)}</span>
                 </span>
               }
               </div>
@@ -166,6 +167,7 @@ class ServiceMeshSwitch extends React.Component {
         serviceName={serviceName}
         onOk={() => {}}
         reload={this.reload}
+        formatMessage={this.props.intl.formatMessage}
         />
       </Card>
       </div>
@@ -181,20 +183,20 @@ export default injectIntl(connect(mapStatetoProps, {
   rebootShining: projectActions.rebootShining,
 })(ServiceMeshSwitch), { withRef: true, })
 
-function IstioFlag({ status }) {
+function IstioFlag({ status, formatMessage }) {
   return (
     <span>
       {
-        status === 1 && <span className="openIstioTip">开启</span>
+        status === 1 && <span className="openIstioTip">{formatMessage(AppServiceDetailIntl.open)}</span>
       }
       {
-        status ===3 && <span className="closeIstioTip">关闭</span>
+        status ===3 && <span className="closeIstioTip">{formatMessage(AppServiceDetailIntl.close)}</span>
       }
       {
-        status === 2 && <span className="openIstioTip">正在开启...</span>
+        status === 2 && <span className="openIstioTip">{formatMessage(AppServiceDetailIntl.opening)}</span>
       }
       {
-        status === 4 && <span className="closeIstioTip">正在关闭...</span>
+        status === 4 && <span className="closeIstioTip">{formatMessage(AppServiceDetailIntl.closeing)}</span>
       }
     </span>
   )
@@ -219,7 +221,7 @@ class ServiceMeshForm extends React.Component {
     const { istioValue } = this.state
     if (istioValue === undefined) {
       return notification.warn({
-        message: '请选择开启/关闭服务',
+        message: this.props.formatMessage(AppServiceDetailIntl.pleaseChoiceOpenOrCloseService),
       })
     }
     this.setState({ buttonLoading: true })
@@ -230,7 +232,7 @@ class ServiceMeshForm extends React.Component {
       reload();
     }catch(e) {
       notification.error({
-        message: '开启/关闭服务网格出错!',
+        message: this.props.formatMessage(AppServiceDetailIntl.openOrCloseServiceMeshWrong),
       })
     }
   }
@@ -239,7 +241,7 @@ class ServiceMeshForm extends React.Component {
     return (
       <Modal
       visible={this.props.visible}
-      title={`服务网格状态`}
+      title={this.props.formatMessage(AppServiceDetailIntl.serviceMeshStatus)}
       onCancel={this.props.cancelModal}
       onOk={this.onOk}
       confirmLoading={this.state.buttonLoading}
@@ -248,7 +250,7 @@ class ServiceMeshForm extends React.Component {
       <Alert
         description={
         <div>
-          <p>开启 / 关闭服务网格后, 需要重启服务才能生效。
+          <p>{this.props.formatMessage(AppServiceDetailIntl.openCloseServiceMeshNeedReboot)}
           </p>
         </div>
         }
@@ -257,12 +259,15 @@ class ServiceMeshForm extends React.Component {
       />
       </div>
           <RadioGroup onChange={this.RadioChange} value={this.state.istioValue}>
-            <Radio key="a" value={true}>开启服务网格</Radio>
-            <Radio key="b" value={false}>关闭服务网格</Radio>
+            <Radio key="a" value={true}>
+              {this.props.formatMessage(AppServiceDetailIntl.openServiceMesh)}
+            </Radio>
+            <Radio key="b" value={false}>
+              {this.props.formatMessage(AppServiceDetailIntl.closeServiceMesh)}
+            </Radio>
           </RadioGroup>
           <div style={{ color: '#ccc', marginTop: 12 }}>
-          开启后，此服务将由服务网格代理，使用微服务中心提供的治理功能。
-          服务的访问方式可在路由规则中设置
+          {this.props.formatMessage(AppServiceDetailIntl.afterOpenServiceMeshInfo)}
       </div>
     </Modal>
     )

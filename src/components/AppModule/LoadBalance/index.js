@@ -290,6 +290,7 @@ class LoadBalance extends React.Component {
             size="large"
             value={name}
             onSearch={this.handleSearch}
+            style={{ marginLeft: 0 }}
           />
           {
             total ?

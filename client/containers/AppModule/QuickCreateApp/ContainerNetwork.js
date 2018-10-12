@@ -127,7 +127,7 @@ export default class ContainerNetwork extends React.PureComponent {
       return
     }
     return keys.map(key =>
-      <Row className="aliases-list" type="flex" align="middle" key={`aliases-${key}`}>
+      <Row className="aliases-list" type="flex" align="top" key={`aliases-${key}`}>
         <Col span={6}>
           <FormItem>
             <Input

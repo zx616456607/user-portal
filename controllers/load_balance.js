@@ -236,9 +236,9 @@ exports.updateWhiteList = function* () {
   this.body = result
 }
 
-exports.helmIsReady = function* () {
-  const cluster = this.params.cluster
+exports.isCreateLbPermission = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-
+  const result = yield api.getBy(['undefined', 'loadbalances', 'checkpermission'])
+  this.body = result
 }

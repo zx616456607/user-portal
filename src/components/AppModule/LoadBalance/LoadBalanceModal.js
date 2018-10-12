@@ -17,8 +17,7 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
-import { getLBIPList, createLB, editLB } from '../../../actions/load_balance'
-import * as globalActions from '../../../../src/actions/global_config'
+import { getLBIPList, createLB, editLB, checkLbPermission } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
 import Notification from '../../Notification'
@@ -44,7 +43,7 @@ const Option = Select.Option
 const RadioGroup = Radio.Group;
 const notify = new Notification()
 
-const CONFIG_TYPE = 'chart_repo'
+const CONFIG_TYPE = 'loadbalance'
 
 class LoadBalanceModal extends React.Component {
   state = {
@@ -53,9 +52,11 @@ class LoadBalanceModal extends React.Component {
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form, getConfigByType, getPodNetworkSegment } = this.props
-    getConfigByType(undefined, CONFIG_TYPE)
+    const { clusterID, getLBIPList, currentBalance, form, getPodNetworkSegment,
+      checkLbPermission,
+    } = this.props
     getLBIPList(clusterID)
+    checkLbPermission()
     getPodNetworkSegment(clusterID, {
       success: {
         func: res => {
@@ -331,19 +332,12 @@ class LoadBalanceModal extends React.Component {
   }
 
   chartRepoIsEmpty = () => {
-    const { chartConfig } = this.props
-    if (isEmpty(chartConfig)) {
+    const { loadbalanceConfig } = this.props
+    if (isEmpty(loadbalanceConfig)) {
       return true
     }
-    const { configDetail } = chartConfig
-    if (isEmpty(configDetail)) {
-      return true
-    }
-    const { url } = JSON.parse(configDetail)
-    if (isEmpty(url)) {
-      return true
-    }
-    return false
+    const { havePermission } = loadbalanceConfig
+    return !havePermission
   }
 
   agentTypeChange = async e => {
@@ -354,20 +348,12 @@ class LoadBalanceModal extends React.Component {
       form.setFieldsValue({
         agentType: 'inside',
       })
-      this.setState({
-        tipVisible: true,
-      })
+      notify.warn('禁止选择', '允许创建『集群外』负载均衡开关关闭，请联系管理员开启')
     }
   }
 
-  closeTipModal = () => {
-    this.setState({
-      tipVisible: false,
-    })
-  }
-
   render() {
-    const { composeType, confirmLoading, tipVisible, NetSegment } = this.state
+    const { composeType, confirmLoading, NetSegment } = this.state
     const { form, ips, visible, currentBalance } = this.props
     const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
@@ -461,18 +447,11 @@ class LoadBalanceModal extends React.Component {
         okText={currentBalance ? '确认修改' : "确认创建"}
         confirmLoading={confirmLoading}
       >
-        <Modal
-          title={'提示'}
-          visible={tipVisible}
-          onCancel={this.closeTipModal}
-          onOk={this.closeTipModal}
-        >
-          <div className="alertIconRow">
-            <TenxIcon type="tips" className="alertIcon"/>
-            应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
-            适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
-          </div>
-        </Modal>
+        <div className="alertIconRow">
+          <TenxIcon type="tips" className="alertIcon"/>
+          应用负载均衡支持两种代理方式，集群内代理不指定代理节点，使用容器的集群 IP 代理，需要指定固定 IP ，
+          适用于集群内访问；集群外代理需要指定代理节点，使用节点 IP 代理，建议集群外访问时使用
+        </div>
         <Form form={form}>
           <FormItem
             label="代理方式"
@@ -625,11 +604,11 @@ const mapStateToProps = state => {
   const { clusterID } = entities.current.cluster
   const { loadBalanceIPList } = loadBalance
   const { data } = loadBalanceIPList || { data: [] }
-  const chartConfig = getDeepValue(state, ['globalConfig', 'configByType', CONFIG_TYPE, 'data'])
+  const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   return {
     clusterID,
     ips: data,
-    chartConfig,
+    loadbalanceConfig,
   }
 }
 
@@ -638,5 +617,5 @@ export default connect(mapStateToProps, {
   createLB,
   editLB,
   getPodNetworkSegment,
-  getConfigByType: globalActions.getConfigByType,
+  checkLbPermission,
 })(LoadBalanceModal)

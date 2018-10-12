@@ -29,7 +29,7 @@ import {
   isResourcePermissionError, formatServiceToArrry, getWrapFileType,
   sleep
 } from '../../../common/tools'
-import { DEFAULT_REGISTRY } from '../../../constants'
+import { DEFAULT_REGISTRY, OTHER_IMAGE } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
@@ -204,9 +204,9 @@ class QuickCreateApp extends Component {
     const { checkHelmIsPrepare, current } = this.props
     const { clusterID } = current.cluster;
     const result = await checkHelmIsPrepare(clusterID)
-    const already = getDeepValue(result, ['response', 'result', 'data', 'already'])
+    const ready = getDeepValue(result, ['response', 'result', 'data', 'ready'])
     this.setState({
-      helmAlready: !!already,
+      helmAlready: !!ready,
     })
   }
 
@@ -1061,6 +1061,11 @@ class QuickCreateApp extends Component {
       let newImageName = currentTemplate.name;
       this.setState({
         newImageName
+      })
+    }
+    if (currentFields[OTHER_IMAGE]) {
+      Object.assign(query, {
+        other: currentFields[OTHER_IMAGE].value,
       })
     }
     const url = `/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`

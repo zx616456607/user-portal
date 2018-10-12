@@ -42,8 +42,10 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import ResourceQuota from "../ResourceLimit"
+import ResourceQuota from "../ResourceLimit";
+import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
+import NoteIcon from './NoteIcon'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -818,11 +820,7 @@ let NetworkConfiguration = React.createClass ({
   },
   renderIstioGateway() {
     return(
-      <QueueAni>
-        <div key={'a'}>
-          333
-        </div>
-      </QueueAni>
+      <ServiceMeshPortCard key="ServiceMeshPortCard" cluster={this.props.cluster}/>
     )
   },
   _networkConfigArray(networkConfigArray, data ,isAdd) {
@@ -886,7 +884,7 @@ let NetworkConfiguration = React.createClass ({
       return  <div className="clusterTable" key={`rows-${index}`}>
         {
           data[item.key] && data[item.key].isDefault
-            ? <div className='dafaultGroup'><FormattedMessage {...intlMsg.defaultStr}/></div>
+            ? <div className='dafaultGroup'><NoteIcon title={`默认`}/></div>
             : null
         }
         <Row className='title'>
@@ -1131,7 +1129,7 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
-            // { name: '服务网格出口', value: 'Istio-gateway' }
+            { name: formatMessage(intlMsg.IstioGateway), value: 'Istio-gateway' }
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}
@@ -1144,7 +1142,9 @@ let NetworkConfiguration = React.createClass ({
                 <FormattedMessage {...intlMsg.addNetOut}/>
               </Button>
               <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
-                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}/>
+                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}>
+                {formatMessage(intlMsg.set)}
+                </Button>
               </Tooltip>
             </div>
             <Form key={form}>
