@@ -36,6 +36,7 @@ const mapStateToprops = (state) => {
 @connect(mapStateToprops,{
   checkProInClusMesh: projectActions.checkProInClusMesh,
   checkClusterIstio: projectActions.checkClusterIstio,
+  toggleCreateAppMeshFlag: projectActions.toggleCreateAppMeshFlag,
 })
 class ServiceMesh extends React.Component {
   state = {
@@ -65,6 +66,10 @@ class ServiceMesh extends React.Component {
       return this.setState({ userrole: 4 })
     }
   }
+  onChange = (value) => {
+    this.setState({ checked: value })
+    this.props.toggleCreateAppMeshFlag(value)
+  }
   renderMesh() {
     const { userrole, checked } = this.state
     const { intl } = this.props
@@ -72,7 +77,8 @@ class ServiceMesh extends React.Component {
     const { getFieldProps } = form;
     const checkedmeshProps = getFieldProps('serviceMesh', {
       valuePropName: 'checked',
-      initialValue: checked,
+      // initialValue: checked,
+      onChange: this.onChange
     })
     if (userrole === 1){
       return <span className="infoText"><FormattedMessage {...IntlMessage.noMsaSuiteTip}/></span>
@@ -90,14 +96,15 @@ class ServiceMesh extends React.Component {
           {...checkedmeshProps}
           checkedChildren={intl.formatMessage(IntlMessage.open)}
           unCheckedChildren={intl.formatMessage(IntlMessage.close)}
-          key="switch" disabled={checked}
+          key="switch"
+          // disabled={checked}
         />,
         <span key="span" className="infoText">
         {
           checked ?
-          <FormattedMessage {...IntlMessage.serviceMeshCheckedTip}/>
+          <span>{'当前项目的集群已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能'}</span>
           :
-            <FormattedMessage {...IntlMessage.serviceMeshUncheckTip}/>
+          <span>{'开通后，此服务将由服务网格代理，使用微服务中心提供的治理功能'}</span>
         }
         </span>
       ]

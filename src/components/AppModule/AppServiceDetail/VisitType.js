@@ -27,6 +27,7 @@ import findIndex from "lodash/findIndex";
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { getDeepValue } from "../../../../client/util/util"
+import * as serviceMeshActions from '../../../actions/serviceMesh'
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -55,6 +56,7 @@ class VisitType extends Component{
       isLbgroupNull: false,
       activeKey: 'netExport',
       agentValue: 'outside',
+      serviceIstioEnabled: false, //默认显示原来的显示方式
     }
   }
   async componentWillMount() {
@@ -81,6 +83,17 @@ class VisitType extends Component{
     })
     await this.setPortsToForm(this.props)
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+  }
+  componentDidMount() {
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { clusterId, serviceName } = this.props
+    const result3 = await this.props.checkAPPInClusMesh(clusterId, null, serviceName)
+    const { pods = {} } = result3.response.result
+    const podsIstio = Object.values(pods)
+    const { serviceIstioEnabled } = podsIstio[0] || {}
+    this.setState({serviceIstioEnabled}) // 当服务开启了Istio时, 不显示原来的内容, 显示文本提示
   }
   async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
@@ -116,6 +129,9 @@ class VisitType extends Component{
       await this.setPortsToForm(nextProps)
       this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
+    // if (isCurrentTab) {
+    //   this.reloadServiceMesh()
+    // }
   }
   setPortsToForm = async (props) => {
     const { loadK8sService, cluster, service, k8sService, form } = props
@@ -614,6 +630,8 @@ class VisitType extends Component{
         </Modal>
         <div className="visitTypeTopBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.ServiceVisitManner)}</div>
+          {
+          !this.state.serviceIstioEnabled ?
           <div className="visitTypeInnerBox">
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
@@ -680,6 +698,11 @@ class VisitType extends Component{
               {this.renderIngresses()}
             </div>
           </div>
+          :
+          <span style={{ color:"#ccc", paddingLeft:16}} >
+            已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置
+          </span>
+          }
         </div>
         <div className="visitTypeBottomBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.visitAddress)}</div>
@@ -717,12 +740,14 @@ function mapSateToProp(state) {
   const { serviceLoadBalances } = loadBalance
   const { data: LBList } = serviceLoadBalances || { data: [] }
   const { k8sService } = services
+  const clusterId = getDeepValue( state, ['entities','current','cluster', 'clusterID'] )
   return {
     bindingDomains: current.cluster.bindingDomains,
     bindingIPs: current.cluster.bindingIPs,
     LBList,
     currentCluster: current.cluster,
     k8sService,
+    clusterId,
   }
 }
 
@@ -734,6 +759,7 @@ VisitType = connect(mapSateToProp, {
   getServiceLBList,
   unbindIngressService,
   updateServicePort,
-  loadK8sService
+  loadK8sService,
+  checkAPPInClusMesh: serviceMeshActions.checkAPPInClusMesh
 })(Form.create()(VisitType))
 export default injectIntl(VisitType,{withRef: true,});

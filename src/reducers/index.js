@@ -68,7 +68,7 @@ import {
   PAYMENT_REQUIRED_CODE,
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../constants'
-import {rebootShining} from './service_mesh'
+import serviceMesh from './service_mesh'
 
 // for other actions support callback
 const OTHER_SUPPORT_CALLBACK_TYPES = [
@@ -196,7 +196,7 @@ const rootReducer = combineReducers({
   dnsRecord,
   securityGroup,
   middlewareCenter,
-  rebootShining
+  serviceMesh
 })
 
 export default rootReducer
