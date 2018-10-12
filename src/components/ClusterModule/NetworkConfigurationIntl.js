@@ -98,7 +98,6 @@ export const mapData = {
     addServiceMeshPort: '添加服务网格出口',
     onlyIncloudNumberAndalphabet:'仅能包含字母或数组且不能以数字开头',
     thisNameAlreadyBeUsed: '此名称已被使用',
-    name: '名称',
     nameNotEmpty: '名称不能为空',
     pleaseInputServiceMeshName: '请输入服务网格的名称',
     choiceNode: '选择节点',
@@ -110,14 +109,10 @@ export const mapData = {
     IPAddressWrong: 'IP地址格式不正确',
     editMeshPortFailure: '编辑网格出口失败',
     editMeshPortSuccess: '编辑网格出口配置成功',
-    editConfig: '编辑配置',
     delete: '删除',
-    cancel: '取消',
-    save: '保存',
     deleteServiceMeshPortFailure: '删除服务网格出口失败',
     deleteServiceMeshPort: '删除服务网格出口',
-    DeleteMeshFormInfoOne: '1. 删除该服务网格出口后, 已使用此出口的网关, 以及关联的路由规则中的服务将不能通过此网络出口被访问',
-    DeleteMeshFormInfoTwo: '2. 此服务网格出口为默认出口, 删除后, 创建网关时, 将不提供默认的服务网格出口, 建议重新设置默认出口',
+    DeleteMeshFormInfoOne: '删除该服务网格出口后, 已使用此出口的网关, 以及关联的路由规则中的服务将不能通过此网络出口被访问',
     deleteServiceMeshPortConfig: '是否确定删除${ serviceMesh }服务网格出口?',
   }
 }
