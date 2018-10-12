@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { DatePicker, Spin, Tabs, Row, Col } from 'antd'
+import { DatePicker, Spin, Tabs, Row, Col, Pagination } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -39,7 +39,7 @@ class AppServiceLog extends Component {
     this.state = {
       currentDate: formatDate(new Date(), DATE_PIRCKER_FORMAT),
       pageIndex: 1,
-      pageSize: 50,
+      pageSize: 100,
       useGetLogs: true,
       preScroll: 0,
       logSize: 'normal',
@@ -64,7 +64,7 @@ class AppServiceLog extends Component {
     }, {
         success: {
           func(result) {
-            self.infoBox.scrollTop = self.infoBox.scrollHeight
+            // self.infoBox.scrollTop = self.infoBox.scrollHeight
             if (!result.data || result.data.length < 50) {
               self.setState({
                 useGetLogs: false
@@ -117,10 +117,12 @@ class AppServiceLog extends Component {
        this.props.clearServiceLogs(this.props.cluster, this.props.serviceName)
        return
      }
+    // use pagination stop
+    return
      state = merge({}, state, {
        currentDate: formatDate(new Date(), DATE_PIRCKER_FORMAT),
        pageIndex: 1,
-       pageSize: 50,
+       pageSize: 100,
        useGetLogs: true,
        preScroll: 0,
        serviceLogs,
@@ -128,6 +130,7 @@ class AppServiceLog extends Component {
      this.setState(state)
      this.changeCurrentDate(new Date(), true, nextProps.cluster, nextProps.serviceName)
   }
+  // use pagination stop scroll load
   moutseRollLoadLogs() {
     const { serviceLogs, cluster, intl: { formatMessage } } = this.props
     if (!this.state.useGetLogs) return
@@ -182,6 +185,18 @@ class AppServiceLog extends Component {
       pageIndex: this.state.pageIndex + 1
     })
   }
+  changeLogPage(page) {
+    this.logPage = page
+    const { serviceName, cluster }= this.props
+    this.props.loadServiceLogs(cluster, serviceName, {
+      from: (page - 1) * this.state.pageSize,
+      size: this.state.pageSize,
+      date_start: this.state.currentDate,
+      date_end: this.state.currentDate,
+      log_type: 'stdout',
+
+    })
+  }
   changeCurrentDate(date, refresh, tcluster, tserviceName) {
     const { formatMessage } = this.props.intl
     if (!date) return
@@ -197,12 +212,13 @@ class AppServiceLog extends Component {
       useGetLogs: true,
       pageIndex: 2,
     })
-    this.props.clearServiceLogs(cluster, serviceName)
+    // this.props.clearServiceLogs(cluster, serviceName)
     if (!this.props.loggingEnabled) {
       let notification = new NotificationHandler()
       notification.warn(formatMessage(AppServiceDetailIntl.formatMessage))
       return
     }
+    this.logPage = 0
     this.props.loadServiceLogs(cluster, serviceName, {
       from: 0,
       size: this.state.pageSize,
@@ -217,10 +233,10 @@ class AppServiceLog extends Component {
                 useGetLogs: false
               })
             }
-            self.setState({
-              preScroll: self.infoBox.scrollHeight
-            })
-            self.infoBox.scrollTop = self.infoBox.scrollHeight
+            // self.setState({
+            //   preScroll: self.infoBox.scrollHeight
+            // })
+            // self.infoBox.scrollTop = self.infoBox.scrollHeight
           },
           isAsync: true
         }
@@ -254,15 +270,15 @@ class AppServiceLog extends Component {
     if (!clusterLogs ) {
       return formatMessage(AppServiceDetailIntl.noLog)
     }
-    if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
-      return <div className="loadingBox"><Spin size="large"></Spin></div>
-    }
+    // if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
+    //   return <div className="loadingBox"><Spin size="large"></Spin></div>
+    // }
     if(!clusterLogs.logs){
       return formatMessage(AppServiceDetailIntl.noLog)
     }
     const logs = clusterLogs.logs.data
-    if (!logs || logs.length <= 0) return formatMessage(AppServiceDetailIntl.noLog)
-    let page = Math.ceil(logs.length / 50)
+    // if (!logs || logs.length <= 0) return formatMessage(AppServiceDetailIntl.noLog)
+    // let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
     function spellTimeLogs(time, log) {
       return (
@@ -285,23 +301,7 @@ class AppServiceLog extends Component {
           return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
         }
         return (
-          <span key={index}>
-            { `page ${page}\n` }
-            {spellTimeLogs(time, log)}
-          </span>)
-      }
-      if (index + 1 === remainder && page !== 1) {
-        return (
-          <span key={index}>
-            { `page ${--page}\n` }
-            {spellTimeLogs(time, log)}
-          </span>
-        )
-      }
-      if ((index + 1) % 50 === 0 && page !== 1) {
-        return (
-          <span key={index}>
-            { `page ${--page}\n` }
+          <span key={log.id} index={index}>
             {spellTimeLogs(time, log)}
           </span>
         )
@@ -378,6 +378,9 @@ class AppServiceLog extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    const { serviceLogs={} } = this.state
+    const { count, cluster } = this.props
+    const clusterLogs = serviceLogs[cluster] || {}
     return (
       <div id="AppServiceLog">
         <div className='body'>
@@ -392,9 +395,16 @@ class AppServiceLog extends Component {
                       disabledDate={this.disabledDate}
                       className="datePicker"
                       onChange={(date) => this.changeCurrentDate(date) }
-                      value={this.state.currentDate}/>
+                      value={this.state.currentDate}
+                    />
+                    <span className="fa-right">
+                      <Pagination pageSize={100} simple current={this.logPage || 1} onChange={(page)=> this.changeLogPage(page)} total={count} />
+                    </span>
                   </div>
-                  <div className="infoBox" ref={(c) => this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
+                  <div className="infoBox" ref={(c) => this.infoBox = c}>
+                    { clusterLogs.isFetching &&
+                      <div className="loadingBox"><Spin size="large"></Spin></div>
+                    }
                     <pre> { this.getLogs() } </pre>
                   </div>
                   <div style={{ clear: "both" }}></div>
@@ -455,11 +465,18 @@ function mapStateToProps(state, props) {
   if (current && current.cluster && current.cluster.disabledPlugins) {
     loggingEnabled = !current.cluster.disabledPlugins['logging']
   }
+  const  { serviceLogs } = state.services || {[cluster]:{}}
+  let count =0
+  try {
+    count = serviceLogs[cluster].logs.count
+  } catch (error) {
+  }
   return {
     loginUser: loginUser.info,
-    serviceLogs: state.services.serviceLogs,
+    serviceLogs,
+    count,
     eventLogs,
-    loggingEnabled: loggingEnabled
+    loggingEnabled,
   }
 }
 AppServiceLog = injectIntl(connect(mapStateToProps, {

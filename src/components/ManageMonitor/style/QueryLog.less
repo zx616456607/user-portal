@@ -380,6 +380,9 @@
           line-height: 40px;
           font-size: 14px;
           cursor: pointer;
+          li {
+            margin-top: 8px;background: transparent;
+          }
         }
       }
       .msgBox {
@@ -412,6 +415,23 @@
           }
           .noDataSpan {
             color: #37fc34;
+          }
+          .loadingBox {
+            position: absolute;
+            height: 100%;
+            left: 0;
+            line-height: 40;
+            top:40px;
+            &::before {
+              content: '';
+              display: block;
+              width: 100%;
+              background: #fff;
+              height: 100%;
+              opacity: 0.2;
+              position: absolute;
+              top:0;
+            }
           }
         }
       }

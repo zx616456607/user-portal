@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox, Radio, Form, Tooltip } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox, Radio, Form, Tooltip, Pagination } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
@@ -31,8 +31,8 @@ import NotificationHandler from '../../components/Notification'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
-const Option = Select.Option;
 const notificationHandler = new NotificationHandler()
+let bodyTimeNano = null
 
 const menusText = defineMessages({
   headTitle: {
@@ -469,6 +469,7 @@ let LogComponent = React.createClass({
         isAsync: true,
       }
     })
+    bodyTimeNano = timeNano
     this.setState({
       timeNano,
     })
@@ -476,23 +477,23 @@ let LogComponent = React.createClass({
   render: function () {
     let { logs, isFetching, scope, keyWords, backward } = this.props;
     keyWords = keyWords && keyWords.trim()
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    if (!logs || logs.length == 0) {
-      let msg = '暂无日志记录'
-      if (!scope.props.loggingEnabled) {
-        msg = '尚未安装日志服务，无法查询日志'
+    if (!isFetching) {
+    //   return (
+    //     <div className='loadingBox'>
+    //       <Spin size='large' />
+    //     </div>
+    //   )
+      if (!logs || logs.length == 0) {
+        let msg = '暂无日志记录'
+        if (!scope.props.loggingEnabled) {
+          msg = '尚未安装日志服务，无法查询日志'
+        }
+        return (
+          <div className='loadingBox'>
+            <span className='noDataSpan'>{msg}</span>
+          </div>
+        )
       }
-      return (
-        <div className='loadingBox'>
-          <span className='noDataSpan'>{msg}</span>
-        </div>
-      )
     }
     // 保存原有的 logs
     if (keyWords && !backward) {
@@ -528,6 +529,9 @@ let LogComponent = React.createClass({
     })
     return (
       <div className='logList'>
+        { isFetching &&
+          <div className="loadingBox"><Spin size="large"></Spin></div>
+        }
         <pre>
           {logItems}
         </pre>
@@ -671,6 +675,7 @@ class QueryLog extends Component {
       currentFile: '所有文件',
       selectedFile: false,
     }
+    this.logPage = 0
   }
 
 
@@ -872,7 +877,6 @@ class QueryLog extends Component {
               let applogs = JSON.parse(res.data[0].metadata.annotations.applogs)
               path = applogs[0].path
             }
-            console.log('res.data', res.data)
             _this.setState({
               gettingInstance: false,
               instanceList: res.data,
@@ -1046,6 +1050,9 @@ class QueryLog extends Component {
     if (!checkFlag) {
       return;
     }
+    if (!arguments.length) {
+      this.logPage = 0
+    }
     this.setState({
       goBackLogs: false,
     })
@@ -1059,8 +1066,8 @@ class QueryLog extends Component {
     let body = {
       date_start: this.state.start_time,
       date_end: this.state.end_time,
-      from: null,
-      size: null,
+      from: Math.max((this.logPage -1) * 100,0),
+      size: 100,
       keyword: key_word,
       log_type: this.state.logType,
       filename: '',
@@ -1077,22 +1084,16 @@ class QueryLog extends Component {
     if (time_nano) {
       body.time_nano = time_nano
     }
+    // 查询上下文时删除 keyword
+    let backward = false
     if (direction) {
       body.direction = direction
-    }
-    // 查询上下文时删除 keyword
-    if (direction) {
       delete body.keyword
-      this.setState({
-        backward: true,
-      })
-    } else {
-      this.setState({
-        backward: false,
-      })
+      backward = true
     }
     this.setState({
-      searchKeyword: this.state.key_word
+      searchKeyword: this.state.key_word,
+      backward
     });
     let instances = this.state.currentInstance.join(',');
     let services = this.state.currentService
@@ -1102,11 +1103,34 @@ class QueryLog extends Component {
     getServiceQueryLogList(this.state.currentClusterId, services, body, callback)
   }
 
+  changeLogPage(page) {
+    this.logPage = page
+    let direction = null
+    const { searchKeyword } = this.state
+    if (!searchKeyword) {
+      bodyTimeNano = null
+    }
+    if (bodyTimeNano) {
+      direction = "backward"
+      if (this.state.backward) {
+        direction = 'forward'
+      }
+    }
+    setTimeout(this.submitSearch(bodyTimeNano, direction))
+  }
+
   onChangeBigLog() {
     //this function for change the log box big or small
     this.setState({
       bigLog: !this.state.bigLog
     })
+  }
+
+  goBackLogs() {
+    bodyTimeNano = null
+    this.logPage = 0
+    this.setState({goBackLogs: true, backward: false})
+    setTimeout(this.submitSearch)
   }
 
   renderKeywordSpan() {
@@ -1120,7 +1144,7 @@ class QueryLog extends Component {
       return text
     }
     return [
-      <span className="goBackLogs" onClick={() => this.setState({goBackLogs: true, backward: false})}>
+      <span className="goBackLogs" onClick={() => this.goBackLogs()}>
         <Icon type="rollback" /> {text}
       </span>,
       <span className="anticonRight context"><Icon type="right" /></span>,
@@ -1184,7 +1208,7 @@ class QueryLog extends Component {
       <Select.Option key={`${project.projectName},${project.projectName}`}>{project.projectName}</Select.Option>)
   }
   render() {
-    const { logs, isFetching, intl, defaultNamespace, loginUser } = this.props;
+    const { logs, isFetching, intl, defaultNamespace, loginUser, count } = this.props;
     const { userName } = loginUser
     const { formatMessage } = intl;
     const scope = this;
@@ -1399,6 +1423,11 @@ class QueryLog extends Component {
               <span className="fa-right" onClick={this.downLoadLog}>
                 <i className="fa fa-download"></i> 下载
               </span>
+              {!bodyTimeNano &&
+              <span className="fa-right">
+                <Pagination pageSize={100} onChange={(page)=> this.changeLogPage(page)} simple current={this.logPage || 1} total={count} />
+              </span>
+              }
             </div>
             <div className='msgBox'>
               <LogComponent
@@ -1437,7 +1466,7 @@ function mapStateToProps(state, props) {
   }
   const { getQueryLog, getLogFileOfQueryLog } = state.manageMonitor
   const { serviceContainers } = state.services
-  const { logs, isFetching } = getQueryLog.logs || defaultLogs
+  const { logs, isFetching, count } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   const { query } = props.location
   let loggingEnabled = true
@@ -1453,7 +1482,8 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     containersList,
     isFetching,
-    logs,
+    logs: logs || [],
+    count: count || 0,
     current,
     query,
     loggingEnabled,
