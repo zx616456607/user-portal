@@ -302,6 +302,7 @@ class OperationalAudit extends React.Component {
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operationTypeArr: [],
       currentProject: this.props.projectName || undefined,
+      projectDisabled: false,
     }
   }
   componentDidMount() {
@@ -342,11 +343,22 @@ class OperationalAudit extends React.Component {
   }
   // 选择操作对象
   selectOptionTarget = value => {
-    this.setState({
+    const temp = {
       resource: value,
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operation: undefined,
-    }, () => {
+    }
+    if (value.indexOf(10009) > -1) {
+      temp.currentProject = undefined
+      temp.projectDisabled = true
+    } else if (this.state.projectDisabled === true) {
+      temp.currentProject = this.props.projectName || undefined
+      temp.projectDisabled = false
+    } else {
+      // temp.currentProject = undefined
+      temp.projectDisabled = false
+    }
+    this.setState(temp, () => {
       const { filterData } = this.props
       if (value.length !== 0) {
         const id = value[value.length - 1]
@@ -527,7 +539,7 @@ class OperationalAudit extends React.Component {
   }
   render() {
     const { isFetching, filterData } = this.props
-    const { currentProject } = this.state
+    const { currentProject, projectDisabled } = this.state
     const tableColumns = [
       {
         dataIndex: 'time',
@@ -606,18 +618,6 @@ class OperationalAudit extends React.Component {
             <Row type="flex" justify="space-between" gutter={4}>
               <Col span={16}>
                 <div className="options">
-                  <Select
-                    optionFilterProp="children"
-                    showSearch
-                    getPopupContainer={() => document.getElementById('auditContainer')}
-                    className="selectionBox"
-                    style={{ width: '180px' }}
-                    size={'large'}
-                    value={currentProject}
-                    onSelect={value => this.onSelectNamespace(value)}
-                  >
-                    {this.renderProjectList()}
-                  </Select>
                   <Cascader
                     options = {operationObjects}
                     className="selectionBox"
@@ -627,6 +627,20 @@ class OperationalAudit extends React.Component {
                     popupClassName= "resourceSelectPopup"
                     size="large"
                   />
+                  <Select
+                    optionFilterProp="children"
+                    showSearch
+                    getPopupContainer={() => document.getElementById('auditContainer')}
+                    className="selectionBox"
+                    style={{ width: '180px' }}
+                    size={'large'}
+                    value={currentProject}
+                    onSelect={value => this.onSelectNamespace(value)}
+                    disabled={projectDisabled}
+                    placeholder="全局资源"
+                  >
+                    {this.renderProjectList()}
+                  </Select>
                   <Select
                     placeholder="选择操作类型"
                     className="selectionBox"
