@@ -37,6 +37,14 @@ const rootRoutes = {
     },
   },
   {
+    path:'/email/email_Approval',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../../client/containers/EmailApproval').default)
+      })
+    },
+  },
+  {
     path: '/signup',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
