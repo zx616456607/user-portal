@@ -31,7 +31,9 @@ class TcpUdpDetail extends React.PureComponent{
     togglePart: PropTypes.func,
   }
 
-  state = {}
+  state = {
+    allServices: [],
+  }
 
   componentDidMount() {
     const { loadAllServices, clusterID, getTcpUdpIngress, type, location, currentIngress } = this.props
@@ -43,6 +45,14 @@ class TcpUdpDetail extends React.PureComponent{
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            allServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
+          })
+        }
+      }
     })
   }
 
@@ -134,22 +144,23 @@ class TcpUdpDetail extends React.PureComponent{
   }
 
   serviceOptions = () => {
-    const { services } = this.props
-    return (services || []).map(item =>
+    const { allServices } = this.state
+    return (allServices || []).map(item =>
       <Option key={item.metadata.name}>{item.metadata.name}</Option>
     )
   }
 
   renderPorts = () => {
-    const { services, form, type } = this.props
+    const { allServices } = this.state
+    const { form, type } = this.props
     const { getFieldValue } = form
     const serviceName = getFieldValue('serviceName')
     if (!serviceName) return
-    const currentService = services.filter(item => item.metadata.name === serviceName)[0]
-    return currentService.spec.template.spec.containers[0].ports
+    const currentService = allServices.filter(item => item.metadata.name === serviceName)[0]
+    return currentService.spec.ports
       .filter(_item => _item.protocol === type)
       .map(_item => {
-      return <Option key={_item.containerPort}>{_item.containerPort}</Option>
+      return <Option key={_item.port}>{_item.port}</Option>
     })
   }
 
@@ -248,10 +259,8 @@ TcpUdpDetail = Form.create()(TcpUdpDetail)
 const mapStateToProps = (state, props) => {
   const { type } = props
   const lowerType = type.toLowerCase()
-  const services = getDeepValue(state, ['services', 'serviceList', 'services'])
   const ingressData = getDeepValue(state, ['loadBalance', 'tcpUdpIngress', lowerType])
   return {
-    services,
     ingressData,
   }
 }
