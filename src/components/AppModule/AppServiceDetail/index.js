@@ -133,7 +133,7 @@ class AppServiceDetail extends Component {
     // bpm 需要根据一个参数, 请求一个带query的容器列表接口
     const appCenterChoiceHidden = this.props.bpmShow
     const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
-    loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
+    loadServiceContainerList(cluster, serviceName, { projectName }, bpmQuery, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -142,7 +142,10 @@ class AppServiceDetail extends Component {
           clearTimeout(self.loadStatusTimeout)
           clearInterval(this.upStatusInterval)
           query.customizeOpts = {
-            keepChecked: true,
+            keepChecked: true
+          }
+          if (projectName) {
+            query.projectName = projectName
           }
           self.loadStatusTimeout = setTimeout(() => {
             loadServiceContainerList(cluster, serviceName, query, bpmQuery)
