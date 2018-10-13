@@ -19,7 +19,7 @@ exports.getOperationAuditLog = function* () {
   let reqBody = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  reqBody.namespace = loginUser.teamspeace || loginUser.namespace
+  reqBody.namespace = loginUser.teamspace || loginUser.namespace
   const result = yield api.audits.createBy(['logs'], null, reqBody);
   this.body = {
     logs: result.data
@@ -86,8 +86,12 @@ function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
   const gte = timestamp.gte
   const lte = timestamp.lte
   const isFile = query.logType === 'file'
+  let namespace = loginUser.teamspace || loginUser.namespace
+  if (namespace === 'default') {
+    namespace = loginUser.namespace
+  }
   const searchBody = {
-    namespace:loginUser.namespace,
+    namespace: namespace,
     options:{
       containerName,
       podNames,
@@ -96,6 +100,7 @@ function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
       isFile,
     }
   }
+
   let logName = containerName || podNames.join('|')
   logName = `${logName}-${moment().format('YYYY-MM-DD-HH-mm-ss')}`
 
@@ -124,7 +129,7 @@ exports.getClusterOfQueryLog = function* () {
   const method = 'getClusterOfQueryLog'
   const projectName = this.params.project_name
   let namespace = this.params.namespace
-  if(namespace === 'default') {
+  if (namespace === 'default') {
     namespace = this.session.loginUser.namespace
   }
   const loginUser = this.session.loginUser
