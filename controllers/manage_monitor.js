@@ -79,8 +79,8 @@ exports.dumpInstancesSearchLog = function* () {
 
 function* dumpLog(clusterID, loginUser, query, containerName, podNames) {
   const method = 'dumpLog'
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([clusterID])
+  const spi = apiFactory.getTenxSysSignSpi(loginUser)
+  const result = yield spi.clusters.getBy([clusterID, 'access'])
   const cluster = result.data
   const timestamp = elasticdump.getTimestamp(query)
   const gte = timestamp.gte
