@@ -579,6 +579,8 @@ let Ftp = React.createClass({
             } else {
               msg = err.message
             }
+            if(msg === 'dial tcp 192.168.1.97:21123: getsockopt: connection refused') msg = '服务器 IP 地址不正确'
+            if(msg === '530 Login incorrect.') msg = '用户名或密码错误'
             notification.error('ftp 配置保存失败 => ' + msg)
             this.setState({
               canClick: true
