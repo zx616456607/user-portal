@@ -120,7 +120,7 @@ class ContainerInstance extends React.Component {
       if (code !== 200) {
         notification.close()
         return notification.warn('校验 IP 是否被占用失败')
-      } else if (code === 200 && isPodIpExisted) {
+      } else if (code === 200 && isPodIpExisted === 'true') {
         notification.close()
         return notification.warn('当前 IP 已经被占用', '请重新填写')
       }
