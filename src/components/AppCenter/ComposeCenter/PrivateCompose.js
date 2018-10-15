@@ -335,8 +335,19 @@ class PrivateCompose extends Component {
           onCancel={() => this.detailModal(false)}
           maskClosable={false}
         >
-          <CreateCompose type="owned" scope={scope} parentState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
-        </Modal>
+          {
+            this.state.createModalShow &&
+            <CreateCompose
+              type="owned"
+              scope={scope}
+              parentState={this.state}
+              loadMyStack={this.props.loadMyStack}
+              updateStack={this.props.updateStack}
+              createStack={this.props.createStack}
+              registry={this.props.registry}
+            />
+          }
+           </Modal>
 
         <Modal
           title="删除编排操作"
