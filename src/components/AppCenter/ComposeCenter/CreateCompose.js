@@ -40,8 +40,7 @@ class CreateCompose extends Component {
 
   componentDidMount() {
     const { parentState } = this.props
-    console.log(parentState, 'parentState')
-    if (parentState.stackItemContent) {
+    if (parentState.stackItem) {
       this.setState({
         composeAttr: parentState.stackItem.isPublic === 1 ? true : false,
       })

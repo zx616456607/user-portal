@@ -338,14 +338,14 @@ export const CREATE_TCP_UDP_INGRESS_REQUEST = 'CREATE_TCP_UDP_INGRESS_REQUEST'
 export const CREATE_TCP_UDP_INGRESS_SUCCESS = 'CREATE_TCP_UDP_INGRESS_SUCCESS'
 export const CREATE_TCP_UDP_INGRESS_FAILURE = 'CREATE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchCreateTcpUdpIngress = (cluster, lbname, body) => ({
+const fetchCreateTcpUdpIngress = (cluster, lbname, type, name, body) => ({
   [FETCH_API]: {
     types: [
       CREATE_TCP_UDP_INGRESS_REQUEST,
       CREATE_TCP_UDP_INGRESS_SUCCESS,
       CREATE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/type/${type}/displayname/${name}`,
     schema: {},
     options: {
       method: 'POST',
@@ -354,8 +354,8 @@ const fetchCreateTcpUdpIngress = (cluster, lbname, body) => ({
   }
 })
 
-export const createTcpUdpIngress = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchCreateTcpUdpIngress(cluster, lbname, body))
+export const createTcpUdpIngress = (cluster, lbname, type, name, body) =>
+  dispatch => dispatch(fetchCreateTcpUdpIngress(cluster, lbname, type, name, body))
 
 export const GET_TCP_UDP_INGRESS_REQUEST = 'GET_TCP_UDP_INGRESS_REQUEST'
 export const GET_TCP_UDP_INGRESS_SUCCESS = 'GET_TCP_UDP_INGRESS_SUCCESS'
@@ -381,14 +381,14 @@ export const UPDATE_TCP_UDP_INGRESS_REQUEST = 'UPDATE_TCP_UDP_INGRESS_REQUEST'
 export const UPDATE_TCP_UDP_INGRESS_SUCCESS = 'UPDATE_TCP_UDP_INGRESS_SUCCESS'
 export const UPDATE_TCP_UDP_INGRESS_FAILURE = 'UPDATE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchUpdateTcpUdpIngress = (cluster, lbname, body) => ({
+const fetchUpdateTcpUdpIngress = (cluster, lbname, type, name, body) => ({
   [FETCH_API]: {
     types: [
       UPDATE_TCP_UDP_INGRESS_REQUEST,
       UPDATE_TCP_UDP_INGRESS_SUCCESS,
       UPDATE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/type/${type}/displayname/${name}`,
     schema: {},
     options: {
       method: 'PUT',
@@ -397,21 +397,21 @@ const fetchUpdateTcpUdpIngress = (cluster, lbname, body) => ({
   }
 })
 
-export const updateTcpUdpIngress = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchUpdateTcpUdpIngress(cluster, lbname, body))
+export const updateTcpUdpIngress = (cluster, lbname, type, name, body) =>
+  dispatch => dispatch(fetchUpdateTcpUdpIngress(cluster, lbname, type, name, body))
 
 export const DELETE_TCP_UDP_INGRESS_REQUEST = 'DELETE_TCP_UDP_INGRESS_REQUEST'
 export const DELETE_TCP_UDP_INGRESS_SUCCESS = 'DELETE_TCP_UDP_INGRESS_SUCCESS'
 export const DELETE_TCP_UDP_INGRESS_FAILURE = 'DELETE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
+const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports, name) => ({
   [FETCH_API]: {
     types: [
       DELETE_TCP_UDP_INGRESS_REQUEST,
       DELETE_TCP_UDP_INGRESS_SUCCESS,
       DELETE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/protocols/${type}/ports/${ports}`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/protocols/${type}/ports/${ports}/displayname/${name}`,
     schema: {},
     options: {
       method: 'DELETE',
@@ -419,21 +419,21 @@ const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
   }
 })
 
-export const deleteTcpUdpIngress = (cluster, lbname, type, ports) =>
-  dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports))
+export const deleteTcpUdpIngress = (cluster, lbname, type, ports, name) =>
+  dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports, name))
 
 export const UPDATE_LB_WHITELIST_REQUEST = 'UPDATE_LB_WHITELIST_REQUEST'
 export const UPDATE_LB_WHITELIST_SUCCESS = 'UPDATE_LB_WHITELIST_SUCCESS'
 export const UPDATE_LB_WHITELIST_FAILURE = 'UPDATE_LB_WHITELIST_FAILURE'
 
-const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
+const fetchUpdateLBWhiteList = (cluster, lbname, body, name) => ({
   [FETCH_API]: {
     types: [
       UPDATE_LB_WHITELIST_REQUEST,
       UPDATE_LB_WHITELIST_SUCCESS,
       UPDATE_LB_WHITELIST_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/whitelist`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/whitelist/displayname/${name}`,
     schema: {},
     options: {
       method: 'PUT',
@@ -442,8 +442,8 @@ const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
   }
 })
 
-export const updateLBWhiteList = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body))
+export const updateLBWhiteList = (cluster, lbname, body, name) =>
+  dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body, name))
 
 export const CHECK_LB_PERMISSION_REQUEST = 'CHECK_LB_PERMISSION_REQUEST'
 export const CHECK_LB_PERMISSION_SUCCESS = 'CHECK_LB_PERMISSION_SUCCESS'

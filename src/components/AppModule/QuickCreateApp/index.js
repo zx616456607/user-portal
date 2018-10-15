@@ -140,10 +140,12 @@ class QuickCreateApp extends Component {
   componentWillMount() {
     this.setConfig(this.props)
     const { location, fields, template:templateList, getImageTemplate } = this.props
-    const { hash, query } = location
+    const { hash, query, pathname } = location
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
+    }
+    if (pathname.includes('app_create/quick_create') && template) {
       this.checkHelmIsRepare()
     }
     if (isEmpty(templateList)) {
@@ -399,6 +401,11 @@ class QuickCreateApp extends Component {
         key: firstID,
       };
       Object.assign(query, {...location.query})
+      if (currentFields[OTHER_IMAGE]) {
+        Object.assign(query, {
+          other: currentFields[OTHER_IMAGE].value,
+        })
+      }
       if (location.query.appName) {
         this.configureMode = 'create';
         this.configureServiceKey = firstID;
@@ -415,11 +422,11 @@ class QuickCreateApp extends Component {
   goSelectCreateAppMode() {
     const { query } = this.props.location;
     if (this.serviceNameList.length < 1) {
-      if (query.fromDetail ) {
+      if (query.fromDetail) {
         browserHistory.push(`/app_manage/detail/${query.appName}`)
         return
       }
-      browserHistory.goBack()
+      browserHistory.push('/app_manage/app_create')
       return
     }
     this.setState({
@@ -759,6 +766,30 @@ class QuickCreateApp extends Component {
     const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
+
+    // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
+    let lbNoPort = false
+    for (let fieldKey in fields) {
+      if (fields.hasOwnProperty(fieldKey)) {
+        const obj = fields[fieldKey]
+        if (Object.keys(obj).indexOf('loadBalance') > -1) {
+          let noLBPorts = true
+          Object.keys(obj).map(label => (
+            label.indexOf('tcp-exportPort-') > -1
+            || label.indexOf('udp-exportPort-') > -1
+            || label.indexOf('port-') > -1
+          ) && (noLBPorts = false))
+          lbNoPort = noLBPorts
+        }
+      }
+    }
+    if (lbNoPort) {
+      notification.warn({
+        message: '请至少添加一个监听器'
+      })
+      return
+    }
+
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }

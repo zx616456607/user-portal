@@ -758,10 +758,11 @@ const Normal = React.createClass({
             currentCluster={currentCluster}
             key="accessmethod"
             isTemplate={isTemplate}
+            flag={this.props.flag}
             {...{location}}
           />
           {
-            (!accessType || accessType.value !== 'loadBalance') &&
+            (!accessType || accessType.value !== 'loadBalance') && !this.props.flag &&
             <Ports
               formItemLayout={formItemLayout}
               form={form}
@@ -823,11 +824,13 @@ function mapStateToProps(state, props) {
     let summary = clusterLabel[cluster.clusterID].result.summary
     labels = summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
   }
+  const {toggleCreateAppMeshFlag: { flag = false } = {}} = state.serviceMesh
   return {
     currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
     labels,
     nodes,
+    flag,
   }
 }
 

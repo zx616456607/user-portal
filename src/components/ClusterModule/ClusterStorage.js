@@ -1139,7 +1139,7 @@ class ClusterStorage extends Component {
     }
     const listArray = gfsArray.listArray
     if(!listArray || !listArray.length){
-      return <div className='no_list'>该集群目前还没有添加 gfs 类型的存储</div>
+      return <div className='no_list'>该集群目前还没有添加 GlusterFS 类型的存储</div>
     }
     const { form } = this.props
     const { getFieldProps } = form

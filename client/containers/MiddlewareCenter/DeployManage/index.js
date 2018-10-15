@@ -85,9 +85,14 @@ class DeployMange extends React.PureComponent {
       })
     }
   }
-  loadData = () => {
+  loadData = async () => {
     const { loadAppClusterList, cluster } = this.props
-    loadAppClusterList(cluster)
+    const result = await loadAppClusterList(cluster, null, { failed: {} })
+    const { error } = result
+    if (error) {
+      notification
+        .error({ message: 'bpm-operator插件未安装', description: '请联系基础设施管理员安装！' })
+    }
   }
   handleDeleteServiceOk = async name => {
     const { deleteAppsCluster, cluster } = this.props

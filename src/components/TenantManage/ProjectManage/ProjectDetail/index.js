@@ -1066,8 +1066,8 @@ class ProjectDetail extends Component {
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
     const isAble = roleNum === 2
     const { getFieldProps } = form;
-    const quota = location.query.tabs
-    const url = quota ? '/tenant_manage/cluster_authorization' : '/tenant_manage/project_manage'
+    // const quota = location.query.tabs
+    // const url = quota ? '/tenant_manage/cluster_authorization' : '/tenant_manage/project_manage'
     const loopFunc = data => data.length > 0 && data.map((item) => {
       return <TreeNode key={item.key} title={item.userName} disableCheckbox={true} />;
     });
@@ -1277,7 +1277,7 @@ class ProjectDetail extends Component {
         <div key='projectDetailBox' className="projectDetailBox">
           <div className="goBackBox">
               <span className="back"
-                  onClick={() => browserHistory.push(url)}>
+                  onClick={() => this.props.history.go(-1)}>
                 <span className="backjia"></span>
                 <span className="btn-back">返回</span>
               </span>

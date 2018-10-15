@@ -31,7 +31,9 @@ class TcpUdpDetail extends React.PureComponent{
     togglePart: PropTypes.func,
   }
 
-  state = {}
+  state = {
+    allServices: [],
+  }
 
   componentDidMount() {
     const { loadAllServices, clusterID, getTcpUdpIngress, type, location, currentIngress } = this.props
@@ -43,6 +45,14 @@ class TcpUdpDetail extends React.PureComponent{
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
+    }, {
+      success: {
+        func: res => {
+          this.setState({
+            allServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
+          })
+        }
+      }
     })
   }
 
@@ -56,7 +66,7 @@ class TcpUdpDetail extends React.PureComponent{
       currentIngress, updateTcpUdpIngress, clusterID,
       createTcpUdpIngress, location, form, type
     } = this.props
-    const { name } = location.query
+    const { name, displayName } = location.query
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         return
@@ -75,7 +85,7 @@ class TcpUdpDetail extends React.PureComponent{
 
       if (!currentIngress) {
         notify.spin('创建中...')
-        const result = await createTcpUdpIngress(clusterID, name, body)
+        const result = await createTcpUdpIngress(clusterID, name, lowerType, displayName, body)
         if (result.error) {
           notify.close()
           notify.warn('创建失败')
@@ -93,7 +103,7 @@ class TcpUdpDetail extends React.PureComponent{
         return
       }
       notify.spin('修改中...')
-      const res = await updateTcpUdpIngress(clusterID, name, body)
+      const res = await updateTcpUdpIngress(clusterID, name, lowerType, displayName, body)
       if (res.error) {
         notify.close()
         notify.warn('修改失败')
@@ -112,7 +122,7 @@ class TcpUdpDetail extends React.PureComponent{
   }
 
   containerPortCheck = (rules, value, callback) => {
-    if (!value) {
+    if (isEmpty(value)) {
       return callback('容器端口不能为空')
     }
     callback()
@@ -134,10 +144,24 @@ class TcpUdpDetail extends React.PureComponent{
   }
 
   serviceOptions = () => {
-    const { services } = this.props
-    return (services || []).map(item =>
+    const { allServices } = this.state
+    return (allServices || []).map(item =>
       <Option key={item.metadata.name}>{item.metadata.name}</Option>
     )
+  }
+
+  renderPorts = () => {
+    const { allServices } = this.state
+    const { form, type } = this.props
+    const { getFieldValue } = form
+    const serviceName = getFieldValue('serviceName')
+    if (!serviceName) return
+    const currentService = allServices.filter(item => item.metadata.name === serviceName)[0]
+    return currentService.spec.ports
+      .filter(_item => _item.protocol === type)
+      .map(_item => {
+      return <Option key={_item.port}>{_item.port}</Option>
+    })
   }
 
   render() {
@@ -178,7 +202,7 @@ class TcpUdpDetail extends React.PureComponent{
           validator: this.containerPortCheck,
         }
       ],
-      initialValue: currentIngress ? currentIngress.servicePort : '',
+      initialValue: currentIngress ? [currentIngress.servicePort] : [],
     })
     return (
       <Card
@@ -212,12 +236,12 @@ class TcpUdpDetail extends React.PureComponent{
             label="容器端口"
             {...formItemLayout}
           >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={1} max={65536}
-              placeholder="容器端口1~65535"
+            <Select
+              placeholder={'请选择容器端口'}
               {...containerPortProps}
-            />
+            >
+              {this.renderPorts()}
+            </Select>
           </FormItem>
         </Form>
         <DetailFooter
@@ -235,10 +259,8 @@ TcpUdpDetail = Form.create()(TcpUdpDetail)
 const mapStateToProps = (state, props) => {
   const { type } = props
   const lowerType = type.toLowerCase()
-  const services = getDeepValue(state, ['services', 'serviceList', 'services'])
   const ingressData = getDeepValue(state, ['loadBalance', 'tcpUdpIngress', lowerType])
   return {
-    services,
     ingressData,
   }
 }

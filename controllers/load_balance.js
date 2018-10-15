@@ -188,10 +188,12 @@ function getRegistryURL() {
 exports.createTcpUdpIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const type = this.params.type
+  const name = this.params.name
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'stream', 'type', type, 'displayname', name], null, body)
   this.body = result
 }
 
@@ -208,10 +210,12 @@ exports.getTcpUdpIngress = function* () {
 exports.updateTcpUdpIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const type = this.params.type
+  const name = this.params.name
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'stream', 'type', type, 'displayname', name], null, body)
   this.body = result
 }
 
@@ -220,19 +224,21 @@ exports.deleteTcpUdpIngress = function* () {
   const lbname = this.params.lbname
   const type = this.params.type
   const ports = this.params.ports
+  const name = this.params.name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports])
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports, 'displayname', name])
   this.body = result
 }
 
 exports.updateWhiteList = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const name = this.params.name
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList'], null, body)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList', 'displayname', name], null, body)
   this.body = result
 }
 

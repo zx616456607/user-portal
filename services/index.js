@@ -128,6 +128,8 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.billingConfig = globalConfig.billingConfig
   // Add loadbalance config
   user.loadbalanceConfig = globalConfig.loadbalanceConfig
+  // Add AI config
+  user.aiopsConfig = globalConfig.aiopsConfig
   return user
 }
 

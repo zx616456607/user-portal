@@ -359,13 +359,25 @@ class AccessMethod extends Component {
     })
     const accessMethodValue = getFieldValue('accessMethod')
     return (
+      <div>
+      {
+        this.props.flag &&
+      <div id='accessMethod'>
+        <Form.Item
+        {...formItemLayout}
+        label={intl.formatMessage(IntlMessage.accessMethod)}
+        className='radioBox'>
+        <div style={{ color: '#ccc' }}>已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置</div>
+        </Form.Item>
+      </div>
+      }
+      {  !this.props.flag &&
       <div id='accessMethod'>
         <Form.Item
           {...formItemLayout}
           label={intl.formatMessage(IntlMessage.accessMethod)}
           className='radioBox'
         >
-
           <ul className='tabs_header_style'>
             <li className={imageComposeStyle}
                 onClick={this.tabChange.bind(this, "netExport")}
@@ -419,15 +431,18 @@ class AccessMethod extends Component {
           />
         }
       </div>
+            }
+    </div>
     )
   }
 }
 
 function mapStateToProp(state, props) {
   let clusterProxy = state.cluster.proxy.result || {}
-
+  // const {toggleCreateAppMeshFlag: { flag = false } = {}} = state.serviceMesh
   return {
     clusterProxy,
+    // flag,
   }
 }
 

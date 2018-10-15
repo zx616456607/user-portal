@@ -240,6 +240,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
   router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
+  router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -894,11 +895,11 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
-  router.post('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.createTcpUdpIngress)
+  router.post('/clusters/:cluster/loadbalances/:lbname/stream/type/:type/displayname/:name', loadBalanceController.createTcpUdpIngress)
   router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
-  router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
-  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
-  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
+  router.put('/clusters/:cluster/loadbalances/:lbname/stream/type/:type/displayname/:name', loadBalanceController.updateTcpUdpIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports/displayname/:name', loadBalanceController.deleteTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist/displayname/:name', loadBalanceController.updateWhiteList)
   router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
 
   // autoscaler

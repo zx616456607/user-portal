@@ -19,3 +19,21 @@ export function rebootShining(state = {}, action) {
       return state
   }
 }
+
+export function toggleCreateAppMeshFlag(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.CREATE_APP_MESH_VISITOR_PORT_DISABLE:
+      return Object.assign({}, state, {
+        flag: action.flag
+      })
+    default:
+      return state
+  }
+}
+
+export default function serviceMesh(state = { serviceMesh: {} }, action) {
+  return {
+    rebootShining: rebootShining(state.rebootShining, action),
+    toggleCreateAppMeshFlag: toggleCreateAppMeshFlag(state.toggleCreateAppMeshFlag, action)
+  }
+}
