@@ -24,6 +24,7 @@ import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
 import filter from 'lodash/filter'
+import { getDeepValue } from '../../../../client/util/util'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -764,6 +765,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
                     <TenxIcon className="commonImg" type="user-private" />
+                    { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
                   </Link>
                 </Tooltip>
               </li>
@@ -1667,7 +1669,8 @@ function mapStateToProp(state) {
 
   const { projectAuthority } = state
   const { projectsApprovalClustersList } = projectAuthority
-  const isShowPoint = filter(projectsApprovalClustersList.approvalData.projects, { status: 1 }).length > 0
+  const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
+  const isShowPoint = filter(projects, { status: 1 }).length > 0
 
   return {
     uploadFileOptions: state.storage.uploadFileOptions,

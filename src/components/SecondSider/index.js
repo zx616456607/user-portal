@@ -15,6 +15,7 @@ import "./style/SecondSider.less"
 import { FormattedMessage } from 'react-intl'
 import IntelMessages from '../Sider/Enterprise/Intl'
 import filter from 'lodash/filter'
+import { getDeepValue } from '../../../client/util/util'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -167,7 +168,8 @@ class SecondSider extends Component {
 function mapStateToProps(state) {
   const { projectAuthority } = state
   const { projectsApprovalClustersList } = projectAuthority
-  const isShow = filter(projectsApprovalClustersList.approvalData.projects, { status: 1 }).length > 0
+  const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
+  const isShow = filter(projects, { status: 1 }).length > 0
   return {
     isShow,
   }
