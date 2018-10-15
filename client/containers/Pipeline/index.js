@@ -61,7 +61,7 @@ class Pipeline extends React.Component {
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
-    let title
+    let title = '流水线'
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
