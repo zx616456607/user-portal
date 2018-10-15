@@ -240,6 +240,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
   router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
+  router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

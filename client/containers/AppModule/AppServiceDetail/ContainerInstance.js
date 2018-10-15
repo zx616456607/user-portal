@@ -104,7 +104,7 @@ class ContainerInstance extends React.Component {
     this.props.form.validateFields(async (err, values) => {
       if (err) return
       const { UpdateServiceAnnotation, cluster, serviceDetail,
-        containerNum, manualScaleService } = this.props
+        containerNum, manualScaleService, getISIpPodExisted } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
       const { replicasIP } = values
       const ipStr = `[\"${replicasIP}\"]`
@@ -115,6 +115,15 @@ class ContainerInstance extends React.Component {
         'cni.projectcalico.org/ipAddrs': ipStr,
       })
       notification.spin('更改中...')
+      const isExist = await getISIpPodExisted(cluster, replicasIP)
+      const { code, data: { isPodIpExisted } } = isExist.response.result
+      if (code !== 200) {
+        notification.close()
+        return notification.warn('校验 IP 是否被占用失败')
+      } else if (code === 200 && isPodIpExisted) {
+        notification.close()
+        return notification.warn('当前 IP 已经被占用', '请重新填写')
+      }
       if (containerNum > 1) {
         await manualScaleService(cluster, server, { num: 1 }, {
           failed: {
@@ -321,4 +330,5 @@ export default connect(mapStateToProps, {
   updateAutoScaleStatus: serviceActions.updateAutoScaleStatus,
   loadServiceDetail: serviceActions.loadServiceDetail,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
 })(Form.create()(ContainerInstance))
