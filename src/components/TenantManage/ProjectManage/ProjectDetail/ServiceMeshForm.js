@@ -76,7 +76,7 @@ export default class ServiceMeshForm extends React.Component {
         onOk={() => this.onOk('on')}
         confirmLoading={Buttonloading}
       >
-        <div className="ServiceMeshForm">
+        <div className="ServiceMeshForm open">
         <Alert
           description={
           <div>
@@ -88,17 +88,20 @@ export default class ServiceMeshForm extends React.Component {
           showIcon
         />
         </div>
-        <Row style={{ marginTop: 24 }}>
-          <Col span={4}>
-            <span>已有服务</span>
-          </Col>
-          <Col span={20}>
+        <div style={{ marginTop: 24 }}>设置「已有服务」的服务网格状态</div>
+        <Row style={{ marginTop: 12 }}>
+          <Col span={24}>
             <RadioGroup onChange={this.openAllServiceMesh} value={this.state.openAllServiceMesh}>
               <Radio key="a" value={true}>全部关闭服务网格</Radio>
               <Radio key="b" value={false}>全部开启服务网格</Radio>
             </RadioGroup>
             <div style={{ color: '#ccc', marginTop: 12 }}>
-              将项目&集群下已有的全部服务的服务网格关闭，需要时可在服务详情中开启
+            {
+              this.state.openAllServiceMesh ?
+              <span>{'将项目&集群下已有的全部服务的服务网格关闭，需要时可在服务详情中开启'}</span>
+              :
+              <span>{'将项目&集群下已有的全部服务的服务网格开启'}</span>
+            }
             </div>
           </Col>
         </Row>
@@ -116,14 +119,14 @@ export default class ServiceMeshForm extends React.Component {
           </Button>,
         ]}
       >
-        <div className="ServiceMeshForm">
+        <div className="ServiceMeshForm close">
         <Alert
           description={
           <span>
             {`关闭后，该项目的${this.props.clusterName}集群下服务将不能使用服务网格功能。已开启服务网格的服务将在下次重建后关闭服务网格。`}
           </span>
           }
-          type="error"
+          type="info"
           showIcon
         />
         <div style={{  marginTop: '16px'}}>

@@ -81,7 +81,7 @@ export const mapData = {
     deleteNetOut: '删除网络出口',
     deleteNetOutTip: '删除该网络出口后，已使用此网络出口的服务将不能通过此网络出口被访问',
     deleteNetOutTip2: '2、此网络出口为默认网络出口，删除后，创建服务或数据库与缓存集群时，将没有默认的网络出口，建议设置其他网络出口作为默认',
-    deleteNetOutConfirm: '是否确定删除 { currentName } 网络出口?',
+    deleteNetOutConfirm: '是否确定删除{ currentName } 网络出口?',
     setOneDefaultNetOut: '设置一个默认的网络出口，当创建服务或数据库与缓存时，默认选择该网络出口作为服务访问方式',
     serverProxy: '服务代理',
     action: '操作',
@@ -113,7 +113,8 @@ export const mapData = {
     deleteServiceMeshPortFailure: '删除服务网格出口失败',
     deleteServiceMeshPort: '删除服务网格出口',
     DeleteMeshFormInfoOne: '删除该服务网格出口后, 已使用此出口的网关, 以及关联的路由规则中的服务将不能通过此网络出口被访问',
-    deleteServiceMeshPortConfig: '是否确定删除${ serviceMesh }服务网格出口?',
+    DeleteMeshFormInfoTwo: '2. 此服务网格出口为默认出口, 删除后, 创建网关时, 将不提供默认的服务网格出口, 建议重新设置默认出口',
+    deleteServiceMeshPortConfig: '是否确定删除 { serviceMesh }服务网格出口?',
   }
 }
 

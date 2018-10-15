@@ -19,6 +19,7 @@ import { getDeepValue } from '../../../client/util/util'
 import NotificationHandler from '../../../src/components/Notification'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import TenxIcon from '@tenx-ui/icon/lib'
 
 const notification = new NotificationHandler()
 
@@ -74,18 +75,19 @@ class ServiceMeshPortCard extends React.Component {
       <QueueAni>
         { this.state.istioFlag ?
           <div key="noIstioInfo" className="noIstioInfo">
-              <Alert
+              {/* <Alert
                 // message="集群尚未安装Istio, 暂不能添加"
                 description={this.props.intl.formatMessage(intlMsg.clusterNoIstioNOAdd)}
                 type="warning"
                 showIcon
-              />
+              /> */}
+              <TenxNoBar text={this.props.intl.formatMessage(intlMsg.clusterNoIstioNOAdd)}/>
           </div>
           :
         <div key="ServiceMeshPortCard" className="ServiceMeshPortCard">
           <div className="operationBar">
             <Button type="primary" onClick={() => this.setState({ addMeshPortVisiblity: true })}>
-              <Icon type="plus" />{this.props.intl.formatMessage(intlMsg.addMeshPort)}
+              {this.props.intl.formatMessage(intlMsg.addMeshPort)}
             </Button>
             {/* <Button onClick={() => this.setState({ setDefaultPortvisible: true })}><Icon type="setting" />设置</Button> */}
             <AddMeshNetPort
@@ -166,7 +168,7 @@ class ServicePortCar extends React.Component {
         await this.props.updateServiceMeshPort(this.props.clusterID,hashedName, body)
       } catch(e) { notification.error(this.props.formatMessage(intlMsg.editMeshPortFailure)) }
         await this.props.reload()
-        notification.info(this.props.formatMessage(intlMsg.editMeshPortSuccess))
+        notification.success(this.props.formatMessage(intlMsg.editMeshPortSuccess))
     });
   }
   render() {
@@ -243,14 +245,15 @@ class DeleteMeshForm extends React.Component {
     confirmLoading={this.state.loading}
   >
   <div className="DeleteMeshForm">
-    <Alert
+    {/* <Alert
       description={
         <span >
           <p>{this.props.formatMessage(intlMsg.DeleteMeshFormInfoOne)}</p>
         </span>
       }
       type="warning" showIcon
-    />
+    /> */}
+    <TenxAlertBar text={this.props.formatMessage(intlMsg.DeleteMeshFormInfoOne)} />
     <div className="info">
     <FormattedMessage {...intlMsg.deleteServiceMeshPortConfig }
       values={{ serviceMesh: this.props.initialValue.name }}/>
@@ -287,14 +290,6 @@ class FormInner extends React.Component {
     const { nameDisabled = false } = this.props
     const { formItemLayout:innerFormItemLayout = formItemLayout  } = this.props
     const { initialValue: { name, exposedIPs:[exposedIPsOne] = [], nodeNames= [] } = {} } = this.props
-    // initialValue
-    /*
-     {
-       name: string,
-       node: object,
-       ip: []
-     }
-    */
     return (
       <div className="FormInner">
       <Form form={this.props.form}>
@@ -327,10 +322,15 @@ class FormInner extends React.Component {
           </span>}
       >
         <Select placeholder={this.props.formatMessage(intlMsg.pleaseChoiceNode)} multiple  disabled={disabled}
-         {...getFieldProps('node', { initialValue: nodeNames })}>
+         {...getFieldProps('node', { initialValue: nodeNames,
+          rules: [{
+            required: true,
+            message: '请选择节点',
+          },] })}
+         >
             {
               Object.entries(this.props.nodeArray || {}).map(([key, value]) =>
-              <Option value={key} disabled={!value} key={key}>{key}</Option>)
+              <Option value={key} disabled={!nodeNames.includes(key) && !value} key={key}>{key}</Option>)
             }
         </Select>
       </FormItem>
@@ -463,4 +463,25 @@ class SetDefaultPort extends React.Component {
     </Modal>
     )
   }
+}
+
+function TenxAlertBar({text = '-'}) {
+  return (
+    <div className='TenxAlertBar'>
+    <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"
+    style={{ top: '24px' }}></i>
+    <div>{text}</div>
+  </div>
+  )
+}
+
+function TenxNoBar({text = '-'}) {
+  return (
+    <div className='TenxNoBar'>
+    <TenxIcon type="warning" className="icon"/>
+    {/* <i className="fa fa-exclamation-triangle warningIcon" aria-hidden="true"
+    style={{ top: '24px' }}></i> */}
+    <span>{text}</span>
+  </div>
+  )
 }

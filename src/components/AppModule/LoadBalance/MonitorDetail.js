@@ -48,8 +48,8 @@ class MonitorDetail extends React.Component {
       success: {
         func: res => {
           this.setState({
-            allServices: res.data.services.filter(item => !isEmpty(item.services)).map(item => item.service),
-            defaultAllServices: res.data.services.filter(item => !isEmpty(item.services)).map(item => item.service),
+            allServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
+            defaultAllServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
           }, () => {
             this.initialForm()
           })
@@ -299,7 +299,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -307,7 +308,8 @@ class MonitorDetail extends React.Component {
               return callback('监听器名称已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -336,7 +338,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -344,7 +347,8 @@ class MonitorDetail extends React.Component {
               return callback('校验规则已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)

@@ -821,7 +821,10 @@ class ServiceList extends Component {
     try{
       ServiceListmeshResult =
       await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
-    } catch(e) { notification.error({message:'获取服务网格状态出错'}) }
+    } catch(e) {
+      const notification = new NotificationHandler()
+      notification.error({message:'获取服务网格状态出错'})
+    }
     const ServiceListmeshData = ServiceListmeshResult.response.result || {}
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)

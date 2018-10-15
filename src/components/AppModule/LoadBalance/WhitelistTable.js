@@ -172,15 +172,15 @@ class WhitelistTable extends React.PureComponent {
         const ip = values[`ip-${key}`]
         whiteList.push(ip)
       })
+      const { displayName } = location.query
       whiteList = whiteList.join(',')
-      const result = await updateLBWhiteList(clusterID, name, { whiteList })
+      const result = await updateLBWhiteList(clusterID, name, { whiteList }, displayName)
       if (result.error) {
         this.setState({
           confirmLoading: false,
         })
         return notify.warn('编辑失败')
       }
-      const { displayName } = location.query
       getLBDetail(clusterID, name, displayName)
       notify.success('编辑成功')
       this.setState({
