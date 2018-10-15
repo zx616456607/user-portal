@@ -39,9 +39,9 @@ export default class ServiceMeshSwitch extends React.Component {
       this.setState({ userType: 3 })
       return
     }
-    const newNameSpace = displayName || projectDetail && projectDetail.namespace;
+    const newNameSpace = projectDetail && projectDetail.namespace;
     const result1 = await checkProInClusMesh(newNameSpace, clusterId);
-    const { istioEnabled = false } = result1.response.result
+    const { istioEnabled = false } = (result1.response || {}).result
     if (istioEnabled === true) {
       this.setState({ Switchchecked: true, currentSwitchchecked: true, userType: 1 })
       return
