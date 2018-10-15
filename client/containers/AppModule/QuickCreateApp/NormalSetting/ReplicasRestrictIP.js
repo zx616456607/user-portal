@@ -15,6 +15,7 @@ import './style/ReplicasRestrictIP.less'
 import * as podAction from '../../../../../src/actions/app_manage'
 import Notification from '../../../../../src/components/Notification'
 import ipRangeCheck from 'ip-range-check'
+import * as serviceActions from '../../../../../src/actions/services'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -116,7 +117,7 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
-  checkPodCidr = (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
     const { NetSegment } = this.state
     if (!NetSegment) {
@@ -125,6 +126,14 @@ class ReplicasRestrictIP extends React.Component {
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    const { getISIpPodExisted, cluster } = this.props
+    const isExist = await getISIpPodExisted(cluster, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback('校验 IP 是否被占用失败')
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback('当前 IP 已经被占用, 请重新填写')
     }
     callback()
   }
@@ -201,4 +210,5 @@ const mapStateToProps = ({
 
 export default connect(mapStateToProps, {
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
 })(ReplicasRestrictIP)
