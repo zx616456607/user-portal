@@ -37,6 +37,7 @@ import ipRangeCheck from 'ip-range-check'
 import {getDeepValue} from "../../../../client/util/util"
 import { sleep } from "../../../common/tools"
 import TenxIcon from '@tenx-ui/icon'
+import * as serviceActions from '../../../../src/actions/services'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -316,7 +317,7 @@ class LoadBalanceModal extends React.Component {
     callback()
   }
 
-  staticIpCheck = (rules, value, callback) => {
+  staticIpCheck = async (rules, value, callback) => {
     if (!value) {
       return callback('固定 IP 不能为空')
     }
@@ -327,6 +328,14 @@ class LoadBalanceModal extends React.Component {
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    const { getISIpPodExisted, clusterID } = this.props
+    const isExist = await getISIpPodExisted(clusterID, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback('校验 IP 是否被占用失败')
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback('当前 IP 已经被占用, 请重新填写')
     }
     callback()
   }
@@ -618,4 +627,5 @@ export default connect(mapStateToProps, {
   editLB,
   getPodNetworkSegment,
   checkLbPermission,
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
 })(LoadBalanceModal)
