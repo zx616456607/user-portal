@@ -37,6 +37,7 @@ import ipRangeCheck from 'ip-range-check'
 import {getDeepValue} from "../../../../client/util/util"
 import { sleep } from "../../../common/tools"
 import TenxIcon from '@tenx-ui/icon'
+import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -369,7 +370,7 @@ class LoadBalanceModal extends React.Component {
             validator: this.nodeCheck
           }
         ],
-        initialValue: currentBalance ? currentBalance.metadata.annotations.allocatedIP : ''
+        initialValue: currentBalance ? currentBalance.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY] : ''
       })
     }
 
