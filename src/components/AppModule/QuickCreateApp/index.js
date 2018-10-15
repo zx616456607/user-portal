@@ -140,10 +140,12 @@ class QuickCreateApp extends Component {
   componentWillMount() {
     this.setConfig(this.props)
     const { location, fields, template:templateList, getImageTemplate } = this.props
-    const { hash, query } = location
+    const { hash, query, pathname } = location
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
+    }
+    if (pathname.includes('app_create/quick_create') && template) {
       this.checkHelmIsRepare()
     }
     if (isEmpty(templateList)) {

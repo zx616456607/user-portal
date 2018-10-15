@@ -157,9 +157,11 @@ class ServicePortCar extends React.Component {
   }
   onSave = () => {
     const hashedName = this.props.initialValue.hashedName
-    this.setState({ edit:false })
     this.props.form.validateFields(async (errors, values) => {
-      if (!!errors) return
+      if (!!errors) {
+        return
+      }
+      this.setState({ edit:false })
       const body = {
         nodeNames: values.node,
         exposedIPs: [values.portIp]  // 这个是可有可无
