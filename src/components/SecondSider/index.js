@@ -8,11 +8,13 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Menu, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import "./style/SecondSider.less"
 import { FormattedMessage } from 'react-intl'
 import IntelMessages from '../Sider/Enterprise/Intl'
+import filter from 'lodash/filter'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -67,14 +69,14 @@ function currentPathNameCheck(scope, menuList) {
 }
 
 
-export default class SecondSider extends Component {
+class SecondSider extends Component {
   constructor(props) {
     super(props)
     this.handleClick = this.handleClick.bind(this)
     this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.state = {
       current: 'secondSider0',
-      currentSiderStyle: 'normal'
+      currentSiderStyle: 'normal',
     }
   }
 
@@ -82,8 +84,10 @@ export default class SecondSider extends Component {
 
     const { menuList } = this.props
     currentPathNameCheck(this, menuList)
+    // if (filter(menuList, { url : '/tenant_manage' })[0]) {
+    //   this.
+    // }
   }
-
   componentWillReceiveProps(nextProps) {
     const { menuList } = nextProps
     currentPathNameCheck(this, menuList)
@@ -118,21 +122,25 @@ export default class SecondSider extends Component {
 
   render() {
     const { current } = this.state
-    const { menuList } = this.props
+    const { menuList, isShow } = this.props
     let menuShow = menuList.map((item, index) => {
+      const tempIsShow = isShow && item.url.indexOf("/tenant_manage/cluster_authorization") > -1
+      console.log(tempIsShow)
       if (item.onClick) {
         return (
           <Menu.Item key={'secondSider' + index}>
             <div onClick={item.onClick}>
             <FormattedMessage {...IntelMessages[item.name]} />
+            { tempIsShow && <span className="topRightPoint"><strong>●</strong></span> }
             </div>
           </Menu.Item>
         )
       }
       return (
         <Menu.Item key={'secondSider' + index}>
-          <Link to={item.url}>
+          <Link to={item.url + ( tempIsShow ? '?link_status=1' : '')}>
             <FormattedMessage {...IntelMessages[item.name]} />
+            { tempIsShow && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>
         </Menu.Item>
       )
@@ -155,3 +163,15 @@ export default class SecondSider extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  const { projectAuthority } = state
+  const { projectsApprovalClustersList } = projectAuthority
+  const isShow = filter(projectsApprovalClustersList.approvalData.projects, { status: 1 }).length > 0
+  return {
+    isShow,
+  }
+}
+
+export default connect(mapStateToProps, {})(SecondSider)
+
