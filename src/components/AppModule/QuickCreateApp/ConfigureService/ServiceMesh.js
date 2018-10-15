@@ -46,6 +46,8 @@ class ServiceMesh extends React.Component {
   componentDidMount = async () => {
     const { checkProInClusMesh, checkClusterIstio } = this.props
     const { msaConfig, clusterId, namespace, userName } = this.props
+    const serviceMeshChoice = this.props.form.getFieldValue('serviceMesh')
+    this.props.toggleCreateAppMeshFlag(serviceMeshChoice ? true : false) // 复位访问方式
     if(!msaConfig) {
       this.setState({ userrole: 1 })
       return
