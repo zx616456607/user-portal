@@ -534,19 +534,8 @@ class Snapshot extends Component {
     const { formatMessage } = intl
     const {
       selectedRowKeys, DeleteSnapshotButton, currentSnapshot,
-      delelteSnapshotNum, currentVolume, // SnapshotList,
+      delelteSnapshotNum, currentVolume, SnapshotList,
     } = this.state
-    const SnapshotList = [{
-      name: 'aaa',
-      status: 'ddd',
-      type: '111',
-      fstype: '666',
-      size: 'sss',
-      volume: 'wwww',
-      storageServer: 'storageServer',
-      CreateTime: '2018-09-28',
-
-    }]
     let currentStorageList= []
     if(storageList[currentImagePool]){
       currentStorageList = storageList[currentImagePool].storageList
@@ -661,6 +650,7 @@ class Snapshot extends Component {
               size="large"
               onPressEnter={this.handelEnterSearch}
               id="searchSnapshot"
+              style={{ width: 180 }}
             />
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
