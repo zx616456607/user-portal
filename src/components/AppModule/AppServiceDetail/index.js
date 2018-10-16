@@ -133,7 +133,7 @@ class AppServiceDetail extends Component {
     // bpm 需要根据一个参数, 请求一个带query的容器列表接口
     const appCenterChoiceHidden = this.props.bpmShow
     const bpmQuery = appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
-    loadServiceContainerList(cluster, serviceName, {projectName}, bpmQuery, {
+    loadServiceContainerList(cluster, serviceName, { projectName }, bpmQuery, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
@@ -142,7 +142,10 @@ class AppServiceDetail extends Component {
           clearTimeout(self.loadStatusTimeout)
           clearInterval(this.upStatusInterval)
           query.customizeOpts = {
-            keepChecked: true,
+            keepChecked: true
+          }
+          if (projectName) {
+            query.projectName = projectName
           }
           self.loadStatusTimeout = setTimeout(() => {
             loadServiceContainerList(cluster, serviceName, query, bpmQuery)
@@ -516,14 +519,14 @@ class AppServiceDetail extends Component {
                   />
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.visitStyle)} key='#visitType'>
-                <VisitType
+                { activeTabKey==='#visitType' && <VisitType
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   service={serviceDetail}
                   activeKey={activeTabKey}
                   isCurrentTab={activeTabKey==='#visitType'}
-                />
+                />}
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.port)} key='#ports'>
                 <PortDetail
@@ -650,7 +653,7 @@ function mapStateToProps(state, props) {
   const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
   const { projectName } = state.entities.current.space
-  const { shiningFlag = false } = state.rebootShining
+  const {rebootShining: { shiningFlag = false } = {}} = state.serviceMesh
   const defaultService = {
     isFetching: false,
     cluster,

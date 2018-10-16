@@ -759,3 +759,11 @@ exports.updateHostConfig = function* () {
   const result = yield api.updateBy([cluster, 'services', service, 'host'], null, body)
   this.body = result
 }
+
+exports.getISIpPodExisted = function* () {
+  const cluster = this.params.cluster
+  const ip = this.params.ip
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster,'services', 'is-pod-ip-existed', ip ])
+  this.body = result
+}

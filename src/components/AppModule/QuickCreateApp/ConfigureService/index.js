@@ -187,7 +187,7 @@ let ConfigureService = React.createClass({
             }
             if (location && location.query.tag) {
               let hasTag
-              result.data.every(tags =>{
+              result.data && result.data.every(tags =>{
                 if (tags == location.query.tag) {
                   hasTag = true
                   return false
@@ -414,6 +414,7 @@ let ConfigureService = React.createClass({
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
       systemRegistry,
+      imagePorts: containerPorts,
     }
     Object.assign(fieldsValues, storageFields, portsFields,
       commandFields,

@@ -11,13 +11,6 @@
       <tr>
         <td>
           <table style="margin: 55px auto 0;width: 740px;">
-            <tbody>
-              <tr>
-                <td style="height: 54px;text-align: center;">
-                  <img src="https://dn-tenxcloud-static.qbox.me/img/logoSmall.png" alt="TenxCloud" style="display: inline-block">
-                </td>
-              </tr>
-            </tbody>
           </table>
           <table style="width: 740px;margin: 0 auto;border-radius: 3px;border-collapse:collapse;border-spacing:0;">
             <tbody>
@@ -25,7 +18,7 @@
                 <td style="height: 40px;line-height: 40px;text-align: center;
                     background-color: #2bb9f7;color: #fff;font-size: 16px;border-radius: 3px 3px 0 0;border-bottom: 1px solid #dfdfdf;
                     width: 740px;">
-                  [时速云]&nbsp;告警通知组&nbsp;|&nbsp;邮箱验证
+                  [%productName%]&nbsp;告警通知组&nbsp;|&nbsp;邮箱验证
                 </td>
               </tr>
               <tr>
@@ -39,7 +32,7 @@
                       </tr>
                       <tr>
                         <td style="height: 24px;">
-                          您好！您的邮箱被时速云<b>%invitorName%</b>用户选为告警接收邮箱，如您同意请点击以下按钮通过验证：
+                          您好！您的邮箱被%productName%<b>%invitorName%</b>用户选为告警接收邮箱，如您同意请点击以下按钮通过验证：
                         </td>
                       </tr>
                       <tr>
@@ -71,7 +64,7 @@
                       <tr>
                         <td style="height: 24px;">
                           <br></br>
-                          时速云团队
+                          %productName%团队
                           <br/> %date%
                         </td>
                       </tr>
@@ -85,14 +78,11 @@
         <tbody>
           <tr style="height: 40px;">
             <td style="width: 200px;padding: 0 23px 0 35px;">
-              <img src="https://dn-tenxcloud-static.qbox.me/logoBig.png" alt="TenxCloud">
+              <img src="%logoForEmail%" alt="%productName%" height="60">
             </td>
             <td>
               如有任何疑问，请联系邀请者%invitorName%(<span><a href="mailto:%invitorEmail%" style="color: #2bbbfa;">%invitorEmail%</a></span>)
-              或时速云(
-              <span>
-                    <a href="mailto:%systemEmail%" target="_blank" style="color: #2bbbfa;">%systemEmail%</a>
-                  </span>)
+              或管理员
             </td>
           </tr>
         </tbody>

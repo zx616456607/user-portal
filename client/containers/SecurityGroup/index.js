@@ -274,14 +274,19 @@ const mapStateToProps = ({
   securityGroup: { getSecurityGroupList: { data, isFetching } },
 }) => {
   const listData = []
-  data && data.map(item => listData.push({
-    name: item.metadata && item.metadata.annotations['policy-name'],
-    metaName: item.metadata.name,
-    target: item.spec.podSelector.matchExpressions
-      && item.spec.podSelector.matchExpressions[0].values,
-    time: item.metadata.creationTimestamp,
-    key: item.metadata.name,
-  }))
+  data && data.forEach(item => {
+    const name = item.metadata && item.metadata.annotations['policy-name']
+    if (name !== 'system_bypass_inter_namespace') {
+      listData.push({
+        name,
+        metaName: item.metadata.name,
+        target: item.spec.podSelector.matchExpressions
+          && item.spec.podSelector.matchExpressions[0].values,
+        time: item.metadata.creationTimestamp,
+        key: item.metadata.name,
+      })
+    }
+  })
   return {
     cluster: current.cluster.clusterID,
     listData,

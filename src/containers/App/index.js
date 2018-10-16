@@ -670,7 +670,7 @@ class App extends Component {
             <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
           </div>
         </Modal>
-        {/*<Modal
+        <Modal
           visible={currentUser !== loginUser.userName}
           title={formatMessage(IntlMessages.loginUserChanged)}
           maskClosable={false}
@@ -692,7 +692,7 @@ class App extends Component {
               <FormattedMessage {...IntlMessages.loginUserChangedTips} values={{ user: currentUser }} />
             </div>
           </div>
-        </Modal>*/}
+        </Modal>
         {this.getStatusWatchWs()}
         {this.renderIntercom()}
         {

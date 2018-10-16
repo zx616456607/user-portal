@@ -210,7 +210,7 @@ class ContainerInstance extends React.Component {
     onHandleCanleIp(v)
   }
 
-  checkPodCidr = (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
     const { NetSegment } = this.state
     if (!NetSegment) {
@@ -219,6 +219,14 @@ class ContainerInstance extends React.Component {
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    const { getISIpPodExisted, cluster } = this.props
+    const isExist = await getISIpPodExisted(cluster, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback('校验 IP 是否被占用失败')
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback('当前 IP 已经被占用, 请重新填写')
     }
     callback()
   }
@@ -321,4 +329,5 @@ export default connect(mapStateToProps, {
   updateAutoScaleStatus: serviceActions.updateAutoScaleStatus,
   loadServiceDetail: serviceActions.loadServiceDetail,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
 })(Form.create()(ContainerInstance))

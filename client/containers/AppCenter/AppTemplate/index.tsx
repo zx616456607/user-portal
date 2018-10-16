@@ -35,6 +35,7 @@ import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
 import { getDeepValue } from '../../../util/util'
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
+import { OTHER_IMAGE } from '../../../../src/constants'
 
 const notify = new NotificationHandler();
 
@@ -172,6 +173,11 @@ class TemplateList extends React.Component<any> {
       from: 'appcenter',
       template: 'true',
     };
+    if (currentFields[OTHER_IMAGE]) {
+      Object.assign(query, {
+        other: currentFields[OTHER_IMAGE].value,
+      })
+    }
     if (appPkgID) {
       const type = imageName.split('/')[1];
       const fileType = getWrapFileType(type);

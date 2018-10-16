@@ -20,7 +20,8 @@ import {
   SYSTEM_DEFAULT_SCHEDULE,
   GPU_ALGORITHM,
   NO_CLASSIFY,
-  CONFIGMAP_CLASSIFY_CONNECTION
+  CONFIGMAP_CLASSIFY_CONNECTION,
+  OTHER_IMAGE
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 
@@ -102,7 +103,7 @@ export function checkVolumeMountPath(form, index, value, type) {
   return error
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy, location) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -185,6 +186,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   if (isTemplate && appPkgID) {
     deployment.setAnnotations({
       appPkgID
+    })
+  }
+  if (isTemplate && !isTemplateDeploy && location.query.other) {
+    deployment.setAnnotations({
+      [OTHER_IMAGE]: location.query.other,
     })
   }
   if (modelSet) {

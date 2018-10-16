@@ -154,8 +154,9 @@ class BaseInfo extends React.Component {
                     <FormItem
                       hasFeedback
                       help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                      style={{ width: 170 }}
                     >
-                      <Input {...nameProps} style={{ width: 170 }}/>
+                      <Input {...nameProps}/>
                     </FormItem>
                     :
                     <span>{deployment && deployment.metadata && deployment.metadata.annotations.displayName}</span>

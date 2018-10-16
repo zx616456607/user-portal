@@ -63,12 +63,13 @@ import backupChain from '../../client/reducers/backupChain'
 import dnsRecord from '../../client/reducers/dnsRecord'
 import securityGroup from '../../client/reducers/securityGroup'
 import middlewareCenter from '../../client/reducers/middlewareCenter'
+import emailApproval from '../../client/reducers/emailApproval'
 import {
   LOGIN_EXPIRED_MESSAGE,
   PAYMENT_REQUIRED_CODE,
   UPGRADE_EDITION_REQUIRED_CODE,
 } from '../constants'
-import {rebootShining} from './service_mesh'
+import serviceMesh from './service_mesh'
 
 // for other actions support callback
 const OTHER_SUPPORT_CALLBACK_TYPES = [
@@ -196,7 +197,8 @@ const rootReducer = combineReducers({
   dnsRecord,
   securityGroup,
   middlewareCenter,
-  rebootShining
+  serviceMesh,
+  emailApproval,
 })
 
 export default rootReducer

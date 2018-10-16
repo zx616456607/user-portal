@@ -1097,7 +1097,7 @@ class AlarmSetting extends Component {
         // namespaceType : 0,
         nodeName : "",
         receivers : middleEditStrategy.alertGroup ? middleEditStrategy.alertGroup : '', // 有告警通知组的概念
-        receiversGroup : middleEditStrategy.alertGroup,
+        receiversGroup : middleEditStrategy.staticPayload && middleEditStrategy.staticPayload.receiversgroup,
         repeatInterval: middleEditStrategy.timeframe.minutes * 60,
         sendEmail : middleEditStrategy.alertGroup ? 1 : 0, // 有告警组就发送告警
         statusCode : 1,

@@ -339,7 +339,7 @@ AppDetail.propTypes = {
 function mapStateToProps(state, props) {
   const { app_name } = props.params
   const { hash, pathname } = props.location
-  const { cluster,space } = state.entities.current
+  const { cluster, space } = state.entities.current
   const { billingConfig } = state.entities.loginUser.info
   const { enabled: billingEnabled } = billingEnabled || { enabled: false }
   const defaultApp = {

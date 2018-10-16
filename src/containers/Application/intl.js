@@ -203,6 +203,7 @@ const messageObj = {
     continue: '继续',
     abandon: '放弃',
     noTillerTip: '请先在集群中安装tiller插件并设置固定节点',
+    addOneListener: '请至少添加一个监听器',
   }
 }
 
