@@ -120,7 +120,14 @@ class AIDeepLearning extends React.Component {
       windowHeight: window.innerHeight,
     })
   }
-
+  componentDidUpdate(prevProps) {
+    const { location: { pathname: prevPathname, query: { redirect: _prevRedirect } = {} } = {} }
+     = prevProps
+    const { location: { pathname, query: { redirect } = {} } = {} } = this.props
+    if (_prevRedirect !== redirect || prevPathname !== pathname) {
+      window.history.back()
+    }
+  }
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token, cluster,

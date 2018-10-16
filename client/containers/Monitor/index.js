@@ -1,3 +1,12 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * index.js page
+ *
+ * @author zhangtao
+ * @date Tuesday October 16th 2018
+ */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
@@ -54,7 +63,14 @@ class Monitor extends React.Component {
       windowHeight: window.innerHeight,
     })
   }
-
+  componentDidUpdate(prevProps) {
+    const { location: { pathname: prevPathname, query: { redirect: _prevRedirect } = {} } = {} }
+     = prevProps
+    const { location: { pathname, query: { redirect } = {} } = {} } = this.props
+    if (_prevRedirect !== redirect || prevPathname !== pathname) {
+      window.history.back()
+    }
+  }
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token,
