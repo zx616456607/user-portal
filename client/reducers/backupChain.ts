@@ -7,30 +7,41 @@
  * v0.1 - 2018-07-12
  * @author zhouhaitao
  */
-import {
-  GET_BACKUPCHAIN_REQUEST,
-  GET_BACKUPCHAIN_SUCCESS,
-  GET_BACKUPCHAIN_FAILURE,
-  CHECK_AUTO_BACKUP_EXIST_REQUEST,
-  CHECK_AUTO_BACKUP_EXIST_SUCCESS,
-  CHECK_AUTO_BACKUP_EXIST_FAILURE,
-} from '../actions/backupChain'
+import * as ActionsType from '../actions/backupChain'
 
 function chains(state = {}, action: any) {
   switch (action.type) {
-    case GET_BACKUPCHAIN_REQUEST:
+    case ActionsType.GET_BACKUPCHAIN_REQUEST:
       return {
         isFetching: true,
       }
-    case GET_BACKUPCHAIN_SUCCESS:
+    case ActionsType.GET_BACKUPCHAIN_SUCCESS:
       const data = action.response.result.data.items
+      const rollbackComplete = action.response.result.data.rollBack
       return {
         isFetching: false,
         data,
+        rollbackComplete,
       }
-    case GET_BACKUPCHAIN_FAILURE:
+    case ActionsType.GET_BACKUPCHAIN_FAILURE:
       return {
         isFetching: false,
+        rollbackComplete: false,
+      }
+    case ActionsType.ROLLBACK_REQUEST:
+      return {
+        ...state,
+        rollbackComplete: true,
+      }
+    case ActionsType.ROLLBACK_SUCCESS:
+      return {
+        ...state,
+        rollbackComplete: false,
+      }
+    case ActionsType.ROLLBACK_FAILURE:
+      return {
+        ...state,
+        rollbackComplete: false,
       }
     default:
       return state
@@ -44,18 +55,45 @@ const autoBackupInitial = {
 }
 function autoBackupChains(state = autoBackupInitial, action: any) {
   switch (action.type) {
-    case CHECK_AUTO_BACKUP_EXIST_REQUEST:
+    case ActionsType.CHECK_AUTO_BACKUP_EXIST_REQUEST:
       return {
         isFetching: true,
         data: [],
       }
-    case CHECK_AUTO_BACKUP_EXIST_SUCCESS:
+    case ActionsType.CHECK_AUTO_BACKUP_EXIST_SUCCESS:
       const data = action.response.result.data
       return {
         isFetching: false,
         data,
       }
-    case CHECK_AUTO_BACKUP_EXIST_FAILURE:
+    case ActionsType.CHECK_AUTO_BACKUP_EXIST_FAILURE:
+      return {
+        isFetching: false,
+        data: [],
+      }
+    default:
+      return state
+  }
+}
+
+const rollbackRecordInitial = {
+  isFetching: false,
+  data: [],
+}
+function rollbackRecord(state = rollbackRecordInitial, action: any) {
+  switch (action.type) {
+    case ActionsType.ROLLBACK_RECORD_REQUEST:
+      return {
+        isFetching: true,
+        data: [],
+      }
+    case ActionsType.ROLLBACK_RECORD_SUCCESS:
+      const data = action.response.result.data.items || []
+      return {
+        isFetching: false,
+        data,
+      }
+    case ActionsType.ROLLBACK_RECORD_FAILURE:
       return {
         isFetching: false,
         data: [],
@@ -68,5 +106,6 @@ export default function backupChain(state = {}, action) {
   return {
     chains: chains(state.chains, action),
     autoBackupChains : autoBackupChains(state.autoBackupChains, action),
+    rollbackRecord : rollbackRecord(state.rollbackRecord, action),
   }
 }

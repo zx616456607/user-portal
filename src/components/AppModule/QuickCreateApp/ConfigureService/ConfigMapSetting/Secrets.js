@@ -35,9 +35,7 @@ const PATH_REG = /^\//
 const SecretsConfigMap = React.createClass({
   loadSecrets() {
     const { currentCluster, getSecrets } = this.props
-    getSecrets({
-      cluster_id: currentCluster.clusterID,
-    })
+    getSecrets(currentCluster.clusterID)
   },
   onIsWholeDirChange(keyValue, currentConfigGroup, e) {
     if (!currentConfigGroup) {
@@ -316,13 +314,9 @@ const SecretsConfigMap = React.createClass({
     })
   },
   getSelectAllChecked(keyValue, currentConfigGroup) {
-    const { form, location, isTemplate } = this.props
+    const { form } = this.props
     const { getFieldValue } = form
-    const templateDeploy = location.query.template && !isTemplate
 
-    if (templateDeploy) {
-      return true
-    }
     if (!currentConfigGroup) {
       return false
     }

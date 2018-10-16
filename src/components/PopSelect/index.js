@@ -45,7 +45,7 @@ export default class PopSelect extends Component {
   render() {
     const {
       title, btnStyle, loading, special, selectValue, list,
-      popTeamSelect, Search, isSysAdmin, allUsers,
+      popTeamSelect, Search, isSysAdmin,
       collapseDefaultActiveKey,
     } = this.props
     const text = <span className="PopSelectTitle">{title}</span>
@@ -66,7 +66,6 @@ export default class PopSelect extends Component {
               special={special}
               popTeamSelect={popTeamSelect}
               isSysAdmin={isSysAdmin}
-              allUsers={allUsers}
               collapseDefaultActiveKey={collapseDefaultActiveKey}
             />
           }

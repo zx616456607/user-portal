@@ -23,12 +23,14 @@ exports.getLBIPList = function* () {
 exports.createLB = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
+  const displayName = this.params.displayname
+  const agentType = this.params.agentType
   let newBody = Object.assign({}, body, {
     registry: getRegistryURL()
   })
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'loadbalances'], null, newBody)
+  const result = yield api.createBy([cluster, 'loadbalances', 'displayname', displayName, 'agentType', agentType], null, newBody)
   this.body = result
 }
 
@@ -37,12 +39,13 @@ exports.editLB = function* () {
   const name = this.params.name
   const displayName = this.params.displayname
   const body = this.request.body
+  const agentType = this.params.agentType
   let newBody = Object.assign({}, body, {
     registry: getRegistryURL()
   })
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', name, 'displayname', displayName], null, newBody)
+  const result = yield api.updateBy([cluster, 'loadbalances', name, 'displayname', displayName, 'agentType', agentType], null, newBody)
   this.body = result
 }
 
@@ -96,9 +99,10 @@ exports.deleteLB = function* () {
   const cluster = this.params.cluster
   const name = this.params.name
   const displayName = this.params.displayname
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', name, 'displayname', displayName])
+  const result = yield api.deleteBy([cluster, 'loadbalances', name, 'displayname', displayName, 'agentType', agentType])
   this.body = result
 }
 
@@ -106,9 +110,12 @@ exports.createAppIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
   const body = this.request.body
+  const ingressname = this.params.ingressname
+  const displayName = this.params.displayname
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'ingress', 'app'], null, body)
+  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'ingress', ingressname, 'app', 'displayname', displayName, 'agentType', agentType], null, body)
   this.body = result
 }
 
@@ -116,9 +123,12 @@ exports.createIngress = function* () {
   const cluster = this.params.cluster
   const name = this.params.name
   const body = this.request.body
+  const ingressname = this.params.ingressname
+  const displayName = this.params.displayname
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'loadbalances', name, 'ingress'], null, body)
+  const result = yield api.createBy([cluster, 'loadbalances', name, 'ingress', ingressname, 'displayname', displayName, 'agentType', agentType], null, body)
   this.body = result
 }
 
@@ -126,10 +136,12 @@ exports.updateIngress = function* () {
   const cluster = this.params.cluster
   const name = this.params.name
   const displayName = this.params.displayname
+  const lbDisplayName = this.params.lbdisplayname
+  const agentType = this.params.agentType
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', name, 'ingress', displayName], null, body)
+  const result = yield api.updateBy([cluster, 'loadbalances', name, 'ingress', displayName, 'displayname', lbDisplayName, 'agentType', agentType], null, body)
   this.body = result
 }
 exports.deleteIngress = function* () {
@@ -137,9 +149,10 @@ exports.deleteIngress = function* () {
   const lbname = this.params.lbname
   const name = this.params.name
   const displayName = this.params.displayname
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'ingresses', name, 'displayname', displayName])
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'ingresses', name, 'displayname', displayName, 'agentType', agentType])
   this.body = result
 }
 
@@ -156,9 +169,10 @@ exports.unbindService = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
   const serviceName = this.params.servicename
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'services', serviceName])
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'services', serviceName, 'agentType', agentType])
   this.body = result
 }
 
@@ -188,10 +202,13 @@ function getRegistryURL() {
 exports.createTcpUdpIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const type = this.params.type
+  const name = this.params.name
+  const agentType = this.params.agentType
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  const result = yield api.createBy([cluster, 'loadbalances', lbname, 'stream', 'type', type, 'displayname', name, 'agentType', agentType], null, body)
   this.body = result
 }
 
@@ -208,10 +225,13 @@ exports.getTcpUdpIngress = function* () {
 exports.updateTcpUdpIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const type = this.params.type
+  const name = this.params.name
+  const agentType = this.params.agentType
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'stream'], null, body)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'stream', 'type', type, 'displayname', name, 'agentType', agentType], null, body)
   this.body = result
 }
 
@@ -220,18 +240,29 @@ exports.deleteTcpUdpIngress = function* () {
   const lbname = this.params.lbname
   const type = this.params.type
   const ports = this.params.ports
+  const name = this.params.name
+  const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports])
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'stream', 'protocols', type, 'ports', ports, 'displayname', name, 'agentType', agentType])
   this.body = result
 }
 
 exports.updateWhiteList = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
+  const name = this.params.name
+  const agentType = this.params.agentType
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList'], null, body)
+  const result = yield api.updateBy([cluster, 'loadbalances', lbname, 'whiteList', 'displayname', name, 'agentType', agentType], null, body)
+  this.body = result
+}
+
+exports.isCreateLbPermission = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy(['undefined', 'loadbalances', 'checkpermission'])
   this.body = result
 }

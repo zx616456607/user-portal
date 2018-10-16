@@ -262,6 +262,13 @@ class TerminalModal extends Component {
         </div>
       )
     }
+    if (terminalStatus === 'close') {
+      return (
+        <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+          <span><FormattedMessage {...intlMsg.connectClose}/></span>
+        </div>
+      )
+    }
     return (
       <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
         <span className='terIcon'></span>
@@ -345,7 +352,7 @@ class TerminalModal extends Component {
               pod: name,
               cluster: clusterID,
               container,
-              '_': '20180123', // for clear cache
+              '_': '20180928', // for clear cache
             }
             return (
               <TabPane tab={titleTab} key={name}>

@@ -12,11 +12,11 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Radio, Input, Tabs, Button, Table } from 'antd'
+import { Radio, Input, Tabs, Button, Table, Icon } from 'antd'
 import {
   loadPublicImageList, loadPrivateImageList, searchPublicImages,
   loadFavouriteList, searchFavoriteImages, searchPrivateImages,
-  publicFilterServer
+  publicFilterServer, dispatchLoadOtherImage, dispatchGetOtherImageList
 } from '../../../actions/app_center'
 import { loadAllProject } from '../../../actions/harbor'
 import { getAppsList } from '../../../actions/app_store'
@@ -27,6 +27,8 @@ import NotificationHandler from '../../../components/Notification'
 import TenxIcon from '@tenx-ui/icon'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import DockerImg from '../../../assets/img/quickentry/docker.png'
+import filter from 'lodash/filter'
 
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
@@ -47,6 +49,7 @@ class SelectImage extends Component {
     this.onTabChange = this.onTabChange.bind(this)
     this.searchImages = this.searchImages.bind(this)
     this.onDeploy = this.onDeploy.bind(this)
+    this.onDeployOthers = this.onDeployOthers.bind(this)
     this.renderImageList = this.renderImageList.bind(this)
     const { location } = props
     let { imageName, imageType, searchImage } = location.query
@@ -58,12 +61,20 @@ class SelectImage extends Component {
     } else {
       imageType = 'privateImages'
     }
+    let searchInputValue
+    if (!location.pathname.includes('/app_center/template/create')) {
+      searchInputValue = imageName
+    }
     this.state = {
       imageType,
       imageFilter: 'all',
-      searchInputValue: imageName,
+      searchInputValue,
       currentPage: 1,
-      searchImage
+      searchImage,
+      others: [],
+      othersImages: [],
+      tempOthersImages: [],
+      isLoadingOthersImages: false,
     }
   }
 
@@ -131,46 +142,84 @@ class SelectImage extends Component {
   componentDidMount() {
     const searchImagesInput = document.getElementById('searchImages')
     searchImagesInput && searchImagesInput.focus()
+    const { dispatchLoadOtherImage } = this.props
+    dispatchLoadOtherImage({
+      success: {
+        func: res => {
+          const data = res.data
+          this.setState({
+            others: data ? data.slice(0, 5): []
+          })
+        }
+      }
+    })
   }
 
   imageTypeChange(e, isResetSearchInput, callback) {
     const imageType = e.target.value
     if (imageType === IMAGE_STORE) {
       this.setState({
-        imageType
+        imageType,
+        searchInputValue: '',
       })
       return this.loadImageStore()
+    } else  if( imageType === 'publicImages' || imageType === 'privateImages'){
+      const {
+        registry,
+        //loadPrivateImageList,
+      //  loadFavouriteList,
+      } = this.props
+      const newState = {
+        imageType,
+        currentPage: 1,
+        searchInputValue: '',
+        searchInputValue: this.state.searchInputValue
+      }
+      if (isResetSearchInput === true || isResetSearchInput === undefined) {
+        newState.searchInputValue = ''
+      }
+      this.setState(newState)
+      this.loadData(this.props, {
+        q: newState.searchInputValue
+      })
+      // switch (imageType) {
+      //   case PUBLIC_IMAGES:
+      //     this.loadData(this.props, callback)
+      //     break
+      //   case 'privateImages':
+      //     loadPrivateImageList(registry, callback)
+      //     break
+      //   case 'fockImages':
+      //     loadFavouriteList(registry, callback)
+      //     break
+      //   default:
+      //     break
+      // }
+    } else {
+      this.setState({
+        imageType,
+        searchInputValue: '',
+        isLoadingOthersImages: true
+      }, () => {
+        this.props.dispatchGetOtherImageList(imageType, {
+          success: {
+            func: res => {
+              const othersImages = res.results ? res.results.map(item => {
+                return Object.assign({}, item, {
+                  projectPublic: !item.isPrivate,
+                  repositoryName: item.name
+                })
+              }) : []
+              this.setState({
+                othersImages,
+                tempOthersImages: othersImages,
+                isLoadingOthersImages: false
+              })
+            }
+          }
+        })
+      })
     }
-    const {
-      registry,
-      //loadPrivateImageList,
-    //  loadFavouriteList,
-    } = this.props
-    const newState = {
-      imageType,
-      currentPage: 1,
-      searchInputValue: this.state.searchInputValue
-    }
-    if (isResetSearchInput === true || isResetSearchInput === undefined) {
-      newState.searchInputValue = ''
-    }
-    this.setState(newState)
-    this.loadData(this.props, {
-      q: newState.searchInputValue
-    })
-    // switch (imageType) {
-    //   case PUBLIC_IMAGES:
-    //     this.loadData(this.props, callback)
-    //     break
-    //   case 'privateImages':
-    //     loadPrivateImageList(registry, callback)
-    //     break
-    //   case 'fockImages':
-    //     loadFavouriteList(registry, callback)
-    //     break
-    //   default:
-    //     break
-    // }
   }
   loadImageStore() {
     const { getAppsList, cluster, intl } = this.props
@@ -217,13 +266,35 @@ class SelectImage extends Component {
   }
 
   searchImages() {
-    const { searchInputValue, imageType } = this.state
-    if(searchInputValue) {
-      return this.loadData(this.props, {
-        q: searchInputValue
+    const { searchInputValue, imageType, othersImages } = this.state
+    if(imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages'){
+      if(searchInputValue) {
+        return this.loadData(this.props, {
+          q: searchInputValue
+        })
+      }
+      return this.loadData(this.props)
+    } else {
+      let tempOthersImages = []
+      if(searchInputValue){
+        othersImages.map(o => {
+          if(o.name.indexOf(searchInputValue) > -1){
+            tempOthersImages.push(o)
+          }
+        })
+      } else {
+        tempOthersImages = othersImages
+      }
+      this.setState({
+        isLoadingOthersImages: true,
       })
+      setTimeout(() => {
+        this.setState({
+          tempOthersImages,
+          isLoadingOthersImages: false,
+        })
+      }, 300)
     }
-    return this.loadData(this.props)
     // const {
     //   registry,
     //   searchPublicImages,
@@ -255,7 +326,12 @@ class SelectImage extends Component {
   onDeploy(imageName, registry) {
     this.props.onChange(imageName, registry)
   }
-  renderImageList(imageData) {
+
+  onDeployOthers(query) {
+    this.props.onOtherChange(query)
+  }
+
+  renderImageList(imageData, isLoadingOthersImages) {
     if(!imageData) {
       imageData = {
         server: '',
@@ -264,7 +340,8 @@ class SelectImage extends Component {
     const { imageStoreList } = this.props
     const { isFetching } = imageData
     const { imageType } = this.state
-    let imageList = imageData[imageType]
+    let imageList = (imageType === 'publicImages' || imageType === 'privateImages') ?
+      imageData[imageType] : imageData
     if (imageType === IMAGE_STORE) {
       imageList = imageStoreList && imageStoreList.apps
     }
@@ -291,18 +368,43 @@ class SelectImage extends Component {
       key: 'deploy',
       width: '10%',
       render: (text, row)=> {
+        const { others } = this.state
+        const flag = imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages'
         let str = row.repositoryName
         let server = imageData.server
         if (imageType === IMAGE_STORE) {
           server = row.resourceLink.split('/')[0]
           str = encodeImageFullname(row.resourceName)
         }
+
+        // currentQuery: {
+        //   registryServer: '', //url 去除头部
+        //   imageName: '', //imageName
+        //   other: '', //imageId
+        //   systemRegistry: '', //dockerhub
+        // }
+        const other = filter(others, { id: imageType })[0]
+        const url = other ? other.url : ''
+        const query = {
+          registryServer: url ? url.split('//')[1] : '',
+          imageName: row.repositoryName,
+          other: other ? other.id : '',
+        }
+        if (other && other.type === 'dockerhub') {
+          query.systemRegistry = 'dockerhub'
+        }
         return (
           <div className="deployBox">
             <Button
               className="deployBtn"
               type="primary" size="large"
-              onClick={this.onDeploy.bind(this, str, server)}
+              onClick={() => {
+                flag ?
+                  this.onDeploy(str, server)
+                  :
+                  this.onDeployOthers(query)
+                }
+              }
             >
               <FormattedMessage {...IntlMessage.deploy}/>&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
@@ -325,29 +427,43 @@ class SelectImage extends Component {
         dataSource={imageList}
         columns={columns}
         pagination={paginationOpts}
-        loading={isFetching}
+        loading={isFetching || isLoadingOthersImages}
       />
     )
   }
 
   render() {
     const { images, registry, intl } = this.props
-    const { imageType, imageFilter, searchInputValue } = this.state
+    const { imageType, imageFilter, searchInputValue, others, othersImages, tempOthersImages, isLoadingOthersImages } = this.state
     const noTabimageList = (
       <div>
         {/* <div style={{height: "28px"}}></div> */}
-        {this.renderImageList(images)}
+        {(imageType === IMAGE_STORE || imageType === 'publicImages' || imageType === 'privateImages') ?
+          this.renderImageList(images)
+          :
+          this.renderImageList(tempOthersImages, isLoadingOthersImages)}
       </div>
     )
+    const radios = [
+      <Radio prefixCls="ant-radio-button" value={PUBLIC_IMAGES}><FormattedMessage {...IntlMessage.public}/></Radio>,
+      <Radio prefixCls="ant-radio-button" value="privateImages"><FormattedMessage {...IntlMessage.private}/></Radio>,
+      <Radio prefixCls="ant-radio-button" value="imageStore"><FormattedMessage {...IntlMessage.imageStore}/></Radio>,
+    ]
+    others.map(item => {
+      const radio = <Radio prefixCls="ant-radio-button" value={item.id}>
+        { item.type === 'dockerhub'
+          ? <img style={{ width: '20px', marginBottom: '-4px' }} src={DockerImg} className="docker-icon" />
+          : <Icon type='shopping-cart' /> } {item.title}
+      </Radio>
+      radios.push(radio)
+    })
     return(
       <div id="quickCreateAppSelectImage">
         <div className="selectImage">
           <FormattedMessage {...IntlMessage.selectImage}/>
           <span className="imageType">
             <RadioGroup size="large" onChange={this.imageTypeChange} value={imageType}>
-              <Radio prefixCls="ant-radio-button" value={PUBLIC_IMAGES}><FormattedMessage {...IntlMessage.public}/></Radio>
-              <Radio prefixCls="ant-radio-button" value="privateImages"><FormattedMessage {...IntlMessage.private}/></Radio>
-              <Radio prefixCls="ant-radio-button" value="imageStore"><FormattedMessage {...IntlMessage.imageStore}/></Radio>
+              {radios}
               { /*<Radio value="fockImages">收藏</Radio> */ }
             </RadioGroup>
           </span>
@@ -432,7 +548,9 @@ export default connect(mapStateToProps, {
   searchPrivateImages,
   publicFilterServer,
   loadAllProject,
-  getAppsList
+  getAppsList,
+  dispatchLoadOtherImage,
+  dispatchGetOtherImageList
 })(injectIntl(SelectImage, {
   withRef: true,
 }))

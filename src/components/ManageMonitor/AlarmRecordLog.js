@@ -46,7 +46,7 @@ class AlarmRecord extends Component {
       dateEndFilter: '',
       from: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
-      deleteModal: false
+      deleteModal: false,
     }
   }
 
@@ -90,7 +90,7 @@ class AlarmRecord extends Component {
       targetFilter: targetName
     })
 
-    loadRecordsFilters(clusterID)
+    loadRecordsFilters(clusterID, true)
     getSettingList(clusterID,{
       from: 0,
       size: 1000
@@ -105,24 +105,18 @@ class AlarmRecord extends Component {
   }
   getFilters() {
     const {
-      recordFilters,
-      strategy
+      recordFilters
     } = this.props
-
     let strategies = [<Option value="" key={'all'}>全部</Option>]
     let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
-    if(strategy) {
-      for (let v of strategy) {
-        strategies.push(<Option value={v.strategyName} key={v.strategyID}>{v.strategyName}</Option>)
+    if (recordFilters.strategies) {
+      for (let strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy}>{strategy}</Option>)
       }
-
-
-      for (let v of strategy) {
-        targets.push(<Option value={v.strategyID} key={v.strategyID}>{v.targetName}</Option>)
+      for (let target of recordFilters.targets) {
+        targets.push(<Option value={target}>{target}</Option>)
       }
-
     }
-
     return {
       strategies,
       targets,
@@ -195,6 +189,7 @@ class AlarmRecord extends Component {
           alertSent: r.alertSent
         })
       })
+      records.sort((a, b) => b.alertTime - a.alertTime)
     }
     return records
   }
@@ -262,7 +257,6 @@ class AlarmRecord extends Component {
         }
       })
     }
-
   }
   toAlarmDetail(record) {
     const { getAlertSetting, clusterID } = this.props
@@ -289,6 +283,9 @@ class AlarmRecord extends Component {
       }
     })
   }
+  disabledDate = current => {
+    return current && current.getTime() > Date.now()
+  }
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -303,7 +300,7 @@ class AlarmRecord extends Component {
         title: '策略名称',
         dataIndex: 'ruleName',
         render: (text, record) => {
-          return <span className="targetName" onClick={() => this.toAlarmDetail(record)}>{text}</span>
+          return <span>{text}</span>
         }
       },
       {
@@ -320,10 +317,7 @@ class AlarmRecord extends Component {
       },
       {
         title: '告警规则',
-        dataIndex: 'regx',
-        render: (val, record) => {
-          return <div>{record.regex ? `${record.regex} 已出现 ${record.ruleNum} 次` : '已删除'}</div>
-        }
+        dataIndex: 'regex',
       },
       {
         title: '告警字符串',
@@ -331,13 +325,15 @@ class AlarmRecord extends Component {
       },
       {
         title: '当前次数',
-        dataIndex: 'numHits',
+        dataIndex: 'numMatches',
       },
       {
-        title: '是否发送邮件',
-        dataIndex: 'alertSent',
+        title: '是否发送邮件/短信',
+        dataIndex: 'alertInfo',
         render: (val, record) => {
-          return <div>{ val && record.alertInfo.recipients[0] !== "test@example.com"? '是': '否'}</div>
+          const condition = record.alertInfo.httpPostWebhookUrl[0]
+          condition.charAt(condition.length - 1)
+          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
         }
       }
     ];
@@ -373,13 +369,12 @@ class AlarmRecord extends Component {
               {getTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
-              this.setState({ ruleName: value? this.props.strategy.filter(v=>v.strategyID === value)[0].strategyName : ''})}
-
+              this.setState({ ruleName: value})}
             }>
               {filters.targets}
             </Select>
-            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
-            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
+            <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />
+            <DatePicker placeholder="选择结束日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             {/*<Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>*/}
             { total !== 0 && <div className='pageBox'>
@@ -432,6 +427,7 @@ function mapStateToProps(state, props) {
   }
   if (records && records.result) {
     recordsData = records.result.data
+
   }
 
   return {

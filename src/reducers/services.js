@@ -314,14 +314,28 @@ function serviceLogs(state = {}, action) {
           isFetching: true
         }
       })
-    case ActionTypes.SERVICE_LOGS_SUCCESS:
-      const uState = cloneDeep(state)
-      if (!uState[cluster].logs) uState[cluster].logs = {}
-      uState[cluster].isFetching = false
-      if (!action.response.result.data) return uState
-      uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
-      if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
-      return uState
+    case ActionTypes.SERVICE_LOGS_SUCCESS: {
+      const resData = action.response.result.data
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          logs: {
+            data: resData.logs,
+            count: resData.count
+          },
+        }
+      })
+    }
+      // const uState = cloneDeep(state)
+      // if (!uState[cluster].logs) uState[cluster].logs = {count: 0}
+      // const resData = action.response.result.data
+      // // if (!resData.logs || !resData.logs.length) return uState
+      // uState[cluster].logs.data = resData.logs
+      // uState[cluster].logs.count = resData.count
+      // uState[cluster].logs.isFetching = false
+      // // if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
+      // // if (uState[cluster].logs.data.length >= resData.count) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
+      // return uState
     case ActionTypes.SERVICE_LOGS_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: {
@@ -374,7 +388,6 @@ function certificates(state = {}, action) {
       return state
   }
 }
-
 
 export function services(state = { appItmes: {} }, action) {
   return {

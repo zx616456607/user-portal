@@ -14,6 +14,8 @@ import { Form, Select, Input, Row, Col, Icon } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isCidr from 'is-cidr'
 import { validateK8sResourceForServiceName } from '../../../../../../src/common/naming_validation'
+import * as clusterActions from '../../../../../../src/actions/cluster'
+import * as balanceActions from '../../../../../../src/actions/load_balance'
 const FormItem = Form.Item
 const Option = Select.Option
 const imgSrc = [
@@ -26,11 +28,13 @@ class AddWhiteList extends React.Component {
     uuid: 0,
   }
   componentDidMount() {
-    const { ln, type, form } = this.props
+    const { ln, type, form, getProxy, cluster, getLBList } = this.props
     const { setFieldsValue } = form
     ln && this.setState({
       uuid: ln.length,
     })
+    getProxy(cluster)
+    getLBList(cluster)
     if (type === 'ingress' && ln && ln.length) {
       const num = ln.length
       const ingressArr = []
@@ -48,13 +52,6 @@ class AddWhiteList extends React.Component {
           })
           exStr = exStr.slice(0, exStr.length - 1)
         }
-        let service = ''
-        if (item.type === 'namespace' && item.serivceName) {
-          item.serivceName.forEach(ele => {
-            service += `${ele},`
-          })
-          service = service.slice(0, service.length - 1)
-        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -65,7 +62,7 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`ingress${ind}`]: 'namespace',
               [`ingressnamespace${ind}`]: item.namespace,
-              [`ingressnamespace${ind}server`]: service,
+              [`ingressnamespace${ind}server`]: '',
             })
           case 'cidr':
             return setFieldsValue({
@@ -81,6 +78,7 @@ class AddWhiteList extends React.Component {
           case 'haproxy':
             return setFieldsValue({
               [`ingress${ind}`]: 'haproxy',
+              [`ingresshaproxy${ind}`]: item.groupId,
             })
           default:
             return null
@@ -97,13 +95,6 @@ class AddWhiteList extends React.Component {
         egress: egressArr,
       })
       ln.map((item, ind) => {
-        let service = ''
-        if (item.type === 'namespace' && item.serivceName) {
-          item.serivceName.forEach(ele => {
-            service += `${ele},`
-          })
-          service = service.slice(0, service.length - 1)
-        }
         switch (item.type) {
           case 'service':
             return setFieldsValue({
@@ -114,13 +105,13 @@ class AddWhiteList extends React.Component {
             return setFieldsValue({
               [`egress${ind}`]: 'namespace',
               [`egressnamespace${ind}`]: item.namespace,
-              [`egressnamespace${ind}server`]: service,
+              [`egressnamespace${ind}server`]: '',
             })
           case 'cidr':
             return setFieldsValue({
               [`egress${ind}`]: 'cidr',
               [`egresscidr${ind}`]: item.cidr,
-              [`egresscidr${ind}except`]: item.except[0] || null,
+              [`egresscidr${ind}except`]: item.except && item.except[0] || null,
             })
           case 'daas':
             return setFieldsValue({
@@ -257,7 +248,18 @@ class AddWhiteList extends React.Component {
           />
         </FormItem>
       case 'haproxy':
-        return <span>所有集群网络出口</span>
+        return <FormItem>
+          <Input {...getFieldProps(`${type}${option}${k}`, {
+            rules: [{
+              required: true,
+              whitespace: true,
+              message: `请输入${target}集群网络出口`,
+            }],
+          })}
+          style={{ width: 280 }}
+          placeholder={`请输入${target}集群网络出口`}
+          />
+        </FormItem>
       case 'ingress':
         return <FormItem>
           <Input {...getFieldProps(`${type}${option}${k}`, {
@@ -285,7 +287,7 @@ class AddWhiteList extends React.Component {
             placeholder={`请输入要放通的${target}命名空间`}
             />
           </FormItem>
-          <FormItem className="checkServerName">
+          {/* <FormItem className="checkServerName">
             <Input
               {...getFieldProps(`${type}${option}${k}server`, {
                 rules: [{
@@ -295,7 +297,7 @@ class AddWhiteList extends React.Component {
               style={{ width: 250 }}
               placeholder="服务1，服务2"
             />
-          </FormItem>
+          </FormItem> */}
         </span>
       case 'mysql':
         return <FormItem key={`*${k}`}>
@@ -416,4 +418,15 @@ class AddWhiteList extends React.Component {
     </div>
   }
 }
-export default connect()(AddWhiteList)
+
+const mapStateToProps = ({ entities: { current },
+}) => {
+  return {
+    cluster: current.cluster.clusterID,
+  }
+}
+
+export default connect(mapStateToProps, {
+  getProxy: clusterActions.getProxy,
+  getLBList: balanceActions.getLBList,
+})(AddWhiteList)

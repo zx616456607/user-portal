@@ -34,6 +34,10 @@ let CreateAlarmGroup = React.createClass({
     }
   },
   componentWillMount() {
+    if (this.props.createGroup) {
+      mid = 0
+      phoneUuid = 0
+    }
     this.fillEmails(this.props)
   },
   componentDidMount() {
@@ -50,9 +54,7 @@ let CreateAlarmGroup = React.createClass({
       data,
       form,
     } = newProps
-    if (form.getFieldValue('keys') && form.getFieldValue('keys').length > 0) {
-      return
-    }
+
     if (isModify) {
       if (oldProps && oldProps.isModify === true) {
         return
@@ -69,8 +71,18 @@ let CreateAlarmGroup = React.createClass({
           [`emailStatus${mid}`]: email.status,
         })
       }
+      let phoneKeys = []
+      for (let phone of data.receivers.tel) {
+        phoneUuid++
+        phoneKeys.push(phoneUuid)
+        form.setFieldsValue({
+          [`phoneNum${phoneUuid}`]: phone.number,
+          [`phoneDesc${phoneUuid}`]: phone.desc,
+        })
+      }
       form.setFieldsValue({
-        keys
+        keys,
+        phoneKeys
       })
     }
   },
@@ -88,16 +100,32 @@ let CreateAlarmGroup = React.createClass({
     this.setState({isAddEmail: 1})
   },
   addEmail() {
-    const { form } = this.props
-    form.validateFields((error, values) => {
-      if (!!error) {
-        return
+    const { form, intl: { formatMessage } } = this.props
+    let nextStep = true
+    let keys = form.getFieldValue('keys');
+    if (!keys.length) {
+      form.setFieldsValue({
+        keys: [0],
+      });
+      return
+    }
+    keys.map(k => {
+      if (!form.getFieldValue(`email${k}`)) {
+        form.setFields({
+          [`email${k}`]:{
+            errors: [formatMessage(intlMsg.plsInputRightEmail)],
+            value: ''
+          }
+        })
+        nextStep = false
       }
     })
-    if (!this.state.isAddEmail) return
+    if (!nextStep) {
+      return
+    }
     mid++;
+    if (!this.state.isAddEmail) return
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
     keys = keys.concat(mid);
     // can use data-binding to set
     // important! notify form to detect changes
@@ -107,7 +135,7 @@ let CreateAlarmGroup = React.createClass({
     this.setState({isAddEmail: false})
   },
   addRuleEmail(rule, value, callback) {
-    const { intl: { formatMessage } } = this.props
+    const { intl: { formatMessage }, form } = this.props
     let newValue = value.trim()
     let isAddEmail= true
     if(!Boolean(newValue)) {
@@ -118,6 +146,22 @@ let CreateAlarmGroup = React.createClass({
     if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newValue)) {
       callback(new Error(formatMessage(intlMsg.plsInputRightEmail)))
       isAddEmail = false
+    }
+    let keys = form.getFieldValue('keys');
+    let repeat
+    keys.length >1 && keys.every(k => {
+      // cannot repeat
+      if (`email${k}` === rule.fullField) {
+        return true
+      }
+      if (value === form.getFieldValue(`email${k}`)) {
+        repeat = true
+        return false
+      }
+      return true
+    })
+    if (repeat) {
+      return callback(formatMessage(intlMsg.repeatEmail))
     }
     callback()
     this.setState({isAddEmail})
@@ -227,7 +271,7 @@ let CreateAlarmGroup = React.createClass({
         return
       }
       // have one email at least
-      if (values.keys.length === 0) {
+      if (!values.keys.length && !values.phoneKeys.length) {
         notification.error(formatMessage(intlMsg.atLeastOneEmail))
         return
       }
@@ -235,21 +279,41 @@ let CreateAlarmGroup = React.createClass({
         name: values.groupName,
         desc: values.groupDesc,
         receivers: {
-          email: []
+          email: [],
+          tel: [],
         },
       }
-      values.keys.map(function(k) {
-        if (values[`email${k}`]) {
-          body.receivers.email.push({
-            addr: values[`email${k}`],
-            desc: values[`remark${k}`] || '',
-          })
-        }
-      })
+      if (values.keys.length) {
+        values.keys.map(function(k) {
+          if (values[`email${k}`]) {
+            body.receivers.email.push({
+              addr: values[`email${k}`],
+              desc: values[`remark${k}`] || '',
+            })
+          }
+        })
+      }
+      if (values.phoneKeys.length) {
+        values.phoneKeys.forEach(k => {
+          if (values[`phoneNum${k}`]) {
+            body.receivers.tel.push({
+              number: values[`phoneNum${k}`],
+              desc: values[`phoneDesc${k}`] || '',
+            })
+          }
+        })
+      }
+      if (!body.receivers.tel.length && !body.receivers.email.length) {
+        notification.error(formatMessage(intlMsg.atLeastOneEmail))
+        return
+      }
       if (!this.props.isModify) {
+        notification.spin('创建中...')
         createNotifyGroup(clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('创建成功')
               funcs.scope.setState({ createGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -270,7 +334,10 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
-              if (err.message.code === 409) {
+              notification.close()
+              if (err.message.code === 404) {
+                notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else if (err.message.code === 409) {
                 notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
                 notification.error(formatMessage(intlMsg.createGroupFail), err.message.message)
@@ -279,9 +346,12 @@ let CreateAlarmGroup = React.createClass({
             isAsync: true
           }})
       } else {
+        notification.spin('更新中...')
         modifyNotifyGroup(data.groupID,clusterID, body, {
           success: {
             func: (result) => {
+              notification.close()
+              notification.success('更新成功')
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})
               form.resetFields()
               this.setState({
@@ -296,10 +366,15 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
+              notification.close()
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.error(formatMessage(intlMsg.editGroupFail), err.message.message)
+              if (err.message.code === 404) {
+                return notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else {
+                notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
+              }
             }
           }
         })
@@ -354,9 +429,30 @@ let CreateAlarmGroup = React.createClass({
     });
   },
   addPhone() {
-    const { form } = this.props;
-    phoneUuid++;
+    const { form, intl: { formatMessage } } = this.props
+    let nextStep = true
     let phoneKeys = form.getFieldValue('phoneKeys');
+    if (!phoneKeys.length) {
+      form.setFieldsValue({
+        phoneKeys: [0],
+      });
+      return
+    }
+    phoneKeys.map(k => {
+      if (!form.getFieldValue(`phoneNum${k}`)) {
+        nextStep = false
+        form.setFields({
+          [`phoneNum${k}`]:{
+            errors: [formatMessage(intlMsg.plsInputRightPhone)],
+            value: ''
+          }
+        })
+      }
+    })
+    if (!nextStep) {
+      return
+    }
+    phoneUuid++;
     phoneKeys = phoneKeys.concat(phoneUuid);
     form.setFieldsValue({
       phoneKeys,
@@ -366,6 +462,36 @@ let CreateAlarmGroup = React.createClass({
     this.setState({
       QRCodeVisible: true,
     })
+  },
+  checkPhoneNum(rule, value, callback) {
+    const { intl: { formatMessage }, form } = this.props
+    let newValue = value.trim()
+    let isAddEmail= true
+    if(!Boolean(newValue)) {
+      return callback()
+    }
+    if (!/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(newValue)) {
+      // callback(new Error(formatMessage(intlMsg)))
+      return callback(new Error('请输入正确手机号'))
+    }
+    let phoneKeys = form.getFieldValue('phoneKeys');
+    let repeat
+    phoneKeys.length >1 && phoneKeys.every(list => {
+      if (`phoneNum${list}` === rule.fullField) {
+        return true
+      }
+      // cannot repeat
+      if (value == form.getFieldValue(`phoneNum${list}`)) {
+        repeat = true
+        return false
+      }
+      return true
+
+    })
+    if (repeat) {
+      return callback(formatMessage(intlMsg.repeatPhone))
+    }
+    callback()
   },
   render() {
     const formItemLayout = {
@@ -389,7 +515,7 @@ let CreateAlarmGroup = React.createClass({
       return (
         <div key={k} className="createEmailList" style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
-          <Input {...getFieldProps(`email${k}`, {
+          <Input placeholder="邮箱" {...getFieldProps(`email${k}`, {
             rules: [
             {validator: this.addRuleEmail.bind(this)}
             ],
@@ -420,30 +546,49 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('phoneKeys', {
       initialValue: [0],
     });
-    const phoneItems =getFieldValue('phoneKeys').map((k) => {
-      let indexed = Math.max(0,k-1)
+    const phoneItems = getFieldValue('phoneKeys').map((k) => {
+      let indexed = Math.max(0,k)
       let initAddrValue = ''
       let initDescValue = ''
-      if (isModify && data.receivers.email[indexed]) {
-        initAddrValue = data.receivers.email[indexed].addr
-        initDescValue = data.receivers.email[indexed].desc
+      if (isModify && data.receivers.tel[indexed]) {
+        initAddrValue = data.receivers.tel[indexed].number
+        initDescValue = data.receivers.tel[indexed].desc
       }
       return (
         <div key={`phone-${k}`} className="createEmailList" style={{clear:'both'}}>
           <Form.Item style={{float:'left'}}>
-            <Input style={{ width: '150px', marginRight: 8 }} />
+            <Input
+              style={{ width: '150px', marginRight: 8 }}
+              placeholder="手机号"
+              {
+                ...getFieldProps(`phoneNum${k}`, {
+                  rules: [ {validator: this.checkPhoneNum.bind(this)} ],
+                  initialValue: initAddrValue,
+                })
+              }
+            />
           </Form.Item>
           <Form.Item style={{float:'left'}}>
-            <Input placeholder={formatMessage(intlMsg.remarks)} size="large" style={{ width: 80,  marginRight: 8 }} />
+            <Input
+              placeholder={formatMessage(intlMsg.remarks)}
+              size="large"
+              style={{ width: 80,  marginRight: 8 }}
+              {
+                ...getFieldProps(`phoneDesc${k}`, {
+                  initialValue: initDescValue,
+                })
+              }
+            />
           </Form.Item>
-          <Button
+          {/* <Button
             type="primary"
             style={{padding:5}}
             size="large"
           >
             <FormattedMessage {...intlMsg.validatorPhone}/>
-          </Button>
-          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}>
+          </Button> */}
+          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
+          >
             <FormattedMessage {...intlMsg.cancel}/>
           </Button>
         </div>
@@ -460,7 +605,7 @@ let CreateAlarmGroup = React.createClass({
           disabled={!!this.props.isModify}/>
         </Form.Item>
         <Form.Item label={formatMessage(intlMsg.description)} {...formItemLayout} >
-          <Input type="textarea" {...getFieldProps(`groupDesc`, {
+          <Input type="textarea" placeholder="选填" {...getFieldProps(`groupDesc`, {
           initialValue: this.props.isModify ? this.props.data.desc : '',
           }) }/>
         </Form.Item>
@@ -473,10 +618,6 @@ let CreateAlarmGroup = React.createClass({
             <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> <FormattedMessage {...intlMsg.addEmail}/></a></div>
           </div>
         </div>
-
-        {/*
-        // 暂不支持 手机号 、微信 【LOT-137】
-
         <div className="lables">
           <div className="keys">
             手机
@@ -485,12 +626,13 @@ let CreateAlarmGroup = React.createClass({
             {phoneItems}
             <div style={{clear:'both'}}>
               <a onClick={() => this.addPhone()}>
-                <Icon type="plus-circle-o" /> 添加手机
+                <Icon type="plus-circle-o" /> 添加手机号
               </a>
             </div>
           </div>
         </div>
-        <div className="lables">
+
+        {/* <div className="lables">
           <div className="keys">
             微信
           </div>

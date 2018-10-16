@@ -17,20 +17,22 @@ export const ALERT_GET_RECORDS_FILTERS_REQUEST = 'ALERT_GET_RECORDS_FILTERS_REQU
 export const ALERT_GET_RECORDS_FILTERS_SUCCESS = 'ALERT_GET_RECORDS_FILTERS_SUCCESS'
 export const ALERT_GET_RECORDS_FILTERS_FAILURE = 'ALERT_GET_RECORDS_FILTERS_FAILURE'
 
-function fetchRecordsFilters(clusterID) {
+function fetchRecordsFilters(clusterID, logFilter) {
   clusterID = clusterID || ''
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/record-filters`
+  if (logFilter) endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/service-records/query`
   return {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_FILTERS_REQUEST, ALERT_GET_RECORDS_FILTERS_SUCCESS, ALERT_GET_RECORDS_FILTERS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/record-filters`,
+      endpoint,
       schema: {}
     },
   }
 }
 
-export function loadRecordsFilters(clusterID) {
+export function loadRecordsFilters(clusterID, logFilter) {
   return (dispatch, getState) => {
-    return dispatch(fetchRecordsFilters(clusterID))
+    return dispatch(fetchRecordsFilters(clusterID, logFilter))
   }
 }
 

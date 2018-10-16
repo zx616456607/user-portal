@@ -162,7 +162,7 @@ class AppServerTag extends Component{
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyLength)))
       return
     }
@@ -185,7 +185,7 @@ class AppServerTag extends Component{
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyLength)))
       return
     }

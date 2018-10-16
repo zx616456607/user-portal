@@ -13,6 +13,7 @@
 import React from 'react'
 import { Row, Icon, Input, Form, Modal, Spin, Button, Tooltip, Upload } from 'antd'
 import { validateServiceConfigFile } from '../../common/naming_validation'
+import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../constants'
 import NotificationHandler from '../../components/Notification'
@@ -20,6 +21,8 @@ import { isResourcePermissionError } from '../../common/tools'
 import { checkConfigNameExistence, dispatchCreateConfig, getGitFileContent } from "../../actions/configs"
 // import { createSecretsConfig } from '../../actions/secrets_devops'
 import { createSecret } from '../../actions/secrets'
+import indexIntl from './intl/indexIntl.js'
+import serviceIntl from './intl/serviceIntl.js'
 
 import filter from 'lodash/filter'
 import cloneDeep from 'lodash/cloneDeep'
@@ -32,8 +35,8 @@ let CreateConfigFileModal = React.createClass({
   getInitialState() {
     return {
       filePath: (<span style={{width:'100%'}}>
-                  <div>请上传文件或直接输入内容</div>
-                  <div>目前仅支持 properties/xml/json/conf/config/data/ini/txt/yaml/yml 格式</div>
+                  <div>{this.props.intl.formatMessage(indexIntl.filePathHint1)}</div>
+                  <div>{this.props.intl.formatMessage(indexIntl.filePathHint2)}</div>
                 </span>),
       tempConfigDesc: "", // 缓存 便于切换之后回写
       tempConfigName: '', // 缓存 name
@@ -46,23 +49,25 @@ let CreateConfigFileModal = React.createClass({
     configName && configName.focus()
   },
   configNameExists(rule, value, callback) {
+    const { intl } = this.props
+    const { formatMessage } = intl
     const { checkConfigNameExistence, type, data, activeGroupName,
       configNameList, form} = this.props
     const _that = this
     if (!value) {
-      callback([new Error('请输入配置文件名称')])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg01))])
       return
     }
     if(value.length < 3 || value.length > 63) {
-      callback([new Error('配置文件名称长度为 3-63 个字符')])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg02))])
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg03))])
       return
     }
     if (!validateServiceConfigFile(value)) {
-      callback([new Error('名称由英文、数字、点、下\中划线组成，且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error(formatMessage(indexIntl.checkNameErrorMsg04))])
       return
     }
     clearTimeout(this.checkNameTimer)
@@ -70,20 +75,21 @@ let CreateConfigFileModal = React.createClass({
       if(type === 'secrets' && !!data && !!activeGroupName) {
         const group = filter(data, { name: activeGroupName })[0]
         if(!!group && !!group.data && !!group.data[value]){
-          callback([new Error('该名称已存在')])
+          callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg5))])
         }else{
           callback()
         }
       } else {
-        filter(configNameList, { name: value })[0] ? callback([new Error('该名称已存在')]) : callback()
+        filter(configNameList, { name: value })[0] ? callback([new Error(formatMessage(indexIntl.checkConfigNameErrorMsg5))]) : callback()
       }
     },ASYNC_VALIDATOR_TIMEOUT)
   },
   configDescExists(rule, value, callback) {
     const form = this.props.form;
+    const formatMessage = this.props.intl
     if (!value) {
       this.setState({
-        filePath: '请上传文件或直接输入内容'
+        filePath: formatMessage(indexIntl.filePathHint1)
       })
       // 跟产品确认了下，配置文件内容可以为空
       // callback([new Error('内容不能为空，请重新输入内容')])
@@ -94,7 +100,8 @@ let CreateConfigFileModal = React.createClass({
 
   async createConfigFile(group) {
     const { createConfig, scope: parentScope, createSecret,
-      activeGroupName, dispatchCreateConfig, getGitFileContent } = this.props
+      activeGroupName, dispatchCreateConfig, intl, getGitFileContent } = this.props
+    const { formatMessage } = intl
     const { method } = this.state
     let arr = [ 'name', 'data' ]
     if (method === 1) {
@@ -122,7 +129,7 @@ let CreateConfigFileModal = React.createClass({
         const result = await getGitFileContent(query, {
           failed: {
             func: () => {
-              notification.warn("导入失败, 请检查目录结构")
+              notification.warn(formatMessage(indexIntl.importFileFailed))
             },
           },
         })
@@ -161,9 +168,9 @@ let CreateConfigFileModal = React.createClass({
       dispatchCreateConfig(configfile, body, {
         success: {
           func: () => {
-            notification.success('创建配置文件成功')
+            notification.success(formatMessage(indexIntl.createConfigSucc))
             self.setState({
-              filePath: '请上传文件或直接输入内容'
+              filePath: formatMessage(indexIntl.filePathHint1)
             })
             parentScope.setState({
               modalConfigFile: false,
@@ -181,16 +188,16 @@ let CreateConfigFileModal = React.createClass({
               return;
             }
             switch (res.message.code) {
-              case 403: errorText = '添加配置文件过多'; break
-              case 409: errorText = '配置已存在'; break
-              case 500: errorText = '网络异常'; break
+              case 403: errorText = formatMessage(indexIntl.createConfig403Error); break
+              case 409: errorText = formatMessage(indexIntl.createConfig409Error); break
+              case 500: errorText = formatMessage(indexIntl.createConfig500Error); break
               case 412: return
-              default: errorText = '缺少参数或格式错误'
+              default: errorText = formatMessage(serviceIntl.defaultErrorMessage)
             }
             self.setState({
-              filePath: '请上传文件或直接输入内容'
+              filePath: formatMessage(indexIntl.filePathHint1)
             })
-            notification.error('添加配置文件失败', errorText)
+            notification.error(formatMessage(indexIntl.createConfigErrorTitle), errorText)
           }
         }
       })
@@ -198,8 +205,9 @@ let CreateConfigFileModal = React.createClass({
   },
   cancelModal(e) {
     const parentScope = this.props.scope
+    const { formatMessage } = this.props.intl
     this.setState({
-      filePath: '请上传文件或直接输入内容'
+      filePath: formatMessage(indexIntl.filePathHint1)
     })
     this.props.form.resetFields()
     parentScope.createConfigModal(e, false)
@@ -213,7 +221,8 @@ let CreateConfigFileModal = React.createClass({
     this.setState({ method, nameDisabled: method === 2 })
   },
   render() {
-    const { type, form, configNameList, scope: parentScope } = this.props
+    const { type, form, configNameList, scope: parentScope, intl } = this.props
+    const { formatMessage } = intl
     const { getFieldProps,isFieldValidating,getFieldError } = form
     const { filePath, tempConfigDesc, nameDisabled, tempConfigName } = this.state
     const configFileTipStyle = {
@@ -226,7 +235,7 @@ let CreateConfigFileModal = React.createClass({
       textAlign:'center',
       paddingRight:'10px'
     }
-    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
+    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.configNameExists },
@@ -241,7 +250,7 @@ let CreateConfigFileModal = React.createClass({
     });
     return(
       <Modal
-        title={`添加${type === 'secrets' ? '加密对象': '配置文件'}`}
+        title={formatMessage(indexIntl.create) + (type === 'secrets' ? formatMessage(indexIntl.serectObj): formatMessage(indexIntl.configFile))}
         wrapClassName="configFile-create-modal"
         className="configFile-modal"
         visible={this.props.visible}
@@ -254,12 +263,16 @@ let CreateConfigFileModal = React.createClass({
             &nbsp;&nbsp;&nbsp;<Icon type="info-circle" style={{ marginRight: "10px" }} />
             {
               type === 'secrets'
-              ? '即将保存一个加密对象，您可以在创建应用→添加服务时，配置管理或环境变量使用该对象'
-              : '即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置'
+              ? formatMessage(indexIntl.secretAlert)
+              : formatMessage(indexIntl.serviceAlert)
             }
           </div>
           <Form horizontal>
-            <FormItem  {...formItemLayout} label="名称">
+            <FormItem  {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configName)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configName)}</span>
+              </Tooltip>
+            }>
               <Input
                 disabled={nameDisabled}
                 className="configName"
@@ -268,13 +281,17 @@ let CreateConfigFileModal = React.createClass({
                 className="nameInput"
                 placeholder={
                   type === 'secrets'
-                  ? '如 My-PassWord'
-                  : '如 My-Config'
+                  ? formatMessage(indexIntl.configNamePlaceHolder, { name : 'My-PassWord'})
+                  : formatMessage(indexIntl.configNamePlaceHolder, { name : 'My-Config'})
                 }
 
               />
             </FormItem>
-            <FormItem {...formItemLayout} label="内容">
+            <FormItem {...formItemLayout} label={
+              <Tooltip title={formatMessage(indexIntl.configDesc)}>
+                <span className="textoverflow">{formatMessage(indexIntl.configDesc)}</span>
+              </Tooltip>
+            }>
               <ConfigFileContent
                 getMethod={this.getMethod}
                 configNameList={configNameList}
@@ -300,6 +317,7 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps,{
-  checkConfigNameExistence, dispatchCreateConfig, createSecret,
-  getGitFileContent
-})(CreateConfigFileModal)
+  checkConfigNameExistence, dispatchCreateConfig, createSecret, getGitFileContent
+})(injectIntl(CreateConfigFileModal, {
+  withRef: true,
+}))

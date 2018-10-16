@@ -187,7 +187,7 @@ let ConfigureService = React.createClass({
             }
             if (location && location.query.tag) {
               let hasTag
-              result.data.every(tags =>{
+              result.data && result.data.every(tags =>{
                 if (tags == location.query.tag) {
                   hasTag = true
                   return false
@@ -414,6 +414,7 @@ let ConfigureService = React.createClass({
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
       systemRegistry,
+      imagePorts: containerPorts,
     }
     Object.assign(fieldsValues, storageFields, portsFields,
       commandFields,
@@ -448,7 +449,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -469,15 +471,17 @@ let ConfigureService = React.createClass({
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res=> {
             if (res.statusCode === 409) {
-              callback(`${intl.formatMessage(IntlMessage.nameExisted, 
+              callback(`${intl.formatMessage(IntlMessage.nameExisted,
                   { item: intl.formatMessage(IntlMessage.appTemplate) })}`)
             }
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT);
@@ -538,7 +542,8 @@ let ConfigureService = React.createClass({
         failed: {
           func: (err) => {
             callback()
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -909,9 +914,10 @@ const createFormOpts = {
     const newFields = Object.assign({}, fieldsBefore, fields)
     fieldsBefore = cloneDeep(newFields)
     clearTimeout(setFormFieldsTimeout)
-    setFormFieldsTimeout = setTimeout(() => {
+    // 改延迟会导致用户输入过快表单显示不准确 和 切换服务过快时校验报错 LOT-2785 LOT-2912
+    // setFormFieldsTimeout = setTimeout(() => {
       setFormFields(id, newFields)
-    }, lazySetFormFieldsTimeout)
+    // }, lazySetFormFieldsTimeout)
   }
 }
 

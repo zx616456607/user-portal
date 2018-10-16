@@ -26,6 +26,7 @@ import DetailFooter from './DetailFooter'
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
+import {getDeepValue} from "../../../../client/util/util";
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -48,8 +49,8 @@ class MonitorDetail extends React.Component {
       success: {
         func: res => {
           this.setState({
-            allServices: res.data.services.map(item => item.service),
-            defaultAllServices: res.data.services.map(item => item.service),
+            allServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
+            defaultAllServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
           }, () => {
             this.initialForm()
           })
@@ -299,7 +300,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -307,7 +309,8 @@ class MonitorDetail extends React.Component {
               return callback('监听器名称已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -336,7 +339,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -344,7 +348,8 @@ class MonitorDetail extends React.Component {
               return callback('校验规则已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -447,10 +452,11 @@ class MonitorDetail extends React.Component {
   }
 
   handleConfirm = () => {
-    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress } = this.props
+    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress, lbDetail } = this.props
     const { validateFields, getFieldValue } = form
     const { healthOptions, healthCheck } = this.state
     const { name, displayName } = location.query
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
@@ -493,7 +499,7 @@ class MonitorDetail extends React.Component {
         port,
         lbAlgorithm: strategy,
         host: hostname,
-        path: path ? '/' + path.join('/') : '',
+        path: path ? '/' + path.join('/') : '/',
         context,
         items: this.getServiceList()
       }
@@ -579,10 +585,10 @@ class MonitorDetail extends React.Component {
         }
       }
       if (currentIngress) {
-        updateIngress(clusterID, name, currentIngress.displayName, body, callback)
+        updateIngress(clusterID, name, currentIngress.displayName, displayName, agentType, body, callback)
         return
       }
-      createIngress(clusterID, name, body, callback)
+      createIngress(clusterID, name, monitorName, displayName, agentType, body, callback)
     })
   }
 

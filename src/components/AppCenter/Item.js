@@ -27,6 +27,7 @@ import DockerImg from '../../assets/img/quickentry/docker.png'
 import { camelize } from 'humps'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
+import filter from 'lodash/filter'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -172,7 +173,11 @@ let MyComponent = React.createClass({
               title: '添加第三方镜像失败',
               content: (<h3>{err.message.message}</h3>)
             });*/
-            notification.error('添加第三方镜像失败', err.message.message)
+            if (err.code === 409 || err.statusCode === 409){
+              notification.error('添加第三方镜像失败', '仓库名重复')
+            } else {
+              notification.error('添加第三方镜像失败', err.message.message)
+            }
           },
           isAsync: true
         },
@@ -305,12 +310,27 @@ MyComponent = injectIntl(MyComponent, {
 class PageImageCenter extends Component {
   constructor(props) {
     super(props)
+    const { location } = this.props
+    const { addUserDefined, public: repoPublic } = props.location.query
+    let other = {}
+    let itemType = ''
+    let activeKey = ''
+    if (location.pathname.indexOf('/other/') > -1){
+      activeKey = location.pathname.split('/').pop()
+      other = {
+        id: activeKey
+      }
+      itemType = 'other'
+    }
     this.state = {
       createModalShow: false,
       otherImageHead: [], // other image store
-      other: {}
+      other,
+      itemType,
+      activeKey,
+      repoPublic: this.queryPublicToState(repoPublic),
     }
-    if(props.location.query.addUserDefined) {
+    if(addUserDefined) {
       this.state.createModalShow = true
     }
   }
@@ -322,7 +342,7 @@ class PageImageCenter extends Component {
       browserHistory.push('/app_center/projects')
       return
     }
-    browserHistory.push(`/app_center/projects/${type}`)
+    browserHistory.push(`/app_center/projects/${type}` + (type === 'other' ? '/' + other.id : ''))
   }
   componentWillMount() {
     const { location } = this.props
@@ -337,6 +357,8 @@ class PageImageCenter extends Component {
       type = 'publish'
     } else if (location.pathname === '/app_center/projects/replications') {
       type = 'replications'
+    } else if(location.pathname.indexOf('/other/') > -1){
+      type = 'other'
     }
     this.setState({itemType:type})
     this.props.LoadOtherImage({
@@ -345,26 +367,42 @@ class PageImageCenter extends Component {
           this.setState({
             otherImageHead: res.data
           })
-        }
+        },
+        isAsync: true,
       }
     })
+  }
+  queryPublicToState(repoPublic) {
+    if (repoPublic === undefined) {
+      repoPublic = 'all'
+    }
+    return repoPublic
   }
   componentWillReceiveProps(nextProps) {
     const { location: oldLocation } = this.props
     const { location: newLocation } = nextProps
+    if (newLocation.query.public !== oldLocation.query.public) {
+      this.setState({
+        repoPublic: this.queryPublicToState(newLocation.query.public),
+      })
+    }
     if (oldLocation !== newLocation) {
       if (newLocation.pathname === '/app_center') {
         browserHistory.replace('/app_center/projects')
         return
       }
-      if (newLocation.pathname === '/app_center/projects/other') {
+      if (newLocation.pathname.indexOf('/other/') > -1) {
         this.props.LoadOtherImage({
           success: {
             func: (res) => {
+              const activeKey = newLocation.pathname.split('/').pop()
               this.setState({
-                otherImageHead: res.data
+                activeKey,
+                otherImageHead: res.data,
+                other: filter(res.data, { id: activeKey })[0] || this.state.other
               })
-            }
+            },
+            isAsync: true,
           }
         })
         return
@@ -384,9 +422,9 @@ class PageImageCenter extends Component {
     }
   }
   render() {
-    const { children, loginUser, intl } = this.props
+    const { children, loginUser, intl, location } = this.props
     const { formatMessage } = intl
-    const { otherImageHead, other, itemType } = this.state
+    const { otherImageHead, other, itemType, activeKey } = this.state
     const _this = this
     const OtherItem = otherImageHead.map(item => {
       return (
@@ -425,9 +463,15 @@ class PageImageCenter extends Component {
         <div id='ImageCenter' key='ImageCenterBox'>
           <Title title={formatMessage(itemIntl.imageRepo)} />
           <div className="ImageCenterTabs">
-           <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>{formatMessage(itemIntl.privateRepoGroup)}</span>
-            <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>{formatMessage(itemIntl.publicRepoGroup)}</span>
-            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>{formatMessage(itemIntl.releaseRecord)}</span>
+            <span className={itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>
+              {formatMessage(itemIntl.repoGroup)}
+            </span>
+            {/* <span className={itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>
+              {formatMessage(itemIntl.publicRepoGroup)}
+            </span> */}
+            <span className={itemType =='publish' ?'tab active':'tab'} onClick={()=> this.setItem('publish')}>
+              {formatMessage(itemIntl.releaseRecord)}
+            </span>
             {
               isAuth &&
               <span className={itemType =='replications' ?'tab active':'tab'} onClick={()=> this.setItem('replications')}>
@@ -446,11 +490,33 @@ class PageImageCenter extends Component {
               </Tooltip>
             </span>
           </div>
+          {
+            location.pathname === '/app_center/projects' &&
+            <div className="ImageCenterRepoSwitch">
+              <br />
+              <RadioGroup
+                value={this.state.repoPublic}
+                onChange={e => {
+                  const repoPublic = e.target.value
+                  this.setState({ repoPublic })
+                  let pathname = '/app_center/projects'
+                  if (repoPublic !== 'all') {
+                    pathname += `?public=${repoPublic}`
+                  }
+                  browserHistory.push(pathname)
+                }}
+              >
+                <Radio value="all">{formatMessage(itemIntl.allRepoGroup)}</Radio>
+                <Radio value="0">{formatMessage(itemIntl.privateRepoGroup)}</Radio>
+                <Radio value="1">{formatMessage(itemIntl.publicRepoGroup)}</Radio>
+              </RadioGroup>
+            </div>
+          }
           {itemType =='other'?
             <Tabs
               key='ImageCenterTabs'
               className="otherStore"
-              activeKey={other.id}
+              activeKey={activeKey}
               >
               {tempImageList}
             </Tabs>

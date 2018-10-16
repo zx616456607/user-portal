@@ -39,22 +39,21 @@ export const GET_CONFIG_BY_TYPE_REQUEST = 'GET_CONFIG_BY_TYPE_REQUEST'
 export const GET_CONFIG_BY_TYPE_SUCCESS = 'GET_CONFIG_BY_TYPE_SUCCESS'
 export const GET_CONFIG_BY_TYPE_FAILURE = 'GET_CONFIG_BY_TYPE_FAILURE'
 
-function fetchConfigByType(cluster, configType, options, callback) {
+function fetchConfigByType(cluster, configType, callback) {
   return {
     configType,
     [FETCH_API]: {
       endpoint: `${API_URL_PREFIX}/cluster/${cluster}/config/${configType}`,
       types: [GET_CONFIG_BY_TYPE_REQUEST, GET_CONFIG_BY_TYPE_SUCCESS, GET_CONFIG_BY_TYPE_FAILURE],
-      schema: {},
-      options
+      schema: {}
     },
     callback
   }
 }
 
-export function getConfigByType(cluster, type, options, callback) {
+export function getConfigByType(cluster, type, callback) {
   return (dispatch) => {
-    return dispatch(fetchConfigByType(cluster, type, options, callback))
+    return dispatch(fetchConfigByType(cluster, type, callback))
   }
 }
 
@@ -129,6 +128,25 @@ export function sendEmailVerification(body, callback) {
       options: {
         method: 'POST',
         body: body
+      }
+    },
+    callback
+  }
+}
+
+export const VERIFY_MSG_REQUEST = 'VERIFY_MSG_REQUEST'
+export const VERIFY_MSG_SUCCESS = 'VERIFY_MSG_SUCCESS'
+export const VERIFY_MSG_FAILURE = 'VERIFY_MSG_FAILURE'
+
+export function validateMsgConfig(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [VERIFY_MSG_REQUEST, VERIFY_MSG_SUCCESS, VERIFY_MSG_FAILURE],
+      schema: {},
+      endpoint: `${API_URL_PREFIX}/configs/message/isvalidconfig`,
+      options: {
+        method: 'POST',
+        body,
       }
     },
     callback

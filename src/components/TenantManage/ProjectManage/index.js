@@ -1022,7 +1022,7 @@ let ProjectManage = React.createClass({
           </Modal>
           <Row className={classNames('btnBox', {'hidden': step !== ''})}>
             {
-              (roleNum == 1 || roleNum == 2)&&
+              // (roleNum == 1 || roleNum == 2)&&
               <Button type='primary' size='large' className='addBtn' onClick={this.startCreateProject}>
                 <i className='fa fa-plus'/> 创建项目
               </Button>
@@ -1111,6 +1111,7 @@ let ProjectManage = React.createClass({
           onOk={this.createModalOk}
           onCancel={this.createModalCancel}
           onClose={this.createModalCancel}
+          roleNum={roleNum}
         />
       </QueueAnim>
     )
@@ -1123,7 +1124,7 @@ function mapStateToProps(state, props) {
   const { enabled: billingEnabled } = billingConfig
   let roleCode = role
   let roleNum = 0
-  if (role === ROLE_SYS_ADMIN || ROLE_PLATFORM_ADMIN) {
+  if (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) {
     roleNum = 1
   } else if (globalRoles.length) {
     for (let i = 0; i < globalRoles.length; i++) {

@@ -453,6 +453,15 @@ class Information extends Component {
               notify.error('权限不足')
               return
             }
+            if (res.statusCode === 409) {
+              let type = '信息'
+              if (key === 'email') {
+                type = '邮箱'
+              } else if (key === 'phone') {
+                type = '手机号'
+              }
+              return notify.error('修改失败', `该${type}已在平台上注册`)
+            }
             if(res.statusCode == 500) {
               const { message } = res
               if (typeof message === 'string') {
@@ -481,7 +490,7 @@ class Information extends Component {
       (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN || userDetail.role === ROLE_BASE_ADMIN)) ||
       (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
     let accountTypeEdit = false
-    let editRole = true //是否可以编辑权限
+    let editRole = true //隐藏权限的修改按钮
     const currentPath = this.props.location.pathname
     if(loginUser.userID == this.props.userID && loginUser.role === ROLE_PLATFORM_ADMIN ) {
       notAllowChange = false
@@ -490,6 +499,12 @@ class Information extends Component {
     if(loginUser.userID == this.props.userID || currentPath === '/account') {
       notAllowChange = false
     }
+    let authorityDisabled = notAllowChange
+    // 系统管理员不可修改基础设施管理员和平台管理员的权限
+    if(loginUser.role == ROLE_SYS_ADMIN && (userDetail.role === ROLE_BASE_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) {
+      authorityDisabled = true
+    }
+
     if(currentPath === '/account' &&
       (!loginUser.role || loginUser.role === ROLE_BASE_ADMIN)) {
       editRole = false
@@ -502,7 +517,11 @@ class Information extends Component {
     } else {
       accountTypeEdit = false
     }
-    if (loginUser.role === ROLE_SYS_ADMIN) {
+    if (userDetail.role === ROLE_SYS_ADMIN ) {
+      accountTypeEdit = true
+    }
+    // 登录user是平台管理员,将被禁止修改
+    if (loginUser.role === ROLE_PLATFORM_ADMIN) {
       accountTypeEdit = true
     }
     const { billingConfig } = loginUser
@@ -613,7 +632,7 @@ class Information extends Component {
             {
               loginUser.role !== ROLE_PLATFORM_ADMIN &&
               <Col span={7}>
-                <Button style={{width: '80px'}} disabled={notAllowChange} type="primary" onClick={() => this.changeUserAuthModal()}>
+                <Button style={{width: '80px'}} disabled={authorityDisabled} type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
               </Col>
@@ -659,12 +678,12 @@ class Information extends Component {
             <Col span={4}>创建时间</Col>
             <Col span={18}>{formatDate(userDetail.creationTime)}</Col>
           </Row>
-          {
+          {/* {
             billingEnabled &&
             <Row className="Item">
               <Col span={4}>余额</Col>
               <Col span={13}>{balance}T</Col>
-              {/*  system user  */}
+              // system user
               {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
                 <Col span={7}>
                   <Button type="primary" icon="pay-circle-o" onClick={()=>　this.memberRecharge(userDetail,roleName)}>
@@ -674,7 +693,7 @@ class Information extends Component {
                 :null
               }
             </Row>
-          }
+          } */}
           <Row className="Item comment">
             <Col span={4}>备注</Col>
             <Col span={13}>

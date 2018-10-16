@@ -39,9 +39,9 @@ import { getDevopsGlobaleQuotaList } from '../../../src/actions/quota'
 import * as userActions from '../../actions/user'
 import cloneDeep from 'lodash/cloneDeep'
 
-const getColumns = ({ toggleApprovalModal, type, allUsers }) => {
+const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
-    title: type === 'person' ? '个人项目' : '共享项目',
+    title: '共享项目',
     dataIndex: 'item',
     render: (text, record) => {
       let link
@@ -88,7 +88,9 @@ class TenantManage extends React.Component {
       team: 0,
       project: 0,
       role: 0,
-      user_supperUser: 0,
+      user_supperAdmin: 0, //超级管理员
+      user_platformAdmin: 0, //平台管理员
+      user_infrastructureAdmin: 0, //基础设施管理员
       user_commonUser: 0,
       project_createByUser: 0,
       role_allCreated: 0,
@@ -181,7 +183,9 @@ class TenantManage extends React.Component {
               team: res.data.team.total,
               project: res.data.project.total,
               role: res.data.role.total,
-              user_supperUser: res.data.user.supperUser,
+              user_supperAdmin: res.data.user.supperAdmin, //超级管理员
+              user_platformAdmin: res.data.user.platformAdmin, //平台管理员
+              user_infrastructureAdmin: res.data.user.infrastructureAdmin, //基础设施管理员
               user_commonUser: res.data.user.commonUser,
               project_createByUser: res.data.project.createByUser,
               role_allCreated: res.data.role.allCreated,
@@ -326,10 +330,11 @@ class TenantManage extends React.Component {
       itemName: '创建项目',
       item: '项目之间是项目隔离的，通过创建项目实现按照角色关联对象（成员、团队），并根据授予的权限，使用项目中资源及功能'
     }]
-    const { user_supperUser, user_commonUser, project_createByUser, role_allCreated, role_createdByUser,
+    const { user_supperAdmin, user_platformAdmin, user_infrastructureAdmin, user_commonUser,
+      project_createByUser, role_allCreated, role_createdByUser,
       role_defaultSet, team_createdByUser, showApprovalModal, personItem, publicItem, definitions,
       globaleDevopsQuotaList, allUsers } = this.state
-    let u_supperUser = user_supperUser, u_commonUser = user_commonUser
+    // let u_supperUser = user_supperUser, u_commonUser = user_commonUser
     let p_createByUser = project_createByUser
     let r_allCreated = role_allCreated, r_createdByUser = role_createdByUser, r_defaultSet = role_defaultSet
     let t_createdByUser = team_createdByUser
@@ -350,12 +355,16 @@ class TenantManage extends React.Component {
         orient: 'vertical',
         left: '55%',
         top: 'middle',
-        data: [{ name: '系统管理员' }, { name: '普通成员' }],
+        data: [{ name: '系统管理员' }, { name: '基础设施管理员' }, { name: '平台管理员' }, { name: '普通成员' }],
         formatter: function (name) {
           if (name === '系统管理员') {
-            return name + u_supperUser + '个'
+            return name + ' ' + user_supperAdmin + ' 个'
+          } else if (name === '基础设施管理员') {
+            return name + ' ' + user_infrastructureAdmin + ' 个'
+          } else if (name === '平台管理员') {
+            return name + ' ' + user_platformAdmin + ' 个'
           } else if (name === '普通成员') {
-            return name + u_commonUser + '个'
+            return name + ' ' + user_commonUser + ' 个'
           }
         },
         textStyle: {
@@ -376,8 +385,10 @@ class TenantManage extends React.Component {
         radius: ['60', '0'],
         center: ['30%', '48%'],
         data: [
-          { value: u_supperUser, name: '系统管理员' },
-          { value: u_commonUser, name: '普通成员', selected: true },
+          { value: user_supperAdmin, name: '系统管理员' },
+          { value: user_infrastructureAdmin, name: '基础设施管理员' },
+          { value: user_platformAdmin, name: '平台管理员' },
+          { value: user_commonUser, name: '普通成员', selected: true },
         ],
         label: {
           normal: {
@@ -698,20 +709,16 @@ class TenantManage extends React.Component {
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
-                  <Col span={12} className="personalProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'person', allUsers })} dataSource={personItem.tabDataIndex} size="small" pagination={false}
-                           scroll={{ y: 360 }} loading={tabisFetching}/>
+                  <Col span={24} className="shareProject">
+                    <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
+                        loading={tabisFetching} scroll={{ y: 360 }} />
                   </Col>
-                  <Col span={12} className="shareProject">
-                    <Table columns={getColumns({ toggleApprovalModal, type: 'share', allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
-                    loading={tabisFetching} scroll={{ y: 360 }} />
-                  </Col>
-                  <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
-                                     record={this.record} reload={this.reload} resourceDefinitions={definitions}
-                                     resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
-                                     cancelApprovalModal = {this.cancelApprovalModal}
-                                     />
                 </Row>
+                <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}
+                                    record={this.record} reload={this.reload} resourceDefinitions={definitions}
+                                    resourceInuseProps={resourceInuse} globaleDevopsQuotaList={globaleDevopsQuotaList}
+                                    cancelApprovalModal = {this.cancelApprovalModal}
+                                    />
               </Card>
             </Col>
           </Row>

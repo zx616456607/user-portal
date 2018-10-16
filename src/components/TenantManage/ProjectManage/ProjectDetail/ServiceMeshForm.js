@@ -8,11 +8,12 @@
  * @date Wednesday July 25th 2018
  */
 import React, { PropTypes } from 'react'
-import { Modal, Checkbox,Alert, Button } from 'antd'
+import { Modal, Checkbox,Alert, Button, Radio, Row, Col, notification } from 'antd'
 import { connect } from 'react-redux'
 import * as SEMeshActions from '../../../../actions/serviceMesh'
 import "./style/ServiceMeshForm.less"
 
+const RadioGroup = Radio.Group
 const mapStatetoProps = () => ({})
 @connect(mapStatetoProps,{
   ToggleServiceMesh: SEMeshActions.ToggleServiceMesh
@@ -21,6 +22,7 @@ export default class ServiceMeshForm extends React.Component {
   state = {
     Buttonloading: false,
     checked: false,
+    openAllServiceMesh: true,
   }
   static propTypes = {
     ModalType: PropTypes.bool.isRequired,
@@ -32,22 +34,36 @@ export default class ServiceMeshForm extends React.Component {
   onCancel = () => {
     const { onClose, SwitchOnChange, ModalType } = this.props;
     onClose()
-    setTimeout(() => {SwitchOnChange(!ModalType)}, 0)
-    this.setState({ checked: false })
+    this.setState({ checked: false, openAllServiceMesh: true },
+    () => SwitchOnChange(!ModalType))
   }
   onOk = async (status) => {
-    const { onClose, ToggleServiceMesh, clusterId } = this.props
+    const { onClose, ToggleServiceMesh, clusterId, namespace } = this.props
+    const { openAllServiceMesh } = this.state
     this.setState({ Buttonloading: true })
-    const result = await ToggleServiceMesh({ projectName:'', status, cluster: clusterId })
-    setTimeout(() => {
-      this.setState({ Buttonloading: false })
-      onClose()
-      this.setState({ checked: false })
-    }, 1000)
+    try{
+      await ToggleServiceMesh(namespace, clusterId,
+        {
+          istio: status === 'on' ? 'enabled' : 'disabled',
+          existingServicesOff: openAllServiceMesh,
+        })
+        this.props.reload()
+    } catch(e) {
+      notification.error({
+        message: '操作羡慕服务网格开关失败',
+      })
+    }
+    onClose()
+    this.setState({ checked: false, openAllServiceMesh: true, Buttonloading: false})
   }
   onCheckBoxChange = e => {
     const { checked } = this.state
     this.setState({ checked: !checked  })
+  }
+  openAllServiceMesh = e => {
+    this.setState({
+      openAllServiceMesh: e.target.value,
+    });
   }
   render() {
     const { ModalType, visible, onClose  } = this.props
@@ -60,20 +76,35 @@ export default class ServiceMeshForm extends React.Component {
         onOk={() => this.onOk('on')}
         confirmLoading={Buttonloading}
       >
-        <div className="ServiceMeshForm">
+        <div className="ServiceMeshForm open">
         <Alert
           description={
           <div>
-            <p>项目开启 service mesh 后，此项目中的所有服务均开启服务网格，项目中服务将由服务网格代理
-            ，使用微服务中心提供的治理功能。
+            <p>开启后, 允许为该项目的该集群下的服务开启/关闭服务网格
             </p>
-            <p style={{ color: '#fdbd66' }}>确定是否为整个项目开启服务网格？</p>
           </div>
           }
-          type="warning"
+          type="info"
           showIcon
         />
         </div>
+        <div style={{ marginTop: 24 }}>设置「已有服务」的服务网格状态</div>
+        <Row style={{ marginTop: 12 }}>
+          <Col span={24}>
+            <RadioGroup onChange={this.openAllServiceMesh} value={this.state.openAllServiceMesh}>
+              <Radio key="a" value={true}>全部关闭服务网格</Radio>
+              <Radio key="b" value={false}>全部开启服务网格</Radio>
+            </RadioGroup>
+            <div style={{ color: '#ccc', marginTop: 12 }}>
+            {
+              this.state.openAllServiceMesh ?
+              <span>{'将项目&集群下已有的全部服务的服务网格关闭，需要时可在服务详情中开启'}</span>
+              :
+              <span>{'将项目&集群下已有的全部服务的服务网格开启'}</span>
+            }
+            </div>
+          </Col>
+        </Row>
       </Modal>
     )
     const closeModle = (
@@ -88,18 +119,18 @@ export default class ServiceMeshForm extends React.Component {
           </Button>,
         ]}
       >
-        <div className="ServiceMeshForm">
+        <div className="ServiceMeshForm close">
         <Alert
           description={
           <span>
-            关闭 service mesh后，此项目中的服务将关闭服务网格，项目中服务将不再使用微服务中心提供的治理功能。
+            {`关闭后，该项目的${this.props.clusterName}集群下服务将不能使用服务网格功能。已开启服务网格的服务将在下次重建后关闭服务网格。`}
           </span>
           }
-          type="warning"
+          type="info"
           showIcon
         />
         <div style={{  marginTop: '16px'}}>
-        <Checkbox checked={checked} onChange={this.onCheckBoxChange}>项目成员在服务维度开启的服务网格，将不被影响</Checkbox>
+        <Checkbox checked={checked} onChange={this.onCheckBoxChange}>确认是否关闭?</Checkbox>
         </div>
         </div>
       </Modal>

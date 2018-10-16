@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import './style/index.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
+import { GetProjectsApprovalClusters } from '../../../actions/project'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon'
@@ -22,6 +23,8 @@ import { ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN  } from
 import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './Intl'
+import filter from 'lodash/filter'
+import { getDeepValue } from '../../../../client/util/util'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -71,7 +74,7 @@ class Sider extends Component {
       currentKey: 'home',
       isUnzip: false,
       currentOpenMenu: null,
-      currentSelectedMenu: null
+      currentSelectedMenu: null,
     }
   }
 
@@ -103,6 +106,12 @@ class Sider extends Component {
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
+    })
+    this.props.GetProjectsApprovalClusters({
+      filter: `status__neq,2,status__neq,3`,
+      size: 10,
+      from: 0,
+      sort: `d,tenx_project_resource_ref.request_time`,
     })
   }
 
@@ -288,10 +297,16 @@ class Sider extends Component {
   render() {
     const { siderStyle, role,backColor,oemInfo, loginUser, intl } = this.props
     const { formatMessage } = intl
-    const { currentKey } = this.state
+    const { currentKey, currentSelectedMenu } = this.state
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
-    const scope = this;
+    const scope = this
+    let isShowSubPoint = this.props.isShowPoint && (
+      !(currentSelectedMenu.indexOf('tenant_manage') > -1) ||
+        (currentSelectedMenu.length === 1)
+      )
+    let isShowPoint = this.props.isShowPoint &&
+    (currentSelectedMenu.length === 1 || !(currentSelectedMenu.indexOf('cluster_authorization') > -1)) //非选中时
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
         <Link to='/tenant_manage'>
@@ -338,8 +353,9 @@ class Sider extends Component {
           <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
-          <Link to='/tenant_manage/cluster_authorization'>
+          <Link to={'/tenant_manage/cluster_authorization' + ( isShowPoint ? '?link_status=1' : '')}>
             <FormattedMessage {...IntlMessages.tenantClusterAuth} />
+            { isShowPoint && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>
         </div>
       </Menu.Item>,
@@ -749,6 +765,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
                     <TenxIcon className="commonImg" type="user-private" />
+                    { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
                   </Link>
                 </Tooltip>
               </li>
@@ -1465,6 +1482,7 @@ class Sider extends Component {
                       <TenxIcon className="commonImg" type="user-private" />
                       <span className='commonSiderSpan'>
                         <FormattedMessage {...IntlMessages.tenant} />
+                        { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
                       </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1649,6 +1667,11 @@ function mapStateToProp(state) {
     backColor = oemInfo.colorThemeID
   }
 
+  const { projectAuthority } = state
+  const { projectsApprovalClustersList } = projectAuthority
+  const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
+  const isShowPoint = filter(projects, { status: 1 }).length > 0
+
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
     beforeUploadState: state.storage.beforeUploadFile,
@@ -1656,7 +1679,8 @@ function mapStateToProp(state) {
     role,
     backColor,
     loginUser: entities && entities.loginUser && entities.loginUser.info,
-    oemInfo: oemInfo || {}
+    oemInfo: oemInfo || {},
+    isShowPoint,
   }
 }
 
@@ -1667,6 +1691,7 @@ export default injectIntl(connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail,
+  GetProjectsApprovalClusters,
   // loadUserDetail,
 })(Sider), {
   withRef: true,

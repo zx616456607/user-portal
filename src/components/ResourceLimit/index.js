@@ -44,7 +44,6 @@ class ResourceQuota extends React.Component {
       globaleList: {},
       gIsEdit: false,
       cIsEdit: false,
-      isProject: false,
       isDisabled: false,
       clusterSurplus: 0,
       globaleSurplus: 0,
@@ -80,35 +79,14 @@ class ResourceQuota extends React.Component {
       getClusterQuota,
       getClusterQuotaList,
       clusterID,
-      userName,
       projectName,
       getDevopsGlobaleQuotaList,
-      isProject,
       namespace } = this.props
-    let query
-    if (isProject) {
-      query = {
-        id: key ? key : clusterID,
-        header: {
-          teamspace: projectName,
-          onbehalfuser: ''
-        }
-      }
-    } else {
-      query = {
-        id: key ? key : clusterID,
-        header: {
-          onbehalfuser: userName
-        }
-      }
-    }
-    // 查看配额，若是用户中心或租户管理-成员管理详情，teamspace应该是该用户的用户名，去获取用户对应的数据
-    if(window.location.pathname === '/account') {
-      query = {
-        id: key ? key : clusterID,
-        header: {
-          teamspace: 'default'
-        }
+    const query = {
+      id: key ? key : clusterID,
+      header: {
+        teamspace: projectName,
+        onbehalfuser: ''
       }
     }
     /**
@@ -267,20 +245,13 @@ class ResourceQuota extends React.Component {
    * 全局 Ok
    */
   handleGlobaleSave() {
-    const { putGlobaleQuota, userName, projectName, isProject, namespace } = this.props
+    const { putGlobaleQuota, projectName, namespace } = this.props
     const { validateFields } = this.props.form
     let notify = new NotificationHandler()
     validateFields((error, value) => {
       if (!!error) return
-      let header
-      if (isProject) {
-        header = {
-          teamspace: projectName
-        }
-      } else {
-        header = {
-          onbehalfuser: userName
-        }
+      const header = {
+        teamspace: projectName
       }
 
       let body = {}
@@ -289,7 +260,7 @@ class ResourceQuota extends React.Component {
         body[v] = null
       }
       for(let k in value) {
-        if(typeof value[k] === 'string') {
+        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
           body[k] = Number(value[k])
         }
       }
@@ -300,21 +271,11 @@ class ResourceQuota extends React.Component {
       putGlobaleQuota(query, {
         success: {
           func: res => {
-            const { getGlobaleQuota,  clusterID, userName, projectName, isProject, namespace } = this.props
-            let query
-            if (isProject) {
-              query = {
-                id: clusterID,
-                header: {
-                  teamspace: projectName
-                }
-              }
-            } else {
-              query = {
-                id: clusterID,
-                header: {
-                  onbehalfuser: userName
-                }
+            const { getGlobaleQuota,  clusterID, projectName, namespace } = this.props
+            const query = {
+              id: clusterID,
+              header: {
+                teamspace: projectName
               }
             }
             if (res.statusCode === 200) {
@@ -354,19 +315,12 @@ class ResourceQuota extends React.Component {
   handleClusterOk() {
     let notify = new NotificationHandler()
     const { cluster } = this.state
-    const { putClusterQuota, clusterID, getClusterQuota, userName, projectName, isProject, namespace } = this.props
+    const { putClusterQuota, clusterID, getClusterQuota, projectName, namespace } = this.props
     const { validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) return
-      let header
-      if (isProject) {
-        header = {
-          teamspace: projectName
-        }
-      } else {
-        header = {
-          onbehalfuser: userName
-        }
+      const header = {
+        teamspace: projectName
       }
       // 把编辑的字段过滤出来，发送给后台
       let body = {}
@@ -374,11 +328,10 @@ class ResourceQuota extends React.Component {
         body[v] = null
       }
       for(let k in value) {
-        if(typeof value[k] === 'string') {
+        if(typeof value[k] === 'string' || typeof value[k] === 'number') {
           body[k] = Number(parseFloat(value[k]).toFixed(2))
         }
       }
-
       let query = {
         id: cluster === '' ? clusterID : cluster,
         header,
@@ -663,13 +616,10 @@ class ResourceQuota extends React.Component {
   render() {
     const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
-    const { clusterData, clusterName, isProject, outlineRoles=[], projectName, projectDetail,
+    const { clusterData, clusterName, outlineRoles=[], projectName, projectDetail,
        showProjectName, roleNameArr
      } = this.props
-    let newshowProjectName = showProjectName
-    if ( !isProject ) {
-      newshowProjectName = { namespace: '我的个人项目' }
-    }
+    const newshowProjectName = showProjectName
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
@@ -687,21 +637,11 @@ class ResourceQuota extends React.Component {
     const { getFieldProps, getFieldValue, setFieldsValue, setFields, getFieldError } = this.props.form
     return (
       <Form form={this.props.form} className="quota">
-        {
-          !isProject ?
-            <div className="alertRow">
-              <span>以下为个人项目的资源配额使用情况，了解该成员参与的其他项目资源配额，使用情况点击
-                <Link to="/tenant_manage/project_manage">
-                  <span> 共享项目资源配额 </span>
-                </Link>
-                进入项目详情查看</span>
-            </div> : <div></div>
-        }
         <div className="topDesc">
           {
             ( this.props.role !== ROLE_SYS_ADMIN &&
               this.props.role !== ROLE_PLATFORM_ADMIN &&
-              (outlineRoles.includes('manager') || !isProject )
+              (outlineRoles.includes('manager') )
             ) ?
             <div className="applyLimitBtn">
               <Link to={`/tenant_manage/applyLimit?${toQuerystring(newshowProjectName)}`}>

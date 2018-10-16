@@ -31,22 +31,15 @@ const formItemLayout = {
   },
   colon: false,
 }
-const formItemLayoutWithOutLabel = {
-  wrapperCol: {
-    xs: { span: 24, offset: 0 },
-    sm: { span: 19, offset: 5 },
-  },
-};
-let uuid = 0
+// let uuid = 0
 class ContainerInstance extends React.Component {
   state = {
-    oldIP: undefined,
     NetSegment: undefined,
     isScale: undefined,
   }
 
   componentDidMount() {
-    const { isSee, configIP, getPodNetworkSegment, cluster } = this.props
+    const { isSee, getPodNetworkSegment, cluster } = this.props
     getPodNetworkSegment(cluster, {
       success: {
         func: res => {
@@ -69,7 +62,6 @@ class ContainerInstance extends React.Component {
       this.setInitaialStatus(),
       150
     )
-    !isSee && configIP && this.nowNoneAndSetOneItem()
     const { loadAutoScale, serviceName } = this.props
     loadAutoScale(cluster, serviceName, {
       success: {
@@ -92,14 +84,6 @@ class ContainerInstance extends React.Component {
     })
   }
 
-  nowNoneAndSetOneItem = () => {
-    const keys = []
-    this.props.form.setFieldsValue({
-      keys: keys.concat(uuid),
-    })
-    uuid++
-  }
-
   setInitaialStatus = () => {
     const { serviceDetail, cluster } = this.props
     const service = Object.keys(serviceDetail[cluster])[0]
@@ -110,38 +94,10 @@ class ContainerInstance extends React.Component {
     const { setFieldsValue } = this.props.form
     if (ipv4) {
       const ipv4Arr = JSON.parse(ipv4)
-      const keys = []
-      ipv4Arr.forEach(item => {
-        keys.push(uuid)
-        setFieldsValue({
-          [`replicasIP${uuid}`]: item,
-          keys,
-        })
-        uuid++
+      setFieldsValue({
+        replicasIP: ipv4Arr[0],
       })
-      this.setState({ oldIP: ipv4Arr })
     }
-    if (!ipv4) {
-      this.nowNoneAndSetOneItem()
-    }
-  }
-
-  remove = k => {
-    const { form } = this.props
-    const keys = form.getFieldValue('keys')
-    form.setFieldsValue({
-      keys: keys.filter(key => key !== k),
-    })
-  }
-
-  add = () => {
-    const { form } = this.props
-    const keys = form.getFieldValue('keys')
-    const nextKeys = keys.concat(uuid)
-    uuid++
-    form.setFieldsValue({
-      keys: nextKeys,
-    })
   }
 
   handleOk = () => {
@@ -150,12 +106,8 @@ class ContainerInstance extends React.Component {
       const { UpdateServiceAnnotation, cluster, serviceDetail,
         containerNum, manualScaleService } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
-      const { keys } = values
-      const ipArr = []
-      keys.forEach(el => {
-        ipArr.push(values[`replicasIP${el}`])
-      })
-      const ipStr = JSON.stringify(ipArr)
+      const { replicasIP } = values
+      const ipStr = `[\"${replicasIP}\"]`
       const annotations = serviceDetail[cluster][server].service.spec.template
         && serviceDetail[cluster][server].service.spec.template.metadata.annotations
         || {}
@@ -176,10 +128,11 @@ class ContainerInstance extends React.Component {
           },
         })
       }
-      const { loadAutoScale, updateAutoScaleStatus } = this.props
+      const { loadAutoScale, updateAutoScaleStatus, loadServiceDetail } = this.props
       const serviceName = Object.keys(serviceDetail[cluster])[0]
       const res = await loadAutoScale(cluster, serviceName)
       const status = res.response.result.data
+        && res.response.result.data.metadata
         && res.response.result.data.metadata.annotations.status === 'RUN'
         || false
       if (status) {
@@ -195,6 +148,7 @@ class ContainerInstance extends React.Component {
             const { onChangeVisible, onHandleCanleIp } = this.props
             onChangeVisible()
             onHandleCanleIp(true)
+            loadServiceDetail(cluster, serviceName)
             notification.success('已固定 IP')
           },
           isAsync: true,
@@ -214,7 +168,8 @@ class ContainerInstance extends React.Component {
   }
 
   handleNotFix = () => {
-    const { UpdateServiceAnnotation, onChangeVisible, cluster, serviceDetail } = this.props
+    const { UpdateServiceAnnotation, onChangeVisible,
+      cluster, serviceDetail, loadServiceDetail } = this.props
     const server = Object.keys(serviceDetail[cluster])[0]
     const annotations = serviceDetail[cluster][server].service.spec.template
       && serviceDetail[cluster][server].service.spec.template.metadata.annotations
@@ -227,6 +182,7 @@ class ContainerInstance extends React.Component {
         func: () => {
           notification.close()
           onChangeVisible()
+          loadServiceDetail(cluster, server)
           notification.success('释放 IP 成功')
         },
         isAsync: true,
@@ -254,7 +210,7 @@ class ContainerInstance extends React.Component {
     onHandleCanleIp(v)
   }
 
-  checkPodCidr = (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
     const { NetSegment } = this.state
     if (!NetSegment) {
@@ -264,13 +220,21 @@ class ContainerInstance extends React.Component {
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
     }
+    const { getISIpPodExisted, cluster } = this.props
+    const isExist = await getISIpPodExisted(cluster, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback('校验 IP 是否被占用失败')
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback('当前 IP 已经被占用, 请重新填写')
+    }
     callback()
   }
 
   render() {
-    const { oldIP, NetSegment, isScale } = this.state
+    const { NetSegment, isScale } = this.state
     const { form, configIP, notConfigIP, containerNum, cluster, serviceDetail } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { getFieldProps } = form
     const server = Object.keys(serviceDetail[cluster])[0]
     const service = serviceDetail[cluster][server].service
     const status = getServiceStatus(service)
@@ -279,49 +243,6 @@ class ContainerInstance extends React.Component {
     if (!replicas && !availableReplicas) {
       isStop = true
     }
-    getFieldProps('keys', {
-      initialValue: [ ],
-    })
-    const formItems = getFieldValue('keys').map((k, index) => {
-      let use = null
-      oldIP && oldIP.forEach(ele => {
-        if (ele === getFieldValue(`replicasIP${k}`)) {
-          use = <span className="useStatus isUsed">已使用</span>
-        }
-      })
-      return (
-        <FormItem
-          key={k}
-          wrapperCol={{ span: 16, offset: 4 }}
-          {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-          label={index === 0 ? '配置固定 IP' : ''}
-          className="addIp"
-        >
-          <Input {...getFieldProps(`replicasIP${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请填写实例 IP（需属于 ${NetSegment}）`,
-            }, {
-              validator: this.checkPodCidr,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
-          />
-          { use || <span className="useStatus shouldUse">未使用</span> }
-          {/*
-          <Button
-            className="delBtn"
-            disabled={use}
-            onClick={() => this.remove(k)}
-          >
-            <Icon type="delete" />
-          </Button>
-          */}
-        </FormItem>
-      )
-    })
     return (
       <div className="containerInstance">
         <Modal
@@ -350,24 +271,31 @@ class ContainerInstance extends React.Component {
               {...formItemLayout}>
               <span>{containerNum}</span>
             </FormItem>
-            {formItems}
-            {/*
-            <Row className="addInstance">
-              <Col span={5}></Col>
-              <Col>
-                <span onClick={this.add} className="add">
-                  <Icon type="plus-circle-o" style={{ marginRight: 8 }}/>
-                  添加实例 IP
-                </span>
-              </Col>
-            </Row>
-            */}
+            <FormItem
+              wrapperCol={{ span: 16, offset: 4 }}
+              {...formItemLayout}
+              label={'配置固定 IP'}
+              className="addIp"
+            >
+              <Input {...getFieldProps('replicasIP', {
+                rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: `请填写实例 IP（需属于 ${NetSegment}）`,
+                }, {
+                  validator: this.checkPodCidr,
+                }],
+              })}
+              style={{ width: 280 }}
+              placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
+              />
+            </FormItem>
           </div>
         </Modal>
         <Modal
           title="不再固定实例 IP"
           visible={notConfigIP}
-          onOk={this.handleNotFix}//  () => this.props.onChangeVisible(false)}
+          onOk={this.handleNotFix}
           onCancel={() => this.handleCandle(true)}
           okText={'确认释放 IP'}
         >
@@ -399,5 +327,7 @@ export default connect(mapStateToProps, {
   manualScaleService: serviceActions.manualScaleService,
   loadAutoScale: serviceActions.loadAutoScale,
   updateAutoScaleStatus: serviceActions.updateAutoScaleStatus,
+  loadServiceDetail: serviceActions.loadServiceDetail,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
 })(Form.create()(ContainerInstance))

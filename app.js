@@ -234,6 +234,14 @@ render(app, viewOps)
 /*const auth = require('./utils/auth')
 app.use(auth.authCookieUser)*/
 
+// Add ip to this.session.loginUser
+app.use(function* (next) {
+  this.session.loginUser = Object.assign({
+    ip: this.request.ip,
+  }, this.session.loginUser)
+  yield next
+})
+
 // Internationalization
 const i18n = require('./services/i18n')
 app.use(i18n.handle())
@@ -290,8 +298,6 @@ if (process.env.RUNNING_MODE === 'standard') {
 // ~ No authentication required
 const noAuthRoutes = require('./routes/no_auth')
 app.use(noAuthRoutes(Router))
-// For set user current config
-app.use(middlewares.setUserCurrentConfig)
 const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')

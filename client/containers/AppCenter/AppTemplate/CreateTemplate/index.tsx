@@ -24,7 +24,7 @@ import { genRandomString, toQuerystring, formatServiceToArrry, getWrapFileType }
 import * as QuickCreateAppActions from '../../../../../src/actions/quick_create_app';
 import * as templateActions from '../../../../actions/template';
 import * as appCenterActions from '../../../../../src/actions/app_center';
-import { DEFAULT_REGISTRY } from '../../../../../src/constants';
+import { DEFAULT_REGISTRY, OTHER_IMAGE } from '../../../../../src/constants';
 import NotificationHandler from '../../../../../src/components/Notification';
 import './style/index.less';
 import { parseToFields } from './parseToFields';
@@ -131,6 +131,11 @@ class AppTemplate extends React.Component<IProps, IState> {
       key: firstID,
       template: true,
     };
+    if (currentFields[OTHER_IMAGE]) {
+      Object.assign(query, {
+        other: currentFields[OTHER_IMAGE].value,
+      })
+    }
     if (appPkgID) {
       const type = imageName.split('/')[1];
       const fileType: string = getWrapFileType(type);
@@ -244,6 +249,11 @@ class AppTemplate extends React.Component<IProps, IState> {
 
           Object.assign(query, { isWrap: true, fileType, imageName, registryServer, appPkgID: appPkgID.value });
         }
+        if (currentFields[OTHER_IMAGE]) {
+          Object.assign(query, {
+            other: currentFields[OTHER_IMAGE].value,
+          })
+        }
         url += `?${toQuerystring(query)}${TEMPLATE_EDIT_HASH}`;
         this.setState({
           loading: true,
@@ -303,6 +313,9 @@ class AppTemplate extends React.Component<IProps, IState> {
     if (currentStep === 0) {
       this.configureServiceKey = this.genConfigureServiceKey();
     }
+    const allKeys = Object.keys(fields)
+    const filterKeys = allKeys.filter(_key => _key !== deleteKey)[0]
+    this.saveService(filterKeys)
     setTimeout(() => {
       removeFormFields(deleteKey);
     });

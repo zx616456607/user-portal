@@ -88,17 +88,16 @@ class AlarmRecord extends Component {
     const {
       recordFilters
     } = this.props
-
-    let strategies = [<Option value="">全部</Option>]
-    for (let strategy of recordFilters.strategies) {
-      strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+    let strategies = [<Option value="" key={'all'}>全部</Option>]
+    let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
+    if (recordFilters.strategies) {
+      for (let strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+      }
+      for (let target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
+      }
     }
-
-    let targets = [<Option value="">全部</Option>]
-    for (let target of recordFilters.targets) {
-      targets.push(<Option value={target.name}>{target.name}</Option>)
-    }
-
     return {
       strategies,
       targets,
@@ -251,6 +250,9 @@ class AlarmRecord extends Component {
         }
       })
   }
+  disabledDate = current => {
+    return current && current.getTime() > Date.now()
+  }
   render() {
     const { clusterID } = this.props;
     const columns = [
@@ -299,14 +301,14 @@ class AlarmRecord extends Component {
 
       },
       {
-        title: '是否发送邮件',
+        title: '是否发送邮件/短信',
         dataIndex: 'status',
         render: (text) => {
           switch (text) {
             case 0:
-              return <div>未发送</div>
+              return <div style={{ color: '#33b867' }}>否</div>
             case 1:
-              return <div style={{ color: '#33b867' }}>已发送</div>
+              return <div style={{ color: '#f23e3f' }}>是</div>
             case 2:
               return <div style={{ color: '#f23e3f' }}>发送失败</div>
             default:
@@ -349,8 +351,8 @@ class AlarmRecord extends Component {
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({ targetFilter: value })}>
               {filters.targets}
             </Select>
-            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)} />
-            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)} />
+            <DatePicker placeholder="选择起始日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onBeginTimeFilterChange(value)} />
+            <DatePicker placeholder="选择结束日期" size="large" disabledDate={this.disabledDate} onChange={(value) => this.onEndTimeFilterChange(value)} />
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             <Button className="empty" icon="delete" size="large" onClick={() => this.setState({ deleteModal: true })}>清空所有记录</Button>
             { total !== 0 && <div className='pageBox'>

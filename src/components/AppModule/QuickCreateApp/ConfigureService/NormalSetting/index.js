@@ -35,6 +35,7 @@ import isEmpty from 'lodash/isEmpty'
 import { SetCalamariUrl } from '../../../../../actions/storage';
 import { NodeAffinity, PodAffinity } from './NodeAndPodAffinity'
 import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/QuickCreateApp/NormalSetting/ReplicasRestrictIP'
+import ContainerNetwork from '../../../../../../client/containers/AppModule/QuickCreateApp/ContainerNetwork'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
 
@@ -750,25 +751,6 @@ const Normal = React.createClass({
                 />
               : null
           }
-          { // 应用模板暂不支持hostname
-            !isTemplate &&
-            <Row key="hostname">
-              <Col span={formItemLayout.labelCol.span}>{intl.formatMessage(IntlMessage.setHostname)}</Col>
-              <Col span={formItemLayout.wrapperCol.span}>
-                <FormItem
-                  wrapperCol={{ span: 6 }}
-                >
-                  <Input
-                    {...getFieldProps('hostname')}
-                    placeholder={intl.formatMessage(IntlMessage.pleaseEnter, {
-                      item: 'hostname',
-                      end: '',
-                    })}
-                  />
-                </FormItem>
-              </Col>
-            </Row>
-          }
           <AccessMethod
             formItemLayout={formItemLayout}
             fields={fields}
@@ -776,10 +758,11 @@ const Normal = React.createClass({
             currentCluster={currentCluster}
             key="accessmethod"
             isTemplate={isTemplate}
+            flag={this.props.flag}
             {...{location}}
           />
           {
-            (!accessType || accessType.value !== 'loadBalance') &&
+            (!accessType || accessType.value !== 'loadBalance') && !this.props.flag &&
             <Ports
               formItemLayout={formItemLayout}
               form={form}
@@ -788,6 +771,15 @@ const Normal = React.createClass({
               currentCluster={currentCluster}
               isTemplate={isTemplate}
               key="ports"
+            />
+          }
+          {// 应用模板暂不支持
+            !isTemplate &&
+            <ContainerNetwork
+              formItemLayout={formItemLayout}
+              form={form}
+              intl={intl}
+              key="containerNetwork"
             />
           }
           {/* // listNode   left IP   right class pod
@@ -832,11 +824,13 @@ function mapStateToProps(state, props) {
     let summary = clusterLabel[cluster.clusterID].result.summary
     labels = summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
   }
+  const {toggleCreateAppMeshFlag: { flag = false } = {}} = state.serviceMesh
   return {
     currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
     labels,
     nodes,
+    flag,
   }
 }
 

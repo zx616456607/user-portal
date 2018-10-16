@@ -12,11 +12,14 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, Form, } from 'antd'
 import ErrorPage from '../ErrorPage'
-import Header from '../../components/Header'
+import Header, { SPACE_CLUSTER_PATHNAME_MAP } from '../../components/Header'
 import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { browserHistory, Link } from 'react-router'
-import { isEmptyObject, getPortalRealMode, isResourcePermissionError, isResourceQuotaError } from '../../common/tools'
+import {
+  isEmptyObject, getPortalRealMode, isResourcePermissionError,
+  isResourceQuotaError, getCookie,
+} from '../../common/tools'
 import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { getResourceDefinition } from '../../actions/quota'
@@ -39,6 +42,10 @@ import NotificationHandler from '../../common/notification_handler'
 import Xterm from '../../components/TerminalModal/Xterm'
 import IntlMessages from './Intl'
 import CommonIntlMessages from '../CommonIntl'
+import noProjectsImage from '../../assets/img/no-projects.png'
+import noClustersImage from '../../assets/img/no-clusters.png'
+import classNames from 'classnames'
+import { USER_CURRENT_CONFIG } from '../../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -367,40 +374,91 @@ class App extends Component {
   getChildren() {
     const { children, errorMessage, loginUser, current, location } = this.props
     const { pathname } = location
-    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster } = this.state
+    const { loadLoginUserSuccess, loginErr, switchSpaceOrCluster, siderStyle } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
         <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
       )
     }
-    if (!errorMessage) {
-      if (!current.space.projectName) {
+    if (errorMessage) {
+      const { statusCode } = errorMessage.error
+      if (this.showErrorPage(errorMessage)) {
         return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
-          </div>
+          <ErrorPage code={statusCode} errorMessage={errorMessage} />
         )
       }
-      if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
-        return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
-          </div>
-        )
+    }
+    const loadingClass = classNames('loading', {
+      marginBigSider: siderStyle === 'bigger',
+      marginMiniSider: siderStyle === 'mini',
+    })
+    let showProjectOrCluster = false
+    const showProjectOrClusterPaths = [
+      ...SPACE_CLUSTER_PATHNAME_MAP.space,
+      ...SPACE_CLUSTER_PATHNAME_MAP.cluster,
+      ...SPACE_CLUSTER_PATHNAME_MAP.loadProjectAndClusterNeeded,
+    ]
+    showProjectOrClusterPaths.every(path => {
+      if (pathname.search(path) == 0) {
+        showProjectOrCluster = true
+        return false
       }
-      if (switchSpaceOrCluster) {
-        return (
-          <div className="loading">
-            <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
-          </div>
-        )
-      }
+      return true
+    })
+    if (!showProjectOrCluster) {
       return children
     }
-    const { statusCode } = errorMessage.error
-    if (this.showErrorPage(errorMessage)) {
+    if (current.space.noProjectsFlag) {
       return (
-        <ErrorPage code={statusCode} errorMessage={errorMessage} />
+        <div className={loadingClass}>
+          <img src={noProjectsImage} alt="no-projects" />
+          <br />
+          <FormattedMessage
+            {...IntlMessages.noProjetsTipWithLink}
+            values={{
+              link: <Link to="/tenant_manage/project_manage">
+                <FormattedMessage {...IntlMessages.createProject} />
+              </Link>
+            }}
+          />
+        </div>
+      )
+    }
+    if (current.space.noClustersFlag) {
+      return (
+        <div className={loadingClass}>
+          <img src={noClustersImage} alt="no-clusters" />
+          <br />
+          <FormattedMessage
+            {...IntlMessages.noClustersTipWithLink}
+            values={{
+              link: <Link to={`/tenant_manage/project_manage/project_detail?name=${current.space.projectName}`}>
+                <FormattedMessage {...IntlMessages.applyClusters} />
+              </Link>
+            }}
+          />
+        </div>
+      )
+    }
+    if (!current.space.projectName) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.initialization} />
+        </div>
+      )
+    }
+    if (!current.cluster.apiHost && EXCLUDE_GET_CLUSTER_INFO_PATH.indexOf(pathname) < 0) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.getClusterInfo} />
+        </div>
+      )
+    }
+    if (switchSpaceOrCluster) {
+      return (
+        <div className={loadingClass}>
+          <Spin size="large" /> <FormattedMessage {...IntlMessages.switchClusterOrProject} />
+        </div>
       )
     }
     return children
@@ -520,6 +578,7 @@ class App extends Component {
       redirectUrl,
       pathnameWithHash,
       loginUser,
+      currentUser,
       Sider,
       siderStyle,
       UpgradeModal,
@@ -609,6 +668,29 @@ class App extends Component {
               <TenxIcon type="lost" size={120}/>
             </p>
             <p><FormattedMessage {...IntlMessages.loadErrorTips} /></p>
+          </div>
+        </Modal>
+        <Modal
+          visible={currentUser !== loginUser.userName}
+          title={formatMessage(IntlMessages.loginUserChanged)}
+          maskClosable={false}
+          closable={false}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              size="large"
+              onClick={() => window.location.reload()}
+            >
+              <FormattedMessage {...IntlMessages.loginUserChangedBtn} />
+            </Button>,
+          ]}
+        >
+          <div style={{ textAlign: 'center' }} className="logon-filure">
+            <div className="deleteRow">
+              <i className="fa fa-exclamation-triangle" style={{ marginRight: 8 }}></i>
+              <FormattedMessage {...IntlMessages.loginUserChangedTips} values={{ user: currentUser }} />
+            </div>
           </div>
         </Modal>
         {this.getStatusWatchWs()}
@@ -730,6 +812,8 @@ function mapStateToProps(state, props) {
     redirectUrl += hash
     pathnameWithHash += hash
   }
+  const config = getCookie(USER_CURRENT_CONFIG) || ''
+  let [ currentUser ] = config.split(',')
   return {
     reduxState: state,
     errorMessage,
@@ -738,6 +822,7 @@ function mapStateToProps(state, props) {
     pathnameWithHash,
     current,
     sockets,
+    currentUser,
     loginUser: loginUser.info,
     platform: (platform.result ? platform.result.data : {})
   }

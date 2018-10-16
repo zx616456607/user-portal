@@ -426,7 +426,7 @@ class PodAffinity extends Component {
     const everyVal = value.split(',')
     const Kubernetes = new KubernetesValidator()
     everyVal.map( item=>{
-      if (item.length < 3 || item.length > 64) {
+      if (item.length < 3 || item.length > 63) {
         callback(new Error(intl.formatMessage(IntlMessage.labelValueLengthLimit)))
         return
       }
@@ -594,7 +594,7 @@ class PodAffinity extends Component {
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (value.length < 3 || value.length > 64) {
+    if (value.length < 3 || value.length > 63) {
       callback(new Error(intl.formatMessage(IntlMessage.labelKeyLengthLimit)))
       return
     }

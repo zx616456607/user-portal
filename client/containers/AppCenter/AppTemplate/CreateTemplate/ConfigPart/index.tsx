@@ -11,18 +11,15 @@
  */
 
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { browserHistory } from 'react-router';
 import { Button, Steps } from 'antd';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import { getWrapFileType } from '../../../../../../src/common/tools';
 import './style/index.less';
-import ImagesPart from './SelectPacket/ImagesPart';
+import SelectImage from '../../../../../../src/components/AppModule/QuickCreateApp/SelectImage'
 import WrapsPart from './SelectPacket/WrapsPart';
-import { toQuerystring, encodeImageFullname, genRandomString } from '../../../../../../src/common/tools';
+import { toQuerystring, encodeImageFullname } from '../../../../../../src/common/tools';
 import ConfigureTemplate from '../../../../../../src/components/AppModule/QuickCreateApp/ConfigureService';
-import * as appCenterActions from '../../../../../../src/actions/app_center';
 import { DEFAULT_REGISTRY } from '../../../../../../src/constants';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../../src/containers/Application/intl'
@@ -70,13 +67,35 @@ class ConfigPart extends React.Component<any, IState> {
     );
   }
 
+  onSelectOtherImage = query => {
+    const { stepChange, location } = this.props
+    const { registryServer, imageName, other } = query
+    const imageQuery = {
+      imageName,
+      registryServer,
+      template: true,
+      other,
+    };
+    this.setState({
+      imageName,
+      registryServer,
+    });
+    if (location.query.action) {
+      Object.assign(imageQuery, { action: location.query.action });
+    }
+    browserHistory.push(`/app_center/template/create?${toQuerystring(imageQuery)}`);
+    setTimeout(() => {
+      stepChange(1);
+    });
+  }
+
   selectPacket = (image: object, registryServer: string, isWrap?: boolean) => {
     const { stepChange, getImageTemplate, template, getNewImageName, location } = this.props;
-    let finallyName = image.fileName;
-    if (image.repositoryName) {
-      finallyName = encodeImageFullname(image.repositoryName);
-    } else if (image.resourceName) {
-      finallyName = encodeImageFullname(image.resourceName);
+    let finallyName = ''
+    if (isWrap) {
+      finallyName = image.fileName
+    } else {
+      finallyName = encodeImageFullname(image);
     }
     this.setState({
       imageName: finallyName,
@@ -141,7 +160,14 @@ class ConfigPart extends React.Component<any, IState> {
           <ul className="tabs_header_style configTabs">
             {this.renderTabs()}
           </ul>
-            {activeKey === 'image' && <ImagesPart selectPacket={this.selectPacket}/>}
+            {
+              activeKey === 'image' &&
+              <SelectImage
+                location={location}
+                onChange={this.selectPacket}
+                onOtherChange={this.onSelectOtherImage}
+              />
+            }
             {activeKey === 'wrap' && <WrapsPart selectPacket={this.selectPacket}/>}
         </div>
       );

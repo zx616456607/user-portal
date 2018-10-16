@@ -23,6 +23,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../../constants'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
+import {getDeepValue} from "../../../../client/util/util";
 
 const notify = new Notification()
 
@@ -124,10 +125,11 @@ class LoadBalance extends React.Component {
     this.setState({
       delConfirmLoading: true
     })
+    const { agentType } = getDeepValue(currentBalance, ['metadata', 'labels'])
     notify.spin('删除中')
     let name = currentBalance.metadata.name
     let displayName = currentBalance.metadata.annotations.displayName
-    deleteLB(clusterID, name, displayName, {
+    deleteLB(clusterID, name, displayName, agentType, {
       success: {
         func: () => {
           notify.close()
@@ -201,13 +203,13 @@ class LoadBalance extends React.Component {
       onChange: this.handlePage
     }
     const columns = [{
-      title: '名称 / 标签',
+      title: '名称 / 备注名',
       dataIndex: 'metadata.annotations.displayName',
       width: '15%',
       render: (text, record) =>
         <Link to={`/app_manage/load_balance/balance_config?name=${record.metadata.name}&displayName=${record.metadata.annotations.displayName}`}>
-          {text}
           <div>{record.metadata.labels.ingressLb}</div>
+          {text}
           </Link>
     }, {
       title: '状态',
@@ -217,12 +219,12 @@ class LoadBalance extends React.Component {
     }, {
       title: '地址',
       width: '10%',
-      dataIndex: 'metadata.annotations.allocatedIP',
+      dataIndex: 'metadata.annotations.podIP',
     }, {
       title: '代理方式',
-      dataIndex: 'port',
+      dataIndex: 'metadata.labels.agentType',
       width: '10%',
-      render: () => `集群外`,
+      render: text => text === 'inside' ? '集群内' : '集群外',
     }, {
       title: '监听器数量',
       width: '10%',
@@ -286,10 +288,11 @@ class LoadBalance extends React.Component {
           <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>
           {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
-            placeholder="请输入关键词搜索"
+            placeholder="请输入备注名搜索"
             size="large"
             value={name}
             onSearch={this.handleSearch}
+            style={{ marginLeft: 0 }}
           />
           {
             total ?

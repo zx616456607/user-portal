@@ -64,6 +64,11 @@ const fetchCheckApplyRecord = (query, callback) => {
       ],
       endpoint: `${API_URL_PREFIX}/resourcequota/apply?${toQuerystring(query)}`,
       schema: {},
+      options: {
+        headers: {
+          teamspace: '',
+        },
+      },
     },
     callback,
     noreducer,

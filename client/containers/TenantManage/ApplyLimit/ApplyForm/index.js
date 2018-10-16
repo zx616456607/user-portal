@@ -687,7 +687,7 @@ class ApplyForm extends React.Component {
       globaleDevopsQuotaList,
     } = this.state
     const { applayVisable, projectName, choiceClusters,
-      personNamespace, displayName } = this.props
+      displayName } = this.props
     const { getFieldProps, getFieldValue } = this.props.form
     const removeFunction = this.remove
     const checkResourceKind = this.checkResourceKind
@@ -726,15 +726,12 @@ class ApplyForm extends React.Component {
                 placeholder="选择申请配额的项目"
                 onSelect = { value => this.loadResourceDefinitioList(value) }
               >
-                <Select.Option value={personNamespace}>我的个人项目</Select.Option>
-                <Select.OptGroup key="共享项目">
-                  {
-                    projectName.map(o =>
-                      <Select.Option value={o.projectName} key="o">
-                        {o.name}
-                      </Select.Option>)
-                  }
-                </Select.OptGroup>
+                {
+                  projectName.map(o =>
+                    <Select.Option value={o.projectName} key="o">
+                      {o.name}
+                    </Select.Option>)
+                }
               </Select>
             </FormItem>
             <FormItem

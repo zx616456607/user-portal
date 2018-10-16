@@ -11,7 +11,9 @@ import React, { Component, PropTypes } from 'react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import intlMsg from './AppServiceListIntl'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert,
+  notification,
+  message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -49,8 +51,9 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import isEmpty from "lodash/isEmpty";
+import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
-
+import * as meshActions from '../../actions/serviceMesh'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -339,9 +342,19 @@ const MyComponent = React.createClass({
       </Tooltip>
     )
   },
+  rendermeshIcon() {
+    return (
+      <span style={{ lineHeight: '16px' }}>
+        <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
+        <img className="meshIcon"　src={meshIcon} alt=""/>
+        </Tooltip>
+      </span>
+    )
+  },
   render: function () {
     const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
+    const { mesh = []} = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -366,7 +379,7 @@ const MyComponent = React.createClass({
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
-      const ipv4 = item.spec.template
+      const ipv4 = item.spec.template && item.spec.template.metadata && item.spec.template.metadata.annotations
         && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
         && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
         || null
@@ -550,7 +563,8 @@ const MyComponent = React.createClass({
       }
       let heightSize = '60px'
       let lineHeightSize = '60px'
-      if(volume || group || lb){
+      const meshflag =  (mesh.find(({name}) => name === item.metadata.name) || {} ).value
+      if(volume || group || lb || meshflag){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -567,7 +581,7 @@ const MyComponent = React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb) && <div className='icon_container'>
+              (volume || group || lb || meshflag) && <div className='icon_container'>
                 {
                   volume && <Tooltip title={formatMessage(intlMsg.thisServerStorage)} placement="top">
                     <span className='standrand volumeColor'><FormattedMessage {...intlMsg.storage}/></span>
@@ -579,6 +593,7 @@ const MyComponent = React.createClass({
                 {
                   lb && this.renderLBIcon()
                 }
+                { meshflag && this.rendermeshIcon() }
               </div>
             }
           </div>
@@ -666,6 +681,8 @@ class AppServiceList extends Component {
       QuickRestarServiceModal: false,
       DeleteServiceModal: false,
       grayscaleUpgradeModalVisible: false,
+      mesh: undefined,
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
     }
   }
   getInitialState() {
@@ -742,11 +759,27 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Reload list each UPDATE_INTERVAL
+    const { getServiceListServiceMeshStatus } = this.props
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
+    let ServiceListmeshResult
+    try{
+      ServiceListmeshResult =
+      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
+    } catch(e) { notification.error({message: '获取服务网格状态出错'}) }
+    // console.log('ServiceListmeshResult', ServiceListmeshResult)
+    const ServiceListmeshData = ServiceListmeshResult.response.result || {}
+    const serviceListMesh = serviceNames.map((name) => {
+      const serviceMesh = Object.values(ServiceListmeshData)
+      .filter((service)=> typeof service === 'object')
+      .find((service) => service.metadata.name === name)
+      return { name, value: serviceMesh.istioEnabled }
+    })
+    this.setState({ mesh: serviceListMesh })
   }
 
   componentWillUnmount() {
@@ -1173,7 +1206,12 @@ class AppServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
 
@@ -1230,6 +1268,7 @@ class AppServiceList extends Component {
       selectTab, rollingUpdateModalShow, configModal,
       manualScaleModalShow, runBtn, stopBtn, restartBtn,
       redeploybtn, grayscaleUpgradeModalVisible,
+      documentTitle,
     } = this.state
     const {
       name, pathname, page,
@@ -1265,12 +1304,13 @@ class AppServiceList extends Component {
                    type="right"
         >
           <div className="operaBox" key="serverList">
-            <Title title={formatMessage(intlMsg.nameServerList, { appName })} />
+            <Title title={documentTitle} />
+            {/* <Title title={formatMessage(intlMsg.nameServerList, { appName })} /> */}
             <Button
               size="large"
               type="primary"
               onClick={this.goAddService}
-              style={{ backgroundColor: '#2db7f5' }}>
+              >
               <i className="fa fa-plus"></i>
               <FormattedMessage {...intlMsg.addServer}/>
             </Button>
@@ -1374,7 +1414,9 @@ class AppServiceList extends Component {
             loading={isFetching}
             bindingIPs={this.props.bindingIPs}
             intl={this.props.intl}
-            bindingDomains={this.props.bindingDomains} />
+            bindingDomains={this.props.bindingDomains}
+            mesh={this.state.mesh}
+             />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -1382,13 +1424,19 @@ class AppServiceList extends Component {
             transitionName="move-right"
             onCancel={this.closeModal}
           >
-            <AppServiceDetail
-              appName={appName}
-              scope={parentScope}
-              funcs={funcs}
-              selectTab={selectTab}
-              serviceDetailmodalShow={this.state.modalShow}
-            />
+          {
+            modalShow ?
+              <AppServiceDetail
+                appName={appName}
+                scope={parentScope}
+                funcs={funcs}
+                selectTab={selectTab}
+                serviceDetailmodalShow={this.state.modalShow}
+                onClose={this.closeModal}
+              />
+              :
+              null
+          }
           </Modal>
           {
             rollingUpdateModalShow ?
@@ -1612,6 +1660,7 @@ AppServiceList = connect(mapStateToProps, {
   loadAutoScale,
   getDeploymentOrAppCDRule,
   removeTerminal,
+  getServiceListServiceMeshStatus: meshActions.getServiceListServiceMeshStatus,
 })(AppServiceList)
 
 export default injectIntl(AppServiceList, {

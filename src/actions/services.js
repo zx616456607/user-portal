@@ -303,9 +303,9 @@ function fetchServiceContainerList(cluster, serviceName, query, bpmQuery,callbac
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, query, bpmQuery,callback) {
+export function loadServiceContainerList(cluster, serviceName, query, bpmQuery, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery ,callback))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, query, bpmQuery, callback))
   }
 }
 
@@ -1053,5 +1053,52 @@ function fetchUpdateAnnotation(cluster, service, body, callback){
 export function UpdateServiceAnnotation(cluster, service, body, callback){
   return (dispatch) => {
     return dispatch(fetchUpdateAnnotation(cluster, service, body, callback))
+  }
+}
+
+// 修改服务 hostname 和 subdomain 、 hostAliases
+export const UPDATE_SERVICE_HOSTCONFIG_REQUEST = 'UPDATE_SERVICE_HOSTCONFIG_REQUEST'
+export const UPDATE_SERVICE_HOSTCONFIG_SUCCESS = 'UPDATE_SERVICE_HOSTCONFIG_SUCCESS'
+export const UPDATE_SERVICE_HOSTCONFIG_FAILURE = 'UPDATE_SERVICE_HOSTCONFIG_FAILURE'
+
+const fetchUpdateHostConfig = (cluster, service, body, callback) => ({
+  [FETCH_API]: {
+    types: [
+      UPDATE_SERVICE_HOSTCONFIG_REQUEST,
+      UPDATE_SERVICE_HOSTCONFIG_SUCCESS,
+      UPDATE_SERVICE_HOSTCONFIG_FAILURE,
+    ],
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/host`,
+    schema: {},
+    options: {
+      method: 'PUT',
+      body,
+    }
+  },
+  callback,
+})
+
+export const updateHostConfig = (cluster, service, body, callback) =>
+  dispatch => dispatch(fetchUpdateHostConfig(cluster, service, body, callback))
+
+// 获取 ip 是否被占用
+const GET_IPPOD_STATUS_REQUEST = 'GET_IPPOD_STATUS_REQUEST'
+const GET_IPPOD_STATUS_SUCCESS = 'GET_IPPOD_STATUS_SUCCESS'
+const GET_IPPOD_STATUS_FAILURE = 'GET_IPPOD_STATUS_FAILURE'
+
+function fetchIpPodStatus(cluster, ip, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_IPPOD_STATUS_REQUEST, GET_IPPOD_STATUS_SUCCESS, GET_IPPOD_STATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/isPodIpExisted/${ip}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getISIpPodExisted(cluster, ip, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchIpPodStatus(cluster, ip, callback))
   }
 }

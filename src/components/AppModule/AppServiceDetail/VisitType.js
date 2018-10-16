@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react'
 import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import classNames from 'classnames'
 import isEmpty from 'lodash/isEmpty'
 import { connect } from 'react-redux'
@@ -26,6 +26,8 @@ import {isResourcePermissionError} from "../../../common/tools";
 import findIndex from "lodash/findIndex";
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import { getDeepValue } from "../../../../client/util/util"
+import * as serviceMeshActions from '../../../actions/serviceMesh'
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -53,7 +55,8 @@ class VisitType extends Component{
       initSelect: undefined,
       isLbgroupNull: false,
       activeKey: 'netExport',
-      agentValue: 'outside',
+      agentValue: 'inside',
+      serviceIstioEnabled: false, //默认显示原来的显示方式
     }
   }
   async componentWillMount() {
@@ -70,12 +73,29 @@ class VisitType extends Component{
         isLbgroupNull: false
       })
     }
+    const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
+    if (agentType) {
+      this.setState({
+        agentValue: agentType,
+      })
+    }
     getServiceLBList(cluster, service.metadata.name)
     form.setFieldsValue({
       portsKeys: [{value: 0}]
     })
     await this.setPortsToForm(this.props)
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+  }
+  componentDidMount() {
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { clusterId, serviceName } = this.props
+    const result3 = await this.props.checkAPPInClusMesh(clusterId, null, serviceName)
+    const { pods = {} } = result3.response.result
+    const podsIstio = Object.values(pods)
+    const { serviceIstioEnabled } = podsIstio[0] || {}
+    this.setState({serviceIstioEnabled}) // 当服务开启了Istio时, 不显示原来的内容, 显示文本提示
   }
   async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
@@ -111,11 +131,14 @@ class VisitType extends Component{
       await this.setPortsToForm(nextProps)
       this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
+    // if (isCurrentTab) {
+    //   this.reloadServiceMesh()
+    // }
   }
   setPortsToForm = async (props) => {
     const { loadK8sService, cluster, service, k8sService, form } = props
     await loadK8sService(cluster, service.metadata.name)
-    if (isEmpty(k8sService) || isEmpty(k8sService.data)) {
+    if (isEmpty(k8sService) || isEmpty(k8sService.data) || service.lbgroup.type === 'none') {
       return
     }
     const { spec, metadata } =  k8sService.data[camelize(service.metadata.name)]
@@ -460,7 +483,7 @@ class VisitType extends Component{
       if (isLb && item.isLb) {
         return this.domainComponent(index, item)
       }
-      if (item.isInternal === isInterPort) {
+      if (item.isInternal === isInterPort && !isLb) {
         return this.domainComponent(index, item)
       }
     })
@@ -475,15 +498,22 @@ class VisitType extends Component{
 
   renderIngresses = () => {
     const { LBList } = this.props
+    const { agentValue } = this.state
     const { formatMessage } = this.props.intl
     if (!LBList || !LBList.length) {
-      return <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
+      return <div>
+        <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
+        <Button type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
+          {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
+          </Button>
+      </div>
     }
-    return LBList.map(item => {
+    const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
+    return copyList.filter(_item => _item.agentType === agentValue).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
-          <Col span={4}>
+          <Col span={5}>
             <Button type="primary" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
             </Button>
@@ -513,13 +543,13 @@ class VisitType extends Component{
   confirmModal = () => {
     const { unbindIngressService, getServiceLBList, cluster, service } = this.props
     const { formatMessage } = this.props.intl
-    const { currentLB } = this.state
+    const { currentLB, agentValue } = this.state
     let notify = new NotificationHandler()
     this.setState({
       confirmLoading: true
     })
     notify.spin(formatMessage(AppServiceDetailIntl.removing))
-    unbindIngressService(cluster, currentLB.name, service.metadata.name, {
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentValue, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)
@@ -590,7 +620,7 @@ class VisitType extends Component{
         <Modal
           title={formatMessage(AppServiceDetailIntl.removeLoadBalance)}
           visible={unbindVisible}
-          onCancle={this.cancelModal}
+          onCancel={this.cancelModal}
           onOk={this.confirmModal}
           confirmLoading={confirmLoading}
         >
@@ -602,6 +632,8 @@ class VisitType extends Component{
         </Modal>
         <div className="visitTypeTopBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.ServiceVisitManner)}</div>
+          {
+          !this.state.serviceIstioEnabled ?
           <div className="visitTypeInnerBox">
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
@@ -662,12 +694,17 @@ class VisitType extends Component{
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
-                <Radio value="inside" disabled>{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
+                <Radio value="inside">{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
                 <Radio value="outside">{formatMessage(AppServiceDetailIntl.loadBalanceOutCluster)}</Radio>
               </RadioGroup>
               {this.renderIngresses()}
             </div>
           </div>
+          :
+          <span style={{ color:"#ccc", paddingLeft:16}} >
+            已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置
+          </span>
+          }
         </div>
         <div className="visitTypeBottomBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.visitAddress)}</div>
@@ -705,12 +742,14 @@ function mapSateToProp(state) {
   const { serviceLoadBalances } = loadBalance
   const { data: LBList } = serviceLoadBalances || { data: [] }
   const { k8sService } = services
+  const clusterId = getDeepValue( state, ['entities','current','cluster', 'clusterID'] )
   return {
     bindingDomains: current.cluster.bindingDomains,
     bindingIPs: current.cluster.bindingIPs,
     LBList,
     currentCluster: current.cluster,
     k8sService,
+    clusterId,
   }
 }
 
@@ -722,6 +761,7 @@ VisitType = connect(mapSateToProp, {
   getServiceLBList,
   unbindIngressService,
   updateServicePort,
-  loadK8sService
+  loadK8sService,
+  checkAPPInClusMesh: serviceMeshActions.checkAPPInClusMesh
 })(Form.create()(VisitType))
 export default injectIntl(VisitType,{withRef: true,});

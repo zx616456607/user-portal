@@ -20,7 +20,8 @@ import {
   SYSTEM_DEFAULT_SCHEDULE,
   GPU_ALGORITHM,
   NO_CLASSIFY,
-  CONFIGMAP_CLASSIFY_CONNECTION
+  CONFIGMAP_CLASSIFY_CONNECTION,
+  OTHER_IMAGE
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 
@@ -102,7 +103,7 @@ export function checkVolumeMountPath(form, index, value, type) {
   return error
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy, location) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -129,7 +130,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     // storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
     hostname,
+    aliasesKeys, // hostname 别名 key
+    subdomain, // 子域名
     accessType, // 是否为负载均衡
+    agentType, // 集群内/外 方式
     accessMethod, //访问方式
     publicNetwork, //公网出口
     internaletwork, //内网出口
@@ -173,7 +177,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   const PORT_PROTOCOL = 'portProtocol' // 端口协议(HTTP, TCP)
   const MAPPING_PORTTYPE = 'mappingPortType' // 映射服务端口类型(auto, special)
   const MAPPING_PORT = 'mappingPort' // 映射服务端口
-
   const deployment = new Deployment(serviceName)
   // set annotation => system/registry = dockerhub
   deployment.setAnnotations({
@@ -183,6 +186,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   if (isTemplate && appPkgID) {
     deployment.setAnnotations({
       appPkgID
+    })
+  }
+  if (isTemplate && !isTemplateDeploy && location.query.other) {
+    deployment.setAnnotations({
+      [OTHER_IMAGE]: location.query.other,
     })
   }
   if (modelSet) {
@@ -345,8 +353,21 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
 
   }
-  // 设置 hostname
-  deployment.setHostname(hostname)
+  // 设置 hostname 和 subdomain
+  deployment.setHostnameAndSubdomain(hostname, subdomain)
+  // 设置 hostname aliases
+  if (!isEmpty(aliasesKeys)) {
+    const hostAliases = []
+    aliasesKeys.forEach(key => {
+      const ip = fieldsValues[`ipHost-${key}`]
+      const hostnames = [fieldsValues[`hostAliases-${key}`]]
+      hostAliases.push({
+        ip,
+        hostnames,
+      })
+    })
+    deployment.setHostAliases(hostAliases)
+  }
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
@@ -363,6 +384,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
+
+    // 设置负载均衡方式
+    deployment.setAnnotations({
+      agentType,
+    })
     !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
       const name = `${serviceName}-${key}`

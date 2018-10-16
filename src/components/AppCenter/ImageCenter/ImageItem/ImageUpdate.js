@@ -36,7 +36,9 @@ import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { Link } from 'react-router'
 
+const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
 
 let LogsTemplate = React.createClass({
@@ -95,8 +97,6 @@ let LogsTemplate = React.createClass({
 class ImageUpdate extends Component {
 	constructor(props){
     super(props)
-    this.handleSearchRules = this.handleSearchRules.bind(this)
-    this.handleInputValue = this.handleInputValue.bind(this)
     this.handleAddRules = this.handleAddRules.bind(this)
     this.modalCancel = this.modalCancel.bind(this)
     this.modalConfirm = this.modalConfirm.bind(this)
@@ -141,6 +141,9 @@ class ImageUpdate extends Component {
       disappear: true,
       editKey: undefined,
       currentRule: undefined,
+      searchType: 'name',
+      searchText: undefined,
+      confirmLoading: false,
     }
   }
 
@@ -177,16 +180,9 @@ class ImageUpdate extends Component {
     const { getReplicationPolicies, registry, harbor } = this.props
     getReplicationPolicies(harbor, registry)
   }
-  componentWillMount() {
-    const { isReplications } = this.props
-    if (isReplications) {
-      this.loadAllPolicies()
-      return
-    }
-    !isReplications && this.handleloadImageUpdateList()
-  }
 
   componentDidMount() {
+    setTimeout( () => this.refreshData(), 200)
     //bind 'esc' key down
     const scope = this;
     function handler(e){
@@ -226,23 +222,10 @@ class ImageUpdate extends Component {
     !isReplications && this.handleloadImageUpdateList()
   }
 
-  handleInputValue(e){
+  handleInputValue = e => {
     this.setState({
-      inputValue: e.target.value
-    })
-  }
-
-  handleSearchRules(){
-	  const { inputValue } = this.state
-    const { rulesData } = this.props
-    let newRulesData  = []
-    rulesData.map((item, index) => {
-	    if(item.name.indexOf(inputValue) > -1){
-        newRulesData.push(item)
-      }
-    })
-    this.setState({
-      rulesData: newRulesData
+      searchText: e.target.value,
+      currentRule: undefined,
     })
   }
 
@@ -257,6 +240,7 @@ class ImageUpdate extends Component {
       edit: false,
       currentKey: false,
       currentRulesEnabled: false,
+      currentName: undefined,
     },()=>{
       document.getElementById('rulesName').focus()
     })
@@ -303,6 +287,7 @@ class ImageUpdate extends Component {
     editImageUpdateRules(harbor, registry, id, body, {
       success : {
         func: () => {
+          this.changeLoading()
           Notification.success('修改规则成功')
           if (isReplications) {
             this.loadAllPolicies()
@@ -318,6 +303,7 @@ class ImageUpdate extends Component {
       },
       failed: {
         func: (res) => {
+          this.changeLoading()
           if(res.statusCode = 409){
             Notification.error('存在相同规则，修改规则失败')
             return
@@ -547,6 +533,7 @@ class ImageUpdate extends Component {
               testLink: false,
               testLinkResult: false,
             })
+            this.changeLoading()
             this.modalCancel()
             resolve({
               result: true
@@ -556,6 +543,7 @@ class ImageUpdate extends Component {
         },
         failed: {
           func: (res) => {
+            this.changeLoading()
             resolve({
               result: false,
               statusCode: res.statusCode
@@ -596,6 +584,7 @@ class ImageUpdate extends Component {
       // 检验新仓库是否可用
       this.validationTargetStore('create', newStoremInfo).then(validateResult => {
         if(!validateResult){
+          this.changeLoading()
           throw(new Error('新目标仓库未连接，创建规则失败！'))
         }
         // 创建新仓库
@@ -603,14 +592,17 @@ class ImageUpdate extends Component {
       }).then(createStoreResult => {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
+            this.changeLoading()
             throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
           }
+          this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
         }
         // 创建新规则 (旧版)
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
+        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
@@ -687,14 +679,40 @@ class ImageUpdate extends Component {
   }
 
   modalConfirm(){
-    const { form } = this.props
+    const { form, isReplications } = this.props
+    const { getFieldValue } = form
     const { edit } = this.state
-    form.validateFields((errors, values) => {
+    let checkArr = []
+    const targetType = getFieldValue('targetStoreType')
+    if (targetType === 'createNewstore') {
+      checkArr = [ 'rulesName', 'description', 'targetStoreType', 'NewTargetstoreName', 'URLAddress', 'userName', 'passWord',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    } else if (targetType === 'selectTargetStore') {
+      checkArr = [ 'rulesName',  'description', 'targetStoreType', 'SelectTargetStore', 'URLAddress',
+        'emitMode', 'repository', 'tag', 'quick',  ]
+    }
+    if (isReplications) {
+      checkArr.push('originPro')
+    }
+    if (getFieldValue('repository')) {
+      checkArr.push('repositoryPattern')
+    }
+    if (getFieldValue('tag')) {
+      checkArr.push('tagPattern')
+    }
+    const emode = getFieldValue('emitMode')
+    if (emode === 'Immediate') {  // emitMode
+      checkArr.push('deleteImage')
+    } else if (emode === 'Scheduled') {
+      checkArr.push('setDay')
+      checkArr.push('setTime')
+    }
+    form.validateFields(checkArr, (errors, values) => {
       if(!!errors){
         return
       }
+      this.changeLoading()
       if(edit){
-        // this.handleeditImageUpdateRules(values)
         this.putNewRule(values)
         return
       }
@@ -764,8 +782,14 @@ class ImageUpdate extends Component {
     return <Spin />
   }
 
+  changeLoading = () => {
+    this.setState({
+      confirmLoading: !this.state.confirmLoading,
+    })
+  }
+
   handleModalFooterDomNodes(){
-    const { testLink, disappear } = this.state
+    const { testLink, disappear, confirmLoading } = this.state
     if (disappear) {
       return <div>
         <Button
@@ -795,7 +819,7 @@ class ImageUpdate extends Component {
         : <span></span>
       }
       <Button size="large" onClick={this.handleNextStep}>上一步</Button>
-      <Button type="primary" size="large" onClick={this.modalConfirm}>确定</Button>
+      <Button type="primary" size="large" loading={confirmLoading} onClick={this.modalConfirm}>确定</Button>
     </div>
   }
 
@@ -848,12 +872,22 @@ class ImageUpdate extends Component {
   }
 
   checkRulesNameProps(rule, value, callback){
+    const { rulesData } = this.props
+    const { edit, currentName } = this.state
     if(!value){
       return callback('请输入规则名称')
     }
     if(value.length < 3 || value.length > 26){
       return callback('规则名称为3到25个字符')
     }
+    if (edit && value === currentName) {
+      return callback()
+    }
+    rulesData && rulesData.length && rulesData.forEach(item => {
+      if (item.name ===  value) {
+        return callback('规则名已存在')
+      }
+    })
     callback()
   }
 
@@ -941,6 +975,11 @@ class ImageUpdate extends Component {
           } else {
             this.handleloadImageUpdateList()
           }
+          if (id === this.state.currentRule) {
+            this.setState({
+              currentRule: undefined,
+            })
+          }
           this.setState({
             SwitchRulesVisible: false
           })
@@ -975,7 +1014,7 @@ class ImageUpdate extends Component {
           SelectTargetStore: value,
           URLAddress: targets[i].endpoint,
           userName: targets[i].username,
-          passWord: '******',
+          passWord: '',
         })
         break
       }
@@ -997,7 +1036,7 @@ class ImageUpdate extends Component {
         form.setFieldsValue({
           URLAddress: currentRules.store.endpoint,
           userName: currentRules.store.username,
-          passWord: '******',
+          passWord: '',
           SelectTargetStore: currentRules.store.name
         })
         return
@@ -1149,6 +1188,7 @@ class ImageUpdate extends Component {
       },
       currentRulesEnabled: true,
       editKey: record.id,
+      currentName: record.name,
     })
     return
   }
@@ -1318,9 +1358,20 @@ class ImageUpdate extends Component {
     const { currentRule } = this.state
     getCurrentRuleTask(harbor, registry, currentRule)
   }
+
+  checkAddressUrl = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入 Url 地址')
+    }
+    // if (!  .test(value)) {
+    //   return callback('请输入正确地址')
+    // }
+    callback()
+  }
+
   render(){
     const { form, rulesData, taskUpdataData, imageUpdateLogs, isReplications, loading, isFetching, projectList } = this.props
-    const { edit, currentRules, currentRulesEnabled, disappear, currentRule } = this.state
+    const { edit, currentRules, currentRulesEnabled, disappear, currentRule, searchType, searchText } = this.state
     if(!rulesData || !taskUpdataData){
       return <div style={{textAlign:'center'}}><Spin style={{textAlign:'center'}}></Spin></div>
     }
@@ -1349,7 +1400,7 @@ class ImageUpdate extends Component {
         <Menu.Item key="delete" style={{width:'90px'}}><i className="fa fa-trash-o" aria-hidden="true" style={{ marginRight: '8px'}}></i>删除</Menu.Item>
       </Menu>
     })
-    const rulesColumn = [
+    let rulesColumn = [
       {
         title:' ',
         dataIndex:'check',
@@ -1385,6 +1436,14 @@ class ImageUpdate extends Component {
         </div>
       }
     ]
+
+    if (isReplications) {
+      rulesColumn.splice(4, 0, {
+        title:'仓库组',
+        dataIndex:'projects',
+        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+      })
+    }
 
     const updataTaskColumn = [
       {
@@ -1438,47 +1497,57 @@ class ImageUpdate extends Component {
       onChange: this.handleRadioGroupChange
     })
     const targetstoretype = getFieldValue('targetStoreType')
-    let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
-    let URLAddressProps = getFieldProps('URLAddress')
-    let userNameProps = getFieldProps('userName')
-    let passWordProps = getFieldProps('passWord')
+    // let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
+    const URLAddressProps = getFieldProps('URLAddress',{
+      rules: [
+        { validator: this.checkAddressUrl }
+      ]
+    })
     let SelcetTargetStoreProps = getFieldProps('SelectTargetStore')
-    if(targetstoretype == 'createNewstore'){
-      NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
-        rules: [
-          { required: true, message: '请输入新目标仓库名称' },
-          // { validator:　this.checkNewTarget }
-        ]
-      })
-      URLAddressProps = getFieldProps('URLAddress',{
-        rules: [
-          { required: true, message: '请输入URL地址' },
-        ]
-      })
-      userNameProps = getFieldProps('userName',{
-        rules: [
-          { required: true, message: '请输入用户名' },
-        ]
-      })
-      passWordProps = getFieldProps('passWord',{
-        rules: [
-          { required: true, message: '请输入密码' },
-        ],
-      })
-    }
-    if(targetstoretype == 'selectTargetStore'){
-      SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
-        rules: [
-          { required: true, message: '请选择一个目标仓库' },
-        ]
-      })
-    }
+    const NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
+      rules: [
+        { required: true, message: '请输入新目标仓库名称' },
+        // { validator:　this.checkNewTarget }
+      ]
+    })
+    const userNameProps = getFieldProps('userName',{
+      rules: [
+        { required: true, message: '请输入用户名' },
+      ]
+    })
+    const passWordProps = getFieldProps('passWord',{
+      rules: [
+        { required: true, message: '请输入密码' },
+      ],
+    })
+    // if(targetstoretype == 'selectTargetStore'){
+    SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
+      rules: [
+        { required: true, message: '请选择一个目标仓库' },
+      ]
+    })
+    // }
 
     const formItemLayout = {
       labelCol: {span: 5},
       wrapperCol: {span: 19},
     }
     const text = "确定镜像复制是否要验证远程Harbor实例的 ssl 证书。如果远程实例使用的是自签或者非信任证书，不要勾选此项。"
+    const selectBefore = (
+      <Select
+        value={searchType}
+        style={{ width: 80 }}
+        onChange={searchType => this.setState({ searchType, searchText: '' })}>
+        <Option value="name">名称</Option>
+        <Option value="target">目标</Option>
+      </Select>
+    )
+    const listData = !searchText ? rulesData : rulesData.filter(item => {
+      if (searchType === 'target') {
+        return item.targets[0].name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+      }
+      return item.name.toUpperCase().indexOf(searchText.toUpperCase()) > -1
+    })
     return(
       <div id='imageUpdata'>
         <div className='rules'>
@@ -1503,14 +1572,19 @@ class ImageUpdate extends Component {
               onClick={this.handleCopyRule}>
               同步镜像
             </Button>
-            {/*<span className='searchBox'>
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>*/}
+            <span className='searchBox'>
+              <Input
+                addonBefore={selectBefore}
+                size="large"
+                placeholder={searchType === 'name' ? '按名称搜索' : '按目标名搜索'}
+                className='inputStandrd'
+                value={searchText}
+                onChange={this.handleInputValue}
+              />
+            </span>
             {
-              rulesData.length
-              ? <span className='totleNum'>共计：{rulesData.length} 条</span>
+              listData.length
+              ? <span className='totleNum'>共计：{listData.length} 条</span>
               : null
             }
           </div>
@@ -1519,7 +1593,7 @@ class ImageUpdate extends Component {
               onRowClick={this.handleOnChange}
               loading={this.props.loading}
               columns={rulesColumn}
-              dataSource={rulesData}
+              dataSource={listData}
               pagination={{simple: true}}
             />
           </div>
@@ -1532,7 +1606,7 @@ class ImageUpdate extends Component {
             <Button
               size="large"
               type="ghost"
-              disabled={ taskUpdataData.length < 1 }
+              disabled={ !currentRule ? true : taskUpdataData.length < 1 }
               onClick={this.handleStopTask}>
               停止任务
             </Button>
@@ -1543,14 +1617,9 @@ class ImageUpdate extends Component {
               onClick={this.handleRefreshTask}>
               刷新
             </Button>
-            <span className="searchBox">
-              <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
-                     onChange={this.handleInputValue}/>
-              <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>
               {
                 taskUpdataData.length
-                  ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
+                  ? <span className='totNum'>共计：{taskUpdataData.length} 条</span>
                   : null
               }
             </div>
@@ -1668,13 +1737,13 @@ class ImageUpdate extends Component {
                   <span>
                     <Form.Item
                       {...formItemLayout}
-                      label='用户名'
+                      label={<span>用户名<span className='star'>*</span></span>}
                     >
                       <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}
-                      label="密码"
+                      label={<span>密码<span className='star'>*</span></span>}
                     >
                       <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
                     </Form.Item>

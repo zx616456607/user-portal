@@ -1,0 +1,35 @@
+@import "../../../assets/style/site/core.less";
+.NoteIcon {
+  @height: 35px;
+  @width: 40px;
+  @color: #2ABE84;
+  width: @width;
+  border-top: 1px dashed @color;
+  overflow: hidden;
+  position: relative;
+  margin-left: @padding-small;
+  .parallelogram {
+    float: left;
+    width: 50%;
+    height: @height;
+    transform: skew(0, 20deg) translate(0, -10px);
+    border-right:  1px dashed @color;
+    border-bottom:  1px dashed @color;
+  }
+  .parallelogram1 {
+    float: left;
+    width: 50%;
+    height: @height;
+    transform: skew(0, -20deg) translate(0, -10px);
+    border-left:  1px dashed @color;
+    border-bottom:  1px dashed @color;
+  }
+  .title {
+  color: @color;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 14px;
+  padding-left: 6px;
+  }
+}

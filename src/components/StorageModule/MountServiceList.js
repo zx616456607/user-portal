@@ -15,6 +15,8 @@ import QueueAnim from 'rc-queue-anim'
 import './style/MountServiceList.less'
 import VolumeBindIcon from '../../assets/img/appmanage/volumeBIndIcon.svg'
 import { getVolumeBindInfo, searchStoreageBindInfo } from '../../actions/storage'
+import { injectIntl } from 'react-intl'
+import StorageDetailIntl from './StorageDetailIntl'
 
 class MountServiceList extends Component {
   constructor(props) {
@@ -32,15 +34,16 @@ class MountServiceList extends Component {
   }
 
   renderServiceList(mountserviceData){
+    const { formatMessage } = this.props.intl
     const { searchValue } = this.state
     if (!mountserviceData.length && searchValue) {
       return <div id='mount_service_list'>
-        <div className='no_data'>未搜索到符合条件的服务</div>
+        <div className='no_data'>{formatMessage(StorageDetailIntl.notSearchView)}</div>
       </div>
     }
     if(!mountserviceData.length){
       return <div id='mount_service_list'>
-        <div className='no_data'>无绑定服务</div>
+        <div className='no_data'>{formatMessage(StorageDetailIntl.notBind)}</div>
       </div>
     }
     return mountserviceData.map((item, index) => {
@@ -49,16 +52,16 @@ class MountServiceList extends Component {
           <span className='img_box'>
             <img src={VolumeBindIcon} alt="" className='img_style'/>
           </span>
-          <span className='text'>服务：{item.serviceName}</span>
+          <span className='text'>{formatMessage(StorageDetailIntl.service)}：{item.serviceName}</span>
         </Col>
         <Col key={`appName${index}`} span="6">
-          所属应用：{item.appName}
+          {formatMessage(StorageDetailIntl.inApp)}：{item.appName}
         </Col>
         <Col key={`mountPoint${index}`} span="6" className='point_style'>
-          挂载点：{item.mountPoint}
+          {formatMessage(StorageDetailIntl.forIn)}：{item.mountPoint}
         </Col>
         <Col key={`readyOnly${index}`} span="6">
-          { item.readOnly ? <span>服务对存储只读</span> : <span>服务对存储可读可写</span> }
+          { item.readOnly ? <span>{formatMessage(StorageDetailIntl.serviceStorageOnly)}</span> : <span>{formatMessage(StorageDetailIntl.serviceStoragefull)}</span> }
         </Col>
       </Row>
     })
@@ -84,6 +87,7 @@ class MountServiceList extends Component {
 
   render() {
     const { volumeBindInfo } = this.props
+    const { formatMessage } = this.props.intl
     const isFetching = volumeBindInfo.isFetching
     if(isFetching){
       return <div className="loadingBox">
@@ -97,7 +101,7 @@ class MountServiceList extends Component {
           <div className='search_box'>
             <Input
               size="large"
-              placeholder="按服务名称搜索"
+              placeholder={formatMessage(StorageDetailIntl.inputServiceName)}
               id='search_service'
               onPressEnter={() => this.searchService()}
               onChange={e => this.searchInputChange(e)}
@@ -131,4 +135,4 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   getVolumeBindInfo,
   searchStoreageBindInfo,
-})(MountServiceList)
+})(injectIntl(MountServiceList,{withRef: true}))

@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, Modal, Icon, Row, Col, Table, Progress, Tooltip } from 'antd'
 import './style/clusterPlugin.less'
 import './style/clusterLabelManege.less'
-import { getClusterPlugins, updateClusterPlugins, initPlugins } from '../../actions/cluster'
+import { getClusterPlugins, updateClusterPlugins, initPlugins, loadClusterList } from '../../actions/cluster'
 import NotificationHandler from '../../components/Notification'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
 import { camelize } from 'humps'
@@ -34,17 +34,20 @@ class ClusterPlugin extends Component {
       maxCPU: 4,
       maxMem: 2048,
       data: [],
+      currentCluster: '',
+      allClusters: [],
     }
   }
-  loadData(props) {
-    const { getClusterPlugins, clusterID } = props
-    if (clusterID) {
-      getClusterPlugins(clusterID, {
+  loadData() {
+    const { getClusterPlugins } = this.props
+    const { currentCluster } = this.state
+    if (currentCluster) {
+      getClusterPlugins(currentCluster, {
         success: {
           func: res => {
             if (Object.keys(res).length > 0) {
               this.setState({
-                data: res[camelize(clusterID)].data
+                data: res[camelize(currentCluster)].data
               })
             }
           }
@@ -54,17 +57,31 @@ class ClusterPlugin extends Component {
 
   }
   componentWillMount() {
-    const { getAllClusterNodes, clusterID } = this.props
-    getAllClusterNodes(clusterID)
-    this.loadData(this.props)
+    const { getAllClusterNodes, loadClusterList } = this.props
+    loadClusterList({}, {
+      success: {
+        func: res => {
+          if(!!res && res.data && res.data[0]){
+            const currentCluster = res.data[0].clusterID
+            this.setState({
+              currentCluster,
+              allClusters: res.data,
+            })
+            getAllClusterNodes(currentCluster)
+            this.loadData()
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
-  componentWillReceiveProps(nextProps) {
-    const { clusterID: oldClusterID } = this.props
-    const { clusterID: newClusterID } = nextProps
-    if (oldClusterID !== newClusterID) {
-      getAllClusterNodes(newClusterID)
-      this.loadData(nextProps)
-    }
+  onSelectChange = currentCluster => {
+    this.setState({
+      currentCluster
+    }, () => {
+      getAllClusterNodes(currentCluster)
+      this.loadData()
+    })
   }
   onChange(value) {
   }
@@ -213,7 +230,7 @@ class ClusterPlugin extends Component {
     }
   }
   startPlugin(row, type) {
-    const clusterID = this.props.clusterID
+    const currentCluster = this.state.currentCluster
     const operation = type == 'stop' ? '停止' : '启动'
     const notify = new NotificationHandler()
     const pluginNames = row.pluginNames.join(',')
@@ -223,7 +240,7 @@ class ClusterPlugin extends Component {
         func: () => {
           notify.close()
           notify.success(`${operation}插件 ${pluginNames} 成功`)
-          this.props.getClusterPlugins(clusterID)
+          this.props.getClusterPlugins(currentCluster)
         },
         isAsync: true
       },
@@ -268,10 +285,11 @@ class ClusterPlugin extends Component {
       notify.error('该插件已安装')
       return
     }
-    const { createMiddleware, clusterID } = this.props
+    const { createMiddleware } = this.props
+    const { currentCluster } = this.state
     const self = this
     notify.spin('安装插件中')
-    createMiddleware(clusterID, {
+    createMiddleware(currentCluster, {
       pluginName: row.name,
       template: row.templateID,
     }, {
@@ -279,7 +297,7 @@ class ClusterPlugin extends Component {
           func: () => {
             notify.close()
             notify.success(`插件${row.name}安装成功`)
-            self.loadData(self.props)
+            self.loadData()
             this.setState({
               create: false
             })
@@ -307,15 +325,15 @@ class ClusterPlugin extends Component {
       })
       const notify = new NotificationHandler()
       notify.spin('插件重新部署请求中')
-      const { clusterID, updateClusterPlugins } = this.props
-      updateClusterPlugins(clusterID, this.state.currentPlugin.name, {
+      const { updateClusterPlugins } = this.props
+      updateClusterPlugins(this.state.currentCluster, this.state.currentPlugin.name, {
         reset: true
       }, {
           success: {
             func: () => {
               notify.close()
               notify.success('插件重新部署请求成功')
-              this.loadData(this.props)
+              this.loadData()
             },
             isAsync: true
           },
@@ -330,7 +348,7 @@ class ClusterPlugin extends Component {
   }
   updateClusterPlugins() {
     if (this.state.currentPlugin) {
-      const { clusterID, form, updateClusterPlugins } = this.props
+      const { form, updateClusterPlugins } = this.props
       this.setState({
         setModal: false
       })
@@ -348,7 +366,7 @@ class ClusterPlugin extends Component {
         const memory = getFieldValue('pluginMem')
         const hostName = getFieldValue('selectNode')
         notify.spin('更新插件配置中')
-        updateClusterPlugins(clusterID, this.state.currentPlugin.name, {
+        updateClusterPlugins(this.state.currentCluster, this.state.currentPlugin.name, {
           cpu,
           memory,
           hostName: hostName == 'random' ? '' : hostName
@@ -358,7 +376,7 @@ class ClusterPlugin extends Component {
                 notify.close()
                 form.resetFields()
                 notify.success('插件配置更新成功')
-                this.loadData(this.props)
+                this.loadData()
               },
               isAsync: true
             },
@@ -383,21 +401,23 @@ class ClusterPlugin extends Component {
     })
   }
   getSelectItem() {
-    const { nodeList, clusterID } = this.props
-    if (nodeList.isEmptyObject) {
+    const { nodeList } = this.props
+    const { currentCluster } = this.state
+      if (JSON.stringify(nodeList) == '[]' || JSON.stringify(nodeList) == '{}' || nodeList.length < 1
+        || !nodeList[currentCluster]) {
       return <div key="null"></div>
     }
-    if (nodeList[clusterID].isFetching) {
+    if (nodeList[currentCluster].isFetching) {
       return <Card key="Network" id="Network" className="ClusterInfo">
         <div className="h3">节点</div>
         <div className="loadingBox" style={{ height: '100px' }}><Spin size="large"></Spin></div>
       </Card>
     }
-    const { clusters } = nodeList[clusterID].nodes
+    const { clusters } = nodeList[currentCluster].nodes
     if (!clusters) {
       return <Option key="notclsuter">暂无数据</Option>
     }
-    const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
+    const nodes = nodeList[currentCluster].nodes.clusters.nodes.nodes
     const items = []
     items.push(<Option key={'random'} value={'random'}>随机调度</Option>)
     Array.isArray(nodes) && nodes.forEach(node => {
@@ -475,10 +495,10 @@ class ClusterPlugin extends Component {
     })
   }
   handPlugins() {
-    const cluster = this.props.clusterID
+    const cluster = this.state.currentCluster
     const body = {
       pluginNames: Array.isArray(this.state.plugins) ? this.state.plugins : [this.state.plugins],
-      cluster: cluster
+      cluster
     }
     setTimeout(() => {
       this.setState({ action: false })
@@ -508,17 +528,18 @@ class ClusterPlugin extends Component {
   }
 
   initPlugins() {
-    const { initPlugins, clusterID, getClusterPlugins } = this.props
-    if (this.setState.initing) return
+    const { initPlugins, getClusterPlugins } = this.props
+    const { currentCluster, initing } = this.state
+    if (initing) return
     this.setState({
       initing: true
     })
     const notify = new NotificationHandler()
-    initPlugins(clusterID, this.state.pluginName, {
+    initPlugins(currentCluster, this.state.pluginName, {
       success: {
         func: () => {
           notify.success('安装索引模版成功')
-          getClusterPlugins(clusterID)
+          getClusterPlugins(currentCluster)
           this.setState({
             initing: false,
             deployIndex: false
@@ -531,7 +552,8 @@ class ClusterPlugin extends Component {
 
 
   render() {
-    const { clusterPlugins, form, clusterID, isFetching } = this.props
+    const { clusterPlugins, form, isFetching } = this.props
+    const { currentCluster, allClusters } = this.state
     const { getFieldProps } = form
     const selectNode = getFieldProps('selectNode', {
       rules: [{
@@ -546,7 +568,7 @@ class ClusterPlugin extends Component {
       onChange: (value) => {
         const { nodeList } = this.props
         if (nodeList) {
-          let nodesDetail = nodeList[clusterID]
+          let nodesDetail = nodeList[currentCluster]
           if (nodesDetail) {
             nodesDetail = nodesDetail.nodes.clusters.nodes.nodes
             let nodeDetail = {}
@@ -679,9 +701,9 @@ class ClusterPlugin extends Component {
               path = path.substr(1)
             }
             if (path) {
-              return (<a href={`/proxy/clusters/${clusterID}/plugins/${row.name + (port ? ':' + port : '')}/${path}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+              return (<a href={`/proxy/clusters/${currentCluster}/plugins/${row.name + (port ? ':' + port : '')}/${path}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
             }
-            return (<a href={`/proxy/clusters/${clusterID}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+            return (<a href={`/proxy/clusters/${currentCluster}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
 
           }
           return '--'
@@ -791,13 +813,23 @@ class ClusterPlugin extends Component {
         }
       }
     ]
+    const options = allClusters.map(item => {
+      return (
+        <Select.Option key={item.clusterID} value={item.clusterID}>
+          {item.clusterName}
+        </Select.Option>
+      )
+    })
     return (
       <div id="cluster_clusterplugin">
         <div className="alertRow">集群插件：使用以下插件可以分别使平台中的日志、发现服务、监控等可用；在这里可以重新部署插件，可以切换插件所在节点，还可以设置CPU、内存在集群中资源的限制。</div>
 
         <div className='ClusterListCard' id="cluster__labelmanage">
           <div className='operaBox'>
-            <Button type="primary" size="large" onClick={() => this.loadData(this.props)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
+            <Select onChange={this.onSelectChange} size="large" style={{width: '200px', marginRight: '10px'}} value={currentCluster}>
+              {options}
+            </Select>
+            <Button type="primary" size="large" onClick={() => this.loadData()} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
           </div>
           <br />
           <Table
@@ -885,25 +917,25 @@ class ClusterPlugin extends Component {
 }
 
 function mapStateToProp(state) {
-  const { current } = state.entities
-  const { cluster } = current
-  const { clusterID } = cluster
+  // const { current } = state.entities
+  // const { cluster } = current
+  // const { clusterID } = cluster
   const defaultNodeList = {
-    [clusterID]: {
-      isFetching: false,
-      isEmptyObject: true,
-      nodes: {}
-    }
+    // [clusterID]: {
+    //   isFetching: false,
+    //   isEmptyObject: true,
+    //   nodes: {}
+    // }
   }
   let allNode = state.cluster_nodes.getAllClusterNodes
-  if (!allNode || !allNode[clusterID]) {
-    allNode = defaultNodeList
-  }
+  // if (!allNode || !allNode[clusterID]) {
+  //   allNode = defaultNodeList
+  // }
   const defaultClusterPlugins = {
 
   }
   let isFetching = false
-  let clusterPlugins = state.cluster.clusterPlugins && state.cluster.clusterPlugins.result && state.cluster.clusterPlugins.result[camelize(clusterID)]
+  let clusterPlugins = state.cluster.clusterPlugins && state.cluster.clusterPlugins.result
   if (!clusterPlugins) {
     clusterPlugins = defaultClusterPlugins
   }
@@ -914,7 +946,7 @@ function mapStateToProp(state) {
     nodeList: allNode,
     clusterPlugins,
     isFetching,
-    clusterID
+    // clusterID
   }
 }
 
@@ -925,6 +957,7 @@ export default connect(mapStateToProp, {
   getClusterPlugins,
   updateClusterPlugins,
   getAllClusterNodes,
-  initPlugins
+  initPlugins,
+  loadClusterList
 })(Form.create()(ClusterPlugin))
 

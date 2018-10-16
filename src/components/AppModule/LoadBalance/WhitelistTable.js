@@ -17,6 +17,7 @@ import TenxPage from '@tenx-ui/page'
 import './style/WhiteListTable.less'
 import Notification from '../../Notification'
 import * as lbActions from '../../../actions/load_balance'
+import {getDeepValue} from "../../../../client/util/util";
 
 const FormItem = Form.Item
 const notify = new Notification()
@@ -158,7 +159,7 @@ class WhitelistTable extends React.PureComponent {
   }
 
   confirmEdit = async () => {
-    const { form, updateLBWhiteList, clusterID, name, getLBDetail, location } = this.props
+    const { form, updateLBWhiteList, clusterID, name, getLBDetail, location, lbDetail } = this.props
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         return
@@ -172,15 +173,16 @@ class WhitelistTable extends React.PureComponent {
         const ip = values[`ip-${key}`]
         whiteList.push(ip)
       })
+      const { displayName } = location.query
+      const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
       whiteList = whiteList.join(',')
-      const result = await updateLBWhiteList(clusterID, name, { whiteList })
+      const result = await updateLBWhiteList(clusterID, name, { whiteList }, displayName, agentType)
       if (result.error) {
         this.setState({
           confirmLoading: false,
         })
         return notify.warn('编辑失败')
       }
-      const { displayName } = location.query
       getLBDetail(clusterID, name, displayName)
       notify.success('编辑成功')
       this.setState({

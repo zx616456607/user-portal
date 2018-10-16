@@ -17,6 +17,11 @@ const imageScanConfig = require('../configs/image_scan')
 const registriyApi = require('../registry')
 const aiopsConfig = global.globalConfig.aiopsConfig
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// !! 调用以下函数时必须要将 `this.session.loginUser` 传过来，
+// !! 因为调用 API 时会从 loginUser 中取到 ip 作为 `X-Forwarded-For`放到 headers 中转发给其他服务
+////////////////////////////////////////////////////////////////////////////////////////////
+
 exports.getApi = function (loginUser, timeout) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,
@@ -36,6 +41,17 @@ exports.getK8sApi = function (loginUser) {
   }
   const api = new tenxApi(apiConfig)
   return api.clusters
+}
+
+exports.getMeshApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.mesh_api.protocol,
+    host: config.mesh_api.host ,
+    version: config.mesh_api.version,
+    auth: loginUser,
+  }
+  const api = new tenxApi(apiConfig)
+  return api
 }
 
 /*
@@ -137,7 +153,7 @@ exports.getImageScanApi = function(loginUser) {
 }
 
 exports.getRegistryApi = function() {
-  const api = new registriyApi()
+  const api = new registriyApi(this.session.loginUser)
   return api
 }
 
@@ -202,4 +218,3 @@ exports.getQuotaApi = function (loginUser) {
   const api = new tenxApi(apiConfig)
   return api.resourcequota
 }
-

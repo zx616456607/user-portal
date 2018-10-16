@@ -1,6 +1,6 @@
 import React from 'react';
 import ServiceMeshForm from './ServiceMeshForm';
-import { Switch, Tooltip, Icon  } from 'antd';
+import { Switch, Tooltip, Icon, Spin  } from 'antd';
 import { connect } from 'react-redux';
 import { getDeepValue } from '../../../../../client/util/util'
 import * as projectActions from '../../../../actions/serviceMesh';
@@ -18,13 +18,17 @@ const mapStatetoProps = (state) => {
 })
 export default class ServiceMeshSwitch extends React.Component {
   state = {
+    currentSwitchchecked: false,
     Switchchecked: false,
     serviceMesh: false,
     userType: undefined,
   }
   componentDidMount = async () => {
+    this.reload()
+  }
+  reload = async () => {
     const { checkProInClusMesh, checkClusterIstio } = this.props
-    const { msaConfig, clusterId, projectDetail} = this.props
+    const { msaConfig, clusterId, projectDetail, displayName} = this.props
     if (!msaConfig) {
       this.setState({ userType: 2 })
       return
@@ -36,36 +40,35 @@ export default class ServiceMeshSwitch extends React.Component {
       return
     }
     const newNameSpace = projectDetail && projectDetail.namespace;
-    const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
-    const result1Data = getDeepValue(result1, ['response', 'result',]);
-    if (result1Data.data === true) {
-      this.setState({ Switchchecked: true, userType: 1 })
+    const result1 = await checkProInClusMesh(newNameSpace, clusterId);
+    const { istioEnabled = false } = (result1.response || {}).result
+    if (istioEnabled === true) {
+      this.setState({ Switchchecked: true, currentSwitchchecked: true, userType: 1 })
       return
     }
-    if(result1Data.data === false){
-      this.setState({ Switchchecked: false, userType: 1 })
-    }
-
+    this.setState({ Switchchecked: false, currentSwitchchecked: false, userType: 1 })
   }
   SwitchOnChange = checked => {
     this.setState({ Switchchecked: checked})
     this.setState({ serviceMesh: true })
   }
   render() {
-    const { Switchchecked, serviceMesh, userType = 1 } = this.state
-    const { clusterId } = this.props
+    const { Switchchecked, serviceMesh, userType = 1, currentSwitchchecked } = this.state
+    const { clusterId, projectDetail: { namespace } = {}, displayName, projectDetail } = this.props
     return (
       <div>
         {
           userType === 1 &&
-            <div><Switch checkedChildren="开" unCheckedChildren="关" checked={Switchchecked}
+            <div><Switch checkedChildren="开" unCheckedChildren="关" checked={currentSwitchchecked}
               onChange={this.SwitchOnChange}/>
-              <span style={{ paddingLeft: '12px', fontSize: '14px' }}>
-                <Tooltip title="项目开通服务网格，表示项目中所有服务均被开启服务网格，项目中所有服务服务
-                              将由服务网格代理，使用微服务中心提供的治理功能">
+              {
+                !currentSwitchchecked &&
+              <span style={{ paddingLeft: '6px', fontSize: '14px' }}>
+                <Tooltip title="开启后，将允许该项目的该集群中所有服务开启／关闭服务网格">
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
+              }
             </div>
         }
         {
@@ -77,7 +80,8 @@ export default class ServiceMeshSwitch extends React.Component {
         }
         <ServiceMeshForm visible={serviceMesh} onClose={()=>this.setState({ serviceMesh: false})}
         ModalType={Switchchecked} SwitchOnChange={(value) => this.setState({ Switchchecked: value })}
-        clusterId={ clusterId }
+        clusterId={ clusterId } namespace={namespace} clusterName={this.props.clusterName}
+        reload={this.reload}
         />
       </div>
     )

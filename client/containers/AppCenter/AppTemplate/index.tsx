@@ -1,7 +1,6 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
- */
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.*/
 
 /**
  * App template list
@@ -26,12 +25,17 @@ import {
 import ReleaseModal from './ReleaseModal';
 import * as TemplateActions from '../../../actions/template';
 import * as QuickCreateAppActions from '../../../../src/actions/quick_create_app';
+import * as globalActions from '../../../../src/actions/global_config';
 import defaultApp from '../../../assets/img/AppCenter/app_template.png';
 import './style/index.less';
 import NotificationHandler from '../../../../src/components/Notification';
 import { parseToFields } from './CreateTemplate/parseToFields';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import AppCenterMessage from '../../../../src/containers/AppCenter/intl'
+import { getDeepValue } from '../../../util/util'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
+import { OTHER_IMAGE } from '../../../../src/constants'
 
 const notify = new NotificationHandler();
 
@@ -46,7 +50,9 @@ class TemplateList extends React.Component<any> {
   serviceSum = 0;
 
   componentWillMount() {
+    const { checkChartRepoIsPrepare } = this.props
     this.loadTemplateList();
+    checkChartRepoIsPrepare()
   }
 
   loadTemplateList = (query: any) => {
@@ -118,6 +124,9 @@ class TemplateList extends React.Component<any> {
   }
 
   handleEdit = (temp: object) => {
+    if (this.chartRepoIsEmpty()) {
+      return
+    }
     browserHistory.push(`/app_center/template/create?name=${temp.name}&version=${temp.versions[0].version}`);
   }
   cancelRelease = () => {
@@ -164,6 +173,11 @@ class TemplateList extends React.Component<any> {
       from: 'appcenter',
       template: 'true',
     };
+    if (currentFields[OTHER_IMAGE]) {
+      Object.assign(query, {
+        other: currentFields[OTHER_IMAGE].value,
+      })
+    }
     if (appPkgID) {
       const type = imageName.split('/')[1];
       const fileType = getWrapFileType(type);
@@ -186,9 +200,11 @@ class TemplateList extends React.Component<any> {
         <div className="noTemplateData" key="noTemplateData"/>,
         <div className="noTemplateText" key="noTemplateText">
           <FormattedMessage {...AppCenterMessage.emptyTip} />
-          <Button type="primary" size="large" onClick={this.createTemplate}>
-            <FormattedMessage {...AppCenterMessage.create} />
-          </Button>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <Button type="primary" size="large" onClick={this.createTemplate} disabled={this.chartRepoIsEmpty()}>
+              <FormattedMessage {...AppCenterMessage.create} />
+            </Button>
+          </Tooltip>
         </div>,
       ];
     }
@@ -196,9 +212,11 @@ class TemplateList extends React.Component<any> {
       const content = (
         <div className="templateInnerPopover">
           {/* <div key="clone" className="pointer">克隆</div> */}
-          <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>
-            <FormattedMessage {...AppCenterMessage.edit} />
-          </div>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <div key="edit" className="pointer" onClick={() => this.handleEdit(temp)}>
+              <FormattedMessage {...AppCenterMessage.edit} />
+            </div>
+          </Tooltip>
           <div key="delete" className="pointer" onClick={() => this.handleDelete(temp)}>
             <FormattedMessage {...AppCenterMessage.delete} />
           </div>
@@ -217,13 +235,21 @@ class TemplateList extends React.Component<any> {
             >
               <Icon className="operation" type="setting" />
             </Popover>
-            <img className="tempLogo" src={defaultApp}/>
-            <Tooltip title={temp.name}>
-              <div className="templateName">{temp.name}</div>
-            </Tooltip>
-            <Tooltip title={temp.versions[0].description} placement="top">
-              <div className="templateDesc textoverflow hintColor">{temp.versions[0].description}</div>
-            </Tooltip>
+            <div className="templateContent">
+              <img className="tempLogo" src={defaultApp}/>
+              <div className="nameAndDescBox">
+                <div className="templateName">
+                  <Ellipsis>
+                    <span>{temp.name}</span>
+                  </Ellipsis>
+                </div>
+                <div className="templateDesc hintColor">
+                  <Ellipsis lines={2}>
+                    <span>{temp.versions[0].description}</span>
+                  </Ellipsis>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="templateFooter">
             <div className="templateCreated">
@@ -235,14 +261,33 @@ class TemplateList extends React.Component<any> {
                 <span>{calcuDate(temp.versions[0].created)}</span>
               </Tooltip>
             </div>
-            <Button className="deploy" type="ghost" onClick={() => this.handleDeploy(temp)}>
-              <FormattedMessage {...AppCenterMessage.deploy}/>
-            </Button>
+            <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+              <Button
+                className="deploy"
+                disabled={this.chartRepoIsEmpty()}
+                onClick={() => this.handleDeploy(temp)}
+              >
+                <FormattedMessage {...AppCenterMessage.deploy}/>
+              </Button>
+            </Tooltip>
           </div>
         </div>
       );
     });
   }
+
+  chartRepoIsEmpty = () => {
+    const { chartConfig } = this.props
+    if (isEmpty(chartConfig)) {
+      return true
+    }
+    const { ready } = chartConfig
+    if (!ready) {
+      return true
+    }
+    return false
+  }
+
   render() {
     const { deleteVisible, releaseVisible, deleteLoading, searchValue, current } = this.state;
     const { total, intl } = this.props;
@@ -258,9 +303,11 @@ class TemplateList extends React.Component<any> {
       <QueueAnim className="templateWrapper layout-content">
         <Title title={formatMessage(AppCenterMessage.appTemplate)}/>
         <div className="layout-content-btns" key="btns">
-          <Button type="primary" size="large" onClick={this.createTemplate}>
+          <Tooltip title={this.chartRepoIsEmpty() ? intl.formatMessage(AppCenterMessage.noChartRepoTip) : ''}>
+            <Button type="primary" size="large" disabled={this.chartRepoIsEmpty()} onClick={this.createTemplate}>
               <i className="fa fa-plus" /> <FormattedMessage {...AppCenterMessage.create} />
-          </Button>
+            </Button>
+          </Tooltip>
           <Button type="ghost" size="large" onClick={this.loadTemplateList}>
               <i className="fa fa-refresh"/> <FormattedMessage {...AppCenterMessage.refresh} />
           </Button>
@@ -306,11 +353,13 @@ const mapStateToProps = state => {
   const { templates } = appTemplates;
   const { data: templateData, isFetching } = templates || { data: {} };
   const { data: templateList, total } = templateData || { data: [], total: 0 };
+  const chartConfig = getDeepValue(state, ['appTemplates', 'chartRepoConfig', 'data'])
   return {
     templateList,
     total,
     isFetching,
     fields: quickCreateApp.fields,
+    chartConfig,
   };
 };
 
@@ -319,4 +368,5 @@ export default connect(mapStateToProps, {
   deleteAppTemplate: TemplateActions.deleteAppTemplate,
   getAppTemplateDetail: TemplateActions.getAppTemplateDetail,
   setFormFields: QuickCreateAppActions.setFormFields,
+  checkChartRepoIsPrepare: TemplateActions.checkChartRepoIsPrepare,
 })(injectIntl(TemplateList, { withRef: true }));

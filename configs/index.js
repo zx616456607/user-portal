@@ -24,7 +24,7 @@ const config = {
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
-    external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
+    external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
     external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.230:48000'
@@ -32,6 +32,11 @@ const config = {
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,
     host: env.TENX_VM_API_HOST,
+  },
+  mesh_api: {
+    protocol: 'http',
+    host: '192.168.1.59:65532',
+    version: 'v3',
   },
   // mail_server: {
   //   host: "smtp.qq.com",

@@ -159,6 +159,9 @@ class CostRecord extends Component{
     loadSpaceSummary(currentNamespace)
   }
 
+  disabledDate = value => {
+    return new Date(value.getTime()) > new Date()
+  }
   render(){
     const _this = this
     const {
@@ -298,7 +301,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
+          <MonthPicker disabledDate={this.disabledDate} defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
         </div>
       </div>
     )
@@ -306,14 +309,14 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryInDayDateChange} />
+          <MonthPicker disabledDate={this.disabledDate} defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryInDayDateChange} />
         </div>
       </div>
     )
     let spaceTableTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}消费明细</span>
-        <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)} onChange={onConsumptionDetailDateChange} />
+        <DatePicker disabledDate={this.disabledDate} style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)} onChange={onConsumptionDetailDateChange} />
         <div className='dataPicker'>
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>

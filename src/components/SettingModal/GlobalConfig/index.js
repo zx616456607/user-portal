@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Form, Button, Input, Spin, Checkbox } from 'antd'
+import { Form, Button, Input, Spin, Checkbox, Icon, Modal } from 'antd'
 import ReactDom from 'react-dom'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
@@ -24,11 +24,12 @@ import VmImg from '../../../assets/img/setting/globalconfigvm.png'
 import ChartRepoImg from '../../../assets/img/setting/chart-repo.png'
 import tip_harbor from '../../../assets/img/setting/tip_harbor.jpg'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification, validateMsgConfig } from '../../../actions/global_config'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
+import { PHONE_REGEX } from '../../../../constants'
 import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
@@ -578,6 +579,11 @@ let Ftp = React.createClass({
             } else {
               msg = err.message
             }
+            if(msg.indexOf('dial tcp') > -1 &&
+              msg.indexOf('getsockopt: connection refused') > -1){
+              msg = '服务器 IP 地址不正确'
+            }
+            if(msg === '530 Login incorrect.') msg = '用户名或密码错误'
             notification.error('ftp 配置保存失败 => ' + msg)
             this.setState({
               canClick: true
@@ -1691,12 +1697,16 @@ class AiDeepLearning extends React.Component {
 
   setConfigForm = () => {
     const { config } = this.props
+    if (!config) {
+      return
+    }
     const { configDetail, configID, detail } = config
     const configDate = configDetail && JSON.parse(configDetail) || detail
     const { apiVersion, host, protocol } = configDate
+    const aiApi = protocol ? `${protocol}://${host}` : ''
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      aiApi: `${protocol}://${host}`,
+      aiApi,
       apiVersion,
     })
     if (configID) {
@@ -1902,6 +1912,285 @@ let Continue = React.createClass({
   }
 });
 
+// 短信告警
+class MessageAlarm extends React.Component {
+
+  state = {
+    disable: true,
+    isShowValidate: false,
+    confirmLoading: false,
+  }
+
+  componentDidMount = () => {
+    this.setConfigForm()
+  }
+
+  setConfigForm = () => {
+    const { config } = this.props
+    const { setFieldsValue } = this.props.form
+    if (!config) return null
+    const { configDetail, configID, detail } = config
+    const configData = configDetail && JSON.parse(configDetail) || detail
+    setFieldsValue({
+      url: configData.url,
+      smsUser: configData.sms_user,
+      smsKey: configData.sms_key,
+      logTemplate: configData.log_template,
+      resourceTemplate: configData.resource_template,
+      configID,
+    })
+  }
+
+  handlSave = () => {
+    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'configID' ], (error, values) => {
+      if (error) return
+      const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
+      const body = {
+        configID: configID ? configID : '',
+        detail: {
+          url,
+          sms_user: smsUser,
+          sms_key: smsKey,
+          log_template: logTemplate,
+          resource_template: resourceTemplate
+        }
+      }
+      const { saveGlobalConfig, cluster } = this.props
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      saveGlobalConfig(cluster.clusterID, 'message', body, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('保存成功')
+            this.changeDisable()
+            this.props.setGlobalConfig('message', body)
+          }
+        },
+        failed: {
+          func: (err) => {
+            notification.close()
+            let msg
+            if (err.message.message) {
+              msg = err.message.message
+            } else {
+              msg = err.message
+            }
+            notification.error('保存失败', msg)
+          }
+        }
+      })
+
+    })
+
+  }
+
+  validateConfig = () => {
+    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
+      if (error) return
+      const { url, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+      const body = {
+        url,
+        sms_user: smsUser,
+        sms_key: smsKey,
+        log_template: logTemplate,
+        resource_template: resourceTemplate,
+        test_phone: phone
+      }
+      const notification = new NotificationHandler()
+      const { validateMsgConfig } = this.props
+      this.changemLoading()
+      validateMsgConfig(body, {
+        success: {
+          func: () => {
+            this.changemLoading()
+            notification.close()
+            notification.success('验证成功')
+            this.changeValidate()
+          }
+        },
+        failed: {
+          func: err => {
+            this.changemLoading()
+            notification.close()
+            const msg = err.message.message
+            notification.warn('验证失败', msg)
+          }
+        }
+      })
+    })
+  }
+
+  handleCandle = () => {
+    this.setConfigForm()
+    this.changeDisable()
+  }
+
+  changeDisable = () => {
+    this.setState({
+      disable: !this.state.disable,
+    })
+  }
+
+  checkUrl = (rule, value, callback) => {
+    if (!value) {
+      callback([new Error('请填写短信服务器地址')])
+      return
+    }
+    callback()
+  }
+
+  checkPhone = (rule, value, callback) => {
+    if (!value) {
+      return callback('请输入手机号')
+    }
+    if (!PHONE_REGEX.test(value)) {
+      return callback('请输入正确的号码')
+    }
+    callback()
+  }
+
+  showValidate = () => {
+    this.props.form.validateFields([ 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
+      (error, values) => {
+        if (error) return
+        this.changeValidate()
+      }
+    )
+  }
+
+  changeValidate = () => {
+    this.setState({
+      isShowValidate: !this.state.isShowValidate,
+    })
+  }
+
+  changemLoading = () => {
+    this.setState({
+      confirmLoading: !this.state.confirmLoading,
+    })
+  }
+  render() {
+    const { disable, isShowValidate, confirmLoading } = this.state
+    const { form, config } = this.props
+    const { getFieldProps } = form
+    const urlProps = getFieldProps('url', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+    })
+    const msmUserProps = getFieldProps('smsUser', {
+      rules: [ { required: true, message: '请输入 SMS_USER' } ]
+    })
+    const msmsKeyProps = getFieldProps('smsKey', {
+      rules: [ { required: true, message: '请输入 SMS_KEY' } ]
+    })
+    const logTemProps = getFieldProps('logTemplate', {
+      rules: [ { required: true, message: '请输入 模板 ID' } ]
+    })
+    const resourceProps = getFieldProps('resourceTemplate', {
+      rules: [ { required: true, message: '请输入 资源 ID' } ]
+    })
+    const phoneProps = getFieldProps('phone', {
+      rules: [ { validator: this.checkPhone } ]
+    })
+    const msgID = getFieldProps('configID', {
+      initialValue: config ? config.configID : ''
+    })
+    return (
+      <div className="GlobalConfigMessage">
+        <div className="title">短信告警</div>
+        <div className="content">
+          <div className="contentMain">
+            <div className="contentImg">
+              <Icon type="message" />
+            </div>
+            <div className="contentkeys">
+              <div className="key">短信服务器</div>
+              <div className="key">SMS_USER</div>
+              <div className="key">SMS_KEY</div>
+              <div className="key">模板 ID</div>
+              <div className="key">资源 ID</div>
+            </div>
+            <div className="contentForm">
+              <Form horizontal className="contentFormMain">
+                <FormItem>
+                  <Input {...urlProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...msmUserProps} placeholder="输入短信服务器的 SMS_USER" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...msmsKeyProps} placeholder="输入短信服务器的 SMS_KEY" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...logTemProps} placeholder="输入短信服务器的 模板 ID" disabled={disable} />
+                </FormItem>
+                <FormItem>
+                  <Input {...resourceProps} placeholder="输入短信服务器的 资源 ID" disabled={disable} />
+                </FormItem>
+                {
+                  disable ?
+                    <FormItem>
+                      <Button
+                        type="primary"
+                        onClick={this.changeDisable}
+                      >
+                        编辑
+                      </Button>
+                      {/* <Button
+                        onClick={this.validateConfig}
+                        style={{ margin: '0 12px' }}
+                      >
+                        发送验证短信
+                      </Button> */}
+                    </FormItem>
+                    :
+                    <FormItem>
+                      <Button
+                        onClick={this.handleCandle}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={this.handlSave}
+                        style={{ margin: '0 12px' }}
+                      >
+                        保存
+                      </Button>
+                      <Button
+                        onClick={this.showValidate}
+                      >
+                        发送验证短信
+                      </Button>
+                    </FormItem>
+                }
+                <input type="hidden" {...msgID} />
+              </Form>
+            </div>
+          </div>
+        </div>
+        <Modal
+          title="验证短信"
+          visible={isShowValidate}
+          onOk={this.validateConfig}
+          onCancel={this.changeValidate}
+          confirmLoading={confirmLoading}
+        >
+          <FormItem
+            label="手机号"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <Input {...phoneProps} placeholder="请填写手机号"/>
+          </FormItem>
+        </Modal>
+      </div>
+    )
+  }
+}
+
 Emaill = Form.create()(Emaill)
 Msa = Form.create()(Msa)
 Ftp = Form.create()(Ftp)
@@ -1911,6 +2200,7 @@ ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
 // StorageService = Form.create()(StorageService)
 AiDeepLearning = Form.create()(AiDeepLearning)
+MessageAlarm = Form.create()(MessageAlarm)
 
 
 class GlobalConfig extends Component {
@@ -1930,6 +2220,10 @@ class GlobalConfig extends Component {
         {
           id: 'GlobalConfigEmail',
           name: '邮件报警',
+        },
+        {
+          id: 'GlobalConfigMessage',
+          name: '短信告警',
         },
         {
           id: 'GlobalConfigMSA',
@@ -1988,8 +2282,8 @@ class GlobalConfig extends Component {
   componentDidMount() {
     setTimeout(() => {
       const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
-      const globalWrapper = this.refs.wrapper
-      globalWrapper.style.paddingTop = `${navHeight + 10}px`
+      const globalWrapper = document.getElementById('GlobalConfig')
+      globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
   }
   emailChange() {
@@ -2035,14 +2329,14 @@ class GlobalConfig extends Component {
       currentMenu: id
     })
     const element = document.getElementsByClassName(id)[0]
-    const existItem = element.getElementsByClassName('title')[0]
+    const existItem = element && element.getElementsByClassName('title')[0]
     const anchor = document.createElement('div')
     const navHeight = this.refs.nav ? this.refs.nav.offsetHeight: 0
     // 创建锚点元素，滚动到窗口顶部与锚点元素对齐，删除锚点
     anchor.style.position = 'absolute'
     anchor.style.top = `-${navHeight + 55}px`
     element.insertBefore(anchor, existItem)
-    anchor.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    anchor.scrollIntoView({behavior: "smooth", block: "start"});
     element.removeChild(anchor)
   }
   render() {
@@ -2054,7 +2348,7 @@ class GlobalConfig extends Component {
     } = this.state
 
 
-    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+    const { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, loadLoginUserDetail, validateMsgConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -2086,7 +2380,7 @@ class GlobalConfig extends Component {
         </div>
 
         <QueueAnim>
-          <div key='GlobalConfig' className="globalConfigContent">
+          <div className="globalConfigContent">
             <Title title="全局配置" />
             <Emaill
               sendEmailVerification={this.props.sendEmailVerification}
@@ -2095,6 +2389,15 @@ class GlobalConfig extends Component {
               saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig}
               cluster={cluster}
               config={globalConfig.mail} />
+
+            <MessageAlarm
+              setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
+              saveGlobalConfig={saveGlobalConfig}
+              updateGlobalConfig={saveGlobalConfig}
+              cluster={cluster}
+              config={globalConfig.message}
+              validateMsgConfig={validateMsgConfig}
+            />
             <Msa
               setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)}
               msaDisable={msaDisable}
@@ -2169,5 +2472,6 @@ export default connect(mapPropsToState, {
   updateGlobalConfig,
   loadGlobalConfig,
   isValidConfig,
-  loadLoginUserDetail
+  loadLoginUserDetail,
+  validateMsgConfig,
 })(GlobalConfig)

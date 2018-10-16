@@ -16,7 +16,11 @@ import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
 import NotificationHandler from '../../components/Notification'
 import { browserHistory } from 'react-router'
-import { ROLE_SYS_ADMIN, URL_REGEX, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
+import {
+  ROLE_SYS_ADMIN, URL_REGEX, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN,
+  NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX,
+  USER_CURRENT_CONFIG,
+} from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster, searchProjectsClusterApproval } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
@@ -28,7 +32,7 @@ import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 import CI from '../../assets/img/setting/shishi.png'
 import OpenModalImage from '../../assets/img/cluster/clusterAuthority.svg'
-import { calcuDate } from '../../common/tools'
+import { calcuDate, getCookie } from '../../common/tools'
 import Title from '../Title'
 import classNames from 'classnames'
 import foundationApplicationModle from './FoundationApplicationModle'
@@ -273,11 +277,11 @@ let CreateClusterModal = React.createClass({
       this.setState({
         submitBtnLoading: true,
       })
-      if (values.isDefault === true) {
+      /* if (values.isDefault === true) {
         values.isDefault = DEFAULT_CLUSTER_MARK
       } else {
         values.isDefault = 0
-      }
+      } */
       const notification = new NotificationHandler()
       createCluster(values, {
         success: {
@@ -429,13 +433,13 @@ let CreateClusterModal = React.createClass({
         { whitespace: true },
       ]
     })
-    const isDefaultProps = getFieldProps('isDefault', {
+    /* const isDefaultProps = getFieldProps('isDefault', {
       rules: [
         { required: true, message: formatMessage(intlMsg.plsSelect) },
       ],
       valuePropName: 'checked',
       initialValue: (noCluster ? true : false),
-    })
+    }) */
     return (
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab={formatMessage(intlMsg.newCluster)} key="newCluster">
@@ -491,10 +495,10 @@ let CreateClusterModal = React.createClass({
               <span className="itemKey"><FormattedMessage {...intlMsg.description} /></span>
               <Input {...descProps} type="textarea"/>
             </Form.Item>
-            <Form.Item>
+            {/* <Form.Item>
               <span className="itemKey"></span>
               <Checkbox disabled={noCluster} {...isDefaultProps}><FormattedMessage {...intlMsg.onlyOpenToEnterprise} /></Checkbox>
-            </Form.Item>
+            </Form.Item> */}
           </Form>
           <div className="footer">
             {
@@ -576,9 +580,11 @@ class ClusterList extends Component {
     super(props)
     this.checkIsAdmin = this.checkIsAdmin.bind(this)
     this.onTabChange = this.onTabChange.bind(this)
+    const config = getCookie(USER_CURRENT_CONFIG) || ''
+    const [ , , clusterID ] = config.split(',')
     this.state = {
       createModal: false, // create cluster modal
-      clusterTabPaneKey: this.props.currentClusterID,
+      clusterTabPaneKey: clusterID,
       clusterAuthorityModalVisible: false,
       clusterStatus: true,
       approvalPending: false,
@@ -601,27 +607,32 @@ class ClusterList extends Component {
     if(role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN){
       this.loadProjectsApprovalClusters(1)
     }
-    loadClusterList({size: 100})
+    loadClusterList({ size: 100 }, {
+      success: {
+        func: result => {
+          const clusters = result.data || []
+          if (!this.state.clusterTabPaneKey && clusters[0]) {
+            this.onTabChange(clusters[0].clusterID)
+          }
+        },
+        isAsync: true,
+      },
+    })
     if (noCluster) {
       loadGlobalConfig()
     }
   }
 
   componentDidMount() {
-    const { loginUser, getAddClusterCMD, location, changeActiveCluster, currentClusterID } = this.props
+    const { loginUser, getAddClusterCMD, location, changeActiveCluster } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
       browserHistory.push('/')
       return
     }
-    let activeCluster = currentClusterID
     if(location && location.query && location.query.from == 'clusterDetail'){
-      activeCluster = location.query.clusterID
-      this.setState({
-        clusterTabPaneKey: location.query.clusterID
-      })
+      this.onTabChange(location.query.clusterID)
     }
-    changeActiveCluster(activeCluster)
     getAddClusterCMD()
     if (location.hash && location.hash.indexOf('imageServer') > -1) { // 需要锚点到镜像服务
       setTimeout(() => {
@@ -651,7 +662,7 @@ class ClusterList extends Component {
   render() {
     const {
       intl, clustersIsFetching, clusters,
-      currentClusterID, addClusterCMD, createCluster,
+      addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
       loadLoginUserDetail, loginUser, globalConfig, location,
       projectsApprovalClustersList, getProjectVisibleClusters,
@@ -800,7 +811,6 @@ function mapStateToProps(state, props) {
     noCluster: loginUser.info[camelize(NO_CLUSTER_FLAG)],
     clustersIsFetching: clusters.isFetching,
     clusters: clusters.clusterList ? clusters.clusterList : [],
-    currentClusterID: current.cluster.clusterID,
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
     license: clusters.license || {},
     globalConfig: (globalConfig.globalConfig && globalConfig.globalConfig.result) ? globalConfig.globalConfig.result.data : [],

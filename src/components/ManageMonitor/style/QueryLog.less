@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 .QueryLogBox {
   padding: 20px;
   padding-top: 10px;
@@ -278,8 +279,8 @@
           color: #FFFFFF;
           text-align: center;
           border-radius: 5px;
-          border: 1px solid #57c5f7;
-          background-color: #57c5f7;
+          border: 1px solid @primary-color;
+          background-color: @primary-color;
           cursor: pointer;
           &:hover {
             background-color: rgba(45, 183, 245, 0.5);
@@ -293,8 +294,8 @@
           color: #FFFFFF;
           text-align: center;
           border-radius: 5px;
-          border: 1px solid #57c5f7;
-          background-color: #57c5f7;
+          border: 1px solid @primary-color;
+          background-color: @primary-color;
           cursor: pointer;
           margin-left:5%;
         }
@@ -311,8 +312,8 @@
           border: 1px solid #d9d9d9;
           cursor: pointer;
           &:hover {
-            color: #57c5f7;
-            border-color: #57c5f7;
+            color: @primary-color;
+            border-color: @primary-color;
           }
         }
       }
@@ -379,6 +380,9 @@
           line-height: 40px;
           font-size: 14px;
           cursor: pointer;
+          li {
+            margin-top: 8px;background: transparent;
+          }
         }
       }
       .msgBox {
@@ -411,6 +415,23 @@
           }
           .noDataSpan {
             color: #37fc34;
+          }
+          .loadingBox {
+            position: absolute;
+            height: 100%;
+            left: 0;
+            line-height: 40;
+            top:40px;
+            &::before {
+              content: '';
+              display: block;
+              width: 100%;
+              background: #fff;
+              height: 100%;
+              opacity: 0.2;
+              position: absolute;
+              top:0;
+            }
           }
         }
       }

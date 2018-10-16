@@ -16,6 +16,7 @@ const oem = apiFactory.getTenxSysSignSpi().oem
 const naviExpand = 'naviExpand'
 const naviShrink = 'naviShrink'
 const loginLogo = 'loginLogo'
+const emailLogo = 'emailLogo'
 const favoriteIcon = 'favoriteIcon'
 const root = global.__root__dirname
 const staticRefPath = '/static'
@@ -24,6 +25,7 @@ const staticFullPath = `${root}${staticRefPath}`
 exports.naviExpand = naviExpand
 exports.naviShrink = naviShrink
 exports.loginLogo = loginLogo
+exports.emailLogo = emailLogo
 exports.favoriteIcon = favoriteIcon
 
 const defaultMedias = {
@@ -31,6 +33,7 @@ const defaultMedias = {
   [naviExpand]: '/img/logo.png',
   [naviShrink]: '/img/sider/siderNewLogo.svg',
   [favoriteIcon]: '/favicon.ico',
+  [emailLogo]: '/img/logo.png',
 }
 
 const customDefaultInfo = {
@@ -46,6 +49,7 @@ const customDefaultMedias = {
   [naviExpand]: {type: "static-file"},
   [naviShrink]: {type: "static-file"},
   [favoriteIcon]: {type: "static-file"},
+  [emailLogo]: {type: "static-file"},
 }
 
 let customDefaultColor = {
@@ -53,6 +57,10 @@ let customDefaultColor = {
 }
 
 let globalConfig = global.globalConfig
+// email logo of base64 for send email
+globalConfig.emailLogoBase64 = fs.readFileSync(fullPath(defaultMedias[emailLogo]), { encoding: 'base64' })
+globalConfig.emailLogoType = 'png'
+
 const medias = Object.getOwnPropertyNames(defaultMedias)
 
 exports.initOEMInfo = initOEMInfo
@@ -77,8 +85,9 @@ function syncCustomDefault(info) {
   customDefaultColor.colorThemeID = customDefault.colorThemeID
 }
 
-function* doSaveOneFile(id, fullPath) {
+function* doSaveOneFile(id, fullPath, media, format) {
   const content = yield oem.getBy(["media", id], null, {dataType: 'buffer'})
+  updateEmailLogo(media, content, format)
   yield writeFile(fullPath, content)
 }
 
@@ -86,7 +95,7 @@ function* saveOneFile(file, media, files) {
   let path = ""
   if (file.type === 'blobs') {
     const name = makeRandomName(file.format)
-    yield doSaveOneFile(file.id, fullPath(name))
+    yield doSaveOneFile(file.id, fullPath(name), media, file.format)
     path = name
   } else if (file.type === 'static-file') {
     path = defaultMedias[media]
@@ -114,10 +123,18 @@ function fullPath(fileName) {
 
 exports.updateOEMInfoImage = updateOEMInfoImage
 
+function updateEmailLogo(media, content, format) {
+  if (media === emailLogo) {
+    globalConfig.emailLogoBase64 = content.toString('base64')
+    globalConfig.emailLogoType = format
+  }
+}
+
 function* updateOEMInfoImage(key, content, format) {
   const old = globalConfig.oemInfo[key]
   const isDefault = old === defaultMedias[key]
   const name = makeRandomName(format)
+  updateEmailLogo(key, content, format)
   yield writeFile(fullPath(name), content)
   globalConfig.oemInfo[key] = name
   if (!isDefault) {

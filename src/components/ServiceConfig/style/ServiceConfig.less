@@ -1,4 +1,8 @@
+@import "../../../assets/style/site/core.less";
 #Service, #service-secret-config {
+  .commonSearchInputWrapper{
+    width: 180px;
+  }
   height: 100%;
   padding: 20px 0;
   width: 100%;
@@ -65,20 +69,20 @@
         }
         &:hover{
           .sortName{
-            color: #74c8f4;
+            color: @primary-color;
           }
           background-color: #eceff4;
           padding-left: 15px;
-          border-left: 2px solid #2db7f6;
+          border-left: 2px solid @primary-color;
         }
       }
       .active{
         .sortName{
-          color: #74c8f4;
+          color: @primary-color;
         }
         background-color: #eceff4;
         padding-left: 15px;
-        border-left: 2px solid #2db7f6;
+        border-left: 2px solid @primary-color;
       }
     }
   }
@@ -94,7 +98,7 @@
         line-height: 60px;
         font-size: 14px;
         border: 1px solid #d4d4d4;
-        border-left: 3px solid #00a2ea;
+        border-left: 3px solid @primary-color;
         background-color: #fff;
         margin-bottom: 15px;
         &:hover {
@@ -178,8 +182,8 @@
                   color: #979797;
                   border-color:#979797;
                   &:hover {
-                    border-color: #57c5f7;
-                    color: #57c5f7;
+                    border-color: @primary-color;
+                    color: @primary-color;
                   }
                 }
                 .line {

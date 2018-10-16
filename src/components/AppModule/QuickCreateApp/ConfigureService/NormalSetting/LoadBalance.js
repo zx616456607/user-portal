@@ -41,6 +41,9 @@ class LoadBalance extends React.Component {
     const { clusterID, getLBList, form } = this.props
     getLBList(clusterID)
     const lbKeys = form.getFieldValue('lbKeys');
+    form.setFieldsValue({
+      agentType: 'inside'
+    })
     if (lbKeys) {
       lbKeys.forEach(key => {
         const sourceOptons = form.getFieldValue(`ingress-${key}`)
@@ -166,10 +169,9 @@ class LoadBalance extends React.Component {
     })
   }
 
-  removeTcpUdpKey = key => {
+  removeTcpUdpKey = (protocol, key) => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    const { protocol } = this.state
     const lowerProtocol = protocol.toLowerCase()
     setFieldsValue({
       [`${lowerProtocol}Keys`]: getFieldValue(`${lowerProtocol}Keys`).filter(item => item !== key)
@@ -408,7 +410,7 @@ class LoadBalance extends React.Component {
           </Button>
           <Button
             type="dashed" icon="delete" key={`${lowerProtocol}-delete-${key}`}
-            onClick={() => this.removeTcpUdpKey(key)}
+            onClick={() => this.removeTcpUdpKey(protocol, key)}
           />
         </Col>
       </Row>
@@ -475,8 +477,9 @@ class LoadBalance extends React.Component {
       ]
     })
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'outside'
+      initialValue: 'inside'
     })
+    const agentType = getFieldValue('agentType')
     return (
       <Row className="serviceCreateLb">
         {
@@ -509,7 +512,7 @@ class LoadBalance extends React.Component {
             wrapperCol={{ span: 22 }}
           >
             <RadioGroup {...agentTypeProps}>
-              <Radio value="inside" disabled>{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
+              <Radio value="inside">{intl.formatMessage(IntlMessage.innerClusterLB)}</Radio>
               <Radio value="outside">{intl.formatMessage(IntlMessage.outerClusterLB)}</Radio>
             </RadioGroup>
           </FormItem>
@@ -525,7 +528,9 @@ class LoadBalance extends React.Component {
                   {...lbSelectProps}
                 >
                   {
-                    (loadBalanceList || []).map(item =>
+                    (loadBalanceList || [])
+                      .filter(item => item.metadata.labels.agentType === agentType)
+                      .map(item =>
                       <Option key={item.metadata.name}>{item.metadata.annotations.displayName}</Option>
                     )
                   }

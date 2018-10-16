@@ -26,7 +26,7 @@
   height: 20px;
   line-height: 20px;
   font-size: 16px;
-  border-left: 5px solid #00A1EA;
+  border-left: 5px solid @primary-color;
   color: #333;
   margin-bottom: 10px;
 }
@@ -40,4 +40,26 @@
     }
   }
 }
+.tipinfo {
+  display: inline-block;
+  color: @warning-color;
+}
+.openIstioTip {
+  display: inline-block;
+  margin-right:  @padding-medium;
+  color:  @success-color;
+}
+.closeIstioTip {
+  display: inline-block;
+  margin-right:  @padding-medium;
+  color: @error-color;
+}
+}
+
+.ServiceMeshForm{
+  .ant-alert-info {
+    border: 1px dashed #85d7fd !important;
+    background-color: #d9edf6;
+    color: #1a7db6;
+  }
 }

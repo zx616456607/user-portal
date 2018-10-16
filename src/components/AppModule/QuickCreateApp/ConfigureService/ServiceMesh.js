@@ -36,6 +36,7 @@ const mapStateToprops = (state) => {
 @connect(mapStateToprops,{
   checkProInClusMesh: projectActions.checkProInClusMesh,
   checkClusterIstio: projectActions.checkClusterIstio,
+  toggleCreateAppMeshFlag: projectActions.toggleCreateAppMeshFlag,
 })
 class ServiceMesh extends React.Component {
   state = {
@@ -45,6 +46,8 @@ class ServiceMesh extends React.Component {
   componentDidMount = async () => {
     const { checkProInClusMesh, checkClusterIstio } = this.props
     const { msaConfig, clusterId, namespace, userName } = this.props
+    const serviceMeshChoice = this.props.form.getFieldValue('serviceMesh')
+    this.props.toggleCreateAppMeshFlag(serviceMeshChoice ? true : false) // 复位访问方式
     if(!msaConfig) {
       this.setState({ userrole: 1 })
       return
@@ -56,15 +59,18 @@ class ServiceMesh extends React.Component {
       return
     }
     const newNameSpace = namespace || userName;
-    const result1 = await checkProInClusMesh({ clusterID: clusterId, namespace: newNameSpace });
-    const result1Data = getDeepValue(result1, ['response', 'result',]);
-    if (result1Data.data === true) {
-      this.setState({ userrole: 3 })
-      return
+    const result1 = await checkProInClusMesh(newNameSpace, clusterId);
+    const {istioEnabled = false} = result1.response.result
+    if(istioEnabled === false){ // 判断当前项目是否开启了serviceMesh
+      return this.setState({ userrole: 3 })
     }
-    if(result1Data.data === false){
-      this.setState({ userrole: 4 })
+    if(istioEnabled === true){
+      return this.setState({ userrole: 4 })
     }
+  }
+  onChange = (value) => {
+    this.setState({ checked: value })
+    this.props.toggleCreateAppMeshFlag(value)
   }
   renderMesh() {
     const { userrole, checked } = this.state
@@ -73,7 +79,8 @@ class ServiceMesh extends React.Component {
     const { getFieldProps } = form;
     const checkedmeshProps = getFieldProps('serviceMesh', {
       valuePropName: 'checked',
-      initialValue: checked,
+      // initialValue: checked,
+      onChange: this.onChange
     })
     if (userrole === 1){
       return <span className="infoText"><FormattedMessage {...IntlMessage.noMsaSuiteTip}/></span>
@@ -82,20 +89,24 @@ class ServiceMesh extends React.Component {
     if (userrole === 2) {
       return <span className="infoText"><FormattedMessage {...IntlMessage.noIstioTip}/></span>
     }
-    if (userrole === 3 || userrole === 4) {
+    if (userrole === 3) {
+      return <span className="infoText">当前项目所在集群未允许服务启用服务网格，请联系项目管理员开通</span>
+    }
+    if (userrole === 4) {
       return [
         <Switch
           {...checkedmeshProps}
           checkedChildren={intl.formatMessage(IntlMessage.open)}
           unCheckedChildren={intl.formatMessage(IntlMessage.close)}
-          key="switch" disabled={checked}
+          key="switch"
+          // disabled={checked}
         />,
         <span key="span" className="infoText">
         {
           checked ?
-          <FormattedMessage {...IntlMessage.serviceMeshCheckedTip}/>
+          <span>{'当前项目的集群已经开通服务网格，此服务将默认开启状态，服务将由服务网格代理，使用微服务中心提供的治理功能'}</span>
           :
-            <FormattedMessage {...IntlMessage.serviceMeshUncheckTip}/>
+          <span>{'开通后，此服务将由服务网格代理，使用微服务中心提供的治理功能'}</span>
         }
         </span>
       ]
@@ -110,9 +121,11 @@ class ServiceMesh extends React.Component {
         {...formItemLayout}
         label={intl.formatMessage(IntlMessage.enableServiceMesh)}
         key="serviceMesh"
-        className="serviceMesh"
+
       >
+      <div className="serviceMesh">
         {this.renderMesh()}
+      </div>
       </FormItem>
     )
   }

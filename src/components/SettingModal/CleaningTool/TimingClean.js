@@ -796,6 +796,7 @@ class TimingClean extends Component {
                   </div>
                 </div>
               </Col>
+              {/*  http://jira.tenxcloud.com/browse/LOT-2873  需要去除
               <Col span={6} className='gutter-row'>
                 <div className='gutter-box'>
                   <div className='header'>
@@ -888,7 +889,7 @@ class TimingClean extends Component {
                     </Row>
                   </div>
                 </div>
-              </Col>
+              </Col>*/}
               {/*<Col span={6} className='gutter-row'>
                 <div className='gutter-box'>
                   <div className='header'>

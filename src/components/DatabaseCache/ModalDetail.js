@@ -52,6 +52,7 @@ import Backup from '../../../client/containers/DatabaseCache/ClusterDetailCompon
 import { getbackupChain } from '../../../client/actions/backupChain'
 import ConfigManagement from '../../../client/containers/DatabaseCache/ClusterDetailComponent/ConfigManagement'
 import ResourceConfig from '../../../client/components/ResourceConfig'
+import RollbackRecord from '../../../client/containers/DatabaseCache/ClusterDetailComponent/RollbackRecord'
 import { calcuDate, parseAmount, getResourceByMemory } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_LBGROUP_NAME } from '../../../constants'
@@ -1281,6 +1282,7 @@ class ModalDetail extends Component {
       checkingBackupStatus: false,
       backupPending: false,
       backupChecking: false,
+      recordItem: null
     }
   }
   deleteDatebaseCluster(dbName) {
@@ -1468,11 +1470,13 @@ class ModalDetail extends Component {
     })
   }
   onTabClick(activeTabKey) {
+
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
     this.setState({
-      activeTabKey
+      activeTabKey,
+      recordItem: null
     })
   }
   logo(clusterType) {
@@ -1548,20 +1552,54 @@ class ModalDetail extends Component {
     })
   }
   clusterBtn = status => {
+    const { inRollback } = this.props
+    const disabledStyle = {
+      color: "#cccccc",
+      cursor: "not-allowed"
+    }
     switch (status) {
       case 'Pending':
-        return <div onClick={this.stopAlert}>
+        return <div onClick={inRollback? () => "" : this.stopAlert} style={inRollback ? disabledStyle : {}}>
           <span className="stopIcon"></span>停止
         </div>
       case 'Running':
-        return <div onClick={this.stopAlert}>
-          <span className="stopIcon"></span>停止
+        return <div onClick={inRollback || this.isReboot()? () => "" : this.stopAlert} style={inRollback || this.isReboot()? disabledStyle : {}}>
+          {
+            this.isReboot()?
+              <Tooltip title="正在备份的集群不支持停止">
+                <span><span className="stopIcon"></span>停止</span>
+              </Tooltip>
+              :
+              <span><span className="stopIcon"></span>停止</span>
+          }
+
         </div>
       case 'Stopped':
         return <div  onClick={this.startAlert}>启动</div>
       case 'Stopping':
         return <div  onClick={this.startAlert}>启动</div>
     }
+  }
+  isReboot = () => {
+    const { chains, database } = this.props
+    let isReboot = false
+    if(Object.keys(chains).length !== 0 && !chains.isFetching) {
+      const chainsData = chains.data
+      chainsData && chainsData.forEach(v => {
+        if(v.chains && v.chains.length !== 0) {
+          v.chains.forEach(k => {
+            if(database === 'mysql' && k.status === "Started") {
+              isReboot = true
+            }
+            if(database === 'redis' && (k.status === "0" || k.status === "202")) {
+              isReboot = true
+            }
+          })
+        }
+      } )
+    }
+    return isReboot
+
   }
   reboot = () => {
     const confirm = () => {
@@ -1624,10 +1662,15 @@ class ModalDetail extends Component {
   editConfigOk = () => {
     const { database, loadDbClusterDetail, dbName, cluster } = this.props
     loadDbClusterDetail(cluster, dbName, database, true);
-
+  }
+  linkToBackup = backupRef => {
+    this.setState({
+      activeTabKey: '#Backup',
+      recordItem: backupRef
+    })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs, billingEnabled, database, inRollback, chains } = this.props;
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -1671,18 +1714,28 @@ class ModalDetail extends Component {
                     {
                       needReboot === 'enable' && databaseInfo.status !== 'Stopped'?
                         <Tooltip title="集群配置已更改，重启后生效">
-                          <Button style={{marginRight:'16px'}} className="shinning" onClick={() => {
+                          <Button style={{marginRight:'16px'}} className="shinning" disabled={inRollback} onClick={() => {
                             this.getBackupList()
                             this.setState({rebootClusterModal: true})}}>
                             重启
                           </Button>
                         </Tooltip>
                         :
-                        <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped'} onClick={() => {
-                          this.getBackupList()
-                          this.setState({rebootClusterModal: true})}}>
-                          重启
-                        </Button>
+                        this.isReboot()?
+                          <Tooltip title="正在备份的集群不支持重启">
+                            <Button style={{marginRight:'16px'}} disabled={true} onClick={() => {
+                              this.getBackupList()
+                              this.setState({rebootClusterModal: true})}}>
+                              重启
+                            </Button>
+
+                          </Tooltip>
+                          :
+                          <Button style={{marginRight:'16px'}} disabled={databaseInfo.status === 'Stopped' || inRollback} onClick={() => {
+                            this.getBackupList()
+                            this.setState({rebootClusterModal: true})}}>
+                            重启
+                          </Button>
                     }
                     {this.reboot()}
                     <Button style={{marginRight:'16px'}} onClick={()=> this.refurbishDetail()}>
@@ -1751,7 +1804,25 @@ class ModalDetail extends Component {
                     <Storage databaseInfo={databaseInfo} database={this.props.database}/>
                   </TabPane>
                   <TabPane tab='备份' key='#Backup'>
-                    <Backup database={database} scope= {this} databaseInfo={databaseInfo}/>
+                    {
+                      this.state.activeTabKey === '#Backup' &&
+                      <Backup database={database}
+                              jumpToRollbackRecord = {() => {
+                                this.setState({ activeTabKey: '#RollbackRecord' })
+                              }}
+                              resetRecordItem={() => {
+                                this.setState({ recordItem: null })
+                              }}
+                              recordItem={this.state.recordItem}
+                              scope= {this} databaseInfo={databaseInfo}
+                              rollBackSuccess={this.editConfigOk}/>
+                    }
+                  </TabPane>
+                  <TabPane tab='回滚记录' key='#RollbackRecord'>
+                    {
+                      this.state.activeTabKey === '#RollbackRecord' &&
+                        <RollbackRecord database={database} databaseInfo={databaseInfo} linkToBackup={this.linkToBackup}/>
+                    }
                   </TabPane>
                   <TabPane tab='配置管理' key='#ConfigManage'>
                     <ConfigManagement database={database} databaseInfo={databaseInfo} onEditConfigOk={this.editConfigOk}/>
@@ -1889,6 +1960,8 @@ function mapStateToProps(state, props) {
   }
   const { databaseClusterDetail } = state.databaseCache
   const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
+  const { chains } = state.backupChain
+  const inRollback = chains.rollbackComplete || false
   return {
     isFetching,
     cluster: cluster.clusterID,
@@ -1896,7 +1969,9 @@ function mapStateToProps(state, props) {
     bindingIPs: cluster.bindingIPs,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice, //storage
-    billingEnabled
+    billingEnabled,
+    inRollback,
+    chains
   }
 }
 

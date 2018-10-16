@@ -3,13 +3,16 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Select, Button, Table, DatePicker, Row, Col, Cascader, Pagination, Tooltip } from 'antd'
+import { ROLE_BASE_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants/index'
 import { injectIntl } from 'react-intl'
 import * as manageMonitorActions from '../../../../src/actions/manage_monitor'
+import { ListProjects } from '../../../../src/actions/project'
 import { formatDate } from '../../../../src/common/tools.js'
 import Title from '../../../../src/components/Title'
 import '../style/operationAudit.less'
 import NotificationHandler from '../../../../src/components/Notification'
 
+const RangePicker = DatePicker.RangePicker
 const notification = new NotificationHandler()
 
 // this function for format duringtime
@@ -202,7 +205,8 @@ const formatResourceName = (resourceName, resourceId) => {
     }
   } else {
     if (resourceName.length === 0) {
-      if (resourceId.length === 0) {
+      // @Todo: resourceId is unused
+      if (resourceId && resourceId.length === 0) {
         return '-'
       }
       return '-'
@@ -267,7 +271,6 @@ class OperationalAudit extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-
       statusList: [
         {
           value: '',
@@ -298,11 +301,26 @@ class OperationalAudit extends React.Component {
       records: [],
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operationTypeArr: [],
+      currentProject: this.props.projectName || undefined,
+      projectDisabled: false,
     }
   }
   componentDidMount() {
     this.getData()
     this.props.getOperationalTarget()
+    this.loadProjectData()
+  }
+  loadProjectData = () => {
+    this.props.ListProjects({ size: 0 }, {
+      success: {
+        func: res => {
+          const projectsList = res.data && res.data.projects || []
+          this.setState({
+            projectsList,
+          })
+        },
+      },
+    })
   }
   // 将各个操作对象对应的操作类型按照 id:operation的形式格式化
   selectOperation = list => {
@@ -325,11 +343,22 @@ class OperationalAudit extends React.Component {
   }
   // 选择操作对象
   selectOptionTarget = value => {
-    this.setState({
+    const temp = {
       resource: value,
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operation: undefined,
-    }, () => {
+    }
+    if (value.indexOf(10009) > -1) {
+      temp.currentProject = undefined
+      temp.projectDisabled = true
+    } else if (this.state.projectDisabled === true) {
+      temp.currentProject = this.props.projectName || undefined
+      temp.projectDisabled = false
+    } else {
+      // temp.currentProject = undefined
+      temp.projectDisabled = false
+    }
+    this.setState(temp, () => {
       const { filterData } = this.props
       if (value.length !== 0) {
         const id = value[value.length - 1]
@@ -370,6 +399,12 @@ class OperationalAudit extends React.Component {
       end_time: formatDate(time),
     })
   }
+  onRangeChange = value => {
+    this.setState({
+      start_time: value[0],
+      end_time: value[1],
+    })
+  }
   // 立即查询
   submitSearch = () => {
     this.getData()
@@ -389,8 +424,10 @@ class OperationalAudit extends React.Component {
   // 请求数据
   getData = () => {
     const { getOperationLogList } = this.props
-    const { from, size, resource, namespace, operation, start_time, end_time, status } = this.state
+    const { from, size, resource, namespace,
+      operation, start_time, end_time, status, currentProject } = this.state
     const body = {
+      projectName: currentProject,
       from,
       size,
       resource: resource ? resource[resource.length - 1] : undefined,
@@ -413,6 +450,9 @@ class OperationalAudit extends React.Component {
       failed: {
         func: () => {
           notification.error('操作审计', '请求操作审计日志失败')
+          this.setState({
+            records: [],
+          })
         },
       },
     })
@@ -428,6 +468,8 @@ class OperationalAudit extends React.Component {
   parseData = arr => {
     let operationType = []
     // const operationObjects = []
+    const { loginUser } = this.props
+    const isDisabled = !(loginUser.role === ROLE_BASE_ADMIN || loginUser.role === ROLE_SYS_ADMIN)
     const dataFormat = data => {
       const list = data
       const mapData = item => {
@@ -436,6 +478,9 @@ class OperationalAudit extends React.Component {
           v.value = v.id
           if (v.children) {
             mapData(v.children)
+          }
+          if (isDisabled && v.id === 10009 && v.name === '基础设施') {
+            v.disabled = true
           }
           if (v.operation) {
             operationType = [ ...operationType, ...v.operation ]
@@ -458,8 +503,43 @@ class OperationalAudit extends React.Component {
     }
   }
 
+  renderProjectList = () => {
+    const { projectsList } = this.state
+    return (projectsList || []).map(project =>
+      <Select.Option key={`${project.projectName}`}>{project.projectName}</Select.Option>)
+  }
+  onSelectNamespace = currentProject => {
+    this.setState({
+      currentProject,
+    })
+  }
+
+  disabledStartDate = startValue => {
+    const end_time = new Date(this.state.end_time)
+    if (!startValue || !end_time || !this.state.end_time) {
+      return false
+    }
+    return startValue.getTime() >= end_time.getTime()
+  }
+
+  disabledEndDate = endValue => {
+    const start_time = new Date(this.state.start_time)
+    if (!endValue || !start_time || !this.state.start_time) {
+      return false
+    }
+    return endValue.getTime() <= start_time.getTime()
+  }
+  rangeDisabledDate = value => {
+    // debugger
+    return new Date(value.getTime()) > new Date()
+    // () => {
+    //   const date = new Date()
+    //   return date.setDate(date.getDate() + 1)
+    // }
+  }
   render() {
     const { isFetching, filterData } = this.props
+    const { currentProject, projectDisabled } = this.state
     const tableColumns = [
       {
         dataIndex: 'time',
@@ -532,7 +612,7 @@ class OperationalAudit extends React.Component {
     const { operationObjects } = this.parseData(filterData)
     return (
       <QueueAnim type="right">
-        <div className="audit" key="auditWrapper">
+        <div id="auditContainer" className="audit" key="auditWrapper">
           <Title title="操作审计" />
           <div className="optionBox">
             <Row type="flex" justify="space-between" gutter={4}>
@@ -547,6 +627,20 @@ class OperationalAudit extends React.Component {
                     popupClassName= "resourceSelectPopup"
                     size="large"
                   />
+                  <Select
+                    optionFilterProp="children"
+                    showSearch
+                    getPopupContainer={() => document.getElementById('auditContainer')}
+                    className="selectionBox"
+                    style={{ width: '180px' }}
+                    size={'large'}
+                    value={currentProject}
+                    onSelect={value => this.onSelectNamespace(value)}
+                    disabled={projectDisabled}
+                    placeholder="全局资源"
+                  >
+                    {this.renderProjectList()}
+                  </Select>
                   <Select
                     placeholder="选择操作类型"
                     className="selectionBox"
@@ -572,13 +666,23 @@ class OperationalAudit extends React.Component {
                       ))
                     }
                   </Select>
-                  <DatePicker
+                  <RangePicker
+                    style={{ marginRight: 20, marginTop: 10, float: 'left' }}
+                    size="large"
+                    showTime
+                    value={[ this.state.start_time, this.state.end_time ]}
+                    format="yyyy/MM/dd HH:mm:ss"
+                    onChange={this.onRangeChange}
+                    disabledDate={this.rangeDisabledDate}
+                  />
+                  {/* <DatePicker
                     onChange={this.onChangeStartTime}
                     style={{ marginRight: 20, marginTop: 10, float: 'left' }}
                     showTime
                     format="yyyy-MM-dd HH:mm:ss"
                     size="large"
                     value={this.state.start_time}
+                    disabledDate={this.disabledStartDate}
                   />
                   <DatePicker
                     onChange={this.onChangeEndTime}
@@ -587,7 +691,8 @@ class OperationalAudit extends React.Component {
                     format="yyyy-MM-dd HH:mm:ss"
                     size="large"
                     value={this.state.end_time}
-                  />
+                    disabledDate={this.disabledEndDate}
+                  /> */}
                   <Button className="btn" size="large" onClick={this.submitSearch} type="primary">
                     <i className="fa fa-wpforms"></i>
                     立即查询
@@ -625,17 +730,16 @@ class OperationalAudit extends React.Component {
 }
 function mapStateToProps(state) {
   const defaultLogs = {
-    isFetching: true,
+    isFetching: false,
     logs: [],
   }
   const { operationAuditLog, operationalTarget } = state.manageMonitor
 
-  const { current } = state.entities
-  const { namespace } = current.space || { namespace: '' }
-  let { logs, isFetching } = defaultLogs
+  const { current, loginUser } = state.entities
+  const { namespace, projectName } = current.space || { namespace: '' }
+  let { logs, isFetching } = operationAuditLog.logs || defaultLogs
   if (operationAuditLog.logs && operationAuditLog.logs.logs) {
     logs = operationAuditLog.logs.logs
-    isFetching = operationAuditLog.logs.isFetching
   }
 
   const filterData = operationalTarget.data || []
@@ -643,6 +747,8 @@ function mapStateToProps(state) {
     isFetching,
     logs,
     namespace,
+    projectName,
+    loginUser: loginUser.info,
     filterData: filterData.filter(v => v.id !== 0), // 过来掉数据中的‘其他’
   }
 }
@@ -659,6 +765,7 @@ const OperationalAuditCom = injectIntl(OperationalAudit, {
 export default connect(mapStateToProps, {
   getOperationLogList: manageMonitorActions.getOperationLogList,
   getOperationalTarget: manageMonitorActions.getOperationalTarget,
+  ListProjects,
 })(OperationalAuditCom)
 export {
   formatResourceName,

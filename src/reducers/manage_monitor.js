@@ -30,23 +30,25 @@ function operationAuditLog(state = {}, action) {
       return Object.assign({}, state, {
         logs: {
           isFetching: false,
-          logs: action.response.result.logs || []
+          logs: action.response.result.logs || [],
+          count: action.response.result.count
         }
       })
     case ActionTypes.GET_MANAGE_MONITOR_LOG_FAILURE:
       return Object.assign({}, defaultState, state, {
-        logs: { isFetching: false }
+        logs: { isFetching: false, count: 0 }
       })
     default:
       return state
   }
 }
 
-function getQueryLog(state = {}, action) {
+function getQueryLog(state = {logs:{}}, action) {
   const defaultState = {
     logs: {
       isFetching: false,
-      logs: []
+      logs: [],
+      count: 0
     }
   }
   const { direction } = action
@@ -61,18 +63,20 @@ function getQueryLog(state = {}, action) {
           }
         })
       }
-      return Object.assign({}, defaultState, state, {
+      return merge({}, defaultState, state, {
         logs: { isFetching: true }
       })
     case ActionTypes.GET_QUERY_LOG_SUCCESS:
     case ActionTypes.GET_SERVICE_QUERY_LOG_SUCCESS:
-      resLogs = action.response.result.logs || []
+      const resData = action.response.result.logs || {}
+      resLogs = resData.logs || []
       if (direction === 'forward') {
         resLogs.shift()
       }
       return Object.assign({}, state, {
         logs: {
           isFetching: false,
+          count: resData ? resData.count: 0,
           logs: (
             direction === 'forward'
             ? state.logs.logs.concat(resLogs)
@@ -82,8 +86,8 @@ function getQueryLog(state = {}, action) {
       })
     case ActionTypes.GET_QUERY_LOG_FAILURE:
     case ActionTypes.GET_SERVICE_QUERY_LOG_FAILURE:
-      return Object.assign({}, defaultState, state, {
-        logs: { isFetching: false }
+      return Object.assign({}, defaultState, {
+        logs: { isFetching: false, count: 0, }
       })
     default:
       return state

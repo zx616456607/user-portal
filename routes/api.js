@@ -62,6 +62,7 @@ const resourcequota = require('../controllers/resourcequota') // 申请资源配
 const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
+const servicemesh = require('../controllers/service_mesh')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -117,9 +118,18 @@ module.exports = function (Router) {
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
   // servicMesh 相关
-  router.put('/projects/label', projectController.updateToggleServiceMesh)
-  router.get('/projects/serverMesh/status', projectController.getCheckProInClusMesh)
-  router.get('/projects/istio/check', projectController.getCheckClusterIstio)
+  router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
+  router.get('/projects/istio/check', servicemesh.getCheckClusterIstio)
+  router.put('/servicemesh/clusters/:clusterId/paas/services/:name/status', servicemesh.putToggleAPPMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/pods', servicemesh.getCheckAPPInClusMesh)
+  router.get('/servicemesh/clusters/:clusterId/paas/services', servicemesh.getServiceListServiceMeshStatus)
+  router.get('/servicemesh/clusters/:clusterId/ingressgateway', servicemesh.getServiceMeshPortList)
+  router.get('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.getServiceMeshPort)
+  router.post('/servicemesh/clusters/:clusterId/ingressgateway', servicemesh.createServiceMeshPort)
+  router.put('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.updateServiceMeshPort)
+  router.del('/servicemesh/clusters/:clusterId/ingressgateway/:hashedName', servicemesh.deleteServiceMeshPort)
+  router.get('/servicemesh/clusters/:clusterId/nodes', servicemesh.getServiceMeshClusterNode)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -173,9 +183,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
   router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
-  // serviceMesh 相关
-  router.put('/clusters/:cluster/services/:service/serverMesh', appController.putToggleAPPMesh)
-  router.get('/clusters/:cluster/services/:service/serverMesh', appController.getCheckAPPInClusMesh)
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
   router.get('/templates/:templateid', appTemplateController.getTemplate)
@@ -191,6 +198,8 @@ module.exports = function (Router) {
   router.get('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplateCheck)
   router.post('/templates/helm/:name/versions/:version/clusters/:cluster', helmTemplateController.deployTemplate)
   router.get('/templates/helm/:name', helmTemplateController.templateNameCheck)
+  router.get('/templates/helm/prepare/clusters/:cluster', helmTemplateController.checkHelmIsPrepare)
+  router.get('/templates/helm/prepare/chart_repo', helmTemplateController.checkChartRepoIsPrepare)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
@@ -230,6 +239,8 @@ module.exports = function (Router) {
 
   router.post('/clusters/:cluster/services/autoscale/existence', serviceController.checkAutoScaleNameExist)
   router.put('/clusters/:cluster/services/:service/annotation', serviceController.updateAnnotation)
+  router.put('/clusters/:cluster/services/:service/host', serviceController.updateHostConfig)
+  router.get('/clusters/:cluster/services/isPodIpExisted/:ip', serviceController.getISIpPodExisted)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -616,6 +627,8 @@ module.exports = function (Router) {
   router.get('/clusters/:clusterID/daas/:type/:name/events', serviceController.getDatabaseEvents)
   // 重启集群
   router.put('/clusters/:clusterID/daas/:type/:name/reboot', databaseCacheController.rebootCluster)
+  // 获取回滚记录
+  router.get('/clusters/:clusterID/daas/:type/:name/restores', databaseCacheController.getRollbackRecord)
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)
@@ -682,7 +695,7 @@ module.exports = function (Router) {
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   router.post('/configs/email/verification', globalConfigController.sendVerification)
   router.get('/cluster/:cluster/config/:type', globalConfigController.getGlobalConfigByType)
-  router.put('/cluster/:cluster/config/:type', globalConfigController.putSpringCloudAndApm)
+  router.post('/configs/message/isvalidconfig', globalConfigController.validateMsgConfig)
 
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
@@ -693,7 +706,8 @@ module.exports = function (Router) {
   router.post('/images/scan-rule', imageScanController.uploadFile)
 
   // alert
-  router.get('/cluster/:cluster/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/cluster/:cluster/alerts/record-filters', alertController.getResourceRecordFilters)
+  router.get('/cluster/:cluster/alerts/service-records/query', alertController.getLogRecordFilters)
   router.get('/cluster/:cluster/alerts/records', alertController.getRecords)
   router.delete('/cluster/:cluster/alerts/records', alertController.deleteRecords)
   router.post('/cluster/:cluster/alerts/groups', alertController.createNotifyGroup)
@@ -702,7 +716,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/groups/batch-delete', alertController.batchDeleteNotifyGroups)
   router.post('/email/invitations', alertController.sendInvitation)
   router.get('/email/invitations/status', alertController.checkEmailAcceptInvitation)
-  router.post('/cluster/:cluster/alerts/service-records', alertController.getRecordLogFilters)
+  router.post('/cluster/:cluster/alerts/service-records', alertController.getLogRecord)
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
   router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)
@@ -869,23 +883,24 @@ module.exports = function (Router) {
 
   // Load Balance
   router.get('/clusters/:cluster/loadbalances/ip', loadBalanceController.getLBIPList)
-  router.post('/clusters/:cluster/loadbalances', loadBalanceController.createLB)
-  router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.editLB)
+  router.post('/clusters/:cluster/loadbalances/displayname/:displayname/agentType/:agentType', loadBalanceController.createLB)
+  router.put('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.editLB)
   router.get('/clusters/:cluster/loadbalances', loadBalanceController.getLBList)
   router.get('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.getLBDetail)
-  router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname', loadBalanceController.deleteLB)
-  router.post('/clusters/:cluster/loadbalances/:name/ingress', loadBalanceController.createIngress)
-  router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname', loadBalanceController.updateIngress)
-  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname', loadBalanceController.deleteIngress)
-  router.post('/clusters/:cluster/loadbalances/:lbname/ingress/app', loadBalanceController.createAppIngress)
+  router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteLB)
+  router.post('/clusters/:cluster/loadbalances/:name/ingress/:ingressname/displayname/:displayname/agentType/:agentType', loadBalanceController.createIngress)
+  router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname/displayname/:lbdisplayname/agentType/:agentType', loadBalanceController.updateIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteIngress)
+  router.post('/clusters/:cluster/loadbalances/:lbname/ingress/:ingressname/app/displayname/:displayname/agentType/:agentType', loadBalanceController.createAppIngress)
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
-  router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename', loadBalanceController.unbindService)
+  router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename/agentType/:agentType', loadBalanceController.unbindService)
   router.get('/clusters/:cluster/loadbalances/:lbname/ingresses/exist', loadBalanceController.nameAndHostCheck)
-  router.post('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.createTcpUdpIngress)
+  router.post('/clusters/:cluster/loadbalances/:lbname/stream/type/:type/displayname/:name/agentType/:agentType', loadBalanceController.createTcpUdpIngress)
   router.get('/clusters/:cluster/loadbalances/:lbname/protocols/:type', loadBalanceController.getTcpUdpIngress)
-  router.put('/clusters/:cluster/loadbalances/:lbname/stream', loadBalanceController.updateTcpUdpIngress)
-  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports', loadBalanceController.deleteTcpUdpIngress)
-  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist', loadBalanceController.updateWhiteList)
+  router.put('/clusters/:cluster/loadbalances/:lbname/stream/type/:type/displayname/:name/agentType/:agentType', loadBalanceController.updateTcpUdpIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/stream/protocols/:type/ports/:ports/displayname/:name/agentType/:agentType', loadBalanceController.deleteTcpUdpIngress)
+  router.put('/clusters/:cluster/loadbalances/:lbname/whitelist/displayname/:name/agentType/:agentType', loadBalanceController.updateWhiteList)
+  router.get('/loadbalances/checkpermission', loadBalanceController.isCreateLbPermission)
 
   // autoscaler
   router.get('/clusters/autoscaler/server', autoScalerController.getServers)

@@ -67,6 +67,25 @@
     }
     .list {
       margin-top: @padding-base;
+      .disabled-rollback {
+        .ant-btn:first-child {
+          &:hover {
+            border-color: #e1e1e1;
+            background: #fff;
+          }
+        }
+        .ant-btn-clicked {
+          &:before {
+            content: none;
+          }
+          &:after {
+            content: none;
+          }
+        }
+      }
+      .selected {
+        background: #ebf8fe;
+      }
       .children-chain {
         position: relative;
         top: -10px;
@@ -122,14 +141,13 @@
         color: @error-color;
         &:before {
           background: @error-color;
-          top: 10px;
         }
       }
       .redis-err {
         color: @error-color;
         &:before {
           background: @error-color;
-          top: 0;
+          top: 16px;
         }
       }
       .suc {

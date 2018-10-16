@@ -142,6 +142,12 @@ class AlarmGroup extends Component {
     })
   }
   openModifyModal(group) {
+    if (!group.receivers.email) {
+      group.receivers.email = []
+    }
+    if (!group.receivers.tel) {
+      group.receivers.tel = []
+    }
     this.setState({
       createGroup: false,
       modifyGroup: true,
@@ -249,6 +255,20 @@ class AlarmGroup extends Component {
     }
     adjustBrowserUrl(location, query)
   }
+  getGroupTels = arr => {
+    if (!arr) {
+      return '-'
+    }
+    let content = '-'
+    if (arr.length > 0) {
+      content = arr.map(function (item) {
+        return <div className='alarmGroupItem'>
+          <span className='alarmGroupspan'>{item.number}</span>
+        </div>
+      })
+    }
+    return <span>{content}</span>
+  }
   render() {
     const { search } = this.state
     const { location } = this.props
@@ -271,6 +291,7 @@ class AlarmGroup extends Component {
     }, {
       title: '描述',
       dataIndex: 'desc',
+      width: '8%',
       render: (text, record, index) => (
         <div className='Overflow'>
           <Tooltip title={record.desc} placement="topLeft">
@@ -280,10 +301,20 @@ class AlarmGroup extends Component {
       ),
     }, {
       title: '邮箱',
-      dataIndex: 'receivers',
-      render: (receivers) => (<div>
-        <Tooltip title={this.getGroupEmails(receivers.email)} placement="topLeft">
-          <span>{this.getGroupEmails(receivers.email)}</span>
+      dataIndex: 'email',
+      width: '15%',
+      render: (email) => (<div>
+        <Tooltip title={this.getGroupEmails(email)} placement="topLeft">
+          <span>{this.getGroupEmails(email)}</span>
+        </Tooltip>
+      </div>)
+    }, {
+      title: '手机号',
+      dataIndex: 'tel',
+      width: '12%',
+      render: (tel) => (<div>
+        <Tooltip title={this.getGroupTels(tel)} placement="topLeft">
+          <span>{this.getGroupTels(tel)}</span>
         </Tooltip>
       </div>)
     }, {
@@ -294,17 +325,17 @@ class AlarmGroup extends Component {
     }, {
       title: '告警策略',
       dataIndex: 'strategies',
-      width: '15%',
+      width: '12%',
       render: strategies => this.getStragegies(strategies)
     }, {
       title: '弹性伸缩策略',
       dataIndex: 'autoScaleStrategies',
-      width: '15%',
+      width: '12%',
       render: autoScale => this.getAutoScale(autoScale)
     }, {
       title: '操作',
       dataIndex: 'handle',
-      width: '15%',
+      width: '10%',
       render: (text, group) => {
         if (group.strategies.length > 0) {
           return (
@@ -434,11 +465,18 @@ function mapStateToProps(state, props) {
   let groupsData = result ? result.data : []
   let clusterResult = teamClusters.result || defaultDatas.result
   let clusterData = clusterResult ? clusterResult.data : []
+  const groupsArr = []
+  const groupArr = JSON.parse(JSON.stringify(groupsData))
+  groupArr && groupArr.length && groupArr.forEach(el => {
+    el.email = el.receivers.email
+    el.tel = el.receivers.tel
+    groupsArr.push(el)
+  })
   return {
     space,
     isFetching,
     cluster,
-    groups: groupsData,
+    groups: groupsArr,
     data: clusterData
   }
 }

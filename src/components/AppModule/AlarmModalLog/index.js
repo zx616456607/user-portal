@@ -1006,7 +1006,7 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster,notifyGroup } = this.props;
+    const { form, getSettingList, pathname, activeCluster,notifyGroup, currentApiServer } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -1061,18 +1061,17 @@ class AlarmModal extends Component {
       // }
       const service = this.state.server
       const num_events = parseInt(specs[0].value)
-      console.log('notifyGroup', notifyGroup)
-      let sendEmail = []
-      if (this.state.isSendEmail) {
-        const datas = notifyGroup.result.data
-        datas.forEach((data)=>{
-          if (data.groupID === receiversGroup) {
-            sendEmail = data.receivers.email.map(( email ) => {
-              return email.addr
-            })
-          }
-        })
-      }
+      // let sendEmail = []
+      // if (this.state.isSendEmail) {
+      //   const datas = notifyGroup.result.data
+      //   datas.forEach((data)=>{
+      //     if (data.groupID === receiversGroup) {
+      //       sendEmail = data.receivers.email.map(( email ) => {
+      //         return email.addr
+      //       })
+      //     }
+      //   })
+      // }
       const requestBody = {
         name: strategyName,
         num_events,
@@ -1080,9 +1079,10 @@ class AlarmModal extends Component {
         Service: service,
         regex: specs[0].metricType,
         app: appName,
+        url: currentApiServer,
       }
       if (this.state.isSendEmail) {
-        requestBody.email = sendEmail
+        // requestBody.email = sendEmail
         requestBody.alertGroup = receiversGroup
       }
       if (isEdit) {
@@ -1327,6 +1327,8 @@ function alarmModalMapStateToProp(state, porp) {
   const { cluster: activeCluster } = active || { cluster: undefined }
   const { locationBeforeTransitions } = routing
   const { pathname } = locationBeforeTransitions
+  const { info: { tenxApi } } = entities.loginUser
+  const currentApiServer = tenxApi.protocol + '://' + tenxApi.host
   if (!groups) {
     groups = defaultGroup
   }
@@ -1352,7 +1354,8 @@ function alarmModalMapStateToProp(state, porp) {
     pathname,
     setting,
     isFetching,
-    space
+    space,
+    currentApiServer,
   }
 }
 AlarmModal = connect(alarmModalMapStateToProp, {

@@ -14,15 +14,22 @@ const initGlobalConfig = require('../services/init_global_config')
 const co = require('co')
 const _ = require('lodash')
 
-exports.getRecordFilters = function* () {
+exports.getResourceRecordFilters = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, "alerts/record-filters"], null)
   this.body = result
 }
+exports.getLogRecordFilters = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/service-records/query"], null)
+  this.body = result
+}
 
-exports.getRecordLogFilters = function* () {
+exports.getLogRecord = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
   const loginUser = this.session.loginUser

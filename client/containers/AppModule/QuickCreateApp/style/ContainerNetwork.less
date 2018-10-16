@@ -1,0 +1,53 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of container network
+ *
+ * @author zhangxuan
+ * @date 2018-09-18
+ */
+@import '~assets/style/site/core';
+
+.container-network {
+  padding-top: @padding-large;
+  .host-row {
+    margin-bottom: @padding-medium;
+  }
+  &-header {
+    background-color: #f2f2f2;
+    margin-top: 15px;
+    & > div {
+      height: 40px;
+      line-height: 40px;
+      padding-left: 10px;
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    border-bottom: none;
+  }
+  .addAliases {
+    padding-top: 15px;
+    cursor: pointer;
+    i {
+      margin-right: 5px;
+    }
+  }
+  .aliases-list {
+    & > div {
+      padding: 5px 0 5px 10px;
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    &:not(:last-of-type) {
+      border-bottom: none;
+    }
+  }
+  .ant-form-explain {
+    white-space: normal !important;
+    height: auto !important;
+  }
+}

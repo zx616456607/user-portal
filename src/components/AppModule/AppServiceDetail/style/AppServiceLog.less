@@ -1,3 +1,4 @@
+@import "../../../../assets/style/site/core.less";
 #AppServiceLog {
   font-size: 12px;
   padding-top: 20px;
@@ -22,7 +23,7 @@
       }
       .ant-tabs-tab:hover,
       .ant-tabs-tab-active{
-        border-color: #2db7f5;
+        border-color: @primary-color;
         background: #f8f8f8;
       }
       .ant-tabs-tab-active{
@@ -48,7 +49,7 @@
         height: 40px;
         line-height: 40px;
         background-color: #333333;
-        span {
+        .ant-calendar-picker {
           float: right;
           margin-right: 20px;
           .ant-input:hover {
@@ -68,6 +69,12 @@
         }
         .ant-calendar-picker-clear {
           margin-right: 20px !important;
+        }
+        .fa-right {
+          float: right;
+          li {
+            margin-top: 8px;background: transparent;
+          }
         }
       }
       .infoBox {
@@ -93,6 +100,23 @@
         }
         .nameSpan {
           color: orange;
+        }
+        .loadingBox {
+          position: absolute;
+          height: 100%;
+          left: 0;
+          line-height: 40;
+          top:40px;
+          &::before {
+            content: '';
+            display: block;
+            width: 100%;
+            background: #fff;
+            height: 100%;
+            opacity: 0.2;
+            position: absolute;
+            top:0;
+          }
         }
       }
     }

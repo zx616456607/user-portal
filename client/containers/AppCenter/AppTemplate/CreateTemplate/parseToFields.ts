@@ -13,9 +13,10 @@
 import constants from '../../../../../constants';
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME;
 import { parseCpuToNumber, parseImageUrl } from '../../../../../src/common/tools';
+import { getDeepValue } from '../../../../../client/util/util';
 import {
   RESOURCES_DIY, NO_CLASSIFY, CONFIGMAP_CLASSIFY_CONNECTION, GPU_KEY, GPU_ALGORITHM,
-  DEFAULT_ALGORITHM,
+  DEFAULT_ALGORITHM, OTHER_IMAGE,
 } from '../../../../../src/constants';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
@@ -442,6 +443,15 @@ const parseAdvancedEnv = containers => {
   };
 };
 
+const parseOtherImage = annotations => {
+  if (isEmpty(annotations) || isEmpty(annotations[OTHER_IMAGE])) {
+    return
+  }
+  return {
+    [OTHER_IMAGE]: annotations[OTHER_IMAGE],
+  }
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -476,6 +486,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseLiveness(containers[0]), // 高可用
     ...parseConfigMap(containers[0], volumes, annotations), // 配置管理
     ...parseAdvancedEnv(containers[0]), // 环境变量
+    ...parseOtherImage(annotations), // 第三方镜像
   };
   return values;
 };
@@ -548,11 +559,12 @@ const parseService = service => {
   return values;
 };
 
-const parseIngress = ingress => {
+const parseIngress = (ingress, deployment) => {
   let accessType = 'netExport';
   if (!ingress) {
     return { accessType };
   }
+  const { agentType } = getDeepValue(deployment, ['spec', 'template', 'metadata', 'annotations'])
   accessType = 'loadBalance';
   let loadBalance: string;
   const lbKeys: Array = [];
@@ -601,6 +613,7 @@ const parseIngress = ingress => {
   });
   return {
     accessType, // 是否为负载均衡
+    agentType: agentType ? agentType : 'inside', // 应用负载均衡类型
     loadBalance, // 负载均衡器名称
     lbKeys, // 负载均衡器监听的端口组
     ...ingressParent,
@@ -625,7 +638,7 @@ export const parseToFields = (templateDetail, wrapperChart) => {
     templateDesc: description, // 模板描述
     ...parseDeployment(deployment, chart),
     ...parseService(service),
-    ...parseIngress(ingress),
+    ...parseIngress(ingress, deployment),
   };
   return formatValues(values);
 };

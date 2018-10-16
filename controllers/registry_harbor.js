@@ -70,7 +70,7 @@ exports.createProject = harborHandler(
 // [DELETE] /repositories/:user/:name
 exports.deleteRepository = harborHandler(
   (harbor, ctx, callback) => {
-    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    const repoName = `${ctx.params.user}/${decodeURIComponent(ctx.params.name)}`
     harbor.deleteRepository(repoName, callback)
   }
 )

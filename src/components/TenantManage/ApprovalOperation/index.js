@@ -135,7 +135,7 @@ const getcolums = ({ setApprovalState, cancelApprovalState, approvalState, resou
 }
 
 const findClusersName = ({ id, choiceClusters }) => {
-    for (const o of choiceClusters.data) {
+    for (const o of (choiceClusters.data || [])) {
       if (o.clusterID === id) {
         return o.clusterName
       }
@@ -150,12 +150,11 @@ const findClusersName = ({ id, choiceClusters }) => {
       for (const key in applyDetails) {
         const clusterName = findClusersName({ id: key, choiceClusters })
         for (const resourcekey in applyDetails[key]) {
-          // console.log('globaleDevopsQuotaList', globaleDevopsQuotaList)
           date.push({
             key: indexKey,
             resource: resourcekey,
             aggregate: key === 'global' ? '-' : clusterName, // 全局资源没有集群
-            use: resourceInuse[key][resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
+            use: (resourceInuse[key] || {})[resourcekey] !== undefined ? resourceInuse[key][resourcekey] : globaleDevopsQuotaList[resourcekey],
             applyLimit: applyDetails[key][resourcekey] || '无限制',
             approvalStatus: approveDetails[key] ? approveDetails[key][resourcekey] !== -1 : false,
             clusterID: key,
@@ -262,7 +261,8 @@ class ApprovalOperation extends React.Component {
     cancelApprovalModal()
   }
   render() {
-    const { visible, toggleVisable, record, title, resourcequoteRecord, choiceClusters, tabData,
+    const { visible, toggleVisable, record, title, resourcequoteRecord,
+      choiceClusters, tabData,
       resourceDefinitions, cancelApprovalModal, detailDataisFetching } = this.props
     const { approvalState, selectedRowKeys } = this.state
     const setApprovalState = this.setApprovalState
@@ -270,10 +270,9 @@ class ApprovalOperation extends React.Component {
     const { isFetching, data: recordData = {} } = resourcequoteRecord
     const tabDataLength = this.props.tabData.length
     let approvalStateArr = approvalState.slice(0, tabDataLength)
-
     let approvalPass = 0
 
-    let accountType
+    const accountType = '共享项目'
     if (!_.isEmpty(approvalStateArr)) {
       for(const value of approvalStateArr) {
         if (value === true) {
@@ -281,50 +280,45 @@ class ApprovalOperation extends React.Component {
         }
       }
     }
-    if (recordData.applier === recordData.namespace) {
-      accountType = '个人项目'
-    } else {
-      accountType = '共享项目'
-    }
-        // 通过 rowSelection 对象表明需要行选择
-  const rowSelection = {
-    onSelect: (record, selected, selectedRows) => {
-      this.cancelApprovalState('all')
-      for(const value of selectedRows) {
-        this.setApprovalState(value.key - 1)
-      }
-    },
-    onSelectAll: (selected, selectedRows, changeRows) => {
-      // console.log('selected', selected,);
-      // console.log('selectedRows',selectedRows,);
-      // console.log('changeRows', changeRows);
-      if(selected === true) { // 表示全部选中
-        this.setApprovalState('all')
-      }
-      if(selected === false) { //表示全部取消
+    // 通过 rowSelection 对象表明需要行选择
+    const rowSelection = {
+      onSelect: (record, selected, selectedRows) => {
         this.cancelApprovalState('all')
+        for(const value of selectedRows) {
+          this.setApprovalState(value.key - 1)
+        }
+      },
+      onSelectAll: (selected, selectedRows, changeRows) => {
+        // console.log('selected', selected,);
+        // console.log('selectedRows',selectedRows,);
+        // console.log('changeRows', changeRows);
+        if(selected === true) { // 表示全部选中
+          this.setApprovalState('all')
+        }
+        if(selected === false) { //表示全部取消
+          this.cancelApprovalState('all')
+        }
+      },
+      onChange: (selectedRowKeys) => {
+        this.setState({ selectedRowKeys });
+      },
+      selectedRowKeys: selectedRowKeys,
+    }
+    const rowClick = (record, index, e) => {
+      const newselectedRowKeys = cloneDeep(selectedRowKeys)
+      if (newselectedRowKeys.includes(index+1)){
+        delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
+      } else {
+        newselectedRowKeys.push(index + 1)
       }
-    },
-    onChange: (selectedRowKeys) => {
-      this.setState({ selectedRowKeys });
-    },
-    selectedRowKeys: selectedRowKeys,
-  }
-  const rowClick = (record, index, e) => {
-    const newselectedRowKeys = cloneDeep(selectedRowKeys)
-    if (newselectedRowKeys.includes(index+1)){
-      delete newselectedRowKeys[selectedRowKeys.findIndex(v=> v===index+1)]
-    } else {
-      newselectedRowKeys.push(index + 1)
+      this.setState({ selectedRowKeys: compact(newselectedRowKeys) })
+      const { approvalState } = this.state
+      if (approvalState[index] === true) {
+        this.cancelApprovalState(index)
+      } else {
+        this.setApprovalState(index)
+      }
     }
-    this.setState({ selectedRowKeys: compact(newselectedRowKeys) })
-    const { approvalState } = this.state
-    if (approvalState[index] === true) {
-      this.cancelApprovalState(index)
-    } else {
-      this.setApprovalState(index)
-    }
-  }
     return (
       <Modal
         visible = {visible}
@@ -382,8 +376,9 @@ class ApprovalOperation extends React.Component {
 
 const mapStateToProps = (state, props) => {
   const detailData = getDeepValue(state, [ 'applyLimit', 'resourcequotaDetail' ])
-  const choiceClusters = state.projectAuthority.projectVisibleClusters.default
-
+  // const projectName = getDeepValue(state, [ 'entities', 'current', 'space', 'projectName' ])
+  const choiceClustersObject = state.projectAuthority.projectVisibleClusters
+  const choiceClusters = choiceClustersObject[props.record.namespace] || {}
   const { data: recordData = {} , isFetching: detailDataisFetching} = detailData
   const { applyDetails, approveDetails } = recordData
   let resourceInuse = props.resourceInuseProps

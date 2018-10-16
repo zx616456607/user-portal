@@ -38,6 +38,15 @@ export const mapData = {
     loadError: '加载出错',
     loadErrorBtn: '重新加载',
     loadErrorTips: '加载出错，平台升级中，点击「重新加载」刷新页面',
+    loginUserChanged: '登录用户已变更',
+    loginUserChangedTips: '检测到当前浏览器已登录其他用户：{user}',
+    loginUserChangedBtn: '刷新',
+    noProjetsTip: '帐号还未加入任何项目，请先『创建项目』或『联系管理员加入项目』',
+    createProject: '『创建项目』',
+    noProjetsTipWithLink: '帐号还未加入任何项目，请先{link}或『联系管理员加入项目』',
+    noClustersTip: '项目暂无授权的集群，请先申请『授权集群』或选择其他项目',
+    applyClusters: '申请『授权集群』',
+    noClustersTipWithLink: '项目暂无授权的集群，请先{link}或选择其他项目',
   }
 }
 

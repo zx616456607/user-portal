@@ -1139,7 +1139,7 @@ class ClusterStorage extends Component {
     }
     const listArray = gfsArray.listArray
     if(!listArray || !listArray.length){
-      return <div className='no_list'>该集群目前还没有添加 gfs 类型的存储</div>
+      return <div className='no_list'>该集群目前还没有添加 GlusterFS 类型的存储</div>
     }
     const { form } = this.props
     const { getFieldProps } = form
@@ -1708,7 +1708,7 @@ class ClusterStorage extends Component {
                 this.state.hostChecked &&
                 <Form className="containerItem formItem">
                   <FormItem label='宿主机根目录' {...formItemLayout}>
-                    <Input {...pathProps} disabled={this.state.hostDirEditDisable}/>
+                    <Input {...pathProps} style={{ marginLeft: 5 }} disabled={this.state.hostDirEditDisable}/>
                   </FormItem>
                   {
                     this.state.hostDirEditDisable?

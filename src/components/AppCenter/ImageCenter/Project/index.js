@@ -154,9 +154,10 @@ class Project extends Component {
     this.deleteItemOk = this.deleteItemOk.bind(this)
   }
   loadData(query = {}) {
-    const { loadProjectList, harbor } = this.props
+    const { loadProjectList, harbor, location } = this.props
     const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
+    query = Object.assign({ public: location.query.public }, query)
     loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, { harbor }, query), {
       failed: {
         func: res => {
@@ -171,12 +172,18 @@ class Project extends Component {
     this.loadData()
   }
   componentWillReceiveProps(nextProps) {
+    const { location: oldLocation } = this.props
+    const { location: newLocation } = nextProps
     if(!!nextProps.harbor && !isLoaded){
       isLoaded = true
       this.props.loadSysteminfo(DEFAULT_REGISTRY)
     }
-    if(nextProps.harbor !== this.props.harbor){
-      this.loadData({ harbor: nextProps.harbor })
+    if(nextProps.harbor !== this.props.harbor ||
+      newLocation.query.public !== oldLocation.query.public) {
+      this.loadData({
+        harbor: nextProps.harbor,
+        public: newLocation.query.public,
+      })
     }
   }
   componentDidUpdate() {

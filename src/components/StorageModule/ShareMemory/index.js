@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Button, Input, Table, Modal, Form, Select, Icon, Tooltip, Col, InputNumber, Slider } from 'antd'
+import { Button, Input, Table, Modal, Form, Select, Radio, Tooltip, Col, InputNumber, Slider } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -23,9 +23,13 @@ import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/to
 import { DEFAULT_IMAGE_POOL, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import NotificationHandler from '../../Notification'
 import './style/index.less'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import StorageIntl from '../StorageIntl'
 
 const FormItem = Form.Item
 const Option = Select.Option
+const RadioGroup = Radio.Group
+const PATH_REG = /^\//
 
 const DEFAULT_QUERY = {
   storagetype: 'nfs,glusterfs',
@@ -49,6 +53,7 @@ class ShareMemory extends Component {
       modalStorageType: 'nfs',
       sliderValue: 1,
       filteredValue: [],
+      serverType: 'random',// server共享目录
     }
   }
 
@@ -90,8 +95,9 @@ class ShareMemory extends Component {
   }
 
   confirmDeleteItem() {
-    const { deleteStorage, clusterID, location } = this.props
+    const { deleteStorage, clusterID, location, intl } = this.props
     const { query = {} } = location
+    const { formatMessage } = intl
     const { selectedRowKeys, searchInput } = this.state
     const notification = new NotificationHandler
     this.setState({
@@ -100,7 +106,8 @@ class ShareMemory extends Component {
     deleteStorage(DEFAULT_IMAGE_POOL, clusterID, { volumes: selectedRowKeys }, {
       success: {
         func: () => {
-          notification.success(`删除存储卷 ${selectedRowKeys.join(', ')} 成功`)
+          // notification.success(`删除存储卷 ${selectedRowKeys.join(', ')} 成功`)
+          notification.success(formatMessage(StorageIntl.deleteSuccess), selectedRowKeys.join(', '))
           this.loadData({ page: query.page || 1, search: searchInput })
           this.setState({
             deleteModalVisible: false,
@@ -110,7 +117,7 @@ class ShareMemory extends Component {
       },
       error: {
         func: () => {
-          notification.error(`删除存储卷 ${selectedRowKeys.join(', ')} 失败`)
+          notification.error(formatMessage(StorageIntl.deleteFailed))
         },
       },
       finally: {
@@ -158,7 +165,7 @@ class ShareMemory extends Component {
           }else {
             tempList = res.data.glusterfsList
           }
-          tempList.map(item => {
+          tempList && tempList.map(item => {
             if(item.metadata.labels["system/storageDefault"] === "true"){
               name = item.metadata.name
             }
@@ -175,9 +182,15 @@ class ShareMemory extends Component {
   }
 
   confirmCreateShareMemory() {
-    const { form, createStorage, clusterID } = this.props
+    const { form, createStorage, clusterID, intl } = this.props
+    const { formatMessage } = intl
     const notification = new NotificationHandler()
-    const viladateArray = [
+    const viladateArray = this.state.serverType === 'custom' ? [
+      'storageType',
+      'storageClassName',
+      'name',
+      'serverDir'
+    ] : [
       'storageType',
       'storageClassName',
       'name',
@@ -193,12 +206,13 @@ class ShareMemory extends Component {
         })
         return
       }
-      const { name, storageType, storageClassName } = values
+      const { name, storageType, storageClassName, serverDir } = values
       const config = {
         name,
         storageType,
         storageClassName,
         reclaimPolicy: 'retain',
+        serverDir
       }
       if(storageType === 'glusterfs'){
         config.storage = values.storage
@@ -211,7 +225,12 @@ class ShareMemory extends Component {
       createStorage(body, {
         success: {
           func: () => {
-            notification.success(`创建共享型存储 ${name} 操作成功`)
+            notification.success(
+              formatMessage(StorageIntl.create)+
+              formatMessage(StorageIntl.commonStorage)+
+              name +
+              formatMessage(StorageIntl.actionSuccess)
+            )
             this.setState({
               createShareMemoryVisible: false,
               searchInput: '',
@@ -222,7 +241,12 @@ class ShareMemory extends Component {
         },
          error: {
           func: () => {
-            notification.error(`创建共享型存储 ${name} 操作失败`)
+            notification.error(
+              formatMessage(StorageIntl.create)+
+              formatMessage(StorageIntl.commonStorage)+
+              name +
+              formatMessage(StorageIntl.actionFailed)
+            )
           }
         },
         finally: {
@@ -250,29 +274,30 @@ class ShareMemory extends Component {
       case 'pending':
         return <span>
         <i className="fa fa-circle icon-marginRight penging"></i>
-        创建中
+        <FormattedMessage {...StorageIntl.createing} />
       </span>
       case 'used':
         return <span>
         <i className="fa fa-circle icon-marginRight used"></i>
-        使用中
+        <FormattedMessage {...StorageIntl.useing} />
       </span>
       case 'unused':
         return <span>
         <i className="fa fa-circle icon-marginRight no_used"></i>
-        未使用
+        <FormattedMessage {...StorageIntl.nouse} />
       </span>
       default:
         return <span>
         <i className="fa fa-circle icon-marginRight unknown"></i>
-        未知
+        <FormattedMessage {...StorageIntl.unknown} />
       </span>
     }
   }
 
   checkVolumeNameExist(rule, value, callback) {
-    const { getCheckVolumeNameExist, clusterID } = this.props
-    let msg = serviceNameCheck(value, '存储名称')
+    const { getCheckVolumeNameExist, clusterID, intl } = this.props
+    const { formatMessage } = intl
+    let msg = serviceNameCheck(value, formatMessage(StorageIntl.storageName))
     if (msg !== 'success') {
       return callback(msg)
     }
@@ -288,7 +313,7 @@ class ShareMemory extends Component {
         failed: {
           func: (res) => {
             if(res.statusCode == 409){
-              msg = serviceNameCheck(value, '存储名称', true)
+              msg = serviceNameCheck(value, formatMessage(StorageIntl.pleaseStorageName), true)
               return callback(msg)
             }
           },
@@ -356,17 +381,34 @@ class ShareMemory extends Component {
       }
     }
   }
-  reflesh(query, searchInput) {
+  refresh(query, searchInput) {
     this.setState({
       filteredValue: []
     }, () => {
       this.loadData({ page: parseInt(query.page) || 1, search: searchInput })
     })
   }
+
+  // 选择server 共享目录
+  serverTypeChange = e => {
+    this.setState({
+      serverType: e.target.value
+    })
+  }
+
+  testServerPath = (rule, value, callback) => {
+    if (!value) {
+        return callback(formatMessage(StorageIntl.pleaseServiceDir))
+      }
+    if (!PATH_REG.test(value)) {
+      return callback(formatMessage(StorageIntl.pleaseSendPath))
+    }
+    callback()
+  }
   render() {
     const {
       form, nfsList, storageList, storageListIsFetching, clusterID,
-      storageClassType, location, gfsList
+      storageClassType, location, gfsList, intl
     } = this.props
     const {
       selectedRowKeys,
@@ -376,13 +418,13 @@ class ShareMemory extends Component {
       searchInput,
       modalStorageType,
     } = this.state
-
+    const { formatMessage } = intl
     const { query = {} } = location
     const { getFieldProps } = form
     const columns = [
       {
         key: 'name',
-        title: '存储名称',
+        title: <FormattedMessage {...StorageIntl.storageName} />,
         dataIndex: 'name',
         width: '15%',
         render: (text, record, index) => {
@@ -395,14 +437,14 @@ class ShareMemory extends Component {
       },
       {
         key: 'status',
-        title: '状态',
+        title: <FormattedMessage {...StorageIntl.status} />,
         dataIndex: 'status',
         width: '10%',
         render: (status, record) => <div>{ this.formatStatus(status, record)}</div>
       },
       {
         key: 'format',
-        title: '类型',
+        title: <FormattedMessage {...StorageIntl.type} />,
         dataIndex: 'diskType',
         filteredValue: this.state.filteredValue,
         filters:[
@@ -413,20 +455,20 @@ class ShareMemory extends Component {
       },
       {
         key: 'storageServer',
-        title: '存储 server',
+        title: <span><FormattedMessage {...StorageIntl.storage} /><FormattedMessage {...StorageIntl.service} /></span>,
         dataIndex: 'storageServer',
         width: '20%',
       },
       {
         key: 'deployServiceList',
-        title: '共享服务',
+        title: <FormattedMessage {...StorageIntl.commonService} />,
         dataIndex: 'deployServiceList',
         width: '20%',
         render: deployServiceList => deployServiceList && deployServiceList.length || '-'
       },
       {
         key: 'createTime',
-        title: '创建时间',
+        title: <FormattedMessage {...StorageIntl.createTime} />,
         dataIndex: 'createTime',
         width: '20%',
         sorter: (a, b) => new Date(formatDate(a.createTime)) - new Date(formatDate(b.createTime)),
@@ -444,13 +486,14 @@ class ShareMemory extends Component {
     	labelCol: {span: 5},
     	wrapperCol: {span: 16}
     }
+
     let canCreate = false
     if(storageClassType.share){
       canCreate = storageClassType.share
     }
     let title = ''
     if (!canCreate) {
-      title = '尚未配置共享存储，暂不能创建'
+      title = <FormattedMessage {...StorageIntl.commonStorageConfig} />
     }
     const mergedQuery = mergeQueryFunc(DEFAULT_QUERY, { page: query.page || 1, search: query.search })
     const paginationProps = {
@@ -464,7 +507,7 @@ class ShareMemory extends Component {
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
           <div className='alertRow'>
-            共享型存储支持多个容器实例同时对同一个共享目录进行读写操作
+            <FormattedMessage {...StorageIntl.commonStorageAlert} />
           </div>
           <div className='data_container'>
             <div className='handle_box'>
@@ -477,18 +520,18 @@ class ShareMemory extends Component {
                   disabled={!canCreate}
                 >
                   <i className="fa fa-plus button_icon" aria-hidden="true"></i>
-                  创建共享存储
+                  <FormattedMessage {...StorageIntl.create} /><FormattedMessage {...StorageIntl.commonStorage} />
                 </Button>
               </Tooltip>
               <Button
                 size="large"
                 className='button_refresh'
-                onClick={this.reflesh.bind(this, query, searchInput)}
+                onClick={this.refresh.bind(this, query, searchInput)}
               >
                 <i className="fa fa-refresh button_icon" aria-hidden="true"
-                  onClick={this.reflesh.bind(this, query, searchInput)}
+                  onClick={this.refresh.bind(this, query, searchInput)}
                 />
-                刷新
+                <FormattedMessage {...StorageIntl.refresh} />
               </Button>
               <Button
                 size="large"
@@ -497,12 +540,12 @@ class ShareMemory extends Component {
                 onClick={() => this.deleteItem()}
                 disabled={!selectedRowKeys.length}
               >
-                删除
+                <FormattedMessage {...StorageIntl.delete} />
               </Button>
               <div className='search_box'>
                 <Input
                   size="large"
-                  placeholder="按存储名称搜索"
+                  placeholder={formatMessage(StorageIntl.searchName)}
                   value={searchInput}
                   onChange={e => this.setState({ searchInput: e.target.value })}
                   onPressEnter={() => this.searchStorage({ page: 1 })}
@@ -511,7 +554,7 @@ class ShareMemory extends Component {
               </div>
               {
                 storageList.length
-                ? <div className='totle_num'>共计 {storageList.length} 条</div>
+                ? <div className='totle_num'><FormattedMessage{...StorageIntl.totalItems} />  {storageList.length}  <FormattedMessage{...StorageIntl.item} /></div>
                 : null
               }
             </div>
@@ -529,7 +572,7 @@ class ShareMemory extends Component {
             </div>
           </div>
           <Modal
-            title="删除存储卷操作"
+            title={<FormattedMessage{...StorageIntl.deleteAct} />}
             visible={deleteModalVisible}
             closable={true}
             onOk={() => this.confirmDeleteItem()}
@@ -541,13 +584,15 @@ class ShareMemory extends Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              确定要删除这 {selectedRowKeys.length} 个存储吗？
+              <FormattedMessage{...StorageIntl.sureDelete} />
+              <span style={{ padding: '0 3px' }}> {selectedRowKeys.length} </span>
+              <FormattedMessage{...StorageIntl.aStorage} />？
             </div>
           </Modal>
           {
             createShareMemoryVisible && <Modal
               className="createShareMemoryModal"
-              title="创建共享存储目录"
+              title={<span><FormattedMessage{...StorageIntl.create} /><FormattedMessage{...StorageIntl.commonStorageDir} /></span>}
               visible={createShareMemoryVisible}
               closable={true}
               onOk={() => this.confirmCreateShareMemory()}
@@ -559,11 +604,10 @@ class ShareMemory extends Component {
             >
               <Form>
                 <FormItem
-                  label="存储类型"
+                  label={<FormattedMessage{...StorageIntl.type} />}
                   {...formItemLayout}
                 >
                   <Select
-                    placeholder='请选择类型'
                     {...getFieldProps('storageType', {
                       initialValue:'nfs',
                       onChange: this.onModalStorageTypeChange
@@ -577,11 +621,11 @@ class ShareMemory extends Component {
                     className="right"
                   >
                     <Select
-                      placeholder='请选择一个server'
+                      placeholder={<FormattedMessage{...StorageIntl.pleaseService} />}
                       {...getFieldProps('storageClassName', {
                         rules:[{
                           required:true,
-                          message:'server不能为空',
+                          message: formatMessage(StorageIntl.pleaseService),
                         }],
                       })}
                     >
@@ -601,14 +645,13 @@ class ShareMemory extends Component {
                     }
                     </Select>
                   </FormItem>
-
                 </FormItem>
                 <FormItem
-                  label="存储名称"
+                  label={<FormattedMessage{...StorageIntl.storageName} />}
                   {...formItemLayout}
                 >
                   <Input
-                    placeholder="请输入存储名称"
+                    placeholder={formatMessage(StorageIntl.pleaseStorageName)}
                     {...getFieldProps('name', {
                       rules:[{
                         validator: this.checkVolumeNameExist
@@ -618,10 +661,33 @@ class ShareMemory extends Component {
                 </FormItem>
                 {
                   this.state.modalStorageType === 'nfs' ?
-                  null
+                    <FormItem
+                      label={<span><FormattedMessage {...StorageIntl.service} /><FormattedMessage {...StorageIntl.commonDir} /></span>}
+                      {...formItemLayout}
+                    >
+                      <RadioGroup value={this.state.serverType} onChange={this.serverTypeChange}>
+                        <Radio value='random' key='random'>{<FormattedMessage {...StorageIntl.systemRandom} />}</Radio>
+                        <Radio value='custom' key='custom'>{<FormattedMessage {...StorageIntl.customize} />}</Radio>
+                      </RadioGroup>
+                      {
+                        this.state.serverType === 'custom' &&
+                          <Input
+                            {...getFieldProps('serverDir',{
+                              validate: [
+                                {
+                                  rules: [
+                                    {validator: this.testServerPath},
+                                  ],
+                                  trigger: ['onBlur', 'onChange'],
+                                }
+                              ]
+                            })}
+                            placeholder={formatMessage(StorageIntl.pleaseServiceDir)}/>
+                      }
+                    </FormItem>
                   :
                   <FormItem
-                    label="存储大小"
+                    label={<span><FormattedMessage{...StorageIntl.storage} /><FormattedMessage{...StorageIntl.size} /></span>}
                     {...formItemLayout}
                   >
                     <Col
@@ -632,7 +698,7 @@ class ShareMemory extends Component {
                       className="right">
                       <InputNumber
                         className="inputNumWid"
-                        placeholder="请输入存储大小" min={1} max={20}
+                        placeholder={formatMessage(StorageIntl.pleaseStorageSize)} min={1} max={20}
                         {...getFieldProps('storage', {
                           initialValue: 1,
                           onChange: this.onSliderChange,
@@ -655,7 +721,7 @@ class ShareMemory extends Component {
   }
 }
 
-ShareMemory = Form.create()(ShareMemory)
+ShareMemory = Form.create()(injectIntl(ShareMemory, {withRef: true}))
 
 function mapStateToProp(state, props) {
   const { entities, cluster, storage } = state

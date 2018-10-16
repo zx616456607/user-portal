@@ -10,6 +10,7 @@
  * @date 2018-08-28
  */
 import { defineIntlMessages } from '../../common/tools'
+import {mapData} from "../../components/AppModule/ServiceIntl/AppServiceDetailIntl";
 
 const messageObj = {
   prefix: 'ServiceConfig',
@@ -75,11 +76,11 @@ const messageObj = {
     operator: '操作符',
     add: '添加',
     serviceTagValue: '服务标签值',
-    labelValueLengthLimit: '每个标签值长度为3~64位',
+    labelValueLengthLimit: '每个标签值长度为3~63位',
     labelValueRegMessage: '每个标签值以字母或数字开头和结尾中间可(_-)',
     serviceLabelValuePlaceholder: '服务标签值，e.g. abc,123',
     serviceLabelKey: '服务标签键',
-    labelKeyLengthLimit: '标签键长度为3~64位',
+    labelKeyLengthLimit: '标签键长度为3~63位',
     labelKeyRegMessage: '以字母或数字开头和结尾中间可(_-)',
     affinityTip: '决定服务实例可以部署在哪些主机上',
     bestNot: '最好不',
@@ -154,6 +155,11 @@ const messageObj = {
     storageCluster: '存储集群',
     containerDirectory: '容器目录',
     containerDirIsRequired: '容器目录不能为空',
+    serverDir: 'server共享目录',
+    pleaseInputServerDir: '请输入 server共享目录',
+    random: '系统随机',
+    custom: '自定义',
+    pathInCorrect: '请输入正确的路径',
     pathExist: '已填写过该路径',
     readWritePermission: '读写权限',
     readWrite: '可读可写',
@@ -193,7 +199,7 @@ const messageObj = {
     monitorNameExist: '监听器名称已经存在',
     verRuleExist: '校验规则已经存在',
     ingressName: '监听器名称',
-    ingressNameRegMessage: '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾',
+    ingressNameRegMessage: '可由数字、中划线组成，以字母或者数字开头，字母或者数字结尾',
     appNameCheckStartMessage: '请以字母开头',
     appNameCheckComposeMessage: '由字母、数字、中划线-、下划线_组成',
     appNameMinLength: '至少为3个字符',
@@ -328,7 +334,26 @@ const messageObj = {
     secretConfigTooltip: '加密配置将通过 volume 的方式，将需要加密的加密对象挂载到指定目录，如：挂载目录为 /db-token，加密对象为 user、passwd，则挂载结果为 /db-token/user、/db-token/passwd',
     secretFile: '加密对象',
     listeningPortBeUsed: '监听端口已使用',
-    setHostname: '设定 hostname',
+    setHostname: '设定 HostName',
+    containerNetwork: '容器网络',
+    containerNetworkTip: '设置容器的网络和 DNS 选项',
+    setHostAliases: '设定主机别名',
+    ipHost: 'IP 地址',
+    hostAliases: '主机别名',
+    ipHostRegMeg: 'IP 地址格式不正确',
+    hostAliasesRegMeg: '由小写字母、数字、字符 - 或 . 组成，以字母、数字开头和结尾',
+    hostAliasesLengthLimit: '主机别名不能超过 63 个字符',
+    addHostAliases: '添加主机别名',
+    ipHostPlaceholder: '如：192.168.0.1',
+    ipHostIsRequired: 'IP 地址不能为空',
+    hostName: '主机名',
+    hostAliasesTip: '/etc/hosts 记录',
+    subdomainPlaceholder: '例如：foo',
+    subdomain: '子域',
+    hostAliasesPlaceholder: '如：example.com',
+    hostnameRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    subdomainRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
+    hostAliasesExist: '主机别名已存在',
   }
 }
 

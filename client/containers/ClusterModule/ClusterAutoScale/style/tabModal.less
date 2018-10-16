@@ -1,10 +1,4 @@
-/**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
- *
- * v0.1 - 2018-04-08
- * @author rensiwei
- */
+@import "../../../../../src/assets/style/site/core.less";
  .aotuScalerModal {
   .ant-modal-header {
     background-color: #333 !important;
@@ -59,23 +53,23 @@
     }
     .iconCon:hover {
       cursor: pointer;
-      border: 2px solid #00a1ea;
-      color: #00a1ea;
+      border: 2px solid @primary-color;
+      color: @primary-color;
       use {
-        fill: #00a1ea !important;
+        fill: @primary-color !important;
       }
       .name {
         bottom: -1px;
         width: 88px;
-        color: #00a1ea;
+        color: @primary-color;
         /*解决box-sizing hover 出现border时错位问题*/
       }
     }
     .selectedBox {
-      border: 2px solid #00a1ea;
-      color: #00a1ea;
+      border: 2px solid @primary-color;
+      color: @primary-color;
       use {
-        fill: #00a1ea !important;
+        fill: @primary-color !important;
       }
       .commonSelectedImg {
         display: block;

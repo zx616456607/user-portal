@@ -1,3 +1,4 @@
+@import "../../../assets/style/site/core.less";
 @borderColor: #e4e4e4;
 #StorageList {
   .clearDiv {
@@ -202,7 +203,7 @@
         color: white;
       }
       .status-icon.primary {
-        background: #00a0ea;
+        background: @primary-color;
         color: white;
       }
     }
@@ -214,7 +215,7 @@
         background: #2eba64;
       }
       .ant-progress-status-active .ant-progress-bg {
-        background: #00a0ea;
+        background: @primary-color;
       }
     }
   }
@@ -273,16 +274,17 @@
   }
   .footer{
     clear: both;
+    padding-bottom: 10px;
     .title{
-      height:22px;
+      // height:22px;
       line-height: 22px;
     }
     .item{
-      height:22px;
+      // height:22px;
       line-height: 22px;
       .num{
         display: inline-block;
-        background: #2db7f6;
+        background: @primary-color;
         color: #ffffff;
         height:14px;
         line-height: 14px;

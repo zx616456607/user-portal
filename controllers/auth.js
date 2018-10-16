@@ -33,7 +33,7 @@ exports.login = function* () {
     title = title + ' | ' + productName
   }
 
-  if (this.session.loginUser) {
+  if (this.session.loginUser && this.session.loginUser.user) {
     this.status = 302
     let redirect = this.query.redirect
     if (redirect) {
@@ -166,4 +166,15 @@ exports.checkCaptchaIsCorrect = function* () {
   this.body = {
     correct: true,
   }
+}
+
+exports.getEmailApproval = function* () {
+  let method = 'emailApproval'
+  let title = this.t('邮件审批')
+  const oemInfo = global.globalConfig.oemInfo || {}
+  const productName = oemInfo.company && oemInfo.company.productName
+  if (productName) {
+    title = title + ' | ' + productName
+  }
+  yield this.render(global.indexHtml, { title, body: '' })
 }

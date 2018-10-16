@@ -29,7 +29,7 @@ import {
   isResourcePermissionError, formatServiceToArrry, getWrapFileType,
   sleep
 } from '../../../common/tools'
-import { DEFAULT_REGISTRY } from '../../../constants'
+import { DEFAULT_REGISTRY, OTHER_IMAGE } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { addService, loadServiceList } from '../../../actions/services'
@@ -50,6 +50,8 @@ import { getfSecurityGroupDetail, updateSecurityGroup } from '../../../../client
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
+import * as templateActions from '../../../../client/actions/template'
+import {getDeepValue} from "../../../../client/util/util"
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -67,6 +69,7 @@ class QuickCreateApp extends Component {
     this.getStepsCurrent = this.getStepsCurrent.bind(this)
     this.renderBody = this.renderBody.bind(this)
     this.onSelectImage = this.onSelectImage.bind(this)
+    this.onSelectOtherImage = this.onSelectOtherImage.bind(this)
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
@@ -137,10 +140,13 @@ class QuickCreateApp extends Component {
   componentWillMount() {
     this.setConfig(this.props)
     const { location, fields, template:templateList, getImageTemplate } = this.props
-    const { hash, query } = location
+    const { hash, query, pathname } = location
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
       this.deployCheck(this.props)
+    }
+    if (pathname.includes('app_create/quick_create') && template) {
+      this.checkHelmIsRepare()
     }
     if (isEmpty(templateList)) {
       getImageTemplate(DEFAULT_REGISTRY)
@@ -194,6 +200,16 @@ class QuickCreateApp extends Component {
   removeDeployCheck = (props) => {
     const { removeAppTemplateDeployCheck } = this.props;
     setTimeout(removeAppTemplateDeployCheck);
+  }
+
+  checkHelmIsRepare = async () => {
+    const { checkHelmIsPrepare, current } = this.props
+    const { clusterID } = current.cluster;
+    const result = await checkHelmIsPrepare(clusterID)
+    const ready = getDeepValue(result, ['response', 'result', 'data', 'ready'])
+    this.setState({
+      helmAlready: !!ready,
+    })
   }
 
   getExistentServices() {
@@ -334,7 +350,9 @@ class QuickCreateApp extends Component {
     }
     return 1
   }
-
+  onSelectOtherImage(query) {
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
+  }
   onSelectImage(imageName, registryServer, appName, fromDetail) {
     this.setState({
       imageName,
@@ -383,6 +401,11 @@ class QuickCreateApp extends Component {
         key: firstID,
       };
       Object.assign(query, {...location.query})
+      if (currentFields[OTHER_IMAGE]) {
+        Object.assign(query, {
+          other: currentFields[OTHER_IMAGE].value,
+        })
+      }
       if (location.query.appName) {
         this.configureMode = 'create';
         this.configureServiceKey = firstID;
@@ -399,11 +422,11 @@ class QuickCreateApp extends Component {
   goSelectCreateAppMode() {
     const { query } = this.props.location;
     if (this.serviceNameList.length < 1) {
-      if (query.fromDetail ) {
+      if (query.fromDetail) {
         browserHistory.push(`/app_manage/detail/${query.appName}`)
         return
       }
-      browserHistory.goBack()
+      browserHistory.push('/app_manage/app_create')
       return
     }
     this.setState({
@@ -551,7 +574,8 @@ class QuickCreateApp extends Component {
     const {
       fields, current, loginUser,
       createApp, addService,location,
-      createAppIngress, intl, createTcpUdpIngress
+      createAppIngress, intl, createTcpUdpIngress,
+      loadBalanceList
     } = this.props
     if (location.query.template) {
       this.createAppByTemplate()
@@ -560,10 +584,9 @@ class QuickCreateApp extends Component {
     const { clusterID } = current.cluster
     let template = []
     let appPkgID = {}
-    let accessType = ''
-    let lbName = ''
-    let lbBody = []
-    let tcpUdpBody = {}
+    const httpReqArr = []
+    const tcpReqArr = []
+    const udpReqArr = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
@@ -573,51 +596,59 @@ class QuickCreateApp extends Component {
           template.push(yaml.dump(item))
         })
         if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
-          accessType = fields[key].accessType.value
-          lbName = fields[key].loadBalance.value
-          const lbKeys = fields[key].lbKeys.value
-          const tcpKeys = fields[key].tcpKeys.value
-          const udpKeys = fields[key].udpKeys.value
-          !isEmpty(lbKeys) && lbKeys.forEach(item => {
-            const items = []
-            const { host } = fields[key][`ingress-${item}`].value
-            const [hostname, ...path] = host.split('/')
-            items.push({
-              serviceName: fields[key].serviceName.value,
-              servicePort: parseInt(fields[key][`port-${item}`].value),
-              weight: parseInt(fields[key][`weight-${item}`].value)
+          const lbName = fields[key].loadBalance.value
+          const lbKeys = fields[key].lbKeys && fields[key].lbKeys.value
+          const tcpKeys = fields[key].tcpKeys && fields[key].tcpKeys.value
+          const udpKeys = fields[key].udpKeys && fields[key].udpKeys.value
+          const currentLB = loadBalanceList.filter(lb => lbName === lb.metadata.name)[0]
+          const { displayName } = currentLB.metadata.annotations;
+          const agentType = fields[key].agentType.value
+          if (!isEmpty(lbKeys)) {
+            lbKeys.forEach(item => {
+              const items = []
+              const lbBody = []
+              const { host, displayName: ingressName } = fields[key][`ingress-${item}`].value
+              const [hostname, ...path] = host.split('/')
+              items.push({
+                serviceName: fields[key].serviceName.value,
+                servicePort: parseInt(fields[key][`port-${item}`].value),
+                weight: parseInt(fields[key][`weight-${item}`].value)
+              })
+              const body = {
+                host: hostname,
+                path: path ? '/' + path.join('/') : '/',
+                items
+              }
+              lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
+              httpReqArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
             })
-            const body = {
-              host: hostname,
-              path: path ? '/' + path.join('/') : '',
-              items
-            }
-            lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
-          })
+          }
           if (!isEmpty(tcpKeys)) {
-            tcpUdpBody.tcp = []
             tcpKeys.forEach(item => {
+              const tcpBody = []
               const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
               const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
               const serviceName = fields[key].serviceName.value
-              tcpUdpBody.tcp.push({
+              tcpBody.push({
                 exportPort,
                 servicePort,
                 serviceName,
               })
+              tcpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'tcp', displayName, agentType, { tcp: tcpBody }))
             })
           }
           if (!isEmpty(udpKeys)) {
-            tcpUdpBody.udp = []
             udpKeys.forEach(item => {
+              const udpBody = []
               const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
               const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
               const serviceName = fields[key].serviceName.value
-              tcpUdpBody.udp.push({
+              udpBody.push({
                 exportPort,
                 servicePort,
                 serviceName,
               })
+              udpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'udp', displayName, agentType, { udp: udpBody }))
             })
           }
         }
@@ -630,13 +661,14 @@ class QuickCreateApp extends Component {
     const callback = {
       success: {
         func: res => {
-          if (accessType === 'loadBalance') {
-            if (!isEmpty(lbBody)) {
-              createAppIngress(clusterID, lbName, {data: lbBody})
-            }
-            if (!isEmpty(tcpUdpBody.tcp) || !isEmpty(tcpUdpBody.udp)) {
-              createTcpUdpIngress(clusterID, lbName, tcpUdpBody)
-            }
+          if (!isEmpty(httpReqArr)) {
+            Promise.all(httpReqArr)
+          }
+          if (!isEmpty(tcpReqArr)) {
+            Promise.all(tcpReqArr)
+          }
+          if (!isEmpty(udpReqArr)) {
+            Promise.all(udpReqArr)
           }
           this.setState({
             stepStatus: 'finish',
@@ -743,6 +775,28 @@ class QuickCreateApp extends Component {
     const { intl, fields } = this.props
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200)
+
+    // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
+    let lbNoPort = false
+    for (let fieldKey in fields) {
+      if (fields.hasOwnProperty(fieldKey)) {
+        const obj = fields[fieldKey]
+        if (Object.keys(obj).indexOf('loadBalance') > -1) {
+          let noLBPorts = true
+          Object.keys(obj).map(label => (
+            label.indexOf('tcp-exportPort-') > -1
+            || label.indexOf('udp-exportPort-') > -1
+            || label.indexOf('port-') > -1
+          ) && (noLBPorts = false))
+          lbNoPort = noLBPorts
+        }
+      }
+    }
+    if (lbNoPort) {
+      notification.warn(intl.formatMessage(IntlMessage.addOneListener))
+      return
+    }
+
     if (!isValidateFields) {
       return this.createAppOrAddService()
     }
@@ -895,7 +949,7 @@ class QuickCreateApp extends Component {
         onChange={this.onDeployAIChange}
       />
     }
-    return <SelectImage location={location} onChange={this.onSelectImage} />
+    return <SelectImage location={location} onChange={this.onSelectImage} onOtherChange={this.onSelectOtherImage} />
   }
 
   renderCreateBtnText() {
@@ -972,6 +1026,7 @@ class QuickCreateApp extends Component {
 
   renderFooterSteps() {
     const { location } = this.props
+    const { helmAlready } = this.state
     const { hash, query } = location
     const { template } = query;
     if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
@@ -995,9 +1050,11 @@ class QuickCreateApp extends Component {
               >
                 <FormattedMessage {...IntlMessage.previous}/>
               </Button>
-              <Button size="large" type="primary" onClick={this.onCreateAppOrAddServiceClick}>
-                { this.renderCreateBtnText() }
-              </Button>
+              <Tooltip title={template && !helmAlready ? <FormattedMessage {...IntlMessage.noTillerTip}/> : ''}>
+                <Button size="large" disabled={template && !helmAlready} type="primary" onClick={this.onCreateAppOrAddServiceClick}>
+                  { this.renderCreateBtnText() }
+                </Button>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -1042,6 +1099,11 @@ class QuickCreateApp extends Component {
       let newImageName = currentTemplate.name;
       this.setState({
         newImageName
+      })
+    }
+    if (currentFields[OTHER_IMAGE]) {
+      Object.assign(query, {
+        other: currentFields[OTHER_IMAGE].value,
       })
     }
     const url = `/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`
@@ -1471,6 +1533,7 @@ export default connect(mapStateToProps, {
   getfSecurityGroupDetail,
   updateSecurityGroup,
   createTcpUdpIngress,
+  checkHelmIsPrepare: templateActions.checkHelmIsPrepare,
 })(injectIntl(QuickCreateApp, {
   withRef: true,
 }))

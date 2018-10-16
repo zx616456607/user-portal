@@ -18,7 +18,7 @@
  */
 import React, { Component } from 'react'
 import { injectIntl,  } from 'react-intl'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, Select  } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, Select, message  } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -61,6 +61,8 @@ import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
+import meshIcon from '../../assets/img/meshIcon.svg'
+import * as meshActions from '../../actions/serviceMesh'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -366,9 +368,19 @@ const MyComponent =  injectIntl(React.createClass({
       </Tooltip>
     )
   },
+  rendermeshIcon() {
+    return (
+      <span style={{ lineHeight: '16px' }}>
+        <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
+        <img className="meshIcon"　src={meshIcon} alt=""/>
+        </Tooltip>
+      </span>
+    )
+  },
   render: function () {
     const { formatMessage } = this.props.intl
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
+    const { mesh = []} = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -547,7 +559,8 @@ const MyComponent =  injectIntl(React.createClass({
       }
       let heightSize = '60px'
       let lineHeightSize = '60px'
-      if(volume || group || lb){
+      const meshflag =  (mesh.find(({name}) => name === item.metadata.name) || {} ).value
+      if(volume || group || lb || meshflag){
         heightSize = '30px'
         lineHeightSize = '40px'
       }
@@ -564,7 +577,8 @@ const MyComponent =  injectIntl(React.createClass({
               {item.metadata.name}
             </div>
             {
-              (volume || group || lb) && <div className='icon_container'>
+              (volume || group || lb || meshflag )
+              && <div className='icon_container'>
                 {
                   volume && <Tooltip title="该服务已添加存储" placement="top">
                     <span className='standrand volumeColor'>存</span>
@@ -576,6 +590,7 @@ const MyComponent =  injectIntl(React.createClass({
                 {
                   lb && this.renderLBIcon()
                 }
+                { meshflag && this.rendermeshIcon() }
               </div>
             }
           </div>
@@ -705,7 +720,9 @@ class ServiceList extends Component {
       alarmStrategy: true,
       grayscaleUpgradeModalVisible: false,
       showPlaceholder: this.props.intl.formatMessage(AllServiceListIntl.serviceNameSearch),
-      showInpVal: ''
+      showInpVal: '',
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
+      mesh: undefined,
     }
   }
   getInitialState() {
@@ -778,9 +795,9 @@ class ServiceList extends Component {
     }
     handleStateOfServiceList(this, serviceList)
   }
-  componentDidMount() {
-    const { serName } = this.props
-    this.loadServices().then(() => {
+  async componentDidMount() {
+    const { serName, getServiceListServiceMeshStatus } = this.props
+    await this.loadServices().then(() => {
       if (serName) {
         const { serviceList } = this.props
         if (serName && serviceList) {
@@ -798,6 +815,24 @@ class ServiceList extends Component {
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    // getServiceListServiceMeshStatus (
+    const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
+    let ServiceListmeshResult
+    try{
+      ServiceListmeshResult =
+      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
+    } catch(e) {
+      const notification = new NotificationHandler()
+      notification.error({message:'获取服务网格状态出错'})
+    }
+    const ServiceListmeshData = ServiceListmeshResult.response.result || {}
+    const serviceListMesh = serviceNames.map((name) => {
+      const serviceMesh = Object.values(ServiceListmeshData)
+      .filter((service)=> typeof service === 'object')
+      .find((service) => service.metadata.name === name)
+      return { name, value: serviceMesh.istioEnabled }
+    })
+    this.setState({ mesh: serviceListMesh })
   }
   componentWillUnmount() {
     const {
@@ -1286,7 +1321,12 @@ class ServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
   searchServices() {
@@ -1412,7 +1452,8 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn,
       redeploybtn,
       grayscaleUpgradeModalVisible,
-      showPlaceholder
+      showPlaceholder,
+      documentTitle,
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
@@ -1461,7 +1502,7 @@ class ServiceList extends Component {
     );
     return (
       <div id="AppServiceList">
-        <Title title={formatMessage(AllServiceListIntl.documentTitle)} />
+        <Title title={documentTitle} />
         <ResourceBanner resourceType='service'/>
         <QueueAnim className="demo-content">
           <div key='animateBox'>
@@ -1675,6 +1716,7 @@ class ServiceList extends Component {
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList}
+              mesh={this.state.mesh}
                />
           </Card>
           </div>
@@ -1716,6 +1758,7 @@ class ServiceList extends Component {
                 page={page}
                 size={size}
                 name={this.props.name}
+                onClose={this.closeModal}
               />
             }
           </Modal>
@@ -1919,6 +1962,7 @@ ServiceList = connect(mapStateToProps, {
   deleteSetting,
   getSettingListfromserviceorapp,
   removeTerminal,
+  getServiceListServiceMeshStatus: meshActions.getServiceListServiceMeshStatus,
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

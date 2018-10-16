@@ -84,10 +84,31 @@ const ConfigMapSetting = React.createClass({
     e.target.checked = value
     this.handleSelectAll(keyValue, currentConfigGroup, e)
   },
-  configGroupNameCheck(rule, value, callback) {
+  isGroupNameExists(value, key) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const configMapKeys = getFieldValue('configMapKeys')
+    if (isEmpty(configMapKeys)) {
+      return false
+    }
+    return configMapKeys.filter(_key => _key.value !== key).some(_key => {
+      const configGroupName = getFieldValue(`configGroupName${_key.value}`)
+      if (!isEmpty(configGroupName) && value === configGroupName[1]) {
+        return true
+      }
+      return false
+    })
+  },
+  configGroupNameCheck(rule, value, callback, key) {
     const { currentCluster, checkConfigNameExistence, intl } = this.props
     const { clusterID } = currentCluster
     if (Array.isArray(value)) {
+      const isExists = this.isGroupNameExists(value[1], key)
+      if (isExists) {
+        return callback(intl.formatMessage(IntlMessage.nameExisted, {
+          item: intl.formatMessage(IntlMessage.configGroup),
+        }))
+      }
       return callback()
     }
     if (!value) {
@@ -196,7 +217,7 @@ const ConfigMapSetting = React.createClass({
     }
     let configMapSubPathOptions = []
     let subPathValue
-    if (templateDeploy || isExisted) {
+    if (templateDeploy) {
       subPathValue = getFieldValue(configMapSubPathValuesKey)
       configMapSubPathOptions = subPathValue
     } else {
@@ -240,7 +261,7 @@ const ConfigMapSetting = React.createClass({
             item: intl.formatMessage(IntlMessage.configGroup)
           })
         },
-        { validator: this.configGroupNameCheck }
+        { validator: (rules, value, callback) => this.configGroupNameCheck(rules, value, callback, keyValue) }
       ],
       onChange: this.onConfigGroupChange.bind(this, keyValue),
       initialValue: defaultSelectValue
@@ -255,7 +276,7 @@ const ConfigMapSetting = React.createClass({
         }
       ],
     })
-    const isInput = (!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted
+    const isInput = templateDeploy && ((!isEmpty(configMapErrorFields) && configMapErrorFields.includes(configGroupNameKey)) || isExisted)
     return (
       <Row className="configMapItem" key={`configMapItem${keyValue}`}>
         <Col span={5}>
@@ -263,13 +284,13 @@ const ConfigMapSetting = React.createClass({
             <Input
               type="textarea" size="default"
               placeholder={intl.formatMessage(IntlMessage.mountPathPlaceholder)}
-              {...configMapMountPathProps} disabled={isExisted}
+              {...configMapMountPathProps} disabled={templateDeploy}
             />
           </FormItem>
         </Col>
         <Col span={6}>
           <FormItem>
-            <RadioGroup {...configMapIsWholeDirProps} disabled={isExisted}>
+            <RadioGroup {...configMapIsWholeDirProps} disabled={templateDeploy}>
               <Radio key="severalFiles" value={false}>
                 {intl.formatMessage(IntlMessage.mountSeveralFiles)}&nbsp;
                 <Tooltip width="200px" title={intl.formatMessage(IntlMessage.mountSeveralTooltip)}>
@@ -291,7 +312,8 @@ const ConfigMapSetting = React.createClass({
             help={isInput ?
               isFieldValidating(configGroupNameKey) ?
                 `${intl.formatMessage(IntlMessage.validating)}...` :
-                (getFieldError(configGroupNameKey) || []).join(', ') : ''
+                (getFieldError(configGroupNameKey) || []).join(', ') :
+                (getFieldError(configGroupNameKey) || []).join(', ')
             }
           >
             {
@@ -316,15 +338,15 @@ const ConfigMapSetting = React.createClass({
         </Col>
         <Col span={5}>
           {
-            !currentConfigGroup && !templateDeploy && !isExisted
+            !currentConfigGroup && !templateDeploy
             ? <FormItem>{intl.formatMessage(IntlMessage.pleaseSelect, { item: intl.formatMessage(IntlMessage.configGroup)})}</FormItem>
             : (
               <div>
                 <FormItem>
                   <Checkbox
                     onChange={this.handleSelectAll.bind(this, keyValue, currentConfigGroup)}
-                    checked={this.getSelectAllChecked(keyValue, currentConfigGroup, isExisted)}
-                    disabled={templateDeploy || configMapIsWholeDir || isExisted}
+                    checked={this.getSelectAllChecked(keyValue, currentConfigGroup)}
+                    disabled={templateDeploy}
                   >
                     {intl.formatMessage(IntlMessage.selectAll)}
                   </Checkbox>
@@ -333,7 +355,7 @@ const ConfigMapSetting = React.createClass({
                   <CheckboxGroup
                     {...configMapSubPathValuesProps}
                     options={configMapSubPathOptions}
-                    disabled={templateDeploy || configMapIsWholeDir || isExisted}
+                    disabled={templateDeploy}
                   />
                   <div className="clearBoth"></div>
                 </FormItem>
@@ -426,11 +448,11 @@ const ConfigMapSetting = React.createClass({
       [`configMapSubPathValues${keyValue}`]: configMapSubPathValues,
     })
   },
-  getSelectAllChecked(keyValue, currentConfigGroup, isExisted) {
+  getSelectAllChecked(keyValue, currentConfigGroup) {
     const { form, location, isTemplate } = this.props
     const { getFieldValue } = form
     const templateDeploy = location.query.template && !isTemplate
-    if (templateDeploy || isExisted) {
+    if (templateDeploy) {
       return true
     }
     if (!currentConfigGroup) {

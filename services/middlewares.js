@@ -30,30 +30,12 @@ if (process.env.RUNNING_MODE === 'standard') {
 }
 
 /**
- * Set user current config: teamspace, cluster
- * cookie[USER_CURRENT_CONFIG]=`${teamID},${space.namespace},${clusterID},${onbehalfuser}`
- */
-exports.setUserCurrentConfig = function* (next) {
-  if (!this.session.loginUser) {
-    return yield next
-  }
-  const method = 'setCurrent'
-  let config = this.cookies.get(USER_CURRENT_CONFIG)
-  if (config && config.split(',').length === 4) {
-    logger.debug(method, `skip set current config cookie`)
-    return yield next
-  }
-  yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])
-  yield next
-}
-
-/**
  * Auth user by session
  */
 exports.auth = function* (next) {
   const loginUser = this.session.loginUser
   const accept = indexService.accepts.apply(this)
-  if (!loginUser) {
+  if (!loginUser || !loginUser.user) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
@@ -88,20 +70,17 @@ exports.auth = function* (next) {
     }
   }
   let teamspace = this.headers.teamspace
-  let onbehalfuser = this.headers.onbehalfuser
+  // let onbehalfuser = this.headers.onbehalfuser
   // get teamspace from cookie
-  if (!teamspace) {
+  if (typeof teamspace === 'undefined') {
     const currentConfig = this.cookies.get(USER_CURRENT_CONFIG) || ''
     const _teamspace = currentConfig.split(',')[1]
-    if (_teamspace && _teamspace !== 'default' && _teamspace !== 'undefined') {
+    if (_teamspace && _teamspace !== 'undefined') {
       teamspace = _teamspace
     }
   }
-  if (teamspace === 'default') {
-    teamspace = null
-  }
-  this.session.loginUser.teamspace = !onbehalfuser ? teamspace : null
-  this.session.loginUser.onbehalfuser = onbehalfuser
+  this.session.loginUser.teamspace = teamspace
+  // this.session.loginUser.onbehalfuser = onbehalfuser
   yield next
 }
 
@@ -163,7 +142,7 @@ exports.verifyUser = function* (next) {
   if (body.inviteCode) {
     data.inviteCode = body.inviteCode
   }
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   let result = {}
   try {
     result = yield api.users.createBy(['login'], null, data)
@@ -201,6 +180,7 @@ exports.verifyUser = function* (next) {
     // Encrypt base64 password to make it some secure, and save to session
     registryAuth: securityUtil.encryptContent(registryAuth),
     harbor: {},
+    ip: this.request.ip,
   }
   // get harbor current user for check is harbor admin user
   try {

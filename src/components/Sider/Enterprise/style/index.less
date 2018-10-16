@@ -42,6 +42,12 @@
     width: 18px;
     font-size: 18px;
   }
+  .topRightPoint{
+    display: inline-block;
+    position: absolute;
+    transform: scale(1) translateY(-5px) translateX(7px);
+    color: #f15755 !important;
+  }
 }
 //通知中心样式
 .noticeModel {
@@ -129,6 +135,9 @@
   transition: all 0.3s;
   //公用li样式
   .miniSider {
+    .topRightPoint {
+      transform: none !important;
+    }
     //通用图标样式
     .commonImg {
       margin-top: 14px;
