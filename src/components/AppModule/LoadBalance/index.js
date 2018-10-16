@@ -23,6 +23,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../../constants'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
+import {getDeepValue} from "../../../../client/util/util";
 
 const notify = new Notification()
 
@@ -124,10 +125,11 @@ class LoadBalance extends React.Component {
     this.setState({
       delConfirmLoading: true
     })
+    const { agentType } = getDeepValue(currentBalance, ['metadata', 'labels'])
     notify.spin('删除中')
     let name = currentBalance.metadata.name
     let displayName = currentBalance.metadata.annotations.displayName
-    deleteLB(clusterID, name, displayName, {
+    deleteLB(clusterID, name, displayName, agentType, {
       success: {
         func: () => {
           notify.close()

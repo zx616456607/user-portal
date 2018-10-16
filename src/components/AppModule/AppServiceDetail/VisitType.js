@@ -55,7 +55,7 @@ class VisitType extends Component{
       initSelect: undefined,
       isLbgroupNull: false,
       activeKey: 'netExport',
-      agentValue: 'outside',
+      agentValue: 'inside',
       serviceIstioEnabled: false, //默认显示原来的显示方式
     }
   }
@@ -74,9 +74,11 @@ class VisitType extends Component{
       })
     }
     const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
-    this.setState({
-      agentValue: agentType,
-    })
+    if (agentType) {
+      this.setState({
+        agentValue: agentType,
+      })
+    }
     getServiceLBList(cluster, service.metadata.name)
     form.setFieldsValue({
       portsKeys: [{value: 0}]
@@ -541,13 +543,13 @@ class VisitType extends Component{
   confirmModal = () => {
     const { unbindIngressService, getServiceLBList, cluster, service } = this.props
     const { formatMessage } = this.props.intl
-    const { currentLB } = this.state
+    const { currentLB, agentValue } = this.state
     let notify = new NotificationHandler()
     this.setState({
       confirmLoading: true
     })
     notify.spin(formatMessage(AppServiceDetailIntl.removing))
-    unbindIngressService(cluster, currentLB.name, service.metadata.name, {
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentValue, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)

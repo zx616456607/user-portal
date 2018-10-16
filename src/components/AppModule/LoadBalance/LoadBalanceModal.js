@@ -254,10 +254,10 @@ class LoadBalanceModal extends React.Component {
         }
       }
       if (currentBalance) {
-        editLB(clusterID, currentBalance.metadata.name, currentBalance.metadata.annotations["displayName"], body, actionCallback)
+        editLB(clusterID, currentBalance.metadata.name, currentBalance.metadata.annotations["displayName"], agentType, body, actionCallback)
         return
       }
-      createLB(clusterID, body, actionCallback)
+      createLB(clusterID, agentType, body, actionCallback)
     })
   }
 
