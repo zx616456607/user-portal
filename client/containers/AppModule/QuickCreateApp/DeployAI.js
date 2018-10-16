@@ -18,7 +18,7 @@ import './style/DeployAI.less'
 
 const AI_IMAGE_DATA = [
   {
-    image: 'kubeflow/tf-model-server-cpu',
+    image: 'tenx_containers/tf-model-server-cpu',
   },
 ]
 
