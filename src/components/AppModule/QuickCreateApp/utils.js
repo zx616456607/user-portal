@@ -874,23 +874,3 @@ export const isFieldsHasErrors = fields => {
     return currentFieldValues.some(value => !isEmpty(value.errors))
   })
 }
-
-export function hexToString(str){
-  let val = ""
-  const arr = str.split("-");
-  for(let i = 0; i < arr.length; i++){
-    val += String(parseInt(arr[i].fromCharCode(i), 16))
-  }
-  return val
-}
-
-export function stringToHex(str){
-  let val = ""
-  for(let i = 0; i < str.length; i++){
-    if(val == "")
-    val = str.charCodeAt(i).toString(16);
-    else
-    val += "-" + str.charCodeAt(i).toString(16);
-  }
-  return val
-}
