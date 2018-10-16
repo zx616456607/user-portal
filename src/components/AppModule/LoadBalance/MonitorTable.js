@@ -18,6 +18,7 @@ import './style/MonitorTable.less'
 import AppServiceEvent from '../AppServiceDetail/AppServiceEvent'
 import TcpUdpTable from './TcpUdpTable'
 import WhitelistTable from './WhitelistTable'
+import { getDeepValue } from "../../../../client/util/util";
 
 const TabPane = Tabs.TabPane
 class MonitorTable extends React.Component {
@@ -58,15 +59,16 @@ class MonitorTable extends React.Component {
   }
 
   confirmDelModal = () => {
-    const { deleteIngress, clusterID, location, getLBDetail } = this.props
+    const { deleteIngress, clusterID, location, getLBDetail, lbDetail } = this.props
     const { name, displayName } = location.query
     const { currentIngress } = this.state
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     let notify = new Notification()
     this.setState({
       delConfirmLoading: true
     })
     notify.spin('删除中')
-    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, {
+    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, agentType, {
       success: {
         func: () => {
           notify.close()
@@ -225,13 +227,13 @@ class MonitorTable extends React.Component {
           <TabPane tab="TCP" key="TCP">
             <TcpUdpTable
               type="TCP"
-              {...{ togglePart, clusterID, name, location }}
+              {...{ togglePart, clusterID, name, location, lbDetail }}
             />
           </TabPane>
           <TabPane tab="UDP" key="UDP">
             <TcpUdpTable
               type="UDP"
-              {...{ togglePart, clusterID, name, location }}
+              {...{ togglePart, clusterID, name, location, lbDetail }}
             />
           </TabPane>
           <TabPane tab="白名单" key="WHITELIST">
