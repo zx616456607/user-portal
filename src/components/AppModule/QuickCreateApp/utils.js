@@ -553,7 +553,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
         let volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
         if (Array.isArray(configGroupName)) {
           if (configGroupName[0] !== '未分类配置组') {
-            volumeName = `${configGroupName[0]}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            if (isTemplate && !isTemplateDeploy) {
+              volumeName = `${configGroupName[0]}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            } else {
+              // 创建应用时，不能有中文
+              volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            }
           }
         } else {
           volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
@@ -630,7 +635,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       }
     })
   }
-  if (!isEmpty(wholeDir)) {
+  if (!isEmpty(wholeDir) && isTemplate && !isTemplateDeploy) {
     deployment.setAnnotations({
       wholeDir: JSON.stringify(wholeDir)
     })

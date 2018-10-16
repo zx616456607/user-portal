@@ -78,8 +78,8 @@ class ClusterPlugin extends Component {
   onSelectChange = currentCluster => {
     this.setState({
       currentCluster
-    }, () => {
-      getAllClusterNodes(currentCluster)
+    }, async () => {
+      await this.props.getAllClusterNodes(currentCluster)
       this.loadData()
     })
   }
