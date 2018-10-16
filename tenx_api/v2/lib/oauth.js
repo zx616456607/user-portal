@@ -38,5 +38,9 @@ exports.getAuthHeader = function (authInfo) {
   if (tenxSysSign) {
     auth[config.tenxSysSign.key] = tenxSysSign
   }
+  // 从 `this.session.loginUser` 中取到 ip 放在 headers 中
+  if (authInfo.ip) {
+    auth['X-Forwarded-For'] = authInfo.ip
+  }
   return auth
 }
