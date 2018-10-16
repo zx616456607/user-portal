@@ -120,7 +120,7 @@ exports.vsettanLogin = function* (next) {
     user.accountDetail = JSON.stringify(user)
     const createUser = yield spi.users.createBy([ '3rdparty-account' ], null, user)
     //use userinfo login
-    let api = apiFactory.getApi()
+    let api = apiFactory.getApi(this.session.loginUser)
     api = yield api.users.createBy(['login'], null, { userName: user.userName, accountType: user.accountType, accountID: user.accountID }).then(result => {
       // Return apiToken to vsettan system
       urllib.request(`${vsettanConfig.project_url}/container/api_token?token=${access_token}&api_token=${result.apiToken}`, {

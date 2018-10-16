@@ -22,7 +22,7 @@ const indexService = require('../services')
 // scenario-4: license_status is NO_LICENSE and left_trial_days <= 0, show error and not allow login
 // scenario-5: license_status is EXPIRED, show error and not allow login
 exports.checkLicense = function* () {
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   const license = this.request.body
   const license_info = yield api.licenses.getBy(["merged"])
   const trial_info = yield api.licenses.getBy(["trial"])
@@ -108,7 +108,7 @@ exports.getPlatformID = function* () {
     this.body = platform
     return
   }
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   const result = yield api.licenses.getBy(["platform"])
   this.session.platform = result
   this.body = result

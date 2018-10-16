@@ -33,7 +33,7 @@ exports.login = function* () {
     title = title + ' | ' + productName
   }
 
-  if (this.session.loginUser) {
+  if (this.session.loginUser && this.session.loginUser.user) {
     this.status = 302
     let redirect = this.query.redirect
     if (redirect) {
