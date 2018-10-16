@@ -1111,6 +1111,7 @@
   "AppCreate.publishTip": "The app package has been reviewed by an administrator，Click OK to post to the app package store，Confirm release？",
   "AppCreate.selectAppTemplate": "Select an app template",
   "AppCreate.appTemplatePlaceholder": "Enter template name search",
+  "AppCreate.addOneListener": "Please add at least one listener",
   "App.error.504": "request{resource}time out",
   "AlarmModal.plsInputName": "Please enter a name",
   "AlarmModal.plsInput340": "Please enter 3~40 characters",

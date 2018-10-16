@@ -784,9 +784,7 @@ class QuickCreateApp extends Component {
       }
     }
     if (lbNoPort) {
-      notification.warn({
-        message: '请至少添加一个监听器'
-      })
+      notification.warn(intl.formatMessage(IntlMessage.addOneListener))
       return
     }
 
