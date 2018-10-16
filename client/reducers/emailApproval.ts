@@ -20,7 +20,7 @@ function getStatus(state = {}, action) {
     case ActionTypes.GET_EMAIL_APPROVAL_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        approvalStatus: action.response.result.approvalStatus,
+        approvalStatus: action.response.result,
       });
     case ActionTypes.GET_EMAIL_APPROVAL_FAILURE:
       return Object.assign({}, state, {

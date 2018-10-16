@@ -44,8 +44,8 @@ class EmailApproval extends React.Component {
   }
 
   render() {
-    const { info, isFetching, approvalStatus } = this.props
-    // const approvalStatus = 1
+    const { info, isFetching,
+      emailInfo: { approvalStatus, pipelineName, productName, stageName } } = this.props
     let showStatus = '正在获取状态'
     if (approvalStatus === 0) {
       showStatus = '已通过'
@@ -54,7 +54,7 @@ class EmailApproval extends React.Component {
     } else if (approvalStatus === 4) {
       showStatus = '人工停止'
     } else if (approvalStatus === 32) {
-      showStatus = <div className="operate">
+      showStatus = <div>
         <Button
           size="large"
           onClick={() => this.hadleApproval('deny')}
@@ -79,12 +79,21 @@ class EmailApproval extends React.Component {
     return <div id="EmailApproval">
       <Top loginLogo={info.loginLogo} />
       <div className="emailPrompt">
-        <div className="textCont">
-          【时速云tenxcloud.com】流水线任务 测试环境一 中 部署N1镜像 通知审批
-        </div>
-        <div className="operate">
-          { isFetching ? <Spin size="large" spinning={isFetching} /> : showStatus }
-        </div>
+        {
+          isFetching ?
+            <div className="operate">
+              <Spin size="large" spinning={isFetching} />
+            </div>
+            : <span>
+              <div className="textCont">
+                {productName ? `【 ${productName} 】` : null } 流水线任务
+                { pipelineName && stageName ? ` ${pipelineName} 中 ${stageName} ` : null } 通知审批
+              </div>
+              <div className="operate">
+                { showStatus }
+              </div>
+            </span>
+        }
       </div>
 
       <Row className="footer">
@@ -116,7 +125,7 @@ function mapStateToProps({ personalized,
     stageBuildId,
     token,
     email,
-    approvalStatus,
+    emailInfo: approvalStatus || {},
     isFetching,
   }
 }
