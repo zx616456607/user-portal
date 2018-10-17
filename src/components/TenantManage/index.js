@@ -375,7 +375,7 @@ class TenantManage extends React.Component {
         itemWidth: 10,
         itemHeight: 10,
       },
-      color: ['#2db7f5', '#2abe84', '#B0E2FF'],
+      color: ['#2db7f5', '#2abe84', '#B0E2FF', '#7ce4bb'],
       series: {
         type: 'pie',
         selectedMode: 'single',
