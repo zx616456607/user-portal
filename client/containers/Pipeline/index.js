@@ -1,12 +1,3 @@
-/*
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2018 TenxCloud. All Rights Reserved.
- * ----
- * index.js page
- *
- * @author zhangtao
- * @date Wednesday October 17th 2018
- */
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
