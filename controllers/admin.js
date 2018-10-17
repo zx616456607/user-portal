@@ -13,14 +13,14 @@ const apiFactory = require('../services/api_factory')
 
 // check whether the 'admin' user's password was set
 exports.isPasswordSet = function* () {
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   const result = yield api.admin.getBy(["ispwset"])
   this.body = result
 }
 
 // set the 'admin' user's password
 exports.SetPassword = function* () {
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   const passinfo = this.request.body
   if (!passinfo || !passinfo.password) {
     const err = new Error('password field is required.')

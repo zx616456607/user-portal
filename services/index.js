@@ -134,7 +134,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
 }
 
 exports.checkWechatAccountIsExist = function* (body) {
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   try {
     let result = yield api.users.createBy(['login'], null, body)
     return {

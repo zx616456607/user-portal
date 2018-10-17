@@ -26,6 +26,7 @@ import DetailFooter from './DetailFooter'
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
+import {getDeepValue} from "../../../../client/util/util";
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -451,10 +452,11 @@ class MonitorDetail extends React.Component {
   }
 
   handleConfirm = () => {
-    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress } = this.props
+    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress, lbDetail } = this.props
     const { validateFields, getFieldValue } = form
     const { healthOptions, healthCheck } = this.state
     const { name, displayName } = location.query
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
@@ -583,10 +585,10 @@ class MonitorDetail extends React.Component {
         }
       }
       if (currentIngress) {
-        updateIngress(clusterID, name, currentIngress.displayName, body, callback)
+        updateIngress(clusterID, name, currentIngress.displayName, displayName, agentType, body, callback)
         return
       }
-      createIngress(clusterID, name, body, callback)
+      createIngress(clusterID, name, monitorName, displayName, agentType, body, callback)
     })
   }
 

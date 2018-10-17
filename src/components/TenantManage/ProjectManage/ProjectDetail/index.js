@@ -1711,9 +1711,12 @@ class ProjectDetail extends Component {
                               key={v.index}>{v.index}</div>)
                           }
                         </div>
-                        {
-                          items
-                        }
+                        <div className="members">
+                          {
+                            items
+                          }
+
+                        </div>
                       </div>
                       <div className="permissionContainer">
                         <div className="titleContainer">
