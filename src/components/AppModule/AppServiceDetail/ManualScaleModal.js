@@ -18,6 +18,7 @@ import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl,  } from 'react-intl'
+import { getDeepValue } from '../../../../client/util/util';
 
 let maxInstance = null
 class ManualScaleModal extends Component {
@@ -140,9 +141,9 @@ class ManualScaleModal extends Component {
   render() {
     const { service, visible } = this.props
     const { formatMessage }= this.props.intl
-    const annotations = service && service.spec.template && service.spec.template.metadata.annotations
-    const isFixed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
-    maxInstance = isFixed && JSON.parse(annotations['cni.projectcalico.org/ipAddrs']).length || null
+    const ipv4 = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    const isFixed = ipv4 && true || false
+    maxInstance = ipv4 && JSON.parse(ipv4).length || null
     if (!visible) {
       return null
     }

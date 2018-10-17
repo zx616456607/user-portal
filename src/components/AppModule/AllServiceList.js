@@ -63,6 +63,7 @@ import TenxIcon from '@tenx-ui/icon'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import meshIcon from '../../assets/img/meshIcon.svg'
 import * as meshActions from '../../actions/serviceMesh'
+import { getDeepValue } from '../../../client/util/util'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -402,12 +403,9 @@ const MyComponent =  injectIntl(React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.spec.template
-        && item.spec.template.metadata.annotations
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
-      const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
+      const ipv4 = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const ipv4Arr = ipv4 && JSON.parse(ipv4)
+      const isDisabled = ipv4Arr && ipv4Arr.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {

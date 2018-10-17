@@ -19,6 +19,7 @@ import ContainerStatus from '../../TenxStatus/ContainerStatus'
 import ContainerHeader from '../../../../client/containers/AppModule/AppServiceDetail/containerHeader'
 import { injectIntl,  } from 'react-intl'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
+import { getDeepValue } from '../../../../client/util/util';
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -94,9 +95,8 @@ const MyComponent = React.createClass({
         const image = currentImages[0] && currentImages[0].to || ''
         isNew = image === imageArray[0]
       }
-      const ipv4Arr = item.metadata.annotations
-        && item.metadata.annotations.hasOwnProperty(['cni.projectcalico.org/ipAddrs'])
-        && JSON.parse(item.metadata.annotations['cni.projectcalico.org/ipAddrs'])
+      const ipv4Str = getDeepValue(item, [ 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ] )
+      const ipv4Arr = ipv4Str && JSON.parse(ipv4Str)
       let lockItem = null
       ipv4Arr && ipv4Arr.length && ipv4Arr.forEach(item => {
         if (item === status.podIP) lockItem = true
