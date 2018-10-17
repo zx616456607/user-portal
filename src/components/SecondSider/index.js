@@ -88,6 +88,10 @@ class SecondSider extends Component {
     // if (filter(menuList, { url : '/tenant_manage' })[0]) {
     //   this.
     // }
+    window.addEventListener('onbeforeunload', (event) => {
+      console.log('event',event)
+      currentPathNameCheck(this, menuList)
+    });
   }
   componentWillReceiveProps(nextProps) {
     const { menuList } = nextProps
@@ -164,13 +168,15 @@ class SecondSider extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, nextProps) {
   const { projectAuthority } = state
   const { projectsApprovalClustersList } = projectAuthority
   const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
   const isShow = filter(projects, { status: 1 }).length > 0
   return {
     isShow,
+    // 解决ai,cicd,等通过iframe嵌入方式当路由切换时组件不刷新的问题
+    pathname: nextProps.scope.props.location.pathname
   }
 }
 
