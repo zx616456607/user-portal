@@ -15,11 +15,12 @@ import _ from 'lodash'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../../src/components/Notification'
+import TenxIcon from '@tenx-ui/icon'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
 let isGetParams = true // 是否获取接口数据
-let disabledIconCon = [ 'aws', 'azure', 'ali' ] // 禁用的图标按钮集合
+const disabledIconCon = [ 'aws', 'azure', 'ali', 'openstack' ] // 禁用的图标按钮集合
 let isEdit = false
 let datacenterList = [],
   templatePathList = {},
@@ -329,7 +330,6 @@ export default connect(mapStateToProps, {
     }
     resetState = _cb => {
       isGetParams = true // 是否获取接口数据
-      disabledIconCon = [ 'aws', 'azure', 'ali' ] // 禁用的图标按钮集合
       isEdit = false
       datacenterList = []
       templatePathList = {}
@@ -436,6 +436,15 @@ export default connect(mapStateToProps, {
         selectedBox: iaas ? iaas === 'vmware' : this.state.currentIcon === 'vmware',
         iconConDis: iaas ? true : disabledIconCon.indexOf('vmware') > -1, // !!isCreated[this.state.selectValue] && isCreated[this.state.selectValue].vmware ? true :
       })
+
+      const iconClassOS = classNames({
+        iconCon: true,
+        // iconaws: true,
+        iconopenstack: true,
+        selectedBox: iaas ? iaas === 'openstack' : this.state.currentIcon === 'openstack',
+        iconConDis: iaas ? true : disabledIconCon.indexOf('openstack') > -1,
+      })
+
       const iconClass2 = classNames({
         iconCon: true,
         iconaws: true,
@@ -513,7 +522,7 @@ export default connect(mapStateToProps, {
             className="aotuScalerModal"
             visible={this.props.visible}
             title="弹性伸缩策略"
-            width="550"
+            width="650"
             footer={footer}
             maskClosable={false}
             confirmLoadin={this.props.confirmLoading}
@@ -551,6 +560,13 @@ export default connect(mapStateToProps, {
                         {/* @#selected*/}
                         <use xlinkHref="#appcreatemodelselect" />
                       </svg>
+                      <i className="fa fa-check"></i>
+                    </div>
+                    <div className={iconClassOS} data-name="openstack" onClick={this.clickIcon}>
+                      <div className="icon">
+                        <TenxIcon type="openstack" />
+                      </div>
+                      <div className="name">OpenStack</div>
                       <i className="fa fa-check"></i>
                     </div>
                     <div className={iconClass2} data-name="aws" onClick={this.clickIcon}>
