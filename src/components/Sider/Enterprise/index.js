@@ -79,7 +79,7 @@ class Sider extends Component {
   }
 
   componentWillMount() {
-    const { pathname } = this.props
+    const { pathname, role } = this.props
     let currentKey = pathname.split('/')[1]
     if (!Boolean(currentKey)) {
       currentKey = 'home'
@@ -107,7 +107,7 @@ class Sider extends Component {
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
     })
-    this.props.GetProjectsApprovalClusters({
+    role !== ROLE_USER && role !== ROLE_BASE_ADMIN && this.props.GetProjectsApprovalClusters({
       filter: `status__neq,2,status__neq,3`,
       size: 10,
       from: 0,
