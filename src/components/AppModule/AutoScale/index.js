@@ -22,6 +22,7 @@ import AutoScaleModal from './AutoScaleModal'
 import classNames from 'classnames'
 import Notification from '../../Notification'
 import Title from '../../Title'
+import { getDeepValue } from '../../../../client/util/util';
 
 class AutoScale extends React.Component {
   constructor() {
@@ -76,11 +77,8 @@ class AutoScale extends React.Component {
               success: {
                 func: res => {
                   const isFexed = res.data
-                    && res.data.spec
-                    && res.data.spec.template
-                    && res.data.spec.template.metadata
-                    && res.data.spec.template.metadata.annotations
-                    && res.data.spec.template.metadata.annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+                    && getDeepValue(res.data, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+                    && true
                     || false
                   item.isFexed = isFexed
                   this.setState({

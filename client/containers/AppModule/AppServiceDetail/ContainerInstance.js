@@ -17,6 +17,7 @@ import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import { getServiceStatus } from '../../../../src/common/status_identify'
+import { getDeepValue } from '../../../util/util'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -87,10 +88,7 @@ class ContainerInstance extends React.Component {
   setInitaialStatus = () => {
     const { serviceDetail, cluster } = this.props
     const service = Object.keys(serviceDetail[cluster])[0]
-    const annotations = serviceDetail[cluster][service].service.spec.template
-      && serviceDetail[cluster][service].service.spec.template.metadata.annotations
-    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
-      && annotations['cni.projectcalico.org/ipAddrs']
+    const ipv4 = getDeepValue(serviceDetail, [ cluster, service, 'service', 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
     const { setFieldsValue } = this.props.form
     if (ipv4) {
       const ipv4Arr = JSON.parse(ipv4)
@@ -108,9 +106,7 @@ class ContainerInstance extends React.Component {
       const server = Object.keys(serviceDetail[cluster])[0]
       const { replicasIP } = values
       const ipStr = `[\"${replicasIP}\"]`
-      const annotations = serviceDetail[cluster][server].service.spec.template
-        && serviceDetail[cluster][server].service.spec.template.metadata.annotations
-        || {}
+      const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
       Object.assign(annotations, {
         'cni.projectcalico.org/ipAddrs': ipStr,
       })
@@ -171,8 +167,7 @@ class ContainerInstance extends React.Component {
     const { UpdateServiceAnnotation, onChangeVisible,
       cluster, serviceDetail, loadServiceDetail } = this.props
     const server = Object.keys(serviceDetail[cluster])[0]
-    const annotations = serviceDetail[cluster][server].service.spec.template
-      && serviceDetail[cluster][server].service.spec.template.metadata.annotations
+    const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
     Object.assign(annotations, {
       'cni.projectcalico.org/ipAddrs': '',
     })

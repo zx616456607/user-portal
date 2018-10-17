@@ -16,6 +16,7 @@ import ManualScaleModal from '../../../../src/components/AppModule/AppServiceDet
 import * as serviceAction from '../../../../src/actions/services'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
+import { getDeepValue } from '../../../util/util'
 
 class ContainerInstanceHeader extends React.Component {
   state = {
@@ -27,10 +28,8 @@ class ContainerInstanceHeader extends React.Component {
   }
 
   componentDidMount() {
-    const annotations = this.props.serviceDetail.spec.template
-      && this.props.serviceDetail.spec.template.metadata.annotations || {}
-    annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
-    && this.setState({ isCheckIP: true })
+    const ipv4 = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    ipv4 && this.setState({ isCheckIP: true })
   }
 
   onChangeInstanceIP = e => {
@@ -108,7 +107,7 @@ class ContainerInstanceHeader extends React.Component {
           !this.props.appCenterChoiceHidden &&
          <Checkbox
            onChange={this.onChangeInstanceIP}
-           checked={this.state.isCheckIP}
+           checked={isCheckIP}
          >
            <FormattedMessage {...IntlMessages.fixedInstanceIP} />
          </Checkbox>
