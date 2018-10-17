@@ -177,6 +177,7 @@ class AlarmRecord extends Component {
           ruleNum: r.ruleNum,
           serviceName: r.serviceName,
           numHits: r.numHits,
+          numMatches: r.numMatches,
           log: r.log,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
@@ -189,6 +190,7 @@ class AlarmRecord extends Component {
           alertSent: r.alertSent
         })
       })
+      records.sort((a, b) => b.alertTime - a.alertTime)
     }
     return records
   }
@@ -316,10 +318,7 @@ class AlarmRecord extends Component {
       },
       {
         title: '告警规则',
-        dataIndex: 'regx',
-        render: (val, record) => {
-          return <div>{record.regex ? `${record.regex} 出现 ${record.ruleNum} 次` : '已删除'}</div>
-        }
+        dataIndex: 'regex',
       },
       {
         title: '告警字符串',
@@ -328,6 +327,7 @@ class AlarmRecord extends Component {
       {
         title: '当前次数',
         dataIndex: 'numMatches',
+        render: text => <span>{text || '-'}</span>
       },
       {
         title: '是否发送邮件/短信',
@@ -429,6 +429,7 @@ function mapStateToProps(state, props) {
   }
   if (records && records.result) {
     recordsData = records.result.data
+
   }
 
   return {

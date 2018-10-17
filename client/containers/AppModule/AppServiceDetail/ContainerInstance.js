@@ -104,7 +104,7 @@ class ContainerInstance extends React.Component {
     this.props.form.validateFields(async (err, values) => {
       if (err) return
       const { UpdateServiceAnnotation, cluster, serviceDetail,
-        containerNum, manualScaleService, getISIpPodExisted } = this.props
+        containerNum, manualScaleService } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
       const { replicasIP } = values
       const ipStr = `[\"${replicasIP}\"]`
@@ -115,15 +115,6 @@ class ContainerInstance extends React.Component {
         'cni.projectcalico.org/ipAddrs': ipStr,
       })
       notification.spin('更改中...')
-      const isExist = await getISIpPodExisted(cluster, replicasIP)
-      const { code, data: { isPodIpExisted } } = isExist.response.result
-      if (code !== 200) {
-        notification.close()
-        return notification.warn('校验 IP 是否被占用失败')
-      } else if (code === 200 && isPodIpExisted) {
-        notification.close()
-        return notification.warn('当前 IP 已经被占用', '请重新填写')
-      }
       if (containerNum > 1) {
         await manualScaleService(cluster, server, { num: 1 }, {
           failed: {
@@ -219,7 +210,7 @@ class ContainerInstance extends React.Component {
     onHandleCanleIp(v)
   }
 
-  checkPodCidr = (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
     const { NetSegment } = this.state
     if (!NetSegment) {
@@ -228,6 +219,14 @@ class ContainerInstance extends React.Component {
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
+    }
+    const { getISIpPodExisted, cluster } = this.props
+    const isExist = await getISIpPodExisted(cluster, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback('校验 IP 是否被占用失败')
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback('当前 IP 已经被占用, 请重新填写')
     }
     callback()
   }

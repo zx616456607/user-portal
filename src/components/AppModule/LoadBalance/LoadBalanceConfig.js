@@ -42,7 +42,7 @@ class LoadBalanceConfig extends React.Component {
 
   renderDetail = () => {
     const { activeKey, currentIngress } = this.state
-    const { clusterID, location } = this.props
+    const { clusterID, location, lbDetail } = this.props
     switch (activeKey) {
       case 'HTTP':
         return <MonitorDetail
@@ -50,6 +50,7 @@ class LoadBalanceConfig extends React.Component {
           togglePart={this.togglePart}
           clusterID={clusterID}
           location={location}
+          lbDetail={lbDetail}
         />
       case 'TCP':
       case 'UDP':
@@ -59,6 +60,7 @@ class LoadBalanceConfig extends React.Component {
           clusterID={clusterID}
           location={location}
           togglePart={this.togglePart}
+          lbDetail={lbDetail}
         />
       default:
         return

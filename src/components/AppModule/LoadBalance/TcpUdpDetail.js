@@ -64,9 +64,10 @@ class TcpUdpDetail extends React.PureComponent{
   handelConfirm = async () => {
     const {
       currentIngress, updateTcpUdpIngress, clusterID,
-      createTcpUdpIngress, location, form, type
+      createTcpUdpIngress, location, form, type, lbDetail,
     } = this.props
     const { name, displayName } = location.query
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         return
@@ -85,7 +86,7 @@ class TcpUdpDetail extends React.PureComponent{
 
       if (!currentIngress) {
         notify.spin('创建中...')
-        const result = await createTcpUdpIngress(clusterID, name, lowerType, displayName, body)
+        const result = await createTcpUdpIngress(clusterID, name, lowerType, displayName, agentType, body)
         if (result.error) {
           notify.close()
           notify.warn('创建失败')
@@ -103,7 +104,7 @@ class TcpUdpDetail extends React.PureComponent{
         return
       }
       notify.spin('修改中...')
-      const res = await updateTcpUdpIngress(clusterID, name, lowerType, displayName, body)
+      const res = await updateTcpUdpIngress(clusterID, name, lowerType, displayName, agentType, body)
       if (res.error) {
         notify.close()
         notify.warn('修改失败')
@@ -157,6 +158,7 @@ class TcpUdpDetail extends React.PureComponent{
     const serviceName = getFieldValue('serviceName')
     if (!serviceName) return
     const currentService = allServices.filter(item => item.metadata.name === serviceName)[0]
+    if (!currentService) return
     return currentService.spec.ports
       .filter(_item => _item.protocol === type)
       .map(_item => {

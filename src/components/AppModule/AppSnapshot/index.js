@@ -25,6 +25,8 @@ import { browserHistory } from 'react-router'
 import { UPDATE_INTERVAL } from '../../../constants'
 import QueueAnim from 'rc-queue-anim'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import SnapshotIntl from './SnapshotIntl'
 
 const notificationHandler = new NotificationHandler()
 
@@ -100,6 +102,7 @@ class Snapshot extends Component {
 
   getStorageList(type, operate){
     const { loadStorageList, cluster, currentImagePool } = this.props
+    const { formatMessage } = this.props.intl
     const query = {
       storagetype: 'ceph',
       srtype: 'private'
@@ -116,11 +119,11 @@ class Snapshot extends Component {
       },
       failed: {
         func: () => {
-          let message = '回滚'
+          let message = formatMessage(SnapshotIntl.rollBack)
           if(type == 'clone'){
-            message = '创建'
+            message = formatMessage(SnapshotIntl.create)
           }
-          notificationHandler.info(`获取独享型存储列表失败，不能进行${message}操作，请重试。`)
+          notificationHandler.info(formatMessage(SnapshotIntl.storageListFail, {message}))
         }
       }
     })
@@ -177,6 +180,7 @@ class Snapshot extends Component {
 
   handleConfirmDeletaSnapshot(){
     const { snapshotDataList, SnapshotDelete, cluster } = this.props
+    const { formatMessage } = this.props.intl
     const { currentKey, currentDeletedSnapshotArrary, selectedRowKeys, RowDelete, TopDelete } = this.state
     const info = new NotificationHandler()
     this.setState({
@@ -205,7 +209,7 @@ class Snapshot extends Component {
     SnapshotDelete(body,{
       success: {
         func: () => {
-          info.success('快照删除成功！')
+          info.success(formatMessage(SnapshotIntl.delSnapShotSuccess))
           this.setState({
             DeletaSnapshotModal: false,
             DeleteSnapshotConfirmLoading: false,
@@ -222,10 +226,10 @@ class Snapshot extends Component {
         func: err => {
           const { statusCode, message } = err
           if (statusCode === 409 && message.data && message.data.length > 0) {
-            info.error(`${message.data} 存储删除失败，请稍后重试`)
+            info.error(`${message.data} ${formatMessage(SnapshotIntl.delStorageFail)}`)
             this.updateSnapshotList()
           } else {
-            info.error('快照删除失败！')
+            info.error(formatMessage(SnapshotIntl.delSnapShotFail))
           }
           this.setState({
             DeletaSnapshotModal: false,
@@ -298,11 +302,14 @@ class Snapshot extends Component {
   }
 
   statusModalInfo(status){
+    const { formatMessage } = this.props.intl
     return Modal.info({
-      title: '提示',
+      title: formatMessage(SnapshotIntl.prompt),
       content: (
         <div>
-          <p>当前快照正在{status == 1 ? '回滚' : '克隆'}中，请稍后再试。</p>
+          <p>{status == 1 ?
+            formatMessage(SnapshotIntl.currentIsRollBacking) :
+            formatMessage(SnapshotIntl.currentIsCloneing)}</p>
         </div>
       ),
       onOk() {},
@@ -339,9 +346,10 @@ class Snapshot extends Component {
     })
   }
 
-  handleRollbackSnapback(isUsed, key, e){
+  handleRollbackSnapback(isUsed, key, e) {
+    const { formatMessage } = this.props.intl
     if(isUsed){
-      notificationHandler.warn("存储卷使用中, 快照不能回滚");
+      notificationHandler.warn(formatMessage(SnapshotIntl.isUsingForbidRollBack));
       return;
     }
     e.stopPropagation()
@@ -382,6 +390,7 @@ class Snapshot extends Component {
 
   handleConfirmRollback(){
     const { snapshotDataList, SnapshotRollback, cluster } = this.props
+    const { formatMessage } = this.props.intl
     const { currentKey } = this.state
     const info = new NotificationHandler()
     this.setState({
@@ -408,7 +417,7 @@ class Snapshot extends Component {
       },
       falied: {
         func: () => {
-          info.error('快照回滚失败！')
+          info.error(formatMessage(SnapshotIntl.rollBackFail))
           this.setState({
             rollbackModal: false,
             rollbackLoading: false,
@@ -499,28 +508,30 @@ class Snapshot extends Component {
   }
 
   formatStatus(status){
+    const { formatMessage } = this.props.intl
     switch(status){
       case 1:
         return <span style={{color: 'red'}}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>回滚中</span>
+          <span>{formatMessage(SnapshotIntl.rollBacking)}</span>
         </span>
       case 2:
         return <span style={{color: 'red'}}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>创建中</span>
+          <span>{formatMessage(SnapshotIntl.creating)}</span>
         </span>
       case 0:
       default:
         return <span style={{color: '#5cb85c'}}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>正常</span>
+          <span>{formatMessage(SnapshotIntl.normal)}</span>
         </span>
     }
   }
 
   render() {
-    const { snapshotDataList, currentCluster, storageList, currentImagePool, isFetching } = this.props
+    const { snapshotDataList, currentCluster, storageList, currentImagePool, isFetching, intl } = this.props
+    const { formatMessage } = intl
     const {
       selectedRowKeys, DeleteSnapshotButton, currentSnapshot,
       delelteSnapshotNum, currentVolume, SnapshotList,
@@ -545,44 +556,72 @@ class Snapshot extends Component {
         return -1
       }
     }
-
-    const snapshotcolumns = [
-      { title: '快照名称', key: 'name', dataIndex: 'name', width: '16%' },
-      {
-        title: '状态', key: 'status', dataIndex: 'status', width: '10%',
+    const snapshotcolumns = [{
+        title: formatMessage(SnapshotIntl.snapshotName),
+        key: 'name',
+        dataIndex: 'name',
+        width: '16%'
+      }, {
+        title: formatMessage(SnapshotIntl.status),
+        key: 'status',
+        dataIndex: 'status',
+        width: '10%',
         render: (text) => <div className={iconclassName('正常')}>
           {this.formatStatus(text)}
         </div>
       }, {
-        title: '格式', key: 'type', dataIndex: 'fstype', width: '8%',
+        title: formatMessage(SnapshotIntl.type),
+        key: 'type',
+        dataIndex: 'fstype',
+        width: '8%',
         render: (fstype) => <div>{fstype}</div>
       }, {
-        title: '大小', key: 'size', dataIndex: 'size', width: '8%',
+        title: formatMessage(SnapshotIntl.size),
+        key: 'size',
+        dataIndex: 'size',
+        width: '8%',
         render: (size) => <div>{size} M</div>
       }, {
-        title: '关联卷', key: 'volume', dataIndex: 'volume', width: '10%',
+        title: formatMessage(SnapshotIntl.relatedVolume),
+        key: 'volume',
+        dataIndex: 'volume',
+        width: '10%',
         render: (volume) => <div>
           <Link to={`/app_manage/storage/exclusiveMemory/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`}>
             {volume}
           </Link>
         </div>
       }, {
-        title: '卷类型', key: 'storageServer', dataIndex: 'storageServer', width: '15%',
-        render: (text, record, index) => <div style={{ wordBreak: 'break-all' }}>块存储 ({text})</div>
+        title: formatMessage(SnapshotIntl.volumeType),
+        key: 'storageServer',
+        dataIndex: 'storageServer',
+        width: '15%',
+        render: (text, record, index) => <div style={{ wordBreak: 'break-all' }}>
+          {formatMessage(SnapshotIntl.storageServer)} ({text})</div>
       }, {
-        title: '创建时间', key: 'CreateTime', width: '18%', dataIndex: 'createTime',
+        title: formatMessage(SnapshotIntl.createTime),
+        key: 'CreateTime',
+        width: '18%',
+        dataIndex: 'createTime',
         render: (createTime) => <div>{formatDate(createTime)}</div>,
         sorter: (a, b) => soterCreateTime(a.createTime, b.createTime)
       }, {
-        title: '操作', key: 'Handle', dataIndex: 'key', width: '15%',
+        title: formatMessage(SnapshotIntl.operate),
+        key: 'Handle',
+        dataIndex: 'key',
+        width: '15%',
         render: (key, record, index) => {
           const menu = <Menu onClick={this.handleDropdown.bind(this, index)} style={{ width: '80px' }}>
-            <Menu.Item key="deleteSnapshot">删除</Menu.Item>
-            <Menu.Item key="cloneSnapshot">创建</Menu.Item>
+            <Menu.Item key="deleteSnapshot">
+              {formatMessage(SnapshotIntl.delete)}
+            </Menu.Item>
+            <Menu.Item key="cloneSnapshot">
+              {formatMessage(SnapshotIntl.create)}
+            </Menu.Item>
           </Menu>
           return <div>
             <Dropdown.Button onClick={this.handleRollbackSnapback.bind(this, record.volumeStatus === "used", key)} overlay={menu} type="ghost">
-              回滚
+              {formatMessage(SnapshotIntl.rollBack)}
             </Dropdown.Button>
           </div>
         }
@@ -594,21 +633,34 @@ class Snapshot extends Component {
     return (
       <QueueAnim className='appmanage_snapshot' type='right'>
       <div id="appmanage_snapshot" key='appmanage_snapshot'>
-        <Title title="独享存储快照" />
+        <Title title={formatMessage(SnapshotIntl.exclusiveStorage)} />
         <ResourceBanner resourceType='snapshot'/>
         <div className='appmanage_snapshot_header'>
           <Button size="large" onClick={() => this.loadSnapshotList()} style={{ marginRight: 8 }}>
             <i className="fa fa-refresh" aria-hidden="true" style={{ marginRight: 8 }}/>
-            刷新
+            {formatMessage(SnapshotIntl.refresh)}
           </Button>
-          <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
+          <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>
+            {formatMessage(SnapshotIntl.delete)}
+          </Button>
           <span className='searchBox'>
-            <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch} id="searchSnapshot"/>
+            <Input
+              className='searchInput'
+              placeholder={formatMessage(SnapshotIntl.placeholder)}
+              size="large"
+              onPressEnter={this.handelEnterSearch}
+              id="searchSnapshot"
+              style={{ width: 180 }}
+            />
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
           {
             SnapshotList && SnapshotList.length !== 0
-              ? <span className='totalNum'>共计 <span className='item'>{SnapshotList.length}</span> 条</span>
+              ? <span className='totalNum'>
+                {formatMessage(SnapshotIntl.listTotal)}
+                <span className='item'> {SnapshotList.length} </span>
+                {formatMessage(SnapshotIntl.slip)}
+                </span>
               : <span></span>
           }
         </div>
@@ -625,7 +677,7 @@ class Snapshot extends Component {
         </div>
 
         <Modal
-          title="回滚快照"
+          title={formatMessage(SnapshotIntl.rollBackSnapshot)}
           visible={this.state.rollbackModal}
           closable={true}
           onOk={this.handleConfirmRollback}
@@ -634,7 +686,7 @@ class Snapshot extends Component {
           maskClosable={false}
           confirmLoading={this.state.rollbackLoading}
           wrapClassName="RollbackModal"
-          okText="确定风险，并立即回滚"
+          okText={formatMessage(SnapshotIntl.EnterRollBack)}
         >
           <div>
             <div className='img'>
@@ -642,37 +694,37 @@ class Snapshot extends Component {
                 <div className='rollback float'><img src={ForwardImg}/></div>
                 <div className='arrow float'>
                   <img src={ArrowImg}/>
-                  <div>回滚</div>
+                  <div>{formatMessage(SnapshotIntl.rollBack)}</div>
                 </div>
                 <div className='rollback float'><img src={CurrentImg}/>  </div>
               </div>
               <div className='imgtips'>
                 <span className='imgtipsBox'>
-                  <div className='left'>快照状态</div>
-                  <div className='left'>格式<span className='item'>{currentSnapshot.fstype}</span></div>
+                  <div className='left'>{formatMessage(SnapshotIntl.snapshotStatus)}</div>
+                  <div className='left'>{formatMessage(SnapshotIntl.type)}<span className='item'>{currentSnapshot.fstype}</span></div>
                 </span>
                 <span className='imgtipsBox'>
-                  <div className='right'>当前状态</div>
-                  <div className='right'>格式<span className='item'>{currentVolume.format}</span></div>
+                  <div className='right'>{formatMessage(SnapshotIntl.currentStatus)}</div>
+                  <div className='right'>{formatMessage(SnapshotIntl.type)}<span className='item'>{currentVolume.format}</span></div>
                 </span>
               </div>
             </div>
             <div className='tips'>
-              存储卷
+              {formatMessage(SnapshotIntl.storage)}
               <span className='name'>{currentSnapshot.volume}</span>
-              即将回滚至
+              {formatMessage(SnapshotIntl.willRollbackTo)}
               <span className='time'>{formatDate(currentSnapshot.createTime)}</span>
-              ，此刻之后的数据将被清除，请谨慎操作！
+              ， {formatMessage(SnapshotIntl.willClearPrompt)}！
             </div>
             <div className='warning'>
               <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-              数据回滚有一定风险，建议将当前存储卷内容提前做好备份
+              {formatMessage(SnapshotIntl.promptBackup)}
             </div>
           </div>
         </Modal>
 
          <Modal
-           title="删除快照"
+           title={formatMessage(SnapshotIntl.delSnapshot)}
            visible={this.state.DeletaSnapshotModal}
            closable={true}
            onOk={this.handleConfirmDeletaSnapshot}
@@ -681,15 +733,15 @@ class Snapshot extends Component {
            maskClosable={false}
            confirmLoading={this.state.DeleteSnapshotConfirmLoading}
            wrapClassName="DeleteSnapshotModal"
-           okText="确定风险，并立即删除"
+           okText={formatMessage(SnapshotIntl.enterDelete)}
          >
            <div>
              { delelteSnapshotNum
                ? <div className='infobox'>
                    <div className='leftbox'>
-                     <div className='item'>快照名称</div>
-                     <div className='item'>快照格式</div>
-                     <div className='item'>创建时间</div>
+                     <div className='item'>{formatMessage(SnapshotIntl.snapshotName)}</div>
+                     <div className='item'>{formatMessage(SnapshotIntl.snapshotType)}</div>
+                     <div className='item'>{formatMessage(SnapshotIntl.createTime)}</div>
                    </div>
                    <dvi className='rightbox'>
                      <div className='item'>{currentSnapshot.name}</div>
@@ -702,13 +754,13 @@ class Snapshot extends Component {
 
              <div className='mainbox'>
                <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-               删除该快照后，数据将立即被清除，请谨慎操作！
+               {formatMessage(SnapshotIntl.willDeletePrompt)}
              </div>
            </div>
          </Modal>
 
          <Modal
-           title="提示"
+           title={formatMessage(SnapshotIntl.prompt)}
            visible={this.state.tipsModal}
            closable={true}
            onOk={this.handlecolsetips}
@@ -716,20 +768,20 @@ class Snapshot extends Component {
            width='570px'
            maskClosable={false}
            wrapClassName="RollbackSnapshotTipsModal"
-           okText="知道了"
+           okText={formatMessage(SnapshotIntl.knowed)}
          >
            <div className='container'>
              <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
              {
                this.state.tipsSwitch
-               ? <span>快照状态非正常，不可回滚快照</span>
-               : <span>存储卷正在使用中，不可回滚快照！</span>
+               ? <span>{formatMessage(SnapshotIntl.forbidRollBack)}</span>
+               : <span>{formatMessage(SnapshotIntl.isUsingForbidRollBack)}</span>
              }
            </div>
          </Modal>
 
          <Modal
-           title="创建存储卷"
+           title={formatMessage(SnapshotIntl.createStorage)}
            visible={this.state.visible}
            closable={true}
            onCancel={() => this.setState({visible: false})}
@@ -739,21 +791,28 @@ class Snapshot extends Component {
            wrapClassName="createVloumeModal"
          >
            <div>
-             <CreateVolume createModal={this.state.visible} scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
+             <CreateVolume
+              createModal={this.state.visible}
+              scope={this}
+              snapshotRequired={true}
+              snapshotDataList={snapshotDataList}
+              currentVolume={currentVolume}
+              currentSnapshot={currentSnapshot}
+              storageList={currentStorageList}/>
            </div>
          </Modal>
 
           <Modal
-            title="提示"
+            title={formatMessage(SnapshotIntl.prompt)}
             visible={this.state.createFalse}
             onOk={() => this.setState({createFalse: false})}
             onCancel={() => this.setState({createFalse: false})}
           >
-            尚未配置块存储集群，暂不能创建
+            {formatMessage(SnapshotIntl.needConfigCluster)}
           </Modal>
 
           <Modal
-            title="回滚成功"
+            title={formatMessage(SnapshotIntl.rollBackSucccess)}
             visible={this.state.rollbackSuccess}
             closable={true}
             onOk={this.rollbackSuccessConfirm}
@@ -762,8 +821,12 @@ class Snapshot extends Component {
             maskClosable={false}
             wrapClassName="rollbackSuccess"
             footer={[
-              <Button key='close' onClick={() => this.setState({rollbackSuccess: false})} size="large">关闭</Button>,
-              <Button key='check' onClick={this.rollbackSuccessConfirm} size='large' type="primary">查看审计日志</Button>]}
+              <Button key='close' onClick={() => this.setState({rollbackSuccess: false})} size="large">
+                {formatMessage(SnapshotIntl.close)}
+              </Button>,
+              <Button key='check' onClick={this.rollbackSuccessConfirm} size='large' type="primary">
+                {formatMessage(SnapshotIntl.watchComputeLog)}
+              </Button>]}
           >
             <div className='container'>
               <div className='header'>
@@ -771,12 +834,12 @@ class Snapshot extends Component {
                   <Icon type="check-circle-o" className='icon'/>
                 </div>
                 <div className='tips'>
-                  操作成功
+                  {formatMessage(SnapshotIntl.operateSuccess)}
                 </div>
               </div>
               <div className='footer'>
                 <div className='lineone'>
-                  正在回滚，请在审计日志查看回滚进度
+                  {formatMessage(SnapshotIntl.isRollBacking)}
                 </div>
               </div>
             </div>
@@ -818,4 +881,4 @@ export default connect(mapStateToProps,{
   SnapshotList,
   SnapshotDelete,
   SnapshotRollback,
-})(Snapshot)
+})(injectIntl(Snapshot), {withRef: true})

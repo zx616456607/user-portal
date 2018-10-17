@@ -313,6 +313,9 @@ class AppTemplate extends React.Component<IProps, IState> {
     if (currentStep === 0) {
       this.configureServiceKey = this.genConfigureServiceKey();
     }
+    const allKeys = Object.keys(fields)
+    const filterKeys = allKeys.filter(_key => _key !== deleteKey)[0]
+    this.saveService(filterKeys)
     setTimeout(() => {
       removeFormFields(deleteKey);
     });

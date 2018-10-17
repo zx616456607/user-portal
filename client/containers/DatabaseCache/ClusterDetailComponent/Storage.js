@@ -111,6 +111,7 @@ class Storage extends React.Component {
     const hourPrice = parseAmount(this.state.volumeSize / 1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(
       this.state.volumeSize / 1024 * resourcePrice.storage * 24 * 30, 4)
+    const replicasNum = databaseInfo.replicas ? databaseInfo.replicas : 0
     return <div className="dbClustetStorage">
       <div className="title">存储</div>
       <div className="extendBtn">
@@ -134,13 +135,13 @@ class Storage extends React.Component {
           </div>
           <div className="graphCluster">
             <img src={graphCluster} alt=""/>
-            <div className="name">{databaseInfo.replicas ? databaseInfo.replicas : 0}个容器实例</div>
+            <div className="name">{replicasNum}个容器实例</div>
           </div>
         </div>
         <div className="line"></div>
         <div className="graphStorage">
           <img src={graphStorage} alt=""/>
-          <div className="name">{databaseInfo.replicas ? databaseInfo.replicas : 0}个存储卷： { this.state.storage || 0 }M</div>
+          <div className="name">{replicasNum}个存储卷： {replicasNum} <Icon type="cross"/> { this.state.storage || 0 }M</div>
         </div>
       </div>
       <Modal

@@ -195,7 +195,7 @@ class ResourceBanner extends React.Component {
   }
   componentDidMount = () => {
     this.reload()
-    this.timer = setInterval(this.reload, 10000)
+    this.timer = setInterval(this.reload, 30000)
   }
   componentWillUnmount = () => {
     clearTimeout(this.timer)
@@ -203,7 +203,7 @@ class ResourceBanner extends React.Component {
   render () {
     const { formatMessage } = this.props.intl
     const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId,
-      projectType, showDisplayName, flagManager  } = this.props
+      projectType, showDisplayName, flagManager, type } = this.props
     const { setResource, usedResource, resourceName, resourceflay } = this.state
     let percent = 0
     if (setResource) {
@@ -233,21 +233,40 @@ class ResourceBanner extends React.Component {
         {
           <div className="ResourceBanner" key="ResourceBanner">
             <div>
+              {
+              type !== 'small' &&
               <span>{formatMessage(AppServiceDetailIntl.projectTextItem, { projectText })}</span>
+              }
+              { type !== 'small' &&
               <span style={{ display: resourceTypeText }}>{formatMessage(AppServiceDetailIntl.inCluserName, { clusterName })}</span>
+              }
+              { type !== 'small' ?
               <span>{formatMessage(AppServiceDetailIntl.inQuotauseCondition, { resourceName })}</span>
+              : <span>{`「 ${resourceName} 」  配置: `}</span>
+              }
             </div>
+            {
+              type !== 'small' &&
           <div className="progress">
             <Progress percent={percent} strokeWidth={5} status="active" showInfo={false}/>
           </div>
+            }
           <div>
             {`${usedResource}/${setResource === null ? formatMessage(AppServiceDetailIntl.noLimit) : setResource }`}
+            {
+              type !== 'small' &&
             <span onClick={ this.reload } className="reload">{formatMessage(ServiceCommonIntl.refresh)}</span>
+            }
           </div>
           {
+            type !== 'small' ?
+            <div>
+              {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
             <div><Link to={link}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.eidtQuota)}</Link></div> :
             <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.applyIncreaseQuota)}</Link></div>
+              }
+            </div> : <div></div>
           }
           </div>
         }

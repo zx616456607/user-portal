@@ -1052,6 +1052,7 @@ class QueryLog extends Component {
     }
     if (!arguments.length) {
       this.logPage = 0
+      bodyTimeNano = null
     }
     this.setState({
       goBackLogs: false,
