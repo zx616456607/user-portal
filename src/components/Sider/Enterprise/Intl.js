@@ -89,7 +89,7 @@ export const mapData = {
     monitorPanel: '监控面板',
     alarmSetting: '告警设置',
     alarmRecord: '告警记录',
-    alarmGroup: '告警通知组',
+    noticeGroup: '通知组',
     myAccount: '我的帐户',
     consumptions: '消费记录',
     payments: '充值记录',

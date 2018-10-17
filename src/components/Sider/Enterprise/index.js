@@ -1420,11 +1420,7 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='alarm_group'>
-                    <Link to='/manange_monitor/alarm_group'>
-                      <span><div className='sideCircle'></div> <FormattedMessage {...IntlMessages.alarmGroup} /></span>
-                    </Link>
-                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='account'
@@ -1474,6 +1470,11 @@ class Sider extends Component {
                     :
                     <Menu.Item key="none-cost" style={{ display: 'none' }}></Menu.Item>
                   }
+                  <Menu.Item key='noticeGroup'>
+                    <Link to='/account/noticeGroup'>
+                      <span><div className='sideCircle'></div> <FormattedMessage {...IntlMessages.noticeGroup} /></span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='tenant_manage'
