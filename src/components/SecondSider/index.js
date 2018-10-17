@@ -88,10 +88,6 @@ class SecondSider extends Component {
     // if (filter(menuList, { url : '/tenant_manage' })[0]) {
     //   this.
     // }
-    window.addEventListener('onbeforeunload', (event) => {
-      console.log('event',event)
-      currentPathNameCheck(this, menuList)
-    });
   }
   componentWillReceiveProps(nextProps) {
     const { menuList } = nextProps
