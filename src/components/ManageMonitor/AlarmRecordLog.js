@@ -177,6 +177,7 @@ class AlarmRecord extends Component {
           ruleNum: r.ruleNum,
           serviceName: r.serviceName,
           numHits: r.numHits,
+          numMatches: r.numMatches,
           log: r.log,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
@@ -326,6 +327,7 @@ class AlarmRecord extends Component {
       {
         title: '当前次数',
         dataIndex: 'numMatches',
+        render: text => <span>{text || '-'}</span>
       },
       {
         title: '是否发送邮件/短信',
