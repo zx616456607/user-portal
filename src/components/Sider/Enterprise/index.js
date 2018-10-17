@@ -107,7 +107,7 @@ class Sider extends Component {
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
     })
-    role !== ROLE_USER && this.props.GetProjectsApprovalClusters({
+    role !== ROLE_USER && role !== ROLE_BASE_ADMIN && this.props.GetProjectsApprovalClusters({
       filter: `status__neq,2,status__neq,3`,
       size: 10,
       from: 0,
