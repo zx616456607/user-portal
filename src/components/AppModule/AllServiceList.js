@@ -737,6 +737,7 @@ class ServiceList extends Component {
       name,
       label
     }
+    this.reloadServiceMesh()
     if(name) {
       this.setState({
         searchInputValue: name
@@ -794,7 +795,7 @@ class ServiceList extends Component {
     handleStateOfServiceList(this, serviceList)
   }
   async componentDidMount() {
-    const { serName, getServiceListServiceMeshStatus } = this.props
+    const { serName } = this.props
     await this.loadServices().then(() => {
       if (serName) {
         const { serviceList } = this.props
@@ -814,11 +815,14 @@ class ServiceList extends Component {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
     // getServiceListServiceMeshStatus (
+    await  this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
       ServiceListmeshResult =
-      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
+      await this.props.getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
     } catch(e) {
       const notification = new NotificationHandler()
       notification.error({message:'获取服务网格状态出错'})
