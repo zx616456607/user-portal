@@ -349,6 +349,7 @@ class TenantManage extends React.Component {
     let memberOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -426,6 +427,7 @@ class TenantManage extends React.Component {
     let teamOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -495,6 +497,7 @@ class TenantManage extends React.Component {
     let projectOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -563,6 +566,7 @@ class TenantManage extends React.Component {
     let roleOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
