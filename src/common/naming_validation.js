@@ -424,7 +424,7 @@ export function ingressRelayRuleCheck(value) {
   }
   const regx = /[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-/a-z0-9]*[a-z0-9])?)*$/
   if (!regx.test(value)) {
-    return '小写字母、数字、中划线-组成，以字母或者数组开头和结尾'
+    return '小写字母、数字、中划线-组成，以字母或者数字开头和结尾'
   }
   return 'success'
 }
