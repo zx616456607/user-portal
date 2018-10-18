@@ -913,3 +913,12 @@ export function stringToHex(str){
   }
   return val
 }
+
+/**
+ * 首字母大写
+ * @param str
+ * @returns {string}
+ */
+export function upperInitial(str) {
+  return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
+}

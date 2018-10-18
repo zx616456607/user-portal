@@ -1,0 +1,50 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * style of Routing rules
+ *
+ * @author zhangxuan
+ * @date 2018-10-17
+ */
+
+@import '~assets/style/site/core';
+.routingRulesItem {
+  .addRulesBtn {
+    border-color: @primary-color;
+    color: @primary-color;
+  }
+  .rulesHint {
+    margin-top: @padding-small;
+  }
+  .routingRuleHeader {
+    background-color: #f2f2f2;
+    margin-top: 15px;
+    & > div {
+      padding: 15px 25px;
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    border-bottom: none;
+  }
+  .noRules {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: @border-width-base @border-style-base @border-color-base;
+  }
+  .ruleList {
+    & > div {
+      padding: @padding-small 0 @padding-small @padding-medium;
+      .ant-form-item {
+        margin-bottom: 0;
+      }
+    }
+    border: @border-width-base @border-style-base @border-color-base;
+    &:not(:last-of-type) {
+      border-bottom: none;
+    }
+  }
+}

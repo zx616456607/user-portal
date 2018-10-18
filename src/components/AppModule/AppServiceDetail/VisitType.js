@@ -500,21 +500,13 @@ class VisitType extends Component{
     const { LBList } = this.props
     const { agentValue } = this.state
     const { formatMessage } = this.props.intl
-    if (!LBList || !LBList.length) {
-      return <div>
-        <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
-        <Button type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
-          {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
-          </Button>
-      </div>
-    }
     const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
     return copyList.filter(_item => _item.agentType === agentValue).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
           <Col span={5}>
-            <Button type="primary" onClick={() => this.openModal(item)}>
+            <Button type="ghost" className="unbundleBtn" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
             </Button>
           </Col>
@@ -693,6 +685,9 @@ class VisitType extends Component{
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
+              <Button style={{ marginBottom: 16 }} type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
+                {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
+              </Button>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
                 <Radio value="inside">{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
                 <Radio value="outside">{formatMessage(AppServiceDetailIntl.loadBalanceOutCluster)}</Radio>
