@@ -376,7 +376,7 @@ class AlarmRecord extends Component {
               {getTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
-              this.setState({ ruleName: value})}
+              this.setState({ serviceName: value})}
             }>
               {filters.targets}
             </Select>
