@@ -712,6 +712,7 @@ class AppServiceList extends Component {
         isAsync: true
       }
     })
+    this.reloadServiceMesh()
   }
 
   onAllChange(e) {
@@ -758,12 +759,15 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    const { getServiceListServiceMeshStatus } = this.props
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { getServiceListServiceMeshStatus } = this.props
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
@@ -780,7 +784,6 @@ class AppServiceList extends Component {
     })
     this.setState({ mesh: serviceListMesh })
   }
-
   componentWillUnmount() {
     const {
       cluster,

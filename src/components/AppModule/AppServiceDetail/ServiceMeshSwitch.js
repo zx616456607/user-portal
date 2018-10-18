@@ -109,12 +109,12 @@ class ServiceMeshSwitch extends React.Component {
     const { switchValue, userrole } = this.state;
     initialSwitchValue = false;
     const { formatMessage } = this.props.intl
-    //如果期望的istio状态与实际的istio状态不一致, 需要让重新部署按钮闪动, 这里发送了一个不同的aciton
-    if ((switchValue === 1 && userrole === 6) || (switchValue === 3 && userrole === 5)) {
-      rebootShining(true)
-    } else {
-      rebootShining(false)
-    }
+    // //如果期望的istio状态与实际的istio状态不一致, 需要让重新部署按钮闪动, 这里发送了一个不同的aciton
+    // if ((switchValue === 1 && userrole === 6) || (switchValue === 3 && userrole === 5)) {
+    //   rebootShining(true)
+    // } else {
+    //   rebootShining(false)
+    // }
     if (activeKey === "#serviceMeshSwitch" &&  !this.timer ) {
       this.timer = setInterval(this.reload, 15000)
     }
@@ -149,11 +149,11 @@ class ServiceMeshSwitch extends React.Component {
                 <span>
                   <IstioFlag status={switchValue} formatMessage={formatMessage} />
                   {
-                    switchValue === 3 &&
+                    switchValue === 2 &&
                     <span className="tipinfo">
                     <Icon type="info-circle-o" />
                     <span style={{ paddingLeft: 4 }}>
-                    {formatMessage(AppServiceDetailIntl.alreadyOpenServiceMesh)}
+                    正在重启服务进行滚动升级，重启后生效
                     </span>
                     </span>
                   }
@@ -164,11 +164,11 @@ class ServiceMeshSwitch extends React.Component {
                 <span>
                   <IstioFlag status={switchValue} formatMessage={formatMessage} />
                   {
-                    switchValue === 1 &&
+                    switchValue === 4 &&
                     <span className="tipinfo">
                     <Icon type="info-circle-o" />
                     <span style={{ paddingLeft: 4 }}>
-                    {formatMessage(AppServiceDetailIntl.alreadyCloseServiceMesh)}
+                    正在重启服务进行滚动升级，重启后生效
                     </span>
                     </span>
                   }
