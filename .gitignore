@@ -33,6 +33,8 @@ static/js/*.chunk.js.map
 static/locales/frontend/*.js.map
 static/style/main.css
 static/bundles/
+static/ai/
+static/devops/
 configs/index.js
 manifest.json
 static/webpack_dll/

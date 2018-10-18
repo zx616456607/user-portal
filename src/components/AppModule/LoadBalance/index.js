@@ -282,12 +282,7 @@ class LoadBalance extends React.Component {
             删除后将失去负载均衡器内的所有监听，并且基于该负载均衡创建的QPS弹性伸缩策略会失效，是否确定删除？
           </div>
         </Modal>
-        <div className="loadbalanceResourceBanner">
-        <ResourceBanner resourceType='insideloadbalance'/>
-        <div className="outsideloadbalance">
-        <ResourceBanner resourceType='outsideloadbalance' type="small"/>
-        </div>
-        </div>
+        <ResourceBanner resourceType={["insideloadbalance", "outsideloadbalance"]}/>
         <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
           <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>

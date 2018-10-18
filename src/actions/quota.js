@@ -57,6 +57,9 @@ function fetchGlobaleQuotaList(query, callback) {
   if (query.header !== undefined) {
     headers = Object.assign({}, headers, query.header)
   }
+  if (query.resources !== undefined) {
+    endpoint += `?resources=${query.resources}`
+  }
   return {
     [FETCH_API]: {
       types: [FETCH_GLOBALE_GET_QUOTA_REQUEST, FETCH_GLOBALE_GET_QUOTA_SUCCESS, FETCH_GLOBALE_GET_QUOTA_FAILURE],
@@ -275,6 +278,9 @@ function fetchClusterQuotaList(query, callback) {
   let headers = {}
   if (query.header !== undefined) {
     headers = Object.assign({}, headers, query.header)
+  }
+  if (query.resources !== undefined) {
+    endpoint += `?resource=${query.resources}`
   }
   return {
     [FETCH_API]: {

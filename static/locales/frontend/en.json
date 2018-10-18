@@ -2517,6 +2517,7 @@
   "AppModule.AppServiceDetailIntl.afterOpenServiceMeshInfo": "When enabled, this service will be served by the ServiceMesh and using the features provided by the microservices center. The AccessMode can be set in the routing rule.",
   "AppModule.AppServiceDetailIntl.rebootingServiceInfo": "The service is rolling update, service mesh status will take effect after roll update",
   "AppModule.AppServiceDetailIntl.closedOnlyVistorWithinCluster":"After shutting down, the service will not be able to use the serviceMesh function, and the access mode of the service is set to be accessed only within the cluster by default.",
+  "AppModule.AppServiceDetailIntl.quota": "quota",
   "AppModule.ServiceList.thisServiceOpenMesh": "The service has enabled the ServiceMesh.",
   "ServiceCommon.start": "start",
   "ServiceCommon.stop": "stop",
