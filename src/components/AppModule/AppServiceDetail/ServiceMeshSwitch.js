@@ -153,7 +153,7 @@ class ServiceMeshSwitch extends React.Component {
                     <span className="tipinfo">
                     <Icon type="info-circle-o" />
                     <span style={{ paddingLeft: 4 }}>
-                    正在重启服务进行滚动升级，重启后生效
+                    {formatMessage(AppServiceDetailIntl.rebootingServiceInfo)}
                     </span>
                     </span>
                   }
@@ -168,7 +168,7 @@ class ServiceMeshSwitch extends React.Component {
                     <span className="tipinfo">
                     <Icon type="info-circle-o" />
                     <span style={{ paddingLeft: 4 }}>
-                    正在重启服务进行滚动升级，重启后生效
+                    {formatMessage(AppServiceDetailIntl.rebootingServiceInfo)}
                     </span>
                     </span>
                   }
@@ -301,7 +301,7 @@ class ServiceMeshForm extends React.Component {
           { this.state.istioValue &&
           <span>{this.props.formatMessage(AppServiceDetailIntl.afterOpenServiceMeshInfo)}</span>}
           { !this.state.istioValue &&
-          <span>{'关闭后，服务将不能使用服务网格功能，服务的访问方式默认设为「仅在集群内访问」'}</span> }
+          <span>{this.props.formatMessage(AppServiceDetailIntl.closedOnlyVistorWithinCluster)}</span> }
           </div>
     </Modal>
     )
