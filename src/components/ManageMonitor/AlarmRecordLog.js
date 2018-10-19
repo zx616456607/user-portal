@@ -328,19 +328,14 @@ class AlarmRecord extends Component {
         </Tooltip>
       },
       {
-        title: '当前次数',
-        dataIndex: 'numMatches',
-        render: text => <span>{text || '-'}</span>
-      },
-      {
         title: '是否发送邮件/短信',
         dataIndex: 'alertInfo',
         render: (val, record) => {
           const condition = record.alertInfo.httpPostWebhookUrl[0]
           condition.charAt(condition.length - 1)
           return <div>{ condition.charAt(condition.length - 1) == 1?
-            <span style={{color: '#33b867'}}>'是'</span>:
-            <span style={{color: '#f23e3f'}}>'否'</span>}</div>
+            <span style={{color: '#33b867'}}>是</span>:
+            <span style={{color: '#f23e3f'}}>否</span>}</div>
         }
       }
     ];
