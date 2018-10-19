@@ -11,6 +11,7 @@
 import React from 'react'
 import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal } from 'antd'
 import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 import Notification from '../../Notification'
 import { connect } from 'react-redux'
 import { loadServiceDetail } from '../../../actions/services'
@@ -97,7 +98,7 @@ class MonitorTable extends React.Component {
   renderIngressRules = (item, row) => {
     const { serviceName, servicePort } = item
     const { shunts } = row
-    if (isEqual(shunts)) {
+    if (isEmpty(shunts)) {
       return '-'
     }
     const rulesObj = {}
