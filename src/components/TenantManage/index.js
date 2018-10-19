@@ -459,7 +459,7 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: t_createdByUser, name: '我创建' },
-          { value: 100 - Number(t_createdByUser), name: '其他' },
+          { value: this.state.team - Number(t_createdByUser), name: '其他' },
         ],
         label: {
           normal: {
