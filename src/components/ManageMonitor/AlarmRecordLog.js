@@ -328,11 +328,6 @@ class AlarmRecord extends Component {
         </Tooltip>
       },
       {
-        title: '当前次数',
-        dataIndex: 'numMatches',
-        render: text => <span>{text || '-'}</span>
-      },
-      {
         title: '是否发送邮件/短信',
         dataIndex: 'alertInfo',
         render: (val, record) => {
