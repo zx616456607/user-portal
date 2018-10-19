@@ -73,7 +73,7 @@ class Memory extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} M'}, 0, 100) : option.addYAxis('value', {formatter: '{value} M'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    option.setGirdForDataCommon(data&&data.length)
+
     return (
       <div className="chartBox">
         <span className="freshTime">
