@@ -334,8 +334,8 @@ class AlarmRecord extends Component {
           const condition = record.alertInfo.httpPostWebhookUrl[0]
           condition.charAt(condition.length - 1)
           return <div>{ condition.charAt(condition.length - 1) == 1?
-            <span style={{color: '#33b867'}}>'是'</span>:
-            <span style={{color: '#f23e3f'}}>'否'</span>}</div>
+            <span style={{color: '#33b867'}}>是</span>:
+            <span style={{color: '#f23e3f'}}>否</span>}</div>
         }
       }
     ];
