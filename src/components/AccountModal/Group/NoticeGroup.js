@@ -273,9 +273,11 @@ class AlarmGroup extends Component {
         </div>
       ),
     }, {
+      // [LOT-3172] 分辨率1280*800下操作列被换行
+      // 考虑邮箱与手机号展示相同的内容, 压缩邮箱宽度与手机号列同宽, 给操作列
       title: '邮箱',
       dataIndex: 'email',
-      width: '15%',
+      width: '12%',
       render: (email) => {
         email = email || []
         return email.length + ' 个'
@@ -306,7 +308,7 @@ class AlarmGroup extends Component {
     }, {
       title: '操作',
       dataIndex: 'handle',
-      width: '10%',
+      width: '13%',
       render: (text, group) => {
         if (group.strategies.length > 0) {
           return (
