@@ -97,6 +97,7 @@ module.exports = function (Router) {
   router.post('/projects/batch-delete', projectController.deleteProjects)
   router.get('/projects/:name/detail', projectController.getProjectDetail)
   router.get('/projects/list', projectController.listProjects)
+  router.get('/projects/list-statistics', projectController.listProjectsAndStatistics)
   router.get('/projects/list-visible', projectController.listVisibleProjects)
   router.put('/projects/:name', projectController.updateProject)
   router.get('/projects/:name/check-exists', projectController.checkProjectNameExists)

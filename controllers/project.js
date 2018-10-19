@@ -58,10 +58,20 @@ exports.listProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
   const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['listwithoutstatistic'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.listProjectsAndStatistics = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy(['list'], query)
   this.status = response.statusCode
   this.body = response
 }
+
 exports.listVisibleProjects = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
