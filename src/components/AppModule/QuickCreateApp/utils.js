@@ -204,9 +204,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     deployment.setApmServiceLabel('pinpoint')
   }
   // 设置服务网格
-  if (serviceMesh) {
-    deployment.setAnnotations({'sidecar.istio.io/inject': "true"});
-    deployment.setMetaAnnotations({'sidecar.istio.io/inject': 'true'});
+  if (!serviceMesh) {
+    deployment.setAnnotations({'sidecar.istio.io/inject': "false"});
+    deployment.setMetaAnnotations({'sidecar.istio.io/inject': "false"});
   }
   // 设置绑定节点
   if (bindNodeType == 'hostname') {

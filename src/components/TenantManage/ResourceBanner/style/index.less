@@ -11,13 +11,6 @@
 .ResourceBanner {
   display: flex;
   overflow: hidden;
-  border: 1px dashed @primary-color ;
-  height: 40px;
-  border-radius: 4px;
-  line-height: 40px;
-  background-color: #e5f2fa;
-  margin-bottom: @padding-medium;
-  padding: 0px @padding-small;
   > div {
     padding-right: @padding-base;
   }
@@ -43,5 +36,16 @@
     &:active {
       color:#76d4ff;
     }
+  }
+}
+.ResourceBannerWraper {
+  border: 1px dashed @primary-color ;
+  border-radius: 4px;
+  line-height: 28px;
+  background-color: #e5f2fa;
+  padding: 4px @padding-small;
+  margin-bottom: @padding-medium;
+  .moreInfo {
+
   }
 }

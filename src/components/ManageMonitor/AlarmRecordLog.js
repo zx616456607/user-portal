@@ -328,17 +328,14 @@ class AlarmRecord extends Component {
         </Tooltip>
       },
       {
-        title: '当前次数',
-        dataIndex: 'numMatches',
-        render: text => <span>{text || '-'}</span>
-      },
-      {
         title: '是否发送邮件/短信',
         dataIndex: 'alertInfo',
         render: (val, record) => {
           const condition = record.alertInfo.httpPostWebhookUrl[0]
           condition.charAt(condition.length - 1)
-          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
+          return <div>{ condition.charAt(condition.length - 1) == 1?
+            <span style={{color: '#33b867'}}>是</span>:
+            <span style={{color: '#f23e3f'}}>否</span>}</div>
         }
       }
     ];
@@ -374,7 +371,7 @@ class AlarmRecord extends Component {
               {getTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
-              this.setState({ ruleName: value})}
+              this.setState({ serviceName: value})}
             }>
               {filters.targets}
             </Select>

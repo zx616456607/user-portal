@@ -68,7 +68,7 @@ export const mapData = {
     validating: '验证中...',
     receiveInvite: '已接收邀请',
     plsInput321: '请输入3~21个字符',
-    atLeastOneEmail: '请至少添加一个邮箱或手机号',
+    atLeastOneEmail: '至少添加一个通知方式',
     createGroupFail: '创建通知组失败',
     nameExist: `通知组名字已存在，请修改后重试`,
     withoutConfig: '请先完成『邮箱/短信服务器』的配置',
@@ -79,10 +79,11 @@ export const mapData = {
     cancel: '取消',
     validatorPhone: '验证手机',
     description: '描述',
-    email: '邮箱',
+    email: '邮箱列表',
     addEmail: '添加邮箱',
     scanCodeWechat: '扫描二维码绑定微信',
     save: '保存',
+    delete: '删除'
   }
 }
 

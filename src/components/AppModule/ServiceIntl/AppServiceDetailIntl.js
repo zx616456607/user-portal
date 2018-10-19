@@ -554,7 +554,10 @@ export const mapData = {
     openCloseServiceMeshNeedReboot: '开启 / 关闭服务网格后, 需要重启服务才能生效。',
     openServiceMesh: '开启服务网格',
     closeServiceMesh: '关闭服务网格',
-    afterOpenServiceMeshInfo: '开启后，此服务将由服务网格代理，使用微服务中心提供的治理功能。服务的访问方式可在路由规则中设置'
+    afterOpenServiceMeshInfo: '开启后，此服务将由服务网格代理，使用微服务中心提供的治理功能。服务的访问方式可在路由规则中设置',
+    rebootingServiceInfo: '正在重启服务进行滚动升级，重启后生效',
+    closedOnlyVistorWithinCluster: '关闭后，服务将不能使用服务网格功能，服务的访问方式默认设为「仅在集群内访问」',
+    quota: '配额',
   }
 }
 

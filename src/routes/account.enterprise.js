@@ -15,6 +15,14 @@ const accountRoutes = [
     path: 'costCenter',
     component: require('../components/AccountModal/CostCenterEnterprise').default,
   },
+  {
+    path: 'noticeGroup',
+    component: require('../components/AccountModal/Group/NoticeGroup').default,
+  },
+  {
+    path: 'noticeGroup/:name',
+    component: require('../components/AccountModal/Group/Detail').default,
+  },
 ]
 
 export default accountRoutes
