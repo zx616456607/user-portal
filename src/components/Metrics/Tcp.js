@@ -115,7 +115,6 @@ class Tcp extends Component {
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
 
-    option.setGirdForDataNetWork(tcpListen.data && tcpListen.data.length + tcpEst.data.length, events)
     return (
       <div className="chartBox">
         <span className="freshTime">
