@@ -70,7 +70,7 @@ class MonitorTable extends React.Component {
       delConfirmLoading: true
     })
     notify.spin('删除中')
-    deleteIngress(clusterID, name, currentIngress.displayName, currentIngress.displayName, agentType, {
+    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, displayName, agentType, {
       success: {
         func: () => {
           notify.close()

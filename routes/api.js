@@ -890,7 +890,7 @@ module.exports = function (Router) {
   router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteLB)
   router.post('/clusters/:cluster/loadbalances/:name/ingress/:ingressname/displayname/:displayname/agentType/:agentType', loadBalanceController.createIngress)
   router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname/displayname/:lbdisplayname/agentType/:agentType', loadBalanceController.updateIngress)
-  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/:ingressdisplayname/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteIngress)
   router.post('/clusters/:cluster/loadbalances/:lbname/ingress/:ingressname/app/displayname/:displayname/agentType/:agentType', loadBalanceController.createAppIngress)
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename/agentType/:agentType', loadBalanceController.unbindService)

@@ -148,11 +148,12 @@ exports.deleteIngress = function* () {
   const cluster = this.params.cluster
   const lbname = this.params.lbname
   const name = this.params.name
+  const ingressDisplayname = this.params.ingressdisplayname
   const displayName = this.params.displayname
   const agentType = this.params.agentType
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'ingresses', name, 'displayname', displayName, 'agentType', agentType])
+  const result = yield api.deleteBy([cluster, 'loadbalances', lbname, 'ingresses', name, ingressDisplayname, 'displayname', displayName, 'agentType', agentType])
   this.body = result
 }
 
