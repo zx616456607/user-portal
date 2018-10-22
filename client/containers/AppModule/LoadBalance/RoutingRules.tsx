@@ -177,6 +177,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     const ruleKeys = getFieldValue('ruleKeys')
     const typeArray = ['service', 'type', 'name', 'regex', 'value']
     if (!isEmpty(ruleKeys)) {
+      let errorMsg: string = ''
       let existed = false
       let svcName = getFieldValue(`rule-service-${_key}`)
       let type = getFieldValue(`rule-type-${_key}`)
@@ -186,18 +187,23 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       switch (typeKey) {
         case 'service':
           svcName = _value
+          errorMsg = '服务名称重复'
           break
         case 'type':
           type = _value
+          errorMsg = '类型重复'
           break
         case 'name':
           name = _value
+          errorMsg = '匹配键重复'
           break
         case 'regex':
           regex = _value
+          errorMsg = '匹配规则重复'
           break
         case 'value':
           value = _value
+          errorMsg = '匹配值重复'
           break
         default:
           break
@@ -223,7 +229,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         },
       }
       if (existed) {
-        valueObj[`rule-${typeKey}-${_key}`].errors = ['匹配值名称重复']
+        valueObj[`rule-${typeKey}-${_key}`].errors = [errorMsg]
         await sleep()
         setFields(valueObj)
         return
@@ -240,6 +246,20 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       await sleep()
       setFields(clearError)
     }
+  }
+
+  ruleNameCheck = (rules, value, callback) => {
+    if (value && !value.trim()) {
+      return callback('匹配键不能为空')
+    }
+    callback()
+  }
+
+  ruleValueCheck = (rules, value, callback) => {
+    if (value && !value.trim()) {
+      return callback('匹配值不能为空')
+    }
+    callback()
   }
 
   renderRuleList = () => {
@@ -303,6 +323,9 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                     required: true,
                     message: '请输入键',
                   },
+                  {
+                    validator: this.ruleNameCheck,
+                  },
                 ],
                 onChange: e => this.setValueError(e.target.value, 'name', key),
               })}
@@ -334,6 +357,9 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                     {
                       required: true,
                       message: '请输入值',
+                    },
+                    {
+                      validator: this.ruleValueCheck,
                     },
                   ],
                   onChange: e => this.setValueError(e.target.value, 'value', key),
@@ -454,7 +480,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         <Row className="routingRuleHeader">
           <Col span={4}>服务（端口）</Col>
           <Col span={4}>规则类型</Col>
-          <Col span={4}>匹配建</Col>
+          <Col span={4}>匹配键</Col>
           <Col span={4}>匹配规则</Col>
           <Col span={4}>匹配值</Col>
           <Col span={4}>操作</Col>
