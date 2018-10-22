@@ -342,3 +342,95 @@ export function serviceDeploy(serviceId, callback) {
     return dispatch(fetchServiceDeploy(serviceId, callback))
   }
 }
+
+/**
+ * 查询tomcat list
+ * @type {string}
+ */
+export const VM_TOMCAT_LIST_REQUEST = 'VM_TOMCAT_LIST_REQUEST'
+export const VM_TOMCAT_LIST_SUCCESS = 'VM_TOMCAT_LIST_SUCCESS'
+export const VM_TOMCAT_LIST_FAILURE = 'VM_TOMCAT_LIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchVTomcatList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vmtomcats/list`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [VM_TOMCAT_LIST_REQUEST, VM_TOMCAT_LIST_SUCCESS, VM_TOMCAT_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function getTomcatList(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchVTomcatList(query, callback))
+  }
+}
+
+/**
+ * 卸载 Tomcat
+ * @type {string}
+ */
+export const VM_TOMCAT_DELETE_REQUEST = 'VM_TOMCAT_DELETE_REQUEST'
+export const VM_TOMCAT_DELETE_SUCCESS = 'VM_TOMCAT_DELETE_SUCCESS'
+export const VM_TOMCAT_DELETE_FAILURE = 'VM_TOMCAT_DELETE_FAILURE'
+
+function fetchDeleteTomcat(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/vmtomcats/${query.id}/delete`
+  return {
+    [FETCH_API]: {
+      types: [VM_TOMCAT_DELETE_REQUEST, VM_TOMCAT_DELETE_SUCCESS, VM_TOMCAT_DELETE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function deleteTomcat(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDeleteTomcat(query, callback))
+  }
+}
+
+/**
+ * 添加 Tomcat
+ * @type {string}
+ */
+export const VM_TOMCAT_CREATE_REQUEST = 'VM_TOMCAT_CREATE_REQUEST'
+export const VM_TOMCAT_CREATE_SUCCESS = 'VM_TOMCAT_CREATE_SUCCESS'
+export const VM_TOMCAT_CREATE_FAILURE = 'VM_TOMCAT_CREATE_FAILURE'
+
+function fetchCreateTomcat(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/vmtomcats/create`
+  return {
+    [FETCH_API]: {
+      types: [VM_TOMCAT_CREATE_REQUEST, VM_TOMCAT_CREATE_SUCCESS, VM_TOMCAT_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body,
+      },
+      schema: {}
+    },
+    callback,
+  }
+}
+
+export function createTomcat(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCreateTomcat(body, callback))
+  }
+}

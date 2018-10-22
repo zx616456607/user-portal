@@ -222,6 +222,12 @@ class VMServiceList extends React.Component {
       key: 'host',
       width: '15%'
     },{
+      title: '环境实例',
+      dataIndex: 'tomcatInstance',
+      key: 'tomcatInstance',
+      width: '15%',
+      // render: tomcats => <div>{tomcats.map(item => item.name).join('<br />')}</div>
+    },{
       title: '服务地址',
       dataIndex: 'healthCheck',
       width: '15%',

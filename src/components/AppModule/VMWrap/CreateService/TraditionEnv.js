@@ -13,16 +13,19 @@
 import React,{ Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Button, Icon, Select, Popover, Alert  } from 'antd'
+import { Row, Col, Form, Input, Button, Spin,
+  Icon, Select, Popover, Alert, Radio } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import isEmpty from 'lodash/isEmpty'
 import './style/traditionEnv.less'
 import classNames from 'classnames'
-import { checkVMUser, getVMinfosList } from '../../../../actions/vm_wrap'
+import { checkVMUser, getVMinfosList, getTomcatList } from '../../../../actions/vm_wrap'
+import CreateTomcat from '../CreateTomcat'
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
 const Option = Select.Option
+const RadioGroup = Radio.Group
 
 class TraditionEnv extends Component{
   constructor(props) {
@@ -31,7 +34,10 @@ class TraditionEnv extends Component{
       Prompt: undefined,
       isShow: false,
       loading: false,
-      activeBtn: 'new'
+      activeBtn: 'old',
+      tomcatRadio: 1, // 1 已安装 Tomcat 2 添加新 Tomcat
+      tomcatList: [],
+      loadingTomcat: false,
     }
   }
   componentWillMount() {
@@ -141,9 +147,9 @@ class TraditionEnv extends Component{
         }
       })
     })
-    
+
   }
-  
+
   getVMList() {
     const { getVMinfosList } = this.props
     getVMinfosList({
@@ -154,7 +160,7 @@ class TraditionEnv extends Component{
     const { changeEnv } = this.props
     this.setState({
       activeBtn
-    }) 
+    })
     if (activeBtn === 'old') {
       this.getVMList()
       changeEnv(false)
@@ -163,19 +169,52 @@ class TraditionEnv extends Component{
     }
   }
   selectHost(vminfoId) {
-    const { vmList, scope } = this.props
+    const { vmList, scope, getTomcatList } = this.props
     const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
     this.setState({
       portList: currentVm[0].ports
     })
+
     scope.setState({
-      host: currentVm[0].host
+      host: currentVm[0].host,
+    })
+    this.setState({
+      loadingTomcat: true,
+    }, () => {
+      getTomcatList({
+        vminfo_id: vminfoId,
+      }, {
+        success: {
+          func: res => {
+            if(res.results && res.results.length) {
+              this.setState({
+                tomcatList: res.results,
+              })
+            }
+          },
+          isAsync: true,
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              loadingTomcat: false,
+            })
+          }
+        }
+      })
     })
   }
+  onTomRadioChange = e => {
+    const tomcatRadio = e.target.value
+    this.setState({
+      tomcatRadio,
+    })
+    this.props.changeIsAddTomcat(tomcatRadio)
+  }
   render() {
-    const { activeBtn, portList } = this.state
-    const { vmList } = this.props
-    const { getFieldProps } = this.props.form;
+    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat } = this.state
+    const { vmList, form } = this.props
+    const { getFieldProps, getFieldValue } = form
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 9 },
@@ -214,6 +253,11 @@ class TraditionEnv extends Component{
       ],
       onChange: this.selectHost.bind(this)
     })
+    const tomcatSelectProps = getFieldProps('tomcat', {
+      rules: [
+        {required: true, message: "请选择已安装的 Tomcat 环境"}
+      ],
+    })
     let testStyle = {
       color: '#31ba6a',
       marginLeft: '20px',
@@ -231,12 +275,16 @@ class TraditionEnv extends Component{
     const content = (
       <div className="portBody">
         {
-          portList && 
+          portList &&
             portList.length &&
             portList.map(item => <div key={item}>{item}</div>)
         }
       </div>
     );
+    const host = getFieldValue("host")
+    const tomcatOptions = tomcatList.map(item => {
+      return <Option key={item.id} value={item.id}>{item.name}</Option>
+    })
     return (
       <div className="traditionEnv">
         <Row style={{ marginBottom: 20 }}>
@@ -262,7 +310,6 @@ class TraditionEnv extends Component{
                 >
                   <div><Icon type="question-circle-o" /> 传统环境一般指非容器环境（Linux的虚拟机、物理机等）</div>
                 </FormItem>
-  
                 <FormItem
                   label="环境登录账号"
                   {...formItemLayout}
@@ -299,7 +346,7 @@ class TraditionEnv extends Component{
                   {...formSmallLayout}
                   className="envSelectBox"
                 >
-                  <Select 
+                  <Select
                     showSearch
                     searchPlaceholder="标签模式"
                     {...hostProps}
@@ -314,20 +361,56 @@ class TraditionEnv extends Component{
                     <Button className="portBtn verticalCenter" type="primary">查看已用端口</Button>
                   </Popover>
                 </FormItem>
+                {
+                  host && [<Row style={{ marginTop: '10px' }}>
+                      <Col span={3}></Col>
+                      <Col span={8}>
+                        <RadioGroup onChange={this.onTomRadioChange} value={tomcatRadio}>
+                          <Radio key="1" value={1}>已安装 Tomcat</Radio>
+                          <Radio key="2" value={2}>添加新 Tomcat</Radio>
+                        </RadioGroup>
+                      </Col>
+                    </Row>,
+                    <Row style={{ marginTop: 10 }}>
+                      <Col span={3}></Col>
+                        <Col span={8}>
+                          <Spin spinning={loadingTomcat}>
+                            {
+                              tomcatRadio === 1 ?
+                                <FormItem>
+                                  <Select
+                                    placeholder="选择已安装 Tomcat 环境"
+                                    {...tomcatSelectProps}>
+                                    {tomcatOptions}
+                                  </Select>
+                                </FormItem>
+                                :
+                                <CreateTomcat
+                                  form={form}
+                                  allPort={portList}
+                                  tomcatList={tomcatList}
+                                />
+                            }
+                          </Spin>
+                        </Col>
+                    </Row>]
+                }
               </div>
           }
-          <FormItem
-            {...formSmallLayout}
-            label="环境安装路径"
-            style={{ marginTop: 20}}
-          >
-            <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
-              <div>JAVA_HOME='/home/java'</div>
-              <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
-              <div>CATALINA_HOME='/usr/local/tomcat'</div>
-              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
-            </div>
-          </FormItem>
+          {
+            activeBtn === 'new' && <FormItem
+              {...formSmallLayout}
+              label="环境安装路径"
+              style={{ marginTop: 20}}
+            >
+              <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
+                <div>JAVA_HOME='/home/java'</div>
+                <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
+                <div>CATALINA_HOME='/usr/local/tomcat'</div>
+                <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
+              </div>
+            </FormItem>
+          }
         </Form>
       </div>
     )
@@ -344,5 +427,6 @@ function mapStateToProps(state, props) {
 }
 export default connect(mapStateToProps, {
   checkVMUser,
-  getVMinfosList
+  getVMinfosList,
+  getTomcatList
 })(TraditionEnv)

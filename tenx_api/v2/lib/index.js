@@ -146,6 +146,9 @@ module.exports = function (config) {
   // ~ vminfos
   this.vminfos = collections.create('vminfos')
 
+  // ~ vmtomcat
+  this.vmtomcats = collections.create('vmtomcats')
+
   // ~ quota
   this.resourcequota = collections.create('resourcequota')
 
