@@ -348,8 +348,8 @@ class OperationalAudit extends React.Component {
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operation: undefined,
     }
-    if (value.indexOf(10009) > -1) {
-      temp.currentProject = undefined
+    if (value.indexOf(10009) > -1 || value.indexOf(10010) > -1) {
+      temp.currentProject = ''
       temp.projectDisabled = true
     } else if (this.state.projectDisabled === true) {
       temp.currentProject = this.props.projectName || undefined
@@ -586,6 +586,7 @@ class OperationalAudit extends React.Component {
         dataIndex: 'namespace',
         title: '项目',
         width: '10%',
+        render: val => <span>{ val ? val : '-' }</span>,
       },
       {
         dataIndex: 'clusterName',
