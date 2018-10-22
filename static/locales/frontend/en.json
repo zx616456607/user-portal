@@ -253,6 +253,8 @@
   "TenxStatus.ImageCopy": "Image copy",
   "TenxStatus.ImageCopyFailed": "Image copy failed",
   "TenxStatus.Deleted": "Deleted",
+  "TenxStatus.Evicted": "Evicted",
+  "TenxStatus.EvictedTip": "Insufficient resources, redeploy after adding resources",
   "this.is.an.commnent": "/-------------------App Center交付中心------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "Search",
   "AppCenter.ImageCenter.ImageSpace.publicType": "Public",
