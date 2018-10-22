@@ -7,7 +7,8 @@
  * v0.1 - 2016-09-10
  * @author GaoJian
  */
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import * as PropTypes from 'prop-types';
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from '../../../../../src/components/AppModule/AppServiceListIntl'
 import { AllServiceListIntl } from '../../../../../src/components/AppModule/ServiceIntl'
@@ -378,7 +379,7 @@ const MyComponent = React.createClass({
       //   || null
       // const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{ width: '100px' }} id="appservicelistDropdownMenu">
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{ width: 100 }} id="appservicelistDropdownMenu">
           {/* {
             item.status.phase == 'Stopped'
               ? <Menu.Item key="start">
@@ -795,11 +796,12 @@ class AppServiceList extends Component {
     })
   }
   batchDeleteServices() {
-    const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
+    const { serviceList, cluster, getDeploymentOrAppCDRule: newgetDeploymentOrAppCDRule }
+    = this.props
     const checkList = serviceList.filter(item => item.checked)
     if (checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
-      getDeploymentOrAppCDRule(cluster, 'service', name)
+      newgetDeploymentOrAppCDRule(cluster, 'service', name)
     }
     this.setState({
       DeleteServiceModal: true,
@@ -808,7 +810,7 @@ class AppServiceList extends Component {
 
   handleStartServiceOk() {
     const self = this
-    const { cluster, startServices, serviceList,
+    const { cluster, startServices: newStartServices, serviceList,
       // appName,
       intl } = this.props
     const formatMessage = intl
@@ -836,7 +838,7 @@ class AppServiceList extends Component {
     self.setState({
       serviceList,
     })
-    startServices(cluster, serviceNames, {
+    newStartServices(cluster, serviceNames, {
       success: {
         func: () => {
           self.setState({
@@ -869,7 +871,7 @@ class AppServiceList extends Component {
   }
   handleStopServiceOk() {
     const self = this
-    const { cluster, stopServices, serviceList,
+    const { cluster, stopServices: newstopServices, serviceList,
       // appName,
       intl } = this.props
     let checkedServiceList = serviceList.filter(service => service.checked)
@@ -910,7 +912,7 @@ class AppServiceList extends Component {
       notification.error(intl.formatMessage(intlMsg.slcStopServer))
       return
     }
-    stopServices(cluster, serviceNames, {
+    newstopServices(cluster, serviceNames, {
       success: {
         func: () => {
           self.setState({
@@ -945,9 +947,10 @@ class AppServiceList extends Component {
     const self = this
     const { rebootItem = {} } = this.state
     const { appName, cluster: yanhuangcluster } = rebootItem
-    const { cluster, restartServices, serviceList,
+    const { cluster, restartServices: newrestartServices, serviceList,
       // appName,
-      intl, removeTerminal, terminalList, loadServiceList } = this.props
+      intl, removeTerminal: newremoveTerminal, terminalList, loadServiceList: newloadServiceList }
+      = this.props
     let checkedServiceList = serviceList.filter(
       // service => service.checked
       () => true
@@ -955,7 +958,7 @@ class AppServiceList extends Component {
     if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
-        removeTerminal(cluster, item.metadata.name)
+        newremoveTerminal(cluster, item.metadata.name)
       })
     }
     const runningServices = []
@@ -989,7 +992,7 @@ class AppServiceList extends Component {
       RestarServiceModal: false,
     })
     serviceNames = [ rebootItem.metadata.name ]
-    restartServices(cluster, serviceNames, {
+    newrestartServices(cluster, serviceNames, {
       success: {
         func: () => {
           self.setState({
@@ -998,7 +1001,7 @@ class AppServiceList extends Component {
             restartBtn: false,
             redeploybtn: false,
           })
-          loadServiceList(yanhuangcluster, appName)
+          newloadServiceList(yanhuangcluster, appName)
         },
         isAsync: true,
       },
@@ -1023,14 +1026,14 @@ class AppServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList,
+    const { cluster, quickRestartServices: newquickRestartServices, serviceList,
       //  appName,
-      intl, removeTerminal, terminalList } = this.props
+      intl, removeTerminal: newremoveTerminal, terminalList } = this.props
     const checkedServiceList = serviceList.filter(service => service.checked)
     if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
-        removeTerminal(cluster, item.metadata.name)
+        newremoveTerminal(cluster, item.metadata.name)
       })
     }
     const runningServices = []
@@ -1058,7 +1061,7 @@ class AppServiceList extends Component {
     self.setState({
       serviceList,
     })
-    quickRestartServices(cluster, serviceNames, {
+    newquickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
           self.loadServices(self.props)
@@ -1100,12 +1103,14 @@ class AppServiceList extends Component {
     const self = this
     const { cluster,
       //  appName, loadServiceList,
-      deleteServices, intl, serviceList, removeTerminal, terminalList } = this.props
+
+      deleteServices: newdeleteServices, intl, serviceList, removeTerminal: newremoveTerminal,
+      terminalList } = this.props
     const checkedServiceList = serviceList.filter(service => service.checked)
     if (terminalList.length) {
       const deleteList = cloneDeep(checkedServiceList)
       deleteList.forEach(item => {
-        removeTerminal(cluster, item.metadata.name)
+        newremoveTerminal(cluster, item.metadata.name)
       })
     }
 
@@ -1130,7 +1135,7 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
       serviceList: allServices,
     })
-    deleteServices(cluster, { services: serviceNames, releaseNames }, {
+    newdeleteServices(cluster, { services: serviceNames, releaseNames }, {
       success: {
         func: () => {
           self.loadServices(self.props)
@@ -1278,8 +1283,8 @@ class AppServiceList extends Component {
       name,
       //  pathname, page,size, total,
       isFetching,
-      loginUser, cluster, appName, loadServiceList, k8sServiceList, intl: { formatMessage },
-      serviceList,
+      loginUser, cluster, appName, loadServiceList: newloadServiceList, k8sServiceList,
+      intl: { formatMessage }, serviceList,
     } = this.props
     const checkedServiceList = serviceList.filter(service => service.checked)
     // const checkedServiceNames = checkedServiceList.map(service => service.metadata.name)
@@ -1443,7 +1448,7 @@ class AppServiceList extends Component {
                 cluster={cluster}
                 appName={appName}
                 visible={rollingUpdateModalShow}
-                loadServiceList={loadServiceList}
+                loadServiceList={newloadServiceList}
                 service={currentShowInstance} />
               : null
           }
@@ -1452,7 +1457,7 @@ class AppServiceList extends Component {
             <GrayscaleUpgradeModal
               cluster={cluster}
               appName={appName}
-              loadServiceList={loadServiceList}
+              loadServiceList={newloadServiceList}
               service={currentShowInstance}
               onCancel={() => this.setState({ grayscaleUpgradeModalVisible: false })}
             />
@@ -1462,7 +1467,7 @@ class AppServiceList extends Component {
             cluster={cluster}
             appName={appName}
             visible={configModal}
-            loadServiceList={loadServiceList}
+            loadServiceList={newloadServiceList}
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
@@ -1470,7 +1475,7 @@ class AppServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServiceList={loadServiceList}
+            loadServiceList={newloadServiceList}
             disableScale={this.state.disableScale}
           />
         </QueueAnim>
@@ -1635,7 +1640,7 @@ function mapStateToProps(state, props) {
     }
   })
   // console.log('炎黄服务详情', JSON.stringify(serviceList))
-  const { getDeploymentOrAppCDRule } = state.cicd_flow
+  const { getDeploymentOrAppCDRule: newgetDeploymentOrAppCDRule } = state.cicd_flow
   const defaultCDRule = {
     isFetching: false,
     result: {
@@ -1658,8 +1663,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     availabilityNumber,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result
-      ? getDeploymentOrAppCDRule : defaultCDRule,
+    cdRule: newgetDeploymentOrAppCDRule && newgetDeploymentOrAppCDRule.result
+      ? newgetDeploymentOrAppCDRule : defaultCDRule,
   }
 }
 
