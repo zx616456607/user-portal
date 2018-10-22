@@ -253,6 +253,8 @@
   "TenxStatus.ImageCopy": "镜像复制中",
   "TenxStatus.ImageCopyFailed": "镜像复制失败",
   "TenxStatus.Deleted": "已删除",
+  "TenxStatus.Evicted": "已被驱赶",
+  "TenxStatus.EvictedTip": "系统资源不足，可以集群增加配置后重新部署",
   "this.is.an.commnent": "/------------------------App Center交付中心-----------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "搜索",
   "AppCenter.ImageCenter.ImageSpace.publicType": "公有",
