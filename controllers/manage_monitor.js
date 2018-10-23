@@ -19,7 +19,6 @@ exports.getOperationAuditLog = function* () {
   let reqBody = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  reqBody.namespace = loginUser.teamspace || loginUser.namespace
   const result = yield api.audits.createBy(['logs'], null, reqBody);
   this.body = {
     logs: result.data
