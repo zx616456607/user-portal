@@ -105,6 +105,7 @@ class AppServiceLog extends Component {
      if (!clusterLogs || !clusterLogs['logs'] || !clusterLogs['logs']['data'] || clusterLogs['logs']['data'].length == 0) {
        state.serviceLogs = {
          [cluster]: {
+          isFetching: clusterLogs.isFetching,
            logs: {
              data: eventLogs
            }
@@ -273,7 +274,7 @@ class AppServiceLog extends Component {
     // if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
     //   return <div className="loadingBox"><Spin size="large"></Spin></div>
     // }
-    if(!clusterLogs.logs){
+    if(clusterLogs.logs && !clusterLogs.logs.data.length){
       return formatMessage(AppServiceDetailIntl.noLog)
     }
     const logs = clusterLogs.logs.data
