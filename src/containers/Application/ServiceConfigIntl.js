@@ -354,6 +354,12 @@ const messageObj = {
     hostnameRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
     subdomainRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
     hostAliasesExist: '主机别名已存在',
+    ipPodPlaceholder: '请填写实例 IP( {NetSegment} )',
+    supportOnlyOne: '目前仅支持一个实例',
+    NetSegmentUnknow: "未获取到指定 Pod 网段",
+    checkNetSegmentFail: "校验 IP 是否被占用请求失败",
+    isUsedAlready: "当前 IP 已经被占用, 请重新填写",
+    getNetSegmentFail: "获取 Pod 网段数据失败",
   }
 }
 
