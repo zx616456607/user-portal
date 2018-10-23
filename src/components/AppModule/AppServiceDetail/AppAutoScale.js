@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
   Button, Row, Col, InputNumber, Icon, Switch,
-  Modal, Form, Select, Input, Tabs, Tooltip
+  Modal, Form, Select, Input, Tabs, Tooltip, Checkbox
 } from 'antd'
 import {
   loadAutoScale,
@@ -39,6 +39,7 @@ import classNames from 'classnames'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { getDeepValue } from '../../../../client/util/util'
+import scaleImg from '../../../../client/assets/img/AppCenter/autoScale.png'
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -65,12 +66,12 @@ class AppAutoScale extends Component {
     super()
     this.state = {
       scaleDetail: null,
-      switchOpen: false,
       isEdit: false,
       activeKey: 'autoScaleForm',
       thresholdArr: [0],
       cpuAndMemory: [],
-      isPrivate: false
+      isPrivate: false,
+      showImg: true,
     }
     this.uuid = 0
   }
@@ -95,7 +96,6 @@ class AppAutoScale extends Component {
       form.resetFields()
       this.setState({
         activeKey: 'autoScaleForm',
-        switchOpen: false,
         thresholdArr: [0],
         cpuAndMemory: [],
         isPrivate: false
@@ -158,7 +158,7 @@ class AppAutoScale extends Component {
                   }
                   this.setState({
                     scaleDetail,
-                    switchOpen: scaleDetail.type ? true : false
+                    showImg: false,
                   }, () => {
                     this.initThresholdArr(this.state.scaleDetail)
                   })
@@ -212,7 +212,7 @@ class AppAutoScale extends Component {
       thresholdArr: arr.map((item, index) => index)
     })
   }
-  startEdit() {
+  startEdit = () => {
     const { formatMessage } = this.props.intl
     const { isPrivate } = this.state
     if (isPrivate) {
@@ -221,6 +221,7 @@ class AppAutoScale extends Component {
       return
     }
     this.setState({
+      showImg: false,
       isEdit: true
     })
   }
@@ -228,13 +229,20 @@ class AppAutoScale extends Component {
     const { form } = this.props
     form.resetFields()
     this.loadData(this.props)
-    this.setState({
-      isEdit: false,
-    })
+    if (isEmpty(this.state.scaleDetail)) {
+      this.setState({
+        isEdit: false,
+        showImg: true,
+      })
+    } else {
+      this.setState({
+        isEdit: false,
+      })
+    }
   }
   saveEdit = () => {
     const { form, updateAutoScale, cluster } = this.props
-    const { scaleDetail, switchOpen, thresholdArr } = this.state
+    const { scaleDetail, thresholdArr } = this.state
     const { validateFields, resetFields, getFieldValue } = form
     const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
@@ -255,8 +263,8 @@ class AppAutoScale extends Component {
       const msgSpin = isEmpty(scaleDetail) ? formatMessage(AppServiceDetailIntl.creating) :
       formatMessage(AppServiceDetailIntl.changing)
       notify.spin(msgSpin)
-      const { strategyName, serviceName, min, max, alert_strategy, alert_group} = values
-      let body = { scale_strategy_name: strategyName, min, max, ...opt, alert_strategy, alert_group, type: switchOpen ? 1 : 0 }
+      const { strategyName, serviceName, min, max, alert_strategy, alert_group, openScale } = values
+      let body = { scale_strategy_name: strategyName, min, max, ...opt, alert_strategy, alert_group, type: openScale ? 1 : 0 }
       isEmpty(scaleDetail) ? body.type = 1 : ''
       isGroupHide ? body.alert_group = '' : ''
       body = Object.assign(body, {operationType: isEmpty(scaleDetail) ? 'create' : 'update'})
@@ -283,49 +291,6 @@ class AppAutoScale extends Component {
             notify.close()
             notify.error(formatMessage(AppServiceDetailIntl.operationFailure))
             resetFields()
-          }
-        }
-      })
-    })
-  }
-  updateScaleStatus = () => {
-    const { updateAutoScaleStatus, cluster, serviceName } = this.props
-    const { switchOpen, scaleDetail, isPrivate } = this.state
-    const { formatMessage } = this.props.intl
-    let notify = new NotificationHandler()
-    if (isPrivate) {
-      notify.info(formatMessage(AppServiceDetailIntl.MountPrivateStorageNoAutoScale))
-      return
-    }
-    let msg = switchOpen ? formatMessage(ServiceCommonIntl.close) : formatMessage(ServiceCommonIntl.open)
-    notify.spin(formatMessage(AppServiceDetailIntl.Xin, { msg}))
-    if (isEmpty(scaleDetail)) {
-      notify.close()
-      notify.error(formatMessage(AppServiceDetailIntl.XFailureEditStrategy, { msg }))
-      return
-    }
-    this.setState({
-      switchOpen: !switchOpen
-    }, () => {
-      updateAutoScaleStatus(cluster, {
-        services: [serviceName],
-        type: this.state.switchOpen ? 1 : 0
-      }, {
-        success: {
-          func: () => {
-            this.loadData(this.props)
-            notify.close()
-            notify.success(formatMessage(AppServiceDetailIntl.XSuccess, { msg }))
-          },
-          isAsync: true
-        },
-        failed: {
-          func: () => {
-            notify.close()
-            notify.error(formatMessage(AppServiceDetailIntl.XFailure, { msg }))
-            this.setState({
-              switchOpen
-            })
           }
         }
       })
@@ -566,7 +531,7 @@ class AppAutoScale extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
-    const { isEdit, scaleDetail, switchOpen, btnLoading, activeKey, thresholdArr, cpuAndMemory } = this.state
+    const { isEdit, scaleDetail, btnLoading, activeKey, thresholdArr, cpuAndMemory, showImg } = this.state
     const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab,
       serviceDetail } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
@@ -607,13 +572,17 @@ class AppAutoScale extends Component {
       rules: [{
         validator: this.checkEmail.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? 'SendEmailWhenScale' : scaleDetail.alert_strategy
+      initialValue: isEmpty(scaleDetail) ? 'SendNoEmail' : scaleDetail.alert_strategy
     })
     const selectAlertGroup = getFieldProps('alert_group', {
       rules: [{
         validator: this.checkAlert.bind(this)
       }],
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
+    })
+    const openScaleStatus = getFieldProps('openScale', {
+      initialValue: isEmpty(scaleDetail) ? false : scaleDetail.type,
+      valuePropName: 'checked',
     })
     let thresholdItem
     let message = formatMessage(AppServiceDetailIntl.allContainerExceedInfo)
@@ -693,147 +662,179 @@ class AppAutoScale extends Component {
     const ipv4 = getDeepValue(currentService, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
     const isFexed = ipv4 && true || false
     maxInstance = ipv4 && JSON.parse(ipv4).length
+    const hasScale = showImg ? true : false
     return(
       <div id="AppAutoScale">
-        <div className="autoScaleSwitch">
-          <span>{formatMessage(AppServiceDetailIntl.autoScale)}</span>
-          <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
-            <Switch checked={switchOpen} onChange={this.updateScaleStatus} disabled={isFexed}
-              checkedChildren={formatMessage(ServiceCommonIntl.open)}
-              unCheckedChildren={formatMessage(ServiceCommonIntl.close)}
-            />
-          </Tooltip>
+        <div className="alertRow">
+          {formatMessage(AppServiceDetailIntl.anyIndexExceedLimitValue)}
         </div>
         <Tabs activeKey={activeKey} onChange={activeKey => this.setState({activeKey})} type="card" id="autoScaleTabs">
           <TabPane tab={formatMessage(AppServiceDetailIntl.scaleStrategy)} key="autoScaleForm">
-            <div className="autoScaleFormBox">
-              <div className="alertRow">
-                {formatMessage(AppServiceDetailIntl.anyIndexExceedLimitValue)}
-              </div>
-              <div className="autoScaleInnerBox">
-                <Form form={form} className="autoScaleForm">
-                  <FormItem
-                    {...formItemLargeLayout}
-                    label={formatMessage(AppServiceDetailIntl.strategyName)}
-                    hasFeedback
-                    help={isFieldValidating('strategyName') ? formatMessage(AppServiceDetailIntl.verifying) : (getFieldError('strategyName') || []).join(', ')}
-                  >
-                    <Input disabled={!isEdit} type="text" {...scaleName} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputstrategyName)}/>
-                  </FormItem>
-                  <FormItem
-                    {...formItemLargeLayout}
-                    label={formatMessage(AppServiceDetailIntl.choiceService)}
-                  >
-                    <Select
-                      showSearch
-                      disabled={true}
-                      optionFilterProp="children"
-                      notFoundContent={formatMessage(AppServiceDetailIntl.NoLinkService)}
-                      {...selectService}
-                      placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceService)}>
-                      {
-                        services && services.length && services.map(item =>
-                          <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
-                      }
-                    </Select>
-                  </FormItem>
-                  <FormItem
-                    {...formItemSmallLayout}
-                    label={formatMessage(AppServiceDetailIntl.leastContainerNum)}
-                  >
-                    <InputNumber disabled={!isEdit} {...minReplicas}/> 个
-                  </FormItem>
-                  <FormItem
-                    labelCol={{ span: 4 }}
-                    wrapperCol={{ span: 20 }}
-                    label={formatMessage(AppServiceDetailIntl.moreContainerNum)}
-                  >
-                    <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
-                    { /*
-                      isFexed ?
-                        <span className="maxInstance">
-                          <Icon
-                            type="info-circle-o"
-                          />
-                          服务开启了固定实例 IP，实例数量最多为 IP 数量
-                        </span>
-                        : null
-                    */ }
-                  </FormItem>
-                  {thresholdItem}
-                  <FormItem
-                    {...formItemLargeLayout}
-                    label={formatMessage(AppServiceDetailIntl.sendEmail)}
-                  >
-                    <Select
-                      disabled={!isEdit}
-                      {...selectEmailSendType}
-                      placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceSendEmailManner)}
-                      showSearch
-                      optionFilterProp="children"
-                      notFoundContent={formatMessage(AppServiceDetailIntl.noFind)}>
-                      {
-                        sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
-                      }
-                    </Select>
-                  </FormItem>
-                  {
-                    isGroupHide ? null :
-                      [
+            {
+              showImg ?
+                <div className="serverNoScale">
+                  <div>
+                    <img src={scaleImg} alt="noScale" />
+                    <div>
+                      您还没有自动伸缩策略，添加一个吧! &nbsp;&nbsp;&nbsp;
+                      <Button type="primary" size="large" onClick={this.startEdit}>
+                        添加
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                : <div className="autoScaleFormBox">
+                    <div className="autoScaleInnerBox">
+                      <Form form={form} className="autoScaleForm">
                         <FormItem
                           {...formItemLargeLayout}
-                          label={formatMessage(AppServiceDetailIntl.monitorGroup)}
-                          key="alertGroup"
+                          label={formatMessage(AppServiceDetailIntl.strategyName)}
+                          hasFeedback
+                          help={isFieldValidating('strategyName') ? formatMessage(AppServiceDetailIntl.verifying) : (getFieldError('strategyName') || []).join(', ')}
+                        >
+                          <Input disabled={!isEdit} type="text" {...scaleName} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputstrategyName)}/>
+                        </FormItem>
+                        <FormItem
+                          {...formItemLargeLayout}
+                          label={formatMessage(AppServiceDetailIntl.choiceService)}
+                        >
+                          <Select
+                            showSearch
+                            disabled={true}
+                            optionFilterProp="children"
+                            notFoundContent={formatMessage(AppServiceDetailIntl.NoLinkService)}
+                            {...selectService}
+                            placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceService)}>
+                            {
+                              services && services.length && services.map(item =>
+                                <Option key={item.metadata.name} value={item.metadata.name}>{item.metadata.name}</Option>)
+                            }
+                          </Select>
+                        </FormItem>
+                        <Row style={{ marginBottom: 24 }}>
+                          <Col className="ant-col-4 ant-form-item-label">
+                            <span style={{ paddingRight: 8 }}>
+                              {formatMessage(AppServiceDetailIntl.leastContainerNum)} :
+                            </span>
+                          </Col>
+                          <Col span={4}>
+                            <InputNumber disabled={!isEdit} {...minReplicas}/> 个
+                          </Col>
+                          <Col className="ant-col-4 ant-form-item-label">
+                            <span style={{ paddingRight: 8 }}>
+                              {formatMessage(AppServiceDetailIntl.moreContainerNum)} :
+                            </span>
+                          </Col>
+                          <Col span={4}>
+                            <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
+                          </Col>
+                        </Row>
+                        {/* <FormItem
+                          {...formItemSmallLayout}
+                          label={formatMessage(AppServiceDetailIntl.leastContainerNum) + '------'}
+                        >
+
+                        </FormItem> */}
+                        {/* <FormItem
+                          labelCol={{ span: 4 }}
+                          wrapperCol={{ span: 20 }}
+                          label={formatMessage(AppServiceDetailIntl.moreContainerNum)}
+                        >
+                          <InputNumber disabled={!isEdit} {...maxReplicas}/> 个 */}
+                          { /*
+                            isFexed ?
+                              <span className="maxInstance">
+                                <Icon
+                                  type="info-circle-o"
+                                />
+                                服务开启了固定实例 IP，实例数量最多为 IP 数量
+                              </span>
+                              : null
+                          */ }
+                        {/* </FormItem> */}
+                        {thresholdItem}
+                        <FormItem
+                          {...formItemLargeLayout}
+                          label={formatMessage(AppServiceDetailIntl.sendEmail)}
                         >
                           <Select
                             disabled={!isEdit}
-                            {...selectAlertGroup}
-                            placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceGroup)}
+                            {...selectEmailSendType}
+                            placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceSendEmailManner)}
                             showSearch
                             optionFilterProp="children"
-                            notFoundContent={formatMessage(AppServiceDetailIntl.noMonitorGroup)}>
+                            notFoundContent={formatMessage(AppServiceDetailIntl.noFind)}>
                             {
-                              alertList && alertList.length ? alertList.map(item =>
-                                <Option key={item.name} value={item.groupID}>{item.name}</Option>
-                              ) : null
+                              sendEmailOpt.map(item => <Option key={item.type} value={item.type}>{item.text}</Option>)
                             }
                           </Select>
-                        </FormItem>,
-                        <Row key="groupHint">
-                          <Col span={4}/>
-                          <Col span={20} className="hintBox">
-                            <Icon type="exclamation-circle-o" />
-                            {formatMessage(AppServiceDetailIntl.autoScaleSendEmail)}
-                          </Col>
-                        </Row>,
-                        <Row style={{margin: '-10px 0 10px'}} key="createGroup">
-                          <Col span={4}/>
-                          <Col span={16}>
-                            {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
-                          </Col>
-                        </Row>
-                      ]
-                  }
-                </Form>
-                <Row className="autoScaleBtnGroup">
-                  <Col offset={2}>
-                    {
-                      !isEdit
-                        ?
-                        <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
-                          <Button key="edit" size="large" type="primary" disabled={isFexed} onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
-                        </Tooltip>
-                        :
-                        [
-                          <Button key="cancel" size="large" onClick={this.cancelEdit}>{formatMessage(ServiceCommonIntl.cancel)}</Button>,
-                          <Button type="primary" key="save" size="large" loading={btnLoading} onClick={this.saveEdit}>{formatMessage(ServiceCommonIntl.save)}</Button>
-                        ]
-                    }
+                        </FormItem>
+                        {
+                          isGroupHide ? null :
+                            [
+                              <FormItem
+                                {...formItemLargeLayout}
+                                label={formatMessage(AppServiceDetailIntl.monitorGroup)}
+                                key="alertGroup"
+                              >
+                                <Select
+                                  disabled={!isEdit}
+                                  {...selectAlertGroup}
+                                  placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceGroup)}
+                                  showSearch
+                                  optionFilterProp="children"
+                                  notFoundContent={formatMessage(AppServiceDetailIntl.noMonitorGroup)}>
+                                  {
+                                    alertList && alertList.length ? alertList.map(item =>
+                                      <Option key={item.name} value={item.groupID}>{item.name}</Option>
+                                    ) : null
+                                  }
+                                </Select>
+                              </FormItem>,
+                              <Row key="groupHint">
+                                <Col span={4}/>
+                                <Col span={20} className="hintBox">
+                                  <Icon type="exclamation-circle-o" />
+                                  {formatMessage(AppServiceDetailIntl.autoScaleSendEmail)}
+                                </Col>
+                              </Row>,
+                              <Row style={{margin: '-10px 0 10px'}} key="createGroup">
+                                <Col span={4}/>
+                                <Col span={16}>
+                                  {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
+                                </Col>
+                              </Row>,
+                              <Row style={{margin: '-10px 0 10px'}} key="openScale">
+                                <Col span={4}/>
+                                <Col span={16}>
+                                <FormItem>
+                                  <Checkbox {...openScaleStatus} disabled={!isEdit}>保存后开启伸缩策略</Checkbox>
+                                </FormItem>
+                                </Col>
+                              </Row>
+                            ]
+                        }
+                      </Form>
+                      <Row className="autoScaleBtnGroup">
+                        <Col offset={2}>
+                          {
+                            !isEdit
+                              ?
+                              <Tooltip placement='top' title={ isFexed ? '固定实例 IP 功能开启后，不支持服务自动伸缩' : null }>
+                                <Button key="edit" size="large" type="primary" disabled={isFexed} onClick={this.startEdit.bind(this)}>{formatMessage(ServiceCommonIntl.edit)}</Button>
+                              </Tooltip>
+                              :
+                              [
+                                <Button key="cancel" size="large" onClick={this.cancelEdit}>{formatMessage(ServiceCommonIntl.cancel)}</Button>,
+                                <Button type="primary" key="save" size="large" loading={btnLoading} onClick={this.saveEdit}>{formatMessage(ServiceCommonIntl.save)}</Button>
+                              ]
+                          }
 
-                  </Col>
-                </Row>
-              </div>
-            </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  </div>
+            }
           </TabPane>
           <TabPane tab={formatMessage(AppServiceDetailIntl.scaleLog)} key="autoScaleLogs">
             <AppAutoScaleLogs
