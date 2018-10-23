@@ -183,7 +183,7 @@ function fetchCreateService(body, callback) {
       schema: {},
       options: {
         method: 'POST',
-        body: body
+        body,
       },
     },
     callback,
@@ -192,9 +192,9 @@ function fetchCreateService(body, callback) {
 
 // Fetches wechat auth qr code from API
 // Relies on Redux Thunk middleware.
-export function createVMservice(query, callback) {
+export function createVMservice(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchCreateService(query, callback))
+    return dispatch(fetchCreateService(body, callback))
   }
 }
 

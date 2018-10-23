@@ -175,10 +175,13 @@ class VMServiceCreate extends React.Component {
       envs:obj,
     }
     if (isAddTomcat === 2) {
-      vminfo.catalina_home_dir = values.catalina_home_dir
-      vminfo.catalina_home_env = values.catalina_home_env
-      vminfo.name = values.name
-      vminfo.start_port = parseInt(values.start_port)
+      body.tomcat = {
+        catalina_home_dir: values.catalina_home_dir,
+        catalina_home_env: values.catalina_home_env,
+        name: values.name,
+        start_port: values.start_port,
+        vminfo: values.host,
+      }
     } else {
       body.tomcat = values.tomcat
     }

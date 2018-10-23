@@ -475,8 +475,12 @@ class VMList extends React.Component {
           isAsync: true,
         },
         failed: {
-          func: () => {
-            notification.warn('新建 Tomcat 失败')
+          func: err => {
+            if (err.statusCode === 500) {
+              notification.warn('端口号重复')
+            } else {
+              notification.warn('新建 Tomcat 失败')
+            }
           }
         },
         finally: {
