@@ -21,6 +21,7 @@ import './style/traditionEnv.less'
 import classNames from 'classnames'
 import { checkVMUser, getVMinfosList, getTomcatList } from '../../../../actions/vm_wrap'
 import CreateTomcat from '../CreateTomcat'
+import filter from 'lodash/filter'
 
 const FormItem = Form.Item;
 const ButtonGroup = Button.Group;
@@ -215,7 +216,7 @@ class TraditionEnv extends Component{
     const { tomcatList } = this.state
     const { form: { setFieldsValue } } = this.props
     const curr = filter(tomcatList, { id })[0]
-    if (curr) setFieldsValue({ port: startPort })
+    if (curr) setFieldsValue({ port: curr.startPort })
   }
   render() {
     const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat } = this.state
