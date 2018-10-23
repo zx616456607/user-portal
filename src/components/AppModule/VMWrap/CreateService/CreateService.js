@@ -40,12 +40,18 @@ class VMServiceCreate extends React.Component {
       interval:undefined,
       packages:[],
       env:[],
-      isNewEnv: true
+      isNewEnv: false,
+      isAddTomcat: 1, // 1 已安装 Tomcat 2 添加新 Tomcat
     }
   }
   changeEnv(flag) {
     this.setState({
       isNewEnv: flag
+    })
+  }
+  changeIsAddTomcat(type) {
+    this.setState({
+      isAddTomcat: type
     })
   }
   renderPanelHeader(text) {
@@ -101,9 +107,10 @@ class VMServiceCreate extends React.Component {
   createService() {
     const { form } = this.props;
     const { validateFields } = form;
-    const { host, account, password, packages, env, isNewEnv } = this.state;
+    const { host, account, password, packages, env, isNewEnv, isAddTomcat } = this.state;
     let notify = new NotificationHandler()
     let obj = {}
+    let tempTomcat = {}
     for (let i = 0; i < env.length; i++) {
       obj[Object.keys(env[i])] = Object.values(env[i])[0]
     }
@@ -112,6 +119,12 @@ class VMServiceCreate extends React.Component {
       validateArr = validateArr.concat(['envIP','userName','password'])
     } else {
       validateArr.push('host')
+      // 1 已安装 Tomcat 2 添加新 Tomcat
+      if (isAddTomcat === 2) {
+        validateArr = validateArr.concat(['start_port', 'name', 'catalina_home_dir', 'catalina_home_env'])
+      } else {
+        validateArr.push('tomcat')
+      }
     }
     validateFields(validateArr, (errors,values)=>{
       if (!!errors) {
@@ -120,35 +133,37 @@ class VMServiceCreate extends React.Component {
       if (!packages.length) {
         return notify.info('请选择部署包')
       }
+      console.log('values', values)
       this.setState({
         confirmLoading: true
-      })
-      let vminfo = {
-        host,
-        account,
-        password
-      }
-      if (isNewEnv) {
-        this.checkHost(vminfo).then(() => {
-          this.createAction(vminfo, values, obj)
-        }).catch(() => {
-          notify.close()
-          notify.warn('传统环境测试连接失败，请重新填写')
-          this.setState({
-            confirmLoading: false
+      }, () => {
+        let vminfo = {
+          host,
+          account,
+          password
+        }
+        if (isNewEnv) {
+          this.checkHost(vminfo).then(() => {
+            this.createAction(vminfo, values, obj)
+          }).catch(() => {
+            notify.close()
+            notify.warn('传统环境测试连接失败，请重新填写')
+            this.setState({
+              confirmLoading: false
+            })
           })
-        })
-        return
-      }
-      this.createAction(vminfo, values, obj)
+          return
+        }
+        this.createAction(vminfo, values, obj)
+      })
     })
   }
   createAction(vminfo, values, obj) {
     const { createVMservice, form } = this.props;
-    const { init, normal, interval, packages, isNewEnv } = this.state;
+    const { init, normal, interval, packages, isNewEnv, isAddTomcat } = this.state;
     let serviceName = form.getFieldValue('serviceName')
     let notify = new NotificationHandler()
-    createVMservice({
+    const body = {
       name: serviceName,
       vminfo: isNewEnv ? vminfo : Number(values.host),
       healthcheck:{
@@ -158,8 +173,20 @@ class VMServiceCreate extends React.Component {
         interval
       },
       packages:packages,
-      envs:obj
-    },{
+      envs:obj,
+    }
+    if (isAddTomcat === 2) {
+      body.tomcat = {
+        catalina_home_dir: values.catalina_home_dir,
+        catalina_home_env: values.catalina_home_env,
+        name: values.name,
+        start_port: values.start_port,
+        vminfo: values.host,
+      }
+    } else {
+      body.tomcat = values.tomcat
+    }
+    createVMservice(body, {
       success: {
         func: () => {
           notify.success('创建应用成功')
@@ -193,7 +220,7 @@ class VMServiceCreate extends React.Component {
   }
   render() {
     const { currentPacket, confirmLoading } = this.state
-    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
+    const { getFieldValue, getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
       <QueueAnim
         id="vmServiceCreate"
@@ -219,13 +246,13 @@ class VMServiceCreate extends React.Component {
             </Form>
             <Collapse defaultActiveKey={['env','status','packet']}>
               <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                <TraditionEnv scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)}/>
+                <TraditionEnv ref={ ref => this.traditionEnv = ref } scope={this} form={this.props.form} changeEnv={this.changeEnv.bind(this)} changeIsAddTomcat={this.changeIsAddTomcat.bind(this)}/>
               </Panel>
               <Panel header={this.renderPanelHeader('选择部署包')} key="packet">
                 <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus scope={this} form={this.props.form} currentPacket={currentPacket}/>
+                <ServiceStatus port={getFieldValue('port')} scope={this} form={this.props.form} currentPacket={currentPacket}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">

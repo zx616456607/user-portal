@@ -827,6 +827,9 @@ module.exports = function (Router) {
   router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
   router.get('/vm-wrap/vminfos/:vminfo/exists', vmWrapController.checkVminfo)
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
+  router.get('/vmtomcats/list', vmWrapController.listVMTomcat)
+  router.del('/vmtomcats/:id/delete', vmWrapController.deleteTomcat)
+  router.post('/vmtomcats/create', vmWrapController.createTomcat)
 
   // Network Isolation
   router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)
