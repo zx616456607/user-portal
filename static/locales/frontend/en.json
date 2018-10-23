@@ -3242,7 +3242,6 @@
   "ServiceConfig.checkNetSegmentFail": "校验 IP 是否被占用请求失败",
   "ServiceConfig.isUsedAlready": "当前 IP 已经被占用, 请重新填写",
   "ServiceConfig.getNetSegmentFail": "获取 Pod 网段数据失败",
-
   "-------": "-------第三部分中文---------",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "Search by warehouse group name",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "Warehouse group name",
