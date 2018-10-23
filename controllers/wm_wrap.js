@@ -136,7 +136,7 @@ exports.deleteTomcat = function* () {
   const api = apiFactory.getVMWrapApi(loginUser)
   const id = this.params.id
 
-  const result = yield api.vmtomcats.deleteBy([ 'delete', id ])
+  const result = yield api.vmtomcats.deleteBy([ id, 'delete' ])
   this.body = result
 }
 
