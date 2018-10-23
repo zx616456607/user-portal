@@ -42,8 +42,10 @@ export default class EchartsOption {
       }
     }
     this.legend = {
+      type: 'scroll',
       data: [],
       left: '10%',
+      right: '5%',
       top: 'top',
       orient: 'horizontal'
     }

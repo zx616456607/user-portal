@@ -54,6 +54,7 @@ import isEmpty from "lodash/isEmpty";
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
+import { getDeepValue } from '../../../client/util/util';
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -379,10 +380,8 @@ const MyComponent = React.createClass({
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
-      const ipv4 = item.spec.template && item.spec.template.metadata && item.spec.template.metadata.annotations
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
+      const ipv4Str = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const ipv4 = ipv4Str && JSON.parse(ipv4Str)
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
@@ -713,6 +712,7 @@ class AppServiceList extends Component {
         isAsync: true
       }
     })
+    this.reloadServiceMesh()
   }
 
   onAllChange(e) {
@@ -759,12 +759,15 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    const { getServiceListServiceMeshStatus } = this.props
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { getServiceListServiceMeshStatus } = this.props
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
@@ -781,7 +784,6 @@ class AppServiceList extends Component {
     })
     this.setState({ mesh: serviceListMesh })
   }
-
   componentWillUnmount() {
     const {
       cluster,

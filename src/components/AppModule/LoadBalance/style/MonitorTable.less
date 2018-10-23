@@ -8,8 +8,9 @@
     }
   }
   .expandedRow {
-    height: 60px;
-    line-height: 60px;
+    display: flex;
+    min-height: 60px;
+    align-items: center;
     &:not(:last-of-type) {
       border-bottom: @border-width-base @border-style-base @border-color-base;
     }

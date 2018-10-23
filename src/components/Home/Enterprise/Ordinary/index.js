@@ -1505,7 +1505,7 @@ class Ordinary extends Component {
                       <FormattedMessage {...IntlMessages.projectName} />
                     </span>
                     <span>{spaceName}</span>
-                    {
+                    {/*{
                       spaceName === this.myProject
                         ? <span className="desc">
                           <FormattedMessage {...IntlMessages.personal} />
@@ -1517,7 +1517,7 @@ class Ordinary extends Component {
                           : <span className="desc">
                             <FormattedMessage {...IntlMessages.personal} />
                           </span>
-                    }
+                    }*/}
                   </div>
                   <div className="projectRole">
                     <span className="project">

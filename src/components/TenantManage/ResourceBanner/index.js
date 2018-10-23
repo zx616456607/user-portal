@@ -92,106 +92,59 @@ function mapStateToProps(state, props) {
   const space = getDeepValue( state, ['entities','current','space'] )
   const flagManager = judgeapplyLimit(space)
   const { resourceType } = props
+  // 增加resourceTypeArray字段, 作用是归一化resourceType字段
+  // 当resourceType字段为字符串的情况也转化为数组的情况
+  const resourceTypeArray = typeof resourceType === 'string' ? [resourceType] : resourceType
   return {clusterName, namespace, clusterID, role, ...(judgeProjectType(space)),
-     showDisplayName: formateQuery({space, resourceType, clusterID}), flagManager}
+     showDisplayName: formateQuery({space, resourceType, clusterID}), flagManager,
+     resourceTypeArray}
 }
 @connect(mapStateToProps, { getResourceDefinition, getClusterQuota, getClusterQuotaList,
   getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList })
 class ResourceBanner extends React.Component {
   state = {
-    setResource: undefined, // 默认资源未定义
-    usedResource: 0, // 默认使用零个
-    resourceName: '', // 名称为空
+    LastResourceInfoList: [], // 用于渲染的信息
     resourceflay: 0, //零为全局资源, 1为集群资源
   }
   static propTypes = {
     // 资源类型
-    resourceType: PropTypes.string.isRequired,
+    resourceType: PropTypes.string.isRequired || PropTypes.array.isRequired,
   }
   timer = null
-  reload = () => {
+  reload =async () => {
     const {getResourceDefinition, resourceType, clusterID, getGlobaleQuota, getGlobaleQuotaList,
       getClusterQuota, getClusterQuotaList, getDevopsGlobaleQuotaList  } = this.props
-    getResourceDefinition({
-      success: {
-        func: (result) => {
-          const resourceList = result.data
-          this.setState( { resourceName: findQuotaChinsesName({ resourceType, resourceList}).trim() } )
-          if ( Object.values(result.data.globalResource).find(n => n === resourceType) ) { //全局资源
-            this.setState({ resourceflay: 0 }) // 集群资源
-            getGlobaleQuota( {} ,{
-              success: {
-                func: (result) => {
-                  let resource = null
-                  if ( result.data ) {
-                    resource = result.data[resourceType]
-                  }
-                  if (resource === undefined) {
-                    resource = null
-                  }
-                  this.setState({ setResource: resource }) // null表示无限制
-                  // this.setState({ setResource: result.data})
-                },
-                isAsync: true,
-              },
-            })
-            getGlobaleQuotaList({}, {
-              success: {
-                func: result => {
-                  if (result.data[resourceType]) {
-                    this.setState({ usedResource: result.data[resourceType] })
-                  }
-                },
-                isAsync: true,
-              },
-              isAsync: true,
-            })
-            getDevopsGlobaleQuotaList({}, { // devops/Globale 只会在cicd去拉去, 所以这个地方不用拉取
-              success: {
-                func: result => {
-                  if (result.result[resourceType]) {
-                    this.setState({ usedResource: result.result[resourceType] })
-                  }
-                },
-                isAsync: true,
-              }
-            })
-          } else {
-            this.setState({ resourceflay: 1 }) // 集群资源
-            let query = { id: clusterID }
-            getClusterQuota(query, {
-              success: {
-                func: result => {
-                  let resource = null
-                  if ( result.data ) {
-                    resource = result.data[resourceType]
-                  }
-                  if (resource === undefined) {
-                    resource = null
-                  }
-                  this.setState({ setResource: resource }) // null表示无限制
-                },
-                isAsync: true,
-              },
-            })
-            getClusterQuotaList(query, {
-              success: {
-                func: result => {
-                  this.setState({ usedResource: result.data[resourceType] })
-                },
-                isAsync: true,
-              },
-            })
-          }
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: () => {
-        },
-        isAsync: true,
-      },
-    })
+    const [ ResourceDefinitionResult, GlobaleQuotaResult, ClusterQuotaResult ] =
+     await Promise.all([ getResourceDefinition(), getGlobaleQuota({}), getClusterQuota({id: clusterID}) ])
+    const { response: { result: { data:{ definitions } = {} } = {} } = {} } = ResourceDefinitionResult
+    const { response: { result:{ data: GlobaleQuotaResultList } = {} } = {} } = GlobaleQuotaResult
+    const { response: { result:{ data: ClusterQuotaResultList } = {} } = {} } = ClusterQuotaResult
+
+    const ResourceInfoList = definitions.filter(({ children }) => typeof children === 'object')
+      .map(({children}) => children)
+      .reduce((current, next) => current.concat(next), [])
+      .filter(({resourceType}) => this.props.resourceTypeArray.includes(resourceType))
+    // 由于放在相同的Banner中的元素都统一是全局资源或者非全局资源, 所以只需要判断一个即可
+    const resourceflay = ResourceInfoList[0].clusterIndependent ? 0 : 1
+    this.setState({ resourceflay })
+    const resourcesString = this.props.resourceTypeArray.join(',')
+    let QuotaList
+    if (resourceflay === 0) QuotaList = await getGlobaleQuotaList({ resources: resourcesString })
+    if (resourceflay === 1) QuotaList = await getClusterQuotaList({ id: clusterID,resource:resourcesString })
+    const { response: { result: { data: NewQuotaList = {}} = {} } = {} } = QuotaList
+    const LastResourceInfoList = ResourceInfoList
+      .map((resourceInfo) => {
+        const NewGlobaleQuotaResult = GlobaleQuotaResultList === null ? {} : GlobaleQuotaResultList
+        const NewGlobaleQuotaResultOne = NewGlobaleQuotaResult[resourceInfo.resourceType] || null
+        const NewClusterQuotaResult = ClusterQuotaResultList === null ? {} : ClusterQuotaResultList
+        const NewClusterQuotaResultOne = NewClusterQuotaResult[resourceInfo.resourceType] || null
+        return {
+          ...resourceInfo,
+          set: resourceInfo.clusterIndependent ? NewGlobaleQuotaResultOne : NewClusterQuotaResultOne,
+          inuse: NewQuotaList[resourceInfo.resourceType]
+        }
+      })
+    this.setState({ LastResourceInfoList })
   }
   componentDidMount = () => {
     this.reload()
@@ -203,13 +156,14 @@ class ResourceBanner extends React.Component {
   render () {
     const { formatMessage } = this.props.intl
     const { clusterName, resourceType, clusterID, getResourceDefinition,role,projectText, projectId,
-      projectType, showDisplayName, flagManager, type } = this.props
-    const { setResource, usedResource, resourceName, resourceflay } = this.state
+      projectType, showDisplayName, flagManager,} = this.props
+    const { LastResourceInfoList, resourceflay } = this.state
+    let { resourceName = '-', set:setResource = 0, inuse:usedResource= 0  } = LastResourceInfoList[0] || {}
     let percent = 0
     if (setResource) {
       percent = parseInt((usedResource / setResource) * 100)
     }
-    if (percent > 100) { // fix LOT-1837
+    if (percent > 100 || typeof percent !== 'number') { // fix LOT-1837
       percent = 100;
     }
     let link = '404'
@@ -231,43 +185,39 @@ class ResourceBanner extends React.Component {
     return(
       <QueueAnim>
         {
+          <div className="ResourceBannerWraper">
           <div className="ResourceBanner" key="ResourceBanner">
             <div>
-              {
-              type !== 'small' &&
               <span>{formatMessage(AppServiceDetailIntl.projectTextItem, { projectText })}</span>
-              }
-              { type !== 'small' &&
               <span style={{ display: resourceTypeText }}>{formatMessage(AppServiceDetailIntl.inCluserName, { clusterName })}</span>
-              }
-              { type !== 'small' ?
-              <span>{formatMessage(AppServiceDetailIntl.inQuotauseCondition, { resourceName })}</span>
-              : <span>{`「 ${resourceName} 」  配置: `}</span>
-              }
+              <span>
+              {formatMessage(AppServiceDetailIntl.inQuotauseCondition, { resourceName })}
+              </span>
             </div>
-            {
-              type !== 'small' &&
           <div className="progress">
             <Progress percent={percent} strokeWidth={5} status="active" showInfo={false}/>
           </div>
-            }
           <div>
             {`${usedResource}/${setResource === null ? formatMessage(AppServiceDetailIntl.noLimit) : setResource }`}
-            {
-              type !== 'small' &&
             <span onClick={ this.reload } className="reload">{formatMessage(ServiceCommonIntl.refresh)}</span>
-            }
           </div>
-          {
-            type !== 'small' ?
             <div>
               {
             (role === ROLE_SYS_ADMIN || role === ROLE_PLATFORM_ADMIN) ?
             <div><Link to={link}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.eidtQuota)}</Link></div> :
             <div style={{ display: flagManagerText }}><Link to={`/tenant_manage/applyLimit?${showDisplayName}`}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.applyIncreaseQuota)}</Link></div>
               }
-            </div> : <div></div>
-          }
+            </div>
+          </div>
+          <div className="moreInfo">
+              {
+                LastResourceInfoList.filter((_, index) => index !== 0)
+                .map(({ resourceName='-',set, inuse  }) =>
+                <span>{`「 ${resourceName} 」 配置: ${inuse}/${set=== null ?
+                  formatMessage(AppServiceDetailIntl.noLimit) : set}`}</span>
+                )
+              }
+          </div>
           </div>
         }
       </QueueAnim>

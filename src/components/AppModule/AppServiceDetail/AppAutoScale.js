@@ -38,6 +38,7 @@ import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import { getDeepValue } from '../../../../client/util/util'
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -689,15 +690,9 @@ class AppAutoScale extends Component {
     && serviceDetail[cluster][serviceName]
     && serviceDetail[cluster][serviceName].service
     || null
-    const annotations = currentService
-      && currentService.spec
-      && currentService.spec.template
-      && currentService.spec.template.metadata.annotations
-      || null
-    const isFexed = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs') || false
-    maxInstance = annotations
-      && annotations['cni.projectcalico.org/ipAddrs']
-      && JSON.parse(annotations['cni.projectcalico.org/ipAddrs']).length
+    const ipv4 = getDeepValue(currentService, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    const isFexed = ipv4 && true || false
+    maxInstance = ipv4 && JSON.parse(ipv4).length
     return(
       <div id="AppAutoScale">
         <div className="autoScaleSwitch">

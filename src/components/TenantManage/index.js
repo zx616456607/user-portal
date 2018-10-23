@@ -349,6 +349,7 @@ class TenantManage extends React.Component {
     let memberOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -426,6 +427,7 @@ class TenantManage extends React.Component {
     let teamOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -457,7 +459,7 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: t_createdByUser, name: '我创建' },
-          { value: 100 - Number(t_createdByUser), name: '其他' },
+          { value: this.state.team - Number(t_createdByUser), name: '其他' },
         ],
         label: {
           normal: {
@@ -495,6 +497,7 @@ class TenantManage extends React.Component {
     let projectOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -526,7 +529,7 @@ class TenantManage extends React.Component {
         center: ['30%', '48%'],
         data: [
           { value: p_createByUser, name: '我创建' },
-          { value: 100 - Number(p_createByUser), name: '其他' },
+          { value: this.state.project - Number(p_createByUser), name: '其他' },
         ],
         label: {
           normal: {
@@ -563,6 +566,7 @@ class TenantManage extends React.Component {
     let roleOption = {
       tooltip: {
         trigger: 'item',
+        confine: true,
         formatter: "{b} : {c}({d}%)"
       },
       legend: {
@@ -657,8 +661,8 @@ class TenantManage extends React.Component {
           <div className="alertRow">
             <span style={{ fontSize: 14 }}>租户管理满足细粒度的权限控制需求，帮助企业做好权限分配和管理，同时处理好授权方面的一些难题。按需为用户分配最小权限，从而降低企业的信息安全风险。</span>
           </div>
-          <Row gutter={30}>
-            <Col span={12}>
+          <Row gutter={24}>
+            <Col span={16}>
               <Row className="content" gutter={16} >
                 <Col span={12}>
                   <div style={{ marginBottom: '16px'}}>
@@ -701,17 +705,17 @@ class TenantManage extends React.Component {
                   </Card>
                 </Col>
               </Row>
-
             </Col>
-            <Col span={12}>
-              <Card title={<span style={{ color: '#666'}}><span>资源配额申请概览  (待处理)</span><span style={{ paddingLeft: '24px' }}>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span></span>}
-                    extra={<Link to="/tenant_manage/approvalLimit">审批记录>></Link>}
+            <Col span={8}>
+              <Card title={<span style={{ color: '#666'}}><span>资源配额申请  (待处理)</span></span>}
+                    extra={<span>共 <span style={{ color: '#2db7f5' }}>{isNaN(waitTotal) ? '' : waitTotal}</span> 个</span>}
                     bordered={false} bodyStyle={{ height: 180, padding: '0px' }}
               >
                 <Row>
                   <Col span={24} className="shareProject">
                     <Table columns={getColumns({ toggleApprovalModal, allUsers })} dataSource={publicItem.tabDataIndex} size="small" pagination={false}
                         loading={tabisFetching} scroll={{ y: 360 }} />
+                    <div className="shareProjectFooter"><Link to="/tenant_manage/approvalLimit">审批记录>></Link></div>
                   </Col>
                 </Row>
                 <ApprovalOperation title="资源配额审批" visible={showApprovalModal} toggleVisable={toggleApprovalModal}

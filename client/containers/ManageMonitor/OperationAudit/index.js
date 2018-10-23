@@ -306,9 +306,12 @@ class OperationalAudit extends React.Component {
     }
   }
   componentDidMount() {
-    this.getData()
-    this.props.getOperationalTarget()
-    this.loadProjectData()
+    const { namespace } = this.props
+    this.setState({ namespace }, () => {
+      this.getData()
+      this.props.getOperationalTarget()
+      this.loadProjectData()
+    })
   }
   loadProjectData = () => {
     this.props.ListProjects({ size: 0 }, {
@@ -344,12 +347,13 @@ class OperationalAudit extends React.Component {
   // 选择操作对象
   selectOptionTarget = value => {
     const temp = {
+      namespace: this.props.namespace,
       resource: value,
       operationType: [{ id: undefined, resourceName: '请选择操作对象' }],
       operation: undefined,
     }
-    if (value.indexOf(10009) > -1) {
-      temp.currentProject = undefined
+    if (value.indexOf(10009) > -1 || value.indexOf(10010) > -1) {
+      temp.namespace = ''
       temp.projectDisabled = true
     } else if (this.state.projectDisabled === true) {
       temp.currentProject = this.props.projectName || undefined
@@ -413,7 +417,7 @@ class OperationalAudit extends React.Component {
   refresh = () => {
     this.setState({
       from: 0,
-      namespace: undefined,
+      namespace: this.props.namespace,
       start_time: undefined,
       end_time: undefined,
       resource: undefined,
@@ -586,6 +590,7 @@ class OperationalAudit extends React.Component {
         dataIndex: 'namespace',
         title: '项目',
         width: '10%',
+        render: val => <span>{ val ? val : '-' }</span>,
       },
       {
         dataIndex: 'clusterName',

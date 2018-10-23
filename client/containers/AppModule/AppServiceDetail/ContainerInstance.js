@@ -17,6 +17,9 @@ import * as serviceActions from '../../../../src/actions/services'
 import * as podAction from '../../../../src/actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import { getServiceStatus } from '../../../../src/common/status_identify'
+import { getDeepValue } from '../../../util/util'
+import { injectIntl, FormattedMessage } from 'react-intl'
+import IntlMessages from './ContainerHeaderIntl'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -53,7 +56,7 @@ class ContainerInstance extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403) {
-            notification.warn('获取 Pod 网段数据失败')
+            notification.warn(<FormattedMessage {...IntlMessages.getPodDataFail} />)
           }
         },
       },
@@ -77,7 +80,7 @@ class ContainerInstance extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403 && statusCode !== 412) {
-            notification.warn('获取自动伸缩数据失败')
+            notification.warn(<FormattedMessage {...IntlMessages.getAutoScaleFail} />)
           }
         },
       },
@@ -87,10 +90,7 @@ class ContainerInstance extends React.Component {
   setInitaialStatus = () => {
     const { serviceDetail, cluster } = this.props
     const service = Object.keys(serviceDetail[cluster])[0]
-    const annotations = serviceDetail[cluster][service].service.spec.template
-      && serviceDetail[cluster][service].service.spec.template.metadata.annotations
-    const ipv4 = annotations && annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
-      && annotations['cni.projectcalico.org/ipAddrs']
+    const ipv4 = getDeepValue(serviceDetail, [ cluster, service, 'service', 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
     const { setFieldsValue } = this.props.form
     if (ipv4) {
       const ipv4Arr = JSON.parse(ipv4)
@@ -108,13 +108,11 @@ class ContainerInstance extends React.Component {
       const server = Object.keys(serviceDetail[cluster])[0]
       const { replicasIP } = values
       const ipStr = `[\"${replicasIP}\"]`
-      const annotations = serviceDetail[cluster][server].service.spec.template
-        && serviceDetail[cluster][server].service.spec.template.metadata.annotations
-        || {}
+      const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
       Object.assign(annotations, {
         'cni.projectcalico.org/ipAddrs': ipStr,
       })
-      notification.spin('更改中...')
+      notification.spin(<FormattedMessage {...IntlMessages.fixIPing} />)
       if (containerNum > 1) {
         await manualScaleService(cluster, server, { num: 1 }, {
           failed: {
@@ -122,7 +120,7 @@ class ContainerInstance extends React.Component {
               const { statusCode } = error
               notification.close()
               if (statusCode !== 403 && statusCode !== 412) {
-                return notification.warn('固定 IP 操作失败, 水平扩展失败')
+                return notification.warn(<FormattedMessage {...IntlMessages.scaleFail} />)
               }
             },
           },
@@ -149,7 +147,7 @@ class ContainerInstance extends React.Component {
             onChangeVisible()
             onHandleCanleIp(true)
             loadServiceDetail(cluster, serviceName)
-            notification.success('已固定 IP')
+            notification.success(<FormattedMessage {...IntlMessages.fixIPSuccess} />)
           },
           isAsync: true,
         },
@@ -158,7 +156,7 @@ class ContainerInstance extends React.Component {
             notification.close()
             const { statusCode } = error
             if (statusCode !== 403 && statusCode !== 412) {
-              notification.warn('固定 IP 操作失败')
+              notification.warn(<FormattedMessage {...IntlMessages.fixIPFail} />)
             }
           },
         },
@@ -171,19 +169,18 @@ class ContainerInstance extends React.Component {
     const { UpdateServiceAnnotation, onChangeVisible,
       cluster, serviceDetail, loadServiceDetail } = this.props
     const server = Object.keys(serviceDetail[cluster])[0]
-    const annotations = serviceDetail[cluster][server].service.spec.template
-      && serviceDetail[cluster][server].service.spec.template.metadata.annotations
+    const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
     Object.assign(annotations, {
       'cni.projectcalico.org/ipAddrs': '',
     })
-    notification.spin('释放中...')
+    notification.spin(<FormattedMessage {...IntlMessages.releasing} />)
     UpdateServiceAnnotation(cluster, server, annotations, {
       success: {
         func: () => {
           notification.close()
           onChangeVisible()
           loadServiceDetail(cluster, server)
-          notification.success('释放 IP 成功')
+          notification.success(<FormattedMessage {...IntlMessages.releaseSuccess} />)
         },
         isAsync: true,
       },
@@ -192,7 +189,7 @@ class ContainerInstance extends React.Component {
           const { statusCode } = err
           notification.close()
           if (statusCode !== 403 && statusCode !== 412) {
-            notification.warn('释放 IP 失败')
+            notification.warn(<FormattedMessage {...IntlMessages.releaseFail} />)
           }
         },
       },
@@ -211,29 +208,42 @@ class ContainerInstance extends React.Component {
   }
 
   checkPodCidr = async (rule, value, callback) => {
-    if (!value) return callback()
     const { NetSegment } = this.state
+    if (!value) {
+      return callback(this.props.intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }))
+    }
     if (!NetSegment) {
-      return callback('未获取到指定网段')
+      return callback(<FormattedMessage
+        {...IntlMessages.netSegmentUnknow}
+      />)
     }
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
-      return callback(`请输入属于 ${NetSegment} 的 IP`)
+      return callback(this.props.intl.formatMessage(IntlMessages.inputRange, { NetSegment })
+      // <FormattedMessage
+      //   {...IntlMessages.inputRange}
+      //   values={{ NetSegment }}
+      // />
+      )
     }
     const { getISIpPodExisted, cluster } = this.props
     const isExist = await getISIpPodExisted(cluster, value)
     const { code, data: { isPodIpExisted } } = isExist.response.result
     if (code !== 200) {
-      return callback('校验 IP 是否被占用失败')
+      return callback(<FormattedMessage
+        {...IntlMessages.checkIPFail}
+      />)
     } else if (code === 200 && isPodIpExisted === 'true') {
-      return callback('当前 IP 已经被占用, 请重新填写')
+      return callback(<FormattedMessage
+        {...IntlMessages.isUsedIP}
+      />)
     }
     callback()
   }
 
   render() {
     const { NetSegment, isScale } = this.state
-    const { form, configIP, notConfigIP, containerNum, cluster, serviceDetail } = this.props
+    const { form, configIP, notConfigIP, containerNum, cluster, serviceDetail, intl } = this.props
     const { getFieldProps } = form
     const server = Object.keys(serviceDetail[cluster])[0]
     const service = serviceDetail[cluster][server].service
@@ -246,15 +256,20 @@ class ContainerInstance extends React.Component {
     return (
       <div className="containerInstance">
         <Modal
-          title="配置固定 IP"
+          title={<FormattedMessage {...IntlMessages.fixIPConfig} />}
           visible={configIP}
           onOk={this.handleOk}
           onCancel={() => this.handleCandle(false)}
           className="containerInstanceModal"
           footer={[
-            <Button key="cancel" onClick={() => this.handleCandle(false)}>取消</Button>,
-            <Tooltip title={isStop ? '停止中的服务不支持固定 IP' : null}>
-              <Button key="confirm" type="primary" disabled={isStop} onClick={this.handleOk}>重启服务，应用更改</Button>
+            <Button key="cancel" onClick={() => this.handleCandle(false)}>
+              <FormattedMessage {...IntlMessages.fixIPCandle} />
+            </Button>,
+            <Tooltip
+              title={isStop ? <FormattedMessage {...IntlMessages.stopedServer} /> : null}>
+              <Button key="confirm" type="primary" disabled={isStop} onClick={this.handleOk}>
+                <FormattedMessage {...IntlMessages.fixIPEnter} />
+              </Button>
             </Tooltip>,
           ]}
         >
@@ -262,48 +277,44 @@ class ContainerInstance extends React.Component {
             {
               (containerNum > 1 || isScale) ?
                 <div className="podPrompt">
-                  目前仅支持一个实例固定 IP，且功能开启后，将不支持服务自动伸缩
+                  <FormattedMessage {...IntlMessages.fixOnePrompt} />
                 </div>
                 : null
             }
             <FormItem
-              label="容器实例数量"
+              label={<FormattedMessage {...IntlMessages.instanceNum} />}
               {...formItemLayout}>
               <span>{containerNum}</span>
             </FormItem>
             <FormItem
               wrapperCol={{ span: 16, offset: 4 }}
               {...formItemLayout}
-              label={'配置固定 IP'}
+              label={<FormattedMessage {...IntlMessages.fixedInstanceIP} />}
               className="addIp"
             >
               <Input {...getFieldProps('replicasIP', {
                 rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: `请填写实例 IP（需属于 ${NetSegment}）`,
-                }, {
                   validator: this.checkPodCidr,
                 }],
               })}
               style={{ width: 280 }}
-              placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
+              placeholder={intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }) }
               />
             </FormItem>
           </div>
         </Modal>
         <Modal
-          title="不再固定实例 IP"
+          title={<FormattedMessage {...IntlMessages.releaseIP} />}
           visible={notConfigIP}
           onOk={this.handleNotFix}
           onCancel={() => this.handleCandle(true)}
-          okText={'确认释放 IP'}
+          okText={<FormattedMessage {...IntlMessages.enterReleaseIP} />}
         >
           <div className="securityGroupContent">
             <i className="fa fa-exclamation-triangle modalIcon" aria-hidden="true"></i>
             <div>
-              <p>容器实例 IP 将不再固定，重新创建容器 IP 可能发生变化，且已配置的固定 IP 将被释放！</p>
-              <p>继续将不再固定实例 IP，确认继续? </p>
+              <p><FormattedMessage {...IntlMessages.releaseIPPrompt} /></p>
+              <p><FormattedMessage {...IntlMessages.askReleaseIP} /></p>
             </div>
           </div>
         </Modal>
@@ -330,4 +341,6 @@ export default connect(mapStateToProps, {
   loadServiceDetail: serviceActions.loadServiceDetail,
   getPodNetworkSegment: podAction.getPodNetworkSegment,
   getISIpPodExisted: serviceActions.getISIpPodExisted,
-})(Form.create()(ContainerInstance))
+})(injectIntl(Form.create()(ContainerInstance), {
+  withRef: true,
+}))

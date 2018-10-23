@@ -87,9 +87,7 @@ class Network extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} KB/s'}, 0, 1000) : option.addYAxis('value', {formatter: '{value} KB/s'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    if (networkTransmitted.data && networkReceived.data) {
-      option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length, events)
-    }
+
     return (
       <div className="chartBox">
         <span className="freshTime">
