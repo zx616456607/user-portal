@@ -58,6 +58,12 @@ class CreateTomcat extends React.Component {
       onOk && onOk(temp)
     })
   }
+  onPortChange = e => {
+    const { form: { setFieldsValue } } = this.props
+    setFieldsValue({
+      port: e.target.value
+    })
+  }
   render() {
     const { name } = this.state
     const { form: { getFieldProps }, tomcatList, isNeedModal,
@@ -71,7 +77,8 @@ class CreateTomcat extends React.Component {
     const portProps = getFieldProps('start_port', {
       rules: [
         { validator: this.checkPort }
-      ]
+      ],
+      onChange: this.onPortChange,
     })
     const nameProps = getFieldProps('name', {
       initialValue: name,

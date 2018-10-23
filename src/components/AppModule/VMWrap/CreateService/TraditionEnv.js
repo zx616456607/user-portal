@@ -211,6 +211,12 @@ class TraditionEnv extends Component{
     })
     this.props.changeIsAddTomcat(tomcatRadio)
   }
+  onExsistTomcatChange = id => {
+    const { tomcatList } = this.state
+    const { form: { setFieldsValue } } = this.props
+    const curr = filter(tomcatList, { id })[0]
+    if (curr) setFieldsValue({ port: startPort })
+  }
   render() {
     const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat } = this.state
     const { vmList, form } = this.props
@@ -257,7 +263,10 @@ class TraditionEnv extends Component{
       rules: [
         {required: true, message: "请选择已安装的 Tomcat 环境"}
       ],
+      onChange: this.onExsistTomcatChange,
     })
+    const portProps = getFieldProps('port')
+
     let testStyle = {
       color: '#31ba6a',
       marginLeft: '20px',
@@ -287,6 +296,7 @@ class TraditionEnv extends Component{
     })
     return (
       <div className="traditionEnv">
+        <Input type="hidden" {...portProps} />
         <Row style={{ marginBottom: 20 }}>
           <Col offset={3}>
             <ButtonGroup size="large">

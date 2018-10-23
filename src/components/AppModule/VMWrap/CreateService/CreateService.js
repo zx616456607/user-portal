@@ -122,6 +122,8 @@ class VMServiceCreate extends React.Component {
       // 1 已安装 Tomcat 2 添加新 Tomcat
       if (isAddTomcat === 2) {
         validateArr = validateArr.concat(['start_port', 'name', 'catalina_home_dir', 'catalina_home_env'])
+      } else {
+        validateArr.push('tomcat')
       }
     }
     validateFields(validateArr, (errors,values)=>{
@@ -132,7 +134,6 @@ class VMServiceCreate extends React.Component {
         return notify.info('请选择部署包')
       }
       console.log('values', values)
-      debugger
       this.setState({
         confirmLoading: true
       }, () => {
@@ -219,7 +220,7 @@ class VMServiceCreate extends React.Component {
   }
   render() {
     const { currentPacket, confirmLoading } = this.state
-    const { getFieldProps, isFieldValidating, getFieldError } = this.props.form;
+    const { getFieldValue, getFieldProps, isFieldValidating, getFieldError } = this.props.form;
     return (
       <QueueAnim
         id="vmServiceCreate"
@@ -251,7 +252,7 @@ class VMServiceCreate extends React.Component {
                 <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus scope={this} form={this.props.form} currentPacket={currentPacket}/>
+                <ServiceStatus port={getFieldValue('port')} scope={this} form={this.props.form} currentPacket={currentPacket}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">
