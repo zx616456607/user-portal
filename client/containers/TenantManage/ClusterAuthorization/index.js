@@ -122,9 +122,9 @@ class Index extends React.Component {
     if (this.props.location.query.link_status === '1') {
       const filter = 'status__neq,2,status__neq,3'
       query.filter = filter
-      this.setState({
-        filter, // : { status: [ 1 ] },
-      })
+      // this.setState({
+      //   filter, // : { status: [ 1 ] },
+      // })
     }
     this.props.GetProjectsApprovalClusters(query)
   }
