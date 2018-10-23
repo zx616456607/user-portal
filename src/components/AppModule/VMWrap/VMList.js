@@ -224,11 +224,11 @@ class VMList extends React.Component {
    */
   handleDel() {
     const { delVMinfoList } = this.props
-    const { searchValue } = this.state
+    const { searchValue, ID } = this.state
     notification.spin(`删除 ${this.state.host} 中...`)
     this.state.isDelete ?
       delVMinfoList({
-        vmID: this.state.ID
+        vmID: ID
       }, {
           success: {
             func: res => {
@@ -314,13 +314,13 @@ class VMList extends React.Component {
    * 确定删除
    */
   handleOK(e, record) {
-    const { ID, Name, host } = record
+    const { vminfoId, Name, host } = record
     switch(e.key) {
       case 'delete':
         this.setState({
           isDelVisible: true,
           isDelete: true,
-          ID: ID,
+          ID: vminfoId,
           Name: Name,
           host: host,
         })
