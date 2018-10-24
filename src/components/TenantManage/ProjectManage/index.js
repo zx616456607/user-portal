@@ -16,7 +16,7 @@ import {browserHistory, Link} from 'react-router'
 import {connect} from 'react-redux'
 import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
-import {ListProjects, DeleteProjects, UpdateProjects, CreateProjects} from '../../../actions/project'
+import {ListProjectsAndStatistics, DeleteProjects, UpdateProjects, CreateProjects} from '../../../actions/project'
 import {usersAddRoles, roleWithMembers, usersLoseRoles} from '../../../actions/role'
 import {loadUserList} from '../../../actions/user'
 import {chargeProject} from '../../../actions/charge'
@@ -320,7 +320,7 @@ let ProjectManage = React.createClass({
   },
 
   loadProjectList(n) {
-    const {ListProjects, roleNum} = this.props;
+    const {ListProjectsAndStatistics, roleNum} = this.props;
     const {sort, roleFilter, searchName} = this.state;
     this.setState({tableLoading: true})
     let page = n - 1 || 0
@@ -333,7 +333,7 @@ let ProjectManage = React.createClass({
     obj = !filter ? obj : Object.assign(obj, {filter})
     obj = sort === '' ? obj : Object.assign(obj, {sort})
 
-    ListProjects(obj, {
+    ListProjectsAndStatistics(obj, {
       success: {
         func: (result) => {
           if (result.statusCode === 200) {
@@ -962,7 +962,7 @@ let ProjectManage = React.createClass({
               >
                 <PayTable data={projectList && projectList.projects} updatePayArr={this.updatePayArr}
                           visible={payModal} updatePayCharge={this.updatePayCharge}
-                          currentPage={currentPage} ListProjects={this.props.ListProjects}
+                          currentPage={currentPage} ListProjectsAndStatistics={this.props.ListProjectsAndStatistics}
                           updatePayNumber={this.updatePayNumber}/>
               </Modal>
           }
@@ -1144,7 +1144,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  ListProjects,
+  ListProjectsAndStatistics,
   DeleteProjects,
   UpdateProjects,
   chargeProject,
@@ -1214,7 +1214,7 @@ class PayTable extends Component {
     updatePayNumber(payNumber)
   }
   loadProjectList(n) {
-    const { ListProjects } = this.props;
+    const { ListProjectsAndStatistics } = this.props;
     this.setState({tableLoading: true}, () => {
       let page = n - 1 || 0
       let obj = {
@@ -1222,7 +1222,7 @@ class PayTable extends Component {
         size: 10,
         sort: 'a,name',
       }
-      ListProjects(obj, {
+      ListProjectsAndStatistics(obj, {
         success: {
           func: (result) => {
             if (result.statusCode === 200) {

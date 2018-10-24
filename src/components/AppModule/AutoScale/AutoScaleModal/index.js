@@ -30,6 +30,7 @@ import { autoScaleNameCheck } from '../../../../common/naming_validation'
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/index.less'
+import { getDeepValue } from '../../../../../client/util/util';
 
 const FormItem = Form.Item
 const Option = Select.Option;
@@ -61,8 +62,9 @@ class AutoScaleModal extends React.Component {
   }
 
   componentDidMount() {
-    const {scaleDetail, clusterID, loadAllServices} = this.props
+    const {scaleDetail, clusterID, loadAllServices, loadNotifyGroups} = this.props
     this.initThresholdArr(scaleDetail)
+    loadNotifyGroups(null, clusterID)
     loadAllServices(clusterID, {
       pageIndex: 1,
       pageSize: 100,
@@ -699,9 +701,7 @@ function mapStateToProps(state, props) {
   let {services} = serviceList || {services: []}
   services = services && services.length && existServices && services.filter(item => (
     !existServices.includes(item.metadata.name)
-      && item.spec.template.metadata
-      && item.spec.template.metadata.annotations
-      && !item.spec.template.metadata.annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+      && !getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
   ))
   return {
     clusterID,

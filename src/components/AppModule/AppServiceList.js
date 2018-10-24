@@ -54,6 +54,7 @@ import isEmpty from "lodash/isEmpty";
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
+import { getDeepValue } from '../../../client/util/util';
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -345,7 +346,7 @@ const MyComponent = React.createClass({
   rendermeshIcon() {
     return (
       <span style={{ lineHeight: '16px' }}>
-        <Tooltip title={"该服务已开启服务网格"}>
+        <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
         <img className="meshIcon"　src={meshIcon} alt=""/>
         </Tooltip>
       </span>
@@ -379,10 +380,8 @@ const MyComponent = React.createClass({
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
-      const ipv4 = item.spec.template
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
+      const ipv4Str = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const ipv4 = ipv4Str && JSON.parse(ipv4Str)
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
@@ -682,6 +681,7 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
       grayscaleUpgradeModalVisible: false,
       mesh: undefined,
+      documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle),
     }
   }
   getInitialState() {
@@ -712,6 +712,7 @@ class AppServiceList extends Component {
         isAsync: true
       }
     })
+    this.reloadServiceMesh()
   }
 
   onAllChange(e) {
@@ -758,12 +759,15 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    const { getServiceListServiceMeshStatus } = this.props
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { getServiceListServiceMeshStatus } = this.props
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
@@ -780,7 +784,6 @@ class AppServiceList extends Component {
     })
     this.setState({ mesh: serviceListMesh })
   }
-
   componentWillUnmount() {
     const {
       cluster,
@@ -1205,7 +1208,12 @@ class AppServiceList extends Component {
   }*/
   closeModal() {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      documentTitle: "",
+    }, () => {
+      this.setState({
+        documentTitle: this.props.intl.formatMessage(AllServiceListIntl.documentTitle)
+      })
     })
   }
 
@@ -1262,6 +1270,7 @@ class AppServiceList extends Component {
       selectTab, rollingUpdateModalShow, configModal,
       manualScaleModalShow, runBtn, stopBtn, restartBtn,
       redeploybtn, grayscaleUpgradeModalVisible,
+      documentTitle,
     } = this.state
     const {
       name, pathname, page,
@@ -1297,7 +1306,8 @@ class AppServiceList extends Component {
                    type="right"
         >
           <div className="operaBox" key="serverList">
-            <Title title={formatMessage(intlMsg.nameServerList, { appName })} />
+            <Title title={documentTitle} />
+            {/* <Title title={formatMessage(intlMsg.nameServerList, { appName })} /> */}
             <Button
               size="large"
               type="primary"
@@ -1416,13 +1426,19 @@ class AppServiceList extends Component {
             transitionName="move-right"
             onCancel={this.closeModal}
           >
-            <AppServiceDetail
-              appName={appName}
-              scope={parentScope}
-              funcs={funcs}
-              selectTab={selectTab}
-              serviceDetailmodalShow={this.state.modalShow}
-            />
+          {
+            modalShow ?
+              <AppServiceDetail
+                appName={appName}
+                scope={parentScope}
+                funcs={funcs}
+                selectTab={selectTab}
+                serviceDetailmodalShow={this.state.modalShow}
+                onClose={this.closeModal}
+              />
+              :
+              null
+          }
           </Modal>
           {
             rollingUpdateModalShow ?

@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input } from 'antd'
+import { Row, Col, Card, Button, Select, Radio, Icon, Modal, Tooltip, Form, Input, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import classNames from 'classnames'
 import isEmpty from 'lodash/isEmpty'
@@ -27,6 +27,8 @@ import findIndex from "lodash/findIndex";
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { getDeepValue } from "../../../../client/util/util"
+import * as serviceMeshActions from '../../../actions/serviceMesh'
+import VisitTypeAddressTable from './VisitTypeAddressTable'
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -54,7 +56,8 @@ class VisitType extends Component{
       initSelect: undefined,
       isLbgroupNull: false,
       activeKey: 'netExport',
-      agentValue: 'outside',
+      agentValue: 'inside',
+      serviceIstioEnabled: undefined, //默认显示原来的显示方式
     }
   }
   async componentWillMount() {
@@ -72,15 +75,28 @@ class VisitType extends Component{
       })
     }
     const agentType = getDeepValue(service, [ 'spec', 'template', 'metadata', 'annotations', 'agentType' ])
-    this.setState({
-      agentValue: agentType,
-    })
+    if (agentType) {
+      this.setState({
+        agentValue: agentType,
+      })
+    }
     getServiceLBList(cluster, service.metadata.name)
     form.setFieldsValue({
       portsKeys: [{value: 0}]
     })
     await this.setPortsToForm(this.props)
     this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
+  }
+  componentDidMount() {
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { clusterId, serviceName } = this.props
+    const result3 = await this.props.checkAPPInClusMesh(clusterId, null, serviceName)
+    const { pods = {} } = result3.response.result
+    const podsIstio = Object.values(pods)
+    const { serviceIstioEnabled } = podsIstio[0] || {}
+    this.setState({serviceIstioEnabled: !!serviceIstioEnabled}) // 当服务开启了Istio时, 不显示原来的内容, 显示文本提示
   }
   async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
@@ -116,11 +132,14 @@ class VisitType extends Component{
       await this.setPortsToForm(nextProps)
       this.getDomainAndProxy(getProxy,service,cluster,bindingDomains,bindingIPs)
     }
+    // if (isCurrentTab) {
+    //   this.reloadServiceMesh()
+    // }
   }
   setPortsToForm = async (props) => {
     const { loadK8sService, cluster, service, k8sService, form } = props
     await loadK8sService(cluster, service.metadata.name)
-    if (isEmpty(k8sService) || isEmpty(k8sService.data) || service.lbgroup.type === 'none') {
+    if (isEmpty(k8sService) || isEmpty(k8sService.data) || (service.lbgroup || {}).type === 'none') {
       return
     }
     const { spec, metadata } =  k8sService.data[camelize(service.metadata.name)]
@@ -465,7 +484,7 @@ class VisitType extends Component{
       if (isLb && item.isLb) {
         return this.domainComponent(index, item)
       }
-      if (item.isInternal === isInterPort) {
+      if (item.isInternal === isInterPort && !isLb) {
         return this.domainComponent(index, item)
       }
     })
@@ -479,24 +498,16 @@ class VisitType extends Component{
   }
 
   renderIngresses = () => {
-    const { LBList } = this.props
+    const { LBList = [] } = this.props
     const { agentValue } = this.state
     const { formatMessage } = this.props.intl
-    if (!LBList || !LBList.length) {
-      return <div>
-        <div className="hintColor noLB">{formatMessage(AppServiceDetailIntl.noBindLoadBalance)}</div>
-        <Button type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
-          {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
-          </Button>
-      </div>
-    }
     const copyList = LBList.map(_item => Object.assign({}, _item, { agentType: _item.agentType || 'outside' }))
     return copyList.filter(_item => _item.agentType === agentValue).map(item => {
       return (
         <Row type="flex" align="middle" className="LBList">
           <Col span={8}><Input value={item.displayName} disabled style={{ width: '90%' }}/></Col>
           <Col span={5}>
-            <Button type="primary" onClick={() => this.openModal(item)}>
+            <Button type="ghost" className="unbundleBtn" onClick={() => this.openModal(item)}>
               {formatMessage(AppServiceDetailIntl.removeLoadBalance)}
             </Button>
           </Col>
@@ -525,13 +536,13 @@ class VisitType extends Component{
   confirmModal = () => {
     const { unbindIngressService, getServiceLBList, cluster, service } = this.props
     const { formatMessage } = this.props.intl
-    const { currentLB } = this.state
+    const { currentLB, agentValue } = this.state
     let notify = new NotificationHandler()
     this.setState({
       confirmLoading: true
     })
     notify.spin(formatMessage(AppServiceDetailIntl.removing))
-    unbindIngressService(cluster, currentLB.name, service.metadata.name, {
+    unbindIngressService(cluster, currentLB.name, service.metadata.name, agentValue, {
       success: {
         func: () => {
           getServiceLBList(cluster, service.metadata.name)
@@ -614,6 +625,8 @@ class VisitType extends Component{
         </Modal>
         <div className="visitTypeTopBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.ServiceVisitManner)}</div>
+          {
+          this.state.serviceIstioEnabled === false &&
           <div className="visitTypeInnerBox">
             <ul className='tabs_header_style visitTypeTabs'>
               <li className={imageComposeStyle}
@@ -673,6 +686,9 @@ class VisitType extends Component{
               />
             </div>
             <div className={classNames('loadBalancePart',{'hide': activeKey === 'netExport'})}>
+              <Button style={{ marginBottom: 16 }} type={'primary'} onClick={() => browserHistory.push('/app_manage/load_balance')}>
+                {formatMessage(AppServiceDetailIntl.bindLoadbalance)}
+              </Button>
               <RadioGroup value={agentValue} onChange={this.agentChange}>
                 <Radio value="inside">{formatMessage(AppServiceDetailIntl.loadBalanceInCluster)}</Radio>
                 <Radio value="outside">{formatMessage(AppServiceDetailIntl.loadBalanceOutCluster)}</Radio>
@@ -680,13 +696,31 @@ class VisitType extends Component{
               {this.renderIngresses()}
             </div>
           </div>
+          }
+          {
+            this.state.serviceIstioEnabled === true &&
+          <span style={{ color:"#ccc", paddingLeft:16}} >
+            已开启服务网格, 服务的访问方式在【治理-服务网格】-【路由管理】的路由规则中设置
+          </span>
+          }
+          {
+            this.state.serviceIstioEnabled === undefined &&
+            <Spin/>
+          }
         </div>
         <div className="visitTypeBottomBox">
           <div className="visitTypeTitle">{formatMessage(AppServiceDetailIntl.visitAddress)}</div>
-          <div className="visitAddrInnerBox">
+          <VisitTypeAddressTable
+          addrHide={addrHide}
+          privateNet={privateNet}
+          svcDomain={this.state.svcDomain}
+          hasLbDomain={hasLbDomain}
+          serviceIstioEnabled={this.state.serviceIstioEnabled}
+          />
+          {/* <table className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
             <dl className={classNames("addrListBox",{'hide':addrHide})}>
-              <dt className="addrListTitle"><Icon type="link"/>
+              <dt className="addrListTitle">
                 {privateNet ?
                 formatMessage(AppServiceDetailIntl.intranet)
                 :
@@ -697,14 +731,14 @@ class VisitType extends Component{
               {this.domainList(false)}
             </dl>
             <dl className="addrListBox">
-              <dt className="addrListTitle"><Icon type="link"/>{formatMessage(AppServiceDetailIntl.visitAddressInCluster)}</dt>
+              <dt className="addrListTitle">{formatMessage(AppServiceDetailIntl.visitAddressInCluster)}</dt>
               {this.domainList(true)}
             </dl>
             <dl className={classNames("addrListBox", { hide: !hasLbDomain })}>
-              <dt className="addrListTitle"><Icon type="link"/>{formatMessage(AppServiceDetailIntl.loadBalanceVisitAddress)}</dt>
+              <dt className="addrListTitle">{formatMessage(AppServiceDetailIntl.loadBalanceVisitAddress)}</dt>
               {this.domainList(false, true)}
             </dl>
-          </div>
+          </table> */}
         </div>
       </Card>
     )
@@ -717,12 +751,14 @@ function mapSateToProp(state) {
   const { serviceLoadBalances } = loadBalance
   const { data: LBList } = serviceLoadBalances || { data: [] }
   const { k8sService } = services
+  const clusterId = getDeepValue( state, ['entities','current','cluster', 'clusterID'] )
   return {
     bindingDomains: current.cluster.bindingDomains,
     bindingIPs: current.cluster.bindingIPs,
     LBList,
     currentCluster: current.cluster,
     k8sService,
+    clusterId,
   }
 }
 
@@ -734,6 +770,7 @@ VisitType = connect(mapSateToProp, {
   getServiceLBList,
   unbindIngressService,
   updateServicePort,
-  loadK8sService
+  loadK8sService,
+  checkAPPInClusMesh: serviceMeshActions.checkAPPInClusMesh
 })(Form.create()(VisitType))
 export default injectIntl(VisitType,{withRef: true,});

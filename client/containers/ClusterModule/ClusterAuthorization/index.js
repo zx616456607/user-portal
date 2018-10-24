@@ -100,7 +100,7 @@ class Index extends React.Component {
       filter: '', // 表格筛选
       searchContent: '', // 搜索内容
       passContent: '',
-      searchField: 'tenx_users.user_name,',
+      searchField: 'tenx_project_resource_ref.applicant,',
     }
     this.statusTag = this.statusTag.bind(this)
     this.tableChange = this.tableChange.bind(this)
@@ -385,8 +385,8 @@ class Index extends React.Component {
     }
     const isLoading = this.props.projectsApprovalClustersList.isFetching
     const selectBefore = (
-      <Select defaultValue="tenx_users.user_name," style={{ width: 90 }} onChange={this.handleSearchApplicantOrProject}>
-        <Option value="tenx_users.user_name,">申请人</Option>
+      <Select defaultValue="tenx_project_resource_ref.applicant," style={{ width: 90 }} onChange={this.handleSearchApplicantOrProject}>
+        <Option value="tenx_project_resource_ref.applicant,">申请人</Option>
         <Option value="tenx_project.name,">申请项目</Option>
       </Select>
     )
@@ -414,7 +414,7 @@ class Index extends React.Component {
                     })
                   }}
                   value={this.state.searchContent}
-                  placeholder={this.state.searchField === 'tenx_users.user_name,' ? '按申请人搜索' : '按项目名搜索'}
+                  placeholder={this.state.searchField === 'tenx_project_resource_ref.applicant,' ? '按申请人搜索' : '按项目名搜索'}
                   style={{ paddingRight: '28px', width: 170 }}
                   onPressEnter={ () => this.searchItem() } />
                 <div className="search-btn" onClick={this.searchItem}>

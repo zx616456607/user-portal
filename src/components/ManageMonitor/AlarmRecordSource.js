@@ -88,17 +88,16 @@ class AlarmRecord extends Component {
     const {
       recordFilters
     } = this.props
-
-    let strategies = [<Option value="">全部</Option>]
-    for (let strategy of recordFilters.strategies) {
-      strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+    let strategies = [<Option value="" key={'all'}>全部</Option>]
+    let targets = [<Option value="" key={'targetsAll'}>全部</Option>]
+    if (recordFilters.strategies) {
+      for (let strategy of recordFilters.strategies) {
+        strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+      }
+      for (let target of recordFilters.targets) {
+        targets.push(<Option value={target.name}>{target.name}</Option>)
+      }
     }
-
-    let targets = [<Option value="">全部</Option>]
-    for (let target of recordFilters.targets) {
-      targets.push(<Option value={target.name}>{target.name}</Option>)
-    }
-
     return {
       strategies,
       targets,
@@ -307,9 +306,9 @@ class AlarmRecord extends Component {
         render: (text) => {
           switch (text) {
             case 0:
-              return <div>未发送</div>
+              return <div style={{ color: '#f23e3f' }}>否</div>
             case 1:
-              return <div style={{ color: '#33b867' }}>已发送</div>
+              return <div style={{ color: '#33b867' }}>是</div>
             case 2:
               return <div style={{ color: '#f23e3f' }}>发送失败</div>
             default:

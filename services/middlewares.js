@@ -35,7 +35,7 @@ if (process.env.RUNNING_MODE === 'standard') {
 exports.auth = function* (next) {
   const loginUser = this.session.loginUser
   const accept = indexService.accepts.apply(this)
-  if (!loginUser) {
+  if (!loginUser || !loginUser.user) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
@@ -142,7 +142,7 @@ exports.verifyUser = function* (next) {
   if (body.inviteCode) {
     data.inviteCode = body.inviteCode
   }
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   let result = {}
   try {
     result = yield api.users.createBy(['login'], null, data)
@@ -183,7 +183,8 @@ exports.verifyUser = function* (next) {
     openstack:{
       withProject:{},
       withoutProject:{}
-    }
+    },
+    ip: this.request.ip
   }
   // get harbor current user for check is harbor admin user
   try {

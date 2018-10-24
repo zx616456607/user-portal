@@ -191,6 +191,14 @@ const messages = defineMessages({
   CheckWrapPass: {
     id: 'TenxStatus.CheckWrapPass',
     defaultMessage: '审核已通过'
+  },
+  Evicted: {
+    id: 'TenxStatus.Evicted',
+    defaultMessage: '已被驱赶',
+  },
+  EvictedTip: {
+    id: 'TenxStatus.EvictedTip',
+    defaultMessage: '系统资源不足，可以集群增加配置后重新部署',
   }
 })
 
@@ -333,6 +341,14 @@ class TenxStatus extends Component {
       )
     }
     if (phase === 'Failed') {
+      if (status.reason && status.reason === 'Evicted') {
+        return (
+          <div>
+            <FormattedMessage {...messages.Evicted} />
+            <Tooltip title={<FormattedMessage {...messages.EvictedTip} />}>{exclamationIcon}</Tooltip>
+          </div>
+        )
+      }
       return (
         <div>
           {status.reason}<Tooltip title={status.message}>{exclamationIcon}</Tooltip>

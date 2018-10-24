@@ -54,14 +54,21 @@ class Pipeline extends React.Component {
       windowHeight: window.innerHeight,
     })
   }
-
+  // componentDidUpdate(prevProps) {
+  //   const { location: { pathname: prevPathname, query: { redirect: _prevRedirect } = {} } = {} }
+  //    = prevProps
+  //   const { location: { pathname, query: { redirect } = {} } = {} } = this.props
+  //   if (_prevRedirect !== redirect || prevPathname !== pathname) {
+  //     window.history.back()
+  //   }
+  // }
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token, billingEnabled, ftpEnabled,
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
-    let title
+    let title = '流水线'
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {

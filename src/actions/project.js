@@ -212,7 +212,35 @@ export function ListProjects(query, callback) {
 	}
 }
 
-
+export const PROJECTS_LIST_STATISTICS_REQUEST = 'PROJECTS_LIST_STATISTICS_REQUEST'
+export const PROJECTS_LIST_STATISTICS_SUCCESS = 'PROJECTS_LIST_STATISTICS_SUCCESS'
+export const PROJECTS_LIST_STATISTICS_FAILURE = 'PROJECTS_LIST_STATISTICS_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchListProjectsAndStatistics(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/list-statistics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [PROJECTS_LIST_STATISTICS_REQUEST, PROJECTS_LIST_STATISTICS_SUCCESS, PROJECTS_LIST_STATISTICS_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function ListProjectsAndStatistics(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchListProjectsAndStatistics(query, callback))
+  }
+}
 
 export const PROJECTS_LIST_VISIBLE_REQUEST = 'PROJECTS_LIST_VISIBLE_REQUEST'
 export const PROJECTS_LIST_VISIBLE_SUCCESS = 'PROJECTS_LIST_VISIBLE_SUCCESS'

@@ -20,7 +20,8 @@ import {
   SYSTEM_DEFAULT_SCHEDULE,
   GPU_ALGORITHM,
   NO_CLASSIFY,
-  CONFIGMAP_CLASSIFY_CONNECTION
+  CONFIGMAP_CLASSIFY_CONNECTION,
+  OTHER_IMAGE
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
 
@@ -102,7 +103,7 @@ export function checkVolumeMountPath(form, index, value, type) {
   return error
 }
 
-export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy) {
+export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, isTemplateDeploy, location) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -187,6 +188,11 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       appPkgID
     })
   }
+  if (isTemplate && !isTemplateDeploy && location.query.other) {
+    deployment.setAnnotations({
+      [OTHER_IMAGE]: location.query.other,
+    })
+  }
   if (modelSet) {
     deployment.metadata.labels["tensorflow/model-serving-app"] = ''
     deployment.setAnnotations({'tensorflow/modelset-name': modelSet})
@@ -198,9 +204,9 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     deployment.setApmServiceLabel('pinpoint')
   }
   // 设置服务网格
-  if (serviceMesh) {
-    deployment.setAnnotations({'sidecar.istio.io/inject': "true"});
-    deployment.setMetaAnnotations({'sidecar.istio.io/inject': 'true'});
+  if (!serviceMesh) {
+    deployment.setAnnotations({'sidecar.istio.io/inject': "false"});
+    deployment.setMetaAnnotations({'sidecar.istio.io/inject': "false"});
   }
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
@@ -547,7 +553,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
         let volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
         if (Array.isArray(configGroupName)) {
           if (configGroupName[0] !== '未分类配置组') {
-            volumeName = `${configGroupName[0]}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            if (isTemplate && !isTemplateDeploy) {
+              volumeName = `${configGroupName[0]}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            } else {
+              // 创建应用时，不能有中文
+              volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
+            }
           }
         } else {
           volumeName = `${NO_CLASSIFY}${CONFIGMAP_CLASSIFY_CONNECTION}configmap-volume-${keyValue}`
@@ -624,7 +635,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       }
     })
   }
-  if (!isEmpty(wholeDir)) {
+  if (!isEmpty(wholeDir) && isTemplate && !isTemplateDeploy) {
     deployment.setAnnotations({
       wholeDir: JSON.stringify(wholeDir)
     })

@@ -262,6 +262,13 @@ class TerminalModal extends Component {
         </div>
       )
     }
+    if (terminalStatus === 'close') {
+      return (
+        <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+          <span><FormattedMessage {...intlMsg.connectClose}/></span>
+        </div>
+      )
+    }
     return (
       <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
         <span className='terIcon'></span>

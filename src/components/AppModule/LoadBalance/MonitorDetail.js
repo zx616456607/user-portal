@@ -16,26 +16,28 @@ import {
   Icon, Button, Tooltip
 } from 'antd'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import classNames from 'classnames'
 import Notification from '../../Notification'
-import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { ASYNC_VALIDATOR_TIMEOUT, CONNECT_FLAG } from '../../../constants'
 import './style/MonitorDetail.less'
 import HealthCheckModal from './HealthCheckModal'
 import DetailFooter from './DetailFooter'
+import RoutingRules from '../../../../client/containers/AppModule/LoadBalance/RoutingRules'
 
 import { loadAllServices } from '../../../actions/services'
 import { createIngress, updateIngress, getLBDetail, checkIngressNameAndHost } from '../../../actions/load_balance'
 import { ingressNameCheck, ingressRelayRuleCheck, ingressContextCheck } from '../../../common/naming_validation'
+import {getDeepValue} from "../../../../client/util/util";
+import { sleep } from "../../../common/tools";
 
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group;
 
-
 let uidd = 0
 class MonitorDetail extends React.Component {
   state = {
-    defaultAllServices: [],
     allServices: [],
     healthCheck: false
   }
@@ -48,8 +50,7 @@ class MonitorDetail extends React.Component {
       success: {
         func: res => {
           this.setState({
-            allServices: res.data.services.map(item => item.service),
-            defaultAllServices: res.data.services.map(item => item.service),
+            allServices: res.data.services.filter(item => !isEmpty(item.service)).map(item => item.service),
           }, () => {
             this.initialForm()
           })
@@ -148,7 +149,49 @@ class MonitorDetail extends React.Component {
     return errorObj
   }
 
-  addItem = () => {
+  checkBundleService = () => {
+    const { form } = this.props
+    const { getFieldValue, getFieldError } = form
+    const keys = getFieldValue('keys')
+    if (isEmpty(keys)) {
+      this.setState({
+        hasBundleService: false,
+      })
+      return
+    }
+    if (keys.length > 1) {
+      this.setState({
+        hasBundleService: true,
+      })
+      return
+    }
+    const validateArr = []
+    const key = keys[0]
+    validateArr.push(`service-${key}`, `port-${key}`)
+    const allHasValue = validateArr.every(item => {
+      if (isEmpty(getFieldValue(item)) && !getFieldValue(item)) {
+        return false
+      }
+      return true
+    })
+    if (!allHasValue) {
+      this.setState({
+        hasBundleService: false,
+      })
+      return
+    }
+    const allRight = validateArr.some(item => {
+      if (!isEmpty(getFieldError(item))) {
+        return false
+      }
+      return true
+    })
+    this.setState({
+      hasBundleService: allRight,
+    })
+  }
+
+  addItem = async () => {
     const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
 
@@ -159,7 +202,6 @@ class MonitorDetail extends React.Component {
       if (!isEmpty(result)) {
         return
       }
-      this.filterServices()
     }
     uidd ++
     if (currentIngress) {
@@ -170,45 +212,22 @@ class MonitorDetail extends React.Component {
     setFieldsValue({
       keys: currentKeys.concat(uidd)
     })
+    await sleep()
+    this.checkBundleService()
   }
 
-  filterServices = () => {
-    const { defaultAllServices } = this.state
-    const { form } = this.props
-    const { getFieldValue } = form
-
-    const currentKeys = getFieldValue('keys')
-    let filterServices
-    filterServices = defaultAllServices.filter(item => {
-      let flag = true
-      currentKeys.forEach(key => {
-        if (item.metadata.name === getFieldValue(`service-${key}`)) {
-          flag = false
-        }
-      })
-      return flag
-    })
-    this.setState({
-      allServices: filterServices
-    })
-  }
   editItem = item => {
-    this.filterServices()
     this.setState({[`service${item}`]: true})
   }
 
-  removeKey = key => {
-    const { allServices, defaultAllServices } = this.state
+  removeKey = async key => {
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
-    const serviceName = getFieldValue(`service-${key}`)
-    const service = defaultAllServices.filter(item => item.metadata.name === serviceName)
-    this.setState({
-      allServices: allServices.concat(service)
-    })
     setFieldsValue({
       keys: getFieldValue('keys').filter(item => item !== key)
     })
+    await sleep()
+    this.checkBundleService()
   }
 
   cancelEdit = key => {
@@ -299,7 +318,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -307,7 +327,8 @@ class MonitorDetail extends React.Component {
               return callback('监听器名称已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -336,7 +357,8 @@ class MonitorDetail extends React.Component {
         success: {
           func: () => {
             callback()
-          }
+          },
+          isAsync: true,
         },
         failed: {
           func: res => {
@@ -344,7 +366,8 @@ class MonitorDetail extends React.Component {
               return callback('校验规则已经存在')
             }
             callback(res.message.message || res.message)
-          }
+          },
+          isAsync: true,
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -446,11 +469,72 @@ class MonitorDetail extends React.Component {
     return service
   }
 
+  getRuleList = () => {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const ruleKeys = getFieldValue('ruleKeys')
+    if (isEmpty(ruleKeys)) {
+      return []
+    }
+    const host = getFieldValue('host')
+    const [hostname, ...path] = (host || '/').split('/')
+    const ruleMaps = new Map()
+    const ruleObj = {}
+    ruleKeys.forEach(key => {
+      const mapKey = {
+        type: getFieldValue(`rule-type-${key}`),
+        name: getFieldValue(`rule-name-${key}`),
+        regex: JSON.parse(getFieldValue(`rule-regex-${key}`)),
+        value: getFieldValue(`rule-value-${key}`),
+      }
+      const [name, port] = getFieldValue(`rule-service-${key}`).split(CONNECT_FLAG)
+      const mapKeys = Object.values(ruleObj)
+      const isKeyExists = mapKeys.some(_key => isEqual(_key, mapKey))
+      if (!isKeyExists) {
+        Object.assign(ruleObj, {
+          [`key-${key}`]: mapKey,
+        })
+        ruleMaps.set(ruleObj[`key-${key}`], [{
+          name,
+          port,
+        }])
+      } else {
+        let currentKey
+        for (const [_key, value] of Object.entries(ruleObj)) {
+          if (isEqual(value, mapKey)) {
+            currentKey = ruleObj[_key]
+          }
+        }
+        const svcArray = ruleMaps.get(currentKey)
+        svcArray.push({
+          name,
+          port,
+        })
+        ruleMaps.set(currentKey, svcArray)
+      }
+    })
+    const rules = []
+    for (const [key, mapValue] of ruleMaps) {
+      const { type, name, regex, value } = key
+      rules.push({
+        host: hostname,
+        path: path ? '/' + path.join('/') : '/',
+        type,
+        name,
+        regex,
+        value,
+        service_infos: mapValue,
+      })
+    }
+    return rules
+  }
+
   handleConfirm = () => {
-    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress } = this.props
+    const { form, createIngress, updateIngress, clusterID, location, getLBDetail, currentIngress, lbDetail } = this.props
     const { validateFields, getFieldValue } = form
     const { healthOptions, healthCheck } = this.state
     const { name, displayName } = location.query
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     let notify = new Notification()
     const keys = getFieldValue('keys')
     let endIndexValue = keys[keys.length - 1]
@@ -495,7 +579,8 @@ class MonitorDetail extends React.Component {
         host: hostname,
         path: path ? '/' + path.join('/') : '/',
         context,
-        items: this.getServiceList()
+        items: this.getServiceList(),
+        shunts: this.getRuleList()
       }
       if (currentIngress) {
         Object.assign(body, { name: currentIngress.name })
@@ -579,19 +664,32 @@ class MonitorDetail extends React.Component {
         }
       }
       if (currentIngress) {
-        updateIngress(clusterID, name, currentIngress.displayName, body, callback)
+        updateIngress(clusterID, name, currentIngress.displayName, displayName, agentType, body, callback)
         return
       }
-      createIngress(clusterID, name, body, callback)
+      createIngress(clusterID, name, monitorName, displayName, agentType, body, callback)
     })
   }
 
-  selectService = (name, key) => {
+  selectService = async (name, key) => {
     const { allServices } = this.state
     const currentService = allServices.filter(item => item.metadata.name === name)[0]
+    await sleep()
+    this.checkBundleService()
     if (!currentService) return
+    const existPorts = []
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('keys')
+    keys.forEach(_key => {
+      const serviceName = getFieldValue(`service-${_key}`)
+      const portValue = getFieldValue(`port-${_key}`)
+      if (serviceName === name && portValue) {
+        existPorts.push(Number(portValue))
+      }
+    })
     this.setState({
-      [`port-${key}`]: currentService.spec.ports.map(item => item.port)
+      [`port-${key}`]: currentService.spec.ports.filter(item => !existPorts.includes(item.port)).map(item => item.port)
     })
   }
   render() {
@@ -700,7 +798,8 @@ class MonitorDetail extends React.Component {
                     {
                       validator: this.checkPort
                     }
-                  ]
+                  ],
+                  onChange: async () => { await sleep(); this.checkBundleService()}
                 })}>
                 {
                   (this.state[`port-${item}`] || []).map(child => {
@@ -879,8 +978,12 @@ class MonitorDetail extends React.Component {
           >
             <Input placeholder="请输入访问路径，以 / 开头" {...contextProps}/>
           </FormItem>
-          <Row>
-            <Col span={20} offset={3}>
+          <FormItem
+            label={'绑定后端服务'}
+            labelCol={{ span: 3 }}
+            wrapperCol={{ span: 20 }}
+          >
+            <div>
               <Button type="ghost" className="bundleBtn" onClick={this.addItem}><Icon type="link" /> 绑定后端服务</Button>
               <div className="hintColor qpsHint"><Icon type="info-circle-o" /> 删除或修改监听器绑定后端服务，会导致该服务基于QPS的弹性伸缩策略失效！</div>
               <Row className="serviceHeader">
@@ -897,8 +1000,13 @@ class MonitorDetail extends React.Component {
                 <Col span={4} offset={showWeight ? 1 : 6}>操作</Col>
               </Row>
               {serviceList}
-            </Col>
-          </Row>
+            </div>
+          </FormItem>
+          <RoutingRules
+            form={form}
+            hasBundleService={this.state.hasBundleService}
+            currentIngress={currentIngress}
+          />
         </Form>
         <DetailFooter
           onCancel={this.goBack}

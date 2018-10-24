@@ -199,7 +199,7 @@ const messageObj = {
     monitorNameExist: '监听器名称已经存在',
     verRuleExist: '校验规则已经存在',
     ingressName: '监听器名称',
-    ingressNameRegMessage: '可由数字、中划线、下划线组成，以字母或者数字开头，字母或者数字结尾',
+    ingressNameRegMessage: '可由数字、中划线组成，以字母或者数字开头，字母或者数字结尾',
     appNameCheckStartMessage: '请以字母开头',
     appNameCheckComposeMessage: '由字母、数字、中划线-、下划线_组成',
     appNameMinLength: '至少为3个字符',
@@ -354,6 +354,12 @@ const messageObj = {
     hostnameRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
     subdomainRegMsg: '由小写字母、数字、字符 - 组成，以字母、数字开头和结尾',
     hostAliasesExist: '主机别名已存在',
+    ipPodPlaceholder: '请填写实例 IP( {NetSegment} )',
+    supportOnlyOne: '目前仅支持一个实例',
+    NetSegmentUnknow: "未获取到指定 Pod 网段",
+    checkNetSegmentFail: "校验 IP 是否被占用请求失败",
+    isUsedAlready: "当前 IP 已经被占用, 请重新填写",
+    getNetSegmentFail: "获取 Pod 网段数据失败",
   }
 }
 

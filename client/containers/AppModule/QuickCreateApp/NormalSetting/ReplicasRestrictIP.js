@@ -15,6 +15,9 @@ import './style/ReplicasRestrictIP.less'
 import * as podAction from '../../../../../src/actions/app_manage'
 import Notification from '../../../../../src/components/Notification'
 import ipRangeCheck from 'ip-range-check'
+import * as serviceActions from '../../../../../src/actions/services'
+import { injectIntl } from 'react-intl'
+import IntlMessage from '../../../../../src/containers/Application/ServiceConfigIntl'
 
 const notification = new Notification()
 const FormItem = Form.Item
@@ -27,7 +30,7 @@ class ReplicasRestrictIP extends React.Component {
   }
 
   componentDidMount() {
-    const { cluster, getPodNetworkSegment, form } = this.props
+    const { cluster, getPodNetworkSegment, form, intl } = this.props
     const { getFieldValue, setFieldsValue } = form
     const num = getFieldValue('replicas')
     let ipKeys = []
@@ -51,7 +54,7 @@ class ReplicasRestrictIP extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403) {
-            notification.warn('获取 Pod 网段数据失败')
+            notification.warn(intl.formatMessage(IntlMessage.getNetSegmentFail))
           }
           this.setState({
             uuid: num,
@@ -116,22 +119,32 @@ class ReplicasRestrictIP extends React.Component {
     })
   }
 
-  checkPodCidr = (rule, value, callback) => {
+  checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
     const { NetSegment } = this.state
+    const { intl } = this.props
     if (!NetSegment) {
-      return callback('未获取到指定网段')
+      return callback(intl.formatMessage(IntlMessage.NetSegmentUnknow))
     }
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
-      return callback(`请输入属于 ${NetSegment} 的 IP`)
+      return callback(intl.formatMessage(IntlMessage.ipPodPlaceholder, { NetSegment }))
+    }
+    const { getISIpPodExisted, cluster } = this.props
+    const isExist = await getISIpPodExisted(cluster, value)
+    const { code, data: { isPodIpExisted } } = isExist.response.result
+    if (code !== 200) {
+      return callback(intl.formatMessage(IntlMessage.checkNetSegmentFail))
+    } else if (code === 200 && isPodIpExisted === 'true') {
+      return callback(intl.formatMessage(IntlMessage.isUsedAlready))
     }
     callback()
   }
 
   render() {
     const { NetSegment } = this.state
-    const { getFieldProps, getFieldValue } = this.props.form
+    const { form, intl } = this.props
+    const { getFieldProps, getFieldValue } = form
     getFieldProps('ipKeys', {
       initialValue: [ ],
     })
@@ -145,15 +158,16 @@ class ReplicasRestrictIP extends React.Component {
             rules: [{
               required: true,
               whitespace: true,
-              message: `请填写实例 IP（需属于 ${NetSegment}）`,
+              message: intl.formatMessage(IntlMessage.ipPodPlaceholder, { NetSegment }),
             }, {
               validator: this.checkPodCidr,
             }],
           })}
           style={{ width: 300, marginRight: 15 }}
-          placeholder= {`请填写实例 IP（需属于 ${NetSegment}）`}
+          placeholder= {intl.formatMessage(IntlMessage.ipPodPlaceholder, { NetSegment }) }
           />
-          <Tooltip placement="top" title={'目前仅支持一个实例'}>
+          <Tooltip placement="top" title={intl.formatMessage(IntlMessage.supportOnlyOne)}
+          >
             <Icon type="question-circle" style={{ marginLeft: 8 }} />
           </Tooltip>
           {/* <Tooltip placement="top" title={'IP 数需 ≥ 实例数'}>
@@ -172,6 +186,7 @@ class ReplicasRestrictIP extends React.Component {
     return <div className="restrictsIP">
       {formItems}
       {/*  // 暂时不支持 固定多个实例 IP
+
       <Row className="addInstance">
         <Col span={4}></Col>
         <Col>
@@ -201,4 +216,7 @@ const mapStateToProps = ({
 
 export default connect(mapStateToProps, {
   getPodNetworkSegment: podAction.getPodNetworkSegment,
-})(ReplicasRestrictIP)
+  getISIpPodExisted: serviceActions.getISIpPodExisted,
+})(injectIntl(ReplicasRestrictIP, {
+  withRef: true,
+}))

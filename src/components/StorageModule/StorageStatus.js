@@ -10,30 +10,13 @@
 
 import React, { Component, PropTypes } from 'react'
 import { Tabs, Card, Menu, Progress, Upload, Radio, Modal, Button, Icon, Col } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
 import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile, uploadFileOptions } from '../../actions/storage'
 import './style/storage.less'
 import NotificationHandler from '../../components/Notification'
-
-const RadioGroup = Radio.Group
-const messages = defineMessages({
-  app: {
-    id: "StorageBind.bind.app",
-    defaultMessage: "应用"
-  },
-  modalRedHint: {
-    id: "StorageBind.bind.app",
-    defaultMessage: "应用"
-  }
-})
-const props = {
-  name: 'file',
-  showUploadList: false,
-  action: '/upload.do',
-};
+import StorageDetailIntl from './StorageDetailIntl'
 
 class StorageStatus extends Component {
   constructor(props) {
@@ -114,16 +97,16 @@ class StorageStatus extends Component {
     }
   }
   showBackground(item) {
-    switch (item.backupType) {
-      case 1:
-        return 'status-icon success'
-      case 0:
-        return 'status-icon primary'
+    const status = item || {}
+    if (status.backupType == 1) {
+      return 'status-icon success'
     }
+    return 'status-icon primary'
   }
   getUploadData() {
     const volumeName = this.props.volumeName
     const self = this
+    const { formatMessage } = this.props.intl
     let notification = new NotificationHandler()
     return {
       showUploadList: false,
@@ -169,7 +152,7 @@ class StorageStatus extends Component {
           fileInfo.status = 'Complete'
           self.props.mergeUploadingIntoList(fileInfo)
           self.props.uploading(100)
-          notification.success('文件上传成功')
+          notification.success(formatMessage(StorageDetailIntl.uploadSuccess))
         } else if (info.file.status === 'error') {
           // self.props.uploading(100)
           self.setState({
@@ -179,7 +162,7 @@ class StorageStatus extends Component {
           const fileInfo = cloneDeep(self.props.beforeUploadState)
           fileInfo.status = 'Failure'
           self.props.mergeUploadingIntoList(fileInfo)
-          notification.error('文件上传失败')
+          notification.error(formatMessage(StorageDetailIntl.uploadFailed))
         }
       }
     }
@@ -188,7 +171,7 @@ class StorageStatus extends Component {
     this.props.exportFile(this.props.pool, this.props.cluster, this.props.volumeName)
   }
   render() {
-    const {formatMessage} = this.props.intl
+    const { formatMessage } = this.props.intl
     const statusList = this.props.fileHistory.history
     let status_list = []
     if (statusList && statusList.length >= 0) {
@@ -197,7 +180,7 @@ class StorageStatus extends Component {
           <span className={this.showBackground(item)}><Icon type={item.backupType == 1 ? 'cloud-upload-o' : 'cloud-download-o'} /></span>
           <div className="status-content">
             <div className="status-row">
-              <span className="pull-left">{item.backupType == 1 ? '上传' : '下载'}：{item.backupName}({(item.size / 1024 / 1024).toFixed(2)}MB)</span>
+              <span className="pull-left">{item.backupType == 1 ? formatMessage(StorageDetailIntl.upload) : formatMessage(StorageDetailIntl.download)}：{item.backupName}({(item.size / 1024 / 1024).toFixed(2)}MB)</span>
               <span className="pull-right">{item.startTime}</span>
             </div>
             <Col span={8} className="fullProgress">
@@ -210,9 +193,9 @@ class StorageStatus extends Component {
     }
     return (
       <div className="action-btns" style={{ paddingLeft: '30px', paddingTop: '10px' }}>
-        <Button type="primary" onClick={this.showUploadModal} disabled={!this.props.uploadFileOptionsState.uploadFile}><Icon type="cloud-upload-o" />上传文件</Button>
+        <Button type="primary" onClick={this.showUploadModal} disabled={!this.props.uploadFileOptionsState.uploadFile}><Icon type="cloud-upload-o" />{formatMessage(StorageDetailIntl.uploadFile)}</Button>
         <span className="margin"></span>
-        <Button type="ghost" onClick={() => this.exportFile()} disabled={!this.props.exportFileState.exportFile}><Icon type="cloud-download-o" />导出文件</Button>
+        <Button type="ghost" onClick={() => this.exportFile()} disabled={!this.props.exportFileState.exportFile}><Icon type="cloud-download-o" />{formatMessage(StorageDetailIntl.exportFile)}</Button>
         <div className="status-box">
           {status_list}
         </div>
@@ -246,8 +229,3 @@ export default connect(mapStateToProp, {
 })(injectIntl(StorageStatus, {
   withRef: true,
 }))
-
-
-               // <TabPane tab={<FormattedMessage {...messages.operating} />} key="1">
-           //       <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.imagePool  } cluster = {StorageInfo.cluster}/>
-          //      </TabPane>

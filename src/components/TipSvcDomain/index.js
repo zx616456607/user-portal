@@ -122,7 +122,7 @@ class AppTipComponent extends Component {
 
   render() {
     const { appDomain, scope } = this.props
-    const { formatMessage } = this.props
+    const { formatMessage } = this.props.intl
     let item = appDomain.map((item, index) => {
       if (item.data.length === 0) {
         return (

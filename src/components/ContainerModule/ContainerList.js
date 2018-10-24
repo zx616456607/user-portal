@@ -32,6 +32,7 @@ import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import TenxIcon from '@tenx-ui/icon'
 import ContainerListIntl from './ContainerListIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import { getDeepValue } from '../../../client/util/util';
 
 const confirm = Modal.confirm
 const Option = Select.Option
@@ -408,8 +409,7 @@ let MyComponent = React.createClass({
       );
       const images = this.getImages(item)
       const status = item.status || {};
-      const annotations = item.metadata.annotations || {}
-      const isLock = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+      const isLock = getDeepValue(item, [ 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ]) && true || false
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}

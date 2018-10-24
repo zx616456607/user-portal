@@ -27,10 +27,9 @@ const formatChartName = name => {
 }
 
 export const formatTemplateBody = (props, imageConfig, isDeploy) => {
-  const { fields, current, loginUser, loadBalanceList } = props;
+  const { fields, current, loginUser, loadBalanceList, location } = props;
   const serviceArray: Array = [];
   let accessType: string = '';
-  let loadBalanceName: string = '';
   const chart: object = {};
   let info: Array;
   let count = 0;
@@ -39,8 +38,9 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
     count ++;
     const serviceOption = {};
     let content: Array = [];
+    let loadBalanceName: string = '';
     if (fields.hasOwnProperty(key)) {
-      const json = buildJson(value, current.cluster, loginUser, imageConfig, true, isDeploy);
+      const json = buildJson(value, current.cluster, loginUser, imageConfig, true, isDeploy, location);
       content.push(yaml.dump(json.deployment));
       content.push(yaml.dump(json.service));
       json.storage.forEach(item => {

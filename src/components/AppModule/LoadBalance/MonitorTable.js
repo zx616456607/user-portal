@@ -11,6 +11,7 @@
 import React from 'react'
 import { Table, Button, Pagination, Row, Col, Tabs, Tooltip, Modal } from 'antd'
 import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 import Notification from '../../Notification'
 import { connect } from 'react-redux'
 import { loadServiceDetail } from '../../../actions/services'
@@ -18,6 +19,8 @@ import './style/MonitorTable.less'
 import AppServiceEvent from '../AppServiceDetail/AppServiceEvent'
 import TcpUdpTable from './TcpUdpTable'
 import WhitelistTable from './WhitelistTable'
+import { getDeepValue } from "../../../../client/util/util";
+import { upperInitial } from '../../../common/tools'
 
 const TabPane = Tabs.TabPane
 class MonitorTable extends React.Component {
@@ -58,15 +61,16 @@ class MonitorTable extends React.Component {
   }
 
   confirmDelModal = () => {
-    const { deleteIngress, clusterID, location, getLBDetail } = this.props
+    const { deleteIngress, clusterID, location, getLBDetail, lbDetail } = this.props
     const { name, displayName } = location.query
     const { currentIngress } = this.state
+    const { agentType } = getDeepValue(lbDetail.deployment, ['metadata', 'labels'])
     let notify = new Notification()
     this.setState({
       delConfirmLoading: true
     })
     notify.spin('删除中')
-    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, {
+    deleteIngress(clusterID, name, currentIngress.name, currentIngress.displayName, displayName, agentType, {
       success: {
         func: () => {
           notify.close()
@@ -91,6 +95,51 @@ class MonitorTable extends React.Component {
     })
   }
 
+  renderIngressRules = (item, row) => {
+    const { serviceName, servicePort } = item
+    const { shunts } = row
+    if (isEmpty(shunts)) {
+      return '-'
+    }
+    const rulesObj = {}
+    shunts.forEach(rule => {
+      const { type, name, regex, value, serviceInfos } = rule
+      serviceInfos.forEach(svc => {
+        const { name: svcName, port } = svc
+        if (svcName === serviceName && servicePort === +port) {
+          if (!rulesObj[type]) {
+            Object.assign(rulesObj, {
+              [type]: [{
+                name,
+                regex,
+                value,
+              }]
+            })
+          } else {
+            rulesObj[type].push({
+              name,
+              regex,
+              value
+            })
+          }
+        }
+      })
+    })
+    const ruleList = []
+    for (const [key, value] of Object.entries(rulesObj)) {
+      value.forEach(_rule => {
+        const { name, value: ruleValue, regex } = _rule
+        ruleList.push(<div className="ruleList">
+          {upperInitial(key)}：
+          <Tooltip title="匹配建"><span>「{name}」</span></Tooltip>
+          {regex ? ' 正则匹配 ' : ' 完全匹配 '}
+          <Tooltip title="匹配值"><span>「{ruleValue}」</span></Tooltip>
+        </div>)
+      })
+    }
+    return ruleList
+  }
+
   expandedRender = row => {
     if (!row.items || !row.items.length) {
       return
@@ -106,6 +155,7 @@ class MonitorTable extends React.Component {
             isRoundRobin &&
             <Col span={5}>权重</Col>
           }
+          <Col span={5}>规则</Col>
         </Row>
         {
           row.items.map(item =>
@@ -116,6 +166,7 @@ class MonitorTable extends React.Component {
                 isRoundRobin &&
                 <Col span={5}>{item.weight}</Col>
               }
+              <Col span={5}>{this.renderIngressRules(item, row)}</Col>
             </Row>
           )
         }
@@ -225,13 +276,13 @@ class MonitorTable extends React.Component {
           <TabPane tab="TCP" key="TCP">
             <TcpUdpTable
               type="TCP"
-              {...{ togglePart, clusterID, name }}
+              {...{ togglePart, clusterID, name, location, lbDetail }}
             />
           </TabPane>
           <TabPane tab="UDP" key="UDP">
             <TcpUdpTable
               type="UDP"
-              {...{ togglePart, clusterID, name }}
+              {...{ togglePart, clusterID, name, location, lbDetail }}
             />
           </TabPane>
           <TabPane tab="白名单" key="WHITELIST">

@@ -10,20 +10,20 @@
 
 'use strict'
 import React, { Component } from 'react'
-import { Button, Input, Table, Spin, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Tooltip } from 'antd'
-import './style/AlarmGroup.less'
+import { Button, Input, Table, Spin, Dropdown, Menu, Icon, Modal, Card, Tooltip } from 'antd'
+import './style/NoticeGroup.less'
 import QueueAnim from 'rc-queue-anim'
 // import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
-import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
-const InputGroup = Input.Group
-import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
-import { setCurrent } from '../../actions/entities'
-import NotificationHandler from '../../components/Notification'
+import CreateAlarm from '../../AppModule/AlarmModal/CreateGroup'
+// const InputGroup = Input.Group
+import { loadNotifyGroups, deleteNotifyGroups } from '../../../actions/alert'
+import { setCurrent } from '../../../actions/entities'
+import NotificationHandler from '../../../components/Notification'
 import { connect } from 'react-redux'
-import { Link, browserHistory } from 'react-router'
-import { formatDate, adjustBrowserUrl } from '../../common/tools'
-import cloneDeep from 'lodash/cloneDeep'
-import Title from '../Title'
+import { Link } from 'react-router'
+import { formatDate, adjustBrowserUrl } from '../../../common/tools'
+// import cloneDeep from 'lodash/cloneDeep'
+import Title from '../../Title'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -43,6 +43,13 @@ class AlarmGroup extends Component {
     }
   }
   componentWillMount() {
+    const { clusterID } = this.props.cluster
+    if (!clusterID) {
+      setTimeout(()=> {
+        this.loadData({}, true)
+      }, 1000)
+      return
+    }
     this.loadData({}, true)
   }
   loadData(query = {}, isFirstLoad) {
@@ -91,7 +98,6 @@ class AlarmGroup extends Component {
     }
     const {
       deleteNotifyGroups,
-      loadNotifyGroups,
     } = this.props
 
     // unselect all rows
@@ -113,7 +119,7 @@ class AlarmGroup extends Component {
       failed: {
         func: (err) => {
           this.closeDeleteModal()
-          notification.error('删除失败', '请先取消策略对该通知组的引用，方可删除告警通知组')
+          notification.error('删除失败', '请先取消策略对该通知组的引用，方可删除通知组')
         },
         isAsync: true
       }
@@ -127,7 +133,7 @@ class AlarmGroup extends Component {
   openDeleteModal(e, groupIDs) {
     e.stopPropagation()
     if (!groupIDs) {
-      new NotificationHandler().info('请先取消策略对该通知组的引用，方可删除告警通知组')
+      new NotificationHandler().info('请先取消策略对该通知组的引用，方可删除通知组')
       return
     }
     this.setState({
@@ -155,28 +161,7 @@ class AlarmGroup extends Component {
       modifyingGroupInfo: group,
     })
   }
-  getGroupEmails(emails) {
-    if (!emails) {
-      return '-'
-    }
-    let content = '-'
-    if (emails.length > 0) {
-      content = emails.map(function (item) {
-        let status = emails[0].status != 1 ? <span style={{ color: '#f23e3f' }}> 【未验证】</span> : null
-        return <div className='alarmGroupItem'>
-          <span className='alarmGroupspan'>{item.addr}{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
-          {status}
-        </div>
-      })
 
-    }
-
-    return (
-      <div>
-        {content}
-      </div>
-    )
-  }
   getStragegies(strategies) {
     const _this = this;
     if (!strategies) {
@@ -255,20 +240,7 @@ class AlarmGroup extends Component {
     }
     adjustBrowserUrl(location, query)
   }
-  getGroupTels = arr => {
-    if (!arr) {
-      return '-'
-    }
-    let content = '-'
-    if (arr.length > 0) {
-      content = arr.map(function (item) {
-        return <div className='alarmGroupItem'>
-          <span className='alarmGroupspan'>{item.number}</span>
-        </div>
-      })
-    }
-    return <span>{content}</span>
-  }
+
   render() {
     const { search } = this.state
     const { location } = this.props
@@ -288,6 +260,7 @@ class AlarmGroup extends Component {
       title: '名称',
       dataIndex: 'name',
       width: '10%',
+      render: name => <Link to={`/account/noticeGroup/${name}`}>{name}</Link>
     }, {
       title: '描述',
       dataIndex: 'desc',
@@ -300,23 +273,23 @@ class AlarmGroup extends Component {
         </div>
       ),
     }, {
+      // [LOT-3172] 分辨率1280*800下操作列被换行
+      // 考虑邮箱与手机号展示相同的内容, 压缩邮箱宽度与手机号列同宽, 给操作列
       title: '邮箱',
       dataIndex: 'email',
-      width: '15%',
-      render: (email) => (<div>
-        <Tooltip title={this.getGroupEmails(email)} placement="topLeft">
-          <span>{this.getGroupEmails(email)}</span>
-        </Tooltip>
-      </div>)
+      width: '12%',
+      render: (email) => {
+        email = email || []
+        return email.length + ' 个'
+      }
     }, {
       title: '手机号',
       dataIndex: 'tel',
       width: '12%',
-      render: (tel) => (<div>
-        <Tooltip title={this.getGroupTels(tel)} placement="topLeft">
-          <span>{this.getGroupTels(tel)}</span>
-        </Tooltip>
-      </div>)
+      render: (tel) => {
+        tel = tel || []
+        return tel.length + ' 个'
+      }
     }, {
       title: '创建时间',
       dataIndex: 'createTime',
@@ -335,7 +308,7 @@ class AlarmGroup extends Component {
     }, {
       title: '操作',
       dataIndex: 'handle',
-      width: '10%',
+      width: '13%',
       render: (text, group) => {
         if (group.strategies.length > 0) {
           return (
@@ -384,7 +357,7 @@ class AlarmGroup extends Component {
     return (
       <QueueAnim className="alarmGroup">
         <div id="AlarmGroup" key="demo">
-          <Title title="告警通知组" />
+          <Title title="通知组" />
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" onClick={() => this.showAlramGroup()}>
               <i className="fa fa-plus" style={{ marginRight: '5px' }} />
@@ -418,6 +391,7 @@ class AlarmGroup extends Component {
             wrapClassName="AlarmModal"
             className="alarmContent"
             footer={null}
+            style={{top:50}}
           >
             <CreateAlarm funcs={modalFunc}
               afterCreateFunc={() => this.props.loadNotifyGroups(search, clusterID)}
@@ -435,7 +409,7 @@ class AlarmGroup extends Component {
           >
             <div className="deleteRow">
               <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-              告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？
+              通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？
             </div>
           </Modal>
         </div>

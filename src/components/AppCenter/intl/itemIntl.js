@@ -15,7 +15,9 @@ import { defineIntlMessages } from "../../../common/tools"
 export const mapData = {
   prefix: 'AppCenter.ImageCenter.Tab',
   data: {
-    privateRepoGroup: '我的仓库组',
+    repoGroup: '仓库组',
+    allRepoGroup: '所有仓库组',
+    privateRepoGroup: '私有仓库组',
     publicRepoGroup: '公开仓库组',
     imageRepo: '镜像仓库',
     releaseRecord: '发布记录',
@@ -50,6 +52,10 @@ export const mapData = {
     repoNameVerifyMsg4: '仓库名称只能由中英文、数字等组成',
     repoUrlVerifyMsg1: '请输入仓库地址',
     repoUrlVerifyMsg2: '地址以http或者https开头',
+    registryRepeat: '仓库名重复',
+    addotherRegistry0: '添加第三方镜像失败',
+    addotherRegistry1: '添加第三方镜像成功',
+    pleaseCheckAddress: '请重新检查填写地址、帐号密码',
   }
 }
 export default defineIntlMessages(mapData)

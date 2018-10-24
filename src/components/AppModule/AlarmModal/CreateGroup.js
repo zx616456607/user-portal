@@ -12,12 +12,12 @@ import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
 import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
-import QRCode from 'qrcode.react'
+// import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../components/Notification'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import intlMsg from './Intl'
 import ServiceCommonIntl, { AppServiceDetailIntl } from '../../AppModule/ServiceIntl'
-
+import { URL_REG_EXP } from '../../../constants'
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
 const EMAIL_STATUS_WAIT_SEND = 2
@@ -303,10 +303,7 @@ let CreateAlarmGroup = React.createClass({
           }
         })
       }
-      if (!body.receivers.tel.length && !body.receivers.email.length) {
-        notification.error(formatMessage(intlMsg.atLeastOneEmail))
-        return
-      }
+
       if (!this.props.isModify) {
         notification.spin('创建中...')
         createNotifyGroup(clusterID, body, {
@@ -335,7 +332,9 @@ let CreateAlarmGroup = React.createClass({
                 'transitionEnble0': false,
               })
               notification.close()
-              if (err.message.code === 409) {
+              if (err.message.code === 404) {
+                notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else if (err.message.code === 409) {
                 notification.error(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.nameExist))
               } else {
                 notification.error(formatMessage(intlMsg.createGroupFail), err.message.message)
@@ -368,7 +367,11 @@ let CreateAlarmGroup = React.createClass({
               this.setState({
                 'transitionEnble0': false,
               })
-              notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
+              if (err.message.code === 404) {
+                return notification.warn(formatMessage(intlMsg.createGroupFail), formatMessage(intlMsg.withoutConfig))
+              } else {
+                notification.warn(formatMessage(intlMsg.editGroupFail), err.message.message)
+              }
             }
           }
         })
@@ -509,7 +512,7 @@ let CreateAlarmGroup = React.createClass({
       return (
         <div key={k} className="createEmailList" style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
-          <Input placeholder="邮箱" {...getFieldProps(`email${k}`, {
+          <Input placeholder="请输入邮箱地址" {...getFieldProps(`email${k}`, {
             rules: [
             {validator: this.addRuleEmail.bind(this)}
             ],
@@ -533,7 +536,7 @@ let CreateAlarmGroup = React.createClass({
             :formatMessage(intlMsg.validatorEmail)
           }
         </Button>
-        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}><FormattedMessage {...intlMsg.cancel}/></Button>
+        <Button size="large" style={{ marginLeft: 8}} disabled={this.state[`transitionEnble${k}`]} onClick={()=> this.removeEmail(k)}><FormattedMessage {...intlMsg.delete}/></Button>
       </div>
       );
     });
@@ -553,7 +556,7 @@ let CreateAlarmGroup = React.createClass({
           <Form.Item style={{float:'left'}}>
             <Input
               style={{ width: '150px', marginRight: 8 }}
-              placeholder="手机号"
+              placeholder="请输入手机号"
               {
                 ...getFieldProps(`phoneNum${k}`, {
                   rules: [ {validator: this.checkPhoneNum.bind(this)} ],
@@ -583,13 +586,66 @@ let CreateAlarmGroup = React.createClass({
           </Button> */}
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
           >
-            <FormattedMessage {...intlMsg.cancel}/>
+            <FormattedMessage {...intlMsg.delete}/>
+          </Button>
+        </div>
+      );
+    });
+    getFieldProps('dingKeys', {
+      initialValue: [0],
+    });
+    const dingItems = getFieldValue('dingKeys').map((k) => {
+      let indexed = Math.max(0,k)
+      let initAddrValue = ''
+      let initDescValue = ''
+      // if (isModify && data.receivers.tel[indexed]) {
+      //   initAddrValue = data.receivers.tel[indexed].number
+      //   initDescValue = data.receivers.tel[indexed].desc
+      // }
+      return (
+        <div key={`ding-${k}`} className="createEmailList" style={{clear:'both'}}>
+          <Form.Item style={{float:'left'}}>
+            <Input
+              style={{ width: '150px', marginRight: 8 }}
+              placeholder="请输入 webhook 地址"
+              {
+                ...getFieldProps(`dingNum${k}`, {
+                  rules: [ {pattern: URL_REG_EXP, required: false, message:'请输入正确的地址'} ],
+                  initialValue: initAddrValue,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item style={{float:'left'}}>
+            <Input
+              placeholder={formatMessage(intlMsg.remarks)}
+              size="large"
+              style={{ width: 80,  marginRight: 8 }}
+              {
+                ...getFieldProps(`dingDesc${k}`, {
+                  initialValue: initDescValue,
+                })
+              }
+            />
+          </Form.Item>
+          <Button
+            type="primary"
+            style={{padding:5}}
+            size="large"
+          >
+            {/* <FormattedMessage {...intlMsg.validatorPhone}/> */}
+            验证 hook
+          </Button>
+          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removePhone(k)}
+          >
+            <FormattedMessage {...intlMsg.delete}/>
           </Button>
         </div>
       );
     });
     return (
       <Form className="alarmAction" form={this.props.form}>
+        <div className="alertRow">通知组是一个联系方式列表，您可以添加若干联系人的邮箱，手机或钉钉群机器人。添加钉钉和邮箱联系方式时，必须验证通过才能接收通知消息</div>
         <Form.Item label={formatMessage(intlMsg.name)} {...formItemLayout} >
           <Input placeholder={formatMessage(intlMsg.plsInputName)} {...getFieldProps(`groupName`, {
           rules: [
@@ -614,7 +670,7 @@ let CreateAlarmGroup = React.createClass({
         </div>
         <div className="lables">
           <div className="keys">
-            手机
+            手机列表
           </div>
           <div className="emaillItem" >
             {phoneItems}
@@ -625,7 +681,19 @@ let CreateAlarmGroup = React.createClass({
             </div>
           </div>
         </div>
-
+        <div className="lables">
+          <div className="keys">
+            钉钉列表
+          </div>
+          <div className="emaillItem" >
+            {dingItems}
+            <div style={{clear:'both'}}>
+              <a onClick={() => this.addPhone()}>
+                <Icon type="plus-circle-o" /> 添加钉钉号
+              </a>
+            </div>
+          </div>
+        </div>
         {/* <div className="lables">
           <div className="keys">
             微信
@@ -643,7 +711,7 @@ let CreateAlarmGroup = React.createClass({
           <Button type="ghost" size="large" onClick={()=> this.handCancel()}><FormattedMessage {...intlMsg.cancel}/></Button>
           <Button type="primary" size="large" onClick={()=> this.okModal()}><FormattedMessage {...intlMsg.save}/></Button>
         </div>
-        <Modal
+        {/* <Modal
           title={formatMessage(intlMsg.scanCodeWechat)}
           footer={null}
           visible={this.state.QRCodeVisible}
@@ -651,7 +719,7 @@ let CreateAlarmGroup = React.createClass({
           wrapClassName="QRCodeModal"
         >
           <QRCode value="https://tenxcloud.com/" />
-        </Modal>
+        </Modal> */}
       </Form>
     )
   }

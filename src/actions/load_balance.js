@@ -39,7 +39,7 @@ export const CREATE_LOAD_BALANCES_REQUEST = 'CREATE_LOAD_BALANCES_REQUEST'
 export const CREATE_LOAD_BALANCES_SUCCESS = 'CREATE_LOAD_BALANCES_SUCCESS'
 export const CREATE_LOAD_BALANCES_FAILURE = 'CREATE_LOAD_BALANCES_FAILURE'
 
-const fetchCreateLB = (cluster, body, callback) => {
+const fetchCreateLB = (cluster, agentType, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -47,7 +47,7 @@ const fetchCreateLB = (cluster, body, callback) => {
         CREATE_LOAD_BALANCES_SUCCESS,
         CREATE_LOAD_BALANCES_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/displayname/${body.displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'POST',
@@ -58,15 +58,15 @@ const fetchCreateLB = (cluster, body, callback) => {
   }
 }
 
-export const createLB = (cluster, body, callback) =>
-  dispatch => dispatch(fetchCreateLB(cluster, body, callback))
+export const createLB = (cluster, agentType, body, callback) =>
+  dispatch => dispatch(fetchCreateLB(cluster, agentType, body, callback))
 
 
 export const EDIT_LOAD_BALANCE_REQUEST = 'EDIT_LOAD_BALANCE_REQUEST'
 export const EDIT_LOAD_BALANCE_SUCCESS = 'EDIT_LOAD_BALANCE_SUCCESS'
 export const EDIT_LOAD_BALANCE_FAILURE = 'EDIT_LOAD_BALANCE_FAILURE'
 
-const fetchEditLB = (cluster, name, displayname, body, callback) => {
+const fetchEditLB = (cluster, name, displayname, agentType, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -74,7 +74,7 @@ const fetchEditLB = (cluster, name, displayname, body, callback) => {
         EDIT_LOAD_BALANCE_SUCCESS,
         EDIT_LOAD_BALANCE_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayname}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -85,8 +85,8 @@ const fetchEditLB = (cluster, name, displayname, body, callback) => {
   }
 }
 
-export const editLB = (cluster, name, displayname, body, callback) =>
-  dispatch => dispatch(fetchEditLB(cluster, name, displayname, body, callback))
+export const editLB = (cluster, name, displayname, agentType, body, callback) =>
+  dispatch => dispatch(fetchEditLB(cluster, name, displayname, agentType, body, callback))
 
 export const LOAD_BALANCE_LIST_REQUEST = 'LOAD_BALANCE_LIST_REQUEST'
 export const LOAD_BALANCE_LIST_SUCCESS = 'LOAD_BALANCE_LIST_SUCCESS'
@@ -141,7 +141,7 @@ export const DELETE_LOAD_BALANCE_REQUEST = 'DELETE_LOAD_BALANCE_REQUEST'
 export const DELETE_LOAD_BALANCE_SUCCESS = 'DELETE_LOAD_BALANCE_SUCCESS'
 export const DELETE_LOAD_BALANCE_FAILURE = 'DELETE_LOAD_BALANCE_FAILURE'
 
-const fetchDeleteLB = (cluster, name, displayName, callback) => {
+const fetchDeleteLB = (cluster, name, displayName, agentType, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -149,7 +149,7 @@ const fetchDeleteLB = (cluster, name, displayName, callback) => {
         DELETE_LOAD_BALANCE_SUCCESS,
         DELETE_LOAD_BALANCE_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/displayname/${displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -159,14 +159,14 @@ const fetchDeleteLB = (cluster, name, displayName, callback) => {
   }
 }
 
-export const deleteLB = (cluster, name, displayName, callback) =>
-  dispatch => dispatch(fetchDeleteLB(cluster, name, displayName, callback))
+export const deleteLB = (cluster, name, displayName, agentType, callback) =>
+  dispatch => dispatch(fetchDeleteLB(cluster, name, displayName, agentType, callback))
 
 export const CREATE_LOAD_BALANCE_INGRESS_REQUEST = 'CREATE_LOAD_BALANCE_INGRESS_REQUEST'
 export const CREATE_LOAD_BALANCE_INGRESS_SUCCESS = 'CREATE_LOAD_BALANCE_INGRESS_SUCCESS'
 export const CREATE_LOAD_BALANCE_INGRESS_FAILURE = 'CREATE_LOAD_BALANCE_INGRESS_FAILURE'
 
-const fetchCreateIngress = (cluster, name, body, callback) => {
+const fetchCreateIngress = (cluster, name, ingressName, displayName, agentType, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -174,7 +174,7 @@ const fetchCreateIngress = (cluster, name, body, callback) => {
         CREATE_LOAD_BALANCE_INGRESS_SUCCESS,
         CREATE_LOAD_BALANCE_INGRESS_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/ingress`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/ingress/${ingressName}/displayname/${displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'POST',
@@ -185,14 +185,14 @@ const fetchCreateIngress = (cluster, name, body, callback) => {
   }
 }
 
-export const createIngress = (cluster, name, body, callback) =>
-  dispatch => dispatch(fetchCreateIngress(cluster, name, body, callback))
+export const createIngress = (cluster, name, ingressName, displayName, agentType, body, callback) =>
+  dispatch => dispatch(fetchCreateIngress(cluster, name, ingressName, displayName, agentType, body, callback))
 
 export const UPDATE_LOAD_BALANCE_INGRESS_REQUEST = 'UPDATE_LOAD_BALANCE_INGRESS_REQUEST'
 export const UPDATE_LOAD_BALANCE_INGRESS_SUCCESS = 'UPDATE_LOAD_BALANCE_INGRESS_SUCCESS'
 export const UPDATE_LOAD_BALANCE_INGRESS_FAILURE = 'UPDATE_LOAD_BALANCE_INGRESS_FAILURE'
 
-const fetchUpdateIngress = (cluster, name, displayName, body, callback) => {
+const fetchUpdateIngress = (cluster, name, displayName, lbDisplayName, agentType, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -200,7 +200,7 @@ const fetchUpdateIngress = (cluster, name, displayName, body, callback) => {
         UPDATE_LOAD_BALANCE_INGRESS_SUCCESS,
         UPDATE_LOAD_BALANCE_INGRESS_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/ingress/${displayName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${name}/ingress/${displayName}/displayname/${lbDisplayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -211,14 +211,14 @@ const fetchUpdateIngress = (cluster, name, displayName, body, callback) => {
   }
 }
 
-export const updateIngress = (cluster, name, displayName, body, callback) =>
-  dispatch => dispatch(fetchUpdateIngress(cluster, name, displayName, body, callback))
+export const updateIngress = (cluster, name, displayName, lbDisplayName, agentType, body, callback) =>
+  dispatch => dispatch(fetchUpdateIngress(cluster, name, displayName, lbDisplayName, agentType, body, callback))
 
 export const DELETE_LOAD_BALANCE_INGRESS_REQUESS = 'DELETE_LOAD_BALANCE_INGRESS_REQUESS'
 export const DELETE_LOAD_BALANCE_INGRESS_SUCCESS = 'DELETE_LOAD_BALANCE_INGRESS_SUCCESS'
 export const DELETE_LOAD_BALANCE_INGRESS_FAILURE = 'DELETE_LOAD_BALANCE_INGRESS_FAILURE'
 
-const fetchDeleteIngress = (cluster, lbname, name, displayName, callback) => {
+const fetchDeleteIngress = (cluster, lbname, name, ingressDisplayName, displayName, agentType, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -226,7 +226,7 @@ const fetchDeleteIngress = (cluster, lbname, name, displayName, callback) => {
         DELETE_LOAD_BALANCE_INGRESS_SUCCESS,
         DELETE_LOAD_BALANCE_INGRESS_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingresses/${name}/displayname/${displayName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingresses/${name}/${ingressDisplayName}/displayname/${displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -236,14 +236,14 @@ const fetchDeleteIngress = (cluster, lbname, name, displayName, callback) => {
   }
 }
 
-export const deleteIngress = (cluster, lbname, name, displayName, callback) =>
-  dispatch => dispatch(fetchDeleteIngress(cluster, lbname, name, displayName, callback))
+export const deleteIngress = (cluster, lbname, name, ingressDisplayName, displayName, agentType, callback) =>
+  dispatch => dispatch(fetchDeleteIngress(cluster, lbname, name, ingressDisplayName, displayName, agentType, callback))
 
 export const CREATE_APP_INGRESS_REQUEST = 'CREATE_APP_INGRESS_REQUEST'
 export const CREATE_APP_INGRESS_SUCCESS = 'CREATE_APP_INGRESS_SUCCESS'
 export const CREATE_APP_INGRESS_FAILURE = 'CREATE_APP_INGRESS_FAILURE'
 
-const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
+const fetchCreateAppIngress = (cluster, lbname, ingressName, displayName, agentType, body, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -251,7 +251,7 @@ const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
         CREATE_APP_INGRESS_SUCCESS,
         CREATE_APP_INGRESS_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingress/app`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingress/${ingressName}/app/displayname/${displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'POST',
@@ -262,8 +262,8 @@ const fetchCreateAppIngress = (cluster, lbname, body, callback) => {
   }
 }
 
-export const createAppIngress = (cluster, lbname, body, callback) =>
-  dispatch => dispatch(fetchCreateAppIngress(cluster, lbname, body, callback))
+export const createAppIngress = (cluster, lbname, ingressName, displayName, agentType, body, callback) =>
+  dispatch => dispatch(fetchCreateAppIngress(cluster, lbname, ingressName, displayName, agentType, body, callback))
 
 export const GET_SERVICE_LOADBALANCE_REQUEST = 'GET_SERVICE_LOADBALANCE_REQUEST'
 export const GET_SERVICE_LOADBALANCE_SUCCESS = 'GET_SERVICE_LOADBALANCE_SUCCESS'
@@ -291,7 +291,7 @@ export const DELETE_INGRESS_SERVICES_REQUEST = 'DELETE_INGRESS_SERVICES_REQUEST'
 export const DELETE_INGRESS_SERVICES_SUCCESS = 'DELETE_INGRESS_SERVICES_SUCCESS'
 export const DELETE_INGRESS_SERVICES_FAILURE = 'DELETE_INGRESS_SERVICES_FAILURE'
 
-const fetchUnbindService = (cluster, lbname, serviceName, callback) => {
+const fetchUnbindService = (cluster, lbname, serviceName, agentType, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -299,7 +299,7 @@ const fetchUnbindService = (cluster, lbname, serviceName, callback) => {
         DELETE_INGRESS_SERVICES_SUCCESS,
         DELETE_INGRESS_SERVICES_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/services/${serviceName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/services/${serviceName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -309,8 +309,8 @@ const fetchUnbindService = (cluster, lbname, serviceName, callback) => {
   }
 }
 
-export const unbindIngressService = (cluster, lbname, serviceName, callback) =>
-  dispatch => dispatch(fetchUnbindService(cluster, lbname, serviceName, callback))
+export const unbindIngressService = (cluster, lbname, serviceName, agentType, callback) =>
+  dispatch => dispatch(fetchUnbindService(cluster, lbname, serviceName, agentType, callback))
 
 export const INGRESS_NAME_AND_HOST_EXISTENCE_REQUEST = 'INGRESS_NAME_AND_HOST_EXISTENCE_REQUEST'
 export const INGRESS_NAME_AND_HOST_EXISTENCE_SUCCESS = 'INGRESS_NAME_AND_HOST_EXISTENCE_SUCCESS'
@@ -338,14 +338,14 @@ export const CREATE_TCP_UDP_INGRESS_REQUEST = 'CREATE_TCP_UDP_INGRESS_REQUEST'
 export const CREATE_TCP_UDP_INGRESS_SUCCESS = 'CREATE_TCP_UDP_INGRESS_SUCCESS'
 export const CREATE_TCP_UDP_INGRESS_FAILURE = 'CREATE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchCreateTcpUdpIngress = (cluster, lbname, body) => ({
+const fetchCreateTcpUdpIngress = (cluster, lbname, type, name, agentType, body) => ({
   [FETCH_API]: {
     types: [
       CREATE_TCP_UDP_INGRESS_REQUEST,
       CREATE_TCP_UDP_INGRESS_SUCCESS,
       CREATE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/type/${type}/displayname/${name}/agentType/${agentType}`,
     schema: {},
     options: {
       method: 'POST',
@@ -354,8 +354,8 @@ const fetchCreateTcpUdpIngress = (cluster, lbname, body) => ({
   }
 })
 
-export const createTcpUdpIngress = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchCreateTcpUdpIngress(cluster, lbname, body))
+export const createTcpUdpIngress = (cluster, lbname, type, name, agentType, body) =>
+  dispatch => dispatch(fetchCreateTcpUdpIngress(cluster, lbname, type, name, agentType, body))
 
 export const GET_TCP_UDP_INGRESS_REQUEST = 'GET_TCP_UDP_INGRESS_REQUEST'
 export const GET_TCP_UDP_INGRESS_SUCCESS = 'GET_TCP_UDP_INGRESS_SUCCESS'
@@ -381,14 +381,14 @@ export const UPDATE_TCP_UDP_INGRESS_REQUEST = 'UPDATE_TCP_UDP_INGRESS_REQUEST'
 export const UPDATE_TCP_UDP_INGRESS_SUCCESS = 'UPDATE_TCP_UDP_INGRESS_SUCCESS'
 export const UPDATE_TCP_UDP_INGRESS_FAILURE = 'UPDATE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchUpdateTcpUdpIngress = (cluster, lbname, body) => ({
+const fetchUpdateTcpUdpIngress = (cluster, lbname, type, name, agentType, body) => ({
   [FETCH_API]: {
     types: [
       UPDATE_TCP_UDP_INGRESS_REQUEST,
       UPDATE_TCP_UDP_INGRESS_SUCCESS,
       UPDATE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/type/${type}/displayname/${name}/agentType/${agentType}`,
     schema: {},
     options: {
       method: 'PUT',
@@ -397,21 +397,21 @@ const fetchUpdateTcpUdpIngress = (cluster, lbname, body) => ({
   }
 })
 
-export const updateTcpUdpIngress = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchUpdateTcpUdpIngress(cluster, lbname, body))
+export const updateTcpUdpIngress = (cluster, lbname, type, name, agentType, body) =>
+  dispatch => dispatch(fetchUpdateTcpUdpIngress(cluster, lbname, type, name, agentType, body))
 
 export const DELETE_TCP_UDP_INGRESS_REQUEST = 'DELETE_TCP_UDP_INGRESS_REQUEST'
 export const DELETE_TCP_UDP_INGRESS_SUCCESS = 'DELETE_TCP_UDP_INGRESS_SUCCESS'
 export const DELETE_TCP_UDP_INGRESS_FAILURE = 'DELETE_TCP_UDP_INGRESS_FAILURE'
 
-const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
+const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports, name, agentType) => ({
   [FETCH_API]: {
     types: [
       DELETE_TCP_UDP_INGRESS_REQUEST,
       DELETE_TCP_UDP_INGRESS_SUCCESS,
       DELETE_TCP_UDP_INGRESS_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/protocols/${type}/ports/${ports}`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/stream/protocols/${type}/ports/${ports}/displayname/${name}/agentType/${agentType}`,
     schema: {},
     options: {
       method: 'DELETE',
@@ -419,21 +419,21 @@ const fetchDeleteTcpUdpIngress = (cluster, lbname, type, ports) => ({
   }
 })
 
-export const deleteTcpUdpIngress = (cluster, lbname, type, ports) =>
-  dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports))
+export const deleteTcpUdpIngress = (cluster, lbname, type, ports, name, agentType) =>
+  dispatch => dispatch(fetchDeleteTcpUdpIngress(cluster, lbname, type, ports, name, agentType))
 
 export const UPDATE_LB_WHITELIST_REQUEST = 'UPDATE_LB_WHITELIST_REQUEST'
 export const UPDATE_LB_WHITELIST_SUCCESS = 'UPDATE_LB_WHITELIST_SUCCESS'
 export const UPDATE_LB_WHITELIST_FAILURE = 'UPDATE_LB_WHITELIST_FAILURE'
 
-const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
+const fetchUpdateLBWhiteList = (cluster, lbname, body, name, agentType) => ({
   [FETCH_API]: {
     types: [
       UPDATE_LB_WHITELIST_REQUEST,
       UPDATE_LB_WHITELIST_SUCCESS,
       UPDATE_LB_WHITELIST_FAILURE,
     ],
-    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/whitelist`,
+    endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/whitelist/displayname/${name}/agentType/${agentType}`,
     schema: {},
     options: {
       method: 'PUT',
@@ -442,5 +442,25 @@ const fetchUpdateLBWhiteList = (cluster, lbname, body) => ({
   }
 })
 
-export const updateLBWhiteList = (cluster, lbname, body) =>
-  dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body))
+export const updateLBWhiteList = (cluster, lbname, body, name, agentType) =>
+  dispatch => dispatch(fetchUpdateLBWhiteList(cluster, lbname, body, name, agentType))
+
+export const CHECK_LB_PERMISSION_REQUEST = 'CHECK_LB_PERMISSION_REQUEST'
+export const CHECK_LB_PERMISSION_SUCCESS = 'CHECK_LB_PERMISSION_SUCCESS'
+export const CHECK_LB_PERMISSION_FAILURE = 'CHECK_LB_PERMISSION_FAILURE'
+
+const fetchCheckLbPermission = callback => ({
+  [FETCH_API]: {
+    types: [
+      CHECK_LB_PERMISSION_REQUEST,
+      CHECK_LB_PERMISSION_SUCCESS,
+      CHECK_LB_PERMISSION_FAILURE,
+    ],
+    schema: {},
+    endpoint: `${API_URL_PREFIX}/loadbalances/checkpermission`,
+  },
+  callback,
+})
+
+export const checkLbPermission = callback =>
+  dispatch => dispatch(fetchCheckLbPermission(callback))

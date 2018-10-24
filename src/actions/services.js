@@ -1080,3 +1080,25 @@ const fetchUpdateHostConfig = (cluster, service, body, callback) => ({
 
 export const updateHostConfig = (cluster, service, body, callback) =>
   dispatch => dispatch(fetchUpdateHostConfig(cluster, service, body, callback))
+
+// 获取 ip 是否被占用
+const GET_IPPOD_STATUS_REQUEST = 'GET_IPPOD_STATUS_REQUEST'
+const GET_IPPOD_STATUS_SUCCESS = 'GET_IPPOD_STATUS_SUCCESS'
+const GET_IPPOD_STATUS_FAILURE = 'GET_IPPOD_STATUS_FAILURE'
+
+function fetchIpPodStatus(cluster, ip, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_IPPOD_STATUS_REQUEST, GET_IPPOD_STATUS_SUCCESS, GET_IPPOD_STATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/isPodIpExisted/${ip}`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function getISIpPodExisted(cluster, ip, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchIpPodStatus(cluster, ip, callback))
+  }
+}

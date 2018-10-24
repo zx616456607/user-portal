@@ -1,0 +1,58 @@
+@import "../../../../src/assets/style/site/core.less";
+#EmailApproval {
+  font-family: core, "Avenir Next", "Helvetica Neue", Helvetica, Arial, "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi MicroHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: url("../../../../src/assets/img/login-bg3.jpg") 50% 50% / cover no-repeat fixed;
+  -webkit-background-size: contain;
+  background-size: 100% 100%;
+  background-color: #000;
+  width: 100%;
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .emailPrompt {
+    width: 500px;
+    min-height: 200px;
+    padding: 30px;
+    height: auto;
+    background-color: #fff;
+    border-radius: 5px;
+    .textCont {
+      text-align: center;
+    }
+    .operate {
+      padding-top: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      button {
+        margin: 0 6px;
+      }
+    }
+  }
+  .footer {
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 12px;
+    height: 40px;
+    line-height: 40px;
+    & > *:not(:last-child) {
+      margin-right: 24px;
+    }
+    & > .langSwitch {
+      & > *:not(:last-child) {
+        margin-right: 6px;
+      }
+      & > .lang {
+        cursor: pointer;
+      }
+    }
+  }
+}

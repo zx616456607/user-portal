@@ -42,8 +42,10 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import ResourceQuota from "../ResourceLimit"
+import ResourceQuota from "../ResourceLimit";
+import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
+import NoteIcon from './NoteIcon'
 
 const Option = Select.Option
 const FormItem = Form.Item
@@ -628,12 +630,15 @@ let NetworkConfiguration = React.createClass ({
     const { form } = this.props
     let networkConfigArray = form.getFieldValue('networkConfigArray')
     let newnetworkConfigArray = cloneDeep(networkConfigArray)
+    // [LOT-3802] 服务网络出口，删除操作时，提示有问题
+    this.setState({
+      currentGroup: record.isDefault,
+    })
     if(record && record.isDefault){
       return this.setState({
         deleteDefaultGroup: true,
         currentItem: item,
         currentName: record.name,
-        currentGroup: record.isDefault
       })
     }
     if(!record || record == 'confirm'){
@@ -818,11 +823,7 @@ let NetworkConfiguration = React.createClass ({
   },
   renderIstioGateway() {
     return(
-      <QueueAni>
-        <div key={'a'}>
-          333
-        </div>
-      </QueueAni>
+      <ServiceMeshPortCard key="ServiceMeshPortCard" cluster={this.props.cluster}/>
     )
   },
   _networkConfigArray(networkConfigArray, data ,isAdd) {
@@ -883,10 +884,10 @@ let NetworkConfiguration = React.createClass ({
       let isDefaultGroupAttr = getFieldProps(`isDefaultGroupAttr${item.key}`,{
         initialValue: data[item.key] && data[item.key].isDefault ? data[item.key].isDefault : false,
       })
-      return  <div className="clusterTable" key={`rows-${index}`}>
+      return  <div className={`clusterTable ${isAdd ? 'no-border-top' : ''}`} key={`rows-${index}`}>
         {
           data[item.key] && data[item.key].isDefault
-            ? <div className='dafaultGroup'><FormattedMessage {...intlMsg.defaultStr}/></div>
+            ? <div className='dafaultGroup'><NoteIcon title={`默认`}/></div>
             : null
         }
         <Row className='title'>
@@ -1131,7 +1132,7 @@ let NetworkConfiguration = React.createClass ({
         <ThirdTabs
           tabs={[
             { name: formatMessage(intlMsg.serverProxy), value: 'server' },
-            // { name: '服务网格出口', value: 'Istio-gateway' }
+            { name: formatMessage(intlMsg.IstioGateway), value: 'Istio-gateway' }
             ]}
           active={networkType}
           onChange={key => this.setState({ networkType: key })}
@@ -1144,7 +1145,9 @@ let NetworkConfiguration = React.createClass ({
                 <FormattedMessage {...intlMsg.addNetOut}/>
               </Button>
               <Tooltip title={formatMessage(intlMsg.setDefaultNet)}>
-                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}/>
+                <Button icon="setting" className='settingDefalut' onClick={() => this.setState({settingDefalut: true, defaultSetting: this.state.defaultGroup})}>
+                {formatMessage(intlMsg.set)}
+                </Button>
               </Tooltip>
             </div>
             <Form key={form}>
@@ -1165,7 +1168,9 @@ let NetworkConfiguration = React.createClass ({
         </Modal>
         <Modal
           wrapClassName="vertical-center-modal"
-          width='65%'
+          // [LOT-3166] 添加网络出口Modal 1280x800小屏幕下有问题
+          // 该Modal下内容宽度是确定的, 应该将 Modal的宽度也设置为定值
+          width="980px"
           title={formatMessage(intlMsg.addNetOut)}
           footer={[
             <Button key="cancel" onClick={this.cancleEdit}><FormattedMessage {...intlMsg.cancel}/></Button>,
@@ -1174,7 +1179,9 @@ let NetworkConfiguration = React.createClass ({
           visible={this.state.addContentVisible}
           onCancel={this.cancleEdit}
         >
-          {this._networkConfigArray(networkConfigArray, data, 'isAdd')}
+          < div className="network-config-add-modal">
+            {this._networkConfigArray(networkConfigArray, data, 'isAdd')}
+          </div>
         </Modal>
          <Modal
            title={formatMessage(intlMsg.setDefaultNetOut)}

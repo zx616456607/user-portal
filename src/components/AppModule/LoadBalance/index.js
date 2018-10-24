@@ -23,6 +23,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../../constants'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import ResourceBanner from '../../TenantManage/ResourceBanner/index'
 import './style/index.less'
+import {getDeepValue} from "../../../../client/util/util";
 
 const notify = new Notification()
 
@@ -124,10 +125,11 @@ class LoadBalance extends React.Component {
     this.setState({
       delConfirmLoading: true
     })
+    const { agentType } = getDeepValue(currentBalance, ['metadata', 'labels'])
     notify.spin('删除中')
     let name = currentBalance.metadata.name
     let displayName = currentBalance.metadata.annotations.displayName
-    deleteLB(clusterID, name, displayName, {
+    deleteLB(clusterID, name, displayName, agentType, {
       success: {
         func: () => {
           notify.close()
@@ -280,16 +282,17 @@ class LoadBalance extends React.Component {
             删除后将失去负载均衡器内的所有监听，并且基于该负载均衡创建的QPS弹性伸缩策略会失效，是否确定删除？
           </div>
         </Modal>
-        <ResourceBanner resourceType='loadbalance'/>
+        <ResourceBanner resourceType={["insideloadbalance", "outsideloadbalance"]}/>
         <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
           <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>
           {/*<Button type="ghost" size="large" icon="delete" onClick={() => this.showDeleteModal([1,2,3])}>删除</Button>*/}
           <SearchInput
-            placeholder="请输入关键词搜索"
+            placeholder="请输入备注名搜索"
             size="large"
             value={name}
             onSearch={this.handleSearch}
+            style={{ marginLeft: 0 }}
           />
           {
             total ?

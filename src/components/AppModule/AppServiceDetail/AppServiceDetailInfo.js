@@ -43,10 +43,10 @@ const scheduleByLabels = 'ScheduleByLabels'
 const unknownSchedulePolicy = 'Error'
 const Option = Select.Option
 
+let uuid = 1
 class MyComponent extends Component {
   constructor(props){
     super(props)
-    this.templateTable = this.templateTable.bind(this)
     this.handleEdit = this.handleEdit.bind(this)
     this.handleCancleEdit = this.handleCancleEdit.bind(this)
     this.handleSaveEdit = this.handleSaveEdit.bind(this)
@@ -64,10 +64,10 @@ class MyComponent extends Component {
       DeletingEnvIndex : '',
       buttonLoading : false,
       appEditBtn: false,
-      appEditLoading: false
+      appEditLoading: false,
+      DeletingEnvId: '',
     }
   }
-
   componentWillMount(){
     const { serviceDetail, currentCluster, getSecrets } = this.props
     const containers = serviceDetail.spec.template.spec.containers[0].env
@@ -88,80 +88,81 @@ class MyComponent extends Component {
     })
     getSecrets(currentCluster.clusterID)
   }
-  handleEdit(index){
-    const { rowDisableArray, dataArray } = this.state
-    rowDisableArray[index].disable = true
-    dataArray[index].edit = true
-    this.setState({
-      rowDisableArray,
-      dataArray,
-    })
-  }
-
-  handleCancleEdit(index){
-    const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { form } = this.props
-    const { getFieldValue } = form
-    let name = getFieldValue(`envName${index}`)
-    let value = getFieldValue(`envValue${index}`)
-    /* if(name == undefined || value == undefined || name == '' || value == ''){
-      dataArray.splice(index,1)
-      rowDisableArray.splice(index,1)
-      saveBtnLoadingArray.splice(index,1)
-      this.setState({
-        dataArray,
-        rowDisableArray,
-        saveBtnLoadingArray,
-      })
-      return
-    } */
-    // LOT-2805
-    const valueArr = []
-    dataArray.forEach((v, i) => {
-      const nameItem = document.getElementById(`envName${i}`)
-      const valueItem = document.getElementById(`envValue${i}`)
-      valueArr.push({
-        name: nameItem.value,
-        value: valueItem.value,
-      })
-    })
-    // LOT-2805
-    if(dataArray[index].flag == true){
-      dataArray.splice(index,1)
-      valueArr.splice(index,1) // LOT-2805
-      rowDisableArray.splice(index,1)
-      saveBtnLoadingArray.splice(index,1)
-      this.setState({
-        dataArray,
-        rowDisableArray,
-        saveBtnLoadingArray,
-      },() => {
-        if (dataArray.length !== 0) {
-          document.getElementById('envName0').value = valueArr[0].name // LOT-2805
-          document.getElementById('envValue0').value = valueArr[0].value // LOT-2805
+  setInitialValue = () => {
+    const containers = this.props.serviceDetail.spec.template.spec.containers[0].env
+    const envVariables = []
+    if (containers) {
+      containers.forEach((v, i) => {
+        const index = 1000 - i
+        v.id = index
+        if (typeof v.disabled === 'undefined') {
+          v.disabled = true
         }
+        if (v.valueFrom) {
+          const { secretKeyRef } = v.valueFrom
+          v.type = 'secret'
+          v.secretValues = [secretKeyRef.name, secretKeyRef.key]
+        }
+        envVariables.push(v)
       })
-      return
     }
-    rowDisableArray[index].disable = false
-    this.setState({
-      rowDisableArray
+    return envVariables
+  }
+  handleEdit(editId){
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const envVairableList = getFieldValue('envList')
+    envVairableList.forEach(item => {
+      if (item.id === editId) {
+        item.disabled = false
+      }
     })
+    setFieldsValue({
+      'envList': envVairableList,
+    });
+
+  }
+  handleCancleEdit(delId){
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue, resetFields } = form
+    resetFields([`envValueType${delId}`])
+    let envVairableList = getFieldValue('envList')
+    const index = envVairableList.findIndex(k => k.id === delId)
+    if (envVairableList[index].name) {
+      envVairableList[index].disabled = true
+    } else {
+      envVairableList = envVairableList.filter(v => v.id !== delId)
+    }
+    setFieldsValue({
+      'envList': envVairableList,
+    });
   }
   editServiceConfirm(){
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { serviceDetail, cluster, editServiceEnv, formatMessage } = this.props
+    const { serviceDetail, cluster, editServiceEnv, formatMessage, form } = this.props
+    const { getFieldValue } = form
+    const envVairableList = getFieldValue('envList')
+    const postData = []
+    envVairableList.forEach(item => {
+      if (item.valueFrom && item.envType === 'secret') {
+        postData.push({
+          name: item.name,
+          value: '',
+          valueFrom: item.valueFrom
+        })
+      } else {
+        postData.push({
+          name: item.name,
+          value: item.value
+        })
+      }
+    })
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
-    /* if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
-
-      new NotificationHandler().error("请先保存新增的环境变量")
-      return
-    } */
     let body = {
       clusterId : cluster,
       service : serviceDetail.metadata.name,
-      arr : dataArray
+      arr : postData
     }
     editServiceEnv(body,{
       success : {
@@ -190,102 +191,74 @@ class MyComponent extends Component {
       }
     })
   }
-  handleSaveEdit(index){
-    const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
+  handleSaveEdit(confirmId, name, value, type){
     const { form, formatMessage } = this.props
-    const { getFieldValue } = form
+    const { getFieldValue, setFieldsValue, validateFields } = form
     const Notification = new NotificationHandler()
-    let name = getFieldValue(`envName${index}`)
-    let value = getFieldValue(`envValue${index}`)
     if(name == '' || name == undefined){
       Notification.error(formatMessage(AppServiceDetailIntl.variableNameNotEmpty))
       return
     }
-    for(let i=0; i<dataArray.length; i++ ){
-      if(dataArray[i].name == name){
-        if(dataArray[index].edit == true){
-          break
+    const envVairableList = getFieldValue('envList')
+    envVairableList.forEach(item => {
+      if (item.id === confirmId) {
+        item.disabled = true
+        item.name = name
+        item.value = value
+        item.envType = type
+        item.type = type
+        if (type === 'secret') {
+          item.valueFrom = {
+            secretKeyRef: {
+              name: value[0],
+              key: value[1]
+            }
+          }
         }
-        Notification.error(formatMessage(AppServiceDetailIntl.variableNameExist))
-        return
       }
-    }
-    saveBtnLoadingArray[index].loading = true
-    dataArray[index].name = name
-    if (Array.isArray(value)) {
-      dataArray[index].valueFrom = {
-        secretKeyRef: {
-          name: value[0],
-          key: value[1],
-        }
-      }
-    } else {
-      dataArray[index].value = value
-    }
-    this.setState({
-      saveBtnLoadingArray,
-      appEditBtn: true
-    },()=>{
-      setTimeout(()=>{
-        saveBtnLoadingArray[index].loading = false
-        rowDisableArray[index].disable = false
-        delete dataArray[index].flag
-        delete dataArray[index].edit
-        this.setState({
-          rowDisableArray,
-          dataArray,
-          saveBtnLoadingArray,
-        })
-      },300)
     })
+    setFieldsValue({
+      'envList': envVairableList,
+      [`envValueType${confirmId}`]: type
+    });
+    this.setState({appEditBtn: true})
   }
   addNewEnv(){
-    const {  formatMessage} = this.props
-    const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
+    const {  formatMessage, form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const envVairableList = getFieldValue('envList')
+    const nextEnvVairableList = envVairableList.concat({id: uuid, disabled: false})
+    uuid++
+    if (nextEnvVairableList.length > 2 && this.state.appEditBtn) {
       new NotificationHandler().error(formatMessage(AppServiceDetailIntl.saveNewEnv))
       return
     }
-    rowDisableArray.push({disable : true})
-    saveBtnLoadingArray.push({loading : false})
-    dataArray.push({name:'',value:'',flag:true})
-    this.setState({
-      rowDisableArray,
-      dataArray,
-      saveBtnLoadingArray
-    },()=>{
-      document.getElementById(`envName${dataArray.length-1}`).focus()
+    setFieldsValue({
+      'envList': nextEnvVairableList,
     })
   }
 
-  handleDelete(index,name){
+  handleDelete(delItem){
     this.setState({
-      DeletingEnvName : name,
-      DeletingEnvIndex : index,
+      DeletingEnvName : delItem.name,
+      DeletingEnvId : delItem.id,
       ModalDeleteVisible : true
     })
   }
 
   ModalDeleteOk(){
-    const { rowDisableArray, dataArray, DeletingEnvIndex, saveBtnLoadingArray } = this.state
+    const { DeletingEnvId } = this.state
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const envVairableList = getFieldValue('envList')
+    setFieldsValue({
+      'envList': envVairableList.filter(v => v.id !== DeletingEnvId),
+    });
+    this.setState({ appEditBtn: true })
 
-    rowDisableArray.splice(DeletingEnvIndex,1)
-    dataArray.splice(DeletingEnvIndex,1)
-    saveBtnLoadingArray.splice(DeletingEnvIndex,1)
     this.setState({
-      buttonLoading : true,
       ModalDeleteVisible : false,
-      appEditBtn: true
-    },()=>{
-      setTimeout(()=>{
-        this.setState({
-          rowDisableArray,
-          dataArray,
-          saveBtnLoadingArray,
-          buttonLoading : false,
-        })
-      })
-    },300)
+    })
   }
 
   ModalDeleteCancel(){
@@ -295,56 +268,77 @@ class MyComponent extends Component {
   }
 
   envNameCheck(rule, value, callback) {
-    const { dataArray } = this.state
-    const { formatMessage } = this.props
-    let flag = false
-    let errorMsg = appEnvCheck(value, formatMessage(AppServiceDetailIntl.envVariable));
-    if(value == ''){
-      callback(new Error(formatMessage(AppServiceDetailIntl.VariableNameCanNotEmpty)))
-    }
-    for(let i=0; i<dataArray.length; i++ ){
-      if(dataArray[i].name == value){
+    const { formatMessage, form } = this.props
+    const envVairableList = form.getFieldValue('envList')
+    envVairableList.forEach(v => {
+      if (v.name === value) {
+        i++
         callback(new Error(formatMessage(AppServiceDetailIntl.variableNameExist)))
       }
-    }
-    if(errorMsg == 'success') {
-      callback()
-    } else {
-      callback(new Error([errorMsg]));
-    }
+    })
+
+    callback()
   }
 
-  templateTable(dataArray,rowDisableArray, appCenterChoiceHidden) {
-    const { formatMessage } = this.props
-    if(dataArray.length == 0) {
-      return <div className='noData'>{formatMessage(AppServiceDetailIntl.NoEnvVariable)}</div>
-    }
-    const { form, secretsOptions } = this.props
-    const { getFieldProps, getFieldValue, resetFields } = form
-    const ele = []
-    dataArray.forEach((env,index) => {
-      const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(index)}>
-        <Menu.Item key="1"><Icon type="edit" />&nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
-      </Menu>
-      let value = env.value
-      if (env.valueFrom && env.valueFrom.secretKeyRef) {
-        value = [ env.valueFrom.secretKeyRef.name, env.valueFrom.secretKeyRef.key ]
+  envVariableList = () => {
+    const list = this.props.form.getFieldValue('envList')
+    const { formatMessage, secretsOptions, form } = this.props
+    const { getFieldProps, resetFields, getFieldValue } = form
+    const envVariableItem = list.map((k) => {
+      const envValueType = getFieldValue(`envValueType${k.id}`) || "normal"
+      let envDefaultValue = ''
+      if (envValueType === "normal") {
+        envDefaultValue = k.value || ""
+      } else {
+        envDefaultValue = k.secretValues || []
       }
-      const valueString = Array.isArray(value) ? value.join('/') : value
-      const envValueProps = getFieldProps(`envValue${index}`, {
-        initialValue: value
+      const envValueProps = getFieldProps(`envValue${k.id}`, {
+        initialValue: envDefaultValue
       })
-      const envValueTypeProps = getFieldProps(`envValueType${index}`, {
-        initialValue: env.valueFrom ? 'secret' : 'normal',
-        onChange: () => resetFields([ `envValue${index}` ]),
+      const envValueTypeProps = getFieldProps(`envValueType${k.id}`, {
+        initialValue: k.type || "normal",
+        onChange: () => resetFields([ `envValue${k.id}` ]),
       })
-      const envValueType = getFieldValue(`envValueType${index}`)
+      const envNameProps = getFieldProps(`variableName[${k.id}]`,{
+        initialValue: k.name,
+        rules: [
+          {required: true, message: "请输入变量名"},
+          { validator: this.envNameCheck }
+        ]
+      })
       const envValueInputClass = classNames({
         hide: envValueType !== 'normal',
       })
+      const envValueLockedDom = () => {
+        return (
+          <span>
+            {
+              envValueType === "normal"?
+                <Tooltip title={k.value} placement="topLeft">
+                  <span>{k.value}</span>
+                </Tooltip>
+                :
+                <span>
+                  <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
+                    <a><i className="fa fa-key" /></a>
+                  </Tooltip>
+                  &nbsp;
+                  <Tooltip title={k.value? k.value : k.secretValues.join('\/')} placement="topLeft">
+                    <span>{k.value? k.value : k.secretValues.join('\/')}</span>
+                  </Tooltip>
+                </span>
+            }
+          </span>
+        )
+      }
       const envValueSelectClass = classNames('ant-input-wrapper ant-input-group', {
         hide: envValueType !== 'secret',
       })
+
+      const editMenu = <Menu style={{width:'100px'}} onClick={() => this.handleEdit(k.id)}>
+        <Menu.Item key="1"><Icon type="edit" />&nbsp;{formatMessage(ServiceCommonIntl.edit)}</Menu.Item>
+      </Menu>
+
       const selectBefore = (
         <Select
           {...envValueTypeProps}
@@ -355,117 +349,108 @@ class MyComponent extends Component {
           <Option value="secret">{formatMessage(AppServiceDetailIntl.encryptionVariable)}</Option>
         </Select>
       )
-
-      ele.push(
-        <div className="dataBox" key={index}>
+      return (
+        <div className="dataBox" key={k.id}>
           <div className="commonTitleName">
             {
-              rowDisableArray[index].disable
-              ?<FormItem>
-                <Input id={`envName${index}`} {...getFieldProps(`envName${index}`, {
-                  initialValue:env.name,
-                  rules: [{ validator: this.envNameCheck },],
-                })} placeholder={env.name} size="default"/>
-              </FormItem>
-              :<Tooltip title={env.name} placement="topLeft">
-                <span>{env.name}</span>
-              </Tooltip>
+              k.disabled?
+                <Tooltip title={k.name} placement="topLeft">
+                  <span>{k.name}</span>
+                </Tooltip>
+                :
+                <FormItem>
+                  <Input {...envNameProps} placeholder="请填写变量名"/>
+                </FormItem>
             }
           </div>
-          <div className="commonTitleValue ">
+          <div className="commonTitleValue">
             {
-              rowDisableArray[index].disable
-              ?<FormItem>
-                <span className={envValueInputClass}>
-                  <Input
-                    size="default"
-                    placeholder={formatMessage(AppServiceDetailIntl.pleaseInputValue)}
-                    {...envValueProps}
-                    addonBefore={selectBefore}
-                  />
-                </span>
-                <span className={envValueSelectClass}>
-                  <span className="ant-input-group-addon">
-                    {selectBefore}
+              !k.disabled
+                ?<FormItem>
+                  <span className={envValueInputClass}>
+                    <Input
+                      size="default"
+                      disabled={k.disabled}
+                      placeholder={formatMessage(AppServiceDetailIntl.pleaseInputValue)}
+                      {...envValueProps}
+                      addonBefore={selectBefore}
+                    />
                   </span>
-                  <Cascader
-                    {...envValueProps}
-                    placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceEncryptionObject)}
-                    options={secretsOptions}
-                  />
+                  <span className={envValueSelectClass}>
+                    <span className="ant-input-group-addon">
+                      {selectBefore}
+                    </span>
+                    <Cascader
+                      {...envValueProps}
+                      placeholder={formatMessage(AppServiceDetailIntl.pleaseChoiceEncryptionObject)}
+                      options={secretsOptions}
+                    />
+                  </span>
+                </FormItem>
+                :
+                <span>
+                  {envValueLockedDom()}
                 </span>
-              </FormItem>
-              : <span style={{width:'33%'}}>
-                {
-                  Array.isArray(value) &&
-                  <a>
-                    <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
-                      <i className="fa fa-key" />
-                    </Tooltip>
-                  </a>
-                }
-                &nbsp;
-                <Tooltip title={valueString} placement="topLeft">
-                  <span>{valueString || ' '}</span>
-                </Tooltip>
-              </span>
+
             }
           </div>
           <div>
-            { appCenterChoiceHidden? null :
-              rowDisableArray[index].disable
-              ? <div>
-                <Button type='primary' className='saveBtn' onClick={() => this.handleSaveEdit(index)} loading={this.state.saveBtnLoadingArray[index].loading}>{formatMessage(ServiceCommonIntl.save)}</Button>
-                <Button onClick={() => this.handleCancleEdit(index)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
-              </div>
-              : <Dropdown.Button type="ghost" overlay={editMenu} className='editButton' onClick={() => this.handleDelete(index,env.name)}>
+            {
+              !k.disabled ? <div>
+                  <Button type='primary' className='saveBtn'
+                          onClick={() => this.handleSaveEdit(k.id,
+                            envNameProps.value,
+                            envValueProps.value,
+                            envValueType
+                          )}>
+                    {formatMessage(ServiceCommonIntl.save)}</Button>
+                  <Button onClick={() => this.handleCancleEdit(k.id)}>{formatMessage(ServiceCommonIntl.cancel)}</Button>
+                </div>
+                : <Dropdown.Button type="ghost" overlay={editMenu} className='editButton' onClick={() => this.handleDelete(k)}>
                   <Icon type="delete" />{formatMessage(ServiceCommonIntl.delete)}
                 </Dropdown.Button>
             }
           </div>
-          <div className='checkbox'></div>
         </div>
       )
     })
-  return ele
+    return envVariableItem
   }
+
   render(){
     const { DeletingEnvName } = this.state
     const { formatMessage } = this.props
-    const {appCenterChoiceHidden = false} = this.props
+    this.props.form.getFieldProps('envList', {initialValue: this.setInitialValue()})
     return (
       <div className='DetailInfo__MyComponent commonBox'>
-          <span className="titleSpan">{formatMessage(AppServiceDetailIntl.envVariable)}</span>
-          <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
+        <span className="titleSpan">{formatMessage(AppServiceDetailIntl.envVariable)}</span>
+        <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>{formatMessage(AppServiceDetailIntl.changeNoEffect)}</div>
         <div className='save_box'>
-        {!appCenterChoiceHidden &&
-          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm} className='title_button'>{formatMessage(AppServiceDetailIntl.appChange)}</Button>
-        }
+          <Button size="large" type="primary"
+                  disabled={this.state.appEditBtn ? false : true}
+                  loading={this.state.appEditLoading}
+                  onClick={this.editServiceConfirm} className='title_button'>{formatMessage(AppServiceDetailIntl.appChange)}</Button>
         </div>
-          <div className="titleBox">
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.variableName)}
-            </div>
-            <div className="commonTitle">
-              {formatMessage(AppServiceDetailIntl.variableValue)}
-            </div>
-            { !appCenterChoiceHidden &&
-            <div className="commonTitle">
-              {formatMessage(ServiceCommonIntl.operation)}
-            </div>
-            }
-            <div style={{ clear: 'both' }}></div>
+        <div className="titleBox">
+          <div className="commonTitle">
+            {formatMessage(AppServiceDetailIntl.variableName)}
           </div>
+          <div className="commonTitle">
+            {formatMessage(AppServiceDetailIntl.variableValue)}
+          </div>
+          <div className="commonTitle">
+            {formatMessage(ServiceCommonIntl.operation)}
+          </div>
+          <div style={{ clear: 'both' }}></div>
+        </div>
         <div>
           <Form>
-            {this.templateTable(this.state.dataArray,this.state.rowDisableArray, appCenterChoiceHidden)}
+            {this.envVariableList()}
           </Form>
         </div>
-        {!appCenterChoiceHidden &&
         <div className="pushRow">
           <a onClick={this.addNewEnv}><Icon type="plus" />{formatMessage(AppServiceDetailIntl.addEnvVariable)}</a>
         </div>
-        }
         <Modal
           title={formatMessage(AppServiceDetailIntl.deleteEnvVariableOperation)}
           wrapClassName="ModalDeleteInfo"

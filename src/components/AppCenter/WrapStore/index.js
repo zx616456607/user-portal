@@ -114,7 +114,7 @@ class AppWrapStore extends React.Component {
   downloadCount = (id) => {
     const { downloadCount } = this.state
     let newCount = cloneDeep(downloadCount)
-    newCount = Object.assign({}, {
+    newCount = Object.assign({}, newCount, {
       [`${id}-count`]: (newCount[`${id}-count`] ? newCount[`${id}-count`] : 0) + 1
     })
     this.setState({

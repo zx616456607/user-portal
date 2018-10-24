@@ -128,11 +128,13 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.billingConfig = globalConfig.billingConfig
   // Add loadbalance config
   user.loadbalanceConfig = globalConfig.loadbalanceConfig
+  // Add AI config
+  user.aiopsConfig = globalConfig.aiopsConfig
   return user
 }
 
 exports.checkWechatAccountIsExist = function* (body) {
-  const api = apiFactory.getApi()
+  const api = apiFactory.getApi(this.session.loginUser)
   try {
     let result = yield api.users.createBy(['login'], null, body)
     return {

@@ -194,3 +194,167 @@ export function getServiceListServiceMeshStatus(clusterId, serviceList, callback
     return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, callback))
   }
 }
+
+// 列取服务网格出口
+export const GET_SERVICE_MESH_PORT_LIST_REQUEST = 'GET_SERVICE_MESH_PORT_LIST_REQUEST'
+export const GET_SERVICE_MESH_PORT_LIST_SUCCESS = 'GET_SERVICE_MESH_PORT_LIST_SUCCESS'
+export const GET_SERVICE_MESH_PORT_LIST_FAILURE = 'GET_SERVICE_MESH_PORT_LIST_FAILURE'
+function checkServiceMeshPortList(clusterId ,callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/ingressgateway`
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_MESH_PORT_LIST_REQUEST, GET_SERVICE_MESH_PORT_LIST_SUCCESS, GET_SERVICE_MESH_PORT_LIST_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET',
+      }
+    },
+    callback,
+  }
+}
+
+export function getServiceMeshPortList(clusterId, callback) {
+  return (dispatch) => {
+    return dispatch(checkServiceMeshPortList(clusterId, callback))
+  }
+}
+
+// 获取服务网格出口
+export const GET_SERVICE_MESH_PORT_REQUEST = 'GET_SERVICE_MESH_PORT_REQUEST'
+export const GET_SERVICE_MESH_PORT_SUCCESS = 'GET_SERVICE_MESH_PORT_SUCCESS'
+export const GET_SERVICE_MESH_PORT_FAILURE = 'GET_SERVICE_MESH_PORT_FAILURE'
+function checkServiceMeshPort(clusterId, hashedName, callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/ingressgateway/:${hashedName}`
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_MESH_PORT_REQUEST, GET_SERVICE_MESH_PORT_SUCCESS, GET_SERVICE_MESH_PORT_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET',
+      }
+    },
+    callback,
+  }
+}
+
+export function getServiceMeshPort(clusterId, hashedName, callback) {
+  return (dispatch) => {
+    return dispatch(checkServiceMeshPort(clusterId,hashedName, callback))
+  }
+}
+
+
+//  创建服务网格出口
+export const CREATE_SERVICE_MESH_PORT_REQUEST = 'CREATE_SERVICE_MESH_PORT_REQUEST'
+export const CREATE_SERVICE_MESH_PORT_SUCCESS = 'CREATE_SERVICE_MESH_PORT_SUCCESS'
+export const CREATE_SERVICE_MESH_PORT_FAILURE = 'CREATE_SERVICE_MESH_PORT_FAILURE'
+
+function postServiceMeshPort(clusterId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/ingressgateway`
+  return {
+    [FETCH_API]: {
+      types: [CREATE_SERVICE_MESH_PORT_REQUEST, CREATE_SERVICE_MESH_PORT_SUCCESS, CREATE_SERVICE_MESH_PORT_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function createServiceMeshPort(clusterId, body, callback) {
+  return (dispatch) => {
+    return dispatch(postServiceMeshPort(clusterId, body, callback))
+  }
+}
+
+//  更新服务网格出口
+export const UPDATE_SERVICE_MESH_PORT_REQUEST = 'UPDATE_SERVICE_MESH_PORT_REQUEST'
+export const UPDATE_SERVICE_MESH_PORT_SUCCESS = 'UPDATE_SERVICE_MESH_PORT_SUCCESS'
+export const UPDATE_SERVICE_MESH_PORT_FAILURE = 'UPDATE_SERVICE_MESH_PORT_FAILURE'
+
+function putServiceMeshPort(clusterId, hashedName, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/ingressgateway/${hashedName}`
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_SERVICE_MESH_PORT_REQUEST, UPDATE_SERVICE_MESH_PORT_SUCCESS, UPDATE_SERVICE_MESH_PORT_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback,
+  }
+}
+
+export function updateServiceMeshPort(clusterId, hashedName,  body, callback) {
+  return (dispatch) => {
+    return dispatch(putServiceMeshPort(clusterId, hashedName,  body, callback))
+  }
+}
+
+// 删除服务网格出口
+export const DELETE_SERVICE_MESH_PORT_REQUEST = 'DELETE_SERVICE_MESH_PORT_REQUEST'
+export const DELETE_SERVICE_MESH_PORT_SUCCESS = 'DELETE_SERVICE_MESH_PORT_SUCCESS'
+export const DELETE_SERVICE_MESH_PORT_FAILURE = 'DELETE_SERVICE_MESH_PORT_FAILURE'
+function DELETEServiceMeshPort(clusterId, hashedName, callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/ingressgateway/${hashedName}`
+  return {
+    [FETCH_API]: {
+      types: [DELETE_SERVICE_MESH_PORT_REQUEST, DELETE_SERVICE_MESH_PORT_SUCCESS, DELETE_SERVICE_MESH_PORT_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback,
+  }
+}
+
+export function deleteServiceMeshPort(clusterId, hashedName, callback) {
+  return (dispatch) => {
+    return dispatch(DELETEServiceMeshPort(clusterId, hashedName, callback))
+  }
+}
+
+// 获取集群节点及可用信息
+export const GET_SERVICE_MESH_CLUSTER_NODE_REQUEST = 'GET_SERVICE_MESH_CLUSTER_NODE_REQUEST'
+export const GET_SERVICE_MESH_CLUSTER_NODE_SUCCESS = 'GET_SERVICE_MESH_CLUSTER_NODE_SUCCESS'
+export const GET_SERVICE_MESH_CLUSTER_NODE_FAILURE = 'GET_SERVICE_MESH_CLUSTER_NODE_FAILURE'
+function checkServiceMeshClusterNode(clusterId, callback) {
+  let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/nodes`
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_MESH_CLUSTER_NODE_REQUEST, GET_SERVICE_MESH_CLUSTER_NODE_SUCCESS, GET_SERVICE_MESH_CLUSTER_NODE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET',
+      }
+    },
+    callback,
+  }
+}
+
+export function getServiceMeshClusterNode(clusterId, callback) {
+  return (dispatch) => {
+    return dispatch(checkServiceMeshClusterNode(clusterId, callback))
+  }
+}
+
+// 当创建应用的时候, 如果开启了服务网格, 创建应用处的访问方式应该不显示当前组件, 而是显示一段话
+export const CREATE_APP_MESH_VISITOR_PORT_DISABLE = "CREATE_APP_MESH_VISITOR_PORT_DISABLE"
+export function toggleCreateAppMeshFlag(flag) {
+  return {
+    type: CREATE_APP_MESH_VISITOR_PORT_DISABLE,
+    flag
+  }
+}

@@ -15,10 +15,12 @@ import { Table, Button, Row, Col, Select } from 'antd'
 import { connect } from 'react-redux'
 import * as aiopsActions from '.././../../actions/aiops'
 import './style/DeployAI.less'
+import Notification from '../../../../src/components/Notification'
+const notification = new Notification()
 
 const AI_IMAGE_DATA = [
   {
-    image: 'kubeflow/tf-model-server-cpu',
+    image: 'tenx_containers/tf-model-server-cpu',
   },
 ]
 
@@ -31,8 +33,24 @@ class DeployAI extends React.Component {
   }
 
   componentDidMount() {
-    const { current, getAIModelsets, onChange } = this.props
-    getAIModelsets(current.cluster.clusterID)
+    const { current, getAIModelsets, onChange, aiopsConfig } = this.props
+    const { host, apiVersion } = aiopsConfig
+    if (host && apiVersion) {
+      getAIModelsets(current.cluster.clusterID, {
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode === 404) {
+              notification.close()
+              notification.warn('AI 深度学习配置不可用', '请联系管理员重新配置')
+            }
+          },
+        },
+      })
+    } else {
+      notification.close()
+      notification.warn('请在全局配置中配置 AI 服务地址')
+    }
     onChange && onChange({
       runAIImage: AI_IMAGE_DATA[0].image,
     })
@@ -135,13 +153,14 @@ class DeployAI extends React.Component {
 
 const mapStateToProps = (
   {
-    entities: { loginUser, current },
+    entities: { loginUser, loginUser: { info: { aiopsConfig } }, current },
     aiops: { modelsets = {} },
   }
 ) => ({
   loginUser: loginUser.info,
   current,
   modelsets,
+  aiopsConfig,
 })
 
 export default connect(mapStateToProps, {
