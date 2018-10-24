@@ -2415,6 +2415,8 @@
   "AppModule.AppServiceDetailIntl.bindServiceLBDelete": "Service binding LB is deleted",
   "AppModule.AppServiceDetailIntl.thisLimitValueBindLB": "The threshold counts the QPS of the service through 【load balancing】，bind multiple LB，Then the statistics are the sum of QPS",
   "AppModule.AppServiceDetailIntl.anyIndexExceedLimitValue": "Any indicator that exceeds the threshold will trigger an extension，all indicators meet the n-1 instance average below the threshold to trigger the contraction",
+  "AppModule.AppServiceDetailIntl.noScale": "No Autoscaling Strategy, add one!",
+  "AppModule.AppServiceDetailIntl.addScale": "Create",
   "AppModule.AppServiceDetailIntl.scaleStrategy": "Scaling strategy",
   "AppModule.AppServiceDetailIntl.strategyName": "Policy name",
   "AppModule.AppServiceDetailIntl.verifying": "Verifying...",

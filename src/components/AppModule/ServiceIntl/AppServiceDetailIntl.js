@@ -447,6 +447,8 @@ export const mapData = {
     thisLimitValueBindLB: '该阈值统计该服务通过【负载均衡】的 QPS，若绑定了多个 LB，则统计为 QPS 之和',
     autoScale: '自动弹性伸缩',
     anyIndexExceedLimitValue: '任意指标超过阈值都会触发扩展，所有指标都满足n-1个实例平均值低于阈值才会触发收缩',
+    noScale: '您还没有自动伸缩策略，添加一个吧!',
+    addScale: '添加',
     scaleStrategy: '伸缩策略',
     strategyName: '策略名称',
     verifying: '校验中...',
