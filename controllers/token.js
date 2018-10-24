@@ -24,6 +24,7 @@ exports.getTokenInfo = function* () {
 exports.authJWT = function* () {
   const loginUser = this.session.loginUser
   const redirect = this.query.redirect
+  const userquery = this.query.userquery
   const api = apiFactory.getApi(loginUser)
   const result = yield api.auth.get()
   if (!redirect) {
@@ -34,5 +35,5 @@ exports.authJWT = function* () {
     jwt: result.data.token,
     authUrl: this.origin + this.path,
   }
-  this.redirect(`${redirect}?${qs.stringify(query)}`)
+  this.redirect(`${redirect}?${qs.stringify(query)}&${userquery}`)
 }
