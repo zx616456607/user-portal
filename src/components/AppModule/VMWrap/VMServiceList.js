@@ -33,6 +33,9 @@ class VMServiceList extends React.Component {
       name: '',
       loading: false,
       searchValue: "",
+      isShowRePublishModal: false,
+      currApp: {},
+      reConfirmLoading: false,
     }
   }
   componentWillMount() {
@@ -53,29 +56,44 @@ class VMServiceList extends React.Component {
     }
   }
   handleButtonClick(record) {
-    const { serviceDeploy } = this.props;
-    const { searchValue } = this.state;
-    let notify = new NotificationHandler()
-    serviceDeploy(record.serviceId,{
-      success: {
-        func: res => {
-          this.pageAndSerch(searchValue,1,true)
-          notify.success('重新部署成功')
-        },
-        isAsync: true
-      },
-      failed:{
-        func: res => {
-          if (res.statusCode === 400){
+    this.setState({
+      reConfirmLoading: true,
+    }, () => {
+      const { serviceDeploy } = this.props;
+      const { searchValue } = this.state;
+      let notify = new NotificationHandler()
+      serviceDeploy(record.serviceId,{
+        success: {
+          func: res => {
             this.pageAndSerch(searchValue,1,true)
-            notify.warn('传统应用环境已被删除（或无法连接），请重新添加部署环境\n')
-            return
-          }
-          this.pageAndSerch(searchValue,1,true)
-          notify.error('重新部署失败')
+            notify.success('重新部署成功')
+            this.setState({
+              isShowRePublishModal: false,
+              currApp: {},
+            })
+          },
+          isAsync: true
         },
-        isAsync: true
-      }
+        failed:{
+          func: res => {
+            if (res.statusCode === 400){
+              this.pageAndSerch(searchValue,1,true)
+              notify.warn('传统应用环境已被删除（或无法连接），请重新添加部署环境\n')
+              return
+            }
+            this.pageAndSerch(searchValue,1,true)
+            notify.error('重新部署失败')
+          },
+          isAsync: true
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              reConfirmLoading: false,
+            })
+          }
+        }
+      })
     })
   }
 
@@ -198,8 +216,13 @@ class VMServiceList extends React.Component {
     }
     return <TenxStatus phase={phase} progress={progress}/>
   }
+  onPublishOk = () => {
+    this.handleButtonClick(this.state.currApp)
+  }
   render() {
-    const { service, loading, deleteVisible, confirmLoading, searchValue } = this.state;
+    const { service, loading, deleteVisible,
+      confirmLoading, searchValue, isShowRePublishModal,
+      currApp, reConfirmLoading } = this.state;
 
     const columns = [{
       title: '应用名',
@@ -245,7 +268,7 @@ class VMServiceList extends React.Component {
           </Menu>
         )
         return (
-          <Dropdown.Button onClick={()=>this.handleButtonClick(record)} overlay={menu} type="ghost">
+          <Dropdown.Button onClick={() => this.setState({ isShowRePublishModal: true, currApp: record })} overlay={menu} type="ghost">
             重新部署
           </Dropdown.Button>
         )
@@ -274,6 +297,23 @@ class VMServiceList extends React.Component {
               确定删除该传统应用？
             </div>
           </Modal>
+          {
+            isShowRePublishModal ?
+              <Modal
+                title="重新部署"
+                visible={isShowRePublishModal}
+                confirmLoading={reConfirmLoading}
+                onOk={this.onPublishOk}
+                onCancel={() => this.setState({ isShowRePublishModal: false, currApp: {} })}
+              >
+                <div className="deleteRow">
+                  <i className="fa fa-exclamation-triangle"/>
+                  确定重新部署应用 {currApp.serviceName} ？
+                </div>
+              </Modal>
+              :
+              null
+          }
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
