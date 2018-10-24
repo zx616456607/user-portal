@@ -606,7 +606,12 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'} />
+              <TipSvcDomain
+              svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'}
+              serviceMeshflagListInfo={this.props.mesh}
+              msaUrl={this.props.msaUrl}
+              serviceName={item.metadata.name}
+              />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -772,16 +777,16 @@ class AppServiceList extends Component {
     let ServiceListmeshResult
     try{
       ServiceListmeshResult =
-      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
+      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames, {withAccessPoints:'tenx'})
     } catch(e) { notification.error({message: '获取服务网格状态出错'}) }
     // console.log('ServiceListmeshResult', ServiceListmeshResult)
     const ServiceListmeshData = ServiceListmeshResult.response.result || {}
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
-      .find((service) => service.metadata.name === name)
-      return { name, value: serviceMesh.istioEnabled }
-    }) || {}
+      .find((service) => service.metadata.name === name) || {}
+      return { name, value: serviceMesh.istioEnabled, referencedComponent: serviceMesh.referencedComponent }
+    })
     this.setState({ mesh: serviceListMesh })
   }
   componentWillUnmount() {
@@ -1418,6 +1423,7 @@ class AppServiceList extends Component {
             intl={this.props.intl}
             bindingDomains={this.props.bindingDomains}
             mesh={this.state.mesh}
+            msaUrl={this.props.msaUrl}
              />
           <Modal
             title="垂直居中的对话框"
@@ -1435,6 +1441,8 @@ class AppServiceList extends Component {
                 selectTab={selectTab}
                 serviceDetailmodalShow={this.state.modalShow}
                 onClose={this.closeModal}
+                mesh={this.state.mesh}
+                msaUrl={this.props.msaUrl}
               />
               :
               null
@@ -1632,6 +1640,7 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1648,7 +1657,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     availabilityNumber,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule,
+    msaUrl
   }
 }
 

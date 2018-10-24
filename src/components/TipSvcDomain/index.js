@@ -76,12 +76,25 @@ class SvcTip extends Component {
         </li>
       )
     })
+    const serviceMeshinfo = this.props.serviceMeshflagListInfo
+    .find(({name}) => name === this.props.serviceName) || {}
     return (
       <div className='SvcTip'>
-        <input id={this.state.inputID} style={{ position: 'absolute', opacity: '0' }} />
+      {
+        serviceMeshinfo.value ?
+        <div style={{ marginTop: 8 }}>
+        <ServiceMeshInfo
+          serviceMeshinfo={serviceMeshinfo}
+          msaUrl={this.props.msaUrl}
+        />
+        </div> :
+        <div>
         <ul>
+          <input id={this.state.inputID} style={{ position: 'absolute', opacity: '0' }} />
           {item}
         </ul>
+        </div>
+      }
       </div>
     )
   }
@@ -337,9 +350,11 @@ class TipSvcDomain extends Component {
               content={
               <SvcTip
               svcDomain={svcDomain}
-              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo || []}
               msaUrl = {this.props.msaUrl}
-              formatMessage={formatMessage}/>
+              formatMessage={formatMessage}
+              serviceName={this.props.serviceName}
+              />
               }
               trigger='click'
               onVisibleChange={this.showPop}
@@ -376,7 +391,7 @@ class TipSvcDomain extends Component {
                 <AppTip
                 scope={scope}
                 appDomain={appDomain}
-                serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+                serviceMeshflagListInfo={this.props.serviceMeshflagListInfo || []}
                 formatMessage={formatMessage}
                 msaUrl = {this.props.msaUrl}
                 />
@@ -409,7 +424,7 @@ class TipSvcDomain extends Component {
               content={
               <AppTip
               scope={scope}
-              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo || []}
               appDomain={appDomain}
               msaUrl = {this.props.msaUrl}
                />
