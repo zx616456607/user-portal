@@ -684,9 +684,10 @@ class AppAutoScale extends Component {
                       <div>
                         <img src={scaleImg} alt="noScale" />
                         <div>
-                          您还没有自动伸缩策略，添加一个吧! &nbsp;&nbsp;&nbsp;
+                          {formatMessage(AppServiceDetailIntl.noScale)}
+                          &nbsp;&nbsp;&nbsp;
                           <Button type="primary" size="large" onClick={this.startEdit}>
-                            添加
+                            {formatMessage(AppServiceDetailIntl.addScale)}
                           </Button>
                         </div>
                       </div>
