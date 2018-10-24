@@ -1446,7 +1446,7 @@
   "hostList.confirm": "Confirm",
   "hostList.deleteErrForceMaintain": "Delete problem resource，mandatory maintenance",
   "hostList.nodeMaintainOpen": "Node maintenance is running",
-  "hostList.userViolatedPdb": "User  {namespace} node  {resourceName} violates its own pdb policy",
+  "hostList.userViolatedPdb": "User  {namespace} service  {resourceName} violates its own pdb policy",
   "hostList.containerMigrateFail": "Container migration failed",
   "hostList.nodeMaintainFail": "Node maintenance failed to start",
   "hostList.nodeMaintainSuccess": "Node maintenance started successfully",
