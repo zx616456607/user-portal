@@ -17,6 +17,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {API_URL_PREFIX } from '../../constants'
 import { toQuerystring } from '../../common/tools'
+import { connect } from 'react-redux';
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
@@ -86,6 +87,8 @@ class SvcTip extends Component {
         <ServiceMeshInfo
           serviceMeshinfo={serviceMeshinfo}
           msaUrl={this.props.msaUrl}
+          namespace={this.props.namespace}
+          clusterID={this.props.clusterID}
         />
         </div> :
         <div>
@@ -159,6 +162,8 @@ class AppTipComponent extends Component {
               <ServiceMeshInfo
                 serviceMeshinfo={serviceMeshinfo}
                 msaUrl={this.props.msaUrl}
+                namespace={this.props.namespace}
+                clusterID={this.props.clusterID}
               /> :
             <Timeline>
               <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}>
@@ -205,6 +210,8 @@ class AppTipComponent extends Component {
               <ServiceMeshInfo
                 serviceMeshinfo={serviceMeshinfo}
                 msaUrl={this.props.msaUrl}
+                namespace={this.props.namespace}
+                clusterID={this.props.clusterID}
               /> :
             <Timeline>
               {
@@ -354,6 +361,8 @@ class TipSvcDomain extends Component {
               msaUrl = {this.props.msaUrl}
               formatMessage={formatMessage}
               serviceName={this.props.serviceName}
+              namespace={this.props.namespace}
+              clusterID={this.props.clusterID}
               />
               }
               trigger='click'
@@ -394,6 +403,8 @@ class TipSvcDomain extends Component {
                 serviceMeshflagListInfo={this.props.serviceMeshflagListInfo || []}
                 formatMessage={formatMessage}
                 msaUrl = {this.props.msaUrl}
+                namespace={this.props.namespace}
+                clusterID={this.props.clusterID}
                 />
                 }
                 trigger='click'
@@ -427,6 +438,8 @@ class TipSvcDomain extends Component {
               serviceMeshflagListInfo={this.props.serviceMeshflagListInfo || []}
               appDomain={appDomain}
               msaUrl = {this.props.msaUrl}
+              namespace={this.props.namespace}
+              clusterID={this.props.clusterID}
                />
               }
               trigger='click'
@@ -447,11 +460,19 @@ class TipSvcDomain extends Component {
   }
 }
 
-export default injectIntl(TipSvcDomain, {withRef: true,})
+function mapSateToProp(state) {
+  const { current:{space: { namespace } = {}, cluster: { clusterID } = {}} ={} } = state.entities
+  return {
+    namespace, clusterID
+  }
+}
+export default connect(mapSateToProp,{})(injectIntl(TipSvcDomain, {withRef: true,}))
 
 function ServiceMeshInfo({
   serviceMeshinfo = {},
-  msaUrl
+  msaUrl,
+  namespace,
+  clusterID,
 }){
   return (
     <div className="ServiceMeshInfo">
@@ -461,14 +482,22 @@ function ServiceMeshInfo({
           <span>
             <span>请在</span>
             <a target="_blank"
-               href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${msaUrl}/service-mesh/component-management/component/detail?name=${serviceMeshinfo.referencedComponent}`) })}`}>
+               rel="noopener noreferrer"
+               href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+                 redirect: encodeURIComponent(`${msaUrl}/service-mesh/component-management/component/detail`),
+                 userquery:encodeURIComponent(`name=${serviceMeshinfo.referencedComponent}&namespace=${namespace}&clusterID=${clusterID}`)
+                })}`}>
               {`「${serviceMeshinfo.referencedComponent}组件」`}
             </a>
             <span>中查看</span>
           </span> :
           <span>
              <a target="_blank"
-        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${ msaUrl}/service-mesh/component-management`) })}`}
+             rel="noopener noreferrer"
+        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+          redirect: encodeURIComponent(`${ msaUrl}/service-mesh/component-management`),
+          userquery: encodeURIComponent(`namespace=${namespace}&clusterID=${clusterID}`)
+         })}`}
         >
         「去绑定组件」</a>
           </span>

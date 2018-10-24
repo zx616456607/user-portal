@@ -94,7 +94,7 @@ class VisitTypeAddressTable extends React.Component {
     })
   }
   async componentDidMount() {
-    const { currentCluster: {clusterID} = {}, service:{ metadata: { name } = {} } = {} } = this.props
+    const { currentCluster: {clusterID} = {}, service:{ metadata: { name } = {} } = {}, } = this.props
     const serviceResult =
     await this.props.getServiceListServiceMeshStatus(clusterID, name, {withAccessPoints:'tenx'}
     )
@@ -103,7 +103,8 @@ class VisitTypeAddressTable extends React.Component {
     this.setState({ referencedComponent })
   }
   render(){
-    const { formatMessage } = this.props.intl;
+    const { formatMessage, } = this.props.intl;
+    const { namespace, currentCluster: {clusterID} = {} } = this.props;
     const self = this
   return (
     <div className="VisitTypeAddressTable">
@@ -118,8 +119,13 @@ class VisitTypeAddressTable extends React.Component {
     this.props.serviceIstioEnabled === true && this.state.referencedComponent !== undefined &&
     <span style={{ color:"#ccc", paddingLeft:16}} >
       <span>服务已开启服务网格, 服务的访问地址请在【治理-服务网格】-【组件管理】的</span>
-      <a target="_blank"
-      href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management/component/detail?name=${this.state.referencedComponent}`) })}`}>
+      <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+        redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management/component/detail`),
+        userquery: encodeURIComponent(`name=${this.state.referencedComponent}&namespace=${namespace}&clusterID=${clusterID}`),
+         })}`}>
       {`「${this.state.referencedComponent}组件」`}</a>
       <span>详情中获取</span>
     </span>
@@ -128,8 +134,13 @@ class VisitTypeAddressTable extends React.Component {
       this.props.serviceIstioEnabled === true && this.state.referencedComponent == undefined &&
       <span style={{ color:"#ccc", paddingLeft:16}} >
         <span>将服务绑定组件后，在详情中查看</span>
-        <a target="_blank"
-        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management`) })}`}
+        <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+          redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management`),
+          userquery: encodeURIComponent(`namespace=${namespace}&clusterID=${clusterID}`),
+       })}`}
         >
         「去绑定组件」</a>
       </span>

@@ -720,6 +720,7 @@ class VisitType extends Component{
           service={service}
           getServiceListServiceMeshStatus={this.props.getServiceListServiceMeshStatus}
           msaUrl={this.props.msaUrl}
+          namespace={this.props.namespace}
           />
           {/* <table className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
@@ -765,6 +766,7 @@ function mapSateToProp(state) {
     k8sService,
     clusterId,
     msaUrl,
+    namespace: current.space.namespace
   }
 }
 
