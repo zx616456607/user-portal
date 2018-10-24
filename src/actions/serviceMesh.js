@@ -190,9 +190,9 @@ function checkServiceListServiceMeshStatus(clusterId, serviceList, query={}, cal
   }
 }
 
-export function getServiceListServiceMeshStatus(clusterId, serviceList,callback) {
+export function getServiceListServiceMeshStatus(clusterId, serviceList, query, callback) {
   return (dispatch) => {
-    return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, callback))
+    return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, query, callback))
   }
 }
 

@@ -829,7 +829,7 @@ class ServiceList extends Component {
     let ServiceListmeshResult
     try{
       ServiceListmeshResult =
-      await this.props.getServiceListServiceMeshStatus(this.props.cluster, serviceNames, {withAccessPoints:'tenx'})
+      await this.props.getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
     } catch(e) {
       const notification = new NotificationHandler()
       notification.error({message:'获取服务网格状态出错'})

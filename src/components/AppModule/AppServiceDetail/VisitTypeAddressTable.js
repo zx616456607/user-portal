@@ -96,8 +96,7 @@ class VisitTypeAddressTable extends React.Component {
   async componentDidMount() {
     const { currentCluster: {clusterID} = {}, service:{ metadata: { name } = {} } = {}, } = this.props
     const serviceResult =
-    await this.props.getServiceListServiceMeshStatus(clusterID, name, {withAccessPoints:'tenx'}
-    )
+    await this.props.getServiceListServiceMeshStatus(clusterID, name)
     const { result = {} } = serviceResult.response
     const { referencedComponent } = Object.values(result)[0] || {}
     this.setState({ referencedComponent })

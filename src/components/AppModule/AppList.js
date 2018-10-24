@@ -461,7 +461,7 @@ class AppList extends Component {
       .reduce((current, next)=> next.concat(current), [])
       .map(({ metadata: { name } = {} }) => name)
     const serviceMeshflag = await
-    this.props.getServiceListServiceMeshStatus(cluster,serviceNameList, {withAccessPoints:'tenx'})
+    this.props.getServiceListServiceMeshStatus(cluster,serviceNameList,)
     const { result:serviceMeshflagList = {}} = serviceMeshflag.response
     const serviceMeshflagListInfo = Object.values(serviceMeshflagList)
     .filter((item) => typeof item === 'object')
