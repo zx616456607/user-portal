@@ -36,6 +36,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
 import intlMsg from './AppListIntl'
+import * as serviceMeshAciton from '../../actions/serviceMesh'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -351,7 +352,11 @@ let MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='visitIp commonData appListDomain'>
-            <TipSvcDomain appDomain={appDomain} parentNode='AppList' />
+            <TipSvcDomain appDomain={appDomain}
+            serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+            parentNode='AppList'
+            msaUrl={this.props.msaUrl}
+             />
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
@@ -420,10 +425,11 @@ class AppList extends Component {
       deployEnvModalVisible: false,
       step: 1, // first step create AlarmModal
       alarmStrategy: true,
+      serviceMeshflagListInfo: [] // 当前应用中所有服务的istio信息
     }
   }
 
-  loadData(nextProps, options) {
+  loadData = async (nextProps, options) => {
     const self = this
     const {
       loadAppList, cluster, page,
@@ -433,7 +439,7 @@ class AppList extends Component {
     const query = { page, size, name, sortOrder, sortBy }
     query.customizeOpts = options
 
-    loadAppList(cluster, query, location.pathname, {
+    const appListresult = await loadAppList(cluster, query, location.pathname, {
       success: {
         func: (result) => {
           // Add app status watch, props must include statusWatchWs!!!
@@ -450,6 +456,19 @@ class AppList extends Component {
         isAsync: true
       }
     })
+    const { result: { data = [] } = {} } = appListresult.response
+    const serviceNameList = data.map(({ services }) => services)
+      .reduce((current, next)=> next.concat(current), [])
+      .map(({ metadata: { name } = {} }) => name)
+    const serviceMeshflag = await
+    this.props.getServiceListServiceMeshStatus(cluster,serviceNameList, {withAccessPoints:'tenx'})
+    const { result:serviceMeshflagList = {}} = serviceMeshflag.response
+    const serviceMeshflagListInfo = Object.values(serviceMeshflagList)
+    .filter((item) => typeof item === 'object')
+    .map((item) => ({ name: item.metadata.name,
+      istioEnabled:item.istioEnabled,
+      referencedComponent: item.referencedComponent}))
+    this.setState({serviceMeshflagListInfo})
   }
 
   onAllChange(e) {
@@ -1302,6 +1321,8 @@ class AppList extends Component {
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
               intl={this.props.intl}
+              serviceMeshflagListInfo={this.state.serviceMeshflagListInfo}
+              msaUrl={this.props.msaUrl}
             />
           </Card>
           <Modal title={formatMessage(intlMsg.createAlarmStg)} visible={this.state.alarmModal} width={580}
@@ -1384,6 +1405,7 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     cluster: cluster.clusterID,
     statusWatchWs,
@@ -1401,7 +1423,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
-    SettingListfromserviceorapp
+    SettingListfromserviceorapp,
+    msaUrl,
   }
 }
 
@@ -1415,6 +1438,7 @@ AppList = connect(mapStateToProps, {
   deleteSetting,
   getSettingListfromserviceorapp,
   removeTerminal,
+  getServiceListServiceMeshStatus: serviceMeshAciton.getServiceListServiceMeshStatus,
 })(AppList)
 
 export default injectIntl(AppList, {

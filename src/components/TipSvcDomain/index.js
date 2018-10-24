@@ -12,9 +12,11 @@ import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 import { genRandomString } from '../../common/tools'
 import TenxIcon from '@tenx-ui/icon'
-
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../AppModule/ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
+import meshIcon from '../../assets/img/meshIcon.svg'
+import {API_URL_PREFIX } from '../../constants'
+import { toQuerystring } from '../../common/tools'
 // server tips port card
 class SvcTip extends Component {
   constructor(props) {
@@ -76,10 +78,10 @@ class SvcTip extends Component {
     })
     return (
       <div className='SvcTip'>
+        <input id={this.state.inputID} style={{ position: 'absolute', opacity: '0' }} />
         <ul>
           {item}
         </ul>
-        <input id={this.state.inputID} style={{ position: 'absolute', opacity: '0' }} />
       </div>
     )
   }
@@ -121,12 +123,13 @@ class AppTipComponent extends Component {
   }
 
   render() {
-    const { appDomain, scope } = this.props
+    const { appDomain, scope, serviceMeshflagListInfo = [] } = this.props
     const { formatMessage } = this.props.intl
     let item = appDomain.map((item, index) => {
+      const serviceMeshinfo = this.props.serviceMeshflagListInfo.find(({name}) => name === item.name) || {}
       if (item.data.length === 0) {
         return (
-          <div>
+          <div className="AppTipComponent">
             <span>-</span>
           </div>
         )
@@ -134,10 +137,16 @@ class AppTipComponent extends Component {
       if (item.data.length === 1) {
         let linkURL = 'http://' + item.data[0].domain
         return (
-          <div>
+          <div className="AppTipComponent">
             <Row className='firstSvc'>
               <Col style={{ display: 'inline-block', color: '#49b1e2' }}>{item.name}</Col>
             </Row>
+            {
+              serviceMeshinfo.istioEnabled ?
+              <ServiceMeshInfo
+                serviceMeshinfo={serviceMeshinfo}
+                msaUrl={this.props.msaUrl}
+              /> :
             <Timeline>
               <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}>
               </Timeline.Item>
@@ -166,6 +175,7 @@ class AppTipComponent extends Component {
                 {renderProtocolIcon(item.data[0].domain)}
               </Timeline.Item>
             </Timeline>
+            }
           </div>
         )
       }
@@ -173,10 +183,16 @@ class AppTipComponent extends Component {
         let emptyArray = ['']
         let list = emptyArray.concat(item.data)
         return (
-          <div>
+          <div className="AppTipComponent">
             <Row className='firstSvc'>
               <Col style={{ display: 'inline-block', color: '#49b1e2' }}>{item.name}</Col>
             </Row>
+            {
+              serviceMeshinfo.istioEnabled ?
+              <ServiceMeshInfo
+                serviceMeshinfo={serviceMeshinfo}
+                msaUrl={this.props.msaUrl}
+              /> :
             <Timeline>
               {
                 list.map((url, index) => {
@@ -213,14 +229,15 @@ class AppTipComponent extends Component {
                 })
               }
             </Timeline>
+            }
           </div>
         )
       }
     })
     return (
       <div className='AppTip'>
-        {item}
         <input className='privateCodeInput' style={{ position: 'absolute', opacity: '0' }} />
+        {item}
       </div>
     )
   }
@@ -316,11 +333,14 @@ class TipSvcDomain extends Component {
         let linkURL = 'http://' + svcDomain[0].domain
         return (
           <div className='TipSvcDomain'>
-            <span className='appDomain'>
-              <a target='_blank' href={linkURL}>{this.getIconHtml()}{svcDomain[0].domain}</a>
-            </span>
             <Popover placement='right'
-              content={<SvcTip svcDomain={svcDomain} formatMessage={formatMessage}/>}
+              content={
+              <SvcTip
+              svcDomain={svcDomain}
+              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+              msaUrl = {this.props.msaUrl}
+              formatMessage={formatMessage}/>
+              }
               trigger='click'
               onVisibleChange={this.showPop}
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
@@ -329,7 +349,7 @@ class TipSvcDomain extends Component {
               {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
               </svg>*/}
-              <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
+              <span className="checkAddress">查看访问地址</span>
             </Popover>
           </div>
         )
@@ -347,12 +367,20 @@ class TipSvcDomain extends Component {
           let linkURL = 'http://' + appDomain[0].data[0].domain
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
-              <span className='appDomain'>
+              {/* <span className='appDomain'>
                 {this.getIconHtml()}
                 <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-              </span>
+              </span> */}
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
-                content={<AppTip scope={scope} appDomain={appDomain} formatMessage={formatMessage}/>}
+                content={
+                <AppTip
+                scope={scope}
+                appDomain={appDomain}
+                serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+                formatMessage={formatMessage}
+                msaUrl = {this.props.msaUrl}
+                />
+                }
                 trigger='click'
                 onVisibleChange={this.showPop}
                 getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
@@ -361,7 +389,7 @@ class TipSvcDomain extends Component {
                 {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                   <use xlinkHref='#more' />
                 </svg>*/}
-                <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
+                <span className="checkAddress">查看访问地址</span>
               </Popover>
             </div>
           )
@@ -377,17 +405,21 @@ class TipSvcDomain extends Component {
         })
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
-            <span className='appDomain'>
-              <a target='_blank' href={`http://${currentDomain}`}>{this.getIconHtml()}{currentDomain}</a>
-            </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
-              content={<AppTip scope={scope} appDomain={appDomain} />}
+              content={
+              <AppTip
+              scope={scope}
+              serviceMeshflagListInfo={this.props.serviceMeshflagListInfo}
+              appDomain={appDomain}
+              msaUrl = {this.props.msaUrl}
+               />
+              }
               trigger='click'
               onVisibleChange={this.showPop}
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
-              <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
+              <span className="checkAddress">查看访问地址</span>
               {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
               </svg>*/}
@@ -401,3 +433,31 @@ class TipSvcDomain extends Component {
 }
 
 export default injectIntl(TipSvcDomain, {withRef: true,})
+
+function ServiceMeshInfo({
+  serviceMeshinfo = {},
+  msaUrl
+}){
+  return (
+    <div className="ServiceMeshInfo">
+      <img className="meshIcon"　src={meshIcon} alt=""/>
+        {
+          serviceMeshinfo.referencedComponent ?
+          <span>
+            <span>请在</span>
+            <a target="_blank"
+               href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${msaUrl}/service-mesh/component-management/component/detail?name=${serviceMeshinfo.referencedComponent}`) })}`}>
+              {`「${serviceMeshinfo.referencedComponent}组件」`}
+            </a>
+            <span>中查看</span>
+          </span> :
+          <span>
+             <a target="_blank"
+        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({ redirect: encodeURIComponent(`${ msaUrl}/service-mesh/component-management`) })}`}
+        >
+        「去绑定组件」</a>
+          </span>
+        }
+    </div>
+  )
+}

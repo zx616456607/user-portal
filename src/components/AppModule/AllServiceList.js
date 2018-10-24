@@ -829,11 +829,11 @@ class ServiceList extends Component {
     }
     const ServiceListmeshData = ServiceListmeshResult.response.result || {}
     const serviceListMesh = serviceNames.map((name) => {
-      const serviceMesh = Object.values(ServiceListmeshData) || {}
+      const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
       .find((service) => service.metadata.name === name)
       return { name, value: serviceMesh.istioEnabled }
-    })
+    }) || {}
     this.setState({ mesh: serviceListMesh })
   }
   componentWillUnmount() {
