@@ -180,6 +180,10 @@ exports.verifyUser = function* (next) {
     // Encrypt base64 password to make it some secure, and save to session
     registryAuth: securityUtil.encryptContent(registryAuth),
     harbor: {},
+    openstack:{
+      withProject:{},
+      withoutProject:{}
+    }
   }
   // get harbor current user for check is harbor admin user
   try {

@@ -288,6 +288,8 @@ if (process.env.RUNNING_MODE === 'standard') {
 
 // Routes middleware
 // ~ No authentication required
+
+
 const noAuthRoutes = require('./routes/no_auth')
 app.use(noAuthRoutes(Router))
 const indexRoutes = require('./routes')
@@ -308,6 +310,10 @@ app.use(cas(Router))
 // 3rd_account saml2
 const saml2 = require('./routes/3rd_account/saml2/no_auth')
 app.use(saml2(Router))
+
+// 3rd_openstack
+const openstackRoute =  require('./routes/3rd_account/openstack/index')
+app.use(openstackRoute(Router))
 
 // Serve static files
 app.use(function* (next){
