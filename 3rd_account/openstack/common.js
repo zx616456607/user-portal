@@ -69,7 +69,7 @@ exports.getTokenWithProject = function* (username, password, projectName) {
   }) || {}
   projects = projects.projects || []
   if(projects.length == 0) {
-    const err = new Error('User have no project')
+    const err = new Error('User has not project')
     throw err
   }
 

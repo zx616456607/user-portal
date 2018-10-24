@@ -9,7 +9,6 @@ module.exports = function (Router) {
     prefix: '/api/v2/openstack'
   })
 
-
   router.use(middlewares.auth)
   router.get('/servers', vmController.getServerList)
   router.post('/servers', vmController.createServer)
@@ -45,8 +44,8 @@ module.exports = function (Router) {
   router.get('/networks/routers/:id/subnet', networkController.getBindSubnet)
   router.get('/networks/routers/:id', networkController.getRouterDetail)
   router.put('/networks/routers/:id', networkController.updateRouter)
-  router.put('/networks/routers/:id/subnet/:subnet', networkController.routerBindSubnet)
-  router.put('/networks/routers/:id/subnet/:subnet/remove', networkController.routerRemoveSubnet)
+  router.put('/networks/routers/:id/subnets/:subnet', networkController.routerBindSubnet)
+  router.delete('/networks/routers/:id/subnets/:subnet', networkController.routerRemoveSubnet)
   router.post('/networks/routers', networkController.createRouter)
   router.delete('/networks/routers/:id', networkController.deleteRouter)
 

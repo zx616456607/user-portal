@@ -238,15 +238,6 @@ exports.getFloatingipsList = wrapHandler(function*(send) {
     })
     return item
   })
-
-  // const routerBody = yield send(routerUrl, {
-  //   method: "GET"
-  // })
-
-  // if(routerBody && routerBody.routers) {
-
-  // }
-
   const results = {
     floatingips: floatIPConsequence,
     vm: vmBody.servers
@@ -292,18 +283,13 @@ exports.ManageFloatingips = wrapHandler(function*(send) {
   const { openstack } = this.session.loginUser
   const server_id = this.params.serverID
   const body = this.request.body
-  let requestUrl = baseUrl + `/v2/${openstack.withProject.currentProjectID}/servers/${server_id}/action`
+  let requestUrl = vmBaseUrl + `/v2/${openstack.withProject.currentProjectID}/servers/${server_id}/action`
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
   })
   this.body = result
 })
-
-
-
-
-
 
 exports.getRoutersList = wrapHandler(function*(send) {
   let requestUrl = baseUrl + `/v2.0/routers`
