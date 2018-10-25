@@ -1697,7 +1697,7 @@
   "hostList.confirm": "确定",
   "hostList.deleteErrForceMaintain": "删除问题资源，强制维护",
   "hostList.nodeMaintainOpen": "节点维护开启中",
-  "hostList.userViolatedPdb": "用户 {namespace} 的节点 {resourceName} 违反了自己的pdb策略",
+  "hostList.userViolatedPdb": "用户 {namespace} 的服务 {resourceName} 违反了自己的pdb策略",
   "hostList.containerMigrateFail": "容器迁移失败",
   "hostList.nodeMaintainFail": "节点维护开启失败",
   "hostList.nodeMaintainSuccess": "节点维护开启成功",

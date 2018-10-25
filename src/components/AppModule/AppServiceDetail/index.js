@@ -412,7 +412,14 @@ class AppServiceDetail extends Component {
               <div className='address'>
                 <span>{formatMessage(AppServiceDetailIntl.address)}：</span>
                 <div className='addressRight'>
-                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={this.state.httpIcon}/>
+                  <TipSvcDomain
+                  svcDomain={svcDomain}
+                  parentNode='appSvcDetailDomain'
+                  icon={this.state.httpIcon}
+                  serviceMeshflagListInfo={this.props.mesh}
+                  msaUrl={this.props.msaUrl}
+                  serviceName={service.metadata.name}
+                  />
                 </div>
               </div>
               <div>

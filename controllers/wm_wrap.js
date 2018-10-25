@@ -122,3 +122,29 @@ exports.checkVminfo = function* (){
   const result = yield api.vminfos.getBy([ vminfo,'exists'],query)
   this.body = result
 }
+
+exports.listVMTomcat = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const query = this.query
+  const result = yield api.vmtomcats.getBy([ 'list' ], query)
+  this.body = result
+}
+
+exports.deleteTomcat = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const id = this.params.id
+
+  const result = yield api.vmtomcats.deleteBy([ id, 'delete' ])
+  this.body = result
+}
+
+exports.createTomcat = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const body = this.request.body
+  console.log("body", body)
+  const result = yield api.vmtomcats.createBy([ 'create' ], null, body)
+  this.body = result
+}

@@ -599,7 +599,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name, pathname } = scope.props.location.query
     const headers = { project: name }
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
+    const query = { page : 1, size : 0, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadAppList(scope.state.selectedCluster, query, pathname, {
       success: {
@@ -627,7 +627,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = { project: name }
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
+    const query = { pageIndex: 1, pageSize: 0, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadAllServices(scope.state.selectedCluster, query, {
       success: {
@@ -654,7 +654,7 @@ class ResourceModal extends Component {
   loadContainerList = () => {
     const { name } = this.props.scope.props.location.query
     const headers = { project: name }
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time", headers }
+    const query = { page : 1, size : 0, sortOrder:"desc", sortBy: "create_time", headers }
     //scope.props.projectClusters
     this.props.loadContainerList(this.props.scope.state.selectedCluster, query, {
       success: {
@@ -682,7 +682,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = {project: name};
-    const query = { page : 1, size : 9999, sortOrder:"desc", sortBy: "create_time" , headers};
+    const query = { page : 1, size : 0, sortOrder:"desc", sortBy: "create_time" , headers};
     const PRIVATE_QUERY = {
       storagetype: 'ceph',
       srtype: 'private',
@@ -720,7 +720,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = { project: name };
-    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers, clusterID: this.props.scope.state.selectedCluster};
+    const query = { from: 0, size: 0, sortOrder:"desc", sortBy: "create_time" , headers, clusterID: this.props.scope.state.selectedCluster};
     //scope.state.selectedCluster,
     this.props.SnapshotList(query, {
       success: {
@@ -746,7 +746,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = { project: name };
-    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers};
+    const query = { from: 0, size: 0, sortOrder:"desc", sortBy: "create_time" , headers};
     //scope.state.selectedCluster,
     this.props.getSecrets(this.props.scope.state.selectedCluster, query, {
       success: {
@@ -772,7 +772,7 @@ class ResourceModal extends Component {
     const scope = this.props.scope;
     const { name } = scope.props.location.query
     const headers = { project: name };
-    const query = { from: 0, size: 9999, sortOrder:"desc", sortBy: "create_time" , headers};
+    const query = { from: 0, size: 0, sortOrder:"desc", sortBy: "create_time" , headers};
     //scope.state.selectedCluster,
     this.props.wrapManageList(query, {
       success: {
