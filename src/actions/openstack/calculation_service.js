@@ -16,7 +16,7 @@ export const OPENSTACK_GET_VM_LIST_REQUEST = 'OPENSTACK_GET_VM_LIST_REQUEST'
 export const OPENSTACK_GET_VM_LIST_SUCCESS = 'OPENSTACK_GET_VM_LIST_SUCCESS'
 export const OPENSTACK_GET_VM_LIST_FAILURE = 'OPENSTACK_GET_VM_LIST_FAILURE'
 function fetchVMList(query, needLoading, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers`
   if (query) {
     endpointUrl += `?${toQueryString(query)}`
   }
@@ -45,7 +45,7 @@ export const OPENSTACK_GET_VM_DETAIL_REQUEST = 'OPENSTACK_GET_VM_DETAIL_REQUEST'
 export const OPENSTACK_GET_VM_DETAIL_SUCCESS = 'OPENSTACK_GET_VM_DETAIL_SUCCESS'
 export const OPENSTACK_GET_VM_DETAIL_FAILURE = 'OPENSTACK_GET_VM_DETAIL_FAILURE'
 function fetchVMDetail(id, query, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/${id}`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/${id}`
   if(query) {
     endpointUrl += `?${toQueryString(query)}`
   }
@@ -70,7 +70,7 @@ export const OPENSTACK_GET_VM_METERS_REQUEST = 'OPENSTACK_GET_VM_METERS_REQUEST'
 export const OPENSTACK_GET_VM_METERS_SUCCESS = 'OPENSTACK_GET_VM_METERS_SUCCESS'
 export const OPENSTACK_GET_VM_METERS_FAILURE = 'OPENSTACK_GET_VM_METERS_FAILURE'
 function fetchVMMeters(id, type, query, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/${id}/meters/${type}`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/meter/${type}/${id}`
   if(query) {
     endpointUrl += `?${toQueryString(query)}`
   }
@@ -149,15 +149,14 @@ export function getAZList(query, callback) {
 export const OPENSTACK_UPDATE_VM_REQUEST = 'OPENSTACK_UPDATE_VM_REQUEST'
 export const OPENSTACK_UPDATE_VM_SUCCESS = 'OPENSTACK_UPDATE_VM_SUCCESS'
 export const OPENSTACK_UPDATE_VM_FAILURE = 'OPENSTACK_UPDATE_VM_FAILURE'
-function fetchUpdateVM(id, action,body, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/${id}/actions/${action}`
+function fetchUpdateVM(id, action, callback) {
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/${id}/actions/${action}`
   return {
     [FETCH_API]: {
       types: [OPENSTACK_UPDATE_VM_REQUEST, OPENSTACK_UPDATE_VM_SUCCESS, OPENSTACK_UPDATE_VM_FAILURE],
       endpoint: endpointUrl,
       options: {
         method: 'PUT',
-        body
       },
       schema: {}
     },
@@ -165,9 +164,9 @@ function fetchUpdateVM(id, action,body, callback) {
   }
 }
 
-export function updateVM(id, action, body, callback) {
+export function updateVM(id, action, callback) {
   return (dispath, getState) => {
-    return dispath(fetchUpdateVM(id, action, body,callback))
+    return dispath(fetchUpdateVM(id, action,callback))
   }
 }
 
@@ -177,7 +176,7 @@ export const OPENSTACK_UPDATE_NAME_VM_SUCCESS = 'OPENSTACK_UPDATE_NAME_VM_SUCCES
 export const OPENSTACK_UPDATE_NAME_VM_FAILURE = 'OPENSTACK_UPDATE_NAME_VM_FAILURE'
 
 export function editVM(id, newName, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/${id}/rename/${newName}`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/${id}/rename/${newName}`
   return {
     [FETCH_API]: {
       types: [OPENSTACK_UPDATE_NAME_VM_REQUEST, OPENSTACK_UPDATE_NAME_VM_SUCCESS, OPENSTACK_UPDATE_NAME_VM_FAILURE],
@@ -195,7 +194,7 @@ export const OPENSTACK_GET_NETWORK_LIST_REQUEST = 'OPENSTACK_GET_NETWORK_LIST_RE
 export const OPENSTACK_GET_NETWORK_LIST_SUCCESS = 'OPENSTACK_GET_NETWORK_LIST_SUCCESS'
 export const OPENSTACK_GET_NETWORK_LIST_FAILURE = 'OPENSTACK_GET_NETWORK_LIST_FAILURE'
 function fetchNetworkList(query, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/networks`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/networks`
   if (typeof query == 'function') {
     callback = query
     query = null
@@ -226,7 +225,7 @@ export const OPENSTACK_POST_VM_REQUEST = 'OPENSTACK_POST_VM_REQUEST'
 export const OPENSTACK_POST_VM_SUCCESS = 'OPENSTACK_POST_VM_SUCCESS'
 export const OPENSTACK_POST_VM_FAILURE = 'OPENSTACK_POST_VM_FAILURE'
 function fetchPostVM(body, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm`
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers`
   return {
     [FETCH_API]: {
       types: [OPENSTACK_POST_VM_REQUEST, OPENSTACK_POST_VM_SUCCESS, OPENSTACK_POST_VM_FAILURE],
@@ -249,11 +248,8 @@ export function postVM(body, callback) {
 export const OPENSTACK_DELETE_VM_REQUEST = 'OPENSTACK_DELETE_VM_REQUEST'
 export const OPENSTACK_DELETE_VM_SUCCESS = 'OPENSTACK_DELETE_VM_SUCCESS'
 export const OPENSTACK_DELETE_VM_FAILURE = 'OPENSTACK_DELETE_VM_FAILURE'
-function fetchDeleteVM(id, query, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/vm/${id}`
-  if(query) {
-    endpointUrl += `?${toQueryString(query)}`
-  }
+function fetchDeleteVM(id, callback) {
+  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/${id}`
   return {
     [FETCH_API]: {
       types: [OPENSTACK_DELETE_VM_REQUEST, OPENSTACK_DELETE_VM_SUCCESS, OPENSTACK_DELETE_VM_FAILURE],
@@ -267,9 +263,9 @@ function fetchDeleteVM(id, query, callback) {
   }
 }
 
-export function deleteVM(id, query, callback) {
+export function deleteVM(id, callback) {
   return (dispath, getState) => {
-    return dispath(fetchDeleteVM(id, query, callback))
+    return dispath(fetchDeleteVM(id, callback))
   }
 }
 

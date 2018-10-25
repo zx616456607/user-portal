@@ -167,7 +167,7 @@ class Image extends Component {
           <Card className="host-list">
             <Table dataSource={imageList} columns={columns} pagination={ paginationOpts } loading={isFetching} className="strategyTable" />
             {imageList &&imageList.length >0?
-              <span className="pageCount" style={{position:'absolute',right:'160px',top:'37px'}}>共计 {imageList.length} 条</span>
+              <span className="pageCount">共计 {imageList.length} 条</span>
               :null
             }
           </Card>

@@ -45,7 +45,7 @@ class Routers extends Component {
 
     const { getRouterList } = this.props
     this.setState({isFetching: true})
-    getRouterList({project: this.state.currentProject}, {
+    getRouterList({
       success: {
         func: (res) => {
           let routerList = res.routers
@@ -65,9 +65,9 @@ class Routers extends Component {
       }
     })
     if (this.request === false) {
-      this.props.getAZList({project: this.state.currentProject})
+      this.props.getAZList()
     }
-    this.props.loadFloatipsList({project: this.state.currentProject})
+    this.props.loadFloatipsList()
   }
   getAZ() {
     let { az } = this.props
@@ -113,7 +113,7 @@ class Routers extends Component {
   }
   hanldCreate() {
     const { form } = this.props
-    const { editor,create,currentProject,currentItem } = this.state
+    const { editor,create,currentItem } = this.state
     let validators = ['routerName','netAZ']
     if (editor) {
       validators= ['routerName']
@@ -128,23 +128,23 @@ class Routers extends Component {
       }
       this.setState({createing: true})
       if (!editor) {
-        this.props.createRouter({project: currentProject},body,this.actionCallback('创建'))
+        this.props.createRouter(body,this.actionCallback('创建'))
         return
       }
       let params = {
         router:{name:values.routerName}
       }
-      this.props.editRouter({project: currentProject},currentItem.id,params,
+      this.props.editRouter(currentItem.id,params,
         this.actionCallback('修改')
       )
     })
   }
   deleteMoalfunc() {
-    const { currentItem,currentProject } = this.state
+    const { currentItem } = this.state
     this.setState({
       confirmLoading: true,
     })
-    this.props.deleteRouter({project: currentProject},currentItem.id,{
+    this.props.deleteRouter(currentItem.id,{
       success:{
         func:()=> {
           Noti.success('删除成功')
@@ -174,7 +174,7 @@ class Routers extends Component {
     })
   }
   routerAction(e) {
-    const { currentProject,currentItem,selectIp } = this.state
+    const { currentItem,selectIp } = this.state
     let innerText = '绑定'
     if (!selectIp && e === 'set') {
       Noti.info('请选择浮动IP')
@@ -201,7 +201,7 @@ class Routers extends Component {
       }
     }
     this.setState({confirmLoading: true})
-    this.props.editRouter({project: currentProject},currentItem.id,params,
+    this.props.editRouter(currentItem.id,params,
       this.actionCallback(innerText)
     )
   }
@@ -214,9 +214,7 @@ class Routers extends Component {
 
   searchInput = () => {
     const { searchValue,bakList } = this.state
-    if(!this.state.currentProject) {
-      return
-    }
+
     if(!searchValue){
       this.setState({
         dataSource: bakList
@@ -273,7 +271,7 @@ class Routers extends Component {
     })
   }
   render() {
-    const { dataSource,currentProject } = this.state
+    const { dataSource } = this.state
     const { form } = this.props
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -286,7 +284,7 @@ class Routers extends Component {
         key: 'names',
         width:'30%',
         render: (name,record) => {
-          return <Link to={`/OpenStack/net/${record.id}?project=${currentProject}`}>{name}</Link>
+          return <Link to={`/OpenStack/router/${record.id}`}>{name}</Link>
         }
       }, {
         title: '可用域',
@@ -364,7 +362,7 @@ class Routers extends Component {
               className='strategyTable'
             />
             {dataSource && dataSource.length >0?
-              <span className="pageCount" style={{position:'absolute',right:'160px',top:'-40px'}}>共计 {dataSource.length} 条</span>
+              <span className="pageCount">共计 {dataSource.length} 条</span>
               :null
             }
           </div>

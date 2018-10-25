@@ -9,7 +9,7 @@
  */
 
 import React,{ Component } from 'react'
-import { Button, Input, Card, Table, Dropdown,Menu,Modal,Tooltip, Select } from 'antd'
+import { Button, Input, Card, Table,Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadNetworksList, deleteNetwork,searchNetworks, clearNetworkList } from '../../../actions/openstack/networks'
@@ -32,11 +32,7 @@ class Network extends Component {
     this.props.clearNetworkList()
   }
   loadData = ()=>{
-
-    let query ={
-      project: this.state.currentProject
-    }
-    this.props.loadNetworksList(query, {
+    this.props.loadNetworksList({
       finally: {
         func: () => {
           this.refs.networkName.refs.input.value = ""
@@ -54,9 +50,7 @@ class Network extends Component {
       this.loadData()
       return
     }
-    this.props.searchNetworks(name, {
-      project: this.state.currentProject
-    })
+    this.props.searchNetworks(name)
   }
   Modalfunc =(e)=> {
     this.setState({create: e})
@@ -81,7 +75,7 @@ class Network extends Component {
     }
     const { id }= this.state
     this.setState({actionLoading: true})
-    this.props.deleteNetwork(id,{project: this.state.currentProject},{
+    this.props.deleteNetwork(id,{
       success:{
         func:()=> {
           notificat.success('删除成功')
@@ -127,7 +121,7 @@ class Network extends Component {
         dataIndex: 'name',
         key: 'name',
         width:'25%',
-        render: (text,row) => <Link to={`/base_station/net/${row.name}/${row.id}?project=${currentProject}`}>{text}</Link>
+        render: (text,row) => <Link to={`/OpenStack/net/${row.name}/${row.id}?project=${currentProject}`}>{text}</Link>
       }, {
         title: '状态',
         dataIndex: 'status',
@@ -190,10 +184,10 @@ class Network extends Component {
           <Input placeholder="请输入网络名搜索" ref="networkName" onPressEnter={()=> this.queryList()} size="large" style={{width:180,paddingRight:20}}/>
           <i className="fa fa-search btn-search" onClick={()=> this.queryList()} />
         </div>
-        <Card key="net" id="host-body" bodyStyle={{padding:'0'}}>
+        <Card key="net" id="host-body" className="host-list">
           <Table dataSource={networksList} columns={columns} pagination={ paginationOpts } loading={isFetching} className="strategyTable" />
           {networksList && networksList.length >0 ?
-            <span className="pageCount" style={{position:'absolute',right:'160px',top:'37px'}}>共计 {networksList.length} 条</span>
+            <span className="pageCount">共计 {networksList.length} 条</span>
             :null
           }
         </Card>

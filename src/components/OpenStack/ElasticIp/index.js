@@ -8,12 +8,13 @@
  * @author Baiyu
  */
 
-import React,{ Component } from 'react'
-import { Button, Input, Card, Table, Dropdown,Menu,Modal, Row,Col,Select,InputNumber,Tooltip } from 'antd'
+import React, { Component } from 'react'
+import { Button, Input, Card, Table, Dropdown, Menu, Modal, Row, Col, Select, InputNumber, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import './style/Ip.less'
-import { loadNetworksList,
+import {
+  loadNetworksList,
   loadFloatipsList,
   createFloatips,
   deleteFloatips,
@@ -27,15 +28,14 @@ import NotificationHander from '../../../common/notification_handler'
 // import liberate from '../../../assets/img/icon/liberate.svg'
 // import Title from '../../Title'
 const notificat = new NotificationHander()
-const Option = Select.Option
 
 class ElasticIP extends Component {
   constructor(props) {
     super()
     this.state = {
       networkUnit: 1,
-      currentEntity:{},
-      routerList:[],// router list
+      currentEntity: {},
+      routerList: [],// router list
     }
   }
   componentWillMount() {
@@ -45,24 +45,19 @@ class ElasticIP extends Component {
   componentWillUnmount() {
     this.props.clearFloatips()
   }
-  loadData = ()=> {
-
-    const project = this.state.currentProject
-    this.props.loadNetworksList({
-      project: project
-    })
+  loadData = () => {
+    this.props.loadNetworksList()
+    this.setState({isFetching: true})
     this.props.loadFloatipsList({
-      project: project
-    }, {
-      success:{
-        func:(res)=> {
-          this.setState({floatingips: res.floatingips})
+      success: {
+        func: (res) => {
+          this.setState({ floatingips: res.floatingips })
         }
       },
-      failed:{
-        func:(res)=> {
+      failed: {
+        func: (res) => {
           let message = ''
-          if(res.message) {
+          if (res.message) {
             try {
               const keys = Object.getOwnPropertyNames(res.message)
               message = res.message[keys[0]].message
@@ -70,11 +65,12 @@ class ElasticIP extends Component {
               // message = ``
             }
           }
-          notificat.error('获取列表失败',message)
+          notificat.error('获取列表失败', message)
         }
       },
-      finally:{
-        func:()=> {
+      finally: {
+        func: () => {
+          this.setState({isFetching: false})
           document.getElementById('searchInput').value = ''
         }
       }
@@ -83,7 +79,7 @@ class ElasticIP extends Component {
   loadRouter() {
 
     const { getRouterList } = this.props
-    getRouterList({project: this.state.currentProject}, {
+    getRouterList({
       success: {
         func: (res) => {
           let routerList = res.routers
@@ -96,25 +92,25 @@ class ElasticIP extends Component {
   }
   searchIP() {
     const searchName = document.getElementById('searchInput').value
-    if(!searchName || searchName == '') {
-      this.setState({floatingips: this.props.floatingips})
+    if (!searchName || searchName == '') {
+      this.setState({ floatingips: this.props.floatingips })
       return
     }
-    const newfloat = this.props.floatingips.filter(item=> {
+    const newfloat = this.props.floatingips.filter(item => {
       const search = new RegExp(searchName)
       if (search.test(item.floatingIpAddress)) {
         return true
       }
       return false
     })
-    this.setState({floatingips: newfloat})
+    this.setState({ floatingips: newfloat })
   }
 
   hostModalfunc = (visible) => {
-    this.setState({bindHost: visible})
+    this.setState({ bindHost: visible })
   }
   resiseModalfunc = (e) => {
-    this.setState({resiseModal: e})
+    this.setState({ resiseModal: e })
   }
   showConfirmModal(item, row) {
     this.setState({
@@ -126,22 +122,20 @@ class ElasticIP extends Component {
     }
   }
   menuAction(row) {
-    if (row.status !=='DOWN') {
+    if (row.status !== 'DOWN') {
       return
     }
     if (row.instanceName) {
       Modal.warning({
-        title:'警告',
-        content:'绑定中的浮动IP不可以直接释放！'
+        title: '警告',
+        content: '绑定中的浮动IP不可以直接释放！'
       })
       return
     }
-    this.setState({deleteMoal: true,currentEntity: row})
+    this.setState({ deleteMoal: true, currentEntity: row })
   }
   hanldCreateIp() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { network, networkUnit } = this.state
     let networkId = network
     if (!network) {
@@ -150,23 +144,23 @@ class ElasticIP extends Component {
     const body = {
       "floatingip": {
         "floating_network_id": networkId,
-        "bandwidth":networkUnit
+        // "bandwidth": networkUnit
       }
     }
     notificat.spin('创建中...')
-    this.setState({createing: true})
-    this.props.createFloatips(body,{project: this.state.currentProject},{
-      success:{
-        func:(res)=> {
+    this.setState({ createing: true })
+    this.props.createFloatips(body, {
+      success: {
+        func: (res) => {
           this.loadData()
-          notificat.success('创建成功','IP: ' + res.floatingip.floatingIpAddress,10)
+          notificat.success('创建成功', 'IP: ' + res.floatingip.floatingIpAddress, 10)
         },
         isAsync: true
       },
-      failed:{
-        func:(res)=>{
+      failed: {
+        func: (res) => {
           let message = ''
-          if(res.message) {
+          if (res.message) {
             try {
               const keys = Object.getOwnPropertyNames(res.message)
               message = res.message[keys[0]].message
@@ -177,32 +171,29 @@ class ElasticIP extends Component {
           notificat.error('创建失败', message)
         }
       },
-      finally:{
-        func:()=> {
-          this.setState({create: false,createing: false})
+      finally: {
+        func: () => {
+          this.setState({ create: false, createing: false })
           notificat.close()
         }
       }
     })
   }
   deleteAction() {
-    if(!this.state.currentProject) {
-      return
-    }
-    this.setState({deleteing: true})
+    this.setState({ deleteing: true })
     notificat.spin('释放IP中...')
-    this.props.deleteFloatips(this.state.currentEntity.id,{project: this.state.currentProject},{
-      success:{
-        func:()=> {
+    this.props.deleteFloatips(this.state.currentEntity.id, {
+      success: {
+        func: () => {
           notificat.success('操作成功')
           this.loadData()
         },
         isAsync: true
       },
-      failed:{
-        func:(res)=> {
+      failed: {
+        func: (res) => {
           let message = ''
-          if(res.message) {
+          if (res.message) {
             try {
               const keys = Object.getOwnPropertyNames(res.message)
               message = res.message[keys[0]].message
@@ -210,28 +201,26 @@ class ElasticIP extends Component {
               // message = ``
             }
           }
-          notificat.error('操作失败',message)
+          notificat.error('操作失败', message)
         }
       },
-      finally:{
-        func:()=> {
+      finally: {
+        func: () => {
           notificat.close()
-          this.setState({deleteing: false,deleteMoal:false})
+          this.setState({ deleteing: false, deleteMoal: false })
         }
       }
     })
   }
   // upstream bind func
   handFloatIp(e) {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { vm, currentEntity } = this.state
-    let text ='解绑'
+    let text = '解绑'
     let type = 'notModal'
     let host = currentEntity.instanceId
-    let body ={
-      removeFloatingIp: {address: currentEntity.floatingIpAddress}
+    let body = {
+      removeFloatingIp: { address: currentEntity.floatingIpAddress }
     }
     if (e == 'bind') {
       text = '绑定'
@@ -241,119 +230,111 @@ class ElasticIP extends Component {
         notificat.info('请选择云主机')
         return
       }
-      body= {
-        addFloatingIp:{address: currentEntity.floatingIpAddress}
+      body = {
+        addFloatingIp: { address: currentEntity.floatingIpAddress }
       }
     }
     notificat.spin(`${text}中...`)
-    this.setState({floating: true})
-    this.props.manageFloatips(host,body,{project: this.state.currentProject}, {
-      success:{
-        func:()=> {
+    this.setState({ floating: true })
+    this.props.manageFloatips(host, body, {
+      success: {
+        func: () => {
           notificat.success(`${text}成功`)
-          this.setState({[type]: false,vm: null,binding:false})
+          this.setState({ [type]: false, vm: null, binding: false })
           this.loadData()
         },
         isAsync: true
       },
-      failed:{
-        func:(res)=> {
+      failed: {
+        func: (res) => {
           let message = ''
           try {
-            message = typeof res.message == 'string'? res.message : res.message.badRequest.message
-          } catch(err) {
+            message = typeof res.message == 'string' ? res.message : res.message.badRequest.message
+          } catch (err) {
 
           }
-          notificat.error(`${text}失败`,message)
+          notificat.error(`${text}失败`, message)
         }
       },
-      finally:{
-        func:()=> {
+      finally: {
+        func: () => {
           notificat.close()
-          this.setState({floating: false,binding:false})
+          this.setState({ floating: false, binding: false })
         }
       }
     })
   }
-  menu (row){
-    return <Menu onClick={(item) => this.showConfirmModal(item, row)} style={{width:100}}>
-      <Menu.Item key="bindModal" disabled={!(row.status=='DOWN')}>绑定到路由</Menu.Item>
-      <Menu.Item key="bindHost" disabled={!(row.status=='DOWN')}>绑定到云主机</Menu.Item>
-      <Menu.Item key="notModal" disabled={row.status=='DOWN'}>解绑</Menu.Item>
+  menu(row) {
+    return <Menu onClick={(item) => this.showConfirmModal(item, row)} style={{ width: 100 }}>
+      <Menu.Item key="bindModal" disabled={!(row.status == 'DOWN')}>绑定到路由</Menu.Item>
+      <Menu.Item key="bindHost" disabled={!(row.status == 'DOWN')}>绑定到云主机</Menu.Item>
+      <Menu.Item key="notModal" disabled={row.status == 'DOWN'}>解绑</Menu.Item>
     </Menu>
   }
-  netOpction = ()=> {
+  netOpction = () => {
     const result = []
     this.props.networksList.forEach(item => {
-      if(item["router:external"]) {
+      if (item["router:external"]) {
         result.push(<Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>)
       }
     })
     return result
   }
-  hostList= ()=> {
+  hostList = () => {
     return this.props.host.map(item => {
       return <Select.Option value={item.id} key={item.id}>{item.name}</Select.Option>
     })
   }
   routerSelect() {
-    let selectList= []
+    let selectList = []
     this.state.routerList.forEach(item => {
-      if (!item.networkInfo){
+      if (!item.networkInfo) {
         selectList.push(<Select.Option key={`${item.id}`}>{item.name}</Select.Option>)
       }
     })
     return selectList
   }
-  changeProejct(value) {
-    this.setState({
-      currentProject: value
-    })
-    setTimeout(() => {
-      this.loadData()
-    }, 0)
-  }
 
   createBtn() {
 
-    this.setState({create:true})
+    this.setState({ create: true })
   }
   actionCallback(innerText) {
     let callback = {
-      success:{
-        func:()=> {
+      success: {
+        func: () => {
           notificat.success(`${innerText}成功`)
           this.setState({
             bindHost: false,
             bindModal: false,
-            notModal:false,
+            notModal: false,
             routerId: null,
           })
           this.loadData()
         },
         isAsync: true
       },
-      failed:{
-        func:(res) => {
+      failed: {
+        func: (res) => {
           let message
           try {
             message = res.message.NeutronError.message
           } catch (error) {
 
           }
-          notificat.error(`${innerText}失败`,message)
+          notificat.error(`${innerText}失败`, message)
         }
       },
-      finally:{
-        func:()=> {
-          this.setState({binding: false})
+      finally: {
+        func: () => {
+          this.setState({ binding: false })
         }
       }
     }
     return callback
   }
   binFloatIpin(type) {
-    const { currentEntity,routerId } = this.state
+    const { currentEntity, routerId } = this.state
     if (!routerId) {
       notificat.info('请选择路由器')
       return
@@ -370,8 +351,8 @@ class ElasticIP extends Component {
         }
       }
     }
-    this.setState({binding: true})
-    this.props.editRouter({project: this.state.currentProject},routerId,params,
+    this.setState({ binding: true })
+    this.props.editRouter(routerId, params,
       this.actionCallback('绑定路由器')
     )
   }
@@ -382,10 +363,10 @@ class ElasticIP extends Component {
         "external_gateway_info": {}
       }
     }
-    this.setState({binding: true})
-    if(!currentEntity.instanceName) {
+    this.setState({ binding: true })
+    if (!currentEntity.instanceName) {
       // has instanceName in not bind router
-      this.props.editRouter({project: this.state.currentProject},currentEntity.routerId,params,
+      this.props.editRouter(currentEntity.routerId, params,
         this.actionCallback('解绑路由器')
       )
       return
@@ -393,26 +374,26 @@ class ElasticIP extends Component {
     this.handFloatIp()
   }
   render() {
-    const { isFetching, networksList } = this.props
+    const { networksList } = this.props
     const { floatingips } = this.state
     const columns = [
       {
         title: 'ID',
         dataIndex: 'id',
         key: 'id',
-        width:'25%'
+        width: '25%'
         //render: (text,row) => <Link to={`/base_station/host/${row.name}`}>{text}</Link>
       },
       {
         title: '绑定资源',
         dataIndex: 'instanceName',
         key: 'bind',
-        width:'35%',
-        render: (text,record) => {
-          if (record.status =='DOWN') {
+        width: '35%',
+        render: (text, record) => {
+          if (record.status == 'DOWN') {
             return '未绑定'
           }
-          if (record.status =='ERROR') {
+          if (record.status == 'ERROR') {
             return '异常'
           }
           if (text) {
@@ -425,29 +406,29 @@ class ElasticIP extends Component {
         title: 'IP地址',
         dataIndex: camelize('floating_ip_address'),
         key: 'ip',
-        width:'13%'
+        width: '13%'
       }, {
         title: '带宽(Mbps)',
         dataIndex: camelize('bandwidth'),
         key: 'createAt',
-        width:'12%'
+        width: '12%'
       }, {
         title: '操作',
         dataIndex: 'action',
         key: 'action',
-        width:'100px',
-        render: (text, row)=> {
+        width: '100px',
+        render: (text, row) => {
           if (row.status !== 'DOWN') {
-           return <Tooltip title="释放需要解除已有绑定">
-                    <Dropdown.Button overlay={this.menu(row)} onClick={()=> this.menuAction(row)} type="ghost" trigger={['click']}>释放</Dropdown.Button>
-                  </Tooltip>
+            return <Tooltip title="释放需要解除已有绑定">
+              <Dropdown.Button overlay={this.menu(row)} onClick={() => this.menuAction(row)} type="ghost" trigger={['click']}>释放</Dropdown.Button>
+            </Tooltip>
           }
-          return <Dropdown.Button overlay={this.menu(row)} onClick={()=> this.menuAction(row)} type="ghost" trigger={['click']}>释放</Dropdown.Button>
+          return <Dropdown.Button overlay={this.menu(row)} onClick={() => this.menuAction(row)} type="ghost" trigger={['click']}>释放</Dropdown.Button>
         }
       }
     ]
     const paginationOpts = {
-      simple:true,
+      simple: true,
       pageSize: 10,
     }
     const funcCallback = {
@@ -460,132 +441,137 @@ class ElasticIP extends Component {
     return (
       <div id="openstack">
         <div className="top-row">
-          <Button type="primary" size="large" onClick={()=> this.createBtn()}><i className="fa fa-plus" aria-hidden="true"></i> 申请</Button>
+          <Button type="primary" size="large" onClick={() => this.createBtn()}><i className="fa fa-plus" aria-hidden="true"></i> 申请</Button>
           <Button type="ghost" size="large" onClick={() => this.loadData()}><i className='fa fa-refresh' /> 刷新</Button>
-          <Input placeholder="请输入IP进行搜索" size="large" id="searchInput" style={{width:180}} onPressEnter={() => this.searchIP()}/>
+          <Input placeholder="请输入IP进行搜索" size="large" id="searchInput" style={{ width: 180 }} onPressEnter={() => this.searchIP()} />
           <i className='fa fa-search btn-search' onClick={() => this.searchIP()}></i>
         </div>
-        <Card key="host" id="elasticIP-body" bodyStyle={{padding:0}}>
-          <Table dataSource={floatingips} columns={columns} pagination={ paginationOpts } loading={isFetching} className="strategyTable" />
-          {floatingips && floatingips.length >0 ?
-            <span className="pageCount" style={{position:'absolute',right:'160px',top:'32px'}}>共计 {floatingips.length} 条</span>
-            :null
+        <Card id="elasticIP-body" className="host-list">
+          <Table
+            dataSource={floatingips}
+            columns={columns}
+            pagination={paginationOpts}
+            loading={this.state.isFetching} className="strategyTable"
+          />
+          {floatingips && floatingips.length > 0 ?
+            <span className="pageCount">共计 {floatingips.length} 条</span>
+            : null
           }
         </Card>
 
         <Modal title="释放操作"
           visible={this.state.deleteMoal}
           confirmLoading={this.state.deleteing}
-          onCancel={()=> this.setState({deleteMoal: false})}
-          onOk={()=> this.deleteAction()}
+          onCancel={() => this.setState({ deleteMoal: false })}
+          onOk={() => this.deleteAction()}
           maskClosable={false}
-          >
-          <div className="alertRow">{ `确定要释放IP ${this.state.currentEntity ? this.state.currentEntity.floatingIpAddress : ''} ?`}</div>
+        >
+          <div className="alertRow">{`确定要释放IP ${this.state.currentEntity ? this.state.currentEntity.floatingIpAddress : ''} ?`}</div>
         </Modal>
         {this.state.create ?
           <Modal title="申请弹性IP"
             visible={true}
             maskClosable={false}
             confirmLoading={this.state.createing}
-            onCancel={()=> this.setState({create: false})}
-            onOk={()=> this.hanldCreateIp()}
-            >
+            onCancel={() => this.setState({ create: false })}
+            onOk={() => this.hanldCreateIp()}
+          >
             <Row>
-              <Col span="5" style={{lineHeight:'35px'}}>IP池</Col>
+              <Col span="5" style={{ lineHeight: '35px' }}>IP池</Col>
               <Col span="16">
-                <Select defaultValue={networksList[0].name} onChange={(value)=> this.setState({network: value})} placeholder="请选择网络" style={{width:'100%'}} size="large">
+                <Select defaultValue={networksList[0].name} onChange={(value) => this.setState({ network: value })} placeholder="请选择网络" style={{ width: '100%' }} size="large">
                   {this.netOpction()}
                 </Select>
               </Col>
             </Row>
             <br />
             <Row>
-              <Col span={5} style={{lineHeight:'35px'}}>带宽(Mbps)</Col>
+              <Col span={5} style={{ lineHeight: '35px' }}>带宽(Mbps)</Col>
               <Col span={16}>
-                <InputNumber size="large" onChange={(value)=> this.setState({networkUnit: value})} min={1} max={100} step={1} defaultValue={1} style={{width:100}}/>
+                <InputNumber size="large" onChange={(value) => this.setState({ networkUnit: value })} min={1} max={100} step={1} defaultValue={1} style={{ width: 100 }} />
               </Col>
             </Row>
           </Modal>
-          :null
+          : null
         }
-        { this.state.bindHost ?
+        {this.state.bindHost ?
           <Modal title="绑定到云主机"
             visible={true}
-            onCancel={()=> this.setState({bindHost: false})}
-            onOk={()=> this.handFloatIp('bind')}
+            onCancel={() => this.setState({ bindHost: false })}
+            onOk={() => this.handFloatIp('bind')}
             maskClosable={false}
             confirmLoading={this.state.floating}
-            >
+          >
             <Row>
-              <Col span="5" style={{lineHeight:'35px'}}>IP地址</Col>
+              <Col span="5" style={{ lineHeight: '35px' }}>IP地址</Col>
               <Col span="16">
                 <Input size="large" value={this.state.currentEntity.floatingIpAddress} disabled={true} />
               </Col>
-              </Row>
-              <br />
-              <Row>
-                <Col span={5} style={{lineHeight:'35px'}}>云主机</Col>
-                <Col span={16}>
-                  <Select placeholder="请选择云主机" onChange={(e)=> this.setState({vm:e})} size="large" style={{width:'100%'}}>
-                    { this.hostList() }
-                    {/* host.servers */}
-                  </Select>
-                </Col>
-              </Row>
+            </Row>
+            <br />
+            <Row>
+              <Col span={5} style={{ lineHeight: '35px' }}>云主机</Col>
+              <Col span={16}>
+                <Select placeholder="请选择云主机" onChange={(e) => this.setState({ vm: e })} size="large" style={{ width: '100%' }}>
+                  {this.hostList()}
+                  {/* host.servers */}
+                </Select>
+              </Col>
+            </Row>
           </Modal>
-          :null
+          : null
         }
-        { this.state.bindModal ?
+        {this.state.bindModal ?
           <Modal title="绑定到路由"
             visible={true}
-            onCancel={()=> this.setState({bindModal: false})}
-            onOk={()=> this.binFloatIpin('router')}
+            onCancel={() => this.setState({ bindModal: false })}
+            onOk={() => this.binFloatIpin('router')}
             maskClosable={false}
             confirmLoading={this.state.binding}
-            >
+          >
             <Row>
-              <Col span="5" style={{lineHeight:'35px'}}>IP地址</Col>
+              <Col span="5" style={{ lineHeight: '35px' }}>IP地址</Col>
               <Col span="16">
                 <Input size="large" value={this.state.currentEntity.floatingIpAddress} disabled={true} />
               </Col>
-              </Row>
-              <br />
-              <Row>
-                <Col span={5} style={{lineHeight:'35px'}}>路由器</Col>
-                <Col span={16}>
-                  <Select placeholder="请选择路由器" onChange={(e)=> this.setState({routerId:e})} size="large" style={{width:'100%'}}>
-                    { this.routerSelect() }
-                    {/* router .servers */}
-                  </Select>
-                </Col>
-              </Row>
+            </Row>
+            <br />
+            <Row>
+              <Col span={5} style={{ lineHeight: '35px' }}>路由器</Col>
+              <Col span={16}>
+                <Select placeholder="请选择路由器" onChange={(e) => this.setState({ routerId: e })} size="large" style={{ width: '100%' }}>
+                  {this.routerSelect()}
+                  {/* router .servers */}
+                </Select>
+              </Col>
+            </Row>
           </Modal>
-          :null
+          : null
         }
         {
           this.state.notModal ?
-          <Modal title="解除绑定"
-            maskClosable={false}
-            visible={true}
-            onCancel={()=> this.setState({notModal: false})}
-            onOk={()=> this.notBind()}
-            confirmLoading={this.state.binding}
+            <Modal title="解除绑定"
+              maskClosable={false}
+              visible={true}
+              onCancel={() => this.setState({ notModal: false })}
+              onOk={() => this.notBind()}
+              confirmLoading={this.state.binding}
             >
-            <div className="alertRow">您选择了：{this.state.currentEntity.floatingIpAddress}
-              <div>确定要解绑定操作？可能会断开已绑定资源的网络。</div>
-            </div>
-          </Modal>
-          :null
+              <div className="alertRow">您选择了：{this.state.currentEntity.floatingIpAddress}
+                <div>确定要解绑定操作？可能会断开已绑定资源的网络。</div>
+              </div>
+            </Modal>
+            : null
         }
       </div>
     )
   }
 }
 
-function mapStateToProps(state,props) {
+function mapStateToProps(state, props) {
   const { floatips } = state.openstack
-  const { result} = floatips || {}
-  let floatingips=[]
+  const { result } = floatips || {}
+  let floatingips = []
   let isFetching = false
   let host = []
   if (result && result.floatingips) {
@@ -593,7 +579,7 @@ function mapStateToProps(state,props) {
     host = result.vm
   }
   if (floatips) {
-    isFetching = floatips.isFetching
+    isFetching = floatingips.isFetching
   }
   const { networks } = state.openstack
   let networksList = []
@@ -609,7 +595,7 @@ function mapStateToProps(state,props) {
   }
 }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
   loadFloatipsList,
   createFloatips,
   deleteFloatips,

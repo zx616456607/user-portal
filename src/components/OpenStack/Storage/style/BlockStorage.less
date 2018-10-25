@@ -12,28 +12,26 @@
     .searchBox{
       width:200px;
     }
-    .searchIcon{
-      position: absolute;
-      font-size: 16px !important;
-      color: #999;
-      top: 7px;
-      right:7px;
-      cursor: pointer;
-    }
     .totleNum{
       float:right;
       padding-top: 8px;
-      margin-right:150px;
+      margin-right:160px;
     }
   }
   .tableBox{
     .ant-card-body {
       padding:0;
     }
+    .ant-card {overflow: inherit;}
+    .ant-spin-container {position: relative;}
+    .ant-table{
+      overflow: inherit;
+      .ant-table-content {overflow: inherit;}
+    }
     .ant-pagination-simple{
       position: absolute;
       top:-64px;
-      right:0;
+      right:-18px;
     }
     .loadBalancerName{
       cursor: pointer;

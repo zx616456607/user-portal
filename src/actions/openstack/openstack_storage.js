@@ -141,9 +141,9 @@ function fetchGetBlockStorageList(query, callback) {
   }
 }
 
-export function getBlockStorageList(query, callback) {
+export function getBlockStorageList(callback) {
   return (dispath, getState) => {
-    return dispath(fetchGetBlockStorageList(query, callback))
+    return dispath(fetchGetBlockStorageList(callback))
   }
 }
 
@@ -152,11 +152,8 @@ export const CREATE_BLOCK_STORAGE_REQUEST = 'CREATE_BLOCK_STORAGE_REQUEST'
 export const CREATE_BLOCK_STORAGE_SUCCESS = 'CREATE_BLOCK_STORAGE_SUCCESS'
 export const CREATE_BLOCK_STORAGE_FAILURE = 'CREATE_BLOCK_STORAGE_FAILURE'
 
-function fetchCreateBlockStorage(body, query, callback) {
+function fetchCreateBlockStorage(body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/volumes`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
   return {
     [FETCH_API]: {
       types: [CREATE_BLOCK_STORAGE_REQUEST, CREATE_BLOCK_STORAGE_SUCCESS, CREATE_BLOCK_STORAGE_FAILURE],
@@ -171,9 +168,9 @@ function fetchCreateBlockStorage(body, query, callback) {
   }
 }
 
-export function createBlockStorage(body, query, callback) {
+export function createBlockStorage(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchCreateBlockStorage(body, query, callback))
+    return dispatch(fetchCreateBlockStorage(body, callback))
   }
 }
 
@@ -181,11 +178,9 @@ export const ATTACH_BLOCK_STORAGE_REQUEST = 'ATTACH_BLOCK_STORAGE_REQUEST'
 export const ATTACH_BLOCK_STORAGE_SUCCESS = 'ATTACH_BLOCK_STORAGE_SUCCESS'
 export const ATTACH_BLOCK_STORAGE_FAILURE = 'ATTACH_BLOCK_STORAGE_FAILURE'
 
-function fetchAttachBlockStorage(volumes, body, query, callback) {
+function fetchAttachBlockStorage(volumes, body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/volumes/${volumes.id}/actions/attach`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
+
   return {
     [FETCH_API]: {
       types: [ATTACH_BLOCK_STORAGE_REQUEST, ATTACH_BLOCK_STORAGE_SUCCESS, ATTACH_BLOCK_STORAGE_FAILURE],
@@ -200,9 +195,9 @@ function fetchAttachBlockStorage(volumes, body, query, callback) {
   }
 }
 
-export function attachBlockStorage(volumes, body, query, callback) {
+export function attachBlockStorage(volumes, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchAttachBlockStorage(volumes, body, query, callback))
+    return dispatch(fetchAttachBlockStorage(volumes, body, callback))
   }
 }
 
@@ -210,11 +205,9 @@ export const DETACH_BLOCK_STORAGE_REQUEST = 'DETACH_BLOCK_STORAGE_REQUEST'
 export const DETACH_BLOCK_STORAGE_SUCCESS = 'DETACH_BLOCK_STORAGE_SUCCESS'
 export const DETACH_BLOCK_STORAGE_FAILURE = 'DETACH_BLOCK_STORAGE_FAILURE'
 
-function fetchDetachBlockStorage(volumes, body, query, callback) {
+function fetchDetachBlockStorage(volumes, body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/volumes/${volumes.id}/actions/detach`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
+
   return {
     [FETCH_API]: {
       types: [DETACH_BLOCK_STORAGE_REQUEST, DETACH_BLOCK_STORAGE_SUCCESS, DETACH_BLOCK_STORAGE_FAILURE],
@@ -229,9 +222,9 @@ function fetchDetachBlockStorage(volumes, body, query, callback) {
   }
 }
 
-export function detachBlockStorage(volumes, body, query , callback) {
+export function detachBlockStorage(volumes, body , callback) {
   return (dispatch) => {
-    return dispatch(fetchDetachBlockStorage(volumes, body, query, callback))
+    return dispatch(fetchDetachBlockStorage(volumes, body, callback))
   }
 }
 
@@ -239,11 +232,9 @@ export const RESIZE_BLOCK_STORAGE_REQUEST = 'RESIZE_BLOCK_STORAGE_REQUEST'
 export const RESIZE_BLOCK_STORAGE_SUCCESS = 'RESIZE_BLOCK_STORAGE_SUCCESS'
 export const RESIZE_BLOCK_STORAGE_FAILURE = 'RESIZE_BLOCK_STORAGE_FAILURE'
 
-function fetchResizeBlockStorage(volumes, body, query, callback) {
+function fetchResizeBlockStorage(volumes, body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/volumes/${volumes.id}/actions/resize`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
+
   return {
     [FETCH_API]: {
       types: [RESIZE_BLOCK_STORAGE_REQUEST, RESIZE_BLOCK_STORAGE_SUCCESS, RESIZE_BLOCK_STORAGE_FAILURE],
@@ -258,9 +249,9 @@ function fetchResizeBlockStorage(volumes, body, query, callback) {
   }
 }
 
-export function resizeBlockStorage(volumes, body, query, callback) {
+export function resizeBlockStorage(volumes, body, callback) {
   return (dispatch) => {
-    return dispatch(fetchResizeBlockStorage(volumes, body, query, callback))
+    return dispatch(fetchResizeBlockStorage(volumes, body, callback))
   }
 }
 
@@ -268,11 +259,9 @@ export const SNAPSHOT_BLOCK_STORAGE_REQUEST = 'SNAPSHOT_BLOCK_STORAGE_REQUEST'
 export const SNAPSHOT_BLOCK_STORAGE_SUCCESS = 'SNAPSHOT_BLOCK_STORAGE_SUCCESS'
 export const SNAPSHOT_BLOCK_STORAGE_FAILURE = 'SNAPSHOT_BLOCK_STORAGE_FAILURE'
 
-function fetchSnapshotBlockStorage(body, query, callback) {
+function fetchSnapshotBlockStorage(body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/snapshots`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
+
   return {
     [FETCH_API]: {
       types: [SNAPSHOT_BLOCK_STORAGE_REQUEST, SNAPSHOT_BLOCK_STORAGE_SUCCESS, SNAPSHOT_BLOCK_STORAGE_FAILURE],
@@ -287,9 +276,9 @@ function fetchSnapshotBlockStorage(body, query, callback) {
   }
 }
 
-export function snapshotBlockStorage(body, query , callback) {
+export function snapshotBlockStorage(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchSnapshotBlockStorage(body, query , callback))
+    return dispatch(fetchSnapshotBlockStorage(body, callback))
   }
 }
 
@@ -297,11 +286,9 @@ export const DELETE_BLOCK_STORAGE_REQUEST = 'DELETE_BLOCK_STORAGE_REQUEST'
 export const DELETE_BLOCK_STORAGE_SUCCESS = 'DELETE_BLOCK_STORAGE_SUCCESS'
 export const DELETE_BLOCK_STORAGE_FAILURE = 'DELETE_BLOCK_STORAGE_FAILURE'
 
-function fetchDeleteBlockStorage(body, query, callback) {
+function fetchDeleteBlockStorage(body, callback) {
   let endpoint = `${API_URL_PREFIX}/openstack/volumes/${body.id}`
-  if(query) {
-    endpoint = `${endpoint}?${toQuerystring(query)}`
-  }
+
   return {
     [FETCH_API]: {
       types: [DELETE_BLOCK_STORAGE_REQUEST, DELETE_BLOCK_STORAGE_SUCCESS, DELETE_BLOCK_STORAGE_FAILURE],
@@ -315,9 +302,9 @@ function fetchDeleteBlockStorage(body, query, callback) {
   }
 }
 
-export function deleteBlockStorage(body, query, callback) {
+export function deleteBlockStorage(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchDeleteBlockStorage(body, query, callback))
+    return dispatch(fetchDeleteBlockStorage(body, callback))
   }
 }
 

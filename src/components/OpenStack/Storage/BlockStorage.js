@@ -75,16 +75,10 @@ class BlockStorage extends Component {
   }
   loadData() {
     const { getAZList, getVMList, getVolumeType } = this.props
-    getAZList({
-      project: this.state.currentProject
-    })
-    getVMList({
-      project: this.state.currentProject
-    })
+    getAZList()
+    getVMList()
     this.refreshLoadBlockStorage()
-    getVolumeType({
-      project: this.state.currentProject
-    })
+    getVolumeType()
   }
 
   selectTableRow(selectedRowKeys) {
@@ -106,8 +100,6 @@ class BlockStorage extends Component {
   refreshLoadBlockStorage() {
     const { getBlockStorageList } = this.props
     getBlockStorageList({
-      project: this.state.currentProject
-    },{
       success: {
         func: (res) => {
           this.setState({
@@ -133,9 +125,7 @@ class BlockStorage extends Component {
   }
 
   searchInput() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { blockStorageList } = this.props
     const { searchValue } = this.state
 
@@ -164,9 +154,6 @@ class BlockStorage extends Component {
   }
 
   confirmCreate() {
-    if(!this.state.currentProject) {
-      return
-    }
     const { form, createBlockStorage } = this.props
 
     this.setState({
@@ -191,8 +178,6 @@ class BlockStorage extends Component {
         size: this.state.size,
       }
       createBlockStorage(body, {
-        project: this.state.currentProject
-      }, {
         success: {
           func: () => {
             Noti.success('创建成功')
@@ -226,9 +211,7 @@ class BlockStorage extends Component {
   }
 
   handleMenuClick(item, obj) {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form } = this.props
     form.resetFields()
     let key = obj.key
@@ -279,7 +262,7 @@ class BlockStorage extends Component {
   }
   loadSnapshot() {
     const { getSnapshotList } = this.props
-    getSnapshotList({project: this.state.currentProject}, {
+    getSnapshotList({
       success: {
         func: (res) => {
           let snapshotsList = res.snapshots || []
@@ -289,18 +272,14 @@ class BlockStorage extends Component {
     })
   }
   changeBlockStorageCapacitySize(value){
-    if(!this.state.currentProject) {
-      return
-    }
+
     this.setState({
       currentSize: value
     })
   }
 
   mountBlockStorage(item) {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form } = this.props
     if(item.attachments && item.attachments.length){
       Modal.info({
@@ -323,9 +302,7 @@ class BlockStorage extends Component {
   }
 
   comfirmMount() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form, attachBlockStorage } = this.props
     const { currentBlockStorage } = this.state
     this.setState({
@@ -351,9 +328,7 @@ class BlockStorage extends Component {
         instance_uuid: values.mount_cloud_host,
       }
       const notificat = new NotificationHandler()
-      attachBlockStorage(volumes, body, {
-        project: this.state.currentProject
-      },{
+      attachBlockStorage(volumes, body,{
         success: {
           func: () => {
             this.setState({
@@ -387,9 +362,7 @@ class BlockStorage extends Component {
   }
 
   comfirmUninstall() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { currentTitle, currentBlockStorage } = this.state
     const { deleteBlockStorage, detachBlockStorage } = this.props
     this.setState({
@@ -400,9 +373,7 @@ class BlockStorage extends Component {
       let body = {
         id: currentBlockStorage.id
       }
-      deleteBlockStorage(body,{
-        project: this.state.currentProject
-      }, {
+      deleteBlockStorage(body, {
         success: {
           func: () => {
             Noti.success('释放成功')
@@ -446,8 +417,6 @@ class BlockStorage extends Component {
       instance_uuid: currentBlockStorage.attachments[0].serverId
     }
     detachBlockStorage(volumes, body, {
-      project: this.state.currentProject
-    }, {
       success: {
         func: () => {
           Noti.success('卸载成功')
@@ -480,9 +449,7 @@ class BlockStorage extends Component {
   }
 
   comfirmCapacity() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form, resizeBlockStorage } = this.props
     const { currentBlockStorage } = this.state
     this.setState({
@@ -510,8 +477,6 @@ class BlockStorage extends Component {
         size: this.state.currentSize,
       }
       resizeBlockStorage(volumes, body, {
-        project: this.state.currentProject
-      }, {
         success: {
           func: () => {
             Noti.success('扩容成功')
@@ -545,9 +510,7 @@ class BlockStorage extends Component {
   }
 
   comfirmSnapshot() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form, snapshotBlockStorage } = this.props
     const { currentBlockStorage } = this.state
     this.setState({
@@ -574,8 +537,6 @@ class BlockStorage extends Component {
         'description': values.description,
       }
       snapshotBlockStorage(body,{
-        project: this.state.currentProject
-      },{
         success: {
           func: () => {
             Noti.success('创建快照成功')
@@ -686,14 +647,6 @@ class BlockStorage extends Component {
         option.push(<Option value={azList[i].zoneName} key={'AvailabilityZone' + i}>{azList[i].zoneName}</Option>)
     }
     return option
-  }
-  changeProejct(value) {
-    this.setState({
-      currentProject: value
-    })
-    setTimeout(() => {
-      this.loadData()
-    }, 0)
   }
   render() {
     const { tableDataSource, snapshotsList } = this.state
@@ -856,7 +809,7 @@ class BlockStorage extends Component {
 
           <div className='searchDiv'>
             <Input placeholder='请输入云硬盘ID/名搜索' onPressEnter={this.searchInput} className='searchBox' size="large" onChange={this.searchChange} value={this.state.searchValue} id="blockInput"/>
-            <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.searchInput}></i>
+            <i className="fa fa-search btn-search" aria-hidden="true" onClick={this.searchInput}></i>
           </div>
           {
             tableDataSource.length

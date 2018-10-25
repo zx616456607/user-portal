@@ -36,9 +36,8 @@ class RouterDetail extends Component {
   }
   loadData() {
     const { params,location } = this.props
-    const project = location.query.project
     this.setState({isFetching: true})
-    this.props.getChildRouter({project},params.name,{
+    this.props.getChildRouter(params.name,{
       success:{
         func:(res)=> {
           let dataSource = res.router.subnet || []
@@ -57,7 +56,7 @@ class RouterDetail extends Component {
     })
   }
   componentDidMount() {
-    this.props.getSubnetsRouter(null,{
+    this.props.getSubnetsRouter({
       success:{
         func:(res)=> {
           this.setState({subnets:res.subnets})
@@ -172,38 +171,37 @@ class RouterDetail extends Component {
       }
     }
     return (
-      <QueueAnim id="host" >
-        <div className="host-body" key="routerDetail" style={{padding:20}}>
+      <QueueAnim id="openstack" >
+        <div className="host-body" key="routerDetail">
           <div className="clearfix">
-            <span className="back" onClick={() => browserHistory.push('/base_station/net?activeTab=router')}>
+            <span className="back" onClick={() => browserHistory.goBack()}>
               <span className="backjia"></span>
               <span className="btn-back">返回</span>
             </span>
           </div>
           <br />
-          <div className="host-list" style={{background:'white',padding:'20px 20px 50px 20px',borderRadius:5}}>
-            <div>
-              <Button type="primary" onClick={()=> this.setState({addModal: true})} size="large" icon="plus-circle-o">连接子网</Button>
-              <Button size="large"
-                disabled={!(this.state.selectedRowKeys.length ==1)}
-                onClick={()=> this.setState({removeModal: true})}
-                style={{margin:'0 8px'}} icon="minus-circle-o">断开子网</Button>
-              <Button size="large" onClick={()=> this.loadData()}>刷新</Button>
-            </div>
-
+          <div  className="top-row" >
+            <Button type="primary" onClick={()=> this.setState({addModal: true})} size="large" icon="plus-circle-o">连接子网</Button>
+            <Button size="large"
+              disabled={!(this.state.selectedRowKeys.length ==1)}
+              onClick={()=> this.setState({removeModal: true})}
+              style={{margin:'0 8px'}} icon="minus-circle-o">断开子网</Button>
+            <Button size="large" onClick={()=> this.loadData()}>刷新</Button>
+          </div>
+          <Card className="host-list">
             <Table
               dataSource={dataSource}
               rowSelection={rowSelection}
               columns={columns}
               pagination={ false }
               loading={this.state.isFetching}
-              className='reset_antd_Table_header_style'
+              className='strategyTable'
             />
             {/* {dataSource && dataSource.length >0?
               <span className="pageCount" style={{position:'absolute',right:'170px',top:'10px'}}>共计 {dataSource.length} 条</span>
               :null
             } */}
-          </div>
+          </Card>
         </div>
         { this.state.addModal &&
           <Modal title="连接子网" visible={true}

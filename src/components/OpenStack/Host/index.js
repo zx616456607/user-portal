@@ -20,7 +20,6 @@ import ReHostname from './Rename'
 import { getVMList, updateVM, deleteVM, clrearVMList, editVM } from '../../../actions/openstack/calculation_service'
 
 import NotificationHander from '../../../common/notification_handler'
-const Option = Select.Option
 const notification = new NotificationHander()
 
 class Host extends Component {
@@ -34,25 +33,18 @@ class Host extends Component {
     }
   }
   componentWillMount() {
-
+    this.loadData()
   }
   componentWillUnmount() {
     this.props.clrearVMList()
   }
   loadData = (query, needLoading, callback) => {
-    const noti = new NotificationHander()
-
-    let fetchQuery = {
-      project: this.state.currentProject
-    }
     let fetchLoading = true
-    if(query){
-      fetchQuery = query
-    }
+
     if(typeof needLoading == 'boolean'){
       fetchLoading = needLoading
     }
-    this.props.getVMList(fetchQuery, fetchLoading, {
+    this.props.getVMList(query, fetchLoading, {
       finally: {
         func: () => {
           this.setState({operating: false})
@@ -64,19 +56,13 @@ class Host extends Component {
 
   searchVM() {
     const noti = new NotificationHander()
-    if(!this.state.currentProject) {
-      return
-    }
-    const searchInput = this.searchInput
     const searchName = document.getElementById('searchInput').value
-
     if(!searchName) {
       this.props.getVMList('', false)
       return
     }
     this.props.getVMList({
       name: searchName,
-      project: this.state.currentProject
     }, false)
   }
 
@@ -142,7 +128,7 @@ class Host extends Component {
     })
   }
   operateVM(){
-    const { action, currentEntity, currentProject } = this.state
+    const { action, currentEntity } = this.state
     if(this.state.operating) return
     this.setState({
       operating: true
@@ -170,7 +156,7 @@ class Host extends Component {
       const { deleteVM } = this.props
       notification.spin(`删除云主机请求提交中`)
       const self = this
-      deleteVM(currentEntity.id, {project: currentProject}, {
+      deleteVM(currentEntity.id, {
         success: {
           func: () => {
             self.setState({
@@ -208,7 +194,7 @@ class Host extends Component {
     const { updateVM } = this.props
     notification.spin(`${action == 'start' ? '启动' : '停止'}云主机中`)
     const self = this
-    updateVM(currentEntity.id, action,{ project: currentProject}, {
+    updateVM(currentEntity.id, action, {
       success: {
         func: () => {
           this.setState({
@@ -254,7 +240,7 @@ class Host extends Component {
     this.setState({
       operating: true
     })
-    updateVM(currentEntity.id, 'confirm', {project: this.state.currentProject}, {
+    updateVM(currentEntity.id, 'confirm', {
       success: {
         func: () => {
           this.setState({
@@ -300,7 +286,7 @@ class Host extends Component {
     this.setState({
       operating: true
     })
-    updateVM(currentEntity.id, 'revert', {project: this.state.currentProject},{
+    updateVM(currentEntity.id, 'revert',{
       success: {
         func: () => {
           this.setState({
@@ -371,7 +357,7 @@ class Host extends Component {
       return
     }
     const { updateVM } = this.props
-    updateVM(currentHost.id, 'getvnc', {project: this.state.currentProject},{
+    updateVM(currentHost.id, 'getvnc',{
       success: {
         func: (res) => {
           if(res.console.url) {
@@ -417,13 +403,13 @@ class Host extends Component {
     })
   }
   render() {
-    const { servers, project,puhua } = this.props
+    const { servers } = this.props
     const columns = [
       {
         title: '云主机名称',
         dataIndex: 'name',
         key: 'name',
-        render: (text,row) => <Link to={`/OpenStack/calculate/${row.id}/${row.name}?project=${this.state.currentProject}`}>{text}</Link>,
+        render: (text,row) => <Link to={`/OpenStack/calculate/${row.id}/${row.name}`}>{text}</Link>,
         width: '25%'
       }, {
         title: '状态',
@@ -559,15 +545,15 @@ class Host extends Component {
               className="strategyTable"
             />
             {servers.servers && servers.servers.length >0 ?
-              <span className="pageCount" style={{position:'absolute',right:'160px',top:'37px'}}>共计 {servers.servers.length} 条</span>
+              <span className="pageCount">共计 {servers.servers.length} 条</span>
               :null
             }
           </Card>
 
         </div>
-        <HostModal visible={this.state.hostModal} func={funcCallback} getListCallback={this.props.getVMList.bind(this, '', false)} hideHotModal={() => this.setState({hostModal: false})} servers={servers.servers} currentProject={this.state.currentProject}/>
+        <HostModal visible={this.state.hostModal} func={funcCallback} getListCallback={this.props.getVMList.bind(this, '', false)} hideHotModal={() => this.setState({hostModal: false})} servers={servers.servers} />
         {
-          this.state.resiseModal && <ResiseModal visible={this.state.resiseModal} func={resiseCallback} resizeCallback={this.resizeCallback()} currentHost={this.state.currentHost} currentProject={this.state.currentProject}/>
+          this.state.resiseModal && <ResiseModal visible={this.state.resiseModal} func={resiseCallback} resizeCallback={this.resizeCallback()} currentHost={this.state.currentHost} />
         }
         <Modal title="删除操作"
           visible={this.state.deleteMoal}
@@ -604,20 +590,10 @@ class Host extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { currentProject, puhua } = state.entities.loginUser.info
-  const project = currentProject ? currentProject : ''
-  let { host, networks } = state.openstack
-  let defaultServers = {
-    isFetching: false,
-    servers: []
-  }
-  let defaultYCProjects = {
-    isFetching: false,
-    projects:[]
-  }
+  const { puhua } = state.entities.loginUser.info
+  let { host } = state.openstack
 
   return {
-    project,
     puhua: puhua || {},
     servers: host,
   }

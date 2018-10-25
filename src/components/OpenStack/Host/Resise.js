@@ -9,7 +9,7 @@
  */
 
 import React,{ Component } from 'react'
-import { Button, Input, Modal, Form, Select, Row,Col,Icon } from 'antd'
+import {  Modal, Form, Select } from 'antd'
 import { connect } from 'react-redux'
 import find from 'lodash/find'
 import { updateVM } from '../../../actions/openstack/calculation_service'

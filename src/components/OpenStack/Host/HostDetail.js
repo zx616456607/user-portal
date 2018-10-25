@@ -95,8 +95,8 @@ class HostDetail extends Component {
   loadData() {
 
     const { getVMDetail, params, getVMMeters, location } = this.props
-    getVMDetail(params.id, {project: location.query.project})
-    getVMMeters(params.id, 'cpu', {project: location.query.project}, {
+    getVMDetail(params.id)
+    getVMMeters(params.id, 'cpu', {period: 60}, {
       success: {
         func: (res) => {
           let cpu = []
@@ -118,7 +118,7 @@ class HostDetail extends Component {
       }
     })
 
-    getVMMeters(params.id, 'memory', {project: location.query.project}, {
+    getVMMeters(params.id, 'memory', {period: 60}, {
       success: {
         func: (res) => {
           let memory = []
@@ -140,7 +140,7 @@ class HostDetail extends Component {
         }
       }
     })
-    getVMMeters(params.id, 'incoming', {project: location.query.project}, {
+    getVMMeters(params.id, 'incoming', {period:60}, {
       success: {
         func: (res) => {
           let incoming = []
@@ -162,7 +162,7 @@ class HostDetail extends Component {
         }
       }
     })
-    getVMMeters(params.id, 'outgoing', {project: location.query.project}, {
+    getVMMeters(params.id, 'outgoing', {period: 60}, {
       success: {
         func: (res) => {
           let outgoing = []
@@ -184,7 +184,7 @@ class HostDetail extends Component {
         }
       }
     })
-    getVMMeters(params.id, 'diskread', {project: location.query.project}, {
+    getVMMeters(params.id, 'diskread', {period: 60}, {
       success: {
         func: (res) => {
           let diskread = []
@@ -206,7 +206,7 @@ class HostDetail extends Component {
         }
       }
     })
-    getVMMeters(params.id, 'diskwrite', {project: location.query.project}, {
+    getVMMeters(params.id, 'diskwrite', {period: 60}, {
       success: {
         func: (res) => {
           let diskwrite = []
