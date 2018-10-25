@@ -1475,7 +1475,7 @@ class Ordinary extends Component {
             this.props.userID === undefined
               ? spaceName === this.myProject
                 ? ''
-                : `${formatMessage(IntlMessages.sharedProject)} - `
+                : `${formatMessage(IntlMessages.project)} - `
               : `${formatMessage(IntlMessages.personalProject)} - `
           }
           {spaceName} - {clusterName}
