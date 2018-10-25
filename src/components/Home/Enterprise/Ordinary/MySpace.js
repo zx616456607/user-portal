@@ -43,7 +43,8 @@ class MySpace extends Component {
   }
 
   componentWillMount() {
-    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget } = this.props
+    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget,
+      harbor } = this.props
     loadSpaceCICDStats({
       failed: {
         func: () => {
@@ -54,7 +55,8 @@ class MySpace extends Component {
         isAsync: true
       }
     })
-    loadSpaceImageStats({
+    const query = { harbor }
+    loadSpaceImageStats(query, {
       failed: {
         func: () => {
           this.setState({
@@ -930,7 +932,10 @@ function mapStateToProp(state, props) {
   if (spaceImageStats.result && spaceImageStats.result.data) {
     spaceImageStatsData = spaceImageStats.result.data
   }
+  const { harbor: harbors } = current.cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
+    harbor,
     userID,
     clusterID,
     loginUser,
