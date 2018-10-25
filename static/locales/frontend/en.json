@@ -2779,7 +2779,7 @@
   "IndexPage.redis": "Redis cluster",
   "IndexPage.zookeeper": "Zookeeper cluster",
   "IndexPage.elasticsearch": "EScluster",
-  "IndexPage.sharedProject": "Shared project",
+  "IndexPage.project": "Project",
   "IndexPage.personalProject": "Personal project",
   "IndexPage.projectInfo": "Project information",
   "IndexPage.projectDetail": "Project details",

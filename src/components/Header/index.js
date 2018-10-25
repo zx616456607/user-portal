@@ -174,6 +174,9 @@ class Header extends Component {
       host: false,
     }
     Object.assign(cluster, { storageClassType: defalutStorageCLassType })
+    setCurrent({
+      cluster,
+    })
     const { clusterID } = cluster
     if (!clusterID || clusterID === 'undefined') {
       return

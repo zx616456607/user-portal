@@ -218,7 +218,7 @@ class PopSelect extends Component {
           {searchList}
         </ul>
         {/* <Collapse accordion defaultActiveKey={collapseDefaultActiveKey || ['team']} >
-          <Panel header={formatMessage(IntlMessages.sharedProject)} key="team">
+          <Panel header={formatMessage(IntlMessages.project)} key="team">
 
           </Panel>
         </Collapse> */}
