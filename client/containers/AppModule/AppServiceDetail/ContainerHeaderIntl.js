@@ -29,6 +29,7 @@ export const mapData = {
     stopedServer: '停止中的服务不支持固定 IP',
     fixOnePrompt: '目前仅支持一个实例固定 IP，且功能开启后，将不支持服务自动伸缩',
     instanceNum: '容器实例数量',
+    staticIP: '固定实例 IP',
     ipPodPlaceholder: '请填写实例 IP(需属于 {NetSegment} )',
     releaseIP: '不再固定实例 IP',
     enterReleaseIP: '确认释放 IP',

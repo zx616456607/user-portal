@@ -34,6 +34,9 @@ module.exports = function (name) {
           if (!result.data) {
             result.data = {}
           }
+          if(options.needHeaders) {
+            return result
+          }
           return result.data
         }
         throw errors.get(result.res)

@@ -716,6 +716,11 @@ class VisitType extends Component{
           svcDomain={this.state.svcDomain}
           hasLbDomain={hasLbDomain}
           serviceIstioEnabled={this.state.serviceIstioEnabled}
+          currentCluster={currentCluster}
+          service={service}
+          getServiceListServiceMeshStatus={this.props.getServiceListServiceMeshStatus}
+          msaUrl={this.props.msaUrl}
+          namespace={this.props.namespace}
           />
           {/* <table className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
@@ -752,6 +757,7 @@ function mapSateToProp(state) {
   const { data: LBList } = serviceLoadBalances || { data: [] }
   const { k8sService } = services
   const clusterId = getDeepValue( state, ['entities','current','cluster', 'clusterID'] )
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     bindingDomains: current.cluster.bindingDomains,
     bindingIPs: current.cluster.bindingIPs,
@@ -759,6 +765,8 @@ function mapSateToProp(state) {
     currentCluster: current.cluster,
     k8sService,
     clusterId,
+    msaUrl,
+    namespace: current.space.namespace
   }
 }
 
@@ -771,6 +779,7 @@ VisitType = connect(mapSateToProp, {
   unbindIngressService,
   updateServicePort,
   loadK8sService,
-  checkAPPInClusMesh: serviceMeshActions.checkAPPInClusMesh
+  checkAPPInClusMesh: serviceMeshActions.checkAPPInClusMesh,
+  getServiceListServiceMeshStatus: serviceMeshActions.getServiceListServiceMeshStatus
 })(Form.create()(VisitType))
 export default injectIntl(VisitType,{withRef: true,});

@@ -289,7 +289,7 @@ class ContainerInstance extends React.Component {
             <FormItem
               wrapperCol={{ span: 16, offset: 4 }}
               {...formItemLayout}
-              label={<FormattedMessage {...IntlMessages.fixedInstanceIP} />}
+              label={<FormattedMessage {...IntlMessages.staticIP} />}
               className="addIp"
             >
               <Input {...getFieldProps('replicasIP', {

@@ -41,7 +41,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
-    title: '共享项目',
+    title: '项目',
     dataIndex: 'item',
     render: (text, record) => {
       let link

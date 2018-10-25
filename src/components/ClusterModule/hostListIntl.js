@@ -70,7 +70,7 @@ export const mapData = {
     confirm: '确定',
     deleteErrForceMaintain: '删除问题资源，强制维护',
     nodeMaintainOpen: '节点维护开启中',
-    userViolatedPdb: '用户 {namespace} 的节点 {resourceName} 违反了自己的pdb策略',
+    userViolatedPdb: '用户 {namespace} 的服务 {resourceName} 违反了自己的pdb策略',
     containerMigrateFail: '容器迁移失败',
     nodeMaintainFail: '节点维护开启失败',
     nodeMaintainSuccess: '节点维护开启成功',
