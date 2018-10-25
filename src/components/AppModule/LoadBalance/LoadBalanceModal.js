@@ -330,12 +330,12 @@ class LoadBalanceModal extends React.Component {
     if (!inRange) {
       return callback(`请输入属于 ${NetSegment} 的 IP`)
     }
-    const { getISIpPodExisted, clusterID } = this.props
+    const { getISIpPodExisted, clusterID, currentBalance } = this.props
     const isExist = await getISIpPodExisted(clusterID, value)
     const { code, data: { isPodIpExisted } } = isExist.response.result
-    if (code !== 200) {
+    if (code !== 200 && !currentBalance) {
       return callback('校验 IP 是否被占用失败')
-    } else if (code === 200 && isPodIpExisted === 'true') {
+    } else if (code === 200 && isPodIpExisted === 'true' && !currentBalance) {
       return callback('当前 IP 已经被占用, 请重新填写')
     }
     callback()
@@ -446,7 +446,8 @@ class LoadBalanceModal extends React.Component {
       ips.filter(item => !item.taints).map(item => {
         return <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
     })
-
+    const ipStr = currentBalance && getDeepValue(currentBalance, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
+    const ipPod = ipStr && JSON.parse(ipStr)[0]
     return (
       <Modal
         className="loadBalanceModal"
@@ -497,7 +498,7 @@ class LoadBalanceModal extends React.Component {
                   rules: [{
                     validator: this.staticIpCheck,
                   }],
-                  initialValue: currentBalance && currentBalance.metadata.annotations.podIP
+                  initialValue: currentBalance && currentBalance.metadata.annotations.podIP || ipPod
                 })}
                 placeholder={`请填写实例 IP（需属于 ${NetSegment}）`}
               />
