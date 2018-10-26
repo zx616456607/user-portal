@@ -123,7 +123,7 @@ class VisitTypeAddressTable extends React.Component {
       rel="noopener noreferrer"
       href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
         redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management/component/detail`),
-        userquery: encodeURIComponent(`name=${this.state.referencedComponent}&namespace=${namespace}&clusterID=${clusterID}`),
+        userquery: encodeURIComponent(`name=${this.state.referencedComponent}&redirectNamespace=${namespace}&redirectclusterID=${clusterID}`),
          })}`}>
       {`「${this.state.referencedComponent}组件」`}</a>
       <span>详情中获取</span>
@@ -138,7 +138,7 @@ class VisitTypeAddressTable extends React.Component {
         rel="noopener noreferrer"
         href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
           redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management`),
-          userquery: encodeURIComponent(`namespace=${namespace}&clusterID=${clusterID}`),
+          userquery: encodeURIComponent(`redirectNamespace=${namespace}&redirectclusterID=${clusterID}`),
        })}`}
         >
         「去绑定组件」</a>
