@@ -1,0 +1,183 @@
+#load_balancer_detail{
+  padding:20px;
+  .detail_header{
+    height:30px;
+    margin-bottom: 20px;
+  }
+  .detailHeaderBox{
+    height:140px;
+    padding:20px;
+    background: #ffffff;
+    margin-bottom: 20px;
+    .leftBox,
+    .rightBox{
+      float: left;
+    }
+    .leftBox{
+      width: 150px;
+      padding-left: 15px;
+    }
+    .imgBox{
+      width:110px;
+    }
+    .rightBox{
+      padding-left: 20px;
+      // padding-top: 20px;
+      width:calc(~"100% - 150px");
+      .name,
+      .status,
+      .type{
+        margin-bottom: 15px;
+      }
+      .name{
+        font-size: 18px;
+        color: black;
+      }
+      .status,
+      .type{
+        font-size: 14px;
+      }
+      .stopStatus{
+        color: #ef4c4d;
+      }
+      .runStatus{
+        color: #2dbb67;
+      }
+    }
+
+  }
+  .detailBodyBox{
+    background: #ffffff;
+    padding: 20px;
+    padding-bottom: 0;
+    position: relative;
+    .table-pagination{
+      top:40px;
+    }
+    .ant-pagination-simple{
+      right: -10px;
+    }
+    .handleBox{
+      .buttonMarign{
+        margin-right: 12px;
+      }
+      .buttonIcon{
+        margin-right: 5px;
+      }
+      .searchDiv{
+        display: inline-block;
+        position: relative;
+        .searchBox{
+          width:170px;
+        }
+        .searchIcon{
+          position: absolute;
+          font-size: 16px !important;
+          color: #999;
+          top: 7px;
+          right:7px;
+          cursor: pointer;
+        }
+      }
+      .totleNum{
+        float:right;
+        padding-top: 8px;
+        margin-right:150px;
+      }
+    }
+    .tableBox{
+      position: relative;
+      background: #ffffff;
+      border-radius: 6px;
+      .editButton{
+        margin-right: 12px;
+      }
+      .manage{
+        cursor: pointer;
+        color:#58c2f6;
+      }
+      .ant-table-thead{
+        th{
+          background: #ffffff;
+          font-weight: normal;
+          border-bottom: 1px solid #e9e9e9;
+        }
+      }
+    }
+  }
+}
+
+.addAlarmModal{
+  .ant-form-item-label{
+    text-align: left;
+    .star{
+      color: red;
+    }
+  }
+  label:after{
+    display: none;
+  }
+  .ant-form-item-required:before{
+    display: none;
+  }
+   .deal,
+   .port{
+     width: 160px;
+     float: left;
+   }
+  .port{
+    margin-left:20px;
+  }
+}
+// 服务池
+.create_pool_service{
+  .ant-form-item-label{
+    text-align: left;
+    .star{
+      color: red;
+    }
+  }
+  label:after{
+    display: none;
+  }
+  .ant-form-item-required:before{
+    display: none;
+  }
+  .service_deal,
+  .service_port{
+    float: left;
+  }
+  .service_deal{
+    width: 150px;
+    margin-right: 12px;
+  }
+  .service_port{
+    width: 163px;
+  }
+  .transfer_item{
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    width: 240px;
+    .renderItem_item{
+      width: 80px;
+      float: left;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-right: 15px;
+    }
+    .zone{
+      width: 50px;
+      margin-right:0;
+    }
+  }
+  .members {
+    overflow: hidden;
+    position: relative;
+    left: 16.67%;
+    top:-55px;
+    .ant-form-item{width: 26%;float: left;}
+  }
+}

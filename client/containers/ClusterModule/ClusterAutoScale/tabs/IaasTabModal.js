@@ -15,7 +15,7 @@ import _ from 'lodash'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../../src/components/Notification'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item

@@ -35,7 +35,7 @@ import {
   LICENSE_EXPRIED_CODE,
   LITE, MY_SPACE,
 } from '../../constants'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'

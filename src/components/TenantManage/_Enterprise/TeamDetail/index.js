@@ -31,7 +31,7 @@ import intersection from 'lodash/intersection'
 import xor from 'lodash/xor'
 import includes from 'lodash/includes'
 import { formatDate } from '../../../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 let MemberList = React.createClass({
   getInitialState() {

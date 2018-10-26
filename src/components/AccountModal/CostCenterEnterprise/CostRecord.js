@@ -20,7 +20,7 @@ import ReactEcharts from 'echarts-for-react'
 import { formatDate, parseAmount } from '../../../common/tools'
 import moment from 'moment'
 import {getCostBar} from './getCostBar'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
