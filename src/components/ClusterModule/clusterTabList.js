@@ -33,7 +33,7 @@ import { camelize } from 'humps'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import intlMsg from './indexIntl'
 
 const TabPane = Tabs.TabPane;

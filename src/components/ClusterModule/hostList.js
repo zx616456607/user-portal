@@ -22,7 +22,7 @@ import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEmpty from 'lodash/isEmpty'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import intlMsg from './hostListIntl'
 import clusterDetailIntlMsg from './ClusterDetailIntl'
 import * as moment from 'moment';

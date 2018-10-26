@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { calcuDate, formatDate } from '../../../../src/common/tools'
 import * as backupChainActions from '../../../actions/backupChain'
 import NotificationHandler from '../../../../src/components/Notification'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import AutoBackupModal from '../../../components/AutoBackupModal'
 const Panel = Collapse.Panel
 const RadioGroup = Radio.Group

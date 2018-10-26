@@ -12,7 +12,7 @@ import { Row, Col, Card, Icon, } from 'antd'
 import './style/Version.less'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 export default class Version extends Component{
   constructor(props){

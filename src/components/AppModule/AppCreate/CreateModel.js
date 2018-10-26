@@ -28,7 +28,7 @@ import wrapManage from '../../../assets/img/app/wrapManage.png'
 import stackIcon from '../../../assets/img/app/stackIcon.svg'
 import stackIconHover from '../../../assets/img/app/stackIconHover.svg'
 import { genRandomString, toQuerystring } from '../../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 

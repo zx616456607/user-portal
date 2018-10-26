@@ -25,7 +25,7 @@ import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
 import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import homeEtcd from '../../../../assets/img/homeEtcdCluster.png'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 function getClusterCostOption(costValue, restValue) {
   return {
