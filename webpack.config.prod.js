@@ -13,7 +13,6 @@ const webpack = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const WebpackMd5Hash = require('webpack-md5-hash')
-const tsImportPluginFactory = require('ts-import-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const postcssConfig = require('./webpack.config.postcss')
 const webpack_base = require('./webpack.config.base')
