@@ -19,7 +19,7 @@ import { AVATAR_HOST } from '../../constants'
 import { parseAmount } from '../../common/tools'
 import proIcon from '../../assets/img/version/proIcon.png'
 import proIconGray from '../../assets/img/version/proIcon-gray.png'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from '../Header/Intl'
 

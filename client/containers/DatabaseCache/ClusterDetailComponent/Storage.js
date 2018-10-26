@@ -17,7 +17,7 @@ import { parseAmount } from '../../../../src/common/tools'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../src/components/Notification'
 import * as storageActions from '../../../../src/actions/database_cache'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 const notification = new NotificationHandler()
 
 class Storage extends React.Component {

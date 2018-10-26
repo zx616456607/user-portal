@@ -49,7 +49,7 @@ import PermissionOverview from './PermissionOverview'
 import ServiceMeshForm from './ServiceMeshForm';
 import ServiceMeshSwitch from './ServiceMeshSwitch';
 import * as SEMeshActions from '../../../../actions/serviceMesh'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;

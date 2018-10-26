@@ -21,7 +21,7 @@ import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../components/Notification'
 import { camelize } from 'humps'
 import DetailInfo from './DetailInfo'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl } from 'react-intl'
 import detailIndexIntl from './intl/detailIndexIntl'
 

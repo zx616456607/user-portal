@@ -27,7 +27,7 @@ import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const FormItem = Form.Item
 const createForm = Form.create
