@@ -11,7 +11,6 @@
 const path = require('path')
 const webpack = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const tsImportPluginFactory = require('ts-import-plugin')
 const postcssConfig = require('./webpack.config.postcss')
 const nodeModulesPath = path.join(__dirname, '/node_modules/')
 const hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
