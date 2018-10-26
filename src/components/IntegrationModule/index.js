@@ -11,6 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import { getAllIntegration } from '../../actions/integration'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Button, Alert, Card, Spin, Input, Modal } from 'antd'
@@ -357,6 +358,50 @@ class Integration extends Component {
                             </div>
                             <div style={{ clear:'both' }}></div>
                           </div>
+                          <div className='appDetail'>
+                            <div className='leftBox'>
+                              <img src={cephImg} />
+                            </div>
+                            <div className='middleBox'>
+                              <div className='appInfo'>
+                                <p>OpenStack</p>
+                                <span>sfsdfdsfsf</span>
+                              </div>
+                              <div className='envInfo'>
+                                <p><FormattedMessage {...menusText.envTitle} /></p>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'1'}
+                                  </div>
+                                  <span className='envName'>存储集群</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'2'}
+                                  </div>
+                                  <span className='envName'>Ceph API</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'3'}
+                                  </div>
+                                  <span className='envName'>Ceph授权</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                              </div>
+                              <div style={{ clear:'both' }}></div>
+                            </div>
+                            <div className='rightBox'>
+                              <Button className='unintsallBtn' onClick={()=> browserHistory.push('/OpenStack')} key='unintsallBtn' size='large' type='primary'
+                                style={{ width: '102px' }}>
+                                <FormattedMessage {...menusText.showAppDetail} />
+                              </Button>
+                            </div>
+                            <div style={{ clear:'both' }}></div>
+                          </div>
+
                         </div>
                       </QueueAnim>
                     ] : null}

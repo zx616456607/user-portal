@@ -250,6 +250,18 @@ const rootRoutes = {
         ],
       },
       {
+        path: 'OpenStack',
+        // component: require('../containers/Integration').default,
+        indexRoute: {
+          component: require('../components/IntegrationModule/OpenStack').default,
+        },
+        getChildRoutes: (location ,cb) => {
+          require.ensure([], function (require) {
+            cb(null, require('./openstack').default)
+          })
+        }
+      },
+      {
         path: '*',
         component: require('../containers/ErrorPage').default,
       }

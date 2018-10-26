@@ -8,7 +8,10 @@ module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2/openstack'
   })
-
+  router.use(function *(next){
+    if (this.query['_']) delete this.query['_']
+    yield next
+  })
   router.use(middlewares.auth)
   router.get('/servers', vmController.getServerList)
   router.post('/servers', vmController.createServer)
