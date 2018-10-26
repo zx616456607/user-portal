@@ -1039,7 +1039,7 @@
   "IndexPage.redis": "Redis集群 (个)",
   "IndexPage.zookeeper": "Zookeeper集群 (个)",
   "IndexPage.elasticsearch": "ES集群 (个)",
-  "IndexPage.sharedProject": "共享项目",
+  "IndexPage.project": "项目",
   "IndexPage.personalProject": "个人项目",
   "IndexPage.projectInfo": "项目信息",
   "IndexPage.projectDetail": "项目详情",

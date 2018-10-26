@@ -24,7 +24,7 @@ import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
 

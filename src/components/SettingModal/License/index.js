@@ -21,7 +21,7 @@ import { camelize } from 'humps'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import QRCode from 'qrcode.react'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const createForm = Form.create;
 const FormItem = Form.Item;

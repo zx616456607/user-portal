@@ -91,11 +91,11 @@ export const OVERVIEW_SPACE_IMAGE_FAILURE = 'OVERVIEW_SPACE_IMAGE_FAILURE'
 
 // Fetches space image stats from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchSpaceImageStats(callback) {
+function fetchSpaceImageStats(query, callback) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_SPACE_IMAGE_REQUEST, OVERVIEW_SPACE_IMAGE_SUCCESS, OVERVIEW_SPACE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/:registry/statistics`,
+      endpoint: `${API_URL_PREFIX}/registries/:registry/statistics?${toQuerystring(query)}`,
       schema: {}
     },
     callback
@@ -104,9 +104,9 @@ function fetchSpaceImageStats(callback) {
 
 // Fetches space image stats from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadSpaceImageStats(callback) {
+export function loadSpaceImageStats(query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSpaceImageStats(callback))
+    return dispatch(fetchSpaceImageStats(query, callback))
   }
 }
 

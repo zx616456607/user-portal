@@ -36,7 +36,7 @@ import { getPodNetworkSegment } from '../../../actions/app_manage'
 import ipRangeCheck from 'ip-range-check'
 import {getDeepValue} from "../../../../client/util/util"
 import { sleep } from "../../../common/tools"
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import * as serviceActions from '../../../../src/actions/services'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 

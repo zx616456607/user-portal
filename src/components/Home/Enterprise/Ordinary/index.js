@@ -30,7 +30,7 @@ import { AVATAR_HOST, SHOW_BILLING, REG, DEFAULT_IMAGE_POOL } from '../../../../
 import { fetchStorage } from '../../../../actions/storage'
 import { getClusterQuota, getClusterQuotaList } from '../../../../actions/quota'
 import { GetProjectsDetail } from '../../../../actions/project'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 import CommonIntlMessages from '../../../../containers/CommonIntl'
@@ -1475,7 +1475,7 @@ class Ordinary extends Component {
             this.props.userID === undefined
               ? spaceName === this.myProject
                 ? ''
-                : `${formatMessage(IntlMessages.sharedProject)} - `
+                : `${formatMessage(IntlMessages.project)} - `
               : `${formatMessage(IntlMessages.personalProject)} - `
           }
           {spaceName} - {clusterName}

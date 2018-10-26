@@ -13,7 +13,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import find from 'lodash/find'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import {
   Card, Modal ,Input , Button, Popover, Tooltip
 } from 'antd'

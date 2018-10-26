@@ -30,7 +30,7 @@ import CreateTeamModal from '../../../AccountModal/CreateTeamModal'
 import NotificationHandler from '../../../../components/Notification'
 import Title from '../../../Title'
 import { formatDate } from '../../../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 let TeamTable = React.createClass({
   getInitialState() {
