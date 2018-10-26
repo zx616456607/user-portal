@@ -475,6 +475,7 @@ class HeightSetings extends Component {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 },
     }
+    const { getFieldProps } = this.props.form;
     const formItems = ()=> {
       if (this.state.dns.length == 0) {
         return (
@@ -488,7 +489,7 @@ class HeightSetings extends Component {
       return this.state.dns.map((k, index) => {
         return (
           <Form.Item {...formItemLayout} label={index == 0 ? 'DNS服务器' : ''} style={index == 0 ? {} : {marginLeft: '108px'}}  key={`${index}-dns`}>
-            <Input disabled={true} value={k.newdns1 + '.' + k.newdns2 + '.' + k.newdns3 + '.' + k.newdns4} style={{ width: '300px', marginRight: 8 }}
+            <Input disabled={true} {...getFieldProps(`dns-${index}`,{initialValue: k.newdns1 + '.' + k.newdns2 + '.' + k.newdns3 + '.' + k.newdns4} )} style={{ width: '300px', marginRight: 8 }}
             />
           </Form.Item>
         )
@@ -538,7 +539,6 @@ class HeightSetings extends Component {
         )
       })
     }
-    const { getFieldProps, getFieldValue } = this.props.form;
     getFieldProps('keys', {
       initialValue: [],
     })
@@ -633,10 +633,8 @@ class CreateModal extends Component {
     func.Modalfunc(false)
   }
   handOk() {
-    const { form, func,loadNetworksList,editer, project } = this.props
-    if(!project) {
-      return
-    }
+    const { form, func,loadNetworksList,editer } = this.props
+
     form.validateFields((errors, values) => {
       if (!!errors) {
         if (this.state.tabs == 2) {
@@ -741,12 +739,12 @@ class CreateModal extends Component {
       // return
       this.setState({ btnLoading: true })
       notificat.spin('网络创建中...')
-      this.props.createNetworks(body, {project: project},{
+      this.props.createNetworks(body,{
         success: {
           func: (res) => {
             childBody.network_id = res.network.id
             func.Modalfunc(false)
-            this.props.createSubnets({ subnet: childBody }, {project: project}, {
+            this.props.createSubnets({ subnet: childBody }, {
               success: {
                 func: () => {
                   notificat.success('创建网络成功')

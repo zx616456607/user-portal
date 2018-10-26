@@ -38,7 +38,7 @@ export const NETWORKS_CREATE_SUCCESS = 'NETWORKS_CREATE_SUCCESS'
 export const NETWORKS_CREATE_FAILURE = 'NETWORKS_CREATE_FAILURE'
 
 export function createNetworks(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/openstack/networks/create`
+  let endpoint = `${API_URL_PREFIX}/openstack/networks`
   return {
     [FETCH_API]: {
       types: [NETWORKS_CREATE_REQUEST, NETWORKS_CREATE_SUCCESS, NETWORKS_CREATE_FAILURE],
@@ -128,7 +128,7 @@ export const SUBNETS_CREATE_SUCCESS = 'SUBNETS_CREATE_SUCCESS'
 export const SUBNETS_CREATE_FAILURE = 'SUBNETS_CREATE_FAILURE'
 
 export function createSubnets(body, callback) {
-  let endpoint=`${API_URL_PREFIX}/openstack/subnets/create`
+  let endpoint=`${API_URL_PREFIX}/openstack/networks/subnets`
   return {
     [FETCH_API]: {
       types: [SUBNETS_CREATE_REQUEST, SUBNETS_CREATE_SUCCESS, SUBNETS_CREATE_FAILURE],
