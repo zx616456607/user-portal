@@ -250,6 +250,13 @@ class ApprovalLimit extends React.Component {
   componentDidMount = () => {
     const { checkApplyRecord, loadUserList, ListProjects } = this.props
     const query = { from: 0, size: 10, sort: 'd,create_time' } // 刷新页面时 默认请求第一页
+
+    if (this.props.location.query.link_status === '0') {
+      query.filter = 'project_type,public,status,0'
+      this.setState({
+        approvalStatus: 0,
+      })
+    }
     checkApplyRecord(query)
     // 查询平台管理员和系统管理员
     // 后台接口不支持全部查询,假设最大不可能超过100个管理员
