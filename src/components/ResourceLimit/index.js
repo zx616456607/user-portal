@@ -655,12 +655,15 @@ class ResourceQuota extends React.Component {
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
         {
-          clusterData ?
-            clusterData.map((item, index) => (
+          clusterData.length > 0
+          ? clusterData.map((item, index) => (
               <Menu.Item key={item.clusterID}>
                 <span>{item.clusterName}</span>
               </Menu.Item>
-            )) : ''
+            ))
+          : <Menu.Item disabled>
+            暂无授权集群
+          </Menu.Item>
         }
       </Menu>
     )
