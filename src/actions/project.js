@@ -332,6 +332,35 @@ export function GetProjectsApprovalClusters(query,callback) {
   }
 }
 
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST'
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS'
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE'
+function fetchGetProjectsApprovalClustersWithoutTypes(query,callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/approval-clusters`
+  if(query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST,PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS,PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    status: query,
+    callback
+  }
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectsApprovalClustersWithoutTypes(query,callback) {
+  return (dispatch) => {
+    return dispatch(fetchGetProjectsApprovalClustersWithoutTypes(query,callback))
+  }
+}
+
 export const SEARCH_PROJECTS_CLUSTER_APPROVAL_GET = 'SEARCH_PROJECTS_CLUSTER_APPROVAL_GET'
 
 export function searchProjectsClusterApproval(keyWord) {
