@@ -602,7 +602,6 @@ class ImageUpdate extends Component {
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
-        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
