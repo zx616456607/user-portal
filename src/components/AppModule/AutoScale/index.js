@@ -239,6 +239,7 @@ class AutoScale extends React.Component {
       this.setState({
         scaleModal: true,
         scaleDetail,
+        reuse: false,
       })
     }
   }

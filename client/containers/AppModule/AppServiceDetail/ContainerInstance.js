@@ -42,7 +42,7 @@ class ContainerInstance extends React.Component {
   }
 
   componentDidMount() {
-    const { isSee, getPodNetworkSegment, cluster } = this.props
+    const { isSee, getPodNetworkSegment, cluster, intl } = this.props
     getPodNetworkSegment(cluster, {
       success: {
         func: res => {
@@ -56,7 +56,7 @@ class ContainerInstance extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403) {
-            notification.warn(<FormattedMessage {...IntlMessages.getPodDataFail} />)
+            notification.warn(intl.formatMessage(IntlMessages.getPodDataFail))
           }
         },
       },
@@ -80,7 +80,7 @@ class ContainerInstance extends React.Component {
         func: err => {
           const { statusCode } = err
           if (statusCode !== 403 && statusCode !== 412) {
-            notification.warn(<FormattedMessage {...IntlMessages.getAutoScaleFail} />)
+            notification.warn(intl.formatMessage(IntlMessages.getAutoScaleFail))
           }
         },
       },
@@ -104,7 +104,7 @@ class ContainerInstance extends React.Component {
     this.props.form.validateFields(async (err, values) => {
       if (err) return
       const { UpdateServiceAnnotation, cluster, serviceDetail,
-        containerNum, manualScaleService } = this.props
+        containerNum, manualScaleService, intl } = this.props
       const server = Object.keys(serviceDetail[cluster])[0]
       const { replicasIP } = values
       const ipStr = `[\"${replicasIP}\"]`
@@ -112,7 +112,7 @@ class ContainerInstance extends React.Component {
       Object.assign(annotations, {
         'cni.projectcalico.org/ipAddrs': ipStr,
       })
-      notification.spin(<FormattedMessage {...IntlMessages.fixIPing} />)
+      notification.spin(intl.formatMessage(IntlMessages.fixIPing))
       if (containerNum > 1) {
         await manualScaleService(cluster, server, { num: 1 }, {
           failed: {
@@ -120,7 +120,7 @@ class ContainerInstance extends React.Component {
               const { statusCode } = error
               notification.close()
               if (statusCode !== 403 && statusCode !== 412) {
-                return notification.warn(<FormattedMessage {...IntlMessages.scaleFail} />)
+                return notification.warn(intl.formatMessage(IntlMessages.scaleFail))
               }
             },
           },
@@ -147,7 +147,7 @@ class ContainerInstance extends React.Component {
             onChangeVisible()
             onHandleCanleIp(true)
             loadServiceDetail(cluster, serviceName)
-            notification.success(<FormattedMessage {...IntlMessages.fixIPSuccess} />)
+            notification.success(intl.formatMessage(IntlMessages.fixIPSuccess))
           },
           isAsync: true,
         },
@@ -156,7 +156,7 @@ class ContainerInstance extends React.Component {
             notification.close()
             const { statusCode } = error
             if (statusCode !== 403 && statusCode !== 412) {
-              notification.warn(<FormattedMessage {...IntlMessages.fixIPFail} />)
+              notification.warn(intl.formatMessage(IntlMessages.fixIPFail))
             }
           },
         },
@@ -167,20 +167,20 @@ class ContainerInstance extends React.Component {
 
   handleNotFix = () => {
     const { UpdateServiceAnnotation, onChangeVisible,
-      cluster, serviceDetail, loadServiceDetail } = this.props
+      cluster, serviceDetail, loadServiceDetail, intl } = this.props
     const server = Object.keys(serviceDetail[cluster])[0]
     const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
     Object.assign(annotations, {
       'cni.projectcalico.org/ipAddrs': '',
     })
-    notification.spin(<FormattedMessage {...IntlMessages.releasing} />)
+    notification.spin(intl.formatMessage(IntlMessages.releasing))
     UpdateServiceAnnotation(cluster, server, annotations, {
       success: {
         func: () => {
           notification.close()
           onChangeVisible()
           loadServiceDetail(cluster, server)
-          notification.success(<FormattedMessage {...IntlMessages.releaseSuccess} />)
+          notification.success(intl.formatMessage(IntlMessages.releaseSuccess))
         },
         isAsync: true,
       },
@@ -189,7 +189,7 @@ class ContainerInstance extends React.Component {
           const { statusCode } = err
           notification.close()
           if (statusCode !== 403 && statusCode !== 412) {
-            notification.warn(<FormattedMessage {...IntlMessages.releaseFail} />)
+            notification.warn(intl.formatMessage(IntlMessages.releaseFail))
           }
         },
       },
@@ -209,34 +209,24 @@ class ContainerInstance extends React.Component {
 
   checkPodCidr = async (rule, value, callback) => {
     const { NetSegment } = this.state
+    const { intl } = this.props
     if (!value) {
-      return callback(this.props.intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }))
+      return callback(intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }))
     }
     if (!NetSegment) {
-      return callback(<FormattedMessage
-        {...IntlMessages.netSegmentUnknow}
-      />)
+      return callback(intl.formatMessage(IntlMessages.netSegmentUnknow))
     }
     const inRange = ipRangeCheck(value, NetSegment)
     if (!inRange) {
-      return callback(this.props.intl.formatMessage(IntlMessages.inputRange, { NetSegment })
-      // <FormattedMessage
-      //   {...IntlMessages.inputRange}
-      //   values={{ NetSegment }}
-      // />
-      )
+      return callback(intl.formatMessage(IntlMessages.inputRange, { NetSegment }))
     }
     const { getISIpPodExisted, cluster } = this.props
     const isExist = await getISIpPodExisted(cluster, value)
     const { code, data: { isPodIpExisted } } = isExist.response.result
     if (code !== 200) {
-      return callback(<FormattedMessage
-        {...IntlMessages.checkIPFail}
-      />)
+      return callback(intl.formatMessage(IntlMessages.checkIPFail))
     } else if (code === 200 && isPodIpExisted === 'true') {
-      return callback(<FormattedMessage
-        {...IntlMessages.isUsedIP}
-      />)
+      return callback(intl.formatMessage(IntlMessages.isUsedIP))
     }
     callback()
   }

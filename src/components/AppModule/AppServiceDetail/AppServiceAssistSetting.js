@@ -37,9 +37,10 @@ let AppServiceAssistSetting = React.createClass({
   },
   openButtonLock(e) {
     e.preventDefault()
-    this.setState({ buttonLock: false })
+    // this.setState({ buttonLock: false })
   },
   renderCMD(container, getFieldProps, openButtonLock) {
+    const { buttonLock } = this.state
     const { formatMessage } = this.props.intl
     let { command } = container
     if (!command || command.length == 0) {
@@ -57,11 +58,12 @@ let AppServiceAssistSetting = React.createClass({
         key={`cmd_${index}`}>
         <Tooltip title={cmd}>
         <Input
+          disabled={buttonLock}
           className="entryInput"
           size="large"
           {...getFieldProps(`cmd_${index}`, { initialValue: cmd ||  formatMessage(AppServiceDetailIntl.mirrorDefault),
             onChange: openButtonLock})}
-          disabled={false} />
+        />
           </Tooltip>
       </FormItem>
     ))
@@ -69,6 +71,7 @@ let AppServiceAssistSetting = React.createClass({
 
   renderArgs(container, getFieldProps, openButtonLock) {
     const { formatMessage } = this.props.intl
+    const { buttonLock } = this.state
     const { args } = container
     if (!args || args.length == 0) {
       return (
@@ -84,6 +87,7 @@ let AppServiceAssistSetting = React.createClass({
         key={`arg_${index}`}>
         <Tooltip title={arg}>
         <Input
+          disabled={buttonLock}
           className="entryInput"
           size="large"
           {...getFieldProps(`arg_${index}`, { initialValue: arg,  onChange: openButtonLock })}
@@ -97,8 +101,9 @@ let AppServiceAssistSetting = React.createClass({
   renderImagePullPolicy(container, getFieldProps, openButtonLock) {
     const { formatMessage } = this.props.intl
     const { imagePullPolicy } = container
+    const { buttonLock } = this.state
     return (
-      <RadioGroup {...getFieldProps( 'imagePullPolicy', { initialValue: imagePullPolicy,  onChange: openButtonLock } )}
+      <RadioGroup disabled={buttonLock} {...getFieldProps( 'imagePullPolicy', { initialValue: imagePullPolicy,  onChange: openButtonLock } )}
     >
         <Radio disabled={false} key="IfNotPresent" value="IfNotPresent">{formatMessage(AppServiceDetailIntl.priorityUseLocalMirror)}</Radio>
         {/*<Radio disabled={true} key="Never" value="Never">始终使用本地镜像</Radio>*/}
@@ -156,9 +161,16 @@ let AppServiceAssistSetting = React.createClass({
       <Card id="AppServiceAssistSetting">
         <div className="info commonBox">
           <span className="titleSpan">{formatMessage(AppServiceDetailIntl.assistConfig)}</span>
-          <Form onSubmit={this.handleSubmit}>
+          <Form>
           <div className="submitButton">
-            <Button disabled={buttonLock} type="primary" htmlType="submit" loading={buttonLoding} >应用修改</Button>
+            {/* {
+              buttonLoding || !buttonLock ?
+                [<Button onClick={this.handleSubmit} style={{marginRight: '5px'}} type="primary" htmlType="submit" loading={buttonLoding} >确定</Button>,
+                <Button onClick={() => !buttonLoding && this.setState({ buttonLock: true })}>取消</Button>]
+                :
+                <Button type="primary" onClick={() => this.setState({ buttonLock: false })} >编辑</Button>
+            } */}
+            <Button type="primary" disabled={buttonLock} >编辑</Button>
           </div>
           <div className="assitBox">
             <div>
@@ -185,7 +197,7 @@ let AppServiceAssistSetting = React.createClass({
               <div className="inputBox">
                 <span className="commonSpan">{formatMessage(AppServiceDetailIntl.timeZoneSet)}</span>
                 <div className="checkBox">
-                  <Checkbox disabled={false} onChange={this.openButtonLock}
+                  <Checkbox disabled={buttonLock} onChange={this.openButtonLock}
                   {...getFieldProps('timeSet', { initialValue: this.getLocaltime(containers[0]), valuePropName: 'checked',
                   onChange: openButtonLock})} />
                   <span className="checkTitle">{formatMessage(AppServiceDetailIntl.useHostNodeTimeZone)}</span><br />
