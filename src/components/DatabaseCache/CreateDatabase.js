@@ -511,7 +511,7 @@ let CreateDatabase = React.createClass({
   },
   render() {
     const { composeType, clusterMode } = this.state
-    const { isFetching, projects, projectVisibleClusters, space, database } = this.props
+    const { isFetching, projects, projectVisibleClusters, space, database, billingConfig } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue} = this.props.form;
     const currentNamespace = getFieldValue('namespaceSelect') || space.namespace
     const projectClusters = projectVisibleClusters[currentNamespace] && projectVisibleClusters[currentNamespace].data || []
@@ -803,6 +803,8 @@ let CreateDatabase = React.createClass({
                     }
                   </div>
               }
+              {
+                billingConfig.enabled &&
                 <div className="modal-price">
                   <div className="price-left">
                     <div className="keys">实例：{ parseAmount(this.props.resourcePrice && this.props.resourcePrice[configParam] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
@@ -813,6 +815,7 @@ let CreateDatabase = React.createClass({
                     <p className="unit">（约：{ countPrice && countPrice.fullAmount }/月）</p>
                   </div>
                 </div>
+              }
             </div>
             <div className='btnBox'>
               <Button size='large' onClick={this.handleReset}>
@@ -843,6 +846,7 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: cluster.clusterID,
   }
+
   const { databaseAllNames } = state.databaseCache
   const { isFetching } = databaseAllNames.DbClusters || defaultDbNames
   const { current } = state.entities
@@ -863,6 +867,7 @@ function mapStateToProps(state, props) {
     space,
     current,
     isFetching,
+    billingConfig,
     projects,
     projectVisibleClusters,
     resourcePrice: cluster.resourcePrice, //storage

@@ -2862,6 +2862,8 @@
   "IndexPage.svcNotInstall": "Not Installed",
   "IndexPage.svcAbnormal": "Abnormal",
   "IndexPage.svcStopped": "Stopped",
+  "IndexPage.pending": "Starting",
+  "IndexPage.stopping": "Stopping",
   "AppCreate.serviceTooltip": "Add at least one service",
   "AppCreate.connectToOracle": "connection Oracle",
   "AppCreate.portRange": "Port range 1 ~ 65535",

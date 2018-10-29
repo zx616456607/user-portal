@@ -1120,6 +1120,8 @@
   "IndexPage.svcNotInstall": "未安装",
   "IndexPage.svcAbnormal": "异常",
   "IndexPage.svcStopped": "已停止",
+  "IndexPage.pending": "启动中",
+  "IndexPage.stopping": "停止中",
   "------": "Container.Detail----------------",
   "Container.Detail.delContainerConfirm": "您是否确认要重新分配 {containerName} 这个容器",
   "Container.Detail.containerDeleting": "容器 {containerName} 重新分配中...",
