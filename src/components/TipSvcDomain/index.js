@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 import { genRandomString } from '../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../AppModule/ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import meshIcon from '../../assets/img/meshIcon.svg'
@@ -485,7 +485,7 @@ function ServiceMeshInfo({
                rel="noopener noreferrer"
                href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
                  redirect: encodeURIComponent(`${msaUrl}/service-mesh/component-management/component/detail`),
-                 userquery:encodeURIComponent(`name=${serviceMeshinfo.referencedComponent}&namespace=${namespace}&clusterID=${clusterID}`)
+                 userquery:encodeURIComponent(`name=${serviceMeshinfo.referencedComponent}&redirectNamespace=${namespace}&redirectclusterID=${clusterID}`)
                 })}`}>
               {`「${serviceMeshinfo.referencedComponent}组件」`}
             </a>
@@ -496,7 +496,7 @@ function ServiceMeshInfo({
              rel="noopener noreferrer"
         href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
           redirect: encodeURIComponent(`${ msaUrl}/service-mesh/component-management`),
-          userquery: encodeURIComponent(`namespace=${namespace}&clusterID=${clusterID}`)
+          userquery: encodeURIComponent(`redirectNamespace=${namespace}&redirectclusterID=${clusterID}`)
          })}`}
         >
         「去绑定组件」</a>

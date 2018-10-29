@@ -40,15 +40,17 @@
 .no-border-top {
   border-top: none !important;
 }
+#Network .clusterTable{
+  &:nth-of-type(1){
+    border-top: 1px dashed #cbcbcb;
+  }
+}
 .clusterTable{
   padding:40px 50px;
   border-bottom:1px dashed #cbcbcb;
   position: relative;
   &:last-of-type{
     border-bottom: none;
-  }
-  &:nth-of-type(1){
-    border-top: 1px dashed #cbcbcb;
   }
   .qustionIcon{
     margin-left: 8px;

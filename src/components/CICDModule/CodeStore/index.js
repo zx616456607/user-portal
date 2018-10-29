@@ -17,7 +17,7 @@ import { getProjectList, removeProject, searchProject, filterProject } from '../
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 import './style/CodeStore.less'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const menusText = defineMessages({
   tooltips: {

@@ -29,7 +29,7 @@ import Topology from '../../../client/containers/AppModule/AppServiceDetail/Topo
 import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 import Title from '../Title'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import intlMsg from './AppDetailIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 
