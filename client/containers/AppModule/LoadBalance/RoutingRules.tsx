@@ -37,6 +37,10 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     this.initialRules()
   }
 
+  componentWillUnmount() {
+    uidd = 0
+  }
+
   initialRules = () => {
     const { currentIngress } = this.props
     if (isEmpty(currentIngress)) {
@@ -161,8 +165,13 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     })
   }
 
-  confirmEdit = key => {
-    const result = this.validateNewItem(key)
+  confirmEdit = async key => {
+    const { getRuleErrors } = this.props
+    const errors = getRuleErrors(key)
+    if (!isEmpty(errors)) {
+      return
+    }
+    const result = await this.validateNewItem(key)
     if (!result) {
       return
     }
@@ -173,7 +182,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
 
   setValueError = async (_value, typeKey, _key) => {
     const { form } = this.props
-    const { getFieldValue, setFields } = form
+    const { getFieldValue, setFields, getFieldError } = form
     const ruleKeys = getFieldValue('ruleKeys')
     const typeArray = ['service', 'type', 'name', 'regex', 'value']
     if (!isEmpty(ruleKeys)) {
@@ -238,7 +247,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       typeArray.filter(key => key !== typeKey).forEach(item => {
         Object.assign(clearError, {
           [`rule-${item}-${_key}`]: {
-            errors: null,
+            errors: getFieldError(`rule-${item}-${_key}`),
             value: getFieldValue(`rule-${item}-${_key}`),
           },
         })
@@ -246,20 +255,6 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       await sleep()
       setFields(clearError)
     }
-  }
-
-  ruleNameCheck = (rules, value, callback) => {
-    if (value && !value.trim()) {
-      return callback('匹配键不能为空')
-    }
-    callback()
-  }
-
-  ruleValueCheck = (rules, value, callback) => {
-    if (value && !value.trim()) {
-      return callback('匹配值不能为空')
-    }
-    callback()
   }
 
   renderRuleList = () => {
@@ -322,9 +317,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                   {
                     required: true,
                     message: '请输入键',
-                  },
-                  {
-                    validator: this.ruleNameCheck,
+                    whitespace: true,
                   },
                 ],
                 onChange: e => this.setValueError(e.target.value, 'name', key),
@@ -357,9 +350,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                     {
                       required: true,
                       message: '请输入值',
-                    },
-                    {
-                      validator: this.ruleValueCheck,
+                      whitespace: true,
                     },
                   ],
                   onChange: e => this.setValueError(e.target.value, 'value', key),
@@ -406,7 +397,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     )
   }
 
-  validateNewItem = (key?: string) => {
+  validateNewItem = async (key?: string) => {
     const { form } = this.props
     const { getFieldValue, validateFields } = form
     const ruleKeys = getFieldValue('ruleKeys')
@@ -428,15 +419,20 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         return
       }
     })
+    await sleep()
     return validateFlag
   }
 
-  addRules = () => {
-    const { form, currentIngress } = this.props
+  addRules = async () => {
+    const { form, currentIngress, getRuleErrors } = this.props
     const { getFieldValue, setFieldsValue } = form
     const ruleKeys = getFieldValue('ruleKeys')
     if (!isEmpty(ruleKeys)) {
-      const result = this.validateNewItem()
+      const errors = getRuleErrors()
+      if (!isEmpty(errors)) {
+        return
+      }
+      const result = await this.validateNewItem()
       if (!result) {
         return
       }
