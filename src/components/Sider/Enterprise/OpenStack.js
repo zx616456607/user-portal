@@ -42,7 +42,7 @@ class Sider extends React.Component {
               className={`oemMenu-drek-${backColor}`}
             >
               <Menu.Item>
-                <Link to="/"><Icon type="arrow-left" theme="outlined" />返回控制台</Link>
+                <Link to="/integration"><Icon type="arrow-left" theme="outlined" />返回控制台</Link>
               </Menu.Item>
               <SubMenu key="ol" title={
                 <div>计算资源</div>
@@ -104,24 +104,6 @@ class Sider extends React.Component {
                     <Link to="/OpenStack/floatIP">
                       <div className="sideCircle"></div>
                       浮动 IP
-                  </Link>
-                  </div>
-                </Menu.Item>
-              </SubMenu>
-              <SubMenu key="role" title={<div>权限管理</div>}>
-                <Menu.Item key='item'>
-                  <div className="adminBox">
-                    <Link to="/OpenStack/item">
-                      <div className="sideCircle"></div>
-                      项目
-                  </Link>
-                  </div>
-                </Menu.Item>
-                <Menu.Item key='user'>
-                  <div className="adminBox">
-                    <Link to="/OpenStack/user">
-                      <div className="sideCircle"></div>
-                      用户
                   </Link>
                   </div>
                 </Menu.Item>
