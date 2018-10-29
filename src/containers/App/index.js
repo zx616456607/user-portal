@@ -671,7 +671,7 @@ class App extends Component {
           </div>
         </Modal>
         <Modal
-          visible={currentUser && currentUser !== loginUser.userName}
+          visible={currentUser && loginUser.userName && currentUser !== loginUser.userName}
           title={formatMessage(IntlMessages.loginUserChanged)}
           maskClosable={false}
           closable={false}

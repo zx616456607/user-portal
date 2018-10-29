@@ -17,10 +17,15 @@ const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_API_PRIFIX = 'api'
 const DEFAULT_VERSION = 'v2'
+const env = process.env
 
 // 1. Github or other system maybe quite slow
 // 2. Petset scale might be slow
-const DEFAULT_TIMEOUT = 1000 * 60
+let DEFAULT_TIMEOUT = 1000 * 60
+if (env.REQUEST_API_TIMEOUT) {
+  DEFAULT_TIMEOUT = parseInt(env.REQUEST_API_TIMEOUT) * 1000
+}
+
 const DEFAULT_DATATYPE = 'json'
 const logger = require('../../../utils/logger').getLogger(`tenx_api/request`)
 
