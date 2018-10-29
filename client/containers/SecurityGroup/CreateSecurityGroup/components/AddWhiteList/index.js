@@ -200,7 +200,7 @@ class AddWhiteList extends React.Component {
   }
 
   relatedSelect = (k, isIngress) => {
-    const { form, type } = this.props
+    const { form, type, proxyList } = this.props
     const target = isIngress ? '来源' : '目标'
     const { getFieldValue, getFieldProps } = form
     const option = getFieldValue(`${type}${k}`)
@@ -249,16 +249,21 @@ class AddWhiteList extends React.Component {
         </FormItem>
       case 'haproxy':
         return <FormItem>
-          <Input {...getFieldProps(`${type}${option}${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入${target}集群网络出口`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入${target}集群网络出口`}
-          />
+          <Select
+            {...getFieldProps(`${type}${option}${k}`, {
+              rules: [{
+                required: true,
+                message: `请选择${target}集群网络出口`,
+              }],
+            })}
+            multiple
+            style={{ width: 280 }}
+            placeholder={`请选择${target}集群网络出口`}
+          >
+            {
+              proxyList.map(ele => <Select.Option value={ele.id}>{ele.id}</Select.Option>)
+            }
+          </Select>
         </FormItem>
       case 'ingress':
         return <FormItem>
@@ -420,9 +425,11 @@ class AddWhiteList extends React.Component {
 }
 
 const mapStateToProps = ({ entities: { current },
+  cluster: { proxy: { result } },
 }) => {
   return {
     cluster: current.cluster.clusterID,
+    proxyList: result && result[Object.keys(result)[0]].data || [],
   }
 }
 
