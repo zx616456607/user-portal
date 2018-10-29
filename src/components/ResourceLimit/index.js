@@ -855,11 +855,11 @@ class ResourceQuota extends React.Component {
           </div>
           {
             clustersFetching &&
-            <div className="liste">loading ...</div>
+            <div className="loadingTips">loading ...</div>
           }
           {
             !clustersFetching && !cluster &&
-            <div className="liste">暂无授权集群</div>
+            <div className="loadingTips">暂无授权集群</div>
           }
           {
             !clustersFetching && cluster &&
