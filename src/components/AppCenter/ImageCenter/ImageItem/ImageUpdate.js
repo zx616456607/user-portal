@@ -593,7 +593,7 @@ class ImageUpdate extends Component {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
             this.changeLoading()
-            throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
+            throw(new Error('仓库名称/地址已存在！请直接选择已有目标仓库！'))
           }
           this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
