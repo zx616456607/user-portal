@@ -191,6 +191,35 @@ class MonitorDetail extends React.Component {
     })
   }
 
+  getRuleErrors = key => {
+    const { form } = this.props
+    const { getFieldValue, getFieldError } = form
+    const ruleKeys = getFieldValue('ruleKeys')
+    if (isEmpty(ruleKeys)) {
+      return
+    }
+    let lastKey = ruleKeys[ruleKeys.length - 1]
+    if (key) {
+      lastKey = key
+    }
+    const validateArray = []
+    const fieldsErrors = []
+    validateArray.push(
+      `rule-service-${lastKey}`,
+      `rule-type-${lastKey}`,
+      `rule-name-${lastKey}`,
+      `rule-regex-${lastKey}`,
+      `rule-value-${lastKey}`,
+    )
+    validateArray.forEach(item => {
+      const itemErrors = getFieldError(item)
+      if (!isEmpty(itemErrors)) {
+        fieldsErrors.push(itemErrors)
+      }
+    })
+    return fieldsErrors
+  }
+
   addItem = async () => {
     const { form, currentIngress } = this.props
     const { getFieldValue, setFieldsValue } = form
@@ -546,6 +575,20 @@ class MonitorDetail extends React.Component {
       ])
       if (getFieldValue('lbAlgorithm') === 'round-robin') {
         validateArr.push(`weight-${endIndexValue}`)
+      }
+    }
+    let ruleKeys = getFieldValue('ruleKeys')
+    if (!isEmpty(ruleKeys)) {
+      const ruleLastValue = ruleKeys[ruleKeys.length - 1]
+      validateArr.push(
+        `rule-service-${ruleLastValue}`,
+        `rule-type-${ruleLastValue}`,
+        `rule-name-${ruleLastValue}`,
+        `rule-regex-${ruleLastValue}`,
+        `rule-value-${ruleLastValue}`,
+      )
+      if (!isEmpty(this.getRuleErrors(ruleLastValue))) {
+        return
       }
     }
     if (getFieldValue('lbAlgorithm') === 'round-robin') {
@@ -1006,6 +1049,7 @@ class MonitorDetail extends React.Component {
             form={form}
             hasBundleService={this.state.hasBundleService}
             currentIngress={currentIngress}
+            getRuleErrors={this.getRuleErrors}
           />
         </Form>
         <DetailFooter
