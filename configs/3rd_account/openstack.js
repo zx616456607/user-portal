@@ -2,9 +2,9 @@
 const env = process.env
 
 module.exports = {
-  username: "admin",
-  password: "teamsun",
-  project: "admin",
+  username: env.OPENSTACK_USER || "admin",
+  password: env.OPENSTACK_PASSWORD || "teamsun",
+  project: env.OPENSTACK_PROJECT || "admin",
   host: env.OPENSTACK_HOST || '192.168.2.22',
   vmPort: env.OPENSTACK_VM_PROT || '8774',
   protocol: env.OPENSTACK_PROTOCOL || 'http',
