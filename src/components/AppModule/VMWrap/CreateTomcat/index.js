@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { Row, Col, Form, Input, Modal } from 'antd'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
+import "./style/index.less"
 
 const FormItem = Form.Item
 
@@ -90,7 +91,7 @@ class CreateTomcat extends React.Component {
       initialValue: env,
     })
 
-    const form = <Form>
+    const form = <div className="createTomcatWrapper">
       <FormItem
         {...layout}
         label="实例"
@@ -120,7 +121,7 @@ class CreateTomcat extends React.Component {
           <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
         </div>
       </FormItem>
-    </Form>
+    </div>
     return (
       isNeedModal ?
         <Modal

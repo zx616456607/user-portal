@@ -12,7 +12,7 @@ import { Row, Col, Card, Icon, } from 'antd'
 import './style/Version.less'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 export default class Version extends Component{
   constructor(props){
@@ -122,7 +122,7 @@ export default class Version extends Component{
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>Registry</Col>
-                  <Col span={8}>Harbor 1.1.1 based</Col>
+                  <Col span={8}>Harbor 1.5.1 based</Col>
                 </Row>
               </div>
             </Row>

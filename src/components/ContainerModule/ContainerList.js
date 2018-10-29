@@ -29,7 +29,7 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { TENX_STORE } from '../../../constants/index'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import ContainerListIntl from './ContainerListIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import { getDeepValue } from '../../../client/util/util';

@@ -67,7 +67,7 @@ class ServiceStatus extends Component{
     let warHost = ''
     let serviceName = scope.props.form.getFieldValue('serviceName')
     if (currentPacket && currentPacket.fileType === 'war') {
-      warHost = `http://${scope.state.host}:${port}/${serviceName}`
+      warHost = `http://${scope.state.host || ''}:${port || ''}/${serviceName || ''}`
     }
     const formItemLayout = {
       labelCol: { span: 3 },

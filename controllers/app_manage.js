@@ -113,7 +113,7 @@ exports.getApps = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size < 0 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)

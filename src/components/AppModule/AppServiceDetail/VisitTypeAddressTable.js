@@ -12,6 +12,8 @@ import { Table, Tooltip, Icon, Spin } from 'antd'
 import ServiceCommonIntl, { AllServiceListIntl, AppServiceDetailIntl } from '../ServiceIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import './style/VisitTypeAddressTable.less'
+import {API_URL_PREFIX } from '../../../constants'
+import { toQuerystring } from '../../../common/tools'
 
 function formateColumns(self, formatMessage){
   const columns = [{
@@ -76,6 +78,7 @@ function formateDate({addrHide, privateNet, hasLbDomain, svcDomain = []}, format
 class VisitTypeAddressTable extends React.Component {
   state = {
     copyStatus: false,
+    referencedComponent: undefined,
   }
   startCopyCode = (text) => {
     console.log('text', text)
@@ -90,8 +93,17 @@ class VisitTypeAddressTable extends React.Component {
       copyStatus: true
     })
   }
+  async componentDidMount() {
+    const { currentCluster: {clusterID} = {}, service:{ metadata: { name } = {} } = {}, } = this.props
+    const serviceResult =
+    await this.props.getServiceListServiceMeshStatus(clusterID, name)
+    const { result = {} } = serviceResult.response
+    const { referencedComponent } = Object.values(result)[0] || {}
+    this.setState({ referencedComponent })
+  }
   render(){
-    const { formatMessage } = this.props.intl;
+    const { formatMessage, } = this.props.intl;
+    const { namespace, currentCluster: {clusterID} = {} } = this.props;
     const self = this
   return (
     <div className="VisitTypeAddressTable">
@@ -103,11 +115,34 @@ class VisitTypeAddressTable extends React.Component {
     </div>
     }
     {
-    this.props.serviceIstioEnabled === true &&
+    this.props.serviceIstioEnabled === true && this.state.referencedComponent !== undefined &&
     <span style={{ color:"#ccc", paddingLeft:16}} >
-    {/* // TODO: 后端接口暂时没好, 整好以后, 将「组件」替换为实际的组件名 */}
-      服务已开启服务网格, 服务的访问地址请在【治理-服务网格】-【组件管理】的「组件」详情中获取
+      <span>服务已开启服务网格, 服务的访问地址请在【治理-服务网格】-【组件管理】的</span>
+      <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+        redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management/component/detail`),
+        userquery: encodeURIComponent(`name=${this.state.referencedComponent}&redirectNamespace=${namespace}&redirectclusterID=${clusterID}`),
+         })}`}>
+      {`「${this.state.referencedComponent}组件」`}</a>
+      <span>详情中获取</span>
     </span>
+    }
+    {
+      this.props.serviceIstioEnabled === true && this.state.referencedComponent == undefined &&
+      <span style={{ color:"#ccc", paddingLeft:16}} >
+        <span>将服务绑定组件后，在详情中查看</span>
+        <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`${API_URL_PREFIX}/jwt-auth?${toQuerystring({
+          redirect: encodeURIComponent(`${this.props.msaUrl}/service-mesh/component-management`),
+          userquery: encodeURIComponent(`redirectNamespace=${namespace}&redirectclusterID=${clusterID}`),
+       })}`}
+        >
+        「去绑定组件」</a>
+      </span>
     }
     {
       this.props.serviceIstioEnabled === undefined &&

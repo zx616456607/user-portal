@@ -1,0 +1,95 @@
+#load_balancer{
+  padding: 0 !important;
+  .handleBox{
+    margin-bottom: 20px;
+    .buttonMarign{
+      margin-right: 12px;
+    }
+    .searchDiv{
+      display: inline-block;
+      position: relative;
+    }
+    .searchBox{
+      width:200px;
+    }
+    .totleNum{
+      float:right;
+      padding-top: 8px;
+      margin-right:160px;
+    }
+  }
+  .tableBox{
+    background: #ffffff;
+    //padding: 0 !important;
+    position: relative;
+    border-radius: 6px;
+    .ant-pagination-simple{
+      position: absolute;
+      top:-64px;
+      right:0;
+    }
+    .loadBalancerName{
+      cursor: pointer;
+      color: #58c2f6;
+    }
+    .stopStatus{
+      color: #ef4c4d;
+    }
+    .runStatus{
+      color: #2dbb67;
+    }
+    .circleIcon{
+      margin-right:8px;
+    }
+    .configuration{
+      color: #58c2f6;
+      cursor: pointer;
+    }
+    .ant-table-thead{
+      th{
+        background: #ffffff;
+        font-weight: normal;
+        border-bottom: 1px solid #e9e9e9;
+      }
+    }
+  }
+}
+
+.createLoadBalancer{
+  .ant-form-item-label{
+    text-align: left;
+    .star{
+      color: red;
+    }
+  }
+  label:after{
+    display: none;
+  }
+  .keepTime{
+    margin-bottom: 0;
+  }
+  .ant-form-item-required:before{
+    display: none;
+  }
+  .formItemSecond{
+    margin-bottom: 24px;
+    .itemLabel,
+    .itemData,
+    .itemArea{
+      float: left;
+    }
+    .itemLabel{
+      width:71px;
+    }
+    .itemData{
+      width:150px;
+      padding-right:13px;
+    }
+    .itemArea{
+      width:140px;
+    }
+    .checkbox{
+      clear: both;
+    }
+  }
+}

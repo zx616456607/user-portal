@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
   Button, Row, Col, InputNumber, Icon, Switch,
-  Modal, Form, Select, Input, Tabs, Tooltip, Checkbox
+  Modal, Form, Select, Input, Tabs, Tooltip, Checkbox, Spin,
 } from 'antd'
 import {
   loadAutoScale,
@@ -72,6 +72,7 @@ class AppAutoScale extends Component {
       cpuAndMemory: [],
       isPrivate: false,
       showImg: true,
+      loading: false,
     }
     this.uuid = 0
   }
@@ -121,6 +122,7 @@ class AppAutoScale extends Component {
   }
   loadData = props => {
     const { serviceName, cluster, loadAutoScale } = props
+    this.setState({ loading: true })
     loadAutoScale(cluster, serviceName, {
       success: {
         func: () => {
@@ -159,12 +161,14 @@ class AppAutoScale extends Component {
                   this.setState({
                     scaleDetail,
                     showImg: false,
+                    loading: false,
                   }, () => {
                     this.initThresholdArr(this.state.scaleDetail)
                   })
                 } else {
                   this.setState({
-                    scaleDetail: null
+                    scaleDetail: null,
+                    loading: false,
                   }, () => {
                     this.initThresholdArr(this.state.scaleDetail)
                   })
@@ -175,7 +179,8 @@ class AppAutoScale extends Component {
             failed: {
               func: () => {
                 this.setState({
-                  scaleDetail: null
+                  scaleDetail: null,
+                  loading: false,
                 })
               }
             }
@@ -531,7 +536,7 @@ class AppAutoScale extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
-    const { isEdit, scaleDetail, btnLoading, activeKey, thresholdArr, cpuAndMemory, showImg } = this.state
+    const { isEdit, scaleDetail, btnLoading, activeKey, thresholdArr, cpuAndMemory, showImg, loading } = this.state
     const { form, services, alertList, getAutoScaleLogs, cluster, serviceName, serviceDetailmodalShow, isCurrentTab,
       serviceDetail } = this.props
     const { getFieldProps, isFieldValidating, getFieldError, getFieldValue } = form
@@ -673,15 +678,20 @@ class AppAutoScale extends Component {
             {
               showImg ?
                 <div className="serverNoScale">
-                  <div>
-                    <img src={scaleImg} alt="noScale" />
-                    <div>
-                      您还没有自动伸缩策略，添加一个吧! &nbsp;&nbsp;&nbsp;
-                      <Button type="primary" size="large" onClick={this.startEdit}>
-                        添加
-                      </Button>
-                    </div>
-                  </div>
+                  {
+                    loading ?
+                      <Spin size="large" spinning={loading} /> :
+                      <div>
+                        <img src={scaleImg} alt="noScale" />
+                        <div>
+                          {formatMessage(AppServiceDetailIntl.noScale)}
+                          &nbsp;&nbsp;&nbsp;
+                          <Button type="primary" size="large" onClick={this.startEdit}>
+                            {formatMessage(AppServiceDetailIntl.addScale)}
+                          </Button>
+                        </div>
+                      </div>
+                  }
                 </div>
                 : <div className="autoScaleFormBox">
                     <div className="autoScaleInnerBox">

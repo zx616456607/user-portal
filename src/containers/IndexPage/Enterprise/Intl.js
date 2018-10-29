@@ -37,7 +37,7 @@ export const mapData = {
     redis: 'Redis集群 (个)',
     zookeeper: 'Zookeeper集群 (个)',
     elasticsearch: 'ES集群 (个)',
-    sharedProject: '共享项目',
+    project: '项目',
     personalProject: '个人项目',
     projectInfo: '项目信息',
     projectDetail: '项目详情',

@@ -18,7 +18,7 @@
  import Root from '../containers/Root'
  import configureStore from '../store/configureStore'
  import Notification from '../components/Notification'
- import '@tenx-ui/icon/assets/index.less'
+ import '@tenx-ui/icon/assets/index.css'
 
  const notification  = new Notification()
  const store = configureStore()

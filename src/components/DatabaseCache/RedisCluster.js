@@ -135,8 +135,8 @@ let MyComponent = React.createClass({
             <ul className='detailParse'>
               <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
-                <span className='listKey'>创建时间</span>
-                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
+                <span className='listKey'>创建日期</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '-'}</li>
               <li className="auto-backup-switch"><span className='listKey'>自动备份</span>

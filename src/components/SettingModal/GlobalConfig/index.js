@@ -34,7 +34,7 @@ import ConIntergration from './ContinueIntegration'
 import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import { Link } from 'react-router'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
