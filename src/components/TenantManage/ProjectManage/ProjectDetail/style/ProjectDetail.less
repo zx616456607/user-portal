@@ -94,11 +94,11 @@
       margin-top: 8px;
       .dubbo-operator-tip {
         display: block;
-        width: 100px;
+        width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin: 8px 0;
+        margin-top: 3px;
       }
     }
     .appliedStatus{
@@ -737,33 +737,5 @@
     margin-right: 16px;
     margin-top: 0;
     margin-bottom: 0;
-  }
-}
-.projectDetailDubboSwitchModal {
-  .alert {
-    display: flex;
-    align-items: center;
-    border: 1px dashed @primary-color;
-    background: #e6f7ff;
-    border-radius: @border-radius-base;
-    padding: @padding-base;
-    color: @primary-color;
-    & > div {
-      &:nth-child(1) {
-        margin-right: @padding-base;
-        font-size: 26px;
-      }
-    }
-  }
-  .turnOff {
-    border-color: @warning-color;
-    background: #fffbf5;
-    color: @font-color-1;
-    & > div {
-      &:nth-child(1) {
-        color: @warning-color;
-      }
-    }
-
   }
 }
