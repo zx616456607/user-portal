@@ -74,7 +74,6 @@ function formateDate({addrHide, privateNet, hasLbDomain, svcDomain = []}, format
     }
   })
   const date = [ ...lbDomainData, ...notAboutClusterData, ...AboutClusterData ]
-  console.log('date', date)
   return date.filter(({ key="" }) => {
     if (key="") return false
     if (addrHide && key.includes('notAboutCluster') ) return false
