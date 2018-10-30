@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Form, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { connect } from 'react-redux'
 import { parseQueryStringToObject } from '../../../common/tools'
 import {

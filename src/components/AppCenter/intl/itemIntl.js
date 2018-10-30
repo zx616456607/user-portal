@@ -52,6 +52,10 @@ export const mapData = {
     repoNameVerifyMsg4: '仓库名称只能由中英文、数字等组成',
     repoUrlVerifyMsg1: '请输入仓库地址',
     repoUrlVerifyMsg2: '地址以http或者https开头',
+    registryRepeat: '仓库名重复',
+    addotherRegistry0: '添加第三方镜像失败',
+    addotherRegistry1: '添加第三方镜像成功',
+    pleaseCheckAddress: '请重新检查填写地址、帐号密码',
   }
 }
 export default defineIntlMessages(mapData)

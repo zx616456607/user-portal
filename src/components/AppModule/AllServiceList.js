@@ -59,7 +59,7 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import meshIcon from '../../assets/img/meshIcon.svg'
 import * as meshActions from '../../actions/serviceMesh'
@@ -617,7 +617,14 @@ const MyComponent =  injectIntl(React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='appBox' icon={httpIcon} />
+            <TipSvcDomain
+              svcDomain={svcDomain}
+              parentNode='appBox'
+              icon={httpIcon}
+              serviceMeshflagListInfo={this.props.mesh}
+              msaUrl={this.props.msaUrl}
+              serviceName={item.metadata.name}
+              />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
@@ -831,8 +838,8 @@ class ServiceList extends Component {
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
-      .find((service) => service.metadata.name === name)
-      return { name, value: serviceMesh.istioEnabled }
+      .find((service) => service.metadata.name === name) || {}
+      return { name, value: serviceMesh.istioEnabled, referencedComponent: serviceMesh.referencedComponent }
     })
     this.setState({ mesh: serviceListMesh })
   }
@@ -1719,6 +1726,7 @@ class ServiceList extends Component {
               bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList}
               mesh={this.state.mesh}
+              msaUrl={this.props.msaUrl}
                />
           </Card>
           </div>
@@ -1761,6 +1769,8 @@ class ServiceList extends Component {
                 size={size}
                 name={this.props.name}
                 onClose={this.closeModal}
+                mesh={this.state.mesh}
+                msaUrl={this.props.msaUrl}
               />
             }
           </Modal>
@@ -1930,6 +1940,7 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1948,7 +1959,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
-    SettingListfromserviceorapp
+    SettingListfromserviceorapp,
+    msaUrl,
   }
 }
 

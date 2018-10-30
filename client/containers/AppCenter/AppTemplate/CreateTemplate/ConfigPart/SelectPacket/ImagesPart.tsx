@@ -22,7 +22,7 @@ import { encodeImageFullname } from '../../../../../../../src/common/tools';
 import NotificationHandler from '../../../../../../../src/components/Notification';
 import './style/ImagePart.less';
 import isEmpty from 'lodash/isEmpty';
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../../../src/containers/Application/intl'
 

@@ -28,7 +28,7 @@ import Title from '../Title'
 import { fetchinfoList } from '../../actions/tenant_overview'
 import ReactEcharts from 'echarts-for-react'
 import QueueAnim from 'rc-queue-anim'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import ApprovalOperation from './ApprovalOperation'
 import { calcuDate } from '../../common/tools'
 import { checkApplyRecord } from '../../../client/actions/applyLimit'
@@ -41,7 +41,7 @@ import cloneDeep from 'lodash/cloneDeep'
 
 const getColumns = ({ toggleApprovalModal, allUsers }) => {
   return [{
-    title: '共享项目',
+    title: '项目',
     dataIndex: 'item',
     render: (text, record) => {
       let link

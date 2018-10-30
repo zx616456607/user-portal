@@ -13,11 +13,12 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import './style/index.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
-import { GetProjectsApprovalClusters } from '../../../actions/project'
+import { GetProjectsApprovalClustersWithoutTypes } from '../../../actions/project'
+import { checkApplyRecordWithoutTypes } from '../../../../client/actions/applyLimit'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
-import TenxIcon from '@tenx-ui/icon'
-import NotificationHandler from '../../../components/Notification'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+// import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN, ROLE_SYS_ADMIN  } from '../../../../constants'
 import { NEED_BUILD_IMAGE, SHOW_BILLING } from '../../../constants'
@@ -75,6 +76,8 @@ class Sider extends Component {
       isUnzip: false,
       currentOpenMenu: null,
       currentSelectedMenu: null,
+      isShowApprovalLimits: false,
+      isShowApprovalClusters: false,
     }
   }
 
@@ -107,12 +110,40 @@ class Sider extends Component {
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
     })
-    role !== ROLE_USER && role !== ROLE_BASE_ADMIN && this.props.GetProjectsApprovalClusters({
-      filter: `status__neq,2,status__neq,3`,
-      size: 10,
-      from: 0,
-      sort: `d,tenx_project_resource_ref.request_time`,
-    })
+    this.getPonitFunc(this.props)
+  }
+  getPonitFunc = props => {
+    const { role } = props
+    const isNeedGet = role !== ROLE_USER && role !== ROLE_BASE_ADMIN
+    const { isShowClusterPoint, isShowLimitPoint } = props
+    if (isNeedGet) {
+      const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes } = props
+      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+        filter: `status__neq,2,status__neq,3`,
+        size: 10,
+        from: 0,
+        sort: `d,tenx_project_resource_ref.request_time`,
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.projects && this.setState({
+              isShowApprovalClusters: filter(res.data.projects, { status: 1 }).length > 0
+            })
+          }
+        }
+      })
+      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+        from: 0, size: 10, filter: "project_type,public,status,0"
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.records && this.setState({
+              isShowApprovalLimits: filter(res.data.records, { status: 0 }).length > 0
+            })
+          }
+        }
+      })
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -155,6 +186,7 @@ class Sider extends Component {
         currentSelectedMenu: currentSelectedMenu
       })
     }
+    // this.getPonitFunc(nextProps)
   }
 
   handleCancel() {
@@ -301,11 +333,18 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
-    let isShowSubPoint = this.props.isShowPoint && (
+    let isShowLimitSubPoint = this.state.isShowApprovalLimits && (
       !(currentSelectedMenu.indexOf('tenant_manage') > -1) ||
         (currentSelectedMenu.length === 1)
       )
-    let isShowPoint = this.props.isShowPoint &&
+    let isShowApprovalLimits = this.state.isShowApprovalLimits &&
+    (currentSelectedMenu.length === 1 || !(currentSelectedMenu.indexOf('approvalLimit') > -1)) //非选中时
+
+    let isShowClusterSubPoint = this.state.isShowApprovalClusters && (
+      !(currentSelectedMenu.indexOf('tenant_manage') > -1) ||
+        (currentSelectedMenu.length === 1)
+      )
+    let isShowApprovalClusters = this.state.isShowApprovalClusters &&
     (currentSelectedMenu.length === 1 || !(currentSelectedMenu.indexOf('cluster_authorization') > -1)) //非选中时
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
@@ -353,9 +392,9 @@ class Sider extends Component {
           <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
-          <Link to={'/tenant_manage/cluster_authorization' + ( isShowPoint ? '?link_status=1' : '')}>
+          <Link to={'/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : '')}>
             <FormattedMessage {...IntlMessages.tenantClusterAuth} />
-            { isShowPoint && <span className="topRightPoint"><strong>●</strong></span> }
+            { isShowApprovalClusters && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>
         </div>
       </Menu.Item>,
@@ -364,8 +403,9 @@ class Sider extends Component {
         <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
           <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
-        <Link to='/tenant_manage/approvalLimit'>
+        <Link to={'/tenant_manage/approvalLimit' + ( isShowApprovalLimits ? '?link_status=0' : '')}>
           <FormattedMessage {...IntlMessages.tenantResourcequotaAuth} />
+          { isShowApprovalLimits && <span className="topRightPoint"><strong>●</strong></span> }
         </Link>
       </div>
     </Menu.Item>,
@@ -765,7 +805,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
                     <TenxIcon className="commonImg" type="user-private" />
-                    { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
+                    { (isShowLimitSubPoint || isShowClusterSubPoint) && <span className="topRightPoint"><strong>●</strong></span> }
                   </Link>
                 </Tooltip>
               </li>
@@ -1483,7 +1523,7 @@ class Sider extends Component {
                       <TenxIcon className="commonImg" type="user-private" />
                       <span className='commonSiderSpan'>
                         <FormattedMessage {...IntlMessages.tenant} />
-                        { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
+                        { (isShowClusterSubPoint || isShowLimitSubPoint) && <span className="topRightPoint"><strong>●</strong></span> }
                       </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1671,7 +1711,10 @@ function mapStateToProp(state) {
   const { projectAuthority } = state
   const { projectsApprovalClustersList } = projectAuthority
   const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
-  const isShowPoint = filter(projects, { status: 1 }).length > 0
+  const isShowClusterPoint = filter(projects, { status: 1 }).length > 0
+
+  const limits = getDeepValue(state, ['applyLimit', 'resourcequoteRecord', 'data']) || []
+  const isShowLimitPoint = filter(limits, { status: 0 }).length > 0
 
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
@@ -1681,7 +1724,8 @@ function mapStateToProp(state) {
     backColor,
     loginUser: entities && entities.loginUser && entities.loginUser.info,
     oemInfo: oemInfo || {},
-    isShowPoint,
+    isShowClusterPoint,
+    isShowLimitPoint,
   }
 }
 
@@ -1692,7 +1736,8 @@ export default injectIntl(connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail,
-  GetProjectsApprovalClusters,
+  GetProjectsApprovalClustersWithoutTypes,
+  checkApplyRecordWithoutTypes,
   // loadUserDetail,
 })(Sider), {
   withRef: true,

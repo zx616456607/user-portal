@@ -49,7 +49,8 @@ import PermissionOverview from './PermissionOverview'
 import ServiceMeshForm from './ServiceMeshForm';
 import ServiceMeshSwitch from './ServiceMeshSwitch';
 import * as SEMeshActions from '../../../../actions/serviceMesh'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+
 
 let checkedKeysDetail = []
 const TabPane = Tabs.TabPane;
@@ -110,7 +111,14 @@ class ProjectDetail extends Component {
       projectLoading: true,
       initialList: ['all', 'a~d', 'e~h', 'i~l', 'm~p', 'q~t', 'u~x', 'y~z'],
       currentMemberFilter: 'all',
-      letterArr: []
+      letterArr: [],
+      dubboSerDisabled: false,
+      dubboSwitchChecked: false,
+      dubboModalContent: {
+        title: '关闭操作',
+        text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
+        isConfirm: '确认是否关闭'
+      }
     }
   }
   componentDidMount() {
@@ -1057,10 +1065,42 @@ class ProjectDetail extends Component {
     })
 
   }
+
+  confirmChangeDubbo = () => {
+    this.setState({
+      dubboSerDisabled: false,
+      dubboSwitchChecked: !this.state.dubboSwitchChecked,
+    })
+  }
+  dubboSwitchChange = (e) => {
+    this.setState({
+      dubboSerDisabled: true,
+    })
+    let turnOnContent
+    if (!this.state.dubboSwitchChecked) {
+      turnOnContent = {
+        title: '开启操作',
+        text: '开启后，项目对应集群支持创建 Dubbo 服务。',
+        isConfirm: '确认是否开启'
+      }
+    }else {
+      turnOnContent = {
+        title: '关闭操作',
+        text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
+        isConfirm: '确认是否关闭'
+      }
+    }
+    this.setState({
+
+      dubboModalContent: turnOnContent
+    })
+
+  }
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster,
+      dubboModalContent, dubboSwitchChecked
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
@@ -1121,37 +1161,55 @@ class ProjectDetail extends Component {
             if (flag) {
               return (
                 <Row>
-                  <Col span={12}>
-                <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`} >
-                  <span >{item.clusterName}</span>
-                  {this.clusterStatus(item.status, true)}
-                  {
-                    (isAble || isManager) &&
-                    <Tooltip title="移除集群">
-                      <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true, currentCluster: item })} />
-                    </Tooltip>
-                  }
-                  <Modal title="移除集群" visible={this.state.deleteClusterModal}
-                    onCancel={() => this.setState({ deleteClusterModal: false })}
-                    onOk={() => { this.updateProjectClusters(currentCluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
-                  >
-                    <div className="modalColor">
-                      <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-                      移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{currentCluster && currentCluster.clusterName}？
-                    </div>
-                  </Modal>
-                </div>
-                  </Col>
-                  <Col span={12}>
-                  <div className="gutter-box">
-                        {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
-                        {
-                        (this.state.displayName || this.state.projectDetail && this.state.projectDetail.namespace) &&
-                        <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={this.state.projectDetail}
-                        clusterName={item.clusterName} displayName={this.state.displayName}/>
-                        }
+                  <Col span={8}>
+                    <div className="clusterStatus appliedStatus" key={`${item.clusterID}-status`} >
+                      <span >{item.clusterName}</span>
+                      {this.clusterStatus(item.status, true)}
+                      {
+                        (isAble || isManager) &&
+                        <Tooltip title="移除集群">
+                          <i className="anticon anticon-cross" onClick={() => this.setState({ deleteClusterModal: true, currentCluster: item })} />
+                        </Tooltip>
+                      }
+                      <Modal title="移除集群" visible={this.state.deleteClusterModal}
+                        onCancel={() => this.setState({ deleteClusterModal: false })}
+                        onOk={() => { this.updateProjectClusters(currentCluster.clusterID, 0); this.setState({ deleteClusterModal: false }) }}
+                      >
+                        <div className="modalColor">
+                          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+                          移除集群后，该集群下的资源也将被移除，此操作不可逆，是否确定移除已授权的集群{currentCluster && currentCluster.clusterName}？
+                        </div>
+                      </Modal>
                     </div>
                   </Col>
+                  <Col span={8}>
+                    <div className="gutter-box">
+                          {/* {roleNameArr && roleNameArr.length ? roleNameArr.join(', ') : '-'} */}
+                          {
+                          (this.state.displayName || this.state.projectDetail && this.state.projectDetail.namespace) &&
+                          <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={this.state.projectDetail}
+                          clusterName={item.clusterName} displayName={this.state.displayName}/>
+                          }
+                      </div>
+                  </Col>
+
+                    <Col span={8} className="dubbo-switch">
+                      {
+                        true ?
+                          <Switch checkedChildren="开"
+                                  unCheckedChildren="关"
+                                  checked={this.state.dubboSwitchChecked}
+                                  onChange={ e => {this.dubboSwitchChange(e)}} />
+                          :
+                          <Tooltip title="该集群未安装 dubbo-operator 插件，请联系基础设施管理员安装">
+                            <span className="dubbo-operator-tip">
+                              该集群未安装 dubbo-operator 插件，请联系基础设施管理员安装
+                            </span>
+                          </Tooltip>
+
+                      }
+                    </Col>
+
                 </Row>
               )
             }
@@ -1284,6 +1342,27 @@ class ProjectDetail extends Component {
             <i />
             项目详情
           </div>
+          <Modal
+            visible={this.state.dubboSerDisabled}
+            title={dubboModalContent.title}
+            onOk={this.confirmChangeDubbo}
+            onCancel={() => this.setState({dubboSerDisabled: false})}
+          >
+            {
+              this.state.dubboSerDisabled &&
+              <div className="projectDetailDubboSwitchModal">
+                <div className={dubboSwitchChecked ? "alert turnOff" : "alert"}>
+                  <div>
+                    <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
+                  </div>
+                  <div>
+                    <div>{dubboModalContent.text}</div>
+                    <div>{dubboModalContent.isConfirm}</div>
+                  </div>
+                </div>
+              </div>
+            }
+          </Modal>
           <Modal title="删除角色" visible={this.state.deleteRoleModal}
             onCancel={() => this.cancelDeleteRole()}
             onOk={() => this.confirmDeleteRole()}
@@ -1561,8 +1640,9 @@ class ProjectDetail extends Component {
                         appliedLenght > 0 &&
                         <div className="clusterWithStatus">
                           <Row>
-                            <Col span={12}><span className="item">已授权集群</span></Col>
-                            <Col span={12}><span className="item">启用服务网格</span></Col>
+                            <Col span={8}><span className="item">已授权集群</span></Col>
+                            <Col span={8}><span className="item">启用服务网格</span></Col>
+                            <Col span={8}><span className="item">启用 Dubbo 服务</span></Col>
                           </Row>
                           {/* {applying(true)} */}
                           {applied(true)}

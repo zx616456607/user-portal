@@ -166,8 +166,8 @@ let MyComponent = React.createClass({
             <ul className='detailParse'>
               <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
-                <span className='listKey'>创建时间</span>
-                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
+                <span className='listKey'>创建日期</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{storageSize ? storageSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
             </ul>

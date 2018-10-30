@@ -37,6 +37,10 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     this.initialRules()
   }
 
+  componentWillUnmount() {
+    uidd = 0
+  }
+
   initialRules = () => {
     const { currentIngress } = this.props
     if (isEmpty(currentIngress)) {
@@ -161,8 +165,13 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     })
   }
 
-  confirmEdit = key => {
-    const result = this.validateNewItem(key)
+  confirmEdit = async key => {
+    const { getRuleErrors } = this.props
+    const errors = getRuleErrors(key)
+    if (!isEmpty(errors)) {
+      return
+    }
+    const result = await this.validateNewItem(key)
     if (!result) {
       return
     }
@@ -173,10 +182,11 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
 
   setValueError = async (_value, typeKey, _key) => {
     const { form } = this.props
-    const { getFieldValue, setFields } = form
+    const { getFieldValue, setFields, getFieldError } = form
     const ruleKeys = getFieldValue('ruleKeys')
     const typeArray = ['service', 'type', 'name', 'regex', 'value']
     if (!isEmpty(ruleKeys)) {
+      let errorMsg: string = ''
       let existed = false
       let svcName = getFieldValue(`rule-service-${_key}`)
       let type = getFieldValue(`rule-type-${_key}`)
@@ -186,18 +196,23 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       switch (typeKey) {
         case 'service':
           svcName = _value
+          errorMsg = '服务名称重复'
           break
         case 'type':
           type = _value
+          errorMsg = '类型重复'
           break
         case 'name':
           name = _value
+          errorMsg = '匹配键重复'
           break
         case 'regex':
           regex = _value
+          errorMsg = '匹配规则重复'
           break
         case 'value':
           value = _value
+          errorMsg = '匹配值重复'
           break
         default:
           break
@@ -223,7 +238,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         },
       }
       if (existed) {
-        valueObj[`rule-${typeKey}-${_key}`].errors = ['匹配值名称重复']
+        valueObj[`rule-${typeKey}-${_key}`].errors = [errorMsg]
         await sleep()
         setFields(valueObj)
         return
@@ -232,7 +247,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
       typeArray.filter(key => key !== typeKey).forEach(item => {
         Object.assign(clearError, {
           [`rule-${item}-${_key}`]: {
-            errors: null,
+            errors: getFieldError(`rule-${item}-${_key}`),
             value: getFieldValue(`rule-${item}-${_key}`),
           },
         })
@@ -302,6 +317,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                   {
                     required: true,
                     message: '请输入键',
+                    whitespace: true,
                   },
                 ],
                 onChange: e => this.setValueError(e.target.value, 'name', key),
@@ -334,6 +350,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
                     {
                       required: true,
                       message: '请输入值',
+                      whitespace: true,
                     },
                   ],
                   onChange: e => this.setValueError(e.target.value, 'value', key),
@@ -380,7 +397,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
     )
   }
 
-  validateNewItem = (key?: string) => {
+  validateNewItem = async (key?: string) => {
     const { form } = this.props
     const { getFieldValue, validateFields } = form
     const ruleKeys = getFieldValue('ruleKeys')
@@ -402,15 +419,20 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         return
       }
     })
+    await sleep()
     return validateFlag
   }
 
-  addRules = () => {
-    const { form, currentIngress } = this.props
+  addRules = async () => {
+    const { form, currentIngress, getRuleErrors } = this.props
     const { getFieldValue, setFieldsValue } = form
     const ruleKeys = getFieldValue('ruleKeys')
     if (!isEmpty(ruleKeys)) {
-      const result = this.validateNewItem()
+      const errors = getRuleErrors()
+      if (!isEmpty(errors)) {
+        return
+      }
+      const result = await this.validateNewItem()
       if (!result) {
         return
       }
@@ -454,7 +476,7 @@ export default class RoutingRules extends React.PureComponent<any, IProps> {
         <Row className="routingRuleHeader">
           <Col span={4}>服务（端口）</Col>
           <Col span={4}>规则类型</Col>
-          <Col span={4}>匹配建</Col>
+          <Col span={4}>匹配键</Col>
           <Col span={4}>匹配规则</Col>
           <Col span={4}>匹配值</Col>
           <Col span={4}>操作</Col>

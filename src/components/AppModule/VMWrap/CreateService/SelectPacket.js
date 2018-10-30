@@ -361,7 +361,7 @@ class SelectPacket extends Component{
       </Row>
       <Row className="btnGroup">
         <Col span={21} offset={3}>
-          <ButtonGroup> 
+          <ButtonGroup>
             <Button type="ghost" className={classNames({'active': currentType === 'trad'})} onClick={() =>this.changeWrap('trad')}>应用包</Button>
             <Button type="ghost" className={classNames({'active': currentType === 'store'})} onClick={() =>this.changeWrap('store')}>应用包商店</Button>
           </ButtonGroup>

@@ -170,12 +170,13 @@ export function rebootShining(shiningFlag) {
 export const GET_SERVICE_LIST_SERVICE_MESH_REQUEST = 'GET_SERVICE_LIST_SERVICE_MESH_REQUEST'
 export const GET_SERVICE_LIST_SERVICE_MESH_SUCCESS = 'GET_SERVICE_LIST_SERVICE_MESH_SUCCESS'
 export const GET_SERVICE_LIST_SERVICE_MESH_FAILURE = 'GET_SERVICE_LIST_SERVICE_MESH_FAILURE'
-function checkServiceListServiceMeshStatus(clusterId, serviceList ,callback) {
-  const query = toQuerystring({
-    name: serviceList
+function checkServiceListServiceMeshStatus(clusterId, serviceList, query={}, callback) {
+  const newQuery = toQuerystring({
+    name: serviceList,
+    ...query
   })
   let endpoint = `${API_URL_PREFIX}/servicemesh/clusters/${clusterId}/paas/services`
-  endpoint += `?${query}`
+  endpoint += `?${newQuery}`
   return {
     [FETCH_API]: {
       types: [GET_SERVICE_LIST_SERVICE_MESH_REQUEST, GET_SERVICE_LIST_SERVICE_MESH_SUCCESS, GET_SERVICE_LIST_SERVICE_MESH_FAILURE],
@@ -189,9 +190,9 @@ function checkServiceListServiceMeshStatus(clusterId, serviceList ,callback) {
   }
 }
 
-export function getServiceListServiceMeshStatus(clusterId, serviceList, callback) {
+export function getServiceListServiceMeshStatus(clusterId, serviceList, query, callback) {
   return (dispatch) => {
-    return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, callback))
+    return dispatch(checkServiceListServiceMeshStatus(clusterId, serviceList, query, callback))
   }
 }
 

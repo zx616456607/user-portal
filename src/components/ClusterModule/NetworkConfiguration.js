@@ -42,7 +42,6 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import ResourceQuota from "../ResourceLimit";
 import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
 import NoteIcon from './NoteIcon'

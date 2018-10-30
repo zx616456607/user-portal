@@ -220,6 +220,18 @@ class LoadBalance extends React.Component {
       title: '地址',
       width: '10%',
       dataIndex: 'metadata.annotations.podIP',
+      render: (text, record) => {
+        const agent = record.metadata.labels.agentType
+        if (text) return text // 已启动
+        if (agent === 'outside') { //集群外 && 未启动
+          return record.metadata.annotations.allocatedIP
+        }
+        if (agent === 'inside') { // 集群内 && 未启动
+          const ipStr = record && getDeepValue(record, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
+          const ipPod = ipStr && JSON.parse(ipStr)[0]
+          return ipPod
+        }
+      }
     }, {
       title: '代理方式',
       dataIndex: 'metadata.labels.agentType',

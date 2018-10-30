@@ -97,6 +97,7 @@ module.exports = function (Router) {
   router.post('/projects/batch-delete', projectController.deleteProjects)
   router.get('/projects/:name/detail', projectController.getProjectDetail)
   router.get('/projects/list', projectController.listProjects)
+  router.get('/projects/list-statistics', projectController.listProjectsAndStatistics)
   router.get('/projects/list-visible', projectController.listVisibleProjects)
   router.put('/projects/:name', projectController.updateProject)
   router.get('/projects/:name/check-exists', projectController.checkProjectNameExists)
@@ -826,6 +827,9 @@ module.exports = function (Router) {
   router.post('/vm-wrap/vminfos-check/', vmWrapController.checkVM)
   router.get('/vm-wrap/vminfos/:vminfo/exists', vmWrapController.checkVminfo)
   router.get('/vm-wrap/services/:serviceName/exists', vmWrapController.checkService)
+  router.get('/vmtomcats/list', vmWrapController.listVMTomcat)
+  router.del('/vmtomcats/:id/delete', vmWrapController.deleteTomcat)
+  router.post('/vmtomcats/create', vmWrapController.createTomcat)
 
   // Network Isolation
   router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)
@@ -890,7 +894,7 @@ module.exports = function (Router) {
   router.del('/clusters/:cluster/loadbalances/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteLB)
   router.post('/clusters/:cluster/loadbalances/:name/ingress/:ingressname/displayname/:displayname/agentType/:agentType', loadBalanceController.createIngress)
   router.put('/clusters/:cluster/loadbalances/:name/ingress/:displayname/displayname/:lbdisplayname/agentType/:agentType', loadBalanceController.updateIngress)
-  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteIngress)
+  router.del('/clusters/:cluster/loadbalances/:lbname/ingresses/:name/:ingressdisplayname/displayname/:displayname/agentType/:agentType', loadBalanceController.deleteIngress)
   router.post('/clusters/:cluster/loadbalances/:lbname/ingress/:ingressname/app/displayname/:displayname/agentType/:agentType', loadBalanceController.createAppIngress)
   router.get('/clusters/:cluster/loadbalances/services/:name/controller', loadBalanceController.getServiceLB)
   router.del('/clusters/:cluster/loadbalances/:lbname/services/:servicename/agentType/:agentType', loadBalanceController.unbindService)
