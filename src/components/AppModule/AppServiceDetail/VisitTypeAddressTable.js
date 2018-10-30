@@ -44,33 +44,40 @@ function formateColumns(self, formatMessage){
 
 
 function formateDate({addrHide, privateNet, hasLbDomain, svcDomain = []}, formatMessage) {
-  const lbDomain = svcDomain.filter(({isLb}) => isLb)[0] || {}
-  const notAboutCluster = svcDomain.filter(({isInternal}) => !isInternal)[0] || {}
-  const AboutCluster = svcDomain.filter(({isInternal}) => isInternal)[0] || {}
-  const date =
-    [{
-      key:"1",
+  const lbDomain = svcDomain.filter(({isLb}) => isLb === true)
+  const lbDomainData = lbDomain.map((lbDomainValue, index) => {
+    return {
+      key: `lbDomain${index}`,
+      visitType: formatMessage(AppServiceDetailIntl.loadBalanceVisitAddress),
+      containerPort: lbDomainValue.interPort || '-',
+      visitAddress: lbDomainValue.domain || '-',
+    }
+  })
+  const notAboutCluster = svcDomain.filter(({isInternal}) => isInternal === false)
+  const notAboutClusterData = notAboutCluster.map((notAboutClusterValue, index) => {
+    return {
+      key: `notAboutCluster${index}`,
       visitType:
       privateNet ? formatMessage(AppServiceDetailIntl.intranet) :
       formatMessage(AppServiceDetailIntl.publicNetWork),
-      containerPort: notAboutCluster.interPort || '-',
-      visitAddress: notAboutCluster.domain || '-',
-
-    },{
-      key:"2",
+      containerPort: notAboutClusterValue.interPort || '-',
+      visitAddress: notAboutClusterValue.domain || '-',
+    }
+  })
+  const AboutCluster = svcDomain.filter(({isInternal}) => isInternal === true)
+  const AboutClusterData = AboutCluster.map((AboutClusterValue, index) => {
+    return {
+      key: `AboutCluster${index}`,
       visitType: formatMessage(AppServiceDetailIntl.visitAddressInCluster),
-      containerPort: AboutCluster.interPort || '-',
-      visitAddress: AboutCluster.domain || '-',
-
-    },{
-      key:"3",
-      visitType: formatMessage(AppServiceDetailIntl.loadBalanceVisitAddress),
-      containerPort: lbDomain.interPort || '-',
-      visitAddress: lbDomain.domain || '-',
-    }]
-  return date.filter(({ key }) => {
-    if (addrHide && key=== '1') return false
-    if (!hasLbDomain && key==='3') return false
+      containerPort: AboutClusterValue.interPort || '-',
+      visitAddress: AboutClusterValue.domain || '-',
+    }
+  })
+  const date = [ ...lbDomainData, ...notAboutClusterData, ...AboutClusterData ]
+  return date.filter(({ key="" }) => {
+    if (key="") return false
+    if (addrHide && key.includes('notAboutCluster') ) return false
+    if (!hasLbDomain && key.includes('lbDomain') ) return false
     return true
   })
 }

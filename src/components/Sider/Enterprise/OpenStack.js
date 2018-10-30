@@ -14,6 +14,7 @@ import { Link, browserHistory } from 'react-router'
 import { Menu } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon'
+import { Icon } from 'antd'
 import './style/index.less'
 
 const SubMenu = Menu.SubMenu
@@ -42,7 +43,7 @@ class Sider extends React.Component {
               className={`oemMenu-drek-${backColor}`}
             >
               <Menu.Item>
-                <Link to="/">返回控制台</Link>
+                <Link to="/integration"><Icon type="arrow-left" theme="outlined" />返回控制台</Link>
               </Menu.Item>
               <SubMenu key="ol" title={
                 <div>计算资源</div>
@@ -97,22 +98,6 @@ class Sider extends React.Component {
                   <div className="adminBox">
                     <Link to="/OpenStack/floatIP">
                       浮动 IP
-                  </Link>
-                  </div>
-                </Menu.Item>
-              </SubMenu>
-              <SubMenu key="role" title={<div>权限管理</div>}>
-                <Menu.Item key='item'>
-                  <div className="adminBox">
-                    <Link to="/OpenStack/item">
-                      项目
-                  </Link>
-                  </div>
-                </Menu.Item>
-                <Menu.Item key='user'>
-                  <div className="adminBox">
-                    <Link to="/OpenStack/user">
-                      用户
                   </Link>
                   </div>
                 </Menu.Item>

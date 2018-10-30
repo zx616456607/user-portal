@@ -66,6 +66,7 @@ class AdvancedSetting extends Component {
     if(!harbor.hasAdminRole) {
       return
     }
+
     getConfigurations(harborUrl, DEFAULT_REGISTRY, {
       success: {
         func: (res) => {
@@ -295,7 +296,6 @@ class AdvancedSetting extends Component {
           {this.loadbalanceCard()}
         </div>
       );
-
     switch (this.props.role) {
       case ROLE_SYS_ADMIN:
         return adminContent()
@@ -822,12 +822,10 @@ class AdvancedSetting extends Component {
       singleCheckBox, classCheckBox,resourceCheckBox, utilizationRate,
       lbChecked, lbVisible, lbLoading,
     } = this.state
-    const { cluster, form, configurations, harbor } = this.props
-    const { listNodes } = cluster
+    const { form, configurations, harbor } = this.props
 
-
-// listNodes
-if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
+// 高级设置与集群无关
+if((harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
   return <div className='nodata'><Spin></Spin></div>
 }
 

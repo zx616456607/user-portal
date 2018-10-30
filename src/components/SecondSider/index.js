@@ -125,7 +125,9 @@ class SecondSider extends Component {
     const { current } = this.state
     const { menuList, isShow } = this.props
     let menuShow = menuList.map((item, index) => {
-      const tempIsShow = isShow && item.url.indexOf("/tenant_manage/cluster_authorization") > -1
+      const tempIsShow = isShow &&
+        (item.url.indexOf("/tenant_manage/cluster_authorization") > -1 ||
+        item.url.indexOf("/tenant_manage/approvalLimit") > -1)
       if (item.onClick) {
         return (
           <Menu.Item key={'secondSider' + index}>
