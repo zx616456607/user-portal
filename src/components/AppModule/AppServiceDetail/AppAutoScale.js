@@ -270,7 +270,6 @@ class AppAutoScale extends Component {
       notify.spin(msgSpin)
       const { strategyName, serviceName, min, max, alert_strategy, alert_group, openScale } = values
       let body = { scale_strategy_name: strategyName, min, max, ...opt, alert_strategy, alert_group, type: openScale ? 1 : 0 }
-      isEmpty(scaleDetail) ? body.type = 1 : ''
       isGroupHide ? body.alert_group = '' : ''
       body = Object.assign(body, {operationType: isEmpty(scaleDetail) ? 'create' : 'update'})
       updateAutoScale(cluster, serviceName, body, {
@@ -586,7 +585,7 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     const openScaleStatus = getFieldProps('openScale', {
-      initialValue: isEmpty(scaleDetail) ? false : scaleDetail.type,
+      initialValue: isEmpty(scaleDetail) ? false : scaleDetail.type === 1,
       valuePropName: 'checked',
     })
     let thresholdItem
@@ -813,17 +812,17 @@ class AppAutoScale extends Component {
                                 <Col span={16}>
                                   {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
                                 </Col>
-                              </Row>,
-                              <Row style={{margin: '-10px 0 10px'}} key="openScale">
-                                <Col span={4}/>
-                                <Col span={16}>
-                                <FormItem>
-                                  <Checkbox {...openScaleStatus} disabled={!isEdit}>保存后开启伸缩策略</Checkbox>
-                                </FormItem>
-                                </Col>
                               </Row>
                             ]
                         }
+                        <Row style={{margin: '-10px 0 10px'}} key="openScale">
+                          <Col span={4}/>
+                          <Col span={16}>
+                          <FormItem>
+                            <Checkbox {...openScaleStatus} disabled={!isEdit}>保存后开启伸缩策略</Checkbox>
+                          </FormItem>
+                          </Col>
+                        </Row>
                       </Form>
                       <Row className="autoScaleBtnGroup">
                         <Col offset={2}>
