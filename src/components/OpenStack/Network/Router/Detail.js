@@ -27,6 +27,7 @@ class RouterDetail extends Component {
   constructor(props) {
     super()
     this.state ={
+      subnets: [],
       dataSource:[],
       selectedRowKeys: []
     }

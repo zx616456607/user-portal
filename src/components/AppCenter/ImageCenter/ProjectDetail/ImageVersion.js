@@ -622,6 +622,7 @@ class ImageVersion extends Component {
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
+      selectedRowKeys: selectedRowKeys.map(item => item.edition),
     }
     const { formatMessage } = this.props.intl
     const columns = [{
@@ -711,7 +712,7 @@ class ImageVersion extends Component {
           this.dropdownVisible[name] = true
         }
         const { allLabels } = this.state
-        const subItems = allLabels.length && allLabels.map((label, i) => {
+        const subItems = allLabels.length ? allLabels.map((label, i) => {
           let checked = false
           if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
           const key = name + "_" + label.name + "_checkbox"
@@ -732,7 +733,7 @@ class ImageVersion extends Component {
               </Checkbox>
             </MenuItem>
           )
-        })
+        }) : ''
         const labelMenu = <SubMenu
           key="subMenu"
           className="rowContainer"
@@ -741,7 +742,7 @@ class ImageVersion extends Component {
           title={<span><Icon type="tags" /> {formatMessage(imageVersionIntl.configTags)}</span>}>
           {subItems}
         </SubMenu>
-        items.unshift(labelMenu)
+        items.unshift(subItems ? labelMenu : <MenuItem key="noLabels">请先配置标签</MenuItem>)
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>
@@ -911,6 +912,7 @@ class ImageVersion extends Component {
           </div>
           <div className="body">
             <Table
+              rowKey={record => record.edition}
               columns={columns}
               dataSource={dataAry}
               loading={isFetching}

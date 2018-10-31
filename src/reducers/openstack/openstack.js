@@ -316,13 +316,11 @@ export default function openstack(state={},action) {
 
 function networks(state={}, action) {
   switch(action.type) {
-    case ActionTypes.OPENSTACK_GET_NETWORK_LIST_REQUEST:
     case NetworkTypes.NETWORKS_LIST_REQUEST: {
       return Object.assign({}, state, {
         isFetching: true
       })
     }
-    case ActionTypes.OPENSTACK_GET_NETWORK_LIST_SUCCESS:
     case NetworkTypes.NETWORKS_LIST_SUCCESS: {
       return Object.assign({}, state, {
         isFetching: false,
@@ -330,7 +328,6 @@ function networks(state={}, action) {
         bak: cloneDeep(action.response.result)
       })
     }
-    case ActionTypes.OPENSTACK_GET_NETWORK_LIST_FAILURE:
     case NetworkTypes.NETWORKS_LIST_FAILURE: {
       return Object.assign({}, state, {
         isFetching: false,

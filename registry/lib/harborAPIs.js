@@ -312,7 +312,17 @@ HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback)
     data = null
   }
   if(query) {
-    requestUrl += `?${queryString.stringify(query)}`
+    requestUrl += '?'
+    if (!!query.operation) {
+      let temp = ''
+      query.operation.split(',').map(item => {
+        temp += '&operation=' + item.toLocaleLowerCase()
+      })
+      delete query.operation
+      requestUrl += `?${queryString.stringify(query)}${temp}`
+    } else {
+      requestUrl += `?${queryString.stringify(query)}`
+    }
   }
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', data, callback)

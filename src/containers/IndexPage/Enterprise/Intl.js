@@ -21,6 +21,8 @@ export const mapData = {
     noAuth: '暂无总览查看权限，联系平台管理员授权',
     noData: '没有数据',
     running: '运行中',
+    pending: '启动中',
+    stopping: '停止中',
     stopped: '已停止',
     operating: '操作中',
     abnormal: '异   常  ',

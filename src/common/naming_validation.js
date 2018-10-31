@@ -499,7 +499,7 @@ export function lbNameCheck(value) {
    return 'success'
  }
 
- export function checkName(_,value, ) {
+ export function checkName(_,value, cb) {
   if (!value) {
     return cb('请输入名称')
   }

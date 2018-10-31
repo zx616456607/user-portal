@@ -4,7 +4,7 @@ import { Switch, Tooltip, Icon, Spin  } from 'antd';
 import { connect } from 'react-redux';
 import { getDeepValue } from '../../../../../client/util/util'
 import * as projectActions from '../../../../actions/serviceMesh';
-
+import { checkPluginsInstallStatus } from '../../../../actions/project'
 const mapStatetoProps = (state) => {
   // const role = getDeepValue( state, ['entities','loginUser','info', 'role'] )
   const msaConfig = getDeepValue( state, ['entities','loginUser','info','msaConfig', 'url'])
@@ -14,7 +14,7 @@ const mapStatetoProps = (state) => {
 }
 @connect(mapStatetoProps, {
   checkProInClusMesh: projectActions.checkProInClusMesh,
-  checkClusterIstio: projectActions.checkClusterIstio,
+  checkPluginsInstallStatus
 })
 export default class ServiceMeshSwitch extends React.Component {
   state = {
@@ -27,14 +27,14 @@ export default class ServiceMeshSwitch extends React.Component {
     this.reload()
   }
   reload = async () => {
-    const { checkProInClusMesh, checkClusterIstio } = this.props
-    const { msaConfig, clusterId, projectDetail, displayName} = this.props
+    const { checkProInClusMesh, checkPluginsInstallStatus } = this.props
+    const { msaConfig, clusterId, projectDetail, projectName } = this.props
     if (!msaConfig) {
       this.setState({ userType: 2 })
       return
     }
-    const result2 = await checkClusterIstio({ clusterID: clusterId })
-    const statusCode = getDeepValue(result2, ['response', 'result', 'data', 'code'])
+    const result2 = await checkPluginsInstallStatus({ clusterID: clusterId }, projectName)
+    const statusCode = getDeepValue(result2, ['response', 'result', 'data', 'istio', 'code'])
     if (statusCode !== 200) {
       this.setState({ userType: 3 })
       return

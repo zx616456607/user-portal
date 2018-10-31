@@ -49,8 +49,8 @@ const mapData = {
     share: '共享',
     amount: '数量',
     price: '单价',
-    open: '开启',
-    close: '关闭',
+    // open: '开启',
+    // close: '关闭',
   }
 }
 
