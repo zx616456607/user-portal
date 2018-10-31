@@ -810,7 +810,7 @@ class AppAutoScale extends Component {
                               <Row style={{margin: '-10px 0 10px'}} key="createGroup">
                                 <Col span={4}/>
                                 <Col span={16}>
-                                  {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
+                                  {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/account/noticeGroup">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
                                 </Col>
                               </Row>
                             ]

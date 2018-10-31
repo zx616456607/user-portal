@@ -676,7 +676,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">
                   <Col span={4}/>
                   <Col span={16}>
-                    没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
+                    没有告警通知组？<Link to="/account/noticeGroup">去创建>></Link>
                   </Col>
                 </Row>
               ]
