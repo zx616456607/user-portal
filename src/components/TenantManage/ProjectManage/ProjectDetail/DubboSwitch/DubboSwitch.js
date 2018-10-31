@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Modal, Tooltip } from 'antd'
 import { connect } from 'react-redux'
-import './style/dubboSwitch.less'
+import './style/DubboSwitch.less'
 import { getPluginStatus, pluginTurnOff, pluginTurnOn, checkPluginsInstallStatus } from '../../../../../actions/project'
 
 @connect(state => state, {
