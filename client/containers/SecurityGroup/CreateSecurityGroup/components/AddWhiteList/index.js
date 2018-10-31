@@ -38,6 +38,8 @@ class AddWhiteList extends React.Component {
     if (type === 'ingress' && ln && ln.length) {
       const num = ln.length
       const ingressArr = []
+      const haproxyArr = []
+      const haproxyInd = []
       for (let i = 0; i < num; i++) {
         ingressArr.push(i)
       }
@@ -51,6 +53,14 @@ class AddWhiteList extends React.Component {
             exStr += `${el},`
           })
           exStr = exStr.slice(0, exStr.length - 1)
+        }
+        if (item.type === 'haproxy') {
+          haproxyArr.push(item.groupId)
+          haproxyInd.push(ind)
+          setFieldsValue({
+            [`ingress${ind}`]: 'haproxy',
+            [`ingresshaproxy${ind}`]: haproxyArr,
+          })
         }
         switch (item.type) {
           case 'service':
@@ -75,15 +85,17 @@ class AddWhiteList extends React.Component {
               [`ingress${ind}`]: 'ingress',
               [`ingressingress${ind}`]: item.ingressId,
             })
-          case 'haproxy':
-            return setFieldsValue({
-              [`ingress${ind}`]: 'haproxy',
-              [`ingresshaproxy${ind}`]: item.groupId,
-            })
+          // case 'haproxy':
+          //   return setFieldsValue({
+          //     [`ingress${ind}`]: 'haproxy',
+          //     [`ingresshaproxy${ind}`]: item.groupId,
+          //   })
           default:
             return null
         }
       })
+      const nums = haproxyInd.length - 1
+      haproxyInd.filter((ele, index) => nums > index && this.remove(ele))
     }
     if (type === 'egress' && ln && ln.length) {
       const eNum = ln.length
