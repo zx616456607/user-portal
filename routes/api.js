@@ -672,6 +672,7 @@ module.exports = function (Router) {
 
   // Licenses
   router.get('/licenses', licenseController.getLicenses)
+  router.get('/clusters/:cluster/licenses', licenseController.getLicensesByCluster)
 
   // consumption and charge
   router.get('/consumptions/detail', consumptionController.getDetail)

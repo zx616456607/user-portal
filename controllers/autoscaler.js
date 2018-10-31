@@ -35,23 +35,25 @@ exports.createServer = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const body = this.request.body
+  const { iaas } = body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.createBy(['autoscaler', 'server' ], null, body)
+  this.body = yield api.clusters.createBy(['autoscaler', 'server', iaas ], null, body)
 }
 
 exports.updateServer = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const body = this.request.body
+  const { iaas } = body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.updateBy(['autoscaler', 'server' ], null, body)
+  this.body = yield api.clusters.updateBy(['autoscaler', 'server', iaas ], null, body)
 }
 
 exports.deleteServer = function* () {
   const loginUser = this.session.loginUser
-  const { cluster, configname } = this.request.query
+  const { cluster ,type } = this.request.query
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster ])
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'server', cluster, type ])
 }
 
 
@@ -73,23 +75,24 @@ exports.updateApp = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const body = this.request.body
+  const { iaas } = body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.updateBy(['autoscaler', 'app' ], null, body)
+  this.body = yield api.clusters.updateBy(['autoscaler', 'app', iaas ], null, body)
 }
 
 exports.deleteApp = function* () {
   const loginUser = this.session.loginUser
-  const { cluster } = this.request.query
+  const { cluster, type } = this.request.query
   const body = this.request.body
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.deleteBy(['autoscaler', 'app', cluster ], null, body)
+  this.body = yield api.clusters.deleteBy(['autoscaler', 'app', cluster, type ], null, body)
 }
 
 exports.setAppsStatus = function* () {
   const loginUser = this.session.loginUser
-  const { cluster } = this.request.query
+  const { cluster, type } = this.request.query
   const api = apiFactory.getApi(loginUser)
-  this.body = yield api.clusters.getBy(['autoscaler', 'app', 'status', cluster ])
+  this.body = yield api.clusters.getBy(['autoscaler', 'app', 'status', cluster, type ])
 }
 
 exports.getLogs = function* () {
