@@ -35,7 +35,7 @@ import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, URL_REG_EXP } from '../../../../constants'
 import { Link } from 'react-router'
 
 const Option = Select.Option
@@ -593,7 +593,7 @@ class ImageUpdate extends Component {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
             this.changeLoading()
-            throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
+            throw(new Error('仓库名称/地址已存在！请直接选择已有目标仓库！'))
           }
           this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
@@ -602,7 +602,6 @@ class ImageUpdate extends Component {
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
-        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
@@ -1363,9 +1362,9 @@ class ImageUpdate extends Component {
     if (!value) {
       return callback('请输入 Url 地址')
     }
-    // if (!  .test(value)) {
-    //   return callback('请输入正确地址')
-    // }
+    if (!URL_REG_EXP.test(value)) {
+      return callback('请输入正确地址')
+    }
     callback()
   }
 
@@ -1660,7 +1659,7 @@ class ImageUpdate extends Component {
                 label="规则名称"
                 key="rulesName"
               >
-                <Input size="large" {...rulesNameProps}/>
+                <Input size="large" {...rulesNameProps} placeholder="请输入规则名称"/>
               </Form.Item>
               <Form.Item
                 {...formItemLayout}
@@ -1713,7 +1712,7 @@ class ImageUpdate extends Component {
               >
                 {
                   targetstoretype == 'createNewstore'
-                    ? <Input {...NewTargetstoreNameProps}/>
+                    ? <Input {...NewTargetstoreNameProps} placeholder="请输入目标名" />
                     : <Select
                     showSearch
                     {...SelcetTargetStoreProps}
@@ -1730,7 +1729,11 @@ class ImageUpdate extends Component {
                 {...formItemLayout}
                 label={<span>URL地址<span className='star'>*</span></span>}
               >
-                <Input size="large" {...URLAddressProps} disabled={this.state.editUrlDisabled}/>
+                <Input
+                  size="large"
+                  placeholder="请输入目标 URL, 如：http(s)://192.168.2.232"
+                  {...URLAddressProps}
+                  disabled={this.state.editUrlDisabled}/>
               </Form.Item>
               {
                 targetstoretype === 'createNewstore' ?
@@ -1739,13 +1742,13 @@ class ImageUpdate extends Component {
                       {...formItemLayout}
                       label={<span>用户名<span className='star'>*</span></span>}
                     >
-                      <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
+                      <Input size="large" {...userNameProps} disabled={this.state.editDisabled} placeholder="请输入用户名"/>
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}
                       label={<span>密码<span className='star'>*</span></span>}
                     >
-                      <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
+                      <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}  placeholder="请输入密码" />
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}

@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Menu } from 'antd'
 import QueueAnim from 'rc-queue-anim'
+import TenxIcon from '@tenx-ui/icon'
 import { Icon } from 'antd'
 import './style/index.less'
 

@@ -34,6 +34,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 import CommonIntlMessages from '../../../../containers/CommonIntl'
+import { loadDbCacheList } from '../../../../actions/database_cache'
 
 const RadioGroup = Radio.Group
 function getClusterCostOption(costValue, restValue) {
@@ -182,6 +183,7 @@ class Ordinary extends Component {
       publicCount: 0,
       roleNameArr: '',
       minvisible: true,
+      dbClusterList: []
     }
   }
 
@@ -197,9 +199,22 @@ class Ordinary extends Component {
   }
 
   componentWillMount() {
-    const { current, loadClusterInfo } = this.props
+    const { current, loadClusterInfo, loadDbCacheList } = this.props
     const { minvisible } = this.state
     const { clusterID } = current.cluster
+    loadDbCacheList(clusterID, 'mysql', {
+      success: {
+        func: res => {
+          console.log(res);
+          this.setState({
+            dbClusterList: res.databaseList
+          })
+        }
+      },
+      failed: {
+        func: () => {}
+      }
+    })
     loadClusterInfo(clusterID, { minvisible })
     this.loadClusterSummary(clusterID)
     this.fetchQuotaList()
@@ -479,7 +494,37 @@ class Ordinary extends Component {
     result > max ? result = max : result
     return result
   }
-
+  dBAndClusterChange = val => {
+    const { current, loadDbCacheList } = this.props
+    const { clusterID } = current.cluster
+    loadDbCacheList(clusterID, val, {
+      success: {
+        func: res => {
+          this.setState({
+            dbClusterList: res.databaseList
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          this.setState({
+            dbClusterList: []
+          })
+        }
+      }
+    })
+  }
+  filterDbStatus = () => {
+    const { dbClusterList } = this.state
+    const statusList = {"Pending": 0, "Running": 0, "Stopping": 0, "Stopped": 0}
+    if (dbClusterList.length === 0) {
+      return statusList
+    }
+    for (const key in statusList) {
+      statusList[key] = dbClusterList.filter(v => v.status === key).length || 0
+    }
+    return statusList
+  }
   render() {
     const {
       clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
@@ -565,12 +610,13 @@ class Ordinary extends Component {
     } else {
       diskUsedArr = [ formatMessage(IntlMessages.noData) ]
     }
-    //数据库与缓存
+/*    //数据库与缓存
     //MySQL
     const mysqlData = clusterDbServices.get('mysql')
     let mySQLRunning = 0
     let mySQLStopped = 0
     let mySQLOthers = 0
+
     if (mysqlData.size !== 0) {
       const failedCount = mysqlData.get('failed') ? mysqlData.get('failed') : 0
       const pendingCount = mysqlData.get('pending') ? mysqlData.get('pending') : 0
@@ -649,7 +695,7 @@ class Ordinary extends Component {
       etcdRunning = runningCount
       etcdStopped = failedCount + unknownCount
       etcdOthers = pendingCount
-    }
+    }*/
     const statefulApps = {
       mysql: "MySQL",
       redis: "Redis",
@@ -685,7 +731,11 @@ class Ordinary extends Component {
     const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
       app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
     const statefulAppMenus = (
-      <Select defaultValue={this.state.statefulApp} value={this.state.statefulApp} style={{ width: '80%', margin: '10px 10%' }} onChange={onStatefulAppOptionClick.bind(this)}>
+      <Select
+        defaultValue={this.state.statefulApp}
+        style={{ width: '80%', margin: '10px 10%' }}
+        onChange={val => {this.dBAndClusterChange(val)}}
+      >
         {statefulAppOptions}
       </Select>
     )
@@ -1998,31 +2048,41 @@ class Ordinary extends Component {
                     <tbody>
                       <tr>
                         <td>
-                          <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                          <div className="stateDot" style={{ backgroundColor: '#2db7f5' }}></div>
+                          <FormattedMessage {...IntlMessages.pending} />
+                      </td>
+                        <td className="dbNum">
+                          {this.filterDbStatus()['Pending']}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#33b867' }}></div>
                           <FormattedMessage {...IntlMessages.running} />
                       </td>
                         <td className="dbNum">
-                          {mySQLRunning}
+                          {this.filterDbStatus()['Running']}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
                       <tr>
                         <td>
-                          <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                          <div className="stateDot" style={{ backgroundColor: '#FFBF00' }}></div>
+                          <FormattedMessage {...IntlMessages.stopping} />
+                      </td>
+                        <td className="dbNum">
+                          {this.filterDbStatus()['Stopping']}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div className="stateDot" style={{ backgroundColor: '#f85a5a' }}></div>
                           <FormattedMessage {...IntlMessages.stopped} />
                       </td>
                         <td className="dbNum">
-                          {mySQLStopped}
-                          <FormattedMessage {...IntlMessages.one} />
-                      </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
-                          <FormattedMessage {...IntlMessages.operating} />
-                      </td>
-                        <td className="dbNum">
-                          {mySQLOthers}
+                          {this.filterDbStatus()['Stopped']}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
@@ -2030,6 +2090,7 @@ class Ordinary extends Component {
                   </table>
                 </Col>
               </Row>
+{/*
               <Row style={{ display: this.state.tab2 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
                   <img src={homeMongoCluster} alt="MongoCluster" />
@@ -2235,6 +2296,7 @@ class Ordinary extends Component {
                   </table>
                 </Col>
               </Row>
+*/}
             </Card>
           </Col>
           <Col span={18} className="hostState">
@@ -2633,4 +2695,5 @@ export default connect(mapStateToProp, {
   loadClusterSummary,
   GetProjectsDetail,
   GetPrivilege,
+  loadDbCacheList,
 })(Ordinary)

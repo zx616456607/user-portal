@@ -118,6 +118,10 @@ module.exports = function (Router) {
   router.post('/projects/:name/roles/batch-delete', projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
+  router.get('/projects/plugins/status', projectController.getPluginStatus)
+  router.put('/projects/plugins/:name/enable', projectController.pluginTurnOn)
+  router.put('/projects/plugins/:name/disable',projectController.pluginTurnOff)
+  router.get('/projects/plugins/check',projectController.checkPluginInstallStatus)
   // servicMesh 相关
   router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
