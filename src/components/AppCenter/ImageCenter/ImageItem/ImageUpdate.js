@@ -37,6 +37,7 @@ import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
 import { DEFAULT_REGISTRY, URL_REG_EXP } from '../../../../constants'
 import { Link } from 'react-router'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
@@ -1409,18 +1410,19 @@ class ImageUpdate extends Component {
       {
         title:'名称',
         dataIndex:'name',
+        render: text => <div className="fixWidth"><Ellipsis>{text}</Ellipsis></div>
       },{
         title:'描述',
         dataIndex:'description',
-        render: (item) => <div>{ item ? item : '--'}</div>
+        render: (item) => <div className="fixWidth"><Ellipsis>{ item ? item : '--'}</Ellipsis></div>
       },{
         title:'目标名',
         dataIndex:'targets',
-        render: item => <span>{item ? item[0].name : null}</span>
+        render: item => <div className="fixWidth"><Ellipsis>{item ? item[0].name : null}</Ellipsis></div>
       },{
         title:'更新时间',
         dataIndex:'updateTime',
-        render: (time) => <div>{formatDate(time)}</div>
+        render: (time) => <div className="fixWidth">{formatDate(time)}</div>
       },{
         title:'触发模式',
         dataIndex:'trigger',
@@ -1440,7 +1442,9 @@ class ImageUpdate extends Component {
       rulesColumn.splice(4, 0, {
         title:'仓库组',
         dataIndex:'projects',
-        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>
+          <div className="fixWidth"><Ellipsis>{item[0].name}</Ellipsis></div>
+        </Link>
       })
     }
 
