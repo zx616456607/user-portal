@@ -47,12 +47,9 @@ let MyComponent = React.createClass({
     this.props.setAutoBackup(item)
   },
   render: function () {
-    const { config, isFetching, uninstalledPlugin, plugin } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin, storageClassType, title } = this.props;
     const canCreate = this.props.canCreate
-    let title = ''
-    if (!canCreate) {
-      title = '尚未配置块存储集群，暂不能创建'
-    }
+
     if (uninstalledPlugin) {
       title = `${plugin} 插件未安装`
     }
@@ -369,6 +366,8 @@ class RedisDatabase extends Component {
             scope={_this}
             isFetching={isFetching}
             setAutoBackup={this.onAutoBackup}
+            title={title}
+            storageClassType={storageClassType}
             autoBackupList = {this.state.aleradySetAuto}
             config={databaseList}
             canCreate={canCreate}
