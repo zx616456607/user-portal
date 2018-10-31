@@ -1003,6 +1003,7 @@ class VisitTypes extends Component{
         clusterAdd.push(url)
       }
     }
+    if (!clusterAdd.length) return '-'
     const domainList = clusterAdd && clusterAdd.map(item=>{
       return (
         <div className="addrList" key={item}>
@@ -1020,14 +1021,10 @@ class VisitTypes extends Component{
     const { databaseInfo, database } = this.props
     const port = databaseInfo.service.port.port;
     let name = ''
-    if (database === 'mysql') {
-      if (databaseInfo.service.annotations['system/lbgroup'] !== 'none') {
-        name = databaseInfo.service.annotations && databaseInfo.service.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-      } else {
-        name = databaseInfo.service.name
-      }
-    } else {
+    if (database === 'redis') {
       name = databaseInfo.service.annotations && databaseInfo.service.annotations['master.tenxcloud.com/schemaPortname']
+    } else {
+      name = databaseInfo.service.name
     }
     const nameReadonly = databaseInfo.service.annotations && databaseInfo.service.annotations['slave.tenxcloud.com/schemaPortname']
     const serviceName = name && name.split('/')[0];

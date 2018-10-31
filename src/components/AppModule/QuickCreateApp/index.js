@@ -52,6 +52,7 @@ import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../containers/Application/intl'
 import * as templateActions from '../../../../client/actions/template'
 import {getDeepValue} from "../../../../client/util/util"
+import { getPluginStatus } from '../../../actions/project'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -110,6 +111,7 @@ class QuickCreateApp extends Component {
       runAIImage: undefined,
       modelSet: undefined,
       modelSetVolumeConfig: undefined,
+      dubboSwitchOn: false,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -139,7 +141,20 @@ class QuickCreateApp extends Component {
 
   componentWillMount() {
     this.setConfig(this.props)
-    const { location, fields, template:templateList, getImageTemplate } = this.props
+    const { location, fields, template:templateList, getImageTemplate, current } = this.props
+    const { cluster, space } = current
+    // 检查是否为dubbo服务，如果是，提交数据时加上当前项目的namespace为默认环境变量
+    getPluginStatus(cluster.clusterID, space.namespace, {
+      success: {
+        func: res => {
+          if (res.data.dubboOperator) {
+            this.setState({dubboSwitchOn: true})
+          } else {
+            this.setState({dubboSwitchOn: false})
+          }
+        }
+      }
+    })
     const { hash, query, pathname } = location
     const { imageName, registryServer, key, from, template } = query
     if (template && key) {
@@ -582,6 +597,7 @@ class QuickCreateApp extends Component {
       return
     }
     const { clusterID } = current.cluster
+    const { namespace } = current.space
     let template = []
     let appPkgID = {}
     const httpReqArr = []
@@ -589,6 +605,22 @@ class QuickCreateApp extends Component {
     const udpReqArr = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
+        if (this.state.dubboSwitchOn) {
+          fields[key].envKeys.value.push({value: 0})
+          fields[key].envName0 = {
+            dirty: false,
+            errors: '',
+            name: 'envName0',
+            validating: false,
+            value: 'NAMESPACE'
+          }
+          fields[key].envValue0 = {
+            dirty: false,
+            name: 'envValue0',
+            validating: false,
+            value: namespace
+          }
+        }
         let json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
@@ -756,6 +788,7 @@ class QuickCreateApp extends Component {
         template: template.join('---\n'),
         appPkgID: appPkgID
       }
+
       addService(clusterID, this.state.appName, body, callback)
       return
     }
@@ -1533,6 +1566,7 @@ export default connect(mapStateToProps, {
   getfSecurityGroupDetail,
   updateSecurityGroup,
   createTcpUdpIngress,
+  getPluginStatus,
   checkHelmIsPrepare: templateActions.checkHelmIsPrepare,
 })(injectIntl(QuickCreateApp, {
   withRef: true,
