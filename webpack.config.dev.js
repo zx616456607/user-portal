@@ -11,7 +11,6 @@
 const path = require('path')
 const webpack = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const tsImportPluginFactory = require('ts-import-plugin')
 const postcssConfig = require('./webpack.config.postcss')
 const nodeModulesPath = path.join(__dirname, '/node_modules/')
 const hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000'
@@ -27,7 +26,6 @@ const defaultTheme = {
   "@a-hover-color": "#57cfff",
   // "@font-size-base": "12px",
   "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
-  '@tenx-icon-url': "'/font/tenx-icon/iconfont'", // 请在url字符串两侧再加双引号!!! 否则替换会不能成功
 }
 
 const theme = Object.assign(defaultTheme, customTheme)

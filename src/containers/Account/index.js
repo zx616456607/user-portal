@@ -64,7 +64,11 @@ const menuList_enterprise_admin = [
   {
     url: '/account/costCenter#payments',
     name: 'payments'
-  }
+  },
+  {
+    url: '/account/noticeGroup',
+    name: 'noticeGroup'
+  },
 ]
 
 const menuList_enterprise_sys_admin = []
@@ -81,6 +85,10 @@ const menuList_enterprise_user = [
   {
     url: '/account/costCenter#payments',
     name: 'payments'
+  },
+  {
+    url: '/account/noticeGroup',
+    name: 'noticeGroup'
   },
 ]
 

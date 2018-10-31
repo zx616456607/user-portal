@@ -9,7 +9,7 @@
  */
 'use strict'
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal } from 'antd'
+import { Card, Table, Select, DatePicker, Tooltip, Button, Pagination, Modal } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
@@ -177,6 +177,7 @@ class AlarmRecord extends Component {
           ruleNum: r.ruleNum,
           serviceName: r.serviceName,
           numHits: r.numHits,
+          numMatches: r.numMatches,
           log: r.log,
           alertInfo: r.alertInfo,
           targetType: r.targetType,
@@ -322,10 +323,9 @@ class AlarmRecord extends Component {
       {
         title: '告警字符串',
         dataIndex: 'log',
-      },
-      {
-        title: '当前次数',
-        dataIndex: 'numMatches',
+        render: text => <Tooltip title={text}>
+          <div className="alarmString">{text}</div>
+        </Tooltip>
       },
       {
         title: '是否发送邮件/短信',
@@ -333,7 +333,9 @@ class AlarmRecord extends Component {
         render: (val, record) => {
           const condition = record.alertInfo.httpPostWebhookUrl[0]
           condition.charAt(condition.length - 1)
-          return <div>{ condition.charAt(condition.length - 1) == 1? '是': '否'}</div>
+          return <div>{ condition.charAt(condition.length - 1) == 1?
+            <span style={{color: '#33b867'}}>是</span>:
+            <span style={{color: '#f23e3f'}}>否</span>}</div>
         }
       }
     ];
@@ -369,7 +371,7 @@ class AlarmRecord extends Component {
               {getTypeOptions()}
             </Select>
             <Select style={{ width: 120 }} getPopupContainer={() => document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" onChange={(value) => {
-              this.setState({ ruleName: value})}
+              this.setState({ serviceName: value})}
             }>
               {filters.targets}
             </Select>

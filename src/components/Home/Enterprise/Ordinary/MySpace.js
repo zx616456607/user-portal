@@ -22,7 +22,7 @@ import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 import homeHarbor from '../../../../assets/img/homeHarbor.png'
 import { getGlobaleQuota, getGlobaleQuotaList, getDevopsGlobaleQuotaList } from '../../../../actions/quota'
 import {REG} from "../../../../constants";
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from '../../../../containers/IndexPage/Enterprise/Intl'
 import CommonIntlMessages from '../../../../containers/CommonIntl'
@@ -43,7 +43,8 @@ class MySpace extends Component {
   }
 
   componentWillMount() {
-    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget } = this.props
+    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList, getOperationalTarget,
+      harbor } = this.props
     loadSpaceCICDStats({
       failed: {
         func: () => {
@@ -54,7 +55,8 @@ class MySpace extends Component {
         isAsync: true
       }
     })
-    loadSpaceImageStats({
+    const query = { harbor }
+    loadSpaceImageStats(query, {
       failed: {
         func: () => {
           this.setState({
@@ -418,7 +420,7 @@ class MySpace extends Component {
             this.props.userID === undefined
               ? spaceName === this.myProject
                 ? ''
-                : `${formatMessage(IntlMessages.sharedProject)} - `
+                : `${formatMessage(IntlMessages.project)} - `
               : `${formatMessage(IntlMessages.personalProject)} - `
           }
           {spaceName}
@@ -930,7 +932,10 @@ function mapStateToProp(state, props) {
   if (spaceImageStats.result && spaceImageStats.result.data) {
     spaceImageStatsData = spaceImageStats.result.data
   }
+  const { harbor: harbors } = current.cluster
+  const harbor = harbors ? harbors[0] || "" : ""
   return {
+    harbor,
     userID,
     clusterID,
     loginUser,

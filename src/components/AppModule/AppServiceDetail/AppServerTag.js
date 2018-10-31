@@ -474,12 +474,15 @@ function mapStateToProps(state,props) {
   const { tagList } = state
   let listData = []
   const tagKey = Object.keys(serviceTag) || []
-  tagKey.map( (ele,index)=>{
-    listData.push({
-      key:ele,
-      value: serviceTag[ele],
-      id: index
-    })
+  const nameReg = /^tenxcloud.com\//
+  tagKey.forEach( (ele,index)=>{
+    if (!nameReg.test(ele)) {
+      listData.push({
+        key:ele,
+        value: serviceTag[ele],
+        id: index
+      })
+    }
   })
   return {
    result: listData

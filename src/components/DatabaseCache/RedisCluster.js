@@ -13,6 +13,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Switch, Modal, Row, Col, Button, Icon, Input, Spin, Tooltip, InputNumber } from 'antd'
+import { loadGlobalConfig } from '../../../src/actions/global_config'
 import { injectIntl } from 'react-intl'
 import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
@@ -135,8 +136,8 @@ let MyComponent = React.createClass({
             <ul className='detailParse'>
               <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
-                <span className='listKey'>创建时间</span>
-                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
+                <span className='listKey'>创建日期</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>
               </li>
               <li><span className='listKey'>存储大小</span>{item.storage ? item.storage.replace('Mi','MB').replace('Gi','GB'): '-'}</li>
               <li className="auto-backup-switch"><span className='listKey'>自动备份</span>
@@ -184,8 +185,8 @@ class RedisDatabase extends Component {
       aleradySetAuto: [],
       autoBackupSwitch: false,
       uninstalledPlugin: false, //是否未安装插件
-      plugin: ''
-
+      plugin: '',
+      isChartRepoConfig: true
     }
   }
 
@@ -229,7 +230,26 @@ class RedisDatabase extends Component {
     })
   }
   componentWillMount() {
-    const { loadDbCacheList, cluster, getProxy } = this.props
+    const { loadDbCacheList, cluster, getProxy, loadGlobalConfig } = this.props
+    loadGlobalConfig(cluster, {
+      success: {
+        func: res => {
+          const { data } = res
+          data.forEach(v => {
+            if (v.configType === 'chart_repo') {
+              const configDetail = JSON.parse(v.configDetail)
+              if (configDetail.protocol === '' && configDetail.url === '') {
+                this.setState({
+                  isChartRepoConfig: false
+                })
+              }
+              return
+            }
+          })
+
+        }
+      }
+    })
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群','invalid cluster ID')
@@ -316,16 +336,14 @@ class RedisDatabase extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList, clusterProxy, storageClassType, loadDbCacheList, cluster } = this.props;
-    const { uninstalledPlugin, plugin } = this.state
+    const { uninstalledPlugin, plugin, isChartRepoConfig } = this.state
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
     const currentCluster = this.props.current.cluster
     let canCreate = true
-    if (!storageClassType.private) canCreate = false
-    if(!canCreate) {
-      title = '尚未配置块存储集群，暂不能创建'
-    }
+    if (!storageClassType.private) canCreate = false; title = '尚未配置块存储集群，暂不能创建'
+    if (!isChartRepoConfig) canCreate = false; title = '尚未配置Chart Repo，暂不能创建'
     if (uninstalledPlugin) {
       title = `${plugin} 插件未安装`
     }
@@ -447,4 +465,5 @@ export default connect(mapStateToProps, {
   autoBackupSet,
   autoBackupDetele,
   checkAutoBackupExist,
+  loadGlobalConfig,
 })(RedisDatabase)

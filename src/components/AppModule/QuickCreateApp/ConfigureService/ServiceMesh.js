@@ -69,6 +69,9 @@ class ServiceMesh extends React.Component {
     }
   }
   onChange = (value) => {
+    if(value) {
+      this.props.form.setFieldsValue({accessMethod: 'Cluster'}) // 当打开服务网格时, 默认是使用仅在集群内访问
+    }
     this.setState({ checked: value })
     this.props.toggleCreateAppMeshFlag(value)
   }

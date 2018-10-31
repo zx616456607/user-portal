@@ -13,11 +13,12 @@ import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import NotificationHandler from '../../../../../src/components/Notification'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
 let isEdit = false
-const disabledIcons = [ 'aws', 'azure', 'ali' ] // 不支持的资源池
+const disabledIcons = [ 'aws', 'azure', 'ali', 'openstack' ] // 不支持的资源池
 
 const mapStateToProps = state => {
   const { appAutoScaler } = state
@@ -274,6 +275,13 @@ export default connect(mapStateToProps, {
       selectedBox: this.state.currentIcon === 'vmware',
       iconConDis: disabledIcons.indexOf('vmware') > -1 || !!objProvider && objProvider.vmware, // true 为已配置 false为未配置
     })
+    const iconClassOS = classNames({
+      iconCon: true,
+      iconopenstack: true,
+      selectedBox: this.state.currentIcon === 'openstack',
+      iconConDis: disabledIcons.indexOf('openstack') > -1 || !!objProvider && objProvider.openstack, // true 为已配置 false为未配置
+    })
+
     const iconClass2 = classNames({
       iconCon: true,
       iconaws: true,
@@ -308,7 +316,7 @@ export default connect(mapStateToProps, {
         onClose={this.props.onClose}
         title={ isEdit ? '编辑资源池配置' : '新建资源池配置'}
         okText="保存"
-        width="550"
+        width="650"
         maskClosable={false}
         confirmLoading={this.state.submitLoading}
       >
@@ -340,6 +348,14 @@ export default connect(mapStateToProps, {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
+              <div className={iconClassOS} data-name="vmware" onClick={this.clickIcon}>
+                <div className="icon">
+                  <TenxIcon type="openstack" />
+                </div>
+                <div className="name">vmware</div>
+                <i className="fa fa-check"></i>
+              </div>
+
               <div className={iconClass2} data-name="aws" onClick={this.clickIcon}>
                 <div className="icon"></div>
                 <div className="name">aws</div>

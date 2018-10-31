@@ -59,10 +59,11 @@ import Title from '../Title'
 import cloneDeep from 'lodash/cloneDeep'
 import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
 import meshIcon from '../../assets/img/meshIcon.svg'
 import * as meshActions from '../../actions/serviceMesh'
+import { getDeepValue } from '../../../client/util/util'
 const Option = Select.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -402,12 +403,9 @@ const MyComponent =  injectIntl(React.createClass({
         redeployDisable = false
       }
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
-      const ipv4 = item.spec.template
-        && item.spec.template.metadata.annotations
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
-      const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
+      const ipv4 = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const ipv4Arr = ipv4 && JSON.parse(ipv4)
+      const isDisabled = ipv4Arr && ipv4Arr.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width: '100px'}} id="allservicelistDropdownMenu" className="allservicelistDropdownMenu">
           {
@@ -619,7 +617,14 @@ const MyComponent =  injectIntl(React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='appBox' icon={httpIcon} />
+            <TipSvcDomain
+              svcDomain={svcDomain}
+              parentNode='appBox'
+              icon={httpIcon}
+              serviceMeshflagListInfo={this.props.mesh}
+              msaUrl={this.props.msaUrl}
+              serviceName={item.metadata.name}
+              />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
@@ -739,6 +744,7 @@ class ServiceList extends Component {
       name,
       label
     }
+    this.reloadServiceMesh()
     if(name) {
       this.setState({
         searchInputValue: name
@@ -796,7 +802,7 @@ class ServiceList extends Component {
     handleStateOfServiceList(this, serviceList)
   }
   async componentDidMount() {
-    const { serName, getServiceListServiceMeshStatus } = this.props
+    const { serName } = this.props
     await this.loadServices().then(() => {
       if (serName) {
         const { serviceList } = this.props
@@ -816,11 +822,14 @@ class ServiceList extends Component {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
     // getServiceListServiceMeshStatus (
+    await  this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
       ServiceListmeshResult =
-      await getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
+      await this.props.getServiceListServiceMeshStatus(this.props.cluster, serviceNames)
     } catch(e) {
       const notification = new NotificationHandler()
       notification.error({message:'获取服务网格状态出错'})
@@ -829,8 +838,8 @@ class ServiceList extends Component {
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
-      .find((service) => service.metadata.name === name)
-      return { name, value: serviceMesh.istioEnabled }
+      .find((service) => service.metadata.name === name) || {}
+      return { name, value: serviceMesh.istioEnabled, referencedComponent: serviceMesh.referencedComponent }
     })
     this.setState({ mesh: serviceListMesh })
   }
@@ -1717,6 +1726,7 @@ class ServiceList extends Component {
               bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList}
               mesh={this.state.mesh}
+              msaUrl={this.props.msaUrl}
                />
           </Card>
           </div>
@@ -1759,6 +1769,8 @@ class ServiceList extends Component {
                 size={size}
                 name={this.props.name}
                 onClose={this.closeModal}
+                mesh={this.state.mesh}
+                msaUrl={this.props.msaUrl}
               />
             }
           </Modal>
@@ -1928,6 +1940,7 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1946,7 +1959,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
-    SettingListfromserviceorapp
+    SettingListfromserviceorapp,
+    msaUrl,
   }
 }
 

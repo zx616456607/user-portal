@@ -13,7 +13,6 @@ const webpack = require('webpack')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const WebpackMd5Hash = require('webpack-md5-hash')
-const tsImportPluginFactory = require('ts-import-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const postcssConfig = require('./webpack.config.postcss')
 const webpack_base = require('./webpack.config.base')
@@ -29,7 +28,6 @@ const defaultTheme = {
   "@a-hover-color": "#57cfff",
   // "@font-size-base": "12px",
   "@icon-url": "'/font/antd_local_webfont/1.11/iconfont'",
-  '@tenx-icon-url': "'/font/tenx-icon/iconfont'", // 请在url字符串两侧再加双引号!!! 否则替换会不能成功
 }
 const theme = Object.assign(defaultTheme, customTheme)
 

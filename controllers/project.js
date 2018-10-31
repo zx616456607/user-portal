@@ -58,10 +58,20 @@ exports.listProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
   const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['listwithoutstatistic'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.listProjectsAndStatistics = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.getBy(['list'], query)
   this.status = response.statusCode
   this.body = response
 }
+
 exports.listVisibleProjects = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
@@ -401,6 +411,46 @@ exports.deleteProjectRelatedRoles = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.createBy([projectName, 'roles','batch-delete'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getPluginStatus = function* () {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['plugins', 'status'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.pluginTurnOn = function* () {
+  const query = this.query
+  const name = this.params.name
+  console.log(this.request.headers)
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy(['plugins', name, 'enable'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.pluginTurnOff = function* () {
+  const query = this.query
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy(['plugins', name, 'disable'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.checkPluginInstallStatus = function* () {
+  const query = this.query
+  console.log(query);
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['plugins', 'check'], query)
   this.status = response.statusCode
   this.body = response
 }

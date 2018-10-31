@@ -64,6 +64,9 @@ import dnsRecord from '../../client/reducers/dnsRecord'
 import securityGroup from '../../client/reducers/securityGroup'
 import middlewareCenter from '../../client/reducers/middlewareCenter'
 import emailApproval from '../../client/reducers/emailApproval'
+import openstack from './openstack/openstack'
+import openstack_storage from './openstack/openstack_storage'
+
 import {
   LOGIN_EXPIRED_MESSAGE,
   PAYMENT_REQUIRED_CODE,
@@ -199,6 +202,8 @@ const rootReducer = combineReducers({
   middlewareCenter,
   serviceMesh,
   emailApproval,
+  openstack,
+  openstack_storage,
 })
 
 export default rootReducer

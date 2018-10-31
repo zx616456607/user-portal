@@ -54,11 +54,18 @@ class Pipeline extends React.Component {
       windowHeight: window.innerHeight,
     })
   }
-
+  // componentDidUpdate(prevProps) {
+  //   const { location: { pathname: prevPathname, query: { redirect: _prevRedirect } = {} } = {} }
+  //    = prevProps
+  //   const { location: { pathname, query: { redirect } = {} } = {} } = this.props
+  //   if (_prevRedirect !== redirect || prevPathname !== pathname) {
+  //     window.history.back()
+  //   }
+  // }
   render() {
     const {
       project, onbehalfuser, onbehalfuserid, token, billingEnabled, ftpEnabled,
-      username, location: { pathname, query: _query },
+      username, location: { pathname, query: _query }, emailEnabled,
     } = this.props
     const locationQuery = cloneDeep(_query)
     let title = '流水线'
@@ -86,6 +93,7 @@ class Pipeline extends React.Component {
         token, username, project, onbehalfuser,
         onbehalfuserid, billingenabled: billingEnabled ? 1 : 0,
         ftpEnabled: ftpEnabled ? 1 : 0,
+        emailEnabled: emailEnabled ? 1 : 0,
       }
     )
     const { windowHeight } = this.state
@@ -107,7 +115,7 @@ class Pipeline extends React.Component {
 
 const mapStateToProps = state => {
   const { space = {} } = state.entities.current
-  const { billingConfig, ftpConfig } = state.entities.loginUser.info
+  const { billingConfig, ftpConfig, emailConfiged } = state.entities.loginUser.info
   const { enabled: billingEnabled } = billingConfig
   let onbehalfuser
   let onbehalfuserid
@@ -132,6 +140,7 @@ const mapStateToProps = state => {
     token,
     billingEnabled,
     ftpEnabled: ftpConfig && ftpConfig.addr,
+    emailEnabled: emailConfiged,
   }
 }
 

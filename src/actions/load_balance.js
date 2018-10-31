@@ -218,7 +218,7 @@ export const DELETE_LOAD_BALANCE_INGRESS_REQUESS = 'DELETE_LOAD_BALANCE_INGRESS_
 export const DELETE_LOAD_BALANCE_INGRESS_SUCCESS = 'DELETE_LOAD_BALANCE_INGRESS_SUCCESS'
 export const DELETE_LOAD_BALANCE_INGRESS_FAILURE = 'DELETE_LOAD_BALANCE_INGRESS_FAILURE'
 
-const fetchDeleteIngress = (cluster, lbname, name, displayName, agentType, callback) => {
+const fetchDeleteIngress = (cluster, lbname, name, ingressDisplayName, displayName, agentType, callback) => {
   return {
     [FETCH_API]: {
       types: [
@@ -226,7 +226,7 @@ const fetchDeleteIngress = (cluster, lbname, name, displayName, agentType, callb
         DELETE_LOAD_BALANCE_INGRESS_SUCCESS,
         DELETE_LOAD_BALANCE_INGRESS_FAILURE
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingresses/${name}/displayname/${displayName}/agentType/${agentType}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/loadbalances/${lbname}/ingresses/${name}/${ingressDisplayName}/displayname/${displayName}/agentType/${agentType}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -236,8 +236,8 @@ const fetchDeleteIngress = (cluster, lbname, name, displayName, agentType, callb
   }
 }
 
-export const deleteIngress = (cluster, lbname, name, displayName, agentType, callback) =>
-  dispatch => dispatch(fetchDeleteIngress(cluster, lbname, name, displayName, agentType, callback))
+export const deleteIngress = (cluster, lbname, name, ingressDisplayName, displayName, agentType, callback) =>
+  dispatch => dispatch(fetchDeleteIngress(cluster, lbname, name, ingressDisplayName, displayName, agentType, callback))
 
 export const CREATE_APP_INGRESS_REQUEST = 'CREATE_APP_INGRESS_REQUEST'
 export const CREATE_APP_INGRESS_SUCCESS = 'CREATE_APP_INGRESS_SUCCESS'

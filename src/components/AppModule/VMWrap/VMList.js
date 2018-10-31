@@ -11,17 +11,26 @@
  */
 
 import React from 'react'
-import { Button, Table, Row, Card, Modal, Icon, Input, Pagination, Tooltip } from 'antd'
+import { Button, Table, Row, Card, Modal, Icon, Popover, Form,
+  Input, Pagination, Tooltip, Dropdown, Menu } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
+import { createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
 import classNames from 'classnames'
+import CreateTomcat from './CreateTomcat'
+
+const temp = [{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
+{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
+{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2},
+{ catalina_home_dir: './', name: 'Tomcat_1', serverStatus: 1, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_2', serverStatus: 0, appCount: 2}, { catalina_home_dir: './', name: 'Tomcat_3', serverStatus: 2, appCount: 2}]
+
+const notification = new NotificationHandler()
 
 class VMList extends React.Component {
   constructor(props) {
@@ -45,6 +54,16 @@ class VMList extends React.Component {
       host: '',
       isLoading: true,
       searchValue: '',
+      isShowAddModal: false,
+      isShowCheckModal: false,
+      isShowConfirmRemove: false, //二次确认
+      tomcatList: [], //当前选中行的 tomcatList
+      allCount: [], //当前选中行的 所有端口
+      currTom: {},
+      removeConfirmLoading: false,
+      loading: false, //详情页的table loading
+      createConfirmLoading: false,
+      currVM: {},
     }
   }
 
@@ -69,7 +88,6 @@ class VMList extends React.Component {
             this.setState({
               total: res.count,
               list: res.results,
-              isLoading: false,
             })
           }
         },
@@ -77,9 +95,6 @@ class VMList extends React.Component {
       },
       failed: {
         func: res => {
-          this.setState({
-            isLoading: false,
-          })
           if (res.statusCode < 500) {
             notify.warn('获取数据失败', res.message || res.message.message)
           } else {
@@ -102,8 +117,15 @@ class VMList extends React.Component {
   }
 
   componentWillMount() {
-    const { searchValue } = this.state
-    this.getInfo(1, searchValue)
+    this.loadData()
+  }
+  loadData = () => {
+    this.setState({
+      isLoading: true,
+    }, () => {
+      const { searchValue } = this.state
+      this.getInfo(1, searchValue)
+    })
   }
 
   /**
@@ -113,7 +135,6 @@ class VMList extends React.Component {
   vmAddList(state) {
     const { postVMinfoList, putVMinfoList } = this.props
     const { searchValue } = this.state
-    let notification = new NotificationHandler()
     let res = {
       /*vmInfoName: 'root',*/
       vmInfoID: this.state.editRows.vminfoId !== null ? this.state.editRows.vminfoId : '',
@@ -203,12 +224,11 @@ class VMList extends React.Component {
    */
   handleDel() {
     const { delVMinfoList } = this.props
-    const { searchValue } = this.state
-    let notification = new NotificationHandler()
+    const { searchValue, ID } = this.state
     notification.spin(`删除 ${this.state.host} 中...`)
     this.state.isDelete ?
       delVMinfoList({
-        vmID: this.state.ID
+        vmID: ID
       }, {
           success: {
             func: res => {
@@ -293,16 +313,59 @@ class VMList extends React.Component {
   /**
    * 确定删除
    */
-  handleOK(ID, Name, host) {
+  handleOK(e, record) {
+    const { vminfoId, Name, host } = record
+    switch(e.key) {
+      case 'delete':
+        this.setState({
+          isDelVisible: true,
+          isDelete: true,
+          ID: vminfoId,
+          Name: Name,
+          host: host,
+        })
+      break;
+    case 'check':
+      this.getTomcatListFunc(record)
+      break;
+    case 'add':
+      this.setState({
+        isShowAddModal: true,
+        tomcatList: temp, //todo record.xxx
+        allPort: record.ports,
+        currVM: record,
+      })
+      break;
+    default:
+      break;
+    }
+  }
+  getTomcatListFunc = record => {
     this.setState({
-      isDelVisible: true,
-      isDelete: true,
-      ID: ID,
-      Name: Name,
-      host: host,
+      isShowCheckModal: true,
+      loading: true,
+    }, () => {
+      const { getTomcatList } = this.props
+      getTomcatList({
+        vminfo_id: record.vminfoId,
+      }, {
+        success: {
+          func: res => {
+            res.results && res.results.length && this.setState({
+              tomcatList: res.results
+            })
+          },
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              loading: false,
+            })
+          }
+        }
+      })
     })
   }
-
   handleSort() {
     const { createTime, searchValue } = this.state
     this.getInfo(null, searchValue);
@@ -316,54 +379,54 @@ class VMList extends React.Component {
       })
     }
   }
-
+  getStatus = (status, name, isRemoveName) => {
+    let color
+    let text
+    switch (status) {
+      case 1 :
+        color = '#2db7f5' //in prosess
+        text = '启动中'
+        break;
+      case 2 :
+        color = '#33b867' // succ
+        text = '运行中'
+        break;
+      case 0 :
+        color = '#f23e3f' // err
+        text = '停止'
+        break;
+    }
+    return (
+      <div className="line">
+        {isRemoveName === true ? '' : name} <span className="status">
+          <i style={{ backgroundColor: color }} className="circle"/> {text}
+        </span>
+      </div>
+    )
+  }
   renderStatus(record) {
     let successCount = 0
     let errorCount = 0
     let startCount = 0
-    let javaMessage = ''
-    let tomcatMessage = ''
-    switch (record.javaStatus) {
-      case 0:
-        javaMessage = 'jre启动中'
-        startCount ++
-        break
-      case 1:
-        javaMessage = 'jre停止'
-        errorCount ++
-        break
-      case 2:
-        javaMessage = 'jre运行中'
-        successCount ++
-        break
-      default:
-        break
-    }
-    switch (record.tomcatStatus) {
-      case 0:
-        tomcatMessage = 'tomcat启动中'
-        startCount ++
-        break
-      case 1:
-        tomcatMessage = 'tomcat停止'
-        errorCount ++
-        break
-      case 2:
-        tomcatMessage = 'tomcat运行中'
-        successCount ++
-        break
-      default:
-        break
-    }
+    const tomcats = record.tomcatStatus
+    // let javaMessage = ''
+    // let tomcatMessage = ''
+    let allCount = tomcats.length
+    const poverContent = tomcats.map(item => {
+      if (item.status === 0) { errorCount++ }
+      else if (item.status === 2) { successCount++ }
+      else if (item.status === 1) { startCount++ }
+      return this.getStatus(item.status, item.name)
+    })
     return(
       <div>
         <div className={errorCount ? 'warnColor' : 'successColor'}>
           <i className={classNames("circle", {'successCircle': !errorCount, 'warnCircle': errorCount})}/>
-          {successCount === 2 ? '正常' : ''}
+          {successCount === tomcats.length ? '正常' : ''}
           {errorCount ? '异常' : ''}
           {!errorCount && startCount ? '启动中' : ''}
         </div>
-        <div>
+        {/* <div>
           {
             successCount !== 2 &&
               <Tooltip
@@ -375,14 +438,105 @@ class VMList extends React.Component {
               </Tooltip>
           }
           {`${successCount}/2 运行中`}
-          </div>
+        </div> */}
+        <div>
+          <Popover overlayClassName="vmListPopover" placement="right" content={poverContent} trigger="hover">
+            <span>{`${successCount}/${allCount} 运行中`}</span>
+          </Popover>
+        </div>
       </div>
     )
   }
-
+  addTomcat = values => {
+    this.setState({
+      createConfirmLoading: true,
+    }, () => {
+      //   {
+      //     name: "tomcat_2",
+      //     "start_port": "8000",
+      //     "catalina_home_dir": "/usr/local/tomcat_2",
+      //     "catalina_home_env": "CATALINA_HOME_TOMCAT_2"
+      //  }
+      console.log('add', values)
+      const { createTomcat } = this.props
+      values.vminfo_id = this.state.currVM.vminfoId
+      createTomcat(values, {
+        success: {
+          func: res => {
+            console.log(res)
+            if (res.statusCode === 200) {
+              notification.success(`新建 ${values.name} 成功`)
+              this.setState({
+                isShowAddModal: false,
+              })
+              this.loadData()
+            }
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            if (err.statusCode === 500) {
+              notification.warn('端口号重复')
+            } else {
+              notification.warn('新建 Tomcat 失败')
+            }
+          }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              createConfirmLoading: false,
+            })
+          }
+        }
+      })
+    })
+  }
+  onRemove = () => {
+    this.setState({
+      removeConfirmLoading: true,
+    }, () => {
+      const { currTom, currVM } = this.state
+      console.log('当前行', currTom)
+      const { deleteTomcat } = this.props
+      deleteTomcat({
+        id: currTom.id
+      }, {
+        success: {
+          func: res => {
+            if (res.status === 200 || res.statusCode === 200) {
+              this.setState({
+                currTom: {},
+                // isShowCheckModal: false,
+                isShowConfirmRemove: false,
+              })
+              // this.loadData()
+              this.getTomcatListFunc(currVM)
+              notification.success("卸载成功")
+            }
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: () => {
+            notification.warn("卸载失败")
+          }
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              removeConfirmLoading: false,
+            })
+          }
+        }
+      })
+    })
+  }
   render() {
     const { data } = this.props
-    const { list, total, searchValue } = this.state
+    const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
+      tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -451,11 +605,17 @@ class VMList extends React.Component {
           let fStyle = {
             marginRight: '6%'
           }
+          const menu = (
+            <Menu onClick={(e) => this.handleOK(e, record)}>
+              <Menu.Item key="add">&nbsp;添加 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
+              <Menu.Item key="check">&nbsp;查看/卸载 Tomcat 实例&nbsp;&nbsp;</Menu.Item>
+              <Menu.Item key="delete">&nbsp;删除&nbsp;&nbsp;</Menu.Item>
+            </Menu>
+          )
           return (
-            <div>
-              <Button type="primary" className="tabBtn" onClick={this.handleE.bind(this, record)}>编辑信息</Button>
-              <Button className="tabDel" onClick={this.handleOK.bind(this, record.vminfoId, record.user, record.host)}>删除</Button>
-            </div>
+            <Dropdown.Button onClick={()=>this.handleE(record)} overlay={menu} type="ghost">
+              编辑信息
+            </Dropdown.Button>
           )
         }
       },
@@ -467,6 +627,41 @@ class VMList extends React.Component {
       }
     };
     const scope = this
+    const checkColumns = [
+      {
+        title: '实例',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '状态',
+        dataIndex: 'serverStatus',
+        key: 'serverStatus',
+        render: (text, record) => this.getStatus(record.serverStatus, record.name, true),
+      },
+      {
+        title: '安装路径',
+        dataIndex: 'catalinaHomeDir',
+        key: 'catalinaHomeDir',
+      },
+      {
+        title: '部署应用',
+        dataIndex: 'appCount',
+        key: 'appCount',
+      },
+      {
+        title: '操作',
+        dataIndex: 'e',
+        key: 'operation',
+        ID: 'operation',
+        render: (text, record) => {
+          return <Button onClick={() => { this.setState({
+            currTom: record,
+            isShowConfirmRemove: true,
+          }) }}>卸载</Button>
+        }
+      },
+    ]
     return (
       <QueueAnim>
         <div key="VMList" id="VMList">
@@ -475,7 +670,7 @@ class VMList extends React.Component {
             <Button type='primary' size='large' className='addBtn' onClick={() => this.handleA()}>
               <i className='fa fa-plus' /> 添加传统环境
             </Button>
-            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.getInfo(1, searchValue)} ><i className='fa fa-refresh' /> 刷 新</Button>
+            <Button type="ghost" size="large" className="manageBtn" onClick={() => this.loadData()} ><i className='fa fa-refresh' /> 刷 新</Button>
             {/*<Button type="ghost" icon="delete" size="large" className="manageBtn">删除</Button>*/}
             {/* <Input className="search" placeholder="请输入虚拟机IP搜索" size="large" onSearch={(e) => this.handleSearch(e)} /> */}
             <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value) => { this.getInfo(1, value) }} size="large" placeholder="请输入虚拟机IP搜索" />
@@ -515,6 +710,68 @@ class VMList extends React.Component {
               {/* <span style={{ fontSize: 16, color: '#ff0000' }}><Icon size={15} style={{ color: '#ff0000' }} type="question-circle-o" />是否删除当前传统应用环境</span> */}
             </Modal>
           </Row>
+          {
+            isShowAddModal ?
+              <CreateTomcat
+                form={this.props.form}
+                isNeedModal={true}
+                title="添加 Tomcat 实例"
+                onOk={this.addTomcat}
+                onCancel={() => this.setState({ isShowAddModal: false })}
+                visible={isShowAddModal}
+                tomcatList={tomcatList}
+                allPort={allPort}
+                confirmLoading={createConfirmLoading}
+              />
+              :
+              null
+          }
+          {
+            isShowCheckModal ?
+              <Modal
+                title="查看/卸载 Tomcat 实例"
+                width="650px"
+                visible={isShowCheckModal}
+                closable={false}
+                footer={<Button size="large" onClick={() => {
+                  this.setState({ isShowCheckModal: false })
+                  this.loadData()
+                }}>
+                    关闭
+                  </Button>}
+                wrapClassName="checkTomcatModalWapper"
+              >
+                <Table
+                  columns={checkColumns}
+                  dataSource={tomcatList}
+                  pagination={{
+                    defaultCurrent: 1,
+                    defaultPageSize: 5,
+                    total: tomcatList.length,
+                  }}
+                  loading={this.state.loading}
+                />
+              </Modal>
+              :
+              null
+          }
+          {
+            isShowConfirmRemove ?
+              <Modal
+                title="卸载"
+                onCancel={() => { this.setState({ isShowConfirmRemove: false, currTom: {} }) }}
+                onOk={this.onRemove}
+                visible={isShowConfirmRemove}
+                confirmLoading={removeConfirmLoading}
+              >
+                <div className="deleteRow">
+                  <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+                  确定卸载实例 {currTom.name}？
+                </div>
+              </Modal>
+              :
+              null
+          }
         </div>
       </QueueAnim>
 
@@ -533,4 +790,7 @@ export default connect(mapStateToProps, {
   putVMinfoList,
   checkVMUser,
   checkVminfoExists,
-})(VMList)
+  getTomcatList,
+  deleteTomcat,
+  createTomcat,
+})(Form.create()(VMList))

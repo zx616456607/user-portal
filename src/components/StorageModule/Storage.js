@@ -1125,7 +1125,7 @@ class Storage extends Component {
               <div className="littleRight">
                 <Input size="large"
                   style={{ paddingRight: '28px' }}
-                  placeholder={formatMessage(StorageIntl.pleaseInput)}
+                  placeholder={formatMessage(StorageIntl.pleaseStorageName)}
                   onChange={e => this.setState({ searchInput: e.target.value })}
                   onPressEnter={() => this.searchByStorageName()}
                 />

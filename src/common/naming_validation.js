@@ -424,7 +424,7 @@ export function ingressRelayRuleCheck(value) {
   }
   const regx = /[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-/a-z0-9]*[a-z0-9])?)*$/
   if (!regx.test(value)) {
-    return '小写字母、数字、中划线-组成，以字母或者数组开头和结尾'
+    return '小写字母、数字、中划线-组成，以字母或者数字开头和结尾'
   }
   return 'success'
 }
@@ -498,3 +498,28 @@ export function lbNameCheck(value) {
    }
    return 'success'
  }
+
+ export function checkName(_,value, ) {
+  if (!value) {
+    return cb('请输入名称')
+  }
+  if (value.length <3 || value.length > 32) {
+    return cb('长度为3~32位字符')
+  }
+  if (/^root$/i.test(value)) {
+    return cb(`${value} 为系统保留字`)
+  }
+  if (!/^[a-zA-Z0-9]{1}[A-Za-z0-9_\-]{1,30}[a-zA-Z0-9]+$/.test(value)) {
+    return cb('名称为字母数字开头和结尾，中间可中划线、下划线')
+  }
+  if (this.props) {
+    const { data } = this.props
+    if (data) {
+      const result = data.some(item => item.name == value)
+      if(result) {
+        return cb('名称已经存在')
+      }
+    }
+  }
+  cb()
+}

@@ -42,7 +42,6 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import ResourceQuota from "../ResourceLimit";
 import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
 import NoteIcon from './NoteIcon'
@@ -1168,7 +1167,9 @@ let NetworkConfiguration = React.createClass ({
         </Modal>
         <Modal
           wrapClassName="vertical-center-modal"
-          width='65%'
+          // [LOT-3166] 添加网络出口Modal 1280x800小屏幕下有问题
+          // 该Modal下内容宽度是确定的, 应该将 Modal的宽度也设置为定值
+          width="980px"
           title={formatMessage(intlMsg.addNetOut)}
           footer={[
             <Button key="cancel" onClick={this.cancleEdit}><FormattedMessage {...intlMsg.cancel}/></Button>,

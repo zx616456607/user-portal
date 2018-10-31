@@ -90,6 +90,17 @@
       background-color: #daf1ff;
       color: #40bdf5;
     }
+    .dubbo-switch {
+      margin-top: 8px;
+      .dubbo-operator-tip {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 3px;
+      }
+    }
     .appliedStatus{
       background-color: #dffbed;
       color: #0dd86f;
@@ -363,22 +374,27 @@
           margin-left: 0;
         }
       }
-      .item{
-        width: 110px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        border-radius: 5px;
-        background-color: #edf0f5;
-        color: #7b7f82;
-        display: inline-block;
-        padding: 3px 15px;
-        margin-right: 15px;
-        margin-bottom: 5px;
-      }
-      .nodata{
-        text-align: center;
-        color: #ccc;
+      .members {
+        display: flex;
+        flex-wrap: wrap;
+        .item{
+          flex: 1 1 auto;
+          width: 96px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          border-radius: 5px;
+          background-color: #edf0f5;
+          color: #7b7f82;
+          padding: 3px 15px;
+          margin-right: 15px;
+          margin-bottom: 10px;
+        }
+        .nodata{
+          text-align: center;
+          color: #ccc;
+        }
+
       }
     }
     .permissionContainer{

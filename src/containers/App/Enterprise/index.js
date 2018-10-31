@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import Sider from '../../../components/Sider/Enterprise'
+import OpenStack from '../../../components/Sider/Enterprise/OpenStack'
 import App from '../'
 import { Link } from 'react-router'
 import { message } from 'antd'
@@ -120,8 +121,13 @@ class EnterpriseApp extends Component {
    }
   }
   render() {
+    const { location } = this.props
+    let SiderComonent = Sider
+    if (location.pathname.indexOf('/OpenStack') > -1) {
+      SiderComonent = OpenStack
+    }
     return (
-      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} Sider={Sider} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
+      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} Sider={SiderComonent} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
     )
   }
 }

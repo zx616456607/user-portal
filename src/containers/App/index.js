@@ -35,7 +35,7 @@ import {
   LICENSE_EXPRIED_CODE,
   LITE, MY_SPACE,
 } from '../../constants'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
@@ -671,7 +671,7 @@ class App extends Component {
           </div>
         </Modal>
         <Modal
-          visible={currentUser !== loginUser.userName}
+          visible={currentUser && loginUser.userName && currentUser !== loginUser.userName}
           title={formatMessage(IntlMessages.loginUserChanged)}
           maskClosable={false}
           closable={false}

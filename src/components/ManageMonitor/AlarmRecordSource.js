@@ -306,9 +306,9 @@ class AlarmRecord extends Component {
         render: (text) => {
           switch (text) {
             case 0:
-              return <div style={{ color: '#33b867' }}>否</div>
+              return <div style={{ color: '#f23e3f' }}>否</div>
             case 1:
-              return <div style={{ color: '#f23e3f' }}>是</div>
+              return <div style={{ color: '#33b867' }}>是</div>
             case 2:
               return <div style={{ color: '#f23e3f' }}>发送失败</div>
             default:

@@ -24,7 +24,6 @@ import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import DockerImg from '../../assets/img/quickentry/docker.png'
-import { camelize } from 'humps'
 import itemIntl from './intl/itemIntl'
 import { injectIntl } from 'react-intl'
 import filter from 'lodash/filter'
@@ -127,6 +126,7 @@ let MyComponent = React.createClass({
     //this function for user submit add other image space
     e.preventDefault();
     const scope = this.props.scope;
+    const { formatMessage } = this.props.intl
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
@@ -148,7 +148,7 @@ let MyComponent = React.createClass({
       this.props.addOtherStore(config, {
         success: {
           func: (res) => {
-            notification.success('添加第三方镜像成功')
+            notification.success(formatMessage(itemIntl.addotherRegistry1))
             scope.setState({
               createModalShow: false
             });
@@ -174,9 +174,9 @@ let MyComponent = React.createClass({
               content: (<h3>{err.message.message}</h3>)
             });*/
             if (err.code === 409 || err.statusCode === 409){
-              notification.error('添加第三方镜像失败', '仓库名重复')
+              notification.error(formatMessage(itemIntl.addotherRegistry0), formatMessage(itemIntl.registryRepeat))
             } else {
-              notification.error('添加第三方镜像失败', err.message.message)
+              notification.error(formatMessage(itemIntl.addotherRegistry0), formatMessage(itemIntl.pleaseCheckAddress))
             }
           },
           isAsync: true

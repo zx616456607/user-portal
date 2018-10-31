@@ -78,9 +78,7 @@ class CPU extends Component {
     isDataEmpty ? option.addYAxis('value', {formatter: '{value} %'}, 0, 100) : option.addYAxis('value', {formatter: '{value} %'})
     isDataEmpty ? option.setXAxisMinAndMax(isDataEmpty ? Date.parse(currentStart) : minValue, Date.parse(new Date())) :
       option.setXAxisMinAndMax(minValue)
-    if (data) {
-      option.setGirdForDataCommon(data.length)
-    }
+
     return (
       <div className="chartBox">
         <span className="freshTime">

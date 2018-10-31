@@ -35,10 +35,6 @@ const menuList = [
     url: '/manange_monitor/alarm_record',
     name: 'alarmRecord'
   },
-   {
-    url: '/manange_monitor/alarm_group',
-    name: 'alarmGroup'
-  },
 ]
 
 export default class ManageMonitor extends Component {

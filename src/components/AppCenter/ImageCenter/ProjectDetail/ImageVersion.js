@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { encodeImageFullname } from '../../../../common/tools'
 import ServiceAPI from './ServiceAPI.js'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import './style/ImageVersion.less'
 import NotificationHandler from '../../../../components/Notification'
 import { loadRepositoriesTags, deleteAlone, loadProjectMaxTagCount, updateProjectMaxTagCount,
@@ -711,7 +711,7 @@ class ImageVersion extends Component {
           this.dropdownVisible[name] = true
         }
         const { allLabels } = this.state
-        const subItems = allLabels.length && allLabels.map((label, i) => {
+        const subItems = allLabels.length ? allLabels.map((label, i) => {
           let checked = false
           if(!!filter(record.labels, { name: label.name, scope: label.scope })[0]) checked = true
           const key = name + "_" + label.name + "_checkbox"
@@ -732,7 +732,7 @@ class ImageVersion extends Component {
               </Checkbox>
             </MenuItem>
           )
-        })
+        }) : ''
         const labelMenu = <SubMenu
           key="subMenu"
           className="rowContainer"
@@ -741,7 +741,7 @@ class ImageVersion extends Component {
           title={<span><Icon type="tags" /> {formatMessage(imageVersionIntl.configTags)}</span>}>
           {subItems}
         </SubMenu>
-        items.unshift(labelMenu)
+        items.unshift(subItems ? labelMenu : <MenuItem key="noLabels">请先配置标签</MenuItem>)
         return (
           <div>
             <Button className="viewDetailsBtn"type="ghost" onClick={this.handleDetail.bind(this, record)}>

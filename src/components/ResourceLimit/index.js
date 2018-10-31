@@ -23,11 +23,13 @@ import { putGlobaleQuota,
   getClusterQuota,
   getClusterQuotaList,
   getDevopsGlobaleQuotaList } from '../../actions/quota'
+import { getProjectVisibleClusters } from '../../actions/project'
 import NotificationHandler from '../../components/Notification'
 import { REG } from '../../constants'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../constants'
 import { toQuerystring } from '../../common/tools'
-import TenxIcon from '@tenx-ui/icon'
+import TenxIcon from '@tenx-ui/icon/es/_old'
+import { getDeepValue } from '../../../client/util/util'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -72,18 +74,20 @@ class ResourceQuota extends React.Component {
         return '个'
     }
   }
-  fetchQuota(key) {
-    const { getGlobaleQuota,
+  async fetchQuota(key) {
+    const {
+      getGlobaleQuota,
       getGlobaleQuotaList,
       getResourceDefinition,
       getClusterQuota,
       getClusterQuotaList,
-      clusterID,
       projectName,
       getDevopsGlobaleQuotaList,
-      namespace } = this.props
+      namespace,
+      getProjectVisibleClusters,
+    } = this.props
     const query = {
-      id: key ? key : clusterID,
+      id: key,
       header: {
         teamspace: projectName,
         onbehalfuser: ''
@@ -173,6 +177,32 @@ class ResourceQuota extends React.Component {
         isAsync: true
       }
     })
+    let { cluster } = this.state
+    const clustersRes = await getProjectVisibleClusters(projectName, { failed: {} }) || {}
+    const clusters = getDeepValue(clustersRes, [ 'response', 'result', 'data', 'clusters' ]) || []
+    if (!clusters || clusters.length < 1) {
+      cluster = ''
+      this.setState({
+        cluster,
+        quotaName: '-',
+      })
+      return
+    }
+    let targetCluster
+    clusters.forEach(clusterItem => {
+      if (clusterItem.clusterID === cluster) {
+        targetCluster = clusterItem
+      }
+    })
+    if (!targetCluster) {
+      targetCluster = clusters[0]
+      cluster = targetCluster.clusterID
+      query.id = cluster
+      this.setState({
+        cluster,
+        quotaName: targetCluster.clusterName,
+      })
+    }
     getClusterQuota(query, {
       success: {
         func: res => {
@@ -271,9 +301,10 @@ class ResourceQuota extends React.Component {
       putGlobaleQuota(query, {
         success: {
           func: res => {
-            const { getGlobaleQuota,  clusterID, projectName, namespace } = this.props
+            const { cluster } = this.state
+            const { getGlobaleQuota, projectName, namespace } = this.props
             const query = {
-              id: clusterID,
+              id: cluster,
               header: {
                 teamspace: projectName
               }
@@ -315,7 +346,7 @@ class ResourceQuota extends React.Component {
   handleClusterOk() {
     let notify = new NotificationHandler()
     const { cluster } = this.state
-    const { putClusterQuota, clusterID, getClusterQuota, projectName, namespace } = this.props
+    const { putClusterQuota, getClusterQuota, projectName, namespace } = this.props
     const { validateFields } = this.props.form
     validateFields((error, value) => {
       if (!!error) return
@@ -333,7 +364,7 @@ class ResourceQuota extends React.Component {
         }
       }
       let query = {
-        id: cluster === '' ? clusterID : cluster,
+        id: cluster,
         header,
         body
       }
@@ -614,22 +645,25 @@ class ResourceQuota extends React.Component {
   }
 
   render() {
-    const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum } = this.state //属性
+    const { gIsEdit, cIsEdit, isDisabled, inputsDisabled, quotaName, sum, cluster } = this.state //属性
     const { globaleList, clusterList } = this.state //数据
     const { clusterData, clusterName, outlineRoles=[], projectName, projectDetail,
-       showProjectName, roleNameArr
+       showProjectName, roleNameArr, clustersFetching
      } = this.props
     const newshowProjectName = showProjectName
     //默认集群
     const menu = (
       <Menu onClick={(e) => this.handleOnMenu(e)}>
         {
-          clusterData ?
-            clusterData.map((item, index) => (
+          clusterData.length > 0
+          ? clusterData.map((item, index) => (
               <Menu.Item key={item.clusterID}>
                 <span>{item.clusterName}</span>
               </Menu.Item>
-            )) : ''
+            ))
+          : <Menu.Item disabled>
+            暂无授权集群
+          </Menu.Item>
         }
       </Menu>
     )
@@ -819,282 +853,295 @@ class ResourceQuota extends React.Component {
               <span className="desc">{quotaName ? quotaName : clusterName} <Icon type="down" /></span>
             </Dropdown>
           </div>
-          <div className="header">
-            {
-              cIsEdit ?
-                <div>
-                  <Button size="large" className="close" onClick={() => this.handleClusterClose()}>取消</Button>
-                  <Button size="large" className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
-                  {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handaleClusterPlus()}</p> 个资源配额</span> */}
-                </div> :
-                this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
-                  <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button> : ''
-            }
-          </div>
-          <div className="liste">
-            {
-              cIsEdit ?
-                <div className="edit">
-                  {
-                    this.state.quotas.clusterResource.map(v => {
-                      return (
-                        <div key={v.id}>
-                          <span>{v.name}</span>
-                          {
-                            v.children ?
-                              v.children.map((k, i) => {
-                                if (k.children) {
-                                  return <div className="platform" key={k.id}>
-                                    {this.icon(k.name)}
-                                    <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
-                                    {
-                                      k.children.map(item => {
-                                        const inputValue = getFieldValue(item.id)
-                                        const beforeValue = this.maxClusterCount(item.id)
-                                        let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                                        plusValue = Math.floor(plusValue * 100) / 100
-                                        const isPlus = inputValue > beforeValue ? true : false
-                                        const checkKey = `${item.id}-check`
-                                        const checkProps = getFieldProps(checkKey, {
-                                          initialValue: beforeValue === -1 ? true : false,
-                                          onChange: (e) => {
-                                            const unlimitedKeys=this.state.clusterUnlimited
-                                            if(e.target.checked) {
-                                              setFieldsValue({
-                                                [item.id]: null,
-                                              })
-                                              unlimitedKeys.push(item.id)
-                                              this.setState({
-                                                clusterUnlimited: unlimitedKeys,
-                                              })
-                                            }else {
-                                              unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
-                                              this.setState({
-                                                clusterUnlimited: unlimitedKeys
-                                              })
-                                              setFieldsValue({
-                                                [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
-                                              })
-                                            }
+          {
+            clustersFetching &&
+            <div className="loadingTips">loading ...</div>
+          }
+          {
+            !clustersFetching && !cluster &&
+            <div className="loadingTips">暂无授权集群</div>
+          }
+          {
+            !clustersFetching && cluster &&
+            [
+              <div className="header" key="header">
+                {
+                  cIsEdit ?
+                    <div>
+                      <Button size="large" className="close" onClick={() => this.handleClusterClose()}>取消</Button>
+                      <Button size="large" className="save" type="primary" onClick={(e) => this.handleClusterOk(e)}>保存</Button>
+                      {/* <span className="header_desc">修改配额，将修改 <p className="sum">{this.handaleClusterPlus()}</p> 个资源配额</span> */}
+                    </div> :
+                    this.props.role === ROLE_SYS_ADMIN || this.props.role === ROLE_PLATFORM_ADMIN ?
+                      <Button size="large" className="edit" type="primary" onClick={() => this.handleClusterEdit()}>编辑</Button> : ''
+                }
+              </div>,
+              <div className="liste" key="liste">
+                {
+                  cIsEdit ?
+                    <div className="edit">
+                      {
+                        this.state.quotas.clusterResource.map(v => {
+                          return (
+                            <div key={v.id}>
+                              <span>{v.name}</span>
+                              {
+                                v.children ?
+                                  v.children.map((k, i) => {
+                                    if (k.children) {
+                                      return <div className="platform" key={k.id}>
+                                        {this.icon(k.name)}
+                                        <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
+                                        {
+                                          k.children.map(item => {
+                                            const inputValue = getFieldValue(item.id)
+                                            const beforeValue = this.maxClusterCount(item.id)
+                                            let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                                            plusValue = Math.floor(plusValue * 100) / 100
+                                            const isPlus = inputValue > beforeValue ? true : false
+                                            const checkKey = `${item.id}-check`
+                                            const checkProps = getFieldProps(checkKey, {
+                                              initialValue: beforeValue === -1 ? true : false,
+                                              onChange: (e) => {
+                                                const unlimitedKeys=this.state.clusterUnlimited
+                                                if(e.target.checked) {
+                                                  setFieldsValue({
+                                                    [item.id]: null,
+                                                  })
+                                                  unlimitedKeys.push(item.id)
+                                                  this.setState({
+                                                    clusterUnlimited: unlimitedKeys,
+                                                  })
+                                                }else {
+                                                  unlimitedKeys.splice(unlimitedKeys.indexOf(item.id), 1)
+                                                  this.setState({
+                                                    clusterUnlimited: unlimitedKeys
+                                                  })
+                                                  setFieldsValue({
+                                                    [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
+                                                  })
+                                                }
 
-                                            // e.target.checked ? setFieldsValue({
-                                            //   [item.id]: null,
-                                            // }) : setFieldsValue({
-                                            //   [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
-                                            // })
-                                          },
-                                          valuePropName: 'checked',
-                                        })
-                                        const checkValue = getFieldValue(checkKey)
-                                        const id = item.id? item.id: 'id'
-                                        const inputProps = getFieldProps(`${id}`, {
-                                          rules: [
-                                            {
-                                              validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
-                                            }
-                                          ],
-                                          initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.id) : 0
-                                        })
-                                        const surplus = inputProps.value !== undefined
-                                          ? Math.round((inputProps.value - this.useClusterCount(item.id)) * 100) / 100
-                                          : '无限制'
-                                        return (
-                                          <Row key={item.id} className="connents">
-                                            <Col span={3} style={{ minWidth: '120px' }}>
-                                              <span>{item.name}</span>
-                                            </Col>
-                                            <Col span={7} style={{ height: 'auto' }}>
-                                              <FormItem>
-                                                <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" id={item.id || 'id'} style={{ width: '100%' }} />
-                                              </FormItem>
-                                            </Col>
-                                            <Col span={3}>
-                                              <FormItem>
-                                                <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                                              </FormItem>
-                                            </Col>
-                                            <Col span={4}>
-                                              <span className="surplus">配额剩余：{surplus}</span>
-                                              {
-                                                plusValue > 0 ?
-                                                  <div className="plus">
-                                                    <p>+ {plusValue}</p>
-                                                  </div> :
-                                                  plusValue === 0 || isNaN(plusValue) ? '' :
-                                                    <div className="minu">
-                                                      <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                                    </div>
-                                              }
-                                            </Col>
-                                          </Row>
-                                        )
-                                      })
-                                    }
-                                    {
-                                      i !== v.children.length - 1?
-                                        <p className="line"></p>
-                                        :
-                                        ''
-                                    }
+                                                // e.target.checked ? setFieldsValue({
+                                                //   [item.id]: null,
+                                                // }) : setFieldsValue({
+                                                //   [item.id]: this.maxClusterCount(item.id) === -1 ? null : this.maxClusterCount(item.id)
+                                                // })
+                                              },
+                                              valuePropName: 'checked',
+                                            })
+                                            const checkValue = getFieldValue(checkKey)
+                                            const id = item.id? item.id: 'id'
+                                            const inputProps = getFieldProps(`${id}`, {
+                                              rules: [
+                                                {
+                                                  validator: (rules, value, callback) => this.globalValueCheck(rules, value, callback, item.name, item.id)
+                                                }
+                                              ],
+                                              initialValue: clusterList ? checkValue === true ? undefined : this.maxClusterCount(item.id) === -1 ? undefined : this.maxClusterCount(item.id) : 0
+                                            })
+                                            const surplus = inputProps.value !== undefined
+                                              ? Math.round((inputProps.value - this.useClusterCount(item.id)) * 100) / 100
+                                              : '无限制'
+                                            return (
+                                              <Row key={item.id} className="connents">
+                                                <Col span={3} style={{ minWidth: '120px' }}>
+                                                  <span>{item.name}</span>
+                                                </Col>
+                                                <Col span={7} style={{ height: 'auto' }}>
+                                                  <FormItem>
+                                                    <Input {...inputProps} disabled={checkValue} placeholder="请输入授权配额数量" id={item.id || 'id'} style={{ width: '100%' }} />
+                                                  </FormItem>
+                                                </Col>
+                                                <Col span={3}>
+                                                  <FormItem>
+                                                    <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
+                                                  </FormItem>
+                                                </Col>
+                                                <Col span={4}>
+                                                  <span className="surplus">配额剩余：{surplus}</span>
+                                                  {
+                                                    plusValue > 0 ?
+                                                      <div className="plus">
+                                                        <p>+ {plusValue}</p>
+                                                      </div> :
+                                                      plusValue === 0 || isNaN(plusValue) ? '' :
+                                                        <div className="minu">
+                                                          <p>{isNaN(plusValue) ? '' : plusValue}</p>
+                                                        </div>
+                                                  }
+                                                </Col>
+                                              </Row>
+                                            )
+                                          })
+                                        }
+                                        {
+                                          i !== v.children.length - 1?
+                                            <p className="line"></p>
+                                            :
+                                            ''
+                                        }
 
-                                  </div>
-                                }
-                                const inputValue = getFieldValue(k.id)
-                                const beforeValue = this.maxClusterCount(k.id)
-                                let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
-                                plusValue = Math.floor(plusValue * 100) / 100
-                                const checkKey = `${k.id}-check`
-                                const checkProps = getFieldProps(checkKey, {
-                                  initialValue: beforeValue === -1 ? true : false,
-                                  onChange: (e) => {
-                                    const unlimitedKeys=this.state.clusterUnlimited
-                                    if(e.target.checked) {
-                                      setFieldsValue({
-                                        [k.id]: null,
-                                      })
-                                      unlimitedKeys.push(k.id)
-                                      this.setState({
-                                        clusterUnlimited: unlimitedKeys,
-                                      })
-                                    }else {
-                                      unlimitedKeys.splice(unlimitedKeys.indexOf(k.id), 1)
-                                      this.setState({
-                                        clusterUnlimited: unlimitedKeys
-                                      })
-                                      setFieldsValue({
-                                        [k.id]: this.maxClusterCount(k.id) === -1 ? null : this.maxClusterCount(k.id)
-                                      })
+                                      </div>
                                     }
-                                  },
-                                  valuePropName: 'checked'
-                                })
-                                const checkValue = getFieldValue(checkKey)
-                                let id = k.id? k.id : 'id'
-                                const inputProps = getFieldProps(id, {
-                                  // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
-                                  //   {
-                                  //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
-                                  //   }
-                                  // ] : [],
-                                  rules:  [
-                                    {
-                                      validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name, k.id)
-                                    }
-                                  ],
-                                  initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : undefined
-                                })
-                                const surplus = inputProps.value !== undefined
-                                  ? Math.round((inputProps.value - this.useClusterCount(k.id)) * 100) / 100
-                                  : '无限制'
-                                return (
-                                  <Row key={k.id} className="connents">
-                                    <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
-                                      <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
-                                    </Col>
-                                    <Col span={7} style={{ height: 'auto' }}>
-                                      <FormItem>
-                                        <Input {...inputProps} id={k.id || 'id'} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
-                                      </FormItem>
-                                    </Col>
-                                    <Col span={3} style={{ height: 'auto' }}>
-                                      <FormItem>
-                                        <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
-                                      </FormItem>
-                                    </Col>
-                                    <Col span={4}>
-                                      <span className="surplus">配额剩余：{surplus}</span>
-                                      {
-                                        plusValue > 0 ?
-                                          <div className="plus">
-                                            <p>+ {plusValue}</p>
-                                          </div> :
-                                          plusValue === 0 || isNaN(plusValue) ? '' :
-                                            <div className="minu">
-                                              <p>{isNaN(plusValue) ? '' : plusValue}</p>
-                                            </div>
-                                      }
-                                    </Col>
-                                  </Row>
-                                )
-                              })
-                              :
-                              ''
-                          }
-                        </div>
-                      )
-                    })
-                  }
-                </div> :
-                <div className="lists">
-                  {
-                    this.state.quotas.clusterResource.map((v, i) => {
-                      return (
-                        <div className="quotaItem">
-                          <span>{v.name}</span>
-                          {
-                            v.children?
-                              v.children.map((k, current) => {
-                                return k.children ?
-                                  <div key={k.id} className="childrenItem">
-                                    {this.icon(k.name)}
-                                    <span>{k.name}</span>
-                                    {
-                                      k.children.map(item => (
-                                        <Row className="list" key={item.id}>
-                                          <Col span={3} style={{ minWidth: '120px' }}>
-                                            <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
-                                          </Col>
-                                          <Col span={10}>
-                                            <Progress percent={this.filterPercent(this.maxClusterCount(item.id), this.useClusterCount(item.id))} showInfo={false} />
-                                          </Col>
-                                          <Col span={4}>
-                                            {
-                                              this.useClusterCount(item.id) > this.maxClusterCount(item.id) ?
-                                                this.maxClusterCount(item.id) === -1 ?
-                                                  <span>{this.useClusterCount(item.id)}</span> :
-                                                  <span style={{ color: 'red' }}>{this.useClusterCount(item.id)}</span> :
-                                                <span>{this.useClusterCount(item.id)}</span>
-                                            }/<p>{this.maxClusterCount(item.id) === -1 ? '无限制' : this.maxClusterCount(item.id)}</p>
-
-                                          </Col>
-                                        </Row>
-                                      ))
-                                    }
-                                    { current !== v.children.length-1?
-                                      <p className="line"></p> : ''
-                                    }
-
-                                  </div>
+                                    const inputValue = getFieldValue(k.id)
+                                    const beforeValue = this.maxClusterCount(k.id)
+                                    let plusValue = beforeValue === -1 ? inputValue : inputValue - beforeValue
+                                    plusValue = Math.floor(plusValue * 100) / 100
+                                    const checkKey = `${k.id}-check`
+                                    const checkProps = getFieldProps(checkKey, {
+                                      initialValue: beforeValue === -1 ? true : false,
+                                      onChange: (e) => {
+                                        const unlimitedKeys=this.state.clusterUnlimited
+                                        if(e.target.checked) {
+                                          setFieldsValue({
+                                            [k.id]: null,
+                                          })
+                                          unlimitedKeys.push(k.id)
+                                          this.setState({
+                                            clusterUnlimited: unlimitedKeys,
+                                          })
+                                        }else {
+                                          unlimitedKeys.splice(unlimitedKeys.indexOf(k.id), 1)
+                                          this.setState({
+                                            clusterUnlimited: unlimitedKeys
+                                          })
+                                          setFieldsValue({
+                                            [k.id]: this.maxClusterCount(k.id) === -1 ? null : this.maxClusterCount(k.id)
+                                          })
+                                        }
+                                      },
+                                      valuePropName: 'checked'
+                                    })
+                                    const checkValue = getFieldValue(checkKey)
+                                    let id = k.id? k.id : 'id'
+                                    const inputProps = getFieldProps(id, {
+                                      // rules: (!checkValue && !this.state[`${k.id}-check`]) ? [
+                                      //   {
+                                      //     validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name)
+                                      //   }
+                                      // ] : [],
+                                      rules:  [
+                                        {
+                                          validator: (rules, value, callback) => this.checkInputValue(rules, value, callback, k.name, k.id)
+                                        }
+                                      ],
+                                      initialValue: clusterList ? checkValue === true ? undefined : beforeValue === -1 ? undefined : beforeValue : undefined
+                                    })
+                                    const surplus = inputProps.value !== undefined
+                                      ? Math.round((inputProps.value - this.useClusterCount(k.id)) * 100) / 100
+                                      : '无限制'
+                                    return (
+                                      <Row key={k.id} className="connents">
+                                        <Col span={3} style={{ minWidth: '120px', height: 'auto' }}>
+                                          <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
+                                        </Col>
+                                        <Col span={7} style={{ height: 'auto' }}>
+                                          <FormItem>
+                                            <Input {...inputProps} id={k.id || 'id'} disabled={checkValue} placeholder="请输入授权配额数量" style={{ width: '100%' }} />
+                                          </FormItem>
+                                        </Col>
+                                        <Col span={3} style={{ height: 'auto' }}>
+                                          <FormItem>
+                                            <Checkbox {...checkProps} checked={checkValue}>无限制</Checkbox>
+                                          </FormItem>
+                                        </Col>
+                                        <Col span={4}>
+                                          <span className="surplus">配额剩余：{surplus}</span>
+                                          {
+                                            plusValue > 0 ?
+                                              <div className="plus">
+                                                <p>+ {plusValue}</p>
+                                              </div> :
+                                              plusValue === 0 || isNaN(plusValue) ? '' :
+                                                <div className="minu">
+                                                  <p>{isNaN(plusValue) ? '' : plusValue}</p>
+                                                </div>
+                                          }
+                                        </Col>
+                                      </Row>
+                                    )
+                                  })
                                   :
-                                  <Row className="list" key={k.id}>
-                                    <Col span={3} style={{ minWidth: '120px' }}>
-                                      <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
-                                    </Col>
-                                    <Col span={10}>
-                                      <Progress percent={this.filterPercent(this.maxClusterCount(k.id), this.useClusterCount(k.id))} showInfo={false} />
-                                    </Col>
-                                    <Col span={4}>
-                                      {
-                                        this.useClusterCount(k.id) > this.maxClusterCount(k.id) ?
-                                          this.maxClusterCount(k.id) === -1 ?
-                                            <span>{this.useClusterCount(k.id)}</span> :
-                                            <span style={{ color: 'red' }}>{this.useClusterCount(k.id)}</span> :
-                                          <span>{this.useClusterCount(k.id)}</span>
-                                      }/<p>{this.maxClusterCount(k.id) === -1 ? '无限制' : this.maxClusterCount(k.id)}</p>
-                                    </Col>
-                                  </Row>
-                              })
-                              :
-                              ''
-                          }
-                        </div>
+                                  ''
+                              }
+                            </div>
+                          )
+                        })
+                      }
+                    </div> :
+                    <div className="lists">
+                      {
+                        this.state.quotas.clusterResource.map((v, i) => {
+                          return (
+                            <div className="quotaItem">
+                              <span>{v.name}</span>
+                              {
+                                v.children?
+                                  v.children.map((k, current) => {
+                                    return k.children ?
+                                      <div key={k.id} className="childrenItem">
+                                        {this.icon(k.name)}
+                                        <span>{k.name}</span>
+                                        {
+                                          k.children.map(item => (
+                                            <Row className="list" key={item.id}>
+                                              <Col span={3} style={{ minWidth: '120px' }}>
+                                                <span>{item.name + ` (${this.quotaSuffix(item.resourceType)})`}</span>
+                                              </Col>
+                                              <Col span={10}>
+                                                <Progress percent={this.filterPercent(this.maxClusterCount(item.id), this.useClusterCount(item.id))} showInfo={false} />
+                                              </Col>
+                                              <Col span={4}>
+                                                {
+                                                  this.useClusterCount(item.id) > this.maxClusterCount(item.id) ?
+                                                    this.maxClusterCount(item.id) === -1 ?
+                                                      <span>{this.useClusterCount(item.id)}</span> :
+                                                      <span style={{ color: 'red' }}>{this.useClusterCount(item.id)}</span> :
+                                                    <span>{this.useClusterCount(item.id)}</span>
+                                                }/<p>{this.maxClusterCount(item.id) === -1 ? '无限制' : this.maxClusterCount(item.id)}</p>
 
-                      )
-                    })
-                  }
-                </div>
-            }
-          </div>
+                                              </Col>
+                                            </Row>
+                                          ))
+                                        }
+                                        { current !== v.children.length-1?
+                                          <p className="line"></p> : ''
+                                        }
+
+                                      </div>
+                                      :
+                                      <Row className="list" key={k.id}>
+                                        <Col span={3} style={{ minWidth: '120px' }}>
+                                          <span>{k.name + ` (${this.quotaSuffix(k.resourceType)})`}</span>
+                                        </Col>
+                                        <Col span={10}>
+                                          <Progress percent={this.filterPercent(this.maxClusterCount(k.id), this.useClusterCount(k.id))} showInfo={false} />
+                                        </Col>
+                                        <Col span={4}>
+                                          {
+                                            this.useClusterCount(k.id) > this.maxClusterCount(k.id) ?
+                                              this.maxClusterCount(k.id) === -1 ?
+                                                <span>{this.useClusterCount(k.id)}</span> :
+                                                <span style={{ color: 'red' }}>{this.useClusterCount(k.id)}</span> :
+                                              <span>{this.useClusterCount(k.id)}</span>
+                                          }/<p>{this.maxClusterCount(k.id) === -1 ? '无限制' : this.maxClusterCount(k.id)}</p>
+                                        </Col>
+                                      </Row>
+                                  })
+                                  :
+                                  ''
+                              }
+                            </div>
+
+                          )
+                        })
+                      }
+                    </div>
+                }
+              </div>
+            ]
+          }
         </div>
         <Modal title="超限" visible={this.state.visible}
                ok={() => this.handleOk()}
@@ -1116,22 +1163,21 @@ class ResourceQuota extends React.Component {
   }
 }
 ResourceQuota = createForm()(ResourceQuota)
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { clusterID } = current.cluster
   const { clusterName } = current.cluster
-  const user = current.space.namespace
   const { role } = loginUser.info
   const { namespace } = loginUser.info
   const { projectVisibleClusters } = state.projectAuthority
-  const clusterData = projectVisibleClusters[user] && projectVisibleClusters[user].data || []
+  const project = props.projectName
+  const clusterData = projectVisibleClusters[project] || {}
 
   return {
     role,
     namespace,
-    clusterID,
     clusterName,
-    clusterData,
+    clusterData: clusterData.data || [],
+    clustersFetching: clusterData.isFetching,
   }
 }
 
@@ -1144,4 +1190,5 @@ export default connect(mapStateToProps, {
   putGlobaleQuota,
   putClusterQuota,
   getDevopsGlobaleQuotaList,
+  getProjectVisibleClusters,
 })(ResourceQuota)

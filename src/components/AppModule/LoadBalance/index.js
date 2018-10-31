@@ -220,6 +220,18 @@ class LoadBalance extends React.Component {
       title: '地址',
       width: '10%',
       dataIndex: 'metadata.annotations.podIP',
+      render: (text, record) => {
+        const agent = record.metadata.labels.agentType
+        if (text) return text // 已启动
+        if (agent === 'outside') { //集群外 && 未启动
+          return record.metadata.annotations.allocatedIP
+        }
+        if (agent === 'inside') { // 集群内 && 未启动
+          const ipStr = record && getDeepValue(record, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
+          const ipPod = ipStr && JSON.parse(ipStr)[0]
+          return ipPod
+        }
+      }
     }, {
       title: '代理方式',
       dataIndex: 'metadata.labels.agentType',
@@ -282,7 +294,7 @@ class LoadBalance extends React.Component {
             删除后将失去负载均衡器内的所有监听，并且基于该负载均衡创建的QPS弹性伸缩策略会失效，是否确定删除？
           </div>
         </Modal>
-        <ResourceBanner resourceType='loadbalance'/>
+        <ResourceBanner resourceType={["insideloadbalance", "outsideloadbalance"]}/>
         <div className="layout-content-btns" key="layout-content-btns">
           <Button type="primary" size="large" onClick={this.openBalanceModal}><i className="fa fa-plus" /> 创建负载均衡</Button>
           <Button type="ghost" size="large" onClick={this.refreshData}><i className='fa fa-refresh' /> 刷 新</Button>

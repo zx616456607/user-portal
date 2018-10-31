@@ -54,6 +54,7 @@ import isEmpty from "lodash/isEmpty";
 import meshIcon from '../../assets/img/meshIcon.svg'
 import {camelize} from "humps";
 import * as meshActions from '../../actions/serviceMesh'
+import { getDeepValue } from '../../../client/util/util';
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -379,10 +380,8 @@ const MyComponent = React.createClass({
       const isRollingUpdate = item.status.phase == 'RollingUpdate'
       const titleText = (isRollingUpdate ? formatMessage(intlMsg.grayBackAct): formatMessage(intlMsg.rollUpdateAct)) || ''
       const isRollingUpdateOrScrollRelease = item.status.phase == 'RollingUpdate' || item.status.phase === 'ScrollRelease'
-      const ipv4 = item.spec.template && item.spec.template.metadata && item.spec.template.metadata.annotations
-        && item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs']
-        && JSON.parse(item.spec.template.metadata.annotations['cni.projectcalico.org/ipAddrs'])
-        || null
+      const ipv4Str = getDeepValue(item, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const ipv4 = ipv4Str && JSON.parse(ipv4Str)
       const isDisabled = ipv4 && ipv4.length <= item.spec.replicas || false
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
@@ -607,7 +606,12 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'} />
+              <TipSvcDomain
+              svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'}
+              serviceMeshflagListInfo={this.props.mesh}
+              msaUrl={this.props.msaUrl}
+              serviceName={item.metadata.name}
+              />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -713,6 +717,7 @@ class AppServiceList extends Component {
         isAsync: true
       }
     })
+    this.reloadServiceMesh()
   }
 
   onAllChange(e) {
@@ -759,12 +764,15 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    const { getServiceListServiceMeshStatus } = this.props
     this.upStatusInterval = setInterval(() => {
       this.loadServices(null, { keepChecked: true })
     }, UPDATE_INTERVAL)
+    this.reloadServiceMesh()
+  }
+  reloadServiceMesh = async () => {
+    const { getServiceListServiceMeshStatus } = this.props
     const serviceNames = this.props.serviceList.map(({ metadata: { name } = {}}) => name)
     let ServiceListmeshResult
     try{
@@ -776,12 +784,11 @@ class AppServiceList extends Component {
     const serviceListMesh = serviceNames.map((name) => {
       const serviceMesh = Object.values(ServiceListmeshData)
       .filter((service)=> typeof service === 'object')
-      .find((service) => service.metadata.name === name)
-      return { name, value: serviceMesh.istioEnabled }
+      .find((service) => service.metadata.name === name) || {}
+      return { name, value: serviceMesh.istioEnabled, referencedComponent: serviceMesh.referencedComponent }
     })
     this.setState({ mesh: serviceListMesh })
   }
-
   componentWillUnmount() {
     const {
       cluster,
@@ -1416,6 +1423,7 @@ class AppServiceList extends Component {
             intl={this.props.intl}
             bindingDomains={this.props.bindingDomains}
             mesh={this.state.mesh}
+            msaUrl={this.props.msaUrl}
              />
           <Modal
             title="垂直居中的对话框"
@@ -1433,6 +1441,8 @@ class AppServiceList extends Component {
                 selectTab={selectTab}
                 serviceDetailmodalShow={this.state.modalShow}
                 onClose={this.closeModal}
+                mesh={this.state.mesh}
+                msaUrl={this.props.msaUrl}
               />
               :
               null
@@ -1630,6 +1640,7 @@ function mapStateToProps(state, props) {
       results: []
     }
   }
+  const { entities: { loginUser: { info: { msaConfig: {url:msaUrl} = {} } } = {} } = {} } = state
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1646,7 +1657,8 @@ function mapStateToProps(state, props) {
     terminalList,
     isFetching,
     availabilityNumber,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule,
+    msaUrl
   }
 }
 
