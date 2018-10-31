@@ -656,16 +656,19 @@ class ImageCheckTable extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.setState({imageDetailModalShow:false})}
         >
-          <ProjectDetail
-            location={location}
-            isAdminAndHarbor={isAdmin}
-            server={serverName}
-            visible={imageDetailModalShow}
-            scope={this}
-            config={currentImage}
-            project_id={currentImage && currentImage.targetProjectID}
-            currentUserRole={currentUserRole}
-          />
+          {
+            imageDetailModalShow &&
+            <ProjectDetail
+              location={location}
+              isAdminAndHarbor={isAdmin}
+              server={serverName}
+              visible={imageDetailModalShow}
+              scope={this}
+              config={currentImage}
+              project_id={currentImage && currentImage.targetProjectID}
+              currentUserRole={currentUserRole}
+            />
+          }
         </Modal>
       </div>
     )

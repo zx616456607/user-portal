@@ -1992,7 +1992,7 @@
   "AppCenter.ImageCenter.Detail.AuditLog.memberName": "成员名",
   "AppCenter.ImageCenter.Detail.AuditLog.imageName": "镜像名称",
   "AppCenter.ImageCenter.Detail.AuditLog.searchPlaceholder": "搜索",
-  "AppCenter.ImageCenter.Detail.AuditLog.tag": "标签",
+  "AppCenter.ImageCenter.Detail.AuditLog.tag": "版本",
   "AppCenter.ImageCenter.Detail.AuditLog.option": "操作",
   "AppCenter.ImageCenter.Detail.AuditLog.timestamp": "时间戳",
   "AppCenter.ImageCenter.Detail.AuditLog.noData": "暂无数据",
