@@ -18,7 +18,7 @@ export const mapData = {
     memberName: '成员名',
     imageName: '镜像名称',
     searchPlaceholder: '搜索',
-    tag: '标签',
+    tag: '版本',
     option: '操作',
     timestamp: '时间戳',
     noData: '暂无数据',
