@@ -117,7 +117,8 @@ class ServiceSecretsConfig extends React.Component {
   onCreateServiceGroupModalCancel = () => this.setState({ createServiceGroupModalVisible: false })
 
   handleRemoveSecrets = () => {
-    const { removeSecrets, clusterID, secretsOnUse } = this.props
+    const { removeSecrets, clusterID, secretsOnUse, intl } = this.props
+    const { formatMessage } = intl
     const {
       checkedList,
     } = this.state
