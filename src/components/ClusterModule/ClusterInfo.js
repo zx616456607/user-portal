@@ -464,7 +464,7 @@ let ClusterInfo = React.createClass ({
         >
           <div style={{color:"#00a0ea"}}>
             <i className="fa fa-question-circle-o" aria-hidden="true" style={{marginRight:'12px'}}></i>
-            <FormattedMessage values={{ clusterName: this.clusterListLength().currentClusterName }} {...intlMsg.onlySupportOneCluster}/>
+            <FormattedMessage values={{ clusterName }} {...intlMsg.onlySupportOneCluster}/>
               {/*目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境*/}
             </div>
         </Modal>
