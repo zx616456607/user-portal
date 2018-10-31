@@ -15,7 +15,7 @@ import { Menu } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Icon } from 'antd'
 import './style/index.less'
-import OpenStackImg from '../../../assets/img/appstore/openstack-logo.png'
+import OpenStackImg from '../../../assets/img/appstore/openstack-logo.svg'
 
 const SubMenu = Menu.SubMenu
 
