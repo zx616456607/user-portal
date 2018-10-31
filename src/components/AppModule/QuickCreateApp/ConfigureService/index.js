@@ -228,7 +228,7 @@ let ConfigureService = React.createClass({
            if (location.query && location.query.tag) {
               let hasTag
               result.data.every(tags =>{
-                if (tags == location.query.tag) {
+                if (tags.name === location.query.tag) {
                   hasTag = true
                   return false
                 }
