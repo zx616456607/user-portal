@@ -585,7 +585,7 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     const openScaleStatus = getFieldProps('openScale', {
-      initialValue: isEmpty(scaleDetail) ? false : scaleDetail.type === 1,
+      initialValue: isEmpty(scaleDetail) ? true : scaleDetail.type === 1,
       valuePropName: 'checked',
     })
     let thresholdItem
@@ -819,7 +819,7 @@ class AppAutoScale extends Component {
                           <Col span={4}/>
                           <Col span={16}>
                           <FormItem>
-                            <Checkbox {...openScaleStatus} disabled={!isEdit}>保存后开启伸缩策略</Checkbox>
+                            <Checkbox {...openScaleStatus} disabled={!isEdit}>开启伸缩策略</Checkbox>
                           </FormItem>
                           </Col>
                         </Row>
