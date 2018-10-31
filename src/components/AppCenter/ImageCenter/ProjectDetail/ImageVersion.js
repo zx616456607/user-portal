@@ -523,6 +523,8 @@ class ImageVersion extends Component {
   }
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
+    console.log("selectedRowKeys", selectedRowKeys)
+    console.log("selectedRows", selectedRows)
     this.setState({
       selectedRowKeys: selectedRows
     })
@@ -622,6 +624,7 @@ class ImageVersion extends Component {
     const imageDetail = this.props.config
     const rowSelection = {
       onChange: this.onSelectChange,
+      selectedRowKeys: selectedRowKeys.map(item => item.edition),
     }
     const { formatMessage } = this.props.intl
     const columns = [{
@@ -911,6 +914,7 @@ class ImageVersion extends Component {
           </div>
           <div className="body">
             <Table
+              rowKey={record => record.edition}
               columns={columns}
               dataSource={dataAry}
               loading={isFetching}
