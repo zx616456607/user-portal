@@ -13,22 +13,22 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Menu } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import TenxIcon from '@tenx-ui/icon'
 import { Icon } from 'antd'
 import './style/index.less'
+import OpenStackImg from '../../../assets/img/appstore/openstack-logo.png'
 
 const SubMenu = Menu.SubMenu
 
 class Sider extends React.Component {
   render() {
-    const { backColor, oemInfo } = this.props
+    const { backColor } = this.props
     return (
       <div id="sider" className={`oemMenu-drek-${backColor}`}>
         <QueueAnim type='left' className='siderBiggerBox'>
           <div key='siderBigger' className='siderBigger'>
             <div className='logBox'>
               <Link to='/OpenStack'>
-                <img className='logo' src={oemInfo.naviExpand} />
+                <img className='logo' src={OpenStackImg} />
               </Link>
             </div>
             <Menu
@@ -71,13 +71,13 @@ class Sider extends React.Component {
                   </Link>
                   </div>
                 </Menu.Item>
-                <Menu.Item key='obj'>
+                {/* <Menu.Item key='obj'>
                   <div className="adminBox">
                     <Link to="/OpenStack/objStorage">
                       对象存储
                   </Link>
                   </div>
-                </Menu.Item>
+                </Menu.Item> */}
               </SubMenu>
               <SubMenu key="net" title={<div>网络资源</div>}>
                 <Menu.Item key='net'>
@@ -128,7 +128,6 @@ function mapStateToProp(state) {
     role,
     backColor,
     loginUser: entities && entities.loginUser && entities.loginUser.info,
-    oemInfo: oemInfo || {},
   }
 }
 
