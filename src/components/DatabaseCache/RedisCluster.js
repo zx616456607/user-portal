@@ -47,12 +47,8 @@ let MyComponent = React.createClass({
     this.props.setAutoBackup(item)
   },
   render: function () {
-    const { config, isFetching, uninstalledPlugin, plugin, storageClassType, title } = this.props;
+    const { config, isFetching, uninstalledPlugin, plugin, title } = this.props;
     const canCreate = this.props.canCreate
-
-    if (uninstalledPlugin) {
-      title = `${plugin} 插件未安装`
-    }
 
     if (isFetching) {
       return (
