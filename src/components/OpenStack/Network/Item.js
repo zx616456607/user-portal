@@ -70,9 +70,7 @@ class Network extends Component {
     this.setState({editer: true,id, create: true})
   }
   deleteMoalfunc() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { id }= this.state
     this.setState({actionLoading: true})
     this.props.deleteNetwork(id,{
@@ -85,6 +83,10 @@ class Network extends Component {
       },
       failed:{
         func:(err)=> {
+          if (err.statusCode == 409) {
+            notificat.warn('删除失败', '当前网络正在使用中，解绑后可删除')
+            return
+          }
           notificat.error('删除失败',err.message.NeutronError.message)
         }
       },
@@ -113,15 +115,14 @@ class Network extends Component {
     this.Modalfunc(true)
   }
   render() {
-    const { networksList, isFetching, project } = this.props
-    const { currentProject } = this.state
+    const { networksList, isFetching } = this.props
     const columns = [
       {
         title: '专有网络名称',
         dataIndex: 'name',
         key: 'name',
         width:'25%',
-        render: (text,row) => <Link to={`/OpenStack/net/${row.name}/${row.id}?project=${currentProject}`}>{text}</Link>
+        render: (text,row) => <Link to={`/OpenStack/net/${row.name}/${row.id}`}>{text}</Link>
       }, {
         title: '状态',
         dataIndex: 'status',
@@ -192,7 +193,7 @@ class Network extends Component {
           }
         </Card>
         {this.state.create ?
-          <CreateModal project={this.state.currentProject} visible={this.state.create} id={this.state.id} editer={this.state.editer} data={networksList} func ={funcCallback} />
+          <CreateModal visible={this.state.create} id={this.state.id} editer={this.state.editer} data={networksList} func ={funcCallback} />
         :null
         }
         <Modal title="删除操作"
