@@ -298,16 +298,16 @@ class ImageDetailBox extends Component {
         </div>
         <div className="downloadBox">
           <div className="code">
-            <TenxIcon type="download"/>
+            <TenxIcon type="download" className="left"/>
             {formatMessage(detailIndexIntl.downloadImage)}&nbsp;&nbsp;&nbsp;&nbsp;
             <span className="pullCode textoverflow">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(detailIndexIntl.copySuccess) : formatMessage(detailIndexIntl.copyBtn)}>
-              <TenxIcon type="copy" className='appcentercopy' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}/>
+              <TenxIcon type="copy" className='appcentercopy center' onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}/>
             </Tooltip>
             <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
-            <TenxIcon type="download"/>
+            <TenxIcon type="download" className="right"/>
             {imageDetail[camelize('pull_count')]}
           </div>
           <div style={{ clear: "both" }}></div>

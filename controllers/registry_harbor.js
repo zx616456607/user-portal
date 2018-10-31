@@ -261,8 +261,7 @@ exports.getRepository = function* () {
 // [PUT] /repositories/:name
 exports.updateRepository= harborHandler(
   (harbor, ctx, callback) => harbor.updateRepository(ctx.params.name,
-    ctx.request.body && ctx.request.body.description &&
-    { description: ctx.request.body.description },
+    ctx.request.body,
     callback))
 
 // [GET] /statistics

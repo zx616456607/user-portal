@@ -69,6 +69,7 @@ class PageLogs extends Component {
       postBody.keywords = this.state.filterOp
     }
     this.loadData({
+      operation: this.state.filterOp.split('/').join(','),
       page: page,
       page_size: this.state.pageSize
     }, postBody)
@@ -86,6 +87,7 @@ class PageLogs extends Component {
       postBody.keywords = this.state.filterOp
     }
     this.loadData({
+      operation: this.state.filterOp.split('/').join(','),
       page: 1,
       page_size: this.state.pageSize
     }, postBody)
@@ -112,6 +114,7 @@ class PageLogs extends Component {
       postBody[this.state.searchType] = this.state.keyword
     }
     this.loadData({
+      operation: filter.operation.join(","),
       page: page,
       page_size: this.state.pageSize
     })
