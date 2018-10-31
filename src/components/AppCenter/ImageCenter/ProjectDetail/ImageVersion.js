@@ -523,8 +523,6 @@ class ImageVersion extends Component {
   }
 
   onSelectChange = (selectedRowKeys, selectedRows) => {
-    console.log("selectedRowKeys", selectedRowKeys)
-    console.log("selectedRows", selectedRows)
     this.setState({
       selectedRowKeys: selectedRows
     })
