@@ -28,13 +28,18 @@ class PageLogs extends Component {
       currentPage: 1,
       pageSize: 10,
       searchType: 'username',
-      Name:'',
+      keyword:'',
+      filterOp: '',
     }
   }
-  loadData(query, data) {
+  loadData(query) {
     const { loadProjectLogs, params, harbor } = this.props
+
+    query.operation = this.state.filterOp.split('/').join(",")
+    query[this.state.searchType] = this.state.keyword
+
     query.harbor = harbor
-    loadProjectLogs(DEFAULT_REGISTRY, params.id, query, data)
+    loadProjectLogs(DEFAULT_REGISTRY, params.id, query)
   }
   componentWillMount() {
     this.loadData({
@@ -44,7 +49,7 @@ class PageLogs extends Component {
     const { formatMessage } = this.props.intl
     this.select = <Select style={{width: '90px'}} defaultValue="username" onChange={(e) => this.searchType(e)}>
       <Option key="username">{formatMessage(logIntl.memberName)}</Option>
-      <Option key="repo_name">{formatMessage(logIntl.imageName)}</Option>
+      <Option key="repository">{formatMessage(logIntl.imageName)}</Option>
     </Select>
   }
   componentDidUpdate() {
@@ -60,18 +65,14 @@ class PageLogs extends Component {
     this.setState({
       currentPage: page
     })
-    const postBody = {
-    }
+    const postBody = {}
     if(this.state.keyword) {
       postBody[this.state.searchType] = this.state.keyword
-    }
-    if(this.state.filterOp) {
-      postBody.keywords = this.state.filterOp
     }
     this.loadData({
       page: page,
       page_size: this.state.pageSize
-    }, postBody)
+    })
   }
   searchLogs(keyword) {
     //const keyword = e.target.value
@@ -79,16 +80,10 @@ class PageLogs extends Component {
       keyword,
       currentPage: 1
     })
-    const postBody = {
-      [this.state.searchType]: keyword
-    }
-    if(this.state.filterOp) {
-      postBody.keywords = this.state.filterOp
-    }
     this.loadData({
       page: 1,
       page_size: this.state.pageSize
-    }, postBody)
+    })
   }
   filter(pagination, filter, sort) {
     let page = pagination.current
@@ -102,18 +97,11 @@ class PageLogs extends Component {
     this.setState({
       currentPage: page,
       filterOp: filterOp,
-    })
-    const postBody = {
-    }
-    if(filterOp) {
-      postBody.keywords = filterOp
-    }
-    if(this.state.keyword) {
-      postBody[this.state.searchType] = this.state.keyword
-    }
-    this.loadData({
-      page: page,
-      page_size: this.state.pageSize
+    }, () => {
+      this.loadData({
+        page: page,
+        page_size: this.state.pageSize
+      })
     })
   }
   render() {
@@ -181,10 +169,14 @@ class PageLogs extends Component {
     return (
       <div id="logs">
         <div className='littleLeft'>
-          <i className='fa fa-search' onClick={this.searchLogs.bind(this, this.state.Name)} />
+          <i className='fa fa-search' onClick={this.searchLogs.bind(this, this.state.keyword)} />
         </div>
         <div className="topRow">
-          <Input addonBefore={this.select} placeholder={formatMessage(logIntl.searchPlaceholder)} onChange={(e) => {this.setState({Name: e.target.value})}} className="search" id="logSearch" size='large' onPressEnter={(e) => this.searchLogs(e.target.value)} />
+          <Input addonBefore={this.select}
+            placeholder={formatMessage(logIntl.searchPlaceholder)}
+            onChange={(e) => {this.setState({keyword: e.target.value})}}
+            className="search" id="logSearch" size='large'
+            onPressEnter={(e) => this.searchLogs(e.target.value)} />
           {/*{total >0 ?
             <span className="totalPage">共计：{total} 条</span>
           :null

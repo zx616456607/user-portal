@@ -91,7 +91,7 @@ let AppServiceAssistSetting = React.createClass({
           className="entryInput"
           size="large"
           {...getFieldProps(`arg_${index}`, { initialValue: arg,  onChange: openButtonLock })}
-          disabled={false}
+          disabled={true}
           />
           </Tooltip>
       </FormItem>
