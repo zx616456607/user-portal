@@ -30,6 +30,7 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 import {loadProjectMembers} from "../../../actions/harbor";
 import isEmpty from "lodash/isEmpty";
 import {camelize} from "humps";
+import { getDeepValue } from "../../../../client/util/util";
 
 const Option = Select.Option;
 const notify = new NotificationHandler()
@@ -628,17 +629,21 @@ class WrapComopnent extends React.Component {
           transitionName="move-right"
           onCancel={()=> this.cancelImageModal()}
         >
-          <ProjectDetail
-            getStoreList={getStoreList}
-            getAppsHotList={getAppsHotList}
-            location={location}
-            isAdminAndHarbor={isAdmin}
-            server={server}
-            scope={this}
-            config={currentImage}
-            visible={imageDetailModalShow}
-            currentUserRole={currentUserRole}
-          />
+          {
+            imageDetailModalShow &&
+            <ProjectDetail
+              getStoreList={getStoreList}
+              getAppsHotList={getAppsHotList}
+              location={location}
+              isAdminAndHarbor={isAdmin}
+              server={server}
+              scope={this}
+              config={currentImage}
+              project_id={getDeepValue(currentImage, [ 'versions', 0, 'targetProjectID' ])}
+              visible={imageDetailModalShow}
+              currentUserRole={currentUserRole}
+            />
+          }
         </Modal>
         <WrapDetailModal
           visible={detailModal}
