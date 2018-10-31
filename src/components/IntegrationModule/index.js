@@ -330,11 +330,11 @@ class Integration extends Component {
                         <div className='envInfo'>
                           <div className='envDetail'>
                             <div className='numBox'>01</div>
-                            <div className='envName'>部署好的 OpenStack 环境</div>
+                            <div className='envName'>部署好的 Terraform 环境</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
-                            <div className='envName'>OpenStack 访问的 URL</div>
+                            <div className='envName'>Terraform 访问的 URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>
