@@ -816,7 +816,7 @@ export default connect(mapStateToProps, {
                             rele = <div className="btnConatainer">
                               <Button type="primary" onClick={this.fun2}>已存在策略, 请在列表选择相应策略编辑</Button>
                               <Tooltip title="每个集群仅能添加一个伸缩策略">
-                                <Icon style={{ marginLeft: 5 }} type="clock-circle-o" />
+                                <Icon style={{ marginLeft: 5 }} type="question-circle-o" />
                               </Tooltip>
                             </div>
                           } else {
