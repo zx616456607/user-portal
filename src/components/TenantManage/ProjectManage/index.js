@@ -108,6 +108,11 @@ let ProjectManage = React.createClass({
     }
   },
 
+  componentWillUnmount() {
+    // 用户可能在项目列表页做了一些项目以及集群相关的操作（例如删除项目），退出页面时应该重新选择下当前项目及集群
+    window._reselect_current_project_cluster && window._reselect_current_project_cluster()
+  },
+
   updateProjectName(name) {
     this.setState({
       projectName: name

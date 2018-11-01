@@ -304,6 +304,10 @@ class Header extends Component {
     notification.success(msg)
   }
 
+  componentWillMount() {
+    window._reselect_current_project_cluster = () => this.componentDidMount()
+  }
+
   async componentDidMount() {
     this._checkLiteVersion()
     const notification = new NotificationHandler()
