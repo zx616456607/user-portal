@@ -118,10 +118,10 @@ module.exports = function (Router) {
   router.post('/projects/:name/roles/batch-delete', projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
-  router.get('/projects/plugins/status', projectController.getPluginStatus)
+  router.get('/projects/plugins/enabled', projectController.getPluginStatus)
   router.put('/projects/plugins/:name/enable', projectController.pluginTurnOn)
   router.put('/projects/plugins/:name/disable',projectController.pluginTurnOff)
-  router.get('/projects/plugins/check',projectController.checkPluginInstallStatus)
+  router.get('/projects/plugins/installed',projectController.checkPluginInstallStatus)
   // servicMesh 相关
   router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
@@ -146,6 +146,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/kubeproxy', clusterController.getKubeproxy)
   router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
   router.put('/clusters/:cluster/configs/harbor', clusterController.setHarbor)
+  router.put('/clusters/:cluster/daas/dubbo/services', clusterController.getRegisteredServiceList)
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)

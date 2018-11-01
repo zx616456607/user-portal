@@ -3,12 +3,16 @@ import { Switch, Modal, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import './style/DubboSwitch.less'
 import { getPluginStatus, pluginTurnOff, pluginTurnOn, checkPluginsInstallStatus } from '../../../../../actions/project'
+import { getRegisteredServiceList } from '../../../../../actions/cluster'
+import Ellipsis from '@tenx-ui/ellipsis/lib/index'
+import '@tenx-ui/ellipsis/assets/index.css'
 
 @connect(state => state, {
   getPluginStatus,
   pluginTurnOn,
   pluginTurnOff,
-  checkPluginsInstallStatus
+  checkPluginsInstallStatus,
+  getRegisteredServiceList
 })
 class DubboSwitch extends React.Component {
   state = {
@@ -19,11 +23,21 @@ class DubboSwitch extends React.Component {
       title: '关闭操作',
       text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
       isConfirm: '确认是否关闭'
-    }
+    },
+    dubboServices: []
 
   }
   componentDidMount() {
-    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus } = this.props
+    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus, getRegisteredServiceList } = this.props
+    getRegisteredServiceList(clusterID, projectName, {
+      success: {
+        func: res => {
+          this.setState({
+            dubboServices: res.data
+          })
+        }
+      }
+    })
     getPluginStatus({ clusterID }, projectName, {
       success: {
         func: res => {
@@ -46,31 +60,48 @@ class DubboSwitch extends React.Component {
     })
   }
   dubboSwitchChange = () => {
+    const { dubboServices } = this.state
     this.setState({
       dubboModal: true,
     })
-    let turnOnContent
+    let content
     if (!this.state.dubboSwitchChecked) {
-      turnOnContent = {
+      content = {
         title: '开启操作',
         text: '开启后，项目对应集群支持创建 Dubbo 服务。',
         isConfirm: '确认是否开启'
       }
     }else {
-      turnOnContent = {
+      content = {
         title: '关闭操作',
         text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
         isConfirm: '确认是否关闭'
       }
+      if (dubboServices.length !== 0) {
+        content = {
+          title: '关闭操作',
+          text: '项目对应的集群中存在以下Dubbo服务， 请删除这些服务后，方可执行关闭操作',
+          isConfirm: '',
+          services: dubboServices
+        }
+      }
+
     }
     this.setState({
-      dubboModalContent: turnOnContent
+      dubboModalContent: content
     })
 
   }
   confirmChangeDubbo = () => {
     const { pluginTurnOff, pluginTurnOn, clusterID, projectName } = this.props
+    const { dubboServices } = this.state
     if (this.state.dubboSwitchChecked) {
+      if (dubboServices.length !== 0) {
+        this.setState({
+          dubboModal: false,
+        })
+        return
+      }
       pluginTurnOff('dubbo-operator', { clusterID }, projectName, {
         success: {
           func: res => {
@@ -104,7 +135,7 @@ class DubboSwitch extends React.Component {
     const { dubboOperatorDisabled, dubboModal, dubboModalContent, dubboSwitchChecked } = this.state
     return <div className="dubboSwitch">
       {
-        dubboOperatorDisabled ?
+        !dubboOperatorDisabled ?
           <Switch
             checkedChildren="开"
             unCheckedChildren="关"
@@ -136,6 +167,22 @@ class DubboSwitch extends React.Component {
                 <div>{dubboModalContent.isConfirm}</div>
               </div>
             </div>
+            {
+              dubboModalContent.services && <div className="services-wrapper">
+                <h4>服务名</h4>
+                <ul className="services">
+                  {
+                    dubboModalContent.services.map(v => <li key={v}>
+                      <Ellipsis>
+                         <span>{v}</span>
+                         </Ellipsis>
+                      </li>)
+                  }
+
+                </ul>
+              </div>
+            }
+
           </div>
         }
       </Modal>
