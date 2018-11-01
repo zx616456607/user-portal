@@ -475,15 +475,13 @@ function mapStateToProps(state,props) {
   let listData = []
   const tagKey = Object.keys(serviceTag) || []
   const nameReg = /^tenxcloud.com\//
-  tagKey.forEach( (ele,index)=>{
-    if (!nameReg.test(ele)) {
-      listData.push({
+  tagKey.filter( (ele,index)=> !nameReg.test(ele)
+    && listData.push({
         key:ele,
         value: serviceTag[ele],
         id: index
       })
-    }
-  })
+  )
   return {
    result: listData
   }
