@@ -1029,7 +1029,13 @@ export default connect(mapStateToProps, {
                             rele = <div className="descContainer">资源池已删除，当前策略依然可用<br />若需编辑，请重新配置对应资源池，或重新创建策略</div>
                           } else {
                             rele = <div className="btnConatainer">
-                              <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
+                              <Button type="primary" onClick={this.fun1}>前往配置 {(() => {
+                                let text = 'vSphere'
+                                if (currentIcon === 'openstack') {
+                                  text = 'OpenStack 资源'
+                                }
+                                return text
+                              })()}</Button>
                             </div>
                           }
                         }
