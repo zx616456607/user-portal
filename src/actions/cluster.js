@@ -914,3 +914,32 @@ export function setClusterHarbor(cluster, body, callback) {
     return dispatch(fetchSetClusterHarbor(cluster, body, callback))
   }
 }
+
+// 获取已经注册的服务列表
+export const REGISTERED_SERVICE_REQUEST = 'REGISTERED_SERVICE_REQUEST'
+export const REGISTERED_SERVICE_SUCCESS = 'REGISTERED_SERVICE_SUCCESS'
+export const REGISTERED_SERVICE_FAILURE = 'REGISTERED_SERVICE_FAILURE'
+const fetchRegisteredServiceList = (clusterId, teamspace, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        REGISTERED_SERVICE_REQUEST,
+        REGISTERED_SERVICE_SUCCESS,
+        REGISTERED_SERVICE_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/daas/dubbo/services`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        headers: { teamspace }
+      }
+    },
+    callback,
+  }
+}
+
+export const getRegisteredServiceList = (clusterId, teamspace, callback) => {
+  return dispatch => {
+    dispatch (fetchRegisteredServiceList(clusterId, teamspace, callback))
+  }
+}
