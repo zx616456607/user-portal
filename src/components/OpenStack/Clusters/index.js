@@ -40,7 +40,7 @@ class Cluster extends Component {
   }
   loadData(e) {
 
-    this.props.getClusterList({project: this.state.currentProject}, {
+    this.props.getClusterList({
       success:{
         func:(res)=> {
           this.setState({dataList: res.bays})
@@ -59,9 +59,7 @@ class Cluster extends Component {
     this.setState({create: e})
   }
   queryList() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const inputValue = document.getElementById('searchInput').value
     const { bays } = this.props
     if (!inputValue) {
@@ -89,9 +87,7 @@ class Cluster extends Component {
     },400)
   }
   deleteAction() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { current } = this.state
     const body ={
       uuid: current.uuid,
@@ -99,7 +95,7 @@ class Cluster extends Component {
     }
     notificat.spin('删除集群中...')
     this.setState({delete: false})
-    this.props.deleteCluster(body,{project: this.state.currentProject},{
+    this.props.deleteCluster(body,{
       success:{
         func:()=> {
           notificat.success('删除操作已提交')
@@ -303,7 +299,7 @@ class Cluster extends Component {
             }
           </Card>
           {
-            this.state.create && <CreateModal func={func} data={this.props.bays} project={this.state.currentProject}/>
+            this.state.create && <CreateModal func={func} data={this.props.bays} />
           }
           {
             this.state.delete ?

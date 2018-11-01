@@ -35,9 +35,9 @@ function fetchGetObjectStorageList(query, callback) {
   }
 }
 
-export function getObjectStorageList(query, callback) {
+export function getObjectStorageList(callback) {
   return (dispath, getState) => {
-    return dispath(fetchGetObjectStorageList(query, callback))
+    return dispath(fetchGetObjectStorageList(callback))
   }
 }
 
@@ -64,9 +64,9 @@ function fetchCreateObjectStorage(body, query, callback) {
   }
 }
 
-export function createObjectStorage(body, query, callback) {
+export function createObjectStorage(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchCreateObjectStorage(body, query, callback))
+    return dispatch(fetchCreateObjectStorage(body, callback))
   }
 }
 
@@ -116,9 +116,9 @@ function fetchGetObjectStorageDetailList(name, query, callback) {
   }
 }
 
-export function getObjectStorageDetailList(name, query, callback) {
+export function getObjectStorageDetailList(name, callback) {
   return (dispath) => {
-    return dispath(fetchGetObjectStorageDetailList(name, query, callback))
+    return dispath(fetchGetObjectStorageDetailList(name, callback))
   }
 }
 

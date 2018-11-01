@@ -39,6 +39,10 @@ const clusterRoutes = [
     path: '/cluster/backup',
     component: require('../../client/containers/Monitor').default,
   },
+  {
+    path: '/cluster/integration',
+    component: require('../components/IntegrationModule').default,
+  },
 ]
 
 export default clusterRoutes

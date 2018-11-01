@@ -582,6 +582,7 @@ class App extends Component {
       Sider,
       siderStyle,
       UpgradeModal,
+      location,
       License
     } = this.props
     const { formatMessage } = this.props.intl
@@ -599,7 +600,19 @@ class App extends Component {
       resourcequotaModal,
       resourcequotaMessage,
     } = this.state
-    const scope = this
+    let OpenStack = siderStyle == 'bigger'
+    if (location.pathname.indexOf('/OpenStack') > -1) {
+      OpenStack = true
+    }
+    const headerClassName = classNames('tenx-layout-header',{
+      'tenx-layout-header-bigger': OpenStack
+    })
+    const siderClassName = classNames('tenx-layout-sider',{
+      'tenx-layout-sider-bigger': OpenStack
+    })
+    const contentClassName = classNames('tenx-layout-content',{
+      'tenx-layout-content-bigger': OpenStack
+    })
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
       return (
         <div className="loading">
@@ -611,15 +624,15 @@ class App extends Component {
       <div className={this.props.License ? 'tenx-layout toptips' : 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
         {this.props.tipError}
-        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
+        <div className={headerClassName}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} setSwitchSpaceOrCluster={this.setSwitchSpaceOrCluster} />
           </div>
         </div>
-        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={this.state.siderStyle} />
+        <div className={siderClassName}>
+          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={siderStyle} />
         </div>
-        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
+        <div className={contentClassName}>
           {this.getChildren()}
         </div>
 
