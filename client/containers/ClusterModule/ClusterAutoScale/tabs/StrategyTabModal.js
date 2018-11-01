@@ -39,11 +39,15 @@ export default connect(mapStateToProps, {
 })(Form.create()(class Tab2Modal extends React.Component {
   clickIcon = value => {
     const { isEdit } = this.props
-    const { currentIcon, objCluster } = this.state
-    if (isEdit || currentIcon === value // 当前icon
-      || disabledIcons.indexOf(value) > -1 // 默认禁用的icon
-      || objCluster[value] === true // 已经配置过的
-    ) return
+    const { currDis } = this.state
+    let flag = true
+    for (const item in currDis) {
+      if (currDis[item] === false) {
+        flag = false
+        break
+      }
+    }
+    if (isEdit || currDis[value] || flag) return
     this.setState({ currentIcon: value })
   }
   state = {
@@ -55,13 +59,45 @@ export default connect(mapStateToProps, {
     submitLoading: false,
     allClusterIds: [],
     objCluster: {},
+    currDis: {},
   }
   componentDidMount() {
     // 接收参数
     this.getQueryData()
     this.getServers()
+    this.setCurrDis()
   }
-
+  setCurrDis = () => {
+    const { objCluster } = this.state
+    const { isEdit } = this.props
+    let objProvider
+    objCluster ?
+      objProvider = objCluster.provider
+      :
+      objProvider = { vmware: false, aws: false, azure: false, ali: false, openstack: false }
+    if (isEdit) {
+      objProvider = { vmware: true, aws: true, azure: true, ali: true, openstack: true }
+    }
+    const temp = {}
+    temp.vmware = isEdit ||
+        disabledIcons.indexOf('vmware') > -1 ||
+        (!!objProvider && objProvider.vmware) // true 为已配置 false为未配置
+    temp.openstack = isEdit ||
+        disabledIcons.indexOf('openstack') > -1 ||
+        (!!objProvider && objProvider.openstack)
+    temp.aws = isEdit ||
+        disabledIcons.indexOf('aws') > -1 ||
+        (!!objProvider && objProvider.aws)
+    temp.azure = isEdit ||
+        disabledIcons.indexOf('azure') > -1 ||
+        (!!objProvider && objProvider.azure)
+    temp.ali = isEdit ||
+        disabledIcons.indexOf('ali') > -1 ||
+        (!!objProvider && objProvider.ali)
+    this.setState({
+      currDis: temp,
+    })
+  }
   getServers = () => {
     this.props.getServerList({}, {
       success: {
@@ -103,6 +139,8 @@ export default connect(mapStateToProps, {
     this.setState({
       selectValue: value,
       objCluster: filter(clusterList, { clusterid: value })[0] || {},
+    }, () => {
+      this.setCurrDis()
     })
     return value
   }
@@ -268,7 +306,7 @@ export default connect(mapStateToProps, {
     const { clusterList, isModalFetching, currData,
       form, visible, onClose, isEdit } = this.props
     const { getFieldProps } = form
-    const { currentIcon, objCluster,
+    const { currentIcon, currDis,
       allClusterIds, selectValue, disabled, submitLoading } = this.state
     const currIconClusters = allClusterIds[currentIcon]
     const options = clusterList ?
@@ -279,60 +317,37 @@ export default connect(mapStateToProps, {
             currIconClusters.indexOf(o.clusterid) > -1}
           key={i} value={o.clusterid}>{o.clustername}</Select.Option>) : null
     // !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
-    let objProvider
-    objCluster ? objProvider = objCluster.provider : objProvider = {
-      vmware: false,
-      aws: false,
-      azure: false,
-      ali: false,
-    }
-    if (isEdit) {
-      objProvider = {
-        vmware: true,
-        aws: true,
-        azure: true,
-        ali: true,
-      }
-    }
+
     const iconClass1 = classNames({
       iconCon: true,
       iconvmware: true,
       selectedBox: currentIcon === 'vmware',
-      iconConDis: isEdit ||
-        disabledIcons.indexOf('vmware') > -1 ||
-        (!!objProvider && objProvider.vmware), // true 为已配置 false为未配置
+      iconConDis: currDis.vmware,
     })
     const iconClassOS = classNames({
       iconCon: true,
       iconopenstack: true,
       selectedBox: currentIcon === 'openstack',
-      iconConDis: isEdit ||
-        disabledIcons.indexOf('openstack') > -1 ||
-        (!!objProvider && objProvider.openstack), // true 为已配置 false为未配置
+      iconConDis: currDis.openstack, // true 为已配置 false为未配置
     })
 
     const iconClass2 = classNames({
       iconCon: true,
       iconaws: true,
       selectedBox: currentIcon === 'aws',
-      iconConDis: isEdit ||
-        disabledIcons.indexOf('aws') > -1 ||
-        (!!objProvider && objProvider.aws),
+      iconConDis: currDis.aws,
     })
     const iconClass3 = classNames({
       iconCon: true,
       iconazure: true,
       selectedBox: currentIcon === 'azure',
-      iconConDis: isEdit ||
-        disabledIcons.indexOf('azure') > -1 ||
-        (!!objProvider && objProvider.azure),
+      iconConDis: currDis.azure,
     })
     const iconClass4 = classNames({
       iconCon: true,
       iconali: true,
       selectedBox: currentIcon === 'ali',
-      iconConDis: isEdit ||
-        disabledIcons.indexOf('ali') > -1 || (!!objProvider && objProvider.ali),
+      iconConDis: currDis.ali,
     })
     const formItemLargeLayout = {
       labelCol: { span: 6 },
