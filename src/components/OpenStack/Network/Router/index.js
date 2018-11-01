@@ -321,10 +321,11 @@ class Routers extends Component {
         render: (text, row)=> {
           return <div>
             <Button style={{marginRight:8}} onClick={()=> this.setState({currentItem:row,deleteMoal: true})}>删除</Button>
-            <Dropdown.Button
+            <Button type="primary" style={{marginRight:8}} onClick={()=> this.menuAction(row)}>编辑</Button>
+            {/* <Dropdown.Button
               overlay={this.menu(row)} onClick={()=> this.menuAction(row)}
               type="primary" trigger={['click']}>编辑
-            </Dropdown.Button>
+            </Dropdown.Button> */}
           </div>
         }
       }

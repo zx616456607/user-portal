@@ -769,18 +769,6 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-
-              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-                <li onClick={()=> this.selectModel('integration')}
-                  className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                  <Tooltip placement='right' title={formatMessage(IntlMessages.integration)}
-                    getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                    <Link to='/integration'>
-                      <TenxIcon className="commonImg" type="puzzle-o" />
-                    </Link>
-                  </Tooltip>
-                </li>:''
-              }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.manangeMonitor)}
@@ -1395,20 +1383,6 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
-                {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
-                <Menu.Item key='integration'>
-                  <Link to='/integration'>
-                    <span>
-                      <TenxIcon className="commonImg" type="puzzle-o" />
-                      <span className='commonSiderSpan'>
-                        <FormattedMessage {...IntlMessages.integration} />
-                      </span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  </Link>
-                </Menu.Item>
-                : <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
-                }
                 <SubMenu key='manange_monitor'
                   title={
                     <span>
@@ -1630,6 +1604,14 @@ class Sider extends Component {
                         }}
                       >
                         <FormattedMessage {...IntlMessages.clusterBackup} />
+                      </Link>
+                    </div>
+                  </Menu.Item>
+                  <Menu.Item key='integration'>
+                    <div className="adminBox">
+                      <TenxIcon className="star forAdmin" type="star" />
+                      <Link to='/cluster/integration'>
+                        <FormattedMessage {...IntlMessages.integration} />
                       </Link>
                     </div>
                   </Menu.Item>
