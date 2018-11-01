@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Spin, Table } from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Spin, Table, Pagination } from 'antd'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -310,6 +310,20 @@ class PrivateCompose extends Component {
               <i className='fa fa-plus'></i>&nbsp;
               <FormattedMessage {...menusText.createCompose} />
             </Button>
+            { total !== 0 && <div className='pageBox'>
+              <span className='totalPage'>共 { total } 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  total={total}
+                  pageSize={this.state.pageSize}
+                  current={this.state.currentPage}
+                  onChange={(page)=>{ this.changePage(page,count) }}
+                  // onShowSizeChange={this.onShowSizeChange}
+                  />
+              </div>
+            </div>}
           </div>
           <div className='composeListContainer'>
 
@@ -318,12 +332,7 @@ class PrivateCompose extends Component {
             dataSource={templates}
             simple={true}
             loading={isFetching}
-            pagination={{
-              total: total,
-              pageSize:this.state.pageSize,
-              current:this.state.currentPage,
-              onChange:(page)=>{ this.changePage(page,count) }
-            }}
+            pagination={false}
           >
           </Table>
           </div>

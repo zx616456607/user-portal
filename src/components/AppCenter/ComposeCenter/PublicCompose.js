@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Table, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Table, Spin, Pagination } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -216,17 +216,29 @@ class PublicCompose extends Component {
             <p><FormattedMessage {...menusText.tooltipsThird} /></p>
             <p><FormattedMessage {...menusText.tooltipsForth} /></p>
           </div>
+          <div className='operaBox'>
+            { total !== 0 && <div className='pageBox'>
+              <span className='totalPage'>共 { total } 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  total={total}
+                  pageSize={this.state.pageSize}
+                  current={this.state.currentPage}
+                  onChange={(page)=>{ this.changePage(page,count) }}
+                  // onShowSizeChange={this.onShowSizeChange}
+                  />
+              </div>
+            </div>}
+            <div style={{ clear: 'both' }}></div>
+          </div>
           <div className='PublicComposeList'>
             <Table
               columns={columns}
               dataSource={templates}
               loading={isFetching}
-              pagination={{
-                total:total,
-                pageSize:this.state.pageSize,
-                current:this.state.currentPage,
-                onChange:(page)=>{ this.changePage(page,count) }
-              }}
+              pagination={false}
             ></Table>
           </div>
         </div>
