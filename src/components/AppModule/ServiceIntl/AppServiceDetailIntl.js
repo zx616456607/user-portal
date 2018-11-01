@@ -553,7 +553,7 @@ export const mapData = {
     pleaseChoiceOpenOrCloseService: '请选择开启/关闭服务',
     openOrCloseServiceMeshWrong: '开启/关闭服务网格出错!',
     serviceMeshStatus: '服务网格状态',
-    openCloseServiceMeshNeedReboot: '开启 / 关闭服务网格后, 需要重启服务才能生效。',
+    openCloseServiceMeshNeedReboot: '开启或关闭服务网格后，将自动进行滚动升级，升级后生效。',
     openServiceMesh: '开启服务网格',
     closeServiceMesh: '关闭服务网格',
     afterOpenServiceMeshInfo: '开启后，此服务将由服务网格代理，使用微服务中心提供的治理功能。服务的访问方式可在路由规则中设置',
