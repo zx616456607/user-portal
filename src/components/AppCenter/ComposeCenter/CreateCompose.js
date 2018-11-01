@@ -128,13 +128,17 @@ class CreateCompose extends Component {
         failed: {
           func: (err) => {
             notification.close()
-            if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
-              notification.error(`创建编排 ${values.name} 失败`, err.message.message)
+            if (err.statusCode === 409) {
+              notification.error(`创建编排 ${values.name} 失败`, '错误原因: 名称重复')
+              return
             }
-            scope.props.form.resetFields();
-            scope.setState({
-              currentYaml: ""
-            });
+            if (err.statusCode !== UPGRADE_EDITION_REQUIRED_CODE) {
+              notification.error(`创建编排 ${values.name} 失败`)
+            }
+            // scope.props.form.resetFields();
+            // scope.setState({
+            //   currentYaml: ""
+            // });
           }
         }
       })
