@@ -118,6 +118,15 @@ class CreateSecurityGroup extends React.Component {
       if (ingress.length > 0) {
         ingress.map(el => {
           const type = values[`ingress${el}`]
+          if (type === 'haproxy') {
+            data.haproxy = this.props.proxiesArr
+            values[`ingress${type}${el}`].forEach(item => {
+              ingList.push({
+                type: 'haproxy',
+                groupId: item,
+              })
+            })
+          }
           switch (type) {
             case 'cidr':
               if (!values[`ingress${type}${el}except`]) {
@@ -137,12 +146,12 @@ class CreateSecurityGroup extends React.Component {
                 type: 'service',
                 serviceName: values[`ingress${type}${el}`],
               })
-            case 'haproxy':
-              data.haproxy = this.props.proxiesArr
-              return ingList.push({
-                type: 'haproxy',
-                groupId: values[`ingress${type}${el}`],
-              })
+            // case 'haproxy':
+            //   data.haproxy = this.props.proxiesArr
+            //   return ingList.push({
+            //     type: 'haproxy',
+            //     groupId: values[`ingress${type}${el}`],
+            //   })
             case 'ingress':
               data.ingress = this.props.loadBalanceList
               return ingList.push({

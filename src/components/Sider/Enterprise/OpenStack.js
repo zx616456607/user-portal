@@ -15,7 +15,7 @@ import { Menu } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Icon } from 'antd'
 import './style/index.less'
-import OpenStackImg from '../../../assets/img/appstore/openstack-logo.png'
+import OpenStackImg from '../../../assets/img/appstore/openstack-logo.svg'
 
 const SubMenu = Menu.SubMenu
 
@@ -51,6 +51,7 @@ class Sider extends React.Component {
                 <Menu.Item key='host'>
                   <div className="adminBox">
                     <Link to="/OpenStack/host">
+                      <div className="sideCircle"></div>
                       云主机
                   </Link>
                   </div>
@@ -58,6 +59,7 @@ class Sider extends React.Component {
                 <Menu.Item key='image'>
                   <div className="adminBox">
                     <Link to="/OpenStack/image">
+                      <div className="sideCircle"></div>
                       镜像
                   </Link>
                   </div>
@@ -67,6 +69,7 @@ class Sider extends React.Component {
                 <Menu.Item key='storage'>
                   <div className="adminBox">
                     <Link to="/OpenStack/storage">
+                      <div className="sideCircle"></div>
                       云硬盘
                   </Link>
                   </div>
@@ -74,6 +77,7 @@ class Sider extends React.Component {
                 {/* <Menu.Item key='obj'>
                   <div className="adminBox">
                     <Link to="/OpenStack/objStorage">
+                      <div className="sideCircle"></div>
                       对象存储
                   </Link>
                   </div>
@@ -83,6 +87,7 @@ class Sider extends React.Component {
                 <Menu.Item key='net'>
                   <div className="adminBox">
                     <Link to="/OpenStack/net">
+                      <div className="sideCircle"></div>
                       网络
                   </Link>
                   </div>
@@ -90,6 +95,7 @@ class Sider extends React.Component {
                 <Menu.Item key='router'>
                   <div className="adminBox">
                     <Link to="/OpenStack/router">
+                      <div className="sideCircle"></div>
                       路由器
                   </Link>
                   </div>
@@ -97,6 +103,7 @@ class Sider extends React.Component {
                 <Menu.Item key='ip'>
                   <div className="adminBox">
                     <Link to="/OpenStack/floatIP">
+                      <div className="sideCircle"></div>
                       浮动 IP
                   </Link>
                   </div>

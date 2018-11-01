@@ -22,10 +22,32 @@ class DetailWhiteList extends React.Component {
     return str
   }
 
+  dealResult = current => {
+    const result = parseNetworkPolicy(current)
+    const { egress, ingress } = result
+    const ingressArr = []
+    let groupIdStr = ''
+    ingress && ingress.length && ingress.forEach(item => {
+      if (item.type === 'haproxy') {
+        groupIdStr = groupIdStr + item.groupId + ', '
+      } else {
+        ingressArr.push(item)
+      }
+    })
+    if (groupIdStr) {
+      groupIdStr = groupIdStr.substring(0, groupIdStr.length - 2)
+      ingressArr.push({
+        type: 'haproxy',
+        groupId: groupIdStr,
+      })
+    }
+    return { egress, ingress: ingressArr }
+  }
+
   render() {
     const { type, current } = this.props
     const isIngress = type === 'ingress' && true || false
-    const result = parseNetworkPolicy(current)
+    const result = this.dealResult(current)
     const { egress, ingress } = result
     const detailArr = isIngress ? ingress : egress
     const isolateObj = detailArr && detailArr.length && detailArr.map((item, k) => {

@@ -25,18 +25,14 @@ class NetworkDetail extends Component {
     super()
   }
   componentWillMount() {
-    const { params, getSubnetsDetail, location } = this.props
-    const project = location.query.project
-    if(!project) {
-      return
-    }
-    this.props.getNetWorksDetail(params.id, {project},{
+    const { params, getSubnetsDetail } = this.props
+    this.props.getNetWorksDetail(params.id,{
       success: {
         func: (res) => {
           if(res.network) {
             const subnet = res.network.subnets
             if(subnet && subnet.length > 0) {
-              getSubnetsDetail(subnet[0], {project})
+              getSubnetsDetail(subnet[0])
             }
           }
         },

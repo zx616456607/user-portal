@@ -38,6 +38,8 @@ class AddWhiteList extends React.Component {
     if (type === 'ingress' && ln && ln.length) {
       const num = ln.length
       const ingressArr = []
+      const haproxyArr = []
+      const haproxyInd = []
       for (let i = 0; i < num; i++) {
         ingressArr.push(i)
       }
@@ -51,6 +53,14 @@ class AddWhiteList extends React.Component {
             exStr += `${el},`
           })
           exStr = exStr.slice(0, exStr.length - 1)
+        }
+        if (item.type === 'haproxy') {
+          haproxyArr.push(item.groupId)
+          haproxyInd.push(ind)
+          setFieldsValue({
+            [`ingress${ind}`]: 'haproxy',
+            [`ingresshaproxy${ind}`]: haproxyArr,
+          })
         }
         switch (item.type) {
           case 'service':
@@ -75,15 +85,17 @@ class AddWhiteList extends React.Component {
               [`ingress${ind}`]: 'ingress',
               [`ingressingress${ind}`]: item.ingressId,
             })
-          case 'haproxy':
-            return setFieldsValue({
-              [`ingress${ind}`]: 'haproxy',
-              [`ingresshaproxy${ind}`]: item.groupId,
-            })
+          // case 'haproxy':
+          //   return setFieldsValue({
+          //     [`ingress${ind}`]: 'haproxy',
+          //     [`ingresshaproxy${ind}`]: item.groupId,
+          //   })
           default:
             return null
         }
       })
+      const nums = haproxyInd.length - 1
+      haproxyInd.filter((ele, index) => nums > index && this.remove(ele))
     }
     if (type === 'egress' && ln && ln.length) {
       const eNum = ln.length
@@ -200,7 +212,7 @@ class AddWhiteList extends React.Component {
   }
 
   relatedSelect = (k, isIngress) => {
-    const { form, type } = this.props
+    const { form, type, proxyList } = this.props
     const target = isIngress ? '来源' : '目标'
     const { getFieldValue, getFieldProps } = form
     const option = getFieldValue(`${type}${k}`)
@@ -249,16 +261,21 @@ class AddWhiteList extends React.Component {
         </FormItem>
       case 'haproxy':
         return <FormItem>
-          <Input {...getFieldProps(`${type}${option}${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: `请输入${target}集群网络出口`,
-            }],
-          })}
-          style={{ width: 280 }}
-          placeholder={`请输入${target}集群网络出口`}
-          />
+          <Select
+            {...getFieldProps(`${type}${option}${k}`, {
+              rules: [{
+                required: true,
+                message: `请选择${target}集群网络出口`,
+              }],
+            })}
+            multiple
+            style={{ width: 280 }}
+            placeholder={`请选择${target}集群网络出口`}
+          >
+            {
+              proxyList.map(ele => <Select.Option value={ele.id}>{ele.id}</Select.Option>)
+            }
+          </Select>
         </FormItem>
       case 'ingress':
         return <FormItem>
@@ -420,9 +437,11 @@ class AddWhiteList extends React.Component {
 }
 
 const mapStateToProps = ({ entities: { current },
+  cluster: { proxy: { result } },
 }) => {
   return {
     cluster: current.cluster.clusterID,
+    proxyList: result && result[Object.keys(result)[0]].data || [],
   }
 }
 
