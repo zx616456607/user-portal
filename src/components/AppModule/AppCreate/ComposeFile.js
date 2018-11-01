@@ -90,7 +90,7 @@ class ComposeFile extends Component {
               yamlList.map((item, index) => {
                 try {
                   let yamlObj = yaml.safeLoad(item)
-                  if (yamlObj.kind === "Service") {
+                  /* if (yamlObj.kind === "Service") {
                     // Update external IP to current cluster one
                     if ((!yamlObj.spec.externalIPs ||  yamlObj.spec.externalIPs == "") && externalIPs) {
                       yamlObj.spec.externalIPs = eval(externalIPs)
@@ -99,12 +99,15 @@ class ComposeFile extends Component {
                     if (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
                       yamlObj.spec.type = 'NodePort'
                     }
-                  }
+                  } */
                   convertedContent += yaml.dump(yamlObj)
                   if (index != yamlList.length - 1) {
                     convertedContent += '---\n'
                   }
                 } catch(error) {
+                  if (error.name === 'YAMLException') {
+                    return
+                  }
                   let notification = new NotificationHandler()
                   notification.error(intl.formatMessage(IntlMessage.loadLayoutFileFailed))
                   return
