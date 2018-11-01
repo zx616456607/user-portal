@@ -86,6 +86,15 @@ exports.getLicenses = function* () {
   this.body = result
 }
 
+exports.getLicensesByCluster = function* () {
+  const cluster = this.params.cluster
+  const queryBody = this.query || {}
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.getBy(['clusters', cluster, 'licenses'], queryBody)
+  this.body = response
+}
+
 // input: license key
 // output: success, invalid_license
 exports.addLicense = function* () {

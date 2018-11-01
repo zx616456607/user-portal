@@ -10,8 +10,7 @@
 import React from 'react'
 import {
   Spin, Button, Table, Menu, Dropdown,
-  Card, Pagination,
-  Modal,
+  Card, Pagination, Modal,
 } from 'antd'
 import classNames from 'classnames'
 import _ from 'lodash'
@@ -101,12 +100,13 @@ class Tab1 extends React.Component {
       deleteLoading: true,
     },
     () => {
-      this.props.deleteApp({ cluster: this.state.currentData.cluster }, {
+      const { currentData } = this.state
+      this.props.deleteApp({ cluster: currentData.cluster, type: currentData.iaas }, {
         success: {
           func: () => {
             // 刷新列表
             this.loadData()
-            notify.success(`策略 ${this.state.currentData.name} 删除成功`)
+            notify.success(`策略 ${currentData.name} 删除成功`)
             common()
           },
           isAsync: true,
@@ -114,7 +114,7 @@ class Tab1 extends React.Component {
         failed: {
           func: err => {
             const { message } = err
-            notify.warn(`删除策略 ${this.state.currentData.name} 失败， ${message}`)
+            notify.warn(`删除策略 ${currentData.name} 失败， ${message.message || message}`)
             common()
           },
           isAsync: true,
@@ -122,11 +122,9 @@ class Tab1 extends React.Component {
       })
     })
   }
-  clone = () => {
-  }
 
   onOffItem = rowData => {
-    this.props.changeAppStatus({ cluster: rowData.cluster }, {
+    this.props.changeAppStatus({ cluster: rowData.cluster, type: rowData.iaas }, {
       success: {
         func: () => {
           notify.success(`策略 ${rowData.name} ${rowData.status === 'on' ? '停用' : '启用'} 成功`)
@@ -145,15 +143,6 @@ class Tab1 extends React.Component {
   reflesh = () => {
     this.loadData()
   }
-  // on = () => {
-  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
-  // }
-  // off = () => {
-  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
-  // }
-  // delItems = () => {
-  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
-  // }
 
   onRowChange = selectedRowKeys => {
     this.setState({ selectedRowKeys })
@@ -187,11 +176,12 @@ class Tab1 extends React.Component {
   onTab1ModalCancel = () => {
     this.setState({ isTab1ModalShow: false })
   }
-  onTab1ModalOk = (params, _cb) => {
+  onTab1ModalOk = params => {
     this.setState({
       submitTab1Loading: true,
     }, () => {
       const { addApp, updateApp } = this.props
+      const { isEdit } = this.state
       const resetState = {
         isTab1ModalShow: false,
         pagination: {
@@ -202,27 +192,27 @@ class Tab1 extends React.Component {
           isEdit: false,
         }, // 分页配置
         paginationCurrent: 1,
-        submitTab1Loading: false,
       }
       params.duration = params.duration + ''// 转字符串
       // 新增、修改接口
-      if (this.state.isEdit) {
+      if (isEdit) {
         updateApp(params, {
           success: {
             func: () => {
               notify.success(`策略 ${params.name} 更新成功`)
               this.loadData()
-              this.setState(resetState, function() {
-                !!_cb && _cb()
-              })
+              this.setState(resetState)
             },
             isAsync: true,
           },
           failed: {
             func: err => {
               const { message } = err
-              notify.warn(`更新策略 ${params.name} 失败，${message.message}`)
+              notify.warn(`更新策略 ${params.name} 失败，${message || message.message}`)
             },
+          },
+          finally: {
+            func: () => this.setState({ submitTab1Loading: false }),
           },
         })
       } else {
@@ -232,9 +222,7 @@ class Tab1 extends React.Component {
               func: () => {
                 notify.success(`策略 ${params.name} 新建成功`)
                 this.loadData()
-                this.setState(resetState, function() {
-                  !!_cb && _cb()
-                })
+                this.setState(resetState)
               },
               isAsync: true,
             },
@@ -243,6 +231,9 @@ class Tab1 extends React.Component {
                 const { statusCode, message } = err
                 notify.warn(`新建策略 ${params.name} 失败，错误代码: ${statusCode}， ${message.message}`)
               },
+            },
+            finally: {
+              func: () => this.setState({ submitTab1Loading: false }),
             },
           })
       }
@@ -258,10 +249,10 @@ class Tab1 extends React.Component {
     return <li className={className} key={i}>
       <div className="ant-timeline-item-tail"></div>
       <div className="ant-timeline-item-head ant-timeline-item-head-custom ant-timeline-item-head-blue">
-        <i className="anticon anticon-exclamation-circle" style={{ fontSize: 16, color: '#2cb8f6' }}></i>
+        <i className="anticon anticon-exclamation-circle"></i>
       </div>
       <div className="ant-timeline-item-content">
-        <span style={{ color: '#2cb8f6' }}>{item.message}</span>
+        <span className="message">{item.message}</span>
         <span>{item.date}</span>
       </div>
     </li>
@@ -285,31 +276,11 @@ class Tab1 extends React.Component {
   loadData() {
     this.props.getAppList({})
   }
-  loadDataDidMount() {
-    this.props.getAppList({})
-    // this.props.getAppList({}).then((res) => {
-    //   setInterval(() => {
-    //     this.props.getAppList({});
-    //   }, LOAD_INSTANT_INTERVAL)
-    // });
-  }
   render() {
     const { appList, isTab1Fetching, logList, isLogFetching } = this.props
-    // const searchCls = classNames({
-    //   'ant-search-input': true,
-    //   'ant-search-input-focus': this.state.isSearchFocus,
-    // })
-    // const btnCls = classNames({
-    //   'ant-search-btn': true,
-    //   'ant-search-btn-noempty': !!this.state.searchValue,
-    // })
-    // const rowSelection = {
-    //   onChange: this.onRowChange,
-    //   onSelect(record, selected, selectedRows) {
-    //   },
-    //   onSelectAll(selected, selectedRows, changeRows) {
-    //   },
-    // }
+    const { isShowDelModal, deleteLoading, currentData, pagination,
+      isShowTab1List, paginationCurrent, isEdit,
+      submitTab1Loading, isTab1ModalShow, isTab2ModalShow } = this.state
     const _that = this
     const columns = (() => {
       const clickTableRowName = this.clickTableRowName.bind(this)
@@ -329,14 +300,14 @@ class Tab1 extends React.Component {
         width: 100,
         render: status => (status === 'on' ? <div className="isOnCon"><i className="fa fa-circle"></i>启用</div> : <div className="isOffCon"><i className="fa fa-circle"></i>停用</div>),
       },
-      // {
-      //   title: '阈值',
-      //   dataIndex: 'yuzhi',
-      //   width: 100,
-      // },
       {
         title: '集群',
         dataIndex: 'clustername',
+        width: 100,
+      },
+      {
+        title: 'Iaas',
+        dataIndex: 'iaas',
         width: 100,
       },
       {
@@ -361,7 +332,6 @@ class Tab1 extends React.Component {
           const menu = (
             <Menu className="tab1DropdownMenu" onClick={e => { _that.dropDown(e.key, rowData) }}>
               <Menu.Item key="changeStatus">{ rowData.status === 'on' ? '停用' : '启用'}</Menu.Item>
-              {/* <Menu.Item key="clone">克隆</Menu.Item>*/}
               <Menu.Item key="del">删除</Menu.Item>
             </Menu>
           )
@@ -377,16 +347,14 @@ class Tab1 extends React.Component {
     })()
     const part1Class = classNames({
       part1: true,
-      sliderIn: this.state.isShowTab1List,
-      hidden: !this.state.isShowTab1List,
+      sliderIn: isShowTab1List,
+      hidden: !isShowTab1List,
     })
     const part2Class = classNames({
       part2: true,
-      sliderIn: !this.state.isShowTab1List,
-      hidden: this.state.isShowTab1List,
+      sliderIn: !isShowTab1List,
+      hidden: isShowTab1List,
     })
-    const currentData = this.state.currentData
-    // const isbtnDisabled = !this.state.selectedRowKeys.length
     let total = tableData.length
     if (appList) {
       tableData = appList
@@ -396,7 +364,7 @@ class Tab1 extends React.Component {
       total = 0
     }
     let loglen = 0,
-      linelist = <div style={{ textAlign: 'center' }}>暂无数据</div>
+      linelist = <div className="noLogs">暂无数据</div>
     if (!!logList && logList.log) {
       loglen = logList.log.length
       const sortlogList = _.sortBy(logList.log, o => new Date(o.date))
@@ -407,9 +375,6 @@ class Tab1 extends React.Component {
       })
     }
     const func = {
-      scope: this,
-    }
-    const funcTab1 = {
       scope: this,
     }
     return (
@@ -423,24 +388,6 @@ class Tab1 extends React.Component {
               <Button className="refreshBtn" size="large" onClick={this.reflesh}>
                 <i className="fa fa-refresh" />刷新
               </Button>
-              {/* <Button className="btnItem" onClick={this.openModalByAdd} type="primary" ><Icon type="plus" />新建策略</Button>
-                <Button className="btnItem" onClick={this.reflesh} type="ghost" >
-                <Icon type="retweet" />刷新</Button>*/}
-              {/* <Button className="btnItem" onClick={this.on} type="ghost" disabled={isbtnDisabled} >
-              <Icon type="caret-right" />启用</Button>
-                <Button className="btnItem" onClick={this.off} type="ghost" disabled={isbtnDisabled} >
-                <Icon type="pause" />停用</Button>
-                <Button className="btnItem" onClick={this.delItems} type="ghost" disabled={isbtnDisabled} >
-                <Icon type="delete" />删除</Button>*/}
-              {/* <Input.Group className={searchCls}>
-                  <Input size='large' placeholder='请输入策略名称搜索' value={this.state.searchValue} onChange={this.handleInputChange}
-                    onFocus={this.handleFocusBlur} onBlur={this.handleFocusBlur} onPressEnter={this.handleSearch}
-                  />
-                  <div className="ant-input-group-wrap">
-                    <Button type="ghost" icon="search" className={btnCls} onClick={this.handleSearch} />
-                  </div>
-                </Input.Group>*/}
-
               { total !== 0 && <div className="pageBox">
                 <span className="totalPage">共 {total} 条</span>
                 <div className="paginationBox">
@@ -449,7 +396,7 @@ class Tab1 extends React.Component {
                     className="inlineBlock"
                     onChange={this.onPageChange}
                     // onShowSizeChange={this.onShowSizeChange}
-                    current={this.state.paginationCurrent}
+                    current={paginationCurrent}
                     pageSize={5}
                     total={total} />
                 </div>
@@ -468,7 +415,7 @@ class Tab1 extends React.Component {
                     columns={columns}
                     loading={isTab1Fetching}
                     dataSource={tableData}
-                    pagination={this.state.pagination} />
+                    pagination={pagination} />
                 </div>
                 {/* }*/}
               </Card>
@@ -496,10 +443,35 @@ class Tab1 extends React.Component {
                       <span className="rightContent isOffCon"><i className="fa fa-circle"></i>停用</span>
                     }
                   </p>
-                  <p><span className="leftTitle">数据中心</span><span className="rightContent">{currentData.datacenter}</span></p>
-                  <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">{currentData.templatePath}</span></p>
-                  <p><span className="leftTitle">计算资源池</span><span className="rightContent">{currentData.resourcePoolPath}</span></p>
-                  <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.datastorePath}</span></p>
+                  <p><span className="leftTitle">集群</span><span className="rightContent">{currentData.clustername}</span></p>
+                  <p><span className="leftTitle">IaaS平台</span><span className="rightContent">{(() => {
+                    if (currentData.iaas === 'vmware') {
+                      return 'Vmware'
+                    } else if (currentData.iaas === 'openstack') {
+                      return 'OpenStack'
+                    }
+                  })()}</span></p>
+                </div>
+                <div className="cardPart">
+                  {
+                    (() => {
+                      if (currentData.iaas === 'vmware') {
+                        return [
+                          <p><span className="leftTitle">数据中心</span><span className="rightContent">{currentData.datacenter}</span></p>,
+                          <p><span className="leftTitle">虚拟机模版</span><span className="rightContent">{currentData.templatePath}</span></p>,
+                          <p><span className="leftTitle">计算资源池</span><span className="rightContent">{currentData.resourcePoolPath}</span></p>,
+                          <p><span className="leftTitle">存储资源池</span><span className="rightContent">{currentData.datastorePath}</span></p>,
+                        ]
+                      } else if (currentData.iaas === 'openstack') {
+                        return [
+                          <p><span className="leftTitle">所属区域</span><span className="rightContent">{currentData.domainName}</span></p>,
+                          <p><span className="leftTitle">镜像</span><span className="rightContent">{currentData.image}</span></p>,
+                          <p><span className="leftTitle">配置规格 (类型) </span><span className="rightContent">{currentData.flavor}</span></p>,
+                          <p><span className="leftTitle">网络</span><span className="rightContent">{currentData.network}</span></p>,
+                        ]
+                      }
+                    })()
+                  }
                 </div>
                 <div className="cardPart">
                   <p><span className="leftTitle">最少保留</span><span className="rightContent">{currentData.min + ' 个'}</span></p>
@@ -544,54 +516,60 @@ class Tab1 extends React.Component {
                       return rele
                     })()
                   }
-
-                  {/* <Timeline>
-                      {linelist}
-                    </Timeline>*/}
                 </div>
               </Card>
             </div>
           </div>
         </QueueAnim>
-        <Tab1Modal
-          isEdit={this.state.isEdit}
-          allData={this.props.appList}
-          currentData={this.state.currentData}
-          confirmLoading={this.state.submitTab1Loading}
-          func={func}
-          closeTab1Modal={this.closeTab1Modal}
-          visible={this.state.isTab1ModalShow}
-          onOk={this.onTab1ModalOk}
-          onCancel={this.onTab1ModalCancel}
-          onClose={this.onTab1ModalCancel}/>
         {
-          this.state.isTab2ModalShow ?
+          isTab1ModalShow ?
+            <Tab1Modal
+              isEdit={isEdit}
+              allData={appList}
+              currentData={currentData}
+              confirmLoading={submitTab1Loading}
+              func={func}
+              closeTab1Modal={this.closeTab1Modal}
+              visible={isTab1ModalShow}
+              onOk={this.onTab1ModalOk}
+              onCancel={this.onTab1ModalCancel}
+              onClose={this.onTab1ModalCancel}/>
+            :
+            null
+        }
+        {
+          isTab2ModalShow ?
             <Tab2Modal
-              visible={this.state.isTab2ModalShow}
+              visible={isTab2ModalShow}
               onCancel={this.onTab2ModalCancel}
               onClose={this.onTab2ModalCancel}
               isEdit={false}
               currData={null}
-              funcTab1={funcTab1}
+              funcTab1={func}
               ref="tab2MC"/>
             :
             null
         }
-        <Modal
-          visible={this.state.isShowDelModal}
-          onOk={this.del}
-          onCancel={this.onCancel}
-          onClose={this.onCancel}
-          confirmLoading={this.state.deleteLoading}
-          title="删除伸缩策略"
-          okText="确定"
-          maskClosable={false}
-        >
-          <div className="deleteRow">
-            <i className="fa fa-exclamation-triangle"/>
-            确定删除策略 {this.state.currentData.name || ''} ?
-          </div>
-        </Modal>
+        {
+          isShowDelModal ?
+            <Modal
+              visible={isShowDelModal}
+              onOk={this.del}
+              onCancel={this.onCancel}
+              onClose={this.onCancel}
+              confirmLoading={deleteLoading}
+              title="删除伸缩策略"
+              okText="确定"
+              maskClosable={false}
+            >
+              <div className="deleteRow">
+                <i className="fa fa-exclamation-triangle"/>
+                确定删除策略 {currentData.name || ''} ?
+              </div>
+            </Modal>
+            :
+            null
+        }
       </div>
     )
   }
@@ -601,7 +579,7 @@ class Tab1 extends React.Component {
     }
   }
   componentDidMount() {
-    this.loadDataDidMount()
+    this.loadData()
   }
 }
 const mapStateToProps = state => {

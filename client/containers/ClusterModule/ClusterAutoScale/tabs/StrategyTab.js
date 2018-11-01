@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  *
- *StrategyTab tab2
+ * StrategyTab tab2
  *
  * v0.1 - 2018-04-08
  * @author rensiwei
@@ -19,8 +19,6 @@ import NotificationHandler from '../../../../../src/components/Notification'
 
 const notify = new NotificationHandler()
 
-let allClusterIds = ''// 所有行元素的id集合
-let tableData = []
 class Tab2 extends React.Component {
   state = {
     isSearchFocus: false, // 搜索框选中状态
@@ -53,12 +51,12 @@ class Tab2 extends React.Component {
   }
   del = async () => {
     const rowData = this.state.currData
-    const { deleteServer } = this.props
+    const { deleteServer, delCallBack } = this.props
     this.setState({
       deleteLoading: true,
     }, async () => {
       notify.spin('配置删除中')
-      const result = await deleteServer({ cluster: rowData.cluster })
+      const result = await deleteServer({ cluster: rowData.cluster, type: rowData.iaas })
       if (result.error) {
         notify.close()
         notify.warn('删除失败', result.error.message.message || result.error.message)
@@ -70,7 +68,7 @@ class Tab2 extends React.Component {
       this.loadData()
       notify.close()
       notify.success('删除成功')
-      this.props.delCallBack()// 删除之后 刷新 tab1列表
+      delCallBack()// 删除之后 刷新 tab1列表
       this.setState({
         deleteLoading: false,
         isShowDelModal: false,
@@ -81,9 +79,6 @@ class Tab2 extends React.Component {
   openModal = () => {
     this.setState({ isTab2ModalShow: true, isEdit: false, currData: '' })
   }
-  // delitems = () => {
-  //   const selectedRowKeys = this.state.selectedRowKeys.join(',')
-  // }
   clickTableRowName = rowData => {
     const temp = JSON.parse(JSON.stringify(rowData))
     this.setState({ currentData: temp, isShowTab1: false })
@@ -94,21 +89,12 @@ class Tab2 extends React.Component {
       isSearchFocus: e.target === document.activeElement,
     })
   }
-  // search
-  // handleSearch = e => {
-  //   getServerList({ keyword: this.state.searchValue })
-  // }
   handleInputChange = e => {
     this.setState({ searchValue: e.target.value })
   }
   onRowChange = selectedRowKeys => {
     this.setState({ selectedRowKeys })
   }
-  // 行操作列点击事件
-  // tableExdClick = () => {
-  // }
-  // cloneClick = () => {
-  // }
   onPageChange = page => {
     const pagination = JSON.parse(JSON.stringify(this.state.pagination))
     pagination.current = page
@@ -123,7 +109,8 @@ class Tab2 extends React.Component {
     this.setState({ isShowDelModal: false })
   }
   loadData = () => {
-    this.props.getServerList({})
+    const { getServerList } = this.props
+    getServerList({})
   }
   loadDataDidMount = () => {
     this.props.getServerList({})
@@ -134,11 +121,9 @@ class Tab2 extends React.Component {
     // });;
   }
   render() {
-    const { isFetching } = this.props
-    // const searchCls = classNames({
-    //   'ant-search-input': true,
-    //   'ant-search-input-focus': this.state.isSearchFocus,
-    // })
+    const { isFetching, serverList } = this.props
+    const { paginationCurrent, isShowDelModal, deleteLoading,
+      currData, isTab2ModalShow, isEdit, pagination } = this.state
     const columns = (() => {
       const _that = this
       const renderOperation = (text, rowData) => {
@@ -153,7 +138,6 @@ class Tab2 extends React.Component {
         title: 'IaaS',
         dataIndex: 'iaas',
         width: 100,
-        // render: text => <a href="#">{text}</a>,
         render: text => {
           return text
         },
@@ -165,6 +149,11 @@ class Tab2 extends React.Component {
         title: '地址',
         dataIndex: 'server',
         width: 100,
+      }, {
+        title: '域名',
+        dataIndex: 'domainName',
+        width: 100,
+        render: text => text || '-',
       }, {
         title: '账号',
         dataIndex: 'name',
@@ -179,35 +168,16 @@ class Tab2 extends React.Component {
         },
       }, {
         title: '操作',
-        // dataIndex: 'operation',
         width: 120,
         render: renderOperation,
       }]
     })()
-    // const isbtnDisabled = !this.state.selectedRowKeys.length
-    // const btnCls = classNames({
-    //   'ant-search-btn': true,
-    //   'ant-search-btn-noempty': !!this.state.searchValue.trim(),
-    // })
-    let total = tableData.length
+    let tableData = []
+    let total = 0
 
-    // const rowSelection = {
-    //   onChange: this.onRowChange,
-    //   onSelect(record, selected, selectedRows) {
-    //   },
-    //   onSelectAll(selected, selectedRows, changeRows) {
-    //   },
-    // }
-    if (this.props.serverList) {
-      // tableData = [].concat(this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList,this.props.serverList);
-      // total = this.props.serverList.length*5;
-      tableData = this.props.serverList
-      total = this.props.serverList.length
-      allClusterIds = this.props.serverList.map(item => item.cluster)
-    } else {
-      tableData = []
-      total = 0
-      allClusterIds = []
+    if (serverList) {
+      tableData = serverList
+      total = serverList.length
     }
     const func = {
       scope: this,
@@ -244,8 +214,8 @@ class Tab2 extends React.Component {
                 className="inlineBlock"
                 onChange={this.onPageChange}
                 // onShowSizeChange={this.onShowSizeChange}
-                current={this.state.paginationCurrent}
-                pageSize={this.state.pagination.pageSize}
+                current={paginationCurrent}
+                pageSize={pagination.pageSize}
                 total={total} />
             </div>
           </div>}
@@ -263,46 +233,46 @@ class Tab2 extends React.Component {
                 columns={columns}
                 loading={isFetching}
                 dataSource={tableData}
-                pagination={this.state.pagination} />
+                pagination={pagination} />
             </div>
           </Card>
         </div>
         {/* }*/}
 
         {
-          this.state.isTab2ModalShow ?
+          isTab2ModalShow ?
             <Tab2Modal
-              visible={this.state.isTab2ModalShow}
+              visible={isTab2ModalShow}
               onCancel={this.onTab2ModalCancel}
               onClose={this.onTab2ModalCancel}
-              isEdit={this.state.isEdit}
-              currData={this.state.currData}
+              isEdit={isEdit}
+              currData={currData}
               funcTab2={func}
-              allClusterIds={allClusterIds}
+              allClusterIds={tableData.map(item => item.cluster) || []}
               ref="tab2MC"/>
             :
             null
         }
 
         <Modal
-          visible={this.state.isShowDelModal}
+          visible={isShowDelModal}
           onOk={this.del}
           onCancel={this.onCancel}
           onClose={this.onCancel}
-          confirmLoading={this.state.deleteLoading}
+          confirmLoading={deleteLoading}
           title="删除资源池配置"
           okText="确定"
           maskClosable={false} >
           <div className="deleteRow">
             <i className="fa fa-exclamation-triangle"/>
-            是否删除 {this.state.currData.clustername} 集群的 {this.state.currData.iaas} 资源池配置 ?
+            是否删除 {currData.clustername} 集群的 {currData.iaas} 资源池配置 ?
           </div>
         </Modal>
       </div>
     )
   }
   componentDidMount() {
-    this.loadDataDidMount()
+    this.loadData()
   }
 }
 
