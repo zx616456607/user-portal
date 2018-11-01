@@ -419,7 +419,7 @@ exports.getPluginStatus = function* () {
   const query = this.query
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['plugins', 'status'], query)
+  const response = yield projectApi.projects.getBy(['plugins', 'enabled'], query)
   this.status = response.statusCode
   this.body = response
 }
@@ -427,7 +427,6 @@ exports.getPluginStatus = function* () {
 exports.pluginTurnOn = function* () {
   const query = this.query
   const name = this.params.name
-  console.log(this.request.headers)
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
   const response = yield projectApi.projects.updateBy(['plugins', name, 'enable'], query)
@@ -445,12 +444,12 @@ exports.pluginTurnOff = function* () {
   this.body = response
 }
 
+
 exports.checkPluginInstallStatus = function* () {
   const query = this.query
-  console.log(query);
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.projects.getBy(['plugins', 'check'], query)
+  const response = yield projectApi.projects.getBy(['plugins', 'installed'], query)
   this.status = response.statusCode
   this.body = response
 }

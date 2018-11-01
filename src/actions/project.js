@@ -777,7 +777,7 @@ const fetchPluginStatus = (query, teamspace, callback) => {
         GET_PLUGIN_STATUS_SUCCESS,
         GET_PLUGIN_STATUS_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/projects/plugins/status?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/projects/plugins/enabled?${toQuerystring(query)}`,
       schema: {},
 			options: {
       	headers: { teamspace }
@@ -805,7 +805,7 @@ const fetchPluginsInstallStatus = (query, teamspace, callback) => {
         CHECK_PLUGIN_INSTALL_STATUS_SUCCESS,
         CHECK_PLUGIN_INSTALL_STATUS_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/projects/plugins/check?${toQuerystring(query)}`,
+      endpoint: `${API_URL_PREFIX}/projects/plugins/installed?${toQuerystring(query)}`,
       schema: {},
 			options: {
       	headers: { teamspace }
@@ -878,4 +878,5 @@ export const pluginTurnOff = (name, query, teamspace, callback) => {
     dispatch (putPluginTurnOff(name, query, teamspace, callback))
   }
 }
+
 
