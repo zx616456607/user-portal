@@ -141,10 +141,10 @@ class QuickCreateApp extends Component {
 
   componentWillMount() {
     this.setConfig(this.props)
-    const { location, fields, template:templateList, getImageTemplate, current } = this.props
+    const { location, fields, template:templateList, getImageTemplate, current, getPluginStatus } = this.props
     const { cluster, space } = current
     // 检查是否为dubbo服务，如果是，提交数据时加上当前项目的namespace为默认环境变量
-    getPluginStatus(cluster.clusterID, space.namespace, {
+    getPluginStatus({ clusterID: cluster.clusterID }, space.namespace, {
       success: {
         func: res => {
           if (res.data.dubboOperator) {
