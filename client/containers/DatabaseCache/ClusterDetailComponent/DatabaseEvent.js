@@ -51,10 +51,9 @@ class MyComponent extends React.Component {
           </div>
           <div className="createTime">
             <span className="commonSpan">
-              {calcuDate(item.lastSeen)}
+              {calcuDate(item.firstTimestamp)}
             </span>
           </div>
-
         </div>
         <div style={{ clear: 'both' }}></div>
       </div>
