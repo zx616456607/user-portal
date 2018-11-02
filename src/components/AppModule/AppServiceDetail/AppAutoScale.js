@@ -125,73 +125,59 @@ class AppAutoScale extends Component {
     this.setState({ loading: true })
     loadAutoScale(cluster, serviceName, {
       success: {
-        func: () => {
-          loadAutoScale(cluster, serviceName, {
-            success: {
-              func: res=> {
-                if (!isEmpty(res.data)) {
-                  const { metadata, spec } = res.data
-                  const { name: serviceName } = metadata
-                  const { strategyName } = metadata.labels
-                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status, qpsValid } = metadata.annotations
-                  const { maxReplicas: max, minReplicas: min, metrics } = spec
-                  let cpu, memory, qps
-                  metrics.forEach(item => {
-                    if (item.resource.name === 'memory') {
-                      memory = item.resource.targetAverageUtilization
-                    } else if (item.resource.name === 'cpu') {
-                      cpu = item.resource.targetAverageUtilization
-                    } else if (item.resource.name === 'qps') {
-                      qps = item.resource.targetAverageUtilization
-                    }
-                  })
-                  const scaleDetail = {
-                    strategyName,
-                    serviceName,
-                    alert_group,
-                    alert_strategy,
-                    max,
-                    min,
-                    cpu,
-                    memory,
-                    qps,
-                    qpsValid,
-                    type: status === 'RUN' ? 1 : 0
-                  }
-                  this.setState({
-                    scaleDetail,
-                    showImg: false,
-                    loading: false,
-                  }, () => {
-                    this.initThresholdArr(this.state.scaleDetail)
-                  })
-                } else {
-                  this.setState({
-                    scaleDetail: null,
-                    loading: false,
-                  }, () => {
-                    this.initThresholdArr(this.state.scaleDetail)
-                  })
-                }
-              },
-              isAsync: true
-            },
-            failed: {
-              func: () => {
-                this.setState({
-                  scaleDetail: null,
-                  loading: false,
-                })
+        func: res=> {
+          if (!isEmpty(res.data)) {
+            const { metadata, spec } = res.data
+            const { name: serviceName } = metadata
+            const { strategyName } = metadata.labels
+            const { alertStrategy: alert_strategy, alertgroupId: alert_group, status, qpsValid } = metadata.annotations
+            const { maxReplicas: max, minReplicas: min, metrics } = spec
+            let cpu, memory, qps
+            metrics.forEach(item => {
+              if (item.resource.name === 'memory') {
+                memory = item.resource.targetAverageUtilization
+              } else if (item.resource.name === 'cpu') {
+                cpu = item.resource.targetAverageUtilization
+              } else if (item.resource.name === 'qps') {
+                qps = item.resource.targetAverageUtilization
               }
+            })
+            const scaleDetail = {
+              strategyName,
+              serviceName,
+              alert_group,
+              alert_strategy,
+              max,
+              min,
+              cpu,
+              memory,
+              qps,
+              qpsValid,
+              type: status === 'RUN' ? 1 : 0
             }
-          })
+            this.setState({
+              scaleDetail,
+              showImg: false,
+              loading: false,
+            }, () => {
+              this.initThresholdArr(this.state.scaleDetail)
+            })
+          } else {
+            this.setState({
+              scaleDetail: null,
+              loading: false,
+            }, () => {
+              this.initThresholdArr(this.state.scaleDetail)
+            })
+          }
         },
         isAsync: true
       },
       failed: {
         func: () => {
           this.setState({
-            scaleDetail: null
+            scaleDetail: null,
+            loading: false,
           })
         }
       }
