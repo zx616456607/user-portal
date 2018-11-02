@@ -232,6 +232,12 @@ class AppServiceDetail extends Component {
     funcs.batchRestartService()
   }
 
+  startService(service) {
+    const { funcs, scope} = this.props
+    const _self = this
+    funcs.batchStartService()
+  }
+
   stopService(service) {
     const { funcs } = this.props
     const self = this
@@ -298,6 +304,20 @@ class AppServiceDetail extends Component {
       httpIcon: status ? 'https' : 'http'
     })
   }
+  handleMenuItem = ({ key }, service) => {
+    switch (key) {
+      case 'restart':
+        return this.restartService(service)
+      case 'start':
+        return this.startService(service)
+      case 'stop':
+        return  this.stopService(service)
+      case 'delete':
+        return this.delteService(service)
+      default:
+        return null
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl
     const parentScope = this
@@ -345,18 +365,24 @@ class AppServiceDetail extends Component {
     }
     const { billingConfig } = loginUser.info
     const { enabled: billingEnabled } = billingConfig
+    const isStoped = getServiceStatus(service)
+      && getServiceStatus(service).phase === 'Stopped'
+      || false
     const operaMenu = (
-    <Menu>
+    <Menu onClick={key => this.handleMenuItem(key, service)}>
       <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}  className={shinningInner}>
         <TenxTooltip title={`服务网格配置已更改, 重新部署后生效`} disabled={!shiningFlag}>
-          <span onClick={() => this.restartService(service)}>{formatMessage(AppServiceDetailIntl.redeploy)}</span>
+          <span>{formatMessage(AppServiceDetailIntl.redeploy)}</span>
         </TenxTooltip>
       </Menu.Item>
+      <Menu.Item key='start' disabled={!isStoped}>
+        <span>{formatMessage(ServiceCommonIntl.start)} </span>
+      </Menu.Item>
       <Menu.Item key='stop' disabled={this.handleMenuDisabled('stop')}>
-        <span onClick={() => this.stopService(service)}>{formatMessage(ServiceCommonIntl.stop)}</span>
+        <span>{formatMessage(ServiceCommonIntl.stop)}</span>
       </Menu.Item>
       <Menu.Item key='delete'>
-        <span onClick={() => this.delteService(service)}>{formatMessage(ServiceCommonIntl.delete)}</span>
+        <span>{formatMessage(ServiceCommonIntl.delete)}</span>
       </Menu.Item>
     </Menu>
     );
