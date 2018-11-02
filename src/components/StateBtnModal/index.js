@@ -263,7 +263,8 @@ class StateBtnModal extends Component{
                      {
                       checkedList: checkedList.length,
                       appOrService,
-                      disableArr: <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{disableArr.length}</span>,
+                      disableArr: disableArr.length,
+                      // disableArr: <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{disableArr.length}</span>,
                       alertText,
                      })
                 }</span>

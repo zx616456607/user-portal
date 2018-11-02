@@ -36,12 +36,18 @@ exports.getCheckProInClusMesh = function *() {
 }
 // 查看某个集群是否安装了istio
 exports.getCheckClusterIstio = function *() {
-  const query = this.query;
-  const loginUser = this.session.loginUser;
-  const projectApi = apiFactory.getApi(loginUser);
-  const response = yield projectApi.projects.getBy(['istio', 'check'], query);
-  this.status = response.statusCode;
-  this.body = response;
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['plugins', 'installed'], query)
+  this.status = response.statusCode
+  const { data:{ istio: {code = 404} = {} } = {} } = response
+  const newResponse = {
+      data:{
+        code,
+      },
+    }
+  this.body = newResponse
 }
 
 // serviceMesh 相关

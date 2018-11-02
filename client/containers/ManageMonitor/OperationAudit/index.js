@@ -432,7 +432,7 @@ class OperationalAudit extends React.Component {
       operation, start_time, end_time, status, currentProject } = this.state
     const body = {
       projectName: currentProject,
-      from,
+      from: from * size,
       size,
       resource: resource ? resource[resource.length - 1] : undefined,
       namespace,

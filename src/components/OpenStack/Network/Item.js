@@ -32,18 +32,10 @@ class Network extends Component {
     this.props.clearNetworkList()
   }
   loadData = ()=>{
-    this.props.loadNetworksList({
-      finally: {
-        func: () => {
-          this.refs.networkName.refs.input.value = ""
-        }
-      }
-    })
+    this.props.loadNetworksList()
   }
   queryList() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const name = this.refs.networkName.refs.input.value
 
     if (name == '') {

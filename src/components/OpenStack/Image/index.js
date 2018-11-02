@@ -17,8 +17,6 @@ import { getImageList, clrearImageList} from '../../../actions/openstack/calcula
 import { camelize } from 'humps'
 import NotificationHander from '../../../common/notification_handler'
 import '../style/OpenStack.less'
-const noti = new NotificationHander()
-const Option = Select.Option
 
 class Image extends Component {
   constructor(props) {
@@ -32,22 +30,12 @@ class Image extends Component {
   componentWillUnmount() {
     this.props.clrearImageList()
   }
-  changeProejct(value) {
-    this.setState({
-      currentProject: value
-    })
-    setTimeout(() => {
-      this.loadData()
-    }, 0)
-  }
   loadData = ()=>{
 
     if(this.refs && this.refs.imageName && this.refs.imageName.refs) {
       this.refs.imageName.refs.input.value = ''
     }
     this.props.getImageList({
-      project: this.state.currentProject
-    }, {
       success: {
         func: (res) => {
           this.setState({
@@ -58,9 +46,7 @@ class Image extends Component {
     })
   }
   queryList() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const image = this.refs.imageName.refs.input.value
     const { imageList } = this.props
 

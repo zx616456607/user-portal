@@ -48,7 +48,6 @@ class Host extends Component {
       finally: {
         func: () => {
           this.setState({operating: false})
-          document.getElementById('searchInput').value = ""
         }
       }
     })

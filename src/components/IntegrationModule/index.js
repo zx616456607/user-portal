@@ -21,7 +21,7 @@ import CreateVSphereModal from './CreateVSphereModal'
 import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
 import openstackImg from '../../assets/img/appstore/openstack.svg'
-import TerraformImg from '../../assets/img/appstore/Terraform.svg'
+import TerraformImg from '../../assets/img/appstore/terraform.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
 
