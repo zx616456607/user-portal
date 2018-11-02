@@ -267,7 +267,7 @@ let HostInfo = React.createClass({
 
             <div className="host-list">
               <div className="titles">
-                <TenxIcon className="size select" type="tag-right" size={14} style={{marginRight: 4}}/>
+                <TenxIcon className="size select" type="tag-right" size={14} />
                 <FormattedMessage {...intlMsg.labelInfo}/> <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" /><FormattedMessage {...intlMsg.manageLabel}/></Button></div>
               <br />
               <div className='labelContainer'>
