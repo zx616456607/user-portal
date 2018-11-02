@@ -1002,6 +1002,79 @@ class Sider extends Component {
                   }
                   <div className='sline'></div>
                 </SubMenu>
+                <SubMenu key="app-stack"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="ai" />
+                      <span className='commonSiderSpan'>
+                        工作负载
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='StatefulSet'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/StatefulSet')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/app-stack/StatefulSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        StatefulSet
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='Job'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Job')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/app-stack/Job')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Job
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='CronJob'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/CronJob')
+                          if (window.aiPortalHistory) {
+                            window.aiPortalHistory.replace('/app-stack/CronJob')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        CronJob
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+
                 <SubMenu key='app_center'
                   title={
                     <span>
