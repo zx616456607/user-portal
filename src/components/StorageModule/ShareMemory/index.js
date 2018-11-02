@@ -154,31 +154,7 @@ class ShareMemory extends Component {
       createShareMemoryVisible: true,
       confirmLoading: false,
     })
-    getClusterStorageList(clusterID, {
-      success: {
-        func: (res) => {
-          const storageType = getFieldValue("storageType")
-          let tempList
-          let name
-          if(storageType === 'nfs'){
-            tempList = res.data.nfslist
-          }else {
-            tempList = res.data.glusterfsList
-          }
-          tempList && tempList.map(item => {
-            if(item.metadata.labels["system/storageDefault"] === "true"){
-              name = item.metadata.name
-            }
-          })
-          setTimeout(() => {
-            setFieldsValue({
-              storageClassName: name,
-            })
-          }, 500)
-        },
-        isAsync: true
-      }
-    })
+    getClusterStorageList(clusterID)
   }
 
   confirmCreateShareMemory() {
@@ -222,6 +198,7 @@ class ShareMemory extends Component {
         cluster: clusterID,
         template: yaml.dump(persistentVolumeClaim),
       }
+
       createStorage(body, {
         success: {
           func: () => {
@@ -405,6 +382,17 @@ class ShareMemory extends Component {
     }
     callback()
   }
+  defaultValue = () => {
+    const { nfsList, gfsList } = this.props
+    const { modalStorageType } = this.state
+    const storageList = modalStorageType === 'nfs'? nfsList : gfsList
+    if (storageList.length !== 0) {
+      const defaultStorage = storageList.filter(v => v.metadata.labels["system/storageDefault"] === "true")[0]
+      return defaultStorage.metadata.name
+    }
+    return ''
+  }
+
   render() {
     const {
       form, nfsList, storageList, storageListIsFetching, clusterID,
@@ -503,6 +491,7 @@ class ShareMemory extends Component {
         adjustBrowserUrl(location, Object.assign({}, mergedQuery, {page}));
       },
     }
+
     return(
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
@@ -623,6 +612,7 @@ class ShareMemory extends Component {
                     <Select
                       placeholder={<FormattedMessage{...StorageIntl.pleaseService} />}
                       {...getFieldProps('storageClassName', {
+                        initialValue: this.defaultValue(),
                         rules:[{
                           required:true,
                           message: formatMessage(StorageIntl.pleaseService),
@@ -631,10 +621,12 @@ class ShareMemory extends Component {
                     >
                     {
                       modalStorageType === 'nfs' ?
-                      nfsList.map(nfs =>
-                        <Option key={nfs.metadata.name}>
+                      nfsList.map(nfs =>{
+                        return <Option key={nfs.metadata.name}>
                           {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
                         </Option>
+
+                        }
                       )
                       :
                       gfsList.map(gfs =>
