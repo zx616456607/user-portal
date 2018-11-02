@@ -67,15 +67,19 @@ class SecyrityCollapse extends React.Component {
             <Col span={20} className="lineRight">
               <Button
                 type="ghost"
+                size="large"
                 onClick={this.loadData}>
                 <i className="fa fa-refresh"/>
                 {intl.formatMessage(IntlMessage.refresh)}
               </Button>
-              <Button type="primary">
-                <a href="/app_manage/security_group/create" target="_blank">
-                  {intl.formatMessage(IntlMessage.createSecurityGroup)}
-                </a>
-              </Button>
+              <a
+                href="/app_manage/security_group/create"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="linkBtn"
+              >
+                {intl.formatMessage(IntlMessage.createSecurityGroup)}
+              </a>
             </Col>
           </Row>
           <Row>
