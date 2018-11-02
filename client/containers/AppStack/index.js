@@ -31,8 +31,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/app-stack/StatefulSet')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/app-stack/StatefulSet')
+        if (window.appStackPortalHistory) {
+          window.appStackPortalHistory.replace('/app-stack/StatefulSet')
         }
       } catch (error) {
         //
@@ -45,8 +45,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/app-stack/Job')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/app-stack/Job')
+        if (window.appStackPortalHistory) {
+          window.appStackPortalHistory.replace('/app-stack/Job')
         }
       } catch (error) {
         //
@@ -59,8 +59,8 @@ const menus = [
     onClick: () => {
       try {
         browserHistory.push('/app-stack/CronJob')
-        if (window.aiPortalHistory) {
-          window.aiPortalHistory.replace('/app-stack/CronJob')
+        if (window.appStackPortalHistory) {
+          window.appStackPortalHistory.replace('/app-stack/CronJob')
         }
       } catch (error) {
         //
@@ -69,20 +69,20 @@ const menus = [
   },
 ]
 
-class AIDeepLearning extends React.Component {
+class AppStack extends React.Component {
   state = {
     windowHeight: window.innerHeight,
     containerSiderStyle: 'normal',
   }
 
   componentDidMount() {
-    window.aiIframeCallBack = (action, data) => {
+    window.appStackIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
           break
-        case 'aiPortalHistory':
-          window.aiPortalHistory = data
+        case 'appStackPortalHistory':
+          window.appStackPortalHistory = data
           break
         default:
           break
@@ -150,17 +150,17 @@ class AIDeepLearning extends React.Component {
     }
     const scope = this
 
-    return <div id="AIDeepLearning" style={style}>
+    return <div id="AppStack" style={style}>
       <QueueAnim
-        className="AIDeepLearningSiderAnimate"
-        key="AIDeepLearningSiderAnimate"
+        className="AppStackSiderAnimate"
+        key="AppStackSiderAnimate"
         type="left"
       >
         <div
           className={
             containerSiderStyle === 'normal'
-              ? 'AIDeepLearningMenu CommonSecondMenu'
-              : 'hiddenMenu AIDeepLearningMenu CommonSecondMenu'
+              ? 'AppStackMenu CommonSecondMenu'
+              : 'hiddenMenu AppStackMenu CommonSecondMenu'
           }
           key="cicdSider"
         >
@@ -170,8 +170,8 @@ class AIDeepLearning extends React.Component {
       <div
         className={
           containerSiderStyle === 'normal'
-            ? 'AIDeepLearningContent CommonSecondContent'
-            : 'hiddenContent AIDeepLearningContent CommonSecondContent'
+            ? 'AppStackContent CommonSecondContent'
+            : 'hiddenContent AppStackContent CommonSecondContent'
         }
       >
         <Title title={title} />
@@ -210,4 +210,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   loadApiInfo: openApiActions.loadApiInfo,
-})(AIDeepLearning)
+})(AppStack)
