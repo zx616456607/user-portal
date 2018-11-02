@@ -105,6 +105,27 @@ const rootRoutes = {
         },
       },
       {
+        path: 'app-stack',
+        component: require('../../client/containers/AppStack').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/app-stack/StatefulSet')
+        },
+        childRoutes: [
+          {
+            path: 'StatefulSet',
+            component: require('../../client/containers/AppStack').default,
+          },
+          {
+            path: 'Job',
+            component: require('../../client/containers/AppStack').default,
+          },
+          {
+            path: 'CronJob',
+            component: require('../../client/containers/AppStack').default,
+          },
+        ],
+      },
+      {
         path: 'app_center',
         component: require('../containers/AppCenter').default,
         indexRoute: {
