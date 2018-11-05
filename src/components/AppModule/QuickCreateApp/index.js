@@ -633,7 +633,7 @@ class QuickCreateApp extends Component {
     }
     const callback = {
       success: {
-        func: res => {
+        func: async res => {
           // 创建app后添加应用负载监听器
           for (let key in fields) {
             if (fields.hasOwnProperty(key)) {
