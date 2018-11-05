@@ -456,7 +456,7 @@ const parseTcpUdpIngress = (deployment, annotations) => {
   if (!annotations.tcpIngress && !annotations.udpIngress) {
     return
   }
-  const { agentType, loadBalance } = annotations
+  const { agentType } = annotations
   const fieldsObj: object = {}
   if (annotations.tcpIngress) {
     const parseTcpArray = JSON.parse(annotations.tcpIngress.replace(/&#34;/g, '\"'))
@@ -486,8 +486,7 @@ const parseTcpUdpIngress = (deployment, annotations) => {
   }
   Object.assign(fieldsObj, {
     agentType,
-    loadBalance,
-    accessType: 'loadBalance',
+    originalAgentType: agentType, // 代理方式原始值，用户编辑模板和部署模板时，切换代理方式
   })
   return fieldsObj
 }
@@ -605,19 +604,14 @@ const parseIngress = (ingress, deployment) => {
     return
   }
   const { agentType } = getDeepValue(deployment, ['spec', 'template', 'metadata', 'annotations'])
-  const accessType = 'loadBalance';
-  let loadBalance: string;
   const lbKeys: Array = [];
   const ingressParent: object = {};
   ingress.forEach((item, index) => {
     const {
-      controllerInfo, displayName, lbAlgorithm, sessionSticky,
+      displayName, lbAlgorithm, sessionSticky,
       sessionPersistent, protocol, items, path: wrapPath, healthCheck,
       context,
     } = item;
-    if (!loadBalance) {
-      loadBalance = controllerInfo.name;
-    }
     lbKeys.push(index);
     const [ host, ...path ] = wrapPath.split('/');
     const hostValue = isEmpty(path[0]) ? host : host + '/' + path.join('/');
@@ -652,13 +646,34 @@ const parseIngress = (ingress, deployment) => {
     });
   });
   return {
-    accessType, // 是否为负载均衡
     agentType: agentType ? agentType : 'inside', // 应用负载均衡类型
-    loadBalance, // 负载均衡器名称
     lbKeys, // 负载均衡器监听的端口组
     ...ingressParent,
   };
 };
+/**
+ * 解析应用负载均衡器名称以及访问方式
+ * @param ingress
+ * @param deployment
+ */
+export const parseLoadBalance = (ingress, deployment) => {
+  const { spec: outerSpec } = deployment;
+  const { template } = outerSpec;
+  const { metadata: innerMetadata } = template;
+  const { annotations } = innerMetadata;
+  let accessType: string = 'netExport'
+  if (isEmpty(ingress) && !annotations.tcpIngress && !annotations.udpIngress) {
+    return {
+      accessType,
+    }
+  }
+  accessType = 'loadBalance'
+  return {
+    accessType, // 访问方式类型
+    loadBalance: annotations.loadBalance, // 应用负载均衡器名称
+    originalLoadBalance: annotations.loadBalance,
+  }
+}
 
 /**
  * 解析模板详情
@@ -679,6 +694,7 @@ export const parseToFields = (templateDetail, wrapperChart) => {
     ...parseDeployment(deployment, chart),
     ...parseService(service),
     ...parseIngress(ingress, deployment),
+    ...parseLoadBalance(ingress, deployment),
   };
   return formatValues(values);
 };
