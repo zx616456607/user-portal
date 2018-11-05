@@ -37,6 +37,10 @@ class StorageClass {
       imageFeatures: "layering",
     }
   }
+  // 设置radosgw
+  setRadosgw(value) {
+    this.metadata.annotations.radosgw = value;
+  }
 }
 
 module.exports = StorageClass

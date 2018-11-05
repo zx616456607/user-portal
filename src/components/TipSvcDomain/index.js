@@ -171,7 +171,7 @@ class AppTipComponent extends Component {
               <Timeline.Item dot={<div></div>}>
                 <TenxIcon type="branch"  className='branchSvg'/>
                 <a href="javascript:void(0)">{formatMessage(AppServiceDetailIntl.containerPort)}:{item.data[0].interPort}</a>&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>`
+                <a href={linkURL} target='_blank'>
                   {
                     lbgroup2Text(item.data[0], formatMessage)
                   }:{
