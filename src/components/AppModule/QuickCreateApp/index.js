@@ -600,9 +600,7 @@ class QuickCreateApp extends Component {
     const { namespace } = current.space
     let template = []
     let appPkgID = {}
-    const httpReqArr = []
-    const tcpReqArr = []
-    const udpReqArr = []
+    const monitorArr = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         if (this.state.dubboSwitchOn) {
@@ -664,7 +662,7 @@ class QuickCreateApp extends Component {
                       items
                     }
                     lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
-                    httpReqArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
+                    monitorArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
                   })
                 }
                 if (!isEmpty(tcpKeys)) {
@@ -678,7 +676,7 @@ class QuickCreateApp extends Component {
                       servicePort,
                       serviceName,
                     })
-                    tcpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'tcp', displayName, agentType, { tcp: tcpBody }))
+                    monitorArr.push(createTcpUdpIngress(clusterID, lbName, 'tcp', displayName, agentType, { tcp: tcpBody }))
                   })
                 }
                 if (!isEmpty(udpKeys)) {
@@ -692,11 +690,14 @@ class QuickCreateApp extends Component {
                       servicePort,
                       serviceName,
                     })
-                    udpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'udp', displayName, agentType, { udp: udpBody }))
+                    monitorArr.push(createTcpUdpIngress(clusterID, lbName, 'udp', displayName, agentType, { udp: udpBody }))
                   })
                 }
               }
             }
+          }
+          if (!isEmpty(monitorArr)) {
+            await Promise.all(monitorArr)
           }
           this.setState({
             stepStatus: 'finish',
@@ -784,7 +785,6 @@ class QuickCreateApp extends Component {
         template: template.join('---\n'),
         appPkgID: appPkgID
       }
-
       addService(clusterID, this.state.appName, body, callback)
       return
     }
