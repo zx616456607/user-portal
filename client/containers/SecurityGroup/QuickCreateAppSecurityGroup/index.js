@@ -76,7 +76,7 @@ class SecyrityCollapse extends React.Component {
                 href="/app_manage/security_group/create"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="linkBtn"
+                className="ant-btn ant-btn-primary ant-btn-lg"
               >
                 {intl.formatMessage(IntlMessage.createSecurityGroup)}
               </a>
