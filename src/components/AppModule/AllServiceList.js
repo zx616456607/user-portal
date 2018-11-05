@@ -906,7 +906,10 @@ class ServiceList extends Component {
     const { cluster, startServices, serviceList, intl } = this.props
     const { formatMessage } = intl
     let stoppedService = []
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let checkedServiceList = serviceList.filter((service) => service.checked)
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
@@ -1485,6 +1488,7 @@ class ServiceList extends Component {
       batchRestartService: this.batchRestartService,
       batchStopService: this.batchStopService,
       batchDeleteServices: this.batchDeleteServices,
+      batchStartService: this.batchStartService,
       // confirmStopServices: this.confirmStopServices,
       // confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -1528,7 +1532,7 @@ class ServiceList extends Component {
               <Modal title={formatMessage(AllServiceListIntl.startOperation)} visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Running' />
+                <StateBtnModal serviceList={serviceList} scope={parentScope} state='Running' />
               </Modal>
               <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
                 <i className='fa fa-stop'></i>{formatMessage(ServiceCommonIntl.stop)}

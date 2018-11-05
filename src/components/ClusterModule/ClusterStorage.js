@@ -1663,23 +1663,26 @@ class ClusterStorage extends Component {
     })
   }
   hostDirEditOk = () => {
-    const { createCephStorage, cluster } = this.props
+    const { createCephStorage, cluster, form } = this.props
     const clusterID = cluster.clusterID
     const hostTemplate = new HostTemplate(this.state.hostDir)
     const body = {
       template: yaml.dump(hostTemplate)
     }
-    createCephStorage(clusterID, {type: 'host'}, body, {
-      success: {
-        func: () => {
-          this.setState({
-            hostDirEditDisable: true,
-            initialHostDir: this.state.hostDir
-          })
-          Notification.success('修改宿主机根目录成功')
+    form.validateFields([ 'serverDir' ], (err, values) => {
+      if (err) return
+      createCephStorage(clusterID, {type: 'host'}, body, {
+        success: {
+          func: () => {
+            this.setState({
+              hostDirEditDisable: true,
+              initialHostDir: this.state.hostDir
+            })
+            Notification.success('修改宿主机根目录成功')
+          }
         }
-      }
-    }, 'PUT')
+      }, 'PUT')
+    })
 
   }
   hostDirEditCancel = () => {
@@ -1695,6 +1698,7 @@ class ClusterStorage extends Component {
     if (!PATH_REG.test(value)) {
       return callback('请输入正确的路径')
     }
+    callback()
   }
 
   render() {

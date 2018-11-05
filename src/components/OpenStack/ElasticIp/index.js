@@ -71,7 +71,6 @@ class ElasticIP extends Component {
       finally: {
         func: () => {
           this.setState({isFetching: false})
-          document.getElementById('searchInput').value = ''
         }
       }
     })

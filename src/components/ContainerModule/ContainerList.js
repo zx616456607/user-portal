@@ -466,7 +466,7 @@ let MyComponent = React.createClass({
               overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
               <TenxIcon type="terminal" size={12} className="terminal"/>
-              <span style={{ marginLeft: '10px' }}>{formatMessage(ContainerListIntl.Terminal)}</span>
+              <span style={{ marginLeft: '18px' }}>{formatMessage(ContainerListIntl.Terminal)}</span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>

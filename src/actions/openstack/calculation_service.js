@@ -248,11 +248,8 @@ export function deleteVM(id, callback) {
 export const OPENSTACK_GET_IMAGE_LIST_REQUEST = 'OPENSTACK_GET_IMAGE_LIST_REQUEST'
 export const OPENSTACK_GET_IMAGE_LIST_SUCCESS = 'OPENSTACK_GET_IMAGE_LIST_SUCCESS'
 export const OPENSTACK_GET_IMAGE_LIST_FAILURE = 'OPENSTACK_GET_IMAGE_LIST_FAILURE'
-function fetchImageList(query, callback) {
+function fetchImageList(callback) {
   let endpointUrl = `${API_URL_PREFIX}/openstack/images`
-  if (query) {
-    endpointUrl += `?${toQueryString(query)}`
-  }
   return {
     [FETCH_API]: {
       types: [OPENSTACK_GET_IMAGE_LIST_REQUEST, OPENSTACK_GET_IMAGE_LIST_SUCCESS, OPENSTACK_GET_IMAGE_LIST_FAILURE],
@@ -263,9 +260,9 @@ function fetchImageList(query, callback) {
   }
 }
 
-export function getImageList(query, callback) {
+export function getImageList(callback) {
   return (dispath, getState) => {
-    return dispath(fetchImageList(query, callback))
+    return dispath(fetchImageList(callback))
   }
 }
 export const OPENSTACK_POST_IMAGE_REQUEST = 'OPENSTACK_POST_IMAGE_REQUEST'

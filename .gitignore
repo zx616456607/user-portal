@@ -50,4 +50,4 @@ static/blob/*
 ./configs
 backend
 package-lock.json
-.history
+.history/

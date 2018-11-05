@@ -27,7 +27,7 @@ import NotificationHandler from '../../../components/Notification'
 import {
   genRandomString, toQuerystring, getResourceByMemory, parseAmount,
   isResourcePermissionError, formatServiceToArrry, getWrapFileType,
-  sleep
+  sleep, lbListenerIsEmpty
 } from '../../../common/tools'
 import { DEFAULT_REGISTRY, OTHER_IMAGE } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
@@ -38,7 +38,7 @@ import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, remove
 import { getImageTemplate } from '../../../actions/app_center'
 import {
   buildJson, getFieldsValues, formatValuesToFields,
-  formatTemplateDeployErrors, isFieldsHasErrors
+  formatTemplateDeployErrors, isFieldsHasErrors,
 } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -141,10 +141,10 @@ class QuickCreateApp extends Component {
 
   componentWillMount() {
     this.setConfig(this.props)
-    const { location, fields, template:templateList, getImageTemplate, current } = this.props
+    const { location, fields, template:templateList, getImageTemplate, current, getPluginStatus } = this.props
     const { cluster, space } = current
     // 检查是否为dubbo服务，如果是，提交数据时加上当前项目的namespace为默认环境变量
-    getPluginStatus(cluster.clusterID, space.namespace, {
+    getPluginStatus({ clusterID: cluster.clusterID }, space.namespace, {
       success: {
         func: res => {
           if (res.data.dubboOperator) {
@@ -810,21 +810,7 @@ class QuickCreateApp extends Component {
     await sleep(200)
 
     // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
-    let lbNoPort = false
-    for (let fieldKey in fields) {
-      if (fields.hasOwnProperty(fieldKey)) {
-        const obj = fields[fieldKey]
-        if (Object.keys(obj).indexOf('loadBalance') > -1) {
-          let noLBPorts = true
-          Object.keys(obj).map(label => (
-            label.indexOf('tcp-exportPort-') > -1
-            || label.indexOf('udp-exportPort-') > -1
-            || label.indexOf('port-') > -1
-          ) && (noLBPorts = false))
-          lbNoPort = noLBPorts
-        }
-      }
-    }
+    let lbNoPort = lbListenerIsEmpty(fields)
     if (lbNoPort) {
       notification.warn(intl.formatMessage(IntlMessage.addOneListener))
       return
