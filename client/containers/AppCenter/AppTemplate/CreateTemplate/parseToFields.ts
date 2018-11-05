@@ -452,6 +452,45 @@ const parseOtherImage = annotations => {
   }
 }
 
+const parseTcpUdpIngress = (deployment, annotations) => {
+  if (!annotations.tcpIngress && !annotations.udpIngress) {
+    return
+  }
+  const { agentType } = annotations
+  const fieldsObj: object = {}
+  if (annotations.tcpIngress) {
+    const parseTcpArray = JSON.parse(annotations.tcpIngress.replace(/&#34;/g, '\"'))
+    const tcpKeys: Array<number> = []
+    parseTcpArray.forEach((item, _index) => {
+      const { servicePort, exportPort } = item
+      tcpKeys.push(_index)
+      Object.assign(fieldsObj, {
+        [`tcp-servicePort-${_index}`]: servicePort,
+        [`tcp-exportPort-${_index}`]: exportPort,
+      })
+    })
+    Object.assign(fieldsObj, { tcpKeys })
+  }
+  if (annotations.udpIngress) {
+    const parseUdpArray = JSON.parse(annotations.udpIngress.replace(/&#34;/g, '\"'))
+    const udpKeys: number[] = []
+    parseUdpArray.forEach((item, _index) => {
+      const { servicePort, exportPort } = item
+      udpKeys.push(_index)
+      Object.assign(fieldsObj, {
+        [`udp-servicePort-${_index}`]: servicePort,
+        [`udp-exportPort-${_index}`]: exportPort,
+      })
+    })
+    Object.assign(fieldsObj, { udpKeys })
+  }
+  Object.assign(fieldsObj, {
+    agentType,
+    originalAgentType: agentType, // 代理方式原始值，用户编辑模板和部署模板时，切换代理方式
+  })
+  return fieldsObj
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -487,6 +526,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseConfigMap(containers[0], volumes, annotations), // 配置管理
     ...parseAdvancedEnv(containers[0]), // 环境变量
     ...parseOtherImage(annotations), // 第三方镜像
+    ...parseTcpUdpIngress(deployment, annotations), // tcp udp 监听器
   };
   return values;
 };
@@ -560,24 +600,18 @@ const parseService = service => {
 };
 
 const parseIngress = (ingress, deployment) => {
-  let accessType = 'netExport';
   if (!ingress) {
-    return { accessType };
+    return
   }
   const { agentType } = getDeepValue(deployment, ['spec', 'template', 'metadata', 'annotations'])
-  accessType = 'loadBalance';
-  let loadBalance: string;
   const lbKeys: Array = [];
   const ingressParent: object = {};
   ingress.forEach((item, index) => {
     const {
-      controllerInfo, displayName, lbAlgorithm, sessionSticky,
+      displayName, lbAlgorithm, sessionSticky,
       sessionPersistent, protocol, items, path: wrapPath, healthCheck,
       context,
     } = item;
-    if (!loadBalance) {
-      loadBalance = controllerInfo.name;
-    }
     lbKeys.push(index);
     const [ host, ...path ] = wrapPath.split('/');
     const hostValue = isEmpty(path[0]) ? host : host + '/' + path.join('/');
@@ -612,13 +646,34 @@ const parseIngress = (ingress, deployment) => {
     });
   });
   return {
-    accessType, // 是否为负载均衡
     agentType: agentType ? agentType : 'inside', // 应用负载均衡类型
-    loadBalance, // 负载均衡器名称
     lbKeys, // 负载均衡器监听的端口组
     ...ingressParent,
   };
 };
+/**
+ * 解析应用负载均衡器名称以及访问方式
+ * @param ingress
+ * @param deployment
+ */
+export const parseLoadBalance = (ingress, deployment) => {
+  const { spec: outerSpec } = deployment;
+  const { template } = outerSpec;
+  const { metadata: innerMetadata } = template;
+  const { annotations } = innerMetadata;
+  let accessType: string = 'netExport'
+  if (isEmpty(ingress) && !annotations.tcpIngress && !annotations.udpIngress) {
+    return {
+      accessType,
+    }
+  }
+  accessType = 'loadBalance'
+  return {
+    accessType, // 访问方式类型
+    loadBalance: annotations.loadBalance, // 应用负载均衡器名称
+    originalLoadBalance: annotations.loadBalance,
+  }
+}
 
 /**
  * 解析模板详情
@@ -639,6 +694,7 @@ export const parseToFields = (templateDetail, wrapperChart) => {
     ...parseDeployment(deployment, chart),
     ...parseService(service),
     ...parseIngress(ingress, deployment),
+    ...parseLoadBalance(ingress, deployment),
   };
   return formatValues(values);
 };

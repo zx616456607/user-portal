@@ -1005,7 +1005,7 @@ class Sider extends Component {
                 <SubMenu key="app-stack"
                   title={
                     <span>
-                      <TenxIcon className="commonImg" type="ai" />
+                      <TenxIcon className="commonImg" type="app-stack" />
                       <span className='commonSiderSpan'>
                         工作负载
                       </span>
