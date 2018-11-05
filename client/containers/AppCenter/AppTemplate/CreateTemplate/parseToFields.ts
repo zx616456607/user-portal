@@ -516,7 +516,7 @@ const parseDeployment = (deployment, chart) => {
     apm: labels[APM_SERVICE_LABEL_KEY] === 'pinpoint', // 是否开通 APM
     ...parseResource(containers[0]),
     replicas, // 实例数量
-    command: containers[0].command ? containers[0].command[0] : '', // 进入点
+    command: containers[0].command ? containers[0].command.join(' ') : '', // 进入点
     ...parseCommandArgs(containers[0]),
     imagePullPolicy: containers[0].imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone: parseTimeZone(containers[0]), // 时区设置
