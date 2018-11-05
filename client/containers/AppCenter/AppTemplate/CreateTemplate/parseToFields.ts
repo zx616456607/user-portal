@@ -452,6 +452,46 @@ const parseOtherImage = annotations => {
   }
 }
 
+const parseTcpUdpIngress = (deployment, annotations) => {
+  if (!annotations.tcpIngress && !annotations.udpIngress) {
+    return
+  }
+  const { agentType, loadBalance } = annotations
+  const fieldsObj: object = {}
+  if (annotations.tcpIngress) {
+    const parseTcpArray = JSON.parse(annotations.tcpIngress.replace(/&#34;/g, '\"'))
+    const tcpKeys: Array<number> = []
+    parseTcpArray.forEach((item, _index) => {
+      const { servicePort, exportPort } = item
+      tcpKeys.push(_index)
+      Object.assign(fieldsObj, {
+        [`tcp-servicePort-${_index}`]: servicePort,
+        [`tcp-exportPort-${_index}`]: exportPort,
+      })
+    })
+    Object.assign(fieldsObj, { tcpKeys })
+  }
+  if (annotations.udpIngress) {
+    const parseUdpArray = JSON.parse(annotations.udpIngress.replace(/&#34;/g, '\"'))
+    const udpKeys: number[] = []
+    parseUdpArray.forEach((item, _index) => {
+      const { servicePort, exportPort } = item
+      udpKeys.push(_index)
+      Object.assign(fieldsObj, {
+        [`udp-servicePort-${_index}`]: servicePort,
+        [`udp-exportPort-${_index}`]: exportPort,
+      })
+    })
+    Object.assign(fieldsObj, { udpKeys })
+  }
+  Object.assign(fieldsObj, {
+    agentType,
+    loadBalance,
+    accessType: 'loadBalance',
+  })
+  return fieldsObj
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -487,6 +527,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseConfigMap(containers[0], volumes, annotations), // 配置管理
     ...parseAdvancedEnv(containers[0]), // 环境变量
     ...parseOtherImage(annotations), // 第三方镜像
+    ...parseTcpUdpIngress(deployment, annotations), // tcp udp 监听器
   };
   return values;
 };
@@ -560,12 +601,11 @@ const parseService = service => {
 };
 
 const parseIngress = (ingress, deployment) => {
-  let accessType = 'netExport';
   if (!ingress) {
-    return { accessType };
+    return
   }
   const { agentType } = getDeepValue(deployment, ['spec', 'template', 'metadata', 'annotations'])
-  accessType = 'loadBalance';
+  const accessType = 'loadBalance';
   let loadBalance: string;
   const lbKeys: Array = [];
   const ingressParent: object = {};

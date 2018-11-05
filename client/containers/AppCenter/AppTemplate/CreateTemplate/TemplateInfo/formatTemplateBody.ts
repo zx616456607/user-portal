@@ -58,9 +58,9 @@ export const formatTemplateBody = (props, imageConfig, isDeploy) => {
       });
       if (value.accessType && value.accessType.value === 'loadBalance') {
         accessType = value.accessType.value;
-        const lbKeys = value.lbKeys.value;
-        const ingresses: Array = [];
-        lbKeys.forEach(item => {
+        const lbKeys = value.lbKeys && value.lbKeys.value;
+        const ingresses: Array<object> = [];
+        lbKeys && lbKeys.forEach(item => {
           const items = [];
           const { host } = value[`ingress-${item}`].value;
           const [hostname, ...path] = host.split('/');
