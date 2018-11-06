@@ -28,7 +28,7 @@ class DubboSwitch extends React.Component {
 
   }
   componentDidMount() {
-    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus, getRegisteredServiceList } = this.props
+    const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus } = this.props
     checkPluginsInstallStatus({ clusterID }, projectName, {
       success: {
         func: res => {
@@ -55,7 +55,6 @@ class DubboSwitch extends React.Component {
     })
   }
   dubboSwitchChange = () => {
-    const { dubboServices } = this.state
     const { clusterID, projectName, getRegisteredServiceList } = this.props
     this.setState({
       dubboModal: true,
