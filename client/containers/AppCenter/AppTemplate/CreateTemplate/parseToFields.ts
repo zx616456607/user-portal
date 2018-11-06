@@ -28,6 +28,7 @@ const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
 const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname';
+const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs'
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -491,6 +492,26 @@ const parseTcpUdpIngress = (deployment, annotations) => {
   return fieldsObj
 }
 
+const parseReplicasIP = annotations => {
+  if (!annotations[REPLICAS_IP_KEY]) {
+    return
+  }
+  const ipKeys: number[] = []
+  const ipFields: object = {}
+  const parseIpArr = JSON.parse(annotations[REPLICAS_IP_KEY].replace(/&#34;/g, '\"'))
+  parseIpArr.forEach((item, index) => {
+    ipKeys.push(index)
+    Object.assign(ipFields, {
+      [`replicasIP${index}`]: item,
+    })
+  })
+  return {
+    replicasCheck: true,
+    ipKeys,
+    ...ipFields,
+  }
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -527,6 +548,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseAdvancedEnv(containers[0]), // 环境变量
     ...parseOtherImage(annotations), // 第三方镜像
     ...parseTcpUdpIngress(deployment, annotations), // tcp udp 监听器
+    ...parseReplicasIP(annotations), // 固定实例 IP
   };
   return values;
 };
