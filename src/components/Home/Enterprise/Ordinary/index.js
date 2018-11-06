@@ -205,7 +205,6 @@ class Ordinary extends Component {
     loadDbCacheList(clusterID, 'mysql', {
       success: {
         func: res => {
-          console.log(res);
           this.setState({
             dbClusterList: res.databaseList
           })
