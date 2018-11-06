@@ -568,6 +568,8 @@ const Normal = React.createClass({
       setFieldsValue({
         GPULimits: RESOURCES_GPU_MIN
       })
+    } else {
+      this.onResourceChange({ resourceType: 512 })
     }
   },
   handleReplicas(v) {
