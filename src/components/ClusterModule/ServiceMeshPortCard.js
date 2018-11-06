@@ -51,11 +51,6 @@ class ServiceMeshPortCard extends React.Component {
     if (statusCode !== 200) {
       this.setState({ istioFlag: true })
     }
-    try {
-      const result = await this.props.getServiceMeshClusterNode(clusterID)
-      const { availability: nodeArray = {} } = result.response.result
-      this.setState({ nodeArray })
-      } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
     await this.reload()
   }
   reload = async () => {
@@ -68,6 +63,11 @@ class ServiceMeshPortCard extends React.Component {
     }
     const { result:ServiceMeshPortList} = result.response
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
+    try {
+      const result = await this.props.getServiceMeshClusterNode(clusterID)
+      const { availability: nodeArray = {} } = result.response.result
+      this.setState({ nodeArray })
+      } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
   }
   render(){
     const { cluster: { clusterID } = {} } = this.props
