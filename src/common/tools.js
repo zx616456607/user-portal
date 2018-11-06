@@ -922,3 +922,27 @@ export function stringToHex(str){
 export function upperInitial(str) {
   return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
 }
+
+/**
+ * 创建模板和应用时，访问方式为应用负载均衡，检查是否有监听器
+ * @param fields
+ * @returns {boolean}
+ */
+export function lbListenerIsEmpty(fields) {
+  let lbNoPort = false
+  for (let fieldKey in fields) {
+    if (fields.hasOwnProperty(fieldKey)) {
+      const obj = fields[fieldKey]
+      if (Object.keys(obj).indexOf('loadBalance') > -1) {
+        let noLBPorts = true
+        Object.keys(obj).map(label => (
+          label.indexOf('tcp-exportPort-') > -1
+          || label.indexOf('udp-exportPort-') > -1
+          || label.indexOf('port-') > -1
+        ) && (noLBPorts = false))
+        lbNoPort = noLBPorts
+      }
+    }
+  }
+  return lbNoPort
+}

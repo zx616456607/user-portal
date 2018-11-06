@@ -76,6 +76,32 @@ class LoadBalance extends React.Component {
     callback()
   }
 
+  agentTypeChange = async e => {
+    const { value } = e.target
+    const { loadBalanceList, form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    const originalAgentType = getFieldValue('originalAgentType')
+    if (!originalAgentType) { // 用于编辑模板和部署模板
+      return
+    }
+    if (isEmpty(loadBalanceList)) {
+      return
+    }
+    if (value !== originalAgentType) {
+      const filterLb = loadBalanceList.filter(item => item.metadata.labels.agentType === value)
+      if (isEmpty(filterLb)) {
+        return
+      }
+      await setFieldsValue({
+        loadBalance: filterLb[0].metadata.name,
+      })
+      return
+    }
+    await setFieldsValue({
+      loadBalance: getFieldValue('originalLoadBalance')
+    })
+  }
+
   addItem = configs => {
     const { editKey } = this.state
     const { form, intl } = this.props
@@ -477,7 +503,8 @@ class LoadBalance extends React.Component {
       ]
     })
     const agentTypeProps = getFieldProps('agentType', {
-      initialValue: 'inside'
+      initialValue: 'inside',
+      onChange: this.agentTypeChange,
     })
     const agentType = getFieldValue('agentType')
     return (

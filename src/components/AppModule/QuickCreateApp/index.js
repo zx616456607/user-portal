@@ -27,7 +27,7 @@ import NotificationHandler from '../../../components/Notification'
 import {
   genRandomString, toQuerystring, getResourceByMemory, parseAmount,
   isResourcePermissionError, formatServiceToArrry, getWrapFileType,
-  sleep
+  sleep, lbListenerIsEmpty
 } from '../../../common/tools'
 import { DEFAULT_REGISTRY, OTHER_IMAGE } from '../../../constants'
 import { removeFormFields, removeAllFormFields, setFormFields } from '../../../actions/quick_create_app'
@@ -38,7 +38,7 @@ import { getAppTemplateDetail, appTemplateDeploy, appTemplateDeployCheck, remove
 import { getImageTemplate } from '../../../actions/app_center'
 import {
   buildJson, getFieldsValues, formatValuesToFields,
-  formatTemplateDeployErrors, isFieldsHasErrors
+  formatTemplateDeployErrors, isFieldsHasErrors,
 } from './utils'
 import './style/index.less'
 import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
@@ -600,9 +600,7 @@ class QuickCreateApp extends Component {
     const { namespace } = current.space
     let template = []
     let appPkgID = {}
-    const httpReqArr = []
-    const tcpReqArr = []
-    const udpReqArr = []
+    const monitorArr = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         if (this.state.dubboSwitchOn) {
@@ -627,63 +625,6 @@ class QuickCreateApp extends Component {
         json.storage.forEach(item => {
           template.push(yaml.dump(item))
         })
-        if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
-          const lbName = fields[key].loadBalance.value
-          const lbKeys = fields[key].lbKeys && fields[key].lbKeys.value
-          const tcpKeys = fields[key].tcpKeys && fields[key].tcpKeys.value
-          const udpKeys = fields[key].udpKeys && fields[key].udpKeys.value
-          const currentLB = loadBalanceList.filter(lb => lbName === lb.metadata.name)[0]
-          const { displayName } = currentLB.metadata.annotations;
-          const agentType = fields[key].agentType.value
-          if (!isEmpty(lbKeys)) {
-            lbKeys.forEach(item => {
-              const items = []
-              const lbBody = []
-              const { host, displayName: ingressName } = fields[key][`ingress-${item}`].value
-              const [hostname, ...path] = host.split('/')
-              items.push({
-                serviceName: fields[key].serviceName.value,
-                servicePort: parseInt(fields[key][`port-${item}`].value),
-                weight: parseInt(fields[key][`weight-${item}`].value)
-              })
-              const body = {
-                host: hostname,
-                path: path ? '/' + path.join('/') : '/',
-                items
-              }
-              lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
-              httpReqArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
-            })
-          }
-          if (!isEmpty(tcpKeys)) {
-            tcpKeys.forEach(item => {
-              const tcpBody = []
-              const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
-              const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
-              const serviceName = fields[key].serviceName.value
-              tcpBody.push({
-                exportPort,
-                servicePort,
-                serviceName,
-              })
-              tcpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'tcp', displayName, agentType, { tcp: tcpBody }))
-            })
-          }
-          if (!isEmpty(udpKeys)) {
-            udpKeys.forEach(item => {
-              const udpBody = []
-              const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
-              const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
-              const serviceName = fields[key].serviceName.value
-              udpBody.push({
-                exportPort,
-                servicePort,
-                serviceName,
-              })
-              udpReqArr.push(createTcpUdpIngress(clusterID, lbName, 'udp', displayName, agentType, { udp: udpBody }))
-            })
-          }
-        }
         if (fields[key].appPkgID) {
           let serviceName = fields[key].serviceName.value
           appPkgID[serviceName] = fields[key].appPkgID.value
@@ -692,15 +633,71 @@ class QuickCreateApp extends Component {
     }
     const callback = {
       success: {
-        func: res => {
-          if (!isEmpty(httpReqArr)) {
-            Promise.all(httpReqArr)
+        func: async res => {
+          // 创建app后添加应用负载监听器
+          for (let key in fields) {
+            if (fields.hasOwnProperty(key)) {
+              if (fields[key].accessType && fields[key].accessType.value === 'loadBalance') {
+                const lbName = fields[key].loadBalance.value
+                const lbKeys = fields[key].lbKeys && fields[key].lbKeys.value
+                const tcpKeys = fields[key].tcpKeys && fields[key].tcpKeys.value
+                const udpKeys = fields[key].udpKeys && fields[key].udpKeys.value
+                const currentLB = loadBalanceList.filter(lb => lbName === lb.metadata.name)[0]
+                const { displayName } = currentLB.metadata.annotations;
+                const agentType = fields[key].agentType.value
+                if (!isEmpty(lbKeys)) {
+                  lbKeys.forEach(item => {
+                    const items = []
+                    const lbBody = []
+                    const { host, displayName: ingressName } = fields[key][`ingress-${item}`].value
+                    const [hostname, ...path] = host.split('/')
+                    items.push({
+                      serviceName: fields[key].serviceName.value,
+                      servicePort: parseInt(fields[key][`port-${item}`].value),
+                      weight: parseInt(fields[key][`weight-${item}`].value)
+                    })
+                    const body = {
+                      host: hostname,
+                      path: path ? '/' + path.join('/') : '/',
+                      items
+                    }
+                    lbBody.push(Object.assign(fields[key][`ingress-${item}`].value, body))
+                    monitorArr.push(createAppIngress(clusterID, lbName, ingressName, displayName, agentType, { data: lbBody }))
+                  })
+                }
+                if (!isEmpty(tcpKeys)) {
+                  tcpKeys.forEach(item => {
+                    const tcpBody = []
+                    const exportPort = fields[key][`tcp-exportPort-${item}`].value.toString()
+                    const servicePort = fields[key][`tcp-servicePort-${item}`].value.toString()
+                    const serviceName = fields[key].serviceName.value
+                    tcpBody.push({
+                      exportPort,
+                      servicePort,
+                      serviceName,
+                    })
+                    monitorArr.push(createTcpUdpIngress(clusterID, lbName, 'tcp', displayName, agentType, { tcp: tcpBody }))
+                  })
+                }
+                if (!isEmpty(udpKeys)) {
+                  udpKeys.forEach(item => {
+                    const udpBody = []
+                    const exportPort = fields[key][`udp-exportPort-${item}`].value.toString()
+                    const servicePort = fields[key][`udp-servicePort-${item}`].value.toString()
+                    const serviceName = fields[key].serviceName.value
+                    udpBody.push({
+                      exportPort,
+                      servicePort,
+                      serviceName,
+                    })
+                    monitorArr.push(createTcpUdpIngress(clusterID, lbName, 'udp', displayName, agentType, { udp: udpBody }))
+                  })
+                }
+              }
+            }
           }
-          if (!isEmpty(tcpReqArr)) {
-            Promise.all(tcpReqArr)
-          }
-          if (!isEmpty(udpReqArr)) {
-            Promise.all(udpReqArr)
+          if (!isEmpty(monitorArr)) {
+            await Promise.all(monitorArr)
           }
           this.setState({
             stepStatus: 'finish',
@@ -788,7 +785,6 @@ class QuickCreateApp extends Component {
         template: template.join('---\n'),
         appPkgID: appPkgID
       }
-
       addService(clusterID, this.state.appName, body, callback)
       return
     }
@@ -810,21 +806,7 @@ class QuickCreateApp extends Component {
     await sleep(200)
 
     // [LOT-2384] 如果选择应用均衡负载, 则需要至少添加一个监听器
-    let lbNoPort = false
-    for (let fieldKey in fields) {
-      if (fields.hasOwnProperty(fieldKey)) {
-        const obj = fields[fieldKey]
-        if (Object.keys(obj).indexOf('loadBalance') > -1) {
-          let noLBPorts = true
-          Object.keys(obj).map(label => (
-            label.indexOf('tcp-exportPort-') > -1
-            || label.indexOf('udp-exportPort-') > -1
-            || label.indexOf('port-') > -1
-          ) && (noLBPorts = false))
-          lbNoPort = noLBPorts
-        }
-      }
-    }
+    let lbNoPort = lbListenerIsEmpty(fields)
     if (lbNoPort) {
       notification.warn(intl.formatMessage(IntlMessage.addOneListener))
       return
