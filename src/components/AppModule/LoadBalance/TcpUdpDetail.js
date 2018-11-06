@@ -177,10 +177,6 @@ class TcpUdpDetail extends React.PureComponent{
     const monitorPortProps = getFieldProps('exportPort', {
       rules: [
         {
-          required: true,
-          message: '监听端口不能为空',
-        },
-        {
           validator: this.exportPortCheck,
         }
       ],
@@ -193,14 +189,11 @@ class TcpUdpDetail extends React.PureComponent{
           message: '请选择服务',
         }
       ],
-      initialValue: currentIngress ? currentIngress.serviceName : '',
+      initialValue: currentIngress ? currentIngress.serviceName : undefined,
     })
     const containerPortProps = getFieldProps('servicePort', {
       rules: [
         {
-          required: true,
-          message: '容器端口不能为空',
-        }, {
           validator: this.containerPortCheck,
         }
       ],

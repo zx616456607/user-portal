@@ -304,7 +304,8 @@ class ClusterStorage extends Component {
       `RBD_agent${item.index}`,
       `RBD_monitors${item.index}`,
       `RBD_adminId${item.index}`,
-      `RBD_key${item.index}`
+      `RBD_key${item.index}`,
+      `RBD_radosgw${item.index}`,
     ]
     form.validateFields(validateArray, (errors, values) => {
       if(!!errors){
@@ -316,6 +317,7 @@ class ClusterStorage extends Component {
       const adminId =  values[`RBD_adminId${item.index}`]
       const pool = 'tenx-pool'
       const key = values[`RBD_key${item.index}`]
+      const radosgw = values[`RBD_radosgw${item.index}`]
       const clusterID = cluster.clusterID
       const cephList = clusterStorage.cephList || []
       let secretName = ''
@@ -338,6 +340,9 @@ class ClusterStorage extends Component {
         secretName,
       }
       const storageClass = new StorageClass(config)
+      if (!isEmpty(radosgw)) {
+        storageClass.setRadosgw(radosgw)
+      }
       const secret = new Secret(key, secretName)
       const template = []
       template.push(yaml.dump(storageClass))
@@ -404,7 +409,8 @@ class ClusterStorage extends Component {
           `RBD_agent${item.index}`,
           `RBD_monitors${item.index}`,
           `RBD_adminId${item.index}`,
-          `RBD_key${item.index}`
+          `RBD_key${item.index}`,
+          `RBD_radosgw${item.index}`,
         ])
         listArray[i].disabled = true
         listArray[i].seePwd = false
@@ -628,6 +634,31 @@ class ClusterStorage extends Component {
                     }
                     if(!/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}(,(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5})*$/.test(value)){
                       return callback('请输入合法的集群配置')
+                    }
+                    return callback()
+                  }
+                }]
+              })}
+            />
+          </FormItem>
+          <FormItem
+            label="radosgw 地址"
+            key="radosgw"
+            {...formItemLayout}
+          >
+            <Input
+              placeholder='如：192.168.0.4:8080'
+              disabled={item.disabled}
+              size="large"
+              {...getFieldProps(`RBD_radosgw${item.index}`, {
+                initialValue: metadata && metadata.annotations ? metadata.annotations['radosgw'] : undefined,
+                rules: [{
+                  validator: (rule, value, callback) => {
+                    if(!value){
+                      return callback() // 允许为空
+                    }
+                    if(!/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5}(,(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]{1,5})*$/.test(value)){
+                      return callback('请输入正确的radosgw地址')
                     }
                     return callback()
                   }
@@ -1632,23 +1663,26 @@ class ClusterStorage extends Component {
     })
   }
   hostDirEditOk = () => {
-    const { createCephStorage, cluster } = this.props
+    const { createCephStorage, cluster, form } = this.props
     const clusterID = cluster.clusterID
     const hostTemplate = new HostTemplate(this.state.hostDir)
     const body = {
       template: yaml.dump(hostTemplate)
     }
-    createCephStorage(clusterID, {type: 'host'}, body, {
-      success: {
-        func: () => {
-          this.setState({
-            hostDirEditDisable: true,
-            initialHostDir: this.state.hostDir
-          })
-          Notification.success('修改宿主机根目录成功')
+    form.validateFields([ 'serverDir' ], (err, values) => {
+      if (err) return
+      createCephStorage(clusterID, {type: 'host'}, body, {
+        success: {
+          func: () => {
+            this.setState({
+              hostDirEditDisable: true,
+              initialHostDir: this.state.hostDir
+            })
+            Notification.success('修改宿主机根目录成功')
+          }
         }
-      }
-    }, 'PUT')
+      }, 'PUT')
+    })
 
   }
   hostDirEditCancel = () => {
@@ -1664,6 +1698,7 @@ class ClusterStorage extends Component {
     if (!PATH_REG.test(value)) {
       return callback('请输入正确的路径')
     }
+    callback()
   }
 
   render() {

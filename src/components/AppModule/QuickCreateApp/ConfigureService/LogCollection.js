@@ -51,13 +51,13 @@ class LogCollection extends Component {
     callback(error)
   }
 
-  validateRule(rule, value, callback) {
+  validateRule = (rule, value, callback) => {
     const { intl } = this.props
     if (value === '') {
-      callback(new Error(intl.formatMessage(IntlMessage.pleaseEnter, {
+      callback(intl.formatMessage(IntlMessage.pleaseEnter, {
         item: intl.formatMessage(IntlMessage.collectingFileRules),
         end: '',
-      })))
+      }))
       return
     }
     // Check if it's valid regex expression
