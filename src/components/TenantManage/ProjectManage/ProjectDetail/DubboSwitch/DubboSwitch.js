@@ -29,31 +29,26 @@ class DubboSwitch extends React.Component {
   }
   componentDidMount() {
     const { clusterID, getPluginStatus, projectName, checkPluginsInstallStatus, getRegisteredServiceList } = this.props
-    getRegisteredServiceList(clusterID, projectName, {
-      success: {
-        func: res => {
-          this.setState({
-            dubboServices: res.data
-          })
-        }
-      }
-    })
-    getPluginStatus({ clusterID }, projectName, {
-      success: {
-        func: res => {
-          if (res.data.dubboOperator) {
-            this.setState({dubboSwitchChecked: true})
-          } else {
-            this.setState({dubboSwitchChecked: false})
-          }
-        }
-      }
-    })
     checkPluginsInstallStatus({ clusterID }, projectName, {
       success: {
         func: res => {
           if (res.data.dubboOperator.message === "uninstalled") {
             this.setState({ dubboOperatorDisabled: true })
+          } else {
+            setTimeout(() => {
+              getPluginStatus({ clusterID }, projectName, {
+                success: {
+                  func: res => {
+                    if (res.data.dubboOperator) {
+                      this.setState({dubboSwitchChecked: true})
+                    } else {
+                      this.setState({dubboSwitchChecked: false})
+                    }
+                  }
+                }
+              })
+            })
+
           }
         }
       }
@@ -61,6 +56,7 @@ class DubboSwitch extends React.Component {
   }
   dubboSwitchChange = () => {
     const { dubboServices } = this.state
+    const { clusterID, projectName, getRegisteredServiceList } = this.props
     this.setState({
       dubboModal: true,
     })
@@ -74,18 +70,36 @@ class DubboSwitch extends React.Component {
     }else {
       content = {
         title: '关闭操作',
-        text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
-        isConfirm: '确认是否关闭'
+        text: '加载服务列表中...',
+        isConfirm: '请稍后'
       }
-      if (dubboServices.length !== 0) {
-        content = {
-          title: '关闭操作',
-          text: '项目对应的集群中存在以下Dubbo服务， 请删除这些服务后，方可执行关闭操作',
-          isConfirm: '',
-          services: dubboServices
+      getRegisteredServiceList(clusterID, projectName, {
+        success: {
+          func: res => {
+            this.setState({
+              dubboServices: res.data
+            }, () => {
+              if (this.state.dubboServices.length !== 0) {
+                content = {
+                  title: '关闭操作',
+                  text: '项目对应的集群中存在以下Dubbo服务， 请删除这些服务后，方可执行关闭操作',
+                  isConfirm: '',
+                  services: this.state.dubboServices
+                }
+              } else {
+                content = {
+                  title: '关闭操作',
+                  text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
+                  isConfirm: '确认是否关闭'
+                }
+              }
+              this.setState({
+                dubboModalContent: content
+              })
+            })
+          }
         }
-      }
-
+      })
     }
     this.setState({
       dubboModalContent: content
