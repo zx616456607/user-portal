@@ -280,7 +280,7 @@ function fetchClusterQuotaList(query, callback) {
     headers = Object.assign({}, headers, query.header)
   }
   if (query.resources !== undefined) {
-    endpoint += `?resource=${query.resources}`
+    endpoint += `?resources=${query.resources}`
   }
   return {
     [FETCH_API]: {
