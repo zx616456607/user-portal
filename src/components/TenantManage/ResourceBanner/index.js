@@ -130,7 +130,7 @@ class ResourceBanner extends React.Component {
     const resourcesString = this.props.resourceTypeArray.join(',')
     let QuotaList
     if (resourceflay === 0) QuotaList = await getGlobaleQuotaList({ resources: resourcesString })
-    if (resourceflay === 1) QuotaList = await getClusterQuotaList({ id: clusterID,resource:resourcesString })
+    if (resourceflay === 1) QuotaList = await getClusterQuotaList({ id: clusterID,resources:resourcesString })
     const { response: { result: { data: NewQuotaList = {}} = {} } = {} } = QuotaList
     const LastResourceInfoList = ResourceInfoList
       .map((resourceInfo) => {

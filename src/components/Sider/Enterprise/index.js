@@ -1018,8 +1018,8 @@ class Sider extends Component {
                       onClick={() => {
                         try {
                           browserHistory.push('/app-stack/StatefulSet')
-                          if (window.aiPortalHistory) {
-                            window.aiPortalHistory.replace('/app-stack/StatefulSet')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack/StatefulSet')
                           }
                         } catch (error) {
                           //
@@ -1038,8 +1038,8 @@ class Sider extends Component {
                       onClick={() => {
                         try {
                           browserHistory.push('/app-stack/Job')
-                          if (window.aiPortalHistory) {
-                            window.aiPortalHistory.replace('/app-stack/Job')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack/Job')
                           }
                         } catch (error) {
                           //
@@ -1058,8 +1058,8 @@ class Sider extends Component {
                       onClick={() => {
                         try {
                           browserHistory.push('/app-stack/CronJob')
-                          if (window.aiPortalHistory) {
-                            window.aiPortalHistory.replace('/app-stack/CronJob')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack/CronJob')
                           }
                         } catch (error) {
                           //

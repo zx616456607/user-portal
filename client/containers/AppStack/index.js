@@ -129,6 +129,9 @@ class AppStack extends React.Component {
       } else if (pathname === '/app-stack/CronJob') {
         title = 'CronJob'
         redirect = '/CronJob'
+      } else if (pathname === '/app-stack/createWorkLoad/') {
+        title = 'createWorkLoad'
+        redirect = '/createWorkLoad/'
       }
     }
     const query = Object.assign(
