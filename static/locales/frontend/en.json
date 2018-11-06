@@ -3031,6 +3031,7 @@
   "ServiceConfig.sharedTypeTip": "Shared type supports multiple container instances to read and write to the same storage volume at the same time；",
   "ServiceConfig.localStorageTip": "Local storage supports saving data on the host node。",
   "ServiceConfig.storageModalTitle": "Add container directory",
+  "ServiceConfig.editStorageModalTitle": "Edit container directory",
   "ServiceConfig.storageName": "Storage name",
   "ServiceConfig.storageNameExist": "Storage name already exists",
   "ServiceConfig.storageVolumeSetting": "Storage volume setting",

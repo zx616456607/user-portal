@@ -278,6 +278,7 @@ const parseStorage = annotations => {
       volume: 'create',
       size: parseInt(item.storage, 10),
       type,
+      type_1: item.type_1,
     });
   });
   return {
@@ -295,7 +296,7 @@ const parseStorage = annotations => {
 
 const parseLiveness = containers => {
   const { livenessProbe } = containers;
-  let livenessProtocol: tring = 'none';
+  let livenessProtocol: string = 'none';
   if (!livenessProbe) {
     return { livenessProtocol };
   }
