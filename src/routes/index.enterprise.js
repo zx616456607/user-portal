@@ -123,6 +123,10 @@ const rootRoutes = {
             path: 'CronJob',
             component: require('../../client/containers/AppStack').default,
           },
+          {
+            path: 'createWorkLoad',
+            component: require('../../client/containers/AppStack').default,
+          },
         ],
       },
       {
