@@ -3256,6 +3256,7 @@
   "ServiceConfig.checkNetSegmentFail": "Check if the IP is occupied by the request failed",
   "ServiceConfig.isUsedAlready": "The current IP is already occupied, please re-fill it",
   "ServiceConfig.getNetSegmentFail": "Failed to get Pod segment data",
+  "ServiceConfig.probeType": "Type",
   "-------": "-------第三部分中文---------",
   "AppCenter.ImageCenter.PublicProject.searchPlaceholder": "Search by warehouse group name",
   "AppCenter.ImageCenter.PublicProject.repoGroupName": "Warehouse group name",
