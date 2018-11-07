@@ -300,7 +300,7 @@ const parseLiveness = containers => {
   if (!livenessProbe) {
     return { livenessProtocol };
   }
-  const { initialDelaySeconds, timeoutSeconds, periodSeconds } = livenessProbe;
+  const { initialDelaySeconds, timeoutSeconds, periodSeconds, successThreshold, failureThreshold } = livenessProbe;
   let agreement: object;
   if (livenessProbe.httpGet) {
     livenessProtocol = 'HTTP';
@@ -317,6 +317,8 @@ const parseLiveness = containers => {
     livenessInitialDelaySeconds: initialDelaySeconds, // 检查延时
     livenessTimeoutSeconds: timeoutSeconds, // 检查超时
     livenessPeriodSeconds: periodSeconds, // 检查间隔
+    successThreshold, // 健康阈值
+    failureThreshold, // 不健康阈值
   };
 };
 
