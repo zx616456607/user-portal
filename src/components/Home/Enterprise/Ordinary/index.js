@@ -437,6 +437,7 @@ class Ordinary extends Component {
     return count
   }
   renderProcessNumber(key, span = {}) {
+    const { formatMessage } = this.props.intl
     const usedCount = this.useClusterCount(key)
     const maxCount = this.maxClusterCount(key)
     const { left = 10, right = 10 } = span
@@ -447,7 +448,7 @@ class Ordinary extends Component {
     const content = <div>
       <span style={{ color: overUesd ? 'red' : 'white' }}>{usedCount}</span>
       /
-      <span>{maxCount === -1 ? '无限制' : maxCount}</span>
+      <span>{maxCount === -1 ? formatMessage(IntlMessages.unlimit) : maxCount}</span>
     </div>
     return (
       <Tooltip title={content}>
@@ -456,7 +457,13 @@ class Ordinary extends Component {
           <Col span={22} className="number textoverflow" >
           <span style={{ color: overUesd ? 'red' : '#333333' }}>{usedCount}</span>
           /
-          <p style={{ color: '#333333' }}>{maxCount === -1 ? '无限制' : maxCount}</p>
+          <p style={{ color: '#333333' }}>
+            {
+              maxCount === -1
+              ? formatMessage(IntlMessages.unlimit)
+              : maxCount
+            }
+          </p>
           </Col>
         </Row>
       </Tooltip>

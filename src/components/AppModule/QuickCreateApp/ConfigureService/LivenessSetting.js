@@ -221,7 +221,7 @@ const LivenessSetting = React.createClass({
             <FormItem
               {...formItemLayout}
               className="lastFormItem"
-              label="类型"
+              label={intl.formatMessage(IntlMessage.probeType)}
               key="type"
             >
               <RadioGroup {...livenessProtocolProps}>
