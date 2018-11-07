@@ -20,6 +20,7 @@ import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import { formatDate, adjustBrowserUrl, mergeQueryFunc } from '../../../common/tools'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import StorageIntl from '../StorageIntl'
+import Title from '../../Title'
 
 const DEFAULT_QUERY = {
   storagetype: 'host',
@@ -172,6 +173,7 @@ class HostMemory extends Component {
     return(
       <QueueAnim className='host_memory'>
         <div id='host_memory' key="host_memory">
+          <Title title="本地存储" />
           <div className='alertRow'>
             <FormattedMessage {...StorageIntl.localVolumeTips} />
           </div>

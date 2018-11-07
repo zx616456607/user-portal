@@ -60,13 +60,25 @@ const appManageRoutes = [{
     onEnter: (nextState, replace) => replace('/app_manage/storage/host')
   }, {
     path: 'rbd',
-    component: require('../components/StorageModule/Storage').default,
+    // component: require('../components/StorageModule/Storage').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/storage-management/privateStorage${search}${hash}`)
+    }
   },{
     path: 'shared',
-    component: require('../components/StorageModule/ShareMemory').default,
+    // component: require('../components/StorageModule/ShareMemory').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/storage-management/shareStorage${search}${hash}`)
+    }
   },{
     path: 'host',
-    component: require('../components/StorageModule/HostMemory').default,
+    // component: require('../components/StorageModule/HostMemory').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/storage-management/localStorage${search}${hash}`)
+    }
   }]
 },{
   path: 'storage/exclusiveMemory/:pool/:cluster/:storage_name',
@@ -91,12 +103,20 @@ const appManageRoutes = [{
   path: 'discover',
   // component: require('../components/ServiceConfig').default,
   indexRoute: {
-    component: require('../../client/containers/ServiceDiscover').default,
+    // component: require('../../client/containers/ServiceDiscover').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/net-management/dnsRecord${search}${hash}`)
+    }
   },
 },{
   path: 'security_group',
   indexRoute: {
-    component: require('../../client/containers/SecurityGroup').default,
+    // component: require('../../client/containers/SecurityGroup').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/net-management/securityGroup${search}${hash}`)
+    }
   },
   childRoutes: [{
     path: 'create',
@@ -118,11 +138,19 @@ const appManageRoutes = [{
 },{
   path: 'load_balance',
   indexRoute: {
-    component: require('../components/AppModule/LoadBalance').default,
+    // component: require('../components/AppModule/LoadBalance').default,
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/net-management/appLoadBalance${search}${hash}`)
+    }
   },
   childRoutes: [{
     path: 'balance_config',
-    component: require('../components/AppModule/LoadBalance/LoadBalanceConfig').default
+    // component: require('../components/AppModule/LoadBalance/LoadBalanceConfig').default
+    onEnter: (nextState, replace) => {
+      const { location: { search, hash } = {} } = nextState
+      replace(`/net-management/appLoadBalance/balance_config${search}${hash}`)
+    }
   }]
 }, {
   path: 'snapshot',
