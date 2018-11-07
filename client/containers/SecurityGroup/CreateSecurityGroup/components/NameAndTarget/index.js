@@ -65,13 +65,7 @@ class CreateNameAndTarget extends React.Component {
           multiple
           style={{ width: 280 }}
           placeholder="请选择服务"
-          {...getFieldProps('target', {
-            rules: [{
-              required: true,
-              message: '请选择服务',
-            }],
-            // initialValue: 'lucy',
-          })}
+          {...getFieldProps('target')}
         >
           {optionList}
         </Select>
