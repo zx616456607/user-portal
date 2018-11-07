@@ -112,6 +112,10 @@ const rootRoutes = {
         },
         childRoutes: [
           {
+            path: 'Deployment',
+            component: require('../../client/containers/AppStack').default,
+          },
+          {
             path: 'StatefulSet',
             component: require('../../client/containers/AppStack').default,
           },
@@ -124,12 +128,61 @@ const rootRoutes = {
             component: require('../../client/containers/AppStack').default,
           },
           {
+            path: 'Pod',
+            component: require('../../client/containers/AppStack').default,
+          },
+          {
             path: 'createWorkLoad',
             component: require('../../client/containers/AppStack').default,
           },
         ],
-      },
-      {
+      },{
+        path: 'net-management',
+        component: require('../../client/containers/NetManagement').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/net-management/serviceDiscovery')
+        },
+        childRoutes: [
+          {
+            path: 'serviceDiscovery',
+            component: require('../../client/containers/NetManagement').default,
+          },
+          {
+            path: 'appLoadBalance',
+            component: require('../components/AppModule/LoadBalance').default,
+          },{
+            path: 'appLoadBalance/balance_config',
+            component: require('../components/AppModule/LoadBalance/LoadBalanceConfig').default
+          },{
+            path: 'dnsRecord',
+            component: require('../../client/containers/ServiceDiscover').default,
+          },
+          {
+            path: 'securityGroup',
+            component: require('../../client/containers/SecurityGroup').default,
+          },
+        ],
+      },{
+        path: 'storage-management',
+        component: require('../../client/containers/StorageManagement').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/storage-management/privateStorage')
+        },
+        childRoutes: [
+          {
+            path: 'privateStorage',
+            component: require('../components/StorageModule/Storage').default,
+          },
+          {
+            path: 'shareStorage',
+            component: require('../components/StorageModule/ShareMemory').default,
+          },
+          {
+            path: 'localStorage',
+            component: require('../components/StorageModule/HostMemory').default,
+          },
+        ],
+      },{
         path: 'app_center',
         component: require('../containers/AppCenter').default,
         indexRoute: {

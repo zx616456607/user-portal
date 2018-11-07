@@ -724,6 +724,33 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={()=> this.selectModel('app_stack')}
+                className={currentKey == 'app_stack' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.appStack)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app-stack'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={()=> this.selectModel('net_management')}
+                className={currentKey == 'net_management' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.netManagement)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/net-management'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={()=> this.selectModel('storage_management')}
+                className={currentKey == 'storage_management' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.storageManagement)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/storage-management'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
               <li onClick={()=> this.selectModel('app_center')}
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.appCenter)}
@@ -922,14 +949,14 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='storage'>
+                  {/* <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.storage} />
                       </span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item key='snapshot'>
                     <Link to='/app_manage/snapshot'>
                       <span>
@@ -946,30 +973,30 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='discover'>
+                  {/* <Menu.Item key='discover'>
                     <Link to='/app_manage/discover'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.discover} />
                       </span>
                     </Link>
-                  </Menu.Item>
-                  <Menu.Item key='security_group'>
+                  </Menu.Item> */}
+                  {/* <Menu.Item key='security_group'>
                     <Link to='/app_manage/security_group'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.securityGroup} />
                       </span>
                     </Link>
-                  </Menu.Item>
-                  <Menu.Item key='load_balance'>
+                  </Menu.Item> */}
+                  {/* <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.loadBalance} />
                       </span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item key='auto_scale'>
                     <Link to='/app_manage/auto_scale'>
                       <span>
@@ -1007,19 +1034,38 @@ class Sider extends Component {
                     <span>
                       <TenxIcon className="commonImg" type="app-stack" />
                       <span className='commonSiderSpan'>
-                        工作负载
+                      <FormattedMessage {...IntlMessages.appStack} />
                       </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                 >
+                 <Menu.Item key='Deployment'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Deployment')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Deployment')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Deployment
+                      </span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='StatefulSet'>
                     <Link
                       onClick={() => {
                         try {
                           browserHistory.push('/app-stack/StatefulSet')
                           if (window.appStackPortalHistory) {
-                            window.appStackPortalHistory.replace('/app-stack/StatefulSet')
+                            window.appStackPortalHistory.replace('/StatefulSet')
                           }
                         } catch (error) {
                           //
@@ -1039,7 +1085,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/app-stack/Job')
                           if (window.appStackPortalHistory) {
-                            window.appStackPortalHistory.replace('/app-stack/Job')
+                            window.appStackPortalHistory.replace('/Job')
                           }
                         } catch (error) {
                           //
@@ -1059,7 +1105,7 @@ class Sider extends Component {
                         try {
                           browserHistory.push('/app-stack/CronJob')
                           if (window.appStackPortalHistory) {
-                            window.appStackPortalHistory.replace('/app-stack/CronJob')
+                            window.appStackPortalHistory.replace('/CronJob')
                           }
                         } catch (error) {
                           //
@@ -1072,6 +1118,213 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
+
+                  <Menu.Item key='Pod'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Pod')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Pod')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Pod
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <div className='sline'></div>
+                </SubMenu>
+
+                <SubMenu key="net-management"
+                  title={
+                    <span>
+                      {/* <TenxIcon className="commonImg" type="net-management" /> */}
+                      {/* TODO: ICON 设计还没出好 */}
+                      <TenxIcon className="commonImg" type="appStack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.netManagement} />
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='serviceDiscovery'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/serviceDiscovery')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/serviceDiscovery')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.discover} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='appLoadBalance'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/appLoadBalance')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/Job')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.loadBalance} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='dnsRecord'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/dnsRecord')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.dnsRecord} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='securityGroup'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/securityGroup')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.securityGroup} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+
+                <SubMenu key="storage-management"
+                  title={
+                    <span>
+                      {/* <TenxIcon className="commonImg" type="storage-management" /> */}
+                      <TenxIcon className="commonImg" type="appStack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.storageManagement} />
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='privateStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/privateStorage')
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.privateStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='shareStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/shareStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/Job')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.shareStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='localStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/localStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.localStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  {/* <Menu.Item key='customStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/customStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        自定义存储
+                      </span>
+                    </Link>
+                  </Menu.Item> */}
                   <div className='sline'></div>
                 </SubMenu>
 
