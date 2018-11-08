@@ -15,6 +15,23 @@ const option = {
   overwrite: true
 }
 
+const spaceCICDStatsReducer = (state = { isFetching: false }, action) => {
+  switch (action.type) {
+    case ActionTypes.OVERVIEW_SPACE_CICD_REQUEST:
+      return { ...state, isFetching: true }
+    case ActionTypes.OVERVIEW_SPACE_CICD_SUCCESS:
+      const result = action.response.result.data.results
+      return Object.assign({}, state, {
+        isFetching: false,
+        result
+      })
+    case ActionTypes.OVERVIEW_SPACE_CICD_FAILURE:
+      return { ...state, isFetching: false }
+    default:
+      return state
+  }
+}
+
 export default function overviewSpace(state = {
   spaceInfo: {},
   spaceOperations: {},
@@ -34,11 +51,7 @@ export default function overviewSpace(state = {
       SUCCESS: ActionTypes.OVERVIEW_SPACE_OPERATIONS_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_SPACE_OPERATIONS_FAILURE
     }, state.spaceOperations, action, option),
-    spaceCICDStats: reducerFactory({
-      REQUEST: ActionTypes.OVERVIEW_SPACE_CICD_REQUEST,
-      SUCCESS: ActionTypes.OVERVIEW_SPACE_CICD_SUCCESS,
-      FAILURE: ActionTypes.OVERVIEW_SPACE_CICD_FAILURE
-    }, state.spaceCICDStats, action, option),
+    spaceCICDStats: spaceCICDStatsReducer(state.spaceCICDStats, action, option),
     spaceImageStats: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_SPACE_IMAGE_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_SPACE_IMAGE_SUCCESS,

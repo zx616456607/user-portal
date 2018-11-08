@@ -614,7 +614,6 @@ class MySpace extends Component {
                   <img src={homeCICDImg} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
                 </Col>
                 <Col className='cicdInf' span={12}>
-
                   <table>
                     <tbody>
                       <tr>

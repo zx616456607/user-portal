@@ -21,13 +21,6 @@ export default function reducerFactory(ActionTypes = {}, state, action, options 
       })
     case ActionTypes.SUCCESS:
       if (options.overwrite) {
-        if (ActionTypes.SUCCESS === 'OVERVIEW_SPACE_CICD_SUCCESS') {
-          const result = action.response.result.data.results
-          return Object.assign({}, state, {
-            isFetching: false,
-            result
-          })
-        }
         return Object.assign({}, state, {
           isFetching: false,
           result: action.response.result
