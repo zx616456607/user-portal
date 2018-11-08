@@ -488,15 +488,20 @@ class AppServiceDetail extends Component {
               filterKey = {['#containers', '#basic', '#monitor', '#logs', '#events', '#ports' ]}
               >
               <TabPane tab={formatMessage(AppServiceDetailIntl.containerObject)} key='#containers'>
-                <ContainerList
-                  serviceName={service.metadata.name}
-                  serviceDetail={serviceDetail}
-                  cluster={service.cluster}
-                  containerList={containers}
-                  loading={isContainersFetching}
-                  onTabClick={this.onTabClick}
-                  loadServiceContainerList={this.props.loadServiceContainerList}
-                  />
+                {
+                  activeTabKey === '#containers' ?
+                    <ContainerList
+                      serviceName={service.metadata.name}
+                      serviceDetail={serviceDetail}
+                      cluster={service.cluster}
+                      containerList={containers}
+                      loading={isContainersFetching}
+                      onTabClick={this.onTabClick}
+                      loadServiceContainerList={this.props.loadServiceContainerList}
+                    />
+                    :
+                    null
+                }
               </TabPane>
               <TabPane tab={formatMessage(AppServiceDetailIntl.basicsMessage)} key='#basic'>
                 <AppServiceDetailInfo
