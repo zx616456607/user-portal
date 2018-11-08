@@ -15,4 +15,5 @@
  * @example getDeepValue(userList, ['group', 0, 'name'])
  */
 export const getDeepValue = (target, propsList) => propsList.reduce(
-  (result, prop) => ((result && result[prop]) ? result[prop] : null), target)
+  (result, prop) => (
+    (result && (result[prop] || result[prop] === 0)) ? result[prop] : null), target)

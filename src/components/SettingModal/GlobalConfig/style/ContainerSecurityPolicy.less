@@ -1,0 +1,29 @@
+@import "../../../../assets/style/site/core.less";
+.containerSecurityPolicy {
+  .content {
+    padding: @padding-medium;
+  }
+  .ant-table-thead > tr:first-child > th {
+    // background-color: white;
+    border-bottom: 1px solid @border-color-split;
+    font-weight: normal;
+  }
+  .ant-table-tbody > tr:last-child > td {
+    // background-color: white;
+    border-bottom: none;
+    font-weight: normal;
+  }
+  .Table {
+    margin-top: @padding-medium;
+    border: 1px solid  @border-color-base;
+  }
+  .buttons {
+    .delete {
+      margin-left: @padding-medium;
+      &:hover,&:focus {
+        color:  @error-color;
+        border-color: @error-color;
+      }
+    }
+  }
+}

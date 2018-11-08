@@ -3,7 +3,7 @@
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  */
 /**
- * ai-deep-learning
+ * storage-management
  *
  * v0.1 - 2018-06-20
  * @author zhangpc
@@ -26,85 +26,43 @@ const hash = process.env.DEVOPS_PORTAL_HASH
 
 const menus = [
   {
-    url: '/app-stack/Deployment',
-    name: 'Deployment',
+    url: '/storage-management/privateStorage',
+    name: 'privateStorage',
     onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Deployment')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Deployment')
-        }
-      } catch (error) {
-        //
-      }
+      browserHistory.push('/storage-management/privateStorage')
     },
   },
   {
-    url: '/app-stack/StatefulSet',
-    name: 'StatefulSet',
+    url: '/storage-management/shareStorage',
+    name: 'shareStorage',
     onClick: () => {
-      try {
-        browserHistory.push('/app-stack/StatefulSet')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/StatefulSet')
-        }
-      } catch (error) {
-        //
-      }
+      browserHistory.push('/storage-management/shareStorage')
     },
   },
   {
-    url: '/app-stack/Job',
-    name: 'Job',
+    url: '/storage-management/localStorage',
+    name: 'localStorage',
     onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Job')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Job')
-        }
-      } catch (error) {
-        //
-      }
+      browserHistory.push('/storage-management/localStorage')
     },
   },
-  {
-    url: '/app-stack/CronJob',
-    name: 'CronJob',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/CronJob')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/CronJob')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/Pod',
-    name: 'Pod',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Pod')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Pod')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
+  // {
+  //   url: '/storage-management/customStorage',
+  //   name: 'customStorage',
+  //   onClick: () => {
+  //     browserHistory.push('/storage-management/customStorage')
+  //   },
+  // },
 ]
 
-class AppStack extends React.Component {
+class StorageManagement extends React.Component {
   state = {
     windowHeight: window.innerHeight,
     containerSiderStyle: 'normal',
   }
 
   componentDidMount() {
-    window.appStackIframeCallBack = (action, data) => {
+    window.aiIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
@@ -142,30 +100,16 @@ class AppStack extends React.Component {
     const {
       project, onbehalfuser, onbehalfuserid, token, cluster,
       username, location: { pathname, query: _query },
+      children,
     } = this.props
     const locationQuery = cloneDeep(_query)
     let title
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
-      if (pathname === '/app-stack/StatefulSet') {
-        title = 'StatefulSet'
-        redirect = '/StatefulSet'
-      } else if (pathname === '/app-stack/Job') {
-        title = 'Job'
-        redirect = '/Job'
-      } else if (pathname === '/app-stack/CronJob') {
-        title = 'CronJob'
-        redirect = '/CronJob'
-      } else if (pathname === '/app-stack/createWorkLoad/') {
-        title = 'createWorkLoad'
-        redirect = '/createWorkLoad/'
-      } else if (pathname === '/app-stack/Deployment') {
-        title = 'Deployment'
-        redirect = '/Deployment'
-      } else if (pathname === '/app-stack/Pod') {
-        title = 'Pod'
-        redirect = '/Pod'
+      if (pathname === '/storage-management/serviceDiscovery') {
+        title = '服务发现'
+        redirect = '/serviceDiscovery'
       }
     }
     const query = Object.assign(
@@ -187,17 +131,17 @@ class AppStack extends React.Component {
     }
     const scope = this
 
-    return <div id="AppStack" style={style}>
+    return <div id="StorageManagement" style={style}>
       <QueueAnim
-        className="AppStackSiderAnimate"
-        key="AppStackSiderAnimate"
+        className="StorageManagementSiderAnimate"
+        key="StorageManagementSiderAnimate"
         type="left"
       >
         <div
           className={
             containerSiderStyle === 'normal'
-              ? 'AppStackMenu CommonSecondMenu'
-              : 'hiddenMenu AppStackMenu CommonSecondMenu'
+              ? 'StorageManagementMenu CommonSecondMenu'
+              : 'hiddenMenu StorageManagementMenu CommonSecondMenu'
           }
           key="cicdSider"
         >
@@ -207,12 +151,16 @@ class AppStack extends React.Component {
       <div
         className={
           containerSiderStyle === 'normal'
-            ? 'AppStackContent CommonSecondContent'
-            : 'hiddenContent AppStackContent CommonSecondContent'
+            ? 'StorageManagementContent CommonSecondContent'
+            : 'hiddenContent StorageManagementContent CommonSecondContent'
         }
       >
         <Title title={title} />
-        <iframe title="工作负载" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+        {
+          pathname === '/storage-management/customStorage' ?
+            <iframe title="存储管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+            : children
+        }
       </div>
     </div>
   }
@@ -247,4 +195,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   loadApiInfo: openApiActions.loadApiInfo,
-})(AppStack)
+})(StorageManagement)

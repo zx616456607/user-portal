@@ -117,6 +117,7 @@ class SecurityGroup extends React.Component {
   }
 
   renderTarget = data => {
+    if (!data) return '--'
     return data && data.map((item, k) => {
       return <p key={k}>{item}</p>
     })

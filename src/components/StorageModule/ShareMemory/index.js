@@ -25,6 +25,7 @@ import NotificationHandler from '../../Notification'
 import './style/index.less'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import StorageIntl from '../StorageIntl'
+import Title from '../../../components/Title'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -495,6 +496,7 @@ class ShareMemory extends Component {
     return(
       <QueueAnim className='share_memory'>
         <div id='share_memory' key="share_memory">
+        <Title title="共享型存储"/>
           <div className='alertRow'>
             <FormattedMessage {...StorageIntl.commonStorageAlert} />
           </div>
