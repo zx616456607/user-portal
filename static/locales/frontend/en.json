@@ -885,6 +885,8 @@
   "Header.team": "Team",
   "Header.loadProjectsFailedTip": "Load projects failed",
   "Header.loadClustersFailedTip": "Load clusters failed",
+  "Header.workOrder": "Work order",
+  "Header.systemNotice": "System Notice",
   "---": "Sider----------------",
   "Sider.tenantOverview": "Overview",
   "Sider.tenantUser": "Member",
