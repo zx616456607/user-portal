@@ -192,7 +192,12 @@ class UserPanel extends Component {
               :
               null
           }
-          <TenxIcon type={menu.iconType} className="userIcon"/>
+          {
+            menu.isAnt ?
+              <Icon type={menu.iconType} className="userIcon" />
+              :
+              <TenxIcon type={menu.iconType} className="userIcon"/>
+          }
           <div>{menu.text}</div>
         </Link>
       </td>
@@ -220,6 +225,12 @@ class UserPanel extends Component {
         text: <FormattedMessage {...IntlMessages.changePwd} />,
       },
       {
+        to: '/work-order',
+        iconType: 'book',
+        isAnt: true,
+        text: <FormattedMessage {...IntlMessages.workOrder} />,
+      },
+      {
         to: '/tenant_manage/team',
         iconType: 'team-o',
         text: <FormattedMessage {...IntlMessages.team} />,
@@ -238,6 +249,12 @@ class UserPanel extends Component {
         text: <FormattedMessage {...IntlMessages.project} />,
       },
       {
+        to: '/work-order',
+        iconType: 'book',
+        isAnt: true,
+        text: <FormattedMessage {...IntlMessages.workOrder} />,
+      },
+      {
         to: '/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : ''),
         isNeedPoint: isShowApprovalClusters,
         iconType: 'approval-cluster',
@@ -250,7 +267,14 @@ class UserPanel extends Component {
         text: <FormattedMessage {...SiderIntlMessages.tenantResourcequotaAuth} />,
       }
     ]
-    menuItems = [].concat(base, menuItems)
+    menuItems = [].concat(base, menuItems, [
+      {
+        to: '/work-order/system-notice',
+        iconType: 'notification',
+        isAnt: true,
+        text: <FormattedMessage {...IntlMessages.systemNotice} />,
+      }
+    ])
     if (mode === standard) {
       menuItems = [
         {
@@ -301,10 +325,10 @@ class UserPanel extends Component {
         <table className='navTab'>
           <tbody>
             <tr>
-              {menuItems.slice(0, 2).map(this.renderMenuItems)}
+              {menuItems.slice(0, 3).map(this.renderMenuItems)}
             </tr>
             <tr>
-              {menuItems.slice(2).map(this.renderMenuItems)}
+              {menuItems.slice(3).map(this.renderMenuItems)}
             </tr>
           </tbody>
         </table>

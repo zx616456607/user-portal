@@ -63,6 +63,7 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const workerOrderController = require('../controllers/worker_order')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -974,6 +975,19 @@ module.exports = function (Router) {
   router.get('/appcenters', middlewareCenter.getApps)
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
+
+  // workorders
+  router.get('/workorders/announcements', workerOrderController.getAnnouncements)
+  router.get('/workorders/announcements/:id', workerOrderController.getAnnouncement)
+  router.post('/workorders/announcements', workerOrderController.createAnnouncement)
+  router.del('/workorders/announcements/:id', workerOrderController.deleteAnnouncement)
+  router.get('/workorders/my-order', workerOrderController.getWorkOrderList)
+  router.get('/workorders/my-order/:id', workerOrderController.getWorkOrderDetails)
+  router.get('/workorders/my-order/:id/messages', workerOrderController.getWorkOrderMessages)
+  router.post('/workorders/my-order/:id/messages', workerOrderController.addWorkOrderMessages)
+  router.post('/workorders', workerOrderController.createWorkOrder)
+  router.put('/workorders/my-order/:id', workerOrderController.changeWorkOrderStatus)
+
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

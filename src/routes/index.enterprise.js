@@ -359,6 +359,40 @@ const rootRoutes = {
         }
       },
       {
+        path: 'work-order',
+        component: require('../../client/containers/WorkOrder').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/work-order/my-order')
+          // component: require('../../client/containers/WorkOrder/components/WorkOrderList').default,
+        },
+        childRoutes: [
+          {
+            path: 'my-order',
+            component: require('../../client/containers/WorkOrder/MyOrder').default,
+          },
+          {
+            path: 'my-order/:id',
+            component: require('../../client/containers/WorkOrder/MyOrder/MyOrderDetail').default,
+          },
+          {
+            path: 'create',
+            component: require('../../client/containers/WorkOrder/MyOrder/MyOrderCreate').default,
+          },
+          {
+            path: 'system-notice',
+            component: require('../../client/containers/WorkOrder/SystemNotice').default,
+          },
+          {
+            path: 'system-notice/:id',
+            component: require('../../client/containers/WorkOrder/SystemNotice/SystemNoticeDetail').default,
+          },
+          {
+            path: 'system-notice/create',
+            component: require('../../client/containers/WorkOrder/SystemNotice/SystemNoticeDetail').default,
+          },
+        ],
+      },
+      {
         path: '*',
         component: require('../containers/ErrorPage').default,
       }
