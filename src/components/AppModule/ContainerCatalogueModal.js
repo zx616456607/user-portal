@@ -75,7 +75,7 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillMount() {
-    const { currentIndex, fieldsList, isTemplate, getClusterStorageList, clusterID } = this.props
+    const { currentIndex, fieldsList, getClusterStorageList, clusterID } = this.props
     this.restFormValues(fieldsList[currentIndex])
     getClusterStorageList(clusterID, {
       success: {
@@ -89,13 +89,13 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    const { visible, clusterID, loadFreeVolume } = this.props
+    const { visible, clusterID, loadFreeVolume, isTemplate } = this.props
     if (!visible && nextProps.visible || firstShowModal) {
       this.restFormValues(nextProps.fieldsList[nextProps.currentIndex])
       if(nextProps.fieldsList.length !== nextProps.currentIndex){
         const srtype = nextProps.fieldsList[nextProps.currentIndex].type;
         const type_1 = nextProps.fieldsList[nextProps.currentIndex].type_1;
-        if(srtype !== 'host'){
+        if(srtype !== 'host' && !isTemplate){
           loadFreeVolume(clusterID, { srtype, storagetype: type_1 })
         }
       }
@@ -104,14 +104,14 @@ let ContainerCatalogueModal = React.createClass({
   },
 
   typeChange(type) {
-    const { form, loadFreeVolume, clusterID } = this.props
+    const { form, loadFreeVolume, clusterID, isTemplate } = this.props
     const { resetFields, setFieldsValue } = form
     resetFields([
       'mountPath',
       'readOnly',
       'storageClassName',
     ])
-    if (type == 'private') {
+    if (type == 'private' && !isTemplate) { // 应用模板不需要选择存储卷
       loadFreeVolume(clusterID, { srtype: 'private' }, {
         success:{
           func: (res) => {
@@ -129,7 +129,7 @@ let ContainerCatalogueModal = React.createClass({
         ])
       })
     }
-    if (type === 'share') {
+    if (type === 'share' && !isTemplate) {
       loadFreeVolume(clusterID, { srtype: 'share', storagetype: this.state.type_1Value }, {
         success:{
           func: (res) => {
@@ -584,10 +584,10 @@ let ContainerCatalogueModal = React.createClass({
     this.setState({
       type_1Value: value
     }, () => {
-      const { form, loadFreeVolume, clusterID } = this.props
+      const { form, loadFreeVolume, isTemplate, clusterID } = this.props
       const { resetFields, getFieldValue } = form
       const type = getFieldValue('type');
-      if (type === 'share') {
+      if (type === 'share' && !isTemplate) {
         loadFreeVolume(clusterID, { srtype: 'share', storagetype: value }, {
           success:{
             func: (res) => {

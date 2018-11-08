@@ -51,6 +51,7 @@ import ServiceMeshSwitch from './ServiceMeshSwitch';
 import * as SEMeshActions from '../../../../actions/serviceMesh'
 import DubboSwitch from './DubboSwitch/DubboSwitch'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import ContainerSecurityPolicy from './ContainerSecurityPolicy'
 
 
 let checkedKeysDetail = []
@@ -1888,6 +1889,11 @@ class ProjectDetail extends Component {
                                  showProjectName={ { displayName: projectDetail.displayName,
                                    namespace: projectDetail.namespace } } roleNameArr={roleNameArr} />
 
+                }
+              </TabPane>
+              <TabPane tab="容器安全策略" key="containerSecurityPolicy">
+                {
+                  projectDetail.projectName && <ContainerSecurityPolicy/>
                 }
               </TabPane>
             </Tabs>

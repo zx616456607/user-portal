@@ -14,6 +14,7 @@ import React, { PropTypes } from 'react'
 import {
   Form, Collapse, Row, Col, Radio, Input, InputNumber, Tooltip, Icon
 } from 'antd'
+import isEmpty from 'lodash/isEmpty'
 import './style/LivenessSetting.less'
 
 const Panel = Collapse.Panel
@@ -23,8 +24,58 @@ import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../containers/Application/ServiceConfigIntl'
 
 const LivenessSetting = React.createClass({
+  getInitialState(){
+    return {
+      http: {},
+      tcp: {},
+    }
+  },
+  componentDidMount() {
+    const { fields } = this.props
+    if (!fields.livenessProtocol || !fields.livenessProtocol.value) {
+      return
+    }
+    const fieldsObj = {}
+    const {
+      livenessProtocol, livenessPort, livenessInitialDelaySeconds,
+      livenessTimeoutSeconds, livenessPeriodSeconds,
+      successThreshold, failureThreshold
+    } = fields
+    const protocol = livenessProtocol.value.toLowerCase()
+    Object.assign(fieldsObj, {
+      livenessPort: livenessPort.value,
+      livenessInitialDelaySeconds: livenessInitialDelaySeconds.value,
+      livenessTimeoutSeconds: livenessTimeoutSeconds.value,
+      livenessPeriodSeconds: livenessPeriodSeconds.value,
+      successThreshold: successThreshold.value,
+      failureThreshold: failureThreshold.value,
+    })
+    if (protocol === 'http') {
+      Object.assign(fieldsObj, {
+        livenessPath: fields.livenessPath.value
+      })
+    }
+    this.setState({
+      [protocol]: fieldsObj,
+    })
+  },
   changeType(e) {
     if(e.target.value !== 'none') {
+      const { form } = this.props
+      const { setFieldsValue, resetFields } = form
+      const protocol = e.target.value.toLowerCase()
+      const preState = this.state[protocol]
+      resetFields([
+        'livenessPort',
+        'livenessInitialDelaySeconds',
+        'livenessTimeoutSeconds',
+        'livenessPeriodSeconds',
+        'successThreshold',
+        'failureThreshold'
+      ])
+      if (!isEmpty(preState)) {
+        setFieldsValue(preState)
+      }
       setTimeout(()=> {
         document.getElementById('livenessPort').focus()
       },300)
@@ -39,6 +90,19 @@ const LivenessSetting = React.createClass({
       return cb('路径必须以 / 开头')
     }
     cb()
+  },
+  updateState(key, value) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const protocol = getFieldValue('livenessProtocol').toLowerCase()
+    this.setState(preState => {
+      return {
+        [protocol]: {
+          ...preState[protocol],
+          [key]: value,
+        }
+      }
+    })
   },
   render() {
     const { formItemLayout, form, intl } = this.props
@@ -66,6 +130,7 @@ const LivenessSetting = React.createClass({
             })
           }
         ],
+        onChange: value => this.updateState('livenessPort', value)
       })
       livenessInitialDelaySecondsProps = getFieldProps('livenessInitialDelaySeconds', {
         rules: [
@@ -77,6 +142,7 @@ const LivenessSetting = React.createClass({
             })
           }
         ],
+        onChange: value => this.updateState('livenessInitialDelaySeconds', value)
       })
       livenessTimeoutSecondsProps = getFieldProps('livenessTimeoutSeconds', {
         rules: [
@@ -88,6 +154,7 @@ const LivenessSetting = React.createClass({
             })
           }
         ],
+        onChange: value => this.updateState('livenessTimeoutSeconds', value)
       })
       livenessPeriodSecondsProps = getFieldProps('livenessPeriodSeconds', {
         rules: [
@@ -99,6 +166,7 @@ const LivenessSetting = React.createClass({
             })
           }
         ],
+        onChange: value => this.updateState('livenessPeriodSeconds', value)
       })
       if (livenessProtocol === 'HTTP') {
         livenessPathProps = getFieldProps('livenessPath', {
@@ -113,6 +181,7 @@ const LivenessSetting = React.createClass({
               validator: this.checkPath,
             }
           ],
+          onChange: e => this.updateState('livenessPath', e.target.value)
         })
       }
     }
@@ -120,13 +189,15 @@ const LivenessSetting = React.createClass({
       initialValue: 1,
       rules: [
         { required: true, message: '请输入健康阀值'}
-      ]
+      ],
+      onChange: value => this.updateState('successThreshold', value)
     })
     const failureThresholdProps = getFieldProps('failureThreshold', {
       initialValue: 3,
       rules: [
         { required: true, message: '请输入不健康阀值'}
-      ]
+      ],
+      onChange: value => this.updateState('failureThreshold', value)
     })
     const header = (
       <div className="headerBox">
@@ -150,7 +221,7 @@ const LivenessSetting = React.createClass({
             <FormItem
               {...formItemLayout}
               className="lastFormItem"
-              label="类型"
+              label={intl.formatMessage(IntlMessage.probeType)}
               key="type"
             >
               <RadioGroup {...livenessProtocolProps}>

@@ -878,6 +878,7 @@ let ConfigureService = React.createClass({
         <LivenessSetting
           form={form}
           formItemLayout={formItemLayout}
+          fields={currentFields}
           key="liveness"
         />
         <ConfigMapSetting

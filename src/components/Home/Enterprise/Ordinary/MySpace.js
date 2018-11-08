@@ -907,12 +907,11 @@ function mapStateToProp(state, props) {
       })
     }
   }
-  if (spaceCICDStats.result && spaceCICDStats.result.data &&
-  spaceCICDStats.result.data.result) {
+  if (spaceCICDStats.result) {
     spaceCICDStatsData.succeedNumber = 0
     spaceCICDStatsData.runningNumber = 0
     spaceCICDStatsData.failedNumber = 0
-    let data = spaceCICDStats.result.data.result || []
+    let data = spaceCICDStats.result || []
     data.forEach(({ status, count }) => {
       switch (status) {
         case 0:

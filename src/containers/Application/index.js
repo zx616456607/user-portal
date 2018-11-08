@@ -54,10 +54,10 @@ const menuList_enterprise = [
     url: '/app_manage/container',
     name: 'containers'
   },
-  {
-    url: '/app_manage/storage',
-    name: 'storage'
-  },
+  // {
+  //   url: '/app_manage/storage',
+  //   name: 'storage'
+  // },
   {
     url: '/app_manage/snapshot',
     name: 'snapshot'
@@ -66,18 +66,18 @@ const menuList_enterprise = [
     url: '/app_manage/configs',
     name: 'configs'
   },
-  {
-    url: '/app_manage/discover',
-    name: 'discover'
-  },
-  {
-    url: '/app_manage/security_group',
-    name: 'securityGroup'
-  },
-  {
-    url: '/app_manage/load_balance',
-    name: 'loadBalance'
-  },
+  // {
+  //   url: '/app_manage/discover',
+  //   name: 'discover'
+  // },
+  // {
+  //   url: '/app_manage/security_group',
+  //   name: 'securityGroup'
+  // },
+  // {
+  //   url: '/app_manage/load_balance',
+  //   name: 'loadBalance'
+  // },
   {
     url: '/app_manage/auto_scale',
     name: 'autoScale'

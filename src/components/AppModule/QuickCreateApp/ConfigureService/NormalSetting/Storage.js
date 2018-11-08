@@ -353,12 +353,14 @@ const Storage = React.createClass({
       }
       this.setState({
         addContainerPathModal: false,
+        currentIndex: undefined,
       })
       return
     }
     if (type === 'confirm') {
       this.setState({
         addContainerPathModal: false,
+        currentIndex: undefined,
       })
       if (list[currentIndex]) {
         list[currentIndex] = Object.assign({}, list[currentIndex], fields.values)
@@ -544,7 +546,13 @@ const Storage = React.createClass({
           </FormItem>
         </Col>
         <Modal
-          title={intl.formatMessage(IntlMessage.storageModalTitle)}
+          title={
+            isEmpty(storageList) || !storageList[this.state.currentIndex]
+              ?
+              intl.formatMessage(IntlMessage.storageModalTitle)
+              :
+              intl.formatMessage(IntlMessage.editStorageModalTitle)
+          }
           visible={this.state.addContainerPathModal}
           closable={true}
           onCancel={this.cancelAddContainerPath}

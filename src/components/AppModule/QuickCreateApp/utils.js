@@ -242,7 +242,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
         type, mountPath, strategy,
         readOnly, name, volumeIsOld,
         size, fsType, storageClassName,
-        hostPath,
+        hostPath, type_1,
       } = item
       // @Todo: reclaimPolicy??
       if (type === 'host') {
@@ -259,7 +259,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
             storageClassName: `${type}-storage`,
             mountPath,
             hostPath,
-            readOnly
+            readOnly,
+            type_1,
           }
           storageForTemplate.push(volumeObj)
           deployment.setAnnotations({
@@ -308,7 +309,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
               name: volume.name,
               storageClassName,
               mountPath,
-              readOnly
+              readOnly,
+              type_1
             }
             if (type === 'private') {
               Object.assign(volumeObj, {

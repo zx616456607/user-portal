@@ -3,7 +3,7 @@
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  */
 /**
- * ai-deep-learning
+ * net-management
  *
  * v0.1 - 2018-06-20
  * @author zhangpc
@@ -26,13 +26,13 @@ const hash = process.env.DEVOPS_PORTAL_HASH
 
 const menus = [
   {
-    url: '/app-stack/Deployment',
-    name: 'Deployment',
+    url: '/net-management/serviceDiscovery',
+    name: 'discover',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/Deployment')
+        browserHistory.push('/net-management/serviceDiscovery')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Deployment')
+          window.appStackPortalHistory.replace('/net-management/notebook')
         }
       } catch (error) {
         //
@@ -40,56 +40,36 @@ const menus = [
     },
   },
   {
-    url: '/app-stack/StatefulSet',
-    name: 'StatefulSet',
+    url: '/net-management/appLoadBalance',
+    name: 'loadBalance',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/StatefulSet')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/StatefulSet')
-        }
+        browserHistory.push('/net-management/appLoadBalance')
+        // if (window.appStackPortalHistory) {
+        //   window.appStackPortalHistory.replace('/net-management/largeScaleTrain')
+        // }
       } catch (error) {
         //
       }
     },
   },
   {
-    url: '/app-stack/Job',
-    name: 'Job',
+    url: '/net-management/dnsRecord',
+    name: 'dnsRecord',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/Job')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Job')
-        }
+        browserHistory.push('/net-management/dnsRecord')
       } catch (error) {
         //
       }
     },
   },
   {
-    url: '/app-stack/CronJob',
-    name: 'CronJob',
+    url: '/net-management/securityGroup',
+    name: 'securityGroup',
     onClick: () => {
       try {
-        browserHistory.push('/app-stack/CronJob')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/CronJob')
-        }
-      } catch (error) {
-        //
-      }
-    },
-  },
-  {
-    url: '/app-stack/Pod',
-    name: 'Pod',
-    onClick: () => {
-      try {
-        browserHistory.push('/app-stack/Pod')
-        if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Pod')
-        }
+        browserHistory.push('/net-management/securityGroup')
       } catch (error) {
         //
       }
@@ -97,14 +77,14 @@ const menus = [
   },
 ]
 
-class AppStack extends React.Component {
+class NetManagement extends React.Component {
   state = {
     windowHeight: window.innerHeight,
     containerSiderStyle: 'normal',
   }
 
   componentDidMount() {
-    window.appStackIframeCallBack = (action, data) => {
+    window.aiIframeCallBack = (action, data) => {
       switch (action) {
         case 'redirect':
           browserHistory.push(data.pathname)
@@ -142,30 +122,16 @@ class AppStack extends React.Component {
     const {
       project, onbehalfuser, onbehalfuserid, token, cluster,
       username, location: { pathname, query: _query },
+      children,
     } = this.props
     const locationQuery = cloneDeep(_query)
     let title
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
-      if (pathname === '/app-stack/StatefulSet') {
-        title = 'StatefulSet'
-        redirect = '/StatefulSet'
-      } else if (pathname === '/app-stack/Job') {
-        title = 'Job'
-        redirect = '/Job'
-      } else if (pathname === '/app-stack/CronJob') {
-        title = 'CronJob'
-        redirect = '/CronJob'
-      } else if (pathname === '/app-stack/createWorkLoad/') {
-        title = 'createWorkLoad'
-        redirect = '/createWorkLoad/'
-      } else if (pathname === '/app-stack/Deployment') {
-        title = 'Deployment'
-        redirect = '/Deployment'
-      } else if (pathname === '/app-stack/Pod') {
-        title = 'Pod'
-        redirect = '/Pod'
+      if (pathname === '/net-management/serviceDiscovery') {
+        title = '服务发现'
+        redirect = '/serviceDiscovery'
       }
     }
     const query = Object.assign(
@@ -187,17 +153,17 @@ class AppStack extends React.Component {
     }
     const scope = this
 
-    return <div id="AppStack" style={style}>
+    return <div id="NetManagement" style={style}>
       <QueueAnim
-        className="AppStackSiderAnimate"
-        key="AppStackSiderAnimate"
+        className="NetManagementSiderAnimate"
+        key="NetManagementSiderAnimate"
         type="left"
       >
         <div
           className={
             containerSiderStyle === 'normal'
-              ? 'AppStackMenu CommonSecondMenu'
-              : 'hiddenMenu AppStackMenu CommonSecondMenu'
+              ? 'NetManagementMenu CommonSecondMenu'
+              : 'hiddenMenu NetManagementMenu CommonSecondMenu'
           }
           key="cicdSider"
         >
@@ -207,12 +173,16 @@ class AppStack extends React.Component {
       <div
         className={
           containerSiderStyle === 'normal'
-            ? 'AppStackContent CommonSecondContent'
-            : 'hiddenContent AppStackContent CommonSecondContent'
+            ? 'NetManagementContent CommonSecondContent'
+            : 'hiddenContent NetManagementContent CommonSecondContent'
         }
       >
         <Title title={title} />
-        <iframe title="工作负载" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+        {
+          pathname === '/net-management/serviceDiscovery' ?
+            <iframe title="网络管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+            : children
+        }
       </div>
     </div>
   }
@@ -247,4 +217,4 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   loadApiInfo: openApiActions.loadApiInfo,
-})(AppStack)
+})(NetManagement)

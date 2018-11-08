@@ -28,6 +28,7 @@ const PORT_PROTOCOL = 'portProtocol'; // 端口协议(HTTP, TCP)
 const MAPPING_PORTTYPE = 'mappingPortType'; // 映射服务端口类型(auto, special)
 const TEMPLATE_STORAGE = 'system/template'; // 模板存储
 const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname';
+const REPLICAS_IP_KEY = 'cni.projectcalico.org/ipAddrs'
 
 const MAPPING_PORT_AUTO = 'auto';
 
@@ -277,6 +278,7 @@ const parseStorage = annotations => {
       volume: 'create',
       size: parseInt(item.storage, 10),
       type,
+      type_1: item.type_1,
     });
   });
   return {
@@ -294,11 +296,11 @@ const parseStorage = annotations => {
 
 const parseLiveness = containers => {
   const { livenessProbe } = containers;
-  let livenessProtocol: tring = 'none';
+  let livenessProtocol: string = 'none';
   if (!livenessProbe) {
     return { livenessProtocol };
   }
-  const { initialDelaySeconds, timeoutSeconds, periodSeconds } = livenessProbe;
+  const { initialDelaySeconds, timeoutSeconds, periodSeconds, successThreshold, failureThreshold } = livenessProbe;
   let agreement: object;
   if (livenessProbe.httpGet) {
     livenessProtocol = 'HTTP';
@@ -315,6 +317,8 @@ const parseLiveness = containers => {
     livenessInitialDelaySeconds: initialDelaySeconds, // 检查延时
     livenessTimeoutSeconds: timeoutSeconds, // 检查超时
     livenessPeriodSeconds: periodSeconds, // 检查间隔
+    successThreshold, // 健康阈值
+    failureThreshold, // 不健康阈值
   };
 };
 
@@ -491,6 +495,26 @@ const parseTcpUdpIngress = (deployment, annotations) => {
   return fieldsObj
 }
 
+const parseReplicasIP = annotations => {
+  if (!annotations[REPLICAS_IP_KEY]) {
+    return
+  }
+  const ipKeys: number[] = []
+  const ipFields: object = {}
+  const parseIpArr = JSON.parse(annotations[REPLICAS_IP_KEY].replace(/&#34;/g, '\"'))
+  parseIpArr.forEach((item, index) => {
+    ipKeys.push(index)
+    Object.assign(ipFields, {
+      [`replicasIP${index}`]: item,
+    })
+  })
+  return {
+    replicasCheck: true,
+    ipKeys,
+    ...ipFields,
+  }
+}
+
 /**
  * 解析模板详情中的 deployment
  *
@@ -516,7 +540,7 @@ const parseDeployment = (deployment, chart) => {
     apm: labels[APM_SERVICE_LABEL_KEY] === 'pinpoint', // 是否开通 APM
     ...parseResource(containers[0]),
     replicas, // 实例数量
-    command: containers[0].command ? containers[0].command[0] : '', // 进入点
+    command: containers[0].command ? containers[0].command.join(' ') : '', // 进入点
     ...parseCommandArgs(containers[0]),
     imagePullPolicy: containers[0].imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone: parseTimeZone(containers[0]), // 时区设置
@@ -527,6 +551,7 @@ const parseDeployment = (deployment, chart) => {
     ...parseAdvancedEnv(containers[0]), // 环境变量
     ...parseOtherImage(annotations), // 第三方镜像
     ...parseTcpUdpIngress(deployment, annotations), // tcp udp 监听器
+    ...parseReplicasIP(annotations), // 固定实例 IP
   };
   return values;
 };
