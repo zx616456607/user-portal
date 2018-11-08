@@ -35,6 +35,11 @@ class CreateModal extends React.Component {
     choosableClusters: [],
     authorizedCluster: []
   }
+  componentWillUpdate(props) {
+    if (props.visible === true && this.props.visible === false) {
+      setTimeout(() => document.getElementById('displayName').focus(), 100)
+    }
+  }
   getAllClusters = () => {
     const { loadClusterList } = this.props;
     loadClusterList({},{
