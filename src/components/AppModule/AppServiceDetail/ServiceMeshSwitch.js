@@ -60,7 +60,8 @@ class ServiceMeshSwitch extends React.Component {
     }
     // 判断当前服务or应用是否开启了istio
     const result3 = await checkAPPInClusMesh(clusterId, null, serviceName)
-    const { pods = {} } = result3.response.result
+    const { pods = {}, noPodServices = {} } = result3.response.result
+    const noPodServicesFlag = noPodServices[serviceName]
     const podsIstio = Object.values(pods)
     const podsIstioEnableAll = podsIstio.every(({ istioOn }) => istioOn) // 所有pod是否均开启istio
     const podsIstioDisableAll = podsIstio.every(({ istioOn }) => !istioOn) // 所有pod是否均未开启istio
@@ -82,6 +83,12 @@ class ServiceMeshSwitch extends React.Component {
     }
     if (serviceIstioEnabled === false) {
       this.setState({ userrole: 6 })
+    }
+    if (noPodServicesFlag === true) {
+      this.setState({ switchValue:1, userrole:5 })
+    }
+    if (noPodServicesFlag === false) {
+      this.setState({ switchValue:3, userrole:6 })
     }
   }
   buttonClick = async () => {

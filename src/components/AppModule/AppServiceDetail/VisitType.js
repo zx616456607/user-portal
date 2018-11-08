@@ -93,10 +93,17 @@ class VisitType extends Component{
   reloadServiceMesh = async () => {
     const { clusterId, serviceName } = this.props
     const result3 = await this.props.checkAPPInClusMesh(clusterId, null, serviceName)
-    const { pods = {} } = result3.response.result
+    const { pods = {}, noPodServices = {} } = result3.response.result
     const podsIstio = Object.values(pods)
-    const { serviceIstioEnabled } = podsIstio[0] || {}
+    const { serviceIstioEnabled} = podsIstio[0] || {}
     this.setState({serviceIstioEnabled: !!serviceIstioEnabled}) // 当服务开启了Istio时, 不显示原来的内容, 显示文本提示
+    const noPodServicesFlag = noPodServices[serviceName]
+    if (noPodServicesFlag === true) { // 当服务停止时使用
+      this.setState({serviceIstioEnabled: true})
+    }
+    if (noPodServicesFlag === false) {
+      this.setState({ serviceIstioEnabled: false })
+    }
   }
   async componentWillReceiveProps(nextProps) {
     let preShow = this.props.serviceDetailmodalShow;
