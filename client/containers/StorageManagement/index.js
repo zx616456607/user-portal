@@ -33,6 +33,13 @@ const menus = [
     },
   },
   {
+    url: '/storage-management/snapshot',
+    name: 'snapshot',
+    onClick: () => {
+      browserHistory.push('/storage-management/snapshot')
+    },
+  },
+  {
     url: '/storage-management/shareStorage',
     name: 'shareStorage',
     onClick: () => {
@@ -107,9 +114,9 @@ class StorageManagement extends React.Component {
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
-      if (pathname === '/storage-management/serviceDiscovery') {
+      if (pathname === '/storage-management/Service') {
         title = '服务发现'
-        redirect = '/serviceDiscovery'
+        redirect = '/Service'
       }
     }
     const query = Object.assign(
