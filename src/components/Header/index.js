@@ -64,6 +64,8 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy\/detail\/?$/,
     /\/account\/noticeGroup/,
     /\/app\-stack/,
+    /\/net\-management/,
+    /\/storage\-management/,
   ],
   cluster: [
     /^\/$/,
@@ -81,6 +83,8 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
     /\/app\-stack/,
+    /\/net\-management/,
+    /\/storage\-management/,
   ],
   loadProjectAndClusterNeeded: [
     /^\/manange_monitor\/query_log$/,

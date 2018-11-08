@@ -32,7 +32,7 @@ const menus = [
       try {
         browserHistory.push('/app-stack/Deployment')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Deployment')
+          window.appStackPortalHistory.replace('/Deployment')
         }
       } catch (error) {
         //
@@ -46,7 +46,7 @@ const menus = [
       try {
         browserHistory.push('/app-stack/StatefulSet')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/StatefulSet')
+          window.appStackPortalHistory.replace('/StatefulSet')
         }
       } catch (error) {
         //
@@ -60,7 +60,7 @@ const menus = [
       try {
         browserHistory.push('/app-stack/Job')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Job')
+          window.appStackPortalHistory.replace('/Job')
         }
       } catch (error) {
         //
@@ -74,7 +74,7 @@ const menus = [
       try {
         browserHistory.push('/app-stack/CronJob')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/CronJob')
+          window.appStackPortalHistory.replace('/CronJob')
         }
       } catch (error) {
         //
@@ -88,7 +88,7 @@ const menus = [
       try {
         browserHistory.push('/app-stack/Pod')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/app-stack/Pod')
+          window.appStackPortalHistory.replace('/Pod')
         }
       } catch (error) {
         //
