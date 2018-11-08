@@ -92,7 +92,7 @@ class ContainerInstanceHeader extends React.Component {
           <Button
             type="primary"
             size="large"
-            disabled={isCheckIP}
+            disabled={isCheckIP || isDisScaling}
             onClick={this.handleChangeVisible}
           >
             <FormattedMessage {...IntlMessages.scaling} /> ({containerNum})
@@ -157,7 +157,6 @@ class ContainerInstanceHeader extends React.Component {
         {
           manualScaleModalShow && <ManualScaleModal
             handleChangeVisible={this.handleChangeVisible}
-            disableScale={isDisScaling}
             cluster={cluster}
             appName={appName}
             visible={manualScaleModalShow}
