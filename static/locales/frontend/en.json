@@ -1443,6 +1443,7 @@
   "hostList.amount": "Total",
   "hostList.assigned": "Assign",
   "hostList.use": "Used",
+  "hostList.useTips": "Actual use of resources that contain system allocations and other containers and processes on the node",
   "hostList.maintainNoDispatchSwitch": "Maintenance status prohibits the use of the dispatch switch",
   "hostList.on": "on",
   "hostList.off": "off",
