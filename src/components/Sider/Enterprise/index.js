@@ -738,7 +738,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title={formatMessage(IntlMessages.netManagement)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/net-management'>
-                    <TenxIcon className="commonImg" type="app-stack" />
+                    <TenxIcon className="commonImg" type="network" />
                   </Link>
                 </Tooltip>
               </li>
@@ -747,7 +747,7 @@ class Sider extends Component {
                 <Tooltip placement='right' title={formatMessage(IntlMessages.storageManagement)}
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/storage-management'>
-                    <TenxIcon className="commonImg" type="app-stack" />
+                    <TenxIcon className="commonImg" type="storage-manage-o" />
                   </Link>
                 </Tooltip>
               </li>
@@ -1147,7 +1147,7 @@ class Sider extends Component {
                     <span>
                       {/* <TenxIcon className="commonImg" type="net-management" /> */}
                       {/* TODO: ICON 设计还没出好 */}
-                      <TenxIcon className="commonImg" type="appStack" />
+                      <TenxIcon className="commonImg" type="network" />
                       <span className='commonSiderSpan'>
                       <FormattedMessage {...IntlMessages.netManagement} />
                       </span>
@@ -1241,7 +1241,7 @@ class Sider extends Component {
                   title={
                     <span>
                       {/* <TenxIcon className="commonImg" type="storage-management" /> */}
-                      <TenxIcon className="commonImg" type="appStack" />
+                      <TenxIcon className="commonImg" type="storage-manage-o" />
                       <span className='commonSiderSpan'>
                       <FormattedMessage {...IntlMessages.storageManagement} />
                       </span>

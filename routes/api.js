@@ -63,6 +63,7 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const containerSecurityPolicy = require('../controllers/container_security_policy')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -975,6 +976,15 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
+  // PSP
+  router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
+  router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)
+  router.delete('/clusters/:cluster/podsecuritypolicy/:name', containerSecurityPolicy.deletePSP)
+  router.get('/clusters/:cluster/podsecuritypolicy', containerSecurityPolicy.listPSP)
+  router.get('/clusters/:cluster/podsecuritypolicy/:name', containerSecurityPolicy.listPSPDetail)
+  router.get('/clusters/:cluster/podsecuritypolicy/project', containerSecurityPolicy.listProjectPSPDetail)
+  router.post('/clusters/:cluster/podsecuritypolicy/project/:resources', containerSecurityPolicy.startPodProject)
+  router.delete('/clusters/:cluster/podsecuritypolicy/project/:resources', containerSecurityPolicy.stopPSPProject)
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
 }
