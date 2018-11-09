@@ -149,14 +149,19 @@ export function getAZList(query, callback) {
 export const OPENSTACK_UPDATE_VM_REQUEST = 'OPENSTACK_UPDATE_VM_REQUEST'
 export const OPENSTACK_UPDATE_VM_SUCCESS = 'OPENSTACK_UPDATE_VM_SUCCESS'
 export const OPENSTACK_UPDATE_VM_FAILURE = 'OPENSTACK_UPDATE_VM_FAILURE'
-function fetchUpdateVM(id, action, callback) {
+function fetchUpdateVM(id, action,body, callback) {
   let endpointUrl = `${API_URL_PREFIX}/openstack/servers/${id}/actions/${action}`
+  if (typeof body == 'object') {
+    callback = body
+    body = null
+  }
   return {
     [FETCH_API]: {
       types: [OPENSTACK_UPDATE_VM_REQUEST, OPENSTACK_UPDATE_VM_SUCCESS, OPENSTACK_UPDATE_VM_FAILURE],
       endpoint: endpointUrl,
       options: {
         method: 'PUT',
+        body
       },
       schema: {}
     },
@@ -164,9 +169,9 @@ function fetchUpdateVM(id, action, callback) {
   }
 }
 
-export function updateVM(id, action, callback) {
+export function updateVM(id, action, body, callback) {
   return (dispath, getState) => {
-    return dispath(fetchUpdateVM(id, action,callback))
+    return dispath(fetchUpdateVM(id, action, body, callback))
   }
 }
 
@@ -189,36 +194,6 @@ export function editVM(id, newName, callback) {
     callback
   }
 }
-
-export const OPENSTACK_GET_NETWORK_LIST_REQUEST = 'OPENSTACK_GET_NETWORK_LIST_REQUEST'
-export const OPENSTACK_GET_NETWORK_LIST_SUCCESS = 'OPENSTACK_GET_NETWORK_LIST_SUCCESS'
-export const OPENSTACK_GET_NETWORK_LIST_FAILURE = 'OPENSTACK_GET_NETWORK_LIST_FAILURE'
-function fetchNetworkList(query, callback) {
-  let endpointUrl = `${API_URL_PREFIX}/openstack/servers/networks`
-  if (typeof query == 'function') {
-    callback = query
-    query = null
-  }
-  if (query) {
-    endpointUrl += `?${toQueryString(query)}`
-  }
-  return {
-    [FETCH_API]: {
-      types: [OPENSTACK_GET_NETWORK_LIST_REQUEST, OPENSTACK_GET_NETWORK_LIST_SUCCESS, OPENSTACK_GET_NETWORK_LIST_FAILURE],
-      endpoint: endpointUrl,
-      schema: {}
-    },
-    callback
-  }
-}
-
-export function getNetworkList(query, callback) {
-  return (dispath, getState) => {
-    return dispath(fetchNetworkList(query, callback))
-  }
-}
-
-
 
 
 export const OPENSTACK_POST_VM_REQUEST = 'OPENSTACK_POST_VM_REQUEST'
@@ -273,11 +248,8 @@ export function deleteVM(id, callback) {
 export const OPENSTACK_GET_IMAGE_LIST_REQUEST = 'OPENSTACK_GET_IMAGE_LIST_REQUEST'
 export const OPENSTACK_GET_IMAGE_LIST_SUCCESS = 'OPENSTACK_GET_IMAGE_LIST_SUCCESS'
 export const OPENSTACK_GET_IMAGE_LIST_FAILURE = 'OPENSTACK_GET_IMAGE_LIST_FAILURE'
-function fetchImageList(query, callback) {
+function fetchImageList(callback) {
   let endpointUrl = `${API_URL_PREFIX}/openstack/images`
-  if (query) {
-    endpointUrl += `?${toQueryString(query)}`
-  }
   return {
     [FETCH_API]: {
       types: [OPENSTACK_GET_IMAGE_LIST_REQUEST, OPENSTACK_GET_IMAGE_LIST_SUCCESS, OPENSTACK_GET_IMAGE_LIST_FAILURE],
@@ -288,9 +260,9 @@ function fetchImageList(query, callback) {
   }
 }
 
-export function getImageList(query, callback) {
+export function getImageList(callback) {
   return (dispath, getState) => {
-    return dispath(fetchImageList(query, callback))
+    return dispath(fetchImageList(callback))
   }
 }
 export const OPENSTACK_POST_IMAGE_REQUEST = 'OPENSTACK_POST_IMAGE_REQUEST'

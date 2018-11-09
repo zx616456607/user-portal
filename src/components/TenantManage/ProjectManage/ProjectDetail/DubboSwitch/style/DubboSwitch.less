@@ -1,0 +1,48 @@
+@import "../../../../../../assets/style/site/core.less";
+.projectDetailDubboSwitchModal {
+  .alert {
+    display: flex;
+    align-items: center;
+    border: 1px dashed @primary-color;
+    background: #e6f7ff;
+    border-radius: @border-radius-base;
+    padding: @padding-base;
+    color: @primary-color;
+    & > div {
+      &:nth-child(1) {
+        margin-right: @padding-base;
+        font-size: 26px;
+      }
+    }
+  }
+  .turnOff {
+    border-color: @warning-color;
+    background: #fffbf5;
+    color: @font-color-1;
+    & > div {
+      &:nth-child(1) {
+        color: @warning-color;
+      }
+    }
+
+  }
+  .services-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: @padding-medium;
+    h4 {
+      width: 100px;
+      font-weight: normal;
+    }
+    ul {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      li {
+        margin-right: @padding-base;
+        white-space: nowrap;
+        width: 100px;
+      }
+    }
+  }
+}

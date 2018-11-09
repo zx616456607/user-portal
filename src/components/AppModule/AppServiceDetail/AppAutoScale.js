@@ -125,73 +125,59 @@ class AppAutoScale extends Component {
     this.setState({ loading: true })
     loadAutoScale(cluster, serviceName, {
       success: {
-        func: () => {
-          loadAutoScale(cluster, serviceName, {
-            success: {
-              func: res=> {
-                if (!isEmpty(res.data)) {
-                  const { metadata, spec } = res.data
-                  const { name: serviceName } = metadata
-                  const { strategyName } = metadata.labels
-                  const { alertStrategy: alert_strategy, alertgroupId: alert_group, status, qpsValid } = metadata.annotations
-                  const { maxReplicas: max, minReplicas: min, metrics } = spec
-                  let cpu, memory, qps
-                  metrics.forEach(item => {
-                    if (item.resource.name === 'memory') {
-                      memory = item.resource.targetAverageUtilization
-                    } else if (item.resource.name === 'cpu') {
-                      cpu = item.resource.targetAverageUtilization
-                    } else if (item.resource.name === 'qps') {
-                      qps = item.resource.targetAverageUtilization
-                    }
-                  })
-                  const scaleDetail = {
-                    strategyName,
-                    serviceName,
-                    alert_group,
-                    alert_strategy,
-                    max,
-                    min,
-                    cpu,
-                    memory,
-                    qps,
-                    qpsValid,
-                    type: status === 'RUN' ? 1 : 0
-                  }
-                  this.setState({
-                    scaleDetail,
-                    showImg: false,
-                    loading: false,
-                  }, () => {
-                    this.initThresholdArr(this.state.scaleDetail)
-                  })
-                } else {
-                  this.setState({
-                    scaleDetail: null,
-                    loading: false,
-                  }, () => {
-                    this.initThresholdArr(this.state.scaleDetail)
-                  })
-                }
-              },
-              isAsync: true
-            },
-            failed: {
-              func: () => {
-                this.setState({
-                  scaleDetail: null,
-                  loading: false,
-                })
+        func: res=> {
+          if (!isEmpty(res.data)) {
+            const { metadata, spec } = res.data
+            const { name: serviceName } = metadata
+            const { strategyName } = metadata.labels
+            const { alertStrategy: alert_strategy, alertgroupId: alert_group, status, qpsValid } = metadata.annotations
+            const { maxReplicas: max, minReplicas: min, metrics } = spec
+            let cpu, memory, qps
+            metrics.forEach(item => {
+              if (item.resource.name === 'memory') {
+                memory = item.resource.targetAverageUtilization
+              } else if (item.resource.name === 'cpu') {
+                cpu = item.resource.targetAverageUtilization
+              } else if (item.resource.name === 'qps') {
+                qps = item.resource.targetAverageUtilization
               }
+            })
+            const scaleDetail = {
+              strategyName,
+              serviceName,
+              alert_group,
+              alert_strategy,
+              max,
+              min,
+              cpu,
+              memory,
+              qps,
+              qpsValid,
+              type: status === 'RUN' ? 1 : 0
             }
-          })
+            this.setState({
+              scaleDetail,
+              showImg: false,
+              loading: false,
+            }, () => {
+              this.initThresholdArr(this.state.scaleDetail)
+            })
+          } else {
+            this.setState({
+              scaleDetail: null,
+              loading: false,
+            }, () => {
+              this.initThresholdArr(this.state.scaleDetail)
+            })
+          }
         },
         isAsync: true
       },
       failed: {
         func: () => {
           this.setState({
-            scaleDetail: null
+            scaleDetail: null,
+            loading: false,
           })
         }
       }
@@ -270,7 +256,6 @@ class AppAutoScale extends Component {
       notify.spin(msgSpin)
       const { strategyName, serviceName, min, max, alert_strategy, alert_group, openScale } = values
       let body = { scale_strategy_name: strategyName, min, max, ...opt, alert_strategy, alert_group, type: openScale ? 1 : 0 }
-      isEmpty(scaleDetail) ? body.type = 1 : ''
       isGroupHide ? body.alert_group = '' : ''
       body = Object.assign(body, {operationType: isEmpty(scaleDetail) ? 'create' : 'update'})
       updateAutoScale(cluster, serviceName, body, {
@@ -586,7 +571,7 @@ class AppAutoScale extends Component {
       initialValue: isEmpty(scaleDetail) ? undefined: scaleDetail.alert_group
     })
     const openScaleStatus = getFieldProps('openScale', {
-      initialValue: isEmpty(scaleDetail) ? false : scaleDetail.type,
+      initialValue: isEmpty(scaleDetail) ? true : scaleDetail.type === 1,
       valuePropName: 'checked',
     })
     let thresholdItem
@@ -811,19 +796,19 @@ class AppAutoScale extends Component {
                               <Row style={{margin: '-10px 0 10px'}} key="createGroup">
                                 <Col span={4}/>
                                 <Col span={16}>
-                                  {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/manange_monitor/alarm_group">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
-                                </Col>
-                              </Row>,
-                              <Row style={{margin: '-10px 0 10px'}} key="openScale">
-                                <Col span={4}/>
-                                <Col span={16}>
-                                <FormItem>
-                                  <Checkbox {...openScaleStatus} disabled={!isEdit}>保存后开启伸缩策略</Checkbox>
-                                </FormItem>
+                                  {formatMessage(AppServiceDetailIntl.noHaveMonitorGroup)}<Link to="/account/noticeGroup">{formatMessage(AppServiceDetailIntl.goCreate)}>></Link>
                                 </Col>
                               </Row>
                             ]
                         }
+                        <Row style={{margin: '-10px 0 10px'}} key="openScale">
+                          <Col span={4}/>
+                          <Col span={16}>
+                          <FormItem>
+                            <Checkbox {...openScaleStatus} disabled={!isEdit}>开启伸缩策略</Checkbox>
+                          </FormItem>
+                          </Col>
+                        </Row>
                       </Form>
                       <Row className="autoScaleBtnGroup">
                         <Col offset={2}>

@@ -23,7 +23,6 @@ class ObjectStore extends Component {
     super(props)
     // this.selectTableRow = this.selectTableRow.bind(this)
     this.refreshLoadObjectStore = this.refreshLoadObjectStore.bind(this)
-    this.deleteObjectStore = this.deleteObjectStore.bind(this)
     this.searchInput = this.searchInput.bind(this)
     this.openCreateModal = this.openCreateModal.bind(this)
     this.confirmCreate = this.confirmCreate.bind(this)
@@ -70,8 +69,6 @@ class ObjectStore extends Component {
 
     const { getObjectStorageList } = this.props
     getObjectStorageList({
-      project: this.state.currentProject
-    },{
       success: {
         func: (res) => {
           this.setState({
@@ -85,23 +82,14 @@ class ObjectStore extends Component {
           this.setState({
             searchValue: '',
           })
-          document.getElementById('objectSearch').value = ""
         }
       }
     })
   }
 
-  deleteObjectStore() {
-    if(!this.state.currentProject) {
-      return
-    }
-    const { selectedRowKeys } = this.state
-  }
 
   searchInput() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { objectStorageList } = this.props
     const { searchValue } = this.state
 
@@ -124,9 +112,6 @@ class ObjectStore extends Component {
   }
 
   searchChange(e){
-    if(!this.state.currentProject) {
-      return
-    }
     const value = e.target.value
     this.setState({
       searchValue: value
@@ -134,15 +119,11 @@ class ObjectStore extends Component {
   }
 
   deleteObjectStoreItem() {
-    if(!this.state.currentProject) {
-      return
-    }
     const { deleteObjectStorage } = this.props
     const { currentItem } = this.state
 
     let query = {
-      dir: currentItem.name,
-      project: this.state.currentProject
+      dir: currentItem.name
     }
     this.setState({
       confirmLoading: true
@@ -174,9 +155,7 @@ class ObjectStore extends Component {
   }
 
   confirmCreate() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { form, createObjectStorage } = this.props
 
     this.setState({
@@ -192,9 +171,7 @@ class ObjectStore extends Component {
       let body = {
         dir: values.objectName
       }
-      createObjectStorage(body, {
-        project: this.state.currentProject
-      },{
+      createObjectStorage(body,{
         success: {
           func: () => {
             this.refreshLoadObjectStore()
@@ -272,7 +249,7 @@ class ObjectStore extends Component {
         title: '对象目录名称',
         dataIndex: 'name',
         width: '40%',
-        render: (text,record) => <div onClick={() => browserHistory.push(`/base_station/storage/detial?dir=${record.name}&project=${this.state.currentProject}`)}
+        render: (text,record) => <div onClick={() => browserHistory.push(`/base_station/storage/detial?dir=${record.name}`)}
           className='loadBalancerName'>{text}</div>
       },{
         title: '目录大小',

@@ -13,7 +13,8 @@ import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import './style/index.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
-import { GetProjectsApprovalClusters } from '../../../actions/project'
+import { GetProjectsApprovalClustersWithoutTypes } from '../../../actions/project'
+import { checkApplyRecordWithoutTypes } from '../../../../client/actions/applyLimit'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import TenxIcon from '@tenx-ui/icon/es/_old'
@@ -75,6 +76,8 @@ class Sider extends Component {
       isUnzip: false,
       currentOpenMenu: null,
       currentSelectedMenu: null,
+      isShowApprovalLimits: false,
+      isShowApprovalClusters: false,
     }
   }
 
@@ -107,12 +110,40 @@ class Sider extends Component {
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
     })
-    role !== ROLE_USER && role !== ROLE_BASE_ADMIN && this.props.GetProjectsApprovalClusters({
-      filter: `status__neq,2,status__neq,3`,
-      size: 10,
-      from: 0,
-      sort: `d,tenx_project_resource_ref.request_time`,
-    })
+    this.getPonitFunc(this.props)
+  }
+  getPonitFunc = props => {
+    const { role } = props
+    const isNeedGet = role !== ROLE_USER && role !== ROLE_BASE_ADMIN
+    const { isShowClusterPoint, isShowLimitPoint } = props
+    if (isNeedGet) {
+      const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes } = props
+      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+        filter: `status__neq,2,status__neq,3`,
+        size: 10,
+        from: 0,
+        sort: `d,tenx_project_resource_ref.request_time`,
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.projects && this.setState({
+              isShowApprovalClusters: filter(res.data.projects, { status: 1 }).length > 0
+            })
+          }
+        }
+      })
+      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+        from: 0, size: 10, filter: "project_type,public,status,0"
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.records && this.setState({
+              isShowApprovalLimits: filter(res.data.records, { status: 0 }).length > 0
+            })
+          }
+        }
+      })
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -155,6 +186,7 @@ class Sider extends Component {
         currentSelectedMenu: currentSelectedMenu
       })
     }
+    // this.getPonitFunc(nextProps)
   }
 
   handleCancel() {
@@ -301,11 +333,18 @@ class Sider extends Component {
     const { billingConfig = {} } = loginUser
     const { enabled: billingEnabled } = billingConfig
     const scope = this
-    let isShowSubPoint = this.props.isShowPoint && (
+    let isShowLimitSubPoint = this.state.isShowApprovalLimits && (
       !(currentSelectedMenu.indexOf('tenant_manage') > -1) ||
         (currentSelectedMenu.length === 1)
       )
-    let isShowPoint = this.props.isShowPoint &&
+    let isShowApprovalLimits = this.state.isShowApprovalLimits &&
+    (currentSelectedMenu.length === 1 || !(currentSelectedMenu.indexOf('approvalLimit') > -1)) //非选中时
+
+    let isShowClusterSubPoint = this.state.isShowApprovalClusters && (
+      !(currentSelectedMenu.indexOf('tenant_manage') > -1) ||
+        (currentSelectedMenu.length === 1)
+      )
+    let isShowApprovalClusters = this.state.isShowApprovalClusters &&
     (currentSelectedMenu.length === 1 || !(currentSelectedMenu.indexOf('cluster_authorization') > -1)) //非选中时
     const tenantMenu_admin = [
       <Menu.Item key='tenant_manage_default'>
@@ -353,9 +392,9 @@ class Sider extends Component {
           <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
             <TenxIcon type='star' className='star forAdmin'/>
           </Tooltip>
-          <Link to={'/tenant_manage/cluster_authorization' + ( isShowPoint ? '?link_status=1' : '')}>
+          <Link to={'/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : '')}>
             <FormattedMessage {...IntlMessages.tenantClusterAuth} />
-            { isShowPoint && <span className="topRightPoint"><strong>●</strong></span> }
+            { isShowApprovalClusters && <span className="topRightPoint"><strong>●</strong></span> }
           </Link>
         </div>
       </Menu.Item>,
@@ -364,8 +403,9 @@ class Sider extends Component {
         <Tooltip title={this.menuItemTip(ROLE_PLATFORM_ADMIN)} placement="right">
           <TenxIcon type='star' className='star forAdmin'/>
         </Tooltip>
-        <Link to='/tenant_manage/approvalLimit'>
+        <Link to={'/tenant_manage/approvalLimit' + ( isShowApprovalLimits ? '?link_status=0' : '')}>
           <FormattedMessage {...IntlMessages.tenantResourcequotaAuth} />
+          { isShowApprovalLimits && <span className="topRightPoint"><strong>●</strong></span> }
         </Link>
       </div>
     </Menu.Item>,
@@ -684,6 +724,33 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={()=> this.selectModel('app_stack')}
+                className={currentKey == 'app_stack' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.appStack)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app-stack'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={()=> this.selectModel('net_management')}
+                className={currentKey == 'net_management' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.netManagement)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/net-management'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={()=> this.selectModel('storage_management')}
+                className={currentKey == 'storage_management' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title={formatMessage(IntlMessages.storageManagement)}
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/storage-management'>
+                    <TenxIcon className="commonImg" type="app-stack" />
+                  </Link>
+                </Tooltip>
+              </li>
               <li onClick={()=> this.selectModel('app_center')}
                 className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.appCenter)}
@@ -729,18 +796,6 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-
-              { role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN?
-                <li onClick={()=> this.selectModel('integration')}
-                  className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                  <Tooltip placement='right' title={formatMessage(IntlMessages.integration)}
-                    getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                    <Link to='/integration'>
-                      <TenxIcon className="commonImg" type="puzzle-o" />
-                    </Link>
-                  </Tooltip>
-                </li>:''
-              }
               <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title={formatMessage(IntlMessages.manangeMonitor)}
@@ -765,7 +820,7 @@ class Sider extends Component {
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to={tenantIndexPage(role)}>
                     <TenxIcon className="commonImg" type="user-private" />
-                    { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
+                    { (isShowLimitSubPoint || isShowClusterSubPoint) && <span className="topRightPoint"><strong>●</strong></span> }
                   </Link>
                 </Tooltip>
               </li>
@@ -894,22 +949,22 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='storage'>
+                  {/* <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.storage} />
                       </span>
                     </Link>
-                  </Menu.Item>
-                  <Menu.Item key='snapshot'>
+                  </Menu.Item> */}
+                  {/* <Menu.Item key='snapshot'>
                     <Link to='/app_manage/snapshot'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.snapshot} />
                       </span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
                       <span>
@@ -918,30 +973,30 @@ class Sider extends Component {
                       </span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='discover'>
+                  {/* <Menu.Item key='discover'>
                     <Link to='/app_manage/discover'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.discover} />
                       </span>
                     </Link>
-                  </Menu.Item>
-                  <Menu.Item key='security_group'>
+                  </Menu.Item> */}
+                  {/* <Menu.Item key='security_group'>
                     <Link to='/app_manage/security_group'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.securityGroup} />
                       </span>
                     </Link>
-                  </Menu.Item>
-                  <Menu.Item key='load_balance'>
+                  </Menu.Item> */}
+                  {/* <Menu.Item key='load_balance'>
                     <Link to='/app_manage/load_balance'>
                       <span>
                         <div className='sideCircle'></div>&nbsp;
                         <FormattedMessage {...IntlMessages.loadBalance} />
                       </span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item key='auto_scale'>
                     <Link to='/app_manage/auto_scale'>
                       <span>
@@ -974,6 +1029,314 @@ class Sider extends Component {
                   }
                   <div className='sline'></div>
                 </SubMenu>
+                <SubMenu key="app-stack"
+                  title={
+                    <span>
+                      <TenxIcon className="commonImg" type="app-stack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.appStack} />
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                 <Menu.Item key='Deployment'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Deployment')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Deployment')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Deployment
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='StatefulSet'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/StatefulSet')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/StatefulSet')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        StatefulSet
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='Job'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Job')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Job')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Job
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='CronJob'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/CronJob')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/CronJob')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        CronJob
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='Pod'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Pod')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Pod')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        Pod
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <div className='sline'></div>
+                </SubMenu>
+
+                <SubMenu key="net-management"
+                  title={
+                    <span>
+                      {/* <TenxIcon className="commonImg" type="net-management" /> */}
+                      {/* TODO: ICON 设计还没出好 */}
+                      <TenxIcon className="commonImg" type="appStack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.netManagement} />
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='Service'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/Service')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/Service')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.discover} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='appLoadBalance'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/appLoadBalance')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/Job')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.loadBalance} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='dnsRecord'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/dnsRecord')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.dnsRecord} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='securityGroup'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/net-management/securityGroup')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.securityGroup} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+
+                <SubMenu key="storage-management"
+                  title={
+                    <span>
+                      {/* <TenxIcon className="commonImg" type="storage-management" /> */}
+                      <TenxIcon className="commonImg" type="appStack" />
+                      <span className='commonSiderSpan'>
+                      <FormattedMessage {...IntlMessages.storageManagement} />
+                      </span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='privateStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/privateStorage')
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.privateStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='snapshot'>
+                    <Link to='/storage-management/snapshot'>
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.snapshot} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='shareStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/shareStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/Job')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.shareStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  <Menu.Item key='localStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/localStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.localStorage} />
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
+                  {/* <Menu.Item key='customStorage'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/storage-management/customStorage')
+                          // if (window.appStackPortalHistory) {
+                          //   window.appStackPortalHistory.replace('/app-stack/CronJob')
+                          // }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        自定义存储
+                      </span>
+                    </Link>
+                  </Menu.Item> */}
+                  <div className='sline'></div>
+                </SubMenu>
+
                 <SubMenu key='app_center'
                   title={
                     <span>
@@ -1355,20 +1718,6 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
-                {role === ROLE_SYS_ADMIN || role === ROLE_BASE_ADMIN ?
-                <Menu.Item key='integration'>
-                  <Link to='/integration'>
-                    <span>
-                      <TenxIcon className="commonImg" type="puzzle-o" />
-                      <span className='commonSiderSpan'>
-                        <FormattedMessage {...IntlMessages.integration} />
-                      </span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  </Link>
-                </Menu.Item>
-                : <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
-                }
                 <SubMenu key='manange_monitor'
                   title={
                     <span>
@@ -1483,7 +1832,7 @@ class Sider extends Component {
                       <TenxIcon className="commonImg" type="user-private" />
                       <span className='commonSiderSpan'>
                         <FormattedMessage {...IntlMessages.tenant} />
-                        { isShowSubPoint && <span className="topRightPoint"><strong>●</strong></span> }
+                        { (isShowClusterSubPoint || isShowLimitSubPoint) && <span className="topRightPoint"><strong>●</strong></span> }
                       </span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
@@ -1593,6 +1942,14 @@ class Sider extends Component {
                       </Link>
                     </div>
                   </Menu.Item>
+                  <Menu.Item key='integration'>
+                    <div className="adminBox">
+                      <TenxIcon className="star forAdmin" type="star" />
+                      <Link to='/cluster/integration'>
+                        <FormattedMessage {...IntlMessages.integration} />
+                      </Link>
+                    </div>
+                  </Menu.Item>
                   </SubMenu>
                    :
                   <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
@@ -1671,7 +2028,10 @@ function mapStateToProp(state) {
   const { projectAuthority } = state
   const { projectsApprovalClustersList } = projectAuthority
   const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
-  const isShowPoint = filter(projects, { status: 1 }).length > 0
+  const isShowClusterPoint = filter(projects, { status: 1 }).length > 0
+
+  const limits = getDeepValue(state, ['applyLimit', 'resourcequoteRecord', 'data']) || []
+  const isShowLimitPoint = filter(limits, { status: 0 }).length > 0
 
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
@@ -1681,7 +2041,8 @@ function mapStateToProp(state) {
     backColor,
     loginUser: entities && entities.loginUser && entities.loginUser.info,
     oemInfo: oemInfo || {},
-    isShowPoint,
+    isShowClusterPoint,
+    isShowLimitPoint,
   }
 }
 
@@ -1692,7 +2053,8 @@ export default injectIntl(connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail,
-  GetProjectsApprovalClusters,
+  GetProjectsApprovalClustersWithoutTypes,
+  checkApplyRecordWithoutTypes,
   // loadUserDetail,
 })(Sider), {
   withRef: true,

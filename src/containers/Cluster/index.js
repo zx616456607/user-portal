@@ -55,6 +55,10 @@ let menuList = [
       }
     }
   },
+  {
+    url: '/cluster/integration',
+    name: 'integration',
+  },
 ]
 export default class Cluster extends Component {
   constructor(props) {

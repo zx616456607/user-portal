@@ -48,7 +48,6 @@ class Host extends Component {
       finally: {
         func: () => {
           this.setState({operating: false})
-          document.getElementById('searchInput').value = ""
         }
       }
     })
@@ -58,12 +57,12 @@ class Host extends Component {
     const noti = new NotificationHander()
     const searchName = document.getElementById('searchInput').value
     if(!searchName) {
-      this.props.getVMList('', false)
+      this.props.getVMList('', true)
       return
     }
     this.props.getVMList({
       name: searchName,
-    }, false)
+    }, true)
   }
 
   hostModalfunc = (visible) => {
@@ -332,8 +331,6 @@ class Host extends Component {
 
   resizeCallback() {
     return () => {
-      const noti = new NotificationHander()
-
       this.setState({
         resiseModal:false
       })
@@ -342,8 +339,6 @@ class Host extends Component {
   }
   resisModalFunc() {
     return (arg) => {
-      const noti = new NotificationHander()
-
       this.setState({
         resiseModal: arg
       })
@@ -351,7 +346,6 @@ class Host extends Component {
   }
 
   VNCLogin(){
-    const noti = new NotificationHander()
     const currentHost = this.state.currentHost
     if(!currentHost) {
       return
@@ -559,6 +553,7 @@ class Host extends Component {
           visible={this.state.deleteMoal}
           onCancel={()=> this.setState({deleteMoal: false})}
           onOk={()=> this.operateVM()}
+          confirmLoading={this.state.operating}
         >
           <div className="alertRow" style={{wordBreak: 'break-all'}}>{ `确定要删除 ${this.state.currentEntity ? this.state.currentEntity.name : ''} 吗?`}</div>
         </Modal>
@@ -566,6 +561,7 @@ class Host extends Component {
           visible={this.state.confirmModal}
           onCancel={()=> this.hideConfirmModal()}
           onOk={()=> this.operateVM()}
+          confirmLoading={this.state.operating}
           >
           <div className="alertRow" style={{wordBreak: 'break-all'}}>{`确定${this.state.action == 'start' ? '启动' : '停止'}云主机 ${this.state.currentEntity ? this.state.currentEntity.name : ''} ?`}</div>
         </Modal>
@@ -574,6 +570,7 @@ class Host extends Component {
           <Modal title="编辑云主机" visible={true}
           onCancel={()=> this.setState({editModal: false})}
           footer={null}
+          confirmLoading={this.state.operating}
           >
             <ReHostname
               value={this.state.currentHost.name}

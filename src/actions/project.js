@@ -332,6 +332,35 @@ export function GetProjectsApprovalClusters(query,callback) {
   }
 }
 
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST'
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS'
+export const PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE'
+function fetchGetProjectsApprovalClustersWithoutTypes(query,callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/approval-clusters`
+  if(query){
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_REQUEST,PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_SUCCESS,PROJECTS_CLUSTER_APPROVAL_WITHOUT_GET_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    status: query,
+    callback
+  }
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectsApprovalClustersWithoutTypes(query,callback) {
+  return (dispatch) => {
+    return dispatch(fetchGetProjectsApprovalClustersWithoutTypes(query,callback))
+  }
+}
+
 export const SEARCH_PROJECTS_CLUSTER_APPROVAL_GET = 'SEARCH_PROJECTS_CLUSTER_APPROVAL_GET'
 
 export function searchProjectsClusterApproval(keyWord) {
@@ -735,3 +764,119 @@ export function hadnleProjectRoleBinding(body, callback) {
 		return dispatch(fetchProjectRoleBinding(body, callback))
 	}
 }
+
+// 获取插件当前开启状态
+export const GET_PLUGIN_STATUS_REQUEST = 'GET_PLUGIN_STATUS_REQUEST'
+export const GET_PLUGIN_STATUS_SUCCESS = 'GET_PLUGIN_STATUS_SUCCESS'
+export const GET_PLUGIN_STATUS_FAILURE = 'GET_PLUGIN_STATUS_FAILURE'
+const fetchPluginStatus = (query, teamspace, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        GET_PLUGIN_STATUS_REQUEST,
+        GET_PLUGIN_STATUS_SUCCESS,
+        GET_PLUGIN_STATUS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/projects/plugins/enabled?${toQuerystring(query)}`,
+      schema: {},
+			options: {
+      	headers: { teamspace }
+			}
+    },
+    callback,
+  }
+}
+
+export const getPluginStatus = (query, teamspace, callback) => {
+  return dispatch => {
+    return dispatch (fetchPluginStatus(query, teamspace, callback))
+  }
+}
+
+// 检查项目所需插件是否安装
+export const CHECK_PLUGIN_INSTALL_STATUS_REQUEST = 'CHECK_PLUGIN_INSTALL_STATUS_REQUEST'
+export const CHECK_PLUGIN_INSTALL_STATUS_SUCCESS = 'CHECK_PLUGIN_INSTALL_STATUS_SUCCESS'
+export const CHECK_PLUGIN_INSTALL_STATUS_FAILURE = 'CHECK_PLUGIN_INSTALL_STATUS_FAILURE'
+const fetchPluginsInstallStatus = (query, teamspace, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        CHECK_PLUGIN_INSTALL_STATUS_REQUEST,
+        CHECK_PLUGIN_INSTALL_STATUS_SUCCESS,
+        CHECK_PLUGIN_INSTALL_STATUS_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/projects/plugins/installed?${toQuerystring(query)}`,
+      schema: {},
+			options: {
+      	headers: { teamspace }
+			}
+    },
+    callback,
+  }
+}
+
+export const checkPluginsInstallStatus = (query, teamspace, callback) => {
+  return dispatch => {
+    return dispatch (fetchPluginsInstallStatus(query, teamspace, callback))
+  }
+}
+
+// 开启插件
+export const PLUGIN_TURN_ON_REQUEST = 'PLUGIN_TURN_ON_REQUEST'
+export const PLUGIN_TURN_ON_SUCCESS = 'PLUGIN_TURN_ON_SUCCESS'
+export const PLUGIN_TURN_ON_FAILURE = 'PLUGIN_TURN_ON_FAILURE'
+const putPluginTurnOn = (name, query, teamspace, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        PLUGIN_TURN_ON_REQUEST,
+        PLUGIN_TURN_ON_SUCCESS,
+        PLUGIN_TURN_ON_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/projects/plugins/${name}/enable?${toQuerystring(query)}`,
+      schema: {},
+			options: {
+      	method: 'PUT',
+      	headers: { teamspace }
+			}
+    },
+    callback,
+  }
+}
+
+export const pluginTurnOn = (name, query, teamspace, callback) => {
+  return dispatch => {
+    dispatch (putPluginTurnOn(name, query, teamspace, callback))
+  }
+}
+
+// 关闭插件
+export const PLUGIN_TURN_OFF_REQUEST = 'PLUGIN_TURN_OFF_REQUEST'
+export const PLUGIN_TURN_OFF_SUCCESS = 'PLUGIN_TURN_OFF_SUCCESS'
+export const PLUGIN_TURN_OFF_FAILURE = 'PLUGIN_TURN_OFF_FAILURE'
+const putPluginTurnOff = (name, query, teamspace, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        PLUGIN_TURN_OFF_REQUEST,
+        PLUGIN_TURN_OFF_SUCCESS,
+        PLUGIN_TURN_OFF_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/projects/plugins/${name}/disable?${toQuerystring(query)}`,
+      schema: {},
+			options: {
+      	method: 'PUT',
+      	headers: { teamspace }
+			}
+    },
+    callback,
+  }
+}
+
+export const pluginTurnOff = (name, query, teamspace, callback) => {
+  return dispatch => {
+    dispatch (putPluginTurnOff(name, query, teamspace, callback))
+  }
+}
+
+

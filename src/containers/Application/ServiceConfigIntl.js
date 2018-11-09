@@ -135,6 +135,7 @@ const messageObj = {
     sharedTypeTip: '共享型支持多个容器实例同时对同一个存储卷读写操作；',
     localStorageTip: '本地存储支持在宿主机节点上保存数据。',
     storageModalTitle: '添加容器目录',
+    editStorageModalTitle: '修改容器目录',
     storageName: '存储名称',
     storageNameExist: '存储名称已存在',
     storageVolumeSetting: '存储卷设置',
@@ -360,6 +361,7 @@ const messageObj = {
     checkNetSegmentFail: "校验 IP 是否被占用请求失败",
     isUsedAlready: "当前 IP 已经被占用, 请重新填写",
     getNetSegmentFail: "获取 Pod 网段数据失败",
+    probeType: "类型",
   }
 }
 

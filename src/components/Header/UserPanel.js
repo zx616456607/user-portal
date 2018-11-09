@@ -14,6 +14,8 @@ import React, { Component, PropTypes } from 'react'
 import { Icon, Popover, Button, Tag } from 'antd'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
+import { GetProjectsApprovalClustersWithoutTypes } from '../../actions/project'
+import { checkApplyRecordWithoutTypes } from '../../../client/actions/applyLimit'
 import "./style/UserPanel.less"
 import { AVATAR_HOST } from '../../constants'
 import { parseAmount } from '../../common/tools'
@@ -22,6 +24,9 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessages from '../Header/Intl'
+import SiderIntlMessages from '../Sider/Enterprise/Intl'
+import { getDeepValue } from '../../../client/util/util'
+import filter from 'lodash/filter'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -51,6 +56,46 @@ class UserPanel extends Component {
     this.getContent = this.getContent.bind(this)
     this.state = {
       visible: false,
+      isShowApprovalClusters: false,
+      isShowApprovalLimits: false,
+    }
+  }
+  componentWillReceiveProps(next) {
+    this.getPonitFunc(next)
+  }
+  componentDidMount() {
+    this.getPonitFunc(this.props)
+  }
+  getPonitFunc = props => {
+    const { role } = props
+    const isNeedGet = role !== ROLE_USER && role !== ROLE_BASE_ADMIN
+    const { GetProjectsApprovalClustersWithoutTypes, checkApplyRecordWithoutTypes, isShowClusterPoint, isShowLimitPoint } = props
+    if (isNeedGet) {
+      !isShowClusterPoint && GetProjectsApprovalClustersWithoutTypes({
+        filter: `status__neq,2,status__neq,3`,
+        size: 10,
+        from: 0,
+        sort: `d,tenx_project_resource_ref.request_time`,
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.projects && this.setState({
+              isShowApprovalClusters: filter(res.data.projects, { status: 1 }).length > 0
+            })
+          }
+        }
+      })
+      !isShowLimitPoint && checkApplyRecordWithoutTypes({
+        from: 0, size: 10, filter: "project_type,public,status,0"
+      }, {
+        success: {
+          func: res => {
+            !!res && !!res.data && !!res.data.records && this.setState({
+              isShowApprovalLimits: filter(res.data.records, { status: 0 }).length > 0
+            })
+          }
+        }
+      })
     }
   }
 
@@ -139,9 +184,20 @@ class UserPanel extends Component {
 
   renderMenuItems(menu, index) {
     return (
-      <td key={`menu${index}`}>
+      <td className="panelTd" key={`menu${index}`}>
         <Link to={menu.to} onClick={this.handleVisibleChange}>
-          <TenxIcon type={menu.iconType} className="userIcon"/>
+          {
+            menu.isNeedPoint ?
+              <span className="topRightPoint"><strong>●</strong></span>
+              :
+              null
+          }
+          {
+            menu.isAnt ?
+              <Icon type={menu.iconType} className="userIcon" />
+              :
+              <TenxIcon type={menu.iconType} className="userIcon"/>
+          }
           <div>{menu.text}</div>
         </Link>
       </td>
@@ -150,21 +206,29 @@ class UserPanel extends Component {
 
   getContent() {
     const { loginUser, role, balance, billingEnabled } = this.props
+    const { isShowApprovalClusters, isShowApprovalLimits } = this.state
     /*let { balance } = loginUser
     if (balance !== undefined) {
       balance = parseAmount(balance).amount
     }*/
     const { userID } = loginUser
-    let menuItems = [
+    const base = [
       {
         to: '/account',
         iconType: 'log-account',
         text: <FormattedMessage {...IntlMessages.account} />,
-      },
+      }]
+    let menuItems = (role === ROLE_USER || role === ROLE_BASE_ADMIN) ? [
       {
         to: '/account#edit_pass',
         iconType: 'password-change',
         text: <FormattedMessage {...IntlMessages.changePwd} />,
+      },
+      {
+        to: '/work-order',
+        iconType: 'book',
+        isAnt: true,
+        text: <FormattedMessage {...IntlMessages.workOrder} />,
       },
       {
         to: '/tenant_manage/team',
@@ -177,6 +241,39 @@ class UserPanel extends Component {
         text: <FormattedMessage {...IntlMessages.project} />,
       }
     ]
+    :
+    [
+      {
+        to: `/tenant_manage/project_manage`,
+        iconType: 'backup',
+        text: <FormattedMessage {...IntlMessages.project} />,
+      },
+      {
+        to: '/work-order',
+        iconType: 'book',
+        isAnt: true,
+        text: <FormattedMessage {...IntlMessages.workOrder} />,
+      },
+      {
+        to: '/tenant_manage/cluster_authorization' + ( isShowApprovalClusters ? '?link_status=1' : ''),
+        isNeedPoint: isShowApprovalClusters,
+        iconType: 'approval-cluster',
+        text: <FormattedMessage {...SiderIntlMessages.tenantClusterAuth} />,
+      },
+      {
+        to: '/tenant_manage/approvalLimit' + ( isShowApprovalLimits ? '?link_status=0' : ''),
+        isNeedPoint: isShowApprovalLimits,
+        iconType: 'approval-limit',
+        text: <FormattedMessage {...SiderIntlMessages.tenantResourcequotaAuth} />,
+      }
+    ]
+    menuItems = [].concat(base, menuItems, [
+      {
+        to: '/work-order/system-notice',
+        iconType: 'ring',
+        text: <FormattedMessage {...IntlMessages.systemNotice} />,
+      }
+    ])
     if (mode === standard) {
       menuItems = [
         {
@@ -227,10 +324,10 @@ class UserPanel extends Component {
         <table className='navTab'>
           <tbody>
             <tr>
-              {menuItems.slice(0, 2).map(this.renderMenuItems)}
+              {menuItems.slice(0, 3).map(this.renderMenuItems)}
             </tr>
             <tr>
-              {menuItems.slice(2).map(this.renderMenuItems)}
+              {menuItems.slice(3).map(this.renderMenuItems)}
             </tr>
           </tbody>
         </table>
@@ -246,6 +343,7 @@ class UserPanel extends Component {
 
   render() {
     const { loginUser, role } = this.props
+    const { isShowApprovalLimits, isShowApprovalClusters } = this.state
     const { visible } = this.state
     const rotate = visible ? 'rotate180' : 'rotate0'
     const roleName = (role) => {
@@ -277,6 +375,12 @@ class UserPanel extends Component {
         onVisibleChange={this.handleVisibleChange}
         >
         <div className="user-panel-trigger userBtn">
+          {
+            (isShowApprovalLimits || isShowApprovalClusters) ?
+              <span className="topRightPoint"><strong>●</strong></span>
+              :
+              null
+          }
           <div className="userBtnText">
             <div>{loginUser.userName}</div>
             <div>
@@ -309,15 +413,27 @@ function mapStateToProp(state, props) {
     role = entities.loginUser.info.role ? entities.loginUser.info.role : 0
   }
   const { enabled: billingEnabled } = billingConfig || { enabled: false }
+
+  const { projectAuthority } = state
+  const { projectsApprovalClustersList } = projectAuthority
+  const projects = getDeepValue(projectsApprovalClustersList, ['approvalData', 'projects']) || []
+  const isShowClusterPoint = filter(projects, { status: 1 }).length > 0
+
+  const limits = getDeepValue(state, ['applyLimit', 'resourcequoteRecord', 'data']) || []
+  const isShowLimitPoint = filter(limits, { status: 0 }).length > 0
+
   return {
     role,
+    isShowClusterPoint,
+    isShowLimitPoint,
     balance: parseAmount(balance).amount,
     billingEnabled
   }
 }
 
 export default injectIntl(connect(mapStateToProp, {
-  //
+  GetProjectsApprovalClustersWithoutTypes,
+  checkApplyRecordWithoutTypes
 })(UserPanel), {
   withRef: true,
 })

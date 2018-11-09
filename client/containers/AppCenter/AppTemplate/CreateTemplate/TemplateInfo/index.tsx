@@ -19,7 +19,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import { buildJson, getFieldsValues } from '../../../../../../src/components/AppModule/QuickCreateApp/utils';
-import { parseAmount, getResourceByMemory, sleep } from '../../../../../../src/common/tools';
+import { parseAmount, getResourceByMemory, sleep, lbListenerIsEmpty } from '../../../../../../src/common/tools';
 import * as templateActions from '../../../../../actions/template';
 import './style/index.less';
 import NotificationHandler from '../../../../../../src/components/Notification';
@@ -151,10 +151,18 @@ class TemplateInfo extends React.Component<any> {
   }
 
   confirmTemplate = async () => {
-    const { loginUser, createTemplate, current, form, imageConfig, intl } = this.props;
+    const { createTemplate, current, form, imageConfig, intl, fields } = this.props;
     const { clusterID } = current.cluster;
     // 解决 InputNumber 组件失去焦点新值才能生效问题
     await sleep(200);
+
+    // [KK-442] 如果选择应用均衡负载, 则需要至少添加一个监听器
+    const lbNoPort = lbListenerIsEmpty(fields)
+    if (lbNoPort) {
+      notify.warn(intl.formatMessage(IntlMessage.addOneListener))
+      return
+    }
+
     form.validateFields(async (errors, values) => {
       if (!!errors) {
         notify.warn(intl.formatMessage(IntlMessage.formsError));

@@ -42,7 +42,6 @@ import { genRandomString } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
-import ResourceQuota from "../ResourceLimit";
 import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
 import NoteIcon from './NoteIcon'
@@ -469,6 +468,7 @@ let NetworkConfiguration = React.createClass ({
     }
 
     let networkKey = config.key
+    const onlyOne = arr.length === 1
     return arr.map(item => {
       let nodes = {}
       if(proxy[networkKey] && proxy[networkKey].nodes){
@@ -534,7 +534,13 @@ let NetworkConfiguration = React.createClass ({
           </Col>
           <Col xs={{span:2}}>
             {
-              editCluster ?  <p className="delete-p"><Icon style={{paddingTop:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(config, item)}/></p> : <span></span>
+              editCluster
+                ? <p className="delete-p">
+                    <Button disabled={onlyOne} style={{ border: 'none', padding: 0 }}>
+                      <Icon style={{paddingTop:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(config, item)}/>
+                    </Button>
+                  </p>
+                : <span></span>
             }
           </Col>
         </Row>

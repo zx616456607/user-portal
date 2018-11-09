@@ -78,6 +78,35 @@ const fetchCheckApplyRecord = (query, callback) => {
 export const checkApplyRecord = ( query, callback?: function ) =>
   dispatch => dispatch(fetchCheckApplyRecord( query, callback));
 
+export const CHECK_APPLYRECORD_WITHOUT_REQUEST = 'CHECK_APPLYRECORD_WITHOUT_REQUEST';
+export const CHECK_APPLYRECORD_WITHOUT_SUCCESS = 'CHECK_APPLYRECORD_WITHOUT_SUCCESS';
+export const CHECK_APPLYRECORD_WITHOUT_FAILURE = 'CHECK_APPLYRECORD_WITHOUT_FAILURE';
+const fetchCheckApplyRecordWithoutTypes = (query, callback) => {
+  const noreducer = query.noreducer
+  if (noreducer ) {
+    delete query.noreducer
+  }
+  return {
+    [FETCH_API]: {
+      types: [
+        CHECK_APPLYRECORD_WITHOUT_REQUEST,
+        CHECK_APPLYRECORD_WITHOUT_SUCCESS,
+        CHECK_APPLYRECORD_WITHOUT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/resourcequota/apply?${toQuerystring(query)}`,
+      schema: {},
+      options: {
+        headers: {
+          teamspace: '',
+        },
+      },
+    },
+    callback,
+    noreducer,
+  };
+};
+export const checkApplyRecordWithoutTypes = ( query, callback?: function ) =>
+  dispatch => dispatch(fetchCheckApplyRecordWithoutTypes( query, callback));
+
 // 删除审批记录
 export const DELETE_RESOURCEQUOTA_REQUEST = 'DELETE_RESOURCEQUOTA_REQUEST';
 export const DELETE_RESOURCEQUOTA_SUCCESS = 'DELETE_RESOURCEQUOTA_SUCCESS';

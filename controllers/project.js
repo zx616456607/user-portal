@@ -414,3 +414,42 @@ exports.deleteProjectRelatedRoles = function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.getPluginStatus = function* () {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['plugins', 'enabled'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.pluginTurnOn = function* () {
+  const query = this.query
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy(['plugins', name, 'enable'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.pluginTurnOff = function* () {
+  const query = this.query
+  const name = this.params.name
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy(['plugins', name, 'disable'], query)
+  this.status = response.statusCode
+  this.body = response
+}
+
+
+exports.checkPluginInstallStatus = function* () {
+  const query = this.query
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['plugins', 'installed'], query)
+  this.status = response.statusCode
+  this.body = response
+}

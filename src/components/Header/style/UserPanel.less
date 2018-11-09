@@ -2,6 +2,15 @@
 .user-panel-trigger {
   &.userBtn {
     line-height: initial;
+    position: relative;
+    .topRightPoint{
+      right: 40px;
+      top: 10px;
+      display: inline-block;
+      position: absolute;
+      transform: scale(1) translateY(-5px) translateX(7px);
+      color: #f15755 !important;
+    }
     .userBtnText {
       float: left;
       padding: 8px 0;
@@ -118,8 +127,17 @@
       width: 100%;
       tr {
         td {
+          position: relative;
+          .topRightPoint{
+            right: 50px;
+            top: 20px;
+            display: inline-block;
+            position: absolute;
+            transform: scale(1) translateY(-5px) translateX(7px);
+            color: #f15755 !important;
+          }
           height: 120px;
-          width: 158px;
+          width: 120px;
           text-align: center;
           border: 1px dashed #ededed;
           font-size: 14px;

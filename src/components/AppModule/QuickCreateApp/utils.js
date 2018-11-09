@@ -138,6 +138,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     publicNetwork, //公网出口
     internaletwork, //内网出口
     portsKeys, // 端口的 keys(数组)
+    loadBalance,
     lbKeys, // 访问方式为负载均衡时的端口(数组)
     tcpKeys,
     udpKeys,
@@ -241,7 +242,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
         type, mountPath, strategy,
         readOnly, name, volumeIsOld,
         size, fsType, storageClassName,
-        hostPath,
+        hostPath, type_1,
       } = item
       // @Todo: reclaimPolicy??
       if (type === 'host') {
@@ -258,7 +259,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
             storageClassName: `${type}-storage`,
             mountPath,
             hostPath,
-            readOnly
+            readOnly,
+            type_1,
           }
           storageForTemplate.push(volumeObj)
           deployment.setAnnotations({
@@ -307,7 +309,8 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
               name: volume.name,
               storageClassName,
               mountPath,
-              readOnly
+              readOnly,
+              type_1
             }
             if (type === 'private') {
               Object.assign(volumeObj, {
@@ -382,6 +385,12 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     default:
       groupID = 'none'; templateGroup = 'Cluster'; break
   }
+  if (isTemplate) {
+    // 设置访问方式类型
+    deployment.setAnnotations({
+      accessType,
+    })
+  }
   if (accessType === 'loadBalance') {
     // 访问方式为负载均衡
 
@@ -395,18 +404,47 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, null, port, port)
     })
+    const tcpIngressArray = []
     !isEmpty(tcpKeys) && tcpKeys.forEach(key => {
       const port = parseInt(fieldsValues[`tcp-servicePort-${key}`])
+      const exportPort = parseInt(fieldsValues[`tcp-exportPort-${key}`])
       const name = `${serviceName}-tcp-${key}`
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, 'TCP', port, port)
+      // tcp 和 upd 监听器放入 annotations 用于回显
+      if (isTemplate) {
+        tcpIngressArray.push({
+          servicePort: port,
+          exportPort,
+        })
+      }
     })
+    if (!isEmpty(tcpIngressArray)) {
+      deployment.setAnnotations({
+        tcpIngress: JSON.stringify(tcpIngressArray),
+        loadBalance,
+      })
+    }
+    const udpIngressArray = []
     !isEmpty(udpKeys) && udpKeys.forEach(key => {
       const port = parseInt(fieldsValues[`udp-servicePort-${key}`])
+      const exportPort = parseInt(fieldsValues[`udp-exportPort-${key}`])
       const name = `${serviceName}-udp-${key}`
       deployment.addContainerPort(serviceName, port, 'UDP')
       service.addPort(proxyType, name, 'UDP', port, port)
+      if (isTemplate) {
+        udpIngressArray.push({
+          servicePort: port,
+          exportPort,
+        })
+      }
     })
+    if (!isEmpty(udpIngressArray)) {
+      deployment.setAnnotations({
+        udpIngress: JSON.stringify(udpIngressArray),
+        loadBalance,
+      })
+    }
     // 默认访问方式 集群内
     service.addLBGroupAnnotation('none')
   } else {

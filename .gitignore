@@ -35,6 +35,7 @@ static/style/main.css
 static/bundles/
 static/ai/
 static/devops/
+static/app-stack/
 configs/index.js
 manifest.json
 static/webpack_dll/
@@ -49,3 +50,4 @@ static/blob/*
 ./configs
 backend
 package-lock.json
+.history/

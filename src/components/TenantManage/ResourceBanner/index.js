@@ -125,12 +125,12 @@ class ResourceBanner extends React.Component {
       .reduce((current, next) => current.concat(next), [])
       .filter(({resourceType}) => this.props.resourceTypeArray.includes(resourceType))
     // 由于放在相同的Banner中的元素都统一是全局资源或者非全局资源, 所以只需要判断一个即可
-    const resourceflay = ResourceInfoList[0].clusterIndependent ? 0 : 1
+    const resourceflay = !_.isEmpty(ResourceInfoList) && ResourceInfoList[0].clusterIndependent ? 0 : 1
     this.setState({ resourceflay })
     const resourcesString = this.props.resourceTypeArray.join(',')
     let QuotaList
     if (resourceflay === 0) QuotaList = await getGlobaleQuotaList({ resources: resourcesString })
-    if (resourceflay === 1) QuotaList = await getClusterQuotaList({ id: clusterID,resource:resourcesString })
+    if (resourceflay === 1) QuotaList = await getClusterQuotaList({ id: clusterID,resources:resourcesString })
     const { response: { result: { data: NewQuotaList = {}} = {} } = {} } = QuotaList
     const LastResourceInfoList = ResourceInfoList
       .map((resourceInfo) => {

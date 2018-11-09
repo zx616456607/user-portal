@@ -228,7 +228,8 @@ let ConfigureService = React.createClass({
            if (location.query && location.query.tag) {
               let hasTag
               result.data.every(tags =>{
-                if (tags == location.query.tag) {
+                // 兼容老版本获取 tags
+                if ((tags.name || tags) === location.query.tag) {
                   hasTag = true
                   return false
                 }
@@ -877,6 +878,7 @@ let ConfigureService = React.createClass({
         <LivenessSetting
           form={form}
           formItemLayout={formItemLayout}
+          fields={currentFields}
           key="liveness"
         />
         <ConfigMapSetting

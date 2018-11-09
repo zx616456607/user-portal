@@ -461,7 +461,7 @@ class AutoScaleModal extends React.Component {
     return flag
   }
   render() {
-    const {visible, form, services, alertList, scaleDetail, create, reuse} = this.props
+    const {visible, form, services, alertList, scaleDetail, create, reuse, loadNotifyGroups, clusterID} = this.props
     const { thresholdArr, cpuAndMemory } = this.state
     const {getFieldProps, isFieldValidating, getFieldError, getFieldValue} = form
     const isGroupHide = getFieldValue('alert_strategy') === 'SendNoEmail'
@@ -657,6 +657,7 @@ class AutoScaleModal extends React.Component {
                   <Select
                     {...selectAlertGroup}
                     placeholder="请选择告警通知组"
+                    style={{ width: 260, marginRight:14 }}
                     showSearch
                     optionFilterProp="children"
                     notFoundContent="没有告警通知组">
@@ -666,6 +667,7 @@ class AutoScaleModal extends React.Component {
                       ) : null
                     }
                   </Select>
+                  <Button onClick={() => loadNotifyGroups(null, clusterID)} icon="reload"/>
                 </FormItem>,
                 <Row style={{margin: '-3px 0 10px'}} key="alertGroupHint">
                   <Col span={4} style={{ height: 18 }}/>
@@ -676,7 +678,7 @@ class AutoScaleModal extends React.Component {
                 <Row style={{margin: '-10px 0 10px'}} key="createGroup">
                   <Col span={4}/>
                   <Col span={16}>
-                    没有告警通知组？<Link to="/manange_monitor/alarm_group">去创建>></Link>
+                    没有告警通知组？<Link to="/manange_monitor/alarm_group" target="_blank">去创建>></Link>
                   </Col>
                 </Row>
               ]

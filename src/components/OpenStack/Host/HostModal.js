@@ -12,7 +12,9 @@ import React,{ Component } from 'react'
 import { Button, Input, Modal, Form, Select, Row,Col,Icon, Spin } from 'antd'
 import find from 'lodash/find'
 import { connect } from 'react-redux'
-import { getFlavorList, getNetworkList, getAZList, getImageList,  postVM } from '../../../actions/openstack/calculation_service'
+import { getFlavorList, getAZList, getImageList,  postVM } from '../../../actions/openstack/calculation_service'
+import { loadNetworksList } from '../../../actions/openstack/networks'
+
 import { IP_REGEX } from '../../../../constants/index'
 import NotificationHandler from '../../../common/notification_handler'
 const Option = Select.Option
@@ -23,34 +25,18 @@ class HostModal extends Component {
     this.state = {}
   }
   componentWillMount() {
-    if(this.props.currentProject) {
-      this.loadConfiguration()
-    }
+    this.loadConfiguration()
   }
-  componentWillReceiveProps(next) {
-    if(next.currentProject != this.props.currentProject) {
-      this.loadConfiguration(next.currentProject)
-    }
-  }
-  loadConfiguration(currentProject) {
-    currentProject = currentProject || this.props.currentProject
-    const { getImageList, getNetworkList, getFlavorList, getAZList } = this.props
-    getNetworkList({
-      project: currentProject
-    })
-    getFlavorList({
-      project: currentProject
-    })
-    getAZList({
-      project: currentProject
-    })
-    getImageList({
-      project: currentProject
-    })
+  loadConfiguration() {
+    const { getImageList, loadNetworksList, getFlavorList, getAZList } = this.props
+    loadNetworksList()
+    getFlavorList()
+    getAZList()
+    getImageList()
   }
   hostNameExists(rule, value, callback) {
     if (!value) {
-      return callback('请输入主机名称')
+      return callback()
     }
     if (value.length <3 || value.length > 32) {
       return callback('长度为3~32位字符')
@@ -237,6 +223,7 @@ class HostModal extends Component {
     const { validateFields, getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const hostProps = getFieldProps('hostName', {
       rules: [
+        { required: true, message:'请输入主机名称'},
         { validator: (rule, value, callback) => this.hostNameExists(rule, value, callback) },
       ]
     })
@@ -281,10 +268,11 @@ class HostModal extends Component {
     })
     const password = getFieldProps('password', {
       rules: [
+        { required: true, message:'请填写登录密码' },
         {
           validator: (rule, value, callback) => {
             if(!value) {
-              return callback('请填写登录密码')
+              return callback()
             }
             const validatePassword = getFieldValue('validatePassword')
             validateFields(['validatePassword'], { force: true})
@@ -294,10 +282,12 @@ class HostModal extends Component {
       ]
     })
     const validatePassword = getFieldProps('validatePassword', {
-      rules: [{
+      rules: [
+        { required: true, message:'请确认登录密码' },
+        {
         validator: (rule, value, callback) => {
           if(!value) {
-            return callback('请确认登录密码')
+            return callback()
           }
           const password = getFieldValue('password')
           if(value != password ) {
@@ -418,7 +408,7 @@ function mapStateToProps(state) {
   }
 }
 export default connect(mapStateToProps, {
-  getNetworkList,
+  loadNetworksList,
   getAZList,
   getFlavorList,
   getImageList,

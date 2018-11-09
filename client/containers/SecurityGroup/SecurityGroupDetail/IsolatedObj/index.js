@@ -19,9 +19,9 @@ class IsolatedObj extends React.Component {
       && current.spec.podSelector
       && current.spec.podSelector.matchExpressions
       && current.spec.podSelector.matchExpressions[0].values || []
-    const isolatedService = serviceList.map(item => {
+    const isolatedService = serviceList && serviceList.length && serviceList.map(item => {
       return <div key={item}>{item}</div>
-    })
+    }) || '无'
     return (
       <div className="isolateCont" >
         { isolatedService }

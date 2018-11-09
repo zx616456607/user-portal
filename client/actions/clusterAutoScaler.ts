@@ -288,7 +288,8 @@ const fetchChangeAppStatus = (query, callback) => {
         STATUS_APP_AUTOSCALER_SUCCESS,
         STATUS_APP_AUTOSCALER_FAILURE,
       ],
-      endpoint: `${API_URL_PREFIX}/clusters/autoscaler/app/status?${toQuerystring(query)}`,
+      endpoint:
+        `${API_URL_PREFIX}/clusters/autoscaler/app/status?${toQuerystring(query)}`,
       schema: {},
       options: {
         method: 'GET',
@@ -300,3 +301,25 @@ const fetchChangeAppStatus = (query, callback) => {
 
 export const changeAppStatus = (query?: object, callback?: function) =>
   dispatch => dispatch(fetchChangeAppStatus(query, callback));
+
+export const APP_CLUSTER_MAXNODES_REQUEST = 'APP_CLUSTER_MAXNODES_REQUEST';
+export const APP_CLUSTER_MAXNODES_SUCCESS = 'APP_CLUSTER_MAXNODES_SUCCESS';
+export const APP_CLUSTER_MAXNODES_FAILURE = 'APP_CLUSTER_MAXNODES_FAILURE';
+
+const fetchClusterMaxNodes = (query, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        APP_CLUSTER_MAXNODES_REQUEST,
+        APP_CLUSTER_MAXNODES_SUCCESS,
+        APP_CLUSTER_MAXNODES_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${query.cluster}/licenses?${toQuerystring(query)}`,
+      schema: {},
+    },
+    callback,
+  };
+};
+
+export const getClusterMaxNodes = (query?: object, callback?: function) =>
+  dispatch => dispatch(fetchClusterMaxNodes(query, callback))

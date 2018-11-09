@@ -35,8 +35,9 @@ import { formatDate, formatDuration } from  '../../../../common/tools'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../components/Notification'
 import light from '../../../../assets/img/light.svg'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, URL_REG_EXP } from '../../../../constants'
 import { Link } from 'react-router'
+import Ellipsis from '@tenx-ui/ellipsis/lib'
 
 const Option = Select.Option
 const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?(Z|(\+\d{2}:\d{2}))\b/
@@ -144,6 +145,7 @@ class ImageUpdate extends Component {
       searchType: 'name',
       searchText: undefined,
       confirmLoading: false,
+      testStoreLinkLoading: false,
     }
   }
 
@@ -593,7 +595,7 @@ class ImageUpdate extends Component {
         if(!createStoreResult.useful){
           if(createStoreResult.statusCode == 409){
             this.changeLoading()
-            throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
+            throw(new Error('仓库名称/地址已存在！请直接选择已有目标仓库！'))
           }
           this.changeLoading()
           throw(new Error('新目标仓库创建失败！添加规则失败!'))
@@ -602,7 +604,6 @@ class ImageUpdate extends Component {
         // return this.postCreateNewRules(values, values.rulesName, createStoreResult.target_id, values.startUse) //立即使用startUse
         return this.putNewRule(values)
       }).catch(err => {
-        this.changeLoading()
         if (err) {
           switch(err.message){
             case 'none':
@@ -726,6 +727,7 @@ class ImageUpdate extends Component {
       if(!!errors){
         return
       }
+      this.setState({ testStoreLinkLoading: true })
       if(values.targetStoreType == "createNewstore"){
         let newStoremInfo = {
           name: values.NewTargetstoreName,
@@ -735,6 +737,7 @@ class ImageUpdate extends Component {
         }
         // 检验新仓库是否可用
         this.validationTargetStore('create', newStoremInfo).then(validateResult => {
+          this.setState({ testStoreLinkLoading: false })
           if(!validateResult){
             this.setState({
               testLink: true,
@@ -758,6 +761,7 @@ class ImageUpdate extends Component {
         }
       }
       this.validationTargetStore('original', targetId).then(validateResult => {
+        this.setState({ testStoreLinkLoading: false })
         if(!validateResult){
           this.setState({
             testLink: true,
@@ -809,9 +813,16 @@ class ImageUpdate extends Component {
     }
     return <div>
       {
-        this.props.form.getFieldValue('targetStoreType') === 'createNewstore' ?
-          <Button  type="primary" className='test' size="large" onClick={this.testStoreLink}>测试仓库连接</Button>
-          : null
+        this.props.form.getFieldValue('targetStoreType') === 'createNewstore' &&
+        <Button
+          type="primary"
+          className="test"
+          size="large"
+          loading={this.state.testStoreLinkLoading}
+          onClick={this.testStoreLink}
+        >
+        测试仓库连接
+        </Button>
       }
       {
         testLink
@@ -1137,11 +1148,11 @@ class ImageUpdate extends Component {
       rulesName: record.name,
       description: record.description,
       targetStoreType: "selectTargetStore",
-      URLAddress: record.targets[0].endpoint,
-      SelectTargetStore: record.targets[0].name,
+      URLAddress: record.targets && record.targets[0].endpoint,
+      SelectTargetStore: record.targets && record.targets[0].name,
       quick: record.replicateExistingImageNow,
       deleteImage: record.replicateDeletion,
-      emitMode: record.trigger.kind,
+      emitMode: record.trigger && record.trigger.kind,
     })
     // 设置镜像过滤
     if (record.filters && record.filters.length > 0) {
@@ -1152,7 +1163,7 @@ class ImageUpdate extends Component {
         })
       })
     }
-    if (record.trigger.kind === 'Scheduled') {
+    if (record.trigger && record.trigger.kind === 'Scheduled') {
       // offtime => HH:mm
       const schedule = record.trigger.scheduleParam
       let newTime = null
@@ -1170,7 +1181,7 @@ class ImageUpdate extends Component {
     }
     if (isReplications) {
       form.setFieldsValue({
-        originPro: record.projects[0].projectId,
+        originPro: record.projects && record.projects[0].projectId,
       })
     }
       /*
@@ -1184,7 +1195,7 @@ class ImageUpdate extends Component {
       edit: true,
       currentRules: {
         rules: rulesData[key],
-        store: record.targets[0],
+        store: record.targets && record.targets[0],
       },
       currentRulesEnabled: true,
       editKey: record.id,
@@ -1363,9 +1374,9 @@ class ImageUpdate extends Component {
     if (!value) {
       return callback('请输入 Url 地址')
     }
-    // if (!  .test(value)) {
-    //   return callback('请输入正确地址')
-    // }
+    if (!URL_REG_EXP.test(value)) {
+      return callback('请输入正确地址')
+    }
     callback()
   }
 
@@ -1410,18 +1421,19 @@ class ImageUpdate extends Component {
       {
         title:'名称',
         dataIndex:'name',
+        render: text => <div className="fixWidth"><Ellipsis>{text}</Ellipsis></div>
       },{
         title:'描述',
         dataIndex:'description',
-        render: (item) => <div>{ item ? item : '--'}</div>
+        render: (item) => <div className="fixWidth"><Ellipsis>{ item ? item : '--'}</Ellipsis></div>
       },{
         title:'目标名',
         dataIndex:'targets',
-        render: item => <span>{item ? item[0].name : null}</span>
+        render: item => <div className="fixWidth"><Ellipsis>{item ? item[0].name : null}</Ellipsis></div>
       },{
         title:'更新时间',
         dataIndex:'updateTime',
-        render: (time) => <div>{formatDate(time)}</div>
+        render: (time) => <div className="fixWidth">{formatDate(time)}</div>
       },{
         title:'触发模式',
         dataIndex:'trigger',
@@ -1441,7 +1453,9 @@ class ImageUpdate extends Component {
       rulesColumn.splice(4, 0, {
         title:'仓库组',
         dataIndex:'projects',
-        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>{item[0].name}</Link>
+        render: item => item && <Link to={`app_center/projects/detail/${item[0].projectId}?key=sync`}>
+          <div className="fixWidth"><Ellipsis>{item[0].name}</Ellipsis></div>
+        </Link>
       })
     }
 
@@ -1660,7 +1674,7 @@ class ImageUpdate extends Component {
                 label="规则名称"
                 key="rulesName"
               >
-                <Input size="large" {...rulesNameProps}/>
+                <Input size="large" {...rulesNameProps} placeholder="请输入规则名称"/>
               </Form.Item>
               <Form.Item
                 {...formItemLayout}
@@ -1713,7 +1727,7 @@ class ImageUpdate extends Component {
               >
                 {
                   targetstoretype == 'createNewstore'
-                    ? <Input {...NewTargetstoreNameProps}/>
+                    ? <Input {...NewTargetstoreNameProps} placeholder="请输入目标名" />
                     : <Select
                     showSearch
                     {...SelcetTargetStoreProps}
@@ -1730,7 +1744,11 @@ class ImageUpdate extends Component {
                 {...formItemLayout}
                 label={<span>URL地址<span className='star'>*</span></span>}
               >
-                <Input size="large" {...URLAddressProps} disabled={this.state.editUrlDisabled}/>
+                <Input
+                  size="large"
+                  placeholder="请输入目标 URL, 如：http(s)://192.168.2.232"
+                  {...URLAddressProps}
+                  disabled={this.state.editUrlDisabled}/>
               </Form.Item>
               {
                 targetstoretype === 'createNewstore' ?
@@ -1739,13 +1757,13 @@ class ImageUpdate extends Component {
                       {...formItemLayout}
                       label={<span>用户名<span className='star'>*</span></span>}
                     >
-                      <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
+                      <Input size="large" {...userNameProps} disabled={this.state.editDisabled} placeholder="请输入用户名"/>
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}
                       label={<span>密码<span className='star'>*</span></span>}
                     >
-                      <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
+                      <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}  placeholder="请输入密码" />
                     </Form.Item>
                     <Form.Item
                       {...formItemLayout}

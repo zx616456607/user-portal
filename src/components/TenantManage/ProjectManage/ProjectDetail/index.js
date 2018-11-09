@@ -19,7 +19,7 @@ import QueueAnim from 'rc-queue-anim'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster, CheckDisplayName,
-  UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers } from '../../../../actions/project'
+  UpdateProjectsRelatedRoles, DeleteProjectsRelatedRoles, GetProjectsMembers, getPluginStatus } from '../../../../actions/project'
 import { chargeProject } from '../../../../actions/charge'
 import { loadNotifyRule, setNotifyRule } from '../../../../actions/consumption'
 import { ListAllRole, CreateRole, ExistenceRole, GetRole, roleWithMembers, usersAddRoles, usersLoseRoles } from '../../../../actions/role'
@@ -49,7 +49,9 @@ import PermissionOverview from './PermissionOverview'
 import ServiceMeshForm from './ServiceMeshForm';
 import ServiceMeshSwitch from './ServiceMeshSwitch';
 import * as SEMeshActions from '../../../../actions/serviceMesh'
+import DubboSwitch from './DubboSwitch/DubboSwitch'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import ContainerSecurityPolicy from './ContainerSecurityPolicy'
 
 
 let checkedKeysDetail = []
@@ -112,17 +114,10 @@ class ProjectDetail extends Component {
       initialList: ['all', 'a~d', 'e~h', 'i~l', 'm~p', 'q~t', 'u~x', 'y~z'],
       currentMemberFilter: 'all',
       letterArr: [],
-      dubboSerDisabled: false,
-      dubboSwitchChecked: false,
-      dubboModalContent: {
-        title: '关闭操作',
-        text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
-        isConfirm: '确认是否关闭'
-      }
     }
   }
   componentDidMount() {
-    const { loadClusterList } = this.props
+    const { loadClusterList, getPluginStatus, clusterID } = this.props
     this.getProjectDetail()
     this.getClustersWithStatus();
     // this.getProjectMember();
@@ -131,7 +126,13 @@ class ProjectDetail extends Component {
     this.setState({
       tabsKey: key.tabs
     })
+
     loadClusterList()
+
+  }
+  componentWillUnmount() {
+    // 用户可能在项目详情页做了一些项目以及集群相关的操作，退出页面时应该重新选择下当前项目及集群
+    window._reselect_current_project_cluster && window._reselect_current_project_cluster()
   }
   getClustersWithStatus() {
     const { name } = this.props.location.query;
@@ -1066,41 +1067,11 @@ class ProjectDetail extends Component {
 
   }
 
-  confirmChangeDubbo = () => {
-    this.setState({
-      dubboSerDisabled: false,
-      dubboSwitchChecked: !this.state.dubboSwitchChecked,
-    })
-  }
-  dubboSwitchChange = (e) => {
-    this.setState({
-      dubboSerDisabled: true,
-    })
-    let turnOnContent
-    if (!this.state.dubboSwitchChecked) {
-      turnOnContent = {
-        title: '开启操作',
-        text: '开启后，项目对应集群支持创建 Dubbo 服务。',
-        isConfirm: '确认是否开启'
-      }
-    }else {
-      turnOnContent = {
-        title: '关闭操作',
-        text: '关闭后，项目对应集群不支持创建 Dubbo 服务。',
-        isConfirm: '确认是否关闭'
-      }
-    }
-    this.setState({
-
-      dubboModalContent: turnOnContent
-    })
-
-  }
   render() {
     const { payNumber, projectDetail, editComment, editDisplayName, comment, displayName, currentRolePermission, choosableList, targetKeys, memberType,
       currentRoleInfo, currentMembers, memberCount, memberArr, existentMember, connectModal, characterModal, currentDeleteRole, totalMemberCount,
       filterFlag, isManager, roleNameArr, getRoleLoading, filterLoading, quotaData, quotauseData, popoverVisible, currentCluster, selectedCluster,
-      dubboModalContent, dubboSwitchChecked
+      dubboSwitchChecked
     } = this.state;
     const TreeNode = Tree.TreeNode;
     const { form, roleNum, projectClusters, location, billingEnabled } = this.props;
@@ -1188,26 +1159,13 @@ class ProjectDetail extends Component {
                           {
                           (this.state.displayName || this.state.projectDetail && this.state.projectDetail.namespace) &&
                           <ServiceMeshSwitch clusterId={item.clusterID} projectDetail={this.state.projectDetail}
-                          clusterName={item.clusterName} displayName={this.state.displayName}/>
+                          clusterName={item.clusterName} displayName={this.state.displayName} projectName={this.props.name}/>
                           }
                       </div>
                   </Col>
 
                     <Col span={8} className="dubbo-switch">
-                      {
-                        true ?
-                          <Switch checkedChildren="开"
-                                  unCheckedChildren="关"
-                                  checked={this.state.dubboSwitchChecked}
-                                  onChange={ e => {this.dubboSwitchChange(e)}} />
-                          :
-                          <Tooltip title="该集群未安装 dubbo-operator 插件，请联系基础设施管理员安装">
-                            <span className="dubbo-operator-tip">
-                              该集群未安装 dubbo-operator 插件，请联系基础设施管理员安装
-                            </span>
-                          </Tooltip>
-
-                      }
+                      <DubboSwitch clusterID={item.clusterID} projectName={this.props.name}/>
                     </Col>
 
                 </Row>
@@ -1315,7 +1273,6 @@ class ProjectDetail extends Component {
     items = (
       <div className="nodata">暂无成员</div>
     )
-
     const clusters = _.filter(projectClusters, {status: 2});
     const clusterMenu = (
       <Menu onClick={this.changeCluster}>
@@ -1342,27 +1299,7 @@ class ProjectDetail extends Component {
             <i />
             项目详情
           </div>
-          <Modal
-            visible={this.state.dubboSerDisabled}
-            title={dubboModalContent.title}
-            onOk={this.confirmChangeDubbo}
-            onCancel={() => this.setState({dubboSerDisabled: false})}
-          >
-            {
-              this.state.dubboSerDisabled &&
-              <div className="projectDetailDubboSwitchModal">
-                <div className={dubboSwitchChecked ? "alert turnOff" : "alert"}>
-                  <div>
-                    <i className="fa fa-exclamation-triangle" aria-hidden="true"/>
-                  </div>
-                  <div>
-                    <div>{dubboModalContent.text}</div>
-                    <div>{dubboModalContent.isConfirm}</div>
-                  </div>
-                </div>
-              </div>
-            }
-          </Modal>
+
           <Modal title="删除角色" visible={this.state.deleteRoleModal}
             onCancel={() => this.cancelDeleteRole()}
             onOk={() => this.confirmDeleteRole()}
@@ -1954,6 +1891,11 @@ class ProjectDetail extends Component {
 
                 }
               </TabPane>
+              <TabPane tab="容器安全策略" key="containerSecurityPolicy">
+                {
+                  projectDetail.projectName && <ContainerSecurityPolicy/>
+                }
+              </TabPane>
             </Tabs>
 
           </div>
@@ -1987,7 +1929,6 @@ function mapStateToThirdProp(state, props) {
   const { projectClusterList } = state.projectAuthority
   const currentProjectClusterList = projectClusterList[name] || {}
   const projectClusters = currentProjectClusterList.data || []
-
   const { clusters } = state.cluster
 
   const { clusterID } = current.cluster
@@ -2022,5 +1963,6 @@ export default ProjectDetail = connect(mapStateToThirdProp, {
   permissionOverview,
   loadClusterList,
   PermissionResource,
+  getPluginStatus,
   ToggleServiceMesh: SEMeshActions.ToggleServiceMesh,
 })(ProjectDetail)

@@ -14,6 +14,7 @@ import { Checkbox, Button } from 'antd'
 import ContainerInstance from './ContainerInstance'
 import ManualScaleModal from '../../../../src/components/AppModule/AppServiceDetail/ManualScaleModal'
 import * as serviceAction from '../../../../src/actions/services'
+import isEmpty from 'lodash/isEmpty'
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerHeaderIntl'
 import { getDeepValue } from '../../../util/util'
@@ -25,11 +26,25 @@ class ContainerInstanceHeader extends React.Component {
     notFixed: false,
     isSee: false,
     manualScaleModalShow: false,
+    isDisScaling: false,
   }
 
   componentDidMount() {
+    const { cluster, loadAutoScale } = this.props
     const ipv4 = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+    const name = getDeepValue(this.props.serviceDetail, [ 'metadata', 'name' ])
     ipv4 && this.setState({ isCheckIP: true })
+    name && loadAutoScale(cluster, name, {
+      success: {
+        func: res => {
+          if (!isEmpty(res.data)) {
+            this.setState({
+              isDisScaling: true,
+            })
+          }
+        },
+      },
+    })
   }
 
   onChangeInstanceIP = e => {
@@ -67,7 +82,7 @@ class ContainerInstanceHeader extends React.Component {
   }
 
   render() {
-    const { isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
+    const { isDisScaling, isFixed, notFixed, isCheckIP, isSee, manualScaleModalShow } = this.state
     const { serviceDetail, containerNum, cluster,
       appName, service, loadAllServices, projectName, loadServiceContainerList } = this.props
     const bpmQuery = this.props.appCenterChoiceHidden ? 'filter=label,system/appcenter-cluster' : null
@@ -142,6 +157,7 @@ class ContainerInstanceHeader extends React.Component {
         {
           manualScaleModalShow && <ManualScaleModal
             handleChangeVisible={this.handleChangeVisible}
+            disableScale={isDisScaling}
             cluster={cluster}
             appName={appName}
             visible={manualScaleModalShow}
@@ -176,6 +192,7 @@ const mapStateToProps = ({
 }
 
 export default connect(mapStateToProps, {
+  loadAutoScale: serviceAction.loadAutoScale,
   loadAllServices: serviceAction.loadAllServices,
   loadServiceContainerList: serviceAction.loadServiceContainerList,
   loadServiceDetail: serviceAction.loadServiceDetail,

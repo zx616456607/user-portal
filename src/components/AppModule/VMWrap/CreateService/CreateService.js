@@ -78,9 +78,11 @@ class VMServiceCreate extends React.Component {
         },
         failed: {
           func: (res) => {
+            let msg = '校验失败'
             if (res.statusCode === 405) {
-              return callback(new Error('该应用名称已经存在'))
+              msg = '该应用名称已经存在'
             }
+            return callback(new Error(msg))
           },
           isAsync:true
         }

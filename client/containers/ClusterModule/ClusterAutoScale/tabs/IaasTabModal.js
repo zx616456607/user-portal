@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2018 TenxCloud. All Rights Reserved.
  *
- *IaasTabModal tabModal1
+ * IaasTabModal tabModal1
  *
  * v0.1 - 2018-04-08
  * @author rensiwei
@@ -11,7 +11,7 @@ import React from 'react'
 import { Modal, Button, Select, Input, Steps, Icon, Tooltip, Radio, Row, Col, Form, Spin, InputNumber } from 'antd'
 import '../style/tabModal.less'
 import classNames from 'classnames'
-import _ from 'lodash'
+import filter from 'lodash/filter'
 import * as autoScalerActions from '../../../../actions/clusterAutoScaler'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../../src/components/Notification'
@@ -19,19 +19,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
-let isGetParams = true // 是否获取接口数据
-const disabledIconCon = [ 'aws', 'azure', 'ali', 'openstack' ] // 禁用的图标按钮集合
-let isEdit = false
-let datacenterList = [],
-  templatePathList = {},
-  datastorePathList = {},
-  resourcePoolPathList = {}
-let cluster = '',
-  iaas = ''
-let updateTimer,
-  addTimer
-let form1Fun
-let firstAdd = 1// 第一次新增
+const disabledIconCon = [ 'aws', 'azure', 'ali' ] // 禁用的图标按钮集合
 let isCreated = {}// 是否创建过策略的集群汇总
 const formItemLargeLayout = {
   labelCol: { span: 6 },
@@ -53,24 +41,34 @@ const Form1 = Form.create()(class Form1 extends React.Component {
     e.target.value = e.target.value.substr(0, 100)
   }
   checkName = (rule, value, callback) => {
+    const { isEdit, allData, currentData } = this.props
     if (!isEdit) {
-      _.filter(this.props.allData, { name: value })[0] ? callback(new Error('策略名称重复')) : callback()
+      filter(allData, { name: value })[0] ? callback(new Error('策略名称重复')) : callback()
       return
     }
-    if (value !== this.props.currentData.name) { // 修改时改了名字
-      _.filter(this.props.allData, { name: value })[0] ? callback(new Error('策略名称重复')) : callback()
+    if (value !== currentData.name) { // 修改时改了名字
+      filter(allData, { name: value })[0] ? callback(new Error('策略名称重复')) : callback()
       return
     }
     callback()
 
   }
   render() {
-    const { getFieldProps } = this.props.form
-    const { datacenter, datastorePath, resourcePoolPath,
-      templatePath, targetPath, name, template, datastore, resourcePool } = this.props
-    form1Fun = this
+    const { form, currentStep, onDataCenterChange, defaultValues, currentIcon } = this.props
+    const { getFieldProps } = form
+    const { name } = defaultValues
+    // vmware
+    // 第一行值 第二行资源列表
+    const { datacenter, datastorePath, resourcePoolPath, templatePath, targetPath,
+      template, datastore, resourcePool, datacenterList } = defaultValues
+    // openstack
+    // 第一行值 第二行资源列表
+    // template, datastore, resourcePool, datacenterList
+    const { domainName, projectName, image, loginPass, flavor, network,
+    } = defaultValues
+
     return (
-      <Form horizontal className={'step1 panel noBottom ' + (this.props.currentStep === 0 ? '' : 'hide') } >
+      <Form horizontal className={'step1 panel noBottom ' + (currentStep === 0 ? '' : 'hide') } >
         <Row key="row1">
           <FormItem
             {...formItemLargeLayout}
@@ -82,123 +80,272 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                   { required: true, message: '策略名称' },
                   { validator: this.checkName },
                 ],
-                trigger: [ 'onBlur', 'onChange' ],
+                trigger: [ 'onChange' ],
               }],
               onChange: this.roleNameChange })} placeholder="支持 100 字以内的中英文" />
           </FormItem>
         </Row>
-        <Row key="row3">
-          <FormItem
-            {...formItemLargeLayout}
-            label="数据中心"
-          >
-            <Select {...getFieldProps('datacenter', {
-              initialValue: datacenter,
-              validate: [{
-                rules: [
-                  { required: true, message: '请选择数据中心' },
-                ],
-                trigger: [ 'onChange' ],
-              }],
-              onChange: this.props.onDataCenterChange,
-            })} placeholder="请选择数据中心" style={{ width: '100%' }}>
-              <Select.Option value=""><span className="optionValueNull">请选择数据中心</span></Select.Option>
-              {
-                datacenterList.map((item, i) => {
-                  return <Select.Option key={i} value={item}>{item}</Select.Option>
-                })
-              }
-            </Select>
-          </FormItem>
-        </Row>
-        <Row key="row33">
-          <FormItem
-            {...formItemLargeLayout}
-            label="选择路径"
-          >
-            <Input {...getFieldProps('targetPath', { initialValue: targetPath,
-              validate: [{
-                rules: [
-                  { required: true, message: '请选择路径' },
-                ],
-                trigger: [ 'onBlur', 'onChange' ],
-              }] })}
-            placeholder="如 /paas/vms/autoscaling-group" />
-          </FormItem>
-        </Row>
-        <Row key="row4">
-          <FormItem
-            {...formItemLargeLayout}
-            label="选择虚拟机模板"
-          >
-            <Select {...getFieldProps('templatePath', { initialValue: templatePath,
-              validate: [{
-                rules: [
-                  { required: true, message: '请选择虚拟机模板' },
-                ],
-                trigger: [ 'onChange' ],
-              }] })} placeholder="请选择虚拟机模板" style={{ width: '100%' }}>
-              <Select.Option value=""><span className="optionValueNull">请选择虚拟机模板</span></Select.Option>
-              {
-                template.map((item, i) => {
-                  return (
-                    <Select.Option value={item.path} key={i}>
-                      <div className="vmTemplateDetail">
-                        <Tooltip placement="right" title={item.path}>
-                          <p className="path">{item.path}</p>
-                        </Tooltip>
-                        <p className="lowcase">客户机操作系统：{item.type}</p>
-                        <p className="lowcase">虚拟机版本：{item.version}</p>
-                        <p className="lowcase">CPU/内存：{item.cpuNumber + 'C'}/{diskFormat(item.memoryTotal)}</p>
-                      </div>
-                    </Select.Option>)
-                })
-              }
-            </Select>
-          </FormItem>
-        </Row>
-        <Row key="row5">
-          <FormItem
-            {...formItemLargeLayout}
-            label="计算资源池"
-          >
-            <Select {...getFieldProps('resourcePoolPath', { initialValue: resourcePoolPath,
-              validate: [{
-                rules: [
-                  { required: true, message: '请选择计算资源池' },
-                ],
-                trigger: [ 'onChange' ],
-              }] })} placeholder="请选择计算资源池" style={{ width: '100%' }}>
-              <Select.Option value=""><span className="optionValueNull">请选择计算资源池</span></Select.Option>
-              {
-                resourcePool.map((item, i) => {
-                  return (<Select.Option key={i} value={item}>{item}</Select.Option>)
-                })
-              }
-            </Select>
-          </FormItem>
-        </Row>
-        <Row key="row6">
-          <FormItem
-            {...formItemLargeLayout}
-            label="存储资源池"
-          >
-            <Select {...getFieldProps('datastorePath', { initialValue: datastorePath,
-              validate: [{
-                rules: [
-                  { required: true, message: '请选择存储资源池' },
-                ],
-                trigger: [ 'onChange' ],
-              }] })} placeholder="请选择存储资源池" style={{ width: '100%' }}>
-              <Select.Option value=""><span className="optionValueNull">请选择存储资源池</span></Select.Option>
-              {
-                datastore.map((item, i) => {
-                  return (<Select.Option key={i} value={item}>{item}</Select.Option>)
-                })
-              }
-            </Select>
-          </FormItem>
-        </Row>
+        <div>
+          {
+            currentIcon === 'vmware' && [
+              <Row key="row3">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="数据中心"
+                >
+                  <Select {...getFieldProps('datacenter', {
+                    initialValue: datacenter || undefined,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请选择数据中心' },
+                      ],
+                      trigger: [ 'onChange' ],
+                    }],
+                    onChange: onDataCenterChange,
+                  })} placeholder="请选择数据中心" className="formItemWidth">
+                    {/* <Select.Option value="">
+                          <span className="optionValueNull">请选择数据中心</span></Select.Option> */}
+                    {
+                      datacenterList.map((item, i) => {
+                        return <Select.Option key={i} value={item}>{item}</Select.Option>
+                      })
+                    }
+                  </Select>
+                </FormItem>
+              </Row>,
+              <Row key="row33">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="选择路径"
+                >
+                  <Input {...getFieldProps('targetPath', { initialValue: targetPath,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请选择路径' },
+                      ],
+                      trigger: [ 'onChange' ],
+                    }] })}
+                  placeholder="如 /paas/vms/autoscaling-group" />
+                </FormItem>
+              </Row>,
+              <Row key="row4">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="选择虚拟机模板"
+                >
+                  <Select {...getFieldProps('templatePath', {
+                    initialValue: templatePath || undefined,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请选择虚拟机模板' },
+                      ],
+                      trigger: [ 'onChange' ],
+                    }] })} placeholder="请选择虚拟机模板" className="formItemWidth">
+                    {/* <Select.Option value="">
+                          <span className="optionValueNull">请选择虚拟机模板</span></Select.Option> */}
+                    {
+                      template.map((item, i) => {
+                        return (
+                          <Select.Option value={item.path} key={i}>
+                            <div className="vmTemplateDetail">
+                              <Tooltip placement="right" title={item.path}>
+                                <p className="path">{item.path}</p>
+                              </Tooltip>
+                              <p className="lowcase">客户机操作系统：{item.type}</p>
+                              <p className="lowcase">虚拟机版本：{item.version}</p>
+                              <p className="lowcase">CPU/内存：{item.cpuNumber + 'C'}/{diskFormat(item.memoryTotal)}</p>
+                            </div>
+                          </Select.Option>)
+                      })
+                    }
+                  </Select>
+                </FormItem>
+              </Row>,
+              <Row key="row5">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="计算资源池"
+                >
+                  <Select {...getFieldProps('resourcePoolPath', {
+                    initialValue: resourcePoolPath || undefined,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请选择计算资源池' },
+                      ],
+                      trigger: [ 'onChange' ],
+                    }] })} placeholder="请选择计算资源池" className="formItemWidth">
+                    {/* <Select.Option value="">
+                          <span className="optionValueNull">请选择计算资源池</span></Select.Option> */}
+                    {
+                      resourcePool.map((item, i) => {
+                        return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                      })
+                    }
+                  </Select>
+                </FormItem>
+              </Row>,
+              <Row key="row6">
+                <FormItem
+                  {...formItemLargeLayout}
+                  label="存储资源池"
+                >
+                  <Select {...getFieldProps('datastorePath', {
+                    initialValue: datastorePath || undefined,
+                    validate: [{
+                      rules: [
+                        { required: true, message: '请选择存储资源池' },
+                      ],
+                      trigger: [ 'onChange' ],
+                    }] })} placeholder="请选择存储资源池" className="formItemWidth">
+                    {/* <Select.Option value="">
+                          <span className="optionValueNull">请选择存储资源池</span></Select.Option> */}
+                    {
+                      datastore.map((item, i) => {
+                        return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                      })
+                    }
+                  </Select>
+                </FormItem>
+              </Row>,
+            ]
+          }
+        </div>
+        {
+          currentIcon === 'openstack' && [
+            <Row key="row3">
+              <FormItem
+                {...formItemLargeLayout}
+                label="所属区域"
+              >
+                <Select {...getFieldProps('domainName', {
+                  initialValue: domainName || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择所属区域' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }],
+                  onChange: onDataCenterChange,
+                })} placeholder="请选择所属区域" className="formItemWidth">
+                  {
+                    datacenterList.map((item, i) => {
+                      return <Select.Option key={i} value={item}>{item}</Select.Option>
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+            <Row key="row4">
+              <FormItem
+                {...formItemLargeLayout}
+                label="项目"
+              >
+                <Select {...getFieldProps('projectName', {
+                  initialValue: projectName || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择项目' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择项目" className="formItemWidth">
+                  {
+                    template.map((item, i) => {
+                      return (
+                        <Select.Option value={item.path} key={i}>
+                          {item.path}
+                        </Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+            <Row key="row5">
+              <FormItem
+                {...formItemLargeLayout}
+                label="镜像"
+              >
+                <Select {...getFieldProps('image', {
+                  initialValue: image || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择镜像' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择镜像" className="formItemWidth">
+                  {
+                    resourcePool.map((item, i) => {
+                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+            <Row key="row33">
+              <FormItem
+                {...formItemLargeLayout}
+                label={
+                  <span>
+                    镜像初始密码
+                    <Tooltip placement="top" title="填写密码应与镜像中的初始密码一致, 若不一致将配置不成功">
+                      <Icon style={{ marginLeft: '5px', cursor: 'pointer' }} type="info-circle-o" />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <Input {...getFieldProps('loginPass', { initialValue: loginPass,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请输入镜像初始密码' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })}
+                placeholder="请输入镜像初始密码" />
+              </FormItem>
+            </Row>,
+            <Row key="row6">
+              <FormItem
+                {...formItemLargeLayout}
+                label="配置规格 (类型) "
+              >
+                <Select {...getFieldProps('flavor', {
+                  initialValue: flavor || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择配置规格' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择配置规格" className="formItemWidth">
+                  {
+                    datastore.map((item, i) => {
+                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+            <Row key="row6">
+              <FormItem
+                {...formItemLargeLayout}
+                label="网络"
+              >
+                <Select {...getFieldProps('network', {
+                  initialValue: network || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择网络' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择网络" className="formItemWidth">
+                  {
+                    datastore.map((item, i) => {
+                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
+          ]
+        }
       </Form>
     )
   }
@@ -221,29 +368,43 @@ export default connect(mapStateToProps, {
   getResList: autoScalerActions.getAutoScalerResList,
   addApp: autoScalerActions.createApp,
   updateApp: autoScalerActions.updateApp,
+  getClusterMaxNodes: autoScalerActions.getClusterMaxNodes,
 })(
   Form.create()(class Tab1Modal extends React.Component {
-    constructor() {
-      super()
+    constructor(props) {
+      super(props)
+      const { currentData, isEdit } = this.props
       this.state = {
-        currentIcon: '',
+        currentIcon: currentData && currentData.iaas || '',
         checkExistProvider: false, // 查看已有[资源池配置状态] false没配过, true 配过
         checkExistStrategy: false, // 查看是否已经配过当前这个集群下的[策略配置状态]了 false没配过, true 配过
         beforecheckExist: true, // 是否在 check 之前
         currentStep: 0, // 0 第一步 1 第二步（保存）
-        selDisabled: false,
-        selectValue: '',
+        selDisabled: isEdit,
+        selectValue: currentData && currentData.cluster || undefined,
+        defaultMax: 100,
       }
     }
-    clickIcon = e => {
-      const obj = e.target.parentElement.attributes['data-name'] || e.target.attributes['data-name']
-      if (!!e.target.className && e.target.className.indexOf('selectedBox') > -1) { return }
-      if (!!e.target.parentElement.className && e.target.parentElement.className.indexOf('selectedBox') > -1) { return }
-      if (disabledIconCon.indexOf(obj.value) > -1) { return }
-      if (!!e.target.className && e.target.className.indexOf('Dis') > -1) { return }
-      if (!!e.target.parentElement.className && e.target.parentElement.className.indexOf('Dis') > -1) { return }
-      if (!this.checkCluster()) return
-      this.getDataCenter(obj.value)
+    componentDidMount() {
+      this.loadData(() => {
+        const { isEdit } = this.props
+        if (isEdit) {
+          this.getDataCenter()
+          this.getDefaultMax()
+        }
+      })
+    }
+    clickIcon = value => {
+      const { currentIcon, isEdit } = this.state
+      if (isEdit ||
+        currentIcon === value ||
+        disabledIconCon.indexOf(value) > -1) return
+      this.setState({
+        currentIcon: value,
+      }, () => {
+        const { selectValue } = this.state
+        selectValue && this.getDataCenter()
+      })
     }
     fun1 = () => {
       const _that = this
@@ -266,7 +427,9 @@ export default connect(mapStateToProps, {
     }
     checkCluster = () => {
       let b = true
-      if (!isEdit && !this.state.selectValue) {
+      const { isEdit } = this.props
+      const { selectValue } = this.state
+      if (!isEdit && !selectValue) {
         notify.warn('请选择容器集群')
         b = false
       }
@@ -274,7 +437,15 @@ export default connect(mapStateToProps, {
     }
     nextStep = () => {
       // 切换逻辑
-      form1Fun.props.form.validateFields((errors, values) => {
+      let arr = []
+      const { currentIcon } = this.state
+      if (currentIcon === 'vmware') {
+        arr = [ 'name', 'datacenter', 'datastorePath', 'resourcePoolPath',
+          'templatePath', 'targetPath' ]
+      } else if (currentIcon === 'openstack') {
+        arr = [ 'name', 'domainName', 'projectName', 'image', 'loginPass', 'flavor', 'network' ]
+      }
+      this.form1Rele.validateFields(arr, (errors, values) => {
         if (errors) {
           return
         }
@@ -289,17 +460,39 @@ export default connect(mapStateToProps, {
       // 先选集群 再点击iaas ICon
       this.setState({
         selectValue: value,
-        currentIcon: '',
+        // currentIcon: '',
         beforecheckExist: true,
         checkExistProvider: false,
         checkExistStrategy: false,
         currentStep: 0,
         currDataCenter: '',
+      }, () => {
+        const { currentIcon } = this.state
+        currentIcon && this.getDataCenter()
+        this.getDefaultMax()
+      })
+    }
+    getDefaultMax = () => {
+      const { getClusterMaxNodes } = this.props
+      const { selectValue } = this.state
+      // todo 获取最大扩展数 接口没提供
+      false && selectValue && getClusterMaxNodes({
+        cluster: selectValue,
+      }, {
+        success: {
+          func: res => {
+            this.setState({
+              defaultMax: res.data || 100,
+            })
+          },
+          isAsync: true,
+        },
       })
     }
     formSubmit = () => {
-      const form1Data = this.state.form1Data
-      this.props.form.validateFields((errors, values) => {
+      const { form, onOk } = this.props
+      const { form1Data, selectValue, currentIcon } = this.state
+      form.validateFields((errors, values) => {
         let b = true
         if (errors) {
           // this.setState({
@@ -313,14 +506,9 @@ export default connect(mapStateToProps, {
         const temp1 = JSON.parse(JSON.stringify(values))
         const temp2 = JSON.parse(JSON.stringify(form1Data))
         const temp = Object.assign({}, temp1, temp2)
-        temp.cluster = cluster ? cluster : this.state.selectValue
-        temp.iaas = iaas ? iaas : this.state.currentIcon
-        this.props.onOk(temp, () => {
-          this.resetState(() => {
-            updateTimer = null
-            addTimer = null
-          })
-        })
+        temp.cluster = selectValue
+        temp.iaas = currentIcon
+        onOk(temp)
       })
     }
     onDataCenterChange = value => {
@@ -329,15 +517,6 @@ export default connect(mapStateToProps, {
       })
     }
     resetState = _cb => {
-      isGetParams = true // 是否获取接口数据
-      isEdit = false
-      datacenterList = []
-      templatePathList = {}
-      datastorePathList = {}
-      resourcePoolPathList = {}
-      cluster = ''
-      iaas = ''
-      form1Fun
       isCreated = {}// 是否创建过策略的集群汇总
       this.setState({
         currentIcon: '',
@@ -345,8 +524,7 @@ export default connect(mapStateToProps, {
         checkExistStrategy: false, // 查看是否已经配过当前这个集群下的策略了 false没配过, true 配过
         beforecheckExist: true, // 是否在 check 之前
         currentStep: 0, // 0 第一步 1 第二步（保存）
-        selDisabled: false,
-        selectValue: '',
+        selectValue: undefined,
       }, () => {
         setTimeout(() => {
           !!_cb && _cb()
@@ -355,15 +533,72 @@ export default connect(mapStateToProps, {
     }
     modalCancel = () => {
       this.props.onCancel()
-      this.resetState(() => {
-        updateTimer = null
-        addTimer = null
+      this.resetState()
+    }
+    getDataCenter = () => {
+      this.setState({ beforecheckExist: false }, () => {
+        const { currentIcon, selectValue } = this.state
+        const filObj =
+          filter(this.props.clusterList,
+            { clusterid: selectValue })[0]
+        if (!filObj) return
+        const b1 = filObj.provider[currentIcon]
+        const b2 = filObj.strategy[currentIcon]
+        this.setState({ checkExistProvider: b1, checkExistStrategy: b2 }, () => {
+          const { isEdit, currentData, getResList } = this.props
+          if ((b1 && !b2) || isEdit) {
+            getResList({
+              cluster: selectValue,
+              type: currentIcon,
+            }, {
+              success: {
+                func: () => {
+                  if (isEdit) this.setState({ currDataCenter: currentData.datacenter })
+                },
+                isAsync: true,
+              },
+              failed: {
+                func: res => {
+                  notify.warn(res.message.message || res.message)
+                },
+                isAsync: true,
+              },
+            })
+          }
+        })
       })
     }
+    loadData = cb => {
+      const { getAutoScalerClusterList } = this.props
+      getAutoScalerClusterList({}, {
+        finally: {
+          func: () => { cb && cb() },
+          isAsync: true,
+        },
+      })
+    }
+    checkMax = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('请输入最大扩展数'))
+      }
+      const { defaultMax } = this.state
+      if (value > defaultMax) {
+        notify.warn('最大扩展书不能大于 "单集群最大节点数 - 已手动添加的节点个数"')
+        return callback(new Error('最大扩展数输入有误'))
+      }
+      callback()
+    }
     render() {
-      const { clusterList, isModalFetching,
-        resList, isResFetching } = this.props
-      const { getFieldProps } = this.props.form
+      const { clusterList, isModalFetching, isEdit, form, visible, allData,
+        resList, isResFetching, currentData, confirmLoading } = this.props
+      const { selDisabled, selectValue, currentIcon, currentStep, defaultMax,
+        beforecheckExist, checkExistProvider, checkExistStrategy } = this.state
+      const { getFieldProps } = form
+      let templatePathList = {},
+        datastorePathList = {},
+        resourcePoolPathList = {}
+      const datacenterList = []
+
       let datacenter = '',
         datastorePath = '',
         targetPath = '',
@@ -375,116 +610,85 @@ export default connect(mapStateToProps, {
         removeAndDelete = '0',
         resourcePoolPath = '',
         templatePath = ''// 默认值 edit时存放行数据
-      if (this.props.visible && isGetParams) {
-        isGetParams = false
-        this.getQueryData()
-      }
-      if (!this.props.visible) {
-        isGetParams = true
-      }
-      if (this.props.isEdit && !!this.props.currentData) {
-        isEdit = true
-        datacenter = this.props.currentData.datacenter
-        datastorePath = this.props.currentData.datastorePath
-        duration = this.props.currentData.duration
-        email = this.props.currentData.email
-        max = this.props.currentData.max
-        min = this.props.currentData.min
-        name = this.props.currentData.name
-        removeAndDelete = this.props.currentData.removeAndDelete
-        resourcePoolPath = this.props.currentData.resourcePoolPath
-        templatePath = this.props.currentData.templatePath
-        targetPath = this.props.currentData.targetPath
-        cluster = this.props.currentData.cluster
-        iaas = this.props.currentData.iaas
-        if (!updateTimer && isModalFetching === false) {
-          updateTimer = setTimeout(() => {
-            this.getDataCenter(iaas)
-          }, 200)
-        }
+      if (isEdit && !!currentData) {
+        datacenter = currentData.datacenter
+        datastorePath = currentData.datastorePath
+        duration = currentData.duration
+        email = currentData.email
+        max = currentData.max
+        min = currentData.min
+        name = currentData.name
+        removeAndDelete = currentData.removeAndDelete
+        resourcePoolPath = currentData.resourcePoolPath
+        templatePath = currentData.templatePath
+        targetPath = currentData.targetPath
       } else {
-        isEdit = false
-        if (!addTimer && isModalFetching === false) {
-          addTimer = setTimeout(() => {
-            this.resetState()
-            firstAdd = null
-          }, firstAdd || 200)
-        }
-        datacenterList = []
         templatePathList = {}
         datastorePathList = {}
         resourcePoolPathList = {}
-        cluster = ''; iaas = ''
         max = 10// 新增时 max 默认值
       }
-      const options = clusterList ?
-        clusterList.map((o, i) => {
-          isCreated[o.clusterid] = {
-            ali: o.strategy.ali,
-            aws: o.strategy.aws,
-            azure: o.strategy.azure,
-            vmware: o.strategy.vmware,
-          }
-          return <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>
-        }) : null
-      !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
-      // const objDisabled = _.filter(clusterList, { clusterid: this.state.selectValue })[0]
+      const options = clusterList && clusterList.length && clusterList.map((o, i) => {
+        isCreated[o.clusterid] = {
+          ali: o.strategy.ali,
+          aws: o.strategy.aws,
+          azure: o.strategy.azure,
+          vmware: o.strategy.vmware,
+        }
+        return <Select.Option key={i} value={o.clusterid}>{o.clustername}</Select.Option>
+      })
+      // !!options && options.unshift(<Select.Option key="-1" value=""><span className="optionValueNull">请选择容器集群</span></Select.Option>)
 
       const iconClass1 = classNames({
         iconCon: true,
         iconvmware: true,
-        selectedBox: iaas ? iaas === 'vmware' : this.state.currentIcon === 'vmware',
-        iconConDis: iaas ? true : disabledIconCon.indexOf('vmware') > -1, // !!isCreated[this.state.selectValue] && isCreated[this.state.selectValue].vmware ? true :
+        selectedBox: currentIcon === 'vmware',
+        iconConDis: isEdit || disabledIconCon.indexOf('vmware') > -1, // !!isCreated[this.state.selectValue] && isCreated[this.state.selectValue].vmware ? true :
       })
 
       const iconClassOS = classNames({
         iconCon: true,
-        // iconaws: true,
         iconopenstack: true,
-        selectedBox: iaas ? iaas === 'openstack' : this.state.currentIcon === 'openstack',
-        iconConDis: iaas ? true : disabledIconCon.indexOf('openstack') > -1,
+        selectedBox: currentIcon === 'openstack',
+        iconConDis: isEdit || disabledIconCon.indexOf('openstack') > -1,
       })
 
       const iconClass2 = classNames({
         iconCon: true,
         iconaws: true,
-        selectedBox: iaas ? iaas === 'aws' : this.state.currentIcon === 'aws',
-        iconConDis: iaas ? true : disabledIconCon.indexOf('aws') > -1,
+        selectedBox: currentIcon === 'aws',
+        iconConDis: isEdit || disabledIconCon.indexOf('aws') > -1,
       })
       const iconClass3 = classNames({
         iconCon: true,
         iconazure: true,
-        selectedBox: iaas ? iaas === 'azure' : this.state.currentIcon === 'azure',
-        iconConDis: iaas ? true : disabledIconCon.indexOf('azure') > -1,
+        selectedBox: currentIcon === 'azure',
+        iconConDis: isEdit || disabledIconCon.indexOf('azure') > -1,
       })
       const iconClass4 = classNames({
         iconCon: true,
         iconali: true,
-        selectedBox: iaas ? iaas === 'ali' : this.state.currentIcon === 'ali',
-        iconConDis: iaas ? true : disabledIconCon.indexOf('ali') > -1,
+        selectedBox: currentIcon === 'ali',
+        iconConDis: isEdit || disabledIconCon.indexOf('ali') > -1,
       })
       const footer = (() => {
         return (
           <div>
             <Button
-              onClick={() => {
-                !this.props.isModalFetching
-                && !isResFetching
-                && this.modalCancel()
-              }}
+              onClick={this.modalCancel}
             >
               取消
             </Button>
             {
               (() => {
                 let rele
-                if (this.state.beforecheckExist) {
+                if (beforecheckExist) {
                   rele = null
                 } else {
-                  if (this.state.currentStep === 0) {
-                    if (this.props.isResFetching
-                        || !this.state.checkExistProvider
-                        || (this.state.checkExistStrategy && isEdit === false)) {
+                  if (currentStep === 0) {
+                    if (isResFetching
+                        || !checkExistProvider
+                        || (checkExistStrategy && isEdit === false)) {
                       rele = null
                     } else {
                       rele = <Button type="primary" onClick={this.nextStep}>下一步</Button>
@@ -492,7 +696,7 @@ export default connect(mapStateToProps, {
                   } else {
                     rele = [
                       <Button type="primary" onClick={this.returnStep}>上一步</Button>,
-                      <Button type="primary" onClick={this.formSubmit} loading={this.props.confirmLoading}>保存</Button>,
+                      <Button type="primary" onClick={this.formSubmit} loading={confirmLoading}>保存</Button>,
                     ]
                   }
                   return rele
@@ -503,7 +707,6 @@ export default connect(mapStateToProps, {
         )
       })()
       if (resList) {
-        datacenterList = []
         for (const i in resList) {
           datacenterList.push(i)
           const dt = resList[i]
@@ -520,12 +723,12 @@ export default connect(mapStateToProps, {
         <div>
           <Modal
             className="aotuScalerModal"
-            visible={this.props.visible}
+            visible={visible}
             title="弹性伸缩策略"
             width="650"
             footer={footer}
             maskClosable={false}
-            confirmLoadin={this.props.confirmLoading}
+            confirmLoading={confirmLoading}
             onClose={() => { this.modalCancel() }}
           >
             {
@@ -542,8 +745,8 @@ export default connect(mapStateToProps, {
                         label="容器集群"
                       >
                         <Select
-                          disabled={cluster ? true : this.state.selDisabled}
-                          value={cluster ? cluster : this.state.selectValue}
+                          disabled={selDisabled}
+                          value={selectValue}
                           onChange={value => { this.onSelChange(value) }}
                           placeholder="请选择容器集群" style={{ width: '100%' }}>
                           {options}
@@ -553,7 +756,7 @@ export default connect(mapStateToProps, {
                   </div>
                   <div className="bottom-line"></div>
                   <div className="topIconContainer">
-                    <div className={iconClass1} data-name="vmware" onClick={this.clickIcon}>
+                    <div className={iconClass1} data-name="vmware" onClick={() => { this.clickIcon('vmware') }}>
                       <div className="icon"></div>
                       <div className="name">vmware</div>
                       <svg className="commonSelectedImg">
@@ -562,14 +765,18 @@ export default connect(mapStateToProps, {
                       </svg>
                       <i className="fa fa-check"></i>
                     </div>
-                    <div className={iconClassOS} data-name="openstack" onClick={this.clickIcon}>
+                    <div className={iconClassOS} data-name="openstack" onClick={() => { this.clickIcon('openstack') }}>
                       <div className="icon">
-                        <TenxIcon type="openstack" />
+                        <TenxIcon style={{ color: '#da1a32' }} type="openstack" />
                       </div>
                       <div className="name">OpenStack</div>
+                      <svg className="commonSelectedImg">
+                        {/* @#selected*/}
+                        <use xlinkHref="#appcreatemodelselect" />
+                      </svg>
                       <i className="fa fa-check"></i>
                     </div>
-                    <div className={iconClass2} data-name="aws" onClick={this.clickIcon}>
+                    <div className={iconClass2} data-name="aws" onClick={() => { this.clickIcon('aws') }}>
                       <div className="icon"></div>
                       <div className="name">aws</div>
                       <svg className="commonSelectedImg">
@@ -578,7 +785,7 @@ export default connect(mapStateToProps, {
                       </svg>
                       <i className="fa fa-check"></i>
                     </div>
-                    <div className={iconClass3} data-name="azure" onClick={this.clickIcon}>
+                    <div className={iconClass3} data-name="azure" onClick={() => { this.clickIcon('azure') }}>
                       <div className="icon"></div>
                       <div className="name">azure</div>
                       <svg className="commonSelectedImg">
@@ -587,7 +794,7 @@ export default connect(mapStateToProps, {
                       </svg>
                       <i className="fa fa-check"></i>
                     </div>
-                    <div className={iconClass4} data-name="ali" onClick={this.clickIcon}>
+                    <div className={iconClass4} data-name="ali" onClick={() => { this.clickIcon('ali') }}>
                       <div className="icon"></div>
                       <div className="name">aliyun</div>
                       <svg className="commonSelectedImg">
@@ -601,13 +808,16 @@ export default connect(mapStateToProps, {
                   {
                     (() => {
                       let rele
-                      if (this.state.beforecheckExist) {
-                        null
+                      if (beforecheckExist) {
+                        rele = null
                       } else {
-                        if (this.state.checkExistProvider) {
-                          if (this.state.checkExistStrategy && isEdit === false) {
+                        if (checkExistProvider) {
+                          if (checkExistStrategy && isEdit === false) {
                             rele = <div className="btnConatainer">
                               <Button type="primary" onClick={this.fun2}>已存在策略, 请在列表选择相应策略编辑</Button>
+                              <Tooltip title="每个集群仅能添加一个伸缩策略">
+                                <Icon style={{ marginLeft: 5 }} type="question-circle-o" />
+                              </Tooltip>
                             </div>
                           } else {
                             if (isResFetching) {
@@ -645,26 +855,60 @@ export default connect(mapStateToProps, {
                                   <div className="bottom-line" style={{ bottom: '-10px' }}></div>
                                 </div>
                                 <div className="formContainer">
-                                  <Form1
-                                    allData={this.props.allData}
-                                    currentData={this.props.currentData}
-                                    datacenter={datacenter}
-                                    datastorePath={datastorePath}
-                                    resourcePoolPath={resourcePoolPath}
-                                    templatePath={templatePath}
-                                    targetPath={targetPath}
-                                    name={name}
-                                    template={template}
-                                    datastore={datastore}
-                                    resourcePool={resourcePool}
-                                    currentStep={this.state.currentStep}
-                                    onDataCenterChange={this.onDataCenterChange}
-                                  />
-                                  <Form className={'step2 ' + (this.state.currentStep === 0 ? 'hide' : '')} horizontal>
+                                  {
+                                    (() => {
+                                      let defaultValues = {}
+                                      if (currentIcon === 'vmware') {
+                                        defaultValues = {
+                                          datacenter,
+                                          datastorePath,
+                                          resourcePoolPath,
+                                          templatePath,
+                                          targetPath,
+                                          name,
+                                          template,
+                                          datastore,
+                                          resourcePool,
+                                          datacenterList,
+                                        }
+                                      } else if (currentIcon === 'openstack') {
+                                        defaultValues = {
+                                          domainName: currentData.domainName || '',
+                                          projectName: currentData.projectName || '',
+                                          image: currentData.image || '',
+                                          loginPass: currentData.loginPass || '',
+                                          flavor: currentData.flavor || '',
+                                          network: currentData.network || '',
+                                          name,
+                                          template,
+                                          datastore,
+                                          resourcePool,
+                                          datacenterList,
+                                        }
+                                      }
+                                      return <Form1
+                                        isEdit={isEdit}
+                                        allData={allData}
+                                        currentData={currentData}
+                                        defaultValues={defaultValues}
+                                        currentStep={currentStep}
+                                        onDataCenterChange={this.onDataCenterChange}
+                                        currentIcon={currentIcon}
+                                        ref={ref => { this.form1Rele = ref }}
+                                      />
+                                    })()
+                                  }
+                                  <Form className={'step2 ' + (currentStep === 0 ? 'hide' : '')} horizontal>
                                     <div>
                                       <div className="panel">
                                         <Row className="jiedianContainer" key="row7">
-                                          <div className="ant-col-6 ant-form-item-label"><label>伸缩节点数量</label></div>
+                                          <div className="ant-col-6 ant-form-item-label">
+                                            <label className="iconLabel">伸缩节点数量
+                                              <Tooltip placement="top" title="最大扩展数 = 单集群最大节点数 - 已有节点数">
+                                                <Icon style={{ marginLeft: '5px', cursor: 'pointer' }} type="info-circle-o" />
+                                              </Tooltip>
+                                            </label>
+                                          </div>
                                           <div className="ant-col-14">
                                             {/* <div className="min">
                                             <div className="name">
@@ -676,13 +920,18 @@ export default connect(mapStateToProps, {
                                             <FormItem className="unitWapper" labelCol={{ span: 24 }} wrapperCol={{ span: 18 }}
                                               label="最少保留"
                                             >
-                                              <InputNumber min={0} max={parseInt(this.props.form.getFieldValue('max'))} {...getFieldProps('min', { initialValue: min,
-                                                validate: [{
-                                                  rules: [
-                                                    { required: true, message: '请输入最少保留数' },
-                                                  ],
-                                                }],
-                                              })} className="item" placeholder="1" />
+                                              <InputNumber
+                                                min={0}
+                                                max={parseInt(this.props.form.getFieldValue('max')) - 1}
+                                                className="item"
+                                                placeholder="1"
+                                                {...getFieldProps('min', { initialValue: min,
+                                                  validate: [{
+                                                    rules: [
+                                                      { required: true, message: '请输入最少保留数' },
+                                                    ],
+                                                  }],
+                                                })} />
                                             </FormItem>
                                             {/* </div>
                                           </div>*/}
@@ -690,18 +939,18 @@ export default connect(mapStateToProps, {
                                             <FormItem className="unitWapper" labelCol={{ span: 24 }} wrapperCol={{ span: 18 }}
                                               label="最大扩展"
                                             >
-                                              {/* <div className="max">
-                                            <div className="name">最大节点数</div>
-                                            <div className="mmItem">*/}
-                                              <InputNumber min={parseInt(this.props.form.getFieldValue('min'))} {...getFieldProps('max', { initialValue: max,
-                                                validate: [{
-                                                  rules: [
-                                                    { required: true, message: '请输入最大扩展数' },
-                                                  ],
-                                                }],
-                                              })} className="item" placeholder="1" />
-                                              {/* </div>
-                                          </div>*/}
+                                              <InputNumber
+                                                min={parseInt(this.props.form.getFieldValue('min')) + 1}
+                                                max={defaultMax}
+                                                {...getFieldProps('max', { initialValue: max,
+                                                  validate: [{
+                                                    rules: [
+                                                      { validator: this.checkMax },
+                                                    ],
+                                                  }],
+                                                })}
+                                                className="item"
+                                                placeholder="1" />
                                             </FormItem>
                                             <span className="unit count countright">个</span>
                                           </div>
@@ -715,41 +964,7 @@ export default connect(mapStateToProps, {
                                               </span>
                                             </Col>
                                           </Row>
-                                          {/* <FormItem
-                                        {...formItemLargeLayout}
-                                        label={ (() => {
-                                          return (
-                                            ["节点数量",
-                                            <Tooltip placement="right" title="注：最小实例数需大于或等于手动添加的实例总数">
-                                              <Icon style={{margin: "3px 0 0 3px", cursor: "pointer"}} type="info-circle-o" />
-                                            </Tooltip>]
-                                          )
-                                        })()
-                                        }
-                                      >
-                                        <Input {...getFieldProps('xxx', { initialValue: email ,
-                                          validate: [{
-                                            rules: [
-                                              { required: true, message: '请输入节点数量' },
-                                            ],
-                                            trigger: ['onBlur', 'onChange'],
-                                          }]
-                                        },
-                                        )} placeholder="请输入节点数量" />
-                                        <span className="unit">个</span>
-                                      </FormItem>*/}
                                         </Row>
-                                        {/* <Row key="row8">
-                                      <FormItem
-                                        {...formItemLargeLayout}
-                                        label="节点伸缩"
-                                      >
-                                      <Radio.Group {...getFieldProps('datastorePath', { initialValue: '' })}>
-                                          <Radio key="a" value={1}>通过阈值触发</Radio>
-                                          <Radio key="b" value={2}>定时触发</Radio>
-                                        </Radio.Group>
-                                      </FormItem>
-                                    </Row> */}
                                         <Row key="row9">
                                           <FormItem
                                             {...formItemLargeLayout}
@@ -814,7 +1029,13 @@ export default connect(mapStateToProps, {
                             rele = <div className="descContainer">资源池已删除，当前策略依然可用<br />若需编辑，请重新配置对应资源池，或重新创建策略</div>
                           } else {
                             rele = <div className="btnConatainer">
-                              <Button type="primary" onClick={this.fun1}>前往配置 vSphere</Button>
+                              <Button type="primary" onClick={this.fun1}>前往配置 {(() => {
+                                let text = 'vSphere'
+                                if (currentIcon === 'openstack') {
+                                  text = 'OpenStack 资源'
+                                }
+                                return text
+                              })()}</Button>
                             </div>
                           }
                         }
@@ -827,44 +1048,6 @@ export default connect(mapStateToProps, {
           </Modal>
         </div>
       )
-    }
-    componentDidMount() {
-      // 接收参数
-      // this.getQueryData();
-    }
-    getDataCenter = value => {
-      this.setState({ currentIcon: value, beforecheckExist: false }, () => {
-        const filObj =
-          _.filter(this.props.clusterList,
-            { clusterid: cluster ? cluster : this.state.selectValue })[0]
-        const b1 = filObj.provider[this.state.currentIcon]
-        const b2 = filObj.strategy[this.state.currentIcon]
-        this.setState({ checkExistProvider: b1, checkExistStrategy: b2 }, () => {
-          if ((b1 && !b2) || isEdit) {
-            this.props.getResList({
-              cluster: cluster ? cluster : this.state.selectValue,
-              type: iaas ? iaas : this.state.currentIcon,
-            }, {
-              success: {
-                func: () => {
-                  if (isEdit) this.setState({ currDataCenter: this.props.currentData.datacenter })
-                },
-                isAsync: true,
-              },
-              failed: {
-                func: res => {
-                  notify.warn(res.message.message || res.message)
-                },
-                isAsync: true,
-              },
-            })
-          }
-        })
-      })
-    }
-    getQueryData() {
-      const { getAutoScalerClusterList } = this.props
-      getAutoScalerClusterList()
     }
   })
 )

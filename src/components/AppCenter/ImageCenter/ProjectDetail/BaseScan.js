@@ -203,7 +203,7 @@ class BaseScan extends Component {
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
-    const { formatMessge } = this.props.intl
+    const { formatMessage } = this.props.intl
     if(statusCode && statusCode == 500){
       return <div>{message}</div>
     }
@@ -211,16 +211,16 @@ class BaseScan extends Component {
       switch (status) {
         case 'running':
           return <div className='BaseScanRunning'>
-            <div className="top">{formatMessge(baseScanIntl.scanning)}</div>
+            <div className="top">{formatMessage(baseScanIntl.scanning)}</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>{formatMessge(baseScanIntl.reload)}</Button></div>
+            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>{formatMessage(baseScanIntl.reload)}</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
-            <div className='top'>{formatMessge(softwarePackage.scanningFailure)}</div>
-            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessge(softwarePackage.reload)}</Button>
+            <div className='top'>{formatMessage(softwarePackage.scanningFailure)}</div>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>{formatMessage(softwarePackage.reload)}</Button>
           </div>
         case 'nojob':
         default:

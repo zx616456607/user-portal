@@ -54,13 +54,7 @@ class ObjectStoreDetail extends Component {
   }
 
   componentWillMount() {
-    const { location } = this.props
-    this.setState({
-      currentProject: location.query.project
-    })
-    setTimeout(() => {
-      this.refreshObjectStoreDetail()
-    })
+    this.refreshObjectStoreDetail()
   }
 
   openUploadModal() {
@@ -105,17 +99,15 @@ class ObjectStoreDetail extends Component {
     let name = location.query.dir
     let locationHost = window.location.host
     let protocol = window.location.protocol
-    let str = `${protocol}//${locationHost}/api/v2/puhua/object_storage/object/download?dir=${name}/${item.name}&project=${this.state.currentProject}`
+    let str = `${protocol}//${locationHost}/api/v2/puhua/object_storage/object/download?dir=${name}/${item.name}`
     window.open(str)
   }
 
   refreshObjectStoreDetail() {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { getObjectStorageDetailList, location } = this.props
     let name = encodeURIComponent(location.query.dir)
-    getObjectStorageDetailList(name, {project: this.state.currentProject},{
+    getObjectStorageDetailList(name,{
       success: {
         func: (res) => {
           this.setState({
@@ -129,16 +121,13 @@ class ObjectStoreDetail extends Component {
           this.setState({
             searchValueL: ''
           })
-          document.getElementById('detailSearch').value = ""
         }
       }
     })
   }
 
   searchChange(e){
-    if(!this.state.currentProject) {
-      return
-    }
+
     const value = e.target.value
     this.setState({
       searchValue: value
@@ -146,9 +135,7 @@ class ObjectStoreDetail extends Component {
   }
 
   searchInput(e) {
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { searchValue } = this.state
     const { objectStorageDetailList } = this.props
     if(!searchValue){
@@ -176,17 +163,14 @@ class ObjectStoreDetail extends Component {
   }
 
   deleteObjectStorageSub(){
-    if(!this.state.currentProject) {
-      return
-    }
+
     const { deleteObjectStorage, location } = this.props
     const { currentItem } = this.state
     let Noti = new NotificationHandler()
     let name = location.query.dir
     let str = `${name}/${currentItem.name}`
     let query = {
-      dir: str,
-      project: this.state.currentProject
+      dir: str
     }
     this.setState({
       confirmLoading: true
@@ -282,9 +266,7 @@ class ObjectStoreDetail extends Component {
       let body = {
         dir: str
       }
-      createObjectStorage(body, {
-        project: this.state.currentProject
-      },{
+      createObjectStorage(body,{
         success: {
           func: () => {
             this.refreshObjectStoreDetail()
@@ -421,7 +403,7 @@ class ObjectStoreDetail extends Component {
     const updateUrl = update ?'/update':''
     const UploadProps = {
       name: 'file',
-      action: '/api/v2/puhua/object_storage/object' + updateUrl + `?project=${this.state.currentProject}`,// or update
+      action: '/api/v2/puhua/object_storage/object' + updateUrl,// or update
       data: dataObj,
       showUploadList: false,
       beforeUpload(file){
@@ -616,7 +598,7 @@ class ObjectStoreDetail extends Component {
         </Modal>
         {
           this.state.storageCopy ?
-          <ObjectCopy dataList={ tableDataSource } func={ func } currentPathName={this.state.selectRow} currentPath={this.props.pathDir} project={this.state.currentProject}/>
+          <ObjectCopy dataList={ tableDataSource } func={ func } currentPathName={this.state.selectRow} currentPath={this.props.pathDir} />
           :null
         }
 

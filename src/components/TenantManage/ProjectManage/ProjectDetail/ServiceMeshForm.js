@@ -111,6 +111,7 @@ export default class ServiceMeshForm extends React.Component {
       <Modal
         visible={visible}
         title={`项目关闭服务网格`}
+        onCancel={this.onCancel}
         footer={[
           <Button key="back" type="ghost" size="large" onClick={this.onCancel}>取消</Button>,
           <Button key="submit" type="primary" size="large" loading={Buttonloading}

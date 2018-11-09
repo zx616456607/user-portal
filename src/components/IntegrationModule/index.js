@@ -14,19 +14,19 @@ import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { getAllIntegration } from '../../actions/integration'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Alert, Card, Spin, Input, Modal } from 'antd'
+import { Button, Alert, Card, Spin, Input, Modal, Row, Col } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
-import vmwareImg from '../../assets/img/appstore/vmware.png'
-import cephImg from '../../assets/img/appstore/ceph.png'
+import vmwareImg from '../../assets/img/appstore/vmware.svg'
+import cephImg from '../../assets/img/appstore/ceph.svg'
+import openstackImg from '../../assets/img/appstore/openstack.svg'
+import TerraformImg from '../../assets/img/appstore/terraform.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
-
-const ButtonGroup = Button.Group;
 
 let standardFlag = (mode == standard ? true : false);
 
@@ -62,10 +62,6 @@ const menusText = defineMessages({
   uninstall: {
     id: 'Integration.IntegrationIndex.uninstall',
     defaultMessage: '集成安装',
-  },
-  envTitle: {
-    id: 'Integration.IntegrationIndex.envTitle',
-    defaultMessage: '依赖环境',
   },
   installedFlag: {
     id: 'Integration.IntegrationIndex.installedFlag',
@@ -130,9 +126,9 @@ class Integration extends Component {
     this.setState({
       createIntegrationModal: true
     })
-    setTimeout(()=> {
+    setTimeout(() => {
       document.getElementById('name').focus()
-    },500)
+    }, 500)
   }
 
   closeCreateIntegration() {
@@ -144,9 +140,9 @@ class Integration extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, integrations} = this.props;
+    const { isFetching, integrations } = this.props;
     const scope = this;
-    if(isFetching || !Boolean(integrations)) {
+    if (isFetching || !Boolean(integrations)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -154,75 +150,69 @@ class Integration extends Component {
       )
     }
     let appShow = null;
-    if(integrations.length > 0) {
+    if (integrations.length > 0) {
       appShow = integrations.map((item, index) => {
         let envList = (
-          <div>
+          <div className="envInfo">
             <div className='envDetail' key={'appDetail' + index + 'envDetail0'}>
               <div className='numBox'>
-                {'1'}
+                {'01'}
               </div>
-              <span className='envName'>部署好的vSphere环境</span>
-              <div style={{ clear:'both' }}></div>
+              <div className='envName'>部署好的vSphere环境</div>
             </div>
             <div className='envDetail' key={'appDetail' + index + 'envDetail1'}>
               <div className='numBox'>
-                {'2'}
+                {'02'}
               </div>
-              <span className='envName'>vSphere访问URL</span>
-              <div style={{ clear:'both' }}></div>
+              <div className='envName'>vSphere访问URL</div>
             </div>
             <div className='envDetail' key={'appDetail' + index + 'envDetail2'}>
               <div className='numBox'>
-                {'3'}
+                {'03'}
               </div>
-              <span className='envName'>登录帐号&密码</span>
-              <div style={{ clear:'both' }}></div>
+              <div className='envName'>登录帐号&密码</div>
             </div>
           </div>
         )
         return (
-          <div className='appDetail'>
-            <div className='leftBox'>
-              <img src={vmwareImg} />
-            </div>
-            <div className='middleBox'>
-              <div className='appInfo'>
-                <p>vSphere</p>
-                <span>vSphere是VMware公司推出一套服务器虚拟化解决方案。</span>
-                <br />
-                <span>vSphere将应用程序和操作系统从底层分离出来，从而简化了IT操作，用户现有的应用程序可以看到专有资源，而服务器则可以作为资源池进行管理。</span>
+          <Col span={12}>
+            <div className='appDetail'>
+              <div className='leftBox'>
+                <img src={vmwareImg} />
               </div>
-              <div className='envInfo'>
-                <p><FormattedMessage {...menusText.envTitle} /></p>
-                {envList}
-              </div>
-              <div style={{ clear:'both' }}></div>
-            </div>
-            <div className='rightBox'>
-              {
-                standardFlag ? [
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
-                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                    <span><span>敬请期待</span></span>
-                  </Button>
-                ] : [
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
-                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                    <span><FormattedMessage {...menusText.showAppDetail} /></span>
-                  </Button>
-                ]
-              }
-            </div>
-            <div style={{ clear:'both' }}></div>
-            {
-              !standardFlag ? [
-                <div className='installedFlag' key='installedFlag'>
-                  <FormattedMessage {...menusText.installedFlag} />
+              <div className='middleBox'>
+                <div className='appInfo'>
+                  <p>
+                    vSphere
+                  {
+                    standardFlag ?
+                      <Button className='installedBtn' size='large' type={standardFlag ? 'primary' : ''} disabled={standardFlag}
+                        style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        <span>敬请期待</span>
+                      </Button>
+                      :
+                      <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
+                        style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        <FormattedMessage {...menusText.showAppDetail} />
+                      </Button>
+                    }
+                    {
+                      !standardFlag ?
+                      <div className='installedFlag'>
+                        <FormattedMessage {...menusText.installedFlag} />
+                      </div>
+                      : null
+                    }
+                  </p>
                 </div>
-              ] : null
-            }
-          </div>
+                <div className='infoMessage'>
+                  <div className="list">vSphere是VMware公司推出一套服务器虚拟化解决方案。</div>
+                  <div className="list">vSphere将应用程序和操作系统从底层分离出来，从而简化了IT操作，用户现有的应用程序可以看到专有资源，而服务器则可以作为资源池进行管理。</div>
+                </div>
+              </div>
+              {envList}
+            </div>
+          </Col>
         )
       });
     }
@@ -231,195 +221,144 @@ class Integration extends Component {
         <div id='IntegrationList' key="integration">
           <Title title="集成中心" />
           <Alert message={formatMessage(menusText.tooltips)} type='info' />
-          {/*<div className='operaBox'>
-            <ButtonGroup size='large'>
-              <Button type={this.state.currentShowApps == 'all' ? 'primary' : 'ghost'} onClick={this.onChangeShowType.bind(this, 'all')}>
-                <FormattedMessage {...menusText.allApps} />
-              </Button>
-              <Button type={this.state.currentShowApps == 'install' ? 'primary' : 'ghost'} onClick={this.onChangeShowType.bind(this, 'install')}>
-                <FormattedMessage {...menusText.installedApps} />
-              </Button>
-              <Button type={this.state.currentShowApps == 'delete' ? 'primary' : 'ghost'} onClick={this.onChangeShowType.bind(this, 'delete')}>
-                <FormattedMessage {...menusText.deletedApps} />
-              </Button>
-            </ButtonGroup>
-            <div className='searchBox'>
-              <Input type='text' size='large' />
-              <i className='fa fa-search' />
+          {isFetching ?
+            <div className='loadingBox' key='loadingBox'>
+              <Spin size='large' />
             </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>*/}
-          { isFetching ? [
-              <div className='loadingBox' key='loadingBox'>
-                <Spin size='large' />
-              </div>
-            ] : [
-                <div key='infoBoxAnimate'>
-                  {/*<div className='typeBox'>
-                    <span className='title'><FormattedMessage {...menusText.appType} /></span>
-                    <span className={ this.state.currentAppType == '1' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '1')}>Iaas平台</span>
-                    <span className={ this.state.currentAppType == '2' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '2')}>时速云公有云</span>
-                    <span className={ this.state.currentAppType == '3' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '3')}>存储平台</span>
-                    <span className={ this.state.currentAppType == '4' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '4')}>安全工具</span>
-                    <span className={ this.state.currentAppType == '5' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '5')}>企业CRM</span>
-                  </div>*/}
-                  <Card className='infoBox'>
-                    {this.state.showType == 'list' ? [
-                      <QueueAnim key='listBoxAnimate'>
-                        <div className='listBox' key='listBox'>
-                          {appShow}
-                          { integrations.length == 0 ? [
-                            <div className='appDetail' key='noAppDetail'>
-                              <div className='leftBox'>
-                                <img src={vmwareImg} />
-                              </div>
-                              <div className='middleBox'>
-                                <div className='appInfo'>
-                                  <p>vSphere</p>
-                                  <span>vSphere是VMware公司推出一套服务器虚拟化解决方案。</span>
-                                  <br />
-                                  <span>vSphere将应用程序和操作系统从底层分离出来，从而简化了IT操作，用户现有的应用程序可以看到专有资源，而服务器则可以作为资源池进行管理。</span>
-                                </div>
-                                <div className='envInfo'>
-                                  <p><FormattedMessage {...menusText.envTitle} /></p>
-                                  <div className='envDetail'>
-                                    <div className='numBox'>
-                                      {'1'}
-                                    </div>
-                                    <span className='envName'>部署好的vSphere环境</span>
-                                    <div style={{ clear:'both' }}></div>
-                                  </div>
-                                  <div className='envDetail'>
-                                    <div className='numBox'>
-                                      {'2'}
-                                    </div>
-                                    <span className='envName'>vSphere访问URL</span>
-                                    <div style={{ clear:'both' }}></div>
-                                  </div>
-                                  <div className='envDetail'>
-                                    <div className='numBox'>
-                                      {'3'}
-                                    </div>
-                                    <span className='envName'>登录帐号&密码</span>
-                                    <div style={{ clear:'both' }}></div>
-                                  </div>
-                                </div>
-                                <div style={{ clear:'both' }}></div>
-                              </div>
-                              <div className='rightBox'>
-                                <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled={standardFlag}>
-                                  <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.uninstall} />] }</span>
-                                </Button>
-                              </div>
-                              <div style={{ clear:'both' }}></div>
-                            </div>
-                          ] : null }
-                          <div className='cephDetail appDetail'>
-                            <div className='leftBox'>
-                              <img src={cephImg} />
-                            </div>
-                            <div className='middleBox'>
-                              <div className='appInfo'>
-                                <p>Ceph存储总览应用</p>
-                                <span>这个应用具备查看Ceph总体存储相关情况的Dashboard，可以配置安装后，立即查看。</span>
-                              </div>
-                              <div className='envInfo'>
-                                <p><FormattedMessage {...menusText.envTitle} /></p>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'1'}
-                                  </div>
-                                  <span className='envName'>Ceph存储集群</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'2'}
-                                  </div>
-                                  <span className='envName'>Ceph API</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'3'}
-                                  </div>
-                                  <span className='envName'>Ceph授权</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                              </div>
-                              <div style={{ clear:'both' }}></div>
-                            </div>
-                            <div className='rightBox'>
-                              <Button className='unintsallBtn' onClick={()=> this.setState({showType:'Ceph'})} key='unintsallBtn' size='large' type='primary'
+            :
+            <div key='infoBoxAnimate'>
+              {this.state.showType == 'list' ?
+                <QueueAnim key='listBoxAnimate'>
+                  <Row gutter={20}>
+                    { appShow }
+                    <Col span={12} >
+                      <div className='cephDetail appDetail'>
+                        <div className='leftBox'>
+                          <img src={cephImg} />
+                        </div>
+                        <div className='middleBox'>
+                          <div className='appInfo'>
+                            <p>
+                              Ceph存储总览应用
+                                  <Button className='unintsallBtn' onClick={() => this.setState({ showType: 'Ceph' })} key='unintsallBtn' size='large' type='primary'
                                 style={{ width: '102px' }}>
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
-                            </div>
-                            <div style={{ clear:'both' }}></div>
+                            </p>
                           </div>
-                          <div className='appDetail'>
-                            <div className='leftBox'>
-                              <img src={cephImg} />
-                            </div>
-                            <div className='middleBox'>
-                              <div className='appInfo'>
-                                <p>OpenStack</p>
-                                <span>sfsdfdsfsf</span>
-                              </div>
-                              <div className='envInfo'>
-                                <p><FormattedMessage {...menusText.envTitle} /></p>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'1'}
-                                  </div>
-                                  <span className='envName'>存储集群</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'2'}
-                                  </div>
-                                  <span className='envName'>Ceph API</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                                <div className='envDetail'>
-                                  <div className='numBox'>
-                                    {'3'}
-                                  </div>
-                                  <span className='envName'>Ceph授权</span>
-                                  <div style={{ clear:'both' }}></div>
-                                </div>
-                              </div>
-                              <div style={{ clear:'both' }}></div>
-                            </div>
-                            <div className='rightBox'>
-                              <Button className='unintsallBtn' onClick={()=> browserHistory.push('/OpenStack')} key='unintsallBtn' size='large' type='primary'
+                          <div className="infoMessage">
+                            <span>这个应用具备查看Ceph总体存储相关情况的Dashboard，可以配置安装后，立即查看。</span>
+                          </div>
+                        </div>
+
+                        <div className='envInfo'>
+                          <div className='envDetail'>
+                            <div className='numBox'>01</div>
+                            <div className='envName'>Ceph 存储集群</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>02</div>
+                            <div className='envName'>Ceph 管理API</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>03</div>
+                            <div className='envName'>Ceph 授权</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+
+                    <Col span={12}>
+                      <div className='cephDetail appDetail'>
+                        <div className='leftBox'>
+                          <img src={openstackImg} />
+                        </div>
+                        <div className='middleBox'>
+                          <div className='appInfo'>
+                            <p>
+                              OpenStack 集成
+                                <Button className='unintsallBtn' onClick={() => browserHistory.push('/OpenStack')} key='unintsallBtn' size='large' type='primary'
                                 style={{ width: '102px' }}>
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
-                            </div>
-                            <div style={{ clear:'both' }}></div>
+                            </p>
                           </div>
-
+                          <div className="infoMessage">
+                            <div className="list">OpenStack 是一个开源的云计算管理平台项目，由几个主要的组件组合起来完成具体工作。</div>
+                            <div className="list">这里集成主要的计算、存储、网络管理，满足为 PaaS 提供应有的基础设施支撑。</div>
+                          </div>
                         </div>
-                      </QueueAnim>
-                    ] : null}
-                    {this.state.showType == 'detail' ? [
-                      <QueueAnim key='detailBoxAnimate'>
-                        <div className='detailBox' key='detailBox'>
-                          <IntegrationDetail scope={scope} integrationId={this.state.currentIntegration} />
-                        </div>
-                      </QueueAnim>
-                    ] : null}
-                    {this.state.showType === 'Ceph'?
-                      <Ceph key="ceph" scope={this}/>
-                      :null
-                    }
-                  </Card>
-                </div>
 
-            ]
+                        <div className='envInfo'>
+                          <div className='envDetail'>
+                            <div className='numBox'>01</div>
+                            <div className='envName'>部署好的 OpenStack 环境</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>02</div>
+                            <div className='envName'>OpenStack 访问的 URL</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>03</div>
+                            <div className='envName'>登录账号&密码</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div className='cephDetail appDetail'>
+                        <div className='leftBox'>
+                          <img src={TerraformImg} />
+                        </div>
+                        <div className='middleBox'>
+                          <div className='appInfo'>
+                            <p>
+                              Terraform 集成
+                                <Button className='unintsallBtn'
+                                  disabled={true}
+                                  onClick={() => browserHistory.push('/OpenStack')} key='unintsallBtn' size='large' type=''
+                                style={{ width: '102px' }}>
+                                敬请期待
+                              </Button>
+                            </p>
+                          </div>
+                          <div className="infoMessage">
+                            <div className="list">Terraform 是一个 IT 基础架构自动化编排工具，它的口号是“Write，Plan，and create Infrastructure as Code ”，基础架构即代码。具体的说就是可以用代码来管理维护 IT 资源。 </div>
+                          </div>
+                        </div>
+
+                        <div className='envInfo'>
+                          <div className='envDetail'>
+                            <div className='numBox'>01</div>
+                            <div className='envName'>部署好的 Terraform 环境</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>02</div>
+                            <div className='envName'>Terraform 访问的 URL</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>03</div>
+                            <div className='envName'>登录账号&密码</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+
+                  </Row>
+                </QueueAnim>
+                : null}
+              {this.state.showType == 'detail' ? [
+                <QueueAnim key='detailBoxAnimate'>
+                  <div className='detailBox' key='detailBox'>
+                    <IntegrationDetail scope={scope} integrationId={this.state.currentIntegration} />
+                  </div>
+                </QueueAnim>
+              ] : null}
+              {this.state.showType === 'Ceph' ?
+                <Ceph key="ceph" scope={this} />
+                : null
+              }
+            </div>
           }
         </div>
         <Modal
@@ -428,7 +367,7 @@ class Integration extends Component {
           visible={this.state.createIntegrationModal}
           onCancel={this.closeCreateIntegration.bind(this)}
         >
-          <CreateVSphereModal scope={scope} createIntegrationModal={this.state.createIntegrationModal}/>
+          <CreateVSphereModal scope={scope} createIntegrationModal={this.state.createIntegrationModal} />
         </Modal>
       </div>
     )
@@ -441,7 +380,7 @@ function mapStateToProps(state, props) {
     integrations: []
   }
   const { getAllIntegration } = state.integration
-  const {isFetching, integrations} = getAllIntegration || defaultAppList
+  const { isFetching, integrations } = getAllIntegration || defaultAppList
   return {
     isFetching,
     integrations

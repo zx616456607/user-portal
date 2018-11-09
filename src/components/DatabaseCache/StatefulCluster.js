@@ -164,7 +164,7 @@ let MyComponent = React.createClass({
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>副本数</span>{`${1}/${item.replicas}`}个</li>
+              <li><span className='listKey'>副本数</span>{`${item.currentReplicas}/${item.replicas}`}个</li>
               <li>
                 <span className='listKey'>创建日期</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp, 'YYYY-MM-DD')}</span>

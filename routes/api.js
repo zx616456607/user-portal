@@ -63,6 +63,7 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const workerOrderController = require('../controllers/worker_order')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -118,6 +119,10 @@ module.exports = function (Router) {
   router.post('/projects/:name/roles/batch-delete', projectController.deleteProjectRelatedRoles)
   router.del('/projects/:project_id/users/:user_id', projectController.removeUserFromProject)
   router.post('/projects/rolebinding', projectController.handleRoleBinding)
+  router.get('/projects/plugins/enabled', projectController.getPluginStatus)
+  router.put('/projects/plugins/:name/enable', projectController.pluginTurnOn)
+  router.put('/projects/plugins/:name/disable',projectController.pluginTurnOff)
+  router.get('/projects/plugins/installed',projectController.checkPluginInstallStatus)
   // servicMesh 相关
   router.put('/servicemesh/clusters/:clusterId/paas/status', servicemesh.updateToggleServiceMesh)
   router.get('/servicemesh/clusters/:clusterId/paas/status', servicemesh.getCheckProInClusMesh)
@@ -142,6 +147,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/kubeproxy', clusterController.getKubeproxy)
   router.put('/clusters/:cluster/kubeproxy', clusterController.updateKubeproxy)
   router.put('/clusters/:cluster/configs/harbor', clusterController.setHarbor)
+  router.put('/clusters/:cluster/daas/dubbo/services', clusterController.getRegisteredServiceList)
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
@@ -672,6 +678,7 @@ module.exports = function (Router) {
 
   // Licenses
   router.get('/licenses', licenseController.getLicenses)
+  router.get('/clusters/:cluster/licenses', licenseController.getLicensesByCluster)
 
   // consumption and charge
   router.get('/consumptions/detail', consumptionController.getDetail)
@@ -968,6 +975,19 @@ module.exports = function (Router) {
   router.get('/appcenters', middlewareCenter.getApps)
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
+
+  // workorders
+  router.get('/workorders/announcements', workerOrderController.getAnnouncements)
+  router.get('/workorders/announcements/:id', workerOrderController.getAnnouncement)
+  router.post('/workorders/announcements', workerOrderController.createAnnouncement)
+  router.del('/workorders/announcements/:id', workerOrderController.deleteAnnouncement)
+  router.get('/workorders/my-order', workerOrderController.getWorkOrderList)
+  router.get('/workorders/my-order/:id', workerOrderController.getWorkOrderDetails)
+  router.get('/workorders/my-order/:id/messages', workerOrderController.getWorkOrderMessages)
+  router.post('/workorders/my-order/:id/messages', workerOrderController.addWorkOrderMessages)
+  router.post('/workorders', workerOrderController.createWorkOrder)
+  router.put('/workorders/my-order/:id', workerOrderController.changeWorkOrderStatus)
+
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
