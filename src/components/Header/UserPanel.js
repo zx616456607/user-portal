@@ -270,8 +270,7 @@ class UserPanel extends Component {
     menuItems = [].concat(base, menuItems, [
       {
         to: '/work-order/system-notice',
-        iconType: 'notification',
-        isAnt: true,
+        iconType: 'ring',
         text: <FormattedMessage {...IntlMessages.systemNotice} />,
       }
     ])

@@ -46,17 +46,19 @@ class MyOrderDetail extends React.Component {
                 notify.success('工单提交成功')
                 res.data ?
                   browserHistory.push({
-                    pathname: '/work-order/my-order/' + res.data.id,
+                    pathname: '/work-order/my-order/' + res.data,
                   })
                   :
                   this.returnBack()
               }
             },
+            isAsync: true,
           },
           failed: {
             func: () => {
               notify.warn('工单提交失败')
             },
+            isAsync: true,
           },
           finally: {
             func: () => {
@@ -64,6 +66,7 @@ class MyOrderDetail extends React.Component {
                 btnLoading: false,
               })
             },
+            isAsync: true,
           },
         })
       })
@@ -108,16 +111,16 @@ class MyOrderDetail extends React.Component {
             <Row>
               <Col className="colMarginRight" span={8}>
                 <FormItem
-                  label="问题类型"
+                  label="工单类型"
                 >
                   <Select size="large" {...getFieldProps('classifyID', {
                     validate: [{
                       rules: [
-                        { required: true, message: '请选择问题类型' },
+                        { required: true, message: '请选择工单类型' },
                       ],
                       trigger: [ 'onChange' ],
                     }],
-                  })} placeholder="请选择问题类型">
+                  })} placeholder="请选择工单类型">
                     { options }
                   </Select>
                 </FormItem>

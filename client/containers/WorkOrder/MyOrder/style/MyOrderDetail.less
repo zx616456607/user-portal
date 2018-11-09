@@ -21,14 +21,18 @@
       padding: 0 25px 20px 25px;
       margin-top: 15px;
       .title {
-        padding: 15px 0;
+        padding: 10px 0;
       }
-      .content, .comments {
+      .comments {
+        color: @font-color-2;
+      }
+      .content {
         color: @font-color-3;
       }
     }
   }
   .messageContainer.noMessages {
+    color: #999;
     text-align: center;
   }
   .messageContainer {
@@ -36,6 +40,7 @@
     max-height: 300px;
     overflow-y: auto;
     margin: 20px 0;
+    scroll-behavior: smooth;
     .left, .right {
       padding: 15px 0;
       .messageContent {
@@ -69,15 +74,17 @@
       .user, .msgContents {
         float: right;
       }
-      .anticon-loading {
-        position: absolute;
-        left: -35px;
-        top: 30px;
+      .wrongIcon {
+        color: @error-color;
+      }
+      .anticon-loading, .wrongIcon {
+        float: right;
+        margin-top: 15px;
+        margin-right: 5px;
       }
       .messageContent {
         background-color: #d2e9ff;
-        position: absolute;
-        right: 0;
+        float: right;
         .wrongIcon {
           color: @error-color;
         }
@@ -87,7 +94,7 @@
         content: "";
         width: 0;
         height: 0;
-        right: -11px;
+        right: -10px;
         top: 20px;
         border-top: 10px solid transparent;
         border-left: 10px solid #d9d9d9;
@@ -97,7 +104,7 @@
         content: "";
         width: 0;
         height: 0;
-        right: -9px;
+        right: -7px;
         top: 20px;
         border-top: 9px solid transparent;
         border-left: 9px solid #d2e9ff;
@@ -143,6 +150,15 @@
     }
     .replay {
       cursor: pointer;
+      .send-icon {
+        font-size: 15px;
+        color: #2db7f5;
+        cursor: pointer;
+        svg {
+          height: 25px;
+          width: 25px;
+        }
+      }
     }
   }
 }
