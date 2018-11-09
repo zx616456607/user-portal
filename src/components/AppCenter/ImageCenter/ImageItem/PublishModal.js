@@ -11,10 +11,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio } from 'antd'
+import { Modal, Form, Input, Select, Upload, Icon, Row, Col, Button, Radio, Checkbox } from 'antd'
 import { getWrapGroupList } from '../../../../actions/app_center'
 import { imagePublish, checkAppNameExists, getImageStatus, imageNameExists } from '../../../../actions/app_store'
-import { loadProjectList, loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
+import {
+  loadProjectList, loadRepositoriesTagConfigInfo, loadRepositoriesTags,
+} from '../../../../actions/harbor'
 import { loadClusterList } from '../../../../actions/cluster'
 import { API_URL_PREFIX, ASYNC_VALIDATOR_TIMEOUT, UPGRADE_EDITION_REQUIRED_CODE, DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
@@ -50,6 +52,8 @@ class PublishModal extends React.Component {
       radioVal: 'market',
       privateData: [],
       clusters: [],
+      showImageVersionCheckbox: false,
+      selectProjectImageVersionExisted: false,
     }
   }
   componentWillMount() {
@@ -232,14 +236,50 @@ class PublishModal extends React.Component {
     if (!value) {
       return callback(formatMessage(publishModalIntl.selectVersionOfImage))
     }
-    callback()
+    const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), value, {
+      success: {
+        func: res => {
+          this.setState({
+            imageID: res.data.imageID
+          })
+          callback()
+        }
+      },
+      failed: {
+        func: res => {
+          callback(`${formatMessage(publishModalIntl.imageErr)}: ${res.message}`)
+          // if (res.statusCode === 404) {
+          //   notify.error(formatMessage(publishModalIntl.imageErr), res.message)
+          // }
+        }
+      },
+    })
   }
   checkSelectVersion = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
     if (!value) {
       return callback(formatMessage(publishModalIntl.selectVersion))
     }
-    callback()
+    const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
+    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), value, {
+      success: {
+        func: res => {
+          this.setState({
+            imageID: res.data.imageID
+          })
+          callback()
+        }
+      },
+      failed: {
+        func: res => {
+          callback(`${formatMessage(publishModalIntl.imageErr)}: ${res.message}`)
+          // if (res.statusCode === 404) {
+          //   notify.error(formatMessage(publishModalIntl.imageErr), res.message)
+          // }
+        }
+      },
+    })
   }
   checkTargetStore = (rule, value, callback) => {
     const { formatMessage } = this.props.intl
@@ -308,6 +348,9 @@ class PublishModal extends React.Component {
       if (!!errors) {
         return
       }
+      // if (!imageID) {
+      //   return
+      // }
       this.setState({
         loading: true
       })
@@ -390,11 +433,20 @@ class PublishModal extends React.Component {
     callback()
   }
   renderFooter = () => {
-    const { loading } = this.state
+    const { loading, selectProjectImageVersionExisted } = this.state
     const { formatMessage } = this.props.intl
     return[
       <Button key="cancel" size="large" onClick={this.cancelModal.bind(this)}>{formatMessage(publishModalIntl.cancelText)}</Button>,
-      <Button key="confirm" size="large" type="primary" loading={loading} onClick={this.confirmModal.bind(this)}>{formatMessage(publishModalIntl.okText)}</Button>
+      <Button
+        key="confirm"
+        size="large"
+        type="primary"
+        loading={loading}
+        disabled={selectProjectImageVersionExisted}
+        onClick={this.confirmModal.bind(this)}
+      >
+        {formatMessage(publishModalIntl.okText)}
+      </Button>
     ]
   }
   closeSuccessModal() {
@@ -402,52 +454,14 @@ class PublishModal extends React.Component {
       successModal: false
     })
   }
-  getConfigInfo = (tag) => {
-    const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
-    let notify = new NotificationHandler()
-    const { formatMessage } = this.props.intl
-    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), tag, {
-      success: {
-        func: res => {
-          this.setState({
-            imageID: res.data.imageID
-          })
-        }
-      },
-      failed: {
-        func: res => {
-          if (res.statusCode === 404) {
-            notify.close()
-            notify.warn(formatMessage(publishModalIntl.imageErr), res.message)
-          }
-        }
-      }
-    })
-  }
 
   handleSelectVersionContent = (val) => {
     const { loadRepositoriesTagConfigInfo, currentImage, harbor } = this.props
-    let notify = new NotificationHandler()
     const { formatMessage } = this.props.intl
-    loadRepositoriesTagConfigInfo(harbor, DEFAULT_REGISTRY,encodeImageFullname(currentImage.name), val, {
-      success: {
-        func: res => {
-          this.setState({
-            imageID: res.data.imageID
-          })
-        }
-      },
-      failed: {
-        func: res => {
-          if (res.statusCode === 404) {
-            notify.close()
-            notify.error(formatMessage(publishModalIntl.imageErr), res.message)
-          }
-        }
-      },
-    })
+    this.checkIsImageWithVersionExist(null, val)
   }
   handleSelectcheckTargetStore = (val) => {
+    const notify = new NotificationHandler()
     const { formatMessage } = this.props.intl
     const { getImageStatus, currentImage, imgTag, server, harbor, form } = this.props
     const tagArr = []
@@ -469,6 +483,47 @@ class PublishModal extends React.Component {
         isAsync: true,
       }
     })
+    this.checkIsImageWithVersionExist(val)
+  }
+  checkIsImageWithVersionExist = (project, version) => {
+    console.log('this.state.radioVal', this.state.radioVal)
+    if (this.state.radioVal === 'market') {
+      return
+    }
+    const { loadRepositoriesTags, harbor, form, currentImage } = this.props
+    const targetProject = form.getFieldValue('target_store') || project
+    const selectVersion = form.getFieldValue('select_version') || version
+    console.log('targetProject', targetProject)
+    console.log('selectVersion', selectVersion)
+    console.log('currentImage', currentImage)
+    if (!targetProject || !selectVersion) {
+      return
+    }
+    const imageFullName = `${targetProject}/${currentImage.name.split('/')[1]}`
+    loadRepositoriesTags(harbor, DEFAULT_REGISTRY, encodeImageFullname(imageFullName), {
+      success: {
+        func: res => {
+          if (res && res.data && res.data.length) {
+            console.log('res.data', res.data)
+            // this.fetchData(res.data)
+            const newState = {
+              showImageVersionCheckbox: false,
+              selectProjectImageVersionExisted: false,
+            }
+            if (res.data.indexOf(selectVersion) > -1) {
+              newState.showImageVersionCheckbox = true
+              newState.selectProjectImageVersionExisted = true
+            }
+            this.setState(newState)
+          }
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: () => {},
+        isAsync: true,
+      }
+    }, false)
   }
   handleChangePublishRadio = (e) => {
     const radioVal = e.target.value
@@ -481,6 +536,7 @@ class PublishModal extends React.Component {
     })
   }
   onClusterChange = (value) => {
+    const notify = new NotificationHandler()
     const { radioVal } = this.state
     const { form } = this.props
     form.setFieldsValue({
@@ -555,6 +611,9 @@ class PublishModal extends React.Component {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 },
     };
+    const noLabelFormItemLayout = {
+      wrapperCol: { span: 18, offset: 4 },
+    };
     const { formatMessage } = this.props.intl
     const nameProps = getFieldProps('imageName', {
       rules: [
@@ -578,7 +637,6 @@ class PublishModal extends React.Component {
           validator: this.checkTags,
         }
       ],
-      onChange: tag => this.getConfigInfo(tag)
     })
     const classifyProps = getFieldProps('classifyName', {
       rules: [
@@ -626,6 +684,11 @@ class PublishModal extends React.Component {
         }
       ],
       onChange: (val) => this.handleSelectcheckTargetStore(val)
+    })
+    const selectProjectImageVersionExistedProps = getFieldProps('selectProjectImageVersionExisted', {
+      onChange: val => {
+        console.log('val', val)
+      }
     })
     const targetCluster = getFieldProps('targetCluster', {
       rules: [
@@ -896,6 +959,17 @@ class PublishModal extends React.Component {
               >
                 <Input type="textarea" {...commitMsg} placeholder={formatMessage(publishModalIntl.submitInfoPlaceholder)}/>
               </FormItem>
+
+              {
+                this.state.showImageVersionCheckbox &&
+                <FormItem
+                  {...noLabelFormItemLayout}
+                >
+                  <Checkbox {...selectProjectImageVersionExistedProps}>
+                  目标仓库组已有镜像 image:v1，覆盖原镜像版本
+                  </Checkbox>
+                </FormItem>
+              }
             </Form>
           }
         </Modal>
@@ -959,7 +1033,7 @@ class SuccessModal extends React.Component {
         <div className="successColor successText">{formatMessage(publishModalIntl.submitSuccessText)}</div>
         <div className="successColor waitText">{formatMessage(publishModalIntl.waitingAdminCheck)}</div>
         <div className="stepHint">
-          {formatMessage(publishModalIntl.afterSubmit)}
+          1.{formatMessage(publishModalIntl.afterSubmit)}
           <span onClick={this.confirmModal} className="themeColor pointer">{formatMessage(publishModalIntl.publishRecord)}</span>
           {formatMessage(publishModalIntl.checkAuditStatus)}
         </div>
@@ -1011,6 +1085,7 @@ export default connect(mapStateToProps, {
   getImageStatus,
   imageNameExists,
   loadRepositoriesTagConfigInfo,
+  loadRepositoriesTags,
   loadProjectList,
   loadClusterList,
 })(PublishModal)
