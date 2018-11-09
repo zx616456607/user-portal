@@ -1,0 +1,122 @@
+@import '~assets/style/site/core';
+
+.systemNoticeContainer {
+  padding-left: 24px;
+  padding-right: 24px;
+  .queryRow {
+    height: 50px;
+    .pageBox {
+      float: right;
+      height: 32px;
+      margin-right: 8px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 32px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 2px;
+      }
+    }
+
+    .rightBox {
+      position: relative;
+      float: left;
+      .littleLeft {
+        z-index: 10;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 15px;
+        color: #949494;
+        cursor: pointer;
+      }
+      .littleRight {
+        float: left;
+      }
+    }
+    .btnStyle {
+      float: left;
+      margin-right: 20px;
+    }
+  }
+  .systemNoticeWrapper {
+    .ant-table {
+      font-size: 12px;
+      width: 100%;
+      border: 1px solid #e9e9e9;
+      border-radius: 0;
+      border-bottom: none;
+    }
+    .noticeItem.user {
+      .author {
+        padding-right: 50px;
+      }
+      .createTime {
+        padding-right: 50px;
+      }
+    }
+    .noticeItem {
+      cursor: pointer;
+      .common {
+        .line1, .line2 {
+          height: 30px;
+          line-height: 30px;
+        }
+        .line1 {
+          .noticeName {
+            font-size: 14px;
+            padding-left: 20px;
+          }
+          .createTime {
+            text-align: right;
+            padding-right: 20px;
+          }
+        }
+        .line2 {
+          .content {
+            padding-left: 20px;
+          }
+          .author {
+            text-align: right;
+            padding-right: 20px;
+          }
+        }
+      }
+    }
+    .user {
+      .right {
+        line-height: 60px;
+        text-align: center;
+      }
+    }
+    .notUser.noticeItem {
+      .common {
+        float: left;
+        width: 85%;
+      }
+      .noticeControl {
+        cursor: pointer;
+        padding-top: 20px;
+        padding-left: 10px;
+        float: right;
+        width: 15%;
+        .controlIcon {
+          float: left;
+          margin-top: 3px;
+          color: @primary-color;
+          margin-right: 10px;
+        }
+        .left {
+          float: left;
+        }
+        .right {
+          float: right;
+          padding-right: 30px;
+        }
+      }
+    }
+  }
+}
