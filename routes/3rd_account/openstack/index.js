@@ -3,6 +3,7 @@ const imageController = require('../../../3rd_account/openstack/image')
 const networkController = require('../../../3rd_account/openstack/network')
 const volumeController = require('../../../3rd_account/openstack/volume')
 const middlewares = require('../../../services/middlewares')
+const redirect = require('../../../3rd_account/openstack/redirect')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -13,6 +14,7 @@ module.exports = function (Router) {
     yield next
   })
   router.use(middlewares.auth)
+  router.get("/", redirect.redirect)
   router.get('/servers', vmController.getServerList)
   router.post('/servers', vmController.createServer)
   router.get('/servers/:ID', vmController.getServerByID)

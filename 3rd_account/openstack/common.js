@@ -101,7 +101,7 @@ exports.getTokenWithProject = function* (username, password, projectName) {
 
 exports.getTokenWithoutProject = function* (username, password) {
   if(!username) username = openstackConfig.username
-  if(!password) password = openstackConfig.vmPassword
+  if(!password) password = openstackConfig.password
   const requestBody = {
     auth: {
       identity: {
@@ -110,17 +110,17 @@ exports.getTokenWithoutProject = function* (username, password) {
         ],
         password: {
           user: {
-            name: body.username,
+            name: username,
             domain: {
               name: "Default"
             },
-            password: body.password
+            password: password
           }
         }
       }
     }
   }
-  const tokenUrl = authBaseUrl() + '/auth/tokens'
+  const tokenUrl = authBaseUrl + '/auth/tokens'
   const result = yield request(tokenUrl, {
     data: requestBody,
     needHeaders: true,
