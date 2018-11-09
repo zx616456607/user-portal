@@ -1,4 +1,13 @@
 
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ *
+ *
+ * v0.1 - 2018-11-09
+ * @author YangYuBiao
+ */
+
 const openstackConfig = require('../../configs/3rd_account/openstack')
 const common = require('./common')
 

@@ -137,15 +137,7 @@ class Integration extends Component {
       createIntegrationModal: false
     });
   }
-  redirectOpenstack() {
-    let form = document.createElement("form")
-    form.method="get"
-    form.action="/api/v2/openstack"
-    form.target="_blank"
-    document.body.appendChild(form)
-    form.submit()
-    document.body.removeChild(form)
-  }
+
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -286,10 +278,7 @@ class Integration extends Component {
                           <div className='appInfo'>
                             <p>
                               OpenStack 集成
-                                <Button className='unintsallBtn' onClick={this.redirectOpenstack} key='unintsallBtn' size='large' type='primary'
-                                style={{ width: '102px' }}>
-                                <FormattedMessage {...menusText.showAppDetail} />
-                              </Button>
+                                <a href="/api/v2/openstack" target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}> <FormattedMessage {...menusText.showAppDetail} /> </a>
                             </p>
                           </div>
                           <div className="infoMessage">
