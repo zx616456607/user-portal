@@ -89,6 +89,7 @@ class SystemNoticeDetail extends React.Component {
                 this.returnBack()
               }
             },
+            isAsync: true,
           },
           failed: {
             func: () => {
@@ -101,6 +102,7 @@ class SystemNoticeDetail extends React.Component {
                 btnLoading: false,
               })
             },
+            isAsync: true,
           },
         })
       })
