@@ -1,7 +1,21 @@
-@import "../../../../assets/style/site/core.less";
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * ContainerSecurityPolicy.less page
+ *
+ * @author zhangtao
+ * @date Thursday November 8th 2018
+ */
+@import "../../../assets/style/site/core.less";
 .containerSecurityPolicy {
+  margin-bottom: @padding-medium;
   .content {
-    padding: @padding-medium;
+    img {
+      margin-top: 30px;
+      width: 66px;
+      margin-left: 30px;
+    }
   }
   .ant-table-thead > tr:first-child > th {
     // background-color: white;
@@ -24,6 +38,13 @@
         color:  @error-color;
         border-color: @error-color;
       }
+    }
+  }
+  .annotation {
+    color: @primary-color;
+    cursor:pointer;
+    &:hover {
+      color:  @primary-color-hover;
     }
   }
 }

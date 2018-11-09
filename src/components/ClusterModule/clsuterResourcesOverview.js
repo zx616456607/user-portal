@@ -14,6 +14,7 @@ import ClusterInfo from './ClusterInfo'
 import NetworkConfiguration from './NetworkConfiguration'
 import ResourcesOverview from './ResourcesOverview'
 import ImageService from './ImageService'
+import ContainerSecurityPolicy from './ContainerSecurityPolicy'
 
 class ClusterResourcesOverview extends Component{
   constructor(props){
@@ -46,6 +47,7 @@ class ClusterResourcesOverview extends Component{
     return <div id="cluster__resourcesoverview">
       <ClusterInfo cluster={cluster}/>
       <ResourcesOverview clusterSummary={clusterSummary} cluster={cluster} />
+      <ContainerSecurityPolicy cluster={cluster}/>
       <ImageService cluster={cluster}/>
       {
         !this.state.refreshNetworkConfig &&

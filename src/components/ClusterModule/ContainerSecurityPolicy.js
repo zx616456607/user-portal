@@ -1,0 +1,143 @@
+/*
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2018 TenxCloud. All Rights Reserved.
+ * ----
+ * ContainerSecurityPolicy.js page
+ *
+ * @author zhangtao
+ * @date Tuesday November 6th 2018
+ */
+import * as React from 'react'
+import { Table, Modal,  Row, Col, Button, Card, Popover, notification } from 'antd'
+import './style/ContainerSecurityPolicy.less'
+import {toQuerystring} from '../../../src/common/tools'
+import { browserHistory } from 'react-router'
+import shieldsrc from '../../../static/img/container/shield.png'
+import * as PSP from '../../actions/container_security_policy'
+import { connect } from 'react-redux'
+
+const getColumns = (self) =>  {
+  const columns = [{
+    title: '策略名称',
+    dataIndex: 'policy',
+    key: 'policy',
+    width: 300
+  }, {
+    title: '注释',
+    dataIndex: 'annotation',
+    key: 'annotation',
+    width: 300,
+    render: (annotation = []) => {
+      if (annotation.length === 0) return <span>-</span>
+      return  <Popover
+        content={
+          <div>
+            {
+              Object.entries(annotation)
+              .map(([key, value]) => <div>{`${key}:${value}`}</div>)
+            }
+          </div>
+        }>
+      <span className="annotation">查看注释</span>
+    </Popover>
+    }
+  }, {
+    title: '操作',
+    dataIndex: 'operation',
+    key: 'operation',
+    width: 300,
+    render: (_, record) => {
+      const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy })
+      return (
+        <div className="buttons">
+        <Button type="primary" onClick={() => browserHistory.push(`/app-stack/createWorkLoad/?${query}`)}>
+          查看/编辑Yaml
+        </Button>
+        <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>
+        </div>
+      )
+    }
+  }];
+  return columns
+}
+
+class ContainerSecurityPolicy extends React.Component {
+  state={
+    showDelete: false,
+    dataList: undefined,
+    willDeleteName: undefined,
+    loading: false,
+  }
+  async componentDidMount() {
+    await this.reload()
+  }
+  reload = async () => {
+    const res = await this.props.listPSP(this.props.cluster.clusterID, )
+    const { result: { data = [] } = {} } = res.response
+    const dataList = data.map(({ metadata: { name, annotations } = {} }) =>
+     ({ policy: name, annotation: annotations }))
+    this.setState({ dataList })
+  }
+  delete = async () => {
+    if (this.state.willDeleteName !== undefined) {
+      this.setState({ loading: true })
+      await this.props.deletePSP(this.props.cluster.clusterID, this.state.willDeleteName)
+    }
+    notification.success({ message: '删除成功'})
+    this.setState({ loading: false, showDelete: false })
+    this.reload()
+  }
+  showDelete = (name) => {
+    this.setState({ showDelete: true, willDeleteName: name})
+  }
+  render() {
+    const self = this
+    return(
+      <div className="containerSecurityPolicy">
+      <Card>
+        <div className='title'>容器安全策略</div>
+        <div className="content">
+        <Row>
+          <Col span={4}>
+            <img src={shieldsrc}/>
+          </Col>
+          <Col span={20}>
+            <Button icon="plus" type="primary"
+            onClick={ () => browserHistory.push(`/app-stack/createWorkLoad/?type=PodSecurityPolicy`) }
+            >
+              添加 PSP 策略
+            </Button>
+            <Table className="Table"
+              columns={getColumns(self)}
+              dataSource={this.state.dataList}
+              pagination={false}
+              loading={this.state.dataList === undefined}
+              />
+        </Col>
+        </Row>
+        <Modal title="确认删除"
+          visible={this.state.showDelete}
+          onOk={this.delete}
+          confirmLoading={this.state.loading}
+          onCancel={() => { this.setState({ showDelete: false }) }}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" style={{ marginRight: '8px' }}/>
+            确认要删除这一条PSP?
+          </div>
+        </Modal>
+        </div>
+      </Card>
+      </div>
+    )
+  }
+}
+
+function mapStateToProps() {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  listPSP: PSP.listPSP,
+  deletePSP: PSP.deletePSP
+})(ContainerSecurityPolicy)

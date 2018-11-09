@@ -1893,7 +1893,7 @@ class ProjectDetail extends Component {
               </TabPane>
               <TabPane tab="容器安全策略" key="containerSecurityPolicy">
                 {
-                  projectDetail.projectName && <ContainerSecurityPolicy/>
+                  projectDetail.projectName && <ContainerSecurityPolicy projectDetail={projectDetail}/>
                 }
               </TabPane>
             </Tabs>
