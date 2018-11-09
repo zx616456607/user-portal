@@ -17,6 +17,7 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
+import { getNodesIngresses } from '../../../actions/cluster_node'
 import { getLBIPList, createLB, editLB, checkLbPermission } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
@@ -54,10 +55,11 @@ class LoadBalanceModal extends React.Component {
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form, getPodNetworkSegment,
+    const { clusterID, getLBIPList, getNodesIngresses, currentBalance, form, getPodNetworkSegment,
       checkLbPermission,
     } = this.props
-    getLBIPList(clusterID)
+    // getLBIPList(clusterID)
+    getNodesIngresses(clusterID)
     checkLbPermission()
     getPodNetworkSegment(clusterID, {
       success: {
@@ -613,8 +615,8 @@ LoadBalanceModal = Form.create()(LoadBalanceModal)
 const mapStateToProps = state => {
   const { entities, loadBalance } = state
   const { clusterID } = entities.current.cluster
-  const { loadBalanceIPList } = loadBalance
-  const { data } = loadBalanceIPList || { data: [] }
+  // const { loadBalanceIPList } = loadBalance
+  // const { data } = loadBalanceIPList || { data: [] }
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   return {
     clusterID,
@@ -625,6 +627,7 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   getLBIPList,
+  getNodesIngresses,
   createLB,
   editLB,
   getPodNetworkSegment,

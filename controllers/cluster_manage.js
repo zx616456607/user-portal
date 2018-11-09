@@ -162,6 +162,17 @@ exports.getNodes = function* () {
   }
 }
 
+exports.getNodesIngresses = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'nodes', 'ingresses']);
+  this.body = {
+    cluster,
+    data: result.data,
+  }
+}
+
 exports.getAddClusterCMD = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)

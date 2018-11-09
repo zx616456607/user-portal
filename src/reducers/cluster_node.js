@@ -295,6 +295,11 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
       SUCCESS: ActionTypes.CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS,
       FAILURE: ActionTypes.CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE
     }, state.changeClusterNodeSchedule, action),
+    clusterIngresses: reducerFactory({
+      REQUEST: ActionTypes.GET_NODES_INGRESSES_REQUEST,
+      SUCCESS: ActionTypes.GET_NODES_INGRESSES_SUCCESS,
+      FAILURE: ActionTypes.GET_NODES_INGRESSES_FAILURE
+    }, state.clusterIngresses, action),
     deleteClusterNode: reducerFactory({
       REQUEST: ActionTypes.DELETE_CLUSTER_NODE_REQUEST,
       SUCCESS: ActionTypes.DELETE_CLUSTER_NODE_SUCCESS,
