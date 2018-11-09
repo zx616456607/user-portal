@@ -63,6 +63,7 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const ipPoolController = require('../controllers/ipPool')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -974,6 +975,12 @@ module.exports = function (Router) {
   router.get('/appcenters', middlewareCenter.getApps)
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
+
+  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
+  router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
+  router.delete('/clusters/:cluster/pool',ipPoolController.deleteIPPool)
+  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolExist)
+  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolInUse)
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()
