@@ -13,7 +13,6 @@ exports.redirect = common.wrapHandler(function*() {
     window.onload = function() {
       let form = document.createElement("form")
       form.method="post"
-      form.enctype="application/json"
       form.action="${openstackConfig.webssoURL}"
       let input = document.createElement("input")
       input.type="hidden"

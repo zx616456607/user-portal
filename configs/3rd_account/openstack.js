@@ -3,12 +3,12 @@ const env = process.env
 
 module.exports = {
   username: env.OPENSTACK_USER || "admin",
-  password: env.OPENSTACK_PASSWORD || "Admin@ES20!8",
+  password: env.OPENSTACK_PASSWORD || "teamsun",
   project: env.OPENSTACK_PROJECT || "admin",
-  host: env.OPENSTACK_HOST || 'keystone.openstack.svc.cluster.local',
+  host: env.OPENSTACK_HOST || '192.168.2.22',
   vmPort: env.OPENSTACK_VM_PROT || '8774',
   protocol: env.OPENSTACK_PROTOCOL || 'http',
-  authPort: env.OPENSTACK_AUTH_PORT || '80',
+  authPort: env.OPENSTACK_AUTH_PORT || '5000',
   metersPort: env.OPENSTACK_METERS_PORT || '8777',
   imagePort: env.OPENSTACK_IMAGE_PORT || '9292',
   networkPort: env.OPENSTACK_NETWORK_PORT || '9696',
