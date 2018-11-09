@@ -151,6 +151,7 @@ module.exports = function (Router) {
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/:cluster/nodes/ingresses', clusterController.getNodesIngresses)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
   router.get('/clusters/:cluster/proxies', clusterController.getProxy)
   router.put('/clusters/:cluster/proxies', clusterController.updateProxies)

@@ -357,6 +357,8 @@ export default connect(mapStateToProps, {
     const domainName = currData ? currData.domainName : ''
     const name = currData ? currData.name : ''
     const password = currData ? currData.password : ''
+    const projectDomainName = currData ? currData.projectDomainName : ''
+    const projectName = currData ? currData.projectName : ''
     let label
     if (currentIcon === 'vmware') {
       label = 'vSphere地址'
@@ -471,17 +473,17 @@ export default connect(mapStateToProps, {
                       <Row key="row22">
                         <FormItem
                           {...formItemLargeLayout}
-                          label="域名"
+                          label="用户域"
                         >
                           <Input {...getFieldProps('domainName', { initialValue: domainName,
                             validate: [{
                               rules: [
-                                { required: true, message: '请输入域名' },
+                                { required: true, message: '请输入用户域' },
                               ],
                               trigger: [ 'onBlur', 'onChange' ],
                             }],
                           }
-                          )} placeholder="请输入域名" />
+                          )} placeholder="请输入用户域" />
                         </FormItem>
                       </Row>
                       :
@@ -527,6 +529,38 @@ export default connect(mapStateToProps, {
                           :
                           <Icon className="iconEye" type="eye" onClick={this.changePasswordType} />
                       }
+                    </FormItem>
+                  </Row>
+                  <Row key="row6">
+                    <FormItem
+                      {...formItemLargeLayout}
+                      label="项目域"
+                    >
+                      <Input {...getFieldProps('projectName', { initialValue: projectName,
+                        validate: [{
+                          rules: [
+                            { required: true, message: '请输入项目域' },
+                          ],
+                          trigger: [ 'onBlur', 'onChange' ],
+                        }],
+                      }
+                      )} placeholder="请输入项目域" />
+                    </FormItem>
+                  </Row>
+                  <Row key="row7">
+                    <FormItem
+                      {...formItemLargeLayout}
+                      label="项目名"
+                    >
+                      <Input {...getFieldProps('projectDomainName', { initialValue: projectDomainName,
+                        validate: [{
+                          rules: [
+                            { required: true, message: '请输入项目名' },
+                          ],
+                          trigger: [ 'onBlur', 'onChange' ],
+                        }],
+                      }
+                      )} placeholder="请输入项目名" />
                     </FormItem>
                   </Row>
                 </div>
