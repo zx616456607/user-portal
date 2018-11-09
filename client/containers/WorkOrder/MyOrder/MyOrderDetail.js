@@ -24,6 +24,7 @@ import opts from '../classify'
 
 const notify = new NotificationHandler()
 let i = 0
+let timer
 
 class MyOrderDetail extends React.Component {
   state = {
@@ -43,9 +44,12 @@ class MyOrderDetail extends React.Component {
     }
     window.onresize = func
     func()
-    setInterval(() => {
+    timer = setInterval(() => {
       this.loadMessages()
     }, 30 * 1000)
+  }
+  componentWillUnMount = () => {
+    timer && clearInterval(timer)
   }
   scrollBottom = () => {
     setTimeout(() => {
@@ -108,7 +112,10 @@ class MyOrderDetail extends React.Component {
     })
   }
   returnBack = () => {
-    browserHistory.goBack(-1)
+    browserHistory.push({
+      pathname: '/work-order/my-order',
+    })
+    // browserHistory.goBack(-1)
   }
   getClassify = key => {
     return filter(opts, { key })[0].name || '-'
@@ -149,6 +156,7 @@ class MyOrderDetail extends React.Component {
                 msgLoading: false,
               }
               this.setState(temp)
+              this.loadMessages()
             }
           },
           isAsync: true,
@@ -161,6 +169,7 @@ class MyOrderDetail extends React.Component {
 
             tempArr.push(tempId)
             temp.wrongMsgs = tempArr
+            temp.msgLoading = false
             this.setState(temp)
           },
           isAsync: true,

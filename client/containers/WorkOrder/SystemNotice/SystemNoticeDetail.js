@@ -54,7 +54,10 @@ class SystemNoticeDetail extends React.Component {
     })
   }
   returnBack = () => {
-    browserHistory.goBack(-1)
+    browserHistory.push({
+      pathname: '/work-order/system-notice',
+    })
+    // browserHistory.goBack(-1)
   }
   onClick = () => {
     this.setState({

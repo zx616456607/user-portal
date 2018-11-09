@@ -99,7 +99,11 @@ class MyOrder extends React.Component {
         <Col span={21} className="right">
           <Row>
             <Col span={10}>回复人: {record.replierName || '-'}</Col>
-            <Col span={10}>工单名称: {record.workorderName}</Col>
+            <Col span={10}>
+              <Ellipsis tooltip={false} lines={1}>
+                工单名称: {record.workorderName}
+              </Ellipsis>
+            </Col>
             <Col span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
           </Row>
           <Row className="line2">
