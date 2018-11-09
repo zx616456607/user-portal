@@ -35,7 +35,6 @@ import Title from '../../Title'
 import QueueAnim from 'rc-queue-anim'
 import { Link } from 'react-router'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import ContainerSecurityPolicy from './ContainerSecurityPolicy'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -2257,9 +2256,6 @@ class GlobalConfig extends Component {
         {
           id: 'continue',
           name: '持续集成',
-        },{
-          id: 'containerSecurityPolicy',
-          name: '容器安全策略',
         }
       ],
       currentMenu: 'GlobalConfigEmail'
@@ -2455,7 +2451,6 @@ class GlobalConfig extends Component {
             {/*<StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />*/}
             <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
             <Continue />
-            <ContainerSecurityPolicy/>
           </div>
         </QueueAnim>
 
