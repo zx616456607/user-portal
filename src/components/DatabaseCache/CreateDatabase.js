@@ -495,7 +495,7 @@ let CreateDatabase = React.createClass({
   defaultStorage() {
     const { storageClassList } = this.props
     const { cephList } = storageClassList
-    let defaultStorage = cephList[0].metadata.name
+    let defaultStorage = cephList.length > 0 ? cephList[0].metadata.name : ''
     cephList.map(item => {
       if(item.metadata.labels["system/storageDefault"] && item.metadata.labels["system/storageDefault"] === "true"){
         defaultStorage = item.metadata.name
