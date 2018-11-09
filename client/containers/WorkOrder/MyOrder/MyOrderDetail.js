@@ -14,14 +14,17 @@ import { browserHistory } from 'react-router'
 import { formatDate } from '../../../../src/common/tools';
 import { Card, Icon, Button, Spin, Row, Col, Input } from 'antd'
 import * as workOrderActions from '../../../actions/work_order'
+import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import filter from 'lodash/filter'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/MyOrderDetail.less'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 import NotificationHandler from '../../../../src/components/Notification'
 import opts from '../classify'
 
 const notify = new NotificationHandler()
 let i = 0
+let timer
 
 class MyOrderDetail extends React.Component {
   state = {
@@ -41,6 +44,12 @@ class MyOrderDetail extends React.Component {
     }
     window.onresize = func
     func()
+    timer = setInterval(() => {
+      this.loadMessages()
+    }, 30 * 1000)
+  }
+  componentWillUnMount = () => {
+    timer && clearInterval(timer)
   }
   scrollBottom = () => {
     setTimeout(() => {
@@ -51,7 +60,7 @@ class MyOrderDetail extends React.Component {
     this.setState({
       loading: true,
     }, async () => {
-      const { getMyOrderDetails, getMyOrderMessages } = this.props
+      const { getMyOrderDetails } = this.props
       const { id } = this.state
       const query = { id }
       await getMyOrderDetails(query, {
@@ -66,19 +75,25 @@ class MyOrderDetail extends React.Component {
           isAsync: true,
         },
       })
-      await getMyOrderMessages(query, {
-        success: {
-          func: res => {
-            if (res.statusCode === 200) {
-              this.setState({
-                messages: res.data.items.reverse(),
-              }, this.scrollBottom)
-            }
-          },
-          isAsync: true,
-        },
-      })
+      await this.loadMessages()
       this.setState({ loading: false })
+    })
+  }
+  loadMessages = async () => {
+    const { getMyOrderMessages } = this.props
+    const { id } = this.state
+    const query = { id }
+    await getMyOrderMessages(query, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200) {
+            this.setState({
+              messages: res.data.items.reverse(),
+            }, this.scrollBottom)
+          }
+        },
+        isAsync: true,
+      },
     })
   }
   onResoveClick = status => {
@@ -97,7 +112,10 @@ class MyOrderDetail extends React.Component {
     })
   }
   returnBack = () => {
-    browserHistory.goBack(-1)
+    browserHistory.push({
+      pathname: '/work-order/my-order',
+    })
+    // browserHistory.goBack(-1)
   }
   getClassify = key => {
     return filter(opts, { key })[0].name || '-'
@@ -124,6 +142,7 @@ class MyOrderDetail extends React.Component {
     this.setState({
       msgLoading: true,
       messages: tempMessages,
+      relpayValue: '',
     }, () => {
       this.scrollBottom()
       addMyOrderMessages(id, {
@@ -134,10 +153,10 @@ class MyOrderDetail extends React.Component {
           func: res => {
             if (res.statusCode === 200) {
               const temp = {
-                relpayValue: '',
                 msgLoading: false,
               }
               this.setState(temp)
+              this.loadMessages()
             }
           },
           isAsync: true,
@@ -150,6 +169,7 @@ class MyOrderDetail extends React.Component {
 
             tempArr.push(tempId)
             temp.wrongMsgs = tempArr
+            temp.msgLoading = false
             this.setState(temp)
           },
           isAsync: true,
@@ -163,7 +183,7 @@ class MyOrderDetail extends React.Component {
     const currTime = new Date(curr.createTime)
     return currTime.getTime() - preTime.getTime() > 60 * 1000
   }
-  getMessages = () => {
+  renderMessages = () => {
     const { user } = this.props
     const userName = user.userName
     const { messages, msgLoading, wrongMsgs } = this.state
@@ -184,6 +204,7 @@ class MyOrderDetail extends React.Component {
             <div style={{ clear: 'both' }}></div>
           </Col>
           <Col span={22} className="msgContents">
+            <div className="messageContent">{item.contents}</div>
             {
               index === length - 1 && msgLoading ?
                 <Icon type="loading" />
@@ -196,7 +217,6 @@ class MyOrderDetail extends React.Component {
                 :
                 null
             }
-            <div className="messageContent">{item.contents}</div>
           </Col>
         </Row>
         <div style={{ clear: 'both' }}></div>
@@ -207,21 +227,26 @@ class MyOrderDetail extends React.Component {
   }
   render() {
     const { loading, details, messages, relpayValue } = this.state
+    const { user } = this.props
+    const isAdmin = user.role === ROLE_SYS_ADMIN ||
+      user.role === ROLE_PLATFORM_ADMIN ||
+      user.role === ROLE_BASE_ADMIN
+    const isAuthor = user.userName === details.creatorName
     const returnEle = <div className="title">
       <div className="box2"></div>
-      <Button type="ghost" size="large" onClick={this.returnBack}><Icon type="left" /> 返回工单列表</Button>
+      <Button type="ghost" size="large" onClick={this.returnBack}><Icon type="left" /> 返回</Button>
       <div className="statusBox">
-        {
+        {details && JSON.stringify(details) !== '{}' && <div>{
           details.status === 0 ?
-            <div>
+            !isAdmin && isAuthor && <div>
               <Button type="ghost" size="large" onClick={() => this.onResoveClick(1)}>标记解决</Button>
             </div>
             :
             <div>
               <span className="resoved">已解决</span>
-              <Button type="ghost" size="large" onClick={() => this.onResoveClick(0)}>重新打开</Button>
+              {!isAdmin && isAuthor && <Button type="ghost" size="large" onClick={() => this.onResoveClick(0)}>重新打开</Button>}
             </div>
-        }
+        }</div>}
       </div>
     </div>
 
@@ -235,7 +260,7 @@ class MyOrderDetail extends React.Component {
                 <div className="orderContainer">
                   <Row>
                     <Col span={3}>创建者: {details.creatorName}</Col>
-                    <Col span={3}>问题类型: {this.getClassify(details.classifyID)}</Col>
+                    <Col span={3}>工单类型: {this.getClassify(details.classifyID)}</Col>
                     <Col span={5}>工单 ID: {details.id}</Col>
                     <Col span={5}>创建时间: {formatDate(details.createTime)}</Col>
                   </Row>
@@ -257,7 +282,7 @@ class MyOrderDetail extends React.Component {
             {
               messages.length > 0 ?
                 <div className="messageContainer">
-                  {this.getMessages()}
+                  {this.renderMessages()}
                 </div>
                 :
                 <div className="messageContainer noMessages">暂无回复</div>
@@ -269,7 +294,9 @@ class MyOrderDetail extends React.Component {
                   <Input disabled={details.status === 1} rows={1} type="textarea" value={relpayValue} onChange={this.onReplayInputChange} />
                 </Col>
                 <Col className="replay" span={2}>
-                  <div onClick={this.onSendMessage}>点我发送</div>
+                  <div onClick={this.onSendMessage}>
+                    <TenxIcon className="send-icon" type="send-colors" />
+                  </div>
                 </Col>
               </Row>
             </div>

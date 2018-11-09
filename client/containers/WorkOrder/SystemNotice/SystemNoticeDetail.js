@@ -17,6 +17,7 @@ import './style/SystemNoticeDetail.less'
 import RemoveModal from './RemoveModal'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../../src/components/Notification'
+import { formatDate } from '../../../../src/common/tools';
 
 const notify = new NotificationHandler()
 
@@ -53,7 +54,10 @@ class SystemNoticeDetail extends React.Component {
     })
   }
   returnBack = () => {
-    browserHistory.goBack(-1)
+    browserHistory.push({
+      pathname: '/work-order/system-notice',
+    })
+    // browserHistory.goBack(-1)
   }
   onClick = () => {
     this.setState({
@@ -103,7 +107,7 @@ class SystemNoticeDetail extends React.Component {
     })
   }
   render() {
-    const returnEle = <Button type="ghost" size="large" onClick={this.returnBack}><Icon type="left" /> 返回公告列表</Button>
+    const returnEle = <Button type="ghost" size="large" onClick={this.returnBack}><Icon type="left" /> 返回</Button>
     const { id, detail, isShowModal, btnLoading } = this.state
     const { form, user } = this.props
     const { getFieldProps } = form
@@ -154,17 +158,17 @@ class SystemNoticeDetail extends React.Component {
                     <div className="line1">
                       <div className="left">发布者: {detail.creatorName}</div>
                       <div className="left">公告 ID: {detail.id}</div>
-                      <div className="left">创建时间: {detail.createTime}</div>
+                      <div className="left">创建时间: {formatDate(detail.createTime)}</div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
-                    <Card className="notice">
+                    <div className="notice">
                       <Row className="title">
                         {detail.announcementName}
                       </Row>
                       <Row className="content">
                         {detail.contents}
                       </Row>
-                    </Card>
+                    </div>
                     {
                       isAdmin && <div className="removeBtn">
                         <Button size="large" type="primary" onClick={this.onClick}>撤销并删除</Button>
