@@ -89,7 +89,7 @@ class ContainerSecurityPolicy extends React.Component {
   }
   listPSP = async () => {
     const { namespace } = this.props.projectDetail
-    if (this.state.currentValue === undefined) { return console.log('fuck')}
+    if (this.state.currentValue === undefined) { return }
     const res = await this.props.listPSP(this.state.currentValue)
     const resProject = await this.props.listProjectPSPDetail(this.state.currentValue, namespace)
     const { result: { data = [] } = {} } = res.response
@@ -124,7 +124,6 @@ class ContainerSecurityPolicy extends React.Component {
   }
   render() {
     const self = this
-    console.log('dataList', this.state.dataList)
     return (
       <div className="ContainerSecurityPolicyProject">
         <div className='alertRow'>
@@ -216,7 +215,6 @@ class CheckYaml extends React.Component{
   }
   async componentDidMount() {
     const res = await this.props.listPSPDetail(this.props.namespace, this.props.currentPSP)
-    console.log('res', res)
     const { result: { data:yamlJSON = {} } } = res.response
     this.setState({ yaml: yaml.dump(yamlJSON) })
   }
