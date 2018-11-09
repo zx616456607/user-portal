@@ -30,7 +30,7 @@ import ThirdTabs from './ThirdTabs'
 import QueueAni from 'rc-queue-anim'
 import { getProxy, updateProxy, getClusterNodeAddr, setDefaultGroup } from '../../actions/cluster'
 import { changeClusterIPsAndDomains } from '../../actions/entities'
-import { getAllClusterNodes } from '../../actions/cluster_node'
+import { getAllClusterNodes, getNodesIngresses } from '../../actions/cluster_node'
 import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
@@ -44,6 +44,7 @@ import intlMsg from './NetworkConfigurationIntl'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import ServiceMeshPortCard from './ServiceMeshPortCard'
 import HelpModal from './NetworkSolutions/HelpModal'
+import { getDeepValue } from "../../../client/util/util"
 import NoteIcon from './NoteIcon'
 
 const Option = Select.Option
@@ -90,7 +91,8 @@ let NetworkConfiguration = React.createClass ({
   },
   loadData(needFetching) {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
-    const { getProxy, cluster } = this.props
+    const { getProxy, cluster, getNodesIngresses } = this.props
+    getNodesIngresses(cluster.clusterID)
     getProxy(this.props.cluster.clusterID, needFetching == undefined ? true : needFetching, {
       success: {
         func:(res) => {
@@ -143,30 +145,19 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   getSelectItem() {
-    const { nodeList, cluster } = this.props
-    const clusterID = cluster.clusterID
-    if(!nodeList) {
+    const { nodeList, isFetching, cluster } = this.props
+    if(!nodeList.length) {
       return <Option key="none"/>
     }
-    if(nodeList[clusterID].isFetching) {
+    if(isFetching) {
       return <Card key="Network" id="Network" className='header'>
         <div className="h3"><FormattedMessage {...intlMsg.networkConfig}/></div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>
     }
-    let nodes = []
-    if(nodeList[clusterID].nodes && nodeList[clusterID].nodes.clusters && nodeList[clusterID].nodes.clusters.nodes && nodeList[clusterID].nodes.clusters.nodes.nodes){
-      nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
-    }
+    let nodes = nodeList
     return nodes.map(node => {
-      let isDisabled = false;
-      let key = node.objectMeta.labels['ingress-lb'];
-      const { maintenance } = node.objectMeta.annotations;
-      // Disable the node if it's ingress-controller, or it's under maintenance/maintenance-failure
-      if (key && key === 'true' || (maintenance === 'true' || maintenance === 'failed')) {
-        isDisabled = true;
-      }
-      return <Option key={node.objectMeta.name} disabled={isDisabled} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
+      return <Option key={node.metadata.name} disabled={node.unavailableReason}>{node.metadata.name}</Option>
     })
   },
   isExistRepeat(type, config, key) {
@@ -828,8 +819,9 @@ let NetworkConfiguration = React.createClass ({
     console.log(key)
   },
   renderIstioGateway() {
+    const { nodeList } = this.props
     return(
-      <ServiceMeshPortCard key="ServiceMeshPortCard" cluster={this.props.cluster}/>
+      <ServiceMeshPortCard key="ServiceMeshPortCard" nodeList={nodeList} cluster={this.props.cluster}/>
     )
   },
   _networkConfigArray(networkConfigArray, data ,isAdd) {
@@ -1259,18 +1251,22 @@ let NetworkConfiguration = React.createClass ({
 })
 
 function mapStateToProps(state, props) {
-  const defaultNodeList = {isFetching: false, isEmptyObject: true}
+  const { cluster_nodes } = state
+  // const defaultNodeList = {isFetching: false, isEmptyObject: true}
   const defaultProxy = {isFetching: false, isEmptyObject: true}
-  let allNode = state.cluster_nodes.getAllClusterNodes
-  if(!allNode) {
-    allNode = defaultNodeList
-  }
+  // let allNode = state.cluster_nodes.getAllClusterNodes
+  const isFetching = getDeepValue(cluster_nodes, ['clusterIngresses', 'isFetching']) || false
+  const nodeList = getDeepValue(cluster_nodes, ['clusterIngresses', 'result', 'data']) || []
+  // if(!allNode) {
+  //   allNode = defaultNodeList
+  // }
   let clusterProxy = state.cluster.proxy
   if(!clusterProxy) {
     clusterProxy = defaultProxy
   }
   return {
-    nodeList: allNode,
+    nodeList,
+    isFetching,
     clusterProxy
   }
 }
@@ -1280,6 +1276,7 @@ export default connect(mapStateToProps, {
   updateProxy,
   getClusterNodeAddr,
   getAllClusterNodes,
+  getNodesIngresses,
   changeClusterIPsAndDomains,
   setDefaultGroup
 })(Form.create()(injectIntl(NetworkConfiguration, {

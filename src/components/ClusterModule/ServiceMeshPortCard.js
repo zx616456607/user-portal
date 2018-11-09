@@ -43,6 +43,7 @@ class ServiceMeshPortCard extends React.Component {
     ServiceMeshPortList: [],
     istioFlag: false,
     nodeArray:{},
+    nodes: [],
   }
   async componentDidMount() {
     const {cluster: { clusterID } = {}} = this.props
@@ -66,6 +67,7 @@ class ServiceMeshPortCard extends React.Component {
     try {
       const result = await this.props.getServiceMeshClusterNode(clusterID)
       const { availability: nodeArray = {} } = result.response.result
+      // nodes
       this.setState({ nodeArray })
       } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
   }
@@ -97,7 +99,7 @@ class ServiceMeshPortCard extends React.Component {
               clusterID = {clusterID}
               createServiceMeshPort = {this.props.createServiceMeshPort}
               alreadyUseName={this.state.ServiceMeshPortList.map(({ name }) => name )}
-              nodeArray={this.state.nodeArray}
+              nodeArray={this.props.nodeList}
               formatMessage={this.props.intl.formatMessage}
               />
             <SetDefaultPort visible={this.state.setDefaultPortvisible} self={this}/>
@@ -331,8 +333,8 @@ class FormInner extends React.Component {
           },] })}
          >
             {
-              Object.entries(this.props.nodeArray || {}).map(([key, value]) =>
-              <Option value={key} disabled={!nodeNames.includes(key) && !value} key={key}>{key}</Option>)
+             this.props.nodeArray.map(item =>
+              <Option disabled={item.unavailableReason} key={item.metadata.name}>{item.metadata.name}</Option>)
             }
         </Select>
       </FormItem>
@@ -420,7 +422,7 @@ class AddMeshNetPort extends React.Component {
       disabled={false}
       formItemLayout={AddMeshformItemLayout}
       form={this.props.form}
-      nodeArray = {this.props.nodeArray}
+      nodeArray={this.props.nodeArray}
       alreadyUseName={this.props.alreadyUseName}
       formatMessage={this.props.formatMessage}
       />
