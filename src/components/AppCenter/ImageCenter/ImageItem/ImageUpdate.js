@@ -145,6 +145,7 @@ class ImageUpdate extends Component {
       searchType: 'name',
       searchText: undefined,
       confirmLoading: false,
+      testStoreLinkLoading: false,
     }
   }
 
@@ -726,6 +727,7 @@ class ImageUpdate extends Component {
       if(!!errors){
         return
       }
+      this.setState({ testStoreLinkLoading: true })
       if(values.targetStoreType == "createNewstore"){
         let newStoremInfo = {
           name: values.NewTargetstoreName,
@@ -735,6 +737,7 @@ class ImageUpdate extends Component {
         }
         // 检验新仓库是否可用
         this.validationTargetStore('create', newStoremInfo).then(validateResult => {
+          this.setState({ testStoreLinkLoading: false })
           if(!validateResult){
             this.setState({
               testLink: true,
@@ -758,6 +761,7 @@ class ImageUpdate extends Component {
         }
       }
       this.validationTargetStore('original', targetId).then(validateResult => {
+        this.setState({ testStoreLinkLoading: false })
         if(!validateResult){
           this.setState({
             testLink: true,
@@ -809,9 +813,16 @@ class ImageUpdate extends Component {
     }
     return <div>
       {
-        this.props.form.getFieldValue('targetStoreType') === 'createNewstore' ?
-          <Button  type="primary" className='test' size="large" onClick={this.testStoreLink}>测试仓库连接</Button>
-          : null
+        this.props.form.getFieldValue('targetStoreType') === 'createNewstore' &&
+        <Button
+          type="primary"
+          className="test"
+          size="large"
+          loading={this.state.testStoreLinkLoading}
+          onClick={this.testStoreLink}
+        >
+        测试仓库连接
+        </Button>
       }
       {
         testLink
@@ -1137,11 +1148,11 @@ class ImageUpdate extends Component {
       rulesName: record.name,
       description: record.description,
       targetStoreType: "selectTargetStore",
-      URLAddress: record.targets[0].endpoint,
-      SelectTargetStore: record.targets[0].name,
+      URLAddress: record.targets && record.targets[0].endpoint,
+      SelectTargetStore: record.targets && record.targets[0].name,
       quick: record.replicateExistingImageNow,
       deleteImage: record.replicateDeletion,
-      emitMode: record.trigger.kind,
+      emitMode: record.trigger && record.trigger.kind,
     })
     // 设置镜像过滤
     if (record.filters && record.filters.length > 0) {
@@ -1152,7 +1163,7 @@ class ImageUpdate extends Component {
         })
       })
     }
-    if (record.trigger.kind === 'Scheduled') {
+    if (record.trigger && record.trigger.kind === 'Scheduled') {
       // offtime => HH:mm
       const schedule = record.trigger.scheduleParam
       let newTime = null
@@ -1170,7 +1181,7 @@ class ImageUpdate extends Component {
     }
     if (isReplications) {
       form.setFieldsValue({
-        originPro: record.projects[0].projectId,
+        originPro: record.projects && record.projects[0].projectId,
       })
     }
       /*
@@ -1184,7 +1195,7 @@ class ImageUpdate extends Component {
       edit: true,
       currentRules: {
         rules: rulesData[key],
-        store: record.targets[0],
+        store: record.targets && record.targets[0],
       },
       currentRulesEnabled: true,
       editKey: record.id,

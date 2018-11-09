@@ -17,6 +17,7 @@ import {
 import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import './style/LoadBalanceModal.less'
+import { getNodesIngresses } from '../../../actions/cluster_node'
 import { getLBIPList, createLB, editLB, checkLbPermission } from '../../../actions/load_balance'
 import { getResources } from '../../../../kubernetes/utils'
 import { lbNameCheck } from '../../../common/naming_validation'
@@ -54,10 +55,11 @@ class LoadBalanceModal extends React.Component {
   }
 
   componentDidMount() {
-    const { clusterID, getLBIPList, currentBalance, form, getPodNetworkSegment,
+    const { clusterID, getLBIPList, getNodesIngresses, currentBalance, form, getPodNetworkSegment,
       checkLbPermission,
     } = this.props
     getLBIPList(clusterID)
+    getNodesIngresses(clusterID)
     checkLbPermission()
     getPodNetworkSegment(clusterID, {
       success: {
@@ -379,7 +381,7 @@ class LoadBalanceModal extends React.Component {
             validator: this.nodeCheck
           }
         ],
-        initialValue: currentBalance ? currentBalance.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY] : ''
+        initialValue: currentBalance ? currentBalance.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY] : undefined
       })
     }
 
@@ -444,7 +446,7 @@ class LoadBalanceModal extends React.Component {
     })
     const nodesChild = isEmpty(ips) ? [] :
       ips.filter(item => !item.taints).map(item => {
-        return <Option key={`${item.ip}/${item.name}`}>{item.name}</Option>
+        return <Option disabled={!!item.unavailableReason} key={`${item.ip}/${item.metadata.name}`}>{item.metadata.name}</Option>
     })
     const ipStr = currentBalance && getDeepValue(currentBalance, ['spec', 'template', 'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs'])
     const ipPod = ipStr && JSON.parse(ipStr)[0]
@@ -611,10 +613,11 @@ class LoadBalanceModal extends React.Component {
 LoadBalanceModal = Form.create()(LoadBalanceModal)
 
 const mapStateToProps = state => {
-  const { entities, loadBalance } = state
+  const { entities, loadBalance, cluster_nodes } = state
   const { clusterID } = entities.current.cluster
-  const { loadBalanceIPList } = loadBalance
-  const { data } = loadBalanceIPList || { data: [] }
+  const data = getDeepValue(cluster_nodes, ['clusterIngresses', 'result', 'data']) || []
+  // const { loadBalanceIPList } = loadBalance
+  // const { data } = loadBalanceIPList || { data: [] }
   const loadbalanceConfig = getDeepValue(state, ['loadBalance', 'loadbalancePermission', 'data'])
   return {
     clusterID,
@@ -625,6 +628,7 @@ const mapStateToProps = state => {
 
 export default connect(mapStateToProps, {
   getLBIPList,
+  getNodesIngresses,
   createLB,
   editLB,
   getPodNetworkSegment,

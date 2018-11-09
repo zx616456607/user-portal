@@ -25,9 +25,9 @@ const config = {
   session_secret: ['tenxcloud_dashboard', 'se cret_dream008'],
   tenx_api: {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'http',
-    external_host: env.TENX_API_EXTERNAL_HOST || '192.168.1.230:48000',
+    external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
-    host: '192.168.4.129:8000' //env.TENX_API_HOST || '192.168.1.230:48000'
+    host: '192.168.30.67:8080' //env.TENX_API_HOST || '192.168.1.230:48000'
   },
   vm_api: {
     protocol: env.TENX_VM_API_PROTOCOL,

@@ -166,4 +166,7 @@ module.exports = function (config) {
 
   // ~ appcenters
   this.appcenters = collections.create('appcenters')
+
+  // ~ workorders
+  this.workorders = collections.create('workorders')
 }

@@ -36,6 +36,8 @@ export const mapData = {
     project: '项目',
     loadProjectsFailedTip: '加载项目失败',
     loadClustersFailedTip: '加载集群失败',
+    workOrder: '工单',
+    systemNotice: '公告',
   },
 }
 

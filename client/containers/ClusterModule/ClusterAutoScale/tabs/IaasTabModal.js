@@ -55,7 +55,7 @@ const Form1 = Form.create()(class Form1 extends React.Component {
   }
   render() {
     const { form, currentStep, onDataCenterChange, defaultValues, currentIcon } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, setFieldsValue } = form
     const { name } = defaultValues
     // vmware
     // 第一行值 第二行资源列表
@@ -63,8 +63,9 @@ const Form1 = Form.create()(class Form1 extends React.Component {
       template, datastore, resourcePool, datacenterList } = defaultValues
     // openstack
     // 第一行值 第二行资源列表
-    // template, datastore, resourcePool, datacenterList
-    const { domainName, projectName, image, loginPass, flavor, network,
+    const { // domainName, projectName,
+      image, loginPass, flavor, networkName, networkId,
+      networks, flavors, images,
     } = defaultValues
 
     return (
@@ -212,53 +213,53 @@ const Form1 = Form.create()(class Form1 extends React.Component {
         </div>
         {
           currentIcon === 'openstack' && [
-            <Row key="row3">
-              <FormItem
-                {...formItemLargeLayout}
-                label="所属区域"
-              >
-                <Select {...getFieldProps('domainName', {
-                  initialValue: domainName || undefined,
-                  validate: [{
-                    rules: [
-                      { required: true, message: '请选择所属区域' },
-                    ],
-                    trigger: [ 'onChange' ],
-                  }],
-                  onChange: onDataCenterChange,
-                })} placeholder="请选择所属区域" className="formItemWidth">
-                  {
-                    datacenterList.map((item, i) => {
-                      return <Select.Option key={i} value={item}>{item}</Select.Option>
-                    })
-                  }
-                </Select>
-              </FormItem>
-            </Row>,
-            <Row key="row4">
-              <FormItem
-                {...formItemLargeLayout}
-                label="项目"
-              >
-                <Select {...getFieldProps('projectName', {
-                  initialValue: projectName || undefined,
-                  validate: [{
-                    rules: [
-                      { required: true, message: '请选择项目' },
-                    ],
-                    trigger: [ 'onChange' ],
-                  }] })} placeholder="请选择项目" className="formItemWidth">
-                  {
-                    template.map((item, i) => {
-                      return (
-                        <Select.Option value={item.path} key={i}>
-                          {item.path}
-                        </Select.Option>)
-                    })
-                  }
-                </Select>
-              </FormItem>
-            </Row>,
+            // <Row key="row3">
+            //   <FormItem
+            //     {...formItemLargeLayout}
+            //     label="所属区域"
+            //   >
+            //     <Select {...getFieldProps('domainName', {
+            //       initialValue: domainName || undefined,
+            //       validate: [{
+            //         rules: [
+            //           { required: true, message: '请选择所属区域' },
+            //         ],
+            //         trigger: [ 'onChange' ],
+            //       }],
+            //       onChange: onDataCenterChange,
+            //     })} placeholder="请选择所属区域" className="formItemWidth">
+            //       {
+            //         datacenterList.map((item, i) => {
+            //           return <Select.Option key={i} value={item}>{item}</Select.Option>
+            //         })
+            //       }
+            //     </Select>
+            //   </FormItem>
+            // </Row>,
+            // <Row key="row4">
+            //   <FormItem
+            //     {...formItemLargeLayout}
+            //     label="项目"
+            //   >
+            //     <Select {...getFieldProps('projectName', {
+            //       initialValue: projectName || undefined,
+            //       validate: [{
+            //         rules: [
+            //           { required: true, message: '请选择项目' },
+            //         ],
+            //         trigger: [ 'onChange' ],
+            //       }] })} placeholder="请选择项目" className="formItemWidth">
+            //       {
+            //         template.map((item, i) => {
+            //           return (
+            //             <Select.Option value={item.path} key={i}>
+            //               {item.path}
+            //             </Select.Option>)
+            //         })
+            //       }
+            //     </Select>
+            //   </FormItem>
+            // </Row>,
             <Row key="row5">
               <FormItem
                 {...formItemLargeLayout}
@@ -273,8 +274,8 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                     trigger: [ 'onChange' ],
                   }] })} placeholder="请选择镜像" className="formItemWidth">
                   {
-                    resourcePool.map((item, i) => {
-                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    images.map(item => {
+                      return (<Select.Option key={item.id}>{item.name}</Select.Option>)
                     })
                   }
                 </Select>
@@ -316,20 +317,29 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                     trigger: [ 'onChange' ],
                   }] })} placeholder="请选择配置规格" className="formItemWidth">
                   {
-                    datastore.map((item, i) => {
-                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    flavors.map(item => {
+                      return (<Select.Option key={item.id}>{item.name}</Select.Option>)
                     })
                   }
                 </Select>
               </FormItem>
             </Row>,
-            <Row key="row6">
+            <Row key="row7">
+              <Input type="hidden" {...getFieldProps('networkId', {
+                initialValue: networkId || undefined,
+              })
+              } />
               <FormItem
                 {...formItemLargeLayout}
                 label="网络"
               >
-                <Select {...getFieldProps('network', {
-                  initialValue: network || undefined,
+                <Select {...getFieldProps('networkName', {
+                  initialValue: networkName || undefined,
+                  onChange: name => {
+                    setFieldsValue({
+                      networkId: filter(networks, { name })[0].id,
+                    })
+                  },
                   validate: [{
                     rules: [
                       { required: true, message: '请选择网络' },
@@ -337,8 +347,8 @@ const Form1 = Form.create()(class Form1 extends React.Component {
                     trigger: [ 'onChange' ],
                   }] })} placeholder="请选择网络" className="formItemWidth">
                   {
-                    datastore.map((item, i) => {
-                      return (<Select.Option key={i} value={item}>{item}</Select.Option>)
+                    networks.map(item => {
+                      return (<Select.Option key={item.name}>{item.name}</Select.Option>)
                     })
                   }
                 </Select>
@@ -443,7 +453,7 @@ export default connect(mapStateToProps, {
         arr = [ 'name', 'datacenter', 'datastorePath', 'resourcePoolPath',
           'templatePath', 'targetPath' ]
       } else if (currentIcon === 'openstack') {
-        arr = [ 'name', 'domainName', 'projectName', 'image', 'loginPass', 'flavor', 'network' ]
+        arr = [ 'name', 'image', 'loginPass', 'flavor', 'networkName', 'networkId' ] // 'domainName', 'projectName',
       }
       this.form1Rele.validateFields(arr, (errors, values) => {
         if (errors) {
@@ -597,6 +607,9 @@ export default connect(mapStateToProps, {
       let templatePathList = {},
         datastorePathList = {},
         resourcePoolPathList = {}
+      let networks = [],
+        flavors = [],
+        images = []
       const datacenterList = []
 
       let datacenter = '',
@@ -707,12 +720,19 @@ export default connect(mapStateToProps, {
         )
       })()
       if (resList) {
-        for (const i in resList) {
-          datacenterList.push(i)
-          const dt = resList[i]
-          templatePathList[i] = dt.templatePath
-          datastorePathList[i] = dt.datastores
-          resourcePoolPathList[i] = dt.resourcePools
+        if (currentIcon === 'vmware') {
+          for (const i in resList) {
+            datacenterList.push(i)
+            const dt = resList[i]
+            templatePathList[i] = dt.templatePath
+            datastorePathList[i] = dt.datastores
+            resourcePoolPathList[i] = dt.resourcePools
+          }
+        }
+        if (currentIcon === 'openstack') {
+          networks = resList.networks || []
+          flavors = resList.flavors || []
+          images = resList.images || []
         }
       }
       const { currDataCenter } = this.state
@@ -873,17 +893,17 @@ export default connect(mapStateToProps, {
                                         }
                                       } else if (currentIcon === 'openstack') {
                                         defaultValues = {
-                                          domainName: currentData.domainName || '',
-                                          projectName: currentData.projectName || '',
+                                          // domainName: currentData.domainName || '',
+                                          // projectName: currentData.projectName || '',
                                           image: currentData.image || '',
                                           loginPass: currentData.loginPass || '',
                                           flavor: currentData.flavor || '',
-                                          network: currentData.network || '',
+                                          networkName: currentData.networkName || '',
+                                          networkId: currentData.networkId || '',
                                           name,
-                                          template,
-                                          datastore,
-                                          resourcePool,
-                                          datacenterList,
+                                          networks,
+                                          flavors,
+                                          images,
                                         }
                                       }
                                       return <Form1

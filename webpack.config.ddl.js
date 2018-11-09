@@ -39,7 +39,7 @@ const vendors = [
 ]
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   devtool: '#cheap-module-eval-source-map',
   output: {
     path: path.join(__dirname, './static/webpack_dll'),
