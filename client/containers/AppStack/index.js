@@ -19,6 +19,7 @@ import * as openApiActions from '../../../src/actions/open_api'
 import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
 import './style/index.less'
+import { getDeepValue } from '../../util/util'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
@@ -140,7 +141,7 @@ class AppStack extends React.Component {
   // }
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token, cluster,
+      project, onbehalfuser, onbehalfuserid, token, cluster, watchToken,
       username, location: { pathname, query: _query },
     } = this.props
     const locationQuery = cloneDeep(_query)
@@ -172,7 +173,7 @@ class AppStack extends React.Component {
       {},
       locationQuery,
       {
-        token, username, project, onbehalfuser, onbehalfuserid, cluster, hash,
+        token, username, project, onbehalfuser, onbehalfuserid, cluster, hash, watchToken,
       }
     )
     const { windowHeight, containerSiderStyle } = this.state
@@ -242,6 +243,9 @@ const mapStateToProps = state => {
     cluster: cluster.clusterID,
     username,
     token,
+    watchToken: encodeURIComponent(
+      getDeepValue(state, [ 'entities', 'loginUser', 'info', 'watchToken' ])
+    ),
   }
 }
 
