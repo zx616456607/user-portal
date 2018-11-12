@@ -294,7 +294,7 @@ class CreateSecurityGroup extends React.Component {
             <div className="securityGroudHeader">
               <span className="returnBtn">
                 <span className="btnLeft"></span>
-                <span className="btnRight" onClick={() => browserHistory.goBack()}>返回</span>
+                <span className="btnRight" onClick={() => browserHistory.push('/net-management/securityGroup')}>返回</span>
               </span>
               <span className="headerTitle">
                 <span className="headerLeft"></span>
@@ -321,7 +321,7 @@ class CreateSecurityGroup extends React.Component {
           <Row className="submitBtn">
             <Col span={4}></Col>
             <Col span={20}>
-              <Button onClick={() => browserHistory.goBack()} style={{ marginRight: 8 }}>取消</Button>
+              <Button onClick={() => browserHistory.push('/net-management/securityGroup')} style={{ marginRight: 8 }}>取消</Button>
               <Button type="primary" loading={loading} onClick={this.submit}>{ !isEdit ? '确定' : '保存' }</Button>
             </Col>
           </Row>
