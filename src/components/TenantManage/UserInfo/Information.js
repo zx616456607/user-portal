@@ -377,7 +377,7 @@ class Information extends Component {
             this.setState({
               changeUserAuthModal: false,
             })
-            loadUserDetail('default')
+            loadUserDetail(userID)
           },
           isAsync: true,
         },
@@ -525,6 +525,7 @@ class Information extends Component {
     if (loginUser.role === ROLE_PLATFORM_ADMIN) {
       accountTypeEdit = true
     }
+
     const { billingConfig } = loginUser
     const { enabled: billingEnabled } = billingConfig
     let roleName
