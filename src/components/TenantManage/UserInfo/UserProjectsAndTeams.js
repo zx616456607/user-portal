@@ -77,7 +77,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadProjectsData() {
     const { loadUserProjects, ListProjects, userId, loginUser } = this.props
-    loadUserProjects(userId, { size: 1000 }, {
+    loadUserProjects(userId, { size: 0 }, {
       success: {
         func: res => {
           const projectTargetKeys = []
@@ -94,7 +94,7 @@ class UserProjectsAndTeams extends React.Component {
         isAsync: true,
       }
     })
-    this.isSysAdmin(loginUser.role) && ListProjects({ size: 1000 }, {
+    this.isSysAdmin(loginUser.role) && ListProjects({ size: 0 }, {
       success: {
         func: res => {
           res.data && res.data.projects.map(project => {
