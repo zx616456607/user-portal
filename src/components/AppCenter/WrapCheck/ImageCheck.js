@@ -11,19 +11,20 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Radio, Tabs} from 'antd'
+import { Button, Table, Modal, Form, Input, Popover, Row, Col, Icon, Tooltip, Radio, Tabs, Checkbox} from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import './style/ImageCheck.less'
 import CommonSearchInput from '../../CommonSearchInput'
 import TenxStatus from '../../TenxStatus/index'
 import { imageApprovalList, appStoreApprove, }  from '../../../actions/app_store'
 import * as harborActions from '../../../actions/harbor'
-import { formatDate } from '../../../common/tools'
+import { formatDate, encodeImageFullname } from '../../../common/tools'
 import NotificationHandler from '../../../components/Notification'
 import ProjectDetail from '../ImageCenter/ProjectDetail'
 import { camelize } from 'humps'
 import { ROLE_SYS_ADMIN, ROLE_BASE_ADMIN, ROLE_PLATFORM_ADMIN } from '../../../../constants'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { getDeepValue } from '../../../../client/util/util'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group;
@@ -43,7 +44,10 @@ class ImageCheckTable extends React.Component {
     this.copyEnd = this.copyEnd.bind(this)
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
-
+      checkImageStatusParams: [],
+      imageExistModal: false,
+      existImage: '',
+      passLoading: {},
     }
   }
   getImageStatus(status){
@@ -92,8 +96,8 @@ class ImageCheckTable extends React.Component {
     }
     return `${str},${type}`
   }
-  checkImageStatus(record, status, message) {
-    const { appStoreApprove, getImagePublishList } = this.props
+  async checkImageStatus(record, status, message) {
+    const { appStoreApprove, getImagePublishList, loadRepositoriesTags, publishType } = this.props
     let notify = new NotificationHandler()
     const body = {
       id: record.id,
@@ -108,23 +112,51 @@ class ImageCheckTable extends React.Component {
     if (message) {
       Object.assign(body, { approve_message: message })
     }
-    notify.spin('操作中')
+    this.setState({ passLoading: { [record.id]: true } })
+    if (publishType === 'storage' && this.state.checkImageStatusParams.length === 0) {
+      const checkImageStatusParams = [ record, status, message ]
+      this.setState({ checkImageStatusParams })
+      // imageExistModal
+      const { resource, image, originID } = record
+      const harbor = resource.replace(image, '')
+      const originIDArray = originID.split(':')
+      const imageTag = originIDArray[originIDArray.length - 1] || 'latest'
+      const res = await loadRepositoriesTags(harbor, DEFAULT_REGISTRY, encodeImageFullname(image))
+      if (res.error) {
+        notify.error('操作失败', '加载镜像信息失败')
+        return
+      }
+      const existTags = getDeepValue(res, [ 'response', 'result', 'data' ]) || []
+      if (existTags.indexOf(imageTag) > -1) {
+        this.setState({
+          imageExistModal: true,
+          existImage: `${image.split('/')[1]}/${imageTag}`
+        })
+        return
+      }
+    }
     return new Promise((resolve, reject) => {
       appStoreApprove(body, {
         success: {
           func: () => {
             getImagePublishList()
             resolve()
-            notify.close()
             notify.success('操作成功')
+            this.setState({
+              passLoading: { [record.id]: true },
+              checkImageStatusParams: [],
+            })
           },
           isAsync: true
         },
         failed: {
           func: res => {
             reject(res.message)
-            notify.close()
-            notify.error(`操作失败\n${res.message.message}`)
+            notify.error(`操作失败`, res.message.message)
+            this.setState({
+              passLoading: { [record.id]: true },
+              checkImageStatusParams: [],
+            })
           }
         }
       })
@@ -570,6 +602,7 @@ class ImageCheckTable extends React.Component {
                         className="passBtn"
                         onClick={() => this.checkImageStatus(record, 2)}
                         disabled={!isAdmin}
+                        loading={this.state.passLoading[record.id]}
                       >
                         {record.publishStatus === 1 ? '通过' : '重试'}
                       </Button>,
@@ -649,6 +682,20 @@ class ImageCheckTable extends React.Component {
                 placeholder="请输入拒绝理由"/>
             </FormItem>
           </Form>
+        </Modal>
+        <Modal
+          title="镜像版本重复"
+          visible={this.state.imageExistModal}
+          onOk={() => {
+            this.setState({ imageExistModal: false })
+            this.checkImageStatus(...this.state.checkImageStatusParams)
+          }}
+          onCancel={() => this.setState({ imageExistModal: false, passLoading: false })}
+        >
+          <div className="deleteRow">
+            <i className="fa fa-exclamation-triangle" />
+            目标仓库组已存在镜像 {this.state.existImage} ，通过之后会覆盖原镜像版本，是否确定？
+          </div>
         </Modal>
         <Modal
           visible={imageDetailModalShow}
@@ -770,7 +817,7 @@ class ImageCheck extends React.Component {
   render() {
     const {
       imageCheckList, total,  appStoreApprove, loginUser, location,
-      loadProjectMembers, clusterHarbor, harborMembers
+      loadProjectMembers, clusterHarbor, harborMembers, loadRepositoriesTags,
     } = this.props
     const { filterName, targetProject, current, publish_time } = this.state
     return(
@@ -824,6 +871,7 @@ class ImageCheck extends React.Component {
               harbor={clusterHarbor}
               harborMembers={harborMembers}
               loading={this.state.loading}
+              loadRepositoriesTags={loadRepositoriesTags}
             />
           </div>
           :
@@ -858,6 +906,7 @@ class ImageCheck extends React.Component {
               harbor={clusterHarbor}
               harborMembers={harborMembers}
               loading={this.state.loading}
+              loadRepositoriesTags={loadRepositoriesTags}
             />
           </div>
         }
@@ -889,4 +938,5 @@ export default connect(mapStateToProps, {
   imageApprovalList,
   appStoreApprove,
   loadProjectMembers: harborActions.loadProjectMembers,
+  loadRepositoriesTags: harborActions.loadRepositoriesTags,
 })(ImageCheck)
