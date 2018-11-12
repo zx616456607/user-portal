@@ -77,7 +77,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadProjectsData() {
     const { loadUserProjects, ListProjects, userId, loginUser } = this.props
-    loadUserProjects(userId, { size: 100 }, {
+    loadUserProjects(userId, { size: 0 }, {
       success: {
         func: res => {
           const projectTargetKeys = []
@@ -85,6 +85,7 @@ class UserProjectsAndTeams extends React.Component {
             projectTargetKeys.push(project.ProjectID || project.projectID)
           })
           this.defaultProjectTargetKeys = projectTargetKeys
+
           this.setState({
             projectTargetKeys,
             // projectTargetKeys: []
@@ -93,7 +94,7 @@ class UserProjectsAndTeams extends React.Component {
         isAsync: true,
       }
     })
-    this.isSysAdmin(loginUser.role) && ListProjects({ size: 100 }, {
+    this.isSysAdmin(loginUser.role) && ListProjects({ size: 0 }, {
       success: {
         func: res => {
           res.data && res.data.projects.map(project => {
@@ -300,7 +301,7 @@ class UserProjectsAndTeams extends React.Component {
             removeProjectModalVisible: false,
           })
           notification.success('移除用户成功')
-          loadUserProjects(userId)
+          this.loadProjectsData()
         },
         isAsync: true,
       },
