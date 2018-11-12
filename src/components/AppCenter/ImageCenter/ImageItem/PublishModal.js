@@ -54,6 +54,7 @@ class PublishModal extends React.Component {
       clusters: [],
       showImageVersionCheckbox: false,
       selectProjectImageVersionExisted: false,
+      existImage: '',
     }
   }
   componentWillMount() {
@@ -486,26 +487,26 @@ class PublishModal extends React.Component {
     this.checkIsImageWithVersionExist(val)
   }
   checkIsImageWithVersionExist = (project, version) => {
-    console.log('this.state.radioVal', this.state.radioVal)
     if (this.state.radioVal === 'market') {
       return
     }
     const { loadRepositoriesTags, harbor, form, currentImage } = this.props
-    const targetProject = form.getFieldValue('target_store') || project
-    const selectVersion = form.getFieldValue('select_version') || version
-    console.log('targetProject', targetProject)
-    console.log('selectVersion', selectVersion)
-    console.log('currentImage', currentImage)
+    const targetProject = project || form.getFieldValue('target_store')
+    const selectVersion = version || form.getFieldValue('select_version')
     if (!targetProject || !selectVersion) {
       return
     }
-    const imageFullName = `${targetProject}/${currentImage.name.split('/')[1]}`
+    const image = currentImage.name.split('/')[1]
+    this.setState({
+      showImageVersionCheckbox: false,
+      existImage: `${image}:${selectVersion}`,
+      selectProjectImageVersionExisted: false,
+    })
+    const imageFullName = `${targetProject}/${image}`
     loadRepositoriesTags(harbor, DEFAULT_REGISTRY, encodeImageFullname(imageFullName), {
       success: {
         func: res => {
-          if (res && res.data && res.data.length) {
-            console.log('res.data', res.data)
-            // this.fetchData(res.data)
+          if (res && res.data) {
             const newState = {
               showImageVersionCheckbox: false,
               selectProjectImageVersionExisted: false,
@@ -686,8 +687,9 @@ class PublishModal extends React.Component {
       onChange: (val) => this.handleSelectcheckTargetStore(val)
     })
     const selectProjectImageVersionExistedProps = getFieldProps('selectProjectImageVersionExisted', {
-      onChange: val => {
-        console.log('val', val)
+      onChange: e => {
+        const selectProjectImageVersionExisted = !e.target.checked
+        this.setState({ selectProjectImageVersionExisted })
       }
     })
     const targetCluster = getFieldProps('targetCluster', {
@@ -798,6 +800,7 @@ class PublishModal extends React.Component {
           onOk={this.confirmModal}
           onCancel={this.cancelModal}
           footer={this.renderFooter()}
+          width={540}
         >
           <SuccessModal
             visible={successModal}
@@ -966,7 +969,7 @@ class PublishModal extends React.Component {
                   {...noLabelFormItemLayout}
                 >
                   <Checkbox {...selectProjectImageVersionExistedProps}>
-                  目标仓库组已有镜像 image:v1，覆盖原镜像版本
+                    {formatMessage(publishModalIntl.existImageTips, { image: this.state.existImage })}
                   </Checkbox>
                 </FormItem>
               }
