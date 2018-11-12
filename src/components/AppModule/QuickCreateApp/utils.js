@@ -400,15 +400,15 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     })
     !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
-      const name = `http-${serviceName}-${key}`
+      const name = `${serviceName}-${key}`
       deployment.addContainerPort(serviceName, port)
-      service.addPort(proxyType, name, null, port, port)
+      service.addPort(proxyType, name, 'HTTP', port, port)
     })
     const tcpIngressArray = []
     !isEmpty(tcpKeys) && tcpKeys.forEach(key => {
       const port = parseInt(fieldsValues[`tcp-servicePort-${key}`])
       const exportPort = parseInt(fieldsValues[`tcp-exportPort-${key}`])
-      const name = `tcp-${serviceName}-${key}`
+      const name = `${serviceName}-${key}`
       deployment.addContainerPort(serviceName, port)
       service.addPort(proxyType, name, 'TCP', port, port)
       // tcp 和 upd 监听器放入 annotations 用于回显
@@ -429,7 +429,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     !isEmpty(udpKeys) && udpKeys.forEach(key => {
       const port = parseInt(fieldsValues[`udp-servicePort-${key}`])
       const exportPort = parseInt(fieldsValues[`udp-exportPort-${key}`])
-      const name = `udp-${serviceName}-${key}`
+      const name = `${serviceName}-${key}`
       deployment.addContainerPort(serviceName, port, 'UDP')
       service.addPort(proxyType, name, 'UDP', port, port)
       if (isTemplate) {
@@ -460,7 +460,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
       const keyValue = key.value
       const port = fieldsValues[`${PORT}${keyValue}`]
       const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
-      const name = `${portProtocol.toLowerCase()}-${serviceName}-${keyValue}`
+      const name = `${serviceName}-${keyValue}`
       const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
       const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
       service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
