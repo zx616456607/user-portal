@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Icon, Badge, Modal, Menu, Dropdown } from 'antd'
+import { browserHistory } from 'react-router'
 import "./style/header.less"
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
@@ -39,6 +40,7 @@ const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = standard === mode
 const SubMenu = Menu.SubMenu
+let reLocationPath = ''
 
 // The following routes RegExp will show select space or select cluster
 export const SPACE_CLUSTER_PATHNAME_MAP = {
@@ -64,6 +66,8 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy\/detail\/?$/,
     /\/account\/noticeGroup/,
     /\/app\-stack/,
+    /\/net\-management/,
+    /\/storage\-management/,
   ],
   cluster: [
     /^\/$/,
@@ -81,10 +85,15 @@ export const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/middleware_center\/deploy/,
     /\/middleware_center\/deploy\/detail\/?$/,
     /\/app\-stack/,
+    /\/net\-management/,
+    /\/storage\-management/,
   ],
   loadProjectAndClusterNeeded: [
     /^\/manange_monitor\/query_log$/,
     /\/manange_monitor\/audit/,
+  ],
+  isReturn: [
+    /\/work-order/,
   ]
 }
 
@@ -441,6 +450,8 @@ class Header extends Component {
       migrated,
       showSpace,
       showCluster,
+      showReturn,
+      pathname,
       checkVersionContent,
       projects,
       isProjectsFetching,
@@ -494,9 +505,22 @@ class Header extends Component {
     //   </div>
     // );
     const roleShowSpace = loginUser.role == ROLE_SYS_ADMIN || loginUser.role == ROLE_PLATFORM_ADMIN
+    if(pathname.indexOf('work-order') > -1 ) {
+      !!!reLocationPath ? reLocationPath = '/' : ''
+    } else {
+      reLocationPath = pathname
+    }
     return (
       <div id="header">
-
+        {
+          false && showReturn && (
+            <div className="returnBtn">
+              <span className="goBackBtn pointer" onClick={() => browserHistory.push({
+                pathname: reLocationPath,
+              })}>返回控制台</span>
+            </div>
+          )
+        }
         {
           showSpace && (
             <div className="space">
@@ -557,6 +581,17 @@ class Header extends Component {
             </div>
           </a>
         */}
+          {
+            false && msaUrl && (
+              <div className="docBtn quickentry">
+                <Badge dot>
+                  <Link to={`/work-order`}>
+                    <a>工单</a>
+                  </Link>
+                </Badge>
+              </div>
+            )
+          }
           {
             msaUrl && (
               <div className="docBtn quickentry">
@@ -634,6 +669,7 @@ function mapStateToProps(state, props) {
   const { projectList, projectVisibleClusters } = state.projectAuthority
   let showSpace = false
   let showCluster = false
+  let showReturn = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
     if (pathname.search(path) == 0) {
       showSpace = true
@@ -644,6 +680,13 @@ function mapStateToProps(state, props) {
   SPACE_CLUSTER_PATHNAME_MAP.cluster.every(path => {
     if (pathname.search(path) == 0) {
       showCluster = true
+      return false
+    }
+    return true
+  })
+  SPACE_CLUSTER_PATHNAME_MAP.isReturn.every(path => {
+    if (pathname.search(path) == 0) {
+      showReturn = true
       return false
     }
     return true
@@ -662,6 +705,7 @@ function mapStateToProps(state, props) {
     projectClusters,
     showSpace,
     showCluster,
+    showReturn,
     checkVersionContent: checkVersion.data,
     isCheckVersion: checkVersion.isFetching,
   }

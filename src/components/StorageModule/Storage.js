@@ -30,6 +30,7 @@ import { SHOW_BILLING, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 // import Title from '../Title'
 import StorageIntl from './StorageIntl'
 import Title from '../../../src/components/Title'
+import ResourceBanner from '../../../src/components/TenantManage/ResourceBanner'
 const RadioGroup = Radio.Group;
 let isActing = false
 
@@ -1065,6 +1066,7 @@ class Storage extends Component {
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
         <Title title={"独享型存储"}/>
+          <ResourceBanner resourceType="volume" />
           <div className='alertRow'>
             <FormattedMessage{...StorageIntl.exclusiveTips} />
           </div>

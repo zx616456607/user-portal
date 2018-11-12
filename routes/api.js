@@ -63,6 +63,8 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const containerSecurityPolicy = require('../controllers/container_security_policy')
+const workerOrderController = require('../controllers/worker_order')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -150,6 +152,7 @@ module.exports = function (Router) {
 
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/:cluster/nodes/ingresses', clusterController.getNodesIngresses)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
   router.get('/clusters/:cluster/proxies', clusterController.getProxy)
   router.put('/clusters/:cluster/proxies', clusterController.updateProxies)
@@ -974,6 +977,28 @@ module.exports = function (Router) {
   router.get('/appcenters', middlewareCenter.getApps)
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
+
+  // PSP
+  router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
+  router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)
+  router.delete('/clusters/:cluster/podsecuritypolicy/:name', containerSecurityPolicy.deletePSP)
+  router.get('/clusters/:cluster/podsecuritypolicy', containerSecurityPolicy.listPSP)
+  router.get('/clusters/:cluster/podsecuritypolicy/:name', containerSecurityPolicy.listPSPDetail)
+  router.get('/clusters/:cluster/podsecuritypolicy/project', containerSecurityPolicy.listProjectPSPDetail)
+  router.post('/clusters/:cluster/podsecuritypolicy/project/:resources', containerSecurityPolicy.startPodProject)
+  router.delete('/clusters/:cluster/podsecuritypolicy/project/:resources', containerSecurityPolicy.stopPSPProject)
+  // workorders
+  router.get('/workorders/announcements', workerOrderController.getAnnouncements)
+  router.get('/workorders/announcements/:id', workerOrderController.getAnnouncement)
+  router.post('/workorders/announcements', workerOrderController.createAnnouncement)
+  router.del('/workorders/announcements/:id', workerOrderController.deleteAnnouncement)
+  router.get('/workorders/my-order', workerOrderController.getWorkOrderList)
+  router.get('/workorders/my-order/:id', workerOrderController.getWorkOrderDetails)
+  router.get('/workorders/my-order/:id/messages', workerOrderController.getWorkOrderMessages)
+  router.post('/workorders/my-order/:id/messages', workerOrderController.addWorkOrderMessages)
+  router.post('/workorders', workerOrderController.createWorkOrder)
+  router.put('/workorders/my-order/:id', workerOrderController.changeWorkOrderStatus)
+
 
   // 访问devops服务器, 返回全局资源使用量
   return router.routes()

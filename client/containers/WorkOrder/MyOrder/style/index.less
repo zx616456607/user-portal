@@ -1,0 +1,92 @@
+@import '~assets/style/site/core';
+
+.myOrderContainer {
+  padding-left: 24px;
+  padding-right: 24px;
+  .queryRow {
+    height: 50px;
+    .pageBox {
+      float: right;
+      height: 32px;
+      margin-right: 8px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 32px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 2px;
+      }
+    }
+
+    .rightBox {
+      position: relative;
+      float: left;
+      .littleLeft {
+        z-index: 10;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 15px;
+        color: #949494;
+        cursor: pointer;
+      }
+      .littleRight {
+        float: left;
+      }
+    }
+    .btnStyle {
+      float: left;
+      margin-right: 20px;
+    }
+    .selStyle {
+      width: 150px;
+      float: left;
+      margin-right: 20px;
+    }
+  }
+  .myOrderWrapper {
+    .ant-table {
+      width: 100%;
+      border: 1px solid #e9e9e9;
+      border-bottom: none;
+      border-radius: 0;
+      .isResoved.orderItem {
+        .right, .iconRight {
+          opacity: 0.5;
+        }
+      }
+      .orderItem {
+        cursor: pointer;
+        .left {
+          text-align: center;
+          line-height: 60px;
+          color: @success-color;
+          font-size: 18px;
+        }
+        .common {
+          width: 100%;
+          padding-right: 20px;
+          .ant-row {
+            height: 30px;
+            line-height: 30px;
+          }
+          .line2 {
+            .replayCount {
+              line-height: 20px;
+              display: inline-block;
+              border: 1px solid #d9d9d9;
+              padding: 0 7px;
+              border-radius: 10px;
+            }
+          }
+          .iconRight {
+            line-height: 60px;
+          }
+        }
+      }
+    }
+  }
+}

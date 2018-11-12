@@ -428,14 +428,14 @@ class OperationalAudit extends React.Component {
   // 请求数据
   getData = () => {
     const { getOperationLogList } = this.props
-    const { from, size, resource, namespace,
+    const { from, size, resource, // namespace,
       operation, start_time, end_time, status, currentProject } = this.state
     const body = {
       projectName: currentProject,
       from: from * size,
       size,
       resource: resource ? resource[resource.length - 1] : undefined,
-      namespace,
+      namespace: currentProject,
       operation,
       start_time,
       end_time,
@@ -711,6 +711,7 @@ class OperationalAudit extends React.Component {
                 <div className="pagination">
                   <Pagination
                     simple
+                    pageSize={this.state.size}
                     current={this.state.from + 1}
                     total={this.state.count}
                     onChange={this.changePage}

@@ -906,6 +906,8 @@
   "Header.team": "团队",
   "Header.loadProjectsFailedTip": "加载项目失败",
   "Header.loadClustersFailedTip": "加载集群失败",
+  "Header.workOrder": "工单",
+  "Header.systemNotice": "公告",
   "---": "Sider----------------",
   "Sider.tenantOverview": "概览",
   "Sider.tenantUser": "成员管理",
