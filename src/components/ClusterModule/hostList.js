@@ -481,7 +481,10 @@ const MyComponent = React.createClass({
                 <span className="justify"><FormattedMessage {...intlMsg.use}/></span>：
                 <code>
                   {cpuUsedObj.number}{cpuUsedObj.unit}
-                </code>
+                </code>&nbsp;
+                <Tooltip title={formatMessage(intlMsg.useTips)}>
+                  <Icon type="question-circle-o" />
+                </Tooltip>
               </div>
             </div>
           }
@@ -503,7 +506,10 @@ const MyComponent = React.createClass({
                 <span className="justify"><FormattedMessage {...intlMsg.use}/></span>：
                 <code>
                   {memoryUsedObj.number}{memoryUsedObj.unit}
-                </code>
+                </code>&nbsp;
+                <Tooltip title={formatMessage(intlMsg.useTips)}>
+                  <Icon type="question-circle-o" />
+                </Tooltip>
               </div>
               {/* <div className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</div>
               <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div> */}

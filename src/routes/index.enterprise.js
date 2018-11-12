@@ -140,11 +140,11 @@ const rootRoutes = {
         path: 'net-management',
         component: require('../../client/containers/NetManagement').default,
         indexRoute: {
-          onEnter: (nextState, replace) => replace('/net-management/serviceDiscovery')
+          onEnter: (nextState, replace) => replace('/net-management/Service')
         },
         childRoutes: [
           {
-            path: 'serviceDiscovery',
+            path: 'Service',
             component: require('../../client/containers/NetManagement').default,
           },
           {
@@ -160,7 +160,19 @@ const rootRoutes = {
           {
             path: 'securityGroup',
             component: require('../../client/containers/SecurityGroup').default,
-          },
+          },{
+            path: 'securityGroup/create',
+            component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default,
+          },{
+            path: 'securityGroup/network_isolation',
+            component: require('../components/AppModule/NetworkIsolation').default,
+          },{
+            path: 'securityGroup/edit/:name',
+            component: require('../../client/containers/SecurityGroup/CreateSecurityGroup').default,
+          },{
+            path: 'securityGroup/:name',
+            component: require('../../client/containers/SecurityGroup/SecurityGroupDetail').default,
+          }
         ],
       },{
         path: 'storage-management',
@@ -174,13 +186,27 @@ const rootRoutes = {
             component: require('../components/StorageModule/Storage').default,
           },
           {
+            path: 'exclusiveMemory/:pool/:cluster/:storage_name',
+            component: require('../components/StorageModule/StorageDetail').default,
+          },
+          {
             path: 'shareStorage',
             component: require('../components/StorageModule/ShareMemory').default,
+          },{
+            path: 'shareStorage/:cluster/:share_name',
+            component: require('../components/StorageModule/ShareMemory/ShareStorageDetail').default,
           },
           {
             path: 'localStorage',
             component: require('../components/StorageModule/HostMemory').default,
           },
+          {
+            path: 'localStorage/:host_name',
+            component: require('../components/StorageModule/HostMemory/HostStorageDetail').default,
+          },{
+            path: 'snapshot',
+            component: require('../components/AppModule/AppSnapshot').default,
+          }
         ],
       },{
         path: 'app_center',
@@ -331,6 +357,40 @@ const rootRoutes = {
             cb(null, require('./openstack').default)
           })
         }
+      },
+      {
+        path: 'work-order',
+        component: require('../../client/containers/WorkOrder').default,
+        indexRoute: {
+          onEnter: (nextState, replace) => replace('/work-order/my-order')
+          // component: require('../../client/containers/WorkOrder/components/WorkOrderList').default,
+        },
+        childRoutes: [
+          {
+            path: 'my-order',
+            component: require('../../client/containers/WorkOrder/MyOrder').default,
+          },
+          {
+            path: 'my-order/:id',
+            component: require('../../client/containers/WorkOrder/MyOrder/MyOrderDetail').default,
+          },
+          {
+            path: 'create',
+            component: require('../../client/containers/WorkOrder/MyOrder/MyOrderCreate').default,
+          },
+          {
+            path: 'system-notice',
+            component: require('../../client/containers/WorkOrder/SystemNotice').default,
+          },
+          {
+            path: 'system-notice/:id',
+            component: require('../../client/containers/WorkOrder/SystemNotice/SystemNoticeDetail').default,
+          },
+          {
+            path: 'system-notice/create',
+            component: require('../../client/containers/WorkOrder/SystemNotice/SystemNoticeDetail').default,
+          },
+        ],
       },
       {
         path: '*',

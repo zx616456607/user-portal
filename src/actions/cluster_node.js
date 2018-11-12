@@ -216,6 +216,28 @@ export function getNodes(cluster, callback) {
   }
 }
 
+export const GET_NODES_INGRESSES_REQUEST = 'GET_NODES_INGRESSES_REQUEST'
+export const GET_NODES_INGRESSES_SUCCESS = 'GET_NODES_INGRESSES_SUCCESS'
+export const GET_NODES_INGRESSES_FAILURE = 'GET_NODES_INGRESSES_FAILURE'
+
+function fetchNodesIngresses(cluster, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_NODES_INGRESSES_REQUEST, GET_NODES_INGRESSES_SUCCESS, GET_NODES_INGRESSES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes/ingresses`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getNodesIngresses(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchNodesIngresses(cluster, callback))
+  }
+}
+
 export const GET_CLOUSTER_LABEL_REQUEST = 'GET_CLOUSTER_LABEL_REQUEST'
 export const GET_CLOUSTER_LABEL_SUCCESS = 'GET_CLOUSTER_LABEL_SUCCESS'
 export const GET_CLOUSTER_LABEL_FAILURE = 'GET_CLOUSTER_LABEL_FAILURE'

@@ -26,13 +26,13 @@ const hash = process.env.DEVOPS_PORTAL_HASH
 
 const menus = [
   {
-    url: '/net-management/serviceDiscovery',
+    url: '/net-management/Service',
     name: 'discover',
     onClick: () => {
       try {
-        browserHistory.push('/net-management/serviceDiscovery')
+        browserHistory.push('/net-management/Service')
         if (window.appStackPortalHistory) {
-          window.appStackPortalHistory.replace('/net-management/notebook')
+          window.appStackPortalHistory.replace('/Service')
         }
       } catch (error) {
         //
@@ -129,9 +129,9 @@ class NetManagement extends React.Component {
     let redirect = locationQuery.redirect
     delete locationQuery.redirect
     if (!redirect) {
-      if (pathname === '/net-management/serviceDiscovery') {
+      if (pathname === '/net-management/Service') {
         title = '服务发现'
-        redirect = '/serviceDiscovery'
+        redirect = '/Service'
       }
     }
     const query = Object.assign(
@@ -179,7 +179,7 @@ class NetManagement extends React.Component {
       >
         <Title title={title} />
         {
-          pathname === '/net-management/serviceDiscovery' ?
+          pathname === '/net-management/Service' ?
             <iframe title="网络管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
             : children
         }

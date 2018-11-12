@@ -142,7 +142,7 @@ HarborAPIs.prototype.newReplicationTarget = function (target, callback) {
 // [POST] /targets/ping
 HarborAPIs.prototype.pingReplicationTarget = function (target, callback) {
   const url = `${this.getAPIPrefix()}/targets/ping`
-  this.sendRequest(url, 'POST', target, callback)
+  this.sendRequest(url, 'POST', target, { timeout: 10 * 1000 }, callback)
 }
 
 // [POST] /targets/{id}/ping

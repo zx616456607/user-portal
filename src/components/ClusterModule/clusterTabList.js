@@ -200,7 +200,6 @@ class ClusterTabList extends Component {
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
-
             </TabPane>
             <TabPane tab={<div className='tablepanediv'>
               <TenxIcon type="hostlists-o"/>
