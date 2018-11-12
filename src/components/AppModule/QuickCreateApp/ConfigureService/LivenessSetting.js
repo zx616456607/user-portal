@@ -32,7 +32,7 @@ const LivenessSetting = React.createClass({
   },
   componentDidMount() {
     const { fields } = this.props
-    if (!fields.livenessProtocol || !fields.livenessProtocol.value) {
+    if (!fields.livenessProtocol || !fields.livenessProtocol.value || fields.livenessProtocol.value === 'none') {
       return
     }
     const fieldsObj = {}

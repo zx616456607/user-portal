@@ -75,7 +75,7 @@ class Service {
     // K8s only support TCP and UDP protocol
     const k8sProtocol = (protocol === 'UDP' ? protocol : 'TCP')
     const portObj = {
-      name,
+      name: `${protocol.toLowerCase()}-${name}`,
       protocol: k8sProtocol,
       targetPort
     }

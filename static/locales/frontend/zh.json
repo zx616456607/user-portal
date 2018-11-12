@@ -2071,6 +2071,7 @@
   "AppCenter.ImageCenter.Publish.close": "关闭",
   "AppCenter.ImageCenter.Publish.checkPublishRecord": "查看发布记录",
   "AppCenter.ImageCenter.Publish.classifyNameNotEmpty": "分类名称不能为空",
+  "AppCenter.ImageCenter.Publish.existImageTips": "目标仓库组已有镜像 {image}，覆盖原镜像版本",
   "AppCenter.ImageCenter.List.searchPlaceholder": "按仓库组搜索",
   "AppCenter.ImageCenter.List.repoGroupName": "仓库组名称",
   "AppCenter.ImageCenter.List.accessLevel": "访问级别",
