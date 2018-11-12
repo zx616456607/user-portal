@@ -357,9 +357,10 @@ class Information extends Component {
     })
   }
   changeUserAuth() {
-    const { form, userID, bindRolesForUser, loadUserDetail } = this.props
+    const { form, bindRolesForUser, userDetail, loadUserDetail } = this.props
     const { validateFields } = form
     const notify = new NotificationHandler()
+    let userID = this.props.userID ||  userDetail.userID
     validateFields([ 'roles' ], (errors, values) => {
       const { roles } = values
       const bindUserRoles = {
@@ -376,7 +377,7 @@ class Information extends Component {
             this.setState({
               changeUserAuthModal: false,
             })
-            loadUserDetail(userID)
+            loadUserDetail(this.props.userID || 'default')
           },
           isAsync: true,
         },
