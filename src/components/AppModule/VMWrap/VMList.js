@@ -18,7 +18,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/VMList.less'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 import Title from '../../Title'
-import { createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
+import { getJdkList, createTomcat, deleteTomcat, getTomcatList, getVMinfosList, postVMinfoList, delVMinfoList, putVMinfoList, checkVMUser, checkVminfoExists } from '../../../actions/vm_wrap'
 import reduce from '../../../reducers/vm_wrap'
 import CreateVMListModal from './CreateVMListModal/createListModal'
 import NotificationHandler from '../../../components/Notification'
@@ -140,7 +140,8 @@ class VMList extends React.Component {
       vmInfoID: this.state.editRows.vminfoId !== null ? this.state.editRows.vminfoId : '',
       host: state.host,
       account: state.account,
-      password: state.password
+      password: state.password,
+      jdk_id: state.jdk_id
     }
     if (this.state.isAdd) {
       postVMinfoList(res, {
@@ -536,7 +537,7 @@ class VMList extends React.Component {
   render() {
     const { data } = this.props
     const { list, total, searchValue, isShowAddModal, isShowConfirmRemove, createConfirmLoading,
-      tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading } = this.state
+      tomcatList, allPort, isShowCheckModal, currTom, removeConfirmLoading, currVM } = this.state
     const pagination = {
       simple: true,
       defaultCurrent: 1,
@@ -713,6 +714,7 @@ class VMList extends React.Component {
           {
             isShowAddModal ?
               <CreateTomcat
+                isRight={true}
                 form={this.props.form}
                 isNeedModal={true}
                 title="添加 Tomcat 实例"
@@ -722,6 +724,7 @@ class VMList extends React.Component {
                 tomcatList={tomcatList}
                 allPort={allPort}
                 confirmLoading={createConfirmLoading}
+                jdk_id={currVM.jdkId}
               />
               :
               null
@@ -791,6 +794,7 @@ export default connect(mapStateToProps, {
   checkVMUser,
   checkVminfoExists,
   getTomcatList,
+  getJdkList,
   deleteTomcat,
   createTomcat,
 })(Form.create()(VMList))
