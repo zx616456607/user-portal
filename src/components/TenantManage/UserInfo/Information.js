@@ -377,7 +377,7 @@ class Information extends Component {
             this.setState({
               changeUserAuthModal: false,
             })
-            loadUserDetail(this.props.userID || 'default')
+            loadUserDetail('default')
           },
           isAsync: true,
         },
@@ -501,8 +501,8 @@ class Information extends Component {
       notAllowChange = false
     }
     let authorityDisabled = notAllowChange
-    // 系统管理员不可修改基础设施管理员和平台管理员的权限
-    if(loginUser.role == ROLE_SYS_ADMIN && (userDetail.role === ROLE_BASE_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) {
+    // 系统管理员不可修改自己、基础设施管理员、平台管理员的权限
+    if(loginUser.role == ROLE_SYS_ADMIN && (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_BASE_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN)) {
       authorityDisabled = true
     }
 
@@ -564,15 +564,15 @@ class Information extends Component {
       initialValue: userDetail.comment,
     })
     const { globalRoles, role } = userDetail
-    let checkedAuth = (auth) => {
+/*    let checkedAuth = (auth) => {
       switch(auth){
         case 'project-creator':
           return CREATE_PROJECTS_ROLE_ID
         case 'team-creator':
           return CREATE_TEAMS_ROLE_ID
       }
-    }
-/*    if (role === ROLE_SYS_ADMIN) {
+    }*/
+    if (role === ROLE_SYS_ADMIN) {
       this.userAuth = [ CREATE_PROJECTS_ROLE_ID, CREATE_TEAMS_ROLE_ID ]
     } else {
       this.userAuth = []
@@ -583,12 +583,12 @@ class Information extends Component {
           this.userAuth.push(CREATE_TEAMS_ROLE_ID)
         }
       })
-    }*/
-    let newAuth = []
+    }
+/*    let newAuth = []
     globalRoles && globalRoles.map(v => {
       newAuth.push(checkedAuth(v))
     });
-    this.userAuth = newAuth
+    this.userAuth = newAuth*/
 
     // 权限
     let checked = this.userAuth
