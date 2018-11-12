@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Modal, Transfer, Button, Menu, Row, Col, Checkbox, Spin } from 'antd'
+import { Modal, Transfer, Button, Menu, Row, Col, Checkbox, Spin, Form } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsDetail, hadnleProjectRoleBinding } from '../../../actions/project'
@@ -29,8 +29,8 @@ const STEPS = [
     desc: '为成员授予在项目中的角色',
   },
 ]
-
-class JoinProjectsModal extends React.Component {
+const FormItem = Form.Item
+class JoinProjectsModalComponent extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -82,6 +82,7 @@ class JoinProjectsModal extends React.Component {
       'hide': step !== 2,
     })
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
+    const { getFieldProps } = this.props.form
     return (
       <div style={{ height: "300px" }}>
         <Transfer
@@ -98,6 +99,7 @@ class JoinProjectsModal extends React.Component {
           onChange={handleProjectTransferChange}
           render={this.renderItem}
         />
+
         <div className={stepTwoClass}>
           <Row gutter={16} className="selectedProjectsHeader">
             <Col span={6}>
@@ -155,17 +157,24 @@ class JoinProjectsModal extends React.Component {
                           </div>
                         )
                       }
-                      {
-                        !isFetching && (
-                          <div className="checkRole">
+                        <div className="checkRole">
+                          <FormItem>
                             <CheckboxGroup
-                              onChange={this.onRoleCheckChange.bind(this, project)}
-                              value={roleCheckGroupValue[project.projectName] || []}
                               options={checkboxGroupOpts}
+                              {
+                                ...getFieldProps('roles', {
+                                  onChange: (val) => {
+                                    this.onRoleCheckChange(project, val)
+                                  },
+                                  rules: [
+                                    { required: true, message: `至少在${projectName}项目中设置一个角色` },
+                                  ],
+                                  initialValue: roleCheckGroupValue[project.projectName] || []
+                                })
+                              }
                             />
-                          </div>
-                        )
-                      }
+                          </FormItem>
+                        </div>
                     </div>
                   )
                 })
@@ -204,7 +213,7 @@ class JoinProjectsModal extends React.Component {
     }
   }
 
-  onRoleCheckChange(project, value) {
+  onRoleCheckChange = (project, value) => {
     const { roleCheckGroupValue } = this.state
     this.setState({
       roleCheckGroupValue: Object.assign(
@@ -249,6 +258,7 @@ class JoinProjectsModal extends React.Component {
       allProjects,
       hadnleProjectRoleBinding,
       loadProjectsData,
+      form,
     } = this.props
     const userID = parseInt(this.props.userId)
     const notification = new NotificationHandler()
@@ -256,76 +266,82 @@ class JoinProjectsModal extends React.Component {
     const rolebinding = { bindings: [] }
     const roleUnbind = { bindings: [] }
     const oldJoinedRoleValue = this.getOldJoinedRoleValue(joinedProjects)
-    const getProjectByName = name => {
-      for (let i = 0; i < allProjects.length; i++) {
-        const project = allProjects[i]
-        if (project.projectName === name) {
-          return project
+    const { validateFields } = form
+    validateFields((err) => {
+      if (!err) {
+        const getProjectByName = name => {
+          for (let i = 0; i < allProjects.length; i++) {
+            const project = allProjects[i]
+            if (project.projectName === name) {
+              return project
+            }
+          }
         }
+        Object.keys(roleCheckGroupValue).map(key => {
+          const projectRoles = roleCheckGroupValue[key] || []
+          const oldProjectRoles = oldJoinedRoleValue[key] || []
+          const project = getProjectByName(key)
+          projectRoles.forEach(role => {
+            if (oldProjectRoles.indexOf(role) < 0) {
+              rolebinding.bindings.push({
+                userID,
+                scopeID: project.projectID,
+                roleID: role,
+              })
+            }
+          })
+          oldProjectRoles.forEach(role => {
+            if (projectRoles.indexOf(role) < 0) {
+              roleUnbind.bindings.push({
+                userID,
+                scopeID: project.projectID,
+                roleID: role,
+              })
+            }
+          })
+        })
+        let msg = '加入其它项目'
+        if (rolebinding.bindings.length === 0) {
+          if (roleUnbind.bindings.length === 0) {
+            notification.warn('您未做任何修改，请选择角色')
+            return
+          }
+          msg = '您未加入新的项目，已有项目修改'
+        }
+        this.setState({
+          submitBtnLoading: true,
+        })
+        hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
+          success: {
+            func: () => {
+              notification.success(`${msg}成功`)
+              this.onCancel()
+              loadProjectsData()
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: () => {
+              notification.error(`${msg}失败`)
+            },
+            isAsync: true,
+          },
+          finally: {
+            func: () => {
+              this.setState({
+                submitBtnLoading: false,
+              })
+            },
+          },
+        })
       }
-    }
-    Object.keys(roleCheckGroupValue).map(key => {
-      const projectRoles = roleCheckGroupValue[key] || []
-      const oldProjectRoles = oldJoinedRoleValue[key] || []
-      const project = getProjectByName(key)
-      projectRoles.forEach(role => {
-        if (oldProjectRoles.indexOf(role) < 0) {
-          rolebinding.bindings.push({
-            userID,
-            scopeID: project.projectID,
-            roleID: role,
-          })
-        }
-      })
-      oldProjectRoles.forEach(role => {
-        if (projectRoles.indexOf(role) < 0) {
-          roleUnbind.bindings.push({
-            userID,
-            scopeID: project.projectID,
-            roleID: role,
-          })
-        }
-      })
-    })
-    let msg = '加入其它项目'
-    if (rolebinding.bindings.length === 0) {
-      if (roleUnbind.bindings.length === 0) {
-        notification.warn('您未做任何修改，请选择角色')
-        return
-      }
-      msg = '您未加入新的项目，已有项目修改'
-    }
-    this.setState({
-      submitBtnLoading: true,
-    })
-    hadnleProjectRoleBinding({ rolebinding, roleUnbind }, {
-      success: {
-        func: () => {
-          notification.success(`${msg}成功`)
-          this.onCancel()
-          loadProjectsData()
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: () => {
-          notification.error(`${msg}失败`)
-        },
-        isAsync: true,
-      },
-      finally: {
-        func: () => {
-          this.setState({
-            submitBtnLoading: false,
-          })
-        },
-      },
     })
   }
 
   render() {
     const { onCancel, projectTargetKeys } = this.props
     const { step, submitBtnLoading } = this.state
+    const { getFieldProps } = this.props.form
     return (
       <Modal
         {...this.props}
@@ -385,9 +401,11 @@ class JoinProjectsModal extends React.Component {
           ))
         }
       </div>
-      {
-        this.renderStep()
-      }
+      <Form>
+        {
+          this.renderStep()
+        }
+      </Form>
       </Modal>
     )
   }
@@ -398,7 +416,7 @@ function mapStateToProps(state) {
     projectsDetail: state.projectAuthority.projectsDetail,
   }
 }
-
+const JoinProjectsModal = Form.create()(JoinProjectsModalComponent)
 export default connect(mapStateToProps, {
   GetProjectsDetail,
   hadnleProjectRoleBinding,
