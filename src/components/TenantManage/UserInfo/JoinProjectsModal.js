@@ -57,9 +57,7 @@ class JoinProjectsModalComponent extends React.Component {
     const { joinedProjectKeys } = this.props
     if (item) {
       if (joinedProjectKeys.indexOf(item.key) > -1) {
-        return (
-          <span>{item.projectName}（原项目不能移除）</span>
-        )
+        return `${item.projectName}（原项目不能移除）`
       }
       return item.projectName
     }
@@ -83,6 +81,7 @@ class JoinProjectsModalComponent extends React.Component {
     })
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
     const { getFieldProps } = this.props.form
+
     return (
       <div style={{ height: "300px" }}>
         <Transfer
