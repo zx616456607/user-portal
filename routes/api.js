@@ -839,6 +839,9 @@ module.exports = function (Router) {
   router.get('/vmtomcats/list', vmWrapController.listVMTomcat)
   router.del('/vmtomcats/:id/delete', vmWrapController.deleteTomcat)
   router.post('/vmtomcats/create', vmWrapController.createTomcat)
+  router.get('/jdks/list', vmWrapController.listVMJdks)
+  router.get('/tomcats/list', vmWrapController.listVMTomcatVersions)
+
 
   // Network Isolation
   router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)

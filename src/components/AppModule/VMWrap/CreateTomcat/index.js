@@ -12,12 +12,14 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Modal } from 'antd'
+import { Row, Col, Form, Input, Modal, Select } from 'antd'
+import { getTomcatVersion } from '../../../../actions/vm_wrap'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
 import "./style/index.less"
 
 const FormItem = Form.Item
+const Option = Select.Option
 
 class CreateTomcat extends React.Component {
   static propTypes = {
@@ -25,7 +27,24 @@ class CreateTomcat extends React.Component {
     allPort: React.PropTypes.array,
   }
   state = {
-    name: 'tomcat_' + parseInt(Math.random()*100000),
+    tomcatVersions: [],
+  }
+  componentDidMount() {
+    const { jdk_id, getTomcatVersion } = this.props
+    jdk_id && getTomcatVersion({
+      jdk_id,
+    }, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200) {
+            this.setState({
+              tomcatVersions: res.results
+            })
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
   checkPort = (rule, value, callback) => {
     const { allPort = [] } = this.props
@@ -56,21 +75,38 @@ class CreateTomcat extends React.Component {
       if(errors) return
       const temp = cloneDeep(values)
       temp.start_port = parseInt(temp.start_port)
+      temp.name = temp.name + temp.port
       onOk && onOk(temp)
     })
   }
+
   onPortChange = e => {
     const { form: { setFieldsValue } } = this.props
+    const port = e.target.value
     setFieldsValue({
-      port: e.target.value
+      port,
+      tomcat_name: 'tomcat_' + port
     })
   }
+
+  setDefault = () => {
+    const { form: { validateFields } } = this.props
+    validateFields([ 'tomcat_id' ], (err, values) => {
+      if (err) return
+      console.log('tomcat_id', values)
+    })
+  }
+
   render() {
-    const { name } = this.state
-    const { form: { getFieldProps }, tomcatList, isNeedModal,
-      title, visible, onCancel, confirmLoading } = this.props
-    const dir = `/usr/local/${name}`
-    const env = `CATALINA_HOME_${name.toLocaleUpperCase()}`
+    const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal,
+      title, visible, onCancel, confirmLoading, isRight } = this.props
+    const { tomcatVersions } = this.state
+    const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
+    const port = getFieldValue('port') || ''
+    const name = getFieldValue('name') || 'tomcat_'
+    const options = tomcatVersions.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
+    const dir = `/usr/local/${name+port}`
+    const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
     const layout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 19 }
@@ -81,8 +117,11 @@ class CreateTomcat extends React.Component {
       ],
       onChange: this.onPortChange,
     })
-    const nameProps = getFieldProps('name', {
-      initialValue: name,
+    const versionProps = getFieldProps('tomcat_id', {
+      initialValue: tomcat_id || undefined,
+    })
+    const nameProps = getFieldProps('tomcat_name', {
+      initialValue: name+port,
     })
     const dirProps = getFieldProps('catalina_home_dir', {
       initialValue: dir,
@@ -91,23 +130,39 @@ class CreateTomcat extends React.Component {
       initialValue: env,
     })
 
-    const form = <div className="createTomcatWrapper">
-      <FormItem
-        {...layout}
-        label="实例"
-        style={{ marginTop: 10}}
-      >
-        <div>{ name }</div>
-        <Input type="hidden" {...nameProps} />
-        <Input type="hidden" {...dirProps} />
-        <Input type="hidden" {...envProps} />
-      </FormItem>
+    const form = <div style={{ width: 460 }} className={"createTomcatWrapper" + (isRight ? ' textRight' : '')}>
+     <Row>
+        <Col style={{ paddingLeft: (isRight ? '20px' : 0) }} span={20}>
+          <FormItem
+            {...layout}
+            label="Tomcat 版本"
+            style={{ marginTop: 10}}
+          >
+            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 0 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
+              {options}
+            </Select>
+          </FormItem>
+        </Col>
+        <Col style={{ paddingTop: '15px', paddingLeft: '15px' }} span={4}>
+          <span><a onClick={this.setDefault}>设为默认</a></span>
+        </Col>
+      </Row>
       <FormItem
         {...layout}
         label="端口"
         style={{ marginTop: 10}}
       >
         <Input placeholder="请填写端口号" {...portProps} />
+      </FormItem>
+      <FormItem
+        {...layout}
+        label="实例"
+        style={{ marginTop: 10}}
+      >
+        <div>{ name+port }</div>
+        <Input type="hidden" {...nameProps} />
+        <Input type="hidden" {...dirProps} />
+        <Input type="hidden" {...envProps} />
       </FormItem>
       <FormItem
         {...layout}
@@ -142,4 +197,5 @@ function mapStateToProps(state, props) {
   return {}
 }
 export default connect(mapStateToProps, {
+  getTomcatVersion,
 })(CreateTomcat)

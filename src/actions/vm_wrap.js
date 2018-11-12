@@ -434,3 +434,71 @@ export function createTomcat(body, callback) {
     return dispatch(fetchCreateTomcat(body, callback))
   }
 }
+
+/**
+ * 查询jdk list
+ * @type {string}
+ */
+export const VM_JDK_LIST_REQUEST = 'VM_JDK_LIST_REQUEST'
+export const VM_JDK_LIST_SUCCESS = 'VM_JDK_LIST_SUCCESS'
+export const VM_JDK_LIST_FAILURE = 'VM_JDK_LIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchVmJdkList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/jdks/list`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [VM_JDK_LIST_REQUEST, VM_JDK_LIST_SUCCESS, VM_JDK_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function getJdkList(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchVmJdkList(query, callback))
+  }
+}
+
+/**
+ * 查询tomcat version list
+ * @type {string}
+ */
+export const VM_TOMCAT_VERSION_LIST_REQUEST = 'VM_TOMCAT_VERSION_LIST_REQUEST'
+export const VM_TOMCAT_VERSION_LIST_SUCCESS = 'VM_TOMCAT_VERSION_LIST_SUCCESS'
+export const VM_TOMCAT_VERSION_LIST_FAILURE = 'VM_TOMCAT_VERSION_LIST_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTomcatVersionList(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/tomcats/list`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [VM_TOMCAT_VERSION_LIST_REQUEST, VM_TOMCAT_VERSION_LIST_SUCCESS, VM_TOMCAT_VERSION_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function getTomcatVersion(query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchTomcatVersionList(query, callback))
+  }
+}
+
+

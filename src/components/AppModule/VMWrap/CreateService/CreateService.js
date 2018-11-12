@@ -33,6 +33,7 @@ class VMServiceCreate extends React.Component {
       vmInfoID:undefined,
       host:undefined,
       account:undefined,
+      jdk_id:undefined,
       password:undefined,
       address:undefined,
       init:undefined,
@@ -40,7 +41,7 @@ class VMServiceCreate extends React.Component {
       interval:undefined,
       packages:[],
       env:[],
-      isNewEnv: false,
+      isNewEnv: true,
       isAddTomcat: 1, // 1 已安装 Tomcat 2 添加新 Tomcat
     }
   }
@@ -109,7 +110,7 @@ class VMServiceCreate extends React.Component {
   createService() {
     const { form } = this.props;
     const { validateFields } = form;
-    const { host, account, password, packages, env, isNewEnv, isAddTomcat } = this.state;
+    const { host, account, jdk_id, password, packages, env, isNewEnv, isAddTomcat } = this.state;
     let notify = new NotificationHandler()
     let obj = {}
     let tempTomcat = {}
@@ -118,12 +119,13 @@ class VMServiceCreate extends React.Component {
     }
     let validateArr = ['serviceName','checkAddress','initTimeout','ruleTimeout','intervalTimeout']
     if (isNewEnv) {
-      validateArr = validateArr.concat(['envIP','userName','password'])
+      const arr = ['envIP','userName','password','jdk_id','new_port','tomcat_id','tomcat_name', 'catalina_home_dir', 'catalina_home_env']
+      validateArr = validateArr.concat(arr)
     } else {
       validateArr.push('host')
       // 1 已安装 Tomcat 2 添加新 Tomcat
       if (isAddTomcat === 2) {
-        validateArr = validateArr.concat(['start_port', 'name', 'catalina_home_dir', 'catalina_home_env'])
+        validateArr = validateArr.concat(['tomcat_id', 'start_port', 'tomcat_name', 'catalina_home_dir', 'catalina_home_env'])
       } else {
         validateArr.push('tomcat')
       }
@@ -142,7 +144,8 @@ class VMServiceCreate extends React.Component {
         let vminfo = {
           host,
           account,
-          password
+          password,
+          jdk_id,
         }
         if (isNewEnv) {
           this.checkHost(vminfo).then(() => {
@@ -177,16 +180,27 @@ class VMServiceCreate extends React.Component {
       packages:packages,
       envs:obj,
     }
-    if (isAddTomcat === 2) {
+    if (this.state.isNewEnv) {
       body.tomcat = {
         catalina_home_dir: values.catalina_home_dir,
         catalina_home_env: values.catalina_home_env,
-        name: values.name,
-        start_port: values.start_port,
-        vminfo: values.host,
+        name: values.tomcat_name,
+        start_port: values.new_port,
+        tomcat_id: values.tomcat_id,
       }
     } else {
-      body.tomcat = values.tomcat
+      if (isAddTomcat === 2) {
+        body.tomcat = {
+          catalina_home_dir: values.catalina_home_dir,
+          catalina_home_env: values.catalina_home_env,
+          name: values.tomcat_name,
+          start_port: values.start_port,
+          vminfo: values.host,
+          tomcat_id: values.tomcat_id,
+        }
+      } else {
+        body.tomcat = values.tomcat
+      }
     }
     createVMservice(body, {
       success: {
@@ -254,7 +268,7 @@ class VMServiceCreate extends React.Component {
                 <SelectPacket scope={this} form={this.props.form}/>
               </Panel>
               <Panel header={this.renderPanelHeader('服务状态')} key="status">
-                <ServiceStatus port={getFieldValue('port')} scope={this} form={this.props.form} currentPacket={currentPacket}/>
+                <ServiceStatus new_port={getFieldValue('new_port')} port={getFieldValue('port')} scope={this} form={this.props.form} currentPacket={currentPacket}/>
               </Panel>
             </Collapse>
             <div className="btnBox clearfix">

@@ -19,7 +19,7 @@ import QueueAnim from 'rc-queue-anim'
 import isEmpty from 'lodash/isEmpty'
 import './style/traditionEnv.less'
 import classNames from 'classnames'
-import { checkVMUser, getVMinfosList, getTomcatList } from '../../../../actions/vm_wrap'
+import { checkVMUser, getVMinfosList, getTomcatList, getJdkList, getTomcatVersion } from '../../../../actions/vm_wrap'
 import CreateTomcat from '../CreateTomcat'
 import filter from 'lodash/filter'
 
@@ -35,10 +35,14 @@ class TraditionEnv extends Component{
       Prompt: undefined,
       isShow: false,
       loading: false,
-      activeBtn: 'old',
+      activeBtn: 'new',
       tomcatRadio: 1, // 1 已安装 Tomcat 2 添加新 Tomcat
       tomcatList: [],
       loadingTomcat: false,
+      isTestSucc: false,
+      jdkList: [],
+      tomcatVersionList: [],
+      ports: [],
     }
   }
   componentWillMount() {
@@ -58,11 +62,11 @@ class TraditionEnv extends Component{
     const { scope } = this.props;
     let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
-      callback([new Error('请填写IP')])
+      callback([new Error('请输入传统环境 IP')])
       return
     }
     if (reg.test(value) !== true) {
-      callback([new Error('请输入正确IP地址')])
+      callback([new Error('请输入正确 IP 地址')])
       return
     }
     if (this.checkHostExist(value)) {
@@ -93,6 +97,21 @@ class TraditionEnv extends Component{
     })
     return callback()
   }
+  getJdk = () => {
+    const { getJdkList } = this.props
+    getJdkList({}, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200 && res.results) {
+            this.setState({
+              jdkList: res.results
+            })
+          }
+        },
+        isAsync: true,
+      }
+    })
+  }
   checkUser(){
     const { form,checkVMUser } = this.props
     const { validateFields, getFieldsValue } = form
@@ -117,7 +136,9 @@ class TraditionEnv extends Component{
             if(res.statusCode === 200){
               this.setState({
                 Prompt: true,
-                loading: false
+                isTestSucc: true,
+                loading: false,
+                ports: res.ports,
               },()=>{
                 this.successTime = setTimeout(()=>{
                   this.setState({
@@ -126,6 +147,7 @@ class TraditionEnv extends Component{
                   })
                 },3000)
               })
+              this.getJdk()
             }
           },
           isAsync: true
@@ -218,10 +240,56 @@ class TraditionEnv extends Component{
     const curr = filter(tomcatList, { id })[0]
     if (curr) setFieldsValue({ port: curr.startPort })
   }
+  onNewPortChange = e => {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      tomcat_name: 'tomcat_' + e.target.value,
+    })
+  }
+  onJdkChange = jdk_id => {
+    const { getTomcatVersion, scope } = this.props
+    scope.setState({
+      jdk_id
+    })
+    getTomcatVersion({
+      jdk_id
+    }, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200) {
+            this.setState({
+              tomcatVersionList: res.results
+            })
+          }
+        },
+        isAsync: true,
+      }
+    })
+  }
+  checkNewPort = (rules,value,callback) => {
+    const { ports } = this.state
+    if (!value) return callback(new Error('请填写端口号'))
+    if (!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    if (port < 1 || port > 65535) {
+      callback(new Error('请填入1~65535'))
+      return
+    }
+    if (ports.indexOf(port) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    return callback()
+  }
   render() {
-    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat } = this.state
+    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports } = this.state
     const { vmList, form } = this.props
     const { getFieldProps, getFieldValue } = form
+    const name = 'tomcat_'
     const formItemLayout = {
       labelCol: { span: 3 },
       wrapperCol: { span: 9 },
@@ -238,7 +306,7 @@ class TraditionEnv extends Component{
     };
     const envIP = getFieldProps('envIP', {
       rules: [
-        { required: true, message: "请输入传统环境IP" },
+        // { required: true, message: "请输入传统环境IP" },
         { validator: this.checkHost.bind(this)}
       ],
     });
@@ -266,6 +334,41 @@ class TraditionEnv extends Component{
       ],
       onChange: this.onExsistTomcatChange,
     })
+
+    const new_portProps = getFieldProps('new_port', {
+      rules: [
+        {required: true, message: "请选择输入端口号"},
+        {validator: this.checkNewPort}
+      ],
+      onChange: this.onNewPortChange,
+    })
+
+    const tomcatVersionProps = getFieldProps('tomcat_id', {
+      rules: [
+        {required: true, message: "请选择 Tomcat 版本"}
+      ],
+    })
+
+    const javaProps = getFieldProps('jdk_id', {
+      rules: [
+        {required: true, message: "请选择 Java 环境"}
+      ],
+      onChange: this.onJdkChange,
+    })
+
+    const nameProps = getFieldProps('tomcat_name', {
+      initialValue: name,
+    })
+    const new_port = getFieldValue('new_port') || ''
+    const dir = `/usr/local/${name+new_port}`
+    const env = `CATALINA_HOME_${name.toLocaleUpperCase()+new_port}`
+    const dirProps = getFieldProps('catalina_home_dir', {
+      initialValue: dir,
+    })
+    const envProps = getFieldProps('catalina_home_env', {
+      initialValue: env,
+    })
+
     const portProps = getFieldProps('port')
 
     let testStyle = {
@@ -291,10 +394,22 @@ class TraditionEnv extends Component{
         }
       </div>
     );
+    const new_content = (
+      <div className="portBody">
+        {
+          ports.map(item => <div key={item}>{item}</div>)
+        }
+      </div>
+    );
+
     const host = getFieldValue("host")
     const tomcatOptions = tomcatList.map(item => {
       return <Option key={item.id} value={item.id}>{item.name}</Option>
     })
+    const tomcatVersionOptions = this.state.tomcatVersionList.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
+    const javaOptions = this.state.jdkList.map(item => <Option key={item.id} value={item.id}>{item.jdkName}</Option>)
+    const jdk_id = getFieldValue('jdk_id')
+    const jdk_name = jdk_id && this.state.jdkList.length && filter(this.state.jdkList, { id: jdk_id })[0].jdkName
     return (
       <div className="traditionEnv">
         <Input type="hidden" {...portProps} />
@@ -314,7 +429,7 @@ class TraditionEnv extends Component{
                   label="传统环境IP"
                   {...formItemLayout}
                 >
-                  <Input placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
+                  <Input disabled={this.state.isTestSucc} placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
                 </FormItem>
                 <FormItem
                   {...formTextLayout}
@@ -325,18 +440,36 @@ class TraditionEnv extends Component{
                   label="环境登录账号"
                   {...formItemLayout}
                 >
-                  <Input placeholder="请输入传统环境登录账号" size="large" {...userName}/>
+                  <Input disabled={this.state.isTestSucc} placeholder="请输入传统环境登录账号" size="large" {...userName}/>
                 </FormItem>
                 <FormItem
                   label="环境登录密码"
                   {...formItemLayout}
                 >
-                  <Input placeholder="请输入传统环境登录密码" size="large" {...password}/>
+                  <Input disabled={this.state.isTestSucc} placeholder="请输入传统环境登录密码" size="large" {...password}/>
                 </FormItem>
                 <FormItem
                   {...formBtnLayout}
                 >
-                  <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
+                  {
+                    this.state.isTestSucc ?
+                    <Button type="ghost" size="large" onClick={() => {
+                      const { form: { setFieldsValue } } = this.props
+                      setFieldsValue({
+                        envIP: '',
+                        userName: '',
+                        password: '',
+                        new_port: '',
+                        tomcat_id: undefined,
+                        jdk_id: undefined,
+                      })
+                      this.setState({
+                        isTestSucc: false
+                      })
+                    }}>重新填写</Button>
+                    :
+                    <Button type="primary" size="large" loading={this.state.loading} onClick={this.checkUser.bind(this)}>测试连接</Button>
+                  }
                   {
                     this.state.isShow ?
                       <span>
@@ -397,6 +530,7 @@ class TraditionEnv extends Component{
                                 </FormItem>
                                 :
                                 <CreateTomcat
+                                  jdk_id={filter(vmList, { vminfoId: parseInt(host) })[0].jdkId}
                                   form={form}
                                   allPort={portList}
                                   tomcatList={tomcatList}
@@ -409,18 +543,58 @@ class TraditionEnv extends Component{
               </div>
           }
           {
-            activeBtn === 'new' && <FormItem
-              {...formSmallLayout}
+            activeBtn === 'new' && [
+            <FormItem
+              label="Java 环境"
+              {...formItemLayout}
+            >
+              <Select disabled={!this.state.isTestSucc} placeholder="请选择 Java 环境" size="large" {...javaProps}>
+                {javaOptions}
+              </Select>
+            </FormItem>,
+            <FormItem
+              label="Tomcat 版本"
+              {...formItemLayout}
+            >
+              <Select disabled={!this.state.isTestSucc} placeholder="请选择 Tomcat 版本" size="large" {...tomcatVersionProps}>
+                {tomcatVersionOptions}
+              </Select>
+            </FormItem>,
+            <FormItem
+              label="端口号"
+              {...formItemLayout}
+            >
+              <Input disabled={!this.state.isTestSucc} placeholder="请输入端口号" size="large" {...new_portProps}/>
+              <Popover
+                content={new_content}
+                title="已被占用的端口"
+                trigger="click"
+              >
+                <Button disabled={!this.state.isTestSucc} style={{ marginLeft: 5 }} size="large" className="portBtn verticalCenter" type="primary">查看已用端口</Button>
+              </Popover>
+            </FormItem>,
+            <FormItem
+              {...formItemLayout}
+              label="实例"
+              style={{ marginTop: 10}}
+            >
+              <div>{ name+new_port }</div>
+              <Input type="hidden" {...nameProps} />
+              <Input type="hidden" {...dirProps} />
+              <Input type="hidden" {...envProps} />
+            </FormItem>,
+            <FormItem
+              {...formItemLayout}
               label="环境安装路径"
               style={{ marginTop: 20}}
             >
               <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
-                <div>JAVA_HOME='/home/java'</div>
-                <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
-                <div>CATALINA_HOME='/usr/local/tomcat'</div>
+                <div>JAVA_HOME='/home/java/{jdk_name}'</div>
+                <div>JRE_HOME='/home/java/{jdk_name}/jre'</div>
+                <div>CATALINA_HOME_TOMCAT_{this.props.form.getFieldValue('new_port')}='/usr/local/tomcat_{this.props.form.getFieldValue('new_port')}'</div>
                 <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
               </div>
-            </FormItem>
+            </FormItem>]
           }
         </Form>
       </div>
@@ -439,5 +613,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   checkVMUser,
   getVMinfosList,
-  getTomcatList
+  getTomcatList,
+  getJdkList,
+  getTomcatVersion,
 })(TraditionEnv)
