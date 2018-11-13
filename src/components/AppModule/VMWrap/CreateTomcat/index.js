@@ -110,8 +110,8 @@ class CreateTomcat extends React.Component {
     const dir = `/usr/local/${name+port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
     const layout = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 19 }
+      labelCol: { span: 6 },
+      wrapperCol: { span: 18 }
     }
     const portProps = getFieldProps('start_port', {
       rules: [
@@ -140,7 +140,7 @@ class CreateTomcat extends React.Component {
             label="Tomcat 版本"
             style={{ marginTop: 10}}
           >
-            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 0 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
+            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 3 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
               {options}
             </Select>
           </FormItem>
