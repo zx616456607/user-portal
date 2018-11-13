@@ -107,7 +107,7 @@ class MyOrder extends React.Component {
                 工单名称: {record.workorderName}
               </Ellipsis>
             </Col>
-            <Col span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
+            <Col className="textRight" span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
           </Row>
           <Row className="line2">
             <Col span={20}>
@@ -115,7 +115,7 @@ class MyOrder extends React.Component {
                 {record.replierContents || record.contents || '-'}
               </Ellipsis>
             </Col>
-            <Col span={4} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
+            <Col className="textRight" span={4} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
           </Row>
         </Col>
         <Col span={2} className="iconRight">
