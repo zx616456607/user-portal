@@ -994,6 +994,7 @@
   "AppCreate.wrapName": "Package name",
   "AppCreate.publishName": "Release name",
   "AppCreate.tag": "Version",
+  "AppCreate.originalFile": "Original file name",
   "AppCreate.wrapType": "Type",
   "AppCreate.uploadTime": "Upload time",
   "AppCreate.operation": "Ops",
