@@ -400,6 +400,7 @@ class MysqlCluster extends Component {
 
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
+               style={{ top: 20 }}
           className='CreateDatabaseModal' maskClosable={false} width={600}
           title='创建MySQL集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }

@@ -335,8 +335,8 @@ class RedisDatabase extends Component {
     let title = ''
     const currentCluster = this.props.current.cluster
     let canCreate = true
-    if (!storageClassType.private) canCreate = false; title = '尚未配置块存储集群，暂不能创建'
-    if (!isChartRepoConfig) canCreate = false; title = '尚未配置Chart Repo，暂不能创建'
+    if (!storageClassType.private) { canCreate = false; title = '尚未配置块存储集群，暂不能创建'}
+    if (!isChartRepoConfig) { canCreate = false; title = '尚未配置Chart Repo，暂不能创建'}
     if (uninstalledPlugin) {
       title = `${plugin} 插件未安装`
     }
@@ -383,6 +383,7 @@ class RedisDatabase extends Component {
           }
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
+               style={{ top: 20 }}
           className='CreateDatabaseModal' maskClosable={false}
           title='创建Redis集群' width={600}
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
