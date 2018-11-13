@@ -90,6 +90,7 @@ class UploadModal extends Component {
         filename: values.wrapName,
         filetag: values.versionLabel,
         filetype: isType[1],
+        originalfile: isType[0],
       }
       const body = {
         sourceURL: values.protocolUrl,
@@ -252,7 +253,7 @@ class UploadModal extends Component {
   }
   render() {
     const { form, func, loginUser, space } = this.props
-    const { fileType, fileName, fileTag, isPublished } = this.state
+    const { fileType, fileName, fileTag, isPublished, originalfile } = this.state
     // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName', {
       rules: [
@@ -296,7 +297,8 @@ class UploadModal extends Component {
     let query = {
       filename: fileName,
       filetag: fileTag,
-      filetype: fileType
+      filetype: fileType,
+      originalfile,
     }
     const actionUrl = `${API_URL_PREFIX}/pkg/local?${toQuerystring(query)}`
     const selfProps = {
@@ -309,12 +311,11 @@ class UploadModal extends Component {
         let isType = false
 
         isType = file.name.match(/\.(jar|war)$/)
-
         if (!isType) {
           notificat.error('上传文件格式错误', '支持：' + wrapTypelist.join('、') + '文件格式')
           return false
         }
-        self.setState({ fileType: isType[1] })
+        self.setState({ originalfile: file.name.split('.')[0], fileType: isType[1] })
         uploadFile = file.name // show upload file name
         // return true
         return new Promise((resolve, reject) => {
