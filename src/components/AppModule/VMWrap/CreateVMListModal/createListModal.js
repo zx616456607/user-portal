@@ -241,10 +241,10 @@ let CreateVMListModal = React.createClass({
       rules: [
         { required: true, message: '请选择 Java 环境' },
       ],
-      initialValue: isAdd ? (jdkList[0] && jdkList[0].id) : Rows.id
+      initialValue: isAdd ? (jdkList[0] && jdkList[0].id) : Rows.jdkId
     })
     const jdk_id = getFieldValue('jdk_id')
-    const jdk_name = jdk_id ? filter(jdkList, { id: jdk_id })[0].jdkName : ''
+    const jdk_name = jdk_id && jdkList.length ? filter(jdkList, { id: jdk_id })[0].jdkName : ''
     let style = {
       fontSize: 12
     }
