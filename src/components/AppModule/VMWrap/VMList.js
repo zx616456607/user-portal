@@ -461,6 +461,7 @@ class VMList extends React.Component {
       console.log('add', values)
       const { createTomcat } = this.props
       values.vminfo_id = this.state.currVM.vminfoId
+      values.name = values.tomcat_name
       createTomcat(values, {
         success: {
           func: res => {
