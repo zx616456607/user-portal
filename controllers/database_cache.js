@@ -315,6 +315,15 @@ exports.deleteManualBackup = function* () {
   const result = yield api.deleteBy([ clusterId, 'daas', type, clusterName, 'backups', name ])
   this.body = result
 }
+// 检查radosgw地址配置情况
+  exports.checkRadosgwStatus = function* () {
+  const loginUser = this.session.loginUser
+  const clusterId = this.params.clusterID
+  const storagecluster = this.params.storagecluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([ clusterId, 'storageclass', storagecluster, 'radosgw' ])
+  this.body = result
+}
 // 检查是否有自动备份
 exports.checkAutoBackupExist = function* () {
   const loginUser = this.session.loginUser
