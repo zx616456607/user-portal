@@ -28,7 +28,7 @@ class MyOrder extends React.Component {
   state = {
     pageSize: 10,
     currentPage: 1,
-    selectValue: undefined,
+    selectValue: 'all',
     searchValue: '',
     tableLoading: false,
     listData: [],
@@ -161,7 +161,7 @@ class MyOrder extends React.Component {
             !isAdmin && <Button className="btnStyle" type="primary" size="large" onClick={this.onSubmitQuesClick}>提交工单</Button>
           }
           <Button className="btnStyle reflesh" type={ !isAdmin ? 'ghost' : 'primary' } size="large" onClick={this.loadData}>刷新</Button>
-          <Select allowClear={true} size="large" className="selStyle" placeholder="所有分类"
+          <Select allowClear={true} size="large" className="selStyle" placeholder="请选择工单类型"
             value={selectValue}
             onChange={this.onSelChange}>
             {opstions}
