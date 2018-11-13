@@ -332,7 +332,7 @@ class VMList extends React.Component {
     case 'add':
       this.setState({
         isShowAddModal: true,
-        tomcatList: temp, //todo record.xxx
+        // tomcatList: temp, //todo record.xxx
         allPort: record.ports,
         currVM: record,
       })
