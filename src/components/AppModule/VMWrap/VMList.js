@@ -147,11 +147,11 @@ class VMList extends React.Component {
       postVMinfoList(res, {
         success: {
           func: res => {
-            if (res.statusCode === 201) {
+            if (res.statusCode === 201 || res.statusCode === 200) {
               notification.success(`添加成功`)
               notification.close()
-              this.getInfo(null, searchValue)
             }
+            this.getInfo(null, searchValue)
           },
           isAsync: true,
         },
@@ -458,7 +458,6 @@ class VMList extends React.Component {
       //     "catalina_home_dir": "/usr/local/tomcat_2",
       //     "catalina_home_env": "CATALINA_HOME_TOMCAT_2"
       //  }
-      console.log('add', values)
       const { createTomcat } = this.props
       values.vminfo_id = this.state.currVM.vminfoId
       values.name = values.tomcat_name
