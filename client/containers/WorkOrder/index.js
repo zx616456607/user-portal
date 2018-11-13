@@ -15,6 +15,7 @@ import MyOrderList from './MyOrder'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Tabs, Card } from 'antd'
+import Title from '../../../src/components/Title'
 import './style/index.less'
 const TabPane = Tabs.TabPane
 
@@ -31,11 +32,18 @@ class WorkOrder extends React.Component {
   componentDidMount() {}
   render() {
     const { children, location, location: { pathname } } = this.props
+    let title = ''
     const activeKey = (pathname.indexOf('my-order') > -1 ||
     pathname.indexOf('/work-order/create') > -1) ?
-      DEFAULT_TAB
+      (() => {
+        title = '我的工单'
+        return DEFAULT_TAB
+      })()
       :
-      'system-notice'
+      (() => {
+        title = '系统公告'
+        return 'system-notice'
+      })()
     const isDetail = !pathname.endsWith('my-order') && !pathname.endsWith('system-notice')
     return <QueueAnim className="workOrderWrapper">
       {
@@ -43,6 +51,7 @@ class WorkOrder extends React.Component {
           children
           :
           <Card>
+            <Title title={title} />
             <Tabs activeKey={activeKey} onChange={this.onTabChange}>
               <TabPane tab="我的工单" key="my-order">
                 <MyOrderList location={location} />
