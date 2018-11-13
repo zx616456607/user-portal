@@ -383,6 +383,7 @@ class RedisDatabase extends Component {
           }
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
+               style={{ top: 20 }}
           className='CreateDatabaseModal' maskClosable={false}
           title='创建Redis集群' width={600}
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
