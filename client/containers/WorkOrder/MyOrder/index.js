@@ -61,7 +61,7 @@ class MyOrder extends React.Component {
         query.filter = 'classify_id,' + selectValue
       }
       if (searchValue) {
-        const searchFilter = 'workorder_name,' + searchValue
+        const searchFilter = 'workorder_name,' + encodeURIComponent(searchValue)
         query.filter = query.filter ? query.filter + ',' + searchFilter : searchFilter
       }
       getMyOrderList(query, {
