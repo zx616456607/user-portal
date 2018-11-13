@@ -39,10 +39,25 @@ class Backup extends React.Component {
     notAllowDiffBackup: false, // 是否允许差异备份
     fullBackupPointDel: true, // 是否不允许删除当前备份链上的全量备份点
     isFetching: false,
+    radosgw: false,
   }
   componentDidMount() {
     this.getList() // 获取备份链数据
     this.checkAutoBackupExist() // 检查是否有自动备份
+    this.checkRadosgwStatus() // 检查radosgw是否配置，未配置不能备份
+  }
+  checkRadosgwStatus = () => {
+    const { getRadosgwStatus, clusterID, databaseInfo } = this.props
+    getRadosgwStatus(clusterID, databaseInfo.storageCluster, {
+      success: {
+        func: res => {
+          this.setState({
+            radosgw: res.data,
+          })
+        },
+      },
+    })
+
   }
   getList = () => {
     const { clusterID, database, databaseInfo, getbackupChain } = this.props
@@ -749,7 +764,12 @@ class Backup extends React.Component {
       msg: '',
       disabled: false,
     }
-
+    if (!this.state.radosgw) {
+      return {
+        msg: '集群存储未配置radosgw地址，管理员配置后即可备份',
+        disabled: true,
+      }
+    }
     if (database === 'mysql') {
       if (chainsData.length === 0) {
         return {
@@ -781,8 +801,11 @@ class Backup extends React.Component {
   }
   render() {
     const { chainsData, database, databaseInfo, rollbackComplete } = this.props
+    const { radosgw } = this.state
     let disabledText = ''
-    if (databaseInfo.status !== 'Running') {
+    if (!radosgw) {
+      disabledText = '集群存储未配置radosgw地址，管理员配置后即可备份'
+    } else if (databaseInfo.status !== 'Running') {
       disabledText = '运行中的集群支持备份'
     } else {
       disabledText = '回滚中不支持备份'
@@ -821,14 +844,14 @@ class Backup extends React.Component {
               </Button>
           }
           {
-            databaseInfo.status !== 'Running' || rollbackComplete ?
+            databaseInfo.status !== 'Running' || rollbackComplete || !radosgw ?
               <div className="btn-wrapper">
                 <div className="fake">
                   <Tooltip title={disabledText}>
                     <div className="mask" ></div>
                   </Tooltip>
                 </div>
-                <Button onClick={() => this.menualBackup(chainsData[0], 0)} disabled>
+                <Button disabled>
                   <TenxIcon type="hand-press" style={{ marginRight: 4 }}/>
                   手动备份
                 </Button>
@@ -923,4 +946,5 @@ export default connect(mapStateToProps, {
   autoBackupDetele: backupChainActions.autoBackupDetele, // 关闭定时备份
   updateAutoBackupSet: backupChainActions.updateAutoBackupSet, // 修改定时备份
   postRollback: backupChainActions.postRollback, // 回滚
+  getRadosgwStatus: backupChainActions.getRadosgwStatus, // 检查是否配置了radosgw地址
 })(BackupForm)

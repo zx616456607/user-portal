@@ -16,6 +16,7 @@ import { cpuFormat, memoryFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
 import { FormattedMessage } from 'react-intl'
 import IntlMessages from './ContainerDetailIntl'
+import AppServiceDetailIntl from "../AppModule/ServiceIntl/AppServiceDetailIntl";
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -141,6 +142,39 @@ export default class ContainerDetailInfo extends Component {
       return ele
     }
   }
+  renderEnvValue = env => {
+    if (env && env.value) {
+      return (
+        <div key={env.name}>
+          <div className="commonTitle">{env.name}</div>
+          <div className="commonTitle" style={{width:'66%'}}>{env.value}</div>
+          <div style={{ clear: "both" }}></div>
+        </div>
+      )
+    }
+    if (env && env.valueFrom && env.valueFrom.secretKeyRef) {
+      const { formatMessage } = this.props.intl
+      const { name, key } = env.valueFrom.secretKeyRef
+      const nv = `${name}/${key}`
+      return (
+        <div key={env.name}>
+          <div className="commonTitle">{env.name}</div>
+          <div className="commonTitle" style={{width:'66%'}}>
+            <span>
+              <Tooltip title={formatMessage(AppServiceDetailIntl.encryptionVariable)} placement="top">
+                <a><i className="fa fa-key" /></a>
+              </Tooltip>&nbsp;
+              <Tooltip title={nv} placement="topLeft">
+                <span>{nv}</span>
+              </Tooltip>
+            </span>
+          </div>
+          <div style={{ clear: "both" }}></div>
+        </div>
+      )
+    }
+    return null
+  }
   render() {
     const parentScope = this
     const { container } = this.props
@@ -228,15 +262,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             {
-              !!container.spec.containers[0].env ? container.spec.containers[0].env.map((env) => {
-                return (
-                  <div key={env.name}>
-                    <div className="commonTitle">{env.name}</div>
-                    <div className="commonTitle" style={{width:'66%'}}>{env.value}</div>
-                    <div style={{ clear: "both" }}></div>
-                  </div>
-                )
-              }) : null
+              !!container.spec.containers[0].env ? container.spec.containers[0].env.map(this.renderEnvValue) : null
             }
           </div>
         </div>

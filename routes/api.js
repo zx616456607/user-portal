@@ -618,6 +618,8 @@ module.exports = function (Router) {
   router.post('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.manualBackup)
   // 删除手动备份
   router.delete('/clusters/:clusterID/daas/:type/:clusterName/backups/:name', databaseCacheController.deleteManualBackup)
+  // 检查radosgw地址配置情况
+  router.get('/clusters/:clusterID/storageclass/:storagecluster/radosgw', databaseCacheController.checkRadosgwStatus)
   // 检查是否有自动备份
   router.get('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.checkAutoBackupExist)
   // 设置自动备份
