@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Button, Modal, Form, Input, Icon, Select, Row, Col } from 'antd'
+import { Button, Modal, Form, Input, Icon, Select, Row, Col, Tooltip } from 'antd'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
@@ -28,6 +28,8 @@ let CreateVMListModal = React.createClass({
       isShow: false,
       verification: false,
       jdkList: [],
+      isShowPassword: false,
+      readOnly: true,
     };
   },
   componentDidMount () {
@@ -198,14 +200,17 @@ let CreateVMListModal = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   setDefault() {
+    let notification = new NotificationHandler()
     const { form: { getFieldValue, validateFields } } = this.props
     validateFields([ 'jdk_id' ], (err, values) => {
       if (err) return
+      notification.destroy()
+      notification.success('设置成功')
       console.log('jdk_id', values)
     })
   },
   render() {
-    const { confirmLoading, jdkList } = this.state
+    const { confirmLoading, jdkList, isShowPassword } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
@@ -236,10 +241,10 @@ let CreateVMListModal = React.createClass({
       rules: [
         { required: true, message: '请选择 Java 环境' },
       ],
-      initialValue: isAdd ? (jdkList[0] && jdkList[0].id) : Rows.id
+      initialValue: isAdd ? (jdkList[0] && jdkList[0].id) : Rows.jdkId
     })
     const jdk_id = getFieldValue('jdk_id')
-    const jdk_name = jdk_id ? filter(jdkList, { id: jdk_id })[0].jdkName : ''
+    const jdk_name = jdk_id && jdkList.length ? filter(jdkList, { id: jdk_id })[0].jdkName : ''
     let style = {
       fontSize: 12
     }
@@ -321,8 +326,23 @@ let CreateVMListModal = React.createClass({
             label="环境登录密码"
             {...formItemLayout}
           >
-            <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <Input
+              autoComplete="off"
+              readOnly={this.state.readOnly}
+              onFocus={() => this.setState({ readOnly: false })}
+              onBlur={() => this.setState({ readOnly: true })}
+              type={isShowPassword ? 'text' : 'password'} key="passWord" {...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <span style={{ cursor: 'pointer', position: 'absolute', right: '-20px', top: '2px' }}>
+              {
+                isShowPassword ?
+                  <Icon onClick={() => this.setState({ isShowPassword: false })} type={'eye'}/>
+                  :
+                  <Icon onClick={() => this.setState({ isShowPassword: true })} type={'eye-o'}/>
+              }
+              <Icon />
+            </span>
           </FormItem>
+
           <Row>
             <Col span={19}>
               <FormItem
@@ -336,7 +356,9 @@ let CreateVMListModal = React.createClass({
               </FormItem>
             </Col>
             <Col style={{ paddingTop: 7 }} span={4}>
-              <span><a onClick={this.setDefault}>设为默认</a></span>
+              <Tooltip title="以后默认选择该 JDK 版本">
+                <span><a onClick={this.setDefault}>设为默认</a></span>
+              </Tooltip>
             </Col>
           </Row>
           <FormItem
