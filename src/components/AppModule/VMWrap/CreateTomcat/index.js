@@ -12,7 +12,7 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Modal, Select } from 'antd'
+import { Row, Col, Form, Input, Modal, Select, notification, Tooltip } from 'antd'
 import { getTomcatVersion } from '../../../../actions/vm_wrap'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
@@ -93,6 +93,8 @@ class CreateTomcat extends React.Component {
     const { form: { validateFields } } = this.props
     validateFields([ 'tomcat_id' ], (err, values) => {
       if (err) return
+      notification.destroy()
+      notification.success('设置成功')
       console.log('tomcat_id', values)
     })
   }
@@ -144,7 +146,9 @@ class CreateTomcat extends React.Component {
           </FormItem>
         </Col>
         <Col style={{ paddingTop: '15px', paddingLeft: '15px' }} span={4}>
-          <span><a onClick={this.setDefault}>设为默认</a></span>
+          <Tooltip title="以后默认选择该 Tomcat 版本">
+            <span><a onClick={this.setDefault}>设为默认</a></span>
+          </Tooltip>
         </Col>
       </Row>
       <FormItem

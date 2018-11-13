@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Button, Modal, Form, Input, Icon, Select, Row, Col } from 'antd'
+import { Button, Modal, Form, Input, Icon, Select, Row, Col, Tooltip } from 'antd'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
@@ -200,9 +200,12 @@ let CreateVMListModal = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   setDefault() {
+    let notification = new NotificationHandler()
     const { form: { getFieldValue, validateFields } } = this.props
     validateFields([ 'jdk_id' ], (err, values) => {
       if (err) return
+      notification.destroy()
+      notification.success('设置成功')
       console.log('jdk_id', values)
     })
   },
@@ -353,7 +356,9 @@ let CreateVMListModal = React.createClass({
               </FormItem>
             </Col>
             <Col style={{ paddingTop: 7 }} span={4}>
-              <span><a onClick={this.setDefault}>设为默认</a></span>
+              <Tooltip title="以后默认选择该 JDK 版本">
+                <span><a onClick={this.setDefault}>设为默认</a></span>
+              </Tooltip>
             </Col>
           </Row>
           <FormItem
