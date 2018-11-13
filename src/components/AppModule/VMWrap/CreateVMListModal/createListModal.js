@@ -28,6 +28,8 @@ let CreateVMListModal = React.createClass({
       isShow: false,
       verification: false,
       jdkList: [],
+      isShowPassword: false,
+      readOnly: true,
     };
   },
   componentDidMount () {
@@ -205,7 +207,7 @@ let CreateVMListModal = React.createClass({
     })
   },
   render() {
-    const { confirmLoading, jdkList } = this.state
+    const { confirmLoading, jdkList, isShowPassword } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
@@ -321,8 +323,23 @@ let CreateVMListModal = React.createClass({
             label="环境登录密码"
             {...formItemLayout}
           >
-            <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <Input
+              autoComplete="off"
+              readOnly={this.state.readOnly}
+              onFocus={() => this.setState({ readOnly: false })}
+              onBlur={() => this.setState({ readOnly: true })}
+              type={isShowPassword ? 'text' : 'password'} key="passWord" {...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <span style={{ cursor: 'pointer', position: 'absolute', right: '-20px', top: '2px' }}>
+              {
+                isShowPassword ?
+                  <Icon onClick={() => this.setState({ isShowPassword: false })} type={'eye'}/>
+                  :
+                  <Icon onClick={() => this.setState({ isShowPassword: true })} type={'eye-o'}/>
+              }
+              <Icon />
+            </span>
           </FormItem>
+
           <Row>
             <Col span={19}>
               <FormItem
