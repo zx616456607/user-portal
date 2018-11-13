@@ -51,9 +51,12 @@ class MyOrder extends React.Component {
     this.setState({
       tableLoading: true,
     }, () => {
-      const { searchValue, selectValue } = this.state
+      const { searchValue, selectValue, currentPage, pageSize } = this.state
       const { getMyOrderList } = this.props
-      const query = {}
+      const query = {
+        from: (currentPage - 1) * pageSize,
+        size: pageSize,
+      }
       if (selectValue && selectValue !== 'all') {
         query.filter = 'classify_id,' + selectValue
       }
@@ -128,6 +131,13 @@ class MyOrder extends React.Component {
   }
   onSelChange = value => {
     this.setState({ selectValue: value }, () => {
+      this.loadData()
+    })
+  }
+  changePage = currentPage => {
+    this.setState({
+      currentPage,
+    }, () => {
       this.loadData()
     })
   }
