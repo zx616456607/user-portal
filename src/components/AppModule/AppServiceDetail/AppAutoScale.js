@@ -232,12 +232,18 @@ class AppAutoScale extends Component {
     }
   }
   saveEdit = () => {
-    const { form, updateAutoScale, cluster } = this.props
+    const { form, updateAutoScale, cluster, serviceDetail } = this.props
     const { scaleDetail, thresholdArr } = this.state
     const { validateFields, resetFields, getFieldValue } = form
     const { formatMessage } = this.props.intl
     let notify = new NotificationHandler()
     validateFields((errors, values) => {
+      const ipv4 = getDeepValue(serviceDetail, [ cluster, this.props.serviceName, 'service', 'spec', 'template',
+        'metadata', 'annotations', 'cni.projectcalico.org/ipAddrs' ])
+      const isFexed = ipv4 && true || false
+      if (isFexed) {
+        return notify.warn('服务已固定 IP, 不能自动伸缩')
+      }
       if (!!errors) {
         return
       }
@@ -671,9 +677,9 @@ class AppAutoScale extends Component {
                         <div>
                           {formatMessage(AppServiceDetailIntl.noScale)}
                           &nbsp;&nbsp;&nbsp;
-                          <Button type="primary" size="large" onClick={this.startEdit}>
-                            {formatMessage(AppServiceDetailIntl.addScale)}
-                          </Button>
+                            <Button type="primary" size="large" onClick={this.startEdit}>
+                              {formatMessage(AppServiceDetailIntl.addScale)}
+                            </Button>
                         </div>
                       </div>
                   }
@@ -723,30 +729,12 @@ class AppAutoScale extends Component {
                           <Col span={4}>
                             <InputNumber disabled={!isEdit} {...maxReplicas}/> 个
                           </Col>
+                          <Col span={8}>
+                            <span className="maxInstance">
+                              扩展实例数不会超过地址池实际可用数
+                            </span>
+                          </Col>
                         </Row>
-                        {/* <FormItem
-                          {...formItemSmallLayout}
-                          label={formatMessage(AppServiceDetailIntl.leastContainerNum) + '------'}
-                        >
-
-                        </FormItem> */}
-                        {/* <FormItem
-                          labelCol={{ span: 4 }}
-                          wrapperCol={{ span: 20 }}
-                          label={formatMessage(AppServiceDetailIntl.moreContainerNum)}
-                        >
-                          <InputNumber disabled={!isEdit} {...maxReplicas}/> 个 */}
-                          { /*
-                            isFexed ?
-                              <span className="maxInstance">
-                                <Icon
-                                  type="info-circle-o"
-                                />
-                                服务开启了固定实例 IP，实例数量最多为 IP 数量
-                              </span>
-                              : null
-                          */ }
-                        {/* </FormItem> */}
                         {thresholdItem}
                         <FormItem
                           {...formItemLargeLayout}
@@ -771,6 +759,7 @@ class AppAutoScale extends Component {
                                 {...formItemLargeLayout}
                                 label={formatMessage(AppServiceDetailIntl.monitorGroup)}
                                 key="alertGroup"
+                                className="candleBottom"
                               >
                                 <Select
                                   disabled={!isEdit}
@@ -801,10 +790,10 @@ class AppAutoScale extends Component {
                               </Row>
                             ]
                         }
-                        <Row style={{margin: '-10px 0 10px'}} key="openScale">
+                        <Row key="openScale">
                           <Col span={4}/>
                           <Col span={16}>
-                          <FormItem>
+                          <FormItem className="candleBottom">
                             <Checkbox {...openScaleStatus} disabled={!isEdit}>开启伸缩策略</Checkbox>
                           </FormItem>
                           </Col>

@@ -982,8 +982,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
   router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
   router.delete('/clusters/:cluster/pool',ipPoolController.deleteIPPool)
-  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolExist)
-  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolInUse)
+  router.get('/clusters/:cluster/is-pool-exist',ipPoolController.getIPPoolExist)
+  router.get('/clusters/:cluster/is-pool-in-use',ipPoolController.getIPPoolInUse)
   // PSP
   router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
   router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)

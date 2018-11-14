@@ -22,11 +22,12 @@ import './style/index.less'
 import * as IPPoolActions from '../../actions/ipPool'
 import isCidr from 'is-cidr'
 import ipRangeCheck from 'ip-range-check'
+import { getDeepValue } from '../../util/util'
 
 const FormItem = Form.Item
 const formItemLayout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 15 },
+  labelCol: { span: 5 },
+  wrapperCol: { span: 16 },
 }
 const notification = new Notification()
 
@@ -56,11 +57,11 @@ class ConfigIPPool extends React.Component {
     const isIPV4 = isCidr.v4(value)
     const mask = value.split('/')[1]
     if (isIPV4) {
-      return <span>{Math.pow(2, 32) - mask}</span>
+      return <span>{Math.pow(2, 32 - mask)}</span>
     }
     const isIPV6 = isCidr.v6(value)
     if (isIPV6) {
-      return <span>{Math.pow(2, 128) - mask}</span>
+      return <span>{Math.pow(2, 128 - mask)}</span>
     }
   }
 
@@ -80,12 +81,10 @@ class ConfigIPPool extends React.Component {
     const { createIPPool, form: { validateFields }, cluster: { clusterID } } = this.props
     validateFields((err, values) => {
       if (err) return
+      const { ipSegment, name } = values
       const body = {
-        cidr: values.ipSegment,
-        name: 'abc',
-        // ipipMode: 'Always',
-        // disabled: 'false',
-        // blockSize: 0,
+        cidr: ipSegment,
+        name,
         version: 'v1',
       }
       this.toggleEnterLoading()
@@ -103,7 +102,6 @@ class ConfigIPPool extends React.Component {
         },
         failed: {
           func: error => {
-            // console.log( error )
             notification.close()
             const { statusCode } = error
             if (statusCode !== 401) {
@@ -115,13 +113,22 @@ class ConfigIPPool extends React.Component {
       })
     })
   }
-  // 还需要校验是否已使用
-  checkCidr = (rule, value, callback) => {
+
+  checkCidr = async (rule, value, callback) => {
     if (!value) return callback()
     if (!isCidr(value)) {
       return callback('请填写正确的 IP 网段')
     }
+    const { getIPPoolExist, cluster: { clusterID } } = this.props
+    const query = {
+      version: 'v1',
+      cidr: value,
+    }
+    // 校验是否存在 + 是否是子网 现在后端返回值都是true（已占用）
+    await getIPPoolExist(clusterID, query)
+    // console.log( 'ressss', res )
     const sonMask = value.split('/')
+    //  getIPPoolExist 判断地址池是否存在接口后端支持校验子域后可去除
     const legal = [ '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', 'FD00:0:0:0:0:0:0:0/8' ]
     legal.forEach(item => {
       const inRange = ipRangeCheck(sonMask[0], item)
@@ -132,18 +139,30 @@ class ConfigIPPool extends React.Component {
         }
       }
     })
-    callback('请填写 10.0.0.0/8，172.16.0.0/12， 192.168.0.0/16， FD00:0:0:0:0:0:0:0/8 的子网')
+
+    callback(`填写的子域应属于以下网段之一，
+      10.0.0.0/8， 172.16.0.0/12，192.168.0.0/16，
+      FD00:0:0:0:0:0:0:0/8，`)
   }
 
-  confirmDelete = () => {
-    const { deleteIPPool, cluster: { clusterID } } = this.props
+  confirmDelete = async () => {
+    const { getIPPoolInUse, deleteIPPool, cluster: { clusterID } } = this.props
     const query = {
+      cidr: this.state.deletePool,
+    }
+    const res = await getIPPoolInUse(clusterID, query)
+    const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
+    if (inUse) {
+      this.toggleDeleteVisible()
+      return notification.warn('正在使用中，不可删除')
+    }
+    const delQuery = {
       version: 'v1',
       cidr: this.state.deletePool,
     }
     this.toggleEnterLoading()
     notification.spin('删除中...')
-    deleteIPPool(clusterID, query, {
+    deleteIPPool(clusterID, delQuery, {
       success: {
         func: () => {
           notification.close()
@@ -174,10 +193,20 @@ class ConfigIPPool extends React.Component {
     })
   }
 
+  checkName = (rule, value, callback) => {
+    if (!value) return callback()
+    const ln = value.length
+    if (ln < 3 || ln > 63) {
+      return callback('名称长度 3-63 位')
+    }
+    const reg = /^[a-z0-9\.-]*$/
+    if (!reg.test(value)) return callback('名称为字母数字中划线组合')
+    callback()
+  }
+
   render() {
     const { createVisible, enterLoading, deleteVisible, deletePool } = this.state
     const { listData, isFetching, form } = this.props
-    // console.log( 'clusterID', clusterID )
     const { getFieldProps } = form
     const columns = [
       {
@@ -208,16 +237,32 @@ class ConfigIPPool extends React.Component {
       {
         createVisible ?
           <Modal
-            title="添加 DNS 记录"
+            title="添加地址池"
             visible={createVisible}
             onOk={this.handleOk}
             confirmLoading={enterLoading}
             onCancel={this.changeCreateVisible}
+            className="addIPPoolConfig"
           >
-            <div style={{ paddingTop: 24 }}>
+            <div style={{ paddingTop: 10 }}>
+              <FormItem
+                {...formItemLayout}
+                label="地址池名称"
+              >
+                <Input
+                  placeholder="请输入地址池名称"
+                  { ...getFieldProps('name', { rules: [{
+                    required: true,
+                    message: '请输入地址池名称',
+                  }, {
+                    validator: this.checkName,
+                  }] }) }
+                />
+              </FormItem>
               <FormItem
                 {...formItemLayout}
                 label="IP 网段"
+                className="netSegnment"
               >
                 <Input
                   placeholder="请输入 IP 网段"
@@ -275,7 +320,6 @@ class ConfigIPPool extends React.Component {
 
 const mapStateToProps = ({
   ipPool: { getIPPoolList },
-  // entities: { loginUser: { info } },
 }) => ({
   isFetching: getIPPoolList.isFetching,
   listData: getIPPoolList.data || [],
