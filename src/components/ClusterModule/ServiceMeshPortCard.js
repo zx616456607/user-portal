@@ -42,7 +42,7 @@ class ServiceMeshPortCard extends React.Component {
     setDefaultPortvisible: false,
     ServiceMeshPortList: [],
     istioFlag: false,
-    nodeArray:{},
+    nodeArray: [],
     nodes: [],
   }
   async componentDidMount() {
@@ -66,7 +66,7 @@ class ServiceMeshPortCard extends React.Component {
     this.setState({  ServiceMeshPortList: Object.values(ServiceMeshPortList) })
     try {
       const result = await this.props.getServiceMeshClusterNode(clusterID)
-      const { availability: nodeArray = {} } = result.response.result
+      const { availability: nodeArray = [] } = result.response.result
       // nodes
       this.setState({ nodeArray })
       } catch(e) { notification.error(this.props.intl.formatMessage(intlMsg.loadNodedataFailure)) }
