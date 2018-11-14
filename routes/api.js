@@ -619,6 +619,8 @@ module.exports = function (Router) {
   router.post('/clusters/:clusterID/daas/:type/:name/backups', databaseCacheController.manualBackup)
   // 删除手动备份
   router.delete('/clusters/:clusterID/daas/:type/:clusterName/backups/:name', databaseCacheController.deleteManualBackup)
+  // 检查radosgw地址配置情况
+  router.get('/clusters/:clusterID/storageclass/:storagecluster/radosgw', databaseCacheController.checkRadosgwStatus)
   // 检查是否有自动备份
   router.get('/clusters/:clusterID/daas/:type/:name/cronbackups', databaseCacheController.checkAutoBackupExist)
   // 设置自动备份
@@ -840,6 +842,9 @@ module.exports = function (Router) {
   router.get('/vmtomcats/list', vmWrapController.listVMTomcat)
   router.del('/vmtomcats/:id/delete', vmWrapController.deleteTomcat)
   router.post('/vmtomcats/create', vmWrapController.createTomcat)
+  router.get('/jdks/list', vmWrapController.listVMJdks)
+  router.get('/tomcats/list', vmWrapController.listVMTomcatVersions)
+
 
   // Network Isolation
   router.get('/cluster/:clusterID/networkpolicy/default-deny', netIsolationController.getCurrentSetting)

@@ -369,6 +369,13 @@ class WrapListTable extends Component {
       callbackRow, callbackRowSelection, intl } = this.props
     const { releaseVisible, currentApp, detailModal, currentWrap, publishModal, docsModal } = this.state
     const dataSource = currentType === 'trad' ? wrapList : wrapStoreList
+    const originalFile = {
+      title: <FormattedMessage {...IntlMessage.originalFile}/>,
+      dataIndex: 'originalFile',
+      key: 'originalFile',
+      width: '10%',
+      render: text => text ? text : '-'
+    }
     const classifyName = {
       title: <FormattedMessage {...IntlMessage.classifyName}/>,
       dataIndex: 'classifyName',
@@ -411,13 +418,13 @@ class WrapListTable extends Component {
         title: <FormattedMessage {...IntlMessage.uploadTime}/>,
         dataIndex: 'creationTime',
         key: 'creationTime',
-        width: '20%',
+        width: '15%',
         render: text => formatDate(text)
       }, {
         title: <FormattedMessage {...IntlMessage.operation}/>,
         dataIndex: 'actions',
         key: 'actions',
-        width: '20%',
+        width: '15%',
         render: (e, row) => {
           if (rowCheckbox) {
             return this.renderDeployBtn(row, func, rowCheckbox)
@@ -428,7 +435,7 @@ class WrapListTable extends Component {
       }
     ]
     if (isWrapManage) {
-      columns.splice(2, 0, classifyName, fileNickName, publishStatus)
+      columns.splice(2, 0, originalFile, classifyName, fileNickName, publishStatus)
     }
     if (currentType === 'store') {
       columns.splice(1, 0, fileNickName)

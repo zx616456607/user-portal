@@ -1736,7 +1736,7 @@ class ServiceList extends Component {
           </div>
           <Modal title={formatMessage(AllServiceListIntl.createAlarmStrategy)} visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            onCancel={()=> this.setState({alarmModal:false})}
+            onCancel={()=> this.setState({alarmModal: false, step: 1,})}
             maskClosable={false}
             footer={null}
 

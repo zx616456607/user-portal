@@ -46,7 +46,7 @@ class SystemNotice extends React.Component {
         size: pageSize,
       }
       if (searchValue) {
-        query.filter = 'announcement_name,' + searchValue
+        query.filter = 'announcement_name,' + encodeURIComponent(searchValue)
       }
       getSystemNoticeList(query, {
         success: {

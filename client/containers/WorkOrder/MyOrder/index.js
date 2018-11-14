@@ -28,7 +28,7 @@ class MyOrder extends React.Component {
   state = {
     pageSize: 10,
     currentPage: 1,
-    selectValue: undefined,
+    selectValue: 'all',
     searchValue: '',
     tableLoading: false,
     listData: [],
@@ -51,14 +51,17 @@ class MyOrder extends React.Component {
     this.setState({
       tableLoading: true,
     }, () => {
-      const { searchValue, selectValue } = this.state
+      const { searchValue, selectValue, currentPage, pageSize } = this.state
       const { getMyOrderList } = this.props
-      const query = {}
+      const query = {
+        from: (currentPage - 1) * pageSize,
+        size: pageSize,
+      }
       if (selectValue && selectValue !== 'all') {
         query.filter = 'classify_id,' + selectValue
       }
       if (searchValue) {
-        const searchFilter = 'workorder_name,' + searchValue
+        const searchFilter = 'workorder_name,' + encodeURIComponent(searchValue)
         query.filter = query.filter ? query.filter + ',' + searchFilter : searchFilter
       }
       getMyOrderList(query, {
@@ -104,7 +107,7 @@ class MyOrder extends React.Component {
                 工单名称: {record.workorderName}
               </Ellipsis>
             </Col>
-            <Col span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
+            <Col className="textRight" span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
           </Row>
           <Row className="line2">
             <Col span={20}>
@@ -112,7 +115,7 @@ class MyOrder extends React.Component {
                 {record.replierContents || record.contents || '-'}
               </Ellipsis>
             </Col>
-            <Col span={4} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
+            <Col className="textRight" span={4} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
           </Row>
         </Col>
         <Col span={2} className="iconRight">
@@ -128,6 +131,13 @@ class MyOrder extends React.Component {
   }
   onSelChange = value => {
     this.setState({ selectValue: value }, () => {
+      this.loadData()
+    })
+  }
+  changePage = currentPage => {
+    this.setState({
+      currentPage,
+    }, () => {
       this.loadData()
     })
   }
@@ -151,7 +161,7 @@ class MyOrder extends React.Component {
             !isAdmin && <Button className="btnStyle" type="primary" size="large" onClick={this.onSubmitQuesClick}>提交工单</Button>
           }
           <Button className="btnStyle reflesh" type={ !isAdmin ? 'ghost' : 'primary' } size="large" onClick={this.loadData}>刷新</Button>
-          <Select allowClear={true} size="large" className="selStyle" placeholder="所有分类"
+          <Select allowClear={true} size="large" className="selStyle" placeholder="请选择工单类型"
             value={selectValue}
             onChange={this.onSelChange}>
             {opstions}

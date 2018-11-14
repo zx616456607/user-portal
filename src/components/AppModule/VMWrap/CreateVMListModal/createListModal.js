@@ -11,10 +11,14 @@
  */
 
 import React from 'react'
-import { Button, Modal, Form, Input, Icon } from 'antd'
+import { Button, Modal, Form, Input, Icon, Select, Row, Col, Tooltip } from 'antd'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import NotificationHandler from '../../../../components/Notification'
+import cloneDeep from 'lodash/cloneDeep'
+import filter from 'lodash/filter'
+
 const FormItem = Form.Item
+const Option = Select.Option
 const createForm = Form.create
 let CreateVMListModal = React.createClass({
   getInitialState: function () {
@@ -23,7 +27,25 @@ let CreateVMListModal = React.createClass({
       Prompt: false,
       isShow: false,
       verification: false,
+      jdkList: [],
+      isShowPassword: false,
+      readOnly: true,
     };
+  },
+  componentDidMount () {
+    const { scope: { props: { getJdkList } } } = this.props
+    getJdkList({}, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200 && res.results) {
+            this.setState({
+              jdkList: res.results,
+            })
+          }
+        },
+        isAsync: true,
+      }
+    })
   },
   handleSub() {
     let notification = new NotificationHandler()
@@ -67,7 +89,7 @@ let CreateVMListModal = React.createClass({
   },
   handleAdd() {
     const { form, onSubmit, scope, modalTitle } = this.props
-    const validateArr = ['account', 'password']
+    const validateArr = ['account', 'password', 'jdk_id']
     if (modalTitle) {
       validateArr.unshift('host')
     }
@@ -79,7 +101,8 @@ let CreateVMListModal = React.createClass({
       let List = {
         host: form.getFieldValue('host'),
         account: values.account,
-        password: values.password
+        password: values.password,
+        jdk_id: values.jdk_id
       }
       this.handleSub().then(() => {
         onSubmit(List)
@@ -176,14 +199,24 @@ let CreateVMListModal = React.createClass({
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
+  setDefault() {
+    let notification = new NotificationHandler()
+    const { form: { getFieldValue, validateFields } } = this.props
+    validateFields([ 'jdk_id' ], (err, values) => {
+      if (err) return
+      notification.destroy()
+      notification.success('设置成功')
+      console.log('jdk_id', values)
+    })
+  },
   render() {
-    const { confirmLoading } = this.state
+    const { confirmLoading, jdkList, isShowPassword } = this.state
     const formItemLayout = {
       labelCol: { span: 5 },
       wrapperCol: { span: 17 }
     }
     const { form, Rows, isAdd, modalTitle } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const hostProps = getFieldProps('host', {
       rules: [
         { validator: this.checkIP },
@@ -202,6 +235,16 @@ let CreateVMListModal = React.createClass({
       ],
       initialValue: isAdd ? undefined : Rows.password
     })
+
+    const options = jdkList.map((item, i) => <Option key={item.id} value={item.id}>{item.jdkName}</Option>)
+    const envProps = getFieldProps('jdk_id', {
+      rules: [
+        { required: true, message: '请选择 Java 环境' },
+      ],
+      initialValue: isAdd ? (jdkList[0] && jdkList[0].id) : Rows.jdkId
+    })
+    const jdk_id = getFieldValue('jdk_id')
+    const jdk_name = jdk_id && jdkList.length ? filter(jdkList, { id: jdk_id })[0].jdkName : ''
     let style = {
       fontSize: 12
     }
@@ -224,6 +267,7 @@ let CreateVMListModal = React.createClass({
     return (
       <Modal
         title={modalTitle ? "添加传统环境" : "编辑传统环境"}
+        width={600}
         visible={this.props.visible}
         onCancel={() => this.handleClose()}
         footer={[
@@ -282,18 +326,54 @@ let CreateVMListModal = React.createClass({
             label="环境登录密码"
             {...formItemLayout}
           >
-            <Input key="passWord"{...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <Input
+              autoComplete="off"
+              readOnly={this.state.readOnly}
+              onFocus={() => this.setState({ readOnly: false })}
+              onBlur={() => this.setState({ readOnly: true })}
+              type={isShowPassword ? 'text' : 'password'} key="passWord" {...passwordProps} placeholder="请输入传统环境登录密码" id="password" />
+            <span style={{ cursor: 'pointer', position: 'absolute', right: '-20px', top: '2px' }}>
+              {
+                isShowPassword ?
+                  <Icon onClick={() => this.setState({ isShowPassword: false })} type={'eye'}/>
+                  :
+                  <Icon onClick={() => this.setState({ isShowPassword: true })} type={'eye-o'}/>
+              }
+              <Icon />
+            </span>
           </FormItem>
+
+          <Row>
+            <Col span={19}>
+              <FormItem
+                hasFeedback
+                label="Java 环境"
+                {...Object.assign(cloneDeep(formItemLayout), {labelCol: { span: 6 }})}
+              >
+                <Select style={{ marginLeft: '5px' }} {...envProps} placeholder="请选择 Java 环境">
+                  {options}
+                </Select>
+              </FormItem>
+            </Col>
+            <Col style={{ paddingTop: 7 }} span={4}>
+              <Tooltip title="以后默认选择该 JDK 版本">
+                <span><a onClick={this.setDefault}>设为默认</a></span>
+              </Tooltip>
+            </Col>
+          </Row>
           <FormItem
             {...formItemLayout}
             label="环境安装路径"
             style={{ marginBottom: 0 }}
           >
             <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
-              <div>JAVA_HOME='/home/java'</div>
+
+              <div>JRE_HOME=/home/java/{jdk_name}/jre</div>
+              <div>JAVA_HOME=/home/java/{jdk_name}</div>
+              {/* <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>
-              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
+              <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div> */}
             </div>
           </FormItem>
         </Form>

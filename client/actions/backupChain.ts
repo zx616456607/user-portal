@@ -228,3 +228,26 @@ const fetchRollbackRecord = (clusterId, type, clusterName, callback) => {
 export const getRollbackRecord = (clusterId, type, clusterName, callback) => {
   return dispatch => dispatch(fetchRollbackRecord(clusterId, type, clusterName, callback))
 }
+
+// 检查是否配置了radosgw 地址
+export const GET_RADOSGW_REQUEST = 'GET_RADOSGW_REQUEST'
+export const GET_RADOSGW_SUCCESS = 'GET_RADOSGW_SUCCESS'
+export const GET_RADOSGW_FAILURE = 'GET_RADOSGW_FAILURE'
+
+const fetchRadosgwStatus = (clusterId, storagecluster, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [GET_RADOSGW_REQUEST, GET_RADOSGW_SUCCESS, GET_RADOSGW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/storageclass/${storagecluster}/radosgw`,
+      schema: {},
+      options: {
+        method: 'GET',
+      },
+    },
+    callback,
+  }
+}
+
+export const getRadosgwStatus = (clusterId, storagecluster, callback) => {
+  return dispatch => dispatch(fetchRadosgwStatus(clusterId, storagecluster, callback))
+}

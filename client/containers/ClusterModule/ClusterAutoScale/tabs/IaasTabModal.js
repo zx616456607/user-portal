@@ -553,7 +553,12 @@ export default connect(mapStateToProps, {
             { clusterid: selectValue })[0]
         if (!filObj) return
         const b1 = filObj.provider[currentIcon]
-        const b2 = filObj.strategy[currentIcon]
+        let b2 = false
+        for (const i in filObj.strategy) {
+          if (filObj.strategy[i] === true) {
+            b2 = true
+          }
+        }
         this.setState({ checkExistProvider: b1, checkExistStrategy: b2 }, () => {
           const { isEdit, currentData, getResList } = this.props
           if ((b1 && !b2) || isEdit) {
@@ -834,7 +839,7 @@ export default connect(mapStateToProps, {
                         if (checkExistProvider) {
                           if (checkExistStrategy && isEdit === false) {
                             rele = <div className="btnConatainer">
-                              <Button type="primary" onClick={this.fun2}>已存在策略, 请在列表选择相应策略编辑</Button>
+                              <Button type="primary" onClick={this.fun2}>集群已存在策略, 请在列表选择相应策略编辑</Button>
                               <Tooltip title="每个集群仅能添加一个伸缩策略">
                                 <Icon style={{ marginLeft: 5 }} type="question-circle-o" />
                               </Tooltip>
@@ -1048,15 +1053,24 @@ export default connect(mapStateToProps, {
                           if (isEdit) {
                             rele = <div className="descContainer">资源池已删除，当前策略依然可用<br />若需编辑，请重新配置对应资源池，或重新创建策略</div>
                           } else {
-                            rele = <div className="btnConatainer">
-                              <Button type="primary" onClick={this.fun1}>前往配置 {(() => {
-                                let text = 'vSphere'
-                                if (currentIcon === 'openstack') {
-                                  text = 'OpenStack 资源'
-                                }
-                                return text
-                              })()}</Button>
-                            </div>
+                            if (checkExistStrategy) {
+                              rele = <div className="btnConatainer">
+                                <Button type="primary" onClick={this.fun2}>集群已存在策略, 请在列表选择相应策略编辑</Button>
+                                <Tooltip title="每个集群仅能添加一个伸缩策略">
+                                  <Icon style={{ marginLeft: 5 }} type="question-circle-o" />
+                                </Tooltip>
+                              </div>
+                            } else {
+                              rele = <div className="btnConatainer">
+                                <Button type="primary" onClick={this.fun1}>前往配置 {(() => {
+                                  let text = 'vSphere'
+                                  if (currentIcon === 'openstack') {
+                                    text = 'OpenStack 资源'
+                                  }
+                                  return text
+                                })()}</Button>
+                              </div>
+                            }
                           }
                         }
                       }

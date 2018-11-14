@@ -131,6 +131,22 @@ exports.listVMTomcat = function* () {
   this.body = result
 }
 
+exports.listVMJdks = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const query = this.query
+  const result = yield api.jdks.getBy([ 'list' ], query)
+  this.body = result
+}
+
+exports.listVMTomcatVersions = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const query = this.query
+  const result = yield api.tomcats.getBy([ 'list' ], query)
+  this.body = result
+}
+
 exports.deleteTomcat = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getVMWrapApi(loginUser)

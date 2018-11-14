@@ -149,6 +149,12 @@ module.exports = function (config) {
   // ~ vmtomcat
   this.vmtomcats = collections.create('vmtomcats')
 
+  // ~ vmjdk
+  this.jdks = collections.create('jdks')
+
+  // ~ vm tomcats
+  this.tomcats = collections.create('tomcats')
+
   // ~ quota
   this.resourcequota = collections.create('resourcequota')
 

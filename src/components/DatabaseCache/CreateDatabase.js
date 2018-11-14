@@ -603,7 +603,7 @@ let CreateDatabase = React.createClass({
         <div id='CreateDatabase' key="createDatabase">
           <Form horizontal>
             <div className='infoBox'>
-              <div className='commonBox'>
+              <div className='commonBox name'>
                 <div className='title'>
                   <span>名称</span>
                 </div>
@@ -700,8 +700,7 @@ let CreateDatabase = React.createClass({
                   <div style={{ clear: 'both' }}></div>
                 </div>
 
-
-              <div className='commonBox'>
+              <div className='commonBox replications'>
                 <div className='title'>
                   <span>副本数</span>
                 </div>
@@ -725,7 +724,7 @@ let CreateDatabase = React.createClass({
               <div className='desc'>
                 <span>每个副本占用的cpu、内存等资源也将在计算资源配额中统计</span>
               </div>
-              <div className='commonBox' style={{marginBottom: '4px'}}>
+              <div className='commonBox storage' style={{marginBottom: '4px'}}>
                 <div className='title'>
                   <span>存储</span>
                 </div>
@@ -755,7 +754,7 @@ let CreateDatabase = React.createClass({
                 <div style={{ clear: 'both' }}></div>
               </div>
               {this.state.currentType === 'elasticsearch' || this.state.currentType === 'etcd' ? null :
-                <div className='commonBox'>
+                <div className='commonBox pwd'>
                   <div className='title'>
                     <span>密码</span>
                   </div>

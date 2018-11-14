@@ -12,8 +12,11 @@ import SecondSider from '../../components/SecondSider'
 import { browserHistory } from 'react-router'
 // import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
+import { connect } from 'react-redux'
+import * as openApiActions from '../../actions/open_api'
 import './style/cluster.less'
 
+const HEADER_HEIGHT = 60
 let menuList = [
   {
     url: '/cluster',
@@ -60,19 +63,50 @@ let menuList = [
     name: 'integration',
   },
 ]
-export default class Cluster extends Component {
+class Cluster extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      containerSiderStyle: 'normal'
+      containerSiderStyle: 'normal',
+      windowHeight: window.innerHeight,
     }
   }
+  componentDidMount() {
+    window.appStackIframeCallBack = (action, data) => {
+      switch (action) {
+        case 'redirect':
+          browserHistory.push(data.pathname)
+          break
+        case 'appStackPortalHistory':
+          window.appStackPortalHistory = data
+          break
+        default:
+          break
+      }
+    }
+    window.addEventListener('resize', this.handleWindowResize)
+    const { loadApiInfo } = this.props
+    loadApiInfo()
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleWindowResize)
+  }
 
+  handleWindowResize = () => {
+    this.setState({
+      windowHeight: window.innerHeight,
+    })
+  }
   render() {
     const { children } = this.props
     const scope = this
+    const { windowHeight } = this.state
+    const style = {
+      height: windowHeight - HEADER_HEIGHT,
+      overflowY: 'auto',
+    }
     return (
-      <div id='Cluster'>
+      <div id='Cluster' style={style}>
         <QueueAnim
           className='CICDSiderAnimate'
           key='CICDSiderAnimate'
@@ -97,3 +131,11 @@ Cluster.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }
+
+const mapStateToProps = () => {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  loadApiInfo: openApiActions.loadApiInfo,
+})(Cluster)
