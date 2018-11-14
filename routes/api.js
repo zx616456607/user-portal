@@ -63,6 +63,7 @@ const dnsRecordController = require('../controllers/dns_record')
 const securityGroupController = require('../controllers/security_group')
 const middlewareCenter = require('../controllers/middleware_center')
 const servicemesh = require('../controllers/service_mesh')
+const ipPoolController = require('../controllers/ipPool')
 const containerSecurityPolicy = require('../controllers/container_security_policy')
 const workerOrderController = require('../controllers/worker_order')
 
@@ -983,6 +984,11 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/appcenters', middlewareCenter.deployApp)
   router.get('/clusters/:cluster/appcenters/:name/exist', middlewareCenter.checkAppNameExist)
 
+  router.get('/clusters/:cluster/pools',ipPoolController.getIPPoolList)
+  router.post('/clusters/:cluster/pool',ipPoolController.createIPPool)
+  router.delete('/clusters/:cluster/pool',ipPoolController.deleteIPPool)
+  router.get('/clusters/:cluster/is-pool-exist',ipPoolController.getIPPoolExist)
+  router.get('/clusters/:cluster/is-pool-in-use',ipPoolController.getIPPoolInUse)
   // PSP
   router.get('/clusters/:cluster/native/:type', containerSecurityPolicy.getK8sNativeResource)
   router.delete('/clusters/:cluster/native/:type/:name', containerSecurityPolicy.deleteK8sNativeResourceInner)

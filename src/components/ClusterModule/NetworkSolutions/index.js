@@ -16,6 +16,7 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { getProjectVisibleClusters } from '../../../actions/project'
 import NotificationHandler from '../../../components/Notification'
 import { setCurrent } from '../../../actions/entities'
+import IPPoolConfig from '../../../../client/containers/IPPool'
 import KubeproxyConfig from '../../../../client/containers/ClusterModule/NetworkSolutions/KubeproxyConfig'
 import HelpModal from './HelpModal'
 
@@ -364,6 +365,7 @@ class NetworkSolutions extends Component {
             <img src={images[0].src} />
           </Modal>
         </div>
+        <IPPoolConfig cluster={this.props.cluster} />
         <KubeproxyConfig clusterID={this.props.currentClusterID} />
       </div>
     )

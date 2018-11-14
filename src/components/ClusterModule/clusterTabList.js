@@ -224,6 +224,7 @@ class ClusterTabList extends Component {
               <TenxIcon type="network"/>
               <span className='tablepanespan'><FormattedMessage {...intlMsg.networkSolution}/></span></div>} key="5">
               <NetworkSolutions
+                cluster={cluster}
                 clusterID={clusterID}
               />
             </TabPane>

@@ -13,24 +13,21 @@ import { connect } from 'react-redux'
 import { Form, Input, Icon, Tooltip } from 'antd'
 import './style/ReplicasRestrictIP.less'
 import * as podAction from '../../../../../src/actions/app_manage'
-import Notification from '../../../../../src/components/Notification'
 import ipRangeCheck from 'ip-range-check'
 import * as serviceActions from '../../../../../src/actions/services'
 import { injectIntl } from 'react-intl'
 import IntlMessage from '../../../../../src/containers/Application/ServiceConfigIntl'
 
-const notification = new Notification()
 const FormItem = Form.Item
 
 class ReplicasRestrictIP extends React.Component {
 
   state={
     uuid: 0,
-    NetSegment: undefined, // 校验网段使用
   }
 
   componentDidMount() {
-    const { cluster, getPodNetworkSegment, form, intl } = this.props
+    const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     const num = getFieldValue('replicas')
     let ipKeys = []
@@ -39,28 +36,6 @@ class ReplicasRestrictIP extends React.Component {
     }
     setFieldsValue({
       ipKeys,
-    })
-    getPodNetworkSegment(cluster, {
-      success: {
-        func: res => {
-          this.setState({
-            uuid: num,
-            NetSegment: res.data, // 校验网段使用
-          })
-        },
-        isAsync: true,
-      },
-      failed: {
-        func: err => {
-          const { statusCode } = err
-          if (statusCode !== 403) {
-            notification.warn(intl.formatMessage(IntlMessage.getNetSegmentFail))
-          }
-          this.setState({
-            uuid: num,
-          })
-        },
-      },
     })
     /*
     // 固定ip暂时只支持固定一个
@@ -121,8 +96,8 @@ class ReplicasRestrictIP extends React.Component {
 
   checkPodCidr = async (rule, value, callback) => {
     if (!value) return callback()
-    const { NetSegment } = this.state
-    const { intl } = this.props
+    const { intl, form } = this.props
+    const NetSegment = form.getFieldValue('ipPool')
     if (!NetSegment) {
       return callback(intl.formatMessage(IntlMessage.NetSegmentUnknow))
     }
@@ -142,9 +117,9 @@ class ReplicasRestrictIP extends React.Component {
   }
 
   render() {
-    const { NetSegment } = this.state
     const { form, intl } = this.props
     const { getFieldProps, getFieldValue } = form
+    const NetSegment = getFieldValue('ipPool')
     getFieldProps('ipKeys', {
       initialValue: [ ],
     })

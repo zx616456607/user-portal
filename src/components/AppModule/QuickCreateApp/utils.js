@@ -24,6 +24,7 @@ import {
   OTHER_IMAGE
  } from '../../../constants'
 import { deploymentLog } from '../../../actions/cicd_flow';
+import isCidr from 'is-cidr'
 
 export function getFieldsValues(fields) {
   const values = {}
@@ -169,6 +170,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     modelSet,  // 模型集
     serviceMesh, // 服务网格
     replicasCheck, // 实例数量/固定IP
+    ipPool, // IP Pool
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -343,6 +345,14 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
   }
   // 设置实例数量
   deployment.setReplicas(replicas)
+  // 设置 IP Pool
+  if (ipPool) {
+    let key = 'cni.projectcalico.org/ipv4pools'
+    if (isCidr.v6(ipPool)) key = 'cni.projectcalico.org/ipv6pools'
+    deployment.setAnnotations({
+      [key]: `[\"${ipPool}\"]`,
+    })
+  }
   // 设置固定 IP
   if (replicasCheck) {
     const { ipKeys } = fieldsValues

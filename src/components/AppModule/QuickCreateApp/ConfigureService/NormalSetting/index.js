@@ -38,6 +38,8 @@ import ReplicasRestrictIP from '../../../../../../client/containers/AppModule/Qu
 import ContainerNetwork from '../../../../../../client/containers/AppModule/QuickCreateApp/ContainerNetwork'
 import { injectIntl, FormattedMessage } from 'react-intl'
 import IntlMessage from '../../../../../containers/Application/ServiceConfigIntl'
+import * as IPPoolActions from '../../../../../../client/actions/ipPool'
+import * as podAction from '../../../../../actions/app_manage'
 
 const FormItem = Form.Item
 const Panel = Collapse.Panel
@@ -83,7 +85,7 @@ const Normal = React.createClass({
   },
   componentDidMount(){
     const { allTag } = this.state
-    const { fields, getNodes, getNodeLabels, form } = this.props
+    const { fields, getNodes, getNodeLabels, form, getIPPoolList, getPodNetworkSegment } = this.props
     form.setFieldsValue({ serverPoint : '最好', serverBottomPoint: '最好'})
     if(fields && fields.bindLabel){
       this.setState({
@@ -116,6 +118,34 @@ const Normal = React.createClass({
         })
       })
     }
+    getIPPoolList(clusterID, { version: 'v1' }, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取地址池列表失败')
+          }
+        },
+      },
+    })
+    getPodNetworkSegment(clusterID, {
+      success: {
+        func: res => {
+          form.setFieldsValue({
+            ipPool: res.data,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取集群默认地址池失败')
+          }
+        },
+      },
+    })
   },
   dealDataSelectData(tagArg){
     let tagArr = []
@@ -586,12 +616,19 @@ const Normal = React.createClass({
       replicasIP: !this.state.replicasIP,
     })
   },
+  ipPoolChange(v) {
+    const { setFieldsValue, getFieldValue } = this.props.form
+    getFieldValue('replicasCheck') && setFieldsValue({
+      replicasIP0: undefined,
+    })
+  },
   render() {
     const {
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
       isCanCreateVolume, imageConfigs,
       id, isTemplate, location, intl,
+      ipPoolList,
     } = this.props
     const { query } = location
     const { listNodes } = currentCluster
@@ -729,6 +766,31 @@ const Normal = React.createClass({
                 <div className="unit">{intl.formatMessage(IntlMessage.one)}</div>
               </FormItem>
             </Col>
+          </Row>
+          <Row key="ippool">
+            <Col span={4} className="formItemLabel label">
+              实例地址池
+            </Col>
+            <Col span={6}>
+              <FormItem className="replicasFormItem">
+                <Select
+                  size="large"
+                  placeholder={'请选择地址池'}
+                  showSearch
+                  optionFilterProp="children"
+                  {...getFieldProps('ipPool', {
+                    onChange: this.ipPoolChange,
+                    rules: [{
+                      required: true,
+                      whitespace: true,
+                      message: '请选择地址池'
+                    }],
+                  })}
+                >
+                  {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
+                </Select>
+              </FormItem>
+            </Col>
             <Col span={5} style={{ paddingLeft: 30 }}>
               <FormItem>
                 <Checkbox
@@ -742,6 +804,12 @@ const Normal = React.createClass({
                 >
                   {intl.formatMessage(IntlMessage.fixedInstanceIP)}
                 </Checkbox>
+                <Tooltip
+                  placement="top"
+                  title={'如不固定实例 IP，则地址池中随机分配 '}
+                >
+                  <Icon type="question-circle" style={{ marginLeft: 5 }} />
+                </Tooltip>
               </FormItem>
             </Col>
           </Row>
@@ -827,12 +895,14 @@ function mapStateToProps(state, props) {
     labels = summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
   }
   const {toggleCreateAppMeshFlag: { flag = false } = {}} = state.serviceMesh
+  const ipPoolList = state.ipPool && state.ipPool.getIPPoolList && state.ipPool.getIPPoolList.data || []
   return {
     currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
     labels,
     nodes,
     flag,
+    ipPoolList,
   }
 }
 
@@ -851,7 +921,9 @@ export default connect(mapStateToProps, {
   getNodes,
   getClusterLabel,
   addLabels,
-  getNodeLabels
+  getNodeLabels,
+  getIPPoolList: IPPoolActions.getIPPoolList,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(injectIntl(Normal, {
   withRef: true,
 }))

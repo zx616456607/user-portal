@@ -8,7 +8,8 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip, Modal } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip, Modal,
+  Form, Select, Row, Col } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import find from 'lodash/find'
@@ -29,7 +30,8 @@ import AppAutoScale from './AppAutoScale'
 import VisitType from './VisitType'
 import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
 import AppServerTag from './AppServerTag'
-import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices } from '../../../actions/services'
+import { loadServiceDetail, loadServiceContainerList, loadK8sService, deleteServices,
+  UpdateServiceAnnotation } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import './style/AppServiceDetail.less'
@@ -51,9 +53,26 @@ import { injectIntl,  } from 'react-intl'
 import { GET_MONITOR_METRICS_FAILURE } from '../../../actions/manage_monitor';
 import TenxTab from './FilterTabs';
 import classNames from 'classnames';
+import * as podAction from '../../../actions/app_manage'
+import * as IPPoolAction from '../../../../client/actions/ipPool'
+import { getDeepValue } from '../../../../client/util/util'
+import isCidr from 'is-cidr'
+import Notification from '../../../components/Notification'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
+const Option = Select.Option;
+const FormItem = Form.Item;
+const notification = new Notification()
+const formItemLayout = {
+  labelCol: {
+    sm: { span: 4 },
+  },
+  wrapperCol: {
+    sm: { span: 20 },
+  },
+  colon: false,
+}
 
 function terminalSelectedCheck(item, list) {
   //this function for check the container selected or not
@@ -82,7 +101,10 @@ class AppServiceDetail extends Component {
       currentContainer: [],
       httpIcon: 'http',
       deleteModal: false,
-      serviceTag: {}
+      serviceTag: {},
+      editorVisible: false,
+      editorLoading: false,
+      netSegment: undefined,
     }
   }
 
@@ -157,6 +179,38 @@ class AppServiceDetail extends Component {
         },
         isAsync: true
       }
+    })
+    this.loadIPPool()
+  }
+  loadIPPool = () => {
+    const { getIPPoolList, getPodNetworkSegment, cluster } = this.props
+    getIPPoolList(cluster, { version: 'v1' }, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取集群地址池列表失败')
+          }
+        },
+      },
+    })
+    getPodNetworkSegment(cluster, {
+      success: {
+        func: res => {
+          this.setState({
+            netSegment: res.data, // 校验网段使用
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取集群地址池失败')
+          }
+        },
+      },
     })
   }
 
@@ -318,6 +372,95 @@ class AppServiceDetail extends Component {
         return null
     }
   }
+  toggleEditorLoading = () => {
+    this.setState({
+      editorLoading: !this.state.editorLoading,
+    })
+  }
+  toggleEditorVisible = () => {
+    const { editorVisible } = this.state
+    this.setState({
+      editorVisible: !editorVisible,
+    })
+    !editorVisible && this.props.form.setFieldsValue({
+      ipPool: this.currentIPPool(),
+    })
+  }
+  editorIPPool = () => {
+    const { UpdateServiceAnnotation, form, serviceName, serviceDetail, cluster } = this.props
+    form.validateFields((err, values) => {
+      if (err) return
+      const annotations = getDeepValue(serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
+      const isFixed = annotations.hasOwnProperty('cni.projectcalico.org/ipAddrs')
+      if (isFixed) return notification.warn('服务已固定IP，不可修改地址池', '请先释放固定 IP')
+      const newIsV4 = isCidr.v4(values.ipPool)
+      const newISV6 = isCidr.v6(values.ipPool)
+      const oldIsV4 = annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+      const oldIsV6 = annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
+        // 新的pool是 v4 / 新旧pool都是v4
+      if (newIsV4 && oldIsV4 || newIsV4 && !oldIsV4 && !oldIsV6) {
+        Object.assign(annotations, {
+          'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
+        })
+      } else if (newIsV4 && oldIsV6) {
+        // 新的pool是 v4 / 旧pool都是v6
+        Object.assign(annotations, {
+          'cni.projectcalico.org/ipv4pools': `[\"${values.ipPool}\"]`,
+          'cni.projectcalico.org/ipv6pools': '',
+        })
+      } else if (newISV6 && oldIsV6 || newISV6 && !oldIsV4 && !oldIsV6) {
+        // 新的pool是 v6 / 新旧pool都是v6
+        Object.assign(annotations, {
+          'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
+        })
+      } else if (newISV6 && oldIsV4) {
+        // 新的pool是 v6 / 旧pool都是v4
+        Object.assign(annotations, {
+          'cni.projectcalico.org/ipv4pools': '',
+          'cni.projectcalico.org/ipv6pools': `[\"${values.ipPool}\"]`,
+        })
+      }
+      this.toggleEditorLoading()
+      notification.spin('修改中...')
+      UpdateServiceAnnotation(cluster, serviceName, annotations, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('地址池修改成功')
+            const { onChangeVisible, onHandleCanleIp } = this.props
+            this.toggleEditorLoading()
+            this.toggleEditorVisible()
+            this.loadData()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: error => {
+            notification.close()
+            this.toggleEditorLoading()
+            const { statusCode } = error
+            if (statusCode !== 403) {
+              notification.warn('地址池修改失败')
+            }
+          },
+        },
+      })
+    })
+  }
+  currentIPPool = () => {
+    const { netSegment } = this.state
+    let ipPool = netSegment
+    const annotations = getDeepValue(this.props.serviceDetail, [ 'spec', 'template', 'metadata', 'annotations' ]) || {}
+    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')
+      && annotations['cni.projectcalico.org/ipv4pools']) {
+      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv4pools'])[0]
+    }
+    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')
+      && annotations['cni.projectcalico.org/ipv6pools']) {
+      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv6pools'])[0]
+    }
+    return ipPool
+  }
   render() {
     const { formatMessage } = this.props.intl
     const parentScope = this
@@ -334,13 +477,17 @@ class AppServiceDetail extends Component {
       bindingDomains,
       bindingIPs,
       k8sService,
+      ipPoolList,
+      form,
     } = this.props
+    const { getFieldProps } = form
     const { bindingPort, https } = serviceDetail
     const bindHttpsStatus = {
       bindingPort,
       https,
     }
-    const { activeTabKey, currentContainer, deleteModal } = this.state
+    const { activeTabKey, currentContainer, deleteModal,
+      editorLoading, editorVisible, netSegment } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
     const shinningWraper = classNames({
@@ -415,6 +562,39 @@ class AppServiceDetail extends Component {
             {formatMessage(AppServiceDetailIntl.deleteServiceinfo, { serviceName: service.metadata.name })}
           </div>
         </Modal>
+        <Modal
+          title={'修改地址池'}
+          visible={editorVisible}
+          onOk={this.editorIPPool}
+          onCancel={this.toggleEditorVisible}
+          confirmLoading={editorLoading}
+        >
+          <div>
+            <div className="alertRow">
+              修改地址池后，容器将会重启，请确认是否继续修改
+            </div>
+            <FormItem
+              label={'地址池'}
+              {...formItemLayout}
+            >
+              <Select
+                size="large"
+                placeholder={'请选择地址池'}
+                showSearch
+                optionFilterProp="children"
+                style={{ width: 280 }}
+                {...getFieldProps('ipPool', {
+                  rules: [{
+                    required: true,
+                    whitespace: true,
+                    message: '请选择地址池'}],
+                })}
+              >
+                {ipPoolList.map((k,ind) => <Select.Option key={k.cidr}>{k.cidr}</Select.Option>)}
+              </Select>
+            </FormItem>
+          </div>
+        </Modal>
         <div className='titleBox'>
           <Title title={`${service.metadata.name} ${formatMessage(AppServiceDetailIntl.serviceDetailPage)}`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
@@ -428,31 +608,42 @@ class AppServiceDetail extends Component {
             </p>
             <div className='leftBox appSvcDetailDomain'>
               <div>
-                {formatMessage(AppServiceDetailIntl.status)}：
-                <span style={{ position: 'relative' }}>
-                  <ServiceStatus
-                    smart={true}
-                    service={statusService} />
-                </span>
-              </div>
-              <div className='address'>
-                <span>{formatMessage(AppServiceDetailIntl.address)}：</span>
-                <div className='addressRight'>
-                  <TipSvcDomain
-                  svcDomain={svcDomain}
-                  parentNode='appSvcDetailDomain'
-                  icon={this.state.httpIcon}
-                  serviceMeshflagListInfo={this.props.mesh}
-                  msaUrl={this.props.msaUrl}
-                  serviceName={service.metadata.name}
-                  />
+                <div>
+                  {formatMessage(AppServiceDetailIntl.status)}：
+                  <span style={{ position: 'relative' }}>
+                    <ServiceStatus
+                      smart={true}
+                      service={statusService} />
+                  </span>
+                </div>
+                <div className='address'>
+                  <span>{formatMessage(AppServiceDetailIntl.address)}：</span>
+                  <div className='addressRight'>
+                    <TipSvcDomain
+                    svcDomain={svcDomain}
+                    parentNode='appSvcDetailDomain'
+                    icon={this.state.httpIcon}
+                    serviceMeshflagListInfo={this.props.mesh}
+                    msaUrl={this.props.msaUrl}
+                    serviceName={service.metadata.name}
+                    />
+                  </div>
                 </div>
               </div>
               <div>
-                {formatMessage(AppServiceDetailIntl.containerObject)}：
-                <span>
-                  {availableReplicas}/{replicas}
-                </span>
+                <div>
+                  {formatMessage(AppServiceDetailIntl.containerObject)}：
+                  <span>
+                    {availableReplicas}/{replicas}
+                  </span>
+                </div>
+                <div>
+                  地址池：
+                  <span>
+                    {this.currentIPPool()}
+                  </span>
+                  <span className="editor" onClick={this.toggleEditorVisible}>修改</span>
+                </div>
               </div>
             </div>
             <div className='rightBox'>
@@ -728,6 +919,7 @@ function mapStateToProps(state, props) {
     k8sServiceData = k8sService.data[camelizedSvcName]
   }
   const { services } = state.services.serviceList
+  const ipPoolList = getDeepValue(state, [ 'ipPool', 'getIPPoolList', 'data' ]) || []
   return {
     loginUser: loginUser,
     cluster,
@@ -743,7 +935,8 @@ function mapStateToProps(state, props) {
     k8sService: k8sServiceData,
     serviceList: services || [],
     projectName,
-    shiningFlag
+    shiningFlag,
+    ipPoolList,
   }
 }
 export default injectIntl(connect(mapStateToProps, {
@@ -751,8 +944,11 @@ export default injectIntl(connect(mapStateToProps, {
   loadServiceContainerList,
   loadK8sService,
   addTerminal,
-  deleteServices
-})(AppServiceDetail), { withRef: true, })
+  deleteServices,
+  UpdateServiceAnnotation,
+  getIPPoolList: IPPoolAction.getIPPoolList,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
+})(Form.create()(AppServiceDetail)), { withRef: true, })
 
 // Tenx Tooltip
 // 通过一个外部变量控制是否渲染tooltip

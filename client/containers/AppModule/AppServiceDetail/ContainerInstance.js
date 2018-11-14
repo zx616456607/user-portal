@@ -208,7 +208,7 @@ class ContainerInstance extends React.Component {
   }
 
   checkPodCidr = async (rule, value, callback) => {
-    const { NetSegment } = this.state
+    const NetSegment = this.currentIPPool()
     const { intl } = this.props
     if (!value) {
       return callback(intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }))
@@ -230,9 +230,22 @@ class ContainerInstance extends React.Component {
     }
     callback()
   }
-
+  currentIPPool = () => {
+    const { NetSegment } = this.state
+    const { cluster, serviceDetail } = this.props
+    const server = Object.keys(serviceDetail[cluster])[0]
+    let ipPool = NetSegment || undefined
+    const annotations = getDeepValue(serviceDetail, [ cluster, server, 'service', 'spec', 'template', 'metadata', 'annotations' ]) || {}
+    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv4pools')) {
+      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv4pools'])[0]
+    }
+    if (annotations.hasOwnProperty('cni.projectcalico.org/ipv6pools')) {
+      ipPool = JSON.parse(annotations['cni.projectcalico.org/ipv6pools'])[0]
+    }
+    return ipPool
+  }
   render() {
-    const { NetSegment, isScale } = this.state
+    const { isScale } = this.state
     const { form, configIP, notConfigIP, containerNum, cluster, serviceDetail, intl } = this.props
     const { getFieldProps } = form
     const server = Object.keys(serviceDetail[cluster])[0]
@@ -288,7 +301,8 @@ class ContainerInstance extends React.Component {
                 }],
               })}
               style={{ width: 280 }}
-              placeholder={intl.formatMessage(IntlMessages.ipPodPlaceholder, { NetSegment }) }
+              placeholder={intl.formatMessage(IntlMessages.ipPodPlaceholder,
+                { NetSegment: this.currentIPPool() }) }
               />
             </FormItem>
           </div>

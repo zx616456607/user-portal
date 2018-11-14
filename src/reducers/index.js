@@ -66,6 +66,8 @@ import middlewareCenter from '../../client/reducers/middlewareCenter'
 import emailApproval from '../../client/reducers/emailApproval'
 import openstack from './openstack/openstack'
 import openstack_storage from './openstack/openstack_storage'
+import ipPool from '../../client/reducers/ipPool'
+
 
 import {
   LOGIN_EXPIRED_MESSAGE,
@@ -204,6 +206,7 @@ const rootReducer = combineReducers({
   emailApproval,
   openstack,
   openstack_storage,
+  ipPool,
 })
 
 export default rootReducer
