@@ -975,7 +975,7 @@
   "Sider.outdentMenu": "Expand the navigation bar",
   "Sider.indentMenu": "Collapse",
   "Sider.deployManage": "Deploy manage",
-  "Sider.middlewareCenter": "Middleware&BigData",
+  "Sider.middlewareCenter": "Service Catalog",
   "Sider.StatefulSet": "StatefulSet",
   "Sider.Job": "Job",
   "Sider.CronJob": "CronJob",

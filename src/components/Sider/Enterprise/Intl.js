@@ -106,7 +106,7 @@ export const mapData = {
     outdentMenu: '展开导航栏',
     indentMenu: '收起',
     deployManage: '部署管理',
-    middlewareCenter: '中间件&大数据',
+    middlewareCenter: '服务目录',
     StatefulSet: 'StatefulSet',
     Job: 'Job',
     CronJob: 'CronJob',

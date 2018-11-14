@@ -993,7 +993,7 @@
   "Sider.outdentMenu": "展开导航栏",
   "Sider.indentMenu": "收起",
   "Sider.deployManage": "部署管理",
-  "Sider.middlewareCenter": "中间件&大数据",
+  "Sider.middlewareCenter": "服务目录",
   "Sider.StatefulSet": "StatefulSet",
   "Sider.Job": "Job",
   "Sider.CronJob": "CronJob",
