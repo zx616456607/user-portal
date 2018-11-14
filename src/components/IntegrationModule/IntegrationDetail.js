@@ -89,7 +89,7 @@ class IntegrationDetail extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
+    const { scope, defaultActiveKey } = this.props;
     const thisScope = this;
     const { isFetching, dataCenters, integrationId } = this.props;
     if(isFetching || !Boolean(dataCenters) || dataCenters==[]) {
@@ -104,6 +104,7 @@ class IntegrationDetail extends Component {
         <Option value={item} key={item}>{item.replace('/','')}</Option>
       )
     });
+    console.log('defaultActiveKey', defaultActiveKey)
     return (
       <QueueAnim className='IntegrationDetailAnimate' key='IntegrationDetailAnimate'>
          <div id='IntegrationDetail' key="detail">
@@ -113,7 +114,7 @@ class IntegrationDetail extends Component {
               {selectDcShow}
             </Select>
           </div>
-          <Tabs>
+          <Tabs defaultActiveKey={defaultActiveKey || '1'}>
             <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'>
               <VSphere scope={thisScope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
             </TabPane>

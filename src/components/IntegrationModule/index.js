@@ -13,17 +13,20 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { getAllIntegration } from '../../actions/integration'
+import { getConfigByType, saveGlobalConfig } from '../../actions/global_config'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Alert, Card, Spin, Input, Modal, Row, Col } from 'antd'
+import { Button, Alert, Card, Spin, Input, Modal, Row, Col, Icon, notification } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
+import OpenstackSetting from './OpenstackSetting'
 import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
-import openstackImg from '../../assets/img/appstore/openstack.svg'
+import openstackImg from '../../assets/img/appstore/easystack.png'
 import TerraformImg from '../../assets/img/appstore/terraform.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
+import filter from 'lodash/filter'
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -90,13 +93,35 @@ class Integration extends Component {
       currentAppType: '1',
       showType: 'list',
       currentIntegration: null,
-      createIntegrationModal: false
+      createIntegrationModal: false,
+      isShowOpenstackModal: false,
+      config: {},
+      vmActiveKey: '',
+      cephIsSetting: false,
     }
   }
 
   componentWillMount() {
     const { getAllIntegration } = this.props;
     getAllIntegration();
+    this.loadConfig()
+  }
+  loadConfig = () => {
+    const { getConfigByType, clusterID } = this.props;
+    getConfigByType(clusterID, 'openstack', {
+      success: {
+        func: res => {
+          if (res.statusCode === 200 && res.data) {
+            // const openstack = filter(res.data, { configType: 'openstack' })[0]
+            // debugger
+            this.setState({
+              config: res.data,
+            })
+          }
+        },
+        isAsync: true,
+      }
+    })
   }
 
   onChangeShowType(type) {
@@ -113,11 +138,18 @@ class Integration extends Component {
     });
   }
 
-  ShowDetailInfo(id) {
+  ShowDetailInfo(id, isDefaultSetting) {
     //this function for view the app detail info
     this.setState({
       showType: 'detail',
-      currentIntegration: id
+      currentIntegration: id,
+      vmActiveKey: isDefaultSetting ? '4' : ''
+    }, () => {
+      setTimeout(() => {
+        this.setState({
+          vmActiveKey: '',
+        })
+      }, 10000)
     });
   }
 
@@ -138,10 +170,63 @@ class Integration extends Component {
     });
   }
 
+  showSetting = (type, _cb) => {
+    switch (type) {
+      case 'openstack': {
+        this.setState({
+          isShowOpenstackModal: true,
+        })
+        break;
+      }
+      case 'ceph': {
+        this.cephCallback()
+        break;
+      }
+      case 'vmware': {
+        _cb()
+        break;
+      }
+    }
+  }
+  cephCallback = () => {
+    this.setState({
+      showType: 'Ceph',
+      cephIsSetting: true
+    }, () => {
+      setTimeout({
+        cephIsSetting: false
+      }, 10000)
+    })
+  }
+  onOk = body => {
+    let { config } = this.state
+    const { saveGlobalConfig, clusterID } = this.props
+    config.configDetail = body
+    saveGlobalConfig(clusterID, 'openstack', config, {
+      success: {
+        func: res => {
+          if (res.statusCode === 200) {
+            notification.success({
+              message: '配置成功'
+            })
+            this.setState({
+              isShowOpenstackModal: false,
+            })
+            this.loadConfig()
+          }
+        },
+        isAsync: true,
+      }
+    })
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, integrations } = this.props;
+    const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
+    const temp = config.configDetail
+    const isLinkBlank = !!temp && temp.type === 1
+    const isNeedSetting = config.configDetail === '{}'
     const scope = this;
     if (isFetching || !Boolean(integrations)) {
       return (
@@ -192,10 +277,12 @@ class Integration extends Component {
                         <span>敬请期待</span>
                       </Button>
                       :
-                      <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
-                        style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                        <FormattedMessage {...menusText.showAppDetail} />
-                      </Button>
+                      [
+                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => this.ShowDetailInfo(item.id, true))} />,
+                        <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
+                          style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                          <FormattedMessage {...menusText.showAppDetail} />
+                        </Button>]
                     }
                     {
                       !standardFlag ?
@@ -241,8 +328,9 @@ class Integration extends Component {
                           <div className='appInfo'>
                             <p>
                               Ceph存储总览应用
-                                  <Button className='unintsallBtn' onClick={() => this.setState({ showType: 'Ceph' })} key='unintsallBtn' size='large' type='primary'
-                                style={{ width: '102px' }}>
+                                <Icon className="setting" type="setting" onClick={() => this.showSetting('ceph', this.cephCallback)} />
+                                <Button className='unintsallBtn' onClick={() => this.setState({ showType: 'Ceph' })} key='unintsallBtn' size='large' type='primary'
+                                  style={{ width: '102px' }}>
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
                             </p>
@@ -278,7 +366,21 @@ class Integration extends Component {
                           <div className='appInfo'>
                             <p>
                               OpenStack 集成
-                                <a href="/api/v2/openstack" target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}> <FormattedMessage {...menusText.showAppDetail} /> </a>
+                                <Icon className="setting" type="setting" onClick={() => this.showSetting('openstack')} />
+                                {
+                                  isLinkBlank ?
+                                    <a disabled={isNeedSetting} href="/api/v2/openstack" target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}>
+                                      <FormattedMessage {...menusText.showAppDetail} />
+                                    </a>
+                                    :
+                                    <a disabled={isNeedSetting} onClick={() => {
+                                      browserHistory.push({
+                                        pathname: '/OpenStack/host',
+                                      })
+                                    }} target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}>
+                                      <FormattedMessage {...menusText.showAppDetail} />
+                                    </a>
+                                }
                             </p>
                           </div>
                           <div className="infoMessage">
@@ -348,12 +450,12 @@ class Integration extends Component {
               {this.state.showType == 'detail' ? [
                 <QueueAnim key='detailBoxAnimate'>
                   <div className='detailBox' key='detailBox'>
-                    <IntegrationDetail scope={scope} integrationId={this.state.currentIntegration} />
+                    <IntegrationDetail defaultActiveKey={vmActiveKey} scope={scope} integrationId={this.state.currentIntegration} />
                   </div>
                 </QueueAnim>
               ] : null}
               {this.state.showType === 'Ceph' ?
-                <Ceph key="ceph" scope={this} />
+                <Ceph cephIsSetting={cephIsSetting} key="ceph" scope={this} />
                 : null
               }
             </div>
@@ -367,6 +469,18 @@ class Integration extends Component {
         >
           <CreateVSphereModal scope={scope} createIntegrationModal={this.state.createIntegrationModal} />
         </Modal>
+        {
+          isShowOpenstackModal ?
+            <OpenstackSetting
+              onCancel={() => this.setState({ isShowOpenstackModal: false })}
+              onOk={this.onOk}
+              scope={scope}
+              visible={isShowOpenstackModal}
+              config={config}
+            />
+            :
+            null
+        }
       </div>
     )
   }
@@ -380,6 +494,7 @@ function mapStateToProps(state, props) {
   const { getAllIntegration } = state.integration
   const { isFetching, integrations } = getAllIntegration || defaultAppList
   return {
+    clusterID: state.entities.current.cluster.clusterID,
     isFetching,
     integrations
   }
@@ -390,7 +505,9 @@ Integration.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getAllIntegration
+  getAllIntegration,
+  getConfigByType,
+  saveGlobalConfig,
 })(injectIntl(Integration, {
   withRef: true,
 }));
