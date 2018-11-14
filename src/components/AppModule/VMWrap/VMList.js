@@ -328,6 +328,9 @@ class VMList extends React.Component {
       break;
     case 'check':
       this.getTomcatListFunc(record)
+      this.setState({
+        currVM: record,
+      })
       break;
     case 'add':
       this.setState({
@@ -352,7 +355,7 @@ class VMList extends React.Component {
       }, {
         success: {
           func: res => {
-            res.results && res.results.length && this.setState({
+            res.results && this.setState({
               tomcatList: res.results
             })
           },
