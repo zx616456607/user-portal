@@ -18,11 +18,12 @@ import NotificationHandler from '../../components/Notification'
 
 class Ceph extends Component {
   constructor(props) {
-    super()
+    super(props)
+    const { cephIsSetting } = this.props
     this.state = {
       calamariUrl:'',
       overall: false,
-      setting: false,
+      setting: cephIsSetting || false,
     }
   }
   returnToList() {
@@ -108,7 +109,7 @@ class Ceph extends Component {
     const { calamariUrl, overall } = this.state
     const height = !overall ? document.body.offsetHeight - 170:'auto'
     return (
-      <Card id={this.state.overall ? 'overall':''} className="ceph" style={{height:height}} 
+      <Card id={this.state.overall ? 'overall':''} className="ceph" style={{height:height}}
             extra={
               <div>
                 <Button size="large" icon="edit" type="ghost" onClick={() => this.setState({setting: true})}>修改访问配置</Button>
@@ -116,7 +117,7 @@ class Ceph extends Component {
                   <Icon type={overall ? 'shrink':'arrow-salt'} />
                 </span>
               </div>
-            }  
+            }
             title={
               <Button size='large' type='ghost' className='backBtn' onClick={()=> this.returnToList()}>
                 返回应用列表
@@ -124,7 +125,7 @@ class Ceph extends Component {
             }>
         {this.state.setting ?
           <div className="pushUrl">
-            <Input id="url" size="large" value={calamariUrl} onChange={(e) => this.setState({calamariUrl: e.target.value})} 
+            <Input id="url" size="large" value={calamariUrl} onChange={(e) => this.setState({calamariUrl: e.target.value})}
                    placeholder='请输入访问地址（即 Calamari Server 的节点 IP:Port）' onPressEnter={()=> this.setUrl()}/>
             <Button size="large" type="primary" onClick={()=> this.setUrl()}>立即进入</Button>
           </div>

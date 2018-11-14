@@ -59,6 +59,9 @@ exports.changeGlobalConfig = function* () {
   if (type == 'loadbalance') {
     this.body = yield lbConfigFunc.apply(this, [entity])
   }
+  if (type == 'openstack') {
+    this.body = yield openstackConfigFunc.apply(this, [entity])
+  }
   yield initGlobalConfig.initGlobalConfig()
 }
 
@@ -249,6 +252,19 @@ function* lbConfigFunc(entity) {
   }
   return response
 }
+function* openstackConfigFunc(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'openstack'
+  entity.configDetail = Object.assign({}, global.globalConfig.openstackConfig, entity.configDetail)
+  let response
+  entity.configDetail = JSON.stringify(entity.configDetail)
+  if (entity.configID) {
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
+}
 
 function* mailConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
@@ -323,6 +339,7 @@ exports.getGlobalConfig = function* () {
   const cluster = this.params.cluster
   const spi = apiFactory.getTenxSysSignSpi()
   const response = yield spi.configs.get()
+  console.log('response', response)
   let cicdConfigFound = false
   let apiConfigFound = false
   if (response && response.data) {
