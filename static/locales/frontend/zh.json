@@ -1209,6 +1209,7 @@
   "AppCreate.wrapName": "包名称",
   "AppCreate.publishName": "发布名称",
   "AppCreate.tag": "版本标签",
+  "AppCreate.originalFile": "文件名称",
   "AppCreate.wrapType": "包类型",
   "AppCreate.uploadTime": "上传时间",
   "AppCreate.operation": "操作",

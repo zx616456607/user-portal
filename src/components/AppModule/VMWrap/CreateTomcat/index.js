@@ -12,7 +12,7 @@
 import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Row, Col, Form, Input, Modal, Select } from 'antd'
+import { Row, Col, Form, Input, Modal, Select, notification, Tooltip } from 'antd'
 import { getTomcatVersion } from '../../../../actions/vm_wrap'
 import { checkVMUser } from '../../../../actions/vm_wrap'
 import cloneDeep from 'lodash/cloneDeep'
@@ -93,6 +93,8 @@ class CreateTomcat extends React.Component {
     const { form: { validateFields } } = this.props
     validateFields([ 'tomcat_id' ], (err, values) => {
       if (err) return
+      notification.destroy()
+      notification.success('设置成功')
       console.log('tomcat_id', values)
     })
   }
@@ -108,8 +110,8 @@ class CreateTomcat extends React.Component {
     const dir = `/usr/local/${name+port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
     const layout = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 19 }
+      labelCol: { span: 6 },
+      wrapperCol: { span: 18 }
     }
     const portProps = getFieldProps('start_port', {
       rules: [
@@ -138,13 +140,15 @@ class CreateTomcat extends React.Component {
             label="Tomcat 版本"
             style={{ marginTop: 10}}
           >
-            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 0 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
+            <Select style={{ width: 280, display: 'block', marginLeft: (isRight ? 3 : '16px') }} placeholder="请选择 Tomcat 版本" {...versionProps}>
               {options}
             </Select>
           </FormItem>
         </Col>
         <Col style={{ paddingTop: '15px', paddingLeft: '15px' }} span={4}>
-          <span><a onClick={this.setDefault}>设为默认</a></span>
+          <Tooltip title="以后默认选择该 Tomcat 版本">
+            <span><a onClick={this.setDefault}>设为默认</a></span>
+          </Tooltip>
         </Col>
       </Row>
       <FormItem

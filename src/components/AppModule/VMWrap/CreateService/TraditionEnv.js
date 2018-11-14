@@ -43,6 +43,8 @@ class TraditionEnv extends Component{
       jdkList: [],
       tomcatVersionList: [],
       ports: [],
+      isShowPassword: false,
+      readOnly: true,
     }
   }
   componentWillMount() {
@@ -286,7 +288,7 @@ class TraditionEnv extends Component{
     return callback()
   }
   render() {
-    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports } = this.state
+    const { activeBtn, portList, tomcatRadio, tomcatList, loadingTomcat, ports, isShowPassword } = this.state
     const { vmList, form } = this.props
     const { getFieldProps, getFieldValue } = form
     const name = 'tomcat_'
@@ -446,7 +448,20 @@ class TraditionEnv extends Component{
                   label="环境登录密码"
                   {...formItemLayout}
                 >
-                  <Input disabled={this.state.isTestSucc} placeholder="请输入传统环境登录密码" size="large" {...password}/>
+                  <Input
+                    type={isShowPassword ? 'text' : 'password'}
+                    autoComplete="off"
+                    readOnly={this.state.readOnly}
+                    onFocus={() => this.setState({ readOnly: false })}
+                    onBlur={() => this.setState({ readOnly: true })} disabled={this.state.isTestSucc} placeholder="请输入传统环境登录密码" size="large" {...password}/>
+                    <span style={{ cursor: 'pointer', position: 'absolute', right: '-20px', top: '2px' }}>
+                      {
+                        isShowPassword ?
+                          <Icon onClick={() => this.setState({ isShowPassword: false })} type={'eye'}/>
+                          :
+                          <Icon onClick={() => this.setState({ isShowPassword: true })} type={'eye-o'}/>
+                      }
+                    </span>
                 </FormItem>
                 <FormItem
                   {...formBtnLayout}

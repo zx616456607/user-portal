@@ -28,6 +28,7 @@ const messageObj = {
     wrapName: '包名称',
     publishName: '发布名称',
     tag: '版本标签',
+    originalFile: '文件名称',
     wrapType: '包类型',
     uploadTime: '上传时间',
     operation: '操作',
