@@ -8,12 +8,12 @@
  * @author YangYuBiao
  */
 
-const openstackConfig = require('../../configs/3rd_account/openstack')
 const common = require('./common')
 
 
-exports.redirect = common.wrapHandler(function*() {
+exports.redirect = common.wrapHandler(function* () {
   token = this.session.loginUser.openstack.withoutProject.keystoneToken
+  let openstackConfig = globalConfig.openstack.config
   this.type = "html"
   this.body = `<html>
   <body>

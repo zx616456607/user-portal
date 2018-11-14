@@ -10,17 +10,22 @@
 
 'use strict'
 
-const openstackConfig = require('../../configs/3rd_account/openstack')
 const common = require('./common')
 const wrapHandler = common.wrapHandler
-const getRequestUrl = common.getRequestUrl(`${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.vmPort}`)
+const getRequestUrl = (path) => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.nova}${path}`
+}
 const find = require('lodash/find')
-const baseUrl = `${openstackConfig.protocol}://${openstackConfig.host}`
+const baseUrl = () => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}`
+}
 
-exports.getServerList = wrapHandler(function*(send) {
+exports.getServerList = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   let requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/servers/detail`)
-  const options =  {
+  const options = {
     dataAsQueryString: true,
     method: 'GET'
   }
@@ -39,7 +44,7 @@ exports.getServerList = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getFlavorList = wrapHandler(function*(send) {
+exports.getFlavorList = wrapHandler(function* (send) {
   const requestUrl = getRequestUrl(`/v2/flavors/detail`)
   const result = yield send(requestUrl, {
     data: this.query,
@@ -49,7 +54,7 @@ exports.getFlavorList = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createFlavor = wrapHandler(function*() {
+exports.createFlavor = wrapHandler(function* () {
   const requestUrl = getRequestUrl(`/v2/flavors`)
   const result = yield send(requestUrl, {
     data: this.request.body,
@@ -58,7 +63,7 @@ exports.createFlavor = wrapHandler(function*() {
   this.body = result
 })
 
-exports.deleteFlavor = wrapHandler(function*() {
+exports.deleteFlavor = wrapHandler(function* () {
   const requestUrl = getRequestUrl(`/v2/flavors/${this.params.falvorID}`)
   const result = yield send(requestUrl, {
     method: 'DELETE'
@@ -68,7 +73,7 @@ exports.deleteFlavor = wrapHandler(function*() {
 
 
 
-exports.getAZList = wrapHandler(function*(send) {
+exports.getAZList = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/os-availability-zone`)
   const result = yield send(requestUrl, {
@@ -79,12 +84,12 @@ exports.getAZList = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createServer = wrapHandler(function*(send) {
+exports.createServer = wrapHandler(function* (send) {
   const body = this.request.body
   const requestBody = {
     server: body
   }
-  if(body.availability_zone) {
+  if (body.availability_zone) {
     requestBody.server.availability_zone = body.availability_zone
   }
   const { openstack } = this.session.loginUser
@@ -96,7 +101,7 @@ exports.createServer = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getServerByID = wrapHandler(function*(send) {
+exports.getServerByID = wrapHandler(function* (send) {
   const serverID = this.params.ID
   const { openstack } = this.session.loginUser
   const projectID = openstack.withProject.currentProjectID
@@ -113,7 +118,7 @@ exports.getServerByID = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.deleteByServerID = wrapHandler(function*(send) {
+exports.deleteByServerID = wrapHandler(function* (send) {
   const serverID = this.params.ID
   const { openstack } = this.session.loginUser
   const requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/servers/${serverID}`)
@@ -123,7 +128,7 @@ exports.deleteByServerID = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.renameServer = wrapHandler(function*(send) {
+exports.renameServer = wrapHandler(function* (send) {
   const newName = this.params.newName
   const serverID = this.params.ID
   const { openstack } = this.session.loginUser
@@ -139,104 +144,104 @@ exports.renameServer = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getCPUUsageByServerID = wrapHandler(function*(send) {
+exports.getCPUUsageByServerID = wrapHandler(function* (send) {
   const serverID = this.params.ID
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/cpu_util/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/cpu_util/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 })
 
-exports.getMemoryUsageByServerID = wrapHandler(function*(send) {
+exports.getMemoryUsageByServerID = wrapHandler(function* (send) {
   const serverID = this.params.ID
 
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/memory.usage/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/memory.usage/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 })
 
-exports.getDiskReadBytesRateByServerID= wrapHandler(function*(send) {
+exports.getDiskReadBytesRateByServerID = wrapHandler(function* (send) {
   const serverID = this.params.ID
 
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/disk.read.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/disk.read.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 
 })
 
-exports.getDiskWriteBytesRateByServerID = wrapHandler(function*(send) {
+exports.getDiskWriteBytesRateByServerID = wrapHandler(function* (send) {
   const serverID = this.params.ID
 
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/disk.write.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/disk.write.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${serverID}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 })
 
-exports.getIncomingBytesRateByVMID = wrapHandler(function*(send) {
+exports.getIncomingBytesRateByVMID = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
-  const resourceUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/resources?q.field=project&q.op=eq&q.type=&q.value=${openstack.withProject.currentProjectID}&&q.field=metadata.instance_id&q.op=eq&q.value=${VMID}`
+  const resourceUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/resources?q.field=project&q.op=eq&q.type=&q.value=${openstack.withProject.currentProjectID}&&q.field=metadata.instance_id&q.op=eq&q.value=${VMID}`
 
   const resource = yield send(resourceUrl)
-  if(!resource) {
-    this.body = { meters: []}
+  if (!resource) {
+    this.body = { meters: [] }
     return
   }
   let instance = find(resource, (item) => item.metadata.vnic_name)
-  if(!instance) {
-    this.body = { meters: []}
+  if (!instance) {
+    this.body = { meters: [] }
     return
   }
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/network.incoming.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${instance.resource_id}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/network.incoming.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${instance.resource_id}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 })
 
-exports.getOutgoingBytesRateByVMID = wrapHandler(function*(send) {
+exports.getOutgoingBytesRateByVMID = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
-  const resourceUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/resources?q.field=project&q.op=eq&q.type=&q.value=${openstack.withProject.currentProjectID}&&q.field=metadata.instance_id&q.op=eq&q.value=${VMID}`
+  const resourceUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/resources?q.field=project&q.op=eq&q.type=&q.value=${openstack.withProject.currentProjectID}&&q.field=metadata.instance_id&q.op=eq&q.value=${VMID}`
 
   const resource = yield send(resourceUrl)
-  if(!resource) {
-    this.body = { meters: []}
+  if (!resource) {
+    this.body = { meters: [] }
     return
   }
   let instance = find(resource, (item) => item.metadata.vnic_name)
-  if(!instance) {
-    this.body = { meters: []}
+  if (!instance) {
+    this.body = { meters: [] }
     return
   }
   //period 目前仅支持 60 300 900 72000 86400
   const period = this.query.period || 60
-  const requestUrl = `${baseUrl}:${openstackConfig.metersPort}/v2/meters/network.outgoing.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${instance.resource_id}&period=${period}`
+  const requestUrl = `${baseUrl()}:${openstackConfig.metersPort}/v2/meters/network.outgoing.bytes.rate/statistics?q.field=resource_id&q.op=eq&q.type=&q.value=${instance.resource_id}&period=${period}`
   const result = yield send(requestUrl)
   this.body = { meters: result }
 })
 
 
-exports.updateServer = wrapHandler(function*(send) {
+exports.updateServer = wrapHandler(function* (send) {
   const actions = ['start', 'stop', 'resize', 'getvnc', 'migrate', 'migrateLive', 'confirm', 'revert']
   let action = this.params.action
   const serverID = this.params.ID
   const { openstack } = this.session.loginUser
-  if(actions.indexOf(action) < 0) {
+  if (actions.indexOf(action) < 0) {
     const err = new Error("Doesn't support action")
     err.status = 400
     throw err
   }
 
   const requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/servers/${serverID}/action`)
-  if(action == 'resize') {
+  if (action == 'resize') {
     const body = this.request.body
-    if(!body || !body.resize) {
+    if (!body || !body.resize) {
       const err = new Error('resize is require')
       err.status = 400
       throw err
@@ -250,7 +255,7 @@ exports.updateServer = wrapHandler(function*(send) {
     this.body = result
     return
   }
-  if(action == 'getvnc') {
+  if (action == 'getvnc') {
     const result = yield send(requestUrl, {
       method: 'POST',
       data: {
@@ -262,9 +267,9 @@ exports.updateServer = wrapHandler(function*(send) {
     this.body = result
     return
   }
-  if(action == 'migrate') {
+  if (action == 'migrate') {
     const body = this.request.body
-    if(!body.migrate) {
+    if (!body.migrate) {
       const err = new Error('migrate is require')
       err.status = 400
       throw err
@@ -278,9 +283,9 @@ exports.updateServer = wrapHandler(function*(send) {
     this.body = result
     return
   }
-  if(action == 'migrateLive') {
+  if (action == 'migrateLive') {
     const body = this.request.body
-    if(!body.migrate) {
+    if (!body.migrate) {
       const err = new Error('migrate is require')
       err.status = 400
       throw err
@@ -295,7 +300,7 @@ exports.updateServer = wrapHandler(function*(send) {
     return
 
   }
-  if(action == 'confirm') {
+  if (action == 'confirm') {
     const requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/servers/${serverID}/action`)
     let result = yield send(requestUrl, {
       method: 'POST',
@@ -328,7 +333,7 @@ exports.updateServer = wrapHandler(function*(send) {
 })
 
 
-exports.getResourceInfo = wrapHandler(function*(send) {
+exports.getResourceInfo = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const requestUrl = getRequestUrl(`/v2/${openstack.withProject.currentProjectID}/os-hypervisors/statistics`)
   const result = yield send(requestUrl)
