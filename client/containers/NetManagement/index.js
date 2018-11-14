@@ -14,7 +14,6 @@ import { Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
@@ -22,7 +21,6 @@ import './style/index.less'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
-const hash = process.env.DEVOPS_PORTAL_HASH
 
 const menus = [
   {
@@ -120,8 +118,7 @@ class NetManagement extends React.Component {
   // }
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token, cluster,
-      username, location: { pathname, query: _query },
+      token, location: { pathname, query: _query },
       children,
     } = this.props
     const locationQuery = cloneDeep(_query)
@@ -134,13 +131,6 @@ class NetManagement extends React.Component {
         redirect = '/Service'
       }
     }
-    const query = Object.assign(
-      {},
-      locationQuery,
-      {
-        token, username, project, onbehalfuser, onbehalfuserid, cluster, hash,
-      }
-    )
     const { windowHeight, containerSiderStyle } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
@@ -179,9 +169,7 @@ class NetManagement extends React.Component {
       >
         <Title title={title} />
         {
-          pathname === '/net-management/Service' ?
-            <iframe title="网络管理" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
-            : children
+          children
         }
       </div>
     </div>

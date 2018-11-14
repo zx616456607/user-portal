@@ -74,6 +74,7 @@ export const mapData = {
     labelManage: '标签管理',
     networkSolution: '网络方案',
     clusterStorage: '集群存储',
+    clusterSet: '集群设置',
     addHostNode: '添加主机节点',
     createAlarmStrategy: '创建告警策略',
     createNewNotiGroup: '创建新通知组',

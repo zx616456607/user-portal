@@ -35,6 +35,8 @@ import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import intlMsg from './indexIntl'
+import ClusterSet from './ClusterSet'
+
 
 const TabPane = Tabs.TabPane;
 
@@ -235,6 +237,14 @@ class ClusterTabList extends Component {
               <ClusterStorage
                 cluster={cluster}
               />
+            </TabPane>
+            <TabPane tab={<div className='tablepanediv'>
+              <TenxIcon type="setting-o"/>
+              <span className='tablepanespan'><FormattedMessage {...intlMsg.clusterSet}/></span></div>}
+               key="cluster_set">
+            <ClusterSet
+              cluster={cluster}
+            />
             </TabPane>
           </Tabs>
 
