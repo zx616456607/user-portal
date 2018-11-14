@@ -263,17 +263,24 @@ exports.getServiceAutoScaleList = function* () {
   const result = yield api.getBy([cluster, 'services','autoscale'])
   const tempList = result.data
   var autoScaleList = {}
-  let index = 0
+  let totalCount = 0
   for (let key in tempList){
-    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null) && index >= from && index < from + size){
-      index++
+    if ((filter === "" || key.match(filter) != null || tempList[key].metadata.labels.strategyName.match(filter) != null)){
+      totalCount++
       autoScaleList[key] = tempList[key]
     }
   }
+  let finialScaleList = {}
+  const keys = Object.keys(autoScaleList)
+  keys.forEach((key, index) => {
+    if (index >= from && index < from + size) {
+      finialScaleList[key] = autoScaleList[key]
+    }
+  })
   this.body = {
     cluster,
-    data: autoScaleList || {},
-    totalCount: index
+    data: finialScaleList || {},
+    totalCount
   }
 }
 
