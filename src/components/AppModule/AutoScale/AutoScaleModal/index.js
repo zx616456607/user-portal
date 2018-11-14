@@ -37,16 +37,16 @@ const Option = Select.Option;
 
 const sendEmailOpt = [{
   type: 'SendEmailWhenScale',
-  text: '伸缩时发送邮件'
+  text: '伸缩时发送通知'
 }, {
   type: 'SendEmailWhenScaleUp',
-  text: '扩展时发送邮件'
+  text: '扩展时发送通知'
 }, {
   type: 'SendEmailWHenScaleDown',
-  text: '收缩时发送邮件'
+  text: '收缩时发送通知'
 }, {
   type: 'SendNoEmail',
-  text: '不发送邮件'
+  text: '不发送通知'
 }]
 const thresholdKey = ['cpu', 'memory', 'qps']
 
@@ -501,7 +501,7 @@ class AutoScaleModal extends React.Component {
       rules: [{
         validator: this.checkEmail.bind(this)
       }],
-      initialValue: isEmpty(scaleDetail) ? 'SendEmailWhenScale' : scaleDetail.alert_strategy
+      initialValue: isEmpty(scaleDetail) ? 'SendNoEmail' : scaleDetail.alert_strategy
     })
     const selectAlertGroup = getFieldProps('alert_group', {
       rules: [{
@@ -633,11 +633,11 @@ class AutoScaleModal extends React.Component {
           {thresholdItem}
           <FormItem
             {...formItemLargeLayout}
-            label="发送邮件"
+            label="发送通知"
           >
             <Select
               {...selectEmailSendType}
-              placeholder="请选择邮件发送方式"
+              placeholder="请选择通知发送方式"
               showSearch
               optionFilterProp="children"
               notFoundContent="无法找到">
