@@ -700,7 +700,6 @@ let CreateDatabase = React.createClass({
                   <div style={{ clear: 'both' }}></div>
                 </div>
 
-
               <div className='commonBox replications'>
                 <div className='title'>
                   <span>副本数</span>
