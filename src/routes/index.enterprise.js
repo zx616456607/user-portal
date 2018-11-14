@@ -108,28 +108,28 @@ const rootRoutes = {
         path: 'app-stack',
         component: require('../../client/containers/AppStack').default,
         indexRoute: {
-          onEnter: (nextState, replace) => replace('/app-stack/StatefulSet')
+          onEnter: (nextState, replace) => replace('/app-stack/Deployment')
         },
         childRoutes: [
           {
             path: 'Deployment',
-            component: require('../../client/containers/AppStack').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'StatefulSet',
-            component: require('../../client/containers/AppStack').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'Job',
-            component: require('../../client/containers/AppStack').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'CronJob',
-            component: require('../../client/containers/AppStack').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'Pod',
-            component: require('../../client/containers/AppStack').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'createWorkLoad',
@@ -145,7 +145,7 @@ const rootRoutes = {
         childRoutes: [
           {
             path: 'Service',
-            component: require('../../client/containers/NetManagement').default,
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
           },
           {
             path: 'appLoadBalance',

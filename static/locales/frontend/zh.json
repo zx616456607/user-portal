@@ -1841,6 +1841,7 @@
   "ClusterModule.labelManage": "标签管理",
   "ClusterModule.networkSolution": "网络方案",
   "ClusterModule.clusterStorage": "集群存储",
+  "ClusterModule.clusterSet": "集群设置",
   "ClusterModule.addHostNode": "添加主机节点",
   "ClusterModule.createAlarmStrategy": "创建告警策略",
   "ClusterModule.createNewNotiGroup": "创建新通知组",

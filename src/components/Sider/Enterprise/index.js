@@ -180,6 +180,10 @@ class Sider extends Component {
         currentOpenMenu = ['middleware_center', 'middleware_center_default']
         currentSelectedMenu = currentOpenMenu
       }
+      if (pathname.includes('/cluster/createWorkLoad')) {
+        currentOpenMenu = ['cluster', 'cluster_default']
+        currentSelectedMenu = currentOpenMenu
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,

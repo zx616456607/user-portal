@@ -50,7 +50,7 @@ const getColumns = (self) =>  {
       const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy })
       return (
         <div className="buttons">
-        <Button type="primary" onClick={() => browserHistory.push(`/app-stack/createWorkLoad/?${query}`)}>
+        <Button type="primary" onClick={() => browserHistory.push(`/cluster/createWorkLoad/?${query}`)}>
           查看/编辑Yaml
         </Button>
         <Button className="delete" onClick={() => self.showDelete(record.policy)}>删除</Button>
@@ -94,8 +94,7 @@ class ContainerSecurityPolicy extends React.Component {
     const self = this
     return(
       <div className="containerSecurityPolicy">
-      <Card>
-        <div className='title'>容器安全策略</div>
+      <Card title={<div className='title'>容器安全策略</div>}>
         <div className="content">
         <Row>
           <Col span={4}>
@@ -103,7 +102,7 @@ class ContainerSecurityPolicy extends React.Component {
           </Col>
           <Col span={20}>
             <Button icon="plus" type="primary"
-            onClick={ () => browserHistory.push(`/app-stack/createWorkLoad/?type=PodSecurityPolicy`) }
+            onClick={ () => browserHistory.push(`/cluster/createWorkLoad/?type=PodSecurityPolicy`) }
             >
               添加 PSP 策略
             </Button>

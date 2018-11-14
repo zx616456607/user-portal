@@ -14,7 +14,6 @@ import { Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { browserHistory } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { toQuerystring } from '../../../src/common/tools'
 import * as openApiActions from '../../../src/actions/open_api'
 import SecondSider from '../../../src/components/SecondSider'
 import Title from '../../../src/components/Title'
@@ -23,7 +22,6 @@ import { getDeepValue } from '../../util/util'
 
 const HEADER_HEIGHT = 60
 // replace hash when build, for clear cache
-const hash = process.env.DEVOPS_PORTAL_HASH
 
 const menus = [
   {
@@ -141,8 +139,7 @@ class AppStack extends React.Component {
   // }
   render() {
     const {
-      project, onbehalfuser, onbehalfuserid, token, cluster, watchToken,
-      username, location: { pathname, query: _query },
+      token, location: { pathname, query: _query }, children,
     } = this.props
     const locationQuery = cloneDeep(_query)
     let title
@@ -169,13 +166,6 @@ class AppStack extends React.Component {
         redirect = '/Pod'
       }
     }
-    const query = Object.assign(
-      {},
-      locationQuery,
-      {
-        token, username, project, onbehalfuser, onbehalfuserid, cluster, hash, watchToken,
-      }
-    )
     const { windowHeight, containerSiderStyle } = this.state
     const style = {
       height: windowHeight - HEADER_HEIGHT,
@@ -213,7 +203,7 @@ class AppStack extends React.Component {
         }
       >
         <Title title={title} />
-        <iframe title="工作负载" id="pipeline" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />
+        {children}
       </div>
     </div>
   }

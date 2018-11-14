@@ -1589,6 +1589,7 @@
   "ClusterModule.labelManage": "Label",
   "ClusterModule.networkSolution": "Network",
   "ClusterModule.clusterStorage": "Storage",
+  "ClusterModule.clusterSet": "Set",
   "ClusterModule.addHostNode": "Add a host node",
   "ClusterModule.createAlarmStrategy": "Create an alarm policy",
   "ClusterModule.createNewNotiGroup": "Create a new notification group",
