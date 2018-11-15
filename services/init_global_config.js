@@ -46,6 +46,7 @@ global.globalConfig = {
   chartRepoConfig: {},
   aiopsConfig: {},
   loadbalanceConfig: {},
+  openstack: {},
 }
 
 const apiFactory = require('./api_factory.js')
@@ -84,12 +85,12 @@ exports.initGlobalConfig = function* () {
       globalConfig.mail_server.auth.user = configDetail.senderMail
       globalConfig.mail_server.auth.pass = configDetail.senderPassword
       globalConfig.mail_server.service_mail = configDetail.senderMail
-      ConfigArray.Mail='NotEmpty'
+      ConfigArray.Mail = 'NotEmpty'
       return
     }
     if (configType == 'harbor') { // Use harbor from v2.6.0
       globalConfig.registryConfig.url = configDetail.url
-      ConfigArray.Registry='NotEmpty'
+      ConfigArray.Registry = 'NotEmpty'
       return
     }
     // Use db settings if env is empty
@@ -122,13 +123,13 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
       logger.info('devops config: ', protocol + '://' + host)
-      ConfigArray.Cicd='NotEmpty'
+      ConfigArray.Cicd = 'NotEmpty'
       return
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
       globalConfig.storageConfig.push(item)
-      ConfigArray.Rbd='NotEmpty'
+      ConfigArray.Rbd = 'NotEmpty'
       return
     }
     // Use db settings if env is not set
@@ -178,17 +179,22 @@ exports.initGlobalConfig = function* () {
       globalConfig.loadbalanceConfig.configID = item.ConfigID
       return
     }
+    if (configType === 'openstack') {
+      globalConfig.openstack.config = configDetail
+      globalConfig.openstack.configID = item.ConfigID
+      return
+    }
   })
-  if (ConfigArray.Mail!=='NotEmpty'){
-      globalConfig.mail_server={
+  if (ConfigArray.Mail !== 'NotEmpty') {
+    globalConfig.mail_server = {
       auth: {}
     }
   }
-  if (ConfigArray.Registry!=='NotEmpty'){
-      globalConfig.registryConfig={}
+  if (ConfigArray.Registry !== 'NotEmpty') {
+    globalConfig.registryConfig = {}
   }
-  if (ConfigArray.Rbd!=='NotEmpty'){
-      globalConfig.storageConfig=[]
+  if (ConfigArray.Rbd !== 'NotEmpty') {
+    globalConfig.storageConfig = []
   }
   logger.info('api-server config: ', globalConfig.tenx_api.protocol + '://' + globalConfig.tenx_api.host)
   logger.info('registry config: ', globalConfig.registryConfig.url)

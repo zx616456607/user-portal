@@ -13,26 +13,31 @@
 const find = require('lodash/find')
 const common = require('./common')
 const wrapHandler = common.wrapHandler
-const openstackConfig = require('../../configs/3rd_account/openstack')
 const letterMap = 'abcdefghijklmnopqrstuvwxyz'
-const baseURl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.volumePort}/v3`
-const getServerRequestUrl = common.getRequestUrl(`${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.vmPort}`)
-const defaultSize = parseInt(openstackConfig.vm_storage_default_size)
+const baseURl = () => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.volumePort}/v3`
+}
+const getServerRequestUrl = (path) => {
+  let openstackConfig = globalConfig.openstack.config
+  return common.getRequestUrl(`${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.nova}${path}`)
+}
+const defaultSize = 1024
 
-exports.getVolumeTypes = wrapHandler(function*(send) {
-    const { openstack } = this.session.loginUser
-    const requestUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.volumePort}/v3/${openstack.withProject.currentProjectID}/types`
-    const result = yield send(requestUrl, {
-      data: this.query,
-      dataAsQueryString: true,
-      method: 'GET'
-    })
-    this.body = result
+exports.getVolumeTypes = wrapHandler(function* (send) {
+  const { openstack } = this.session.loginUser
+  const requestUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.volumePort}/v3/${openstack.withProject.currentProjectID}/types`
+  const result = yield send(requestUrl, {
+    data: this.query,
+    dataAsQueryString: true,
+    method: 'GET'
+  })
+  this.body = result
 })
 
 exports.getVolumes = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes/detail`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes/detail`
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -40,7 +45,7 @@ exports.getVolumes = wrapHandler(function* (send) {
   })
   const volumes = result.volumes
   let servers = yield send(getServerRequestUrl(`/v2/${openstack.withProject.currentProjectID}/servers/detail`))
-  if(servers.servers) {
+  if (servers.servers) {
     servers = servers.servers
   } else {
     servers = []
@@ -50,7 +55,7 @@ exports.getVolumes = wrapHandler(function* (send) {
       if (volume.attachments.length > 0) {
         volume.attachments.forEach(item => {
           const server = find(servers, (i) => i.id == item.server_id)
-          if(server) {
+          if (server) {
             item.server_name = server.name
             item.extend = server
           }
@@ -69,12 +74,12 @@ exports.createVolumes = wrapHandler(function* (send) {
     err.status = 401
     throw err
   }
-  if(body.size > defaultSize) {
+  if (body.size > defaultSize) {
     const err = new Error('The size must less than 1024')
     err.status = 401
     throw err
   }
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes`
   const result = yield send(requestUrl, {
     data: {
       volume: this.request.body
@@ -87,7 +92,7 @@ exports.createVolumes = wrapHandler(function* (send) {
 exports.updateVolumes = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const volumeID = this.params.volumeID
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes/${volumeID}`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes/${volumeID}`
   const result = yield send(requestUrl, {
     data: {
       volume: this.request.body
@@ -100,7 +105,7 @@ exports.updateVolumes = wrapHandler(function* (send) {
 exports.deleteVolumes = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const volumeID = this.params.volumeID
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes/${volumeID}` 
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes/${volumeID}`
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -113,7 +118,7 @@ exports.volumeAction = wrapHandler(function* (send) {
   const actions = ['resize', 'detach', 'attach']
   const action = this.params.action
   const volumeID = this.params.volumeID
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes/${volumeID}/action`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes/${volumeID}/action`
   const body = this.request.body
   if (actions.indexOf(action) < 0) {
     const err = new Error(`The action ${actions} is not support`)
@@ -126,7 +131,7 @@ exports.volumeAction = wrapHandler(function* (send) {
       err.status = 401
       throw err
     }
-    if(body.size > defaultSize) {
+    if (body.size > defaultSize) {
       const err = new Error('The size must less than 1024')
       err.status = 401
       throw err
@@ -143,7 +148,7 @@ exports.volumeAction = wrapHandler(function* (send) {
     return
   }
   if (action == 'attach') {
-    const attachUrl  = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.serverPort}/v2/servers/${body.instance_uuid}/os-volume_attachments`
+    const attachUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.serverPort}/v2/servers/${body.instance_uuid}/os-volume_attachments`
     if (!body.instance_uuid) {
       const err = new Error(`instance_uuid is require`)
       err.status = 400
@@ -180,7 +185,7 @@ exports.volumeAction = wrapHandler(function* (send) {
       err.status = 400
       throw err
     }
-    const attachUrl  = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.serverPort}/v2/servers/${body.instance_uuid}/os-volume_attachments/${volumeID}`
+    const attachUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.serverPort}/v2/servers/${body.instance_uuid}/os-volume_attachments/${volumeID}`
     const detachResult = yield send(attachUrl, {
       method: 'DELETE',
     })
@@ -192,7 +197,7 @@ exports.volumeAction = wrapHandler(function* (send) {
 
 exports.createVolumesSnapshot = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/snapshots`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/snapshots`
   const body = this.request.body
   const result = yield send(requestUrl, {
     method: 'POST',
@@ -210,14 +215,14 @@ exports.createVolumesSnapshot = wrapHandler(function* (send) {
 
 exports.getSnapshotList = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
-  let requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/snapshots/detail`
+  let requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/snapshots/detail`
   const result = yield send(requestUrl, {
     method: 'GET',
     data: this.query,
     dataAsQueryString: true
   })
   if (result.snapshots && result.snapshots.length > 0) {
-    requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/volumes/detail`
+    requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/volumes/detail`
     let volumes = yield send(requestUrl)
     volumes = volumes.volumes || []
     result.snapshots.forEach(item => {
@@ -230,7 +235,7 @@ exports.getSnapshotList = wrapHandler(function* (send) {
 exports.deleteSnapshot = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const snapshotID = this.params.snapshotID
-  const requestUrl = `${baseURl}/${openstack.withProject.currentProjectID}/snapshots/${snapshotID}`
+  const requestUrl = `${baseUrl()}/${openstack.withProject.currentProjectID}/snapshots/${snapshotID}`
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })

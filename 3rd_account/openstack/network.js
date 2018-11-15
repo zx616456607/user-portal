@@ -14,12 +14,18 @@ const find = require('lodash/find')
 const co = require('co')
 const common = require('./common')
 const wrapHandler = common.wrapHandler
-const openstackConfig = require('../../configs/3rd_account/openstack')
-const baseUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.networkPort}`
-const vmBaseUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.vmPort}`
+const baseUrl = () => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.neutron}`
+}
 
-exports.getNetworkList = wrapHandler(function*(send) {
-  let requestUrl = baseUrl+'/v2.0/networks'
+const vmBaseUrl = () => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.nova}`
+}
+
+exports.getNetworkList = wrapHandler(function* (send) {
+  let requestUrl = baseUrl + '/v2.0/networks'
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -27,14 +33,14 @@ exports.getNetworkList = wrapHandler(function*(send) {
   })
   let body = []
   const { openstack } = this.session.loginUser
-  if(result.networks && result.networks.length > 0) {
+  if (result.networks && result.networks.length > 0) {
     result.networks.forEach(item => {
-      if(item) {
-        if(item['provider:network_type']) {
-          if(item['provider:network_type'].indexOf('lan') < 0) return
+      if (item) {
+        if (item['provider:network_type']) {
+          if (item['provider:network_type'].indexOf('lan') < 0) return
         }
-        if(item.shared) return body.push(item)
-        if(item.tenant_id != openstack.withProject.currentProjectID) return
+        if (item.shared) return body.push(item)
+        if (item.tenant_id != openstack.withProject.currentProjectID) return
         body.push(item)
       }
     })
@@ -44,9 +50,9 @@ exports.getNetworkList = wrapHandler(function*(send) {
   }
 })
 
-exports.getNetworkDetail = wrapHandler(function*(send) {
+exports.getNetworkDetail = wrapHandler(function* (send) {
   const networkID = this.params.networkID
-  const requestUrl = baseUrl+'/v2.0/networks/'+networkID
+  const requestUrl = baseUrl() + '/v2.0/networks/' + networkID
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -55,9 +61,9 @@ exports.getNetworkDetail = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createNetwork = wrapHandler(function*(send) {
+exports.createNetwork = wrapHandler(function* (send) {
   const body = this.request.body
-  const requestUrl = baseUrl+'/v2.0/networks'
+  const requestUrl = baseUrl() + '/v2.0/networks'
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
@@ -66,9 +72,9 @@ exports.createNetwork = wrapHandler(function*(send) {
 })
 
 
-exports.deleteByNetwordID = wrapHandler(function*(send) {
+exports.deleteByNetwordID = wrapHandler(function* (send) {
   const networkID = this.params.networkID
-  const requestUrl = baseUrl+'/v2.0/networks/'+networkID
+  const requestUrl = baseUrl() + '/v2.0/networks/' + networkID
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -77,8 +83,8 @@ exports.deleteByNetwordID = wrapHandler(function*(send) {
 
 
 //ports
-exports.getPortsList = wrapHandler(function*(send) {
-  const requestUrl = baseUrl+'/v2.0/ports'
+exports.getPortsList = wrapHandler(function* (send) {
+  const requestUrl = baseUrl() + '/v2.0/ports'
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -86,9 +92,9 @@ exports.getPortsList = wrapHandler(function*(send) {
   })
   const body = []
   const { openstack } = this.session.loginUser
-  if(result.ports && result.ports.length > 0) {
+  if (result.ports && result.ports.length > 0) {
     result.ports.forEach(item => {
-      if(item.tenant_id != openstack.withProject.currentProjectID) return
+      if (item.tenant_id != openstack.withProject.currentProjectID) return
       body.push(item)
     })
   }
@@ -97,9 +103,9 @@ exports.getPortsList = wrapHandler(function*(send) {
   }
 })
 
-exports.getPortsDetail = wrapHandler(function*(send) {
+exports.getPortsDetail = wrapHandler(function* (send) {
   const portID = this.params.portID
-  const requestUrl = baseUrl+'/v2.0/ports/'+portID
+  const requestUrl = baseUrl() + '/v2.0/ports/' + portID
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -108,9 +114,9 @@ exports.getPortsDetail = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createPorts = wrapHandler(function*(send) {
+exports.createPorts = wrapHandler(function* (send) {
   const body = this.request.body
-  const requestUrl = baseUrl+'/v2.0/ports'
+  const requestUrl = baseUrl() + '/v2.0/ports'
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
@@ -118,10 +124,10 @@ exports.createPorts = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.putPorts = wrapHandler(function*(send) {
+exports.putPorts = wrapHandler(function* (send) {
   const body = this.request.body
   const portID = this.params.portID
-  const requestUrl = baseUrl+`/v2.0/ports/${portID}`
+  const requestUrl = baseUrl() + `/v2.0/ports/${portID}`
   const result = yield send(requestUrl, {
     data: body,
     method: 'PUT'
@@ -129,9 +135,9 @@ exports.putPorts = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.deleteByPortID = wrapHandler(function*(send) {
+exports.deleteByPortID = wrapHandler(function* (send) {
   const portID = this.params.portID
-  const requestUrl = baseUrl+'/v2.0/ports/'+portID
+  const requestUrl = baseUrl() + '/v2.0/ports/' + portID
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -139,8 +145,8 @@ exports.deleteByPortID = wrapHandler(function*(send) {
 })
 
 //subnet
-exports.getSubnetsList = wrapHandler(function*(send) {
-  const requestUrl = baseUrl+'/v2.0/subnets'
+exports.getSubnetsList = wrapHandler(function* (send) {
+  const requestUrl = baseUrl() + '/v2.0/subnets'
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -148,9 +154,9 @@ exports.getSubnetsList = wrapHandler(function*(send) {
   })
   const body = []
   const { openstack } = this.session.loginUser
-  if(result.subnets && result.subnets.length > 0) {
+  if (result.subnets && result.subnets.length > 0) {
     result.subnets.forEach(item => {
-      if(item.tenant_id != openstack.withProject.currentProjectID) return
+      if (item.tenant_id != openstack.withProject.currentProjectID) return
       body.push(item)
     })
   }
@@ -160,9 +166,9 @@ exports.getSubnetsList = wrapHandler(function*(send) {
   }
 })
 
-exports.getSubnetsDetail = wrapHandler(function*(send) {
+exports.getSubnetsDetail = wrapHandler(function* (send) {
   const subnetID = this.params.subnetID
-  const requestUrl = baseUrl+'/v2.0/subnets/'+subnetID
+  const requestUrl = baseUrl() + '/v2.0/subnets/' + subnetID
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -171,9 +177,9 @@ exports.getSubnetsDetail = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createSubnets = wrapHandler(function*(send) {
+exports.createSubnets = wrapHandler(function* (send) {
   const body = this.request.body
-  const requestUrl = baseUrl+'/v2.0/subnets'
+  const requestUrl = baseUrl() + '/v2.0/subnets'
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
@@ -181,10 +187,10 @@ exports.createSubnets = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.updateSubnets = wrapHandler(function*(send) {
+exports.updateSubnets = wrapHandler(function* (send) {
   const body = this.request.body
   const subnetID = this.params.subnetID
-  const requestUrl = baseUrl+`/v2.0/subnets/${subnetID}`
+  const requestUrl = baseUrl() + `/v2.0/subnets/${subnetID}`
   const result = yield send(requestUrl, {
     data: body,
     method: 'PUT'
@@ -193,9 +199,9 @@ exports.updateSubnets = wrapHandler(function*(send) {
 })
 
 
-exports.deleteBySubnetID = wrapHandler(function*(send) {
+exports.deleteBySubnetID = wrapHandler(function* (send) {
   const subnetID = this.params.subnetID
-  const requestUrl = baseUrl+'/v2.0/subnets/'+subnetID
+  const requestUrl = baseUrl() + '/v2.0/subnets/' + subnetID
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -203,30 +209,30 @@ exports.deleteBySubnetID = wrapHandler(function*(send) {
 })
 
 //floatingips
-exports.getFloatingipsList = wrapHandler(function*(send) {
-  const requestUrl = baseUrl+'/v2.0/floatingips'
+exports.getFloatingipsList = wrapHandler(function* (send) {
+  const requestUrl = baseUrl() + '/v2.0/floatingips'
   const { openstack } = this.session.loginUser
-  let vmUrl = vmBaseUrl +`/v2/${openstack.withProject.currentProjectID}/servers/detail`
+  let vmUrl = vmBaseUrl() + `/v2/${openstack.withProject.currentProjectID}/servers/detail`
   const currentProjectID = this.session.loginUser.openstack.withProject.currentProjectID
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
     method: 'GET'
   })
-  const options =  {
+  const options = {
     dataAsQueryString: true,
     method: 'GET'
   }
   const vmBody = yield send(vmUrl, options)
   const floatIPConsequence = []
   result.floatingips.forEach(item => {
-    if(item.tenant_id != currentProjectID) {
+    if (item.tenant_id != currentProjectID) {
       return
     }
     floatIPConsequence.push(item)
     vmBody.servers.every(list => {
-      for(let keys in list.addresses) {
-        if (list.addresses[keys].length >1 && list.addresses[keys][1].addr == item.floating_ip_address) {
+      for (let keys in list.addresses) {
+        if (list.addresses[keys].length > 1 && list.addresses[keys][1].addr == item.floating_ip_address) {
           item.instanceName = list.name
           item.instanceId = list.id
           item.type = 'vm'
@@ -245,9 +251,9 @@ exports.getFloatingipsList = wrapHandler(function*(send) {
   this.body = results
 })
 
-exports.getFloatingipsDetail = wrapHandler(function*(send) {
+exports.getFloatingipsDetail = wrapHandler(function* (send) {
   const floatingipID = this.params.floatingipID
-  const requestUrl = baseUrl+'/v2.0/floatingips/'+floatingipID
+  const requestUrl = baseUrl() + '/v2.0/floatingips/' + floatingipID
   const result = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
@@ -256,9 +262,9 @@ exports.getFloatingipsDetail = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.createFloatingips = wrapHandler(function*(send) {
+exports.createFloatingips = wrapHandler(function* (send) {
   const body = this.request.body
-  const requestUrl = baseUrl+'/v2.0/floatingips'
+  const requestUrl = baseUrl() + '/v2.0/floatingips'
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
@@ -267,9 +273,9 @@ exports.createFloatingips = wrapHandler(function*(send) {
 })
 
 
-exports.deleteByFloatingipID = wrapHandler(function*(send) {
+exports.deleteByFloatingipID = wrapHandler(function* (send) {
   const floatingipID = this.params.floatingipID
-  const requestUrl = baseUrl+'/v2.0/floatingips/'+floatingipID
+  const requestUrl = baseUrl() + '/v2.0/floatingips/' + floatingipID
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -279,11 +285,11 @@ exports.deleteByFloatingipID = wrapHandler(function*(send) {
 
 
 //bindFloatIps
-exports.ManageFloatingips = wrapHandler(function*(send) {
+exports.ManageFloatingips = wrapHandler(function* (send) {
   const { openstack } = this.session.loginUser
   const server_id = this.params.serverID
   const body = this.request.body
-  let requestUrl = vmBaseUrl + `/v2/${openstack.withProject.currentProjectID}/servers/${server_id}/action`
+  let requestUrl = vmBaseUrl() + `/v2/${openstack.withProject.currentProjectID}/servers/${server_id}/action`
   const result = yield send(requestUrl, {
     data: body,
     method: 'POST'
@@ -291,22 +297,22 @@ exports.ManageFloatingips = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getRoutersList = wrapHandler(function*(send) {
-  let requestUrl = baseUrl + `/v2.0/routers`
+exports.getRoutersList = wrapHandler(function* (send) {
+  let requestUrl = baseUrl() + `/v2.0/routers`
   const result = yield send(requestUrl, {
     method: 'GET'
   })
   const proOb = {}
   const body = []
-  if(result && result.routers) {
+  if (result && result.routers) {
     result.routers.forEach(item => {
-      if(item.tenant_id != this.session.loginUser.openstack.withProject.currentProjectID) {
+      if (item.tenant_id != this.session.loginUser.openstack.withProject.currentProjectID) {
         return
       }
-      if(item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
+      if (item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
         const id = item["external_gateway_info"]["network_id"]
-        proOb[id] = co(function*() {
-          const result =  yield send(baseUrl+'/v2.0/networks/'+id, {
+        proOb[id] = co(function* () {
+          const result = yield send(baseUrl() + '/v2.0/networks/' + id, {
             method: 'GET'
           })
           return result
@@ -316,7 +322,7 @@ exports.getRoutersList = wrapHandler(function*(send) {
     })
     let network = yield proOb
     body.forEach(item => {
-      if(item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
+      if (item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
         const id = item["external_gateway_info"]["network_id"]
         item.networkInfo = network[id].network
       }
@@ -330,17 +336,17 @@ exports.getRoutersList = wrapHandler(function*(send) {
 
 
 
-exports.getRouterDetail = wrapHandler(function*(send) {
+exports.getRouterDetail = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/` + id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'GET'
   })
   this.body = result
 })
 
-exports.createRouter = wrapHandler(function*(send) {
-  let requestUrl = baseUrl + `/v2.0/routers`
+exports.createRouter = wrapHandler(function* (send) {
+  let requestUrl = baseUrl() + `/v2.0/routers`
   const result = yield send(requestUrl, {
     method: 'POST',
     data: this.request.body
@@ -348,9 +354,9 @@ exports.createRouter = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.updateRouter = wrapHandler(function*(send) {
+exports.updateRouter = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/`+id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'PUT',
     data: this.request.body
@@ -358,14 +364,14 @@ exports.updateRouter = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.deleteRouter = wrapHandler(function*(send) {
+exports.deleteRouter = wrapHandler(function* (send) {
   let id = this.params.id
   id = id.split(',')
   const arr = []
 
   id.forEach(() => {
-    let requestUrl = baseUrl + `/v2.0/routers/`+id
-    arr.push(co(function*() {
+    let requestUrl = baseUrl() + `/v2.0/routers/` + id
+    arr.push(co(function* () {
       yield send(requestUrl, {
         method: 'DELETE',
       })
@@ -375,20 +381,20 @@ exports.deleteRouter = wrapHandler(function*(send) {
   this.body = {}
 })
 
-exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
-  let requestUrl = baseUrl + `/v2.0/subnets`
+exports.listOwnAndCanUseSubnet = wrapHandler(function* (send) {
+  let requestUrl = baseUrl() + `/v2.0/subnets`
   const result = yield send(requestUrl, {
     method: 'GET',
   })
   const subnets = result.subnets
   const proObj = {}
   subnets.forEach(item => {
-    proObj[item.network_id] = co(function*() {
-      let requestUrl = baseUrl + `/v2.0/networks/` + item.network_id
+    proObj[item.network_id] = co(function* () {
+      let requestUrl = baseUrl() + `/v2.0/networks/` + item.network_id
       const result = yield send(requestUrl, {
         method: "GET"
       })
-      if(result && result.network) {
+      if (result && result.network) {
         return result.network
       }
       return {}
@@ -401,18 +407,18 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
 
   const body = []
   subnets.forEach(item => {
-    if((item.tenant_id == this.session.loginUser.openstack.withProject.currentProjectID ) || (item.network.shared && item.network["provider:physical_network"] == "physnet2")) {
+    if ((item.tenant_id == this.session.loginUser.openstack.withProject.currentProjectID) || (item.network.shared && item.network["provider:physical_network"] == "physnet2")) {
       body.push(item)
     }
   })
 
-  let routerUrl = baseUrl + `/v2.0/routers`
+  let routerUrl = baseUrl() + `/v2.0/routers`
   const routers = yield send(routerUrl, {
     method: 'GET'
   })
   let r = []
-  if(routers && routers.routers) {
-    const portUrl = baseUrl+'/v2.0/ports'
+  if (routers && routers.routers) {
+    const portUrl = baseUrl() + '/v2.0/ports'
     const ports = yield send(portUrl, {
       method: 'GET'
     })
@@ -431,7 +437,7 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
       })
     }
     body.forEach(item => {
-      if(useed.indexOf(item.id) < 0) {
+      if (useed.indexOf(item.id) < 0) {
         r.push(item)
       }
     })
@@ -445,10 +451,10 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
 })
 
 
-exports.routerBindSubnet = wrapHandler(function*(send) {
+exports.routerBindSubnet = wrapHandler(function* (send) {
   const id = this.params.id
   const subnetID = this.params.subnet
-  const requestUrl = baseUrl  + `/v2.0/routers/${id}/add_router_interface`
+  const requestUrl = baseUrl() + `/v2.0/routers/${id}/add_router_interface`
   const result = yield send(requestUrl, {
     method: "PUT",
     data: {
@@ -459,10 +465,10 @@ exports.routerBindSubnet = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.routerRemoveSubnet = wrapHandler(function*(send) {
+exports.routerRemoveSubnet = wrapHandler(function* (send) {
   const id = this.params.id
   const subnetID = this.params.subnet
-  const requestUrl = baseUrl  + `/v2.0/routers/${id}/remove_router_interface`
+  const requestUrl = baseUrl() + `/v2.0/routers/${id}/remove_router_interface`
   const result = yield send(requestUrl, {
     method: "PUT",
     data: {
@@ -473,22 +479,22 @@ exports.routerRemoveSubnet = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getBindSubnet = wrapHandler(function*(send) {
+exports.getBindSubnet = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/` + id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'GET'
   })
 
-  if(result && result.router) {
-    const portUrl = baseUrl+'/v2.0/ports'
+  if (result && result.router) {
+    const portUrl = baseUrl() + '/v2.0/ports'
     const ports = yield send(portUrl, {
       method: 'GET'
     })
     let useed = []
     if (ports.ports) {
       ports.ports.forEach(item => {
-        if(item.device_id == result.router.id) {
+        if (item.device_id == result.router.id) {
           item.fixed_ips.forEach(i => {
             useed.push(i.subnet_id)
           })
@@ -497,15 +503,15 @@ exports.getBindSubnet = wrapHandler(function*(send) {
     }
     const proObj = {}
     useed.forEach(id => {
-      proObj[id] = send(baseUrl+'/v2.0/subnets/'+id, {
+      proObj[id] = send(baseUrl() + '/v2.0/subnets/' + id, {
         method: "GET"
       })
     })
     const subnets = yield proObj
-    result.router.subnet= []
-    if(subnets) {
+    result.router.subnet = []
+    if (subnets) {
       Object.getOwnPropertyNames(subnets).forEach(i => {
-        if(!subnets[i].subnet.enable_dhcp) {
+        if (!subnets[i].subnet.enable_dhcp) {
           return
         }
         result.router.subnet.push(subnets[i].subnet)
@@ -520,22 +526,22 @@ exports.getBindSubnet = wrapHandler(function*(send) {
 
 
 
-exports.getRoutersList = wrapHandler(function*(send) {
-  let requestUrl = baseUrl + `/v2.0/routers`
+exports.getRoutersList = wrapHandler(function* (send) {
+  let requestUrl = baseUrl() + `/v2.0/routers`
   const result = yield send(requestUrl, {
     method: 'GET'
   })
   const proOb = {}
   const body = []
-  if(result && result.routers) {
+  if (result && result.routers) {
     result.routers.forEach(item => {
-      if(item.tenant_id != this.session.loginUser.openstack.withProject.currentProjectID) {
+      if (item.tenant_id != this.session.loginUser.openstack.withProject.currentProjectID) {
         return
       }
-      if(item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
+      if (item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
         const id = item["external_gateway_info"]["network_id"]
-        proOb[id] = co(function*() {
-          const result =  yield send(baseUrl+'/v2.0/networks/'+id, {
+        proOb[id] = co(function* () {
+          const result = yield send(baseUrl() + '/v2.0/networks/' + id, {
             method: 'GET'
           })
           return result
@@ -545,7 +551,7 @@ exports.getRoutersList = wrapHandler(function*(send) {
     })
     let network = yield proOb
     body.forEach(item => {
-      if(item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
+      if (item["external_gateway_info"] && item["external_gateway_info"]["network_id"]) {
         const id = item["external_gateway_info"]["network_id"]
         item.networkInfo = network[id].network
       }
@@ -556,17 +562,17 @@ exports.getRoutersList = wrapHandler(function*(send) {
   }
 })
 
-exports.getRouterDetail = wrapHandler(function*(send) {
+exports.getRouterDetail = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/` + id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'GET'
   })
   this.body = result
 })
 
-exports.createRouter = wrapHandler(function*(send) {
-  let requestUrl = baseUrl + `/v2.0/routers`
+exports.createRouter = wrapHandler(function* (send) {
+  let requestUrl = baseUrl() + `/v2.0/routers`
   const result = yield send(requestUrl, {
     method: 'POST',
     data: this.request.body
@@ -574,9 +580,9 @@ exports.createRouter = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.updateRouter = wrapHandler(function*(send) {
+exports.updateRouter = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/`+id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'PUT',
     data: this.request.body
@@ -584,14 +590,14 @@ exports.updateRouter = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.deleteRouter = wrapHandler(function*(send) {
+exports.deleteRouter = wrapHandler(function* (send) {
   let id = this.params.id
   id = id.split(',')
   const arr = []
 
   id.forEach(item => {
-    let requestUrl = baseUrl + `/v2.0/routers/`+id
-    arr.push(co(function*() {
+    let requestUrl = baseUrl() + `/v2.0/routers/` + id
+    arr.push(co(function* () {
       yield send(requestUrl, {
         method: 'DELETE',
       })
@@ -601,21 +607,21 @@ exports.deleteRouter = wrapHandler(function*(send) {
   this.body = {}
 })
 
-exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
+exports.listOwnAndCanUseSubnet = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/subnets`
+  let requestUrl = baseUrl() + `/v2.0/subnets`
   const result = yield send(requestUrl, {
     method: 'GET',
   })
   const subnets = result.subnets
   const proObj = {}
   subnets.forEach(item => {
-    proObj[item.network_id] = co(function*() {
-      let requestUrl = baseUrl + `/v2.0/networks/` + item.network_id
+    proObj[item.network_id] = co(function* () {
+      let requestUrl = baseUrl() + `/v2.0/networks/` + item.network_id
       const result = yield send(requestUrl, {
         method: "GET"
       })
-      if(result && result.network) {
+      if (result && result.network) {
         return result.network
       }
       return {}
@@ -628,18 +634,18 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
 
   const body = []
   subnets.forEach(item => {
-    if((item.tenant_id == this.session.loginUser.openstack.currentProjectID ) || (item.network.shared && item.network["provider:physical_network"] == "physnet2")) {
+    if ((item.tenant_id == this.session.loginUser.openstack.currentProjectID) || (item.network.shared && item.network["provider:physical_network"] == "physnet2")) {
       body.push(item)
     }
   })
 
-  let routerUrl = baseUrl + `/v2.0/routers`
+  let routerUrl = baseUrl() + `/v2.0/routers`
   const routers = yield send(routerUrl, {
     method: 'GET'
   })
   let r = []
-  if(routers && routers.routers) {
-    const portUrl = baseUrl+'/v2.0/ports'
+  if (routers && routers.routers) {
+    const portUrl = baseUrl() + '/v2.0/ports'
     const ports = yield send(portUrl, {
       method: 'GET'
     })
@@ -658,7 +664,7 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
       })
     }
     body.forEach(item => {
-      if(useed.indexOf(item.id) < 0) {
+      if (useed.indexOf(item.id) < 0) {
         r.push(item)
       }
     })
@@ -672,10 +678,10 @@ exports.listOwnAndCanUseSubnet = wrapHandler(function*(send) {
 })
 
 
-exports.routerBindSubnet = wrapHandler(function*(send) {
+exports.routerBindSubnet = wrapHandler(function* (send) {
   const id = this.params.id
   const subnetID = this.params.subnet
-  const requestUrl = baseUrl  + `/v2.0/routers/${id}/add_router_interface`
+  const requestUrl = baseUrl() + `/v2.0/routers/${id}/add_router_interface`
   const result = yield send(requestUrl, {
     method: "PUT",
     data: {
@@ -686,10 +692,10 @@ exports.routerBindSubnet = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.routerRemoveSubnet = wrapHandler(function*(send) {
+exports.routerRemoveSubnet = wrapHandler(function* (send) {
   const id = this.params.id
   const subnetID = this.params.subnet
-  const requestUrl = baseUrl  + `/v2.0/routers/${id}/remove_router_interface`
+  const requestUrl = baseUrl() + `/v2.0/routers/${id}/remove_router_interface`
   const result = yield send(requestUrl, {
     method: "PUT",
     data: {
@@ -700,22 +706,22 @@ exports.routerRemoveSubnet = wrapHandler(function*(send) {
   this.body = result
 })
 
-exports.getBindSubnet = wrapHandler(function*(send) {
+exports.getBindSubnet = wrapHandler(function* (send) {
   const id = this.params.id
-  let requestUrl = baseUrl + `/v2.0/routers/` + id
+  let requestUrl = baseUrl() + `/v2.0/routers/` + id
   const result = yield send(requestUrl, {
     method: 'GET'
   })
 
-  if(result && result.router) {
-    const portUrl = baseUrl+'/v2.0/ports'
+  if (result && result.router) {
+    const portUrl = baseUrl() + '/v2.0/ports'
     const ports = yield send(portUrl, {
       method: 'GET'
     })
     let useed = []
     if (ports.ports) {
       ports.ports.forEach(item => {
-        if(item.device_id == result.router.id) {
+        if (item.device_id == result.router.id) {
           item.fixed_ips.forEach(i => {
             useed.push(i.subnet_id)
           })
@@ -724,15 +730,15 @@ exports.getBindSubnet = wrapHandler(function*(send) {
     }
     const proObj = {}
     useed.forEach(id => {
-      proObj[id] = send(baseUrl+'/v2.0/subnets/'+id, {
+      proObj[id] = send(baseUrl() + '/v2.0/subnets/' + id, {
         method: "GET"
       })
     })
     const subnets = yield proObj
-    result.router.subnet= []
-    if(subnets) {
+    result.router.subnet = []
+    if (subnets) {
       Object.getOwnPropertyNames(subnets).forEach(i => {
-        if(!subnets[i].subnet.enable_dhcp) {
+        if (!subnets[i].subnet.enable_dhcp) {
           return
         }
         result.router.subnet.push(subnets[i].subnet)

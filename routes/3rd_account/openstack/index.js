@@ -4,12 +4,13 @@ const networkController = require('../../../3rd_account/openstack/network')
 const volumeController = require('../../../3rd_account/openstack/volume')
 const middlewares = require('../../../services/middlewares')
 const redirect = require('../../../3rd_account/openstack/redirect')
+const validate = require('../../../3rd_account/openstack/validate')
 
 module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2/openstack'
   })
-  router.use(function *(next){
+  router.use(function* (next) {
     if (this.query['_']) delete this.query['_']
     yield next
   })
@@ -82,6 +83,6 @@ module.exports = function (Router) {
   router.post('/volumes/snapshots', volumeController.createVolumesSnapshot)
   router.get('/volumes/snapshots', volumeController.getSnapshotList)
   router.delete('/volumes/snapshots/:snapshotID', volumeController.deleteSnapshot)
-
+  router.post('/validate', validate.validateConfig)
   return router.routes()
 }

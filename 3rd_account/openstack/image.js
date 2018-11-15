@@ -12,14 +12,16 @@
 'use strict'
 
 const parse = require('co-busboy')
-const openstackConfig = require('../../configs/3rd_account/openstack')
 const common = require('./common')
 const wrapHandler = common.wrapHandler
-const imageUrl = `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.imagePort}`
+const imageUrl = () => {
+  let openstackConfig = globalConfig.openstack.config
+  return `${openstackConfig.protocol}://${openstackConfig.host}:${openstackConfig.glance}`
+}
 
 exports.uploadImage = wrapHandler(function* (send) {
   const requestBody = yield getFormData(this)
-  const requestUrl = `${imageUrl}/v2/images`
+  const requestUrl = `${imageUrl()}/v2/images`
   const createImageResult = yield send(requestUrl, requestBody.field)
   yield send(requestUrl + `/${createImageResult.imageID}/file`, {
     stream: file,
@@ -40,14 +42,14 @@ exports.getImageList = wrapHandler(function* (send) {
 
 exports.getImageDetail = wrapHandler(function* (send) {
   const imageID = this.params.imageID
-  const requestUrl = `${imageUrl}/v2/images` + `/${imageID}`
+  const requestUrl = `${imageUrl()}/v2/images` + `/${imageID}`
   const result = yield send(requestUrl)
   this.body = result
 })
 
 exports.deleteImage = wrapHandler(function* (send) {
   const imageID = this.params.imageID
-  const requestUrl = `${imageUrl}/v2/images` + `/${imageID}`
+  const requestUrl = `${imageUrl()}/v2/images` + `/${imageID}`
   const result = yield send(requestUrl, {
     method: 'DELETE'
   })
@@ -55,7 +57,7 @@ exports.deleteImage = wrapHandler(function* (send) {
 })
 
 function* getImageList(send, url, result) {
-  const requestUrl = `${imageUrl}`+ url
+  const requestUrl = `${imageUrl()}` + url
   const tmp = yield send(requestUrl, {
     data: this.query,
     dataAsQueryString: true,
