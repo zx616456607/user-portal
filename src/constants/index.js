@@ -125,6 +125,10 @@ export const BASE_IMAGE_TYPE = [
     text: '集成测试'
   },
   {
+    key: 5,
+    text: '依赖服务'
+  },
+  {
     key: 6,
     text: '人工审批'
   },
