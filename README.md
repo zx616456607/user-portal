@@ -35,6 +35,9 @@ WECHAT_SERVER_PASS | `undefined` | 微信 server basic 认证 password | *只适
 SESSION_MAX_AGE | `undefined` | 登录状态超时时间 | 单位：分
 LOG_LEVEL | `'INFO'` | 日志级别 |`'INFO'`, `'WARN'`, `'ERROR'`
 REQUEST_API_TIMEOUT | `60` | user-portal 请求 API 超时时间 | 单位：秒
+SERVICEMESH_API_PROTOCOL | `http` | servicemesh api protocol |
+SERVICEMESH_API_HOST | `192.168.1.59:65532` | servicemesh api host |
+
 **注：外网协议及端口用于 user-portal 浏览器直连 API**
 
 ### 全局变量说明
