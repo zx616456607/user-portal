@@ -750,6 +750,7 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/alerts/setting/batch-ignore', alertController.setIgnore)
   router.get('/cluster/:cluster/alerts/type/:type/setting/:name/instant', alertController.getTargetInstant)
   router.delete('/cluster/:cluster/alerts/rule', alertController.deleteRule)
+  router.get('/clusters/:cluster/alerts/logsalert/checkplugin',alertController.getLogAlertPluginStatus)
 
   // user defined labels
   router.get('/labels', labelController.getLabels)
