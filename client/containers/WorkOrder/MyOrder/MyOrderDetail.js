@@ -12,7 +12,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { formatDate } from '../../../../src/common/tools';
-import { Card, Icon, Button, Spin, Row, Col, Input } from 'antd'
+import { Card, Icon, Button, Spin, Row, Col, Input, Dropdown, Menu } from 'antd'
 import * as workOrderActions from '../../../actions/work_order'
 import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../../constants'
 import filter from 'lodash/filter'
@@ -21,6 +21,7 @@ import './style/MyOrderDetail.less'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import NotificationHandler from '../../../../src/components/Notification'
 import opts from '../classify'
+import DelModal from './DelModal'
 
 const notify = new NotificationHandler()
 let i = 0
@@ -35,6 +36,7 @@ class MyOrderDetail extends React.Component {
     relpayValue: '',
     msgLoading: false,
     wrongMsgs: [],
+    isShowDelModal: false,
   }
   componentDidMount() {
     this.loadWorkOrder()
@@ -44,11 +46,15 @@ class MyOrderDetail extends React.Component {
     }
     window.onresize = func
     func()
+    this.clear()
     timer = setInterval(() => {
       this.loadMessages()
     }, 30 * 1000)
   }
   componentWillUnMount = () => {
+    this.clear()
+  }
+  clear = () => {
     timer && clearInterval(timer)
   }
   scrollBottom = () => {
@@ -225,8 +231,25 @@ class MyOrderDetail extends React.Component {
       return ele
     })
   }
+  deleteOrder = () => {
+    const { deleteWorkOrder } = this.props
+    const { id } = this.state
+    deleteWorkOrder(id, {
+      success: {
+        func: res => {
+          if (res.result.statusCode === 200) {
+            notify.success('工单删除成功')
+            browserHistory.push({
+              pathname: '/work-order/my-order',
+            })
+          }
+        },
+        isAsync: true,
+      },
+    })
+  }
   render() {
-    const { loading, details, messages, relpayValue } = this.state
+    const { loading, details, messages, relpayValue, isShowDelModal } = this.state
     const { user } = this.props
     const isAdmin = user.role === ROLE_SYS_ADMIN ||
       user.role === ROLE_PLATFORM_ADMIN ||
@@ -244,7 +267,19 @@ class MyOrderDetail extends React.Component {
             :
             <div>
               <span className="resoved">已解决</span>
-              {!isAdmin && isAuthor && <Button type="ghost" size="large" onClick={() => this.onResoveClick(0)}>重新打开</Button>}
+              {!isAdmin && isAuthor &&
+
+                <Dropdown.Button type="ghost" size="large" onClick={() => this.onResoveClick(0)} overlay={
+                  <Menu onClick={() => {
+                    this.setState({
+                      isShowDelModal: true,
+                    })
+                  }}>
+                    <Menu.Item key="1">删除</Menu.Item>
+                  </Menu>
+                }>
+                  重新打开
+                </Dropdown.Button>}
             </div>
         }</div>}
       </div>
@@ -290,8 +325,10 @@ class MyOrderDetail extends React.Component {
             <div className="replayContainer">
               <Row>
                 <Col className="other" span={2}>回复</Col>
-                <Col span={20}>
-                  <Input disabled={details.status === 1} rows={1} type="textarea" value={relpayValue} onChange={this.onReplayInputChange} />
+                <Col className="textarea" span={20}>
+                  <Input
+                    autosize={{ minRows: 1, maxRows: 6 }}
+                    disabled={details.status === 1} rows={1} type="textarea" value={relpayValue} onChange={this.onReplayInputChange} />
                 </Col>
                 <Col className="replay" span={2}>
                   <div onClick={this.onSendMessage}>
@@ -302,6 +339,26 @@ class MyOrderDetail extends React.Component {
             </div>
           </Card>
         </div>
+        {
+          isShowDelModal ?
+            <DelModal
+              visible={isShowDelModal}
+              current={details}
+              onOk={() => {
+                this.setState({
+                  isShowDelModal: false,
+                })
+                this.returnBack()
+              }}
+              onCancel={
+                () => this.setState({
+                  isShowDelModal: true,
+                })
+              }
+            />
+            :
+            null
+        }
       </Spin>
     )
   }
@@ -319,4 +376,5 @@ export default connect(mapStateToProps, {
   getMyOrderMessages: workOrderActions.getMyOrderMessages,
   addMyOrderMessages: workOrderActions.addMyOrderMessages,
   changeMyOrderStatus: workOrderActions.changeMyOrderStatus,
+  deleteWorkOrder: workOrderActions.deleteWorkOrder,
 })(MyOrderDetail)
