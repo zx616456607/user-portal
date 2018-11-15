@@ -224,9 +224,9 @@ class Integration extends Component {
     const { formatMessage } = this.props.intl;
     const { isFetching, integrations } = this.props;
     const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
-    const temp = typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail
+    const temp = config && (typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail)
     const isLinkBlank = !!temp && temp.type === 1
-    const isNeedSetting = config.configDetail === '{}'
+    const isNeedSetting = config && config.configDetail === '{}'
     const scope = this;
     if (isFetching || !Boolean(integrations)) {
       return (
