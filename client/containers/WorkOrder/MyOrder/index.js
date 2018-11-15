@@ -18,6 +18,7 @@ import { ROLE_SYS_ADMIN, ROLE_PLATFORM_ADMIN, ROLE_BASE_ADMIN } from '../../../.
 import Ellipsis from '@tenx-ui/ellipsis/lib/index'
 import '@tenx-ui/ellipsis/assets/index.css'
 import './style/index.less'
+import DelModal from './DelModal'
 import opts from '../classify'
 
 const arr = [].concat([
@@ -33,6 +34,8 @@ class MyOrder extends React.Component {
     tableLoading: false,
     listData: [],
     total: 0,
+    isShowDeleteModal: false,
+    current: {},
   }
   componentDidMount() {
     this.loadData()
@@ -94,12 +97,12 @@ class MyOrder extends React.Component {
     const isResoved = record.status === 1
     return <div className={'orderItem' + (isResoved ? ' isResoved' : '')}>
       <Row className="common">
-        <Col span={1} className="left">
+        <Col span={1} className="left isOpacity">
           {
             isResoved && <Icon type="check-circle" />
           }
         </Col>
-        <Col span={21} className="right">
+        <Col span={19} className="right isOpacity">
           <Row>
             <Col span={10}>回复人: {record.replierName || '-'}</Col>
             <Col span={10}>
@@ -107,7 +110,8 @@ class MyOrder extends React.Component {
                 工单名称: {record.workorderName}
               </Ellipsis>
             </Col>
-            <Col className="textRight" span={4}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
+            <Col className="textRight" span={3}>{moment.duration(moment() - moment(record.createTime)).humanize()}前</Col>
+            <Col span={1}></Col>
           </Row>
           <Row className="line2">
             <Col span={20}>
@@ -115,10 +119,22 @@ class MyOrder extends React.Component {
                 {record.replierContents || record.contents || '-'}
               </Ellipsis>
             </Col>
-            <Col className="textRight" span={4} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
+            <Col className="textRight" span={3} ><span className="replayCount">{record.replierTotal || 0}</span></Col>
+            <Col span={1}></Col>
           </Row>
         </Col>
         <Col span={2} className="iconRight">
+          {
+            isResoved && <a onClick={e => {
+              e.stopPropagation()
+              this.setState({
+                isShowDeleteModal: true,
+                current: record,
+              })
+            }}><Icon type="delete" /> 删除</a>
+          }
+        </Col>
+        <Col span={2} className="iconRight isOpacity">
           <Icon type="right" />
         </Col>
       </Row>
@@ -147,8 +163,8 @@ class MyOrder extends React.Component {
       render: (text, record) => this.renderItem(record),
     }]
     const { user } = this.props
-    const { listData, total, selectValue, pageSize,
-      currentPage, tableLoading } = this.state
+    const { listData, total, selectValue, pageSize, current,
+      currentPage, tableLoading, isShowDeleteModal } = this.state
     const isAdmin = user.role === ROLE_SYS_ADMIN ||
       user.role === ROLE_PLATFORM_ADMIN ||
       user.role === ROLE_BASE_ADMIN
@@ -201,20 +217,29 @@ class MyOrder extends React.Component {
             loading={tableLoading}
           />
         </div>
-        {/* {
-          isShowRemoveModal ?
-            <RemoveModal
-              visible={isShowRemoveModal}
-              current={currentRecord}
-              onOk={this.onRemoveOk}
-              onCancel={() => this.setState({
-                isShowRemoveModal: false,
-                currentRecord: {},
-              })}
+        {
+          isShowDeleteModal ?
+            <DelModal
+              visible={isShowDeleteModal}
+              current={current}
+              onOk={() => {
+                this.loadData()
+                this.setState({
+                  isShowDeleteModal: false,
+                  current: {},
+                })
+              }}
+              onCancel={
+                () => this.setState({
+                  isShowDeleteModal: false,
+                  current: {},
+                })
+              }
             />
+
             :
             null
-        } */}
+        }
       </div>
     )
   }

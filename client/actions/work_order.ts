@@ -250,3 +250,28 @@ const fetchChangeOrderStatus = (id, body, callback) => {
 
 export const changeMyOrderStatus = (id?: string, body?: object, callback?: function) =>
   dispatch => dispatch(fetchChangeOrderStatus(id, body, callback));
+
+export const DELETE_MY_ORDER_REQUEST = 'DELETE_MY_ORDER_REQUEST'
+export const DELETE_MY_ORDER_SUCCESS = 'DELETE_MY_ORDER_SUCCESS'
+export const DELETE_MY_ORDER_FAILURE = 'DELETE_MY_ORDER_FAILURE'
+
+const fetchDeleteWorkOrder = (id, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        DELETE_MY_ORDER_REQUEST,
+        DELETE_MY_ORDER_SUCCESS,
+        DELETE_MY_ORDER_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/workorders/my-order/${id}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      },
+    },
+    callback,
+  };
+};
+
+export const deleteWorkOrder = (id?: string, callback?: function) =>
+  dispatch => dispatch(fetchDeleteWorkOrder(id, callback));
