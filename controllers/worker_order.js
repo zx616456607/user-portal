@@ -104,3 +104,14 @@ exports.changeWorkOrderStatus = function* () {
   const result = yield api.workorders.updateBy([ id ], null, body)
   this.body = result
 }
+
+exports.delWorkOrder = function *() {
+  const id = this.params.id
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.workorders.deleteBy([ id ])
+  this.body = {
+    result
+  }
+}

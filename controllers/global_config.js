@@ -339,7 +339,6 @@ exports.getGlobalConfig = function* () {
   const cluster = this.params.cluster
   const spi = apiFactory.getTenxSysSignSpi()
   const response = yield spi.configs.get()
-  console.log('response', response)
   let cicdConfigFound = false
   let apiConfigFound = false
   if (response && response.data) {
@@ -436,5 +435,11 @@ exports.validateMsgConfig = function* () {
   const body = this.request.body
   const api = apiFactory.getApi(this.session.loginUser)
   const response = yield api.configs.createBy(['message', 'isvalidconfig'], null, body)
+  this.body = response
+}
+exports.validateOpenstack = function* () {
+  const body = this.request.body
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.openstack.createBy([ 'validate' ], null, body)
   this.body = response
 }

@@ -22,7 +22,7 @@ import CreateVSphereModal from './CreateVSphereModal'
 import OpenstackSetting from './OpenstackSetting'
 import vmwareImg from '../../assets/img/appstore/vmware.svg'
 import cephImg from '../../assets/img/appstore/ceph.svg'
-import openstackImg from '../../assets/img/appstore/easystack.png'
+import openstackImg from '../../assets/img/appstore/easystack.svg'
 import TerraformImg from '../../assets/img/appstore/terraform.svg'
 import Title from '../Title'
 import Ceph from './Ceph'
@@ -224,7 +224,7 @@ class Integration extends Component {
     const { formatMessage } = this.props.intl;
     const { isFetching, integrations } = this.props;
     const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
-    const temp = config.configDetail
+    const temp = typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail
     const isLinkBlank = !!temp && temp.type === 1
     const isNeedSetting = config.configDetail === '{}'
     const scope = this;
@@ -273,14 +273,14 @@ class Integration extends Component {
                   {
                     standardFlag ?
                       <Button className='installedBtn' size='large' type={standardFlag ? 'primary' : ''} disabled={standardFlag}
-                        style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                        style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                         <span>敬请期待</span>
                       </Button>
                       :
                       [
                         <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => this.ShowDetailInfo(item.id, true))} />,
                         <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
-                          style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                          style={{ width: '90px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                           <FormattedMessage {...menusText.showAppDetail} />
                         </Button>]
                     }
@@ -327,10 +327,10 @@ class Integration extends Component {
                         <div className='middleBox'>
                           <div className='appInfo'>
                             <p>
-                              Ceph存储总览应用
+                              Ceph存储总览
                                 <Icon className="setting" type="setting" onClick={() => this.showSetting('ceph', this.cephCallback)} />
                                 <Button className='unintsallBtn' onClick={() => this.setState({ showType: 'Ceph' })} key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }}>
+                                  style={{ width: '90px' }}>
                                 <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
                             </p>
@@ -369,7 +369,7 @@ class Integration extends Component {
                                 <Icon className="setting" type="setting" onClick={() => this.showSetting('openstack')} />
                                 {
                                   isLinkBlank ?
-                                    <a disabled={isNeedSetting} href="/api/v2/openstack" target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}>
+                                    <a disabled={isNeedSetting} href="/api/v2/openstack" target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '90px' }}>
                                       <FormattedMessage {...menusText.showAppDetail} />
                                     </a>
                                     :
@@ -377,7 +377,7 @@ class Integration extends Component {
                                       browserHistory.push({
                                         pathname: '/OpenStack/host',
                                       })
-                                    }} target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '102px' }}>
+                                    }} target="_blank" className="ant-btn ant-btn-primary ant-btn-lg unintsallBtn" key='unintsallBtn' style={{ width: '90px' }}>
                                       <FormattedMessage {...menusText.showAppDetail} />
                                     </a>
                                 }
@@ -417,7 +417,7 @@ class Integration extends Component {
                                 <Button className='unintsallBtn'
                                   disabled={true}
                                   onClick={() => browserHistory.push('/OpenStack')} key='unintsallBtn' size='large' type=''
-                                style={{ width: '102px' }}>
+                                style={{ width: '90px' }}>
                                 敬请期待
                               </Button>
                             </p>

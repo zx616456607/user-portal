@@ -1005,6 +1005,7 @@ module.exports = function (Router) {
   router.del('/workorders/announcements/:id', workerOrderController.deleteAnnouncement)
   router.get('/workorders/my-order', workerOrderController.getWorkOrderList)
   router.get('/workorders/my-order/:id', workerOrderController.getWorkOrderDetails)
+  router.del('/workorders/my-order/:id', workerOrderController.delWorkOrder)
   router.get('/workorders/my-order/:id/messages', workerOrderController.getWorkOrderMessages)
   router.post('/workorders/my-order/:id/messages', workerOrderController.addWorkOrderMessages)
   router.post('/workorders', workerOrderController.createWorkOrder)
