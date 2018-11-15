@@ -859,10 +859,13 @@ let ConfigureService = React.createClass({
           {...{location}}
           key="normal"
         />
-        <SecurityGroup
-          form={form}
-          formItemLayout={formItemLayout}
-        />
+        {
+          !isTemplate &&
+          <SecurityGroup
+            form={form}
+            formItemLayout={formItemLayout}
+          />
+        }
         <AssistSetting
           form={form}
           formItemLayout={formItemLayout}
