@@ -628,7 +628,7 @@ class ShareMemory extends Component {
                       modalStorageType === 'nfs' ?
                       nfsList.map(nfs =>{
                         return <Option key={nfs.metadata.name}>
-                          {nfs.metadata.annotations['tenxcloud.com/scName'] || nfs.metadata.name}
+                          {nfs.metadata.annotations['system/scName'] || nfs.metadata.name}
                         </Option>
 
                         }
@@ -636,7 +636,7 @@ class ShareMemory extends Component {
                       :
                       gfsList.map(gfs =>
                         <Option key={gfs.metadata.name}>
-                          {(!!gfs.metadata.annotations && gfs.metadata.annotations['tenxcloud.com/scName']) || gfs.metadata.name}
+                          {(!!gfs.metadata.annotations && gfs.metadata.annotations['system/scName']) || gfs.metadata.name}
                         </Option>
                       )
                     }

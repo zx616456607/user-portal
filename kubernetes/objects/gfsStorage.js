@@ -16,7 +16,7 @@ class GfsStorage {
     this.metadata = {
       name: gname,
       annotations:{
-        ["tenxcloud.com/scName"]: name // 对应原型中的【集群名称】
+        ["system/scName"]: name // 对应原型中的【集群名称】
       }
     }
     this.provisioner = 'kubernetes.io/glusterfs'

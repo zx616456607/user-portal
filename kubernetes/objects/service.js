@@ -10,8 +10,8 @@
 'use strict'
 const constants = require('../../constants')
 
-const TENXCLOUD_PREFIX = 'tenxcloud.com/'
-const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+const TENXCLOUD_PREFIX = 'system/'
+const TENX_SCHEMA_PORTNAME = 'system/schemaPortname'
 const TENX_SCHEMA_LBGROUP= 'system/lbgroup'
 
 class Service {

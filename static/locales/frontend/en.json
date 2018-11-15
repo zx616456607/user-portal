@@ -3146,7 +3146,7 @@
   "ServiceConfig.throughXForwardedFor": "Obtained through the X-Forwarded-For header field",
   "ServiceConfig.lbEnabled": "Load balancing listening protocol is enabled",
   "ServiceConfig.throughXForwardedProto": "Obtained through the X-Forwarded-Proto header field",
-  "ServiceConfig.serviceLocationPlaceholder": "Please enter a service location, for example:www.tenxcloud.com/www/index.html",
+  "ServiceConfig.serviceLocationPlaceholder": "Please enter a service location, for example:www.example.com/www/index.html",
   "ServiceConfig.accessPathPlaceholder": "Please enter the access path, starting with /",
   "ServiceConfig.containerPortSingleSlt": "Container port does not support multiple selection",
   "ServiceConfig.monitorPortIsRequired": "The listening port cannot be empty",
