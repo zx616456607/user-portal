@@ -94,7 +94,9 @@ class CreateTomcat extends React.Component {
     validateFields([ 'tomcat_id' ], (err, values) => {
       if (err) return
       notification.destroy()
-      notification.success('设置成功')
+      notification.success({
+        message: '设置成功'
+      })
       console.log('tomcat_id', values)
     })
   }
