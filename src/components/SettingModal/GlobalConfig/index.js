@@ -2367,6 +2367,9 @@ class GlobalConfig extends Component {
       globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
   }
+  componentWillUnmount() {
+    this.props.loadLoginUserDetail()
+  }
   emailChange() {
     this.setState({ emailDisable: !this.state.emailDisable })
   }
