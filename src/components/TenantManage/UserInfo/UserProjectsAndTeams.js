@@ -77,7 +77,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadProjectsData() {
     const { loadUserProjects, ListProjects, userId, loginUser } = this.props
-    loadUserProjects(userId, { size: 0 }, {
+    loadUserProjects(userId, { teamspace: '' }, { size: 0 }, {
       success: {
         func: res => {
           const projectTargetKeys = []
