@@ -813,6 +813,6 @@ const fetchLogAlertPluginStatus = (cluster, callback) => {
 
 export const getLogAlertPluginStatus = (cluster, callback) => {
   return dispatch => {
-    dispatch (fetchLogAlertPluginStatus(cluster, callback))
+    return dispatch (fetchLogAlertPluginStatus(cluster, callback))
   }
 }

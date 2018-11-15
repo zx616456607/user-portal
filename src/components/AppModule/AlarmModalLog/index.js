@@ -1014,18 +1014,14 @@ class AlarmModal extends Component {
         return
       }
       const notification = new NotificationHandler()
-      await getLogAlertPluginStatus(cluster, {
+      const statusRes = await getLogAlertPluginStatus(cluster, {
         failed: {
-          func: (err) => {
-            const { statusCode } = err
-            if (statusCode === 404) {
-              return notification.warn('日志告警组件未安装', '请联系管理员检查组件相关服务')
-            } else {
-              return notification.warn('获取日志告警组件安装状态失败')
-            }
-          }
+          func: () => {}
         }
       })
+      if (statusRes.error && statusRes.error.statusCode === 404) {
+        return notification.warn('日志告警组件未安装', '请联系管理员检查组件相关服务')
+      }
       const specs = []
       const keyCount = this.state.keyCount
       Array.isArray(keyCount) && keyCount.forEach(item => {
