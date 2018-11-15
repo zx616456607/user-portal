@@ -577,3 +577,12 @@ function switchType(item) {
       return
   }
 }
+
+// 未安装插件 --> 404
+exports.getLogAlertPluginStatus = function* () {
+  const user = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.getBy([cluster, 'alerts', 'logsalert', 'checkplugin' ])
+  this.body = response
+}

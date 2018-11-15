@@ -39,7 +39,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
 import classNames from 'classnames'
 import TenxTab from './component/TenxTab'
-import { getSettingRegularList } from '../../actions/alert'
+import { getSettingRegularList, getLogAlertPluginStatus } from '../../actions/alert'
 
 const Option = Select.Option
 
@@ -55,6 +55,22 @@ let MyComponent = React.createClass({
       search: '',
       preItem: {},
     }
+  },
+  componentDidMount() {
+    const { getLogAlertPluginStatus, clusterID } = this.props
+    const notify = new NotificationHandler()
+    getLogAlertPluginStatus(clusterID, {
+      failed: {
+        func: (err) => {
+          const { statusCode } = err
+          if (statusCode === 404) {
+            notify.warn('日志告警组件未安装', '请联系管理员检查组件相关服务')
+          } else {
+            notify.warn('获取日志告警组件安装状态失败')
+          }
+        }
+      }
+    })
   },
   componentWillReceiveProps(nextProps) {
     const nextData = nextProps.data
@@ -1143,7 +1159,14 @@ class AlarmSetting extends Component {
             :null
           } */}
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
+          <MyComponent
+            data={this.props.setting}
+            scope={this}
+            funcs={{ deleteRecords: this.props.deleteRecords }}
+            needUpdate={this.state.needUpdate}
+            clusterID={this.props.clusterID}
+            getLogAlertPluginStatus={this.props.getLogAlertPluginStatus}
+          />
           <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={() => this.setState({ alarmModal: false, step: 1 })}
@@ -1234,5 +1257,6 @@ export default connect(mapStateToProps, {
   batchEnable: batchToggleRegular,
   batchDisable: batchToggleRegular,
   ignoreSetting,
-  getSettingRegularList
+  getSettingRegularList,
+  getLogAlertPluginStatus,
 })(AlarmSetting)

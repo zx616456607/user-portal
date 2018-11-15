@@ -15,7 +15,8 @@ import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting, addAlertRegularSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence, getAlertLogSettingExistence } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, addAlertRegularSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence,
+  getAlertLogSettingExistence, getLogAlertPluginStatus } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../components/Notification'
 import startsWith from 'lodash/startsWith'
@@ -1006,11 +1007,25 @@ class AlarmModal extends Component {
     }
   }
   submitRule() {
-    const { form, getSettingList, pathname, activeCluster,notifyGroup, currentApiServer } = this.props;
-    form.validateFields((error, values) => {
+    const { form, getSettingList, pathname, activeCluster,notifyGroup, currentApiServer,
+      getLogAlertPluginStatus, cluster  } = this.props;
+    form.validateFields(async (error, values) => {
       if (!!error) {
         return
       }
+      const notification = new NotificationHandler()
+      await getLogAlertPluginStatus(cluster, {
+        failed: {
+          func: (err) => {
+            const { statusCode } = err
+            if (statusCode === 404) {
+              return notification.warn('日志告警组件未安装', '请联系管理员检查组件相关服务')
+            } else {
+              return notification.warn('获取日志告警组件安装状态失败')
+            }
+          }
+        }
+      })
       const specs = []
       const keyCount = this.state.keyCount
       Array.isArray(keyCount) && keyCount.forEach(item => {
@@ -1045,7 +1060,6 @@ class AlarmModal extends Component {
       const strategyName = this.state.name
       const repeatInterval = parseInt(this.state.interval) / 60
       const cluster = this.props.cluster
-      const notification = new NotificationHandler()
       const { isEdit, strategy, setting } = this.props
       // let requestBody = {
       //   targetType,
@@ -1363,6 +1377,7 @@ AlarmModal = connect(alarmModalMapStateToProp, {
   addAlertSetting: addAlertRegularSetting,
   updateAlertSetting: addAlertRegularSetting,
   getAlertSetting,
+  getLogAlertPluginStatus,
 })(Form.create()(AlarmModal))
 
 
