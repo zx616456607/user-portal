@@ -44,9 +44,17 @@ exports.getContainers = function* () {
   }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'instances'], queryObj, { headers })
+  // 获取Pod的istio状态
+  const projectApi = apiFactory.getMeshApi(loginUser)
+  const res = yield projectApi.servicemesh.getBy(['clusters', cluster, 'paas', 'pods'])
+  const { pods: istioPod } = res || {}
+  const istioFlag = Object.entries(istioPod)
+  .map(([key, value = {} ]) => ({ name: key,value: value.istioOn }))
   const pods = result.data.instances || []
   pods.map((pod) => {
+    let istioPodflag = (istioFlag.filter(({ name }) => name === pod.metadata.name) || [{}] )[0].value
     pod.images = []
+    pod.istioOn = istioPodflag
     pod.spec.containers.map((container) => {
       pod.images.push(container.image)
     })
