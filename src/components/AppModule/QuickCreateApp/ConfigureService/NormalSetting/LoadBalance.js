@@ -82,6 +82,9 @@ class LoadBalance extends React.Component {
     const { getFieldValue, setFieldsValue } = form
     const originalAgentType = getFieldValue('originalAgentType')
     if (!originalAgentType) { // 用于编辑模板和部署模板
+      setFieldsValue({
+        loadBalance: '',
+      })
       return
     }
     if (isEmpty(loadBalanceList)) {
