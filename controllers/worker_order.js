@@ -54,7 +54,7 @@ exports.getWorkOrderList = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const query = this.query
-  query.filter = decodeURIComponent(query.filter)
+  query.filter = query.filter ? decodeURIComponent(query.filter) : ''
   this.body = yield api.workorders.getBy([], query)
 }
 
