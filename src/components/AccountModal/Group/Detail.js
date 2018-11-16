@@ -15,13 +15,36 @@ import BindRule from './BindRule'
 import Notice from './Notice'
 import './style/Detail.less'
 import noticeImg from '../../../assets/img/account/notice.png'
+import { connect } from 'react-redux'
+import { loadNotifyGroups } from '../../../actions/alert'
+import { formatDate } from '../../../common/tools'
 
 const TabPane = Tabs.TabPane
 
-export default class GroupDetail extends React.Component {
+class GroupDetail extends React.Component {
+  state = {
+    data: {
+      receivers:{}
+    }
+  }
+
+  componentWillMount() {
+    const { cluster, location } = this.props
+    const { query } = location
+    this.props.loadNotifyGroups({id: query.id}, cluster.clusterID, {
+      success: {
+        func: (res) => {
+          if (res.data.length) {
+            this.setState({data: res.data[0]})
+          }
+        }
+      }
+    })
+  }
 
   render() {
     const { params } = this.props
+    const { data } = this.state
     return (
       <div id="groupDetail">
         <div className="detailTop">
@@ -36,26 +59,26 @@ export default class GroupDetail extends React.Component {
                 <img src={noticeImg} />
               </Col>
               <Col span={7}>
-                <div className="rowTitle">邮箱：3个</div>
+                <div className="rowTitle">邮箱：{data.receivers.email && data.receivers.email.length} 个</div>
                 <div>
-                  创建时间：2018-07-09：15：56：34
+                  创建时间：{formatDate(data.createTime)}
                 </div>
               </Col>
               <Col span={7}>
-                <div className="rowTitle">手机：2个</div>
-                <div>描述：我是一个test</div>
+                <div className="rowTitle">手机：{data.receivers.tel && data.receivers.tel.length} 个</div>
+                <div>描述：{data.desc}</div>
               </Col>
-              <Col span={7}>钉钉：1个</Col>
+              <Col span={7}>钉钉：0 个</Col>
             </Row>
           </Card>
           <div className="br"></div>
           <Card>
             <Tabs defaultActiveKey="1">
               <TabPane key="1" tab="已绑定策略">
-                <BindRule />
+                <BindRule strategies={data.strategies || []} autoStrategies={data.autoScaleStrategies || []}/>
               </TabPane>
               <TabPane key='2' tab="通知方式">
-                <Notice />
+                <Notice receivers={data.receivers} />
               </TabPane>
             </Tabs>
           </Card>
@@ -66,3 +89,17 @@ export default class GroupDetail extends React.Component {
   }
 
 }
+
+function mapStatetoProps(state) {
+
+  const { current } = state.entities
+  const { cluster } = current
+  return {
+    cluster
+  }
+
+}
+
+export default connect(mapStatetoProps,{
+  loadNotifyGroups
+})(GroupDetail)

@@ -75,8 +75,9 @@ exports.listNotifyGroups = function* () {
   let query = {
     name: '',
   }
-  if (this.query && this.query.name) {
+  if (this.query) {
     query.name = this.query.name
+    query.id = this.query.id
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)

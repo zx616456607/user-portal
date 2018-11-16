@@ -14,34 +14,33 @@ import { Table } from 'antd'
 export default class Notice extends React.Component {
 
   render () {
+    const { receivers } = this.props
     const columns = [{
       title: '联系方式',
-      dataIndex: 'name',
-      width: 150,
+      dataIndex: 'addr',
+      width: 300,
     }, {
       title: '备注',
-      dataIndex: 'notice',
+      dataIndex: 'desc',
+    }];
+    const telColumns = [{
+      title: '联系方式',
+      dataIndex: 'number',
+      width: 300,
+    }, {
+      title: '备注',
+      dataIndex: 'desc',
     }];
 
-    const data = [];
-    for (let i = 0; i < 5; i++) {
-      data.push({
-        key: i,
-        name: `李大嘴${i}`,
-        notice: `西湖区湖底公园${i}号`,
-      });
-    }
     return (
       <div className="Notice">
         <div className="titleName">邮箱</div>
         <div className="notice-body">
-          <Table size="small" columns={columns} dataSource={data} pagination={false} />
+          <Table size="small" columns={columns} dataSource={receivers.email || []} pagination={false} />
         </div>
-        <div className="br"></div>
-        <div className="br"></div>
         <div className="titleName">手机号</div>
         <div className="notice-body">
-          <Table size="small" columns={columns} dataSource={data} pagination={false} />
+          <Table size="small" columns={telColumns} dataSource={receivers.tel || []} pagination={false} />
         </div>
         <div className="br"></div>
       </div>
