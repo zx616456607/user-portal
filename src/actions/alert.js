@@ -790,3 +790,29 @@ export function getSettingListfromserviceorapp(query, cluster, callback) {
     dispath(fetchSettingListfromserviceorapp(query, cluster, callback))
   }
 }
+
+// 告警日志插件未安装 404
+export const PLUGIN_LOGALERT_REQUEST = 'PLUGIN_LOGALERT_REQUEST'
+export const PLUGIN_LOGALERT_SUCCESS = 'PLUGIN_LOGALERT_SUCCESS'
+export const PLUGIN_LOGALERT_FAILURE = 'PLUGIN_LOGALERT_FAILURE'
+
+const fetchLogAlertPluginStatus = (cluster, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        PLUGIN_LOGALERT_REQUEST,
+        PLUGIN_LOGALERT_SUCCESS,
+        PLUGIN_LOGALERT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/checkplugin`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export const getLogAlertPluginStatus = (cluster, callback) => {
+  return dispatch => {
+    return dispatch (fetchLogAlertPluginStatus(cluster, callback))
+  }
+}

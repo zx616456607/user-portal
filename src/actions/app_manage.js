@@ -29,6 +29,7 @@ function fetchAppList(cluster, query, pathname, callback) {
   if (query) {
     delete query.customizeOpts
     delete query.headers
+    if (query.name) query.name = encodeURIComponent(query.name)
     endpoint += `?${toQuerystring(query)}`
   }
   let headers
@@ -349,6 +350,7 @@ function fetchContainerList(cluster, query, callback) {
   if (query) {
     delete query.customizeOpts
     delete query.headers
+    if (query.name) query.name = encodeURIComponent(query.name)
     endpoint += `?${toQuerystring(query)}`
   }
   return {
