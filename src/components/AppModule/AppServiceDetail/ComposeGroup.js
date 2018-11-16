@@ -109,7 +109,9 @@ let MyComponent = React.createClass({
       })
       return
     }
-    this.getConfigList(service)
+    if (this.props.service.metadata.name !== nextProps.service.metadata.name) {
+      this.getConfigList(service)
+    }
   },
   render: function () {
     const configData = this.props.configData[this.props.cluster]

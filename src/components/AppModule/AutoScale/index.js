@@ -62,7 +62,6 @@ class AutoScale extends React.Component {
     this.setState({
       tableLoading: true
     })
-    const notify = new Notification()
     loadAutoScaleList(clusterID, query, {
       success: {
         func: res => {

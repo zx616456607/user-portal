@@ -89,6 +89,9 @@ module.exports = function (config) {
   // ~ config
   this.configs = collections.create('configs')
 
+  // ~ openstack
+  this.openstack = collections.create('openstack')
+
   //  ~images
   this.images = collections.create('images')
 

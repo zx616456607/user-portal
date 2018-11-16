@@ -64,8 +64,8 @@ const Form1 = Form.create()(class Form1 extends React.Component {
     // openstack
     // 第一行值 第二行资源列表
     const { // domainName, projectName,
-      image, loginPass, flavor, networkName, networkId,
-      networks, flavors, images,
+      image, loginPass, flavor, networkName, networkId, zoneName,
+      networks, flavors, images, zones,
     } = defaultValues
 
     return (
@@ -260,6 +260,27 @@ const Form1 = Form.create()(class Form1 extends React.Component {
             //     </Select>
             //   </FormItem>
             // </Row>,
+            <Row key="row5pre">
+              <FormItem
+                {...formItemLargeLayout}
+                label="可用域"
+              >
+                <Select {...getFieldProps('zoneName', {
+                  initialValue: zoneName || undefined,
+                  validate: [{
+                    rules: [
+                      { required: true, message: '请选择镜像' },
+                    ],
+                    trigger: [ 'onChange' ],
+                  }] })} placeholder="请选择镜像" className="formItemWidth">
+                  {
+                    zones.map(item => {
+                      return (<Select.Option key={item.zoneName}>{item.zoneName}</Select.Option>)
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Row>,
             <Row key="row5">
               <FormItem
                 {...formItemLargeLayout}
@@ -453,7 +474,7 @@ export default connect(mapStateToProps, {
         arr = [ 'name', 'datacenter', 'datastorePath', 'resourcePoolPath',
           'templatePath', 'targetPath' ]
       } else if (currentIcon === 'openstack') {
-        arr = [ 'name', 'image', 'loginPass', 'flavor', 'networkName', 'networkId' ] // 'domainName', 'projectName',
+        arr = [ 'name', 'image', 'zoneName', 'loginPass', 'flavor', 'networkName', 'networkId' ] // 'domainName', 'projectName',
       }
       this.form1Rele.validateFields(arr, (errors, values) => {
         if (errors) {
@@ -614,7 +635,8 @@ export default connect(mapStateToProps, {
         resourcePoolPathList = {}
       let networks = [],
         flavors = [],
-        images = []
+        images = [],
+        zones = []
       const datacenterList = []
 
       let datacenter = '',
@@ -738,6 +760,7 @@ export default connect(mapStateToProps, {
           networks = resList.networks || []
           flavors = resList.flavors || []
           images = resList.images || []
+          zones = resList.zones || []
         }
       }
       const { currDataCenter } = this.state
@@ -901,6 +924,7 @@ export default connect(mapStateToProps, {
                                           // domainName: currentData.domainName || '',
                                           // projectName: currentData.projectName || '',
                                           image: currentData.image || '',
+                                          zoneName: currentData.zoneName || '',
                                           loginPass: currentData.loginPass || '',
                                           flavor: currentData.flavor || '',
                                           networkName: currentData.networkName || '',
@@ -909,6 +933,7 @@ export default connect(mapStateToProps, {
                                           networks,
                                           flavors,
                                           images,
+                                          zones,
                                         }
                                       }
                                       return <Form1
