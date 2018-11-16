@@ -22,7 +22,7 @@ exports.redirect = common.wrapHandler(function* () {
     window.onload = function() {
       let form = document.createElement("form")
       form.method="post"
-      form.action="${openstackConfig.webssoURL}"
+      form.action="${openstackConfig.websso}"
       let input = document.createElement("input")
       input.type="hidden"
       input.name="token"
@@ -32,6 +32,6 @@ exports.redirect = common.wrapHandler(function* () {
       form.submit()
     }
   </script>
-  </html> 
+  </html>
   `
 }, true)

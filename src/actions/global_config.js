@@ -152,3 +152,23 @@ export function validateMsgConfig(body, callback) {
     callback
   }
 }
+
+export const VERIFY_OPENSTACK_REQUEST = 'VERIFY_OPENSTACK_REQUEST'
+export const VERIFY_OPENSTACK_SUCCESS = 'VERIFY_OPENSTACK_SUCCESS'
+export const VERIFY_OPENSTACK_FAILURE = 'VERIFY_OPENSTACK_FAILURE'
+
+export function validateOpenstack(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [VERIFY_OPENSTACK_REQUEST, VERIFY_OPENSTACK_SUCCESS, VERIFY_OPENSTACK_FAILURE],
+      schema: {},
+      endpoint: `${API_URL_PREFIX}/openstack/validate`,
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+

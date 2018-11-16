@@ -9,9 +9,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Input, Form, Modal, Radio, Row, Col } from 'antd'
+import { Input, Form, Modal, Radio, Row, Col, Button, notification } from 'antd'
+import { validateOpenstack } from '../../actions/global_config'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router';
+import cloneDeep from 'lodash/cloneDeep'
+import './style/OpenstackSetting.less'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -19,8 +22,10 @@ const RadioGroup = Radio.Group
 class OpenstackSetting extends React.Component {
   state = {
     readOnly: true,
+    isAllowClick: false,
+    checkLoading: false,
   }
-  onOk = () => {
+  validateFunc = _cb => {
     const { onOk, form } = this.props
     const { validateFields, getFieldValue } = form
     let arr = [ 'host', 'protocol', 'user', 'password', 'keystone', 'type' ]
@@ -32,9 +37,60 @@ class OpenstackSetting extends React.Component {
     }
     validateFields(arr, (err, values) => {
       if (err) return
-      console.log(values)
-      !!onOk && onOk(values)
+      _cb(values)
     })
+  }
+  onOk = () => {
+    const cb = values => {
+      const { onOk } = this.props
+      !!onOk && onOk(values)
+    }
+    this.validateFunc(cb)
+  }
+  onValidate = () => {
+    const cb = values => {
+      const { validateOpenstack, config } = this.props
+      const temp = cloneDeep(config)
+      temp.configDetail = values
+      this.setState({
+        checkLoading: true,
+      }, () => {
+        validateOpenstack(temp, {
+          success: {
+            func: res => {
+              if (res.valid === true) {
+                this.setState({
+                  isAllowClick: true,
+                })
+                notification.success({
+                  message: '配置信息检测成功',
+                })
+                return
+              }
+              notification.warn({
+                message: '配置信息检测失败',
+              })
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: () => {
+              notification.warn({
+                message: '配置信息检测失败',
+              })
+            }
+          },
+          finally: {
+            func: () => {
+              this.setState({
+                checkLoading: false,
+              })
+            }
+          }
+        })
+      })
+    }
+    this.validateFunc(cb)
   }
   render() {
     const formItemLayout = {
@@ -45,6 +101,7 @@ class OpenstackSetting extends React.Component {
       labelCol: { span: 12 },
       wrapperCol: { span: 12 },
     }
+    const { isAllowClick, checkLoading } = this.state
     const { visible, onCancel, form, config } = this.props
     let { configDetail: defaultValues } = config
     if(typeof defaultValues === 'string') defaultValues = JSON.parse(defaultValues)
@@ -59,11 +116,24 @@ class OpenstackSetting extends React.Component {
     if(temp === 1) type_value = 1
     return (
       <Modal
+        wrapClassName='openstack-wrapper'
         width={580}
         title="配置"
         visible={visible}
         onCancel={onCancel}
         onOk={this.onOk}
+        footer={
+          <div className="footer">
+            <div className="left">
+              <Button loading={checkLoading} disabled={isAllowClick} size="large" type="primary" onClick={this.onValidate}>配置信息检测</Button>
+            </div>
+            <div className="right">
+              <Button size="large" type="ghost" onClick={onCancel}>取消</Button>
+              <Button disabled={!isAllowClick} size="large" type="primary" onClick={this.onOk}>确定</Button>
+            </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+        }
       >
         <Form>
           <FormItem
@@ -299,11 +369,11 @@ class OpenstackSetting extends React.Component {
 }
 
 function mapStateToProps(state, props) {
-
   return {
 
   }
 }
 
 export default connect(mapStateToProps, {
+  validateOpenstack,
 })(Form.create()(OpenstackSetting));

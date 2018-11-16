@@ -418,8 +418,8 @@ class TraditionEnv extends Component{
         <Row style={{ marginBottom: 20 }}>
           <Col offset={3}>
             <ButtonGroup size="large">
-              <Button type="ghost" className={classNames({'active': activeBtn === 'new'})} onClick={() => this.changeBtn('new')}>新环境</Button>
-              <Button type="ghost" className={classNames({'active': activeBtn === 'old'})} onClick={() => this.changeBtn('old')}>已导入环境</Button>
+              <Button type="ghost" className={classNames({'active': activeBtn === 'new'})} onClick={() => this.changeBtn('new')}>新建环境</Button>
+              <Button type="ghost" className={classNames({'active': activeBtn === 'old'})} onClick={() => this.changeBtn('old')}>已有环境</Button>
             </ButtonGroup>
           </Col>
         </Row>
