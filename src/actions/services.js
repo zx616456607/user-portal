@@ -814,7 +814,7 @@ export function fetchAllServices(cluster, {pageIndex, pageSize, name, label, cus
     customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_GET_ALL_LIST_REQUEST, SERVICE_GET_ALL_LIST_SUCCESS, SERVICE_GET_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${name}` : ''}${label ? `&label=${label}` : ''}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${encodeURIComponent(name)}` : ''}${label ? `&label=${label}` : ''}`,
       schema: {},
       options: {
         headers

@@ -363,7 +363,7 @@ export default connect(mapStateToProps, {
     if (currentIcon === 'vmware') {
       label = 'vSphere地址'
     } else if (currentIcon === 'openstack') {
-      label = 'openstack地址'
+      label = '身份认证 API 地址'
     }
     return (
       <Modal
@@ -458,14 +458,14 @@ export default connect(mapStateToProps, {
                       <Input {...getFieldProps('server', { initialValue: server,
                         validate: [{
                           rules: [
-                            { required: true, message: '请输入' + label },
+                            // { required: true, message: '请输入' + label },
                             { validator: (rule, value, callback) =>
                               this.checkIp(rule, value, callback, label) },
                           ],
                           trigger: [ 'onChange' ],
                         }],
                       }
-                      )} placeholder={'请输入' + label} />
+                      )} placeholder={currentIcon === 'vmware' ? ('请输入' + label) : 'Keystone API 地址, 例如: http://example.com:5000/v1'} />
                     </FormItem>
                   </Row>
                   {

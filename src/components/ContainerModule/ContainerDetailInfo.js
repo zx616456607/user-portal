@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Tooltip, Icon, Row, Col } from 'antd'
+import { Card, Tooltip, Icon, Row, Col, Select } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -26,11 +26,14 @@ export default class ContainerDetailInfo extends Component {
   constructor(props) {
     super(props);
   }
-
+  state = {
+    containerIndex: '0',
+  }
   getMount(container) {
+    const { containerIndex } = this.state
     const { formatMessage } = this.props.intl
     const volumes = container.spec.volumes || []
-    const volumeMounts = container.spec.containers[0].volumeMounts || []
+    const volumeMounts = container.spec.containers[containerIndex].volumeMounts || []
     return volumes.map((item, index) => {
       let type = '-'
       let name = '-'
@@ -98,12 +101,13 @@ export default class ContainerDetailInfo extends Component {
     })
   }
   getConfigMap(container) {
+    const { containerIndex } = this.state
     let ele = []
     let volumes = container.spec.volumes
     let configMaps = []
     const { formatMessage } = this.props.intl
-    if (container.spec.containers[0].volumeMounts) {
-      container.spec.containers[0].volumeMounts.forEach((volume) => {
+    if (container.spec.containers[containerIndex].volumeMounts) {
+      container.spec.containers[containerIndex].volumeMounts.forEach((volume) => {
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         volumes.forEach(item => {
           if(!item) return false
@@ -176,21 +180,31 @@ export default class ContainerDetailInfo extends Component {
     return null
   }
   render() {
-    const parentScope = this
+    const { containerIndex } = this.state
     const { container } = this.props
-    if (!container.spec.containers[0].resources.requests) {
-      container.spec.containers[0].resources.requests = {}
+    if (!container.spec.containers[containerIndex].resources.requests) {
+      container.spec.containers[containerIndex].resources.requests = {}
     }
+    const conList = container.spec.containers || []
     return (
       <div id="ContainerDetailInfo">
+        <div>
+          容器:&nbsp;&nbsp;
+          <Select
+            style={{ minWidth: 120 }}
+            value={containerIndex}
+            onChange={v => this.setState({ containerIndex: v })}
+          >
+            {
+              conList.map((c, i) => <Select.Option value={i + ''} key={c.name + i}>{c.name}</Select.Option>)
+            }
+          </Select>
+        </div>
         <div className="info commonBox">
           <span className="titleSpan">
           <FormattedMessage {...IntlMessages.basic} />
           </span>
           <div className="titleBox">
-            <div className="commonTitle">
-              <FormattedMessage {...IntlMessages.name} />
-          </div>
             <div className="commonTitle">
               <FormattedMessage {...IntlMessages.image} />
           </div>
@@ -203,9 +217,6 @@ export default class ContainerDetailInfo extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
-            <div className="commonTitle">
-              {container.metadata.name}
-            </div>
             <div className="commonTitle">
               {container.images.join(', ') || '-'}
             </div>
@@ -236,10 +247,10 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory, container.spec.containers[0].resources) || '-'}
+              {cpuFormat(container.spec.containers[containerIndex].resources.requests.memory, container.spec.containers[containerIndex].resources) || '-'}
             </div>
             <div className="commonTitle">
-              {memoryFormat(container.spec.containers[0].resources)}
+              {memoryFormat(container.spec.containers[containerIndex].resources)}
             </div>
             <div className="commonTitle">
               10G
@@ -262,7 +273,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             {
-              !!container.spec.containers[0].env ? container.spec.containers[0].env.map(this.renderEnvValue) : null
+              !!container.spec.containers[containerIndex].env ? container.spec.containers[containerIndex].env.map(this.renderEnvValue) : null
             }
           </div>
         </div>

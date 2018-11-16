@@ -85,6 +85,9 @@ class AutoScale extends React.Component {
                     scaleList,
                   })
                 }
+              },
+              failed: {
+                func: () => {}
               }
             })
           })
