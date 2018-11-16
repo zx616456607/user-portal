@@ -438,11 +438,28 @@ exports.getImageTemplate = function* () {
   const registry = this.params.registry
   this.status = 200
   let body = JSON.parse(configEnv.registryTemplate)
-  if (registry !== 'default') {
-    body.forEach(item=> {
-      item.registry = registry
-    })
-  }
+  const loginUser = this.session.loginUser
+  const config = getRegistryConfig()
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  const reqArray = []
+  body.forEach(item=> {
+    reqArray.push({data: (cb)=> harbor.getRepositoriesTags(item.name, cb)})
+    item.registry = registry
+  })
+
+  const result = yield reqArray
+  body.forEach((item,index) => {
+    try {
+      let data = result[index].data
+      if (data && data[1].length) {
+        item.version = data[1].reverse()
+      }
+    } catch (error) {
+      console.error('get image tag error', error)
+    }
+  })
+
   this.body = {
     template: body
   }
