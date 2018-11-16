@@ -100,7 +100,7 @@ export default class ServiceMeshForm extends React.Component {
               this.state.openAllServiceMesh ?
               <span>{'若关闭已有服务的服务网格, 项目对应的集群中的服务将自动执行滚动发布'}</span>
               :
-              <span>{'将项目&集群下已有的全部服务的服务网格开启'}</span>
+              <span>{'将项目&集群下已有的全部服务的服务网格开启, 若手动关闭过某服务的服务网格，系统将自动重启该服务'}</span>
             }
             </div>
           </Col>
