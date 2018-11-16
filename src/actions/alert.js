@@ -108,10 +108,10 @@ export const ALERT_GET_NOTIFY_GROUPS_REQUEST = 'ALERT_GET_NOTIFY_GROUPS_REQUEST'
 export const ALERT_GET_NOTIFY_GROUPS_SUCCESS = 'ALERT_GET_NOTIFY_GROUPS_SUCCESS'
 export const ALERT_GET_NOTIFY_GROUPS_FAILURE = 'ALERT_GET_NOTIFY_GROUPS_FAILURE'
 
-function fetchNotifyGroups(name, clusterID, callback) {
+function fetchNotifyGroups(query, clusterID, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
-  if (name) {
-    endpoint += `?name=${name}`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
   }
   return {
     [FETCH_API]: {
@@ -123,9 +123,9 @@ function fetchNotifyGroups(name, clusterID, callback) {
   }
 }
 
-export function loadNotifyGroups(name, clusterID, callback) {
+export function loadNotifyGroups(query, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotifyGroups(name, clusterID, callback))
+    return dispatch(fetchNotifyGroups(query, clusterID, callback))
   }
 }
 
