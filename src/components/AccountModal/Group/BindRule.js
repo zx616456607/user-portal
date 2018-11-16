@@ -22,7 +22,7 @@ export default class BindRule extends React.Component {
           <span className="titleName">告警策略</span>
           <Row className="row">
             {
-              strategies.map((item,index) => <Col span={index /5 <1 ? '5':'4'}>{item.name}</Col>)
+              strategies.map((item,index) => <Col span={(index+1)%5 === 0 ? '4':'5'}>{item.name}</Col>)
             }
             {
               !strategies.length && <div className="text-center" style={{color: '#999'}}>暂无绑定策略</div>
@@ -32,7 +32,7 @@ export default class BindRule extends React.Component {
         <div className="titleName">自动伸缩策略</div>
         <Row className="row">
           {
-              autoStrategies.map((item,index) => <Col span={index /5 <1 ? '5':'4'}>{item.name}</Col>)
+              autoStrategies.map((item,index) => <Col span={(index+1)%5 === 0 ? '4':'5'}>{item.name}</Col>)
           }
           {
               !autoStrategies.length && <div className="text-center" style={{color: '#999'}}>暂无绑定策略</div>
