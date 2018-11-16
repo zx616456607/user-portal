@@ -1143,6 +1143,27 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
+                  <Menu.Item key='Design'>
+                    <Link
+                      onClick={() => {
+                        try {
+                          browserHistory.push('/app-stack/Design')
+                          if (window.appStackPortalHistory) {
+                            window.appStackPortalHistory.replace('/app-stack')
+                          }
+                        } catch (error) {
+                          //
+                        }
+                      }}
+                    >
+                      <span>
+                        <div className='sideCircle'></div>&nbsp;
+                        <FormattedMessage {...IntlMessages.AppStackDesign} />
+                        <sup>Beta</sup>
+                      </span>
+                    </Link>
+                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
 
