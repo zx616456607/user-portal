@@ -48,14 +48,14 @@ class PersistentVolumeClaim {
       storage += 'G'
     }
     let labels = {
-      'tenxcloud.com/storageType': storageType,
-      'texncloud.com/srType': srType,
-      'tenxcloud.com/reclaimPolicy': reclaimPolicy,
+      'system/storageType': storageType,
+      'system/srType': srType,
+      'system/reclaimPolicy': reclaimPolicy,
     }
     if(storageType !== "glusterfs"){
-      labels['tenxcloud.com/fsType'] = fsType
+      labels['system/fsType'] = fsType
     }else{
-      labels['tenxcloud.com/fsType'] = 'ext4'
+      labels['system/fsType'] = 'ext4'
     }
 
     this.kind = 'PersistentVolumeClaim'

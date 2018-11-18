@@ -75,8 +75,8 @@ class AppUseful extends Component {
     if (!livenessProbe) {
       livenessProbe = { info: {} }
       if (service.metadata.annotations) {
-        if (service.metadata.annotations['tenxcloud.com/livenessProbe']) {
-          livenessProbe = JSON.parse(service.metadata.annotations['tenxcloud.com/livenessProbe'])
+        if (service.metadata.annotations['system/livenessProbe']) {
+          livenessProbe = JSON.parse(service.metadata.annotations['system/livenessProbe'])
         }
       }
     }

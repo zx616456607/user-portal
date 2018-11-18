@@ -238,7 +238,7 @@ const messageObj = {
     throughXForwardedFor: '通过 X-Forwarded-For 头字段获取',
     lbEnabled: '已开启负载均衡监听协议',
     throughXForwardedProto: '通过 X-Forwarded-Proto 头字段获取',
-    serviceLocationPlaceholder: '请输入服务位置，例如 www.tenxcloud.com/www/index.html',
+    serviceLocationPlaceholder: '请输入服务位置，例如 www.example.com/www/index.html',
     accessPathPlaceholder: '请输入访问路径，以 / 开头',
     containerPortSingleSlt: '容器端口不支持多选',
     monitorPortIsRequired: '监听端口不能为空',
