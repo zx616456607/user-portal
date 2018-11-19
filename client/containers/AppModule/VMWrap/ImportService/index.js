@@ -11,18 +11,17 @@
  */
 
 import React from 'react'
-import { Link, browserHistory } from 'react-router'
-import { importVMservice } from '../../../../actions/vm_wrap'
+import { browserHistory } from 'react-router'
+import { importVMservice } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
 import { Card, Form, Collapse, Button, Tooltip } from 'antd'
 import TraditionEnv from './TraditionEnv'
 import TraditionApp from './TraditionApp'
-import NotificationHandler from '../../../../components/Notification'
+import NotificationHandler from '../../../../../src/components/Notification'
 import QueueAnim from 'rc-queue-anim'
 import './style/index.less'
 
 const notify = new NotificationHandler();
-const FormItem = Form.Item;
 const Panel = Collapse.Panel;
 
 class ImportService extends React.Component {
@@ -64,7 +63,7 @@ class ImportService extends React.Component {
           apps: [],
         }
         let i = 0
-        while(values['name_' + i]) {
+        while (values['name_' + i]) {
           const temp = {
             name: values['name_' + i],
             description: values['description_' + i],
@@ -80,7 +79,7 @@ class ImportService extends React.Component {
               catalina_home_dir: values['catalina_home_dir_' + i],
               catalina_home_env: values['catalina_home_env_' + i],
               tomcat_id: values['tomcat_id_' + i],
-            }
+            },
           }
           body.apps.push(temp)
           i++
@@ -91,7 +90,7 @@ class ImportService extends React.Component {
               if (res.statusCode === 200) {
                 notify.success('导入成功')
                 browserHistory.push({
-                  pathname: '/app_manage/vm_wrap'
+                  pathname: '/app_manage/vm_wrap',
                 })
               }
             },
@@ -110,7 +109,7 @@ class ImportService extends React.Component {
               })
             },
             isAsync: true,
-          }
+          },
         })
       })
     })
@@ -132,14 +131,18 @@ class ImportService extends React.Component {
     return (
       <QueueAnim
         id="importVMService"
-        type='right'
+        type="right"
       >
-        <div key='ImportService'>
+        <div key="ImportService">
           <Card>
             <Form>
               <Collapse defaultActiveKey={[ 'env', 'app' ]}>
                 <Panel header={this.renderPanelHeader('传统环境')} key="env">
-                  <TraditionEnv getHost={this.getHost} getJdkId={this.getJdkId} checkSucc={this.checkSucc} form={form} />
+                  <TraditionEnv
+                    getHost={this.getHost}
+                    getJdkId={this.getJdkId}
+                    checkSucc={this.checkSucc}
+                    form={form} />
                 </Panel>
                 <Panel header={this.renderPanelHeader('传统应用')} key="app">
                   <TraditionApp jdk_id={jdk_id} host={host} form={form}/>
@@ -168,8 +171,7 @@ class ImportService extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
-
+function mapStateToProps() {
   return {
 
   }
