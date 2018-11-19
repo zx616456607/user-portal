@@ -370,9 +370,13 @@ const MyComponent =  injectIntl(React.createClass({
   },
   rendermeshIcon() {
     return (
-      <span style={{ lineHeight: '16px' }}>
+      <span style={{ lineHeight: '16px' }} >
         <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
-        <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
+        <TenxIcon
+          type="mesh"
+          style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+          className='meshIcon'
+          />
         </Tooltip>
       </span>
     )
