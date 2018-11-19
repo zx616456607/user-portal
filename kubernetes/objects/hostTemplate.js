@@ -14,8 +14,8 @@ class HostTemplate {
     this.kind = "StorageClass"
     this.metadata = {
       labels: {
-        [`tenxcloud.com/storageType`]: "host",
-        [`tenxcloud.com/storageStatus`]: "open"
+        [`system/storageType`]: "host",
+        [`system/storageStatus`]: "open"
       },
       name: "host-storage"
     }

@@ -41,9 +41,6 @@ class LoadBalance extends React.Component {
     const { clusterID, getLBList, form } = this.props
     getLBList(clusterID)
     const lbKeys = form.getFieldValue('lbKeys');
-    form.setFieldsValue({
-      agentType: 'inside'
-    })
     if (lbKeys) {
       lbKeys.forEach(key => {
         const sourceOptons = form.getFieldValue(`ingress-${key}`)
@@ -93,6 +90,9 @@ class LoadBalance extends React.Component {
     if (value !== originalAgentType) {
       const filterLb = loadBalanceList.filter(item => item.metadata.labels.agentType === value)
       if (isEmpty(filterLb)) {
+        setFieldsValue({
+          loadBalance: '',
+        })
         return
       }
       await setFieldsValue({

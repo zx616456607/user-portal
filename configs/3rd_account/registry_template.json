@@ -1,7 +1,7 @@
 [
   {
     "registry": "default",
-    "name": "tenx_containers/java",
+    "name": "system_containers/java",
     "imageUrl": "/img/appstore/java.png",
     "type":"jar",
     "version": [
@@ -11,7 +11,7 @@
   },
   {
     "registry": "default",
-    "name": "tenx_containers/tomcat",
+    "name": "system_containers/tomcat",
     "imageUrl": "/img/appstore/tomcat.png",
     "type":"war",
     "version": [
@@ -22,7 +22,7 @@
   },
   {
     "registry": "default",
-    "name": "tenx_containers/weblogic",
+    "name": "system_containers/weblogic",
     "imageUrl": "/img/appstore/weblogic.png",
     "type":"war",
     "version": [
