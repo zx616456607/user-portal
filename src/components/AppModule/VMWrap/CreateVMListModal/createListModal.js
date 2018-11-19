@@ -163,7 +163,7 @@ let CreateVMListModal = React.createClass({
       return callback(new Error('请输入名称'))
     }
     if (value.length > 12) {
-      return callback(new Error('名称长度不能超过 12'))
+      return callback(new Error('名称长度不能超过 12 个字符'))
     }
     callback()
   },
