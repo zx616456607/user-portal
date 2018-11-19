@@ -207,6 +207,7 @@ class TraditionEnv extends React.Component {
           <Input placeholder="请输入传统环境名称" size="large" {...envNameProps} />
         </FormItem>
         <FormItem
+          className="nomarginbottom"
           {...formItemLayout}
           label="传统环境 IP"
         >

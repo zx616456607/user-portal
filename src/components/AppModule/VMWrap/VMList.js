@@ -753,6 +753,7 @@ class VMList extends React.Component {
                 allPort={allPort}
                 confirmLoading={createConfirmLoading}
                 jdk_id={currVM.jdkId}
+                username={currVm.user}
               />
               :
               null

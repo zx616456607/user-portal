@@ -103,13 +103,13 @@ class CreateTomcat extends React.Component {
 
   render() {
     const { form: { getFieldProps, getFieldValue }, tomcatList, isNeedModal,
-      title, visible, onCancel, confirmLoading, isRight } = this.props
+      title, visible, onCancel, confirmLoading, isRight, username } = this.props
     const { tomcatVersions } = this.state
     const tomcat_id = tomcatVersions[0] && tomcatVersions[0].id
     const port = getFieldValue('port') || ''
     const name = getFieldValue('name') || 'tomcat_'
     const options = tomcatVersions.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
-    const dir = `/usr/local/${name+port}`
+    const dir = username === 'root' ? `/root/${name+port}` : `/home/${uername}/${name+port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
     const layout = {
       labelCol: { span: 6 },
@@ -176,8 +176,6 @@ class CreateTomcat extends React.Component {
         style={{ marginTop: 10}}
       >
         <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
-          {/* <div>JAVA_HOME='/home/java'</div>
-          <div>JRE_HOME='/home/java/jre1.8.0_151'</div> */}
           <div>{env}='{dir}'</div>
           <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
         </div>

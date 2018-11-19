@@ -259,6 +259,7 @@ let CreateVMListModal = React.createClass({
       ],
       initialValue: isAdd ? undefined : Rows.name,
     })
+    const username = getFieldValue('name')
     const accountProps = getFieldProps('account', {
       rules: [
         { validator: this.userExists },
@@ -421,9 +422,14 @@ let CreateVMListModal = React.createClass({
             style={{ marginBottom: 0 }}
           >
             <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
-
-              <div>JRE_HOME=/home/java/{jdk_name}/jre</div>
-              <div>JAVA_HOME=/home/java/{jdk_name}</div>
+              {
+                username === 'root' ?
+                  [<div>JRE_HOME=/root/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/root/java/{jdk_name}</div>]
+                  :
+                  [<div>JRE_HOME=/home/{username}/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/home/{username}/java/{jdk_name}</div>]
+              }
               {/* <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>
