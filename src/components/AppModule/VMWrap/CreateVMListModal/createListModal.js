@@ -259,13 +259,13 @@ let CreateVMListModal = React.createClass({
       ],
       initialValue: isAdd ? undefined : Rows.name,
     })
-    const username = getFieldValue('name')
     const accountProps = getFieldProps('account', {
       rules: [
         { validator: this.userExists },
       ],
       initialValue: isAdd ? undefined : Rows.user
     })
+    const username = getFieldValue('account')
     const passwordProps = getFieldProps('password', {
       rules: [
         // { validator: this.checkPas },
@@ -413,6 +413,7 @@ let CreateVMListModal = React.createClass({
               </span>
             }
             {...formItemLayout}
+            style={{ display: 'none' }}
           >
             <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
           </FormItem>

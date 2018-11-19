@@ -71,6 +71,7 @@ class ContainerSecurityPolicy extends React.Component {
   }
   async componentDidMount() {
     await this.reload()
+    window.location.hash = ''
   }
   reload = async () => {
     const res = await this.props.listPSP(this.props.cluster.clusterID, )
@@ -104,7 +105,10 @@ class ContainerSecurityPolicy extends React.Component {
           </Col>
           <Col span={20}>
             <Button icon="plus" type="primary"
-            onClick={ () => browserHistory.push(`/cluster/createWorkLoad/?cluster=${cluster}&type=PodSecurityPolicy`) }
+            onClick={ () => {
+              window.location.hash = `${this.props.cluster.clusterID}/cluster_set`
+              browserHistory.push(`/cluster/createWorkLoad/?cluster=${cluster}&type=PodSecurityPolicy`) }
+             }
             >
               添加 PSP 策略
             </Button>
