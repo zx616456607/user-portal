@@ -22,8 +22,10 @@ import StoreTemplate from './StoreTemplate'
 import CommonSearchInput from '../../CommonSearchInput'
 import classNames from 'classnames'
 import Title from '../../Title'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane;
+const notify = new NotificationHandler()
 
 class AppWrapStore extends React.Component {
   constructor(props) {
@@ -43,7 +45,11 @@ class AppWrapStore extends React.Component {
     const { getWrapGroupList, getAppsHotList, cluster } = this.props
     getWrapGroupList()
     this.getStoreList()
-    getAppsHotList(cluster.clusterID)
+    getAppsHotList(cluster.clusterID, {
+      failed: {
+        func: () => {}
+      }
+    })
   }
   changeTab(activeKey){
     const { getAppsHotList } = this.props
@@ -59,7 +65,11 @@ class AppWrapStore extends React.Component {
       return
     }
     const clusterID = this.props.cluster.clusterID
-    getAppsHotList(clusterID)
+    getAppsHotList(clusterID, {
+      failed: {
+        func: () => {}
+      }
+    })
   }
   getStoreList() {
     const { getWrapStoreList, getAppsList, cluster } = this.props
@@ -103,12 +113,24 @@ class AppWrapStore extends React.Component {
       getWrapStoreList(query)
       return
     }
-    getAppsList(query)
+    getAppsList(query, {
+      failed: {
+        func: err => {
+          if (err.is_public === false) {
+            notify.warn('请联系管理员检查商店对应仓库组是否存在或已开放！')
+          }
+        }
+      }
+    })
   }
   updateParentState(key, value, callback) {
+    const { activeKey } = this.state
     this.setState({
       [key]: value
     }, callback && this.getStoreList)
+    if (activeKey === 'image') {
+      return
+    }
     this.resetDownloadCount()
   }
   downloadCount = (id) => {
