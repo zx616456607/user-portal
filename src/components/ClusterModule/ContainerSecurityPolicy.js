@@ -17,6 +17,7 @@ import * as PSP from '../../actions/container_security_policy'
 import { connect } from 'react-redux'
 
 const getColumns = (self) =>  {
+  const cluster = self.props.cluster.clusterID
   const columns = [{
     title: '策略名称',
     dataIndex: 'policy',
@@ -47,7 +48,7 @@ const getColumns = (self) =>  {
     key: 'operation',
     width: 300,
     render: (_, record) => {
-      const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy })
+      const query = toQuerystring({edit: true, type: 'PodSecurityPolicy', name: record.policy, cluster })
       return (
         <div className="buttons">
         <Button type="primary" onClick={() => browserHistory.push(`/cluster/createWorkLoad/?${query}`)}>
@@ -92,6 +93,7 @@ class ContainerSecurityPolicy extends React.Component {
   }
   render() {
     const self = this
+    const cluster = this.props.cluster.clusterID
     return(
       <div className="containerSecurityPolicy">
       <Card title={<div className='title'>容器安全策略</div>}>
@@ -102,7 +104,7 @@ class ContainerSecurityPolicy extends React.Component {
           </Col>
           <Col span={20}>
             <Button icon="plus" type="primary"
-            onClick={ () => browserHistory.push(`/cluster/createWorkLoad/?type=PodSecurityPolicy`) }
+            onClick={ () => browserHistory.push(`/cluster/createWorkLoad/?cluster=${cluster}&type=PodSecurityPolicy`) }
             >
               添加 PSP 策略
             </Button>
