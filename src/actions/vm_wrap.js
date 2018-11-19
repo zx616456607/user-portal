@@ -501,4 +501,33 @@ export function getTomcatVersion(query, callback) {
   }
 }
 
+export const VM_WRAP_IMPORT_SERVICE_REQUEST = 'VM_WRAP_IMPORT_SERVICE_REQUEST'
+export const VM_WRAP_IMPORT_SERVICE_SUCCESS = 'VM_WRAP_IMPORT_SERVICE_SUCCESS'
+export const VM_WRAP_IMPORT_SERVICE_FAILURE = 'VM_WRAP_IMPORT_SERVICE_FAILURE'
+
+// Fetches wechat auth qr code from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchImportService(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/vm-wrap/services/import`
+  return {
+    [FETCH_API]: {
+      types: [VM_WRAP_IMPORT_SERVICE_REQUEST, VM_WRAP_IMPORT_SERVICE_SUCCESS, VM_WRAP_IMPORT_SERVICE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      },
+    },
+    callback,
+  }
+}
+
+// Fetches wechat auth qr code from API
+// Relies on Redux Thunk middleware.
+export function importVMservice(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchImportService(body, callback))
+  }
+}
 

@@ -164,3 +164,12 @@ exports.createTomcat = function* () {
   const result = yield api.vmtomcats.createBy([ 'create' ], null, body)
   this.body = result
 }
+
+exports.importService = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getVMWrapApi(loginUser)
+  const body = this.request.body
+
+  const result = yield api.services.createBy([ 'import' ], null, body)
+  this.body = result
+}

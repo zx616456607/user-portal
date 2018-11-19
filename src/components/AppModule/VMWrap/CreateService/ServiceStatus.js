@@ -81,18 +81,21 @@ class ServiceStatus extends Component{
       initialValue: warHost ? warHost : ''
     });
     const initTimeout = getFieldProps('initTimeout', {
+      initialValue: 10,
       rules: [
         { required: true, message: "请输入初始化超时" },
         { validator: this.checkInit.bind(this)}
       ],
     });
     const ruleTimeout = getFieldProps('ruleTimeout', {
+      initialValue: 10,
       rules: [
         { required: true, message: "请输入常规检查超时" },
         { validator: this.checkNomal.bind(this)}
       ],
     });
     const intervalTimeout = getFieldProps('intervalTimeout', {
+      initialValue: 10,
       rules: [
         { required: true, message: "请输入间隔检查超时" },
         { validator: this.checkInterval.bind(this)}
