@@ -371,7 +371,7 @@ class TraditionEnv extends Component{
       initialValue: name,
     })
     const new_port = getFieldValue('new_port') || ''
-    const dir = `/usr/local/${name+new_port}`
+    const dir = `/${username === 'root' ? username : `home/${username}`}/${name+new_port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+new_port}`
     const dirProps = getFieldProps('catalina_home_dir', {
       initialValue: dir,
