@@ -109,7 +109,7 @@ class CreateTomcat extends React.Component {
     const port = getFieldValue('port') || ''
     const name = getFieldValue('name') || 'tomcat_'
     const options = tomcatVersions.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
-    const dir = username === 'root' ? `/root/${name+port}` : `/home/${uername}/${name+port}`
+    const dir = username === 'root' ? `/root/${name+port}` : `/home/${username}/${name+port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+port}`
     const layout = {
       labelCol: { span: 6 },
