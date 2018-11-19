@@ -32,14 +32,14 @@ const formLargeItemLayout = {
 const formItemNoLabelLayout = {
   wrapperCol: { span: 24, offset: 0 },
 }
+let uuid = 0
 
 class TraditionApp extends React.Component {
   state = {
-    count: 1,
     tomcatVersionList: [],
   }
   getTom = jdk_id => {
-    const { getTomcatVersion } = this.props
+    const { getTomcatVersion, form: { setFieldsValue } } = this.props
     getTomcatVersion({
       jdk_id,
     }, {
@@ -48,6 +48,9 @@ class TraditionApp extends React.Component {
           if (res.statusCode === 200) {
             this.setState({
               tomcatVersionList: res.results,
+            })
+            res.results[0] && setFieldsValue({
+              tomcat_id_0: res.results[0].id,
             })
           }
         },
@@ -67,7 +70,8 @@ class TraditionApp extends React.Component {
     }
   }
   componentDidMount() {
-    this.getTom(this.props.jdk_id)
+    const { jdk_id } = this.props
+    jdk_id && this.getTom(jdk_id)
   }
   checkPort = (rule, value, callback) => {
     const { allPort = [] } = this.props
@@ -96,36 +100,37 @@ class TraditionApp extends React.Component {
   }
   onCheckAddressChange = (opt, i) => {
     const { getFieldValue, setFieldsValue } = this.props.form
+    const keys = getFieldValue('keys')
     if (i === undefined) {
-      const { count } = this.state
-      let j = 0
-      while (j < count) {
+      keys.map(j => {
         const host = getFieldValue('host') || ''
         const port = getFieldValue('start_port_' + j) || ''
         const name = getFieldValue('name_' + j) || ''
         const temp = {}
         temp['check_address_' + j] = 'http://' + host + ':' + port + '/' + name
         setFieldsValue(temp)
-        j++
-      }
+        return j
+      })
+    } else {
+      const {
+        host = getFieldValue('host') || '',
+        name = getFieldValue('name_' + i) || '',
+        port = getFieldValue('start_port_' + i) || '',
+      } = opt
+      const temp = {}
+      temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
+      setFieldsValue(temp)
     }
-    const {
-      host = getFieldValue('host') || '',
-      name = getFieldValue('name_' + i) || '',
-      port = getFieldValue('start_port_' + i) || '',
-    } = opt
-    const temp = {}
-    temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
-    setFieldsValue(temp)
   }
   renderItems = () => {
-    const { count, tomcatVersionList } = this.state
+    const { tomcatVersionList } = this.state
     const { form: { getFieldProps, getFieldValue } } = this.props
     const tomcatVersionOptions =
       tomcatVersionList.map(item =>
         <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
-    const items = []
-    for (let i = 0; i < count; i++) {
+
+    const keys = getFieldValue('keys')
+    return keys.map(i => {
       const nameProps = getFieldProps(`name_${i}`, {
         rules: [
           { required: true, message: '请输入应用名称' },
@@ -152,6 +157,7 @@ class TraditionApp extends React.Component {
         rules: [
           { required: true, message: '请选择 Tomcat 版本' },
         ],
+        initialValue: (tomcatVersionList[0] && tomcatVersionList[0].id) || undefined,
       })
 
       const envProps = getFieldProps(`catalina_home_env_${i}`, {
@@ -169,6 +175,11 @@ class TraditionApp extends React.Component {
           { required: true, message: '请输入检查路径' },
         ],
         initialValue: 'http://' + (getFieldValue('host') || ''),
+      })
+      const check_addressTempProps = getFieldProps(`check_address_temp_${i}`, {
+        rules: [
+          // { required: true, message: '请输入检查路径' },
+        ],
       })
       const init_timeoutProps = getFieldProps(`init_timeout_${i}`, {
         initialValue: 10,
@@ -188,7 +199,7 @@ class TraditionApp extends React.Component {
           { required: true, message: '请输入间隔检查超时' },
         ],
       })
-      items.push(<div className="item_app">
+      return <div className="item_app" key={i}>
         <FormItem
           {...formItemLayout}
           label="应用名称"
@@ -227,15 +238,15 @@ class TraditionApp extends React.Component {
           label="安装路径"
         >
           <Row>
-            <Col span={5}>
+            <Col span={7}>
               <FormItem
                 {...formItemNoLabelLayout}
               >
                 <Input placeholder="请输入 CATALINA_HOME 变量名" {...envProps} />
               </FormItem>
             </Col>
-            <Col style={{ textAlign: 'center' }} span={1}>-</Col>
-            <Col span={5}>
+            <Col style={{ textAlign: 'center' }} span={1}>=</Col>
+            <Col span={7}>
               <FormItem
                 {...formItemNoLabelLayout}
               >
@@ -245,10 +256,17 @@ class TraditionApp extends React.Component {
           </Row>
         </FormItem>
         <FormItem
-          {...formItemLayout}
+          {...formLargeItemLayout}
           label="检查路径"
         >
-          <Input disabled={true} placeholder="请输入检查路径" size="large" {...check_addressProps} />
+          <Row>
+            <Col style={{ marginRight: 5 }} span={7}>
+              <Input disabled={true} placeholder="请输入检查路径" size="large" {...check_addressProps} />
+            </Col>
+            <Col span={7}>
+              <Input placeholder="例如: /index.html" size="large" {...check_addressTempProps} />
+            </Col>
+          </Row>
         </FormItem>
         <FormItem
           {...formItemLayout}
@@ -268,12 +286,36 @@ class TraditionApp extends React.Component {
         >
           <InputNumber placeholder="请输入间隔检查超时" size="large" {...intervalProps} /> <span className="hint">s</span>
         </FormItem>
-      </div>)
-    }
-    return items
+        {
+          i > 0 && <div className="delBtn"><a onClick={() => this.remove(i)}><Icon type="delete" /></a></div>
+        }
+      </div>
+    })
+  }
+  add = () => {
+    uuid++
+    const { form } = this.props
+    let keys = form.getFieldValue('keys')
+    keys = keys.concat(uuid)
+    form.setFieldsValue({
+      keys,
+    });
+
+  }
+  remove = k => {
+    const { form } = this.props
+    let keys = form.getFieldValue('keys')
+    keys = keys.filter(key => {
+      return key !== k;
+    })
+    form.setFieldsValue({
+      keys,
+    })
   }
   render() {
-    const { count } = this.state
+    this.props.form.getFieldProps('keys', {
+      initialValue: [ 0 ],
+    });
     return (
       <Form className="importTraditionApp">
         <div>
@@ -281,7 +323,7 @@ class TraditionApp extends React.Component {
         </div>
         <Row>
           <Col style={{ textAlign: 'right', paddingRight: 13 }} span={3}>
-            <a onClick={() => this.setState({ count: count + 1 })}><Icon type="plus-circle-o" /> 添加传统应用</a>
+            <a onClick={this.add}><Icon type="plus-circle-o" /> 添加传统应用</a>
           </Col>
         </Row>
       </Form>

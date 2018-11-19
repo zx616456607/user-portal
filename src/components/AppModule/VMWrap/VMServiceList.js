@@ -229,6 +229,12 @@ class VMServiceList extends React.Component {
       dataIndex: 'serviceName',
       key: 'serviceName'
     }, {
+      title: '描述',
+      width: '15%',
+      dataIndex: 'description',
+      key: 'description',
+      render:text => text || '',
+    }, {
       title: '状态',
       width: '15%',
       dataIndex: 'serviceStatus',
@@ -239,6 +245,7 @@ class VMServiceList extends React.Component {
       width: '15%',
       dataIndex: 'packages',
       key: 'packages',
+      render:text => text || '-',
     },{
       title: '部署环境IP',
       dataIndex: 'host',

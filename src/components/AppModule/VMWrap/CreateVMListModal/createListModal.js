@@ -93,12 +93,13 @@ let CreateVMListModal = React.createClass({
     if (modalTitle) {
       validateArr.unshift('host')
     }
-    form.validateFields((errors, values) => {
+    form.validateFields(validateArr, (errors, values) => {
       if (errors) return
       this.setState({
         confirmLoading: true
       })
       let List = cloneDeep(values)
+      List.host = form.getFieldValue('host')
       this.handleSub().then(() => {
         onSubmit(List)
         scope.setState({
@@ -169,7 +170,8 @@ let CreateVMListModal = React.createClass({
 
   checkDir(rule, value, callback) {
     if (!value) {
-      return callback(new Error('请输入清理目录'))
+      return callback()
+      // return callback(new Error('请输入清理目录'))
     }
     var arr = value.split(';')
     for (let i in arr) {
@@ -411,7 +413,7 @@ let CreateVMListModal = React.createClass({
             }
             {...formItemLayout}
           >
-            <Input {...dirProps} placeholder="清理Java、Tomcat等安装目录，必须“/”开头，至少两级“/”" />
+            <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
           </FormItem>
           <FormItem
             {...formItemLayout}

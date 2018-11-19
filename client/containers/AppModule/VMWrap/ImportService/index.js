@@ -53,6 +53,7 @@ class ImportService extends React.Component {
       }, () => {
         const body = {
           vminfo: {
+            name: values.envName,
             host: values.host,
             account: values.account,
             password: values.password,
@@ -62,13 +63,21 @@ class ImportService extends React.Component {
           },
           apps: [],
         }
-        let i = 0
-        while (values['name_' + i]) {
+        const arr = []
+        Object.keys(values).map(item => {
+          if (item.indexOf('description_') > -1) {
+            arr.push(parseInt(item.replace('description_', '')))
+          }
+          return item
+        })
+        arr.map(i => {
+          let tempAddress = values['check_address_temp_' + i] || ''
+          if (tempAddress && !tempAddress.startsWith('/')) tempAddress = '/' + tempAddress
           const temp = {
             name: values['name_' + i],
             description: values['description_' + i],
             healthcheck: {
-              check_address: values['check_address_' + i],
+              check_address: values['check_address_' + i] + tempAddress,
               init_timeout: values['init_timeout_' + i],
               normal_timeout: values['normal_timeout_' + i],
               interval: values['interval_' + i],
@@ -82,16 +91,14 @@ class ImportService extends React.Component {
             },
           }
           body.apps.push(temp)
-          i++
-        }
+          return i
+        })
         importVMservice(body, {
           success: {
             func: res => {
               if (res.statusCode === 200) {
                 notify.success('导入成功')
-                browserHistory.push({
-                  pathname: '/app_manage/vm_wrap',
-                })
+                this.cancelCreate()
               }
             },
             isAsync: true,
@@ -112,6 +119,11 @@ class ImportService extends React.Component {
           },
         })
       })
+    })
+  }
+  cancelCreate = () => {
+    browserHistory.push({
+      pathname: '/app_manage/vm_wrap',
     })
   }
   getJdkId = jdk_id => {

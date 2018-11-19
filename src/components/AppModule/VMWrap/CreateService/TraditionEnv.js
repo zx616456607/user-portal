@@ -306,6 +306,12 @@ class TraditionEnv extends Component{
     const formTextLayout = {
       wrapperCol: { span: 9, offset: 3 },
     };
+    const envName = getFieldProps('envName', {
+      rules: [
+        { required: true, message: "请输入传统环境名称" },
+        // { validator: this.checkHost.bind(this)}
+      ],
+    })
     const envIP = getFieldProps('envIP', {
       rules: [
         // { required: true, message: "请输入传统环境IP" },
@@ -427,6 +433,12 @@ class TraditionEnv extends Component{
           {
             activeBtn === 'new' ?
               <div>
+                <FormItem
+                  label="传统环境名称"
+                  {...formItemLayout}
+                >
+                  <Input placeholder="请输入传统环境名称" size="large" {...envName}/>
+                </FormItem>
                 <FormItem
                   label="传统环境IP"
                   {...formItemLayout}
