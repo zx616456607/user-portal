@@ -11,14 +11,14 @@
  */
 
 import React from 'react'
-import { Link, browserHistory } from 'react-router'
-import { getTomcatVersion } from '../../../../actions/vm_wrap'
+// import { Link, browserHistory } from 'react-router'
+import { getTomcatVersion } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
 import { Form, Input, Row, Col, Icon, Select, InputNumber } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import './style/TraditionApp.less'
 
 const FormItem = Form.Item;
+const Option = Select.Option
 
 const formItemLayout = {
   labelCol: { span: 3 },
@@ -41,21 +41,21 @@ class TraditionApp extends React.Component {
   getTom = jdk_id => {
     const { getTomcatVersion } = this.props
     getTomcatVersion({
-      jdk_id
+      jdk_id,
     }, {
       success: {
         func: res => {
           if (res.statusCode === 200) {
             this.setState({
-              tomcatVersionList: res.results
+              tomcatVersionList: res.results,
             })
           }
         },
         isAsync: true,
       },
       failed: {
-        func: () => {}
-      }
+        func: () => {},
+      },
     })
   }
   componentWillReceiveProps(next) {
@@ -99,7 +99,7 @@ class TraditionApp extends React.Component {
     if (i === undefined) {
       const { count } = this.state
       let j = 0
-      while(j < count) {
+      while (j < count) {
         const host = getFieldValue('host') || ''
         const port = getFieldValue('start_port_' + j) || ''
         const name = getFieldValue('name_' + j) || ''
@@ -112,7 +112,7 @@ class TraditionApp extends React.Component {
     const {
       host = getFieldValue('host') || '',
       name = getFieldValue('name_' + i) || '',
-      port = getFieldValue('start_port_' + i) || ''
+      port = getFieldValue('start_port_' + i) || '',
     } = opt
     const temp = {}
     temp['check_address_' + i] = 'http://' + host + ':' + port + '/' + name
@@ -121,14 +121,16 @@ class TraditionApp extends React.Component {
   renderItems = () => {
     const { count, tomcatVersionList } = this.state
     const { form: { getFieldProps, getFieldValue } } = this.props
-    const tomcatVersionOptions = tomcatVersionList.map(item => <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
+    const tomcatVersionOptions =
+      tomcatVersionList.map(item =>
+        <Option key={item.id} value={item.id}>{item.tomcatName}</Option>)
     const items = []
     for (let i = 0; i < count; i++) {
       const nameProps = getFieldProps(`name_${i}`, {
         rules: [
           { required: true, message: '请输入应用名称' },
         ],
-        onChange: e => this.onCheckAddressChange({ name: e.target.value }, i)
+        onChange: e => this.onCheckAddressChange({ name: e.target.value }, i),
       })
       const descProps = getFieldProps(`description_${i}`, {
         rules: [
@@ -137,7 +139,7 @@ class TraditionApp extends React.Component {
       })
       const portProps = getFieldProps(`start_port_${i}`, {
         rules: [
-          { validator: this.checkPort }
+          { validator: this.checkPort },
         ],
         onChange: e => this.onPortChange(i, e.target.value),
       })
@@ -148,18 +150,18 @@ class TraditionApp extends React.Component {
       })
       const tomcatVersionProps = getFieldProps(`tomcat_id_${i}`, {
         rules: [
-          {required: true, message: "请选择 Tomcat 版本"}
+          { required: true, message: '请选择 Tomcat 版本' },
         ],
       })
 
       const envProps = getFieldProps(`catalina_home_env_${i}`, {
         rules: [
-          {required: true, message: "请输入 CATATALINA_HOME 变量名"}
+          { required: true, message: '请输入 CATATALINA_HOME 变量名' },
         ],
       })
       const dirProps = getFieldProps(`catalina_home_dir_${i}`, {
         rules: [
-          {required: true, message: "请输入 CATATALINA_HOME 指向路径"}
+          { required: true, message: '请输入 CATATALINA_HOME 指向路径' },
         ],
       })
       const check_addressProps = getFieldProps(`check_address_${i}`, {
@@ -239,7 +241,7 @@ class TraditionApp extends React.Component {
               >
                 <Input placeholder="请输入 CATALINA_HOME 指向的路径" {...dirProps} />
               </FormItem>
-              </Col>
+            </Col>
           </Row>
         </FormItem>
         <FormItem
@@ -287,9 +289,8 @@ class TraditionApp extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
+function mapStateToProps() {
   return {
-
   }
 }
 export default connect(mapStateToProps, {
