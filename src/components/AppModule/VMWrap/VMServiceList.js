@@ -242,20 +242,20 @@ class VMServiceList extends React.Component {
       render:(text,record) => this.getServiceStatus(text)
     }, {
       title: '部署包（版本标签）',
-      width: '15%',
+      width: '10%',
       dataIndex: 'packages',
       key: 'packages',
-      render:text => text || '-',
+      render:text => text.length ? text : '-',
     },{
       title: '部署环境IP',
       dataIndex: 'host',
       key: 'host',
-      width: '15%'
+      width: '10%'
     },{
       title: '环境实例',
       dataIndex: 'tomcatInstance',
       key: 'tomcatInstance',
-      width: '15%',
+      width: '10%',
       // render: tomcats => <div>{tomcats.map(item => item.name).join('<br />')}</div>
     },{
       title: '服务地址',
