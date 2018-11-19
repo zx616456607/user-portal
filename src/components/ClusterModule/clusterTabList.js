@@ -90,6 +90,10 @@ class ClusterTabList extends Component {
         TabsactiveKey: "host"
       })
     }
+    const key = window.location.hash && window.location.hash.split('#')[1].split('/')[1]
+    if (key){
+      this.handleTabsSwitch(key)
+    }
     getAddNodeCMD(clusterID)
     await getClusterSummary(clusterID)
   }
