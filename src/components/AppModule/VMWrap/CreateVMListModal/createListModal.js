@@ -250,7 +250,7 @@ let CreateVMListModal = React.createClass({
       rules: [
         { validator: this.checkDir },
       ],
-      initialValue: isAdd ? undefined : Rows.prune_dir,
+      initialValue: isAdd ? undefined : Rows.pruneDir,
     })
     const nameProps = getFieldProps('name', {
       rules: [
