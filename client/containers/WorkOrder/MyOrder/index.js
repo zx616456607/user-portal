@@ -20,7 +20,9 @@ import '@tenx-ui/ellipsis/assets/index.css'
 import './style/index.less'
 import DelModal from './DelModal'
 import opts from '../classify'
+import { UPDATE_INTERVAL } from '../../../../src/constants'
 
+let timer
 const arr = [].concat([
   { key: 'all', name: '所有分类' },
 ], opts)
@@ -75,6 +77,10 @@ class MyOrder extends React.Component {
                 listData: res.data.items,
                 total: res.data.total,
               })
+              timer && clearTimeout(timer)
+              timer = setTimeout(() => {
+                this.loadData()
+              }, UPDATE_INTERVAL)
             }
           },
         },

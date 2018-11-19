@@ -19,8 +19,10 @@ import '@tenx-ui/ellipsis/assets/index.css'
 import RemoveModal from './RemoveModal'
 import moment from 'moment'
 import TenxIcon from '@tenx-ui/icon/es/_old'
+import { UPDATE_INTERVAL } from '../../../../src/constants'
 import './style/index.less'
 
+let timer
 class SystemNotice extends React.Component {
   state = {
     pageSize: 10,
@@ -60,6 +62,10 @@ class SystemNotice extends React.Component {
               temp.total = 0
             }
             this.setState(temp)
+            timer && clearTimeout(timer)
+            timer = setTimeout(() => {
+              this.loadData()
+            }, UPDATE_INTERVAL)
           },
           isAsync: true,
         },
