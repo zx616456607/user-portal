@@ -1936,18 +1936,18 @@ class MessageAlarm extends React.Component {
     const { config } = this.props
     const { setFieldsValue } = this.props.form
     if (!config) return null
-    const { configDetail, configID, detail } = config
+    const { configDetail, configID, detail } = config || {}
     const configData = configDetail && JSON.parse(configDetail) || detail
-    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud
-    const { phoneParameter, contentParameter } = configData.urlconfig
+    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud || {}
+    const { phoneParameter, contentParameter } = configData.urlconfig || {}
     setFieldsValue({
-      meassageType: configData.meassageType,
-      sendUrl: configData.sendcloud.url,
+      meassageType: configData && configData.meassageType || '',
+      sendUrl: configData && configData.sendcloud && configData.sendcloud.url || '',
       smsUser: sms_user,
       smsKey: sms_key,
       logTemplate: log_template,
       resourceTemplate: resource_template,
-      cloudUrl: configData.urlconfig.url,
+      cloudUrl: configData && configData.urlconfig && configData.urlconfig.url || '',
       phoneParameter,
       contentParameter,
       configID,
@@ -1963,8 +1963,8 @@ class MessageAlarm extends React.Component {
     validateFields(checkArr, (error, values) => {
       if (error) return
       const { config } = this.props
-      const { configDetail, detail } = config
-      const configData = configDetail && JSON.parse(configDetail) || detail
+      const { configDetail, detail } = config || {}
+      const configData = configDetail && JSON.parse(configDetail) || detail || {}
       const { meassageType, configID } = values
       if (meassageType === 'sendcloud') {
         const { sendUrl, logTemplate, resourceTemplate, smsKey, smsUser,  } = values
@@ -2024,11 +2024,11 @@ class MessageAlarm extends React.Component {
   }
 
   validateConfig = () => {
-    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
+    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'phone' ], (error, values) => {
       if (error) return
-      const { url, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
+      const { sendUrl, smsUser, smsKey, logTemplate, resourceTemplate, phone } = values
       const body = {
-        url,
+        url: sendUrl,
         sms_user: smsUser,
         sms_key: smsKey,
         log_template: logTemplate,
@@ -2089,7 +2089,7 @@ class MessageAlarm extends React.Component {
   }
 
   showValidate = () => {
-    this.props.form.validateFields([ 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
+    this.props.form.validateFields([ 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ],
       (error, values) => {
         if (error) return
         this.changeValidate()
