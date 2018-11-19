@@ -486,7 +486,7 @@ class Information extends Component {
   }
   render() {
     const { revisePass } = this.state
-    const { form, userID, userDetail, updateUser, loginUser } = this.props
+    const { form, userID, userDetail, updateUser, loginUser, isFetching } = this.props
     let notAllowChange = (loginUser.role === ROLE_PLATFORM_ADMIN &&
       (userDetail.role === ROLE_SYS_ADMIN || userDetail.role === ROLE_PLATFORM_ADMIN || userDetail.role === ROLE_BASE_ADMIN)) ||
       (loginUser.role === ROLE_SYS_ADMIN && userDetail.role === ROLE_SYS_ADMIN )
@@ -611,7 +611,11 @@ class Information extends Component {
             {
               editRole?
                 <Col span={7}>
-                  <Button style={{width: '80px'}} disabled={accountTypeEdit} type="primary" onClick={() => this.changeUserRoleModal()}>
+                  <Button style={{width: '80px'}}
+                          loading={isFetching}
+                          disabled={accountTypeEdit}
+                          type="primary"
+                          onClick={() => this.changeUserRoleModal()}>
                     修 改
                   </Button>
                 </Col>
@@ -634,7 +638,10 @@ class Information extends Component {
             {
               loginUser.role !== ROLE_PLATFORM_ADMIN &&
               <Col span={7}>
-                <Button style={{width: '80px'}} disabled={authorityDisabled} type="primary" onClick={() => this.changeUserAuthModal()}>
+                <Button style={{width: '80px'}}
+                        loading={isFetching}
+                        disabled={authorityDisabled}
+                        type="primary" onClick={() => this.changeUserAuthModal()}>
                   修 改
                 </Button>
               </Col>
@@ -643,12 +650,18 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>手机</Col>
             <Col span={13}>{userDetail.phone || '-'}</Col>
-            <Col span={7}> <Button type="primary" onClick={() => this.setState({ phoneModalVisible: true })} disabled={notAllowChange}>修改手机</Button></Col>
+            <Col span={7}> <Button type="primary"
+                                   loading={isFetching}
+                                   onClick={() => this.setState({ phoneModalVisible: true })}
+                                   disabled={notAllowChange}>修改手机</Button></Col>
           </Row>
           <Row className="Item">
             <Col span={4}>邮箱</Col>
             <Col span={13}>{userDetail.email}</Col>
-            <Col span={7}> <Button type="primary" onClick={() => this.setState({ emailModalVisible: true })} disabled={notAllowChange}>修改邮箱</Button></Col>
+            <Col span={7}> <Button type="primary"
+                                   loading={isFetching}
+                                   onClick={() => this.setState({ emailModalVisible: true })}
+                                   disabled={notAllowChange}>修改邮箱</Button></Col>
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
@@ -660,7 +673,11 @@ class Information extends Component {
                 revisePass ?
                   <ResetPassWord updateUser={updateUser} userID={userID} userDetail={userDetail} onChange={this.resetPsw} />
                   :
-                  <Button type="primary" onClick={this.handleRevise} disabled={notAllowChange}>修改密码</Button>
+                  <Button type="primary"
+                          loading={isFetching}
+                          onClick={this.handleRevise}
+                          disabled={notAllowChange}
+                  >修改密码</Button>
               }
             </Col>
           </Row> : ''}
@@ -810,10 +827,12 @@ Information = createForm()(Information)
 
 function mapStateToProp(state, props) {
   const loginUser = state.entities.loginUser.info
+  const isFetching = state.user.userDetail.isFetching
   let userDetail = props.userDetail
   return {
     userDetail,
-    loginUser
+    loginUser,
+    isFetching
   }
 }
 
