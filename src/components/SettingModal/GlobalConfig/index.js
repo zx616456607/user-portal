@@ -916,9 +916,14 @@ let ChartServer = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, jumpTo, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
       const { getFieldValue } = form
-      const [ protocol, url ] = getFieldValue('url').split('://')
+      const host = getFieldValue('url')
+      let protocol = ''
+      let url = host
+      if (host.includes('://')) {
+        [ protocol, url ] = getFieldValue('url').split('://')
+      }
       const chartRepoID = getFieldValue('chartRepoID')
       const self = this
       const body = {
@@ -950,6 +955,7 @@ let ChartServer = React.createClass({
             setGlobalConfig('chart_repo', body)
             loadGlobalConfig(cluster.clusterID)
             loadLoginUserDetail()
+            setTimeout(() => jumpTo('GlobalConfigTemplate'), 200)
           },
           isAsync: true
         },
@@ -999,7 +1005,7 @@ let ChartServer = React.createClass({
       rules: [
         { validator: this.checkUrl }
       ],
-      initialValue: !!(protocol && url) ? `${protocol}://${url}` : ''
+      initialValue: !!(protocol && url) ? `${protocol}://${url}` : url
     });
 
     const chartRepoID = getFieldProps('chartRepoID', {
@@ -2521,6 +2527,7 @@ class GlobalConfig extends Component {
               loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.chart_repo}
+              jumpTo={this.jumpTo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
             <AiDeepLearning
