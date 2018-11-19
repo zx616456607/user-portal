@@ -193,7 +193,7 @@ class MyOrder extends React.Component {
               <i onClick={this.loadData} className="fa fa-search" />
             </div>
             <div className="littleRight">
-              <Input size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索"
+              <Input style={{ paddingRight: 25 }} size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索"
                 onPressEnter={this.loadData} />
             </div>
           </div>

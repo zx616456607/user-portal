@@ -190,7 +190,7 @@ class SystemNotice extends React.Component {
               <i onClick={this.onSearch} className="fa fa-search" />
             </div>
             <div className="littleRight">
-              <Input size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索" onPressEnter={this.onSearch} />
+              <Input style={{ paddingRight: 25 }} size="large" onChange={e => { this.setState({ searchValue: e.target.value }) }} placeholder="请输入名称搜索" onPressEnter={this.onSearch} />
             </div>
           </div>
           { total !== 0 && <div className="pageBox">
