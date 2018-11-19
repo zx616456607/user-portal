@@ -2214,7 +2214,7 @@ class MessageAlarm extends React.Component {
                       {getFieldValue('cloudUrl')
                         && getFieldValue('phoneParameter')
                         && getFieldValue('contentParameter')
-                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=17255354996&${getFieldValue('contentParameter')}=领奖中心`
+                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=13000000000&${getFieldValue('contentParameter')}=我是短信内容`
                         || '输入以上参数即可预览'
                       }
                     </div>
