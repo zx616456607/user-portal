@@ -98,8 +98,9 @@ class MyOrder extends React.Component {
   }
   renderItem = record => {
     // const { user } = this.props
-    // const isAdmin = user.role !== ROLE_USER
+    // const isUser = user.role !== ROLE_USER
     // status 0 未解决   1 已解决
+    const isAuthor = this.props.user.userName === record.creatorName
     const isResoved = record.status === 1
     return <div className={'orderItem' + (isResoved ? ' isResoved' : '')}>
       <Row className="common">
@@ -131,7 +132,7 @@ class MyOrder extends React.Component {
         </Col>
         <Col span={2} className="iconRight">
           {
-            isResoved && <a onClick={e => {
+            isAuthor && isResoved && <a onClick={e => {
               e.stopPropagation()
               this.setState({
                 isShowDeleteModal: true,
@@ -235,12 +236,10 @@ class MyOrder extends React.Component {
                   current: {},
                 })
               }}
-              onCancel={
-                () => this.setState({
-                  isShowDeleteModal: false,
-                  current: {},
-                })
-              }
+              onCancel={() => this.setState({
+                isShowDeleteModal: false,
+                current: {},
+              })}
             />
 
             :
