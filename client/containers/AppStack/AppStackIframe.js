@@ -43,10 +43,10 @@ function AppStackIframe(props) {
   }
   const query = Object.assign(
     {},
-    locationQuery,
     {
       token, username, project, onbehalfuser, onbehalfuserid, cluster, hash, watchToken,
-    }
+    },
+    locationQuery
   )
   return (<iframe title="工作负载" id="AppStack" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />)
 }
