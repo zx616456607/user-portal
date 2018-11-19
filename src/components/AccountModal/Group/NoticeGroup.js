@@ -185,7 +185,7 @@ class AlarmGroup extends Component {
     const { search } = this.state
     const { loadNotifyGroups, cluster, location } = this.props
     const { clusterID } = cluster
-    loadNotifyGroups(search, clusterID, {
+    loadNotifyGroups({name: search}, clusterID, {
       success: {
         func: () => {
           this.setState({
@@ -260,7 +260,7 @@ class AlarmGroup extends Component {
       title: '名称',
       dataIndex: 'name',
       width: '10%',
-      render: name => <Link to={`/account/noticeGroup/${name}`}>{name}</Link>
+      render: (name,record) => <Link to={`/account/noticeGroup/${name}?id=${record.groupID}`}>{name}</Link>
     }, {
       title: '描述',
       dataIndex: 'desc',

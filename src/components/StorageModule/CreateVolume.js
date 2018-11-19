@@ -428,7 +428,7 @@ class CreateVolume extends Component {
   renderCephSeverOption(){
     const { cephList } = this.props
     return cephList.map((item, index) => {
-      return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.annotations[`tenxcloud.com/scName`]}</Option>
+      return <Option key={`ceph${index}`} value={item.metadata.name}>{item.metadata.annotations[`system/scName`]}</Option>
     })
   }
 

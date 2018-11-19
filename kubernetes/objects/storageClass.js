@@ -16,8 +16,8 @@ class StorageClass {
     this.kind = 'StorageClass'
     this.metadata = {
       annotations: {
-        [`tenxcloud.com/scName`]: scName,
-        [`tenxcloud.com/storageagent`]: agent,
+        [`system/scName`]: scName,
+        [`system/storageagent`]: agent,
       },
       name,
       labels: {

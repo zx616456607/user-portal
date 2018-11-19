@@ -11,7 +11,7 @@
  */
 
 import React from 'react'
-import { Modal, Transfer, Button, Menu, Row, Col, Checkbox, Spin, Form } from 'antd'
+import { Modal, Table, Button, Menu, Row, Col, Checkbox, Spin, Form } from 'antd'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 import { GetProjectsDetail, hadnleProjectRoleBinding } from '../../../actions/project'
@@ -63,6 +63,17 @@ class JoinProjectsModalComponent extends React.Component {
     }
   }
 
+  handleRowClick = row => {
+    const { projectTargetKeys, handleProjectTransferChange } = this.props
+    const keysSet = new Set(projectTargetKeys)
+    if (keysSet.has(row.projectID)) {
+      keysSet.delete(row.projectID)
+    } else {
+      keysSet.add(row.projectID)
+    }
+    handleProjectTransferChange([...keysSet])
+  }
+
   renderStep() {
     const { step, currentProjectKey, selectedKeys, roleCheckGroupValue } = this.state
     const {
@@ -71,6 +82,7 @@ class JoinProjectsModalComponent extends React.Component {
       handleProjectTransferChange,
       projectsDetail,
       joinedProjects,
+      defaultTargetKeys,
     } = this.props
     const targetProjects = this.getProjectsByKeys(projectTargetKeys)
     const stepOneClass = classNames({
@@ -81,28 +93,29 @@ class JoinProjectsModalComponent extends React.Component {
     })
     const currentRelatedRoles = this.getRelatedRoles(projectsDetail, currentProjectKey).relatedRoles
     const { getFieldProps } = this.props.form
-
+    const columns = [{
+      title: '项目名称',
+      dataIndex: 'projectName',
+    }]
+    const rowSelection = {
+      selectedRowKeys: projectTargetKeys,
+      onChange: handleProjectTransferChange,
+    }
     return (
-      <div style={{ height: "300px" }}>
-        <Transfer
+      <div style={{ height: "300px", overflow: 'hidden auto' }}>
+        <Table
+          dataSource={allProjects.filter(pro => !defaultTargetKeys.includes(pro.projectID))}
+          columns={columns}
+          rowSelection={rowSelection}
+          rowKey={record => record.projectID}
+          pagination={false}
           className={stepOneClass}
-          dataSource={allProjects}
-          showSearch
-          listStyle={{
-            width: 250,
-            height: 300,
-          }}
-          titles={['选择项目', '已选择项目']}
-          operations={['添加', '移除']}
-          targetKeys={projectTargetKeys}
-          onChange={handleProjectTransferChange}
-          render={this.renderItem}
+          onRowClick={this.handleRowClick}
         />
-
         <div className={stepTwoClass}>
           <Row gutter={16} className="selectedProjectsHeader">
             <Col span={6}>
-              已选项目
+              已加入项目
             </Col>
             <Col span={18}>
               选择在项目中的角色（已选择1个，共{currentRelatedRoles.length}个）

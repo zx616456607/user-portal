@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Form, Button, Input, Spin, Checkbox, Icon, Modal } from 'antd'
+import { Form, Button, Input, Spin, Checkbox, Icon, Modal, Radio } from 'antd'
 import ReactDom from 'react-dom'
 import cloneDeep from 'lodash/cloneDeep'
 import classNames from 'classnames'
@@ -39,6 +39,7 @@ import TenxIcon from '@tenx-ui/icon/es/_old'
 const FormItem = Form.Item
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
+const RadioGroup = Radio.Group;
 
 function inputFocusMethod(node){
   node && node.focus();
@@ -915,9 +916,14 @@ let ChartServer = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
+      const { form, saveGlobalConfig, jumpTo, cluster, setGlobalConfig, loadGlobalConfig, loadLoginUserDetail } = this.props
       const { getFieldValue } = form
-      const [ protocol, url ] = getFieldValue('url').split('://')
+      const host = getFieldValue('url')
+      let protocol = ''
+      let url = host
+      if (host.includes('://')) {
+        [ protocol, url ] = getFieldValue('url').split('://')
+      }
       const chartRepoID = getFieldValue('chartRepoID')
       const self = this
       const body = {
@@ -949,6 +955,7 @@ let ChartServer = React.createClass({
             setGlobalConfig('chart_repo', body)
             loadGlobalConfig(cluster.clusterID)
             loadLoginUserDetail()
+            setTimeout(() => jumpTo('GlobalConfigTemplate'), 200)
           },
           isAsync: true
         },
@@ -998,7 +1005,7 @@ let ChartServer = React.createClass({
       rules: [
         { validator: this.checkUrl }
       ],
-      initialValue: !!(protocol && url) ? `${protocol}://${url}` : ''
+      initialValue: !!(protocol && url) ? `${protocol}://${url}` : url
     });
 
     const chartRepoID = getFieldProps('chartRepoID', {
@@ -1931,29 +1938,62 @@ class MessageAlarm extends React.Component {
     if (!config) return null
     const { configDetail, configID, detail } = config
     const configData = configDetail && JSON.parse(configDetail) || detail
+    const { sms_user, sms_key, log_template, resource_template } = configData.sendcloud
+    const { phoneParameter, contentParameter } = configData.urlconfig
     setFieldsValue({
-      url: configData.url,
-      smsUser: configData.sms_user,
-      smsKey: configData.sms_key,
-      logTemplate: configData.log_template,
-      resourceTemplate: configData.resource_template,
+      meassageType: configData.meassageType,
+      sendUrl: configData.sendcloud.url,
+      smsUser: sms_user,
+      smsKey: sms_key,
+      logTemplate: log_template,
+      resourceTemplate: resource_template,
+      cloudUrl: configData.urlconfig.url,
+      phoneParameter,
+      contentParameter,
       configID,
     })
   }
 
   handlSave = () => {
-    this.props.form.validateFields([ 'url', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate', 'configID' ], (error, values) => {
+    const { getFieldValue, validateFields } = this.props.form
+    let checkArr = [ 'meassageType', 'configID', 'sendUrl', 'smsUser', 'smsKey', 'logTemplate', 'resourceTemplate' ]
+    if (getFieldValue('meassageType') === 'urlconfig') {
+      checkArr = [ 'meassageType', 'configID', 'cloudUrl', 'contentParameter', 'phoneParameter' ]
+    }
+    validateFields(checkArr, (error, values) => {
       if (error) return
-      const { url, smsUser, smsKey, logTemplate, resourceTemplate, configID } = values
+      const { config } = this.props
+      const { configDetail, detail } = config
+      const configData = configDetail && JSON.parse(configDetail) || detail
+      const { meassageType, configID } = values
+      if (meassageType === 'sendcloud') {
+        const { sendUrl, logTemplate, resourceTemplate, smsKey, smsUser,  } = values
+        Object.assign(configData, {
+          meassageType,
+          [meassageType]: {
+            url: sendUrl,
+            log_template: logTemplate,
+            resource_template: resourceTemplate,
+            sms_key: smsKey,
+            sms_user: smsUser,
+          },
+        })
+      }
+      if (meassageType === 'urlconfig') {
+        const { cloudUrl, contentParameter, phoneParameter } = values
+        Object.assign(configData, {
+          meassageType,
+          [meassageType]: {
+            url: cloudUrl,
+            contentParameter,
+            method: "GET",
+            phoneParameter,
+          },
+        })
+      }
       const body = {
         configID: configID ? configID : '',
-        detail: {
-          url,
-          sms_user: smsUser,
-          sms_key: smsKey,
-          log_template: logTemplate,
-          resource_template: resourceTemplate
-        }
+        detail: configData,
       }
       const { saveGlobalConfig, cluster } = this.props
       const notification = new NotificationHandler()
@@ -1980,9 +2020,7 @@ class MessageAlarm extends React.Component {
           }
         }
       })
-
     })
-
   }
 
   validateConfig = () => {
@@ -2073,29 +2111,42 @@ class MessageAlarm extends React.Component {
   render() {
     const { disable, isShowValidate, confirmLoading } = this.state
     const { form, config } = this.props
-    const { getFieldProps } = form
-    const urlProps = getFieldProps('url', {
+    const { getFieldProps, getFieldValue } = form
+    const isSendcloud = getFieldValue('meassageType') === 'sendcloud'
+    const sendUrlProps = getFieldProps('sendUrl', {
+      rules: [
+        { validator: this.checkUrl }
+      ],
+    })
+    const cloudUrlProps = getFieldProps('cloudUrl', {
       rules: [
         { validator: this.checkUrl }
       ],
     })
     const msmUserProps = getFieldProps('smsUser', {
-      rules: [ { required: true, message: '请输入 SMS_USER' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 SMS_USER' } ]
     })
     const msmsKeyProps = getFieldProps('smsKey', {
-      rules: [ { required: true, message: '请输入 SMS_KEY' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 SMS_KEY' } ]
     })
     const logTemProps = getFieldProps('logTemplate', {
-      rules: [ { required: true, message: '请输入 模板 ID' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 模板 ID' } ]
     })
     const resourceProps = getFieldProps('resourceTemplate', {
-      rules: [ { required: true, message: '请输入 资源 ID' } ]
+      rules: [ { required: isSendcloud ? true : false, message: '请输入 资源 ID' } ]
     })
     const phoneProps = getFieldProps('phone', {
       rules: [ { validator: this.checkPhone } ]
     })
     const msgID = getFieldProps('configID', {
       initialValue: config ? config.configID : ''
+    })
+    const meassageTypeProps = getFieldProps('meassageType')
+    const phoneParameterProps =  getFieldProps('phoneParameter', {
+      rules: [{ required: !isSendcloud ? true : false, message: '请输入手机参数名' }]
+    })
+    const contentParameterProps =  getFieldProps('contentParameter', {
+      rules: [{ required: !isSendcloud ? true : false, message: '请输入内容参数名' }]
     })
     return (
       <div className="GlobalConfigMessage">
@@ -2106,29 +2157,69 @@ class MessageAlarm extends React.Component {
               <Icon type="message" />
             </div>
             <div className="contentkeys">
+              <div className="key">服务商</div>
               <div className="key">短信服务器</div>
-              <div className="key">SMS_USER</div>
-              <div className="key">SMS_KEY</div>
-              <div className="key">模板 ID</div>
-              <div className="key">资源 ID</div>
+              <div className={ isSendcloud ? '' : 'candleShow' }>
+                <div className="key">SMS_USER</div>
+                <div className="key">SMS_KEY</div>
+                <div className="key">模板 ID</div>
+                <div className="key">资源 ID</div>
+              </div>
+              <div className={ isSendcloud ? 'candleShow' : '' }>
+                <div className="key">手机参数名</div>
+                <div className="key">内容参数名</div>
+                <div className="key">请求地址预览</div>
+              </div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem>
-                  <Input {...urlProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                  <RadioGroup
+                    disabled={disable}
+                    {...meassageTypeProps}
+                  >
+                    <Radio value="sendcloud">第三方 SendCloud</Radio>
+                    <Radio value="urlconfig">企业私有短信服务</Radio>
+                  </RadioGroup>
                 </FormItem>
-                <FormItem>
-                  <Input {...msmUserProps} placeholder="输入短信服务器的 SMS_USER" disabled={disable} />
-                </FormItem>
-                <FormItem>
-                  <Input {...msmsKeyProps} placeholder="输入短信服务器的 SMS_KEY" disabled={disable} />
-                </FormItem>
-                <FormItem>
-                  <Input {...logTemProps} placeholder="输入短信服务器的 模板 ID" disabled={disable} />
-                </FormItem>
-                <FormItem>
-                  <Input {...resourceProps} placeholder="输入短信服务器的 资源 ID" disabled={disable} />
-                </FormItem>
+                <div className={ isSendcloud ? '' : 'candleShow' }>
+                  <FormItem>
+                    <Input {...sendUrlProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...msmUserProps} placeholder="输入短信服务器的 SMS_USER" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...msmsKeyProps} placeholder="输入短信服务器的 SMS_KEY" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...logTemProps} placeholder="输入短信服务器的 模板 ID" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...resourceProps} placeholder="输入短信服务器的 资源 ID" disabled={disable} />
+                  </FormItem>
+                </div>
+                <div className={ isSendcloud ? 'candleShow' : '' }>
+                  <FormItem>
+                    <Input {...cloudUrlProps} placeholder="请填写短信服务器地址" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...phoneParameterProps} placeholder="输入短信服务器的手机参数名" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <Input {...contentParameterProps} placeholder="输入短信服务器的内容参数名" disabled={disable} />
+                  </FormItem>
+                  <FormItem>
+                    <div className="addressPreview">
+                      {getFieldValue('cloudUrl')
+                        && getFieldValue('phoneParameter')
+                        && getFieldValue('contentParameter')
+                        && `${getFieldValue('cloudUrl')}?${getFieldValue('phoneParameter')}=13000000000&${getFieldValue('contentParameter')}=我是短信内容`
+                        || '输入以上参数即可预览'
+                      }
+                    </div>
+                  </FormItem>
+                </div>
                 {
                   disable ?
                     <FormItem>
@@ -2138,12 +2229,6 @@ class MessageAlarm extends React.Component {
                       >
                         编辑
                       </Button>
-                      {/* <Button
-                        onClick={this.validateConfig}
-                        style={{ margin: '0 12px' }}
-                      >
-                        发送验证短信
-                      </Button> */}
                     </FormItem>
                     :
                     <FormItem>
@@ -2159,11 +2244,13 @@ class MessageAlarm extends React.Component {
                       >
                         保存
                       </Button>
-                      <Button
+                      {
+                        isSendcloud && <Button
                         onClick={this.showValidate}
-                      >
-                        发送验证短信
-                      </Button>
+                        >
+                          发送验证短信
+                        </Button>
+                      }
                     </FormItem>
                 }
                 <input type="hidden" {...msgID} />
@@ -2285,6 +2372,9 @@ class GlobalConfig extends Component {
       const globalWrapper = document.getElementById('GlobalConfig')
       globalWrapper.style.marginTop = `${navHeight + 10}px`
     }, 100)
+  }
+  componentWillUnmount() {
+    this.props.loadLoginUserDetail()
   }
   emailChange() {
     this.setState({ emailDisable: !this.state.emailDisable })
@@ -2437,6 +2527,7 @@ class GlobalConfig extends Component {
               loadLoginUserDetail={loadLoginUserDetail}
               cluster={cluster}
               config={globalConfig.chart_repo}
+              jumpTo={this.jumpTo}
             />
             <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
             <AiDeepLearning

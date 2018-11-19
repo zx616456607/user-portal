@@ -113,7 +113,11 @@ class ContainerInstanceHeader extends React.Component {
           <Button
             type="ghost"
             size="large"
-            onClick={() => loadServiceContainerList(cluster, service, { projectName }, bpmQuery)}
+            onClick={() => {
+              loadServiceContainerList(cluster, service, { projectName }, bpmQuery);
+              this.props.loadIstioflag()
+            }
+            }
           >
             <i className="fa fa-refresh" /> <FormattedMessage {...IntlMessages.refresh} />
           </Button>

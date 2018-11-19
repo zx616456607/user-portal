@@ -15,7 +15,7 @@ const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY
 const APM_SERVICE_LABEL_KEY = constants.APM_SERVICE_LABEL_KEY
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
-const TENXCLOUD_PREFIX = 'tenxcloud.com/'
+const TENXCLOUD_PREFIX = 'system/'
 const utils = require('../utils')
 
 class Deployment {

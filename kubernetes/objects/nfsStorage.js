@@ -15,7 +15,7 @@ class NfsStorage {
     this.kind =  'StorageClass'
     this.metadata = {
       annotations:{
-        [`tenxcloud.com/scName`]: name,
+        [`system/scName`]: name,
       },
       name: nfsname,
     }

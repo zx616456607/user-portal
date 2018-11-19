@@ -12,16 +12,13 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-// import Top from '../../../src/components/Top'
-// import { getPersonalized } from '../../../src/actions/personalized'
-import { Card, Table, Button, Modal, Form, Input,
-  // Spin, Row
-} from 'antd'
+import { Card, Table, Button, Modal, Form, Input, Tooltip, Icon } from 'antd'
 import Notification from '../../../src/components/Notification'
 import './style/index.less'
 import * as IPPoolActions from '../../actions/ipPool'
+import * as podAction from '../../../src/actions/app_manage'
 import isCidr from 'is-cidr'
-import ipRangeCheck from 'ip-range-check'
+// import ipRangeCheck from 'ip-range-check'
 import { getDeepValue } from '../../util/util'
 
 const FormItem = Form.Item
@@ -38,19 +35,37 @@ class ConfigIPPool extends React.Component {
     enterLoading: false,
     deleteVisible: false,
     deletePool: undefined,
+    netSegment: undefined, // 默认网段 标识使用
   }
 
   componentDidMount() {
     this.loadList()
   }
 
-  loadList = () => { // cluster的Tab有bug，需要在onchange中添加设置
-    // cluster 选中的cluster Tab
-    const { getIPPoolList, cluster: { clusterID } } = this.props
+  loadList = () => {
+    const { getIPPoolList, cluster: { clusterID }, getPodNetworkSegment } = this.props
     const query = {
       version: 'v1',
     }
     getIPPoolList(clusterID, query)
+    getPodNetworkSegment(clusterID, {
+      success: {
+        func: res => {
+          this.setState({
+            netSegment: res.data,
+          })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode !== 403) {
+            notification.warn('获取集群默认网段失败')
+          }
+        },
+      },
+    })
   }
 
   dealWith = value => {
@@ -124,25 +139,15 @@ class ConfigIPPool extends React.Component {
       version: 'v1',
       cidr: value,
     }
-    // 校验是否存在 + 是否是子网 现在后端返回值都是true（已占用）
-    await getIPPoolExist(clusterID, query)
-    // console.log( 'ressss', res )
-    const sonMask = value.split('/')
-    //  getIPPoolExist 判断地址池是否存在接口后端支持校验子域后可去除
-    const legal = [ '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', 'FD00:0:0:0:0:0:0:0/8' ]
-    legal.forEach(item => {
-      const inRange = ipRangeCheck(sonMask[0], item)
-      if (inRange) {
-        const fatherMask = item.split('/')
-        if (fatherMask[1] <= sonMask[1]) {
-          return callback()
-        }
-      }
-    })
-
-    callback(`填写的子域应属于以下网段之一，
-      10.0.0.0/8， 172.16.0.0/12，192.168.0.0/16，
-      FD00:0:0:0:0:0:0:0/8，`)
+    const res = await getIPPoolExist(clusterID, query)
+    const result = res.response.result
+    if (result.statusCode === 200 && result.data.isPoolExist) {
+      return callback('该 IP 网段已存在, 请重新填写')
+    }
+    callback()
+    // `填写的子域应属于以下网段之一，
+    //   10.0.0.0/8， 172.16.0.0/12，192.168.0.0/16，
+    //   fd00::/8，`
   }
 
   confirmDelete = async () => {
@@ -150,9 +155,11 @@ class ConfigIPPool extends React.Component {
     const query = {
       cidr: this.state.deletePool,
     }
+    this.toggleEnterLoading()
     const res = await getIPPoolInUse(clusterID, query)
     const inUse = getDeepValue(res, [ 'response', 'result', 'data', 'inUse' ]) || false
     if (inUse) {
+      this.toggleEnterLoading()
       this.toggleDeleteVisible()
       return notification.warn('正在使用中，不可删除')
     }
@@ -160,7 +167,6 @@ class ConfigIPPool extends React.Component {
       version: 'v1',
       cidr: this.state.deletePool,
     }
-    this.toggleEnterLoading()
     notification.spin('删除中...')
     deleteIPPool(clusterID, delQuery, {
       success: {
@@ -205,7 +211,7 @@ class ConfigIPPool extends React.Component {
   }
 
   render() {
-    const { createVisible, enterLoading, deleteVisible, deletePool } = this.state
+    const { createVisible, enterLoading, deleteVisible, deletePool, netSegment } = this.state
     const { listData, isFetching, form } = this.props
     const { getFieldProps } = form
     const columns = [
@@ -228,9 +234,26 @@ class ConfigIPPool extends React.Component {
       }, {
         title: '操作',
         key: 'operate',
-        dataIndex: 'name',
+        dataIndex: 'operate',
         width: '25%',
-        render: (text, row) => <Button onClick={() => this.toggleDeleteVisible(row)}>删除</Button>,
+        render: (text, row) => {
+          const disabled = row.cidr === netSegment
+          return <span>
+            <Button
+              disabled={disabled}
+              onClick={() => this.toggleDeleteVisible(row)}
+            >
+              删除
+            </Button>
+            {
+              disabled ?
+                <Tooltip placement="top" title={disabled ? '默认地址池，不可删除' : null}>
+                  <Icon type="exclamation-circle" style={{ paddingLeft: 6 }} />
+                </Tooltip>
+                : null
+            }
+          </span>
+        },
       },
     ]
     return <div id="IPPoolConfig">
@@ -331,4 +354,5 @@ export default connect(mapStateToProps, {
   deleteIPPool: IPPoolActions.deleteIPPool,
   getIPPoolExist: IPPoolActions.getIPPoolExist,
   getIPPoolInUse: IPPoolActions.getIPPoolInUse,
+  getPodNetworkSegment: podAction.getPodNetworkSegment,
 })(Form.create()(ConfigIPPool))

@@ -14,25 +14,29 @@ import { Row, Col } from 'antd'
 export default class BindRule extends React.Component {
 
   render() {
+    const { strategies, autoStrategies } = this.props
+
     return (
       <div className="bindRule">
         <div>
           <span className="titleName">告警策略</span>
           <Row className="row">
-            <Col span={5}>mixins</Col>
-            <Col span={5}>sfsdf</Col>
-            <Col span={5}>sfsf</Col>
-            <Col span={5}>wwwf</Col>
-            <Col span={4}>test</Col>
+            {
+              strategies.map((item,index) => <Col span={(index+1)%5 === 0 ? '4':'5'}>{item.name}</Col>)
+            }
+            {
+              !strategies.length && <div className="text-center" style={{color: '#999'}}>暂无绑定策略</div>
+            }
           </Row>
         </div>
         <div className="titleName">自动伸缩策略</div>
         <Row className="row">
-          <Col span={5}>mixins</Col>
-          <Col span={5}>sfsdf</Col>
-          <Col span={5}>sfsf</Col>
-          <Col span={5}>wwwf</Col>
-          <Col span={4}>test</Col>
+          {
+              autoStrategies.map((item,index) => <Col span={(index+1)%5 === 0 ? '4':'5'}>{item.name}</Col>)
+          }
+          {
+              !autoStrategies.length && <div className="text-center" style={{color: '#999'}}>暂无绑定策略</div>
+            }
         </Row>
         <div className="br"></div>
       </div>

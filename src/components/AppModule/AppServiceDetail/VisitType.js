@@ -156,7 +156,7 @@ class VisitType extends Component{
     }
     const portsKeys = []
     const annotations = metadata.annotations
-    let userPort = annotations['tenxcloud.com/schemaPortname']
+    let userPort = annotations['system/schemaPortname']
     if (!userPort && isEmpty(ports)) {
       return
     }

@@ -75,8 +75,9 @@ exports.listNotifyGroups = function* () {
   let query = {
     name: '',
   }
-  if (this.query && this.query.name) {
+  if (this.query) {
     query.name = this.query.name
+    query.id = this.query.id
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
@@ -576,4 +577,13 @@ function switchType(item) {
     default:
       return
   }
+}
+
+// 未安装插件 --> 404
+exports.getLogAlertPluginStatus = function* () {
+  const user = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.getBy([cluster, 'alerts', 'logsalert', 'checkplugin' ])
+  this.body = response
 }

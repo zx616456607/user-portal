@@ -20,6 +20,7 @@ import Notification from '../../../../src/components/Notification'
 import * as servicesActions from '../../../../src/actions/services'
 import { buildNetworkPolicy, parseNetworkPolicy } from '../../../../kubernetes/objects/securityGroup'
 import * as securityActions from '../../../actions/securityGroup'
+import Title from '../../../../src/components/Title'
 
 const notification = new Notification()
 const formItemLayout = {
@@ -288,6 +289,7 @@ class CreateSecurityGroup extends React.Component {
     const { form, serverList } = this.props
     const { isEdit, loading, result } = this.state
     return <QueueAnim className="createSecurityGroup">
+      <Title title="安全组" key="title"/>
       <div className="createSecurityPage" key="security">
         {
           !isEdit ?

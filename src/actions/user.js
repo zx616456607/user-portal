@@ -690,7 +690,7 @@ export const USER_PROJECTS_FAILURE = 'USER_PROJECTS_FAILURE'
 
 // Fetches projects from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUserProjects(userID, query, callback) {
+function fetchUserProjects(userID, headers, query, callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/projects`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -699,7 +699,10 @@ function fetchUserProjects(userID, query, callback) {
     [FETCH_API]: {
       types: [USER_PROJECTS_REQUEST, USER_PROJECTS_SUCCESS, USER_PROJECTS_FAILURE],
       endpoint,
-      schema: {}
+      schema: {},
+      options: {
+        headers
+      }
     },
     callback
   }
@@ -707,9 +710,9 @@ function fetchUserProjects(userID, query, callback) {
 
 // Fetches project list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadUserProjects(userID, query, callback) {
+export function loadUserProjects(userID, headers, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUserProjects(userID, query, callback))
+    return dispatch(fetchUserProjects(userID, headers, query, callback))
   }
 }
 

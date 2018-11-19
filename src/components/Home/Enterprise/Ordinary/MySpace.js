@@ -608,7 +608,7 @@ class MySpace extends Component {
             </Card>
           </Col>
           <Col span={6} className='cdid'>
-            <Card title="CI/CD" bordered={false} bodyStyle={{ height: 175, padding: 0 }}>
+            <Card title={<FormattedMessage {...IntlMessages.pipelineStatusStatistics} />} bordered={false} bodyStyle={{ height: 175, padding: 0 }}>
               <Row style={{ height: 130 }}>
                 <Col span={12} style={{ height: 130, lineHeight: '130px', textAlign: 'center' }}>
                   <img src={homeCICDImg} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
@@ -637,7 +637,7 @@ class MySpace extends Component {
                           <div className='cicdDot' style={{ backgroundColor: '#f7676d' }}></div>
                           <FormattedMessage {...IntlMessages.buildFailed} />
                       </td>
-                        <td className="cicdNum">
+                      <td className="cicdNum">
                           {spaceCICDStats.failedNumber}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
@@ -652,6 +652,71 @@ class MySpace extends Component {
                       </td>
                         <td className="cicdNum">
                           {spaceCICDStats.runningNumber}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#ffbf00' }}></div>
+                          <FormattedMessage {...IntlMessages.waitingForBuild} />
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.waitingNumber}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#83D6FB' }}></div>
+                          <FormattedMessage {...IntlMessages.inApproval} />
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.inApprovalNumber}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#FF1800' }}></div>
+                          <FormattedMessage {...IntlMessages.refusedToExecute} />
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.refusedToExecuteNumber}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#faabae' }}></div>
+                          <FormattedMessage {...IntlMessages.approvalTimeout} />
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.approvalTtimeoutNumber}
+                          <FormattedMessage {...IntlMessages.one} />
+                      </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          {/*<svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>*/}
+                          <div className='cicdDot' style={{ backgroundColor: '#f6575e' }}></div>
+                          <FormattedMessage {...IntlMessages.abort} />
+                      </td>
+                        <td className="cicdNum">
+                          {spaceCICDStats.abortNumber}
                           <FormattedMessage {...IntlMessages.one} />
                       </td>
                       </tr>
@@ -828,6 +893,11 @@ function mapStateToProp(state, props) {
     succeedNumber: 0,
     runningNumber: 0,
     failedNumber: 0,
+    waitingNumber: 0,
+    inApprovalNumber: 0,
+    refusedToExecuteNumber: 0,
+    approvalTtimeoutNumber: 0,
+    abortNumber: 0,
   }
   let spaceImageStatsData = {
     publicNumber: 0,
@@ -911,9 +981,13 @@ function mapStateToProp(state, props) {
     spaceCICDStatsData.succeedNumber = 0
     spaceCICDStatsData.runningNumber = 0
     spaceCICDStatsData.failedNumber = 0
+    spaceCICDStatsData.waitingNumber = 0
     let data = spaceCICDStats.result || []
     data.forEach(({ status, count }) => {
       switch (status) {
+        case -1:
+          spaceCICDStatsData.waitingNumber = count
+          break
         case 0:
           spaceCICDStatsData.succeedNumber = count
           break

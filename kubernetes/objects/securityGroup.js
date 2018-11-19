@@ -99,7 +99,7 @@ function buildNetworkPolicy(name, targetServices, ingress, egress, data) {
   }
   if (targetServices && targetServices.length > 0) {
     const selectThisGroup = {
-      key: 'tenxcloud.com/svcName',
+      key: 'system/svcName',
       operator: 'In',
       values: targetServices,
     }
@@ -228,7 +228,7 @@ function peerToRule(peer, annotations, context) {
       namespace = peer.namespaceSelector.matchLabels['system/namespace']
     }
     const matchLabels = peer.podSelector.matchLabels
-    const serviceName = matchLabels['tenxcloud.com/svcName']
+    const serviceName = matchLabels['system/svcName']
     if (serviceName) {
       rule.type = RuleTypeService
       rule.serviceName = serviceName
@@ -313,7 +313,7 @@ function ruleToPeer(rule, data, annotations) {
     return {
       podSelector: {
         matchLabels: {
-          'tenxcloud.com/svcName': rule.serviceName,
+          'system/svcName': rule.serviceName,
         },
       },
     }
@@ -328,7 +328,7 @@ function ruleToPeer(rule, data, annotations) {
     if (rule.serviceName) {
       peer.podSelector = {
         matchExpressions: [{
-          key: 'tenxcloud.com/svcName',
+          key: 'system/svcName',
           operator: 'In',
           values: rule.serviceName,
         }],

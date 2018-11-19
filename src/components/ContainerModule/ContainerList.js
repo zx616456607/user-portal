@@ -426,6 +426,12 @@ let MyComponent = React.createClass({
                 {item.metadata.name}
               </Link>
             </Tooltip>
+            {
+              item.istioOn &&
+              <Tooltip title={'已开启服务网格'}>
+              <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
+              </Tooltip>
+            }
           </div>
           <div className='containerStatus commonData'>
             <ContainerStatus container={item} />

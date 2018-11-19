@@ -407,6 +407,7 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     // 设置负载均衡方式
     deployment.setAnnotations({
       agentType,
+      loadBalance,
     })
     !isEmpty(lbKeys) && lbKeys.forEach(key => {
       const port = parseInt(fieldsValues[`${PORT}-${key}`])
@@ -432,7 +433,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     if (!isEmpty(tcpIngressArray)) {
       deployment.setAnnotations({
         tcpIngress: JSON.stringify(tcpIngressArray),
-        loadBalance,
       })
     }
     const udpIngressArray = []
@@ -452,7 +452,6 @@ export function buildJson(fields, cluster, loginUser, imageConfigs, isTemplate, 
     if (!isEmpty(udpIngressArray)) {
       deployment.setAnnotations({
         udpIngress: JSON.stringify(udpIngressArray),
-        loadBalance,
       })
     }
     // 默认访问方式 集群内

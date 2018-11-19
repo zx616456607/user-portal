@@ -20,7 +20,7 @@ const notification = new Notification()
 
 const AI_IMAGE_DATA = [
   {
-    image: 'tenx_containers/tf-model-server-cpu',
+    image: 'system_containers/tf-model-server-cpu',
   },
 ]
 

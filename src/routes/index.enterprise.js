@@ -135,6 +135,10 @@ const rootRoutes = {
             path: 'createWorkLoad',
             component: require('../../client/containers/AppStack').default,
           },
+          {
+            path: 'Design',
+            component: require('../../client/containers/AppStack/AppStackIframe').default,
+          },
         ],
       },{
         path: 'net-management',

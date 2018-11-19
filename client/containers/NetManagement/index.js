@@ -135,6 +135,9 @@ class NetManagement extends React.Component {
     const style = {
       height: windowHeight - HEADER_HEIGHT,
     }
+    if (pathname === '/net-management/Service') {
+      style.overflowY = 'hidden'
+    }
     if (!token) {
       return <div className="loading">
         <Title title={title} />

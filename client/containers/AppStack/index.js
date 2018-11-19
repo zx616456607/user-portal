@@ -94,6 +94,20 @@ const menus = [
       }
     },
   },
+  {
+    url: '/app-stack/Design',
+    name: 'AppStackDesign',
+    onClick: () => {
+      try {
+        browserHistory.push('/app-stack/Design')
+        if (window.appStackPortalHistory) {
+          window.appStackPortalHistory.replace('/app-stack')
+        }
+      } catch (error) {
+        //
+      }
+    },
+  },
 ]
 
 class AppStack extends React.Component {
@@ -164,6 +178,9 @@ class AppStack extends React.Component {
       } else if (pathname === '/app-stack/Pod') {
         title = 'Pod'
         redirect = '/Pod'
+      } else if (pathname === '/app-stack/Design') {
+        redirect = '/app-stack'
+        title = '应用编排设计'
       }
     }
     const { windowHeight, containerSiderStyle } = this.state

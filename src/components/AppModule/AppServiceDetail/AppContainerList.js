@@ -20,6 +20,8 @@ import ContainerHeader from '../../../../client/containers/AppModule/AppServiceD
 import { injectIntl,  } from 'react-intl'
 import ServiceCommonIntl, { AppServiceDetailIntl, AllServiceListIntl } from '../ServiceIntl'
 import { getDeepValue } from '../../../../client/util/util';
+import * as meshActions from '../../../actions/serviceMesh'
+import TenxIcon from '@tenx-ui/icon/es/_old'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -118,6 +120,14 @@ const MyComponent = React.createClass({
                 {item.metadata.name}
               </Link>
             </Tooltip>
+            {
+              (this.props.istioFlag.filter(({ name }) => name === item.metadata.name)[0] || {}).value &&
+              <div style={{ paddingTop: 4 }}>
+              <Tooltip title={'已开启服务网格'}>
+              <TenxIcon type="mesh" style={{ color: '#2db7f5', height: '16px', width: '16px' }}/>
+              </Tooltip>
+              </div>
+            }
           </div>
           <div className="status commonData">
             <ContainerStatus container={item} />
@@ -159,7 +169,8 @@ class AppContainerList extends Component {
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
     this.state = {
-      selectedList: []
+      selectedList: [],
+      istioFlag: [],
     }
   }
 
@@ -170,7 +181,16 @@ class AppContainerList extends Component {
       return false;
     }
   }
-
+  async componentDidMount() {
+    this.loadIstioflag()
+  }
+  loadIstioflag = async () =>  {
+    const res = await this.props.checkAPPInClusMesh(this.props.cluster,null,this.props.serviceName)
+    const { result: { pods } = {} } = res.response
+    const istioFlag = Object.entries(pods)
+    .map(([key, value = {} ]) => ({ name: key,value: value.istioOn }))
+    this.setState({ istioFlag })
+  }
   onchange() {
     //select title checkbox
     let newList = new Array();
@@ -228,6 +248,7 @@ class AppContainerList extends Component {
               onTabClick={this.props.onTabClick}
               containerNum={containerNum}
               appCenterChoiceHidden = {appCenterChoiceHidden}
+              loadIstioflag={this.loadIstioflag}
             />
           }
           <Card className="dataBox">
@@ -259,6 +280,7 @@ class AppContainerList extends Component {
               serviceName={serviceName}
               serviceDetail={serviceDetail}
               formatMessage={formatMessage}
+              istioFlag = { this.state.istioFlag }
             />
           </Card>
         </QueueAnim>
@@ -274,4 +296,9 @@ AppContainerList.propTypes = {
   loading: PropTypes.bool.isRequired,
 }
 
-export default injectIntl(AppContainerList, { withRef: true, })
+const mapStateToProps = (state) => {
+  return {}
+}
+export default connect(mapStateToProps, {
+  checkAPPInClusMesh: meshActions.checkAPPInClusMesh
+})(injectIntl(AppContainerList, { withRef: true, }))

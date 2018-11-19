@@ -45,6 +45,7 @@ class UserProjectsAndTeams extends React.Component {
       teamTargetKeys: [],
       allProjects: [],
       projectTargetKeys: [],
+      defaultTargetKeys: [],
       teamTransferModalVisible: false,
       joinProjectsModalVisible: false,
       removeProjectModalVisible: false,
@@ -77,7 +78,7 @@ class UserProjectsAndTeams extends React.Component {
 
   loadProjectsData() {
     const { loadUserProjects, ListProjects, userId, loginUser } = this.props
-    loadUserProjects(userId, { size: 0 }, {
+    loadUserProjects(userId, { teamspace: '' }, { size: 0 }, {
       success: {
         func: res => {
           const projectTargetKeys = []
@@ -88,7 +89,7 @@ class UserProjectsAndTeams extends React.Component {
 
           this.setState({
             projectTargetKeys,
-            // projectTargetKeys: []
+            defaultTargetKeys: projectTargetKeys
           })
         },
         isAsync: true,
@@ -335,7 +336,7 @@ class UserProjectsAndTeams extends React.Component {
       teamTargetKeys, allTeams, teamTransferModalVisible,
       joinProjectsModalVisible, removeProjectModalVisible,
       currentProject, allProjects, projectTargetKeys,
-      teamSearchValue, quotaData,
+      teamSearchValue, quotaData, defaultTargetKeys,
     } = this.state
     let teams = this.props.teams
     if (teamSearchValue && teamSearchValue.trim()) {
@@ -633,6 +634,7 @@ class UserProjectsAndTeams extends React.Component {
           visible={joinProjectsModalVisible}
           allProjects={allProjects}
           projectTargetKeys={projectTargetKeys}
+          defaultTargetKeys={defaultTargetKeys}
           handleProjectTransferChange={this.handleProjectTransferChange}
           onCancel={this.cancleJoinProjectsModal}
           joinedProjectKeys={this.defaultProjectTargetKeys}

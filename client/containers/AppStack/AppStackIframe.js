@@ -37,14 +37,16 @@ function AppStackIframe(props) {
       redirect = '/Pod'
     } else if (pathname === '/net-management/Service') {
       redirect = '/Service'
+    } else if (pathname === '/app-stack/Design') {
+      redirect = '/app-stack'
     }
   }
   const query = Object.assign(
     {},
-    locationQuery,
     {
       token, username, project, onbehalfuser, onbehalfuserid, cluster, hash, watchToken,
-    }
+    },
+    locationQuery
   )
   return (<iframe title="工作负载" id="AppStack" src={`/app-stack/index.html?hash=${hash}#${redirect}?${toQuerystring(query)}`} />)
 }

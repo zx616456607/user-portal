@@ -61,7 +61,6 @@ import { isResourcePermissionError } from '../../common/tools'
 import ResourceBanner from '../../components/TenantManage/ResourceBanner/index'
 import TenxIcon from '@tenx-ui/icon/es/_old'
 import ServiceCommonIntl, { AllServiceListIntl } from './ServiceIntl'
-import meshIcon from '../../assets/img/meshIcon.svg'
 import * as meshActions from '../../actions/serviceMesh'
 import { getDeepValue } from '../../../client/util/util'
 const Option = Select.Option;
@@ -371,9 +370,13 @@ const MyComponent =  injectIntl(React.createClass({
   },
   rendermeshIcon() {
     return (
-      <span style={{ lineHeight: '16px' }}>
+      <span style={{ lineHeight: '16px' }} >
         <Tooltip title={this.props.intl.formatMessage(AllServiceListIntl.thisServiceOpenMesh)}>
-        <img className="meshIcon"　src={meshIcon} alt=""/>
+        <TenxIcon
+          type="mesh"
+          style={{ color: '#2db7f5', height: '16px', width: '16px' }}
+          className='meshIcon'
+          />
         </Tooltip>
       </span>
     )

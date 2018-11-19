@@ -419,7 +419,7 @@ let NetworkConfiguration = React.createClass ({
   nodeChange(value, networkKey, key){
     const { nodeList, cluster, form } = this.props
     const clusterID = cluster.clusterID
-    if(!nodeList || nodeList[clusterID].isFetching){
+    if(!nodeList || !nodeList[clusterID] || nodeList[clusterID].isFetching){
       return
     }
     let nodes = []

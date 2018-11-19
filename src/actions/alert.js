@@ -108,10 +108,10 @@ export const ALERT_GET_NOTIFY_GROUPS_REQUEST = 'ALERT_GET_NOTIFY_GROUPS_REQUEST'
 export const ALERT_GET_NOTIFY_GROUPS_SUCCESS = 'ALERT_GET_NOTIFY_GROUPS_SUCCESS'
 export const ALERT_GET_NOTIFY_GROUPS_FAILURE = 'ALERT_GET_NOTIFY_GROUPS_FAILURE'
 
-function fetchNotifyGroups(name, clusterID, callback) {
+function fetchNotifyGroups(query, clusterID, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
-  if (name) {
-    endpoint += `?name=${name}`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
   }
   return {
     [FETCH_API]: {
@@ -123,9 +123,9 @@ function fetchNotifyGroups(name, clusterID, callback) {
   }
 }
 
-export function loadNotifyGroups(name, clusterID, callback) {
+export function loadNotifyGroups(query, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotifyGroups(name, clusterID, callback))
+    return dispatch(fetchNotifyGroups(query, clusterID, callback))
   }
 }
 
@@ -788,5 +788,31 @@ function fetchSettingListfromserviceorapp(query, cluster, callback) {
 export function getSettingListfromserviceorapp(query, cluster, callback) {
   return (dispath, getState)  => {
     dispath(fetchSettingListfromserviceorapp(query, cluster, callback))
+  }
+}
+
+// 告警日志插件未安装 404
+export const PLUGIN_LOGALERT_REQUEST = 'PLUGIN_LOGALERT_REQUEST'
+export const PLUGIN_LOGALERT_SUCCESS = 'PLUGIN_LOGALERT_SUCCESS'
+export const PLUGIN_LOGALERT_FAILURE = 'PLUGIN_LOGALERT_FAILURE'
+
+const fetchLogAlertPluginStatus = (cluster, callback) => {
+  return {
+    [FETCH_API]: {
+      types: [
+        PLUGIN_LOGALERT_REQUEST,
+        PLUGIN_LOGALERT_SUCCESS,
+        PLUGIN_LOGALERT_FAILURE,
+      ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/alerts/logsalert/checkplugin`,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export const getLogAlertPluginStatus = (cluster, callback) => {
+  return dispatch => {
+    return dispatch (fetchLogAlertPluginStatus(cluster, callback))
   }
 }

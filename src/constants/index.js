@@ -14,7 +14,7 @@ export const API_URL_PREFIX = '/api/v2'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const TENX_MARK = 'tenxcloud.com'
-export const CREATE_APP_ANNOTATIONS = 'tenxcloud.com/schemaPortname'
+export const CREATE_APP_ANNOTATIONS = 'system/schemaPortname'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const USERNAME_REG_EXP = /^[a-z][-a-z0-9]{1,40}[a-z0-9]$/
 export const USERNAME_REG_EXP_OLD = /^[a-z][-a-z0-9_]{1,40}[a-z0-9]$/
@@ -123,6 +123,10 @@ export const BASE_IMAGE_TYPE = [
   {
     key: 4,
     text: '集成测试'
+  },
+  {
+    key: 5,
+    text: '依赖服务'
   },
   {
     key: 6,
