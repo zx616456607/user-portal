@@ -154,6 +154,14 @@ class TraditionEnv extends React.Component {
     const { form } = this.props
     const { getFieldProps } = form
     const { readOnly, isShowPassword, jdkList, isTestSucc, btnLoading } = this.state
+
+    const envNameProps = getFieldProps('envName', {
+      rules: [
+        // { validator: this.checkHost },
+        { required: true, message: '请输入传统环境名称' },
+      ],
+      // onChange: this.onHostChange,
+    })
     const hostProps = getFieldProps('host', {
       rules: [
         { validator: this.checkHost },
@@ -193,6 +201,13 @@ class TraditionEnv extends React.Component {
     return (
       <Form className="importTraditionEnv">
         <FormItem
+          {...formItemLayout}
+          label="传统环境名称"
+        >
+          <Input placeholder="请输入传统环境名称" size="large" {...envNameProps} />
+        </FormItem>
+        <FormItem
+          className="nomarginbottom"
           {...formItemLayout}
           label="传统环境 IP"
         >
