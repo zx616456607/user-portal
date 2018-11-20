@@ -186,6 +186,8 @@ class Integration extends Component {
         _cb()
         break;
       }
+      case 'rightCloud':
+        break
     }
   }
   cephCallback = () => {
@@ -218,6 +220,10 @@ class Integration extends Component {
         isAsync: true,
       }
     })
+  }
+
+  toRightCloud = () => {
+    browserHistory.push('/cluster/integration/rightCloud')
   }
 
   render() {
@@ -399,6 +405,44 @@ class Integration extends Component {
                           <div className='envDetail'>
                             <div className='numBox'>02</div>
                             <div className='envName'>OpenStack 访问的 URL</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>03</div>
+                            <div className='envName'>登录账号&密码</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div className='cephDetail appDetail'>
+                        <div className='leftBox'>
+                          <img src={openstackImg} />
+                        </div>
+                        <div className='middleBox'>
+                          <div className='appInfo'>
+                            <p>
+                              云星集成
+                              <Icon className="setting" type="setting" onClick={() => this.showSetting('rightCloud')} />
+                              <Button className='unintsallBtn' onClick={this.toRightCloud} key='unintsallBtn' size='large' type='primary'
+                                      style={{ width: '90px' }}>
+                                <FormattedMessage {...menusText.showAppDetail} />
+                              </Button>
+                            </p>
+                          </div>
+                          <div className="infoMessage">
+                            <div className="list">云管理平台（Cloud Management Platform，简称CMP）是一款云星数据研发，帮忙企业构建云环境等。</div>
+                            <div className="list">支持企业接入多数据中心资源池，多级分子公司、组织自有资源池进行统一管理。</div>
+                          </div>
+                        </div>
+
+                        <div className='envInfo'>
+                          <div className='envDetail'>
+                            <div className='numBox'>01</div>
+                            <div className='envName'>部署好的云星环境</div>
+                          </div>
+                          <div className='envDetail'>
+                            <div className='numBox'>02</div>
+                            <div className='envName'>云星访问URL</div>
                           </div>
                           <div className='envDetail'>
                             <div className='numBox'>03</div>
