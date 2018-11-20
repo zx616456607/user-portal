@@ -89,6 +89,12 @@ let NetworkConfiguration = React.createClass ({
     })
     this.loadData()
   },
+  componentWillReceiveProps(next) {
+    if (next.cluster.clusterID != this.props.cluster.clusterID) {
+      const { getNodesIngresses } = this.props
+      getNodesIngresses(next.cluster.clusterID)
+    }
+  },
   loadData(needFetching) {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { getProxy, cluster, getNodesIngresses } = this.props

@@ -413,7 +413,6 @@ let CreateVMListModal = React.createClass({
               </span>
             }
             {...formItemLayout}
-            style={{ display: 'none' }}
           >
             <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
           </FormItem>
