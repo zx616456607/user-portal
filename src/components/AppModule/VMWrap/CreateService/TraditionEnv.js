@@ -197,9 +197,9 @@ class TraditionEnv extends Component{
   selectHost(vminfoId) {
     const { vmList, scope, getTomcatList } = this.props
     const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
-    this.setState({
+    currentVm[0] && this.setState({
       portList: currentVm[0].ports,
-      currentVm,
+      currentVm: currentVm[0],
     })
 
     scope.setState({
