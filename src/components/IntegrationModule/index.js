@@ -226,7 +226,7 @@ class Integration extends Component {
     const { isShowOpenstackModal, config, vmActiveKey, cephIsSetting, configID } = this.state
     const temp = config && (typeof config.configDetail === 'string' ? JSON.parse(config.configDetail) : config.configDetail)
     const isLinkBlank = !!temp && temp.type === 1
-    const isNeedSetting = config && config.configDetail === '{}'
+    const isNeedSetting = config && (!config.configDetail || config.configDetail === '{}')
     const scope = this;
     if (isFetching || !Boolean(integrations)) {
       return (
