@@ -45,6 +45,7 @@ class TraditionEnv extends Component{
       ports: [],
       isShowPassword: false,
       readOnly: true,
+      currentVm: {},
     }
   }
   componentWillMount() {
@@ -197,7 +198,8 @@ class TraditionEnv extends Component{
     const { vmList, scope, getTomcatList } = this.props
     const currentVm = vmList.filter(item => item.vminfoId === Number(vminfoId))
     this.setState({
-      portList: currentVm[0].ports
+      portList: currentVm[0].ports,
+      currentVm,
     })
 
     scope.setState({
@@ -306,6 +308,12 @@ class TraditionEnv extends Component{
     const formTextLayout = {
       wrapperCol: { span: 9, offset: 3 },
     };
+    const envName = getFieldProps('envName', {
+      rules: [
+        { required: true, message: "请输入传统环境名称" },
+        // { validator: this.checkHost.bind(this)}
+      ],
+    })
     const envIP = getFieldProps('envIP', {
       rules: [
         // { required: true, message: "请输入传统环境IP" },
@@ -318,6 +326,7 @@ class TraditionEnv extends Component{
         { validator: this.checkName.bind(this)}
       ],
     });
+    const username = getFieldValue('userName')
     const password = getFieldProps('password', {
       rules: [
         { required: true, message: "请输入环境登录密码" },
@@ -362,7 +371,7 @@ class TraditionEnv extends Component{
       initialValue: name,
     })
     const new_port = getFieldValue('new_port') || ''
-    const dir = `/usr/local/${name+new_port}`
+    const dir = `/${username === 'root' ? username : `home/${username}`}/${name+new_port}`
     const env = `CATALINA_HOME_${name.toLocaleUpperCase()+new_port}`
     const dirProps = getFieldProps('catalina_home_dir', {
       initialValue: dir,
@@ -428,7 +437,14 @@ class TraditionEnv extends Component{
             activeBtn === 'new' ?
               <div>
                 <FormItem
+                  label="传统环境名称"
+                  {...formItemLayout}
+                >
+                  <Input placeholder="请输入传统环境名称" size="large" {...envName}/>
+                </FormItem>
+                <FormItem
                   label="传统环境IP"
+                  className="nomarginbottom"
                   {...formItemLayout}
                 >
                   <Input disabled={this.state.isTestSucc} placeholder="请输入已开通SSH登录的传统环境IP" size="large" {...envIP}/>
@@ -549,6 +565,7 @@ class TraditionEnv extends Component{
                                   form={form}
                                   allPort={portList}
                                   tomcatList={tomcatList}
+                                  username={this.state.currentVm ? this.state.currentVm.user || '' : ''}
                                 />
                             }
                           </Spin>
@@ -604,9 +621,17 @@ class TraditionEnv extends Component{
               style={{ marginTop: 20}}
             >
               <div className="alertRow" style={{ fontSize: 12, wordBreak: 'break-all' }}>
-                <div>JAVA_HOME='/home/java/{jdk_name}'</div>
-                <div>JRE_HOME='/home/java/{jdk_name}/jre'</div>
-                <div>CATALINA_HOME_TOMCAT_{this.props.form.getFieldValue('new_port')}='/usr/local/tomcat_{this.props.form.getFieldValue('new_port')}'</div>
+                {
+                  username === 'root' ?
+                    [<div>JAVA_HOME='/root/java/{jdk_name}'</div>,
+                    <div>JRE_HOME='/root/java/{jdk_name}/jre'</div>,
+                    <div>CATALINA_HOME_TOMCAT_{this.props.form.getFieldValue('new_port')}='/root/tomcat_{this.props.form.getFieldValue('new_port')}'</div>]
+                    :
+                    [<div>JAVA_HOME='/home/{username}/java/{jdk_name}'</div>,
+                    <div>JRE_HOME='/home/{username}/java/{jdk_name}/jre'</div>,
+                    <div>CATALINA_HOME_TOMCAT_{this.props.form.getFieldValue('new_port')}='/home/{username}/tomcat_{this.props.form.getFieldValue('new_port')}'</div>]
+
+                }
                 <div style={{ marginTop: 20 }}>系统将默认安装该 Tomcat 环境</div>
               </div>
             </FormItem>]

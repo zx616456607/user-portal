@@ -11,14 +11,13 @@
  */
 
 import React from 'react'
-import { Link, browserHistory } from 'react-router'
-import { checkVMUser, getJdkList } from '../../../../actions/vm_wrap'
+// import { Link, browserHistory } from 'react-router'
+import { checkVMUser, getJdkList } from '../../../../../src/actions/vm_wrap'
 import { connect } from 'react-redux'
 import { Form, Input, Icon, Button, Select, Row, Col } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/TraditionEnv.less'
-import NotificationHandler from '../../../Notification';
+import NotificationHandler from '../../../../../src/components/Notification';
 
 const notify = new NotificationHandler();
 
@@ -60,25 +59,25 @@ class TraditionEnv extends React.Component {
           }
         },
         isAsync: true,
-      }
+      },
     })
   }
   checkVmInfos = () => {
     const { form, checkVMUser, checkSucc } = this.props
-    const { validateFields, getFieldsValue } = form
-    let validateArr = [ 'host', 'account', 'password' ]
-    validateFields(validateArr, (errors,values)=>{
-      if (!!errors) {
+    const { validateFields } = form
+    const validateArr = [ 'host', 'account', 'password' ]
+    validateFields(validateArr, (errors, values) => {
+      if (errors) {
         return
       }
       this.setState({
-        btnLoading: true
+        btnLoading: true,
       }, () => {
-        let infos = cloneDeep(values)
-        checkVMUser(infos,{
+        const infos = cloneDeep(values)
+        checkVMUser(infos, {
           success: {
             func: res => {
-              if(res.statusCode === 200){
+              if (res.statusCode === 200) {
                 this.setState({
                   isTestSucc: true,
                   ports: res.ports,
@@ -87,37 +86,37 @@ class TraditionEnv extends React.Component {
                 checkSucc(true)
               }
             },
-            isAsync: true
+            isAsync: true,
           },
           failed: {
-            func: err => {
+            func: () => {
               this.setState({
                 ports: [],
               })
               notify.warn('测试连接失败')
             },
-            isAsync:true
+            isAsync: true,
           },
           finally: {
             func: () => {
               this.setState({
-                btnLoading: false
+                btnLoading: false,
               })
-            }
-          }
+            },
+          },
         })
       })
     })
 
   }
-  checkHost = (rules,value,callback) => {
-    let reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+  checkHost = (rules, value, callback) => {
+    const reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
     if (!value) {
-      callback([new Error('请输入传统环境 IP')])
+      callback([ new Error('请输入传统环境 IP') ])
       return
     }
     if (reg.test(value) !== true) {
-      callback([new Error('请输入正确 IP 地址')])
+      callback([ new Error('请输入正确 IP 地址') ])
       return
     }
     return callback()
@@ -126,8 +125,8 @@ class TraditionEnv extends React.Component {
     const { form } = this.props
     const { validateFields } = form
     validateFields((err, values) => {
-      if (err) return
-      console.log(values)
+      if (err || !values) return
+      // console.log(values)
     })
   }
   rePut = () => {
@@ -155,11 +154,19 @@ class TraditionEnv extends React.Component {
     const { form } = this.props
     const { getFieldProps } = form
     const { readOnly, isShowPassword, jdkList, isTestSucc, btnLoading } = this.state
+
+    const envNameProps = getFieldProps('envName', {
+      rules: [
+        // { validator: this.checkHost },
+        { required: true, message: '请输入传统环境名称' },
+      ],
+      // onChange: this.onHostChange,
+    })
     const hostProps = getFieldProps('host', {
       rules: [
-        { validator: this.checkHost }
+        { validator: this.checkHost },
       ],
-      onChange: this.onHostChange
+      onChange: this.onHostChange,
     })
     const accountProps = getFieldProps('account', {
       rules: [
@@ -176,7 +183,7 @@ class TraditionEnv extends React.Component {
         { required: true, message: '请选择 JDK 版本' },
       ],
       initialValue: jdkList[0] && jdkList[0].id,
-      onChange: this.onJdkChange
+      onChange: this.onJdkChange,
     })
     const javahomeProps = getFieldProps('java_home', {
       rules: [
@@ -189,10 +196,18 @@ class TraditionEnv extends React.Component {
       ],
     })
 
-    const options = jdkList.map((item, i) => <Option key={item.id} value={item.id}>{item.jdkName}</Option>)
+    const options = jdkList.map(item =>
+      <Option key={item.id} value={item.id}>{item.jdkName}</Option>)
     return (
       <Form className="importTraditionEnv">
         <FormItem
+          {...formItemLayout}
+          label="传统环境名称"
+        >
+          <Input placeholder="请输入传统环境名称" size="large" {...envNameProps} />
+        </FormItem>
+        <FormItem
+          className="nomarginbottom"
           {...formItemLayout}
           label="传统环境 IP"
         >
@@ -223,13 +238,13 @@ class TraditionEnv extends React.Component {
             placeholder="请输入环境登录密码"
             size="large"
             {...passwordProps} />
-            <Icon
-              className="eyeIcon"
-              type={isShowPassword ? 'eye-o' : 'eye'}
-              onClick={() => this.setState({
-                isShowPassword: !isShowPassword
-              })}
-            />
+          <Icon
+            className="eyeIcon"
+            type={isShowPassword ? 'eye-o' : 'eye'}
+            onClick={() => this.setState({
+              isShowPassword: !isShowPassword,
+            })}
+          />
         </FormItem>
         <FormItem
           {...formTextLayout}
@@ -281,7 +296,7 @@ class TraditionEnv extends React.Component {
   }
 }
 
-function mapStateToProps(state, props) {
+function mapStateToProps() {
   return {
 
   }

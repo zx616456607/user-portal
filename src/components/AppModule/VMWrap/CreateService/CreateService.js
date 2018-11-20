@@ -119,7 +119,7 @@ class VMServiceCreate extends React.Component {
     }
     let validateArr = ['serviceName','serviceDesc','checkAddress','initTimeout','ruleTimeout','intervalTimeout']
     if (isNewEnv) {
-      const arr = ['envIP','userName','password','jdk_id','new_port','tomcat_id','tomcat_name', 'catalina_home_dir', 'catalina_home_env']
+      const arr = ['envIP','envName','userName','password','jdk_id','new_port','tomcat_id','tomcat_name', 'catalina_home_dir', 'catalina_home_env']
       validateArr = validateArr.concat(arr)
     } else {
       validateArr.push('host')
@@ -146,6 +146,7 @@ class VMServiceCreate extends React.Component {
           account,
           password,
           jdk_id,
+          name: values.envName,
         }
         if (isNewEnv) {
           this.checkHost(vminfo).then(() => {

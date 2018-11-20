@@ -170,7 +170,7 @@ class VMServiceList extends React.Component {
     }
     getVMserviceList({
       page: n || 1,
-      size:10,
+      size: 9999,
       name
     },{
       success: {
@@ -229,6 +229,12 @@ class VMServiceList extends React.Component {
       dataIndex: 'serviceName',
       key: 'serviceName'
     }, {
+      title: '描述',
+      width: '15%',
+      dataIndex: 'description',
+      key: 'description',
+      render:text => text || '-',
+    }, {
       title: '状态',
       width: '15%',
       dataIndex: 'serviceStatus',
@@ -236,19 +242,20 @@ class VMServiceList extends React.Component {
       render:(text,record) => this.getServiceStatus(text)
     }, {
       title: '部署包（版本标签）',
-      width: '15%',
+      width: '10%',
       dataIndex: 'packages',
       key: 'packages',
+      render:text => text.length ? text : '-',
     },{
       title: '部署环境IP',
       dataIndex: 'host',
       key: 'host',
-      width: '15%'
+      width: '10%'
     },{
       title: '环境实例',
       dataIndex: 'tomcatInstance',
       key: 'tomcatInstance',
-      width: '15%',
+      width: '10%',
       // render: tomcats => <div>{tomcats.map(item => item.name).join('<br />')}</div>
     },{
       title: '服务地址',
@@ -317,7 +324,7 @@ class VMServiceList extends React.Component {
           <Title title="传统应用"/>
           <div className="serviceListBtnBox">
             <Button type="primary" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/create')}><i className="fa fa-plus" /> 创建传统应用</Button>
-            <Button type="ghost" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/import')}>导入传统应用</Button>
+            {/* <Button type="ghost" size="large" onClick={()=>browserHistory.push('/app_manage/vm_wrap/import')}>导入传统应用</Button> */}
             <Button size="large" className="refreshBtn" onClick={()=>this.pageAndSerch(searchValue,1,true)}><i className='fa fa-refresh'/> 刷 新</Button>
             {/*<Button size="large" icon="delete" className="deleteBtn">删除</Button>*/}
             <CommonSearchInput onChange={searchValue => this.setState({searchValue})} onSearch={(value)=>{this.pageAndSerch(value,1,true)}} size="large" placeholder="请输入应用名搜索"/>

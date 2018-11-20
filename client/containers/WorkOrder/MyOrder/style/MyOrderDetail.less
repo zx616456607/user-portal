@@ -28,6 +28,7 @@
         color: @font-color-2;
       }
       .content {
+        word-break: break-all;
         color: @font-color-3;
       }
     }
@@ -45,6 +46,8 @@
     .left, .right {
       padding: 15px 0;
       .messageContent {
+        display: inline-block;
+        white-space: pre-line;
         max-width: 400px;
         word-break: break-word;
         padding: 10px 15px;

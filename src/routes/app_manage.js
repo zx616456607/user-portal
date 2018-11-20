@@ -209,11 +209,13 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/AppModule/VMWrap/CreateService/CreateService').default,
   },
-}, {
+},
+/* {
   path: 'vm_wrap/import',
   indexRoute: {
-    component: require('../components/AppModule/VMWrap/ImportService').default,
+    component: require('../../client/containers/AppModule/VMWrap/ImportService').default,
   },
-}]
+} */
+]
 
 export default appManageRoutes

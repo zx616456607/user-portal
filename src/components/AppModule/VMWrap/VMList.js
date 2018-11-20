@@ -142,7 +142,8 @@ class VMList extends React.Component {
       host: state.host,
       account: state.account,
       password: state.password,
-      jdk_id: state.jdk_id
+      jdk_id: state.jdk_id,
+      name: state.name,
     }
     if (this.state.isAdd) {
       postVMinfoList(res, {
@@ -330,7 +331,7 @@ class VMList extends React.Component {
     case 'check':
       this.getTomcatListFunc(record)
       this.setState({
-        currVM: record,
+        currVM: record || {},
       })
       break;
     case 'add':
@@ -338,7 +339,7 @@ class VMList extends React.Component {
         isShowAddModal: true,
         // tomcatList: temp, //todo record.xxx
         allPort: record.ports,
-        currVM: record,
+        currVM: record || {},
       })
       break;
     default:
@@ -752,6 +753,7 @@ class VMList extends React.Component {
                 allPort={allPort}
                 confirmLoading={createConfirmLoading}
                 jdk_id={currVM.jdkId}
+                username={currVM.user}
               />
               :
               null

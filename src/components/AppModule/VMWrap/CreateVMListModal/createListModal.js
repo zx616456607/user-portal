@@ -93,12 +93,13 @@ let CreateVMListModal = React.createClass({
     if (modalTitle) {
       validateArr.unshift('host')
     }
-    form.validateFields((errors, values) => {
+    form.validateFields(validateArr, (errors, values) => {
       if (errors) return
       this.setState({
         confirmLoading: true
       })
       let List = cloneDeep(values)
+      List.host = form.getFieldValue('host')
       this.handleSub().then(() => {
         onSubmit(List)
         scope.setState({
@@ -162,14 +163,15 @@ let CreateVMListModal = React.createClass({
       return callback(new Error('请输入名称'))
     }
     if (value.length > 12) {
-      return callback(new Error('名称长度不能超过 12'))
+      return callback(new Error('名称长度不能超过 12 个字符'))
     }
     callback()
   },
 
   checkDir(rule, value, callback) {
     if (!value) {
-      return callback(new Error('请输入清理目录'))
+      return callback()
+      // return callback(new Error('请输入清理目录'))
     }
     var arr = value.split(';')
     for (let i in arr) {
@@ -248,7 +250,7 @@ let CreateVMListModal = React.createClass({
       rules: [
         { validator: this.checkDir },
       ],
-      initialValue: isAdd ? undefined : Rows.prune_dir,
+      initialValue: isAdd ? undefined : Rows.pruneDir,
     })
     const nameProps = getFieldProps('name', {
       rules: [
@@ -263,6 +265,7 @@ let CreateVMListModal = React.createClass({
       ],
       initialValue: isAdd ? undefined : Rows.user
     })
+    const username = getFieldValue('account')
     const passwordProps = getFieldProps('password', {
       rules: [
         // { validator: this.checkPas },
@@ -410,8 +413,9 @@ let CreateVMListModal = React.createClass({
               </span>
             }
             {...formItemLayout}
+            style={{ display: 'none' }}
           >
-            <Input {...dirProps} placeholder="清理Java、Tomcat等安装目录，必须“/”开头，至少两级“/”" />
+            <Input {...dirProps} placeholder="多个路径分号隔开，为空时不清理" />
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -419,9 +423,14 @@ let CreateVMListModal = React.createClass({
             style={{ marginBottom: 0 }}
           >
             <div key="hint" className="alertRow" style={{ fontSize: 12 }}>
-
-              <div>JRE_HOME=/home/java/{jdk_name}/jre</div>
-              <div>JAVA_HOME=/home/java/{jdk_name}</div>
+              {
+                username === 'root' ?
+                  [<div>JRE_HOME=/root/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/root/java/{jdk_name}</div>]
+                  :
+                  [<div>JRE_HOME=/home/{username}/java/{jdk_name}/jre</div>,
+                  <div>JAVA_HOME=/home/{username}/java/{jdk_name}</div>]
+              }
               {/* <div>JAVA_HOME='/home/java'</div>
               <div>JRE_HOME='/home/java/jre1.8.0_151'</div>
               <div>CATALINA_HOME='/usr/local/tomcat'</div>

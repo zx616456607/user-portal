@@ -791,27 +791,30 @@ const Normal = React.createClass({
                 </Select>
               </FormItem>
             </Col>
-            <Col span={5} style={{ paddingLeft: 30 }}>
-              <FormItem>
-                <Checkbox
-                  {
-                    ...getFieldProps('replicasCheck', {
-                      initialValue: false,
-                      valuePropName: 'checked',
-                      onChange: this.handleReplicasCheck,
-                    })
-                  }
-                >
-                  {intl.formatMessage(IntlMessage.fixedInstanceIP)}
-                </Checkbox>
-                <Tooltip
-                  placement="top"
-                  title={'如不固定实例 IP，则地址池中随机分配 '}
-                >
-                  <Icon type="question-circle" style={{ marginLeft: 5 }} />
-                </Tooltip>
-              </FormItem>
-            </Col>
+            {
+              !isTemplate &&
+              <Col span={5} style={{ paddingLeft: 30 }}>
+                <FormItem>
+                  <Checkbox
+                    {
+                      ...getFieldProps('replicasCheck', {
+                        initialValue: false,
+                        valuePropName: 'checked',
+                        onChange: this.handleReplicasCheck,
+                      })
+                    }
+                  >
+                    {intl.formatMessage(IntlMessage.fixedInstanceIP)}
+                  </Checkbox>
+                  <Tooltip
+                    placement="top"
+                    title={'如不固定实例 IP，则地址池中随机分配 '}
+                  >
+                    <Icon type="question-circle" style={{ marginLeft: 5 }} />
+                  </Tooltip>
+                </FormItem>
+              </Col>
+            }
           </Row>
           {
             getFieldValue('replicasCheck')
