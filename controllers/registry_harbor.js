@@ -48,8 +48,8 @@ function* getCurrentUser(loginUser) {
   const harbor = new harborAPIs(changeHarborConfigByQuery(this.query, config), auth)
   return new Promise((resolve, reject) => {
     harbor.getCurrentUser((err, statusCode, body) => {
-      if (err) {
-        reject(err)
+      if (err || statusCode >= 300) {
+        reject(err || body)
         return
       }
       resolve(body)
