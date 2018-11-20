@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import NotificationHandler from '../../../../../src/components/Notification'
 import TenxIcon from '@tenx-ui/icon/es/_old'
-import { IP_REGEX } from '../../../../../constants'
+import { IP_PATH_REGEX } from '../../../../../constants'
 
 const notify = new NotificationHandler()
 const FormItem = Form.Item
@@ -297,7 +297,7 @@ export default connect(mapStateToProps, {
     if (!value) {
       return callback(new Error('请输入' + label))
     }
-    if (!IP_REGEX.test(value)) {
+    if (!IP_PATH_REGEX.test(value)) {
       return callback(new Error('请输入正确的' + label))
     }
     callback()
