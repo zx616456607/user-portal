@@ -170,7 +170,7 @@ class VMServiceList extends React.Component {
     }
     getVMserviceList({
       page: n || 1,
-      size:10,
+      size: 9999,
       name
     },{
       success: {
@@ -233,7 +233,7 @@ class VMServiceList extends React.Component {
       width: '15%',
       dataIndex: 'description',
       key: 'description',
-      render:text => text || '',
+      render:text => text || '-',
     }, {
       title: '状态',
       width: '15%',

@@ -565,7 +565,7 @@ class TraditionEnv extends Component{
                                   form={form}
                                   allPort={portList}
                                   tomcatList={tomcatList}
-                                  username={this.state.currentVm.user}
+                                  username={this.state.currentVm ? this.state.currentVm.user || '' : ''}
                                 />
                             }
                           </Spin>
