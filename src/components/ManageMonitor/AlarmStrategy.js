@@ -83,14 +83,17 @@ class AlarmStrategy extends Component {
   }
   onPageChange(page) {
     if(page == this.state.currentPage) return
+    const { getSettingList, cluster, serviceName } = this.props
     this.setState({
       currentPage: page
-    })
-
-    getSettingList(cluster, {
+    }, () => getSettingList(cluster, {
+      targetType: 0,
+      targetName: serviceName,
       from: (page-1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
     })
+    )
+
   }
   moreDropdown(e, record) {
     switch(e.key) {

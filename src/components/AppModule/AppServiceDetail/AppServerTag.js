@@ -181,12 +181,12 @@ class AppServerTag extends Component{
   checkValue(rule, value, callback) {
     const { formatMessage } = this.props.intl
     if (!Boolean(value)){
-      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputTagKey)))
+      callback(new Error(formatMessage(AppServiceDetailIntl.pleaseInputTagValue)))
       return
     }
     const Kubernetes = new KubernetesValidator()
     if (value.length < 3 || value.length > 63) {
-      callback(new Error(formatMessage(AppServiceDetailIntl.TagKeyLength)))
+      callback(new Error(formatMessage(AppServiceDetailIntl.TagValueLength)))
       return
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
@@ -385,7 +385,7 @@ class AppServerTag extends Component{
                     validator: this.checkValue
                   }],
                   initialValue: targets.value ? targets.value : undefined
-                })} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputTagKey)}
+                })} placeholder={formatMessage(AppServiceDetailIntl.pleaseInputTagValue)}
                 />
               </FormItem>
             </div>
@@ -433,7 +433,7 @@ class AppServerTag extends Component{
             <div className='top'>{formatMessage(AppServiceDetailIntl.tagKey)}</div>
           </div>
           <div className="formlabelvalue">
-            <div className='top'>{formatMessage(AppServiceDetailIntl.tagKey)}</div>
+            <div className='top'>{formatMessage(AppServiceDetailIntl.tagValue)}</div>
           </div>
           <div style={{clear:'both'}}></div>
           {/* create form  item or edit form item view */}
