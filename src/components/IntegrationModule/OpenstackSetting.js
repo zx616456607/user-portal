@@ -94,8 +94,8 @@ class OpenstackSetting extends React.Component {
   }
   render() {
     const formItemLayout = {
-      labelCol: { span: 6 },
-      wrapperCol: { span: 16 },
+      labelCol: { span: 7 },
+      wrapperCol: { span: 15 },
     }
     const formItemSmallLayout = {
       labelCol: { span: 12 },
