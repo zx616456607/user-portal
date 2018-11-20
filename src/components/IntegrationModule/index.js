@@ -280,7 +280,7 @@ class Integration extends Component {
                       </Button>
                       :
                       [
-                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { item && this.ShowDetailInfo(item.id, true)} )} />,
+                        <Icon className="setting" type="setting" onClick={() => this.showSetting('vmware', () => { this.ShowDetailInfo(item.id, true)} )} />,
                         <Button className='unintsallBtn' size='large' type={standardFlag ? 'primary' : 'ghost'} disabled={standardFlag}
                           style={{ width: '90px' }} onClick={() => { item && this.ShowDetailInfo(item.id) }}>
                           <FormattedMessage {...menusText.showAppDetail} />
